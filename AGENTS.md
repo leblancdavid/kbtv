@@ -18,7 +18,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
 
 ## Project Overview
-- **Engine**: Unity 6000.0.28f1 (Unity 6)
+- **Engine**: Unity 6000.3.1f1 (Unity 6)
 - **Template**: 2D Game with Universal Render Pipeline (URP)
 - **Language**: C# (Unity MonoBehaviour architecture)
 - **Solution**: kbtv/kbtv.sln
