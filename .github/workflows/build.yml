@@ -11,14 +11,8 @@ env:
 
 jobs:
   build:
-    name: Build ${{ matrix.targetPlatform }}
+    name: Build Windows
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        targetPlatform:
-          - StandaloneWindows64
-          - WebGL
 
     steps:
       - name: Checkout repository
@@ -31,9 +25,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ env.UNITY_PROJECT_PATH }}/Library
-          key: Library-${{ matrix.targetPlatform }}-${{ hashFiles('kbtv/Assets/**', 'kbtv/Packages/**', 'kbtv/ProjectSettings/**') }}
+          key: Library-Windows-${{ hashFiles('kbtv/Assets/**', 'kbtv/Packages/**', 'kbtv/ProjectSettings/**') }}
           restore-keys: |
-            Library-${{ matrix.targetPlatform }}-
+            Library-Windows-
             Library-
 
       - name: Build Unity project
@@ -44,15 +38,15 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           projectPath: ${{ env.UNITY_PROJECT_PATH }}
-          targetPlatform: ${{ matrix.targetPlatform }}
+          targetPlatform: StandaloneWindows64
           buildName: KBTV
           versioning: Tag
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Build-${{ matrix.targetPlatform }}
-          path: build/${{ matrix.targetPlatform }}
+          name: Build-Windows
+          path: build/StandaloneWindows64
           retention-days: 14
 
   release:
@@ -65,31 +59,19 @@ jobs:
       - name: Download Windows build
         uses: actions/download-artifact@v4
         with:
-          name: Build-StandaloneWindows64
+          name: Build-Windows
           path: build/windows
-
-      - name: Download WebGL build
-        uses: actions/download-artifact@v4
-        with:
-          name: Build-WebGL
-          path: build/webgl
 
       - name: Zip Windows build
         run: |
           cd build/windows
           zip -r ../../KBTV-Windows-${{ github.ref_name }}.zip .
 
-      - name: Zip WebGL build
-        run: |
-          cd build/webgl
-          zip -r ../../KBTV-WebGL-${{ github.ref_name }}.zip .
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             KBTV-Windows-${{ github.ref_name }}.zip
-            KBTV-WebGL-${{ github.ref_name }}.zip
           draft: false
           prerelease: ${{ contains(github.ref_name, '-') }}
           generate_release_notes: true
