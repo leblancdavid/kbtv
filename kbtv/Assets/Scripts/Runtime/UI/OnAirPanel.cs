@@ -124,6 +124,11 @@ namespace KBTV.UI
             {
                 _callerQueue.OnCallerOnAir += OnCallerOnAir;
                 _callerQueue.OnCallerCompleted += OnCallerCompleted;
+                Debug.Log("OnAirPanel: Subscribed to CallerQueue events");
+            }
+            else
+            {
+                Debug.LogWarning("OnAirPanel: CallerQueue.Instance is null - will retry in Update");
             }
 
             UpdateDisplay();
@@ -140,16 +145,30 @@ namespace KBTV.UI
 
         private void OnCallerOnAir(Caller caller)
         {
+            Debug.Log($"OnAirPanel: Caller {caller.Name} went on air");
             UpdateDisplay();
         }
 
         private void OnCallerCompleted(Caller caller)
         {
+            Debug.Log($"OnAirPanel: Caller {caller.Name} completed");
             UpdateDisplay();
         }
 
         private void Update()
         {
+            // Retry subscription if we missed it in Start()
+            if (_callerQueue == null)
+            {
+                _callerQueue = CallerQueue.Instance;
+                if (_callerQueue != null)
+                {
+                    _callerQueue.OnCallerOnAir += OnCallerOnAir;
+                    _callerQueue.OnCallerCompleted += OnCallerCompleted;
+                    Debug.Log("OnAirPanel: Late-subscribed to CallerQueue events");
+                }
+            }
+
             // Check if on-air state changed
             bool hasOnAir = _callerQueue != null && _callerQueue.OnAirCaller != null;
 

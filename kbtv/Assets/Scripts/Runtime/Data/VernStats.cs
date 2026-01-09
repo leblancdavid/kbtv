@@ -46,25 +46,47 @@ namespace KBTV.Data
 
         /// <summary>
         /// Initialize runtime stats. Call this when starting a new game/night.
+        /// Only creates Stat objects on first call; subsequent calls reset values.
         /// </summary>
         public void Initialize()
         {
-            _mood = new Stat("Mood", _initialMood);
-            _energy = new Stat("Energy", _initialEnergy);
-            _hunger = new Stat("Hunger", _initialHunger);
-            _thirst = new Stat("Thirst", _initialThirst);
-            _patience = new Stat("Patience", _initialPatience);
-            _susceptibility = new Stat("Susceptibility", _initialSusceptibility);
-            _belief = new Stat("Belief", _initialBelief);
+            if (_mood == null)
+            {
+                // First-time initialization - create Stat objects
+                _mood = new Stat("Mood", _initialMood);
+                _energy = new Stat("Energy", _initialEnergy);
+                _hunger = new Stat("Hunger", _initialHunger);
+                _thirst = new Stat("Thirst", _initialThirst);
+                _patience = new Stat("Patience", _initialPatience);
+                _susceptibility = new Stat("Susceptibility", _initialSusceptibility);
+                _belief = new Stat("Belief", _initialBelief);
 
-            // Subscribe to individual stat changes
-            _mood.OnValueChanged += NotifyStatsChanged;
-            _energy.OnValueChanged += NotifyStatsChanged;
-            _hunger.OnValueChanged += NotifyStatsChanged;
-            _thirst.OnValueChanged += NotifyStatsChanged;
-            _patience.OnValueChanged += NotifyStatsChanged;
-            _susceptibility.OnValueChanged += NotifyStatsChanged;
-            _belief.OnValueChanged += NotifyStatsChanged;
+                // Subscribe to individual stat changes
+                _mood.OnValueChanged += NotifyStatsChanged;
+                _energy.OnValueChanged += NotifyStatsChanged;
+                _hunger.OnValueChanged += NotifyStatsChanged;
+                _thirst.OnValueChanged += NotifyStatsChanged;
+                _patience.OnValueChanged += NotifyStatsChanged;
+                _susceptibility.OnValueChanged += NotifyStatsChanged;
+                _belief.OnValueChanged += NotifyStatsChanged;
+                
+                Debug.Log("VernStats: Initialized new stat objects");
+            }
+            else
+            {
+                // Subsequent calls - just reset values (preserves subscriptions)
+                _mood.Reset(_initialMood);
+                _energy.Reset(_initialEnergy);
+                _hunger.Reset(_initialHunger);
+                _thirst.Reset(_initialThirst);
+                _patience.Reset(_initialPatience);
+                _susceptibility.Reset(_initialSusceptibility);
+                _belief.Reset(_initialBelief);
+                
+                Debug.Log("VernStats: Reset stat values to initial");
+            }
+            
+            OnStatsChanged?.Invoke();
         }
 
         private void NotifyStatsChanged(float oldVal, float newVal)

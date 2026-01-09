@@ -48,7 +48,13 @@ namespace KBTV.Data
 
         public void Reset(float value)
         {
+            float oldValue = _value;
             _value = Mathf.Clamp(value, _minValue, _maxValue);
+            
+            if (!Mathf.Approximately(oldValue, _value))
+            {
+                OnValueChanged?.Invoke(oldValue, _value);
+            }
         }
 
         public bool IsEmpty => Mathf.Approximately(_value, _minValue);
