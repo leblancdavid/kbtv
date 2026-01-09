@@ -64,9 +64,6 @@ namespace KBTV.Core
         public void AdvancePhase()
         {
             GamePhase oldPhase = _currentPhase;
-            
-            // Log stack trace to help debug unexpected phase changes
-            Debug.Log($"GameStateManager: AdvancePhase() called from {_currentPhase}. Stack: {UnityEngine.StackTraceUtility.ExtractStackTrace()}");
 
             switch (_currentPhase)
             {

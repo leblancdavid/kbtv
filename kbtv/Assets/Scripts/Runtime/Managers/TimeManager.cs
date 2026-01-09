@@ -59,7 +59,6 @@ namespace KBTV.Managers
             // Ensure clean state on startup
             _elapsedTime = 0f;
             _isRunning = false;
-            Debug.Log("TimeManager: Initialized (clock stopped, elapsed time reset)");
         }
 
         private void Update()
