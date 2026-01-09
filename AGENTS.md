@@ -163,7 +163,32 @@ public class PlayerController : MonoBehaviour {
 - Create descriptive commit messages explaining the "why"
 - Reference ticket/issue numbers in commits
 - Use feature branches: `feature/[name]`, `bugfix/[name]`
-- Keep Unity meta files with their assets
+
+#### Unity Meta Files (IMPORTANT)
+Unity generates `.meta` files for every asset and folder. These files contain GUIDs that Unity uses to track references between assets.
+
+**Always commit `.meta` files together with their assets:**
+- When adding a new `.cs` file, also stage its `.cs.meta` file
+- When creating a new folder, also stage its `.meta` file
+- When deleting assets, also delete the corresponding `.meta` files
+- Never commit an asset without its `.meta` file (causes broken references)
+
+**Example workflow:**
+```bash
+# After creating new files, check for untracked meta files
+git status
+
+# Stage both the file and its meta
+git add Assets/Scripts/MyNewScript.cs Assets/Scripts/MyNewScript.cs.meta
+
+# Or stage all changes in a directory (includes meta files)
+git add Assets/Scripts/NewFeature/
+```
+
+**Why this matters:**
+- Missing `.meta` files cause Unity to regenerate GUIDs, breaking prefab/scene references
+- Different GUIDs on different machines cause merge conflicts and broken references
+- The `.meta` file stores import settings (texture compression, script execution order, etc.)
 
 ## Unity Editor Configuration
 - **Serialization Mode**: Force Binary (see EditorSettings.asset)
