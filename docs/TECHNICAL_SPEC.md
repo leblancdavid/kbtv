@@ -1,5 +1,23 @@
 # KBTV - Technical Specification
 
+## Getting Started
+
+### Quick Setup (Recommended)
+1. Open Unity with the project (`kbtv/kbtv`)
+2. Open `Assets/Scenes/SampleScene.unity`
+3. From menu: **KBTV > Setup Game Scene**
+4. Press **Play**
+
+The setup utility auto-creates missing assets and configures `GameBootstrap` with all required references.
+
+### Manual Setup
+If you prefer manual configuration:
+1. Create a VernStats asset: **Assets > Create > KBTV > Vern Stats**
+2. Create an empty GameObject named `GameBootstrap`
+3. Add the `GameBootstrap` component
+4. Assign fields in Inspector (VernStats, Topics, Items, Event modifiers)
+5. Press Play
+
 ## Architecture Overview
 
 - **Pattern**: Singleton managers with event-driven communication
@@ -9,13 +27,16 @@
 
 ### File Structure
 ```
-Assets/Scripts/Runtime/
-├── Core/           # GamePhase, GameStateManager, GameBootstrap
-├── Data/           # Stat, VernStats, StatModifier, Item
-├── Managers/       # TimeManager, LiveShowManager, ListenerManager, ItemManager
-├── Callers/        # Caller, CallerQueue, CallerGenerator, CallerScreeningManager, Topic
-├── UI/             # LiveShowUIManager, panels, components (see UI System)
-└── Audio/          # AudioManager
+Assets/Scripts/
+├── Runtime/
+│   ├── Core/           # GamePhase, GameStateManager, GameBootstrap
+│   ├── Data/           # Stat, VernStats, StatModifier, Item
+│   ├── Managers/       # TimeManager, LiveShowManager, ListenerManager, ItemManager
+│   ├── Callers/        # Caller, CallerQueue, CallerGenerator, CallerScreeningManager, Topic
+│   ├── UI/             # LiveShowUIManager, panels, components (see UI System)
+│   └── Audio/          # AudioManager
+└── Editor/
+    └── GameSetup.cs    # One-click scene setup utility
 ```
 
 ## Core Systems

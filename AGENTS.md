@@ -22,6 +22,16 @@ When adding new documentation (technical specs, feature plans, art guidelines, e
 - **Language**: C# (Unity MonoBehaviour architecture)
 - **Solution**: kbtv/kbtv.sln
 
+## Quick Start
+
+To run the game:
+1. Open Unity with the project (`kbtv/kbtv`)
+2. Open `Assets/Scenes/SampleScene.unity`
+3. From menu: **KBTV > Setup Game Scene**
+4. Press **Play**
+
+The `GameSetup` utility (`Assets/Scripts/Editor/GameSetup.cs`) auto-creates missing assets and configures the scene.
+
 ## Build Commands
 
 ### Unity Editor
