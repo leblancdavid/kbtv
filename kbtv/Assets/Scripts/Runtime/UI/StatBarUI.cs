@@ -13,6 +13,8 @@ namespace KBTV.UI
     {
         private TextMeshProUGUI _labelText;
         private Image _fillImage;
+        private RectTransform _fillRect;
+        private RectTransform _barContainerRect;
         private TextMeshProUGUI _valueText;
         private Stat _stat;
         private Color _fillColor;
@@ -55,6 +57,7 @@ namespace KBTV.UI
             // Progress bar container
             GameObject barContainer = new GameObject("BarContainer");
             barContainer.transform.SetParent(transform, false);
+            _barContainerRect = barContainer.AddComponent<RectTransform>();
             UITheme.AddLayoutElement(barContainer, flexibleWidth: 1f, preferredHeight: 20f);
 
             // Background
@@ -64,19 +67,16 @@ namespace KBTV.UI
             // Fill
             GameObject fillObj = new GameObject("Fill");
             fillObj.transform.SetParent(barContainer.transform, false);
-            RectTransform fillRect = fillObj.AddComponent<RectTransform>();
-            fillRect.anchorMin = Vector2.zero;
-            fillRect.anchorMax = Vector2.one;
-            fillRect.offsetMin = new Vector2(2f, 2f);
-            fillRect.offsetMax = new Vector2(-2f, -2f);
-            fillRect.pivot = new Vector2(0f, 0.5f);
+            _fillRect = fillObj.AddComponent<RectTransform>();
+            // Anchor to left side, stretch vertically
+            _fillRect.anchorMin = new Vector2(0f, 0f);
+            _fillRect.anchorMax = new Vector2(0f, 1f);
+            _fillRect.pivot = new Vector2(0f, 0.5f);
+            _fillRect.offsetMin = new Vector2(2f, 2f);
+            _fillRect.offsetMax = new Vector2(2f, -2f); // Will set width via sizeDelta.x
 
             _fillImage = fillObj.AddComponent<Image>();
             _fillImage.color = _fillColor;
-            _fillImage.type = Image.Type.Filled;
-            _fillImage.fillMethod = Image.FillMethod.Horizontal;
-            _fillImage.fillOrigin = 0;
-            _fillImage.fillAmount = 0.5f;
 
             // Value text
             GameObject valueObj = new GameObject("Value");
@@ -151,16 +151,32 @@ namespace KBTV.UI
         {
             if (_stat == null) return;
 
-            Debug.Log($"StatBarUI.UpdateDisplay: {_stat.Name} - Value={_stat.Value}, Normalized={_stat.Normalized}, Min={_stat.MinValue}, Max={_stat.MaxValue}");
-
-            if (_fillImage != null)
+            if (_fillRect != null && _barContainerRect != null)
             {
-                _fillImage.fillAmount = _stat.Normalized;
+                // Calculate fill width based on normalized value
+                float containerWidth = _barContainerRect.rect.width - 4f; // Account for padding
+                float fillWidth = containerWidth * _stat.Normalized;
+                _fillRect.sizeDelta = new Vector2(fillWidth, _fillRect.sizeDelta.y);
             }
 
             if (_valueText != null)
             {
                 _valueText.text = $"{_stat.Value:F0}";
+            }
+        }
+
+        private void LateUpdate()
+        {
+            // Continuously update the fill bar to handle layout changes
+            // and ensure proper sizing after layout is calculated
+            if (_stat != null && _fillRect != null && _barContainerRect != null)
+            {
+                float containerWidth = _barContainerRect.rect.width - 4f;
+                if (containerWidth > 0)
+                {
+                    float fillWidth = containerWidth * _stat.Normalized;
+                    _fillRect.sizeDelta = new Vector2(fillWidth, _fillRect.sizeDelta.y);
+                }
             }
         }
 
