@@ -25,12 +25,12 @@ namespace KBTV.UI
             GameObject barObj = new GameObject($"StatBar_{label}");
             barObj.transform.SetParent(parent, false);
 
-            RectTransform rect = barObj.AddComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(0f, UITheme.StatBarHeight);
+            barObj.AddComponent<RectTransform>();
+            // Don't set sizeDelta - let LayoutElement control size
 
             // Horizontal layout for label | bar | value
             UITheme.AddHorizontalLayout(barObj, spacing: 8f);
-            UITheme.AddLayoutElement(barObj, preferredHeight: UITheme.StatBarHeight);
+            UITheme.AddLayoutElement(barObj, preferredHeight: UITheme.StatBarHeight, minHeight: UITheme.StatBarHeight);
 
             StatBarUI statBar = barObj.AddComponent<StatBarUI>();
             statBar._fillColor = fillColor;

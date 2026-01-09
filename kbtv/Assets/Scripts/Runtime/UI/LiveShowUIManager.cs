@@ -101,11 +101,11 @@ namespace KBTV.UI
             // Left column (stats + items)
             GameObject leftColumn = CreateColumn(contentArea.transform, "LeftColumn", 350f);
             _statsPanel = VernStatsPanel.Create(leftColumn.transform);
-            UITheme.AddLayoutElement(_statsPanel.gameObject, flexibleHeight: 1f);
+            UITheme.AddLayoutElement(_statsPanel.gameObject, flexibleHeight: 1f, minHeight: 300f);
 
             // Item panel below stats
             _itemPanel = ItemPanel.Create(leftColumn.transform);
-            UITheme.AddLayoutElement(_itemPanel.gameObject, preferredHeight: 250f);
+            UITheme.AddLayoutElement(_itemPanel.gameObject, preferredHeight: 280f, minHeight: 200f);
 
             // Right column (caller management)
             GameObject rightColumn = CreateColumn(contentArea.transform, "RightColumn", -1f); // Flexible width
@@ -117,20 +117,21 @@ namespace KBTV.UI
             // Top section: Screening + On Air side by side
             GameObject topSection = new GameObject("TopSection");
             topSection.transform.SetParent(rightColumn.transform, false);
+            topSection.AddComponent<RectTransform>();
             UITheme.AddHorizontalLayout(topSection, spacing: UITheme.PanelPadding);
-            UITheme.AddLayoutElement(topSection, flexibleHeight: 1f);
+            UITheme.AddLayoutElement(topSection, flexibleHeight: 1f, minHeight: 250f);
 
             // Screening panel
             _screeningPanel = ScreeningPanel.Create(topSection.transform);
-            UITheme.AddLayoutElement(_screeningPanel.gameObject, flexibleWidth: 1f);
+            UITheme.AddLayoutElement(_screeningPanel.gameObject, flexibleWidth: 1f, minWidth: 200f);
 
             // On-Air panel
             _onAirPanel = OnAirPanel.Create(topSection.transform);
-            UITheme.AddLayoutElement(_onAirPanel.gameObject, flexibleWidth: 1f);
+            UITheme.AddLayoutElement(_onAirPanel.gameObject, flexibleWidth: 1f, minWidth: 200f);
 
             // Bottom section: Caller queues
             _callerQueuePanel = CallerQueuePanel.Create(rightColumn.transform);
-            UITheme.AddLayoutElement(_callerQueuePanel.gameObject, preferredHeight: 200f, flexibleHeight: 0.5f);
+            UITheme.AddLayoutElement(_callerQueuePanel.gameObject, preferredHeight: 200f, minHeight: 150f, flexibleHeight: 0.5f);
 
             Debug.Log("LiveShowUIManager: UI created successfully");
         }

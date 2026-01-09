@@ -24,12 +24,7 @@ namespace KBTV.UI
         {
             GameObject panelObj = UITheme.CreatePanel("ItemPanel", parent, UITheme.PanelBackground);
 
-            RectTransform rect = panelObj.GetComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-
+            // Don't override anchors - let the parent LayoutGroup control positioning
             ItemPanel panel = panelObj.AddComponent<ItemPanel>();
             panel.BuildUI();
 

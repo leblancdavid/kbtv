@@ -30,10 +30,8 @@ namespace KBTV.UI
         {
             GameObject headerObj = UITheme.CreatePanel("HeaderBar", parent, UITheme.PanelBackground);
             
-            RectTransform rect = headerObj.GetComponent<RectTransform>();
-            UITheme.AnchorTop(rect, UITheme.HeaderHeight);
-
-            UITheme.AddLayoutElement(headerObj, preferredHeight: UITheme.HeaderHeight);
+            // Don't set anchors - let parent LayoutGroup control positioning
+            UITheme.AddLayoutElement(headerObj, preferredHeight: UITheme.HeaderHeight, minHeight: UITheme.HeaderHeight);
 
             HeaderBarUI header = headerObj.AddComponent<HeaderBarUI>();
             header.BuildUI();

@@ -52,6 +52,8 @@ namespace KBTV.UI
 
         /// <summary>
         /// Create a panel GameObject with standard styling.
+        /// Note: Does not set anchors - parent LayoutGroups will control positioning.
+        /// Use FillParent() explicitly if you need the panel to stretch to fill its parent.
         /// </summary>
         public static GameObject CreatePanel(string name, Transform parent, Color? backgroundColor = null)
         {
@@ -59,10 +61,8 @@ namespace KBTV.UI
             panel.transform.SetParent(parent, false);
 
             RectTransform rect = panel.AddComponent<RectTransform>();
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
+            // Don't set anchors here - let LayoutGroups control positioning
+            // Panels that need to fill parent should call FillParent() explicitly
 
             Image image = panel.AddComponent<Image>();
             image.color = backgroundColor ?? PanelBackground;
@@ -175,7 +175,7 @@ namespace KBTV.UI
             layout.padding = new RectOffset((int)padding, (int)padding, (int)padding, (int)padding);
             layout.spacing = spacing;
             layout.childControlWidth = true;
-            layout.childControlHeight = false;
+            layout.childControlHeight = true;  // Let layout control child heights via LayoutElement
             layout.childForceExpandWidth = true;
             layout.childForceExpandHeight = childForceExpand;
             layout.childAlignment = TextAnchor.UpperLeft;
