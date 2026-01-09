@@ -85,9 +85,13 @@ namespace KBTV
                 GameStateManager gameState = gameManagerObj.AddComponent<GameStateManager>();
                 
                 // Use reflection to set the VernStats since it's serialized
+                // NOTE: This must happen BEFORE Initialize() is called
                 var field = typeof(GameStateManager).GetField("_vernStats", 
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 field?.SetValue(gameState, _vernStatsAsset);
+
+                // Now initialize the game (VernStats is set)
+                gameState.InitializeGame();
 
                 // Add LiveShowManager
                 gameManagerObj.AddComponent<LiveShowManager>();

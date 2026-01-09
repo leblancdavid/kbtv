@@ -50,6 +50,8 @@ namespace KBTV.Data
         /// </summary>
         public void Initialize()
         {
+            Debug.Log($"VernStats.Initialize() called. Initial values: Mood={_initialMood}, Energy={_initialEnergy}, Hunger={_initialHunger}, Thirst={_initialThirst}");
+            
             if (_mood == null)
             {
                 // First-time initialization - create Stat objects
@@ -70,7 +72,7 @@ namespace KBTV.Data
                 _susceptibility.OnValueChanged += NotifyStatsChanged;
                 _belief.OnValueChanged += NotifyStatsChanged;
                 
-                Debug.Log("VernStats: Initialized new stat objects");
+                Debug.Log($"VernStats: Initialized new stat objects. Mood={_mood.Value}, Energy={_energy.Value}");
             }
             else
             {

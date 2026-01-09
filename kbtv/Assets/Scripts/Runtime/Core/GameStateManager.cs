@@ -44,14 +44,23 @@ namespace KBTV.Core
             Instance = this;
             DontDestroyOnLoad(gameObject);
 
-            InitializeGame();
+            // Only auto-initialize if VernStats is already assigned (scene object, not dynamically created)
+            if (_vernStats != null)
+            {
+                InitializeGame();
+            }
         }
 
-        private void InitializeGame()
+        /// <summary>
+        /// Initialize the game state. Called automatically if VernStats is pre-assigned,
+        /// or manually by GameBootstrap after setting VernStats via reflection.
+        /// </summary>
+        public void InitializeGame()
         {
             if (_vernStats != null)
             {
                 _vernStats.Initialize();
+                Debug.Log("GameStateManager: VernStats initialized");
             }
             else
             {
