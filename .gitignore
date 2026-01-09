@@ -97,3 +97,10 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /kbtv/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# TextMesh Pro (Unity package, imported automatically)
+/kbtv/[Aa]ssets/TextMesh Pro/
+/kbtv/[Aa]ssets/TextMesh Pro.meta
+
+# Windows artifacts
+nul
