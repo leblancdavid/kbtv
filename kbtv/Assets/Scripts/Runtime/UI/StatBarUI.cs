@@ -151,6 +151,8 @@ namespace KBTV.UI
         {
             if (_stat == null) return;
 
+            Debug.Log($"StatBarUI.UpdateDisplay: {_stat.Name} - Value={_stat.Value}, Normalized={_stat.Normalized}, Min={_stat.MinValue}, Max={_stat.MaxValue}");
+
             if (_fillImage != null)
             {
                 _fillImage.fillAmount = _stat.Normalized;
