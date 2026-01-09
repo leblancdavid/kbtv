@@ -8,10 +8,8 @@ namespace KBTV.Callers
     /// Generates random callers during the live show.
     /// Spawns a mix of legitimate, questionable, and fake callers.
     /// </summary>
-    public class CallerGenerator : MonoBehaviour
+    public class CallerGenerator : SingletonMonoBehaviour<CallerGenerator>
     {
-        public static CallerGenerator Instance { get; private set; }
-
         [Header("Generation Settings")]
         [Tooltip("Minimum seconds between caller spawns")]
         [SerializeField] private float _minSpawnInterval = 5f;
@@ -86,16 +84,6 @@ namespace KBTV.Callers
             "I'm a former military pilot with unexplained experiences"
         };
 
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-        }
-
         private void Start()
         {
             _queue = CallerQueue.Instance;
@@ -113,8 +101,10 @@ namespace KBTV.Callers
             }
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+            
             if (GameStateManager.Instance != null)
             {
                 GameStateManager.Instance.OnPhaseChanged -= HandlePhaseChanged;

@@ -10,7 +10,7 @@ namespace KBTV.UI
     /// Panel for screening the current caller.
     /// Shows caller details and approve/reject buttons.
     /// </summary>
-    public class ScreeningPanel : MonoBehaviour
+    public class ScreeningPanel : BasePanel
     {
         private TextMeshProUGUI _headerText;
         private CallerCardUI _callerCard;
@@ -102,35 +102,22 @@ namespace KBTV.UI
 
         private void CreateDivider()
         {
-            GameObject divider = new GameObject("Divider");
-            divider.transform.SetParent(transform, false);
-            Image dividerImage = divider.AddComponent<Image>();
-            dividerImage.color = UITheme.PanelBorder;
-            UITheme.AddLayoutElement(divider, preferredHeight: 1f);
+            UITheme.CreateDivider(transform);
         }
 
-        private void Start()
+        protected override bool DoSubscribe()
         {
-            TrySubscribe();
-            UpdateDisplay();
-        }
-
-        private void TrySubscribe()
-        {
-            if (_callerQueue != null) return;
-
             _callerQueue = CallerQueue.Instance;
+            if (_callerQueue == null) return false;
 
-            if (_callerQueue != null)
-            {
-                _callerQueue.OnCallerAdded += OnCallerQueueChanged;
-                _callerQueue.OnCallerRemoved += OnCallerQueueChanged;
-                _callerQueue.OnCallerDisconnected += OnCallerQueueChanged;
-                Debug.Log("ScreeningPanel: Subscribed to CallerQueue events");
-            }
+            _callerQueue.OnCallerAdded += OnCallerQueueChanged;
+            _callerQueue.OnCallerRemoved += OnCallerQueueChanged;
+            _callerQueue.OnCallerDisconnected += OnCallerQueueChanged;
+            Debug.Log("ScreeningPanel: Subscribed to CallerQueue events");
+            return true;
         }
 
-        private void OnDestroy()
+        protected override void DoUnsubscribe()
         {
             if (_callerQueue != null)
             {
@@ -140,13 +127,9 @@ namespace KBTV.UI
             }
         }
 
-        private void Update()
+        protected override void Update()
         {
-            // Retry subscription if we missed it in Start()
-            if (_callerQueue == null)
-            {
-                TrySubscribe();
-            }
+            base.Update();  // Handles subscription retry
 
             // Check if screening state changed
             bool hasScreening = _callerQueue != null && _callerQueue.CurrentScreening != null;
@@ -162,7 +145,7 @@ namespace KBTV.UI
             UpdateDisplay();
         }
 
-        private void UpdateDisplay()
+        protected override void UpdateDisplay()
         {
             if (_callerQueue == null) return;
 

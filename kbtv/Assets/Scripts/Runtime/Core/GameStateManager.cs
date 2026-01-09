@@ -6,12 +6,9 @@ namespace KBTV.Core
 {
     /// <summary>
     /// Manages the game state and phase transitions for nightly broadcasts.
-    /// Singleton pattern for easy access across the game.
     /// </summary>
-    public class GameStateManager : MonoBehaviour
+    public class GameStateManager : SingletonMonoBehaviour<GameStateManager>
     {
-        public static GameStateManager Instance { get; private set; }
-
         [Header("References")]
         [SerializeField] private VernStats _vernStats;
 
@@ -33,15 +30,8 @@ namespace KBTV.Core
         /// </summary>
         public event Action<int> OnNightStarted;
 
-        private void Awake()
+        protected override void OnSingletonAwake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
             DontDestroyOnLoad(gameObject);
 
             // Only auto-initialize if VernStats is already assigned (scene object, not dynamically created)
@@ -91,7 +81,7 @@ namespace KBTV.Core
                     return;
             }
 
-            Debug.Log($"Phase changed: {oldPhase} -> {_currentPhase}");
+            Debug.Log($"GameStateManager: Phase changed {oldPhase} -> {_currentPhase}");
             OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
         }
 
@@ -105,7 +95,7 @@ namespace KBTV.Core
             GamePhase oldPhase = _currentPhase;
             _currentPhase = phase;
 
-            Debug.Log($"Phase set: {oldPhase} -> {_currentPhase}");
+            Debug.Log($"GameStateManager: Phase set {oldPhase} -> {_currentPhase}");
             OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
         }
 
@@ -125,7 +115,7 @@ namespace KBTV.Core
                 _vernStats.Initialize();
             }
 
-            Debug.Log($"Starting Night {_currentNight}");
+            Debug.Log($"GameStateManager: Starting Night {_currentNight}");
             OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
             OnNightStarted?.Invoke(_currentNight);
         }

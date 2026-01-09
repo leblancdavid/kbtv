@@ -28,6 +28,13 @@ namespace KBTV.UI
         public static readonly Color AccentYellow = new Color(1f, 0.9f, 0.2f);           // Warning
         public static readonly Color AccentCyan = new Color(0.2f, 0.8f, 0.8f);           // Info
 
+        // Item button colors
+        public static readonly Color ItemButtonEnabled = new Color(0.12f, 0.12f, 0.12f);
+        public static readonly Color ItemButtonDisabled = new Color(0.08f, 0.08f, 0.08f);
+        
+        // Queue entry colors
+        public static readonly Color QueueEntryBackground = new Color(0.15f, 0.15f, 0.15f);
+
         // Stat bar colors
         public static readonly Color StatMood = new Color(1f, 0.4f, 0.7f);               // Pink
         public static readonly Color StatEnergy = new Color(1f, 0.9f, 0.2f);             // Yellow
@@ -249,6 +256,43 @@ namespace KBTV.UI
             rect.anchorMax = Vector2.one;
             rect.offsetMin = Vector2.zero;
             rect.offsetMax = new Vector2(0f, -topOffset);
+        }
+
+        /// <summary>
+        /// Create a horizontal divider line.
+        /// </summary>
+        public static GameObject CreateDivider(Transform parent, float height = 1f)
+        {
+            GameObject divider = new GameObject("Divider");
+            divider.transform.SetParent(parent, false);
+            Image dividerImage = divider.AddComponent<Image>();
+            dividerImage.color = PanelBorder;
+            AddLayoutElement(divider, preferredHeight: height);
+            return divider;
+        }
+
+        /// <summary>
+        /// Get color for patience/progress bar based on normalized value (0-1).
+        /// Green when high, yellow when medium, red when low.
+        /// </summary>
+        public static Color GetPatienceColor(float normalized)
+        {
+            if (normalized > 0.5f)
+                return AccentGreen;
+            else if (normalized > 0.25f)
+                return AccentYellow;
+            else
+                return AccentRed;
+        }
+
+        /// <summary>
+        /// Get alpha value for blinking effect based on time.
+        /// Returns value between minAlpha and 1.0.
+        /// </summary>
+        public static float GetBlinkAlpha(float time, float speed = 4f, float minAlpha = 0.3f)
+        {
+            float alpha = (Mathf.Sin(time * speed) + 1f) / 2f;
+            return Mathf.Lerp(minAlpha, 1f, alpha);
         }
     }
 }

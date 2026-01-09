@@ -29,11 +29,11 @@ If you prefer manual configuration:
 ```
 Assets/Scripts/
 ├── Runtime/
-│   ├── Core/           # GamePhase, GameStateManager, GameBootstrap
-│   ├── Data/           # Stat, VernStats, StatModifier, Item
+│   ├── Core/           # GamePhase, GameStateManager, GameBootstrap, SingletonMonoBehaviour<T>
+│   ├── Data/           # Stat, VernStats, StatModifier, Item, ItemSlot
 │   ├── Managers/       # TimeManager, LiveShowManager, ListenerManager, ItemManager
 │   ├── Callers/        # Caller, CallerQueue, CallerGenerator, CallerScreeningManager, Topic
-│   ├── UI/             # LiveShowUIManager, panels, components (see UI System)
+│   ├── UI/             # LiveShowUIManager, BasePanel, panels, components (see UI System)
 │   └── Audio/          # AudioManager
 └── Editor/
     └── GameSetup.cs    # One-click scene setup utility
@@ -162,6 +162,7 @@ The Live Show UI is **runtime-generated uGUI** (no prefabs). All UI elements are
 | Script | Purpose |
 |--------|---------|
 | `UITheme.cs` | Colors, fonts, styling constants; helper methods for creating styled UI elements |
+| `BasePanel.cs` | Abstract base class for panels with singleton event subscriptions |
 | `StatBarUI.cs` | Reusable stat bar component (label + fill bar + value text) |
 | `HeaderBarUI.cs` | Top bar: Night #, phase, clock, remaining time, blinking LIVE indicator |
 | `VernStatsPanel.cs` | Left panel: 7 stat bars + show quality display |
@@ -169,7 +170,25 @@ The Live Show UI is **runtime-generated uGUI** (no prefabs). All UI elements are
 | `ScreeningPanel.cs` | Current screening caller display + approve/reject buttons |
 | `OnAirPanel.cs` | On-air caller display + end call button |
 | `CallerQueuePanel.cs` | Incoming and on-hold caller queue lists |
+| `CallerQueueEntry.cs` | Single entry in caller queue list |
 | `LiveShowUIManager.cs` | Main controller, creates Canvas hierarchy, coordinates all panels |
+
+### UITheme Utilities
+
+`UITheme.cs` provides helper methods for consistent UI creation:
+
+| Method | Description |
+|--------|-------------|
+| `CreatePanel()` | Create styled panel with background |
+| `CreateText()` | Create TextMeshPro text element |
+| `CreateButton()` | Create styled button with label |
+| `CreateProgressBar()` | Create fill bar with background |
+| `CreateDivider()` | Create horizontal divider line |
+| `AddVerticalLayout()` | Add VerticalLayoutGroup with standard settings |
+| `AddHorizontalLayout()` | Add HorizontalLayoutGroup with standard settings |
+| `AddLayoutElement()` | Add LayoutElement for size control |
+| `GetPatienceColor()` | Get green/yellow/red color based on 0-1 value |
+| `GetBlinkAlpha()` | Get alpha for blinking animation |
 
 ### Theme
 
@@ -259,8 +278,67 @@ UI panels call AudioManager directly for immediate feedback:
 
 ## Key Patterns
 
+### SingletonMonoBehaviour<T>
+
+All singleton managers inherit from `SingletonMonoBehaviour<T>` (`Core/SingletonMonoBehaviour.cs`):
+
+```csharp
+public class MyManager : SingletonMonoBehaviour<MyManager>
+{
+    protected override void OnSingletonAwake() 
+    {
+        // Init code here instead of Awake()
+    }
+    
+    protected override void OnDestroy()
+    {
+        base.OnDestroy(); // Important! Clears Instance
+        // Unsubscribe from events
+    }
+}
+```
+
+Benefits:
+- Eliminates duplicate singleton boilerplate
+- Automatically handles duplicate destruction
+- Clears `Instance` on destroy to prevent stale references
+
+### BasePanel
+
+UI panels that subscribe to singleton events inherit from `BasePanel` (`UI/BasePanel.cs`):
+
+```csharp
+public class MyPanel : BasePanel
+{
+    protected override bool DoSubscribe() 
+    {
+        // Subscribe to singletons, return true if successful
+        var manager = SomeManager.Instance;
+        if (manager == null) return false;
+        manager.OnSomeEvent += HandleEvent;
+        return true;
+    }
+    
+    protected override void DoUnsubscribe() 
+    {
+        // Unsubscribe from events
+    }
+    
+    protected override void UpdateDisplay() 
+    {
+        // Update visual state
+    }
+}
+```
+
+Benefits:
+- Handles late-binding automatically (retries subscription in Update if Start failed)
+- Standardizes subscribe/unsubscribe lifecycle
+- Calls `UpdateDisplay()` after successful subscription
+
+### Other Patterns
+
 - **Events**: Loose coupling via C# events (`OnPhaseChanged`, `OnStatsChanged`, `OnCallerCompleted`, etc.)
-- **Singletons**: Managers accessed via static `Instance` property
 - **SerializeField**: Private fields exposed to Inspector for configuration
 - **RequireComponent**: Enforces component dependencies (e.g., LiveShowManager requires GameStateManager)
 
@@ -279,7 +357,8 @@ UI panels call AudioManager directly for immediate feedback:
 
 ### Singleton Not Available in Start()
 - Singletons may not be created yet when `Start()` runs
-- Use late-binding pattern: check for null in `Update()` and subscribe when available
+- **Solution**: Extend `BasePanel` which handles late-binding automatically
+- If not using BasePanel: check for null in `Update()` and subscribe when available
 - Call `UpdateDisplay()` immediately after late-subscribing
 
 ### Stat Bars Not Updating Visually

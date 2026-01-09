@@ -10,7 +10,7 @@ namespace KBTV.UI
     /// Panel displaying the current on-air caller.
     /// Shows caller info, legitimacy reveal, and end call button.
     /// </summary>
-    public class OnAirPanel : MonoBehaviour
+    public class OnAirPanel : BasePanel
     {
         private TextMeshProUGUI _headerText;
         private GameObject _liveIndicator;
@@ -111,36 +111,25 @@ namespace KBTV.UI
 
         private void CreateDivider()
         {
-            GameObject divider = new GameObject("Divider");
-            divider.transform.SetParent(transform, false);
-            Image dividerImage = divider.AddComponent<Image>();
-            dividerImage.color = UITheme.PanelBorder;
-            UITheme.AddLayoutElement(divider, preferredHeight: 1f);
+            UITheme.CreateDivider(transform);
         }
 
-        private void Start()
+        protected override bool DoSubscribe()
         {
             _callerQueue = CallerQueue.Instance;
+            if (_callerQueue == null) return false;
 
-            if (_callerQueue != null)
-            {
-                _callerQueue.OnCallerOnAir += OnCallerOnAir;
-                _callerQueue.OnCallerCompleted += OnCallerCompleted;
-                _callerQueue.OnCallerAdded += OnCallerListChanged;
-                _callerQueue.OnCallerRemoved += OnCallerListChanged;
-                _callerQueue.OnCallerDisconnected += OnCallerListChanged;
-                _callerQueue.OnCallerApproved += OnCallerListChanged;
-                Debug.Log("OnAirPanel: Subscribed to CallerQueue events");
-            }
-            else
-            {
-                Debug.LogWarning("OnAirPanel: CallerQueue.Instance is null - will retry in Update");
-            }
-
-            UpdateDisplay();
+            _callerQueue.OnCallerOnAir += OnCallerOnAir;
+            _callerQueue.OnCallerCompleted += OnCallerCompleted;
+            _callerQueue.OnCallerAdded += OnCallerListChanged;
+            _callerQueue.OnCallerRemoved += OnCallerListChanged;
+            _callerQueue.OnCallerDisconnected += OnCallerListChanged;
+            _callerQueue.OnCallerApproved += OnCallerListChanged;
+            Debug.Log("OnAirPanel: Subscribed to CallerQueue events");
+            return true;
         }
 
-        private void OnDestroy()
+        protected override void DoUnsubscribe()
         {
             if (_callerQueue != null)
             {
@@ -170,24 +159,9 @@ namespace KBTV.UI
             UpdateDisplay();
         }
 
-        private void Update()
+        protected override void Update()
         {
-            // Retry subscription if we missed it in Start()
-            if (_callerQueue == null)
-            {
-                _callerQueue = CallerQueue.Instance;
-                if (_callerQueue != null)
-                {
-                    _callerQueue.OnCallerOnAir += OnCallerOnAir;
-                    _callerQueue.OnCallerCompleted += OnCallerCompleted;
-                    _callerQueue.OnCallerAdded += OnCallerListChanged;
-                    _callerQueue.OnCallerRemoved += OnCallerListChanged;
-                    _callerQueue.OnCallerDisconnected += OnCallerListChanged;
-                    _callerQueue.OnCallerApproved += OnCallerListChanged;
-                    Debug.Log("OnAirPanel: Late-subscribed to CallerQueue events");
-                    UpdateDisplay();
-                }
-            }
+            base.Update();  // Handles subscription retry
 
             // Check if on-air state changed
             bool hasOnAir = _callerQueue != null && _callerQueue.OnAirCaller != null;
@@ -203,15 +177,14 @@ namespace KBTV.UI
                 Image dot = _liveIndicator.GetComponent<Image>();
                 if (dot != null)
                 {
-                    float alpha = (Mathf.Sin(Time.time * 4f) + 1f) / 2f;
                     Color c = dot.color;
-                    c.a = Mathf.Lerp(0.3f, 1f, alpha);
+                    c.a = UITheme.GetBlinkAlpha(Time.time);
                     dot.color = c;
                 }
             }
         }
 
-        private void UpdateDisplay()
+        protected override void UpdateDisplay()
         {
             if (_callerQueue == null) return;
 

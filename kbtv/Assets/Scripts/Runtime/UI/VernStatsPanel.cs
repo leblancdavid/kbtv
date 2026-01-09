@@ -9,7 +9,7 @@ namespace KBTV.UI
     /// <summary>
     /// Panel displaying all of Vern's stats and the current show quality.
     /// </summary>
-    public class VernStatsPanel : MonoBehaviour
+    public class VernStatsPanel : BasePanel
     {
         private StatBarUI _moodBar;
         private StatBarUI _energyBar;
@@ -74,13 +74,7 @@ namespace KBTV.UI
 
         private void CreateDivider()
         {
-            GameObject divider = new GameObject("Divider");
-            divider.transform.SetParent(transform, false);
-            
-            Image dividerImage = divider.AddComponent<Image>();
-            dividerImage.color = UITheme.PanelBorder;
-            
-            UITheme.AddLayoutElement(divider, preferredHeight: 1f);
+            UITheme.CreateDivider(transform);
         }
 
         private void CreateShowQualityDisplay()
@@ -142,44 +136,43 @@ namespace KBTV.UI
             UITheme.AddLayoutElement(valueObj, minWidth: 50f);
         }
 
-        private void Start()
-        {
-            Debug.Log("VernStatsPanel: Start() called");
-            TryBindStats();
-        }
-
-        private void Update()
-        {
-            // Retry binding if we missed it in Start()
-            if (_stats == null)
-            {
-                TryBindStats();
-            }
-        }
-
-        private void TryBindStats()
+        protected override bool DoSubscribe()
         {
             if (GameStateManager.Instance == null)
             {
                 Debug.Log("VernStatsPanel: GameStateManager.Instance is null");
-                return;
+                return false;
             }
             if (GameStateManager.Instance.VernStats == null)
             {
                 Debug.Log("VernStatsPanel: VernStats is null");
-                return;
+                return false;
             }
             
             // Check if stats are actually initialized (Mood will be null until Initialize() is called)
             if (GameStateManager.Instance.VernStats.Mood == null)
             {
                 Debug.Log("VernStatsPanel: VernStats exists but Mood is null - waiting for Initialize()");
-                return;
+                return false;
             }
 
             _stats = GameStateManager.Instance.VernStats;
             BindStats();
             Debug.Log("VernStatsPanel: Bound to VernStats successfully");
+            return true;
+        }
+
+        protected override void DoUnsubscribe()
+        {
+            if (_stats != null)
+            {
+                _stats.OnStatsChanged -= UpdateShowQuality;
+            }
+        }
+
+        protected override void UpdateDisplay()
+        {
+            UpdateShowQuality();
         }
 
         /// <summary>
@@ -209,14 +202,6 @@ namespace KBTV.UI
             UpdateShowQuality();
             
             Debug.Log("VernStatsPanel.BindStats: Completed binding all stats");
-        }
-
-        private void OnDestroy()
-        {
-            if (_stats != null)
-            {
-                _stats.OnStatsChanged -= UpdateShowQuality;
-            }
         }
 
         private void UpdateShowQuality()

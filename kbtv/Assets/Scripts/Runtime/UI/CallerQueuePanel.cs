@@ -9,7 +9,7 @@ namespace KBTV.UI
     /// <summary>
     /// Panel displaying incoming and on-hold caller queues.
     /// </summary>
-    public class CallerQueuePanel : MonoBehaviour
+    public class CallerQueuePanel : BasePanel
     {
         private TextMeshProUGUI _incomingHeader;
         private Transform _incomingContainer;
@@ -92,37 +92,24 @@ namespace KBTV.UI
 
         private void CreateDivider()
         {
-            GameObject divider = new GameObject("Divider");
-            divider.transform.SetParent(transform, false);
-            Image dividerImage = divider.AddComponent<Image>();
-            dividerImage.color = UITheme.PanelBorder;
-            UITheme.AddLayoutElement(divider, preferredHeight: 1f);
+            UITheme.CreateDivider(transform);
         }
 
-        private void Start()
+        protected override bool DoSubscribe()
         {
-            TrySubscribe();
-            RefreshLists();
-        }
-
-        private void TrySubscribe()
-        {
-            if (_callerQueue != null) return;
-
             _callerQueue = CallerQueue.Instance;
+            if (_callerQueue == null) return false;
 
-            if (_callerQueue != null)
-            {
-                _callerQueue.OnCallerAdded += OnCallerChanged;
-                _callerQueue.OnCallerRemoved += OnCallerChanged;
-                _callerQueue.OnCallerDisconnected += OnCallerChanged;
-                _callerQueue.OnCallerOnAir += OnCallerChanged;
-                _callerQueue.OnCallerCompleted += OnCallerChanged;
-                Debug.Log("CallerQueuePanel: Subscribed to CallerQueue events");
-            }
+            _callerQueue.OnCallerAdded += OnCallerChanged;
+            _callerQueue.OnCallerRemoved += OnCallerChanged;
+            _callerQueue.OnCallerDisconnected += OnCallerChanged;
+            _callerQueue.OnCallerOnAir += OnCallerChanged;
+            _callerQueue.OnCallerCompleted += OnCallerChanged;
+            Debug.Log("CallerQueuePanel: Subscribed to CallerQueue events");
+            return true;
         }
 
-        private void OnDestroy()
+        protected override void DoUnsubscribe()
         {
             if (_callerQueue != null)
             {
@@ -139,13 +126,9 @@ namespace KBTV.UI
             RefreshLists();
         }
 
-        private void Update()
+        protected override void Update()
         {
-            // Retry subscription if we missed it in Start()
-            if (_callerQueue == null)
-            {
-                TrySubscribe();
-            }
+            base.Update();  // Handles subscription retry
 
             // Periodically check for queue changes (backup for missed events)
             if (_callerQueue != null)
@@ -158,6 +141,11 @@ namespace KBTV.UI
                     RefreshLists();
                 }
             }
+        }
+
+        protected override void UpdateDisplay()
+        {
+            RefreshLists();
         }
 
         private void RefreshLists()
@@ -221,105 +209,6 @@ namespace KBTV.UI
             TextMeshProUGUI emptyText = UITheme.CreateText("Empty", container, message,
                 UITheme.FontSizeSmall, UITheme.TextDim, TextAlignmentOptions.Center);
             UITheme.AddLayoutElement(emptyText.gameObject, preferredHeight: 20f);
-        }
-    }
-
-    /// <summary>
-    /// Single entry in the caller queue list.
-    /// </summary>
-    public class CallerQueueEntry : MonoBehaviour
-    {
-        private TextMeshProUGUI _nameText;
-        private TextMeshProUGUI _topicText;
-        private Image _patienceBar;
-        private Caller _caller;
-
-        public static CallerQueueEntry Create(Transform parent, Caller caller, bool showPatience)
-        {
-            GameObject entryObj = new GameObject($"Entry_{caller.Name}");
-            entryObj.transform.SetParent(parent, false);
-
-            Image bg = entryObj.AddComponent<Image>();
-            bg.color = new Color(0.15f, 0.15f, 0.15f);
-
-            UITheme.AddHorizontalLayout(entryObj, padding: 6f, spacing: 8f);
-            UITheme.AddLayoutElement(entryObj, preferredHeight: 28f);
-
-            CallerQueueEntry entry = entryObj.AddComponent<CallerQueueEntry>();
-            entry._caller = caller;
-            entry.BuildUI(showPatience);
-
-            return entry;
-        }
-
-        private void BuildUI(bool showPatience)
-        {
-            // Name
-            GameObject nameObj = new GameObject("Name");
-            nameObj.transform.SetParent(transform, false);
-            _nameText = nameObj.AddComponent<TextMeshProUGUI>();
-            _nameText.text = _caller.Name;
-            _nameText.fontSize = UITheme.FontSizeSmall;
-            _nameText.color = UITheme.TextWhite;
-            _nameText.alignment = TextAlignmentOptions.Left;
-            _nameText.textWrappingMode = TextWrappingModes.NoWrap;
-            _nameText.overflowMode = TextOverflowModes.Ellipsis;
-            UITheme.AddLayoutElement(nameObj, minWidth: 80f, flexibleWidth: 0.5f);
-
-            // Topic
-            GameObject topicObj = new GameObject("Topic");
-            topicObj.transform.SetParent(transform, false);
-            _topicText = topicObj.AddComponent<TextMeshProUGUI>();
-            _topicText.text = _caller.ClaimedTopic;
-            _topicText.fontSize = UITheme.FontSizeSmall;
-            _topicText.color = UITheme.TextGray;
-            _topicText.alignment = TextAlignmentOptions.Left;
-            _topicText.textWrappingMode = TextWrappingModes.NoWrap;
-            _topicText.overflowMode = TextOverflowModes.Ellipsis;
-            UITheme.AddLayoutElement(topicObj, flexibleWidth: 1f);
-
-            // Patience bar
-            if (showPatience)
-            {
-                GameObject barBg = new GameObject("PatienceBar");
-                barBg.transform.SetParent(transform, false);
-                Image bgImage = barBg.AddComponent<Image>();
-                bgImage.color = new Color(0.1f, 0.1f, 0.1f);
-                UITheme.AddLayoutElement(barBg, minWidth: 40f, preferredHeight: 8f);
-
-                GameObject fillObj = new GameObject("Fill");
-                fillObj.transform.SetParent(barBg.transform, false);
-                RectTransform fillRect = fillObj.AddComponent<RectTransform>();
-                fillRect.anchorMin = Vector2.zero;
-                fillRect.anchorMax = Vector2.one;
-                fillRect.offsetMin = new Vector2(1f, 1f);
-                fillRect.offsetMax = new Vector2(-1f, -1f);
-                fillRect.pivot = new Vector2(0f, 0.5f);
-
-                _patienceBar = fillObj.AddComponent<Image>();
-                _patienceBar.color = UITheme.AccentGreen;
-                _patienceBar.type = Image.Type.Filled;
-                _patienceBar.fillMethod = Image.FillMethod.Horizontal;
-                _patienceBar.fillOrigin = 0;
-            }
-        }
-
-        private void Update()
-        {
-            if (_caller == null || _patienceBar == null) return;
-
-            float remaining = Mathf.Max(0f, _caller.Patience - _caller.WaitTime);
-            float normalized = remaining / _caller.Patience;
-
-            _patienceBar.fillAmount = normalized;
-
-            // Color based on patience
-            if (normalized > 0.5f)
-                _patienceBar.color = UITheme.AccentGreen;
-            else if (normalized > 0.25f)
-                _patienceBar.color = UITheme.AccentYellow;
-            else
-                _patienceBar.color = UITheme.AccentRed;
         }
     }
 }

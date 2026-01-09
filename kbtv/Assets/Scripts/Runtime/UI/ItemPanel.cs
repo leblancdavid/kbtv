@@ -12,7 +12,7 @@ namespace KBTV.UI
     /// UI panel displaying Vern's items with use buttons.
     /// Shows item name, quantity, hotkey, and cooldown status.
     /// </summary>
-    public class ItemPanel : MonoBehaviour
+    public class ItemPanel : BasePanel
     {
         private ItemManager _itemManager;
         private Dictionary<string, ItemButtonUI> _itemButtons = new Dictionary<string, ItemButtonUI>();
@@ -56,27 +56,19 @@ namespace KBTV.UI
             // Items will be added in Start when ItemManager is available
         }
 
-        private void Start()
+        protected override bool DoSubscribe()
         {
-            TrySubscribe();
-        }
-
-        private void TrySubscribe()
-        {
-            if (_itemManager != null) return;
-
             _itemManager = ItemManager.Instance;
+            if (_itemManager == null) return false;
 
-            if (_itemManager != null)
-            {
-                _itemManager.OnInventoryChanged += RefreshUI;
-                _itemManager.OnCooldownChanged += OnCooldownChanged;
-                BuildItemButtons();
-                Debug.Log("ItemPanel: Subscribed to ItemManager events");
-            }
+            _itemManager.OnInventoryChanged += RefreshUI;
+            _itemManager.OnCooldownChanged += OnCooldownChanged;
+            BuildItemButtons();
+            Debug.Log("ItemPanel: Subscribed to ItemManager events");
+            return true;
         }
 
-        private void OnDestroy()
+        protected override void DoUnsubscribe()
         {
             if (_itemManager != null)
             {
@@ -85,14 +77,10 @@ namespace KBTV.UI
             }
         }
 
-        private void Update()
+        protected override void Update()
         {
-            // Retry subscription if we missed it in Start()
-            if (_itemManager == null)
-            {
-                TrySubscribe();
-                return;
-            }
+            base.Update();  // Handles subscription retry
+            if (_itemManager == null) return;
 
             // Handle keyboard shortcuts (1-5 for items by index)
             for (int i = 0; i < 9; i++)
@@ -109,6 +97,11 @@ namespace KBTV.UI
 
             // Update cooldown displays
             UpdateCooldownDisplays();
+        }
+
+        protected override void UpdateDisplay()
+        {
+            RefreshUI();
         }
 
         private void BuildItemButtons()
@@ -140,7 +133,7 @@ namespace KBTV.UI
 
             // Background
             Image bgImage = buttonContainer.AddComponent<Image>();
-            bgImage.color = new Color(0.12f, 0.12f, 0.12f);
+            bgImage.color = UITheme.ItemButtonEnabled;
 
             // Horizontal layout
             UITheme.AddHorizontalLayout(buttonContainer, padding: 6f, spacing: 8f);
@@ -282,8 +275,8 @@ namespace KBTV.UI
             // Visual feedback for disabled state
             buttonUI.NameText.color = slot.CanUse ? UITheme.TextPrimary : UITheme.TextDim;
             buttonUI.Background.color = slot.CanUse 
-                ? new Color(0.12f, 0.12f, 0.12f) 
-                : new Color(0.08f, 0.08f, 0.08f);
+                ? UITheme.ItemButtonEnabled 
+                : UITheme.ItemButtonDisabled;
         }
 
         private class ItemButtonUI

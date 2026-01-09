@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using KBTV.Core;
 
 namespace KBTV.Managers
 {
@@ -7,10 +8,8 @@ namespace KBTV.Managers
     /// Manages the in-game clock for the radio show.
     /// Handles time progression during live broadcasts.
     /// </summary>
-    public class TimeManager : MonoBehaviour
+    public class TimeManager : SingletonMonoBehaviour<TimeManager>
     {
-        public static TimeManager Instance { get; private set; }
-
         [Header("Show Timing")]
         [Tooltip("Duration of the live show in real-time seconds")]
         [SerializeField] private float _showDurationSeconds = 300f; // 5 minutes real-time
@@ -54,17 +53,6 @@ namespace KBTV.Managers
         /// Fired when time starts or stops.
         /// </summary>
         public event Action<bool> OnRunningChanged;
-
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-        }
 
         private void Update()
         {

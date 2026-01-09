@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using KBTV.Core;
 
 namespace KBTV.Callers
 {
@@ -8,10 +9,8 @@ namespace KBTV.Callers
     /// Manages the queue of incoming callers during a live show.
     /// Handles caller lifecycle from incoming -> screening -> on-hold -> on-air.
     /// </summary>
-    public class CallerQueue : MonoBehaviour
+    public class CallerQueue : SingletonMonoBehaviour<CallerQueue>
     {
-        public static CallerQueue Instance { get; private set; }
-
         [Header("Queue Settings")]
         [Tooltip("Maximum callers that can be waiting")]
         [SerializeField] private int _maxQueueSize = 10;
@@ -24,6 +23,9 @@ namespace KBTV.Callers
         private List<Caller> _onHoldCallers = new List<Caller>();
         private Caller _currentScreening;
         private Caller _onAirCaller;
+
+        // Track event handlers to prevent memory leaks
+        private Dictionary<Caller, Action> _disconnectHandlers = new Dictionary<Caller, Action>();
 
         // Properties
         public IReadOnlyList<Caller> IncomingCallers => _incomingCallers;
@@ -46,16 +48,6 @@ namespace KBTV.Callers
         public event Action<Caller> OnCallerCompleted;
         public event Action<Caller> OnCallerApproved;  // Fired when caller moves to on-hold
 
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-        }
-
         private void Update()
         {
             UpdateCallerPatience(Time.deltaTime);
@@ -73,7 +65,12 @@ namespace KBTV.Callers
             }
 
             caller.SetState(CallerState.Incoming);
-            caller.OnDisconnected += () => HandleCallerDisconnected(caller);
+            
+            // Track handler to prevent memory leak
+            Action handler = () => HandleCallerDisconnected(caller);
+            _disconnectHandlers[caller] = handler;
+            caller.OnDisconnected += handler;
+            
             _incomingCallers.Add(caller);
 
             Debug.Log($"CallerQueue: Added caller {caller.Name}");
@@ -147,6 +144,7 @@ namespace KBTV.Callers
             _currentScreening.SetState(CallerState.Rejected);
             
             Debug.Log($"CallerQueue: Rejected {_currentScreening.Name}");
+            UnsubscribeCaller(_currentScreening);
             OnCallerRemoved?.Invoke(_currentScreening);
             _currentScreening = null;
             return true;
@@ -193,6 +191,7 @@ namespace KBTV.Callers
             Caller completed = _onAirCaller;
             
             Debug.Log($"CallerQueue: {_onAirCaller.Name} call completed");
+            UnsubscribeCaller(_onAirCaller);
             OnCallerCompleted?.Invoke(_onAirCaller);
             _onAirCaller = null;
             return completed;
@@ -203,6 +202,16 @@ namespace KBTV.Callers
         /// </summary>
         public void ClearAll()
         {
+            // Unsubscribe from all callers
+            foreach (var caller in _incomingCallers)
+                UnsubscribeCaller(caller);
+            foreach (var caller in _onHoldCallers)
+                UnsubscribeCaller(caller);
+            if (_currentScreening != null)
+                UnsubscribeCaller(_currentScreening);
+            if (_onAirCaller != null)
+                UnsubscribeCaller(_onAirCaller);
+
             _incomingCallers.Clear();
             _onHoldCallers.Clear();
             _currentScreening = null;
@@ -218,6 +227,8 @@ namespace KBTV.Callers
                 if (_incomingCallers[i].UpdateWaitTime(deltaTime))
                 {
                     // Caller hung up
+                    var caller = _incomingCallers[i];
+                    UnsubscribeCaller(caller);
                     _incomingCallers.RemoveAt(i);
                 }
             }
@@ -228,13 +239,27 @@ namespace KBTV.Callers
                 if (_onHoldCallers[i].UpdateWaitTime(deltaTime * 0.5f))
                 {
                     // Caller hung up
-                    OnCallerDisconnected?.Invoke(_onHoldCallers[i]);
+                    var caller = _onHoldCallers[i];
+                    UnsubscribeCaller(caller);
+                    OnCallerDisconnected?.Invoke(caller);
                     _onHoldCallers.RemoveAt(i);
                 }
             }
 
             // Update screening caller
             _currentScreening?.UpdateWaitTime(deltaTime);
+        }
+
+        /// <summary>
+        /// Unsubscribe from a caller's events and clean up handler reference.
+        /// </summary>
+        private void UnsubscribeCaller(Caller caller)
+        {
+            if (_disconnectHandlers.TryGetValue(caller, out Action handler))
+            {
+                caller.OnDisconnected -= handler;
+                _disconnectHandlers.Remove(caller);
+            }
         }
 
         private void HandleCallerDisconnected(Caller caller)

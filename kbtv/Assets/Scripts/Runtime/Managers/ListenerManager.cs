@@ -10,10 +10,8 @@ namespace KBTV.Managers
     /// Tracks listener count during live shows.
     /// Listener count fluctuates based on show quality and caller quality.
     /// </summary>
-    public class ListenerManager : MonoBehaviour
+    public class ListenerManager : SingletonMonoBehaviour<ListenerManager>
     {
-        public static ListenerManager Instance { get; private set; }
-
         [Header("Starting Listeners")]
         [Tooltip("Base listener count at the start of each night")]
         [SerializeField] private int _baseListeners = 1000;
@@ -76,16 +74,6 @@ namespace KBTV.Managers
         private TimeManager _timeManager;
         private CallerQueue _callerQueue;
 
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-        }
-
         private void Start()
         {
             _gameState = GameStateManager.Instance;
@@ -109,8 +97,10 @@ namespace KBTV.Managers
             }
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+            
             if (_gameState != null)
             {
                 _gameState.OnPhaseChanged -= HandlePhaseChanged;

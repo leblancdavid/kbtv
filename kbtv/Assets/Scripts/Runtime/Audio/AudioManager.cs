@@ -42,10 +42,8 @@ namespace KBTV.Audio
     /// Manages all game audio - SFX playback, music, and ambience.
     /// Subscribes to game events and plays appropriate sounds.
     /// </summary>
-    public class AudioManager : MonoBehaviour
+    public class AudioManager : SingletonMonoBehaviour<AudioManager>
     {
-        public static AudioManager Instance { get; private set; }
-
         [Header("Audio Sources")]
         [SerializeField] private AudioSource _sfxSource;
         [SerializeField] private AudioSource _musicSource;
@@ -110,15 +108,8 @@ namespace KBTV.Audio
             }
         }
 
-        private void Awake()
+        protected override void OnSingletonAwake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-
             SetupAudioSources();
             BuildClipDictionary();
         }
@@ -128,9 +119,10 @@ namespace KBTV.Audio
             SubscribeToEvents();
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
             UnsubscribeFromEvents();
+            base.OnDestroy();
         }
 
         private void SetupAudioSources()

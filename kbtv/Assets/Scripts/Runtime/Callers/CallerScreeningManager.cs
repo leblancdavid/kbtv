@@ -8,10 +8,8 @@ namespace KBTV.Callers
     /// Manages caller screening during live shows.
     /// Validates callers against topic rules and applies effects to Vern's stats.
     /// </summary>
-    public class CallerScreeningManager : MonoBehaviour
+    public class CallerScreeningManager : SingletonMonoBehaviour<CallerScreeningManager>
     {
-        public static CallerScreeningManager Instance { get; private set; }
-
         [Header("References")]
         [SerializeField] private Topic _currentTopic;
 
@@ -29,16 +27,6 @@ namespace KBTV.Callers
         private CallerQueue _queue;
         private GameStateManager _gameState;
 
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-        }
-
         private void Start()
         {
             _queue = CallerQueue.Instance;
@@ -50,8 +38,10 @@ namespace KBTV.Callers
             }
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+            
             if (_queue != null)
             {
                 _queue.OnCallerCompleted -= HandleCallerCompleted;

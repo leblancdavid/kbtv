@@ -7,43 +7,10 @@ using KBTV.Data;
 namespace KBTV.Managers
 {
     /// <summary>
-    /// Tracks item quantities for a single item type.
-    /// </summary>
-    [Serializable]
-    public class ItemSlot
-    {
-        public StatModifier Modifier;
-        public Item ItemData; // May be null if using plain StatModifier
-        public int Quantity;
-        public float CooldownRemaining;
-
-        public bool IsOnCooldown => CooldownRemaining > 0f;
-        public bool HasStock => Quantity > 0;
-        public bool CanUse => HasStock && !IsOnCooldown;
-
-        public string ItemId => ItemData != null ? ItemData.ItemId : Modifier.name;
-        public string DisplayName => Modifier.DisplayName;
-        public string ShortName => ItemData != null ? ItemData.ShortName : Modifier.DisplayName;
-        public int Hotkey => ItemData != null ? ItemData.Hotkey : 0;
-        public float Cooldown => ItemData != null ? ItemData.Cooldown : 0f;
-        public bool UsableDuringShow => ItemData == null || ItemData.UsableDuringShow;
-
-        public ItemSlot(StatModifier modifier, int quantity = 0)
-        {
-            Modifier = modifier;
-            ItemData = modifier as Item;
-            Quantity = quantity;
-            CooldownRemaining = 0f;
-        }
-    }
-
-    /// <summary>
     /// Manages Vern's item inventory and handles item usage during shows.
     /// </summary>
-    public class ItemManager : MonoBehaviour
+    public class ItemManager : SingletonMonoBehaviour<ItemManager>
     {
-        public static ItemManager Instance { get; private set; }
-
         [Header("Available Items")]
         [Tooltip("All items available in the game (Item or StatModifier assets)")]
         [SerializeField] private StatModifier[] _availableItems;
@@ -75,16 +42,6 @@ namespace KBTV.Managers
 
         private GameStateManager _gameState;
 
-        private void Awake()
-        {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-        }
-
         private void Start()
         {
             _gameState = GameStateManager.Instance;
@@ -97,8 +54,10 @@ namespace KBTV.Managers
             InitializeInventory();
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
+            
             if (_gameState != null)
             {
                 _gameState.OnPhaseChanged -= HandlePhaseChanged;
@@ -123,18 +82,11 @@ namespace KBTV.Managers
 
             Debug.Log($"ItemManager: Initializing inventory with {_availableItems.Length} item types");
 
-            int hotkeyCounter = 1;
             foreach (var modifier in _availableItems)
             {
                 if (modifier == null) continue;
 
                 var slot = new ItemSlot(modifier, _startingQuantity);
-                
-                // Auto-assign hotkeys if not set
-                if (slot.Hotkey == 0 && slot.ItemData != null)
-                {
-                    // Item has no hotkey assigned
-                }
                 
                 _inventory[slot.ItemId] = slot;
                 _itemSlots.Add(slot);
