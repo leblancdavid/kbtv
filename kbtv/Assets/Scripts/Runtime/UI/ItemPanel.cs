@@ -58,6 +58,13 @@ namespace KBTV.UI
 
         private void Start()
         {
+            TrySubscribe();
+        }
+
+        private void TrySubscribe()
+        {
+            if (_itemManager != null) return;
+
             _itemManager = ItemManager.Instance;
 
             if (_itemManager != null)
@@ -65,6 +72,7 @@ namespace KBTV.UI
                 _itemManager.OnInventoryChanged += RefreshUI;
                 _itemManager.OnCooldownChanged += OnCooldownChanged;
                 BuildItemButtons();
+                Debug.Log("ItemPanel: Subscribed to ItemManager events");
             }
         }
 
@@ -79,18 +87,22 @@ namespace KBTV.UI
 
         private void Update()
         {
-            // Handle keyboard shortcuts (1-5 for items by index)
-            if (_itemManager != null)
+            // Retry subscription if we missed it in Start()
+            if (_itemManager == null)
             {
-                for (int i = 0; i < 9; i++)
+                TrySubscribe();
+                return;
+            }
+
+            // Handle keyboard shortcuts (1-5 for items by index)
+            for (int i = 0; i < 9; i++)
+            {
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i))
                 {
-                    if (Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i))
+                    if (!_itemManager.UseItemByIndex(i))
                     {
-                        if (!_itemManager.UseItemByIndex(i))
-                        {
-                            // Failed to use - play error sound
-                            AudioManager.Instance?.PlayItemEmpty();
-                        }
+                        // Failed to use - play error sound
+                        AudioManager.Instance?.PlayItemEmpty();
                     }
                 }
             }
