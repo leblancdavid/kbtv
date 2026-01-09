@@ -78,9 +78,12 @@ namespace KBTV
 
         private void SetupManagers()
         {
+            Debug.Log("GameBootstrap: SetupManagers starting...");
+            
             // Create GameStateManager
             if (GameStateManager.Instance == null)
             {
+                Debug.Log("GameBootstrap: Creating new GameStateManager");
                 GameObject gameManagerObj = new GameObject("GameStateManager");
                 GameStateManager gameState = gameManagerObj.AddComponent<GameStateManager>();
                 
@@ -95,6 +98,18 @@ namespace KBTV
 
                 // Add LiveShowManager
                 gameManagerObj.AddComponent<LiveShowManager>();
+            }
+            else
+            {
+                Debug.Log("GameBootstrap: GameStateManager already exists, ensuring it's initialized");
+                // GameStateManager already exists - make sure it has VernStats and is initialized
+                if (GameStateManager.Instance.VernStats == null)
+                {
+                    var field = typeof(GameStateManager).GetField("_vernStats", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    field?.SetValue(GameStateManager.Instance, _vernStatsAsset);
+                }
+                GameStateManager.Instance.InitializeGame();
             }
 
             // Create TimeManager
