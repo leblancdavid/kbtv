@@ -118,6 +118,13 @@ Assets/Scripts/
 - `CallerQueue` (Singleton): Manages caller queues
   - Max 10 incoming, max 3 on-hold
   - `UpdateCallerPatience()` ticks wait times, disconnects impatient callers
+  - **Events**:
+    - `OnCallerAdded` - New caller joined incoming queue
+    - `OnCallerRemoved` - Caller removed (rejected)
+    - `OnCallerApproved` - Caller moved to on-hold (important for UI state updates)
+    - `OnCallerDisconnected` - Caller hung up (patience ran out)
+    - `OnCallerOnAir` - Caller went live
+    - `OnCallerCompleted` - Call ended normally
 - `CallerScreeningManager` (Singleton): Validates callers against Topic rules
   - `ScreenCurrentCaller()` returns pass/fail based on topic ScreeningRules
   - Applies StatModifiers on call completion based on impact
@@ -191,9 +198,14 @@ The Live Show UI is **runtime-generated uGUI** (no prefabs). All UI elements are
 Panels subscribe to game events for real-time updates:
 - `GameStateManager.OnPhaseChanged` - Phase transitions
 - `VernStats.OnStatsChanged` - Stat bar updates
-- `CallerQueue.OnQueueChanged` - Queue list updates
 - `TimeManager.OnTick` - Clock updates
-- `CallerScreeningManager.OnScreeningStarted/Completed` - Caller card updates
+
+**CallerQueue events** (panels must subscribe to all relevant events):
+- `OnCallerAdded`, `OnCallerRemoved`, `OnCallerDisconnected` - Queue list updates
+- `OnCallerApproved` - On-hold list changed (critical for button state)
+- `OnCallerOnAir`, `OnCallerCompleted` - On-air state changes
+
+**Important**: When a UI element's state depends on data (e.g., button `interactable` based on queue count), ensure the panel subscribes to ALL events that can change that data. Missing event subscriptions cause UI to become stale.
 
 ## Audio System
 **Files**: `Audio/AudioManager.cs`
@@ -251,6 +263,28 @@ UI panels call AudioManager directly for immediate feedback:
 - **Singletons**: Managers accessed via static `Instance` property
 - **SerializeField**: Private fields exposed to Inspector for configuration
 - **RequireComponent**: Enforces component dependencies (e.g., LiveShowManager requires GameStateManager)
+
+## Common Issues & Debugging
+
+### UI Button Not Responding
+1. **Check `interactable` state** - Button may be disabled based on game state
+2. **Check event subscriptions** - Panel may not be subscribed to events that update button state
+3. **Check raycast blocking** - Text/images above button may have `raycastTarget = true`
+4. **Check button size** - LayoutGroups may give button zero dimensions
+
+### ScriptableObject State Persisting Between Play Sessions
+- ScriptableObjects (like VernStats) persist runtime changes in Editor
+- Always reinitialize state in `Initialize()` methods, don't check for null
+- Example: `_mood = new Stat("Mood", initialValue)` not `if (_mood == null) _mood = ...`
+
+### Singleton Not Available in Start()
+- Singletons may not be created yet when `Start()` runs
+- Use late-binding pattern: check for null in `Update()` and subscribe when available
+- Call `UpdateDisplay()` immediately after late-subscribing
+
+### Stat Bars Not Updating Visually
+- `Image.Type.Filled` requires a sprite assigned to work
+- Alternative: manually scale `RectTransform.sizeDelta.x` based on normalized value
 
 ## Performance Targets
 <!-- TBD -->
