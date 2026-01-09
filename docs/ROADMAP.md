@@ -16,10 +16,14 @@
   - Caller screening panel with approve/reject
   - On-air panel with active caller display
   - Caller queue panel (incoming + on-hold)
+- [x] Listener count tracking
+  - ListenerManager tracks audience size during live shows
+  - Show quality affects listener growth/decay over time
+  - Caller quality impacts listeners (great callers attract, bad callers repel)
+  - Listener count displayed in header bar with change indicator
 
 ### TODO
 - [ ] Item usage system (use Coffee, Sandwich, etc. to modify Vern's stats)
-- [ ] Listener count tracking (based on show quality, caller impacts)
 - [ ] Basic audio (placeholder SFX for caller events, phase transitions)
 
 ---

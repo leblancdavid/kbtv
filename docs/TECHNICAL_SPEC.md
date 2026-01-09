@@ -12,7 +12,7 @@
 Assets/Scripts/Runtime/
 ├── Core/           # GamePhase, GameStateManager, GameBootstrap
 ├── Data/           # Stat, VernStats, StatModifier
-├── Managers/       # TimeManager, LiveShowManager
+├── Managers/       # TimeManager, LiveShowManager, ListenerManager
 ├── Callers/        # Caller, CallerQueue, CallerGenerator, CallerScreeningManager, Topic
 └── UI/             # LiveShowUIManager, panels, components (see UI System)
 ```
@@ -48,6 +48,22 @@ Assets/Scripts/Runtime/
   - Starts clock when phase changes to LiveShow
   - Applies stat decay on every tick
   - Advances to PostShow when show ends
+
+### Listener System
+**Files**: `Managers/ListenerManager.cs`
+
+- `ListenerManager` (Singleton): Tracks audience size during live shows
+  - **Starting Listeners**: Base count with random variance at show start
+  - **Quality-Based Growth**: Listeners increase/decrease based on show quality vs threshold
+  - **Caller Impact**: Great callers add listeners, bad callers cost listeners
+  - **Disconnect Penalty**: Callers hanging up loses some listeners
+- Configurable settings:
+  - `_baseListeners` (1000) - Starting audience
+  - `_qualityGrowthRate` (5/sec) - How fast listeners change
+  - `_qualityThreshold` (0.5) - Quality level where growth is neutral
+  - `_greatCallerBonus` (+150), `_goodCallerBonus` (+50), `_badCallerPenalty` (-100)
+- Events: `OnListenersChanged`, `OnPeakReached`
+- Properties: `CurrentListeners`, `PeakListeners`, `ListenerChange`
 
 ### Caller Screening System
 **Files**: `Callers/Caller.cs`, `Callers/CallerQueue.cs`, `Callers/CallerGenerator.cs`, `Callers/CallerScreeningManager.cs`

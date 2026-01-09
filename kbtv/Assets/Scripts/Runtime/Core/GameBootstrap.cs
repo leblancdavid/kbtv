@@ -120,6 +120,13 @@ namespace KBTV
                 greatField?.SetValue(screening, _greatCallerModifier);
             }
 
+            // Create ListenerManager
+            if (ListenerManager.Instance == null)
+            {
+                GameObject listenerObj = new GameObject("ListenerManager");
+                listenerObj.AddComponent<ListenerManager>();
+            }
+
             // Create Live Show UI
             if (_enableLiveShowUI)
             {

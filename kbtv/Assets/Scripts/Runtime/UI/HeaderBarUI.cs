@@ -15,10 +15,13 @@ namespace KBTV.UI
         private TextMeshProUGUI _phaseText;
         private TextMeshProUGUI _clockText;
         private TextMeshProUGUI _remainingText;
+        private TextMeshProUGUI _listenerText;
+        private TextMeshProUGUI _listenerChangeText;
         private Image _liveIndicator;
 
         private GameStateManager _gameState;
         private TimeManager _timeManager;
+        private ListenerManager _listenerManager;
 
         /// <summary>
         /// Create and initialize a HeaderBarUI on the given parent.
@@ -125,6 +128,44 @@ namespace KBTV.UI
             _remainingText.textWrappingMode = TextWrappingModes.NoWrap;
             UITheme.AddLayoutElement(remainingObj, minWidth: 100f);
 
+            // Listener count section
+            GameObject listenerContainer = new GameObject("ListenerContainer");
+            listenerContainer.transform.SetParent(transform, false);
+            UITheme.AddHorizontalLayout(listenerContainer, spacing: 4f);
+            UITheme.AddLayoutElement(listenerContainer, minWidth: 140f);
+
+            // Listener icon (headphones emoji or text)
+            GameObject listenerIcon = new GameObject("ListenerIcon");
+            listenerIcon.transform.SetParent(listenerContainer.transform, false);
+            TextMeshProUGUI iconText = listenerIcon.AddComponent<TextMeshProUGUI>();
+            iconText.text = "LISTENERS:";
+            iconText.fontSize = UITheme.FontSizeSmall;
+            iconText.color = UITheme.TextGray;
+            iconText.alignment = TextAlignmentOptions.Right;
+            iconText.textWrappingMode = TextWrappingModes.NoWrap;
+
+            // Listener count
+            GameObject listenerObj = new GameObject("ListenerCount");
+            listenerObj.transform.SetParent(listenerContainer.transform, false);
+            _listenerText = listenerObj.AddComponent<TextMeshProUGUI>();
+            _listenerText.text = "0";
+            _listenerText.fontSize = UITheme.FontSizeLarge;
+            _listenerText.color = UITheme.TextAmber;
+            _listenerText.fontStyle = FontStyles.Bold;
+            _listenerText.alignment = TextAlignmentOptions.Right;
+            _listenerText.textWrappingMode = TextWrappingModes.NoWrap;
+
+            // Listener change (+/-)
+            GameObject changeObj = new GameObject("ListenerChange");
+            changeObj.transform.SetParent(listenerContainer.transform, false);
+            _listenerChangeText = changeObj.AddComponent<TextMeshProUGUI>();
+            _listenerChangeText.text = "";
+            _listenerChangeText.fontSize = UITheme.FontSizeSmall;
+            _listenerChangeText.color = UITheme.AccentGreen;
+            _listenerChangeText.alignment = TextAlignmentOptions.Left;
+            _listenerChangeText.textWrappingMode = TextWrappingModes.NoWrap;
+            UITheme.AddLayoutElement(changeObj, minWidth: 50f);
+
             // Hide live indicator initially
             _liveIndicator.transform.parent.gameObject.SetActive(false);
         }
@@ -133,6 +174,7 @@ namespace KBTV.UI
         {
             _gameState = GameStateManager.Instance;
             _timeManager = TimeManager.Instance;
+            _listenerManager = ListenerManager.Instance;
 
             if (_gameState != null)
             {
@@ -147,6 +189,12 @@ namespace KBTV.UI
                 _timeManager.OnTick += OnTick;
                 UpdateTimeDisplay();
             }
+
+            if (_listenerManager != null)
+            {
+                _listenerManager.OnListenersChanged += OnListenersChanged;
+                UpdateListenerDisplay();
+            }
         }
 
         private void OnDestroy()
@@ -160,6 +208,11 @@ namespace KBTV.UI
             if (_timeManager != null)
             {
                 _timeManager.OnTick -= OnTick;
+            }
+
+            if (_listenerManager != null)
+            {
+                _listenerManager.OnListenersChanged -= OnListenersChanged;
             }
         }
 
@@ -217,6 +270,29 @@ namespace KBTV.UI
 
             _clockText.text = _timeManager.CurrentTimeFormatted;
             _remainingText.text = $"({_timeManager.RemainingTimeFormatted} left)";
+        }
+
+        private void OnListenersChanged(int oldCount, int newCount)
+        {
+            UpdateListenerDisplay();
+        }
+
+        private void UpdateListenerDisplay()
+        {
+            if (_listenerManager == null || _listenerText == null) return;
+
+            _listenerText.text = _listenerManager.GetFormattedListeners();
+
+            int change = _listenerManager.ListenerChange;
+            if (change != 0)
+            {
+                _listenerChangeText.text = _listenerManager.GetFormattedChange();
+                _listenerChangeText.color = change >= 0 ? UITheme.AccentGreen : UITheme.AccentRed;
+            }
+            else
+            {
+                _listenerChangeText.text = "";
+            }
         }
 
         private float _blinkTimer;
