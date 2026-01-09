@@ -84,6 +84,9 @@ public static class GameSetup
         serializedBootstrap.FindProperty("_enableDebugUI").boolValue = false;
         serializedBootstrap.FindProperty("_enableAudio").boolValue = true;
 
+        // Disable auto-start so PreShow is shown
+        serializedBootstrap.FindProperty("_autoStartLiveShow").boolValue = false;
+
         // Set reasonable show duration for testing (2 minutes)
         serializedBootstrap.FindProperty("_showDuration").floatValue = 120f;
 
