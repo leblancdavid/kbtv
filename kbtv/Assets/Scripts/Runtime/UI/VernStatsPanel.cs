@@ -189,7 +189,13 @@ namespace KBTV.UI
         {
             if (_stats == null) return;
 
-            Debug.Log($"VernStatsPanel.BindStats: _moodBar={_moodBar != null}, _stats.Mood={_stats.Mood != null}");
+            Debug.Log($"VernStatsPanel.BindStats: _moodBar={_moodBar != null}, _stats.Mood={_stats.Mood != null}, Mood.Value={_stats.Mood?.Value}");
+
+            if (_moodBar == null)
+            {
+                Debug.LogError("VernStatsPanel: _moodBar is null! BuildUI was not called.");
+                return;
+            }
 
             _moodBar.SetStat(_stats.Mood);
             _energyBar.SetStat(_stats.Energy);
@@ -201,6 +207,8 @@ namespace KBTV.UI
 
             _stats.OnStatsChanged += UpdateShowQuality;
             UpdateShowQuality();
+            
+            Debug.Log("VernStatsPanel.BindStats: Completed binding all stats");
         }
 
         private void OnDestroy()
