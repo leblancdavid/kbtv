@@ -36,6 +36,10 @@ namespace KBTV
         [SerializeField] private StatModifier _badCallerModifier;
         [SerializeField] private StatModifier _greatCallerModifier;
 
+        [Header("Items")]
+        [Tooltip("Available items for Vern to use during shows (StatModifier or Item assets)")]
+        [SerializeField] private StatModifier[] _availableItems;
+
         [Header("UI")]
         [SerializeField] private bool _enableLiveShowUI = true;
         [SerializeField] private bool _enableDebugUI = false;
@@ -125,6 +129,21 @@ namespace KBTV
             {
                 GameObject listenerObj = new GameObject("ListenerManager");
                 listenerObj.AddComponent<ListenerManager>();
+            }
+
+            // Create ItemManager
+            if (ItemManager.Instance == null)
+            {
+                GameObject itemManagerObj = new GameObject("ItemManager");
+                ItemManager itemManager = itemManagerObj.AddComponent<ItemManager>();
+
+                // Set available items via reflection
+                if (_availableItems != null && _availableItems.Length > 0)
+                {
+                    var itemsField = typeof(ItemManager).GetField("_availableItems",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    itemsField?.SetValue(itemManager, _availableItems);
+                }
             }
 
             // Create Live Show UI

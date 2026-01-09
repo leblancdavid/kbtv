@@ -21,9 +21,14 @@
   - Show quality affects listener growth/decay over time
   - Caller quality impacts listeners (great callers attract, bad callers repel)
   - Listener count displayed in header bar with change indicator
+- [x] Item usage system
+  - ItemManager tracks inventory and handles item usage
+  - ItemPanel UI with use buttons and keyboard shortcuts (1-5)
+  - Items consume on use, apply stat modifications to Vern
+  - Optional cooldowns and per-item settings
+  - Starts with 3 of each item (Coffee, Water, Sandwich, Whiskey, Cigarette)
 
 ### TODO
-- [ ] Item usage system (use Coffee, Sandwich, etc. to modify Vern's stats)
 - [ ] Basic audio (placeholder SFX for caller events, phase transitions)
 
 ---

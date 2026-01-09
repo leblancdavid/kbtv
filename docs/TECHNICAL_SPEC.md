@@ -11,8 +11,8 @@
 ```
 Assets/Scripts/Runtime/
 ├── Core/           # GamePhase, GameStateManager, GameBootstrap
-├── Data/           # Stat, VernStats, StatModifier
-├── Managers/       # TimeManager, LiveShowManager, ListenerManager
+├── Data/           # Stat, VernStats, StatModifier, Item
+├── Managers/       # TimeManager, LiveShowManager, ListenerManager, ItemManager
 ├── Callers/        # Caller, CallerQueue, CallerGenerator, CallerScreeningManager, Topic
 └── UI/             # LiveShowUIManager, panels, components (see UI System)
 ```
@@ -64,6 +64,26 @@ Assets/Scripts/Runtime/
   - `_greatCallerBonus` (+150), `_goodCallerBonus` (+50), `_badCallerPenalty` (-100)
 - Events: `OnListenersChanged`, `OnPeakReached`
 - Properties: `CurrentListeners`, `PeakListeners`, `ListenerChange`
+
+### Item System
+**Files**: `Data/Item.cs`, `Managers/ItemManager.cs`, `UI/ItemPanel.cs`
+
+- `Item` (ScriptableObject, extends StatModifier): Consumable items with additional settings
+  - `ItemId` - Unique identifier
+  - `Cost` - Purchase price (for PreShow shop)
+  - `Cooldown` - Seconds before item can be used again
+  - `UsableDuringShow` - Whether item works during live show
+  - `Hotkey` - Keyboard shortcut (1-9)
+  - `ShortName` - Abbreviated name for UI
+- `ItemManager` (Singleton): Manages inventory and item usage
+  - `ItemSlot` - Tracks quantity and cooldown per item
+  - `UseItem(itemId)` / `UseItemByIndex(index)` - Consume and apply item
+  - Works with both `Item` and plain `StatModifier` assets
+  - Events: `OnItemUsed`, `OnInventoryChanged`, `OnCooldownChanged`
+- `ItemPanel` (UI): Displays items with use buttons
+  - Shows hotkey indicator, name, quantity, cooldown timer
+  - Keyboard shortcuts 1-5 to use items by index
+  - Buttons disabled when out of stock or on cooldown
 
 ### Caller Screening System
 **Files**: `Callers/Caller.cs`, `Callers/CallerQueue.cs`, `Callers/CallerGenerator.cs`, `Callers/CallerScreeningManager.cs`

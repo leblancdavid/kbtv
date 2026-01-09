@@ -20,6 +20,7 @@ namespace KBTV.UI
 
         private HeaderBarUI _headerBar;
         private VernStatsPanel _statsPanel;
+        private ItemPanel _itemPanel;
         private ScreeningPanel _screeningPanel;
         private OnAirPanel _onAirPanel;
         private CallerQueuePanel _callerQueuePanel;
@@ -97,10 +98,14 @@ namespace KBTV.UI
             // Two-column layout for content
             UITheme.AddHorizontalLayout(contentArea, padding: UITheme.PanelPadding, spacing: UITheme.PanelPadding);
 
-            // Left column (stats)
+            // Left column (stats + items)
             GameObject leftColumn = CreateColumn(contentArea.transform, "LeftColumn", 350f);
             _statsPanel = VernStatsPanel.Create(leftColumn.transform);
             UITheme.AddLayoutElement(_statsPanel.gameObject, flexibleHeight: 1f);
+
+            // Item panel below stats
+            _itemPanel = ItemPanel.Create(leftColumn.transform);
+            UITheme.AddLayoutElement(_itemPanel.gameObject, preferredHeight: 250f);
 
             // Right column (caller management)
             GameObject rightColumn = CreateColumn(contentArea.transform, "RightColumn", -1f); // Flexible width
