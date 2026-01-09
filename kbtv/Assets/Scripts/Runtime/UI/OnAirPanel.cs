@@ -227,6 +227,7 @@ namespace KBTV.UI
 
         private void OnPutOnAirClicked()
         {
+            Debug.Log("OnAirPanel: PUT ON AIR BUTTON CLICKED!");
             AudioManager.Instance?.PlayButtonClick();
             
             if (_callerQueue == null)
