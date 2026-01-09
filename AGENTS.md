@@ -13,6 +13,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [ART_STYLE.md](docs/ART_STYLE.md) | Visual direction, color palette, and asset guidelines |
 | [AUDIO_DESIGN.md](docs/AUDIO_DESIGN.md) | Sound design, music, and audio technical specs |
 | [ROADMAP.md](docs/ROADMAP.md) | Development milestones and feature backlog |
+| [CI_CD_SETUP.md](docs/CI_CD_SETUP.md) | GitHub Actions build/release setup and Unity license activation |
 
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
 

@@ -94,3 +94,18 @@ Features to consider for future development:
 - Multiple endings based on Vern's belief trajectory
 - Steam achievements
 - Accessibility options
+
+---
+
+## Infrastructure
+
+### Completed
+- [x] CI/CD with GitHub Actions (GameCI)
+  - Automated builds on version tags
+  - Windows and WebGL platforms
+  - GitHub Releases with downloadable zips
+- [x] Unit tests for core data classes (Stat, VernStats, Caller)
+
+### TODO
+- [ ] Unity license activation (follow docs/CI_CD_SETUP.md)
+- [ ] Steam deployment pipeline (requires Steamworks account)
