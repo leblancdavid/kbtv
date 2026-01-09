@@ -144,6 +144,7 @@ namespace KBTV.UI
 
         private void Start()
         {
+            Debug.Log("VernStatsPanel: Start() called");
             TryBindStats();
         }
 
@@ -158,8 +159,16 @@ namespace KBTV.UI
 
         private void TryBindStats()
         {
-            if (GameStateManager.Instance == null) return;
-            if (GameStateManager.Instance.VernStats == null) return;
+            if (GameStateManager.Instance == null)
+            {
+                Debug.Log("VernStatsPanel: GameStateManager.Instance is null");
+                return;
+            }
+            if (GameStateManager.Instance.VernStats == null)
+            {
+                Debug.Log("VernStatsPanel: VernStats is null");
+                return;
+            }
             
             // Check if stats are actually initialized (Mood will be null until Initialize() is called)
             if (GameStateManager.Instance.VernStats.Mood == null)
@@ -179,6 +188,8 @@ namespace KBTV.UI
         public void BindStats()
         {
             if (_stats == null) return;
+
+            Debug.Log($"VernStatsPanel.BindStats: _moodBar={_moodBar != null}, _stats.Mood={_stats.Mood != null}");
 
             _moodBar.SetStat(_stats.Mood);
             _energyBar.SetStat(_stats.Energy);
