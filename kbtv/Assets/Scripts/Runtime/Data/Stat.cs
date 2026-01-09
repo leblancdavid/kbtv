@@ -37,12 +37,14 @@ namespace KBTV.Data
             
             if (!Mathf.Approximately(oldValue, _value))
             {
+                Debug.Log($"Stat '{_name}': Value changed {oldValue} -> {_value}, firing OnValueChanged (subscribers: {OnValueChanged?.GetInvocationList()?.Length ?? 0})");
                 OnValueChanged?.Invoke(oldValue, _value);
             }
         }
 
         public void Modify(float delta)
         {
+            Debug.Log($"Stat '{_name}': Modify({delta}) called, current value: {_value}");
             SetValue(_value + delta);
         }
 

@@ -106,7 +106,12 @@ namespace KBTV.UI
             if (_stat != null)
             {
                 _stat.OnValueChanged += OnStatChanged;
+                Debug.Log($"StatBarUI: Bound to stat '{_stat.Name}', value={_stat.Value}");
                 UpdateDisplay();
+            }
+            else
+            {
+                Debug.LogWarning($"StatBarUI: SetStat called with null stat");
             }
         }
 

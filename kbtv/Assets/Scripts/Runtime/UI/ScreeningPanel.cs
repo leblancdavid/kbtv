@@ -189,7 +189,9 @@ namespace KBTV.UI
         {
             if (_callerQueue != null)
             {
-                _callerQueue.ApproveCurrentCaller();
+                Debug.Log($"ScreeningPanel: Approve clicked. CurrentScreening: {_callerQueue.CurrentScreening?.Name ?? "null"}");
+                bool success = _callerQueue.ApproveCurrentCaller();
+                Debug.Log($"ScreeningPanel: Approve result: {success}, OnHold count now: {_callerQueue.OnHoldCallers.Count}");
                 AudioManager.Instance?.PlayCallerDecision(true);
                 UpdateDisplay();
             }

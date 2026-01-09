@@ -228,10 +228,24 @@ namespace KBTV.UI
         private void OnPutOnAirClicked()
         {
             AudioManager.Instance?.PlayButtonClick();
-            if (_callerQueue != null && _callerQueue.HasOnHoldCallers)
+            
+            if (_callerQueue == null)
             {
-                _callerQueue.PutNextCallerOnAir();
+                Debug.LogWarning("OnAirPanel: CallerQueue is null!");
+                return;
+            }
+            
+            Debug.Log($"OnAirPanel: Put On Air clicked. OnHold count: {_callerQueue.OnHoldCallers.Count}, HasOnHoldCallers: {_callerQueue.HasOnHoldCallers}");
+            
+            if (_callerQueue.HasOnHoldCallers)
+            {
+                Caller caller = _callerQueue.PutNextCallerOnAir();
+                Debug.Log($"OnAirPanel: Put {caller?.Name ?? "null"} on air");
                 UpdateDisplay();
+            }
+            else
+            {
+                Debug.Log("OnAirPanel: No callers on hold to put on air");
             }
         }
     }

@@ -158,12 +158,19 @@ namespace KBTV.UI
 
         private void TryBindStats()
         {
-            if (GameStateManager.Instance != null && GameStateManager.Instance.VernStats != null)
+            if (GameStateManager.Instance == null) return;
+            if (GameStateManager.Instance.VernStats == null) return;
+            
+            // Check if stats are actually initialized (Mood will be null until Initialize() is called)
+            if (GameStateManager.Instance.VernStats.Mood == null)
             {
-                _stats = GameStateManager.Instance.VernStats;
-                BindStats();
-                Debug.Log("VernStatsPanel: Bound to VernStats");
+                Debug.Log("VernStatsPanel: VernStats exists but Mood is null - waiting for Initialize()");
+                return;
             }
+
+            _stats = GameStateManager.Instance.VernStats;
+            BindStats();
+            Debug.Log("VernStatsPanel: Bound to VernStats successfully");
         }
 
         /// <summary>
