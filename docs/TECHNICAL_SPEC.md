@@ -365,6 +365,84 @@ Benefits:
 - `Image.Type.Filled` requires a sprite assigned to work
 - Alternative: manually scale `RectTransform.sizeDelta.x` based on normalized value
 
+## Testing
+
+### Test Structure
+
+Tests are located in `Assets/Scripts/Tests/Editor/` and use Unity's Edit Mode testing with NUnit.
+
+```
+Assets/Scripts/Tests/
+└── Editor/
+    ├── KBTV.Tests.Editor.asmdef  # Test assembly definition
+    ├── StatTests.cs              # Tests for Stat class
+    ├── VernStatsTests.cs         # Tests for VernStats ScriptableObject
+    └── CallerTests.cs            # Tests for Caller class
+```
+
+### Running Tests
+
+**In Unity Editor**:
+1. Open `Window > General > Test Runner`
+2. Select **EditMode** tab
+3. Click **Run All** or click individual tests
+
+**Command Line**:
+```bash
+Unity.exe -projectPath kbtv/kbtv -batchmode -runTests -testPlatform editmode -testResults Results.xml
+```
+
+### Test Coverage
+
+| Class | File | Coverage |
+|-------|------|----------|
+| `Stat` | `StatTests.cs` | Constructor, SetValue, Modify, Reset, Normalized, IsEmpty/IsFull, events |
+| `VernStats` | `VernStatsTests.cs` | Initialize, CalculateShowQuality, ApplyDecay, event firing |
+| `Caller` | `CallerTests.cs` | Constructor, UpdateWaitTime, SetState, CalculateShowImpact, events |
+
+### Writing Tests
+
+**Edit Mode tests** (for pure logic classes):
+```csharp
+using NUnit.Framework;
+using KBTV.Data;
+
+public class MyTests
+{
+    [Test]
+    public void MyMethod_DoesExpectedThing()
+    {
+        var stat = new Stat("Test", 50f);
+        stat.Modify(10f);
+        Assert.AreEqual(60f, stat.Value);
+    }
+}
+```
+
+**Testing ScriptableObjects**:
+```csharp
+[SetUp]
+public void SetUp()
+{
+    _stats = ScriptableObject.CreateInstance<VernStats>();
+}
+
+[TearDown]
+public void TearDown()
+{
+    Object.DestroyImmediate(_stats);
+}
+```
+
+### Best Practices
+
+- Test one behavior per test method
+- Use descriptive test names: `MethodName_Condition_ExpectedResult`
+- Create helper methods for repetitive object creation
+- Always clean up ScriptableObjects in `TearDown`
+- Test both success and failure cases
+- Test event firing with callback counters
+
 ## Performance Targets
 <!-- TBD -->
 
