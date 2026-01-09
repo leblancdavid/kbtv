@@ -20,6 +20,18 @@ namespace KBTV
     /// </summary>
     public class GameBootstrap : MonoBehaviour
     {
+        public static GameBootstrap Instance { get; private set; }
+
+        /// <summary>
+        /// All available topics for the game. Used by PreShow UI for topic selection.
+        /// </summary>
+        public Topic[] AvailableTopics => _availableTopics;
+
+        /// <summary>
+        /// Static helper to get available topics from anywhere.
+        /// </summary>
+        public static Topic[] GetAvailableTopics() => Instance?._availableTopics ?? System.Array.Empty<Topic>();
+
         [Header("Configuration")]
         [SerializeField] private VernStats _vernStatsAsset;
         [SerializeField] private Topic _tonightsTopic;
@@ -49,11 +61,18 @@ namespace KBTV
         [SerializeField] private bool _enableAudio = true;
 
         [Header("Debug")]
-        [Tooltip("Automatically start the live show when the game begins (for testing)")]
-        [SerializeField] private bool _autoStartLiveShow = true;
+        [Tooltip("Automatically start the live show when the game begins (skip PreShow)")]
+        [SerializeField] private bool _autoStartLiveShow = false;
 
         private void Awake()
         {
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+            Instance = this;
+            
             SetupManagers();
         }
 
@@ -206,6 +225,12 @@ namespace KBTV
                 {
                     GameObject liveShowUIObj = new GameObject("LiveShowUI");
                     liveShowUIObj.AddComponent<LiveShowUIManager>();
+                }
+
+                if (PreShowUIManager.Instance == null)
+                {
+                    GameObject preShowUIObj = new GameObject("PreShowUI");
+                    preShowUIObj.AddComponent<PreShowUIManager>();
                 }
             }
 

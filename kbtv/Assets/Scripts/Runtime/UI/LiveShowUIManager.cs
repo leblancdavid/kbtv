@@ -52,6 +52,11 @@ namespace KBTV.UI
 
         private void OnDestroy()
         {
+            if (Instance == this)
+            {
+                Instance = null;
+            }
+
             if (_gameState != null)
             {
                 _gameState.OnPhaseChanged -= OnPhaseChanged;
@@ -161,8 +166,8 @@ namespace KBTV.UI
         {
             if (_gameState == null) return;
 
-            // Show UI during all phases for now (can restrict to LiveShow only later)
-            bool showUI = true; // _gameState.CurrentPhase == GamePhase.LiveShow;
+            // Only show during LiveShow phase
+            bool showUI = _gameState.CurrentPhase == GamePhase.LiveShow;
             
             if (_rootPanel != null)
             {
