@@ -7,35 +7,39 @@ This project uses GitHub Actions with [GameCI](https://game.ci/) for automated U
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | `build.yml` | Version tags (`v*`) | Build Windows + WebGL, create GitHub Release |
-| `activation.yml` | Manual | Generate Unity license activation file |
 
 ## First-Time Setup: Unity License Activation
 
 GameCI requires a Unity license to build. For Personal licenses, follow these steps:
 
-### Step 1: Generate Activation File
+### Step 1: Get Your License File from Unity Hub
 
-1. Go to **Actions** tab in your GitHub repository
-2. Select **"Acquire Unity License"** workflow
-3. Click **"Run workflow"**
-4. Download the `Unity_v6000.0.28f1.alf` artifact when complete
+1. **Install Unity Hub** on your local machine if you haven't already
+2. **Log in to Unity Hub** with the Unity account you want to use for CI
+3. **Activate a license**:
+   - Go to `Unity Hub` > `Preferences` > `Licenses`
+   - Click the `Add` button
+   - Select **"Get a free personal license"**
+4. **Locate the `.ulf` file** on your machine:
+   - **Windows**: `C:\ProgramData\Unity\Unity_lic.ulf`
+   - **Mac**: `/Library/Application Support/Unity/Unity_lic.ulf`
+   - **Linux**: `~/.local/share/unity3d/Unity/Unity_lic.ulf`
 
-### Step 2: Activate License on Unity Website
+> **Note**: The `ProgramData` folder on Windows is hidden by default. Type the path directly in File Explorer or enable "Show hidden files".
 
-1. Go to [license.unity3d.com/manual](https://license.unity3d.com/manual)
-2. Upload the `.alf` file
-3. Select "Unity Personal" license type
-4. Download the resulting `.ulf` license file
+### Step 2: Add Secrets to GitHub
 
-### Step 3: Add Secrets to GitHub
-
-Go to **Settings > Secrets and variables > Actions** and add:
+1. Go to your repository on GitHub
+2. Navigate to **Settings** > **Secrets and variables** > **Actions**
+3. Click **"New repository secret"** and add these three secrets:
 
 | Secret | Value |
 |--------|-------|
-| `UNITY_LICENSE` | Contents of the `.ulf` file (copy-paste entire file) |
+| `UNITY_LICENSE` | Contents of the `.ulf` file (open in text editor, copy-paste entire file) |
 | `UNITY_EMAIL` | Your Unity account email |
 | `UNITY_PASSWORD` | Your Unity account password |
+
+> **Security note**: GameCI does not store your credentials. They are only used during the build to activate Unity.
 
 ## Creating a Release
 
@@ -77,7 +81,13 @@ From Unity Editor:
 
 ### "License not found" error
 - Verify `UNITY_LICENSE` secret contains the full `.ulf` file contents
-- Re-run the activation workflow if the license expired
+- Make sure you copied the entire file including the XML tags
+- Try re-activating in Unity Hub and getting a fresh `.ulf` file
+
+### Can't find the `.ulf` file
+- Make sure you clicked **Add** in Unity Hub Licenses and completed activation
+- Enable "Show hidden files" in your file explorer
+- The file is created after activation, not just after logging in
 
 ### Build fails on first run
 - The Library cache is empty on first run, so builds take longer
@@ -93,6 +103,6 @@ When ready for Steam:
 1. Create Steamworks developer account ($100)
 2. Create app and get App ID
 3. Add `STEAM_USERNAME` and `STEAM_CONFIG_VFD` secrets
-4. Uncomment Steam deployment step in workflow
+4. Add Steam deployment step to workflow
 
 See [GameCI Steam Deploy docs](https://game.ci/docs/github/deployment/steam) for details.
