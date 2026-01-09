@@ -78,10 +78,13 @@ namespace KBTV
 
         private void Start()
         {
+            Debug.Log($"GameBootstrap: Start() - _autoStartLiveShow = {_autoStartLiveShow}");
+            
             // Auto-advance to LiveShow for testing (after all managers have initialized in their Start())
             if (_autoStartLiveShow && GameStateManager.Instance != null)
             {
                 // Use a small delay to ensure all managers have finished their Start() methods
+                Debug.Log("GameBootstrap: Auto-start is enabled, will advance to LiveShow in 0.1s");
                 Invoke(nameof(StartLiveShow), 0.1f);
             }
         }

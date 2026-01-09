@@ -20,9 +20,9 @@ namespace KBTV.Managers
         [Tooltip("Show start time in 24-hour format (e.g., 22 = 10 PM)")]
         [SerializeField] private int _showStartHour = 22;
 
-        [Header("State")]
-        [SerializeField] private float _elapsedTime = 0f;
-        [SerializeField] private bool _isRunning = false;
+        // Runtime state (not serialized - always starts fresh)
+        private float _elapsedTime = 0f;
+        private bool _isRunning = false;
 
         public float ElapsedTime => _elapsedTime;
         public float ShowDuration => _showDurationSeconds;
@@ -53,6 +53,14 @@ namespace KBTV.Managers
         /// Fired when time starts or stops.
         /// </summary>
         public event Action<bool> OnRunningChanged;
+
+        protected override void OnSingletonAwake()
+        {
+            // Ensure clean state on startup
+            _elapsedTime = 0f;
+            _isRunning = false;
+            Debug.Log("TimeManager: Initialized (clock stopped, elapsed time reset)");
+        }
 
         private void Update()
         {
