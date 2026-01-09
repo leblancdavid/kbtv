@@ -115,7 +115,13 @@ namespace KBTV.Managers
             _inventory.Clear();
             _itemSlots.Clear();
 
-            if (_availableItems == null) return;
+            if (_availableItems == null || _availableItems.Length == 0)
+            {
+                Debug.LogWarning("ItemManager: No items configured in _availableItems array!");
+                return;
+            }
+
+            Debug.Log($"ItemManager: Initializing inventory with {_availableItems.Length} item types");
 
             int hotkeyCounter = 1;
             foreach (var modifier in _availableItems)

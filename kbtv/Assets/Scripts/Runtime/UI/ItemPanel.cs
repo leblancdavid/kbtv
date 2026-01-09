@@ -115,11 +115,18 @@ namespace KBTV.UI
         {
             if (_itemManager == null) return;
 
+            Debug.Log($"ItemPanel: Building buttons for {_itemManager.ItemSlots.Count} items");
+
             int index = 1;
             foreach (var slot in _itemManager.ItemSlots)
             {
                 CreateItemButton(slot, index);
                 index++;
+            }
+            
+            if (_itemManager.ItemSlots.Count == 0)
+            {
+                Debug.LogWarning("ItemPanel: No items to display!");
             }
         }
 
