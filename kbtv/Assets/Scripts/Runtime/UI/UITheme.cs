@@ -125,6 +125,7 @@ namespace KBTV.UI
             // Button text
             TextMeshProUGUI buttonText = CreateText("Text", buttonObj.transform, label, 
                 FontSizeNormal, textColor ?? TextWhite, TextAlignmentOptions.Center);
+            buttonText.raycastTarget = false; // Don't block button clicks
 
             return button;
         }
