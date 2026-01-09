@@ -2,12 +2,13 @@ using UnityEngine;
 using KBTV.Core;
 using KBTV.Data;
 using KBTV.Managers;
+using KBTV.Callers;
 
 namespace KBTV.UI
 {
     /// <summary>
     /// Debug UI for testing core systems.
-    /// Displays Vern's stats, game phase, and provides controls.
+    /// Displays Vern's stats, game phase, callers, and provides controls.
     /// Uses Unity's IMGUI for quick prototyping.
     /// </summary>
     public class DebugUI : MonoBehaviour
@@ -19,11 +20,19 @@ namespace KBTV.UI
         private GameStateManager _gameState;
         private TimeManager _timeManager;
         private VernStats _stats;
+        private CallerQueue _callerQueue;
+        private CallerGenerator _callerGenerator;
+        private CallerScreeningManager _screeningManager;
+
+        private Vector2 _callerScrollPos;
 
         private void Start()
         {
             _gameState = GameStateManager.Instance;
             _timeManager = TimeManager.Instance;
+            _callerQueue = CallerQueue.Instance;
+            _callerGenerator = CallerGenerator.Instance;
+            _screeningManager = CallerScreeningManager.Instance;
 
             if (_gameState != null)
             {
@@ -43,7 +52,8 @@ namespace KBTV.UI
         {
             if (!_showUI) return;
 
-            GUILayout.BeginArea(new Rect(10, 10, 300, 500));
+            // Left panel - Stats and Controls
+            GUILayout.BeginArea(new Rect(10, 10, 300, 550));
             GUILayout.BeginVertical("box");
 
             DrawHeader();
@@ -51,6 +61,15 @@ namespace KBTV.UI
             DrawTimeInfo();
             DrawStats();
             DrawControls();
+
+            GUILayout.EndVertical();
+            GUILayout.EndArea();
+
+            // Right panel - Callers
+            GUILayout.BeginArea(new Rect(320, 10, 350, 550));
+            GUILayout.BeginVertical("box");
+
+            DrawCallerPanel();
 
             GUILayout.EndVertical();
             GUILayout.EndArea();
@@ -206,6 +225,177 @@ namespace KBTV.UI
                 _stats?.Thirst.Modify(-20f);
             }
             GUILayout.EndHorizontal();
+        }
+
+        private void DrawCallerPanel()
+        {
+            GUILayout.Label("<size=16><b>Caller Management</b></size>");
+            GUILayout.Space(5);
+
+            if (_callerQueue == null)
+            {
+                GUILayout.Label("<color=yellow>CallerQueue not found - add CallerQueue component</color>");
+                return;
+            }
+
+            // Queue status
+            GUILayout.Label($"<b>Incoming:</b> {_callerQueue.IncomingCallers.Count} | <b>On Hold:</b> {_callerQueue.OnHoldCallers.Count}");
+
+            // Caller controls
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Spawn Caller"))
+            {
+                _callerGenerator?.SpawnCaller();
+            }
+            if (GUILayout.Button("Clear All"))
+            {
+                _callerQueue.ClearAll();
+            }
+            GUILayout.EndHorizontal();
+
+            GUILayout.Space(10);
+
+            // Current screening
+            DrawCurrentScreening();
+
+            // On-air caller
+            DrawOnAirCaller();
+
+            // Incoming queue
+            DrawIncomingQueue();
+
+            // On-hold queue
+            DrawOnHoldQueue();
+        }
+
+        private void DrawCurrentScreening()
+        {
+            GUILayout.Label("<b>--- Screening ---</b>");
+
+            Caller screening = _callerQueue.CurrentScreening;
+            if (screening == null)
+            {
+                if (_callerQueue.HasIncomingCallers)
+                {
+                    if (GUILayout.Button("Screen Next Caller"))
+                    {
+                        _callerQueue.StartScreeningNext();
+                    }
+                }
+                else
+                {
+                    GUILayout.Label("<color=gray>No caller being screened</color>");
+                }
+            }
+            else
+            {
+                GUILayout.Label($"<color=cyan>{screening.Name}</color>");
+                GUILayout.Label($"Phone: {screening.PhoneNumber}");
+                GUILayout.Label($"From: {screening.Location}");
+                GUILayout.Label($"Topic: {screening.ClaimedTopic}");
+                GUILayout.Label($"Reason: {screening.CallReason}");
+                GUILayout.Label($"Wait: {screening.WaitTime:F1}s / {screening.Patience:F0}s");
+
+                GUILayout.BeginHorizontal();
+                GUI.color = Color.green;
+                if (GUILayout.Button("APPROVE"))
+                {
+                    _callerQueue.ApproveCurrentCaller();
+                }
+                GUI.color = Color.red;
+                if (GUILayout.Button("REJECT"))
+                {
+                    _callerQueue.RejectCurrentCaller();
+                }
+                GUI.color = Color.white;
+                GUILayout.EndHorizontal();
+            }
+
+            GUILayout.Space(5);
+        }
+
+        private void DrawOnAirCaller()
+        {
+            GUILayout.Label("<b>--- ON AIR ---</b>");
+
+            Caller onAir = _callerQueue.OnAirCaller;
+            if (onAir == null)
+            {
+                if (_callerQueue.HasOnHoldCallers)
+                {
+                    if (GUILayout.Button("Put Next On Air"))
+                    {
+                        _callerQueue.PutNextCallerOnAir();
+                    }
+                }
+                else
+                {
+                    GUILayout.Label("<color=gray>No one on air</color>");
+                }
+            }
+            else
+            {
+                string legitimacyColor = onAir.Legitimacy switch
+                {
+                    CallerLegitimacy.Fake => "red",
+                    CallerLegitimacy.Questionable => "yellow",
+                    CallerLegitimacy.Credible => "white",
+                    CallerLegitimacy.Compelling => "lime",
+                    _ => "white"
+                };
+
+                GUILayout.Label($"<color=lime><b>{onAir.Name}</b></color> - LIVE");
+                GUILayout.Label($"Actual Topic: {onAir.ActualTopic}");
+                GUILayout.Label($"Legitimacy: <color={legitimacyColor}>{onAir.Legitimacy}</color>");
+
+                if (onAir.IsLyingAboutTopic)
+                {
+                    GUILayout.Label("<color=red>LIAR - Wrong topic!</color>");
+                }
+
+                if (GUILayout.Button("End Call"))
+                {
+                    _callerQueue.EndCurrentCall();
+                }
+            }
+
+            GUILayout.Space(5);
+        }
+
+        private void DrawIncomingQueue()
+        {
+            GUILayout.Label($"<b>--- Incoming ({_callerQueue.IncomingCallers.Count}) ---</b>");
+
+            if (_callerQueue.IncomingCallers.Count == 0)
+            {
+                GUILayout.Label("<color=gray>No incoming calls</color>");
+                return;
+            }
+
+            _callerScrollPos = GUILayout.BeginScrollView(_callerScrollPos, GUILayout.Height(80));
+            foreach (var caller in _callerQueue.IncomingCallers)
+            {
+                float patiencePercent = 1f - (caller.WaitTime / caller.Patience);
+                string patienceColor = patiencePercent > 0.5f ? "white" : patiencePercent > 0.25f ? "yellow" : "red";
+                GUILayout.Label($"<color={patienceColor}>{caller.Name}</color> - {caller.ClaimedTopic} ({caller.WaitTime:F0}s)");
+            }
+            GUILayout.EndScrollView();
+        }
+
+        private void DrawOnHoldQueue()
+        {
+            GUILayout.Label($"<b>--- On Hold ({_callerQueue.OnHoldCallers.Count}) ---</b>");
+
+            if (_callerQueue.OnHoldCallers.Count == 0)
+            {
+                GUILayout.Label("<color=gray>No callers on hold</color>");
+                return;
+            }
+
+            foreach (var caller in _callerQueue.OnHoldCallers)
+            {
+                GUILayout.Label($"{caller.Name} - {caller.ClaimedTopic}");
+            }
         }
     }
 }
