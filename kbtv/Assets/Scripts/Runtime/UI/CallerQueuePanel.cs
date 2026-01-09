@@ -101,6 +101,14 @@ namespace KBTV.UI
 
         private void Start()
         {
+            TrySubscribe();
+            RefreshLists();
+        }
+
+        private void TrySubscribe()
+        {
+            if (_callerQueue != null) return;
+
             _callerQueue = CallerQueue.Instance;
 
             if (_callerQueue != null)
@@ -110,9 +118,8 @@ namespace KBTV.UI
                 _callerQueue.OnCallerDisconnected += OnCallerChanged;
                 _callerQueue.OnCallerOnAir += OnCallerChanged;
                 _callerQueue.OnCallerCompleted += OnCallerChanged;
+                Debug.Log("CallerQueuePanel: Subscribed to CallerQueue events");
             }
-
-            RefreshLists();
         }
 
         private void OnDestroy()
@@ -134,6 +141,12 @@ namespace KBTV.UI
 
         private void Update()
         {
+            // Retry subscription if we missed it in Start()
+            if (_callerQueue == null)
+            {
+                TrySubscribe();
+            }
+
             // Periodically check for queue changes (backup for missed events)
             if (_callerQueue != null)
             {

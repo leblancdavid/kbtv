@@ -111,6 +111,14 @@ namespace KBTV.UI
 
         private void Start()
         {
+            TrySubscribe();
+            UpdateDisplay();
+        }
+
+        private void TrySubscribe()
+        {
+            if (_callerQueue != null) return;
+
             _callerQueue = CallerQueue.Instance;
 
             if (_callerQueue != null)
@@ -118,9 +126,8 @@ namespace KBTV.UI
                 _callerQueue.OnCallerAdded += OnCallerQueueChanged;
                 _callerQueue.OnCallerRemoved += OnCallerQueueChanged;
                 _callerQueue.OnCallerDisconnected += OnCallerQueueChanged;
+                Debug.Log("ScreeningPanel: Subscribed to CallerQueue events");
             }
-
-            UpdateDisplay();
         }
 
         private void OnDestroy()
@@ -135,6 +142,12 @@ namespace KBTV.UI
 
         private void Update()
         {
+            // Retry subscription if we missed it in Start()
+            if (_callerQueue == null)
+            {
+                TrySubscribe();
+            }
+
             // Check if screening state changed
             bool hasScreening = _callerQueue != null && _callerQueue.CurrentScreening != null;
             

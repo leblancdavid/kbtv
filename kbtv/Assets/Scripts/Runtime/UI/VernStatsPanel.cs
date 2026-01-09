@@ -144,11 +144,25 @@ namespace KBTV.UI
 
         private void Start()
         {
-            // Get stats from GameStateManager
-            if (GameStateManager.Instance != null)
+            TryBindStats();
+        }
+
+        private void Update()
+        {
+            // Retry binding if we missed it in Start()
+            if (_stats == null)
+            {
+                TryBindStats();
+            }
+        }
+
+        private void TryBindStats()
+        {
+            if (GameStateManager.Instance != null && GameStateManager.Instance.VernStats != null)
             {
                 _stats = GameStateManager.Instance.VernStats;
                 BindStats();
+                Debug.Log("VernStatsPanel: Bound to VernStats");
             }
         }
 
