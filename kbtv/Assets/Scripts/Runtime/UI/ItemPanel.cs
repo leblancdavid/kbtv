@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using KBTV.Audio;
 using KBTV.Data;
 using KBTV.Managers;
 
@@ -90,7 +91,11 @@ namespace KBTV.UI
                 {
                     if (Input.GetKeyDown(KeyCode.Alpha1 + i) || Input.GetKeyDown(KeyCode.Keypad1 + i))
                     {
-                        _itemManager.UseItemByIndex(i);
+                        if (!_itemManager.UseItemByIndex(i))
+                        {
+                            // Failed to use - play error sound
+                            AudioManager.Instance?.PlayItemEmpty();
+                        }
                     }
                 }
             }
@@ -196,7 +201,12 @@ namespace KBTV.UI
 
         private void OnUseClicked(string itemId)
         {
-            _itemManager?.UseItem(itemId);
+            AudioManager.Instance?.PlayButtonClick();
+            if (_itemManager != null && !_itemManager.UseItem(itemId))
+            {
+                // Failed to use - play error sound
+                AudioManager.Instance?.PlayItemEmpty();
+            }
         }
 
         private void RefreshUI()

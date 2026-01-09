@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using KBTV.Callers;
+using KBTV.Audio;
 
 namespace KBTV.UI
 {
@@ -176,6 +177,7 @@ namespace KBTV.UI
             if (_callerQueue != null)
             {
                 _callerQueue.ApproveCurrentCaller();
+                AudioManager.Instance?.PlayCallerDecision(true);
                 UpdateDisplay();
             }
         }
@@ -185,6 +187,7 @@ namespace KBTV.UI
             if (_callerQueue != null)
             {
                 _callerQueue.RejectCurrentCaller();
+                AudioManager.Instance?.PlayCallerDecision(false);
                 UpdateDisplay();
             }
         }
@@ -194,6 +197,7 @@ namespace KBTV.UI
             if (_callerQueue != null && _callerQueue.HasIncomingCallers)
             {
                 _callerQueue.StartScreeningNext();
+                AudioManager.Instance?.PlayButtonClick();
                 UpdateDisplay();
             }
         }

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using KBTV.Callers;
+using KBTV.Audio;
 
 namespace KBTV.UI
 {
@@ -197,6 +198,7 @@ namespace KBTV.UI
 
         private void OnEndCallClicked()
         {
+            AudioManager.Instance?.PlayButtonClick();
             if (_callerQueue != null)
             {
                 _callerQueue.EndCurrentCall();
@@ -206,6 +208,7 @@ namespace KBTV.UI
 
         private void OnPutOnAirClicked()
         {
+            AudioManager.Instance?.PlayButtonClick();
             if (_callerQueue != null && _callerQueue.HasOnHoldCallers)
             {
                 _callerQueue.PutNextCallerOnAir();

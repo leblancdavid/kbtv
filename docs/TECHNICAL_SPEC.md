@@ -3,7 +3,7 @@
 ## Architecture Overview
 
 - **Pattern**: Singleton managers with event-driven communication
-- **Namespaces**: `KBTV.Core`, `KBTV.Data`, `KBTV.Managers`, `KBTV.Callers`, `KBTV.UI`
+- **Namespaces**: `KBTV.Core`, `KBTV.Data`, `KBTV.Managers`, `KBTV.Callers`, `KBTV.UI`, `KBTV.Audio`
 - **Bootstrap**: `GameBootstrap` creates all managers at runtime via reflection injection
 - **Data**: ScriptableObjects for configuration (Topics, Items, Events, VernStats)
 
@@ -14,7 +14,8 @@ Assets/Scripts/Runtime/
 ├── Data/           # Stat, VernStats, StatModifier, Item
 ├── Managers/       # TimeManager, LiveShowManager, ListenerManager, ItemManager
 ├── Callers/        # Caller, CallerQueue, CallerGenerator, CallerScreeningManager, Topic
-└── UI/             # LiveShowUIManager, panels, components (see UI System)
+├── UI/             # LiveShowUIManager, panels, components (see UI System)
+└── Audio/          # AudioManager
 ```
 
 ## Core Systems
@@ -172,6 +173,56 @@ Panels subscribe to game events for real-time updates:
 - `CallerQueue.OnQueueChanged` - Queue list updates
 - `TimeManager.OnTick` - Clock updates
 - `CallerScreeningManager.OnScreeningStarted/Completed` - Caller card updates
+
+## Audio System
+**Files**: `Audio/AudioManager.cs`
+
+The audio system is centralized through `AudioManager`, which subscribes to game events and plays appropriate sounds automatically.
+
+### AudioManager
+
+- **Singleton**: `AudioManager.Instance`
+- **Audio Sources**: Creates 3 child AudioSource components:
+  - `SFX_Source` - One-shot sound effects
+  - `Music_Source` - Background music (looping)
+  - `Ambience_Source` - Ambient sounds (looping)
+- **Volume Controls**: Master, SFX, Music, Ambience (0-1 range)
+
+### SFX Types
+
+| Category | SFX Types |
+|----------|-----------|
+| **Phase Transitions** | `ShowStart`, `ShowEnd` |
+| **Caller Events** | `CallerIncoming`, `CallerApproved`, `CallerRejected`, `CallerOnAir`, `CallerComplete`, `CallerDisconnect` |
+| **UI Feedback** | `ButtonClick`, `ItemUsed`, `ItemEmpty` |
+| **Alerts** | `LowStat`, `HighListeners` |
+| **Ambience** | `PhoneRing`, `StaticBurst` |
+
+### Event Subscriptions
+
+AudioManager auto-plays sounds by subscribing to:
+- `GameStateManager.OnPhaseChanged` - ShowStart/ShowEnd
+- `CallerQueue.OnCallerAdded/OnAir/Completed/Disconnected` - Caller event sounds
+- `ListenerManager.OnPeakReached` - HighListeners alert
+- `ItemManager.OnItemUsed` - ItemUsed sound
+
+### Public API
+
+| Method | Description |
+|--------|-------------|
+| `PlaySFX(SFXType)` | Play a sound effect by type |
+| `PlaySFX(SFXType, float pitchVariation)` | Play with random pitch offset |
+| `PlayCallerDecision(bool approved)` | Approved or rejected sound |
+| `PlayButtonClick()` | Generic button click |
+| `PlayItemEmpty()` | Item empty error |
+| `PlayStaticBurst()` | Radio static burst |
+
+### UI Integration
+
+UI panels call AudioManager directly for immediate feedback:
+- `ScreeningPanel` - Approve/reject button clicks
+- `OnAirPanel` - End call/put on air button clicks
+- `ItemPanel` - Item use button clicks, empty item errors
 
 ## Key Patterns
 

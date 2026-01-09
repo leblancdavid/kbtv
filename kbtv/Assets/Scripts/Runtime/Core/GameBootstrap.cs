@@ -4,6 +4,7 @@ using KBTV.Data;
 using KBTV.Managers;
 using KBTV.Callers;
 using KBTV.UI;
+using KBTV.Audio;
 
 namespace KBTV
 {
@@ -43,6 +44,9 @@ namespace KBTV
         [Header("UI")]
         [SerializeField] private bool _enableLiveShowUI = true;
         [SerializeField] private bool _enableDebugUI = false;
+
+        [Header("Audio")]
+        [SerializeField] private bool _enableAudio = true;
 
         private void Awake()
         {
@@ -144,6 +148,13 @@ namespace KBTV
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     itemsField?.SetValue(itemManager, _availableItems);
                 }
+            }
+
+            // Create AudioManager
+            if (_enableAudio && AudioManager.Instance == null)
+            {
+                GameObject audioObj = new GameObject("AudioManager");
+                audioObj.AddComponent<AudioManager>();
             }
 
             // Create Live Show UI

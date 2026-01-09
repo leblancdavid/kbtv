@@ -27,9 +27,14 @@
   - Items consume on use, apply stat modifications to Vern
   - Optional cooldowns and per-item settings
   - Starts with 3 of each item (Coffee, Water, Sandwich, Whiskey, Cigarette)
+- [x] Basic audio system
+  - AudioManager singleton with SFX/Music/Ambience sources
+  - 15 SFX types for phase transitions, caller events, UI feedback, alerts
+  - Auto-plays sounds by subscribing to game events
+  - UI panels trigger button click and item feedback sounds
 
 ### TODO
-- [ ] Basic audio (placeholder SFX for caller events, phase transitions)
+_Milestone 1 complete! Proceed to Milestone 2._
 
 ---
 
