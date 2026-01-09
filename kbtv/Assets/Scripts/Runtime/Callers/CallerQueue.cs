@@ -44,6 +44,7 @@ namespace KBTV.Callers
         public event Action<Caller> OnCallerDisconnected;
         public event Action<Caller> OnCallerOnAir;
         public event Action<Caller> OnCallerCompleted;
+        public event Action<Caller> OnCallerApproved;  // Fired when caller moves to on-hold
 
         private void Awake()
         {
@@ -126,7 +127,9 @@ namespace KBTV.Callers
             _onHoldCallers.Add(_currentScreening);
             
             Debug.Log($"CallerQueue: Approved {_currentScreening.Name}, now on hold");
+            Caller approved = _currentScreening;
             _currentScreening = null;
+            OnCallerApproved?.Invoke(approved);
             return true;
         }
 
@@ -225,6 +228,7 @@ namespace KBTV.Callers
                 if (_onHoldCallers[i].UpdateWaitTime(deltaTime * 0.5f))
                 {
                     // Caller hung up
+                    OnCallerDisconnected?.Invoke(_onHoldCallers[i]);
                     _onHoldCallers.RemoveAt(i);
                 }
             }

@@ -86,6 +86,7 @@ namespace KBTV.UI
             // Empty state (shown when no one is on air)
             _emptyState = new GameObject("EmptyState");
             _emptyState.transform.SetParent(transform, false);
+            _emptyState.AddComponent<RectTransform>();
             UITheme.AddVerticalLayout(_emptyState, padding: 20f, spacing: 10f, childForceExpand: true);
             UITheme.AddLayoutElement(_emptyState, flexibleHeight: 1f);
 
@@ -93,6 +94,7 @@ namespace KBTV.UI
             TextMeshProUGUI emptyMsg = UITheme.CreateText("EmptyMsg", _emptyState.transform,
                 "No caller on air",
                 UITheme.FontSizeNormal, UITheme.TextGray, TextAlignmentOptions.Center);
+            emptyMsg.raycastTarget = false;
             UITheme.AddLayoutElement(emptyMsg.gameObject, preferredHeight: 30f);
 
             // Put on air button
@@ -124,6 +126,10 @@ namespace KBTV.UI
             {
                 _callerQueue.OnCallerOnAir += OnCallerOnAir;
                 _callerQueue.OnCallerCompleted += OnCallerCompleted;
+                _callerQueue.OnCallerAdded += OnCallerListChanged;
+                _callerQueue.OnCallerRemoved += OnCallerListChanged;
+                _callerQueue.OnCallerDisconnected += OnCallerListChanged;
+                _callerQueue.OnCallerApproved += OnCallerListChanged;
                 Debug.Log("OnAirPanel: Subscribed to CallerQueue events");
             }
             else
@@ -140,7 +146,16 @@ namespace KBTV.UI
             {
                 _callerQueue.OnCallerOnAir -= OnCallerOnAir;
                 _callerQueue.OnCallerCompleted -= OnCallerCompleted;
+                _callerQueue.OnCallerAdded -= OnCallerListChanged;
+                _callerQueue.OnCallerRemoved -= OnCallerListChanged;
+                _callerQueue.OnCallerDisconnected -= OnCallerListChanged;
+                _callerQueue.OnCallerApproved -= OnCallerListChanged;
             }
+        }
+
+        private void OnCallerListChanged(Caller caller)
+        {
+            UpdateDisplay();
         }
 
         private void OnCallerOnAir(Caller caller)
@@ -165,7 +180,12 @@ namespace KBTV.UI
                 {
                     _callerQueue.OnCallerOnAir += OnCallerOnAir;
                     _callerQueue.OnCallerCompleted += OnCallerCompleted;
+                    _callerQueue.OnCallerAdded += OnCallerListChanged;
+                    _callerQueue.OnCallerRemoved += OnCallerListChanged;
+                    _callerQueue.OnCallerDisconnected += OnCallerListChanged;
+                    _callerQueue.OnCallerApproved += OnCallerListChanged;
                     Debug.Log("OnAirPanel: Late-subscribed to CallerQueue events");
+                    UpdateDisplay();
                 }
             }
 
@@ -227,26 +247,12 @@ namespace KBTV.UI
 
         private void OnPutOnAirClicked()
         {
-            Debug.Log("OnAirPanel: PUT ON AIR BUTTON CLICKED!");
             AudioManager.Instance?.PlayButtonClick();
             
-            if (_callerQueue == null)
+            if (_callerQueue != null && _callerQueue.HasOnHoldCallers)
             {
-                Debug.LogWarning("OnAirPanel: CallerQueue is null!");
-                return;
-            }
-            
-            Debug.Log($"OnAirPanel: Put On Air clicked. OnHold count: {_callerQueue.OnHoldCallers.Count}, HasOnHoldCallers: {_callerQueue.HasOnHoldCallers}");
-            
-            if (_callerQueue.HasOnHoldCallers)
-            {
-                Caller caller = _callerQueue.PutNextCallerOnAir();
-                Debug.Log($"OnAirPanel: Put {caller?.Name ?? "null"} on air");
+                _callerQueue.PutNextCallerOnAir();
                 UpdateDisplay();
-            }
-            else
-            {
-                Debug.Log("OnAirPanel: No callers on hold to put on air");
             }
         }
     }
