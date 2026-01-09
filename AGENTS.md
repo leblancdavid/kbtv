@@ -2,6 +2,20 @@
 
 This document provides guidelines for AI agents working on the KBTV Unity project.
 
+## Documentation References
+
+Project documentation is located in the `docs/` folder. **Read these documents for context before starting work:**
+
+| Document | Description |
+|----------|-------------|
+| [GAME_DESIGN.md](docs/GAME_DESIGN.md) | Game design document - core mechanics, characters, game loop, and features |
+| [TECHNICAL_SPEC.md](docs/TECHNICAL_SPEC.md) | Architecture, systems design, and technical requirements |
+| [ART_STYLE.md](docs/ART_STYLE.md) | Visual direction, color palette, and asset guidelines |
+| [AUDIO_DESIGN.md](docs/AUDIO_DESIGN.md) | Sound design, music, and audio technical specs |
+| [ROADMAP.md](docs/ROADMAP.md) | Development milestones and feature backlog |
+
+When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
+
 ## Project Overview
 - **Engine**: Unity 6000.0.28f1 (Unity 6)
 - **Template**: 2D Game with Universal Render Pipeline (URP)
