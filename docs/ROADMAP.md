@@ -10,13 +10,14 @@
 - [x] Topics with screening rules
 - [x] StatModifier assets (Items, Events)
 - [x] Debug UI for testing
+- [x] Live Show UI (runtime-generated uGUI)
+  - Header bar with night, phase, clock, LIVE indicator
+  - Vern's stats panel with 7 stat bars + show quality
+  - Caller screening panel with approve/reject
+  - On-air panel with active caller display
+  - Caller queue panel (incoming + on-hold)
 
 ### TODO
-- [ ] Basic game UI for Live Show (replace debug IMGUI)
-  - Caller queue display
-  - Screening interface
-  - Vern's stats display
-  - Show clock/progress
 - [ ] Item usage system (use Coffee, Sandwich, etc. to modify Vern's stats)
 - [ ] Listener count tracking (based on show quality, caller impacts)
 - [ ] Basic audio (placeholder SFX for caller events, phase transitions)

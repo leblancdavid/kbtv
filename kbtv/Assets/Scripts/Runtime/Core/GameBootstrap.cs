@@ -36,8 +36,9 @@ namespace KBTV
         [SerializeField] private StatModifier _badCallerModifier;
         [SerializeField] private StatModifier _greatCallerModifier;
 
-        [Header("Debug")]
-        [SerializeField] private bool _enableDebugUI = true;
+        [Header("UI")]
+        [SerializeField] private bool _enableLiveShowUI = true;
+        [SerializeField] private bool _enableDebugUI = false;
 
         private void Awake()
         {
@@ -117,6 +118,16 @@ namespace KBTV
                 var greatField = typeof(CallerScreeningManager).GetField("_greatCallerModifier",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 greatField?.SetValue(screening, _greatCallerModifier);
+            }
+
+            // Create Live Show UI
+            if (_enableLiveShowUI)
+            {
+                if (LiveShowUIManager.Instance == null)
+                {
+                    GameObject liveShowUIObj = new GameObject("LiveShowUI");
+                    liveShowUIObj.AddComponent<LiveShowUIManager>();
+                }
             }
 
             // Create Debug UI

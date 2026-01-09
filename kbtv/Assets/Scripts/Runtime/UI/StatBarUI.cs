@@ -1,0 +1,168 @@
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using KBTV.Data;
+
+namespace KBTV.UI
+{
+    /// <summary>
+    /// Reusable stat bar component displaying a label, progress bar, and value.
+    /// Automatically updates when the bound Stat changes.
+    /// </summary>
+    public class StatBarUI : MonoBehaviour
+    {
+        private TextMeshProUGUI _labelText;
+        private Image _fillImage;
+        private TextMeshProUGUI _valueText;
+        private Stat _stat;
+        private Color _fillColor;
+
+        /// <summary>
+        /// Create and initialize a StatBarUI on the given parent.
+        /// </summary>
+        public static StatBarUI Create(Transform parent, string label, Color fillColor)
+        {
+            GameObject barObj = new GameObject($"StatBar_{label}");
+            barObj.transform.SetParent(parent, false);
+
+            RectTransform rect = barObj.AddComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(0f, UITheme.StatBarHeight);
+
+            // Horizontal layout for label | bar | value
+            UITheme.AddHorizontalLayout(barObj, spacing: 8f);
+            UITheme.AddLayoutElement(barObj, preferredHeight: UITheme.StatBarHeight);
+
+            StatBarUI statBar = barObj.AddComponent<StatBarUI>();
+            statBar._fillColor = fillColor;
+            statBar.BuildUI(label);
+
+            return statBar;
+        }
+
+        private void BuildUI(string label)
+        {
+            // Label
+            GameObject labelObj = new GameObject("Label");
+            labelObj.transform.SetParent(transform, false);
+            _labelText = labelObj.AddComponent<TextMeshProUGUI>();
+            _labelText.text = label;
+            _labelText.fontSize = UITheme.FontSizeNormal;
+            _labelText.color = UITheme.TextAmber;
+            _labelText.alignment = TextAlignmentOptions.Left;
+            _labelText.textWrappingMode = TextWrappingModes.NoWrap;
+            UITheme.AddLayoutElement(labelObj, minWidth: 100f, preferredWidth: 100f);
+
+            // Progress bar container
+            GameObject barContainer = new GameObject("BarContainer");
+            barContainer.transform.SetParent(transform, false);
+            UITheme.AddLayoutElement(barContainer, flexibleWidth: 1f, preferredHeight: 20f);
+
+            // Background
+            Image bgImage = barContainer.AddComponent<Image>();
+            bgImage.color = new Color(0.1f, 0.1f, 0.1f);
+
+            // Fill
+            GameObject fillObj = new GameObject("Fill");
+            fillObj.transform.SetParent(barContainer.transform, false);
+            RectTransform fillRect = fillObj.AddComponent<RectTransform>();
+            fillRect.anchorMin = Vector2.zero;
+            fillRect.anchorMax = Vector2.one;
+            fillRect.offsetMin = new Vector2(2f, 2f);
+            fillRect.offsetMax = new Vector2(-2f, -2f);
+            fillRect.pivot = new Vector2(0f, 0.5f);
+
+            _fillImage = fillObj.AddComponent<Image>();
+            _fillImage.color = _fillColor;
+            _fillImage.type = Image.Type.Filled;
+            _fillImage.fillMethod = Image.FillMethod.Horizontal;
+            _fillImage.fillOrigin = 0;
+            _fillImage.fillAmount = 0.5f;
+
+            // Value text
+            GameObject valueObj = new GameObject("Value");
+            valueObj.transform.SetParent(transform, false);
+            _valueText = valueObj.AddComponent<TextMeshProUGUI>();
+            _valueText.text = "50";
+            _valueText.fontSize = UITheme.FontSizeNormal;
+            _valueText.color = UITheme.TextWhite;
+            _valueText.alignment = TextAlignmentOptions.Right;
+            _valueText.textWrappingMode = TextWrappingModes.NoWrap;
+            UITheme.AddLayoutElement(valueObj, minWidth: 35f, preferredWidth: 35f);
+        }
+
+        /// <summary>
+        /// Bind this bar to a Stat and subscribe to changes.
+        /// </summary>
+        public void SetStat(Stat stat)
+        {
+            // Unsubscribe from previous stat
+            if (_stat != null)
+            {
+                _stat.OnValueChanged -= OnStatChanged;
+            }
+
+            _stat = stat;
+
+            if (_stat != null)
+            {
+                _stat.OnValueChanged += OnStatChanged;
+                UpdateDisplay();
+            }
+        }
+
+        /// <summary>
+        /// Update the label text.
+        /// </summary>
+        public void SetLabel(string label)
+        {
+            if (_labelText != null)
+            {
+                _labelText.text = label;
+            }
+        }
+
+        /// <summary>
+        /// Manually set the bar value (0-1 normalized).
+        /// </summary>
+        public void SetValue(float normalized, float displayValue)
+        {
+            if (_fillImage != null)
+            {
+                _fillImage.fillAmount = Mathf.Clamp01(normalized);
+            }
+
+            if (_valueText != null)
+            {
+                _valueText.text = $"{displayValue:F0}";
+            }
+        }
+
+        private void OnStatChanged(float oldValue, float newValue)
+        {
+            UpdateDisplay();
+        }
+
+        private void UpdateDisplay()
+        {
+            if (_stat == null) return;
+
+            if (_fillImage != null)
+            {
+                _fillImage.fillAmount = _stat.Normalized;
+            }
+
+            if (_valueText != null)
+            {
+                _valueText.text = $"{_stat.Value:F0}";
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_stat != null)
+            {
+                _stat.OnValueChanged -= OnStatChanged;
+            }
+        }
+    }
+}
