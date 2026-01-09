@@ -109,10 +109,9 @@ namespace KBTV.UI
 
             // Right column (caller management)
             GameObject rightColumn = CreateColumn(contentArea.transform, "RightColumn", -1f); // Flexible width
-            UITheme.AddLayoutElement(rightColumn, flexibleWidth: 1f);
+            UITheme.AddLayoutElement(rightColumn, flexibleWidth: 1f, minWidth: 400f);
 
-            // Right column has vertical layout with three sections
-            UITheme.AddVerticalLayout(rightColumn, padding: 0f, spacing: UITheme.PanelPadding);
+            // Note: CreateColumn already adds a VerticalLayoutGroup
 
             // Top section: Screening + On Air side by side
             GameObject topSection = new GameObject("TopSection");
