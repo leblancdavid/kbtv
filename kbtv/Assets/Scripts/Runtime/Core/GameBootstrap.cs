@@ -48,9 +48,32 @@ namespace KBTV
         [Header("Audio")]
         [SerializeField] private bool _enableAudio = true;
 
+        [Header("Debug")]
+        [Tooltip("Automatically start the live show when the game begins (for testing)")]
+        [SerializeField] private bool _autoStartLiveShow = true;
+
         private void Awake()
         {
             SetupManagers();
+        }
+
+        private void Start()
+        {
+            // Auto-advance to LiveShow for testing (after all managers have initialized in their Start())
+            if (_autoStartLiveShow && GameStateManager.Instance != null)
+            {
+                // Use a small delay to ensure all managers have finished their Start() methods
+                Invoke(nameof(StartLiveShow), 0.1f);
+            }
+        }
+
+        private void StartLiveShow()
+        {
+            if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentPhase == GamePhase.PreShow)
+            {
+                Debug.Log("GameBootstrap: Auto-starting Live Show");
+                GameStateManager.Instance.AdvancePhase();
+            }
         }
 
         private void SetupManagers()

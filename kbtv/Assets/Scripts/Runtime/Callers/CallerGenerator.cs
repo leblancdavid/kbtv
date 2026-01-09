@@ -104,6 +104,12 @@ namespace KBTV.Callers
             if (GameStateManager.Instance != null)
             {
                 GameStateManager.Instance.OnPhaseChanged += HandlePhaseChanged;
+
+                // Check if we're already in LiveShow (in case we missed the event)
+                if (GameStateManager.Instance.CurrentPhase == GamePhase.LiveShow)
+                {
+                    StartGenerating(CallerScreeningManager.Instance?.CurrentTopic);
+                }
             }
         }
 
