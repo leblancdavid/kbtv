@@ -137,7 +137,7 @@ namespace KBTV.UI
 
             // Dialogue text container with padding
             GameObject dialogueContainer = UITheme.CreatePanel("DialogueContainer", _transcriptContainer.transform, 
-                new Color(0.12f, 0.12f, 0.12f));
+                UITheme.DialogueContainerBackground);
             UITheme.AddVerticalLayout(dialogueContainer, padding: 12f, spacing: 0f);
             UITheme.AddLayoutElement(dialogueContainer, flexibleHeight: 1f, minHeight: 60f);
 
@@ -305,35 +305,15 @@ namespace KBTV.UI
 
         private void OnConversationStarted(Conversation conversation)
         {
-            // Clear history for new conversation
-            _historyLines.Clear();
-            _previousLine = null;
-            if (_historyText != null)
-            {
-                _historyText.text = "";
-            }
-            
+            ClearHistory();
             UpdateDisplay();
         }
 
         private void OnConversationEnded(Conversation conversation)
         {
-            // Reset typewriter state
-            _isTyping = false;
-            _fullText = "";
-            _visibleCharCount = 0;
-            
-            // Clear history
-            _historyLines.Clear();
-            _previousLine = null;
-            if (_historyText != null)
-            {
-                _historyText.text = "";
-            }
-            
-            // Hide thinking indicator
+            ResetTypewriter();
+            ClearHistory();
             HideThinkingIndicator();
-            
             UpdateDisplay();
         }
 
@@ -362,47 +342,21 @@ namespace KBTV.UI
 
         private void OnFillerLineDisplayed(DialogueLine line)
         {
-            // Update phase label to indicate filler mode
-            _phaseLabel.text = "ON AIR";
-
-            // Clear history for filler (no caller context)
-            _historyLines.Clear();
-            _previousLine = null;
-            if (_historyText != null)
-            {
-                _historyText.text = "";
-            }
-
-            // Display filler line (reuses existing DisplayLine logic)
-            DisplayLine(line);
+            DisplayFillerOrBroadcastLine(line);
         }
 
         private void OnFillerStopped()
         {
-            // Update display - will show empty state if no conversation active
             UpdateDisplay();
         }
 
         private void OnBroadcastLineDisplayed(DialogueLine line)
         {
-            // Clear history for broadcast lines (no caller context)
-            _historyLines.Clear();
-            _previousLine = null;
-            if (_historyText != null)
-            {
-                _historyText.text = "";
-            }
-
-            // Update phase label to indicate broadcast line
-            _phaseLabel.text = "ON AIR";
-
-            // Display broadcast line (reuses existing DisplayLine logic)
-            DisplayLine(line);
+            DisplayFillerOrBroadcastLine(line);
         }
 
         private void OnBroadcastLineCompleted()
         {
-            // Update display - will transition to next state
             UpdateDisplay();
         }
 
@@ -562,6 +516,40 @@ namespace KBTV.UI
             {
                 _thinkingIndicator.gameObject.SetActive(false);
             }
+        }
+
+        /// <summary>
+        /// Clear the dialogue history display.
+        /// </summary>
+        private void ClearHistory()
+        {
+            _historyLines.Clear();
+            _previousLine = null;
+            if (_historyText != null)
+            {
+                _historyText.text = "";
+            }
+        }
+
+        /// <summary>
+        /// Reset the typewriter effect state.
+        /// </summary>
+        private void ResetTypewriter()
+        {
+            _isTyping = false;
+            _fullText = "";
+            _visibleCharCount = 0;
+            _typewriterTimer = 0f;
+        }
+
+        /// <summary>
+        /// Display a filler or broadcast line (shared logic).
+        /// </summary>
+        private void DisplayFillerOrBroadcastLine(DialogueLine line)
+        {
+            ClearHistory();
+            _phaseLabel.text = "ON AIR";
+            DisplayLine(line);
         }
     }
 }

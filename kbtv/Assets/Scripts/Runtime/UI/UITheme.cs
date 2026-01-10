@@ -35,6 +35,9 @@ namespace KBTV.UI
         // Queue entry colors
         public static readonly Color QueueEntryBackground = new Color(0.15f, 0.15f, 0.15f);
 
+        // Dialogue container background
+        public static readonly Color DialogueContainerBackground = new Color(0.12f, 0.12f, 0.12f);
+
         // Stat bar colors
         public static readonly Color StatMood = new Color(1f, 0.4f, 0.7f);               // Pink
         public static readonly Color StatEnergy = new Color(1f, 0.9f, 0.2f);             // Yellow

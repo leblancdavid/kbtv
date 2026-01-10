@@ -45,46 +45,6 @@ namespace KBTV.Dialogue
     }
 
     /// <summary>
-    /// A collection of template lines for a specific phase of conversation.
-    /// </summary>
-    [Serializable]
-    public class PhaseTemplates
-    {
-        [Tooltip("Which conversation phase these templates are for")]
-        public ConversationPhase Phase;
-
-        [Tooltip("Template lines for this phase")]
-        public DialogueTemplate[] Templates;
-
-        /// <summary>
-        /// Get a random template from this phase, weighted by Weight values.
-        /// </summary>
-        public DialogueTemplate GetRandomTemplate()
-        {
-            if (Templates == null || Templates.Length == 0)
-                return null;
-
-            float totalWeight = 0f;
-            foreach (var template in Templates)
-            {
-                totalWeight += template.Weight;
-            }
-
-            float random = UnityEngine.Random.Range(0f, totalWeight);
-            float current = 0f;
-
-            foreach (var template in Templates)
-            {
-                current += template.Weight;
-                if (random <= current)
-                    return template;
-            }
-
-            return Templates[Templates.Length - 1];
-        }
-    }
-
-    /// <summary>
     /// Template for generating caller dialogue based on topic and legitimacy.
     /// </summary>
     [CreateAssetMenu(fileName = "NewCallerDialogue", menuName = "KBTV/Dialogue/Caller Dialogue Template")]
@@ -133,82 +93,37 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Get a random intro line.
         /// </summary>
-        public DialogueTemplate GetIntroLine()
-        {
-            return GetRandomWeighted(IntroLines);
-        }
+        public DialogueTemplate GetIntroLine() => DialogueUtility.GetWeightedRandom(IntroLines);
 
         /// <summary>
         /// Get a random detail/elaboration line.
         /// </summary>
-        public DialogueTemplate GetDetailLine()
-        {
-            return GetRandomWeighted(DetailLines);
-        }
+        public DialogueTemplate GetDetailLine() => DialogueUtility.GetWeightedRandom(DetailLines);
 
         /// <summary>
         /// Get a random defense line (for when Vern is skeptical).
         /// </summary>
-        public DialogueTemplate GetDefenseLine()
-        {
-            return GetRandomWeighted(DefenseLines);
-        }
+        public DialogueTemplate GetDefenseLine() => DialogueUtility.GetWeightedRandom(DefenseLines);
 
         /// <summary>
         /// Get a random acceptance response line (for when Vern believes).
         /// </summary>
-        public DialogueTemplate GetAcceptanceLine()
-        {
-            return GetRandomWeighted(AcceptanceLines);
-        }
+        public DialogueTemplate GetAcceptanceLine() => DialogueUtility.GetWeightedRandom(AcceptanceLines);
 
         /// <summary>
         /// Get a random conclusion line.
         /// </summary>
-        public DialogueTemplate GetConclusionLine()
-        {
-            return GetRandomWeighted(ConclusionLines);
-        }
+        public DialogueTemplate GetConclusionLine() => DialogueUtility.GetWeightedRandom(ConclusionLines);
 
         /// <summary>
         /// Get a random extra detail line (for extended conversations).
         /// </summary>
-        public DialogueTemplate GetExtraDetailLine()
-        {
-            return GetRandomWeighted(ExtraDetailLines);
-        }
+        public DialogueTemplate GetExtraDetailLine() => DialogueUtility.GetWeightedRandom(ExtraDetailLines);
 
         /// <summary>
         /// Get a random extra defense line (for long conversations).
         /// </summary>
-        public DialogueTemplate GetExtraDefenseLine()
-        {
-            return GetRandomWeighted(ExtraDefenseLines);
-        }
-
-        private DialogueTemplate GetRandomWeighted(DialogueTemplate[] templates)
-        {
-            if (templates == null || templates.Length == 0)
-                return null;
-
-            float totalWeight = 0f;
-            foreach (var template in templates)
-            {
-                totalWeight += template.Weight;
-            }
-
-            float random = UnityEngine.Random.Range(0f, totalWeight);
-            float current = 0f;
-
-            foreach (var template in templates)
-            {
-                current += template.Weight;
-                if (random <= current)
-                    return template;
-            }
-
-            return templates[templates.Length - 1];
-        }
+        public DialogueTemplate GetExtraDefenseLine() => DialogueUtility.GetWeightedRandom(ExtraDefenseLines);
 
         /// <summary>
         /// Check if this template matches the given criteria.

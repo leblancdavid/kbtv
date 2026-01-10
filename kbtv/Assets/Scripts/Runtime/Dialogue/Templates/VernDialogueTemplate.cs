@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace KBTV.Dialogue
@@ -30,46 +29,6 @@ namespace KBTV.Dialogue
         CutOff,
         /// <summary>Wrapping up the call</summary>
         SignOff
-    }
-
-    /// <summary>
-    /// A collection of Vern's response templates for a specific response type.
-    /// </summary>
-    [Serializable]
-    public class VernResponseSet
-    {
-        [Tooltip("What type of response these are")]
-        public VernResponseType ResponseType;
-
-        [Tooltip("Template lines for this response type")]
-        public DialogueTemplate[] Templates;
-
-        /// <summary>
-        /// Get a random template from this set, weighted by Weight values.
-        /// </summary>
-        public DialogueTemplate GetRandomTemplate()
-        {
-            if (Templates == null || Templates.Length == 0)
-                return null;
-
-            float totalWeight = 0f;
-            foreach (var template in Templates)
-            {
-                totalWeight += template.Weight;
-            }
-
-            float random = UnityEngine.Random.Range(0f, totalWeight);
-            float current = 0f;
-
-            foreach (var template in Templates)
-            {
-                current += template.Weight;
-                if (random <= current)
-                    return template;
-            }
-
-            return Templates[Templates.Length - 1];
-        }
     }
 
     /// <summary>
@@ -160,106 +119,82 @@ namespace KBTV.Dialogue
                 _ => null
             };
 
-            return GetRandomWeighted(templates);
+            return DialogueUtility.GetWeightedRandom(templates);
         }
 
         /// <summary>
         /// Get an introduction line.
         /// </summary>
-        public DialogueTemplate GetIntroduction() => GetRandomWeighted(IntroductionLines);
+        public DialogueTemplate GetIntroduction() => DialogueUtility.GetWeightedRandom(IntroductionLines);
 
         /// <summary>
         /// Get a probing question.
         /// </summary>
-        public DialogueTemplate GetProbingQuestion() => GetRandomWeighted(ProbingLines);
+        public DialogueTemplate GetProbingQuestion() => DialogueUtility.GetWeightedRandom(ProbingLines);
 
         /// <summary>
         /// Get an extra probing question for extended conversations.
         /// </summary>
-        public DialogueTemplate GetExtraProbingQuestion() => GetRandomWeighted(ExtraProbingLines);
+        public DialogueTemplate GetExtraProbingQuestion() => DialogueUtility.GetWeightedRandom(ExtraProbingLines);
 
         /// <summary>
         /// Get a skeptical response.
         /// </summary>
-        public DialogueTemplate GetSkepticalResponse() => GetRandomWeighted(SkepticalLines);
+        public DialogueTemplate GetSkepticalResponse() => DialogueUtility.GetWeightedRandom(SkepticalLines);
 
         /// <summary>
         /// Get a dismissive response.
         /// </summary>
-        public DialogueTemplate GetDismissiveResponse() => GetRandomWeighted(DismissiveLines);
+        public DialogueTemplate GetDismissiveResponse() => DialogueUtility.GetWeightedRandom(DismissiveLines);
 
         /// <summary>
         /// Get a believing response.
         /// </summary>
-        public DialogueTemplate GetBelievingResponse() => GetRandomWeighted(BelievingLines);
+        public DialogueTemplate GetBelievingResponse() => DialogueUtility.GetWeightedRandom(BelievingLines);
 
         /// <summary>
         /// Get a tired response.
         /// </summary>
-        public DialogueTemplate GetTiredResponse() => GetRandomWeighted(TiredLines);
+        public DialogueTemplate GetTiredResponse() => DialogueUtility.GetWeightedRandom(TiredLines);
 
         /// <summary>
         /// Get an annoyed response.
         /// </summary>
-        public DialogueTemplate GetAnnoyedResponse() => GetRandomWeighted(AnnoyedLines);
+        public DialogueTemplate GetAnnoyedResponse() => DialogueUtility.GetWeightedRandom(AnnoyedLines);
 
         /// <summary>
         /// Get an engaging response (for humoring fake callers).
         /// </summary>
-        public DialogueTemplate GetEngagingResponse() => GetRandomWeighted(EngagingLines);
+        public DialogueTemplate GetEngagingResponse() => DialogueUtility.GetWeightedRandom(EngagingLines);
 
         /// <summary>
         /// Get a cut-off response (for ending calls abruptly).
         /// </summary>
-        public DialogueTemplate GetCutOffResponse() => GetRandomWeighted(CutOffLines);
+        public DialogueTemplate GetCutOffResponse() => DialogueUtility.GetWeightedRandom(CutOffLines);
 
         /// <summary>
         /// Get a sign-off line.
         /// </summary>
-        public DialogueTemplate GetSignOff() => GetRandomWeighted(SignOffLines);
+        public DialogueTemplate GetSignOff() => DialogueUtility.GetWeightedRandom(SignOffLines);
 
         /// <summary>
         /// Get a show opening line.
         /// </summary>
-        public DialogueTemplate GetShowOpening() => GetRandomWeighted(ShowOpeningLines);
+        public DialogueTemplate GetShowOpening() => DialogueUtility.GetWeightedRandom(ShowOpeningLines);
 
         /// <summary>
         /// Get a show closing line.
         /// </summary>
-        public DialogueTemplate GetShowClosing() => GetRandomWeighted(ShowClosingLines);
+        public DialogueTemplate GetShowClosing() => DialogueUtility.GetWeightedRandom(ShowClosingLines);
 
         /// <summary>
         /// Get a between-callers transition line.
         /// </summary>
-        public DialogueTemplate GetBetweenCallers() => GetRandomWeighted(BetweenCallersLines);
+        public DialogueTemplate GetBetweenCallers() => DialogueUtility.GetWeightedRandom(BetweenCallersLines);
 
         /// <summary>
         /// Get a dead air filler line.
         /// </summary>
-        public DialogueTemplate GetDeadAirFiller() => GetRandomWeighted(DeadAirFillerLines);
-
-        private DialogueTemplate GetRandomWeighted(DialogueTemplate[] templates)
-        {
-            if (templates == null || templates.Length == 0)
-                return null;
-
-            float totalWeight = 0f;
-            foreach (var template in templates)
-            {
-                totalWeight += template.Weight;
-            }
-
-            float random = UnityEngine.Random.Range(0f, totalWeight);
-            float current = 0f;
-
-            foreach (var template in templates)
-            {
-                current += template.Weight;
-                if (random <= current)
-                    return template;
-            }
-
-            return templates[templates.Length - 1];
-        }
+        public DialogueTemplate GetDeadAirFiller() => DialogueUtility.GetWeightedRandom(DeadAirFillerLines);
     }
 }
