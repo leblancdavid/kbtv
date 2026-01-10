@@ -202,10 +202,10 @@ namespace KBTV.Dialogue
             }
 
             // Preload voice audio for this conversation
-            if (VoiceAudioService.Instance != null && _currentConversation.Arc != null)
+            if (VoiceAudioService.Instance != null && _arcGenerator.LastUsedArc != null)
             {
-                string arcId = _currentConversation.Arc.ArcId;
-                string topic = _currentConversation.Arc.Topic.ToString();
+                string arcId = _arcGenerator.LastUsedArc.ArcId;
+                string topic = _arcGenerator.LastUsedArc.Topic.ToString();
                 VernMood mood = _arcGenerator.LastMood;
                 int lineCount = _currentConversation.Lines.Count;
                 
