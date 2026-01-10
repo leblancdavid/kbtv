@@ -390,6 +390,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 07860d61417937d4b939bb20b981f33d, type: 2}
   - {fileID: 11400000, guid: 9c666510d9c88b0419cb18100d9194c3, type: 2}
   - {fileID: 11400000, guid: 010aef57eaf413f479c20262953843fb, type: 2}
+  _vernDialogue: {fileID: 11400000, guid: 5ae8f5ca3c0d5db48b61885d62bb4ac1, type: 2}
+  _callerDialogues:
+  - {fileID: 11400000, guid: dc6593c3b0b697746ad3e398f6294914, type: 2}
+  - {fileID: 11400000, guid: ab4607e51aafdc2418e5422bb6339473, type: 2}
+  - {fileID: 11400000, guid: b6865d276c7a86d4b94dceded1f42ab3, type: 2}
+  - {fileID: 11400000, guid: f2061d04f85b86946b199e69c4875e65, type: 2}
   _enableLiveShowUI: 1
   _enableDebugUI: 0
   _enableAudio: 1

@@ -24,6 +24,7 @@ namespace KBTV.UI
         private ScreeningPanel _screeningPanel;
         private OnAirPanel _onAirPanel;
         private CallerQueuePanel _callerQueuePanel;
+        private ConversationPanel _conversationPanel;
 
         private GameStateManager _gameState;
 
@@ -132,6 +133,10 @@ namespace KBTV.UI
             // On-Air panel
             _onAirPanel = OnAirPanel.Create(topSection.transform);
             UITheme.AddLayoutElement(_onAirPanel.gameObject, flexibleWidth: 1f, minWidth: 200f);
+
+            // Middle section: Conversation panel
+            _conversationPanel = ConversationPanel.Create(rightColumn.transform);
+            UITheme.AddLayoutElement(_conversationPanel.gameObject, preferredHeight: 180f, minHeight: 140f, flexibleHeight: 0.5f);
 
             // Bottom section: Caller queues
             _callerQueuePanel = CallerQueuePanel.Create(rightColumn.transform);
