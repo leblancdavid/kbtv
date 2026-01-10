@@ -27,7 +27,8 @@ namespace KBTV.UI
         private int _visibleCharCount = 0;
         private bool _isTyping = false;
         private float _typewriterTimer = 0f;
-        private const float CHARS_PER_SECOND = 40f; // Typing speed
+        private float _charsPerSecond = DEFAULT_CHARS_PER_SECOND; // Dynamic typing speed
+        private const float DEFAULT_CHARS_PER_SECOND = 40f; // Fallback when no audio
 
         // Dialogue history
         private TextMeshProUGUI _historyText;
@@ -187,10 +188,12 @@ namespace KBTV.UI
             _conversationManager.OnConversationStarted += OnConversationStarted;
             _conversationManager.OnConversationEnded += OnConversationEnded;
             _conversationManager.OnLineDisplayed += OnLineDisplayed;
+            _conversationManager.OnLineDisplayedWithDuration += OnLineDisplayedWithDuration;
             _conversationManager.OnPhaseChanged += OnPhaseChanged;
             _conversationManager.OnFillerLineDisplayed += OnFillerLineDisplayed;
             _conversationManager.OnFillerStopped += OnFillerStopped;
             _conversationManager.OnBroadcastLineDisplayed += OnBroadcastLineDisplayed;
+            _conversationManager.OnBroadcastLineDisplayedWithDuration += OnBroadcastLineDisplayedWithDuration;
             _conversationManager.OnBroadcastLineCompleted += OnBroadcastLineCompleted;
             return true;
         }
@@ -202,10 +205,12 @@ namespace KBTV.UI
                 _conversationManager.OnConversationStarted -= OnConversationStarted;
                 _conversationManager.OnConversationEnded -= OnConversationEnded;
                 _conversationManager.OnLineDisplayed -= OnLineDisplayed;
+                _conversationManager.OnLineDisplayedWithDuration -= OnLineDisplayedWithDuration;
                 _conversationManager.OnPhaseChanged -= OnPhaseChanged;
                 _conversationManager.OnFillerLineDisplayed -= OnFillerLineDisplayed;
                 _conversationManager.OnFillerStopped -= OnFillerStopped;
                 _conversationManager.OnBroadcastLineDisplayed -= OnBroadcastLineDisplayed;
+                _conversationManager.OnBroadcastLineDisplayedWithDuration -= OnBroadcastLineDisplayedWithDuration;
                 _conversationManager.OnBroadcastLineCompleted -= OnBroadcastLineCompleted;
             }
         }
@@ -234,7 +239,7 @@ namespace KBTV.UI
             // Update typewriter effect
             if (_isTyping && _visibleCharCount < _fullText.Length)
             {
-                _typewriterTimer += Time.deltaTime * CHARS_PER_SECOND;
+                _typewriterTimer += Time.deltaTime * _charsPerSecond;
                 int charsToShow = Mathf.FloorToInt(_typewriterTimer);
                 
                 if (charsToShow > _visibleCharCount)
@@ -322,6 +327,12 @@ namespace KBTV.UI
             DisplayLine(line);
         }
 
+        private void OnLineDisplayedWithDuration(DialogueLine line, float audioDuration)
+        {
+            SetTypewriterSpeedForDuration(line.Text, audioDuration);
+            DisplayLine(line);
+        }
+
         /// <summary>
         /// Skip the typewriter effect and show full text immediately.
         /// </summary>
@@ -352,6 +363,12 @@ namespace KBTV.UI
 
         private void OnBroadcastLineDisplayed(DialogueLine line)
         {
+            DisplayFillerOrBroadcastLine(line);
+        }
+
+        private void OnBroadcastLineDisplayedWithDuration(DialogueLine line, float audioDuration)
+        {
+            SetTypewriterSpeedForDuration(line.Text, audioDuration);
             DisplayFillerOrBroadcastLine(line);
         }
 
@@ -540,6 +557,30 @@ namespace KBTV.UI
             _fullText = "";
             _visibleCharCount = 0;
             _typewriterTimer = 0f;
+            _charsPerSecond = DEFAULT_CHARS_PER_SECOND;
+        }
+
+        /// <summary>
+        /// Set typewriter speed to sync text with audio duration.
+        /// </summary>
+        /// <param name="text">The text to display</param>
+        /// <param name="audioDuration">Audio clip duration in seconds (0 = no audio)</param>
+        private void SetTypewriterSpeedForDuration(string text, float audioDuration)
+        {
+            if (audioDuration <= 0f || string.IsNullOrEmpty(text))
+            {
+                // No audio or empty text - use default speed
+                _charsPerSecond = DEFAULT_CHARS_PER_SECOND;
+                return;
+            }
+
+            // Calculate speed to finish text just before audio ends
+            // Leave a small buffer (0.1s) so text completes slightly before audio
+            float targetDuration = Mathf.Max(audioDuration - 0.1f, audioDuration * 0.95f);
+            _charsPerSecond = text.Length / targetDuration;
+
+            // Clamp to reasonable bounds (20-100 chars/sec)
+            _charsPerSecond = Mathf.Clamp(_charsPerSecond, 20f, 100f);
         }
 
         /// <summary>

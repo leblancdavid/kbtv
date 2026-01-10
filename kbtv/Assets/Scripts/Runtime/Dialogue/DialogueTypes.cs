@@ -111,6 +111,9 @@ namespace KBTV.Dialogue
     [Serializable]
     public class DialogueTemplate
     {
+        /// <summary>Unique identifier for this template (e.g., "vern_opening_001"). Used for audio file lookup.</summary>
+        public string Id;
+
         /// <summary>The dialogue text (supports placeholders like {callerName}).</summary>
         public string Text;
         
@@ -124,6 +127,14 @@ namespace KBTV.Dialogue
 
         public DialogueTemplate(string text, DialogueTone tone = DialogueTone.Neutral, float weight = 1f)
         {
+            Text = text;
+            Tone = tone;
+            Weight = weight;
+        }
+
+        public DialogueTemplate(string id, string text, DialogueTone tone = DialogueTone.Neutral, float weight = 1f)
+        {
+            Id = id;
             Text = text;
             Tone = tone;
             Weight = weight;

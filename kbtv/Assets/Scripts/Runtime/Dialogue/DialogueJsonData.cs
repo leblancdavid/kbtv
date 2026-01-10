@@ -9,6 +9,7 @@ namespace KBTV.Dialogue
     [Serializable]
     public class DialogueLineData
     {
+        public string id;
         public string text;
         public string tone;
         public float weight = 1f;

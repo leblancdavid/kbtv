@@ -22,6 +22,8 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [CONVERSATION_ARCS.md](docs/CONVERSATION_ARCS.md) | Arc system design - mood variants, belief branches, selection flow |
 | [CONVERSATION_ARC_SCHEMA.md](docs/CONVERSATION_ARC_SCHEMA.md) | JSON schema and full example arc with all 5 mood variants |
 | [DEAD_AIR_FILLER.md](docs/DEAD_AIR_FILLER.md) | Broadcast flow - show opening/closing, between-callers, and dead air filler |
+| [VOICE_AUDIO.md](docs/VOICE_AUDIO.md) | Voice audio production plan - TTS vs pre-generated, file organization, workflow |
+| [TOOLS.md](docs/TOOLS.md) | Python scripts and development tools - audio generation, setup instructions |
 
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
 

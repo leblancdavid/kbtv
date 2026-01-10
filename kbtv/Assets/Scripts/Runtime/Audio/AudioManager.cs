@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using KBTV.Core;
 using KBTV.Callers;
 using KBTV.Managers;
+using KBTV.Dialogue;
 
 namespace KBTV.Audio
 {
@@ -53,6 +55,11 @@ namespace KBTV.Audio
         [SerializeField] private AudioSource _musicSource;
         [SerializeField] private AudioSource _ambienceSource;
         [SerializeField] private AudioSource _voiceSource; // For dialogue/TTS playback
+
+        [Header("Audio Mixer")]
+        [SerializeField] private AudioMixer _audioMixer;
+        [SerializeField] private AudioMixerGroup _vernMixerGroup;
+        [SerializeField] private AudioMixerGroup _callerMixerGroup;
 
         [Header("Volume Settings")]
         [Range(0f, 1f)]
@@ -407,13 +414,40 @@ namespace KBTV.Audio
         /// <param name="clip">The audio clip to play</param>
         public void PlayVoiceClip(AudioClip clip)
         {
+            PlayVoiceClip(clip, Speaker.Vern);
+        }
+
+        /// <summary>
+        /// Play a voice audio clip with speaker-based mixer routing.
+        /// Routes Vern to VernMixerGroup and Callers to CallerMixerGroup.
+        /// </summary>
+        /// <param name="clip">The audio clip to play</param>
+        /// <param name="speaker">Who is speaking (affects mixer routing)</param>
+        public void PlayVoiceClip(AudioClip clip, Speaker speaker)
+        {
             if (clip == null || _voiceSource == null) return;
+            
+            // Route to appropriate mixer group based on speaker
+            if (speaker == Speaker.Vern && _vernMixerGroup != null)
+            {
+                _voiceSource.outputAudioMixerGroup = _vernMixerGroup;
+            }
+            else if (speaker == Speaker.Caller && _callerMixerGroup != null)
+            {
+                _voiceSource.outputAudioMixerGroup = _callerMixerGroup;
+            }
             
             _voiceSource.Stop();
             _voiceSource.clip = clip;
             _voiceSource.volume = _voiceVolume * _masterVolume;
             _voiceSource.Play();
         }
+
+        /// <summary>
+        /// Get the duration of the currently playing voice clip.
+        /// Returns 0 if no clip is playing.
+        /// </summary>
+        public float CurrentVoiceClipDuration => _voiceSource?.clip?.length ?? 0f;
 
         /// <summary>
         /// Stop the currently playing voice clip.

@@ -89,6 +89,7 @@ public static class DialogueLoader
         {
             result[i] = new DialogueTemplate
             {
+                Id = lines[i].id ?? "",
                 Text = lines[i].text ?? "",
                 Tone = ParseTone(lines[i].tone),
                 Weight = lines[i].weight > 0 ? lines[i].weight : 1f

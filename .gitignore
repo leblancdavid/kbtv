@@ -104,3 +104,7 @@ InitTestScene*.unity*
 
 # Windows artifacts
 nul
+
+# Tools - Downloaded voice models and temp files
+/Tools/AudioGeneration/voices/
+/Tools/AudioGeneration/temp/

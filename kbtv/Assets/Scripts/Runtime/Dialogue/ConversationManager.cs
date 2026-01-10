@@ -4,6 +4,7 @@ using UnityEngine;
 using KBTV.Core;
 using KBTV.Callers;
 using KBTV.Data;
+using KBTV.Audio;
 
 namespace KBTV.Dialogue
 {
@@ -62,6 +63,7 @@ namespace KBTV.Dialogue
         private float _broadcastLineDuration = 0f;
         private DialogueLine _currentBroadcastLine = null;
         private System.Action _onBroadcastLineComplete = null;
+        private string _currentBroadcastClipId = null; // ID for current broadcast line audio
 
         // Properties
         public Conversation CurrentConversation => _currentConversation;
@@ -86,11 +88,20 @@ namespace KBTV.Dialogue
         public event Action<Conversation> OnConversationStarted;
         public event Action<Conversation> OnConversationEnded;
         public event Action<DialogueLine> OnLineDisplayed;
+        /// <summary>
+        /// Fired when a line is displayed with its audio duration (0 if no audio).
+        /// Use this to sync typewriter speed to audio.
+        /// </summary>
+        public event Action<DialogueLine, float> OnLineDisplayedWithDuration;
         public event Action<DialogueLine> OnLineCompleted;
         public event Action<ConversationPhase> OnPhaseChanged;
         public event Action<DialogueLine> OnFillerLineDisplayed;
         public event Action OnFillerStopped;
         public event Action<DialogueLine> OnBroadcastLineDisplayed;
+        /// <summary>
+        /// Fired when a broadcast line is displayed with its audio duration (0 if no audio).
+        /// </summary>
+        public event Action<DialogueLine, float> OnBroadcastLineDisplayedWithDuration;
         public event Action OnBroadcastLineCompleted;
 
         protected override void OnSingletonAwake()
@@ -166,7 +177,7 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Start a conversation with the given caller.
         /// </summary>
-        public void StartConversation(Caller caller)
+        public async void StartConversation(Caller caller)
         {
             if (_currentConversation != null && _currentConversation.State == ConversationState.Playing)
             {
@@ -188,6 +199,18 @@ namespace KBTV.Dialogue
             {
                 HandleCallerDropped(caller);
                 return;
+            }
+
+            // Preload voice audio for this conversation
+            if (VoiceAudioService.Instance != null && _currentConversation.Arc != null)
+            {
+                string arcId = _currentConversation.Arc.ArcId;
+                string topic = _currentConversation.Arc.Topic.ToString();
+                VernMood mood = _arcGenerator.LastMood;
+                int lineCount = _currentConversation.Lines.Count;
+                
+                // Start preloading (don't await - let conversation start while loading)
+                _ = VoiceAudioService.Instance.PreloadConversationAsync(arcId, topic, mood, lineCount);
             }
 
             // Subscribe to conversation events
@@ -222,6 +245,12 @@ namespace KBTV.Dialogue
             {
                 _currentConversation.End();
             }
+
+            // Stop any playing voice audio
+            AudioManager.Instance?.StopVoice();
+            
+            // Unload conversation voice clips
+            VoiceAudioService.Instance?.UnloadCurrentConversation();
 
             OnConversationEnded?.Invoke(_currentConversation);
             _currentConversation = null;
@@ -327,12 +356,31 @@ namespace KBTV.Dialogue
         private void HandleLineStarted(DialogueLine line)
         {
             _lineTimer = 0f;
-            _currentLineDuration = line.GetDisplayDuration(_baseDelay, _perCharacterDelay);
             _isWaitingForTransition = false;
+            
+            // Try to get and play voice audio
+            float audioDuration = 0f;
+            if (VoiceAudioService.Instance != null && _currentConversation != null)
+            {
+                int lineIndex = _currentConversation.CurrentIndex;
+                var clip = VoiceAudioService.Instance.GetConversationClip(lineIndex, line.Speaker);
+                
+                if (clip != null)
+                {
+                    AudioManager.Instance?.PlayVoiceClip(clip, line.Speaker);
+                    audioDuration = clip.length;
+                }
+            }
+            
+            // Use audio duration if available, otherwise calculate from text
+            _currentLineDuration = audioDuration > 0f 
+                ? audioDuration 
+                : line.GetDisplayDuration(_baseDelay, _perCharacterDelay);
 
             OnLineDisplayed?.Invoke(line);
+            OnLineDisplayedWithDuration?.Invoke(line, audioDuration);
 
-            Debug.Log($"ConversationManager: [{line.Speaker}] {line.Text}");
+            Debug.Log($"ConversationManager: [{line.Speaker}] {line.Text} (duration: {_currentLineDuration:F2}s)");
         }
 
         private void HandleLineEnded(DialogueLine line)
@@ -364,7 +412,7 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Play a broadcast flow line (opening, closing, between callers).
         /// </summary>
-        private void PlayBroadcastLine(DialogueTemplate template, System.Action onComplete)
+        private async void PlayBroadcastLine(DialogueTemplate template, System.Action onComplete)
         {
             if (template == null)
             {
@@ -378,14 +426,33 @@ namespace KBTV.Dialogue
                 template.Tone,
                 ConversationPhase.Intro
             );
+            
+            _currentBroadcastClipId = template.Id;
 
             _broadcastLineTimer = 0f;
-            _broadcastLineDuration = _currentBroadcastLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
             _onBroadcastLineComplete = onComplete;
             _isPlayingBroadcastLine = true;
+            
+            // Try to load and play voice audio
+            float audioDuration = 0f;
+            if (VoiceAudioService.Instance != null && !string.IsNullOrEmpty(template.Id))
+            {
+                var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
+                if (clip != null)
+                {
+                    AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
+                    audioDuration = clip.length;
+                }
+            }
+            
+            // Use audio duration if available, otherwise calculate from text
+            _broadcastLineDuration = audioDuration > 0f 
+                ? audioDuration 
+                : _currentBroadcastLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
 
             OnBroadcastLineDisplayed?.Invoke(_currentBroadcastLine);
-            Debug.Log($"ConversationManager: [BROADCAST] {_currentBroadcastLine.Text}");
+            OnBroadcastLineDisplayedWithDuration?.Invoke(_currentBroadcastLine, audioDuration);
+            Debug.Log($"ConversationManager: [BROADCAST] {_currentBroadcastLine.Text} (duration: {_broadcastLineDuration:F2}s)");
         }
 
         /// <summary>
