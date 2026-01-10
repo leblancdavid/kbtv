@@ -12,10 +12,10 @@ namespace KBTV.Callers
     {
         [Header("Generation Settings")]
         [Tooltip("Minimum seconds between caller spawns")]
-        [SerializeField] private float _minSpawnInterval = 5f;
+        [SerializeField] private float _minSpawnInterval = 1f;
 
         [Tooltip("Maximum seconds between caller spawns")]
-        [SerializeField] private float _maxSpawnInterval = 15f;
+        [SerializeField] private float _maxSpawnInterval = 3f;
 
         [Tooltip("Base patience for callers (seconds they'll wait)")]
         [SerializeField] private float _basePatience = 30f;

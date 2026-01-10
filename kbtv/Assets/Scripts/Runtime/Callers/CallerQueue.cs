@@ -13,7 +13,7 @@ namespace KBTV.Callers
     {
         [Header("Queue Settings")]
         [Tooltip("Maximum callers that can be waiting")]
-        [SerializeField] private int _maxQueueSize = 10;
+        [SerializeField] private int _maxQueueSize = 3;
 
         [Tooltip("Maximum callers on hold (approved, waiting for air)")]
         [SerializeField] private int _maxOnHold = 3;
