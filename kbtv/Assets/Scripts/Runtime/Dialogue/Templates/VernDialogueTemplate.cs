@@ -1,0 +1,193 @@
+using System;
+using UnityEngine;
+
+namespace KBTV.Dialogue
+{
+    /// <summary>
+    /// Vern's response type based on his current state and the caller.
+    /// </summary>
+    public enum VernResponseType
+    {
+        /// <summary>Standard introduction of caller</summary>
+        Introduction,
+        /// <summary>Asking for more details</summary>
+        Probing,
+        /// <summary>Skeptical, challenging the caller</summary>
+        Skeptical,
+        /// <summary>Dismissive, not interested</summary>
+        Dismissive,
+        /// <summary>Interested, believing</summary>
+        Believing,
+        /// <summary>Tired, low energy response</summary>
+        Tired,
+        /// <summary>Annoyed, impatient</summary>
+        Annoyed,
+        /// <summary>Wrapping up the call</summary>
+        SignOff
+    }
+
+    /// <summary>
+    /// A collection of Vern's response templates for a specific response type.
+    /// </summary>
+    [Serializable]
+    public class VernResponseSet
+    {
+        [Tooltip("What type of response these are")]
+        public VernResponseType ResponseType;
+
+        [Tooltip("Template lines for this response type")]
+        public DialogueTemplate[] Templates;
+
+        /// <summary>
+        /// Get a random template from this set, weighted by Weight values.
+        /// </summary>
+        public DialogueTemplate GetRandomTemplate()
+        {
+            if (Templates == null || Templates.Length == 0)
+                return null;
+
+            float totalWeight = 0f;
+            foreach (var template in Templates)
+            {
+                totalWeight += template.Weight;
+            }
+
+            float random = UnityEngine.Random.Range(0f, totalWeight);
+            float current = 0f;
+
+            foreach (var template in Templates)
+            {
+                current += template.Weight;
+                if (random <= current)
+                    return template;
+            }
+
+            return Templates[Templates.Length - 1];
+        }
+    }
+
+    /// <summary>
+    /// Template for Vern's dialogue responses.
+    /// Vern's responses are driven by his stats and the caller's legitimacy.
+    /// </summary>
+    [CreateAssetMenu(fileName = "VernDialogue", menuName = "KBTV/Dialogue/Vern Dialogue Template")]
+    public class VernDialogueTemplate : ScriptableObject
+    {
+        [Header("Introduction Lines")]
+        [Tooltip("How Vern introduces callers to the audience")]
+        public DialogueTemplate[] IntroductionLines;
+
+        [Header("Probing Lines")]
+        [Tooltip("Questions Vern asks to get more details")]
+        public DialogueTemplate[] ProbingLines;
+
+        [Header("Skeptical Lines")]
+        [Tooltip("Responses when Vern doubts the caller")]
+        public DialogueTemplate[] SkepticalLines;
+
+        [Header("Dismissive Lines")]
+        [Tooltip("Responses when Vern is uninterested or annoyed")]
+        public DialogueTemplate[] DismissiveLines;
+
+        [Header("Believing Lines")]
+        [Tooltip("Responses when Vern finds the caller credible")]
+        public DialogueTemplate[] BelievingLines;
+
+        [Header("Tired Lines")]
+        [Tooltip("Responses when Vern is low on energy")]
+        public DialogueTemplate[] TiredLines;
+
+        [Header("Annoyed Lines")]
+        [Tooltip("Responses when Vern is irritated")]
+        public DialogueTemplate[] AnnoyedLines;
+
+        [Header("Sign-Off Lines")]
+        [Tooltip("How Vern ends calls")]
+        public DialogueTemplate[] SignOffLines;
+
+        /// <summary>
+        /// Get a random template for the specified response type.
+        /// </summary>
+        public DialogueTemplate GetResponse(VernResponseType responseType)
+        {
+            DialogueTemplate[] templates = responseType switch
+            {
+                VernResponseType.Introduction => IntroductionLines,
+                VernResponseType.Probing => ProbingLines,
+                VernResponseType.Skeptical => SkepticalLines,
+                VernResponseType.Dismissive => DismissiveLines,
+                VernResponseType.Believing => BelievingLines,
+                VernResponseType.Tired => TiredLines,
+                VernResponseType.Annoyed => AnnoyedLines,
+                VernResponseType.SignOff => SignOffLines,
+                _ => null
+            };
+
+            return GetRandomWeighted(templates);
+        }
+
+        /// <summary>
+        /// Get an introduction line.
+        /// </summary>
+        public DialogueTemplate GetIntroduction() => GetRandomWeighted(IntroductionLines);
+
+        /// <summary>
+        /// Get a probing question.
+        /// </summary>
+        public DialogueTemplate GetProbingQuestion() => GetRandomWeighted(ProbingLines);
+
+        /// <summary>
+        /// Get a skeptical response.
+        /// </summary>
+        public DialogueTemplate GetSkepticalResponse() => GetRandomWeighted(SkepticalLines);
+
+        /// <summary>
+        /// Get a dismissive response.
+        /// </summary>
+        public DialogueTemplate GetDismissiveResponse() => GetRandomWeighted(DismissiveLines);
+
+        /// <summary>
+        /// Get a believing response.
+        /// </summary>
+        public DialogueTemplate GetBelievingResponse() => GetRandomWeighted(BelievingLines);
+
+        /// <summary>
+        /// Get a tired response.
+        /// </summary>
+        public DialogueTemplate GetTiredResponse() => GetRandomWeighted(TiredLines);
+
+        /// <summary>
+        /// Get an annoyed response.
+        /// </summary>
+        public DialogueTemplate GetAnnoyedResponse() => GetRandomWeighted(AnnoyedLines);
+
+        /// <summary>
+        /// Get a sign-off line.
+        /// </summary>
+        public DialogueTemplate GetSignOff() => GetRandomWeighted(SignOffLines);
+
+        private DialogueTemplate GetRandomWeighted(DialogueTemplate[] templates)
+        {
+            if (templates == null || templates.Length == 0)
+                return null;
+
+            float totalWeight = 0f;
+            foreach (var template in templates)
+            {
+                totalWeight += template.Weight;
+            }
+
+            float random = UnityEngine.Random.Range(0f, totalWeight);
+            float current = 0f;
+
+            foreach (var template in templates)
+            {
+                current += template.Weight;
+                if (random <= current)
+                    return template;
+            }
+
+            return templates[templates.Length - 1];
+        }
+    }
+}

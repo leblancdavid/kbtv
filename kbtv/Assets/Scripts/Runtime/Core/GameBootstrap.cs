@@ -5,6 +5,7 @@ using KBTV.Managers;
 using KBTV.Callers;
 using KBTV.UI;
 using KBTV.Audio;
+using KBTV.Dialogue;
 
 namespace KBTV
 {
@@ -52,6 +53,13 @@ namespace KBTV
         [Header("Items")]
         [Tooltip("Available items for Vern to use during shows (StatModifier or Item assets)")]
         [SerializeField] private StatModifier[] _availableItems;
+
+        [Header("Dialogue")]
+        [Tooltip("Vern's dialogue template")]
+        [SerializeField] private VernDialogueTemplate _vernDialogue;
+
+        [Tooltip("Caller dialogue templates (matched by topic/legitimacy)")]
+        [SerializeField] private CallerDialogueTemplate[] _callerDialogues;
 
         [Header("UI")]
         [SerializeField] private bool _enableLiveShowUI = true;
@@ -182,6 +190,34 @@ namespace KBTV
                 var greatField = typeof(CallerScreeningManager).GetField("_greatCallerModifier",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 greatField?.SetValue(screening, _greatCallerModifier);
+            }
+
+            // Create ConversationManager
+            if (ConversationManager.Instance == null)
+            {
+                GameObject conversationObj = new GameObject("ConversationManager");
+                ConversationManager conversationManager = conversationObj.AddComponent<ConversationManager>();
+
+                // Set current topic and VernStats via reflection
+                var topicField = typeof(ConversationManager).GetField("_currentTopic",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                topicField?.SetValue(conversationManager, _tonightsTopic);
+
+                var statsField = typeof(ConversationManager).GetField("_vernStats",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                statsField?.SetValue(conversationManager, _vernStatsAsset);
+
+                // Set dialogue templates via reflection
+                var vernTemplateField = typeof(ConversationManager).GetField("_vernTemplate",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                vernTemplateField?.SetValue(conversationManager, _vernDialogue);
+
+                if (_callerDialogues != null && _callerDialogues.Length > 0)
+                {
+                    var callerTemplatesField = typeof(ConversationManager).GetField("_callerTemplates",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    callerTemplatesField?.SetValue(conversationManager, new System.Collections.Generic.List<CallerDialogueTemplate>(_callerDialogues));
+                }
             }
 
             // Create ListenerManager
