@@ -56,6 +56,7 @@ During the LiveShow phase, when no caller is on air and no callers are waiting o
 
 | Scenario | Behavior |
 |----------|----------|
+| LiveShow starts, no callers on hold | Start dead air filler immediately |
 | Conversation ends, callers on hold | Immediately put next caller on air (no dead air) |
 | Conversation ends, no callers on hold | Start dead air filler (Vern monologue) |
 | Dead air playing, filler line ends, no callers | Cycle to next filler line after ~8s |

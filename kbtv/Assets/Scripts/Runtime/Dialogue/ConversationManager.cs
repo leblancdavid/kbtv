@@ -94,6 +94,12 @@ namespace KBTV.Dialogue
                 CallerQueue.Instance.OnCallerCompleted += HandleCallerCompleted;
                 CallerQueue.Instance.OnCallerApproved += HandleCallerApproved;
             }
+
+            // Subscribe to game phase changes to start/stop filler
+            if (GameStateManager.Instance != null)
+            {
+                GameStateManager.Instance.OnPhaseChanged += HandleGamePhaseChanged;
+            }
         }
 
         protected override void OnDestroy()
@@ -104,6 +110,12 @@ namespace KBTV.Dialogue
                 CallerQueue.Instance.OnCallerOnAir -= HandleCallerOnAir;
                 CallerQueue.Instance.OnCallerCompleted -= HandleCallerCompleted;
                 CallerQueue.Instance.OnCallerApproved -= HandleCallerApproved;
+            }
+
+            // Unsubscribe from game phase changes
+            if (GameStateManager.Instance != null)
+            {
+                GameStateManager.Instance.OnPhaseChanged -= HandleGamePhaseChanged;
             }
 
             base.OnDestroy();
@@ -411,6 +423,26 @@ namespace KBTV.Dialogue
             {
                 _callerWaitingAfterFiller = true;
                 Debug.Log("ConversationManager: Caller approved, will auto-advance after filler line ends");
+            }
+        }
+
+        /// <summary>
+        /// Handle game phase changes to start/stop dead air filler.
+        /// </summary>
+        private void HandleGamePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
+        {
+            if (newPhase == GamePhase.LiveShow)
+            {
+                // Start filler if no caller is currently on air
+                if (CallerQueue.Instance == null || !CallerQueue.Instance.IsOnAir)
+                {
+                    StartDeadAirFiller();
+                }
+            }
+            else if (oldPhase == GamePhase.LiveShow)
+            {
+                // Stop filler when leaving LiveShow
+                StopDeadAirFiller();
             }
         }
 
