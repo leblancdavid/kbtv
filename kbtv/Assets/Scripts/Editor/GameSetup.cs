@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 using KBTV;
 using KBTV.Callers;
 using KBTV.Data;
@@ -27,6 +29,16 @@ public static class GameSetup
     // Topic folders to scan for arc JSON files
     private static readonly string[] ARC_TOPIC_FOLDERS = { "UFOs", "Ghosts", "Cryptids", "Conspiracies" };
     
+    // TopicIds that have arc coverage (used to filter available topics)
+    // Maps folder name to TopicId for matching
+    private static readonly Dictionary<string, string> TOPIC_FOLDER_TO_ID = new Dictionary<string, string>
+    {
+        { "UFOs", "ufos" },
+        { "Cryptids", "cryptids" },
+        { "Ghosts", "ghosts" },
+        { "Conspiracies", "government" }
+    };
+    
     // Legitimacy subfolders within each topic
     private static readonly string[] LEGITIMACY_FOLDERS = { "Compelling", "Credible", "Questionable", "Fake" };
 
@@ -48,7 +60,17 @@ public static class GameSetup
         ArcRepository arcRepository = GetOrCreateArcRepository();
 
         // Find all topics
-        Topic[] topics = FindAllAssets<Topic>("Assets/Data/Topics");
+        Topic[] allTopics = FindAllAssets<Topic>("Assets/Data/Topics");
+        
+        // Filter to only include topics that have arc coverage
+        var supportedTopicIds = new HashSet<string>(TOPIC_FOLDER_TO_ID.Values, System.StringComparer.OrdinalIgnoreCase);
+        Topic[] topics = allTopics.Where(t => supportedTopicIds.Contains(t.TopicId)).ToArray();
+        
+        Debug.Log($"GameSetup: Found {allTopics.Length} topics, {topics.Length} have arc coverage");
+        foreach (var excluded in allTopics.Where(t => !supportedTopicIds.Contains(t.TopicId)))
+        {
+            Debug.Log($"GameSetup: Excluding topic '{excluded.name}' (topicId: {excluded.TopicId}) - no arc coverage");
+        }
 
         // Find caller modifiers
         StatModifier goodCaller = AssetDatabase.LoadAssetAtPath<StatModifier>("Assets/Data/Events/GoodCaller.asset");
