@@ -21,7 +21,7 @@ If you prefer manual configuration:
 ## Architecture Overview
 
 - **Pattern**: Singleton managers with event-driven communication
-- **Namespaces**: `KBTV.Core`, `KBTV.Data`, `KBTV.Managers`, `KBTV.Callers`, `KBTV.UI`, `KBTV.Audio`
+- **Namespaces**: `KBTV.Core`, `KBTV.Data`, `KBTV.Managers`, `KBTV.Callers`, `KBTV.Dialogue`, `KBTV.UI`, `KBTV.Audio`
 - **Bootstrap**: `GameBootstrap` creates all managers at runtime via reflection injection
 - **Data**: ScriptableObjects for configuration (Topics, Items, Events, VernStats)
 
@@ -33,7 +33,8 @@ Assets/Scripts/
 │   ├── Data/           # Stat, VernStats, StatModifier, Item, ItemSlot
 │   ├── Managers/       # TimeManager, LiveShowManager, ListenerManager, ItemManager
 │   ├── Callers/        # Caller, CallerQueue, CallerGenerator, CallerScreeningManager, Topic
-│   ├── UI/             # LiveShowUIManager, BasePanel, panels, components (see UI System)
+│   ├── Dialogue/       # ConversationManager, ArcRepository, Conversation, MoodCalculator, etc.
+│   ├── UI/             # PreShowUIManager, LiveShowUIManager, BasePanel, panels, components
 │   └── Audio/          # AudioManager
 └── Editor/
     └── GameSetup.cs    # One-click scene setup utility
@@ -142,6 +143,60 @@ Assets/Scripts/
   - `AreaCodeRequired` - Phone number filter
   - `MinimumLegitimacy` - Minimum credibility threshold
 
+### Dialogue System
+**Files**: `Dialogue/ConversationManager.cs`, `Dialogue/ArcRepository.cs`, `Dialogue/ArcConversationGenerator.cs`, `Dialogue/Conversation.cs`, `Dialogue/ConversationArc.cs`, `Dialogue/DialogueTypes.cs`, `Dialogue/MoodCalculator.cs`, `Dialogue/DiscernmentCalculator.cs`, `Dialogue/DialogueSubstitution.cs`, `Dialogue/Templates/VernDialogueTemplate.cs`
+
+The dialogue system uses **arc-based conversations** - pre-scripted complete dialogues between Vern and callers that vary based on Vern's mood and discernment.
+
+#### Core Concepts
+- **Conversation Arcs**: Pre-written dialogues stored in JSON, organized by topic and legitimacy
+- **Mood Variants**: Each arc has 5 versions (Tired, Grumpy, Neutral, Engaged, Excited) affecting Vern's delivery
+- **Belief Branches**: Each variant splits into Skeptical or Believing paths based on discernment
+- **Broadcast Flow**: Show opening, between-caller filler, dead air handling, show closing
+
+#### Key Classes
+| Class | Description |
+|-------|-------------|
+| `ConversationManager` | Singleton managing playback, timing, dead air filler, broadcast flow |
+| `ArcRepository` | ScriptableObject holding arc JSON files, provides arc selection by topic+legitimacy |
+| `ArcConversationGenerator` | Generates `Conversation` from arcs using mood and belief path |
+| `Conversation` | Runtime playback state with lines list and progress tracking |
+| `ConversationArc` | Arc data with mood variants and belief branches |
+| `ArcMoodVariant` | Contains intro/development/beliefBranch/conclusion phases |
+| `DialogueLine` | Single line with speaker, text, tone, phase |
+| `VernDialogueTemplate` | ScriptableObject for Vern's broadcast lines (opening, filler, signoff) |
+
+#### Mood Calculation
+`MoodCalculator.CalculateMood(VernStats)` returns `VernMood` based on:
+- **Tired**: Energy < 25
+- **Grumpy**: Mood < 30 or Patience < 20
+- **Excited**: Mood > 80 and Energy > 60
+- **Engaged**: Mood > 50 and Energy > 40
+- **Neutral**: Default fallback
+
+#### Discernment Calculation
+`DiscernmentCalculator.CalculateBeliefPath(discernment, legitimacy)` determines if Vern correctly reads the caller:
+- Higher discernment = more likely to be Skeptical of Fake callers, Believing of Compelling callers
+- Legitimacy modifies the threshold (Compelling callers are easier to believe)
+
+#### Broadcast Flow
+- **Show Opening**: Vern's intro when LiveShow begins
+- **Between Callers**: Transition lines when moving to next caller
+- **Dead Air Filler**: Lines played when no caller is on air and queue is empty
+- **Show Closing**: Sign-off when show ends
+
+#### Template Substitution
+`DialogueSubstitution.Substitute(text, caller)` replaces placeholders:
+- `{callerName}` - Caller's display name
+- `{callerLocation}` - Caller's location
+- `{topic}` - Current show topic
+
+#### Events
+- `ConversationManager.OnConversationStarted` - New conversation began
+- `ConversationManager.OnLineDisplayed` - Line shown to player
+- `ConversationManager.OnConversationEnded` - Conversation completed
+- `ConversationManager.OnBroadcastStateChanged` - Show open/close/filler state changes
+
 ## Data Assets
 
 Located in `Assets/Data/`:
@@ -163,15 +218,19 @@ The Live Show UI is **runtime-generated uGUI** (no prefabs). All UI elements are
 |--------|---------|
 | `UITheme.cs` | Colors, fonts, styling constants; helper methods for creating styled UI elements |
 | `BasePanel.cs` | Abstract base class for panels with singleton event subscriptions |
+| `PreShowUIManager.cs` | PreShow phase controller: topic selection + Start Show button |
+| `TopicSelectionPanel.cs` | Grid of topic buttons with selection state and description |
+| `LiveShowUIManager.cs` | LiveShow phase controller, creates Canvas hierarchy, coordinates all panels |
 | `StatBarUI.cs` | Reusable stat bar component (label + fill bar + value text) |
 | `HeaderBarUI.cs` | Top bar: Night #, phase, clock, remaining time, blinking LIVE indicator |
 | `VernStatsPanel.cs` | Left panel: 7 stat bars + show quality display |
+| `ItemPanel.cs` | Item buttons with hotkeys, quantities, cooldowns |
 | `CallerCardUI.cs` | Reusable caller info card (detailed/compact/on-air variants) |
 | `ScreeningPanel.cs` | Current screening caller display + approve/reject buttons |
 | `OnAirPanel.cs` | On-air caller display + end call button |
 | `CallerQueuePanel.cs` | Incoming and on-hold caller queue lists |
 | `CallerQueueEntry.cs` | Single entry in caller queue list |
-| `LiveShowUIManager.cs` | Main controller, creates Canvas hierarchy, coordinates all panels |
+| `ConversationPanel.cs` | Dialogue display with typewriter effect, speaker colors, history, progress bar |
 
 ### UITheme Utilities
 
@@ -201,15 +260,18 @@ The Live Show UI is **runtime-generated uGUI** (no prefabs). All UI elements are
 ### Layout
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│ HeaderBar (Night, Phase, Clock, LIVE)                   │
-├─────────────────┬───────────────────────────────────────┤
-│ VernStatsPanel  │  ScreeningPanel  │  OnAirPanel       │
-│ (7 stat bars)   │  (current caller)│  (active call)    │
-│                 ├───────────────────────────────────────┤
-│ Show Quality    │  CallerQueuePanel                     │
-│                 │  (Incoming | On-Hold queues)          │
-└─────────────────┴───────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│ HeaderBar (Night, Phase, Clock, LIVE indicator, Listeners)          │
+├───────────────┬─────────────────────────────────────────────────────┤
+│ VernStats     │  ScreeningPanel        │  OnAirPanel               │
+│ (7 stat bars) │  (current caller)      │  (active call)            │
+│               ├────────────────────────┴─────────────────────────── │
+│ Show Quality  │  CallerQueuePanel      │  ConversationPanel        │
+│               │  (Incoming | On-Hold)  │  (dialogue + history)     │
+├───────────────┼─────────────────────────────────────────────────────┤
+│ ItemPanel     │                                                     │
+│ (consumables) │                                                     │
+└───────────────┴─────────────────────────────────────────────────────┘
 ```
 
 ### Event Subscriptions

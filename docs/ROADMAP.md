@@ -41,9 +41,14 @@ _Milestone 1 complete! Proceed to Milestone 2._
 ## Milestone 2: Full Loop
 **Goal**: All 3 phases functional - PreShow setup, LiveShow gameplay, PostShow income
 
+### Completed
+- [x] PreShow phase UI
+  - Topic selection grid with descriptions
+  - Start Show button (disabled until topic selected)
+  - Night counter display
+
 ### TODO
-- [ ] PreShow phase UI
-  - Topic selection
+- [ ] PreShow enhancements
   - Caller rule configuration
   - Item purchasing (pre-show supplies)
 - [ ] PostShow phase UI
