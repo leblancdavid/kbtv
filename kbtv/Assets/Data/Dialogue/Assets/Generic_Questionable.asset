@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70c970a7d9f7d414994564bd048e8a6d, type: 3}
+  m_Name: Generic_Questionable
+  m_EditorClassIdentifier: KBTV.Runtime::KBTV.Dialogue.CallerDialogueTemplate
+  Topic: {fileID: 0}
+  Legitimacy: 1
+  Priority: 0
+  Length: 8
+  IntroLines:
+  - Text: I'm not sure what I experienced, but I had to call someone.
+    Tone: 10
+    Weight: 1
+  - Text: Something strange happened and I can't stop thinking about it.
+    Tone: 10
+    Weight: 1
+  - Text: This might sound crazy, but hear me out, Vern.
+    Tone: 10
+    Weight: 1
+  DetailLines:
+  - Text: It could have been nothing, but it felt significant somehow.
+    Tone: 8
+    Weight: 1
+  - Text: I've tried to find a rational explanation. Nothing fits.
+    Tone: 10
+    Weight: 1
+  - Text: Other people have noticed things too. We can't all be wrong.
+    Tone: 8
+    Weight: 1
+  DefenseLines:
+  - Text: I'm not saying it's supernatural, but it's not normal either.
+    Tone: 0
+    Weight: 1
+  - Text: I know how this sounds. I wouldn't believe me either.
+    Tone: 10
+    Weight: 1
+  - Text: I just want answers, Vern.
+    Tone: 10
+    Weight: 1
+  AcceptanceLines:
+  - Text: That's reassuring to hear.
+    Tone: 0
+    Weight: 1
+  - Text: Maybe I should look into it more.
+    Tone: 0
+    Weight: 1
+  - Text: I hadn't thought of it that way.
+    Tone: 8
+    Weight: 1
+  ExtraDetailLines: []
+  ExtraDefenseLines: []
+  ConclusionLines:
+  - Text: Thanks for listening, Vern.
+    Tone: 0
+    Weight: 1
+  - Text: I feel better just talking about it.
+    Tone: 10
+    Weight: 1
+  - Text: I'll call back if anything else happens.
+    Tone: 0
+    Weight: 1

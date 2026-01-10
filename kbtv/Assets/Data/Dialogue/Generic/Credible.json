@@ -1,0 +1,37 @@
+{
+  "topicId": "",
+  "legitimacy": "Credible",
+  "length": "Extended",
+  "priority": 0,
+  "introLines": [
+    { "text": "Vern, I've been a listener for years. I finally have something worth sharing.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I'm not one to call in, but what I witnessed deserves attention.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I've documented everything. Photos, dates, times. This is real.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "I observed it for several minutes. Enough time to rule out the obvious explanations.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Multiple witnesses corroborated what I saw. Independent accounts, same details.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I've researched similar cases. The pattern is consistent.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "I've considered every conventional explanation. None of them fit.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I'm a rational person, Vern. This defies rational explanation.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "The evidence speaks for itself.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "Thank you. It means a lot to be taken seriously.", "tone": "Excited", "weight": 1.0 },
+    { "text": "That's exactly why I called your show.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I knew your listeners would understand.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "extraDetailLines": [
+    { "text": "There's more to this story. The follow-up investigation revealed even stranger details.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I've been in contact with others who experienced the same thing. The similarities are uncanny.", "tone": "Excited", "weight": 1.0 },
+    { "text": "What I haven't told you yet is what happened the next day.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "extraDefenseLines": [],
+  "conclusionLines": [
+    { "text": "I'll send you what I've gathered. People should see this.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Keep doing what you do, Vern. It matters.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I'll keep investigating and report back.", "tone": "Excited", "weight": 1.0 }
+  ]
+}

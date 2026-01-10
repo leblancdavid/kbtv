@@ -1,0 +1,79 @@
+{
+  "introductionLines": [
+    { "text": "Alright night owls, we've got {callerName} on the line from {location}. What've you got for us tonight?", "tone": "Neutral", "weight": 1.0 },
+    { "text": "{callerName}, you're on the air with Vern Castellano. The board's lighting up tonight, so let's hear it.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Next up, {callerName} calling in from {location}. Talk to me, friend.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Welcome to the show, {callerName}. You're live on KBTV. What's on your mind tonight?", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Truth-seekers, we've got {callerName} joining us from {location}. Go ahead, caller.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "probingLines": [
+    { "text": "Alright, walk me through this. What exactly did you see out there?", "tone": "Neutral", "weight": 1.0 },
+    { "text": "And when did this happen? Give me the details, don't leave anything out.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Hold on, slow down. Start from the beginning for the folks just tuning in.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Okay, I'm listening. Paint me a picture here.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Let's get specific. Time, location, what were you doing when this happened?", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "extraProbingLines": [
+    { "text": "Now that's interesting. Tell me more about that last part.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "And what happened after that? Don't stop now.", "tone": "Excited", "weight": 1.0 },
+    { "text": "Wait, back up. You said something there that caught my ear. Explain that again.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "The listeners are gonna want to know - did anyone else see this?", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Alright, I've got to ask - any physical evidence? Photos, recordings, anything?", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "skepticalLines": [
+    { "text": "Now hold on a second there, friend. That could've been anything up there.", "tone": "Skeptical", "weight": 1.0 },
+    { "text": "I gotta be honest with you, I'm not buying it. Not yet anyway.", "tone": "Skeptical", "weight": 1.0 },
+    { "text": "You sure it wasn't just a plane? A satellite? Weather balloon maybe?", "tone": "Skeptical", "weight": 1.0 },
+    { "text": "See, I've been doing this a long time. I've heard a lot of stories. What makes yours different?", "tone": "Skeptical", "weight": 1.0 },
+    { "text": "I want to believe you, I really do. But you're gonna have to give me more than that.", "tone": "Skeptical", "weight": 1.0 }
+  ],
+  "dismissiveLines": [
+    { "text": "Yeah, okay. Thanks for calling in. Next caller.", "tone": "Dismissive", "weight": 1.0 },
+    { "text": "Right. We're gonna move on. The board's lighting up and I've got real callers waiting.", "tone": "Dismissive", "weight": 1.0 },
+    { "text": "Uh-huh. Appreciate it. Moving on.", "tone": "Dismissive", "weight": 1.0 },
+    { "text": "Look, I've got a show to run here. Thanks for your time.", "tone": "Dismissive", "weight": 1.0 },
+    { "text": "Alright, that's... that's enough of that. We'll be right back after these messages.", "tone": "Dismissive", "weight": 1.0 }
+  ],
+  "believingLines": [
+    { "text": "See, THIS is what I'm talking about, folks. This is why I do this show.", "tone": "Excited", "weight": 1.0 },
+    { "text": "Now that's fascinating. I believe you. I really do.", "tone": "Believing", "weight": 1.0 },
+    { "text": "This is exactly the kind of call I live for, night owls. You hearing this?", "tone": "Excited", "weight": 1.0 },
+    { "text": "You know what? Your voice tells me everything I need to know. You're telling the truth.", "tone": "Believing", "weight": 1.0 },
+    { "text": "Folks, write this down. Mark the date. We're witnessing something here tonight.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "tiredLines": [
+    { "text": "Mm-hmm... go on.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Alright... what else? *yawn* Sorry, long night.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Yeah... okay... I'm with you.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Keep going. Just need another coffee here...", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Right, right... what time is it? Never mind, continue.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "annoyedLines": [
+    { "text": "Get to the point, caller. The clock's ticking.", "tone": "Annoyed", "weight": 1.0 },
+    { "text": "We don't have all night here. Well, we do, but I'd like to talk to more than one person.", "tone": "Annoyed", "weight": 1.0 },
+    { "text": "Is there a point to this story? Because I'm losing the thread here.", "tone": "Annoyed", "weight": 1.0 },
+    { "text": "Look, I've got a board full of callers. You gonna give me something or not?", "tone": "Annoyed", "weight": 1.0 },
+    { "text": "I'm gonna stop you right there. Where is this going?", "tone": "Annoyed", "weight": 1.0 }
+  ],
+  "engagingLines": [
+    { "text": "Oh, is that right? Well, let's hear more about this adventure of yours.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Ha! You know what, I appreciate the creativity here. Keep going.", "tone": "Excited", "weight": 1.0 },
+    { "text": "Sure, sure. And what else happened in this totally real encounter?", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Look, the listeners at home are entertained, so let's ride this out.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "You're pulling my leg, but you know what? It's late, I'll play along.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "cutOffLines": [
+    { "text": "Alright, we're gonna have to cut you off there. Thanks for calling.", "tone": "Dismissive", "weight": 1.0 },
+    { "text": "I'm gonna stop you right there. We've got other callers waiting. Appreciate it.", "tone": "Dismissive", "weight": 1.0 },
+    { "text": "Yeah, that's all the time we've got for this one, folks. Moving on.", "tone": "Dismissive", "weight": 1.0 },
+    { "text": "We need to take a break. Thanks for calling in. *click*", "tone": "Dismissive", "weight": 1.0 },
+    { "text": "And on that note, let's go to the next caller. Keep watching the skies.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "signOffLines": [
+    { "text": "Appreciate the call, {callerName}. Keep watching the skies out there.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Thanks for sharing that with us tonight. Stay vigilant, truth-seeker.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Stay safe out there, {callerName}. And keep those eyes on the horizon.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Powerful stuff, {callerName}. Thanks for having the courage to share it.", "tone": "Believing", "weight": 1.0 },
+    { "text": "That's what this show is all about, folks. Thanks for the call. We'll be right back.", "tone": "Neutral", "weight": 1.0 }
+  ]
+}

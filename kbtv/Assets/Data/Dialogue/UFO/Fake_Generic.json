@@ -1,0 +1,33 @@
+{
+  "topicId": "UFOs",
+  "legitimacy": "Fake",
+  "length": "Short",
+  "priority": 1,
+  "introLines": [
+    { "text": "Yeah so I totally saw a UFO last night, it was crazy.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Dude, Vern, you're not gonna believe this...", "tone": "Excited", "weight": 1.0 },
+    { "text": "Uh, hi, first time caller... I saw some lights?", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "It was like... really bright. And flying around.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "It did a bunch of loops and stuff. Very alien-like.", "tone": "Excited", "weight": 1.0 },
+    { "text": "I didn't get a video but trust me it was wild.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "I mean, I know what I saw, man.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "Why would I lie about this?", "tone": "Nervous", "weight": 1.0 },
+    { "text": "My buddy saw it too, he's just not here right now.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "Uh, yeah, exactly what I was thinking.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "See? Someone gets it.", "tone": "Excited", "weight": 1.0 },
+    { "text": "That's... yeah, that.", "tone": "Confused", "weight": 1.0 }
+  ],
+  "extraDetailLines": [],
+  "extraDefenseLines": [],
+  "conclusionLines": [
+    { "text": "Cool, thanks Vern.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Peace out, keep it real.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Alright, later.", "tone": "Neutral", "weight": 1.0 }
+  ]
+}

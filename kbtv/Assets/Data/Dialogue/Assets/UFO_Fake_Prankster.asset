@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70c970a7d9f7d414994564bd048e8a6d, type: 3}
+  m_Name: UFO_Fake_Prankster
+  m_EditorClassIdentifier: KBTV.Runtime::KBTV.Dialogue.CallerDialogueTemplate
+  Topic: {fileID: 0}
+  Legitimacy: 0
+  Priority: 2
+  Length: 6
+  IntroLines:
+  - Text: Vern! Dude! I just saw a UFO and it looked EXACTLY like the one from Independence
+      Day!
+    Tone: 1
+    Weight: 1
+  - Text: Yo Vern, I'm calling because I definitely, one hundred percent, saw aliens
+      last night. For real.
+    Tone: 1
+    Weight: 1
+  - Text: Okay okay okay, so picture this - I'm outside, minding my business, and
+      BAM. Spaceship.
+    Tone: 1
+    Weight: 1
+  DetailLines:
+  - Text: It had like, blinking lights and made that sound from Close Encounters.
+      You know the one. Doo-doo-doo-DOO-doo.
+    Tone: 1
+    Weight: 1
+  - Text: The aliens waved at me, Vern. They had those big eyes like in E.T. Super
+      friendly actually.
+    Tone: 1
+    Weight: 1
+  - Text: It landed in my neighbor's yard and left a crop circle. Well, it was more
+      like a dog made it, but still.
+    Tone: 10
+    Weight: 1
+  DefenseLines:
+  - Text: Why would I make this up? I'm a very serious person. Ask anyone. *snickering*
+    Tone: 10
+    Weight: 1
+  - Text: Look man, I know what I saw. Probably. Maybe. It was definitely something.
+    Tone: 10
+    Weight: 1
+  - Text: My friend recorded it but his phone died. Classic, right?
+    Tone: 10
+    Weight: 1
+  AcceptanceLines:
+  - Text: Wait, really? You believe me? Uh... cool. Yeah. Totally real.
+    Tone: 8
+    Weight: 1
+  - Text: Ha! I mean - yes. Exactly. You get it, Vern.
+    Tone: 1
+    Weight: 1
+  - Text: Oh man, the boys are gonna love this. I mean - yes, thank you for taking
+      this seriously.
+    Tone: 10
+    Weight: 1
+  ExtraDetailLines: []
+  ExtraDefenseLines: []
+  ConclusionLines:
+  - Text: Thanks Vern! You're a legend! Later!
+    Tone: 1
+    Weight: 1
+  - Text: Alright peace out! Keep watching the skies or whatever!
+    Tone: 1
+    Weight: 1
+  - Text: This was awesome. Best prank call ev- I mean, thank you for believing me.
+    Tone: 10
+    Weight: 1

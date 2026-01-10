@@ -12,6 +12,8 @@ namespace KBTV.Dialogue
         Introduction,
         /// <summary>Asking for more details</summary>
         Probing,
+        /// <summary>Follow-up questions for extended conversations</summary>
+        ExtraProbing,
         /// <summary>Skeptical, challenging the caller</summary>
         Skeptical,
         /// <summary>Dismissive, not interested</summary>
@@ -22,6 +24,10 @@ namespace KBTV.Dialogue
         Tired,
         /// <summary>Annoyed, impatient</summary>
         Annoyed,
+        /// <summary>Playful engagement with obvious fake callers</summary>
+        Engaging,
+        /// <summary>Abrupt cut-off when ending a call early</summary>
+        CutOff,
         /// <summary>Wrapping up the call</summary>
         SignOff
     }
@@ -81,6 +87,10 @@ namespace KBTV.Dialogue
         [Tooltip("Questions Vern asks to get more details")]
         public DialogueTemplate[] ProbingLines;
 
+        [Header("Extra Probing Lines")]
+        [Tooltip("Follow-up questions for extended conversations")]
+        public DialogueTemplate[] ExtraProbingLines;
+
         [Header("Skeptical Lines")]
         [Tooltip("Responses when Vern doubts the caller")]
         public DialogueTemplate[] SkepticalLines;
@@ -101,6 +111,14 @@ namespace KBTV.Dialogue
         [Tooltip("Responses when Vern is irritated")]
         public DialogueTemplate[] AnnoyedLines;
 
+        [Header("Engaging Lines")]
+        [Tooltip("Playful responses when Vern humors obvious fake callers")]
+        public DialogueTemplate[] EngagingLines;
+
+        [Header("Cut-Off Lines")]
+        [Tooltip("Abrupt endings when Vern cuts a caller short")]
+        public DialogueTemplate[] CutOffLines;
+
         [Header("Sign-Off Lines")]
         [Tooltip("How Vern ends calls")]
         public DialogueTemplate[] SignOffLines;
@@ -114,11 +132,14 @@ namespace KBTV.Dialogue
             {
                 VernResponseType.Introduction => IntroductionLines,
                 VernResponseType.Probing => ProbingLines,
+                VernResponseType.ExtraProbing => ExtraProbingLines,
                 VernResponseType.Skeptical => SkepticalLines,
                 VernResponseType.Dismissive => DismissiveLines,
                 VernResponseType.Believing => BelievingLines,
                 VernResponseType.Tired => TiredLines,
                 VernResponseType.Annoyed => AnnoyedLines,
+                VernResponseType.Engaging => EngagingLines,
+                VernResponseType.CutOff => CutOffLines,
                 VernResponseType.SignOff => SignOffLines,
                 _ => null
             };
@@ -135,6 +156,11 @@ namespace KBTV.Dialogue
         /// Get a probing question.
         /// </summary>
         public DialogueTemplate GetProbingQuestion() => GetRandomWeighted(ProbingLines);
+
+        /// <summary>
+        /// Get an extra probing question for extended conversations.
+        /// </summary>
+        public DialogueTemplate GetExtraProbingQuestion() => GetRandomWeighted(ExtraProbingLines);
 
         /// <summary>
         /// Get a skeptical response.
@@ -160,6 +186,16 @@ namespace KBTV.Dialogue
         /// Get an annoyed response.
         /// </summary>
         public DialogueTemplate GetAnnoyedResponse() => GetRandomWeighted(AnnoyedLines);
+
+        /// <summary>
+        /// Get an engaging response (for humoring fake callers).
+        /// </summary>
+        public DialogueTemplate GetEngagingResponse() => GetRandomWeighted(EngagingLines);
+
+        /// <summary>
+        /// Get a cut-off response (for ending calls abruptly).
+        /// </summary>
+        public DialogueTemplate GetCutOffResponse() => GetRandomWeighted(CutOffLines);
 
         /// <summary>
         /// Get a sign-off line.

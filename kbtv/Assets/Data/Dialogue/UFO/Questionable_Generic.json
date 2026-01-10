@@ -1,0 +1,33 @@
+{
+  "topicId": "UFOs",
+  "legitimacy": "Questionable",
+  "length": "Standard",
+  "priority": 1,
+  "introLines": [
+    { "text": "I think I might have seen something strange in the sky...", "tone": "Nervous", "weight": 1.0 },
+    { "text": "I'm not sure what it was, but I had to call.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "This might sound crazy, but hear me out...", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "It could have been a plane, but the lights were blinking weird.", "tone": "Confused", "weight": 1.0 },
+    { "text": "It hovered for a bit, then just... moved off.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I was half asleep, but I'm pretty sure I saw something.", "tone": "Confused", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "I'm not saying it was aliens, but it wasn't normal.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Look, I'm just telling you what I saw.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "I know how this sounds, okay?", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "That's what I thought too.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Yeah, maybe you're right.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I hadn't considered that.", "tone": "Confused", "weight": 1.0 }
+  ],
+  "extraDetailLines": [],
+  "extraDefenseLines": [],
+  "conclusionLines": [
+    { "text": "Thanks for hearing me out, Vern.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I just needed to tell someone.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "Okay, thanks. I feel better now.", "tone": "Neutral", "weight": 1.0 }
+  ]
+}

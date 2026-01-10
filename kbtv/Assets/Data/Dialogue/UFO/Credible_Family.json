@@ -1,0 +1,37 @@
+{
+  "topicId": "UFOs",
+  "legitimacy": "Credible",
+  "length": "Extended",
+  "priority": 2,
+  "introLines": [
+    { "text": "Vern, my whole family saw it. My wife, my kids, my mother-in-law. We all saw the same thing.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "We were having a barbecue in the backyard when it happened. Six of us, all looking at the same sky.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I never believed in this stuff before tonight. My nine-year-old asked me what it was. I didn't have an answer.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "Bright white light, bigger than any star. Hovered above the trees for maybe three minutes. Then it split into two.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "My daughter started crying. Not because she was scared - she said it was beautiful. Then it just... disappeared.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Complete silence in the neighborhood after. Like even the crickets stopped. Everyone just stood there.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "Six people, Vern. Three generations. We all saw the exact same thing. You can't dismiss that.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I'm an accountant. I deal in facts. What I saw tonight doesn't fit any fact I know.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "My kids don't lie to me. My wife doesn't lie to me. We all saw it. That's not a hallucination.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "Thank you. We needed to hear that. The kids especially needed to know they're not crazy.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "I'm going to tell them what you said. It'll help them sleep tonight.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "My wife is nodding. She's listening too. We both feel better.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "extraDetailLines": [
+    { "text": "My wife got fifteen seconds on her phone before it vanished. It's shaky, but you can clearly see it split in two.", "tone": "Excited", "weight": 1.0 },
+    { "text": "The neighbor came over after. He saw it too from his porch. Asked if we knew what it was. We didn't.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "My mother-in-law is 72 and doesn't believe in anything supernatural. She's been quiet all night. Just... processing.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "extraDefenseLines": [],
+  "conclusionLines": [
+    { "text": "Thanks Vern. I'm gonna go hug my kids now. Keep up the good work.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "We'll never forget tonight. And we'll never stop looking up.", "tone": "Excited", "weight": 1.0 },
+    { "text": "I'll try to send you my wife's video. People should see it. Thank you.", "tone": "Neutral", "weight": 1.0 }
+  ]
+}

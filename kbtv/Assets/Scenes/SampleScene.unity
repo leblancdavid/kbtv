@@ -390,12 +390,24 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 07860d61417937d4b939bb20b981f33d, type: 2}
   - {fileID: 11400000, guid: 9c666510d9c88b0419cb18100d9194c3, type: 2}
   - {fileID: 11400000, guid: 010aef57eaf413f479c20262953843fb, type: 2}
-  _vernDialogue: {fileID: 11400000, guid: 5ae8f5ca3c0d5db48b61885d62bb4ac1, type: 2}
+  _vernDialogue: {fileID: 11400000, guid: 5cc2b529a37e9c54b93c1cf320d9b6e9, type: 2}
   _callerDialogues:
-  - {fileID: 11400000, guid: dc6593c3b0b697746ad3e398f6294914, type: 2}
-  - {fileID: 11400000, guid: ab4607e51aafdc2418e5422bb6339473, type: 2}
-  - {fileID: 11400000, guid: b6865d276c7a86d4b94dceded1f42ab3, type: 2}
-  - {fileID: 11400000, guid: f2061d04f85b86946b199e69c4875e65, type: 2}
+  - {fileID: 11400000, guid: b743cfbb63b020f4b8c02624389519fe, type: 2}
+  - {fileID: 11400000, guid: 48862e9e4e17bbe4da02a077dfae06e9, type: 2}
+  - {fileID: 11400000, guid: e224d550c20e769439ee52a567c03107, type: 2}
+  - {fileID: 11400000, guid: 9e7b3a7782a91d44098ba140f17efe52, type: 2}
+  - {fileID: 11400000, guid: 6b1cbc4e015289b429ceb35e1c061be7, type: 2}
+  - {fileID: 11400000, guid: ffadaad8689964d49b23d4fc85162160, type: 2}
+  - {fileID: 11400000, guid: e68f78cf7141c2d4a87e7cf5fea2f4e3, type: 2}
+  - {fileID: 11400000, guid: 42bfe3f62a828bc4bb301b6f867fc8c5, type: 2}
+  - {fileID: 11400000, guid: bd207446954d9c8488f35329618eeba0, type: 2}
+  - {fileID: 11400000, guid: cc906258da5ed084dafeef0e2fd51732, type: 2}
+  - {fileID: 11400000, guid: efd986acb5a125f42b95d81af3a57491, type: 2}
+  - {fileID: 11400000, guid: fb07ed39a3f677340923bf1ccd0fb20b, type: 2}
+  - {fileID: 11400000, guid: 581bcb8c0f431b345b4e1bc8b4410403, type: 2}
+  - {fileID: 11400000, guid: f644e5c08456aff4282956601a55e3a8, type: 2}
+  - {fileID: 11400000, guid: 5d7f279d9137b8a4baecfaeb144841b5, type: 2}
+  - {fileID: 11400000, guid: 02e0fd5bb5e7d054d80b8dfd68196e28, type: 2}
   _enableLiveShowUI: 1
   _enableDebugUI: 0
   _enableAudio: 1

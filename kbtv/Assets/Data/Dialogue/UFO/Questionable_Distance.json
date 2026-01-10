@@ -1,0 +1,33 @@
+{
+  "topicId": "UFOs",
+  "legitimacy": "Questionable",
+  "length": "Standard",
+  "priority": 2,
+  "introLines": [
+    { "text": "I was driving on the highway last week and I saw lights in the distance that didn't make sense.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "Vern, I'm a delivery driver. I'm on the road all night. Last Tuesday I saw something over the fields.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "So I was out on Route 9, middle of nowhere, and there were these lights on the horizon doing impossible things.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "Three lights in a row, just hovering. Then they shot off in different directions simultaneously. Like, instant.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I pulled over to watch. They were maybe a mile out? Hard to tell at night. Moving in formation, then splitting up.", "tone": "Confused", "weight": 1.0 },
+    { "text": "It was too far to get a good video. Just looks like dots on my phone. But I know what I saw.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "No airport out there, Vern. I've driven that route a hundred times. Never seen planes do that.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Drones? Maybe. But they were big. And fast. Military drones? I don't know.", "tone": "Confused", "weight": 1.0 },
+    { "text": "I'm not saying it was aliens. But it wasn't normal aircraft. I'd stake my job on it.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "Yeah, that's what I figured too. Just needed someone else to say it.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Okay, good. I'm not crazy then. That's a relief.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "I might keep a better camera in the truck from now on. Just in case.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "extraDetailLines": [],
+  "extraDefenseLines": [],
+  "conclusionLines": [
+    { "text": "Thanks Vern. I'll keep my eyes on the sky during my routes.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "If I see it again, I'll call back. Got your number on speed dial now.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "Appreciate you taking the call. Stay safe out there.", "tone": "Neutral", "weight": 1.0 }
+  ]
+}

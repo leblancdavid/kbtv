@@ -1,0 +1,33 @@
+{
+  "topicId": "UFOs",
+  "legitimacy": "Questionable",
+  "length": "Standard",
+  "priority": 2,
+  "introLines": [
+    { "text": "Vern, I was up at like 3 AM and I saw something outside my window. Couldn't sleep after.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "I know this sounds crazy, but I woke up in the middle of the night and there was this light hovering outside.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "Okay so I might have been half asleep, but I swear I saw something in the sky last night.", "tone": "Confused", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "It was this soft, pulsing light. Just hanging there above the treeline. I watched it for... I don't know, felt like forever.", "tone": "Confused", "weight": 1.0 },
+    { "text": "I rubbed my eyes, Vern. Multiple times. It was still there. Orange-ish, maybe yellow. Moving slow.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "No sound. That's what got me. At 3 AM everything is quiet and this thing made zero noise.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "I wasn't dreaming. I got up, I got water, I looked again. Still there.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "Yeah, I was tired. But I know the difference between a dream and reality. Mostly.", "tone": "Confused", "weight": 1.0 },
+    { "text": "My dog was barking at the window too. Dogs don't bark at dreams, do they?", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "Thank god. I thought I was losing it. Haven't slept right since.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "That's what I needed to hear. Maybe I'm not crazy after all.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Right, right. That makes me feel better.", "tone": "Confused", "weight": 1.0 }
+  ],
+  "extraDetailLines": [],
+  "extraDefenseLines": [],
+  "conclusionLines": [
+    { "text": "Thanks Vern. I just needed to tell someone who wouldn't laugh.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "I'm gonna try to sleep tonight. Maybe with the curtains closed.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "Okay, I feel better. Thanks for listening.", "tone": "Neutral", "weight": 1.0 }
+  ]
+}

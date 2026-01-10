@@ -1,0 +1,206 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b829481dccedec948a42591ac1b2cd33, type: 3}
+  m_Name: VernDialogue
+  m_EditorClassIdentifier: KBTV.Runtime::KBTV.Dialogue.VernDialogueTemplate
+  IntroductionLines:
+  - Text: Alright night owls, we've got {callerName} on the line from {location}.
+      What've you got for us tonight?
+    Tone: 0
+    Weight: 1
+  - Text: '{callerName}, you''re on the air with Vern Castellano. The board''s lighting
+      up tonight, so let''s hear it.'
+    Tone: 0
+    Weight: 1
+  - Text: Next up, {callerName} calling in from {location}. Talk to me, friend.
+    Tone: 0
+    Weight: 1
+  - Text: Welcome to the show, {callerName}. You're live on KBTV. What's on your
+      mind tonight?
+    Tone: 0
+    Weight: 1
+  - Text: Truth-seekers, we've got {callerName} joining us from {location}. Go ahead,
+      caller.
+    Tone: 0
+    Weight: 1
+  ProbingLines:
+  - Text: Alright, walk me through this. What exactly did you see out there?
+    Tone: 0
+    Weight: 1
+  - Text: And when did this happen? Give me the details, don't leave anything out.
+    Tone: 0
+    Weight: 1
+  - Text: Hold on, slow down. Start from the beginning for the folks just tuning
+      in.
+    Tone: 0
+    Weight: 1
+  - Text: Okay, I'm listening. Paint me a picture here.
+    Tone: 0
+    Weight: 1
+  - Text: Let's get specific. Time, location, what were you doing when this happened?
+    Tone: 0
+    Weight: 1
+  ExtraProbingLines:
+  - Text: Now that's interesting. Tell me more about that last part.
+    Tone: 0
+    Weight: 1
+  - Text: And what happened after that? Don't stop now.
+    Tone: 1
+    Weight: 1
+  - Text: Wait, back up. You said something there that caught my ear. Explain that
+      again.
+    Tone: 0
+    Weight: 1
+  - Text: The listeners are gonna want to know - did anyone else see this?
+    Tone: 0
+    Weight: 1
+  - Text: Alright, I've got to ask - any physical evidence? Photos, recordings, anything?
+    Tone: 0
+    Weight: 1
+  SkepticalLines:
+  - Text: Now hold on a second there, friend. That could've been anything up there.
+    Tone: 2
+    Weight: 1
+  - Text: I gotta be honest with you, I'm not buying it. Not yet anyway.
+    Tone: 2
+    Weight: 1
+  - Text: You sure it wasn't just a plane? A satellite? Weather balloon maybe?
+    Tone: 2
+    Weight: 1
+  - Text: See, I've been doing this a long time. I've heard a lot of stories. What
+      makes yours different?
+    Tone: 2
+    Weight: 1
+  - Text: I want to believe you, I really do. But you're gonna have to give me more
+      than that.
+    Tone: 2
+    Weight: 1
+  DismissiveLines:
+  - Text: Yeah, okay. Thanks for calling in. Next caller.
+    Tone: 4
+    Weight: 1
+  - Text: Right. We're gonna move on. The board's lighting up and I've got real callers
+      waiting.
+    Tone: 4
+    Weight: 1
+  - Text: Uh-huh. Appreciate it. Moving on.
+    Tone: 4
+    Weight: 1
+  - Text: Look, I've got a show to run here. Thanks for your time.
+    Tone: 4
+    Weight: 1
+  - Text: Alright, that's... that's enough of that. We'll be right back after these
+      messages.
+    Tone: 4
+    Weight: 1
+  BelievingLines:
+  - Text: See, THIS is what I'm talking about, folks. This is why I do this show.
+    Tone: 1
+    Weight: 1
+  - Text: Now that's fascinating. I believe you. I really do.
+    Tone: 5
+    Weight: 1
+  - Text: This is exactly the kind of call I live for, night owls. You hearing this?
+    Tone: 1
+    Weight: 1
+  - Text: You know what? Your voice tells me everything I need to know. You're telling
+      the truth.
+    Tone: 5
+    Weight: 1
+  - Text: Folks, write this down. Mark the date. We're witnessing something here
+      tonight.
+    Tone: 1
+    Weight: 1
+  TiredLines:
+  - Text: Mm-hmm... go on.
+    Tone: 0
+    Weight: 1
+  - Text: Alright... what else? *yawn* Sorry, long night.
+    Tone: 0
+    Weight: 1
+  - Text: Yeah... okay... I'm with you.
+    Tone: 0
+    Weight: 1
+  - Text: Keep going. Just need another coffee here...
+    Tone: 0
+    Weight: 1
+  - Text: Right, right... what time is it? Never mind, continue.
+    Tone: 0
+    Weight: 1
+  AnnoyedLines:
+  - Text: Get to the point, caller. The clock's ticking.
+    Tone: 6
+    Weight: 1
+  - Text: We don't have all night here. Well, we do, but I'd like to talk to more
+      than one person.
+    Tone: 6
+    Weight: 1
+  - Text: Is there a point to this story? Because I'm losing the thread here.
+    Tone: 6
+    Weight: 1
+  - Text: Look, I've got a board full of callers. You gonna give me something or
+      not?
+    Tone: 6
+    Weight: 1
+  - Text: I'm gonna stop you right there. Where is this going?
+    Tone: 6
+    Weight: 1
+  EngagingLines:
+  - Text: Oh, is that right? Well, let's hear more about this adventure of yours.
+    Tone: 0
+    Weight: 1
+  - Text: Ha! You know what, I appreciate the creativity here. Keep going.
+    Tone: 1
+    Weight: 1
+  - Text: Sure, sure. And what else happened in this totally real encounter?
+    Tone: 0
+    Weight: 1
+  - Text: Look, the listeners at home are entertained, so let's ride this out.
+    Tone: 0
+    Weight: 1
+  - Text: You're pulling my leg, but you know what? It's late, I'll play along.
+    Tone: 0
+    Weight: 1
+  CutOffLines:
+  - Text: Alright, we're gonna have to cut you off there. Thanks for calling.
+    Tone: 4
+    Weight: 1
+  - Text: I'm gonna stop you right there. We've got other callers waiting. Appreciate
+      it.
+    Tone: 4
+    Weight: 1
+  - Text: Yeah, that's all the time we've got for this one, folks. Moving on.
+    Tone: 4
+    Weight: 1
+  - Text: We need to take a break. Thanks for calling in. *click*
+    Tone: 4
+    Weight: 1
+  - Text: And on that note, let's go to the next caller. Keep watching the skies.
+    Tone: 0
+    Weight: 1
+  SignOffLines:
+  - Text: Appreciate the call, {callerName}. Keep watching the skies out there.
+    Tone: 0
+    Weight: 1
+  - Text: Thanks for sharing that with us tonight. Stay vigilant, truth-seeker.
+    Tone: 0
+    Weight: 1
+  - Text: Stay safe out there, {callerName}. And keep those eyes on the horizon.
+    Tone: 0
+    Weight: 1
+  - Text: Powerful stuff, {callerName}. Thanks for having the courage to share it.
+    Tone: 5
+    Weight: 1
+  - Text: That's what this show is all about, folks. Thanks for the call. We'll be
+      right back.
+    Tone: 0
+    Weight: 1

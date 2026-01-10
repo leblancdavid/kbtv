@@ -1,0 +1,41 @@
+{
+  "topicId": "UFOs",
+  "legitimacy": "Compelling",
+  "length": "Long",
+  "priority": 2,
+  "introLines": [
+    { "text": "Vern, I've been seeing the same craft for ten years. Same location. Same time of year. It's not random.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "This isn't my first sighting. It's my fourteenth. I've documented every single one.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "I know how this sounds, but I think they're watching me. Coming back to the same spot, year after year.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "Every October, between the 15th and 20th. Same triangular craft. Same flight pattern. I've mapped it.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "The first time I thought I was crazy. By the fifth time, I started keeping detailed records. Times, weather, witnesses.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Last year I set up cameras. Three angles. Got forty minutes of footage before it disappeared.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "Ten years of documentation, Vern. Photographs, video, journal entries. You can't dismiss a decade of evidence.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I've had the footage analyzed. No signs of manipulation. Whatever this is, it's real.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Other people in my area have seen it too. We've formed a group. Twelve witnesses over the years.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "Thank you. Most people think I'm obsessed. Maybe I am. But I'm not wrong.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "That means more than you know. My family stopped believing me years ago.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I knew if anyone would take this seriously, it would be you.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "extraDetailLines": [
+    { "text": "I've noticed patterns in the timing. It correlates with certain astronomical events. I don't think that's coincidence.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "The last three appearances, there's been a hum. Low frequency. You feel it more than hear it. My equipment picked it up.", "tone": "Excited", "weight": 1.0 },
+    { "text": "I've reached out to researchers at two universities. One is interested. The other stopped returning my calls after I sent the footage.", "tone": "Conspiratorial", "weight": 1.0 }
+  ],
+  "extraDefenseLines": [
+    { "text": "I'm an engineer, Vern. I've spent my career solving problems with data. This data is undeniable.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I've invited skeptics to my property during the observation window. Three have seen it themselves. Changed their minds.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Whatever this is, it wants to be seen. It comes back to the same place. That's not random behavior.", "tone": "Dramatic", "weight": 1.0 }
+  ],
+  "conclusionLines": [
+    { "text": "October's coming, Vern. If you want to see for yourself, I'll send you coordinates.", "tone": "Excited", "weight": 1.0 },
+    { "text": "Ten years I've been waiting for someone to take this seriously. Thank you.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Keep watching the skies. Especially in October.", "tone": "Neutral", "weight": 1.0 }
+  ]
+}

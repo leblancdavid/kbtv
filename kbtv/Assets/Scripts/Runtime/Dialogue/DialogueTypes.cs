@@ -60,6 +60,22 @@ namespace KBTV.Dialogue
     }
 
     /// <summary>
+    /// How long a conversation should be based on caller legitimacy.
+    /// Values represent the target number of dialogue lines.
+    /// </summary>
+    public enum ConversationLength
+    {
+        /// <summary>Short conversation (6 lines) - Fake callers, quick dismissal or brief engagement</summary>
+        Short = 6,
+        /// <summary>Standard conversation (8 lines) - Questionable callers, normal 4-phase structure</summary>
+        Standard = 8,
+        /// <summary>Extended conversation (10 lines) - Credible callers, extra probe exchange</summary>
+        Extended = 10,
+        /// <summary>Long conversation (12 lines) - Compelling callers, full extended story</summary>
+        Long = 12
+    }
+
+    /// <summary>
     /// The current state of conversation playback.
     /// </summary>
     public enum ConversationState

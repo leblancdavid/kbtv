@@ -166,9 +166,133 @@ CallerDialogueTemplate
 └── Conclusion Lines[]
 ```
 
+## JSON-Based Dialogue System
+
+Dialogue content is stored in JSON files and loaded into ScriptableObjects during Editor setup. This separation makes it easy to edit dialogue without modifying C# code.
+
+### Directory Structure
+
+```
+Assets/Data/Dialogue/
+├── Vern/
+│   └── VernDialogue.json       # All of Vern's response lines
+├── UFO/
+│   ├── Fake_Prankster.json     # Obvious joke callers (Short)
+│   ├── Fake_Vague.json         # Can't provide details (Short)
+│   ├── Fake_Generic.json       # Generic fake caller (Short)
+│   ├── Questionable_Sleepy.json    # 3AM sighting, half asleep (Standard)
+│   ├── Questionable_Distance.json  # Saw lights from highway (Standard)
+│   ├── Questionable_Generic.json   # Generic questionable (Standard)
+│   ├── Credible_Trucker.json   # Long-haul driver, dash cam (Extended)
+│   ├── Credible_Family.json    # Whole family saw it (Extended)
+│   ├── Credible_Generic.json   # Generic credible (Extended)
+│   ├── Compelling_Military.json    # Retired pilot, radar contact (Long)
+│   ├── Compelling_Repeated.json    # 10 years of sightings (Long)
+│   └── Compelling_Generic.json     # Generic compelling (Long)
+├── Generic/
+│   ├── Fake.json               # Fallback for any topic
+│   ├── Questionable.json
+│   ├── Credible.json
+│   └── Compelling.json
+├── Cryptids/                   # TODO: Migrate from inline code
+├── Ghosts/                     # TODO: Migrate from inline code
+└── Conspiracies/               # TODO: Migrate from inline code
+```
+
+### Conversation Lengths
+
+Templates specify a `length` field that determines conversation structure:
+
+| Length | Lines | Structure | Use Case |
+|--------|-------|-----------|----------|
+| Short | 6 | Intro(2) → Probe(2) → Resolution(2) | Fake callers, quick dismissals |
+| Standard | 8 | Intro(2) → Probe(2) → Challenge(2) → Resolution(2) | Most callers |
+| Extended | 10 | Standard + ExtraProbe(2) | Credible callers with more detail |
+| Long | 12 | Extended + ExtraChallenge(2) | Compelling callers, full story |
+
+### Priority System
+
+When multiple templates match the same Topic+Legitimacy:
+- Higher `priority` value = preferred template
+- Priority 2 = specific archetypes (Prankster, Trucker, Military)
+- Priority 1 = generic fallback for that topic
+- Priority 0 = global generic fallback
+
+### JSON Format: Vern Dialogue
+
+```json
+{
+  "introductionLines": [
+    { "text": "Alright night owls, we've got {callerName}...", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "probingLines": [...],
+  "extraProbingLines": [...],
+  "skepticalLines": [...],
+  "dismissiveLines": [...],
+  "believingLines": [...],
+  "tiredLines": [...],
+  "annoyedLines": [...],
+  "engagingLines": [...],
+  "cutOffLines": [...],
+  "signOffLines": [...]
+}
+```
+
+### JSON Format: Caller Dialogue
+
+```json
+{
+  "topicId": "UFOs",
+  "legitimacy": "Credible",
+  "length": "Extended",
+  "priority": 2,
+  "introLines": [
+    { "text": "Vern, my whole family saw it...", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "detailLines": [...],
+  "defenseLines": [...],
+  "acceptanceLines": [...],
+  "extraDetailLines": [...],
+  "extraDefenseLines": [...],
+  "conclusionLines": [...]
+}
+```
+
+### Adding New Templates
+
+1. Create a new JSON file in the appropriate topic folder
+2. Set `topicId` to match the Topic asset's TopicId field
+3. Set `legitimacy` to one of: "Fake", "Questionable", "Credible", "Compelling"
+4. Set `length` to one of: "Short", "Standard", "Extended", "Long"
+5. Set `priority` (higher = preferred when multiple templates match)
+6. Fill in dialogue arrays
+7. Run **KBTV > Setup Game Scene** or **KBTV > Reload Dialogue From JSON**
+
+### Reloading Dialogue
+
+Use **KBTV > Reload Dialogue From JSON** menu to regenerate ScriptableObject assets from JSON files. This:
+1. Deletes existing dialogue assets in `Assets/Data/Dialogue/Assets/`
+2. Scans JSON folders and creates fresh ScriptableObjects
+3. Useful after editing JSON files
+
+### Valid Tone Values
+
+- `Neutral` - Normal, conversational
+- `Excited` - Enthusiastic, energetic
+- `Nervous` - Anxious, uncertain
+- `Dramatic` - Intense, urgent
+- `Conspiratorial` - Secretive, hushed
+- `Confused` - Uncertain, questioning
+- `Skeptical` - Doubtful
+- `Dismissive` - Uninterested
+- `Annoyed` - Impatient
+- `Believing` - Accepting, validating
+
+---
+
 ## Dialogue Content (UFO Topic)
 
-This section contains the actual dialogue lines for the initial implementation. Starting with UFO topic as proof of concept.
+**Note:** This section is now for reference only. Actual dialogue is stored in JSON files in `Assets/Data/Dialogue/`. See the JSON files for current content.
 
 ### Vern Dialogue (VernDialogue.asset)
 

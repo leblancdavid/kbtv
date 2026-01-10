@@ -1,0 +1,33 @@
+{
+  "topicId": "",
+  "legitimacy": "Questionable",
+  "length": "Standard",
+  "priority": 0,
+  "introLines": [
+    { "text": "I'm not sure what I experienced, but I had to call someone.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "Something strange happened and I can't stop thinking about it.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "This might sound crazy, but hear me out, Vern.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "It could have been nothing, but it felt significant somehow.", "tone": "Confused", "weight": 1.0 },
+    { "text": "I've tried to find a rational explanation. Nothing fits.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "Other people have noticed things too. We can't all be wrong.", "tone": "Confused", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "I'm not saying it's supernatural, but it's not normal either.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I know how this sounds. I wouldn't believe me either.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "I just want answers, Vern.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "That's reassuring to hear.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Maybe I should look into it more.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I hadn't thought of it that way.", "tone": "Confused", "weight": 1.0 }
+  ],
+  "extraDetailLines": [],
+  "extraDefenseLines": [],
+  "conclusionLines": [
+    { "text": "Thanks for listening, Vern.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I feel better just talking about it.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "I'll call back if anything else happens.", "tone": "Neutral", "weight": 1.0 }
+  ]
+}

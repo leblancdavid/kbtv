@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70c970a7d9f7d414994564bd048e8a6d, type: 3}
+  m_Name: UFO_Questionable_Generic
+  m_EditorClassIdentifier: KBTV.Runtime::KBTV.Dialogue.CallerDialogueTemplate
+  Topic: {fileID: 0}
+  Legitimacy: 1
+  Priority: 1
+  Length: 8
+  IntroLines:
+  - Text: I think I might have seen something strange in the sky...
+    Tone: 10
+    Weight: 1
+  - Text: I'm not sure what it was, but I had to call.
+    Tone: 10
+    Weight: 1
+  - Text: This might sound crazy, but hear me out...
+    Tone: 10
+    Weight: 1
+  DetailLines:
+  - Text: It could have been a plane, but the lights were blinking weird.
+    Tone: 8
+    Weight: 1
+  - Text: It hovered for a bit, then just... moved off.
+    Tone: 0
+    Weight: 1
+  - Text: I was half asleep, but I'm pretty sure I saw something.
+    Tone: 8
+    Weight: 1
+  DefenseLines:
+  - Text: I'm not saying it was aliens, but it wasn't normal.
+    Tone: 0
+    Weight: 1
+  - Text: Look, I'm just telling you what I saw.
+    Tone: 10
+    Weight: 1
+  - Text: I know how this sounds, okay?
+    Tone: 10
+    Weight: 1
+  AcceptanceLines:
+  - Text: That's what I thought too.
+    Tone: 0
+    Weight: 1
+  - Text: Yeah, maybe you're right.
+    Tone: 0
+    Weight: 1
+  - Text: I hadn't considered that.
+    Tone: 8
+    Weight: 1
+  ExtraDetailLines: []
+  ExtraDefenseLines: []
+  ConclusionLines:
+  - Text: Thanks for hearing me out, Vern.
+    Tone: 0
+    Weight: 1
+  - Text: I just needed to tell someone.
+    Tone: 10
+    Weight: 1
+  - Text: Okay, thanks. I feel better now.
+    Tone: 0
+    Weight: 1

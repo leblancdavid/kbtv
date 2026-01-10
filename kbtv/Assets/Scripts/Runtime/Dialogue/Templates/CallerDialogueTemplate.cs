@@ -100,6 +100,10 @@ namespace KBTV.Dialogue
         [Tooltip("Priority when multiple templates match (higher = preferred)")]
         public int Priority = 0;
 
+        [Header("Conversation Settings")]
+        [Tooltip("How long this conversation should be")]
+        public ConversationLength Length = ConversationLength.Standard;
+
         [Header("Intro Phase - Initial claim/statement")]
         [Tooltip("What the caller says when first introduced")]
         public DialogueTemplate[] IntroLines;
@@ -114,6 +118,13 @@ namespace KBTV.Dialogue
 
         [Tooltip("How the caller responds to belief/acceptance")]
         public DialogueTemplate[] AcceptanceLines;
+
+        [Header("Extended Content (for Extended/Long conversations)")]
+        [Tooltip("Additional story details for extended conversations")]
+        public DialogueTemplate[] ExtraDetailLines;
+
+        [Tooltip("Additional defense/elaboration for long conversations")]
+        public DialogueTemplate[] ExtraDefenseLines;
 
         [Header("Resolution Phase - Conclusion")]
         [Tooltip("How the caller wraps up the call")]
@@ -157,6 +168,22 @@ namespace KBTV.Dialogue
         public DialogueTemplate GetConclusionLine()
         {
             return GetRandomWeighted(ConclusionLines);
+        }
+
+        /// <summary>
+        /// Get a random extra detail line (for extended conversations).
+        /// </summary>
+        public DialogueTemplate GetExtraDetailLine()
+        {
+            return GetRandomWeighted(ExtraDetailLines);
+        }
+
+        /// <summary>
+        /// Get a random extra defense line (for long conversations).
+        /// </summary>
+        public DialogueTemplate GetExtraDefenseLine()
+        {
+            return GetRandomWeighted(ExtraDefenseLines);
         }
 
         private DialogueTemplate GetRandomWeighted(DialogueTemplate[] templates)

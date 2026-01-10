@@ -1,0 +1,88 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70c970a7d9f7d414994564bd048e8a6d, type: 3}
+  m_Name: UFO_Credible_Generic
+  m_EditorClassIdentifier: KBTV.Runtime::KBTV.Dialogue.CallerDialogueTemplate
+  Topic: {fileID: 0}
+  Legitimacy: 2
+  Priority: 1
+  Length: 10
+  IntroLines:
+  - Text: Vern, I've been listening for years and I finally have my own sighting
+      to report.
+    Tone: 0
+    Weight: 1
+  - Text: I never thought I'd be making this call, but here I am.
+    Tone: 0
+    Weight: 1
+  - Text: So I was out stargazing Tuesday night when something appeared that wasn't
+      on any chart.
+    Tone: 1
+    Weight: 1
+  DetailLines:
+  - Text: Three amber lights in a triangle formation, completely silent, hovering
+      for about two minutes before shooting off.
+    Tone: 0
+    Weight: 1
+  - Text: It moved against the wind, no sound, no blinking lights like a plane would
+      have.
+    Tone: 0
+    Weight: 1
+  - Text: I timed it - ninety seconds of hovering, then acceleration that would flatten
+      any pilot.
+    Tone: 1
+    Weight: 1
+  DefenseLines:
+  - Text: I've worked at the airport for fifteen years. I know aircraft. This wasn't
+      one.
+    Tone: 0
+    Weight: 1
+  - Text: I'm an amateur astronomer. I know what satellites look like. This was different.
+    Tone: 0
+    Weight: 1
+  - Text: My whole family saw it. We're not all crazy, Vern.
+    Tone: 0
+    Weight: 1
+  AcceptanceLines:
+  - Text: I knew you'd understand. Nobody else believes me.
+    Tone: 1
+    Weight: 1
+  - Text: Thank god. My wife thinks I've lost it.
+    Tone: 10
+    Weight: 1
+  - Text: That's exactly what I was hoping to hear.
+    Tone: 1
+    Weight: 1
+  ExtraDetailLines:
+  - Text: I managed to get a few photos. They're not great, but you can clearly see
+      the triangle formation.
+    Tone: 1
+    Weight: 1
+  - Text: The way it moved... it was like physics didn't apply. No aircraft I know
+      of can do that.
+    Tone: 0
+    Weight: 1
+  - Text: I've checked flight trackers, satellite databases. Nothing was supposed
+      to be there.
+    Tone: 0
+    Weight: 1
+  ExtraDefenseLines: []
+  ConclusionLines:
+  - Text: Thanks Vern. I'll send you the photos if I can get them developed.
+    Tone: 0
+    Weight: 1
+  - Text: Keep doing what you're doing. People need to hear this stuff.
+    Tone: 0
+    Weight: 1
+  - Text: I'll keep watching and call back if it happens again.
+    Tone: 1
+    Weight: 1

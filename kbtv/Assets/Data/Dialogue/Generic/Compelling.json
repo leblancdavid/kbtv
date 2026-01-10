@@ -1,0 +1,41 @@
+{
+  "topicId": "",
+  "legitimacy": "Compelling",
+  "length": "Long",
+  "priority": 0,
+  "introLines": [
+    { "text": "Vern, what I'm about to tell you could change everything.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "I've kept this secret for years. Tonight, I'm finally speaking out.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "They told me never to talk about this. But people deserve to know.", "tone": "Conspiratorial", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "I have proof. Documentation. Testimony. Everything they tried to suppress.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "What I witnessed changes our understanding of reality itself.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "The implications are staggering. And they've known all along.", "tone": "Conspiratorial", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "I've sacrificed everything to bring this forward. Why would I lie?", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "They've tried to silence me. That alone tells you I'm onto something.", "tone": "Conspiratorial", "weight": 1.0 },
+    { "text": "The truth is undeniable. No matter how much they try to bury it.", "tone": "Dramatic", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "You're one of the few who'll let the truth be heard.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "The world is waking up, Vern. Thanks to people like you.", "tone": "Conspiratorial", "weight": 1.0 },
+    { "text": "Finally. Someone who understands.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "extraDetailLines": [
+    { "text": "But that's not all. There's a deeper layer to this that I've never shared publicly.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "The documents I recovered paint an even more disturbing picture.", "tone": "Conspiratorial", "weight": 1.0 },
+    { "text": "I've connected with others who've had similar experiences. The pattern is unmistakable.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "extraDefenseLines": [
+    { "text": "I have contingencies in place. If something happens to me, the information goes public.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "My credentials are verifiable. My record is clean. I have no reason to fabricate this.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "The people who've tried to discredit me only prove how important this information is.", "tone": "Conspiratorial", "weight": 1.0 }
+  ],
+  "conclusionLines": [
+    { "text": "Keep fighting the good fight, Vern. The truth will prevail.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "Stay safe out there. They're always watching.", "tone": "Conspiratorial", "weight": 1.0 },
+    { "text": "This is just the beginning. More will come forward.", "tone": "Dramatic", "weight": 1.0 }
+  ]
+}

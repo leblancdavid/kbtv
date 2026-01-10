@@ -1,0 +1,33 @@
+{
+  "topicId": "",
+  "legitimacy": "Fake",
+  "length": "Short",
+  "priority": 0,
+  "introLines": [
+    { "text": "Vern, something crazy happened to me!", "tone": "Excited", "weight": 1.0 },
+    { "text": "Dude, you're not gonna believe this...", "tone": "Neutral", "weight": 1.0 },
+    { "text": "So like, I saw something really weird the other day.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "It was super strange. Hard to describe really.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I didn't get any proof but I swear it happened.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "My friend was there too but he didn't see it.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "I'm not making this up, man!", "tone": "Nervous", "weight": 1.0 },
+    { "text": "Why would I lie about something like this?", "tone": "Nervous", "weight": 1.0 },
+    { "text": "I know what I saw. Probably.", "tone": "Nervous", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "Yeah! Exactly!", "tone": "Excited", "weight": 1.0 },
+    { "text": "That's what I was thinking.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Uh, yeah, sure.", "tone": "Confused", "weight": 1.0 }
+  ],
+  "extraDetailLines": [],
+  "extraDefenseLines": [],
+  "conclusionLines": [
+    { "text": "Thanks Vern. You're the best.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Peace out, keep it real.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Later.", "tone": "Neutral", "weight": 1.0 }
+  ]
+}

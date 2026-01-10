@@ -1,0 +1,41 @@
+{
+  "topicId": "UFOs",
+  "legitimacy": "Compelling",
+  "length": "Long",
+  "priority": 2,
+  "introLines": [
+    { "text": "Vern, I'm a retired Air Force pilot, and what I saw last week has kept me up every night since.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "Twenty years flying fighters. I've seen everything that's supposed to be in our skies. This wasn't any of it.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I signed NDAs when I left the service. I'm breaking them tonight because people need to know.", "tone": "Dramatic", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "Radar contact at 40,000 feet, no transponder, performed maneuvers that would kill any human pilot. Command told us to forget it happened.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "We tracked it for eighteen minutes. It descended from 80,000 feet to sea level in under four seconds. Nothing we have can do that.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "The craft was disc-shaped, metallic, approximately 40 feet in diameter. I was close enough to see the seams.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "They can discredit me all they want. I have my flight logs, I have witnesses. This happened.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "I've got nothing to gain from this and everything to lose. Why would I make it up?", "tone": "Neutral", "weight": 1.0 },
+    { "text": "You think I want to be called crazy? I'm risking my pension for this.", "tone": "Dramatic", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "That's exactly right. They don't want us talking about this.", "tone": "Conspiratorial", "weight": 1.0 },
+    { "text": "Finally, someone who understands what's at stake here.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "You're one of the few who gets it, Vern.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "extraDetailLines": [
+    { "text": "After we landed, men in suits were waiting on the tarmac. They took our recorders, our notes. Told us the mission never happened.", "tone": "Conspiratorial", "weight": 1.0 },
+    { "text": "I've talked to pilots from three other bases. Same story. Same craft. Same orders to stay quiet.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "The radar data was scrubbed within hours. But I kept a personal log. Old habit from my training days.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "extraDefenseLines": [
+    { "text": "I've got copies of everything stored in three different locations. If something happens to me, it all goes public.", "tone": "Conspiratorial", "weight": 1.0 },
+    { "text": "My service record is spotless. Thirty years of distinguished service. I didn't throw that away to tell a story.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Two of my wingmen are prepared to corroborate. They're just waiting for the right moment.", "tone": "Dramatic", "weight": 1.0 }
+  ],
+  "conclusionLines": [
+    { "text": "Keep doing what you're doing, Vern. The truth needs to get out.", "tone": "Dramatic", "weight": 1.0 },
+    { "text": "I've said my piece. Do with it what you will.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Stay safe, Vern. They're listening.", "tone": "Conspiratorial", "weight": 1.0 }
+  ]
+}

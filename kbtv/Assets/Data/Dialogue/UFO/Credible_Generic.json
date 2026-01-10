@@ -1,0 +1,37 @@
+{
+  "topicId": "UFOs",
+  "legitimacy": "Credible",
+  "length": "Extended",
+  "priority": 1,
+  "introLines": [
+    { "text": "Vern, I've been listening for years and I finally have my own sighting to report.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I never thought I'd be making this call, but here I am.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "So I was out stargazing Tuesday night when something appeared that wasn't on any chart.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "detailLines": [
+    { "text": "Three amber lights in a triangle formation, completely silent, hovering for about two minutes before shooting off.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "It moved against the wind, no sound, no blinking lights like a plane would have.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I timed it - ninety seconds of hovering, then acceleration that would flatten any pilot.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "defenseLines": [
+    { "text": "I've worked at the airport for fifteen years. I know aircraft. This wasn't one.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I'm an amateur astronomer. I know what satellites look like. This was different.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "My whole family saw it. We're not all crazy, Vern.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "acceptanceLines": [
+    { "text": "I knew you'd understand. Nobody else believes me.", "tone": "Excited", "weight": 1.0 },
+    { "text": "Thank god. My wife thinks I've lost it.", "tone": "Nervous", "weight": 1.0 },
+    { "text": "That's exactly what I was hoping to hear.", "tone": "Excited", "weight": 1.0 }
+  ],
+  "extraDetailLines": [
+    { "text": "I managed to get a few photos. They're not great, but you can clearly see the triangle formation.", "tone": "Excited", "weight": 1.0 },
+    { "text": "The way it moved... it was like physics didn't apply. No aircraft I know of can do that.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I've checked flight trackers, satellite databases. Nothing was supposed to be there.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "extraDefenseLines": [],
+  "conclusionLines": [
+    { "text": "Thanks Vern. I'll send you the photos if I can get them developed.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Keep doing what you're doing. People need to hear this stuff.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "I'll keep watching and call back if it happens again.", "tone": "Excited", "weight": 1.0 }
+  ]
+}

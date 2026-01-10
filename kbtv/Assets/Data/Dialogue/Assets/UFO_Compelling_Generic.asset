@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70c970a7d9f7d414994564bd048e8a6d, type: 3}
+  m_Name: UFO_Compelling_Generic
+  m_EditorClassIdentifier: KBTV.Runtime::KBTV.Dialogue.CallerDialogueTemplate
+  Topic: {fileID: 0}
+  Legitimacy: 3
+  Priority: 1
+  Length: 12
+  IntroLines:
+  - Text: Vern, I have documentation, Vern. Radar logs. Witness statements. This
+      is real.
+    Tone: 9
+    Weight: 1
+  - Text: I was told never to speak of this. But after thirty years, I can't stay
+      silent anymore.
+    Tone: 7
+    Weight: 1
+  - Text: What I'm about to tell you could change everything we think we know.
+    Tone: 9
+    Weight: 1
+  DetailLines:
+  - Text: Radar contact at impossible altitudes, performing maneuvers that defy physics.
+      Multiple witnesses, all credentialed.
+    Tone: 9
+    Weight: 1
+  - Text: We tracked it for nearly twenty minutes before it accelerated beyond our
+      ability to follow. Command ordered silence.
+    Tone: 9
+    Weight: 1
+  - Text: The craft was unlike anything in any database. Smooth, metallic, no visible
+      propulsion. Just... hovering.
+    Tone: 0
+    Weight: 1
+  DefenseLines:
+  - Text: They can discredit me all they want. I have documentation. I have witnesses.
+      This happened.
+    Tone: 9
+    Weight: 1
+  - Text: I've got nothing to gain from this and everything to lose. Why would I
+      fabricate this?
+    Tone: 0
+    Weight: 1
+  - Text: You think I want to be called crazy? I'm risking everything by coming forward.
+    Tone: 9
+    Weight: 1
+  AcceptanceLines:
+  - Text: That's exactly right. They don't want us talking about this.
+    Tone: 7
+    Weight: 1
+  - Text: Finally, someone who understands what's at stake here.
+    Tone: 9
+    Weight: 1
+  - Text: You're one of the few who gets it, Vern.
+    Tone: 0
+    Weight: 1
+  ExtraDetailLines:
+  - Text: There's more. After the incident, we were debriefed by people I'd never
+      seen before. No insignias, no names.
+    Tone: 7
+    Weight: 1
+  - Text: I've connected with others who've had similar experiences. The patterns
+      are too consistent to ignore.
+    Tone: 0
+    Weight: 1
+  - Text: The technology we witnessed... it's decades beyond anything publicly acknowledged.
+    Tone: 9
+    Weight: 1
+  ExtraDefenseLines:
+  - Text: I've set up contingencies. If something happens to me, the information
+      goes to multiple news outlets.
+    Tone: 7
+    Weight: 1
+  - Text: My record is public. My credentials are verifiable. I have no history of
+      fabrication.
+    Tone: 0
+    Weight: 1
+  - Text: The pressure to stay silent only confirms how important this information
+      is.
+    Tone: 9
+    Weight: 1
+  ConclusionLines:
+  - Text: Keep doing what you're doing, Vern. The truth needs to get out.
+    Tone: 9
+    Weight: 1
+  - Text: I've said my piece. Do with it what you will.
+    Tone: 0
+    Weight: 1
+  - Text: Stay safe, Vern. They're listening.
+    Tone: 7
+    Weight: 1

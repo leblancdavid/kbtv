@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70c970a7d9f7d414994564bd048e8a6d, type: 3}
+  m_Name: UFO_Credible_Trucker
+  m_EditorClassIdentifier: KBTV.Runtime::KBTV.Dialogue.CallerDialogueTemplate
+  Topic: {fileID: 0}
+  Legitimacy: 2
+  Priority: 2
+  Length: 10
+  IntroLines:
+  - Text: Vern, I've been driving trucks for twenty-two years. Last night I saw something
+      that shook me to my core.
+    Tone: 0
+    Weight: 1
+  - Text: Long-haul driver here. I've seen every kind of weather, every kind of aircraft.
+      This wasn't any of those.
+    Tone: 0
+    Weight: 1
+  - Text: I'm calling from a rest stop because I can't keep driving. What I saw an
+      hour ago... I need to talk about it.
+    Tone: 10
+    Weight: 1
+  DetailLines:
+  - Text: Triangular shape, three lights at each point. Moved over my rig at maybe
+      200 feet. Silent. Completely silent.
+    Tone: 0
+    Weight: 1
+  - Text: It paced my truck for about two miles. Same speed, same direction. Then
+      it just... accelerated and was gone.
+    Tone: 0
+    Weight: 1
+  - Text: I had my CB on. Two other truckers on the same stretch saw it. We all pulled
+      over. We're all shaken.
+    Tone: 10
+    Weight: 1
+  DefenseLines:
+  - Text: I know aircraft, Vern. I've been around military bases, I've seen experimental
+      jets. This was different.
+    Tone: 0
+    Weight: 1
+  - Text: I'm a professional driver. My livelihood depends on being alert and aware.
+      I wasn't hallucinating.
+    Tone: 0
+    Weight: 1
+  - Text: Three independent witnesses, all on CB radio at the same time. You can't
+      fake that.
+    Tone: 0
+    Weight: 1
+  AcceptanceLines:
+  - Text: Thank you. My dispatcher didn't believe me. Thought I was tired. I'm not
+      tired, Vern.
+    Tone: 10
+    Weight: 1
+  - Text: That means a lot. I've been driving this route for years. Never thought
+      I'd make this kind of call.
+    Tone: 0
+    Weight: 1
+  - Text: I knew you'd understand. That's why I called your show.
+    Tone: 1
+    Weight: 1
+  ExtraDetailLines:
+  - Text: Here's the thing - my dash cam was running. Got about forty seconds of
+      footage. Lights are clear as day.
+    Tone: 1
+    Weight: 1
+  - Text: One of the other drivers, he's been on the road thirty years. He said he's
+      never seen anything like it. And he's seen a lot.
+    Tone: 0
+    Weight: 1
+  - Text: When it accelerated, there was no sound, no sonic boom. It just... left.
+      Faster than anything I've ever seen.
+    Tone: 0
+    Weight: 1
+  ExtraDefenseLines: []
+  ConclusionLines:
+  - Text: I'll try to send you that dash cam footage. People need to see this.
+    Tone: 0
+    Weight: 1
+  - Text: Thanks Vern. I'm gonna try to finish my route. Keep doing what you do.
+    Tone: 0
+    Weight: 1
+  - Text: I'll be watching the skies from now on. Got your station saved. Appreciate
+      you.
+    Tone: 0
+    Weight: 1
