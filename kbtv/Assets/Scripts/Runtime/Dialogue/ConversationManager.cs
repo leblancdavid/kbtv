@@ -95,7 +95,9 @@ namespace KBTV.Dialogue
 
         protected override void OnSingletonAwake()
         {
-            InitializeArcGenerator();
+            // NOTE: Do NOT initialize arc generator here!
+            // GameBootstrap sets _arcRepository via reflection AFTER Awake() completes.
+            // Lazy initialization in StartConversation() handles this correctly.
         }
 
         private void Start()
@@ -172,7 +174,7 @@ namespace KBTV.Dialogue
                 EndConversation();
             }
 
-            // Ensure arc generator is initialized
+            // Ensure arc generator is initialized (lazy init - must happen after GameBootstrap sets _arcRepository)
             if (_arcGenerator == null)
             {
                 InitializeArcGenerator();
@@ -672,7 +674,6 @@ namespace KBTV.Dialogue
                 StopDeadAirFiller();
             }
 
-            Debug.Log($"ConversationManager: Caller {caller.Name} went on air, starting conversation");
             StartConversation(caller);
         }
 

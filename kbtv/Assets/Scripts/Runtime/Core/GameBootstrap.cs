@@ -219,6 +219,22 @@ namespace KBTV
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     arcRepoField?.SetValue(conversationManager, _arcRepository);
                 }
+                else
+                {
+                    Debug.LogError("GameBootstrap: _arcRepository is NULL! Run KBTV > Setup Game Scene to configure.");
+                }
+            }
+            else
+            {
+                // ConversationManager already exists - ensure it has the arc repository
+                if (_arcRepository != null)
+                {
+                    ConversationManager.Instance.SetArcRepository(_arcRepository);
+                }
+                else
+                {
+                    Debug.LogError("GameBootstrap: _arcRepository is NULL! Run KBTV > Setup Game Scene to configure.");
+                }
             }
 
             // Create ListenerManager

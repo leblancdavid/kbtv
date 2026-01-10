@@ -373,13 +373,9 @@ MonoBehaviour:
   _tonightsTopic: {fileID: 11400000, guid: dfac945379fe4ac45b65e8cc8dc16967, type: 2}
   _showDuration: 120
   _availableTopics:
-  - {fileID: 11400000, guid: 9bd066d4ed9dd04478fc3c5bdea25baa, type: 2}
   - {fileID: 11400000, guid: 0e319a978a5b3f348bbfb50fc083733e, type: 2}
   - {fileID: 11400000, guid: 56794d8aee0b11b4e9a7180811e8835f, type: 2}
   - {fileID: 11400000, guid: f2d8169b70608264f806825a0c88e669, type: 2}
-  - {fileID: 11400000, guid: d5dd33052b0fe22468dbfb9ac14b2e38, type: 2}
-  - {fileID: 11400000, guid: 11d78db88d23cf34baf3018118732445, type: 2}
-  - {fileID: 11400000, guid: cc4dce57d5776754fb5fd850d94bba1e, type: 2}
   - {fileID: 11400000, guid: dfac945379fe4ac45b65e8cc8dc16967, type: 2}
   _goodCallerModifier: {fileID: 11400000, guid: 18194317dc81c4544b19d21e985739e1, type: 2}
   _badCallerModifier: {fileID: 11400000, guid: ccca37b0d69bd6e44bb2000b91f727ef, type: 2}
@@ -390,7 +386,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 07860d61417937d4b939bb20b981f33d, type: 2}
   - {fileID: 11400000, guid: 9c666510d9c88b0419cb18100d9194c3, type: 2}
   - {fileID: 11400000, guid: 010aef57eaf413f479c20262953843fb, type: 2}
-  _vernDialogue: {fileID: 0}
+  _vernDialogue: {fileID: 11400000, guid: 5cc2b529a37e9c54b93c1cf320d9b6e9, type: 2}
   _arcRepository: {fileID: 11400000, guid: 69841c6b2c3c11b4f898b6914329b5b1, type: 2}
   _enableLiveShowUI: 1
   _enableDebugUI: 0
