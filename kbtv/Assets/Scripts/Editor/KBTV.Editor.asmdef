@@ -2,7 +2,10 @@
     "name": "KBTV.Editor",
     "rootNamespace": "KBTV.Editor",
     "references": [
-        "KBTV.Runtime"
+        "KBTV.Runtime",
+        "Unity.Addressables",
+        "Unity.Addressables.Editor",
+        "Unity.ResourceManager"
     ],
     "includePlatforms": [
         "Editor"
