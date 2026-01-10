@@ -1,0 +1,137 @@
+{
+  "arcId": "cryptids_compelling_biologist",
+  "topic": "Cryptids",
+  "legitimacy": "Compelling",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. What've you got?" },
+        { "speaker": "Caller", "text": "Wildlife biologist, Vern. Thirty years in the field. I found tracks last week that don't match any known species." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Tracks. Did you document them?" },
+        { "speaker": "Caller", "text": "Photographed, measured, cast in plaster. Bipedal, eighteen inches long, five toes." },
+        { "speaker": "Vern", "text": "Eighteen inches. That's massive." },
+        { "speaker": "Caller", "text": "The stride length suggests something eight to nine feet tall. And there's dermal ridges in the casts." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could they be hoaxed prints?" },
+          { "speaker": "Caller", "text": "Dermal ridges can't be faked easily. And the depth suggests significant weight." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Dermal ridges. That's the detail that separates real evidence from hoaxes." },
+          { "speaker": "Caller", "text": "Exactly. I've studied animal tracks my whole career. These are authentic." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send us the documentation. This is important." },
+        { "speaker": "Caller", "text": "Already preparing a paper. Thanks, Vern." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. You're a scientist?" },
+        { "speaker": "Caller", "text": "Primatologist. PhD from Stanford. I found something in the Olympic Peninsula that changed my perspective." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What'd you find?" },
+        { "speaker": "Caller", "text": "Hair samples. Analyzed them at three different labs. Primate DNA, but doesn't match any known species." },
+        { "speaker": "Vern", "text": "Unknown primate DNA." },
+        { "speaker": "Caller", "text": "The labs were baffled. It's closest to human and great ape, but distinct from both." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Contamination could explain unusual results." },
+          { "speaker": "Caller", "text": "Three independent labs. Same results. Chain of custody was impeccable." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Three labs, same conclusion. That's compelling." },
+          { "speaker": "Caller", "text": "I was a skeptic too. The data changed my mind." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Thank you for sharing. Science matters." },
+        { "speaker": "Caller", "text": "It does. Thanks for listening." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, I understand you have scientific credentials?" },
+        { "speaker": "Caller", "text": "Anthropologist specializing in primate evolution, Vern. I've been quietly researching Sasquatch evidence for five years." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Quietly researching. Why quietly?" },
+        { "speaker": "Caller", "text": "Career suicide to study this openly. But the evidence kept accumulating. Consistent footprint morphology across decades and regions." },
+        { "speaker": "Vern", "text": "What convinced you it warranted serious study?" },
+        { "speaker": "Caller", "text": "The Patterson-Gimlin film. Modern biomechanical analysis shows the gait is impossible to fake with 1960s technology." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "The Patterson film has been contested for decades." },
+          { "speaker": "Caller", "text": "Contested by people who haven't done the analysis. The muscle movement alone rules out a suit." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Biomechanical analysis is hard science. That carries weight." },
+          { "speaker": "Caller", "text": "The academic community is starting to pay attention. Slowly." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Thank you for your work. We need more rigorous researchers in this field." },
+        { "speaker": "Caller", "text": "The evidence deserves proper scientific inquiry. Thanks, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you've got academic credentials?" },
+        { "speaker": "Caller", "text": "Genetics researcher, Vern. What started as debunking turned into something else entirely." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "You tried to debunk and failed?" },
+        { "speaker": "Caller", "text": "I analyzed tissue samples from multiple sources. Expected to find bear or human. Found neither." },
+        { "speaker": "Vern", "text": "What did you find?" },
+        { "speaker": "Caller", "text": "Novel primate sequences. Mitochondrial DNA suggesting a divergence from human lineage about 15,000 years ago." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Has this been peer-reviewed?" },
+          { "speaker": "Caller", "text": "Submitted twice. Rejected both times without review. The topic is career poison." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Fifteen thousand years. That's within human migration timelines." },
+          { "speaker": "Caller", "text": "A parallel hominid species. It would rewrite human history." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Keep pushing for publication. The data will speak eventually." },
+        { "speaker": "Caller", "text": "That's the hope. Thanks for letting me share this, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! A scientist calling in! Let's hear it!" },
+        { "speaker": "Caller", "text": "Thermal imaging specialist, Vern! I captured something incredible in the Cascade Range!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Thermal footage! What did you get?!" },
+        { "speaker": "Caller", "text": "Bipedal figure, nine feet tall! Heat signature consistent with a large mammal! Moving through dense forest at night!" },
+        { "speaker": "Vern", "text": "Did you track it?!" },
+        { "speaker": "Caller", "text": "For twenty minutes! It moved faster than any human could through that terrain! The footage is crystal clear!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could it have been a person in a suit?!" },
+          { "speaker": "Caller", "text": "Not at those temperatures! A suit would show different heat distribution! This was biological!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Twenty minutes of thermal footage! This could be definitive proof!" },
+          { "speaker": "Caller", "text": "I'm having it professionally analyzed! This is real, Vern!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send us that footage! The world needs to see this!" },
+        { "speaker": "Caller", "text": "As soon as the analysis is done! Thank you, Vern!" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "arcId": "ghosts_questionable_footsteps",
+  "topic": "Ghosts",
+  "legitimacy": "Questionable",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. What's happening?" },
+        { "speaker": "Caller", "text": "Footsteps, Vern. Every night around 3 AM. Upstairs when no one's there." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Old house?" },
+        { "speaker": "Caller", "text": "Built in 1920. But I've lived here ten years. This just started." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could be animals in the attic. Raccoons sound like footsteps." },
+          { "speaker": "Caller", "text": "Checked. Nothing up there." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "New activity after ten years. Something may have changed." },
+          { "speaker": "Caller", "text": "That's what worries me." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Record the audio. We can analyze it." },
+        { "speaker": "Caller", "text": "Good idea. Thanks, Vern." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. Haunting?" },
+        { "speaker": "Caller", "text": "Maybe. Doors opening by themselves. Started last month." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Which doors? Interior or exterior?" },
+        { "speaker": "Caller", "text": "Interior. Same two doors. Every couple of days." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Check the hinges and the foundation. Houses shift." },
+          { "speaker": "Caller", "text": "I did. Everything's level." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Same two doors. Consistent pattern. That's interesting." },
+          { "speaker": "Caller", "text": "I thought so too." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Set up a camera. Next caller." },
+        { "speaker": "Caller", "text": "Will do. Thanks." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, what's going on at your place?" },
+        { "speaker": "Caller", "text": "Strange occurrences, Vern. Nothing dramatic, but consistent." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Give me specifics." },
+        { "speaker": "Caller", "text": "Cold spots in one corner of the living room. Electronics acting up in that area. Radio turns on by itself." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Electrical issues could explain both. Have you had it inspected?" },
+          { "speaker": "Caller", "text": "Electrician found nothing wrong." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Cold spots and electromagnetic interference together. Classic signs." },
+          { "speaker": "Caller", "text": "That's what I've been reading." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Get an EMF detector if you can. Track the readings." },
+        { "speaker": "Caller", "text": "I'll look into it. Thank you, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, tell me about these occurrences." },
+        { "speaker": "Caller", "text": "Something's in my house, Vern. I can't see it, but I feel it." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What kind of feeling? Describe it." },
+        { "speaker": "Caller", "text": "Being watched. Especially in the hallway. My dog won't go near that area anymore." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Animals sense things, but it could be ultrasound or other mundane causes." },
+          { "speaker": "Caller", "text": "He used to sleep in that hallway. Something changed." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Animals are sensitive to presences we can't perceive. Trust the dog." },
+          { "speaker": "Caller", "text": "That's my instinct too." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Document the dog's behavior. It could be our best indicator." },
+        { "speaker": "Caller", "text": "Smart idea. Thanks, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! What's happening at your place?!" },
+        { "speaker": "Caller", "text": "Activity is picking up, Vern! Knocking on the walls! Shadows moving!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Shadows moving! Where?!" },
+        { "speaker": "Caller", "text": "Peripheral vision mostly! But my security camera caught something too!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Camera footage! Have you analyzed it?! Could be artifacts!" },
+          { "speaker": "Caller", "text": "Checked it multiple times! Something's there!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "You caught it on camera! That's evidence!" },
+          { "speaker": "Caller", "text": "Finally proof I'm not imagining things!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send us that footage! We need to see this!" },
+        { "speaker": "Caller", "text": "Sending it tonight! Thanks, Vern!" }
+      ]
+    }
+  }
+}

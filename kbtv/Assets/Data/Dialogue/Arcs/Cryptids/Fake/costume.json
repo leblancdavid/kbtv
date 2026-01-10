@@ -1,0 +1,97 @@
+{
+  "arcId": "cryptids_fake_costume",
+  "topic": "Cryptids",
+  "legitimacy": "Fake",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. What'd you see?" },
+        { "speaker": "Caller", "text": "Bigfoot, Vern! Right in my backyard! Eight feet tall!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Your backyard. In the suburbs." },
+        { "speaker": "Caller", "text": "Yeah! He was going through my trash cans!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "That's called a bear. Or a homeless guy." },
+        { "speaker": "Caller", "text": "*laughing* Okay fine, it was my buddy in a gorilla suit." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. Spit it out." },
+        { "speaker": "Caller", "text": "Sasquatch! In my yard! Last night!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Where exactly do you live?" },
+        { "speaker": "Caller", "text": "Uh, downtown? But it was definitely Bigfoot!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Downtown. Right. Goodbye." },
+        { "speaker": "Caller", "text": "Haha, worth a shot!" }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, what's your sighting?" },
+        { "speaker": "Caller", "text": "Vern, I saw Bigfoot behind the 7-Eleven last Tuesday." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Behind the convenience store. Doing what exactly?" },
+        { "speaker": "Caller", "text": "Just... standing there. Looked right at me. Then walked off." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Probably buying beef jerky. Next." },
+        { "speaker": "Caller", "text": "*snorts* Okay you got me. Great show, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, cryptid sighting?" },
+        { "speaker": "Caller", "text": "Hundred percent, Vern. Bigfoot. My neighbor's property." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Describe what you saw." },
+        { "speaker": "Caller", "text": "Big, hairy, walking on two legs. Made eye contact with me." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Did you get any evidence?" },
+        { "speaker": "Caller", "text": "Nah, I'm just yanking your chain. Keep up the good work!" }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! Bigfoot sighting?!" },
+        { "speaker": "Caller", "text": "YES! Huge! Hairy! Right outside my window!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "When?! What happened?!" },
+        { "speaker": "Caller", "text": "Last night! It roared at me and ran off into the trees!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "We need to get a team out there!" },
+        { "speaker": "Caller", "text": "*dying laughing* I'm so sorry, I made it all up!" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "arcId": "ufos_questionable_lights",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. What'd you see?" },
+        { "speaker": "Caller", "text": "Strange lights in the sky, Vern. Three of them, moving in formation." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Formation. Could've been planes." },
+        { "speaker": "Caller", "text": "They were too fast. And they changed direction instantly." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Sounds like drones. Kids fly them all the time now." },
+          { "speaker": "Caller", "text": "Maybe. But they were really high up." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Instant direction changes. That rules out conventional aircraft." },
+          { "speaker": "Caller", "text": "That's what I thought too." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Keep watching the skies. Thanks for calling." },
+        { "speaker": "Caller", "text": "Will do. Thanks, Vern." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. What?" },
+        { "speaker": "Caller", "text": "Saw some weird lights last night. Thought you should know." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Weird how?" },
+        { "speaker": "Caller", "text": "Orange, pulsing. Moved around, then just disappeared." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Chinese lanterns do that exact thing." },
+          { "speaker": "Caller", "text": "Could be. Didn't think of that." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Pulsing and disappearing. Classic behavior." },
+          { "speaker": "Caller", "text": "Yeah, that's why I called." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Alright. Next caller." },
+        { "speaker": "Caller", "text": "Thanks for listening." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, what did you witness?" },
+        { "speaker": "Caller", "text": "Lights in the sky, Vern. Not planes, not stars. Something else." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Describe the movement pattern." },
+        { "speaker": "Caller", "text": "Erratic. Zigzagging. Then they merged into one light and shot straight up." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could be military flares or training exercises." },
+          { "speaker": "Caller", "text": "Possible. There is a base nearby." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Merging lights. That's been reported before in major sightings." },
+          { "speaker": "Caller", "text": "Really? I didn't know that." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Note the time and location. Might be worth investigating." },
+        { "speaker": "Caller", "text": "I wrote it all down. Thanks, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, tell me about these lights." },
+        { "speaker": "Caller", "text": "Three lights, Vern. Hovering over the lake. Silent." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "How long did they hover?" },
+        { "speaker": "Caller", "text": "Maybe five minutes. Then they flew off in different directions simultaneously." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Coordinated movement suggests human control. Drone show maybe?" },
+          { "speaker": "Caller", "text": "At 2 AM over a lake? Seems unlikely." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Simultaneous departure in different directions. Interesting." },
+          { "speaker": "Caller", "text": "It was like they were done observing and just left." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Good observation. Let us know if you see them again." },
+        { "speaker": "Caller", "text": "I'll be watching. Thanks, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! Lights in the sky?!" },
+        { "speaker": "Caller", "text": "Yes! Three of them! They were just HOVERING there!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Hovering! For how long?!" },
+        { "speaker": "Caller", "text": "Minutes! Then they shot off in three different directions at once!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could still be drones - they can do that now!" },
+          { "speaker": "Caller", "text": "Maybe, but these were BIG, Vern!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Three directions at once! Coordinated but not human!" },
+          { "speaker": "Caller", "text": "That's exactly what I thought!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Keep your phone ready next time! We need footage!" },
+        { "speaker": "Caller", "text": "Already set up a camera! Thanks, Vern!" }
+      ]
+    }
+  }
+}

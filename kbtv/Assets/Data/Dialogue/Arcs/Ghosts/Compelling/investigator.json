@@ -1,0 +1,137 @@
+{
+  "arcId": "ghosts_compelling_investigator",
+  "topic": "Ghosts",
+  "legitimacy": "Compelling",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. You're a professional investigator?" },
+        { "speaker": "Caller", "text": "Paranormal researcher, Vern. Twenty years, scientific methodology. Last month I documented something unprecedented." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Scientific methodology. That's rare in this field." },
+        { "speaker": "Caller", "text": "Full spectrum cameras, EMF sensors, infrasound detectors. I captured an apparition on four different devices simultaneously." },
+        { "speaker": "Vern", "text": "Four devices. Same moment." },
+        { "speaker": "Caller", "text": "Visual, thermal, electromagnetic, and audio. All corroborating. It's the most complete documentation I've ever achieved." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Equipment malfunctions can produce correlated errors." },
+          { "speaker": "Caller", "text": "Different manufacturers, different technologies. The statistical probability of synchronized malfunction is negligible." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Four different types of evidence. That's hard to dismiss." },
+          { "speaker": "Caller", "text": "I've submitted it for independent analysis. The preliminary response has been... surprised." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send us the findings when they're published. This is significant." },
+        { "speaker": "Caller", "text": "Will do. Thanks for taking this seriously, Vern." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. Credentials?" },
+        { "speaker": "Caller", "text": "Physics PhD, Vern. I study anomalous electromagnetic phenomena. What people call ghosts." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "A physicist studying ghosts. That's unusual." },
+        { "speaker": "Caller", "text": "Energy doesn't disappear. Consciousness may have electromagnetic components. I've measured persistent field anomalies at death sites." },
+        { "speaker": "Vern", "text": "Persistent how?" },
+        { "speaker": "Caller", "text": "Stable readings over years. Localized to specific areas. They respond to stimuli." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Natural electromagnetic sources could explain localized fields." },
+          { "speaker": "Caller", "text": "I've controlled for geology, wiring, everything. These fields have no conventional source." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Responsive fields with no physical source. That suggests intelligence." },
+          { "speaker": "Caller", "text": "That's my working hypothesis. The data supports it." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Interesting approach. Keep researching." },
+        { "speaker": "Caller", "text": "Someone has to apply real science to this. Thanks." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, what's your professional background?" },
+        { "speaker": "Caller", "text": "Forensic audio specialist, Vern. I analyze recordings for law enforcement. I've also analyzed EVP recordings." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Forensic audio applied to ghost recordings. Interesting crossover." },
+        { "speaker": "Caller", "text": "Same techniques. Spectral analysis, noise isolation, frequency mapping. I've isolated voices that weren't present at recording time." },
+        { "speaker": "Vern", "text": "How can you be certain they weren't present?" },
+        { "speaker": "Caller", "text": "Controlled conditions. Sealed rooms. The acoustic properties of these voices don't match any living speaker present." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Radio interference can produce voice-like sounds." },
+          { "speaker": "Caller", "text": "These are coherent responses to questions. Relevant to the context. Not random bleed-through." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Forensic-quality analysis of EVP. This could change the field." },
+          { "speaker": "Caller", "text": "I'm publishing a methodology paper. Reproducible results matter." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send us that paper when it's out. We'd love to cover it." },
+        { "speaker": "Caller", "text": "Appreciate the interest, Vern. Science should apply everywhere." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you've got research credentials?" },
+        { "speaker": "Caller", "text": "Neuropsychologist, Vern. I study perception and consciousness. I've been investigating what happens at the moment of death." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Death research. Heavy subject." },
+        { "speaker": "Caller", "text": "Near-death experience studies. What's interesting is the verified perception during clinical death." },
+        { "speaker": "Vern", "text": "Verified how?" },
+        { "speaker": "Caller", "text": "Patients accurately describe events that occurred while they had no measurable brain activity. Specific details, later confirmed." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Memory construction after the fact could explain that." },
+          { "speaker": "Caller", "text": "We use hidden targets. Objects only visible from above. Flatline patients describe them accurately." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Perception without brain function. That's consciousness existing independently." },
+          { "speaker": "Caller", "text": "The data suggests exactly that. Consciousness may survive biological death." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Groundbreaking if verified. Thank you for sharing your research." },
+        { "speaker": "Caller", "text": "The evidence is mounting. Thanks for the platform, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! You're a researcher with evidence?!" },
+        { "speaker": "Caller", "text": "Vern, I've spent fifteen years documenting a single haunted location! I have the most comprehensive dataset ever collected!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Fifteen years at one location! What have you found?!" },
+        { "speaker": "Caller", "text": "Patterns, Vern! Predictable manifestations! Temperature drops precisely two minutes before visual phenomena!" },
+        { "speaker": "Vern", "text": "Predictable manifestations! You can anticipate when they occur?!" },
+        { "speaker": "Caller", "text": "Within a thirty-minute window! Every lunar cycle! I've filmed over forty manifestations!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Forty filmed manifestations! How do you rule out hoaxing?!" },
+          { "speaker": "Caller", "text": "I've had independent observers! University physicists! They've witnessed it themselves!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Predictable, repeatable phenomena! That's what science requires!" },
+          { "speaker": "Caller", "text": "Exactly! This could be studied! Replicated! We need funding!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "This is amazing! Let's get you connected with researchers!" },
+        { "speaker": "Caller", "text": "That's the dream! Thank you, Vern!" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "arcId": "cryptids_questionable_shadow",
+  "topic": "Cryptids",
+  "legitimacy": "Questionable",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. What'd you see?" },
+        { "speaker": "Caller", "text": "Something big in the woods behind my house. Couldn't make it out clearly." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Big how? Bear-sized?" },
+        { "speaker": "Caller", "text": "Bigger. And it was walking upright. I think." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "You think. So you're not sure." },
+          { "speaker": "Caller", "text": "It was dark. But something was definitely there." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Upright and larger than a bear. Worth noting." },
+          { "speaker": "Caller", "text": "That's what I figured. Wanted to report it." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Keep an eye out. Thanks for calling." },
+        { "speaker": "Caller", "text": "Will do. Night, Vern." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. What?" },
+        { "speaker": "Caller", "text": "Saw something weird in the woods. Big shape moving around." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Could you identify it?" },
+        { "speaker": "Caller", "text": "No. Too dark. But it wasn't a deer or anything normal." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Moose can look pretty weird in low light." },
+          { "speaker": "Caller", "text": "Don't have moose around here." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Trust your instincts. You know what's normal in your area." },
+          { "speaker": "Caller", "text": "Exactly. This wasn't." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Fine. Keep watching." },
+        { "speaker": "Caller", "text": "Thanks." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, what's happening in your neck of the woods?" },
+        { "speaker": "Caller", "text": "Strange sighting, Vern. Large figure moving through the trees at dusk." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Can you describe it in more detail?" },
+        { "speaker": "Caller", "text": "Dark, bulky. Moved smoothly for something that big. Gone before I could get a good look." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Dusk plays tricks on the eyes. Could've been a large animal." },
+          { "speaker": "Caller", "text": "Maybe. But I've lived here thirty years. Never seen anything like it." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Thirty years and this is new. That's significant." },
+          { "speaker": "Caller", "text": "That's why I called. Something's changed." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Document any future sightings. We'll track the pattern." },
+        { "speaker": "Caller", "text": "Good idea. Thanks, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, cryptid sighting?" },
+        { "speaker": "Caller", "text": "Maybe, Vern. Something big moving through the forest. Didn't get a clear view." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What made you think it wasn't just wildlife?" },
+        { "speaker": "Caller", "text": "The way it moved. Deliberate. And it seemed to notice me watching." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Animals notice when they're being watched. Natural instinct." },
+          { "speaker": "Caller", "text": "This felt different. Like it was assessing me." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Awareness of being observed. That suggests intelligence." },
+          { "speaker": "Caller", "text": "That's the vibe I got. Unsettling." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Set up a trail camera if you can. We need evidence." },
+        { "speaker": "Caller", "text": "Already ordered one. Thanks, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! What'd you see out there?!" },
+        { "speaker": "Caller", "text": "Something in the woods, Vern! Big! Moving between the trees!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Could you make out what it was?!" },
+        { "speaker": "Caller", "text": "Not clearly! But it was HUGE and it moved like nothing I've seen before!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could've been a bear - they look massive standing up!" },
+          { "speaker": "Caller", "text": "Maybe! But it didn't move like a bear!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Unusual movement pattern! That's a key indicator!" },
+          { "speaker": "Caller", "text": "I knew you'd understand!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Get a camera out there! We need to document this!" },
+        { "speaker": "Caller", "text": "On it! Thanks, Vern!" }
+      ]
+    }
+  }
+}

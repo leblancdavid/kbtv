@@ -1,0 +1,97 @@
+{
+  "arcId": "ghosts_fake_halloween",
+  "topic": "Ghosts",
+  "legitimacy": "Fake",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. Haunting?" },
+        { "speaker": "Caller", "text": "My house is possessed, Vern! Objects flying everywhere!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Flying objects. Like what?" },
+        { "speaker": "Caller", "text": "Dishes! Chairs! My cat flew across the room!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Cats jump. That's what they do." },
+        { "speaker": "Caller", "text": "*laughing* Okay yeah, I was just messing around." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. Ghost story?" },
+        { "speaker": "Caller", "text": "A demon appeared at the foot of my bed last night!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Describe it." },
+        { "speaker": "Caller", "text": "Red eyes, horns, the whole thing! Spoke in Latin!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "That's sleep paralysis. Or a bad burrito." },
+        { "speaker": "Caller", "text": "Haha, yeah it was the burrito. My bad!" }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, what's happening at your place?" },
+        { "speaker": "Caller", "text": "Full-on poltergeist activity, Vern. Blood coming out of the walls." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Blood from the walls. Have you had the plumbing checked?" },
+        { "speaker": "Caller", "text": "It's not rust! It's actual blood! I tasted it!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "You tasted mystery wall liquid. That's your first problem." },
+        { "speaker": "Caller", "text": "*snickering* Alright, you caught me. Just wanted to be on the show." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, paranormal activity?" },
+        { "speaker": "Caller", "text": "Vern, I captured a ghost on camera. Clear as day." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Really? Can you describe the footage?" },
+        { "speaker": "Caller", "text": "Full apparition, white dress, floating down my hallway." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send it to the station. We'll analyze it." },
+        { "speaker": "Caller", "text": "Yeah... it's actually my sister in a sheet. Sorry, Vern!" }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! Ghost encounter?!" },
+        { "speaker": "Caller", "text": "VERN! The ghost TOUCHED me! Ice cold hand on my shoulder!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Physical contact! That's rare! What happened next?!" },
+        { "speaker": "Caller", "text": "It whispered my name! Then vanished into thin air!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "This is incredible! Can you come on for an interview?!" },
+        { "speaker": "Caller", "text": "*bursting out laughing* I'm so sorry, it was all fake!" }
+      ]
+    }
+  }
+}

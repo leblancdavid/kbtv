@@ -1,0 +1,97 @@
+{
+  "arcId": "ufos_fake_prankster",
+  "topic": "UFOs",
+  "legitimacy": "Fake",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. Go ahead." },
+        { "speaker": "Caller", "text": "Vern! I was abducted last night! They took me to their ship!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Uh huh. What'd they look like?" },
+        { "speaker": "Caller", "text": "Little green guys! Big heads! They probed me, Vern!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Right. Thanks for calling." },
+        { "speaker": "Caller", "text": "*laughing* Got you, Vern!" }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. What?" },
+        { "speaker": "Caller", "text": "Vern! Aliens abducted me! For real!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Sure they did. Details?" },
+        { "speaker": "Caller", "text": "Green skin, big eyes, the whole thing! They said they'd be back!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "I'm hanging up now." },
+        { "speaker": "Caller", "text": "*snickering* Okay okay, I made it up." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you're on. What's your story?" },
+        { "speaker": "Caller", "text": "Vern, I was abducted by aliens last night. I'm not making this up." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Alright, describe what happened." },
+        { "speaker": "Caller", "text": "Bright light, floated up to the ship, little gray beings everywhere. Classic stuff, you know?" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Classic stuff. That's the problem. Next caller." },
+        { "speaker": "Caller", "text": "*bursts out laughing* Sorry Vern, couldn't resist!" }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, let's hear it." },
+        { "speaker": "Caller", "text": "Vern, you're not gonna believe this - full alien abduction, last night!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Try me. What happened?" },
+        { "speaker": "Caller", "text": "Beam of light, taken aboard, they ran tests! I've got scoop marks to prove it!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send photos of those marks. We'll see." },
+        { "speaker": "Caller", "text": "Ah man, I'm just messing with you. Good show though!" }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! What've you got?!" },
+        { "speaker": "Caller", "text": "VERN! ALIENS! THEY TOOK ME!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Tell me everything!" },
+        { "speaker": "Caller", "text": "Little green men! Spaceship! Probes! The whole nine yards!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Wait a minute..." },
+        { "speaker": "Caller", "text": "*cracking up* I'm sorry, I had to! Love the show!" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "arcId": "conspiracies_questionable_patterns",
+  "topic": "Conspiracies",
+  "legitimacy": "Questionable",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. What's the theory?" },
+        { "speaker": "Caller", "text": "I've been tracking flight patterns, Vern. Something's not right." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Flight patterns. Commercial planes?" },
+        { "speaker": "Caller", "text": "Yeah. Same planes, same routes, but the contrails last way longer than they used to." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Humidity affects contrail persistence. Weather changes." },
+          { "speaker": "Caller", "text": "Maybe. But it's every day now." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Persistent contrails have been documented more frequently lately." },
+          { "speaker": "Caller", "text": "See? I'm not crazy." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Keep documenting. Data is useful." },
+        { "speaker": "Caller", "text": "Will do. Thanks, Vern." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. What is it?" },
+        { "speaker": "Caller", "text": "Strange patterns in local news coverage. Stories disappearing." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Disappearing how?" },
+        { "speaker": "Caller", "text": "Posted online, then gone within hours. No explanation." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could be corrections or legal issues. Happens all the time." },
+          { "speaker": "Caller", "text": "Maybe. But it's always the same type of story." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Selective removal. That's worth watching." },
+          { "speaker": "Caller", "text": "That's what I thought." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Screenshot everything. Proof matters." },
+        { "speaker": "Caller", "text": "Already started. Thanks." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, what have you been researching?" },
+        { "speaker": "Caller", "text": "Corporate connections, Vern. Same board members across competing companies." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "That's not unusual in big business. Interlocking directorates." },
+        { "speaker": "Caller", "text": "But the pattern extends to media companies and defense contractors. All connected." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Wealthy people run in the same circles. Doesn't prove coordination." },
+          { "speaker": "Caller", "text": "True. But the timing of certain decisions seems too convenient." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Media and defense linked at the board level. That's concerning." },
+          { "speaker": "Caller", "text": "The implications are significant." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Keep mapping the connections. Let us know what you find." },
+        { "speaker": "Caller", "text": "Will do. Appreciate the platform, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you've found a pattern?" },
+        { "speaker": "Caller", "text": "Data patterns, Vern. Phone outages that coincide with specific events." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What kind of events?" },
+        { "speaker": "Caller", "text": "Protests, mostly. Service goes spotty right when things get heated." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Network congestion at large gatherings is normal." },
+          { "speaker": "Caller", "text": "That's what they'd say. But I've tested it." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Selective throttling during civil unrest. Not unprecedented." },
+          { "speaker": "Caller", "text": "Exactly. It's documented in other countries too." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Gather more data. We might cover this in depth." },
+        { "speaker": "Caller", "text": "I'll send you what I have. Thanks, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! You've uncovered something?!" },
+        { "speaker": "Caller", "text": "Patterns, Vern! Financial transactions that don't add up!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What kind of transactions?!" },
+        { "speaker": "Caller", "text": "Shell companies! Billions moving around right before major policy changes!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could be coincidence! Markets react to rumors!" },
+          { "speaker": "Caller", "text": "The timing is TOO perfect! Every single time!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Insider movement before policy! That's the smoking gun!" },
+          { "speaker": "Caller", "text": "Someone knows before the public does!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Document everything! This could be huge!" },
+        { "speaker": "Caller", "text": "Already on it! Thanks, Vern!" }
+      ]
+    }
+  }
+}

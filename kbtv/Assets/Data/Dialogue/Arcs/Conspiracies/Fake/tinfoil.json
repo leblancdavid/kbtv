@@ -1,0 +1,97 @@
+{
+  "arcId": "conspiracies_fake_tinfoil",
+  "topic": "Conspiracies",
+  "legitimacy": "Fake",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. What's the conspiracy?" },
+        { "speaker": "Caller", "text": "The government is putting mind control chips in our cereal, Vern!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Cereal. Which brand?" },
+        { "speaker": "Caller", "text": "All of them! That's why I only eat raw oats now!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Raw oats. Smart. Goodnight." },
+        { "speaker": "Caller", "text": "*laughing* Had you going for a second!" }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. What now?" },
+        { "speaker": "Caller", "text": "Birds aren't real, Vern! They're all government drones!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "All birds. Every single one." },
+        { "speaker": "Caller", "text": "Yes! That's why they sit on power lines - recharging!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Goodbye." },
+        { "speaker": "Caller", "text": "Haha, come on, that was funny!" }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, what's your theory?" },
+        { "speaker": "Caller", "text": "The moon landing was fake, Vern. Filmed in a warehouse in Nevada." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "That's been debunked thoroughly. Any new evidence?" },
+        { "speaker": "Caller", "text": "Well, no, but think about it - the flag was waving!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "There's no wind in a vacuum. It was spring-loaded. Next caller." },
+        { "speaker": "Caller", "text": "Okay okay, I was just testing you. You passed!" }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you've got a theory?" },
+        { "speaker": "Caller", "text": "Vern, the Illuminati controls all the world's pizza chains." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Pizza chains. Why pizza specifically?" },
+        { "speaker": "Caller", "text": "Think about it - triangular slices, all-seeing pepperoni..." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "That's... creative. But no." },
+        { "speaker": "Caller", "text": "*cracking up* Sorry, I couldn't keep a straight face!" }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! What've you uncovered?!" },
+        { "speaker": "Caller", "text": "VERN! The lizard people control EVERYTHING!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Lizard people! Where's your proof?!" },
+        { "speaker": "Caller", "text": "Watch any politician's eyes - they blink sideways sometimes!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [],
+        "Believing": []
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Wait, that's not how..." },
+        { "speaker": "Caller", "text": "*laughing* Gotcha! Love the show, Vern!" }
+      ]
+    }
+  }
+}

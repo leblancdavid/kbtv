@@ -1,0 +1,137 @@
+{
+  "arcId": "ufos_compelling_pilot",
+  "topic": "UFOs",
+  "legitimacy": "Compelling",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. What's your story?" },
+        { "speaker": "Caller", "text": "Twenty years as a commercial pilot, Vern. Last week I saw something that shouldn't exist." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Twenty years. That's a lot of flight hours." },
+        { "speaker": "Caller", "text": "Forty thousand hours. I know every aircraft type. This was none of them." },
+        { "speaker": "Vern", "text": "Describe it." },
+        { "speaker": "Caller", "text": "Tic-tac shape. No wings, no exhaust. It matched our speed at 35,000 feet, then accelerated vertically and was gone in two seconds." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Military has classified aircraft. Could be something experimental." },
+          { "speaker": "Caller", "text": "Nothing we have can accelerate like that. The G-forces would kill a pilot." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Forty thousand hours. You're not easily fooled." },
+          { "speaker": "Caller", "text": "I reported it to the airline. They took it seriously. First time that's ever happened." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Thank you for coming forward. This is important." },
+        { "speaker": "Caller", "text": "Someone needs to talk about this. Thanks, Vern." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. Go." },
+        { "speaker": "Caller", "text": "Retired Navy pilot here. Saw something on a training flight that changed my mind about all this." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Navy pilot. Where was this?" },
+        { "speaker": "Caller", "text": "Off the coast, 2015. Object descended from 80,000 feet to sea level in less than a second." },
+        { "speaker": "Vern", "text": "That's impossible." },
+        { "speaker": "Caller", "text": "I know. I was on the radar. So were five other pilots. We all saw it." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Radar glitches happen. Equipment malfunctions." },
+          { "speaker": "Caller", "text": "Multiple independent systems, visual confirmation, and it's on film." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Multiple witnesses, radar, and film. That's as solid as it gets." },
+          { "speaker": "Caller", "text": "The Pentagon acknowledged it last year. Finally." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Appreciate you sharing this." },
+        { "speaker": "Caller", "text": "It's time people knew. Thanks." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, I understand you have professional experience in aviation?" },
+        { "speaker": "Caller", "text": "Air traffic controller for fifteen years, Vern. I've tracked something I can't explain." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Tell me about it." },
+        { "speaker": "Caller", "text": "Object appeared on radar at 40,000 feet. No transponder, no flight plan. It descended to 100 feet in four seconds." },
+        { "speaker": "Vern", "text": "That rate of descent would destroy any conventional aircraft." },
+        { "speaker": "Caller", "text": "Correct. Then it hovered over the water for six minutes and shot back up. Multiple controllers witnessed it." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Any chance of radar spoofing or electronic warfare testing?" },
+          { "speaker": "Caller", "text": "We considered that. Coast Guard sent a boat. They saw it visually before it disappeared." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Visual confirmation from Coast Guard. That's significant." },
+          { "speaker": "Caller", "text": "The official report was classified. But we know what we saw." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Thank you for your testimony. This is exactly the kind of credible account we need." },
+        { "speaker": "Caller", "text": "Someone should be asking questions. Appreciate you doing that, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you've got credentials. Let's hear it." },
+        { "speaker": "Caller", "text": "Aerospace engineer, twenty-two years. What I saw last month defied everything I know about physics." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "An engineer saying something defied physics. That's significant." },
+        { "speaker": "Caller", "text": "Metallic sphere, maybe 30 feet diameter. It was rotating on multiple axes simultaneously while stationary." },
+        { "speaker": "Vern", "text": "That shouldn't be possible." },
+        { "speaker": "Caller", "text": "It's not. Then it accelerated from zero to hypersonic with no sonic boom. I had my telescope on it." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could it have been some kind of optical illusion? Atmospheric effects?" },
+          { "speaker": "Caller", "text": "I've considered every explanation. None of them fit the data." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "An aerospace engineer with a telescope. This is credible testimony." },
+          { "speaker": "Caller", "text": "I didn't want to believe it. But the evidence is undeniable." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Thank you for coming forward. Your expertise matters." },
+        { "speaker": "Caller", "text": "The scientific community needs to take this seriously. Thanks for the platform, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! I hear you've got serious credentials!" },
+        { "speaker": "Caller", "text": "Former Air Force, Vern. What I witnessed is still classified, but I'm talking anyway." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Tell us what you can!" },
+        { "speaker": "Caller", "text": "Object tracked on radar doing impossible maneuvers. 90-degree turns at Mach 5. Multiple F-18s scrambled." },
+        { "speaker": "Vern", "text": "F-18s! What happened when they intercepted?!" },
+        { "speaker": "Caller", "text": "It played with them. Accelerated away, then reappeared behind them. The pilots were shaken." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could this have been a secret military test?!" },
+          { "speaker": "Caller", "text": "We WERE the military! This wasn't ours! The brass was panicked!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Outmaneuvering F-18s! This is exactly what other pilots have reported!" },
+          { "speaker": "Caller", "text": "It's happening more often! Someone is watching us!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "This is incredible testimony! Thank you for your courage!" },
+        { "speaker": "Caller", "text": "The truth needs to come out! Thanks, Vern!" }
+      ]
+    }
+  }
+}

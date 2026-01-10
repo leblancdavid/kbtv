@@ -1,0 +1,137 @@
+{
+  "arcId": "conspiracies_compelling_whistleblower",
+  "topic": "Conspiracies",
+  "legitimacy": "Compelling",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. You said you have documents?" },
+        { "speaker": "Caller", "text": "Internal memos, Vern. From my time at a pharmaceutical company. They knew about the side effects." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Knew about them and released the drug anyway." },
+        { "speaker": "Caller", "text": "Cost-benefit analysis. Settlements would be cheaper than recall. I have the spreadsheets." },
+        { "speaker": "Vern", "text": "That's criminal." },
+        { "speaker": "Caller", "text": "It's also standard practice. I've got documents from three different products." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Documents can be fabricated." },
+          { "speaker": "Caller", "text": "I've submitted them to two investigative journalists. They're being authenticated." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "This is exactly what people suspected. Now there's proof." },
+          { "speaker": "Caller", "text": "I couldn't stay silent anymore." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Be careful. Whistleblowers don't have an easy time." },
+        { "speaker": "Caller", "text": "I know the risks. Thanks for listening, Vern." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. What do you have?" },
+        { "speaker": "Caller", "text": "Former NSA analyst. I've got evidence of domestic surveillance programs that Congress doesn't know about." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Congress doesn't know. Meaning no oversight." },
+        { "speaker": "Caller", "text": "Zero. Black budget, no paper trail. Monitoring social media, email, everything." },
+        { "speaker": "Vern", "text": "How is that possible?" },
+        { "speaker": "Caller", "text": "Shell companies and contractor networks. The money is hidden in plain sight." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Big claims require big evidence." },
+          { "speaker": "Caller", "text": "I have server logs. Dates, targets, data volumes. It's documented." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Snowden said there was more. Sounds like you're confirming it." },
+          { "speaker": "Caller", "text": "He barely scratched the surface." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Stay safe. People disappear for less." },
+        { "speaker": "Caller", "text": "I've taken precautions. Thanks." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, what's your background?" },
+        { "speaker": "Caller", "text": "Former congressional aide, Vern. Fifteen years on the intelligence committee. I've seen how things really work." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "And how do they really work?" },
+        { "speaker": "Caller", "text": "Briefings are selective. Congressmembers only learn what agencies want them to know. Oversight is theater." },
+        { "speaker": "Vern", "text": "That's a serious accusation." },
+        { "speaker": "Caller", "text": "I've sat in those meetings. Watched crucial information get omitted. It's systematic." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could this be normal compartmentalization? Need-to-know basis?" },
+          { "speaker": "Caller", "text": "These are oversight committees. They need to know everything. That's the point." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "The intelligence community operating without real oversight. That's dangerous." },
+          { "speaker": "Caller", "text": "It's been this way for decades. Both parties are complicit." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Thank you for coming forward. This kind of insider perspective is rare." },
+        { "speaker": "Caller", "text": "Democracy requires transparency. Thanks, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you're a former insider?" },
+        { "speaker": "Caller", "text": "Defense contractor for twelve years, Vern. I have evidence of technology being deliberately suppressed." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Suppressed technology. What kind?" },
+        { "speaker": "Caller", "text": "Energy systems. Clean, cheap, decentralized. Multiple prototypes got shut down after successful tests." },
+        { "speaker": "Vern", "text": "Why would they suppress something beneficial?" },
+        { "speaker": "Caller", "text": "Follow the money. Current energy infrastructure represents trillions in investments. Disruption is not allowed." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "If it worked, someone would leak it. Information wants to be free." },
+          { "speaker": "Caller", "text": "People have leaked it. They get discredited, bought off, or worse. I've seen the playbook." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Protecting investments over progress. It's sadly believable." },
+          { "speaker": "Caller", "text": "The technology exists. The will to deploy it doesn't." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Thank you for the insight. Keep safe." },
+        { "speaker": "Caller", "text": "People need to know. Thanks for the platform, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}! You said you have proof of something big!" },
+        { "speaker": "Caller", "text": "Vern, I worked in financial intelligence! I have records of money laundering at the highest levels!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Financial records! What do they show?!" },
+        { "speaker": "Caller", "text": "Billions flowing through shell companies! Originating from government contracts! Ending up in offshore accounts!" },
+        { "speaker": "Vern", "text": "Can you name names?!" },
+        { "speaker": "Caller", "text": "Not yet! Lawyers are reviewing everything! But we're talking cabinet-level officials!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "This sounds almost too big! How did you get access?!" },
+          { "speaker": "Caller", "text": "I was the analyst! They trusted me! They shouldn't have!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Cabinet-level corruption! This could bring down administrations!" },
+          { "speaker": "Caller", "text": "If it goes public! That's the challenge!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Stay safe! This is huge! Keep us updated!" },
+        { "speaker": "Caller", "text": "Will do! The truth will come out! Thanks, Vern!" }
+      ]
+    }
+  }
+}
