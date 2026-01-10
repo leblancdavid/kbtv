@@ -14,17 +14,25 @@ namespace KBTV.Dialogue
     {
         [SerializeField] private string _arcId;
         [SerializeField] private string _topic;
+        [SerializeField] private string _claimedTopic;  // For topic-switcher arcs: what the caller claimed
         [SerializeField] private CallerLegitimacy _legitimacy;
         [SerializeField] private Dictionary<VernMood, ArcMoodVariant> _moodVariants;
 
         public string ArcId => _arcId;
         public string Topic => _topic;
+        public string ClaimedTopic => _claimedTopic;
         public CallerLegitimacy Legitimacy => _legitimacy;
 
-        public ConversationArc(string arcId, string topic, CallerLegitimacy legitimacy)
+        /// <summary>
+        /// True if this is a topic-switcher arc (has a claimed topic different from actual topic).
+        /// </summary>
+        public bool IsTopicSwitcher => !string.IsNullOrEmpty(_claimedTopic);
+
+        public ConversationArc(string arcId, string topic, CallerLegitimacy legitimacy, string claimedTopic = null)
         {
             _arcId = arcId;
             _topic = topic;
+            _claimedTopic = claimedTopic;
             _legitimacy = legitimacy;
             _moodVariants = new Dictionary<VernMood, ArcMoodVariant>();
         }
@@ -78,6 +86,21 @@ namespace KBTV.Dialogue
             bool topicMatch = string.IsNullOrEmpty(_topic) || 
                               string.Equals(_topic, topic, StringComparison.OrdinalIgnoreCase);
             return legitimacyMatch && topicMatch;
+        }
+
+        /// <summary>
+        /// Check if this arc matches as a topic-switcher arc.
+        /// Used when a caller lied about their topic during screening.
+        /// </summary>
+        public bool MatchesTopicSwitcher(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy)
+        {
+            if (!IsTopicSwitcher) return false;
+            
+            bool legitimacyMatch = _legitimacy == legitimacy;
+            bool claimedMatch = string.Equals(_claimedTopic, claimedTopic, StringComparison.OrdinalIgnoreCase);
+            bool actualMatch = string.Equals(_topic, actualTopic, StringComparison.OrdinalIgnoreCase);
+            
+            return legitimacyMatch && claimedMatch && actualMatch;
         }
 
         /// <summary>

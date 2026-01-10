@@ -153,9 +153,53 @@ Below is a complete example arc for a Credible UFO caller (dashcam trucker) with
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `arcId` | string | Yes | Unique identifier (format: `{topic}_{legitimacy}_{descriptor}`) |
-| `topic` | string | Yes | One of: "UFOs", "Cryptids", "Conspiracies", "Ghosts" |
+| `topic` | string | Yes | The actual topic: "UFOs", "Cryptids", "Conspiracies", "Ghosts" |
+| `claimedTopic` | string | No | For topic-switcher arcs: what the caller claimed during screening |
 | `legitimacy` | string | Yes | One of: "Fake", "Questionable", "Credible", "Compelling" |
 | `moodVariants` | object | Yes | Contains variants for each mood |
+
+## Topic-Switcher Arcs
+
+Topic-switcher arcs handle callers who lied about their topic during screening. These arcs have both a `claimedTopic` (what they said) and `topic` (what they actually talk about).
+
+### When They're Used
+
+When a caller's `ClaimedTopic` differs from their `ActualTopic`, the system first looks for a matching topic-switcher arc. If none is found, it falls back to a regular arc matching the actual topic.
+
+### Example Topic-Switcher Arc
+
+```json
+{
+  "arcId": "cryptid_credible_claims_ufos",
+  "claimedTopic": "UFOs",
+  "topic": "Cryptids",
+  "legitimacy": "Credible",
+  "moodVariants": {
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you said you saw something in the sky?" },
+        { "speaker": "Caller", "text": "Well, I was out looking for lights when I heard something crash through the trees..." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Hold on. That doesn't sound like a UFO." },
+        { "speaker": "Caller", "text": "I know, I said UFOs to get through. But Vern, I saw a creature." },
+        { "speaker": "Vern", "text": "A creature. What kind?" },
+        { "speaker": "Caller", "text": "Bipedal. Seven feet tall. Covered in dark fur." }
+      ]
+    }
+  }
+}
+```
+
+### Naming Convention for Switcher Arcs
+
+Place in the **actual topic** folder with a `claims_` prefix:
+
+```
+Assets/Data/Dialogue/Arcs/Cryptids/Credible/claims_ufos.json
+```
+
+This is a Cryptids arc where the caller claimed UFOs.
 
 ### Mood Variants Object
 

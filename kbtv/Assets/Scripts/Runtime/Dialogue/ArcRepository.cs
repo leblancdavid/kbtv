@@ -91,6 +91,37 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
+        /// Find all topic-switcher arcs matching a caller who lied about their topic.
+        /// </summary>
+        public List<ConversationArc> FindTopicSwitcherArcs(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy)
+        {
+            EnsureInitialized();
+            var matches = new List<ConversationArc>();
+
+            foreach (var arc in _arcs)
+            {
+                if (arc.MatchesTopicSwitcher(claimedTopic, actualTopic, legitimacy))
+                {
+                    matches.Add(arc);
+                }
+            }
+
+            return matches;
+        }
+
+        /// <summary>
+        /// Get a random topic-switcher arc for a caller who lied about their topic.
+        /// Returns null if no matching switcher arc found.
+        /// </summary>
+        public ConversationArc GetRandomTopicSwitcherArc(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy)
+        {
+            var matches = FindTopicSwitcherArcs(claimedTopic, actualTopic, legitimacy);
+            if (matches.Count == 0) return null;
+
+            return matches[UnityEngine.Random.Range(0, matches.Count)];
+        }
+
+        /// <summary>
         /// Add an arc to the repository (used by editor tools).
         /// </summary>
         public void AddArc(ConversationArc arc)
@@ -133,7 +164,7 @@ namespace KBTV.Dialogue
             if (data == null) return null;
 
             var legitimacy = ParseLegitimacy(data.legitimacy);
-            var arc = new ConversationArc(data.arcId, data.topic, legitimacy);
+            var arc = new ConversationArc(data.arcId, data.topic, legitimacy, data.claimedTopic);
 
             if (data.moodVariants != null)
             {

@@ -1,0 +1,138 @@
+{
+  "arcId": "cryptid_credible_claims_ufos",
+  "claimedTopic": "UFOs",
+  "topic": "Cryptids",
+  "legitimacy": "Credible",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName}, {callerLocation}. You said UFOs?" },
+        { "speaker": "Caller", "text": "Well, sort of. I was out looking for lights when I heard something in the woods." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Woods. That's not sky. Go on." },
+        { "speaker": "Caller", "text": "I know, I said UFOs to get through. But what I saw was... it was walking." },
+        { "speaker": "Vern", "text": "Walking. What was it?" },
+        { "speaker": "Caller", "text": "Bipedal. Maybe seven feet. Covered in matted dark fur. It looked right at me, Vern." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could've been a bear. They stand up sometimes." },
+          { "speaker": "Caller", "text": "Bears don't have shoulders like that. Or eyes that reflect green." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Green eye shine. Classic sasquatch marker." },
+          { "speaker": "Caller", "text": "That's what I thought. I've been reading up since it happened." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Appreciate you coming clean. Keep watching those woods." },
+        { "speaker": "Caller", "text": "Thanks, Vern. Sorry about the UFO thing." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. You said UFOs but I'm guessing that's not what this is about." },
+        { "speaker": "Caller", "text": "You caught me. I said that to get through, but it's actually about something I saw in the woods." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Great. So you lied. What did you actually see?" },
+        { "speaker": "Caller", "text": "I'm sorry. It was bipedal, Vern. Seven feet tall, covered in fur." },
+        { "speaker": "Vern", "text": "Bigfoot. You're calling about Bigfoot." },
+        { "speaker": "Caller", "text": "I know how it sounds. But it looked right at me. Green eyes." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Probably a guy in a suit. Lot of hoaxers out there." },
+          { "speaker": "Caller", "text": "At 3 AM in the middle of nowhere? Who would do that?" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Green eye shine. At least you've got details. More than most." },
+          { "speaker": "Caller", "text": "I wrote everything down right after. I knew people wouldn't believe me." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Don't lie to get through next time. But thanks for the call." },
+        { "speaker": "Caller", "text": "Won't happen again. Thanks, Vern." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you're on the air. Said you had a UFO sighting?" },
+        { "speaker": "Caller", "text": "I have to be honest, Vern. I said UFOs to get through, but that's not what I saw." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Alright. What did you actually see?" },
+        { "speaker": "Caller", "text": "I was out in the woods, looking for lights in the sky. But what I found was on the ground." },
+        { "speaker": "Vern", "text": "On the ground. What are we talking about here?" },
+        { "speaker": "Caller", "text": "Bipedal. Seven feet at least. Covered in dark, matted fur. It turned and looked right at me." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could've been a bear standing up. They do that." },
+          { "speaker": "Caller", "text": "Vern, I've seen bears. This had shoulders. And eyes that reflected green in my flashlight." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Green eye shine. That's a detail the hoaxers always miss." },
+          { "speaker": "Caller", "text": "I didn't know that until I started researching after. It matches the reports." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Appreciate you coming clean about the topic. Send in a report if you can." },
+        { "speaker": "Caller", "text": "Will do. Thanks for hearing me out, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you're on. UFO sighting, you said?" },
+        { "speaker": "Caller", "text": "I have to level with you, Vern. I said UFOs to get past screening. What I actually saw..." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Oh, now you've got my attention. What was it really?" },
+        { "speaker": "Caller", "text": "I was out in the woods hoping to catch lights in the sky. Instead, I heard something moving through the brush." },
+        { "speaker": "Vern", "text": "Moving through the brush. And you saw it?" },
+        { "speaker": "Caller", "text": "Bipedal. At least seven feet. Dark matted fur. And Vern, it turned and looked right at me with these green reflecting eyes." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Now hold on. Green reflecting eyes could be a lot of animals." },
+          { "speaker": "Caller", "text": "Standing seven feet tall on two legs? With shoulders wider than a doorframe?" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Green eye shine. Bipedal. You know what this sounds like." },
+          { "speaker": "Caller", "text": "I didn't want to say it. But yeah. I think I saw a sasquatch." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Look, I get why you faked the topic. But this is the real deal. Document everything." },
+        { "speaker": "Caller", "text": "Already on it. Thank you, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "We've got {callerName} on the line from {callerLocation}! UFO sighting tonight?!" },
+        { "speaker": "Caller", "text": "Vern, I gotta come clean - I said UFOs but that's NOT what I saw!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Oh! OH! What was it?! Tell me!" },
+        { "speaker": "Caller", "text": "I was in the woods looking for lights, but something came CRASHING through the trees!" },
+        { "speaker": "Vern", "text": "CRASHING! You saw it?!" },
+        { "speaker": "Caller", "text": "SEVEN FEET TALL, Vern! Covered in fur! It LOOKED at me! Green eyes!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Wait wait - green eyes? You sure it wasn't just a big bear?" },
+          { "speaker": "Caller", "text": "Bears don't have SHOULDERS like that! And they don't STARE at you!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "GREEN EYE SHINE! That's the TELL, folks! That's the sasquatch marker!" },
+          { "speaker": "Caller", "text": "I KNEW you'd get it! Nobody else believes me!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Document EVERYTHING! This is HUGE! Get back to me!" },
+        { "speaker": "Caller", "text": "I will! Thank you, Vern! THANK YOU!" }
+      ]
+    }
+  }
+}

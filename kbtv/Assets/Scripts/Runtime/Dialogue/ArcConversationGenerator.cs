@@ -44,15 +44,35 @@ namespace KBTV.Dialogue
         /// <returns>A Conversation ready for playback, or null if no matching arc found</returns>
         public Conversation Generate(Caller caller, Topic currentTopic = null)
         {
-            string topicName = currentTopic?.TopicId ?? caller.ClaimedTopic ?? "";
+            ConversationArc arc = null;
 
-            // Find a matching arc
-            var arc = _arcRepository?.GetRandomArc(topicName, caller.Legitimacy);
+            // If caller lied about their topic, try to find a topic-switcher arc first
+            if (caller.IsLyingAboutTopic)
+            {
+                arc = _arcRepository?.GetRandomTopicSwitcherArc(
+                    caller.ClaimedTopic, 
+                    caller.ActualTopic, 
+                    caller.Legitimacy);
+                
+                if (arc != null)
+                {
+                    Debug.Log($"ArcConversationGenerator: Using topic-switcher arc '{arc.ArcId}' " +
+                              $"(claimed: {caller.ClaimedTopic} -> actual: {caller.ActualTopic})");
+                }
+            }
+
+            // Fall back to regular arc selection using actual topic
             if (arc == null)
             {
-                Debug.LogWarning($"ArcConversationGenerator: No arc found for topic '{topicName}', " +
-                                 $"legitimacy '{caller.Legitimacy}'. Falling back to null.");
-                return null;
+                string topicName = caller.ActualTopic ?? currentTopic?.TopicId ?? "";
+                arc = _arcRepository?.GetRandomArc(topicName, caller.Legitimacy);
+                
+                if (arc == null)
+                {
+                    Debug.LogWarning($"ArcConversationGenerator: No arc found for topic '{topicName}', " +
+                                     $"legitimacy '{caller.Legitimacy}'. Falling back to null.");
+                    return null;
+                }
             }
 
             LastUsedArc = arc;
@@ -82,10 +102,24 @@ namespace KBTV.Dialogue
         /// </summary>
         public Conversation Generate(Caller caller, Topic currentTopic, VernMood mood, BeliefPath beliefPath)
         {
-            string topicName = currentTopic?.TopicId ?? caller.ClaimedTopic ?? "";
+            ConversationArc arc = null;
 
-            var arc = _arcRepository?.GetRandomArc(topicName, caller.Legitimacy);
-            if (arc == null) return null;
+            // If caller lied about their topic, try to find a topic-switcher arc first
+            if (caller.IsLyingAboutTopic)
+            {
+                arc = _arcRepository?.GetRandomTopicSwitcherArc(
+                    caller.ClaimedTopic, 
+                    caller.ActualTopic, 
+                    caller.Legitimacy);
+            }
+
+            // Fall back to regular arc selection using actual topic
+            if (arc == null)
+            {
+                string topicName = caller.ActualTopic ?? currentTopic?.TopicId ?? "";
+                arc = _arcRepository?.GetRandomArc(topicName, caller.Legitimacy);
+                if (arc == null) return null;
+            }
 
             LastUsedArc = arc;
             LastMood = mood;

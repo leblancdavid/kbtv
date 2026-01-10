@@ -11,6 +11,7 @@ namespace KBTV.Dialogue
     {
         public string arcId;
         public string topic;
+        public string claimedTopic;  // Optional: for topic-switcher arcs (what the caller claimed)
         public string legitimacy;
         public ArcMoodVariantsData moodVariants;
     }
