@@ -418,7 +418,7 @@ This section contains the actual dialogue lines for the initial implementation. 
 - [x] Add Cryptids topic templates
 - [x] Add Ghosts topic templates  
 - [x] Add Conspiracies topic templates
-- [ ] Add generic fallback templates (Topic=null)
+- [x] Add generic fallback templates (Topic=null)
 
 ### Phase 4: Polish (TODO)
 

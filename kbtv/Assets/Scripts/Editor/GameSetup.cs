@@ -434,6 +434,12 @@ public static class GameSetup
         templates.Add(GetOrCreateCallerTemplate("Conspiracies_Credible", conspiraciesTopic, CallerLegitimacy.Credible, PopulateConspiraciesCredibleDialogue));
         templates.Add(GetOrCreateCallerTemplate("Conspiracies_Compelling", conspiraciesTopic, CallerLegitimacy.Compelling, PopulateConspiraciesCompellingDialogue));
 
+        // Create generic fallback templates (Topic=null, matches any topic)
+        templates.Add(GetOrCreateCallerTemplate("Generic_Fake", null, CallerLegitimacy.Fake, PopulateGenericFakeDialogue));
+        templates.Add(GetOrCreateCallerTemplate("Generic_Questionable", null, CallerLegitimacy.Questionable, PopulateGenericQuestionableDialogue));
+        templates.Add(GetOrCreateCallerTemplate("Generic_Credible", null, CallerLegitimacy.Credible, PopulateGenericCredibleDialogue));
+        templates.Add(GetOrCreateCallerTemplate("Generic_Compelling", null, CallerLegitimacy.Compelling, PopulateGenericCompellingDialogue));
+
         // Remove any null entries (in case topic wasn't found)
         templates.RemoveAll(t => t == null);
 
@@ -1048,6 +1054,144 @@ public static class GameSetup
             new DialogueTemplate { Text = "Stay vigilant, Vern. Trust no one. Especially not the ones in power.", Tone = DialogueTone.Conspiratorial, Weight = 1f },
             new DialogueTemplate { Text = "The revolution starts with information. Keep spreading it.", Tone = DialogueTone.Dramatic, Weight = 1f },
             new DialogueTemplate { Text = "Watch your back. They're always watching.", Tone = DialogueTone.Conspiratorial, Weight = 1f }
+        };
+    }
+
+    // ========== GENERIC FALLBACK DIALOGUE ==========
+
+    private static void PopulateGenericFakeDialogue(CallerDialogueTemplate template)
+    {
+        template.IntroLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "Vern, something crazy happened to me!", Tone = DialogueTone.Excited, Weight = 1f },
+            new DialogueTemplate { Text = "Dude, you're not gonna believe this...", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "So like, I saw something really weird the other day.", Tone = DialogueTone.Nervous, Weight = 1f }
+        };
+        template.DetailLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "It was super strange. Hard to describe really.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "I didn't get any proof but I swear it happened.", Tone = DialogueTone.Nervous, Weight = 1f },
+            new DialogueTemplate { Text = "My friend was there too but he didn't see it.", Tone = DialogueTone.Excited, Weight = 1f }
+        };
+        template.DefenseLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "I'm not making this up, man!", Tone = DialogueTone.Nervous, Weight = 1f },
+            new DialogueTemplate { Text = "Why would I lie about something like this?", Tone = DialogueTone.Nervous, Weight = 1f },
+            new DialogueTemplate { Text = "I know what I saw. Probably.", Tone = DialogueTone.Nervous, Weight = 1f }
+        };
+        template.AcceptanceLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "Yeah! Exactly!", Tone = DialogueTone.Excited, Weight = 1f },
+            new DialogueTemplate { Text = "That's what I was thinking.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "Uh, yeah, sure.", Tone = DialogueTone.Confused, Weight = 1f }
+        };
+        template.ConclusionLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "Thanks Vern. You're the best.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "Peace out, keep it real.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "Later.", Tone = DialogueTone.Neutral, Weight = 1f }
+        };
+    }
+
+    private static void PopulateGenericQuestionableDialogue(CallerDialogueTemplate template)
+    {
+        template.IntroLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "I'm not sure what I experienced, but I had to call someone.", Tone = DialogueTone.Nervous, Weight = 1f },
+            new DialogueTemplate { Text = "Something strange happened and I can't stop thinking about it.", Tone = DialogueTone.Nervous, Weight = 1f },
+            new DialogueTemplate { Text = "This might sound crazy, but hear me out, Vern.", Tone = DialogueTone.Nervous, Weight = 1f }
+        };
+        template.DetailLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "It could have been nothing, but it felt significant somehow.", Tone = DialogueTone.Confused, Weight = 1f },
+            new DialogueTemplate { Text = "I've tried to find a rational explanation. Nothing fits.", Tone = DialogueTone.Nervous, Weight = 1f },
+            new DialogueTemplate { Text = "Other people have noticed things too. We can't all be wrong.", Tone = DialogueTone.Confused, Weight = 1f }
+        };
+        template.DefenseLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "I'm not saying it's supernatural, but it's not normal either.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "I know how this sounds. I wouldn't believe me either.", Tone = DialogueTone.Nervous, Weight = 1f },
+            new DialogueTemplate { Text = "I just want answers, Vern.", Tone = DialogueTone.Nervous, Weight = 1f }
+        };
+        template.AcceptanceLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "That's reassuring to hear.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "Maybe I should look into it more.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "I hadn't thought of it that way.", Tone = DialogueTone.Confused, Weight = 1f }
+        };
+        template.ConclusionLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "Thanks for listening, Vern.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "I feel better just talking about it.", Tone = DialogueTone.Nervous, Weight = 1f },
+            new DialogueTemplate { Text = "I'll call back if anything else happens.", Tone = DialogueTone.Neutral, Weight = 1f }
+        };
+    }
+
+    private static void PopulateGenericCredibleDialogue(CallerDialogueTemplate template)
+    {
+        template.IntroLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "Vern, I've been a listener for years. I finally have something worth sharing.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "I'm not one to call in, but what I witnessed deserves attention.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "I've documented everything. Photos, dates, times. This is real.", Tone = DialogueTone.Excited, Weight = 1f }
+        };
+        template.DetailLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "I observed it for several minutes. Enough time to rule out the obvious explanations.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "Multiple witnesses corroborated what I saw. Independent accounts, same details.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "I've researched similar cases. The pattern is consistent.", Tone = DialogueTone.Excited, Weight = 1f }
+        };
+        template.DefenseLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "I've considered every conventional explanation. None of them fit.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "I'm a rational person, Vern. This defies rational explanation.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "The evidence speaks for itself.", Tone = DialogueTone.Neutral, Weight = 1f }
+        };
+        template.AcceptanceLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "Thank you. It means a lot to be taken seriously.", Tone = DialogueTone.Excited, Weight = 1f },
+            new DialogueTemplate { Text = "That's exactly why I called your show.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "I knew your listeners would understand.", Tone = DialogueTone.Excited, Weight = 1f }
+        };
+        template.ConclusionLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "I'll send you what I've gathered. People should see this.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "Keep doing what you do, Vern. It matters.", Tone = DialogueTone.Neutral, Weight = 1f },
+            new DialogueTemplate { Text = "I'll keep investigating and report back.", Tone = DialogueTone.Excited, Weight = 1f }
+        };
+    }
+
+    private static void PopulateGenericCompellingDialogue(CallerDialogueTemplate template)
+    {
+        template.IntroLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "Vern, what I'm about to tell you could change everything.", Tone = DialogueTone.Dramatic, Weight = 1f },
+            new DialogueTemplate { Text = "I've kept this secret for years. Tonight, I'm finally speaking out.", Tone = DialogueTone.Dramatic, Weight = 1f },
+            new DialogueTemplate { Text = "They told me never to talk about this. But people deserve to know.", Tone = DialogueTone.Conspiratorial, Weight = 1f }
+        };
+        template.DetailLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "I have proof. Documentation. Testimony. Everything they tried to suppress.", Tone = DialogueTone.Dramatic, Weight = 1f },
+            new DialogueTemplate { Text = "What I witnessed changes our understanding of reality itself.", Tone = DialogueTone.Dramatic, Weight = 1f },
+            new DialogueTemplate { Text = "The implications are staggering. And they've known all along.", Tone = DialogueTone.Conspiratorial, Weight = 1f }
+        };
+        template.DefenseLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "I've sacrificed everything to bring this forward. Why would I lie?", Tone = DialogueTone.Dramatic, Weight = 1f },
+            new DialogueTemplate { Text = "They've tried to silence me. That alone tells you I'm onto something.", Tone = DialogueTone.Conspiratorial, Weight = 1f },
+            new DialogueTemplate { Text = "The truth is undeniable. No matter how much they try to bury it.", Tone = DialogueTone.Dramatic, Weight = 1f }
+        };
+        template.AcceptanceLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "You're one of the few who'll let the truth be heard.", Tone = DialogueTone.Dramatic, Weight = 1f },
+            new DialogueTemplate { Text = "The world is waking up, Vern. Thanks to people like you.", Tone = DialogueTone.Conspiratorial, Weight = 1f },
+            new DialogueTemplate { Text = "Finally. Someone who understands.", Tone = DialogueTone.Neutral, Weight = 1f }
+        };
+        template.ConclusionLines = new DialogueTemplate[]
+        {
+            new DialogueTemplate { Text = "Keep fighting the good fight, Vern. The truth will prevail.", Tone = DialogueTone.Dramatic, Weight = 1f },
+            new DialogueTemplate { Text = "Stay safe out there. They're always watching.", Tone = DialogueTone.Conspiratorial, Weight = 1f },
+            new DialogueTemplate { Text = "This is just the beginning. More will come forward.", Tone = DialogueTone.Dramatic, Weight = 1f }
         };
     }
 }
