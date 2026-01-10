@@ -2,6 +2,10 @@
 
 This document provides guidelines for AI agents working on the KBTV Unity project.
 
+## AI Agent Best Practices
+
+**Avoid large responses**: When making edits that involve lots of text content (dialogue, large code blocks, etc.), break them into smaller chunks. Large JSON responses can cause parsing errors on the client side. Aim for edits under 100 lines when possible.
+
 ## Documentation References
 
 Project documentation is located in the `docs/` folder. **Read these documents for context before starting work:**
