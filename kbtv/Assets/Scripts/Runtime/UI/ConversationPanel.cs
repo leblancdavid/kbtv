@@ -12,7 +12,7 @@ namespace KBTV.UI
     /// </summary>
     public class ConversationPanel : BasePanel
     {
-        private GameObject _conversationContainer;
+        private GameObject _transcriptContainer;
         private GameObject _emptyState;
         private TextMeshProUGUI _speakerLabel;
         private TextMeshProUGUI _dialogueText;
@@ -76,7 +76,7 @@ namespace KBTV.UI
             UITheme.AddLayoutElement(headerRow, preferredHeight: 25f);
 
             // Header text
-            TextMeshProUGUI headerText = UITheme.CreateText("Header", headerRow.transform, "CONVERSATION",
+            TextMeshProUGUI headerText = UITheme.CreateText("Header", headerRow.transform, "TRANSCRIPT",
                 UITheme.FontSizeLarge, UITheme.TextPrimary, TextAlignmentOptions.Left);
             headerText.fontStyle = FontStyles.Bold;
             UITheme.AddLayoutElement(headerText.gameObject, minWidth: 120f);
@@ -95,14 +95,14 @@ namespace KBTV.UI
             // Divider
             UITheme.CreateDivider(transform);
 
-            // Conversation container (shown when conversation is active)
-            _conversationContainer = new GameObject("ConversationContainer");
-            _conversationContainer.transform.SetParent(transform, false);
-            UITheme.AddVerticalLayout(_conversationContainer, padding: 5f, spacing: 6f);
-            UITheme.AddLayoutElement(_conversationContainer, flexibleHeight: 1f);
+            // Transcript container (shown when conversation or filler is active)
+            _transcriptContainer = new GameObject("TranscriptContainer");
+            _transcriptContainer.transform.SetParent(transform, false);
+            UITheme.AddVerticalLayout(_transcriptContainer, padding: 5f, spacing: 6f);
+            UITheme.AddLayoutElement(_transcriptContainer, flexibleHeight: 1f);
 
             // History text (shows previous lines)
-            _historyText = UITheme.CreateText("HistoryText", _conversationContainer.transform,
+            _historyText = UITheme.CreateText("HistoryText", _transcriptContainer.transform,
                 "", UITheme.FontSizeSmall, UITheme.TextDim, TextAlignmentOptions.Left);
             _historyText.textWrappingMode = TextWrappingModes.Normal;
             _historyText.overflowMode = TextOverflowModes.Truncate;
@@ -111,7 +111,7 @@ namespace KBTV.UI
 
             // Speaker row
             GameObject speakerRow = new GameObject("SpeakerRow");
-            speakerRow.transform.SetParent(_conversationContainer.transform, false);
+            speakerRow.transform.SetParent(_transcriptContainer.transform, false);
             UITheme.AddHorizontalLayout(speakerRow, spacing: 8f);
             UITheme.AddLayoutElement(speakerRow, preferredHeight: 30f);
 
@@ -136,7 +136,7 @@ namespace KBTV.UI
             _thinkingIndicator.gameObject.SetActive(false);
 
             // Dialogue text container with padding
-            GameObject dialogueContainer = UITheme.CreatePanel("DialogueContainer", _conversationContainer.transform, 
+            GameObject dialogueContainer = UITheme.CreatePanel("DialogueContainer", _transcriptContainer.transform, 
                 new Color(0.12f, 0.12f, 0.12f));
             UITheme.AddVerticalLayout(dialogueContainer, padding: 12f, spacing: 0f);
             UITheme.AddLayoutElement(dialogueContainer, flexibleHeight: 1f, minHeight: 60f);
@@ -151,7 +151,7 @@ namespace KBTV.UI
 
             // Progress bar
             GameObject progressRow = new GameObject("ProgressRow");
-            progressRow.transform.SetParent(_conversationContainer.transform, false);
+            progressRow.transform.SetParent(_transcriptContainer.transform, false);
             UITheme.AddHorizontalLayout(progressRow, spacing: 8f);
             UITheme.AddLayoutElement(progressRow, preferredHeight: 8f);
 
@@ -175,7 +175,7 @@ namespace KBTV.UI
             UITheme.AddLayoutElement(emptyMsg.gameObject, flexibleHeight: 1f);
 
             // Initially show empty state
-            _conversationContainer.SetActive(false);
+            _transcriptContainer.SetActive(false);
             _emptyState.SetActive(true);
         }
 
@@ -274,7 +274,7 @@ namespace KBTV.UI
             bool hasConversation = _conversationManager.HasActiveConversation;
             bool hasFillerPlaying = _conversationManager.IsPlayingDeadAirFiller;
 
-            _conversationContainer.SetActive(hasConversation || hasFillerPlaying);
+            _transcriptContainer.SetActive(hasConversation || hasFillerPlaying);
             _emptyState.SetActive(!hasConversation && !hasFillerPlaying);
 
             if (hasConversation && _conversationManager.CurrentLine != null)
@@ -427,8 +427,8 @@ namespace KBTV.UI
             // Reset progress
             _progressFill.fillAmount = 0f;
 
-            // Ensure container is visible
-            _conversationContainer.SetActive(true);
+            // Ensure transcript container is visible
+            _transcriptContainer.SetActive(true);
             _emptyState.SetActive(false);
         }
 
