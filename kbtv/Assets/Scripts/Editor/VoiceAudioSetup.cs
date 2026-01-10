@@ -127,52 +127,50 @@ public static class VoiceAudioSetup
             return mixer;
         }
 
-        // Create new Audio Mixer
-        mixer = new AudioMixer();
-        AssetDatabase.CreateAsset(mixer, MIXER_PATH);
+        // AudioMixer cannot be created programmatically - must be created via Unity Editor
+        // Guide user to create it manually
+        Debug.LogWarning($"VoiceAudioSetup: Audio Mixer not found at {MIXER_PATH}");
+        Debug.LogWarning("VoiceAudioSetup: Please create Audio Mixer manually:");
+        Debug.LogWarning("  1. Right-click in Project window on Assets/Audio folder");
+        Debug.LogWarning("  2. Select Create > Audio Mixer");
+        Debug.LogWarning("  3. Name it 'KBTVMixer'");
+        Debug.LogWarning("  4. Open the Audio Mixer window (Window > Audio > Audio Mixer)");
+        Debug.LogWarning("  5. Add child groups: 'VernGroup' and 'CallerGroup' under Master");
+        Debug.LogWarning("  6. Run this setup again");
         
-        // Note: Unity's AudioMixer API is limited for programmatic group creation.
-        // We create the asset, but groups must be added via the Audio Mixer window
-        // or by duplicating an existing mixer template.
-        
-        Debug.Log($"VoiceAudioSetup: Created Audio Mixer at {MIXER_PATH}");
-        Debug.Log("VoiceAudioSetup: NOTE - Open the Audio Mixer window to add VernGroup and CallerGroup manually");
-        
-        // Create a template mixer with the groups we need using SerializedObject
-        CreateMixerGroups(mixer);
-        
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-
-        return mixer;
-    }
-
-    private static void CreateMixerGroups(AudioMixer mixer)
-    {
-        // Unity's AudioMixer doesn't expose a public API to create groups programmatically.
-        // The recommended approach is to:
-        // 1. Create the mixer asset
-        // 2. Open it in the Audio Mixer window
-        // 3. Add groups manually
-        //
-        // However, we can try using reflection or SerializedObject to add groups.
-        // For now, we'll log instructions for manual setup.
-        
-        SerializedObject serializedMixer = new SerializedObject(mixer);
-        
-        // Find the groups array
-        SerializedProperty groupsProperty = serializedMixer.FindProperty("m_MasterGroup");
-        
-        if (groupsProperty != null)
+        // Show dialog to guide user
+        bool createNow = EditorUtility.DisplayDialog(
+            "Audio Mixer Required",
+            "Audio Mixer cannot be created programmatically.\n\n" +
+            "Would you like to create it now?\n\n" +
+            "After clicking 'Create', an Audio Mixer will be created.\n" +
+            "You'll need to add 'VernGroup' and 'CallerGroup' as child groups under Master.",
+            "Create",
+            "Cancel");
+            
+        if (createNow)
         {
-            Debug.Log("VoiceAudioSetup: Master group property found");
+            // Prompt user with instructions since AudioMixer cannot be created programmatically
+            EditorUtility.DisplayDialog(
+                "Create Audio Mixer",
+                "Please create the Audio Mixer manually:\n\n" +
+                "1. Right-click on Assets/Audio folder\n" +
+                "2. Select Create > Audio Mixer\n" +
+                "3. Name it 'KBTVMixer'\n" +
+                "4. Add child groups 'VernGroup' and 'CallerGroup'\n" +
+                "5. Run KBTV > Setup Voice Audio again",
+                "OK");
+                
+            // Select the Audio folder to help user
+            var audioFolder = AssetDatabase.LoadAssetAtPath<Object>(AUDIO_PATH);
+            if (audioFolder != null)
+            {
+                Selection.activeObject = audioFolder;
+                EditorGUIUtility.PingObject(audioFolder);
+            }
         }
-        
-        // Unfortunately, creating child groups programmatically requires internal APIs.
-        // The user will need to add VernGroup and CallerGroup manually in the Audio Mixer window.
-        
-        Debug.LogWarning("VoiceAudioSetup: Please open the Audio Mixer window (Window > Audio > Audio Mixer) " +
-                        "and add two child groups to Master: 'VernGroup' and 'CallerGroup'");
+
+        return null;
     }
 
     private static void EnsureMixerGroupsExist(AudioMixer mixer)
