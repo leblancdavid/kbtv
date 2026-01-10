@@ -44,6 +44,36 @@ namespace KBTV.Dialogue
     }
 
     /// <summary>
+    /// Vern's current mood state. Affects dialogue tone and delivery.
+    /// Each conversation arc has variants for all 5 moods.
+    /// </summary>
+    public enum VernMood
+    {
+        /// <summary>Brief, yawns, low energy</summary>
+        Tired,
+        /// <summary>Impatient, short, irritable</summary>
+        Grumpy,
+        /// <summary>Professional, balanced</summary>
+        Neutral,
+        /// <summary>Interested, good follow-ups</summary>
+        Engaged,
+        /// <summary>High energy, enthusiastic</summary>
+        Excited
+    }
+
+    /// <summary>
+    /// The belief path taken during the belief branch of a conversation arc.
+    /// Determined by Vern's discernment and caller legitimacy.
+    /// </summary>
+    public enum BeliefPath
+    {
+        /// <summary>Vern challenges the caller, caller defends</summary>
+        Skeptical,
+        /// <summary>Vern validates the caller, caller appreciates</summary>
+        Believing
+    }
+
+    /// <summary>
     /// The phase of the conversation structure.
     /// Each call follows this progression.
     /// </summary>
@@ -57,22 +87,6 @@ namespace KBTV.Dialogue
         Challenge,
         /// <summary>Wrapping up the call</summary>
         Resolution
-    }
-
-    /// <summary>
-    /// How long a conversation should be based on caller legitimacy.
-    /// Values represent the target number of dialogue lines.
-    /// </summary>
-    public enum ConversationLength
-    {
-        /// <summary>Short conversation (6 lines) - Fake callers, quick dismissal or brief engagement</summary>
-        Short = 6,
-        /// <summary>Standard conversation (8 lines) - Questionable callers, normal 4-phase structure</summary>
-        Standard = 8,
-        /// <summary>Extended conversation (10 lines) - Credible callers, extra probe exchange</summary>
-        Extended = 10,
-        /// <summary>Long conversation (12 lines) - Compelling callers, full extended story</summary>
-        Long = 12
     }
 
     /// <summary>

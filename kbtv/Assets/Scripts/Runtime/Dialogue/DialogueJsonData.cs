@@ -38,34 +38,8 @@ namespace KBTV.Dialogue
         public DialogueLineData[] showClosingLines;
         public DialogueLineData[] betweenCallersLines;
         public DialogueLineData[] deadAirFillerLines;
-    }
 
-    /// <summary>
-    /// Serializable data class for caller dialogue template in JSON.
-    /// Maps directly to caller template JSON files.
-    /// </summary>
-    [Serializable]
-    public class CallerDialogueData
-    {
-        /// <summary>Topic ID this template is for (e.g., "UFOs", "Cryptids"). Null/empty = generic.</summary>
-        public string topicId;
-
-        /// <summary>Legitimacy level: "Fake", "Questionable", "Credible", "Compelling"</summary>
-        public string legitimacy;
-
-        /// <summary>Conversation length: "Short", "Standard", "Extended", "Long"</summary>
-        public string length;
-
-        /// <summary>Priority when multiple templates match (higher = preferred)</summary>
-        public int priority;
-
-        // Dialogue phases
-        public DialogueLineData[] introLines;
-        public DialogueLineData[] detailLines;
-        public DialogueLineData[] defenseLines;
-        public DialogueLineData[] acceptanceLines;
-        public DialogueLineData[] extraDetailLines;
-        public DialogueLineData[] extraDefenseLines;
-        public DialogueLineData[] conclusionLines;
+        // Error handling dialogue
+        public DialogueLineData[] droppedCallerLines;
     }
 }
