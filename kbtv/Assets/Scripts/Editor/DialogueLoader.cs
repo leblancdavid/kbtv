@@ -78,6 +78,12 @@ public static class DialogueLoader
         template.EngagingLines = ConvertLines(data.engagingLines);
         template.CutOffLines = ConvertLines(data.cutOffLines);
         template.SignOffLines = ConvertLines(data.signOffLines);
+
+        // Filler dialogue for broadcast flow
+        template.ShowOpeningLines = ConvertLines(data.showOpeningLines);
+        template.ShowClosingLines = ConvertLines(data.showClosingLines);
+        template.BetweenCallersLines = ConvertLines(data.betweenCallersLines);
+        template.DeadAirFillerLines = ConvertLines(data.deadAirFillerLines);
     }
 
     /// <summary>

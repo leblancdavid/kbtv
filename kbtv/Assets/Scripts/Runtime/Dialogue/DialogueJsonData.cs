@@ -32,6 +32,12 @@ namespace KBTV.Dialogue
         public DialogueLineData[] engagingLines;
         public DialogueLineData[] cutOffLines;
         public DialogueLineData[] signOffLines;
+
+        // Filler dialogue for broadcast flow
+        public DialogueLineData[] showOpeningLines;
+        public DialogueLineData[] showClosingLines;
+        public DialogueLineData[] betweenCallersLines;
+        public DialogueLineData[] deadAirFillerLines;
     }
 
     /// <summary>

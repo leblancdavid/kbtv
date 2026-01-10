@@ -23,6 +23,10 @@ namespace KBTV.Dialogue
         [Tooltip("Pause between speakers (seconds)")]
         [SerializeField] private float _speakerTransitionDelay = 0.5f;
 
+        [Header("Dead Air Settings")]
+        [Tooltip("Time between filler lines when no callers available")]
+        [SerializeField] private float _deadAirCycleInterval = 8f;
+
         [Header("Templates")]
         [Tooltip("Vern's dialogue template")]
         [SerializeField] private VernDialogueTemplate _vernTemplate;
@@ -44,6 +48,13 @@ namespace KBTV.Dialogue
         private float _currentLineDuration;
         private bool _isWaitingForTransition;
 
+        // Dead air filler state
+        private bool _isPlayingDeadAirFiller = false;
+        private float _deadAirFillerTimer = 0f;
+        private float _currentFillerLineDuration = 0f;
+        private bool _callerWaitingAfterFiller = false;
+        private DialogueLine _currentFillerLine = null;
+
         // Properties
         public Conversation CurrentConversation => _currentConversation;
         public DialogueLine CurrentLine => _currentConversation?.CurrentLine;
@@ -51,6 +62,9 @@ namespace KBTV.Dialogue
         public bool HasActiveConversation => _currentConversation != null && 
             _currentConversation.State != ConversationState.Completed;
         public float LineProgress => _currentLineDuration > 0 ? _lineTimer / _currentLineDuration : 0f;
+        public bool IsPlayingDeadAirFiller => _isPlayingDeadAirFiller;
+        public DialogueLine CurrentFillerLine => _currentFillerLine;
+        public float FillerLineProgress => _currentFillerLineDuration > 0 ? _deadAirFillerTimer / _currentFillerLineDuration : 0f;
         public Topic CurrentTopic
         {
             get => _currentTopic;
@@ -63,6 +77,8 @@ namespace KBTV.Dialogue
         public event Action<DialogueLine> OnLineDisplayed;
         public event Action<DialogueLine> OnLineCompleted;
         public event Action<ConversationPhase> OnPhaseChanged;
+        public event Action<DialogueLine> OnFillerLineDisplayed;
+        public event Action OnFillerStopped;
 
         protected override void OnSingletonAwake()
         {
@@ -76,6 +92,7 @@ namespace KBTV.Dialogue
             {
                 CallerQueue.Instance.OnCallerOnAir += HandleCallerOnAir;
                 CallerQueue.Instance.OnCallerCompleted += HandleCallerCompleted;
+                CallerQueue.Instance.OnCallerApproved += HandleCallerApproved;
             }
         }
 
@@ -86,6 +103,7 @@ namespace KBTV.Dialogue
             {
                 CallerQueue.Instance.OnCallerOnAir -= HandleCallerOnAir;
                 CallerQueue.Instance.OnCallerCompleted -= HandleCallerCompleted;
+                CallerQueue.Instance.OnCallerApproved -= HandleCallerApproved;
             }
 
             base.OnDestroy();
@@ -93,10 +111,17 @@ namespace KBTV.Dialogue
 
         private void Update()
         {
-            if (!IsPlaying)
+            if (IsPlaying)
+            {
+                UpdateLineTimer();
                 return;
+            }
 
-            UpdateLineTimer();
+            // Handle dead air filler
+            if (_isPlayingDeadAirFiller)
+            {
+                UpdateDeadAirFiller();
+            }
         }
 
         private void InitializeGenerator()
@@ -288,6 +313,109 @@ namespace KBTV.Dialogue
             Debug.Log($"ConversationManager: Phase changed to {phase}");
         }
 
+        #region Dead Air Filler
+
+        /// <summary>
+        /// Update dead air filler timing and cycling.
+        /// </summary>
+        private void UpdateDeadAirFiller()
+        {
+            _deadAirFillerTimer += Time.deltaTime;
+
+            // Check if current filler line display time is done
+            if (_deadAirFillerTimer >= _currentFillerLineDuration)
+            {
+                // Wait for the full cycle interval before showing next line
+                if (_deadAirFillerTimer >= _deadAirCycleInterval)
+                {
+                    // Check if caller is waiting
+                    if (_callerWaitingAfterFiller)
+                    {
+                        StopDeadAirFiller();
+                        CallerQueue.Instance?.PutNextCallerOnAir();
+                    }
+                    else
+                    {
+                        // Cycle to next filler line
+                        DisplayNextFillerLine();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Start playing dead air filler lines (Vern monologue when no callers).
+        /// </summary>
+        private void StartDeadAirFiller()
+        {
+            if (_isPlayingDeadAirFiller) return;
+            if (_vernTemplate == null) return;
+
+            _isPlayingDeadAirFiller = true;
+            _callerWaitingAfterFiller = false;
+            DisplayNextFillerLine();
+
+            Debug.Log("ConversationManager: Started dead air filler");
+        }
+
+        /// <summary>
+        /// Stop playing dead air filler.
+        /// </summary>
+        private void StopDeadAirFiller()
+        {
+            if (!_isPlayingDeadAirFiller) return;
+
+            _isPlayingDeadAirFiller = false;
+            _deadAirFillerTimer = 0f;
+            _currentFillerLine = null;
+            _callerWaitingAfterFiller = false;
+
+            OnFillerStopped?.Invoke();
+            Debug.Log("ConversationManager: Stopped dead air filler");
+        }
+
+        /// <summary>
+        /// Display the next dead air filler line.
+        /// </summary>
+        private void DisplayNextFillerLine()
+        {
+            var template = _vernTemplate.GetDeadAirFiller();
+            if (template == null)
+            {
+                Debug.LogWarning("ConversationManager: No dead air filler templates available");
+                StopDeadAirFiller();
+                return;
+            }
+
+            _currentFillerLine = new DialogueLine(
+                Speaker.Vern,
+                template.Text,
+                template.Tone,
+                ConversationPhase.Intro // Use Intro phase for filler
+            );
+
+            _deadAirFillerTimer = 0f;
+            _currentFillerLineDuration = _currentFillerLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
+
+            OnFillerLineDisplayed?.Invoke(_currentFillerLine);
+            Debug.Log($"ConversationManager: [FILLER] {_currentFillerLine.Text}");
+        }
+
+        /// <summary>
+        /// Handle when a caller is approved and put on hold.
+        /// If filler is playing, flag to auto-advance after current line ends.
+        /// </summary>
+        private void HandleCallerApproved(Caller caller)
+        {
+            if (_isPlayingDeadAirFiller)
+            {
+                _callerWaitingAfterFiller = true;
+                Debug.Log("ConversationManager: Caller approved, will auto-advance after filler line ends");
+            }
+        }
+
+        #endregion
+
         private void HandleConversationCompleted()
         {
             Debug.Log($"ConversationManager: Conversation completed");
@@ -302,10 +430,28 @@ namespace KBTV.Dialogue
             {
                 CallerQueue.Instance.EndCurrentCall();
             }
+
+            // Check if we should auto-advance or start filler
+            if (CallerQueue.Instance != null && CallerQueue.Instance.HasOnHoldCallers)
+            {
+                // Auto-put next caller on air
+                CallerQueue.Instance.PutNextCallerOnAir();
+            }
+            else
+            {
+                // No callers waiting - start dead air filler
+                StartDeadAirFiller();
+            }
         }
 
         private void HandleCallerOnAir(Caller caller)
         {
+            // Stop dead air filler if playing
+            if (_isPlayingDeadAirFiller)
+            {
+                StopDeadAirFiller();
+            }
+
             Debug.Log($"ConversationManager: Caller {caller.Name} went on air, starting conversation");
             StartConversation(caller);
         }

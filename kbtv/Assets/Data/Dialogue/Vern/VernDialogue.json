@@ -75,5 +75,43 @@
     { "text": "Stay safe out there, {callerName}. And keep those eyes on the horizon.", "tone": "Neutral", "weight": 1.0 },
     { "text": "Powerful stuff, {callerName}. Thanks for having the courage to share it.", "tone": "Believing", "weight": 1.0 },
     { "text": "That's what this show is all about, folks. Thanks for the call. We'll be right back.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "showOpeningLines": [
+    { "text": "Good evening, truth-seekers. You're tuned to KBTV, Beyond the Veil AM. I'm your host, Vern Castellano, and we've got a big show for you tonight.", "tone": "Excited", "weight": 1.0 },
+    { "text": "It's midnight on the dial, and you know what that means. Welcome to KBTV. The phone lines are open, and the truth is out there waiting.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Welcome back, night owls. This is Vern Castellano coming to you live from the KBTV studios. Tonight, we're going deep.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "You're listening to KBTV, where we pull back the curtain on what they don't want you to know. Let's get started.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "The witching hour approaches, and so do the callers. This is KBTV. I'm Vern. Let's see what's out there tonight.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "showClosingLines": [
+    { "text": "And that's all the time we have tonight, folks. Thanks to everyone who called in. Keep watching the skies.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "The sun's coming up, truth-seekers. Time to sign off. But remember - the truth doesn't sleep, and neither should you.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "That's a wrap on tonight's show. This is Vern Castellano saying goodnight, and stay vigilant out there.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "We're out of time, but never out of mysteries. Thanks for listening to KBTV. Until next time.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Another night, another pile of evidence. Thanks for being part of the search, folks. This is KBTV, signing off.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "betweenCallersLines": [
+    { "text": "Fascinating stuff. Let's see who else is on the line.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Alright, we've got more callers waiting. Let's keep this going.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "The board's lighting up tonight. Let's go to our next caller.", "tone": "Excited", "weight": 1.0 },
+    { "text": "Interesting call. But we've got more stories to hear. Next caller, you're on.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "That's what I love about this show - you never know what's coming next. Speaking of which...", "tone": "Neutral", "weight": 1.0 },
+    { "text": "The lines are burning up tonight. Let's keep the momentum going.", "tone": "Excited", "weight": 1.0 },
+    { "text": "More callers in the queue. Let's see what else is out there.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Alright, next up on the lines...", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Good stuff. We've got more waiting in the wings.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "That's the kind of call that keeps me coming back every night. Who's next?", "tone": "Excited", "weight": 1.0 }
+  ],
+  "deadAirFillerLines": [
+    { "text": "Phone lines are quiet for the moment. If you've got a story, now's the time to call in.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "We're waiting on callers, folks. Don't be shy. The number's on your screen.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "You know, nights like this give me time to think about all the stories we've heard over the years...", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Quiet on the lines. That's unusual. Makes you wonder what's keeping people up tonight.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "While we wait for callers, let me tell you - I've seen some things in my years doing this show.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "The truth doesn't call itself in, folks. Someone out there has a story. I can feel it.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Empty lines. Either everyone's asleep or everyone's seen something and they're too scared to talk.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "If you're just tuning in, this is KBTV. We're here all night, and we want to hear from you.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Come on, night owls. Don't leave me hanging here. What's happening out there?", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Slow night on the lines. But that's alright. The best calls always come when you least expect them.", "tone": "Neutral", "weight": 1.0 }
   ]
 }

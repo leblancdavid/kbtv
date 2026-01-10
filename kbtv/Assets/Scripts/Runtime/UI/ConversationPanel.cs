@@ -188,6 +188,8 @@ namespace KBTV.UI
             _conversationManager.OnConversationEnded += OnConversationEnded;
             _conversationManager.OnLineDisplayed += OnLineDisplayed;
             _conversationManager.OnPhaseChanged += OnPhaseChanged;
+            _conversationManager.OnFillerLineDisplayed += OnFillerLineDisplayed;
+            _conversationManager.OnFillerStopped += OnFillerStopped;
             return true;
         }
 
@@ -199,6 +201,8 @@ namespace KBTV.UI
                 _conversationManager.OnConversationEnded -= OnConversationEnded;
                 _conversationManager.OnLineDisplayed -= OnLineDisplayed;
                 _conversationManager.OnPhaseChanged -= OnPhaseChanged;
+                _conversationManager.OnFillerLineDisplayed -= OnFillerLineDisplayed;
+                _conversationManager.OnFillerStopped -= OnFillerStopped;
             }
         }
 
@@ -207,9 +211,16 @@ namespace KBTV.UI
             base.Update(); // Handles subscription retry
 
             // Update progress bar
-            if (_conversationManager != null && _conversationManager.IsPlaying)
+            if (_conversationManager != null)
             {
-                _progressFill.fillAmount = _conversationManager.LineProgress;
+                if (_conversationManager.IsPlaying)
+                {
+                    _progressFill.fillAmount = _conversationManager.LineProgress;
+                }
+                else if (_conversationManager.IsPlayingDeadAirFiller)
+                {
+                    _progressFill.fillAmount = _conversationManager.FillerLineProgress;
+                }
             }
 
             // Update typewriter effect
@@ -261,14 +272,20 @@ namespace KBTV.UI
             if (_conversationManager == null) return;
 
             bool hasConversation = _conversationManager.HasActiveConversation;
+            bool hasFillerPlaying = _conversationManager.IsPlayingDeadAirFiller;
 
-            _conversationContainer.SetActive(hasConversation);
-            _emptyState.SetActive(!hasConversation);
+            _conversationContainer.SetActive(hasConversation || hasFillerPlaying);
+            _emptyState.SetActive(!hasConversation && !hasFillerPlaying);
 
             if (hasConversation && _conversationManager.CurrentLine != null)
             {
                 DisplayLine(_conversationManager.CurrentLine);
                 UpdatePhaseLabel(_conversationManager.CurrentConversation.CurrentPhase);
+            }
+            else if (hasFillerPlaying && _conversationManager.CurrentFillerLine != null)
+            {
+                DisplayLine(_conversationManager.CurrentFillerLine);
+                _phaseLabel.text = "ON AIR";
             }
         }
 
@@ -327,6 +344,29 @@ namespace KBTV.UI
         private void OnPhaseChanged(ConversationPhase phase)
         {
             UpdatePhaseLabel(phase);
+        }
+
+        private void OnFillerLineDisplayed(DialogueLine line)
+        {
+            // Update phase label to indicate filler mode
+            _phaseLabel.text = "ON AIR";
+
+            // Clear history for filler (no caller context)
+            _historyLines.Clear();
+            _previousLine = null;
+            if (_historyText != null)
+            {
+                _historyText.text = "";
+            }
+
+            // Display filler line (reuses existing DisplayLine logic)
+            DisplayLine(line);
+        }
+
+        private void OnFillerStopped()
+        {
+            // Update display - will show empty state if no conversation active
+            UpdateDisplay();
         }
 
         private void DisplayLine(DialogueLine line)
@@ -419,6 +459,12 @@ namespace KBTV.UI
 
         private string GetCallerName()
         {
+            // During filler, there's no caller
+            if (_conversationManager?.IsPlayingDeadAirFiller == true)
+            {
+                return ""; // Not used during filler since Vern is only speaker
+            }
+
             if (_conversationManager?.CurrentConversation?.Caller != null)
             {
                 return _conversationManager.CurrentConversation.Caller.Name.ToUpperInvariant();

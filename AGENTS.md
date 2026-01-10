@@ -19,6 +19,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [ROADMAP.md](docs/ROADMAP.md) | Development milestones and feature backlog |
 | [CI_CD_SETUP.md](docs/CI_CD_SETUP.md) | GitHub Actions build/release setup and Unity license activation |
 | [CONVERSATION_DESIGN.md](docs/CONVERSATION_DESIGN.md) | Dialogue system design - conversation structure, templates, and pacing |
+| [DEAD_AIR_FILLER.md](docs/DEAD_AIR_FILLER.md) | Dead air filler feature - Vern monologue when no callers are available |
 
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
 

@@ -123,6 +123,22 @@ namespace KBTV.Dialogue
         [Tooltip("How Vern ends calls")]
         public DialogueTemplate[] SignOffLines;
 
+        [Header("Show Opening Lines")]
+        [Tooltip("Lines Vern says when the show goes live")]
+        public DialogueTemplate[] ShowOpeningLines;
+
+        [Header("Show Closing Lines")]
+        [Tooltip("Lines Vern says when the show ends")]
+        public DialogueTemplate[] ShowClosingLines;
+
+        [Header("Between Callers Lines")]
+        [Tooltip("Transition lines when moving to the next caller")]
+        public DialogueTemplate[] BetweenCallersLines;
+
+        [Header("Dead Air Filler Lines")]
+        [Tooltip("Lines Vern says when there are no callers waiting")]
+        public DialogueTemplate[] DeadAirFillerLines;
+
         /// <summary>
         /// Get a random template for the specified response type.
         /// </summary>
@@ -201,6 +217,26 @@ namespace KBTV.Dialogue
         /// Get a sign-off line.
         /// </summary>
         public DialogueTemplate GetSignOff() => GetRandomWeighted(SignOffLines);
+
+        /// <summary>
+        /// Get a show opening line.
+        /// </summary>
+        public DialogueTemplate GetShowOpening() => GetRandomWeighted(ShowOpeningLines);
+
+        /// <summary>
+        /// Get a show closing line.
+        /// </summary>
+        public DialogueTemplate GetShowClosing() => GetRandomWeighted(ShowClosingLines);
+
+        /// <summary>
+        /// Get a between-callers transition line.
+        /// </summary>
+        public DialogueTemplate GetBetweenCallers() => GetRandomWeighted(BetweenCallersLines);
+
+        /// <summary>
+        /// Get a dead air filler line.
+        /// </summary>
+        public DialogueTemplate GetDeadAirFiller() => GetRandomWeighted(DeadAirFillerLines);
 
         private DialogueTemplate GetRandomWeighted(DialogueTemplate[] templates)
         {
