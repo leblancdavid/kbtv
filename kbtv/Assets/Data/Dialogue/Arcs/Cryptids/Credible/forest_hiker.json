@@ -1,0 +1,137 @@
+{
+  "arcId": "cryptids_credible_forest_hiker",
+  "topic": "Cryptids",
+  "legitimacy": "Credible",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* Alright, {callerName} from {callerLocation}. What'd you see out there?" },
+        { "speaker": "Caller", "text": "I've been hiking the Pacific Northwest for fifteen years. Last weekend, I saw something in the trees." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Mm. Go on." },
+        { "speaker": "Caller", "text": "Bipedal. Eight feet tall, easy. Covered in dark brown fur. It was watching me from maybe fifty yards." },
+        { "speaker": "Vern", "text": "Fifty yards. What'd it do?" },
+        { "speaker": "Caller", "text": "Just stood there. Then it turned and walked into the forest. No rush. Like it didn't care that I saw it." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could've been a bear standing up. They do that sometimes." },
+          { "speaker": "Caller", "text": "Vern, I know bears. This thing had shoulders. Arms. It walked like a man." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Fifteen years in those woods. You'd know if something was off." },
+          { "speaker": "Caller", "text": "Exactly. I've seen everything out there. This was new." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Appreciate you sharing. Stay safe out there." },
+        { "speaker": "Caller", "text": "Thanks, Vern. I'm going back with a camera next time." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. What is it?" },
+        { "speaker": "Caller", "text": "Right. So I hike a lot. Fifteen years. Last weekend I saw something big in the trees." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Define big." },
+        { "speaker": "Caller", "text": "Eight feet. Brown fur. Standing on two legs. Fifty yards out, just watching me." },
+        { "speaker": "Vern", "text": "And?" },
+        { "speaker": "Caller", "text": "It walked away. Calm. Like I was the one intruding." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Probably a bear. People mistake them all the time." },
+          { "speaker": "Caller", "text": "I've photographed bears for years. This wasn't a bear." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "At least you kept your distance. Some people chase these things." },
+          { "speaker": "Caller", "text": "I'm not stupid. Something that big, you give it space." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Fine. Bring a camera next time." },
+        { "speaker": "Caller", "text": "That's the plan. Thanks." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "We've got {callerName} on the line from {callerLocation}. What happened out there?" },
+        { "speaker": "Caller", "text": "Vern, I've been hiking the Pacific Northwest for fifteen years. Last weekend, I had an encounter I can't explain." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Walk me through it. What exactly did you see?" },
+        { "speaker": "Caller", "text": "I was on a trail near Mount Rainier. Through the trees, maybe fifty yards out, something was standing there. Bipedal, eight feet tall, covered in dark brown fur." },
+        { "speaker": "Vern", "text": "Fifty yards. That's close. What happened next?" },
+        { "speaker": "Caller", "text": "We made eye contact. At least, I think we did. Then it just turned and walked deeper into the forest. Completely calm." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could've been a bear standing upright. They do that to get a better view." },
+          { "speaker": "Caller", "text": "I've seen plenty of bears, Vern. This had human proportions. Shoulders, arms, the way it moved." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Mount Rainier. That's prime territory. Lots of sightings in that area." },
+          { "speaker": "Caller", "text": "That's what made me call. I looked it up after. I'm not the first." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Appreciate you calling in. If you go back, bring documentation." },
+        { "speaker": "Caller", "text": "Already ordered a trail camera. Thanks for listening, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you're on. Tell me what happened." },
+        { "speaker": "Caller", "text": "Vern, I've been hiking these woods for fifteen years. Last weekend changed everything." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Alright, I'm listening. Give me the details." },
+        { "speaker": "Caller", "text": "Mount Rainier area. I'm on a trail I've done dozens of times. Through the trees, fifty yards out, something massive is just standing there." },
+        { "speaker": "Vern", "text": "Massive how? Paint me a picture." },
+        { "speaker": "Caller", "text": "Eight feet, easy. Dark brown fur. Standing upright like a person. We looked at each other, then it just walked away into the forest." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Now, I have to ask - could it have been a bear? They can look pretty big standing up." },
+          { "speaker": "Caller", "text": "I've been photographing wildlife for years, Vern. Bears don't walk away on two legs." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "The Pacific Northwest. That's ground zero for these sightings. You're in good company." },
+          { "speaker": "Caller", "text": "I never believed any of it until now. Seeing is believing, I guess." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Get yourself a good camera and go back. We need documentation." },
+        { "speaker": "Caller", "text": "Already on it. Thanks for taking this seriously, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "Folks, we've got {callerName} from {callerLocation}! What'd you see out there?!" },
+        { "speaker": "Caller", "text": "Vern! Fifteen years hiking these woods and I finally SAW one!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Tell me everything! Where? When? What'd it look like?!" },
+        { "speaker": "Caller", "text": "Mount Rainier, last Saturday! Eight feet tall, brown fur, standing in the trees fifty yards from me!" },
+        { "speaker": "Vern", "text": "Fifty yards! It was RIGHT THERE! What happened?!" },
+        { "speaker": "Caller", "text": "We locked eyes, Vern! And then it just WALKED AWAY! Calm as can be!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Hold on, hold on - you're SURE it wasn't a bear? I have to ask!" },
+          { "speaker": "Caller", "text": "Vern, bears don't stroll away on two legs! This thing moved like a person!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Mount Rainier! CLASSIC Bigfoot territory! This is incredible!" },
+          { "speaker": "Caller", "text": "I know! I never believed until now! I SAW IT!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Get back out there with a camera! We NEED footage!" },
+        { "speaker": "Caller", "text": "I'm going this weekend! Thanks, Vern!" }
+      ]
+    }
+  }
+}

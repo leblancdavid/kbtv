@@ -1,0 +1,137 @@
+{
+  "arcId": "conspiracies_credible_govt_contractor",
+  "topic": "Conspiracies",
+  "legitimacy": "Credible",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. What've you got?" },
+        { "speaker": "Caller", "text": "I worked as a contractor for a federal agency. I can't say which one. But I saw some things." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Alright. What kind of things?" },
+        { "speaker": "Caller", "text": "Documents. Redacted reports about surveillance programs that don't officially exist." },
+        { "speaker": "Vern", "text": "And you read them?" },
+        { "speaker": "Caller", "text": "Enough to know they're watching more than anyone realizes. Cell phones, smart TVs, everything." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "That's been public knowledge since Snowden. Nothing new there." },
+          { "speaker": "Caller", "text": "What Snowden leaked was the tip of the iceberg. The scope is bigger." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "People think they're paranoid until they see the proof." },
+          { "speaker": "Caller", "text": "Exactly. I thought it was conspiracy talk too. Until I read the files myself." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Stay safe out there. Thanks for calling." },
+        { "speaker": "Caller", "text": "Thanks, Vern. People need to know." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. What is it?" },
+        { "speaker": "Caller", "text": "Former government contractor here. I've seen things I wasn't supposed to." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What kind of things?" },
+        { "speaker": "Caller", "text": "Surveillance programs. The real ones, not what they admit to publicly." },
+        { "speaker": "Vern", "text": "Such as?" },
+        { "speaker": "Caller", "text": "Every smart device in your home is a potential listening post. Every one." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Everyone knows about smart device surveillance by now." },
+          { "speaker": "Caller", "text": "They know the surface. Not the infrastructure behind it." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "I tape over my laptop camera. Have for years." },
+          { "speaker": "Caller", "text": "Smart. Most people laugh at that. They shouldn't." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Fine. Next caller." },
+        { "speaker": "Caller", "text": "Just spreading awareness. Thanks." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "We've got {callerName} on the line from {callerLocation}. What's your story?" },
+        { "speaker": "Caller", "text": "Vern, I spent eight years as a contractor for a federal agency. I'm not at liberty to say which one, but I have information." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Alright, I'm listening. What kind of information?" },
+        { "speaker": "Caller", "text": "Surveillance programs. The scope of domestic monitoring is far beyond what's been disclosed publicly." },
+        { "speaker": "Vern", "text": "We've had whistleblowers before. What makes your information different?" },
+        { "speaker": "Caller", "text": "I worked in data analysis. Every smart device, every phone, every car with GPS - it's all being logged. Not just metadata. Content." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "This has been alleged before. Hard to verify without documentation." },
+          { "speaker": "Caller", "text": "I understand the skepticism. But the infrastructure exists. I've seen it." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Eight years inside. That's not someone who just read something online." },
+          { "speaker": "Caller", "text": "No. I was part of the machine. That's why I left." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Appreciate you coming forward. Stay safe." },
+        { "speaker": "Caller", "text": "Thank you, Vern. People deserve to know what's happening." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you're on. I understand you've got some inside knowledge?" },
+        { "speaker": "Caller", "text": "Eight years as a federal contractor, Vern. I've seen how the surveillance state actually works." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Now we're talking. What can you tell us?" },
+        { "speaker": "Caller", "text": "Every smart device in America is a potential surveillance node. Phones, TVs, refrigerators, cars. All of it feeds into centralized databases." },
+        { "speaker": "Vern", "text": "Centralized where? Who has access?" },
+        { "speaker": "Caller", "text": "Multiple agencies. And private contractors like I was. The oversight is minimal at best." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Without documents, this is just testimony. Can you prove any of it?" },
+          { "speaker": "Caller", "text": "I took precautions before I left. But sharing would put people at risk." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "This is why I've been saying for years - be careful what you plug in." },
+          { "speaker": "Caller", "text": "You're ahead of most people. The convenience isn't worth the cost." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Thank you for the insight. This is important stuff." },
+        { "speaker": "Caller", "text": "Someone had to say it. Thanks for giving me a platform, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "Folks, {callerName} from {callerLocation} says they worked inside the system! Let's hear it!" },
+        { "speaker": "Caller", "text": "Eight years, Vern! Eight years as a federal contractor! I've seen everything!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Tell us! What's really going on in there?!" },
+        { "speaker": "Caller", "text": "Total surveillance! Every smart device, every phone, every car - it's all being monitored and logged!" },
+        { "speaker": "Vern", "text": "Everything?! How is that even possible?!" },
+        { "speaker": "Caller", "text": "Server farms the size of shopping malls! AI processing billions of data points daily! It's all connected!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Wait wait wait - you have proof of this?! Documentation?!" },
+          { "speaker": "Caller", "text": "I can't share it publicly! But I saw it with my own eyes!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "This is EXACTLY what we've been warning people about! RIGHT HERE!" },
+          { "speaker": "Caller", "text": "You were right all along! The skeptics have no idea!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Stay safe out there! And thank you for coming forward!" },
+        { "speaker": "Caller", "text": "Thank you, Vern! Keep spreading the truth!" }
+      ]
+    }
+  }
+}

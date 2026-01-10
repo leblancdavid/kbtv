@@ -319,3 +319,19 @@ MonoBehaviour:
       when you least expect them.
     Tone: 0
     Weight: 1
+  DroppedCallerLines:
+  - Text: Looks like we lost that caller. Phone lines, am I right?
+    Tone: 0
+    Weight: 1
+  - Text: And... they're gone. Technical difficulties, folks. Let's move on.
+    Tone: 0
+    Weight: 1
+  - Text: Hello? You still there? Guess not. Next caller.
+    Tone: 0
+    Weight: 1
+  - Text: We lost 'em. Happens sometimes. The truth doesn't always have a good signal.
+    Tone: 0
+    Weight: 1
+  - Text: Caller dropped. Either bad reception or... well, let's not speculate.
+    Tone: 0
+    Weight: 1

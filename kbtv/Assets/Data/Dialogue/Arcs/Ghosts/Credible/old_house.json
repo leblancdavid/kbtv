@@ -1,0 +1,137 @@
+{
+  "arcId": "ghosts_credible_old_house",
+  "topic": "Ghosts",
+  "legitimacy": "Credible",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* {callerName} from {callerLocation}. What's going on at your place?" },
+        { "speaker": "Caller", "text": "We moved into an old Victorian six months ago. Something's in there with us." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What kind of something?" },
+        { "speaker": "Caller", "text": "Footsteps upstairs when no one's there. Doors opening on their own. Cold spots that move." },
+        { "speaker": "Vern", "text": "Old houses settle. Could be drafts." },
+        { "speaker": "Caller", "text": "I thought so too. Until my daughter started talking to someone named Margaret. There's no Margaret." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Kids have imaginary friends. Doesn't mean anything." },
+          { "speaker": "Caller", "text": "She described an old woman in a blue dress. Previous owner died in that house. Her name was Margaret." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Children are sensitive to these things. More than adults." },
+          { "speaker": "Caller", "text": "That's what scares me. She's not afraid of it. But I am." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Keep an eye on things. Thanks for calling." },
+        { "speaker": "Caller", "text": "Thanks, Vern. Needed to tell someone who wouldn't laugh." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. What's the problem?" },
+        { "speaker": "Caller", "text": "Our house. Six months since we moved in. Something else lives there." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What makes you say that?" },
+        { "speaker": "Caller", "text": "Footsteps. Doors. Cold spots. My kid talks to someone who isn't there." },
+        { "speaker": "Vern", "text": "Name?" },
+        { "speaker": "Caller", "text": "Margaret. Looked it up. Previous owner. Died in the house twenty years ago." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Maybe the kid heard the name somewhere. Neighbors talk." },
+          { "speaker": "Caller", "text": "She described what Margaret was wearing. We found a photo later. It matched." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "At least it seems peaceful. Some hauntings aren't." },
+          { "speaker": "Caller", "text": "For now. But it's getting more active." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Keep me posted. Next caller." },
+        { "speaker": "Caller", "text": "Will do. Thanks." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "We've got {callerName} on the line from {callerLocation}. Tell us about your house." },
+        { "speaker": "Caller", "text": "Vern, my family moved into an old Victorian six months ago. I don't think we're alone in there." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What's been happening? Walk me through it." },
+        { "speaker": "Caller", "text": "Started small. Footsteps upstairs when everyone's downstairs. Doors that open on their own. Cold spots that seem to move through rooms." },
+        { "speaker": "Vern", "text": "Old houses do strange things. Could be the structure settling." },
+        { "speaker": "Caller", "text": "That's what I told myself. Then my seven-year-old started having conversations with someone named Margaret. We don't know anyone named Margaret." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Kids invent imaginary friends all the time. Could be coincidence." },
+          { "speaker": "Caller", "text": "She described an elderly woman in a blue dress. I found an obituary - previous owner, died in the house. Name was Margaret. Blue was her favorite color." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Children see things we've learned to block out. It's documented." },
+          { "speaker": "Caller", "text": "She's not scared of her. Says Margaret is nice. That almost makes it worse." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Document everything. Dates, times, what happens. It helps establish patterns." },
+        { "speaker": "Caller", "text": "Good idea. Thank you for listening, Vern." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you're on. I hear you've got some activity at your place." },
+        { "speaker": "Caller", "text": "Six months in an old Victorian, Vern. Something's definitely there with us." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Tell me everything. What's been happening?" },
+        { "speaker": "Caller", "text": "Footsteps upstairs when the whole family is downstairs. Doors opening by themselves. Cold spots that move through the rooms like something's walking." },
+        { "speaker": "Vern", "text": "Classic signs. Anything else? Any direct contact?" },
+        { "speaker": "Caller", "text": "My daughter talks to someone named Margaret. Describes her in detail. We found out the previous owner was named Margaret. She died in that house." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could the daughter have learned about Margaret some other way? Neighbors, internet?" },
+          { "speaker": "Caller", "text": "She's seven. She doesn't use the internet. And she described things we only confirmed later from old photos." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "The previous owner. She's attached to the house. That's textbook residual haunting." },
+          { "speaker": "Caller", "text": "That's what I've been reading. She doesn't seem malicious. But it's still unsettling." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Keep a journal. Every incident, every detail. And call back if it escalates." },
+        { "speaker": "Caller", "text": "I will. Thank you for taking this seriously, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "Folks, {callerName} from {callerLocation} says their house is HAUNTED! Tell us!" },
+        { "speaker": "Caller", "text": "Vern, we moved into an old Victorian and something is IN THERE with us!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What's happening?! Give me the details!" },
+        { "speaker": "Caller", "text": "Footsteps when no one's there! Doors flying open! Cold spots that MOVE through the house!" },
+        { "speaker": "Vern", "text": "Classic haunting signs! Anything else?!" },
+        { "speaker": "Caller", "text": "My daughter talks to someone named MARGARET! The previous owner! She DIED in that house!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Wait - how did your daughter know about Margaret?! Did someone tell her?!" },
+          { "speaker": "Caller", "text": "NO ONE told her! She described her perfectly! We found an old photo - it MATCHED!" }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "The previous owner is STILL THERE! This is textbook residual haunting!" },
+          { "speaker": "Caller", "text": "I know! I didn't believe in this stuff before! I DO NOW!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Document EVERYTHING! Set up cameras! This could be incredible!" },
+        { "speaker": "Caller", "text": "I'm on it! Thanks, Vern!" }
+      ]
+    }
+  }
+}
