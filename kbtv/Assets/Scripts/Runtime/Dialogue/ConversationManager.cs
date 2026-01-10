@@ -361,7 +361,11 @@ namespace KBTV.Dialogue
         private void StartDeadAirFiller()
         {
             if (_isPlayingDeadAirFiller) return;
-            if (_vernTemplate == null) return;
+            if (_vernTemplate == null)
+            {
+                Debug.LogWarning("ConversationManager: Cannot start dead air filler - VernDialogueTemplate not assigned");
+                return;
+            }
 
             _isPlayingDeadAirFiller = true;
             _callerWaitingAfterFiller = false;
