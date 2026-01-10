@@ -50,7 +50,6 @@ namespace KBTV.Core
             if (_vernStats != null)
             {
                 _vernStats.Initialize();
-                Debug.Log("GameStateManager: VernStats initialized");
             }
             else
             {
@@ -81,7 +80,6 @@ namespace KBTV.Core
                     return;
             }
 
-            Debug.Log($"GameStateManager: Phase changed {oldPhase} -> {_currentPhase}");
             OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
         }
 
@@ -95,7 +93,6 @@ namespace KBTV.Core
             GamePhase oldPhase = _currentPhase;
             _currentPhase = phase;
 
-            Debug.Log($"GameStateManager: Phase set {oldPhase} -> {_currentPhase}");
             OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
         }
 
@@ -115,7 +112,6 @@ namespace KBTV.Core
                 _vernStats.Initialize();
             }
 
-            Debug.Log($"GameStateManager: Starting Night {_currentNight}");
             OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
             OnNightStarted?.Invoke(_currentNight);
         }

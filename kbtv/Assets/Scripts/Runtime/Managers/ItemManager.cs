@@ -76,11 +76,8 @@ namespace KBTV.Managers
 
             if (_availableItems == null || _availableItems.Length == 0)
             {
-                Debug.LogWarning("ItemManager: No items configured in _availableItems array!");
                 return;
             }
-
-            Debug.Log($"ItemManager: Initializing inventory with {_availableItems.Length} item types");
 
             foreach (var modifier in _availableItems)
             {
@@ -90,8 +87,6 @@ namespace KBTV.Managers
                 
                 _inventory[slot.ItemId] = slot;
                 _itemSlots.Add(slot);
-
-                Debug.Log($"ItemManager: Added {_startingQuantity}x {modifier.DisplayName}");
             }
 
             OnInventoryChanged?.Invoke();
@@ -146,14 +141,12 @@ namespace KBTV.Managers
             // Check if usable during current phase
             if (_gameState != null && _gameState.IsLive && !slot.UsableDuringShow)
             {
-                Debug.Log($"ItemManager: {slot.DisplayName} cannot be used during live show");
                 return false;
             }
 
             // Check cooldown
             if (slot.IsOnCooldown)
             {
-                Debug.Log($"ItemManager: {slot.DisplayName} is on cooldown ({slot.CooldownRemaining:F1}s)");
                 return false;
             }
 

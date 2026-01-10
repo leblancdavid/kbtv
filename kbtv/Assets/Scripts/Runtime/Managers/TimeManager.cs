@@ -84,7 +84,6 @@ namespace KBTV.Managers
             if (_isRunning) return;
 
             _isRunning = true;
-            Debug.Log("TimeManager: Clock started");
             OnRunningChanged?.Invoke(true);
         }
 
@@ -96,7 +95,6 @@ namespace KBTV.Managers
             if (!_isRunning) return;
 
             _isRunning = false;
-            Debug.Log("TimeManager: Clock paused");
             OnRunningChanged?.Invoke(false);
         }
 
@@ -107,7 +105,6 @@ namespace KBTV.Managers
         {
             _elapsedTime = 0f;
             _isRunning = false;
-            Debug.Log("TimeManager: Clock reset");
         }
 
         /// <summary>
@@ -116,7 +113,6 @@ namespace KBTV.Managers
         public void EndShow()
         {
             _isRunning = false;
-            Debug.Log("TimeManager: Show ended");
             OnShowEnded?.Invoke();
         }
 

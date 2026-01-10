@@ -105,7 +105,6 @@ namespace KBTV.UI
             _callerQueue.OnCallerDisconnected += OnCallerChanged;
             _callerQueue.OnCallerOnAir += OnCallerChanged;
             _callerQueue.OnCallerCompleted += OnCallerChanged;
-            Debug.Log("CallerQueuePanel: Subscribed to CallerQueue events");
             return true;
         }
 

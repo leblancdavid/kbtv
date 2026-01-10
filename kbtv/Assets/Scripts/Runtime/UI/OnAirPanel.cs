@@ -125,7 +125,6 @@ namespace KBTV.UI
             _callerQueue.OnCallerRemoved += OnCallerListChanged;
             _callerQueue.OnCallerDisconnected += OnCallerListChanged;
             _callerQueue.OnCallerApproved += OnCallerListChanged;
-            Debug.Log("OnAirPanel: Subscribed to CallerQueue events");
             return true;
         }
 
@@ -149,13 +148,11 @@ namespace KBTV.UI
 
         private void OnCallerOnAir(Caller caller)
         {
-            Debug.Log($"OnAirPanel: Caller {caller.Name} went on air");
             UpdateDisplay();
         }
 
         private void OnCallerCompleted(Caller caller)
         {
-            Debug.Log($"OnAirPanel: Caller {caller.Name} completed");
             UpdateDisplay();
         }
 

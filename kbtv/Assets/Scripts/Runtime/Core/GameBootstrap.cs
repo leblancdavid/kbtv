@@ -90,19 +90,15 @@ namespace KBTV
         {
             if (GameStateManager.Instance != null && GameStateManager.Instance.CurrentPhase == GamePhase.PreShow)
             {
-                Debug.Log("GameBootstrap: Auto-starting Live Show");
                 GameStateManager.Instance.AdvancePhase();
             }
         }
 
         private void SetupManagers()
         {
-            Debug.Log("GameBootstrap: SetupManagers starting...");
-            
             // Create GameStateManager
             if (GameStateManager.Instance == null)
             {
-                Debug.Log("GameBootstrap: Creating new GameStateManager");
                 GameObject gameManagerObj = new GameObject("GameStateManager");
                 GameStateManager gameState = gameManagerObj.AddComponent<GameStateManager>();
                 
@@ -120,7 +116,6 @@ namespace KBTV
             }
             else
             {
-                Debug.Log("GameBootstrap: GameStateManager already exists, ensuring it's initialized");
                 // GameStateManager already exists - make sure it has VernStats and is initialized
                 if (GameStateManager.Instance.VernStats == null)
                 {
@@ -240,8 +235,6 @@ namespace KBTV
                 GameObject debugUIObj = new GameObject("DebugUI");
                 debugUIObj.AddComponent<DebugUI>();
             }
-
-            Debug.Log("GameBootstrap: All systems initialized");
         }
 
         private void OnValidate()

@@ -113,7 +113,6 @@ namespace KBTV.UI
             _callerQueue.OnCallerAdded += OnCallerQueueChanged;
             _callerQueue.OnCallerRemoved += OnCallerQueueChanged;
             _callerQueue.OnCallerDisconnected += OnCallerQueueChanged;
-            Debug.Log("ScreeningPanel: Subscribed to CallerQueue events");
             return true;
         }
 
@@ -172,9 +171,7 @@ namespace KBTV.UI
         {
             if (_callerQueue != null)
             {
-                Debug.Log($"ScreeningPanel: Approve clicked. CurrentScreening: {_callerQueue.CurrentScreening?.Name ?? "null"}");
-                bool success = _callerQueue.ApproveCurrentCaller();
-                Debug.Log($"ScreeningPanel: Approve result: {success}, OnHold count now: {_callerQueue.OnHoldCallers.Count}");
+                _callerQueue.ApproveCurrentCaller();
                 AudioManager.Instance?.PlayCallerDecision(true);
                 UpdateDisplay();
             }

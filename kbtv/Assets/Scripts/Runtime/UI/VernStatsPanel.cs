@@ -140,25 +140,21 @@ namespace KBTV.UI
         {
             if (GameStateManager.Instance == null)
             {
-                Debug.Log("VernStatsPanel: GameStateManager.Instance is null");
                 return false;
             }
             if (GameStateManager.Instance.VernStats == null)
             {
-                Debug.Log("VernStatsPanel: VernStats is null");
                 return false;
             }
             
             // Check if stats are actually initialized (Mood will be null until Initialize() is called)
             if (GameStateManager.Instance.VernStats.Mood == null)
             {
-                Debug.Log("VernStatsPanel: VernStats exists but Mood is null - waiting for Initialize()");
                 return false;
             }
 
             _stats = GameStateManager.Instance.VernStats;
             BindStats();
-            Debug.Log("VernStatsPanel: Bound to VernStats successfully");
             return true;
         }
 
@@ -182,8 +178,6 @@ namespace KBTV.UI
         {
             if (_stats == null) return;
 
-            Debug.Log($"VernStatsPanel.BindStats: _moodBar={_moodBar != null}, _stats.Mood={_stats.Mood != null}, Mood.Value={_stats.Mood?.Value}");
-
             if (_moodBar == null)
             {
                 Debug.LogError("VernStatsPanel: _moodBar is null! BuildUI was not called.");
@@ -200,8 +194,6 @@ namespace KBTV.UI
 
             _stats.OnStatsChanged += UpdateShowQuality;
             UpdateShowQuality();
-            
-            Debug.Log("VernStatsPanel.BindStats: Completed binding all stats");
         }
 
         private void UpdateShowQuality()

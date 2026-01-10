@@ -147,8 +147,6 @@ namespace KBTV.UI
             bottomSpacer.transform.SetParent(_rootPanel.transform, false);
             bottomSpacer.AddComponent<RectTransform>();
             UITheme.AddLayoutElement(bottomSpacer, flexibleHeight: 1f);
-
-            Debug.Log("PreShowUIManager: UI created successfully");
         }
 
         private void CreateSpacer(Transform parent, float height)
@@ -191,7 +189,6 @@ namespace KBTV.UI
             // Advance to LiveShow
             if (_gameState != null)
             {
-                Debug.Log($"PreShowUIManager: Starting show with topic '{_topicPanel.SelectedTopic.DisplayName}'");
                 _gameState.AdvancePhase();
             }
         }
@@ -268,7 +265,6 @@ namespace KBTV.UI
                 GameObject eventSystemObj = new GameObject("EventSystem");
                 eventSystemObj.AddComponent<EventSystem>();
                 eventSystemObj.AddComponent<StandaloneInputModule>();
-                Debug.Log("PreShowUIManager: Created EventSystem");
             }
         }
     }

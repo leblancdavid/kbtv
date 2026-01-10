@@ -208,8 +208,6 @@ namespace KBTV.Audio
             {
                 _itemManager.OnItemUsed += HandleItemUsed;
             }
-
-            Debug.Log("AudioManager: Subscribed to game events");
         }
 
         private void UnsubscribeFromEvents()
@@ -295,12 +293,10 @@ namespace KBTV.Audio
             {
                 float volume = _sfxVolume * _masterVolume;
                 _sfxSource.PlayOneShot(clip, volume);
-                Debug.Log($"AudioManager: Playing SFX {sfxType}");
             }
             else
             {
-                // No clip assigned - log for debugging but don't spam
-                Debug.Log($"AudioManager: No clip for SFX {sfxType} (placeholder)");
+                // No clip assigned - this is expected for placeholder audio
             }
         }
 

@@ -130,7 +130,6 @@ namespace KBTV.Callers
             _currentTopic = topic;
             _isGenerating = true;
             ScheduleNextSpawn();
-            Debug.Log("CallerGenerator: Started generating callers");
         }
 
         /// <summary>
@@ -139,7 +138,6 @@ namespace KBTV.Callers
         public void StopGenerating()
         {
             _isGenerating = false;
-            Debug.Log("CallerGenerator: Stopped generating callers");
         }
 
         /// <summary>

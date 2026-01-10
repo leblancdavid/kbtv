@@ -60,7 +60,6 @@ namespace KBTV.Callers
         {
             if (!CanAcceptMoreCallers)
             {
-                Debug.Log("CallerQueue: Queue is full, rejecting caller");
                 return false;
             }
 
@@ -73,7 +72,6 @@ namespace KBTV.Callers
             
             _incomingCallers.Add(caller);
 
-            Debug.Log($"CallerQueue: Added caller {caller.Name}");
             OnCallerAdded?.Invoke(caller);
             return true;
         }
@@ -91,7 +89,6 @@ namespace KBTV.Callers
 
             if (_incomingCallers.Count == 0)
             {
-                Debug.Log("CallerQueue: No incoming callers to screen");
                 return null;
             }
 
@@ -99,7 +96,6 @@ namespace KBTV.Callers
             _incomingCallers.RemoveAt(0);
             _currentScreening.SetState(CallerState.Screening);
 
-            Debug.Log($"CallerQueue: Now screening {_currentScreening.Name}");
             return _currentScreening;
         }
 
@@ -123,7 +119,6 @@ namespace KBTV.Callers
             _currentScreening.SetState(CallerState.OnHold);
             _onHoldCallers.Add(_currentScreening);
             
-            Debug.Log($"CallerQueue: Approved {_currentScreening.Name}, now on hold");
             Caller approved = _currentScreening;
             _currentScreening = null;
             OnCallerApproved?.Invoke(approved);
@@ -143,7 +138,6 @@ namespace KBTV.Callers
 
             _currentScreening.SetState(CallerState.Rejected);
             
-            Debug.Log($"CallerQueue: Rejected {_currentScreening.Name}");
             UnsubscribeCaller(_currentScreening);
             OnCallerRemoved?.Invoke(_currentScreening);
             _currentScreening = null;
@@ -163,7 +157,6 @@ namespace KBTV.Callers
 
             if (_onHoldCallers.Count == 0)
             {
-                Debug.Log("CallerQueue: No callers on hold");
                 return null;
             }
 
@@ -171,7 +164,6 @@ namespace KBTV.Callers
             _onHoldCallers.RemoveAt(0);
             _onAirCaller.SetState(CallerState.OnAir);
 
-            Debug.Log($"CallerQueue: {_onAirCaller.Name} is now ON AIR");
             OnCallerOnAir?.Invoke(_onAirCaller);
             return _onAirCaller;
         }
@@ -190,7 +182,6 @@ namespace KBTV.Callers
             _onAirCaller.SetState(CallerState.Completed);
             Caller completed = _onAirCaller;
             
-            Debug.Log($"CallerQueue: {_onAirCaller.Name} call completed");
             UnsubscribeCaller(_onAirCaller);
             OnCallerCompleted?.Invoke(_onAirCaller);
             _onAirCaller = null;
@@ -216,7 +207,6 @@ namespace KBTV.Callers
             _onHoldCallers.Clear();
             _currentScreening = null;
             _onAirCaller = null;
-            Debug.Log("CallerQueue: Cleared all callers");
         }
 
         private void UpdateCallerPatience(float deltaTime)
@@ -264,7 +254,6 @@ namespace KBTV.Callers
 
         private void HandleCallerDisconnected(Caller caller)
         {
-            Debug.Log($"CallerQueue: {caller.Name} disconnected (ran out of patience)");
             OnCallerDisconnected?.Invoke(caller);
         }
     }

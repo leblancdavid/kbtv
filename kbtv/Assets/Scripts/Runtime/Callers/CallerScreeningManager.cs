@@ -54,7 +54,6 @@ namespace KBTV.Callers
         public void SetTopic(Topic topic)
         {
             _currentTopic = topic;
-            Debug.Log($"CallerScreeningManager: Topic set to '{topic.DisplayName}'");
         }
 
         /// <summary>
@@ -128,8 +127,6 @@ namespace KBTV.Callers
             // Calculate impact based on caller quality and topic match
             string topicId = _currentTopic != null ? _currentTopic.TopicId : "";
             float impact = caller.CalculateShowImpact(topicId);
-
-            Debug.Log($"CallerScreeningManager: Caller {caller.Name} impact: {impact:F2}");
 
             // Apply appropriate modifier based on caller quality
             if (impact >= 15f && _greatCallerModifier != null)

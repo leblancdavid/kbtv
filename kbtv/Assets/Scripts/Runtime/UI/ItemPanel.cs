@@ -64,7 +64,6 @@ namespace KBTV.UI
             _itemManager.OnInventoryChanged += RefreshUI;
             _itemManager.OnCooldownChanged += OnCooldownChanged;
             BuildItemButtons();
-            Debug.Log("ItemPanel: Subscribed to ItemManager events");
             return true;
         }
 
@@ -107,8 +106,6 @@ namespace KBTV.UI
         private void BuildItemButtons()
         {
             if (_itemManager == null) return;
-
-            Debug.Log($"ItemPanel: Building buttons for {_itemManager.ItemSlots.Count} items");
 
             int index = 1;
             foreach (var slot in _itemManager.ItemSlots)

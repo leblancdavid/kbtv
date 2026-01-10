@@ -185,8 +185,6 @@ namespace KBTV.UI
             {
                 Audio.AudioManager.Instance.PlayButtonClick();
             }
-
-            Debug.Log($"TopicSelectionPanel: Selected topic '{topic.DisplayName}'");
         }
 
         private void UpdateSelectedTopicDisplay()

@@ -136,8 +136,6 @@ namespace KBTV.UI
             // Bottom section: Caller queues
             _callerQueuePanel = CallerQueuePanel.Create(rightColumn.transform);
             UITheme.AddLayoutElement(_callerQueuePanel.gameObject, preferredHeight: 200f, minHeight: 150f, flexibleHeight: 0.5f);
-
-            Debug.Log("LiveShowUIManager: UI created successfully");
         }
 
         private GameObject CreateColumn(Transform parent, string name, float width)
@@ -207,7 +205,6 @@ namespace KBTV.UI
                 GameObject eventSystemObj = new GameObject("EventSystem");
                 eventSystemObj.AddComponent<EventSystem>();
                 eventSystemObj.AddComponent<StandaloneInputModule>();
-                Debug.Log("LiveShowUIManager: Created EventSystem");
             }
         }
     }
