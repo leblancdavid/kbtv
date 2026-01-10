@@ -18,7 +18,9 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [AUDIO_DESIGN.md](docs/AUDIO_DESIGN.md) | Sound design, music, and audio technical specs |
 | [ROADMAP.md](docs/ROADMAP.md) | Development milestones and feature backlog |
 | [CI_CD_SETUP.md](docs/CI_CD_SETUP.md) | GitHub Actions build/release setup and Unity license activation |
-| [CONVERSATION_DESIGN.md](docs/CONVERSATION_DESIGN.md) | Dialogue system design - conversation structure, templates, and pacing |
+| [CONVERSATION_DESIGN.md](docs/CONVERSATION_DESIGN.md) | Dialogue system overview - arc-based conversations, mood, discernment |
+| [CONVERSATION_ARCS.md](docs/CONVERSATION_ARCS.md) | Arc system design - mood variants, belief branches, selection flow |
+| [CONVERSATION_ARC_SCHEMA.md](docs/CONVERSATION_ARC_SCHEMA.md) | JSON schema and full example arc with all 5 mood variants |
 | [DEAD_AIR_FILLER.md](docs/DEAD_AIR_FILLER.md) | Broadcast flow - show opening/closing, between-callers, and dead air filler |
 
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.

@@ -1,0 +1,137 @@
+{
+  "arcId": "ufo_credible_dashcam",
+  "topic": "UFOs",
+  "legitimacy": "Credible",
+  "moodVariants": {
+    "Tired": {
+      "intro": [
+        { "speaker": "Vern", "text": "*yawns* Alright, {callerName} from {callerLocation}. What've you got?" },
+        { "speaker": "Caller", "text": "I've been driving trucks for twenty-two years. Last night I saw something." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Mm-hmm. Go on." },
+        { "speaker": "Caller", "text": "Triangular shape, three lights. Silent. Paced my rig for two miles." },
+        { "speaker": "Vern", "text": "Two miles. Then what?" },
+        { "speaker": "Caller", "text": "Accelerated and was gone. I've got dash cam footage." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could've been a drone. Military runs tests out there." },
+          { "speaker": "Caller", "text": "I know aircraft, Vern. Twenty-two years. This was different." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Dash cam footage. That's what we need. Real evidence." },
+          { "speaker": "Caller", "text": "I knew you'd understand. My dispatcher didn't believe me." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send that footage in. Appreciate the call." },
+        { "speaker": "Caller", "text": "Will do. Thanks, Vern." }
+      ]
+    },
+    "Grumpy": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName}, {callerLocation}. Make it quick." },
+        { "speaker": "Caller", "text": "Uh, sure. I drive trucks. Twenty-two years. Saw something last night." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "What kind of something?" },
+        { "speaker": "Caller", "text": "Triangle. Three lights. No sound. Followed me for two miles." },
+        { "speaker": "Vern", "text": "And?" },
+        { "speaker": "Caller", "text": "Shot off like nothing I've ever seen. Got it on dash cam." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Probably military. They test stuff out there all the time." },
+          { "speaker": "Caller", "text": "I've seen military aircraft. This wasn't that." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Dash cam. Good. At least someone brings evidence." },
+          { "speaker": "Caller", "text": "I figured you'd want proof. Most people just laugh." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send the footage. Next caller." },
+        { "speaker": "Caller", "text": "Will do. Thanks." }
+      ]
+    },
+    "Neutral": {
+      "intro": [
+        { "speaker": "Vern", "text": "We've got {callerName} on the line from {callerLocation}. What's on your mind tonight?" },
+        { "speaker": "Caller", "text": "Vern, I've been driving trucks for twenty-two years. Last night, I saw something I can't explain." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Alright, walk me through it. What exactly did you see?" },
+        { "speaker": "Caller", "text": "Triangular craft, three amber lights at each point. Completely silent. It paced my rig for two miles." },
+        { "speaker": "Vern", "text": "Two miles is a long time. What happened next?" },
+        { "speaker": "Caller", "text": "It accelerated and was gone in maybe two seconds. I've got dash cam footage of the whole thing." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Could've been a drone. Military runs tests in that area." },
+          { "speaker": "Caller", "text": "Vern, I know aircraft. Twenty-two years on the road. This was something else entirely." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Dash cam footage. Now that's what I'm talking about. Real evidence." },
+          { "speaker": "Caller", "text": "I knew you'd understand. My dispatcher thinks I'm crazy." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send that footage to the station. Appreciate the call." },
+        { "speaker": "Caller", "text": "Will do, Vern. Keep up the good work." }
+      ]
+    },
+    "Engaged": {
+      "intro": [
+        { "speaker": "Vern", "text": "{callerName} from {callerLocation}, you're on the air. What've you got for us?" },
+        { "speaker": "Caller", "text": "Vern, I've been a trucker for twenty-two years. Last night changed everything I thought I knew." }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "I like the sound of that. Tell me everything." },
+        { "speaker": "Caller", "text": "Triangular craft. Three amber lights. Dead silent. It matched my speed for two full miles." },
+        { "speaker": "Vern", "text": "Two miles! That's intentional. That's not random." },
+        { "speaker": "Caller", "text": "Exactly what I thought. Then it shot off faster than anything I've ever seen. Got it all on dash cam." }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Now hold on - military runs black projects out there. Could be experimental." },
+          { "speaker": "Caller", "text": "Vern, I've seen every aircraft type there is. This broke physics." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "Dash cam footage! That's exactly what we need. Documentation!" },
+          { "speaker": "Caller", "text": "I knew you'd get it. Everyone else thinks I'm losing my mind." }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send that footage in immediately. This could be huge." },
+        { "speaker": "Caller", "text": "Already uploading it. Thanks for believing me, Vern." }
+      ]
+    },
+    "Excited": {
+      "intro": [
+        { "speaker": "Vern", "text": "Folks, we've got {callerName} calling in from {callerLocation}! What've you got?!" },
+        { "speaker": "Caller", "text": "Vern! Twenty-two years driving trucks and last night I finally SAW one!" }
+      ],
+      "development": [
+        { "speaker": "Vern", "text": "Tell me! Tell me everything!" },
+        { "speaker": "Caller", "text": "Triangle! Three lights! Silent as death! It FOLLOWED me for two miles, Vern!" },
+        { "speaker": "Vern", "text": "Two miles! It was watching you! What happened?!" },
+        { "speaker": "Caller", "text": "GONE. Like a bullet. But I got it! I got it on dash cam!" }
+      ],
+      "beliefBranch": {
+        "Skeptical": [
+          { "speaker": "Vern", "text": "Wait wait wait - could've been military. They test crazy stuff out there." },
+          { "speaker": "Caller", "text": "Vern, nothing human moves like that. Nothing." }
+        ],
+        "Believing": [
+          { "speaker": "Vern", "text": "DASH CAM! You got it on CAMERA! THIS is what I'm talking about folks!" },
+          { "speaker": "Caller", "text": "I KNEW you'd believe me! Everyone else thinks I'm nuts!" }
+        ]
+      },
+      "conclusion": [
+        { "speaker": "Vern", "text": "Send that footage NOW! This is incredible!" },
+        { "speaker": "Caller", "text": "Sending it right now! Thanks Vern!" }
+      ]
+    }
+  }
+}

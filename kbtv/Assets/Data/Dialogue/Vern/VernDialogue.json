@@ -113,5 +113,12 @@
     { "text": "If you're just tuning in, this is KBTV. We're here all night, and we want to hear from you.", "tone": "Neutral", "weight": 1.0 },
     { "text": "Come on, night owls. Don't leave me hanging here. What's happening out there?", "tone": "Neutral", "weight": 1.0 },
     { "text": "Slow night on the lines. But that's alright. The best calls always come when you least expect them.", "tone": "Neutral", "weight": 1.0 }
+  ],
+  "droppedCallerLines": [
+    { "text": "Looks like we lost that caller. Phone lines, am I right?", "tone": "Neutral", "weight": 1.0 },
+    { "text": "And... they're gone. Technical difficulties, folks. Let's move on.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Hello? You still there? Guess not. Next caller.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "We lost 'em. Happens sometimes. The truth doesn't always have a good signal.", "tone": "Neutral", "weight": 1.0 },
+    { "text": "Caller dropped. Either bad reception or... well, let's not speculate.", "tone": "Neutral", "weight": 1.0 }
   ]
 }

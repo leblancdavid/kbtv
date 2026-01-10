@@ -98,6 +98,10 @@ namespace KBTV.Dialogue
         [Tooltip("Lines Vern says when there are no callers waiting")]
         public DialogueTemplate[] DeadAirFillerLines;
 
+        [Header("Dropped Caller Lines")]
+        [Tooltip("Lines Vern says when a caller unexpectedly disconnects")]
+        public DialogueTemplate[] DroppedCallerLines;
+
         /// <summary>
         /// Get a random template for the specified response type.
         /// </summary>
@@ -196,5 +200,10 @@ namespace KBTV.Dialogue
         /// Get a dead air filler line.
         /// </summary>
         public DialogueTemplate GetDeadAirFiller() => DialogueUtility.GetWeightedRandom(DeadAirFillerLines);
+
+        /// <summary>
+        /// Get a dropped caller line (when caller unexpectedly disconnects).
+        /// </summary>
+        public DialogueTemplate GetDroppedCaller() => DialogueUtility.GetWeightedRandom(DroppedCallerLines);
     }
 }

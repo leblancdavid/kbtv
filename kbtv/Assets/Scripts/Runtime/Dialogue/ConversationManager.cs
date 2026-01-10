@@ -31,8 +31,9 @@ namespace KBTV.Dialogue
         [Tooltip("Vern's dialogue template")]
         [SerializeField] private VernDialogueTemplate _vernTemplate;
 
-        [Tooltip("Caller dialogue templates (matched by topic/legitimacy)")]
-        [SerializeField] private List<CallerDialogueTemplate> _callerTemplates;
+        [Header("Arc System")]
+        [Tooltip("Repository of conversation arcs")]
+        [SerializeField] private ArcRepository _arcRepository;
 
         [Header("References")]
         [Tooltip("Vern's stats (for response selection)")]
@@ -43,7 +44,7 @@ namespace KBTV.Dialogue
 
         // Runtime state
         private Conversation _currentConversation;
-        private ConversationGenerator _generator;
+        private ArcConversationGenerator _arcGenerator;
         private float _lineTimer;
         private float _currentLineDuration;
         private bool _isWaitingForTransition;
@@ -94,7 +95,7 @@ namespace KBTV.Dialogue
 
         protected override void OnSingletonAwake()
         {
-            InitializeGenerator();
+            InitializeArcGenerator();
         }
 
         private void Start()
@@ -155,13 +156,9 @@ namespace KBTV.Dialogue
             }
         }
 
-        private void InitializeGenerator()
+        private void InitializeArcGenerator()
         {
-            _generator = new ConversationGenerator(
-                _callerTemplates ?? new List<CallerDialogueTemplate>(),
-                _vernTemplate,
-                _vernStats
-            );
+            _arcGenerator = new ArcConversationGenerator(_arcRepository, _vernStats);
         }
 
         /// <summary>
@@ -175,14 +172,21 @@ namespace KBTV.Dialogue
                 EndConversation();
             }
 
-            // Ensure generator is initialized
-            if (_generator == null)
+            // Ensure arc generator is initialized
+            if (_arcGenerator == null)
             {
-                InitializeGenerator();
+                InitializeArcGenerator();
             }
 
-            // Generate the conversation
-            _currentConversation = _generator.Generate(caller, _currentTopic);
+            // Generate the conversation using the arc system
+            _currentConversation = _arcGenerator.Generate(caller, _currentTopic);
+
+            // Handle case where no matching arc was found (caller "dropped")
+            if (_currentConversation == null)
+            {
+                HandleCallerDropped(caller);
+                return;
+            }
 
             // Subscribe to conversation events
             _currentConversation.OnLineStarted += HandleLineStarted;
@@ -194,7 +198,8 @@ namespace KBTV.Dialogue
             _currentConversation.Start();
             OnConversationStarted?.Invoke(_currentConversation);
 
-            Debug.Log($"ConversationManager: Started conversation with {caller.Name}, {_currentConversation.Lines.Count} lines");
+            Debug.Log($"ConversationManager: Started conversation with {caller.Name}, {_currentConversation.Lines.Count} lines " +
+                      $"(Mood: {_arcGenerator.LastMood}, Belief: {_arcGenerator.LastBeliefPath})");
         }
 
         /// <summary>
@@ -251,25 +256,20 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Set templates at runtime (useful for loading from resources).
+        /// Set the arc repository at runtime.
         /// </summary>
-        public void SetTemplates(VernDialogueTemplate vernTemplate, List<CallerDialogueTemplate> callerTemplates)
+        public void SetArcRepository(ArcRepository arcRepository)
         {
-            _vernTemplate = vernTemplate;
-            _callerTemplates = callerTemplates ?? new List<CallerDialogueTemplate>();
-            InitializeGenerator();
+            _arcRepository = arcRepository;
+            InitializeArcGenerator();
         }
 
         /// <summary>
-        /// Add a caller template at runtime.
+        /// Set the Vern dialogue template at runtime (for broadcast flow lines).
         /// </summary>
-        public void AddCallerTemplate(CallerDialogueTemplate template)
+        public void SetVernTemplate(VernDialogueTemplate vernTemplate)
         {
-            if (template == null) return;
-            
-            _callerTemplates ??= new List<CallerDialogueTemplate>();
-            _callerTemplates.Add(template);
-            InitializeGenerator();
+            _vernTemplate = vernTemplate;
         }
 
         private void UpdateLineTimer()
@@ -577,6 +577,58 @@ namespace KBTV.Dialogue
                 // Play show closing
                 PlayShowClosing(null);
             }
+        }
+
+        #endregion
+
+        #region Dropped Caller Handling
+
+        /// <summary>
+        /// Handle when no matching arc is found for a caller.
+        /// Plays a "lost the caller" line and moves on to next caller or filler.
+        /// </summary>
+        private void HandleCallerDropped(Caller caller)
+        {
+            Debug.LogWarning($"ConversationManager: No arc found for caller {caller.Name} " +
+                             $"(Topic: {caller.ClaimedTopic}, Legitimacy: {caller.Legitimacy}). Treating as dropped.");
+
+            // Play a dropped caller line
+            PlayDroppedCallerLine(() =>
+            {
+                // End the caller's slot in the queue
+                if (CallerQueue.Instance != null && CallerQueue.Instance.IsOnAir)
+                {
+                    CallerQueue.Instance.EndCurrentCall();
+                }
+
+                // Check if we should auto-advance or start filler
+                if (CallerQueue.Instance != null && CallerQueue.Instance.HasOnHoldCallers)
+                {
+                    PlayBetweenCallers(() =>
+                    {
+                        CallerQueue.Instance?.PutNextCallerOnAir();
+                    });
+                }
+                else
+                {
+                    StartDeadAirFiller();
+                }
+            });
+        }
+
+        /// <summary>
+        /// Play a dropped caller line (when no arc is found).
+        /// </summary>
+        private void PlayDroppedCallerLine(System.Action onComplete)
+        {
+            if (_vernTemplate == null)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            var template = _vernTemplate.GetDroppedCaller();
+            PlayBroadcastLine(template, onComplete);
         }
 
         #endregion

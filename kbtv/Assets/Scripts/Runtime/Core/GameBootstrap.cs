@@ -58,8 +58,8 @@ namespace KBTV
         [Tooltip("Vern's dialogue template")]
         [SerializeField] private VernDialogueTemplate _vernDialogue;
 
-        [Tooltip("Caller dialogue templates (matched by topic/legitimacy)")]
-        [SerializeField] private CallerDialogueTemplate[] _callerDialogues;
+        [Tooltip("Repository of conversation arcs")]
+        [SerializeField] private ArcRepository _arcRepository;
 
         [Header("UI")]
         [SerializeField] private bool _enableLiveShowUI = true;
@@ -207,16 +207,17 @@ namespace KBTV
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 statsField?.SetValue(conversationManager, _vernStatsAsset);
 
-                // Set dialogue templates via reflection
+                // Set Vern dialogue template via reflection
                 var vernTemplateField = typeof(ConversationManager).GetField("_vernTemplate",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 vernTemplateField?.SetValue(conversationManager, _vernDialogue);
 
-                if (_callerDialogues != null && _callerDialogues.Length > 0)
+                // Set arc repository via reflection
+                if (_arcRepository != null)
                 {
-                    var callerTemplatesField = typeof(ConversationManager).GetField("_callerTemplates",
+                    var arcRepoField = typeof(ConversationManager).GetField("_arcRepository",
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                    callerTemplatesField?.SetValue(conversationManager, new System.Collections.Generic.List<CallerDialogueTemplate>(_callerDialogues));
+                    arcRepoField?.SetValue(conversationManager, _arcRepository);
                 }
             }
 
