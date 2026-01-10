@@ -1,10 +1,30 @@
-# Dead Air Filler Feature
+# Broadcast Flow & Dead Air Filler
 
 ## Overview
 
-During the LiveShow phase, when no caller is on air and no callers are waiting on hold, Vern will automatically deliver "dead air filler" monologue lines to maintain broadcast atmosphere. This prevents awkward silence and keeps the show feeling alive.
+The broadcast flow system manages Vern's dialogue during transitions in the LiveShow phase:
 
-## Behavior Specification
+1. **Show Opening** - Vern's intro line when LiveShow begins
+2. **Dead Air Filler** - Vern's monologue when no caller is on air
+3. **Between Callers** - Transition lines when auto-advancing to next caller
+4. **Show Closing** - Vern's outro line when LiveShow ends
+
+These features maintain broadcast atmosphere, prevent awkward silence, and make the show feel alive.
+
+## Broadcast Flow
+
+### Show Opening
+When the game transitions to LiveShow phase, Vern delivers an opening line before anything else happens. After the opening completes, dead air filler begins if no caller is on air.
+
+### Show Closing
+When leaving LiveShow phase, Vern delivers a closing line to wrap up the show.
+
+### Between Callers
+When a conversation ends and there are callers on hold, Vern delivers a transition line before auto-advancing to the next caller. This creates a natural flow between calls.
+
+## Dead Air Filler
+
+### Behavior Specification
 
 ### State Transitions
 
@@ -56,12 +76,13 @@ During the LiveShow phase, when no caller is on air and no callers are waiting o
 
 | Scenario | Behavior |
 |----------|----------|
-| LiveShow starts, no callers on hold | Start dead air filler immediately |
-| Conversation ends, callers on hold | Immediately put next caller on air (no dead air) |
+| LiveShow starts | Show opening plays, then dead air filler starts (if no caller on air) |
+| Conversation ends, callers on hold | Between-callers transition, then next caller on air |
 | Conversation ends, no callers on hold | Start dead air filler (Vern monologue) |
 | Dead air playing, filler line ends, no callers | Cycle to next filler line after ~8s |
 | Dead air playing, caller approved (put on hold) | Finish current filler line, then auto-put caller on air |
 | Dead air playing, caller goes on air manually | Stop dead air filler immediately |
+| LiveShow ends | Show closing plays |
 
 ### Timing
 
@@ -108,15 +129,26 @@ public DialogueLine CurrentFillerLine => _currentFillerLine;
 ```csharp
 public event Action<DialogueLine> OnFillerLineDisplayed;
 public event Action OnFillerStopped;
+public event Action<DialogueLine> OnBroadcastLineDisplayed;
+public event Action OnBroadcastLineCompleted;
 ```
 
 #### New Methods
 
+**Dead Air Filler:**
 - `StartDeadAirFiller()` - Begin filler mode
 - `StopDeadAirFiller()` - End filler mode
 - `DisplayNextFillerLine()` - Show next filler line from template
 - `UpdateDeadAirFiller()` - Handle filler timing in Update loop
 - `HandleCallerApproved()` - Flag to auto-advance when filler ends
+
+**Broadcast Flow:**
+- `PlayBroadcastLine(template, onComplete)` - Play a broadcast line with callback
+- `UpdateBroadcastLine()` - Handle broadcast line timing
+- `CompleteBroadcastLine()` - Complete broadcast line and invoke callback
+- `PlayShowOpening(onComplete)` - Play show opening line
+- `PlayShowClosing(onComplete)` - Play show closing line
+- `PlayBetweenCallers(onComplete)` - Play between-callers transition
 
 #### Modified Methods
 
@@ -132,6 +164,8 @@ public event Action OnFillerStopped;
 
 - `OnFillerLineDisplayed` - Display filler line with typewriter effect
 - `OnFillerStopped` - Return to empty state if no conversation
+- `OnBroadcastLineDisplayed` - Display broadcast line (opening/closing/between)
+- `OnBroadcastLineCompleted` - Update display after broadcast line ends
 
 #### Modified Methods
 
@@ -154,7 +188,14 @@ When dead air filler is playing:
 
 ## Testing Checklist
 
-- [ ] Conversation ends with callers on hold → next caller auto-goes on air
+### Broadcast Flow
+- [ ] LiveShow starts → Show opening plays first
+- [ ] Show opening ends → Dead air filler starts (if no caller on air)
+- [ ] Conversation ends with callers on hold → Between-callers transition plays
+- [ ] Between-callers ends → Next caller goes on air
+- [ ] LiveShow ends → Show closing plays
+
+### Dead Air Filler
 - [ ] Conversation ends with no callers → filler starts
 - [ ] Filler displays with typewriter effect
 - [ ] Filler cycles to new line after ~8 seconds
@@ -165,6 +206,6 @@ When dead air filler is playing:
 
 ## Future Enhancements
 
-- Add "between callers" transition lines when auto-advancing to next caller
-- Add show opening/closing lines for phase transitions
 - Add variety weighting to prevent recently-used filler lines from repeating
+- Add configurable timing for opening/closing/between-callers display duration
+- Add special opening lines for topic-specific shows

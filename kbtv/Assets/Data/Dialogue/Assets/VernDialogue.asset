@@ -204,3 +204,118 @@ MonoBehaviour:
       right back.
     Tone: 0
     Weight: 1
+  ShowOpeningLines:
+  - Text: Good evening, truth-seekers. You're tuned to KBTV, Beyond the Veil AM.
+      I'm your host, Vern Castellano, and we've got a big show for you tonight.
+    Tone: 1
+    Weight: 1
+  - Text: It's midnight on the dial, and you know what that means. Welcome to KBTV.
+      The phone lines are open, and the truth is out there waiting.
+    Tone: 0
+    Weight: 1
+  - Text: Welcome back, night owls. This is Vern Castellano coming to you live from
+      the KBTV studios. Tonight, we're going deep.
+    Tone: 0
+    Weight: 1
+  - Text: You're listening to KBTV, where we pull back the curtain on what they don't
+      want you to know. Let's get started.
+    Tone: 0
+    Weight: 1
+  - Text: The witching hour approaches, and so do the callers. This is KBTV. I'm
+      Vern. Let's see what's out there tonight.
+    Tone: 0
+    Weight: 1
+  ShowClosingLines:
+  - Text: And that's all the time we have tonight, folks. Thanks to everyone who
+      called in. Keep watching the skies.
+    Tone: 0
+    Weight: 1
+  - Text: The sun's coming up, truth-seekers. Time to sign off. But remember - the
+      truth doesn't sleep, and neither should you.
+    Tone: 0
+    Weight: 1
+  - Text: That's a wrap on tonight's show. This is Vern Castellano saying goodnight,
+      and stay vigilant out there.
+    Tone: 0
+    Weight: 1
+  - Text: We're out of time, but never out of mysteries. Thanks for listening to
+      KBTV. Until next time.
+    Tone: 0
+    Weight: 1
+  - Text: Another night, another pile of evidence. Thanks for being part of the search,
+      folks. This is KBTV, signing off.
+    Tone: 0
+    Weight: 1
+  BetweenCallersLines:
+  - Text: Fascinating stuff. Let's see who else is on the line.
+    Tone: 0
+    Weight: 1
+  - Text: Alright, we've got more callers waiting. Let's keep this going.
+    Tone: 0
+    Weight: 1
+  - Text: The board's lighting up tonight. Let's go to our next caller.
+    Tone: 1
+    Weight: 1
+  - Text: Interesting call. But we've got more stories to hear. Next caller, you're
+      on.
+    Tone: 0
+    Weight: 1
+  - Text: That's what I love about this show - you never know what's coming next.
+      Speaking of which...
+    Tone: 0
+    Weight: 1
+  - Text: The lines are burning up tonight. Let's keep the momentum going.
+    Tone: 1
+    Weight: 1
+  - Text: More callers in the queue. Let's see what else is out there.
+    Tone: 0
+    Weight: 1
+  - Text: Alright, next up on the lines...
+    Tone: 0
+    Weight: 1
+  - Text: Good stuff. We've got more waiting in the wings.
+    Tone: 0
+    Weight: 1
+  - Text: That's the kind of call that keeps me coming back every night. Who's next?
+    Tone: 1
+    Weight: 1
+  DeadAirFillerLines:
+  - Text: Phone lines are quiet for the moment. If you've got a story, now's the
+      time to call in.
+    Tone: 0
+    Weight: 1
+  - Text: We're waiting on callers, folks. Don't be shy. The number's on your screen.
+    Tone: 0
+    Weight: 1
+  - Text: You know, nights like this give me time to think about all the stories
+      we've heard over the years...
+    Tone: 0
+    Weight: 1
+  - Text: Quiet on the lines. That's unusual. Makes you wonder what's keeping people
+      up tonight.
+    Tone: 0
+    Weight: 1
+  - Text: While we wait for callers, let me tell you - I've seen some things in my
+      years doing this show.
+    Tone: 0
+    Weight: 1
+  - Text: The truth doesn't call itself in, folks. Someone out there has a story.
+      I can feel it.
+    Tone: 0
+    Weight: 1
+  - Text: Empty lines. Either everyone's asleep or everyone's seen something and
+      they're too scared to talk.
+    Tone: 0
+    Weight: 1
+  - Text: If you're just tuning in, this is KBTV. We're here all night, and we want
+      to hear from you.
+    Tone: 0
+    Weight: 1
+  - Text: Come on, night owls. Don't leave me hanging here. What's happening out
+      there?
+    Tone: 0
+    Weight: 1
+  - Text: Slow night on the lines. But that's alright. The best calls always come
+      when you least expect them.
+    Tone: 0
+    Weight: 1

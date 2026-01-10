@@ -190,6 +190,8 @@ namespace KBTV.UI
             _conversationManager.OnPhaseChanged += OnPhaseChanged;
             _conversationManager.OnFillerLineDisplayed += OnFillerLineDisplayed;
             _conversationManager.OnFillerStopped += OnFillerStopped;
+            _conversationManager.OnBroadcastLineDisplayed += OnBroadcastLineDisplayed;
+            _conversationManager.OnBroadcastLineCompleted += OnBroadcastLineCompleted;
             return true;
         }
 
@@ -203,6 +205,8 @@ namespace KBTV.UI
                 _conversationManager.OnPhaseChanged -= OnPhaseChanged;
                 _conversationManager.OnFillerLineDisplayed -= OnFillerLineDisplayed;
                 _conversationManager.OnFillerStopped -= OnFillerStopped;
+                _conversationManager.OnBroadcastLineDisplayed -= OnBroadcastLineDisplayed;
+                _conversationManager.OnBroadcastLineCompleted -= OnBroadcastLineCompleted;
             }
         }
 
@@ -216,6 +220,10 @@ namespace KBTV.UI
                 if (_conversationManager.IsPlaying)
                 {
                     _progressFill.fillAmount = _conversationManager.LineProgress;
+                }
+                else if (_conversationManager.IsPlayingBroadcastLine)
+                {
+                    _progressFill.fillAmount = _conversationManager.BroadcastLineProgress;
                 }
                 else if (_conversationManager.IsPlayingDeadAirFiller)
                 {
@@ -273,14 +281,20 @@ namespace KBTV.UI
 
             bool hasConversation = _conversationManager.HasActiveConversation;
             bool hasFillerPlaying = _conversationManager.IsPlayingDeadAirFiller;
+            bool hasBroadcastLine = _conversationManager.IsPlayingBroadcastLine;
 
-            _transcriptContainer.SetActive(hasConversation || hasFillerPlaying);
-            _emptyState.SetActive(!hasConversation && !hasFillerPlaying);
+            _transcriptContainer.SetActive(hasConversation || hasFillerPlaying || hasBroadcastLine);
+            _emptyState.SetActive(!hasConversation && !hasFillerPlaying && !hasBroadcastLine);
 
             if (hasConversation && _conversationManager.CurrentLine != null)
             {
                 DisplayLine(_conversationManager.CurrentLine);
                 UpdatePhaseLabel(_conversationManager.CurrentConversation.CurrentPhase);
+            }
+            else if (hasBroadcastLine && _conversationManager.CurrentBroadcastLine != null)
+            {
+                DisplayLine(_conversationManager.CurrentBroadcastLine);
+                _phaseLabel.text = "ON AIR";
             }
             else if (hasFillerPlaying && _conversationManager.CurrentFillerLine != null)
             {
@@ -366,6 +380,29 @@ namespace KBTV.UI
         private void OnFillerStopped()
         {
             // Update display - will show empty state if no conversation active
+            UpdateDisplay();
+        }
+
+        private void OnBroadcastLineDisplayed(DialogueLine line)
+        {
+            // Clear history for broadcast lines (no caller context)
+            _historyLines.Clear();
+            _previousLine = null;
+            if (_historyText != null)
+            {
+                _historyText.text = "";
+            }
+
+            // Update phase label to indicate broadcast line
+            _phaseLabel.text = "ON AIR";
+
+            // Display broadcast line (reuses existing DisplayLine logic)
+            DisplayLine(line);
+        }
+
+        private void OnBroadcastLineCompleted()
+        {
+            // Update display - will transition to next state
             UpdateDisplay();
         }
 

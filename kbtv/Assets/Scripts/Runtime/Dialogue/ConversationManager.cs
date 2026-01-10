@@ -55,6 +55,13 @@ namespace KBTV.Dialogue
         private bool _callerWaitingAfterFiller = false;
         private DialogueLine _currentFillerLine = null;
 
+        // Broadcast flow state
+        private bool _isPlayingBroadcastLine = false;
+        private float _broadcastLineTimer = 0f;
+        private float _broadcastLineDuration = 0f;
+        private DialogueLine _currentBroadcastLine = null;
+        private System.Action _onBroadcastLineComplete = null;
+
         // Properties
         public Conversation CurrentConversation => _currentConversation;
         public DialogueLine CurrentLine => _currentConversation?.CurrentLine;
@@ -65,6 +72,9 @@ namespace KBTV.Dialogue
         public bool IsPlayingDeadAirFiller => _isPlayingDeadAirFiller;
         public DialogueLine CurrentFillerLine => _currentFillerLine;
         public float FillerLineProgress => _currentFillerLineDuration > 0 ? _deadAirFillerTimer / _currentFillerLineDuration : 0f;
+        public bool IsPlayingBroadcastLine => _isPlayingBroadcastLine;
+        public DialogueLine CurrentBroadcastLine => _currentBroadcastLine;
+        public float BroadcastLineProgress => _broadcastLineDuration > 0 ? _broadcastLineTimer / _broadcastLineDuration : 0f;
         public Topic CurrentTopic
         {
             get => _currentTopic;
@@ -79,6 +89,8 @@ namespace KBTV.Dialogue
         public event Action<ConversationPhase> OnPhaseChanged;
         public event Action<DialogueLine> OnFillerLineDisplayed;
         public event Action OnFillerStopped;
+        public event Action<DialogueLine> OnBroadcastLineDisplayed;
+        public event Action OnBroadcastLineCompleted;
 
         protected override void OnSingletonAwake()
         {
@@ -126,6 +138,13 @@ namespace KBTV.Dialogue
             if (IsPlaying)
             {
                 UpdateLineTimer();
+                return;
+            }
+
+            // Handle broadcast flow lines (opening, closing, between callers)
+            if (_isPlayingBroadcastLine)
+            {
+                UpdateBroadcastLine();
                 return;
             }
 
@@ -325,6 +344,110 @@ namespace KBTV.Dialogue
             Debug.Log($"ConversationManager: Phase changed to {phase}");
         }
 
+        #region Broadcast Flow Lines
+
+        /// <summary>
+        /// Update broadcast line timing.
+        /// </summary>
+        private void UpdateBroadcastLine()
+        {
+            _broadcastLineTimer += Time.deltaTime;
+
+            if (_broadcastLineTimer >= _broadcastLineDuration)
+            {
+                CompleteBroadcastLine();
+            }
+        }
+
+        /// <summary>
+        /// Play a broadcast flow line (opening, closing, between callers).
+        /// </summary>
+        private void PlayBroadcastLine(DialogueTemplate template, System.Action onComplete)
+        {
+            if (template == null)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            _currentBroadcastLine = new DialogueLine(
+                Speaker.Vern,
+                template.Text,
+                template.Tone,
+                ConversationPhase.Intro
+            );
+
+            _broadcastLineTimer = 0f;
+            _broadcastLineDuration = _currentBroadcastLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
+            _onBroadcastLineComplete = onComplete;
+            _isPlayingBroadcastLine = true;
+
+            OnBroadcastLineDisplayed?.Invoke(_currentBroadcastLine);
+            Debug.Log($"ConversationManager: [BROADCAST] {_currentBroadcastLine.Text}");
+        }
+
+        /// <summary>
+        /// Complete the current broadcast line and invoke callback.
+        /// </summary>
+        private void CompleteBroadcastLine()
+        {
+            _isPlayingBroadcastLine = false;
+            _currentBroadcastLine = null;
+            
+            var callback = _onBroadcastLineComplete;
+            _onBroadcastLineComplete = null;
+            
+            OnBroadcastLineCompleted?.Invoke();
+            callback?.Invoke();
+        }
+
+        /// <summary>
+        /// Play the show opening line when LiveShow begins.
+        /// </summary>
+        private void PlayShowOpening(System.Action onComplete)
+        {
+            if (_vernTemplate == null)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            var template = _vernTemplate.GetShowOpening();
+            PlayBroadcastLine(template, onComplete);
+        }
+
+        /// <summary>
+        /// Play the show closing line when LiveShow ends.
+        /// </summary>
+        private void PlayShowClosing(System.Action onComplete)
+        {
+            if (_vernTemplate == null)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            var template = _vernTemplate.GetShowClosing();
+            PlayBroadcastLine(template, onComplete);
+        }
+
+        /// <summary>
+        /// Play a between-callers transition line.
+        /// </summary>
+        private void PlayBetweenCallers(System.Action onComplete)
+        {
+            if (_vernTemplate == null)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            var template = _vernTemplate.GetBetweenCallers();
+            PlayBroadcastLine(template, onComplete);
+        }
+
+        #endregion
+
         #region Dead Air Filler
 
         /// <summary>
@@ -437,16 +560,22 @@ namespace KBTV.Dialogue
         {
             if (newPhase == GamePhase.LiveShow)
             {
-                // Start filler if no caller is currently on air
-                if (CallerQueue.Instance == null || !CallerQueue.Instance.IsOnAir)
+                // Play show opening, then start filler if no caller is on air
+                PlayShowOpening(() =>
                 {
-                    StartDeadAirFiller();
-                }
+                    if (CallerQueue.Instance == null || !CallerQueue.Instance.IsOnAir)
+                    {
+                        StartDeadAirFiller();
+                    }
+                });
             }
             else if (oldPhase == GamePhase.LiveShow)
             {
                 // Stop filler when leaving LiveShow
                 StopDeadAirFiller();
+
+                // Play show closing
+                PlayShowClosing(null);
             }
         }
 
@@ -470,8 +599,11 @@ namespace KBTV.Dialogue
             // Check if we should auto-advance or start filler
             if (CallerQueue.Instance != null && CallerQueue.Instance.HasOnHoldCallers)
             {
-                // Auto-put next caller on air
-                CallerQueue.Instance.PutNextCallerOnAir();
+                // Play between-callers transition, then auto-put next caller on air
+                PlayBetweenCallers(() =>
+                {
+                    CallerQueue.Instance?.PutNextCallerOnAir();
+                });
             }
             else
             {
