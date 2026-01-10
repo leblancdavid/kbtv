@@ -105,6 +105,32 @@ namespace KBTV.Dialogue
     }
 
     /// <summary>
+    /// A template for a single dialogue line with selection weight.
+    /// Used for Vern's broadcast lines (show opening, filler, etc.).
+    /// </summary>
+    [Serializable]
+    public class DialogueTemplate
+    {
+        /// <summary>The dialogue text (supports placeholders like {callerName}).</summary>
+        public string Text;
+        
+        /// <summary>The emotional tone of this line.</summary>
+        public DialogueTone Tone;
+        
+        /// <summary>Selection weight for random picking (higher = more likely).</summary>
+        public float Weight = 1f;
+
+        public DialogueTemplate() { }
+
+        public DialogueTemplate(string text, DialogueTone tone = DialogueTone.Neutral, float weight = 1f)
+        {
+            Text = text;
+            Tone = tone;
+            Weight = weight;
+        }
+    }
+
+    /// <summary>
     /// A single line of dialogue in a conversation.
     /// </summary>
     [Serializable]

@@ -210,7 +210,7 @@ public static class DialogueLoader
         if (data == null) return null;
 
         var legitimacy = ParseLegitimacy(data.legitimacy);
-        var arc = new ConversationArc(data.arcId, data.topic, legitimacy);
+        var arc = new ConversationArc(data.arcId, data.topic, legitimacy, data.claimedTopic);
 
         if (data.moodVariants != null)
         {
