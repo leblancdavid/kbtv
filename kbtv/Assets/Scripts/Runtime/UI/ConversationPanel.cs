@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using KBTV.Dialogue;
+using KBTV.Audio;
 
 namespace KBTV.UI
 {
@@ -20,6 +21,30 @@ namespace KBTV.UI
         private TextMeshProUGUI _phaseLabel;
 
         private ConversationManager _conversationManager;
+
+        // Typewriter effect state
+        private string _fullText = "";
+        private int _visibleCharCount = 0;
+        private bool _isTyping = false;
+        private float _typewriterTimer = 0f;
+        private const float CHARS_PER_SECOND = 40f; // Typing speed
+
+        // Dialogue history
+        private TextMeshProUGUI _historyText;
+        private const int MAX_HISTORY_LINES = 3;
+        private System.Collections.Generic.List<string> _historyLines = new System.Collections.Generic.List<string>();
+        private DialogueLine _previousLine = null; // Track previous line for history
+
+        // Audio settings
+        private int _lastBlipCharCount = 0;
+        private const int CHARS_PER_BLIP = 3; // Play blip every N characters
+
+        // Thinking indicator
+        private TextMeshProUGUI _thinkingIndicator;
+        private float _thinkingTimer = 0f;
+        private bool _isShowingThinking = false;
+        private const float THINKING_DURATION = 0.6f; // How long to show thinking dots
+        private const float DOT_ANIMATION_SPEED = 4f; // Dots per second
 
         // Colors for different speakers
         private static readonly Color VernSpeakerColor = UITheme.TextPrimary;      // Green for Vern
@@ -73,8 +98,16 @@ namespace KBTV.UI
             // Conversation container (shown when conversation is active)
             _conversationContainer = new GameObject("ConversationContainer");
             _conversationContainer.transform.SetParent(transform, false);
-            UITheme.AddVerticalLayout(_conversationContainer, padding: 5f, spacing: 10f);
+            UITheme.AddVerticalLayout(_conversationContainer, padding: 5f, spacing: 6f);
             UITheme.AddLayoutElement(_conversationContainer, flexibleHeight: 1f);
+
+            // History text (shows previous lines)
+            _historyText = UITheme.CreateText("HistoryText", _conversationContainer.transform,
+                "", UITheme.FontSizeSmall, UITheme.TextDim, TextAlignmentOptions.Left);
+            _historyText.textWrappingMode = TextWrappingModes.Normal;
+            _historyText.overflowMode = TextOverflowModes.Truncate;
+            _historyText.fontStyle = FontStyles.Italic;
+            UITheme.AddLayoutElement(_historyText.gameObject, preferredHeight: 45f, flexibleHeight: 0f);
 
             // Speaker row
             GameObject speakerRow = new GameObject("SpeakerRow");
@@ -94,6 +127,13 @@ namespace KBTV.UI
                 UITheme.FontSizeNormal, VernSpeakerColor, TextAlignmentOptions.Left);
             _speakerLabel.fontStyle = FontStyles.Bold;
             UITheme.AddLayoutElement(_speakerLabel.gameObject, flexibleWidth: 1f);
+            
+            // Thinking indicator (shows "..." animation between speakers)
+            _thinkingIndicator = UITheme.CreateText("ThinkingIndicator", speakerRow.transform, "",
+                UITheme.FontSizeNormal, UITheme.TextGray, TextAlignmentOptions.Right);
+            _thinkingIndicator.fontStyle = FontStyles.Bold;
+            UITheme.AddLayoutElement(_thinkingIndicator.gameObject, minWidth: 30f);
+            _thinkingIndicator.gameObject.SetActive(false);
 
             // Dialogue text container with padding
             GameObject dialogueContainer = UITheme.CreatePanel("DialogueContainer", _conversationContainer.transform, 
@@ -171,6 +211,49 @@ namespace KBTV.UI
             {
                 _progressFill.fillAmount = _conversationManager.LineProgress;
             }
+
+            // Update typewriter effect
+            if (_isTyping && _visibleCharCount < _fullText.Length)
+            {
+                _typewriterTimer += Time.deltaTime * CHARS_PER_SECOND;
+                int charsToShow = Mathf.FloorToInt(_typewriterTimer);
+                
+                if (charsToShow > _visibleCharCount)
+                {
+                    int oldCount = _visibleCharCount;
+                    _visibleCharCount = Mathf.Min(charsToShow, _fullText.Length);
+                    _dialogueText.maxVisibleCharacters = _visibleCharCount;
+                    
+                    // Play dialogue blip every CHARS_PER_BLIP characters
+                    int blipsTrigger = _visibleCharCount / CHARS_PER_BLIP;
+                    int lastBlipsTrigger = oldCount / CHARS_PER_BLIP;
+                    if (blipsTrigger > lastBlipsTrigger)
+                    {
+                        AudioManager.Instance?.PlayDialogueBlip();
+                    }
+                    
+                    if (_visibleCharCount >= _fullText.Length)
+                    {
+                        _isTyping = false;
+                    }
+                }
+            }
+            
+            // Update thinking indicator animation
+            if (_isShowingThinking)
+            {
+                _thinkingTimer += Time.deltaTime;
+                
+                // Animate dots (1 to 3 dots cycling)
+                int dotCount = 1 + (int)((_thinkingTimer * DOT_ANIMATION_SPEED) % 3);
+                _thinkingIndicator.text = new string('.', dotCount);
+                
+                // Hide after duration
+                if (_thinkingTimer >= THINKING_DURATION)
+                {
+                    HideThinkingIndicator();
+                }
+            }
         }
 
         protected override void UpdateDisplay()
@@ -191,17 +274,54 @@ namespace KBTV.UI
 
         private void OnConversationStarted(Conversation conversation)
         {
+            // Clear history for new conversation
+            _historyLines.Clear();
+            _previousLine = null;
+            if (_historyText != null)
+            {
+                _historyText.text = "";
+            }
+            
             UpdateDisplay();
         }
 
         private void OnConversationEnded(Conversation conversation)
         {
+            // Reset typewriter state
+            _isTyping = false;
+            _fullText = "";
+            _visibleCharCount = 0;
+            
+            // Clear history
+            _historyLines.Clear();
+            _previousLine = null;
+            if (_historyText != null)
+            {
+                _historyText.text = "";
+            }
+            
+            // Hide thinking indicator
+            HideThinkingIndicator();
+            
             UpdateDisplay();
         }
 
         private void OnLineDisplayed(DialogueLine line)
         {
             DisplayLine(line);
+        }
+
+        /// <summary>
+        /// Skip the typewriter effect and show full text immediately.
+        /// </summary>
+        public void SkipTypewriter()
+        {
+            if (_isTyping)
+            {
+                _isTyping = false;
+                _visibleCharCount = _fullText.Length;
+                _dialogueText.maxVisibleCharacters = _visibleCharCount;
+            }
         }
 
         private void OnPhaseChanged(ConversationPhase phase)
@@ -213,18 +333,56 @@ namespace KBTV.UI
         {
             if (line == null) return;
 
+            // Check if speaker changed for audio cue
+            bool speakerChanged = _previousLine != null && _previousLine.Speaker != line.Speaker;
+
+            // Add previous line to history before showing new one
+            if (_previousLine != null)
+            {
+                string speakerName = _previousLine.Speaker == Speaker.Vern ? "VERN" : GetCallerName();
+                string historyEntry = $"{speakerName}: {TruncateForHistory(_previousLine.Text)}";
+                _historyLines.Add(historyEntry);
+                
+                // Keep only the last MAX_HISTORY_LINES
+                while (_historyLines.Count > MAX_HISTORY_LINES)
+                {
+                    _historyLines.RemoveAt(0);
+                }
+                
+                // Update history display
+                if (_historyText != null)
+                {
+                    _historyText.text = string.Join("\n", _historyLines);
+                }
+            }
+            _previousLine = line;
+            
+            // Play speaker change sound and show thinking indicator
+            if (speakerChanged)
+            {
+                AudioManager.Instance?.PlaySpeakerChange();
+                ShowThinkingIndicator();
+            }
+
             // Update speaker display
             bool isVern = line.Speaker == Speaker.Vern;
-            string speakerName = isVern ? "VERN" : GetCallerName();
+            string speakerNameCurrent = isVern ? "VERN" : GetCallerName();
 
-            _speakerLabel.text = speakerName;
+            _speakerLabel.text = speakerNameCurrent;
             _speakerLabel.color = isVern ? VernSpeakerColor : CallerSpeakerColor;
             _speakerIcon.color = isVern ? VernIconColor : CallerIconColor;
 
             // Update dialogue text with tone-based styling
-            _dialogueText.text = line.Text;
+            _fullText = line.Text;
+            _dialogueText.text = _fullText;
             _dialogueText.color = GetTextColorForTone(line.Tone);
             _dialogueText.fontStyle = GetFontStyleForTone(line.Tone);
+
+            // Start typewriter effect
+            _visibleCharCount = 0;
+            _typewriterTimer = 0f;
+            _isTyping = true;
+            _dialogueText.maxVisibleCharacters = 0;
 
             // Reset progress
             _progressFill.fillAmount = 0f;
@@ -232,6 +390,17 @@ namespace KBTV.UI
             // Ensure container is visible
             _conversationContainer.SetActive(true);
             _emptyState.SetActive(false);
+        }
+
+        /// <summary>
+        /// Truncate text for history display (max ~50 chars with ellipsis).
+        /// </summary>
+        private string TruncateForHistory(string text)
+        {
+            const int MAX_LENGTH = 50;
+            if (string.IsNullOrEmpty(text)) return "";
+            if (text.Length <= MAX_LENGTH) return text;
+            return text.Substring(0, MAX_LENGTH - 3) + "...";
         }
 
         private void UpdatePhaseLabel(ConversationPhase phase)
@@ -284,6 +453,32 @@ namespace KBTV.UI
                 DialogueTone.Conspiratorial => FontStyles.Italic,
                 _ => FontStyles.Normal
             };
+        }
+
+        /// <summary>
+        /// Show the thinking indicator (animated dots).
+        /// </summary>
+        private void ShowThinkingIndicator()
+        {
+            if (_thinkingIndicator == null) return;
+            
+            _isShowingThinking = true;
+            _thinkingTimer = 0f;
+            _thinkingIndicator.text = ".";
+            _thinkingIndicator.gameObject.SetActive(true);
+        }
+
+        /// <summary>
+        /// Hide the thinking indicator.
+        /// </summary>
+        private void HideThinkingIndicator()
+        {
+            _isShowingThinking = false;
+            _thinkingTimer = 0f;
+            if (_thinkingIndicator != null)
+            {
+                _thinkingIndicator.gameObject.SetActive(false);
+            }
         }
     }
 }

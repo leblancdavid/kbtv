@@ -420,12 +420,12 @@ This section contains the actual dialogue lines for the initial implementation. 
 - [x] Add Conspiracies topic templates
 - [x] Add generic fallback templates (Topic=null)
 
-### Phase 4: Polish (TODO)
+### Phase 4: Polish (Complete)
 
-- [ ] Typewriter text effect
-- [ ] Dialogue history / transcript
-- [ ] Audio hooks for future TTS/voice acting
-- [ ] Response indicators (thinking dots, etc.)
+- [x] Typewriter text effect
+- [x] Dialogue history / transcript (shows last 3 lines with speaker prefix)
+- [x] Audio hooks for future TTS/voice acting (dialogue blips, speaker change SFX, voice AudioSource)
+- [x] Response indicators (animated thinking dots between speaker turns)
 
 ## Future Considerations
 

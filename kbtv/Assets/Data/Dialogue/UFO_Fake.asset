@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70c970a7d9f7d414994564bd048e8a6d, type: 3}
+  m_Name: UFO_Fake
+  m_EditorClassIdentifier: KBTV.Runtime::KBTV.Dialogue.CallerDialogueTemplate
+  Topic: {fileID: 11400000, guid: dfac945379fe4ac45b65e8cc8dc16967, type: 2}
+  Legitimacy: 0
+  Priority: 0
+  IntroLines:
+  - Text: Yeah so I totally saw a UFO last night, it was crazy.
+    Tone: 0
+    Weight: 1
+  - Text: Dude, Vern, you're not gonna believe this...
+    Tone: 1
+    Weight: 1
+  - Text: Uh, hi, first time caller... I saw some lights?
+    Tone: 10
+    Weight: 1
+  DetailLines:
+  - Text: It was like... really bright. And flying around.
+    Tone: 0
+    Weight: 1
+  - Text: It did a bunch of loops and stuff. Very alien-like.
+    Tone: 1
+    Weight: 1
+  - Text: I didn't get a video but trust me it was wild.
+    Tone: 10
+    Weight: 1
+  DefenseLines:
+  - Text: I mean, I know what I saw, man.
+    Tone: 10
+    Weight: 1
+  - Text: Why would I lie about this?
+    Tone: 10
+    Weight: 1
+  - Text: My buddy saw it too, he's just not here right now.
+    Tone: 10
+    Weight: 1
+  AcceptanceLines:
+  - Text: Uh, yeah, exactly what I was thinking.
+    Tone: 10
+    Weight: 1
+  - Text: See? Someone gets it.
+    Tone: 1
+    Weight: 1
+  - Text: That's... yeah, that.
+    Tone: 8
+    Weight: 1
+  ConclusionLines:
+  - Text: Cool, thanks Vern.
+    Tone: 0
+    Weight: 1
+  - Text: Peace out, keep it real.
+    Tone: 0
+    Weight: 1
+  - Text: Alright, later.
+    Tone: 0
+    Weight: 1

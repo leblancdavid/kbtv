@@ -35,7 +35,11 @@ namespace KBTV.Audio
         
         // Ambience
         PhoneRing,          // Phone ringing loop
-        StaticBurst         // Radio static
+        StaticBurst,        // Radio static
+        
+        // Dialogue
+        DialogueType,       // Typewriter typing sound (loopable blip)
+        DialogueSpeakerChange // Sound when speaker changes
     }
 
     /// <summary>
@@ -48,6 +52,7 @@ namespace KBTV.Audio
         [SerializeField] private AudioSource _sfxSource;
         [SerializeField] private AudioSource _musicSource;
         [SerializeField] private AudioSource _ambienceSource;
+        [SerializeField] private AudioSource _voiceSource; // For dialogue/TTS playback
 
         [Header("Volume Settings")]
         [Range(0f, 1f)]
@@ -58,6 +63,8 @@ namespace KBTV.Audio
         [SerializeField] private float _musicVolume = 0.5f;
         [Range(0f, 1f)]
         [SerializeField] private float _ambienceVolume = 0.3f;
+        [Range(0f, 1f)]
+        [SerializeField] private float _voiceVolume = 1f;
 
         [Header("SFX Clips")]
         [SerializeField] private AudioClip _showStartClip;
@@ -75,6 +82,10 @@ namespace KBTV.Audio
         [SerializeField] private AudioClip _highListenersClip;
         [SerializeField] private AudioClip _phoneRingClip;
         [SerializeField] private AudioClip _staticBurstClip;
+        
+        [Header("Dialogue Clips")]
+        [SerializeField] private AudioClip _dialogueTypeClip;      // Blip sound for typewriter
+        [SerializeField] private AudioClip _speakerChangeClip;     // Sound when speaker changes
 
         // Cache for quick lookup
         private Dictionary<SFXType, AudioClip> _sfxClips;
@@ -105,6 +116,17 @@ namespace KBTV.Audio
                 _musicVolume = Mathf.Clamp01(value);
                 if (_musicSource != null)
                     _musicSource.volume = _musicVolume * _masterVolume;
+            }
+        }
+
+        public float VoiceVolume
+        {
+            get => _voiceVolume;
+            set
+            {
+                _voiceVolume = Mathf.Clamp01(value);
+                if (_voiceSource != null)
+                    _voiceSource.volume = _voiceVolume * _masterVolume;
             }
         }
 
@@ -155,6 +177,16 @@ namespace KBTV.Audio
                 _ambienceSource.playOnAwake = false;
                 _ambienceSource.loop = true;
             }
+            
+            // Create Voice source if not assigned (for dialogue/TTS)
+            if (_voiceSource == null)
+            {
+                GameObject voiceObj = new GameObject("Voice_Source");
+                voiceObj.transform.SetParent(transform);
+                _voiceSource = voiceObj.AddComponent<AudioSource>();
+                _voiceSource.playOnAwake = false;
+                _voiceSource.loop = false;
+            }
         }
 
         private void BuildClipDictionary()
@@ -175,7 +207,9 @@ namespace KBTV.Audio
                 { SFXType.LowStat, _lowStatClip },
                 { SFXType.HighListeners, _highListenersClip },
                 { SFXType.PhoneRing, _phoneRingClip },
-                { SFXType.StaticBurst, _staticBurstClip }
+                { SFXType.StaticBurst, _staticBurstClip },
+                { SFXType.DialogueType, _dialogueTypeClip },
+                { SFXType.DialogueSpeakerChange, _speakerChangeClip }
             };
         }
 
@@ -348,6 +382,54 @@ namespace KBTV.Audio
         {
             PlaySFX(SFXType.StaticBurst);
         }
+
+        /// <summary>
+        /// Play a dialogue type blip (for typewriter effect).
+        /// Call this periodically while typing to create a voice-like effect.
+        /// </summary>
+        public void PlayDialogueBlip()
+        {
+            PlaySFX(SFXType.DialogueType, 0.1f); // Slight pitch variation
+        }
+
+        /// <summary>
+        /// Play the speaker change sound (when switching between Vern and caller).
+        /// </summary>
+        public void PlaySpeakerChange()
+        {
+            PlaySFX(SFXType.DialogueSpeakerChange);
+        }
+
+        /// <summary>
+        /// Play a voice audio clip (for TTS or pre-recorded dialogue).
+        /// Stops any currently playing voice clip.
+        /// </summary>
+        /// <param name="clip">The audio clip to play</param>
+        public void PlayVoiceClip(AudioClip clip)
+        {
+            if (clip == null || _voiceSource == null) return;
+            
+            _voiceSource.Stop();
+            _voiceSource.clip = clip;
+            _voiceSource.volume = _voiceVolume * _masterVolume;
+            _voiceSource.Play();
+        }
+
+        /// <summary>
+        /// Stop the currently playing voice clip.
+        /// </summary>
+        public void StopVoice()
+        {
+            if (_voiceSource != null)
+            {
+                _voiceSource.Stop();
+            }
+        }
+
+        /// <summary>
+        /// Check if a voice clip is currently playing.
+        /// </summary>
+        public bool IsVoicePlaying => _voiceSource != null && _voiceSource.isPlaying;
 
         #endregion
     }
