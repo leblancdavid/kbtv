@@ -2,10 +2,8 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using System.IO;
-using System.Collections.Generic;
 using KBTV;
 using KBTV.Data;
-using KBTV.Callers;
 using KBTV.Dialogue;
 
 /// <summary>
@@ -22,10 +20,14 @@ public static class GameSetup
     private const string DIALOGUE_PATH = "Assets/Data/Dialogue";
     private const string DIALOGUE_ASSETS_PATH = "Assets/Data/Dialogue/Assets";
     private const string VERN_DIALOGUE_PATH = "Assets/Data/Dialogue/Assets/VernDialogue.asset";
+    private const string ARC_REPOSITORY_PATH = "Assets/Data/Dialogue/Assets/ArcRepository.asset";
+    private const string ARCS_PATH = "Assets/Data/Dialogue/Arcs";
 
-    // Topic folders to scan for caller dialogue JSON files
-    // TODO: Add Cryptids, Ghosts, Conspiracies folders when migrated to JSON
-    private static readonly string[] DIALOGUE_TOPIC_FOLDERS = { "UFO", "Generic" };
+    // Topic folders to scan for arc JSON files
+    private static readonly string[] ARC_TOPIC_FOLDERS = { "UFOs", "Ghosts", "Cryptids", "Conspiracies" };
+    
+    // Legitimacy subfolders within each topic
+    private static readonly string[] LEGITIMACY_FOLDERS = { "Compelling", "Credible", "Questionable", "Fake" };
 
     [MenuItem("KBTV/Setup Game Scene")]
     public static void SetupGameScene()
@@ -40,7 +42,9 @@ public static class GameSetup
 
         // Create dialogue templates from JSON
         VernDialogueTemplate vernDialogue = GetOrCreateVernDialogue();
-        List<CallerDialogueTemplate> callerDialogues = GetOrCreateCallerDialogues();
+        
+        // Create arc repository
+        ArcRepository arcRepository = GetOrCreateArcRepository();
 
         // Find all topics
         Topic[] topics = FindAllAssets<Topic>("Assets/Data/Topics");
@@ -98,12 +102,8 @@ public static class GameSetup
         // Set dialogue templates
         serializedBootstrap.FindProperty("_vernDialogue").objectReferenceValue = vernDialogue;
 
-        SerializedProperty callerDialoguesArray = serializedBootstrap.FindProperty("_callerDialogues");
-        callerDialoguesArray.arraySize = callerDialogues.Count;
-        for (int i = 0; i < callerDialogues.Count; i++)
-        {
-            callerDialoguesArray.GetArrayElementAtIndex(i).objectReferenceValue = callerDialogues[i];
-        }
+        // Set arc repository
+        serializedBootstrap.FindProperty("_arcRepository").objectReferenceValue = arcRepository;
 
         // Enable UI
         serializedBootstrap.FindProperty("_enableLiveShowUI").boolValue = true;
@@ -128,7 +128,7 @@ public static class GameSetup
         Debug.Log($"  - Available Topics: {topics.Length}");
         Debug.Log($"  - Items: {items.Length}");
         Debug.Log($"  - Vern Dialogue: {(vernDialogue != null ? vernDialogue.name : "None")}");
-        Debug.Log($"  - Caller Dialogues: {callerDialogues.Count}");
+        Debug.Log($"  - Arc Repository: {(arcRepository != null ? arcRepository.name : "None")} ({(arcRepository != null ? arcRepository.Arcs.Count : 0)} arcs)");
         Debug.Log($"  - Show Duration: 120 seconds");
         Debug.Log("GameSetup: Press Play to start the game!");
 
@@ -147,24 +147,24 @@ public static class GameSetup
     [MenuItem("KBTV/Reload Dialogue From JSON")]
     public static void ReloadDialogueFromJson()
     {
-        Debug.Log("GameSetup: Reloading dialogue templates from JSON...");
+        Debug.Log("GameSetup: Reloading dialogue from JSON...");
 
         // Delete existing dialogue assets to force regeneration
         DeleteExistingDialogueAssets();
 
         // Regenerate from JSON
         VernDialogueTemplate vernDialogue = GetOrCreateVernDialogue();
-        List<CallerDialogueTemplate> callerDialogues = GetOrCreateCallerDialogues();
+        ArcRepository arcRepository = GetOrCreateArcRepository();
 
-        Debug.Log($"GameSetup: Reloaded {(vernDialogue != null ? 1 : 0)} Vern template and {callerDialogues.Count} caller templates from JSON.");
+        Debug.Log($"GameSetup: Reloaded Vern template and arc repository ({arcRepository?.Arcs.Count ?? 0} arcs) from JSON.");
     }
 
     private static void DeleteExistingDialogueAssets()
     {
         EnsureDirectoryExists(DIALOGUE_ASSETS_PATH);
 
-        // Find and delete all existing dialogue ScriptableObjects in the assets folder
-        string[] guids = AssetDatabase.FindAssets("t:VernDialogueTemplate t:CallerDialogueTemplate", new[] { DIALOGUE_ASSETS_PATH });
+        // Find and delete all existing VernDialogueTemplate assets
+        string[] guids = AssetDatabase.FindAssets("t:VernDialogueTemplate", new[] { DIALOGUE_ASSETS_PATH });
         foreach (string guid in guids)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
@@ -267,100 +267,99 @@ public static class GameSetup
         return vernDialogue;
     }
 
-    private static List<CallerDialogueTemplate> GetOrCreateCallerDialogues()
+    [MenuItem("KBTV/Create Arc Repository")]
+    public static void CreateArcRepositoryMenu()
+    {
+        var arcRepository = GetOrCreateArcRepository();
+        if (arcRepository != null)
+        {
+            Selection.activeObject = arcRepository;
+            Debug.Log($"GameSetup: Arc repository ready with {arcRepository.Arcs.Count} arcs");
+        }
+    }
+
+    private static ArcRepository GetOrCreateArcRepository()
     {
         EnsureDirectoryExists(DIALOGUE_ASSETS_PATH);
+        EnsureDirectoryExists(ARCS_PATH);
 
-        var templates = new List<CallerDialogueTemplate>();
+        // Try to load existing
+        ArcRepository arcRepository = AssetDatabase.LoadAssetAtPath<ArcRepository>(ARC_REPOSITORY_PATH);
 
-        // Build a dictionary of topics for lookup
-        var topicLookup = BuildTopicLookup();
-
-        // Scan each topic folder for JSON files
-        foreach (string topicFolder in DIALOGUE_TOPIC_FOLDERS)
+        if (arcRepository == null)
         {
-            string folderPath = $"{DIALOGUE_PATH}/{topicFolder}";
-            
-            if (!Directory.Exists(folderPath))
-            {
-                Debug.LogWarning($"GameSetup: Dialogue folder not found: {folderPath}");
-                continue;
-            }
+            // Create new ArcRepository asset
+            arcRepository = ScriptableObject.CreateInstance<ArcRepository>();
+            AssetDatabase.CreateAsset(arcRepository, ARC_REPOSITORY_PATH);
+            Debug.Log($"GameSetup: Created ArcRepository at {ARC_REPOSITORY_PATH}");
+        }
+        else
+        {
+            Debug.Log($"GameSetup: Found existing ArcRepository at {ARC_REPOSITORY_PATH}");
+        }
 
-            string[] jsonFiles = Directory.GetFiles(folderPath, "*.json");
-            
-            foreach (string jsonFile in jsonFiles)
+        // Populate with arc JSON files
+        PopulateArcRepository(arcRepository);
+
+        AssetDatabase.SaveAssets();
+        return arcRepository;
+    }
+
+    private static void PopulateArcRepository(ArcRepository arcRepository)
+    {
+        // Get the serialized object to modify the _arcJsonFiles list
+        SerializedObject serializedRepo = new SerializedObject(arcRepository);
+        SerializedProperty jsonFilesProperty = serializedRepo.FindProperty("_arcJsonFiles");
+
+        // Clear existing
+        jsonFilesProperty.ClearArray();
+
+        int arcCount = 0;
+
+        // Scan each topic folder for arc JSON files
+        foreach (string topicFolder in ARC_TOPIC_FOLDERS)
+        {
+            foreach (string legitimacyFolder in LEGITIMACY_FOLDERS)
             {
-                var template = GetOrCreateCallerTemplateFromJson(jsonFile, topicFolder, topicLookup);
-                if (template != null)
+                string folderPath = $"{ARCS_PATH}/{topicFolder}/{legitimacyFolder}";
+                
+                if (!Directory.Exists(folderPath))
                 {
-                    templates.Add(template);
+                    // Create the folder structure if it doesn't exist
+                    EnsureDirectoryExists(folderPath);
+                    continue;
+                }
+
+                string[] jsonFiles = Directory.GetFiles(folderPath, "*.json");
+                
+                foreach (string jsonFile in jsonFiles)
+                {
+                    // Convert to Unity asset path
+                    string unityPath = jsonFile.Replace("\\", "/");
+                    
+                    // Load the TextAsset
+                    TextAsset jsonAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(unityPath);
+                    if (jsonAsset != null)
+                    {
+                        // Add to the array
+                        jsonFilesProperty.InsertArrayElementAtIndex(jsonFilesProperty.arraySize);
+                        jsonFilesProperty.GetArrayElementAtIndex(jsonFilesProperty.arraySize - 1).objectReferenceValue = jsonAsset;
+                        arcCount++;
+                        Debug.Log($"GameSetup: Added arc JSON: {Path.GetFileName(jsonFile)}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"GameSetup: Could not load arc JSON as TextAsset: {unityPath}");
+                    }
                 }
             }
         }
 
-        // Sort by priority (highest first) so ConversationGenerator picks best matches
-        templates.Sort((a, b) => b.Priority.CompareTo(a.Priority));
-
-        Debug.Log($"GameSetup: {templates.Count} CallerDialogue templates ready");
-        return templates;
-    }
-
-    private static Dictionary<string, Topic> BuildTopicLookup()
-    {
-        var lookup = new Dictionary<string, Topic>();
+        serializedRepo.ApplyModifiedProperties();
         
-        Topic[] topics = FindAllAssets<Topic>("Assets/Data/Topics");
-        foreach (var topic in topics)
-        {
-            if (topic != null && !string.IsNullOrEmpty(topic.TopicId))
-            {
-                lookup[topic.TopicId] = topic;
-            }
-        }
+        // Force re-initialization
+        arcRepository.Clear();
 
-        return lookup;
-    }
-
-    private static CallerDialogueTemplate GetOrCreateCallerTemplateFromJson(
-        string jsonPath, 
-        string topicFolder, 
-        Dictionary<string, Topic> topicLookup)
-    {
-        // Generate asset name from JSON path
-        string assetName = DialogueLoader.GetAssetNameFromJsonPath(jsonPath, topicFolder);
-        string assetPath = $"{DIALOGUE_ASSETS_PATH}/{assetName}.asset";
-
-        // Try to load existing
-        CallerDialogueTemplate template = AssetDatabase.LoadAssetAtPath<CallerDialogueTemplate>(assetPath);
-
-        if (template == null)
-        {
-            // Load JSON data
-            var data = DialogueLoader.LoadCallerDialogueJson(jsonPath);
-            if (data == null)
-            {
-                Debug.LogError($"GameSetup: Failed to load caller dialogue from {jsonPath}");
-                return null;
-            }
-
-            // Resolve topic
-            Topic topic = null;
-            if (!string.IsNullOrEmpty(data.topicId) && topicLookup.ContainsKey(data.topicId))
-            {
-                topic = topicLookup[data.topicId];
-            }
-
-            // Create and populate template
-            template = ScriptableObject.CreateInstance<CallerDialogueTemplate>();
-            DialogueLoader.PopulateCallerTemplate(template, data, topic);
-
-            AssetDatabase.CreateAsset(template, assetPath);
-            AssetDatabase.SaveAssets();
-
-            Debug.Log($"GameSetup: Created {assetName} from {Path.GetFileName(jsonPath)}");
-        }
-
-        return template;
+        Debug.Log($"GameSetup: Populated ArcRepository with {arcCount} arc JSON files");
     }
 }

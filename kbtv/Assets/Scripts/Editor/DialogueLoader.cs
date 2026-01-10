@@ -11,6 +11,7 @@ using KBTV.Callers;
 public static class DialogueLoader
 {
     private const string DIALOGUE_JSON_PATH = "Assets/Data/Dialogue";
+    private const string ARCS_FOLDER = "Arcs";
 
     /// <summary>
     /// Load Vern dialogue data from a JSON file.
@@ -32,30 +33,6 @@ public static class DialogueLoader
         catch (Exception e)
         {
             Debug.LogError($"DialogueLoader: Failed to parse Vern dialogue JSON at {jsonPath}: {e.Message}");
-            return null;
-        }
-    }
-
-    /// <summary>
-    /// Load caller dialogue data from a JSON file.
-    /// </summary>
-    public static CallerDialogueData LoadCallerDialogueJson(string jsonPath)
-    {
-        if (!File.Exists(jsonPath))
-        {
-            Debug.LogError($"DialogueLoader: Caller dialogue JSON not found at {jsonPath}");
-            return null;
-        }
-
-        try
-        {
-            string jsonContent = File.ReadAllText(jsonPath);
-            var data = JsonUtility.FromJson<CallerDialogueData>(jsonContent);
-            return data;
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"DialogueLoader: Failed to parse caller dialogue JSON at {jsonPath}: {e.Message}");
             return null;
         }
     }
@@ -84,27 +61,9 @@ public static class DialogueLoader
         template.ShowClosingLines = ConvertLines(data.showClosingLines);
         template.BetweenCallersLines = ConvertLines(data.betweenCallersLines);
         template.DeadAirFillerLines = ConvertLines(data.deadAirFillerLines);
-    }
 
-    /// <summary>
-    /// Populate a CallerDialogueTemplate ScriptableObject from loaded JSON data.
-    /// </summary>
-    public static void PopulateCallerTemplate(CallerDialogueTemplate template, CallerDialogueData data, Topic topic)
-    {
-        if (template == null || data == null) return;
-
-        template.Topic = topic;
-        template.Legitimacy = ParseLegitimacy(data.legitimacy);
-        template.Length = ParseLength(data.length);
-        template.Priority = data.priority;
-
-        template.IntroLines = ConvertLines(data.introLines);
-        template.DetailLines = ConvertLines(data.detailLines);
-        template.DefenseLines = ConvertLines(data.defenseLines);
-        template.AcceptanceLines = ConvertLines(data.acceptanceLines);
-        template.ExtraDetailLines = ConvertLines(data.extraDetailLines);
-        template.ExtraDefenseLines = ConvertLines(data.extraDefenseLines);
-        template.ConclusionLines = ConvertLines(data.conclusionLines);
+        // Error handling dialogue
+        template.DroppedCallerLines = ConvertLines(data.droppedCallerLines);
     }
 
     /// <summary>
@@ -113,59 +72,6 @@ public static class DialogueLoader
     public static string GetVernDialoguePath()
     {
         return $"{DIALOGUE_JSON_PATH}/Vern/VernDialogue.json";
-    }
-
-    /// <summary>
-    /// Get all JSON files in a topic folder.
-    /// </summary>
-    public static string[] GetCallerDialogueFiles(string topicFolder)
-    {
-        string folderPath = $"{DIALOGUE_JSON_PATH}/{topicFolder}";
-        if (!Directory.Exists(folderPath))
-        {
-            return Array.Empty<string>();
-        }
-
-        return Directory.GetFiles(folderPath, "*.json");
-    }
-
-    /// <summary>
-    /// Get all topic folders that have JSON files.
-    /// </summary>
-    public static string[] GetDialogueTopicFolders()
-    {
-        if (!Directory.Exists(DIALOGUE_JSON_PATH))
-        {
-            return Array.Empty<string>();
-        }
-
-        var folders = Directory.GetDirectories(DIALOGUE_JSON_PATH);
-        var result = new System.Collections.Generic.List<string>();
-
-        foreach (var folder in folders)
-        {
-            string folderName = Path.GetFileName(folder);
-            // Skip Vern folder - it's not a topic
-            if (folderName == "Vern") continue;
-
-            // Only include folders that have JSON files
-            if (Directory.GetFiles(folder, "*.json").Length > 0)
-            {
-                result.Add(folderName);
-            }
-        }
-
-        return result.ToArray();
-    }
-
-    /// <summary>
-    /// Extract asset name from JSON file path.
-    /// E.g., "Assets/Data/Dialogue/UFO/Fake_Prankster.json" -> "UFO_Fake_Prankster"
-    /// </summary>
-    public static string GetAssetNameFromJsonPath(string jsonPath, string topicFolder)
-    {
-        string fileName = Path.GetFileNameWithoutExtension(jsonPath);
-        return $"{topicFolder}_{fileName}";
     }
 
     /// <summary>
@@ -222,18 +128,159 @@ public static class DialogueLoader
         return CallerLegitimacy.Questionable;
     }
 
+    #region Arc Loading
+
     /// <summary>
-    /// Parse a length string to ConversationLength enum.
+    /// Get the path to the Arcs folder.
     /// </summary>
-    private static ConversationLength ParseLength(string lengthString)
+    public static string GetArcsPath()
     {
-        if (string.IsNullOrEmpty(lengthString))
-            return ConversationLength.Standard;
-
-        if (Enum.TryParse<ConversationLength>(lengthString, true, out var length))
-            return length;
-
-        Debug.LogWarning($"DialogueLoader: Unknown length '{lengthString}', defaulting to Standard");
-        return ConversationLength.Standard;
+        return $"{DIALOGUE_JSON_PATH}/{ARCS_FOLDER}";
     }
+
+    /// <summary>
+    /// Load a conversation arc from a JSON file.
+    /// </summary>
+    public static ConversationArc LoadArcJson(string jsonPath)
+    {
+        if (!File.Exists(jsonPath))
+        {
+            Debug.LogError($"DialogueLoader: Arc JSON not found at {jsonPath}");
+            return null;
+        }
+
+        try
+        {
+            string jsonContent = File.ReadAllText(jsonPath);
+            var data = JsonUtility.FromJson<ArcJsonData>(jsonContent);
+            return ConvertArcData(data);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"DialogueLoader: Failed to parse arc JSON at {jsonPath}: {e.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Load all arcs from the Arcs folder structure.
+    /// Structure: Arcs/{Topic}/{Legitimacy}/*.json
+    /// </summary>
+    public static System.Collections.Generic.List<ConversationArc> LoadAllArcs()
+    {
+        var arcs = new System.Collections.Generic.List<ConversationArc>();
+        string arcsPath = GetArcsPath();
+
+        if (!Directory.Exists(arcsPath))
+        {
+            Debug.LogWarning($"DialogueLoader: Arcs folder not found at {arcsPath}");
+            return arcs;
+        }
+
+        // Iterate through topic folders
+        foreach (var topicDir in Directory.GetDirectories(arcsPath))
+        {
+            string topicName = Path.GetFileName(topicDir);
+
+            // Iterate through legitimacy folders
+            foreach (var legitimacyDir in Directory.GetDirectories(topicDir))
+            {
+                // Load all JSON files in this legitimacy folder
+                foreach (var jsonFile in Directory.GetFiles(legitimacyDir, "*.json"))
+                {
+                    var arc = LoadArcJson(jsonFile);
+                    if (arc != null)
+                    {
+                        arcs.Add(arc);
+                        Debug.Log($"DialogueLoader: Loaded arc '{arc.ArcId}' from {jsonFile}");
+                    }
+                }
+            }
+        }
+
+        Debug.Log($"DialogueLoader: Loaded {arcs.Count} conversation arcs");
+        return arcs;
+    }
+
+    /// <summary>
+    /// Convert JSON data to a ConversationArc object.
+    /// </summary>
+    private static ConversationArc ConvertArcData(ArcJsonData data)
+    {
+        if (data == null) return null;
+
+        var legitimacy = ParseLegitimacy(data.legitimacy);
+        var arc = new ConversationArc(data.arcId, data.topic, legitimacy);
+
+        if (data.moodVariants != null)
+        {
+            if (data.moodVariants.Tired != null)
+                arc.AddMoodVariant(VernMood.Tired, ConvertMoodVariant(data.moodVariants.Tired));
+            if (data.moodVariants.Grumpy != null)
+                arc.AddMoodVariant(VernMood.Grumpy, ConvertMoodVariant(data.moodVariants.Grumpy));
+            if (data.moodVariants.Neutral != null)
+                arc.AddMoodVariant(VernMood.Neutral, ConvertMoodVariant(data.moodVariants.Neutral));
+            if (data.moodVariants.Engaged != null)
+                arc.AddMoodVariant(VernMood.Engaged, ConvertMoodVariant(data.moodVariants.Engaged));
+            if (data.moodVariants.Excited != null)
+                arc.AddMoodVariant(VernMood.Excited, ConvertMoodVariant(data.moodVariants.Excited));
+        }
+
+        return arc;
+    }
+
+    /// <summary>
+    /// Convert JSON mood variant data to ArcMoodVariant.
+    /// </summary>
+    private static ArcMoodVariant ConvertMoodVariant(ArcMoodVariantData data)
+    {
+        var variant = new ArcMoodVariant();
+
+        if (data.intro != null)
+        {
+            foreach (var line in data.intro)
+                variant.Intro.Add(ConvertArcLine(line));
+        }
+
+        if (data.development != null)
+        {
+            foreach (var line in data.development)
+                variant.Development.Add(ConvertArcLine(line));
+        }
+
+        if (data.beliefBranch != null)
+        {
+            if (data.beliefBranch.Skeptical != null)
+            {
+                foreach (var line in data.beliefBranch.Skeptical)
+                    variant.BeliefBranch.Skeptical.Add(ConvertArcLine(line));
+            }
+            if (data.beliefBranch.Believing != null)
+            {
+                foreach (var line in data.beliefBranch.Believing)
+                    variant.BeliefBranch.Believing.Add(ConvertArcLine(line));
+            }
+        }
+
+        if (data.conclusion != null)
+        {
+            foreach (var line in data.conclusion)
+                variant.Conclusion.Add(ConvertArcLine(line));
+        }
+
+        return variant;
+    }
+
+    /// <summary>
+    /// Convert JSON line data to ArcDialogueLine.
+    /// </summary>
+    private static ArcDialogueLine ConvertArcLine(ArcLineData data)
+    {
+        var speaker = string.Equals(data.speaker, "Vern", StringComparison.OrdinalIgnoreCase) 
+            ? Speaker.Vern 
+            : Speaker.Caller;
+        return new ArcDialogueLine(speaker, data.text ?? "");
+    }
+
+    #endregion
 }
