@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 
 namespace KBTV.UI
@@ -239,29 +240,6 @@ namespace KBTV.UI
         }
 
         /// <summary>
-        /// Set RectTransform anchors and position for top-anchored element.
-        /// </summary>
-        public static void AnchorTop(RectTransform rect, float height)
-        {
-            rect.anchorMin = new Vector2(0f, 1f);
-            rect.anchorMax = new Vector2(1f, 1f);
-            rect.pivot = new Vector2(0.5f, 1f);
-            rect.sizeDelta = new Vector2(0f, height);
-            rect.anchoredPosition = Vector2.zero;
-        }
-
-        /// <summary>
-        /// Set RectTransform anchors for stretch below a top element.
-        /// </summary>
-        public static void AnchorFillBelowTop(RectTransform rect, float topOffset)
-        {
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = new Vector2(0f, -topOffset);
-        }
-
-        /// <summary>
         /// Create a horizontal divider line.
         /// </summary>
         public static GameObject CreateDivider(Transform parent, float height = 1f)
@@ -296,6 +274,20 @@ namespace KBTV.UI
         {
             float alpha = (Mathf.Sin(time * speed) + 1f) / 2f;
             return Mathf.Lerp(minAlpha, 1f, alpha);
+        }
+
+        /// <summary>
+        /// Ensure an EventSystem exists in the scene for UI interaction.
+        /// Creates one if not found.
+        /// </summary>
+        public static void EnsureEventSystem()
+        {
+            if (Object.FindAnyObjectByType<EventSystem>() == null)
+            {
+                GameObject eventSystemObj = new GameObject("EventSystem");
+                eventSystemObj.AddComponent<EventSystem>();
+                eventSystemObj.AddComponent<StandaloneInputModule>();
+            }
         }
     }
 }

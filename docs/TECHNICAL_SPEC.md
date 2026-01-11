@@ -33,9 +33,9 @@ Assets/Scripts/
 │   ├── Data/           # Stat, VernStats, StatModifier, Item, ItemSlot
 │   ├── Managers/       # TimeManager, LiveShowManager, ListenerManager, ItemManager
 │   ├── Callers/        # Caller, CallerQueue, CallerGenerator, CallerScreeningManager, Topic
-│   ├── Dialogue/       # ConversationManager, ArcRepository, Conversation, MoodCalculator, etc.
+│   ├── Dialogue/       # ConversationManager, ArcRepository, Conversation, VernStateCalculator, etc.
 │   ├── UI/             # PreShowUIManager, LiveShowUIManager, BasePanel, panels, components
-│   └── Audio/          # AudioManager, VoiceAudioService
+│   └── Audio/          # AudioManager, VoiceAudioService, VoicePlaybackHelper
 └── Editor/
     ├── GameSetup.cs           # One-click scene setup utility
     ├── DialogueLoader.cs      # Loads JSON dialogue files into ScriptableObjects
@@ -149,7 +149,7 @@ Assets/Scripts/
   - `MinimumLegitimacy` - Minimum credibility threshold
 
 ### Dialogue System
-**Files**: `Dialogue/ConversationManager.cs`, `Dialogue/ArcRepository.cs`, `Dialogue/ArcConversationGenerator.cs`, `Dialogue/Conversation.cs`, `Dialogue/ConversationArc.cs`, `Dialogue/DialogueTypes.cs`, `Dialogue/MoodCalculator.cs`, `Dialogue/DiscernmentCalculator.cs`, `Dialogue/DialogueSubstitution.cs`, `Dialogue/Templates/VernDialogueTemplate.cs`
+**Files**: `Dialogue/ConversationManager.cs`, `Dialogue/ArcRepository.cs`, `Dialogue/ArcConversationGenerator.cs`, `Dialogue/ArcJsonParser.cs`, `Dialogue/Conversation.cs`, `Dialogue/ConversationArc.cs`, `Dialogue/DialogueTypes.cs`, `Dialogue/VernStateCalculator.cs`, `Dialogue/DialogueSubstitution.cs`, `Dialogue/Templates/VernDialogueTemplate.cs`
 
 The dialogue system uses **arc-based conversations** - pre-scripted complete dialogues between Vern and callers that vary based on Vern's mood and discernment.
 
@@ -169,10 +169,12 @@ The dialogue system uses **arc-based conversations** - pre-scripted complete dia
 | `ConversationArc` | Arc data with mood variants and belief branches |
 | `ArcMoodVariant` | Contains intro/development/beliefBranch/conclusion phases |
 | `DialogueLine` | Single line with speaker, text, tone, phase |
+| `ArcJsonParser` | Static utility for parsing arc JSON into ConversationArc objects |
+| `VernStateCalculator` | Static utility for mood and discernment calculation |
 | `VernDialogueTemplate` | ScriptableObject for Vern's broadcast lines (opening, filler, signoff) |
 
 #### Mood Calculation
-`MoodCalculator.CalculateMood(VernStats)` returns `VernMood` based on:
+`VernStateCalculator.CalculateMood(VernStats)` returns `VernMood` based on:
 - **Tired**: Energy < 25
 - **Grumpy**: Mood < 30 or Patience < 20
 - **Excited**: Mood > 80 and Energy > 60
@@ -180,7 +182,7 @@ The dialogue system uses **arc-based conversations** - pre-scripted complete dia
 - **Neutral**: Default fallback
 
 #### Discernment Calculation
-`DiscernmentCalculator.CalculateBeliefPath(discernment, legitimacy)` determines if Vern correctly reads the caller:
+`VernStateCalculator.DetermineBeliefPath(discernment, legitimacy)` determines if Vern correctly reads the caller:
 - Higher discernment = more likely to be Skeptical of Fake callers, Believing of Compelling callers
 - Legitimacy modifies the threshold (Compelling callers are easier to believe)
 

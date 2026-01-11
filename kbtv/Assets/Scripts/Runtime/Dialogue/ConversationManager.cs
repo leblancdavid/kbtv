@@ -375,30 +375,22 @@ namespace KBTV.Dialogue
             
             // Try to get and play voice audio
             float audioDuration = 0f;
-            if (VoiceAudioService.Instance != null && _currentConversation != null)
+            if (_currentConversation != null)
             {
                 int lineIndex = _currentConversation.CurrentIndex;
                 
-                // First try cached clip (from preload)
-                var clip = VoiceAudioService.Instance.GetConversationClip(lineIndex, line.Speaker);
+                var result = await VoicePlaybackHelper.PlayConversationClipAsync(
+                    lineIndex, 
+                    line.Speaker,
+                    () => _currentConversation != conversationAtStart || _currentConversation?.CurrentIndex != lineIndexAtStart
+                );
                 
-                // If not cached, load on-demand (preload may not have completed)
-                if (clip == null)
+                if (result.WasCancelled)
                 {
-                    clip = await VoiceAudioService.Instance.GetConversationClipAsync(lineIndex, line.Speaker);
-                    
-                    // Guard: Make sure conversation is still active after async load
-                    if (_currentConversation != conversationAtStart || _currentConversation?.CurrentIndex != lineIndexAtStart)
-                    {
-                        return;
-                    }
+                    return;
                 }
                 
-                if (clip != null)
-                {
-                    AudioManager.Instance?.PlayVoiceClip(clip, line.Speaker);
-                    audioDuration = clip.length;
-                }
+                audioDuration = result.AudioDuration;
             }
             
             // Guard: Check again before firing events
@@ -468,46 +460,25 @@ namespace KBTV.Dialogue
             _isPlayingBroadcastLine = true;
             
             // Try to load and play voice audio
-            float audioDuration = 0f;
-            if (VoiceAudioService.Instance != null && !string.IsNullOrEmpty(template.Id))
-            {
-                try
-                {
-                    var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
-                    
-                    // Guard: Check if broadcast was cancelled during async load (e.g., caller went on air)
-                    if (!_isPlayingBroadcastLine)
-                    {
-                        return;
-                    }
-                    
-                    if (clip != null)
-                    {
-                        AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
-                        audioDuration = clip.length;
-                    }
-                }
-                catch (System.Exception ex)
-                {
-                    Debug.LogError($"ConversationManager: Exception loading broadcast audio: {ex.Message}");
-                }
-            }
+            var result = await VoicePlaybackHelper.PlayBroadcastClipAsync(
+                template.Id,
+                () => !_isPlayingBroadcastLine
+            );
             
-            // Guard: Check again in case state changed during async operations
-            if (!_isPlayingBroadcastLine)
+            if (result.WasCancelled)
             {
                 return;
             }
             
             // Use audio duration if available, otherwise calculate from text
-            _broadcastLineDuration = audioDuration > 0f 
-                ? audioDuration 
+            _broadcastLineDuration = result.AudioDuration > 0f 
+                ? result.AudioDuration 
                 : _currentBroadcastLine?.GetDisplayDuration(_baseDelay, _perCharacterDelay) ?? 3f;
 
             if (_currentBroadcastLine != null)
             {
                 OnBroadcastLineDisplayed?.Invoke(_currentBroadcastLine);
-                OnBroadcastLineDisplayedWithDuration?.Invoke(_currentBroadcastLine, audioDuration);
+                OnBroadcastLineDisplayedWithDuration?.Invoke(_currentBroadcastLine, result.AudioDuration);
             }
         }
 
@@ -685,33 +656,19 @@ namespace KBTV.Dialogue
             _currentFillerLineDuration = _currentFillerLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
             
             // Try to load and play voice audio
-            float audioDuration = 0f;
-            if (VoiceAudioService.Instance != null && !string.IsNullOrEmpty(template.Id))
-            {
-                var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
-                
-                // Guard: Check if filler was stopped during async load (e.g., caller went on air)
-                if (!_isPlayingDeadAirFiller)
-                {
-                    return;
-                }
-                
-                if (clip != null)
-                {
-                    AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
-                    audioDuration = clip.length;
-                }
-            }
+            var result = await VoicePlaybackHelper.PlayBroadcastClipAsync(
+                template.Id,
+                () => !_isPlayingDeadAirFiller
+            );
             
-            // Guard: Check again in case state changed during async operations
-            if (!_isPlayingDeadAirFiller)
+            if (result.WasCancelled)
             {
                 return;
             }
             
             // Use audio duration if available, otherwise calculate from text
-            _currentFillerLineDuration = audioDuration > 0f 
-                ? audioDuration 
+            _currentFillerLineDuration = result.AudioDuration > 0f 
+                ? result.AudioDuration 
                 : _currentFillerLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
 
             OnFillerLineDisplayed?.Invoke(_currentFillerLine);

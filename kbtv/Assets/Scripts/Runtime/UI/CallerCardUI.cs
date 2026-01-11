@@ -33,14 +33,6 @@ namespace KBTV.UI
         }
 
         /// <summary>
-        /// Create a compact caller card (for queue lists).
-        /// </summary>
-        public static CallerCardUI CreateCompact(Transform parent)
-        {
-            return Create(parent, showDetails: false, showPatience: true);
-        }
-
-        /// <summary>
         /// Create a caller card for on-air display (shows legitimacy, no patience).
         /// </summary>
         public static CallerCardUI CreateOnAir(Transform parent)

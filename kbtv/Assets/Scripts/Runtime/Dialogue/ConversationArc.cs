@@ -102,21 +102,6 @@ namespace KBTV.Dialogue
             
             return legitimacyMatch && claimedMatch && actualMatch;
         }
-
-        /// <summary>
-        /// Get the expected line count for this arc based on legitimacy.
-        /// </summary>
-        public int GetExpectedLineCount()
-        {
-            return _legitimacy switch
-            {
-                CallerLegitimacy.Fake => 6,
-                CallerLegitimacy.Questionable => 8,
-                CallerLegitimacy.Credible => 10,
-                CallerLegitimacy.Compelling => 12,
-                _ => 8
-            };
-        }
     }
 
     /// <summary>

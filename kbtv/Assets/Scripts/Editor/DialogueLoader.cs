@@ -39,24 +39,14 @@ public static class DialogueLoader
 
     /// <summary>
     /// Populate a VernDialogueTemplate ScriptableObject from loaded JSON data.
+    /// Only populates broadcast flow lines (show opening/closing, between callers, dead air filler).
+    /// Caller conversation lines are handled by the arc-based system.
     /// </summary>
     public static void PopulateVernTemplate(VernDialogueTemplate template, VernDialogueData data)
     {
         if (template == null || data == null) return;
 
-        template.IntroductionLines = ConvertLines(data.introductionLines);
-        template.ProbingLines = ConvertLines(data.probingLines);
-        template.ExtraProbingLines = ConvertLines(data.extraProbingLines);
-        template.SkepticalLines = ConvertLines(data.skepticalLines);
-        template.DismissiveLines = ConvertLines(data.dismissiveLines);
-        template.BelievingLines = ConvertLines(data.believingLines);
-        template.TiredLines = ConvertLines(data.tiredLines);
-        template.AnnoyedLines = ConvertLines(data.annoyedLines);
-        template.EngagingLines = ConvertLines(data.engagingLines);
-        template.CutOffLines = ConvertLines(data.cutOffLines);
-        template.SignOffLines = ConvertLines(data.signOffLines);
-
-        // Filler dialogue for broadcast flow
+        // Broadcast flow lines
         template.ShowOpeningLines = ConvertLines(data.showOpeningLines);
         template.ShowClosingLines = ConvertLines(data.showClosingLines);
         template.BetweenCallersLines = ConvertLines(data.betweenCallersLines);
@@ -114,21 +104,6 @@ public static class DialogueLoader
         return DialogueTone.Neutral;
     }
 
-    /// <summary>
-    /// Parse a legitimacy string to CallerLegitimacy enum.
-    /// </summary>
-    private static CallerLegitimacy ParseLegitimacy(string legitimacyString)
-    {
-        if (string.IsNullOrEmpty(legitimacyString))
-            return CallerLegitimacy.Questionable;
-
-        if (Enum.TryParse<CallerLegitimacy>(legitimacyString, true, out var legitimacy))
-            return legitimacy;
-
-        Debug.LogWarning($"DialogueLoader: Unknown legitimacy '{legitimacyString}', defaulting to Questionable");
-        return CallerLegitimacy.Questionable;
-    }
-
     #region Arc Loading
 
     /// <summary>
@@ -141,6 +116,7 @@ public static class DialogueLoader
 
     /// <summary>
     /// Load a conversation arc from a JSON file.
+    /// Uses the shared ArcJsonParser for consistency with runtime loading.
     /// </summary>
     public static ConversationArc LoadArcJson(string jsonPath)
     {
@@ -153,8 +129,7 @@ public static class DialogueLoader
         try
         {
             string jsonContent = File.ReadAllText(jsonPath);
-            var data = JsonUtility.FromJson<ArcJsonData>(jsonContent);
-            return ConvertArcData(data);
+            return ArcJsonParser.Parse(jsonContent);
         }
         catch (Exception e)
         {
@@ -201,86 +176,6 @@ public static class DialogueLoader
 
         Debug.Log($"DialogueLoader: Loaded {arcs.Count} conversation arcs");
         return arcs;
-    }
-
-    /// <summary>
-    /// Convert JSON data to a ConversationArc object.
-    /// </summary>
-    private static ConversationArc ConvertArcData(ArcJsonData data)
-    {
-        if (data == null) return null;
-
-        var legitimacy = ParseLegitimacy(data.legitimacy);
-        var arc = new ConversationArc(data.arcId, data.topic, legitimacy, data.claimedTopic);
-
-        if (data.moodVariants != null)
-        {
-            if (data.moodVariants.Tired != null)
-                arc.AddMoodVariant(VernMood.Tired, ConvertMoodVariant(data.moodVariants.Tired));
-            if (data.moodVariants.Grumpy != null)
-                arc.AddMoodVariant(VernMood.Grumpy, ConvertMoodVariant(data.moodVariants.Grumpy));
-            if (data.moodVariants.Neutral != null)
-                arc.AddMoodVariant(VernMood.Neutral, ConvertMoodVariant(data.moodVariants.Neutral));
-            if (data.moodVariants.Engaged != null)
-                arc.AddMoodVariant(VernMood.Engaged, ConvertMoodVariant(data.moodVariants.Engaged));
-            if (data.moodVariants.Excited != null)
-                arc.AddMoodVariant(VernMood.Excited, ConvertMoodVariant(data.moodVariants.Excited));
-        }
-
-        return arc;
-    }
-
-    /// <summary>
-    /// Convert JSON mood variant data to ArcMoodVariant.
-    /// </summary>
-    private static ArcMoodVariant ConvertMoodVariant(ArcMoodVariantData data)
-    {
-        var variant = new ArcMoodVariant();
-
-        if (data.intro != null)
-        {
-            foreach (var line in data.intro)
-                variant.Intro.Add(ConvertArcLine(line));
-        }
-
-        if (data.development != null)
-        {
-            foreach (var line in data.development)
-                variant.Development.Add(ConvertArcLine(line));
-        }
-
-        if (data.beliefBranch != null)
-        {
-            if (data.beliefBranch.Skeptical != null)
-            {
-                foreach (var line in data.beliefBranch.Skeptical)
-                    variant.BeliefBranch.Skeptical.Add(ConvertArcLine(line));
-            }
-            if (data.beliefBranch.Believing != null)
-            {
-                foreach (var line in data.beliefBranch.Believing)
-                    variant.BeliefBranch.Believing.Add(ConvertArcLine(line));
-            }
-        }
-
-        if (data.conclusion != null)
-        {
-            foreach (var line in data.conclusion)
-                variant.Conclusion.Add(ConvertArcLine(line));
-        }
-
-        return variant;
-    }
-
-    /// <summary>
-    /// Convert JSON line data to ArcDialogueLine.
-    /// </summary>
-    private static ArcDialogueLine ConvertArcLine(ArcLineData data)
-    {
-        var speaker = string.Equals(data.speaker, "Vern", StringComparison.OrdinalIgnoreCase) 
-            ? Speaker.Vern 
-            : Speaker.Caller;
-        return new ArcDialogueLine(speaker, data.text ?? "");
     }
 
     #endregion

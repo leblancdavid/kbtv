@@ -20,8 +20,6 @@ namespace KBTV.UI
         private List<CallerQueueEntry> _incomingEntries = new List<CallerQueueEntry>();
         private List<CallerQueueEntry> _onHoldEntries = new List<CallerQueueEntry>();
 
-        private const int MaxVisibleEntries = 5;
-
         /// <summary>
         /// Create and initialize a CallerQueuePanel on the given parent.
         /// </summary>

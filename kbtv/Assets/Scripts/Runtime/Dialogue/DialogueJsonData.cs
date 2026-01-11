@@ -16,25 +16,14 @@ namespace KBTV.Dialogue
     }
 
     /// <summary>
-    /// Serializable data class for Vern's dialogue template in JSON.
-    /// Maps directly to VernDialogue.json structure.
+    /// Serializable data class for Vern's broadcast dialogue template in JSON.
+    /// Maps directly to VernDialogue.json structure (broadcast flow lines only).
+    /// Note: Caller conversation lines are now handled by the arc-based system.
     /// </summary>
     [Serializable]
     public class VernDialogueData
     {
-        public DialogueLineData[] introductionLines;
-        public DialogueLineData[] probingLines;
-        public DialogueLineData[] extraProbingLines;
-        public DialogueLineData[] skepticalLines;
-        public DialogueLineData[] dismissiveLines;
-        public DialogueLineData[] believingLines;
-        public DialogueLineData[] tiredLines;
-        public DialogueLineData[] annoyedLines;
-        public DialogueLineData[] engagingLines;
-        public DialogueLineData[] cutOffLines;
-        public DialogueLineData[] signOffLines;
-
-        // Filler dialogue for broadcast flow
+        // Broadcast flow lines
         public DialogueLineData[] showOpeningLines;
         public DialogueLineData[] showClosingLines;
         public DialogueLineData[] betweenCallersLines;

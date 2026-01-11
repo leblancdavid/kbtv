@@ -43,7 +43,7 @@ namespace KBTV.Dialogue
 
                 try
                 {
-                    var arc = ParseArcJson(jsonFile.text);
+                    var arc = ArcJsonParser.Parse(jsonFile.text);
                     if (arc != null)
                     {
                         _arcs.Add(arc);
@@ -151,94 +151,6 @@ namespace KBTV.Dialogue
             // Reset on domain reload
             _initialized = false;
             _arcs = null;
-        }
-
-        /// <summary>
-        /// Parse arc JSON text into a ConversationArc.
-        /// Runtime version that doesn't depend on Editor code.
-        /// </summary>
-        private ConversationArc ParseArcJson(string jsonText)
-        {
-            var data = JsonUtility.FromJson<ArcJsonData>(jsonText);
-            if (data == null) return null;
-
-            var legitimacy = ParseLegitimacy(data.legitimacy);
-            var arc = new ConversationArc(data.arcId, data.topic, legitimacy, data.claimedTopic);
-
-            if (data.moodVariants != null)
-            {
-                AddMoodVariantIfPresent(arc, VernMood.Tired, data.moodVariants.Tired);
-                AddMoodVariantIfPresent(arc, VernMood.Grumpy, data.moodVariants.Grumpy);
-                AddMoodVariantIfPresent(arc, VernMood.Neutral, data.moodVariants.Neutral);
-                AddMoodVariantIfPresent(arc, VernMood.Engaged, data.moodVariants.Engaged);
-                AddMoodVariantIfPresent(arc, VernMood.Excited, data.moodVariants.Excited);
-            }
-
-            return arc;
-        }
-
-        private void AddMoodVariantIfPresent(ConversationArc arc, VernMood mood, ArcMoodVariantData data)
-        {
-            if (data == null) return;
-            arc.AddMoodVariant(mood, ConvertMoodVariant(data));
-        }
-
-        private ArcMoodVariant ConvertMoodVariant(ArcMoodVariantData data)
-        {
-            var variant = new ArcMoodVariant();
-
-            if (data.intro != null)
-            {
-                foreach (var line in data.intro)
-                    variant.Intro.Add(ConvertLine(line));
-            }
-
-            if (data.development != null)
-            {
-                foreach (var line in data.development)
-                    variant.Development.Add(ConvertLine(line));
-            }
-
-            if (data.beliefBranch != null)
-            {
-                if (data.beliefBranch.Skeptical != null)
-                {
-                    foreach (var line in data.beliefBranch.Skeptical)
-                        variant.BeliefBranch.Skeptical.Add(ConvertLine(line));
-                }
-                if (data.beliefBranch.Believing != null)
-                {
-                    foreach (var line in data.beliefBranch.Believing)
-                        variant.BeliefBranch.Believing.Add(ConvertLine(line));
-                }
-            }
-
-            if (data.conclusion != null)
-            {
-                foreach (var line in data.conclusion)
-                    variant.Conclusion.Add(ConvertLine(line));
-            }
-
-            return variant;
-        }
-
-        private ArcDialogueLine ConvertLine(ArcLineData data)
-        {
-            var speaker = string.Equals(data.speaker, "Vern", StringComparison.OrdinalIgnoreCase)
-                ? Speaker.Vern
-                : Speaker.Caller;
-            return new ArcDialogueLine(speaker, data.text ?? "");
-        }
-
-        private CallerLegitimacy ParseLegitimacy(string legitimacyString)
-        {
-            if (string.IsNullOrEmpty(legitimacyString))
-                return CallerLegitimacy.Questionable;
-
-            if (Enum.TryParse<CallerLegitimacy>(legitimacyString, true, out var legitimacy))
-                return legitimacy;
-
-            return CallerLegitimacy.Questionable;
         }
     }
 }

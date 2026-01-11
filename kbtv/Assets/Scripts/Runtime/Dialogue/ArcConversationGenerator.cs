@@ -72,7 +72,7 @@ namespace KBTV.Dialogue
             LastUsedArc = arc;
 
             // Calculate Vern's current mood
-            VernMood mood = MoodCalculator.CalculateMood(_vernStats);
+            VernMood mood = VernStateCalculator.CalculateMood(_vernStats);
             LastMood = mood;
 
             // Get the mood variant
@@ -84,7 +84,7 @@ namespace KBTV.Dialogue
             }
 
             // Determine belief path using discernment
-            BeliefPath beliefPath = DiscernmentCalculator.DetermineBeliefPath(_vernStats, caller.Legitimacy);
+            BeliefPath beliefPath = VernStateCalculator.DetermineBeliefPath(_vernStats, caller.Legitimacy);
             LastBeliefPath = beliefPath;
 
             // Assemble the conversation

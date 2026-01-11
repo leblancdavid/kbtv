@@ -89,7 +89,7 @@ namespace KBTV.UI
             gameObject.AddComponent<GraphicRaycaster>();
 
             // Ensure EventSystem exists
-            EnsureEventSystem();
+            UITheme.EnsureEventSystem();
 
             // Create root panel (dark background)
             _rootPanel = UITheme.CreatePanel("RootPanel", transform, UITheme.BackgroundDark);
@@ -252,19 +252,6 @@ namespace KBTV.UI
             if (_rootPanel != null)
             {
                 _rootPanel.SetActive(false);
-            }
-        }
-
-        /// <summary>
-        /// Ensure an EventSystem exists in the scene for UI interactions.
-        /// </summary>
-        private void EnsureEventSystem()
-        {
-            if (FindAnyObjectByType<EventSystem>() == null)
-            {
-                GameObject eventSystemObj = new GameObject("EventSystem");
-                eventSystemObj.AddComponent<EventSystem>();
-                eventSystemObj.AddComponent<StandaloneInputModule>();
             }
         }
     }

@@ -115,33 +115,6 @@ namespace KBTV.UI
             }
         }
 
-        /// <summary>
-        /// Update the label text.
-        /// </summary>
-        public void SetLabel(string label)
-        {
-            if (_labelText != null)
-            {
-                _labelText.text = label;
-            }
-        }
-
-        /// <summary>
-        /// Manually set the bar value (0-1 normalized).
-        /// </summary>
-        public void SetValue(float normalized, float displayValue)
-        {
-            if (_fillImage != null)
-            {
-                _fillImage.fillAmount = Mathf.Clamp01(normalized);
-            }
-
-            if (_valueText != null)
-            {
-                _valueText.text = $"{displayValue:F0}";
-            }
-        }
-
         private void OnStatChanged(float oldValue, float newValue)
         {
             UpdateDisplay();
