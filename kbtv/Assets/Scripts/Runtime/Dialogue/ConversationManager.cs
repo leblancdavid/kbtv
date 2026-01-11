@@ -119,12 +119,22 @@ namespace KBTV.Dialogue
                 CallerQueue.Instance.OnCallerOnAir += HandleCallerOnAir;
                 CallerQueue.Instance.OnCallerCompleted += HandleCallerCompleted;
                 CallerQueue.Instance.OnCallerApproved += HandleCallerApproved;
+                Debug.Log("ConversationManager: Subscribed to CallerQueue events");
+            }
+            else
+            {
+                Debug.LogWarning("ConversationManager: CallerQueue.Instance is null, cannot subscribe to events");
             }
 
             // Subscribe to game phase changes to start/stop filler
             if (GameStateManager.Instance != null)
             {
                 GameStateManager.Instance.OnPhaseChanged += HandleGamePhaseChanged;
+                Debug.Log("ConversationManager: Subscribed to GameStateManager.OnPhaseChanged");
+            }
+            else
+            {
+                Debug.LogWarning("ConversationManager: GameStateManager.Instance is null, cannot subscribe to phase changes");
             }
         }
 
@@ -616,6 +626,8 @@ namespace KBTV.Dialogue
         /// </summary>
         private void StartDeadAirFiller()
         {
+            Debug.Log($"ConversationManager: StartDeadAirFiller called - _isPlayingDeadAirFiller: {_isPlayingDeadAirFiller}, _vernTemplate: {_vernTemplate != null}");
+            
             if (_isPlayingDeadAirFiller) return;
             if (_vernTemplate == null)
             {
@@ -717,19 +729,24 @@ namespace KBTV.Dialogue
         /// </summary>
         private void HandleGamePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
         {
+            Debug.Log($"ConversationManager: HandleGamePhaseChanged called - {oldPhase} -> {newPhase}");
+            
             if (newPhase == GamePhase.LiveShow)
             {
+                Debug.Log("ConversationManager: LiveShow started, playing show opening");
                 // Play show opening, then start filler if no caller is on air
                 PlayShowOpening(() =>
                 {
                     if (CallerQueue.Instance == null || !CallerQueue.Instance.IsOnAir)
                     {
+                        Debug.Log("ConversationManager: No caller on air, starting dead air filler");
                         StartDeadAirFiller();
                     }
                 });
             }
             else if (oldPhase == GamePhase.LiveShow)
             {
+                Debug.Log("ConversationManager: LiveShow ended, stopping filler and playing closing");
                 // Stop filler when leaving LiveShow
                 StopDeadAirFiller();
 
