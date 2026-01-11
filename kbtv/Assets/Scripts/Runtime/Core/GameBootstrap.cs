@@ -226,7 +226,7 @@ namespace KBTV
             }
             else
             {
-                // ConversationManager already exists - ensure it has the arc repository
+                // ConversationManager already exists - ensure it has the arc repository and vern template
                 if (_arcRepository != null)
                 {
                     ConversationManager.Instance.SetArcRepository(_arcRepository);
@@ -234,6 +234,12 @@ namespace KBTV
                 else
                 {
                     Debug.LogError("GameBootstrap: _arcRepository is NULL! Run KBTV > Setup Game Scene to configure.");
+                }
+                
+                // Also set the Vern dialogue template if not already set
+                if (_vernDialogue != null)
+                {
+                    ConversationManager.Instance.SetVernTemplate(_vernDialogue);
                 }
             }
 
