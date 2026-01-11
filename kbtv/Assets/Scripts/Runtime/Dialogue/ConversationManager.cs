@@ -491,12 +491,22 @@ namespace KBTV.Dialogue
             float audioDuration = 0f;
             if (VoiceAudioService.Instance != null && !string.IsNullOrEmpty(template.Id))
             {
+                Debug.Log($"ConversationManager: Loading broadcast audio for ID: {template.Id}");
                 var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
                 if (clip != null)
                 {
+                    Debug.Log($"ConversationManager: Playing broadcast clip: {clip.name} ({clip.length:F2}s)");
                     AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
                     audioDuration = clip.length;
                 }
+                else
+                {
+                    Debug.LogWarning($"ConversationManager: Broadcast clip not found for ID: {template.Id}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"ConversationManager: Cannot load broadcast audio - VoiceAudioService: {VoiceAudioService.Instance != null}, Template.Id: '{template.Id}'");
             }
             
             // Use audio duration if available, otherwise calculate from text
@@ -662,12 +672,22 @@ namespace KBTV.Dialogue
             float audioDuration = 0f;
             if (VoiceAudioService.Instance != null && !string.IsNullOrEmpty(template.Id))
             {
+                Debug.Log($"ConversationManager: Loading filler audio for ID: {template.Id}");
                 var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
                 if (clip != null)
                 {
+                    Debug.Log($"ConversationManager: Playing filler clip: {clip.name} ({clip.length:F2}s)");
                     AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
                     audioDuration = clip.length;
                 }
+                else
+                {
+                    Debug.LogWarning($"ConversationManager: Filler clip not found for ID: {template.Id}");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"ConversationManager: Cannot load filler audio - VoiceAudioService: {VoiceAudioService.Instance != null}, Template.Id: '{template.Id}'");
             }
             
             // Use audio duration if available, otherwise calculate from text
