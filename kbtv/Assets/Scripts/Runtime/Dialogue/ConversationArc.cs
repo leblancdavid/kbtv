@@ -147,6 +147,21 @@ namespace KBTV.Dialogue
             
             return lines;
         }
+
+        /// <summary>
+        /// Get the total number of arc lines across all sections (including BOTH belief paths).
+        /// Used for audio preloading to ensure all possible audio files are loaded.
+        /// </summary>
+        public int GetTotalArcLineCount()
+        {
+            int count = 0;
+            count += _intro?.Count ?? 0;
+            count += _development?.Count ?? 0;
+            count += _beliefBranch?.Skeptical?.Count ?? 0;
+            count += _beliefBranch?.Believing?.Count ?? 0;
+            count += _conclusion?.Count ?? 0;
+            return count;
+        }
     }
 
     /// <summary>
@@ -182,16 +197,28 @@ namespace KBTV.Dialogue
     {
         [SerializeField] private Speaker _speaker;
         [SerializeField] private string _text;
+        [SerializeField] private int _arcLineIndex = -1;
 
         public Speaker Speaker => _speaker;
         public string Text => _text;
+        
+        /// <summary>
+        /// The original 0-based index of this line within the arc JSON.
+        /// Used for audio file lookup. -1 means not set.
+        /// </summary>
+        public int ArcLineIndex
+        {
+            get => _arcLineIndex;
+            set => _arcLineIndex = value;
+        }
 
         public ArcDialogueLine() { }
 
-        public ArcDialogueLine(Speaker speaker, string text)
+        public ArcDialogueLine(Speaker speaker, string text, int arcLineIndex = -1)
         {
             _speaker = speaker;
             _text = text;
+            _arcLineIndex = arcLineIndex;
         }
 
         /// <summary>
@@ -199,7 +226,7 @@ namespace KBTV.Dialogue
         /// </summary>
         public DialogueLine ToDialogueLine(ConversationPhase phase, DialogueTone tone = DialogueTone.Neutral)
         {
-            return new DialogueLine(_speaker, _text, tone, phase);
+            return new DialogueLine(_speaker, _text, tone, phase, 0f, _arcLineIndex);
         }
     }
 }

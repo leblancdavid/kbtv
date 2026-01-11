@@ -150,11 +150,11 @@ namespace KBTV.Dialogue
                 // Determine tone based on mood and speaker
                 DialogueTone tone = DetermineTone(arcLine.Speaker, LastMood, beliefPath, phase);
 
-                // Apply substitutions and create dialogue line
+                // Apply substitutions and create dialogue line (preserves ArcLineIndex)
                 var dialogueLine = DialogueSubstitution.ApplyToArcLine(
                     arcLine, caller, topicDisplayName, phase, tone);
 
-                conversation.AddLine(dialogueLine.Speaker, dialogueLine.Text, dialogueLine.Tone, dialogueLine.Phase);
+                conversation.AddLine(dialogueLine);
                 lineIndex++;
             }
 

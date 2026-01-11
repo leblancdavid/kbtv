@@ -158,15 +158,23 @@ namespace KBTV.Dialogue
         /// </summary>
         public float Duration;
 
+        /// <summary>
+        /// The original 0-based index of this line within the arc JSON.
+        /// Used for audio file lookup (maps to {lineIndex+1:D3} in audio filenames).
+        /// -1 indicates no arc line index (e.g., for broadcast lines).
+        /// </summary>
+        public int ArcLineIndex = -1;
+
         public DialogueLine() { }
 
-        public DialogueLine(Speaker speaker, string text, DialogueTone tone, ConversationPhase phase, float duration = 0f)
+        public DialogueLine(Speaker speaker, string text, DialogueTone tone, ConversationPhase phase, float duration = 0f, int arcLineIndex = -1)
         {
             Speaker = speaker;
             Text = text;
             Tone = tone;
             Phase = phase;
             Duration = duration;
+            ArcLineIndex = arcLineIndex;
         }
 
         /// <summary>

@@ -56,48 +56,51 @@ namespace KBTV.Dialogue
         private static ArcMoodVariant ConvertMoodVariant(ArcMoodVariantData data)
         {
             var variant = new ArcMoodVariant();
+            int lineIndex = 0; // Track sequential index across all sections
 
             if (data.intro != null)
             {
                 foreach (var line in data.intro)
-                    variant.Intro.Add(ConvertLine(line));
+                    variant.Intro.Add(ConvertLine(line, lineIndex++));
             }
 
             if (data.development != null)
             {
                 foreach (var line in data.development)
-                    variant.Development.Add(ConvertLine(line));
+                    variant.Development.Add(ConvertLine(line, lineIndex++));
             }
 
             if (data.beliefBranch != null)
             {
+                // Skeptical lines come first in the index sequence
                 if (data.beliefBranch.Skeptical != null)
                 {
                     foreach (var line in data.beliefBranch.Skeptical)
-                        variant.BeliefBranch.Skeptical.Add(ConvertLine(line));
+                        variant.BeliefBranch.Skeptical.Add(ConvertLine(line, lineIndex++));
                 }
+                // Believing lines come after skeptical in the index sequence
                 if (data.beliefBranch.Believing != null)
                 {
                     foreach (var line in data.beliefBranch.Believing)
-                        variant.BeliefBranch.Believing.Add(ConvertLine(line));
+                        variant.BeliefBranch.Believing.Add(ConvertLine(line, lineIndex++));
                 }
             }
 
             if (data.conclusion != null)
             {
                 foreach (var line in data.conclusion)
-                    variant.Conclusion.Add(ConvertLine(line));
+                    variant.Conclusion.Add(ConvertLine(line, lineIndex++));
             }
 
             return variant;
         }
 
-        private static ArcDialogueLine ConvertLine(ArcLineData data)
+        private static ArcDialogueLine ConvertLine(ArcLineData data, int arcLineIndex)
         {
             var speaker = string.Equals(data.speaker, "Vern", StringComparison.OrdinalIgnoreCase)
                 ? Speaker.Vern
                 : Speaker.Caller;
-            return new ArcDialogueLine(speaker, data.text ?? "");
+            return new ArcDialogueLine(speaker, data.text ?? "", arcLineIndex);
         }
     }
 }

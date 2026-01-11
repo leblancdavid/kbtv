@@ -259,6 +259,20 @@ ufos_fake_prankster_tired_001_vern.ogg
 
 Note: The `arcId` comes from the arc JSON file and may or may not include a topic prefix. The arcId is used as-is without modification.
 
+### Line Index and Belief Paths
+
+The `lineIndex` in audio filenames is based on the **arc JSON structure**, not the runtime conversation order. Lines are indexed sequentially across all sections including BOTH belief paths:
+
+```
+Intro lines:       001, 002
+Development lines: 003, 004
+Skeptical lines:   005, 006  (belief branch option 1)
+Believing lines:   007, 008  (belief branch option 2)
+Conclusion lines:  009, 010
+```
+
+At runtime, only one belief path is used per conversation, but the audio file indices remain fixed. The `ArcLineIndex` property on each `DialogueLine` tracks the original arc position to ensure correct audio file lookup regardless of which belief path is taken.
+
 **Broadcast lines:**
 ```
 vern_{category}_{index:D3}.ogg
