@@ -522,11 +522,14 @@ namespace KBTV.Dialogue
             // Use audio duration if available, otherwise calculate from text
             _broadcastLineDuration = audioDuration > 0f 
                 ? audioDuration 
-                : _currentBroadcastLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
+                : _currentBroadcastLine?.GetDisplayDuration(_baseDelay, _perCharacterDelay) ?? 3f;
 
-            OnBroadcastLineDisplayed?.Invoke(_currentBroadcastLine);
-            OnBroadcastLineDisplayedWithDuration?.Invoke(_currentBroadcastLine, audioDuration);
-            Debug.Log($"ConversationManager: [BROADCAST] {_currentBroadcastLine.Text} (duration: {_broadcastLineDuration:F2}s)");
+            if (_currentBroadcastLine != null)
+            {
+                OnBroadcastLineDisplayed?.Invoke(_currentBroadcastLine);
+                OnBroadcastLineDisplayedWithDuration?.Invoke(_currentBroadcastLine, audioDuration);
+                Debug.Log($"ConversationManager: [BROADCAST] {_currentBroadcastLine.Text} (duration: {_broadcastLineDuration:F2}s)");
+            }
         }
 
         /// <summary>
