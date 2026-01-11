@@ -41,8 +41,9 @@ When a conversation ends and there are callers on hold, Vern delivers a transiti
                       Yes  │                │  No
                            ▼                ▼
                ┌───────────────────┐  ┌───────────────────┐
-               │ Auto-put next     │  │ Start dead air    │
-               │ caller on air     │  │ filler mode       │
+               │ Play between-     │  │ Start dead air    │
+               │ callers line,     │  │ filler mode       │
+               │ then put on air   │  │                   │
                └───────────────────┘  └───────────────────┘
                                               │
                     ┌─────────────────────────┤
@@ -58,30 +59,42 @@ When a conversation ends and there are callers on hold, Vern delivers a transiti
                                │
                                ▼
                     ┌───────────────────────────┐
-                    │  Caller put on hold?      │
-                    │  (OnCallerApproved event) │
+                    │ Filler line ends AND      │
+                    │ callers on hold?          │
                     └───────────────────────────┘
                                │
                           Yes  │
                                ▼
                     ┌───────────────────────────┐
-                    │ Set _callerWaiting flag   │
-                    │ → Finish current line     │
-                    │ → Then auto-put caller    │
-                    │   on air                  │
+                    │ Stop filler, put next     │
+                    │ caller on air             │
                     └───────────────────────────┘
 ```
+
+### Auto-Advance Logic
+
+When Vern finishes speaking (filler line, broadcast line, or show opening), the system automatically checks for on-hold callers:
+
+1. **Show opening ends** → Check `CallerQueue.HasOnHoldCallers` → Put caller on air OR start filler
+2. **Filler line ends** → Check `CallerQueue.HasOnHoldCallers` → Put caller on air OR continue filler cycle
+3. **Conversation ends** → Check `CallerQueue.HasOnHoldCallers` → Play between-callers transition OR start filler
+4. **Caller approved while nothing playing** → Put caller on air immediately
+
+This eliminates the need for manual "Put On Air" actions - callers flow on air automatically when Vern is ready.
 
 ### Scenarios
 
 | Scenario | Behavior |
 |----------|----------|
-| LiveShow starts | Show opening plays, then dead air filler starts (if no caller on air) |
+| LiveShow starts | Show opening plays, then check for on-hold callers or start filler |
+| Show opening ends, callers on hold | Put next caller on air automatically |
+| Show opening ends, no callers on hold | Start dead air filler (Vern monologue) |
 | Conversation ends, callers on hold | Between-callers transition, then next caller on air |
-| Conversation ends, no callers on hold | Start dead air filler (Vern monologue) |
-| Dead air playing, filler line ends, no callers | Cycle to next filler line after ~8s |
-| Dead air playing, caller approved (put on hold) | Finish current filler line, then auto-put caller on air |
-| Dead air playing, caller goes on air manually | Stop dead air filler immediately |
+| Conversation ends, no callers on hold | Start dead air filler |
+| Filler line ends, callers on hold | Stop filler, put next caller on air automatically |
+| Filler line ends, no callers on hold | Wait for cycle interval (~8s), then show next filler line |
+| Caller approved while nothing playing | Put caller on air immediately |
+| Caller goes on air during filler | Stop filler immediately |
 | LiveShow ends | Show closing plays |
 
 ### Timing
@@ -109,7 +122,6 @@ When a conversation ends and there are callers on hold, Vern delivers a transiti
 private bool _isPlayingDeadAirFiller = false;
 private float _deadAirFillerTimer = 0f;
 private float _currentFillerLineDuration = 0f;
-private bool _callerWaitingAfterFiller = false;
 private DialogueLine _currentFillerLine = null;
 
 [Header("Dead Air Settings")]
@@ -139,13 +151,14 @@ public event Action OnBroadcastLineCompleted;
 - `StartDeadAirFiller()` - Begin filler mode
 - `StopDeadAirFiller()` - End filler mode
 - `DisplayNextFillerLine()` - Show next filler line from template
-- `UpdateDeadAirFiller()` - Handle filler timing in Update loop
-- `HandleCallerApproved()` - Flag to auto-advance when filler ends
+- `UpdateDeadAirFiller()` - Handle filler timing; auto-advance callers when line ends
+- `HandleCallerApproved()` - Put caller on air immediately if nothing playing
 
 **Broadcast Flow:**
 - `PlayBroadcastLine(template, onComplete)` - Play a broadcast line with callback
 - `UpdateBroadcastLine()` - Handle broadcast line timing
 - `CompleteBroadcastLine()` - Complete broadcast line and invoke callback
+- `CancelBroadcastLine()` - Cancel broadcast line without invoking callback
 - `PlayShowOpening(onComplete)` - Play show opening line
 - `PlayShowClosing(onComplete)` - Play show closing line
 - `PlayBetweenCallers(onComplete)` - Play between-callers transition
@@ -190,7 +203,8 @@ When dead air filler is playing:
 
 ### Broadcast Flow
 - [ ] LiveShow starts → Show opening plays first
-- [ ] Show opening ends → Dead air filler starts (if no caller on air)
+- [ ] Show opening ends, caller on hold → Caller goes on air automatically
+- [ ] Show opening ends, no callers → Dead air filler starts
 - [ ] Conversation ends with callers on hold → Between-callers transition plays
 - [ ] Between-callers ends → Next caller goes on air
 - [ ] LiveShow ends → Show closing plays
@@ -198,9 +212,10 @@ When dead air filler is playing:
 ### Dead Air Filler
 - [ ] Conversation ends with no callers → filler starts
 - [ ] Filler displays with typewriter effect
-- [ ] Filler cycles to new line after ~8 seconds
-- [ ] Approving a caller during filler → filler finishes, then caller goes on air
-- [ ] Manually putting caller on air during filler → filler stops immediately
+- [ ] Filler cycles to new line after ~8 seconds (if no callers)
+- [ ] Filler line ends with caller on hold → Caller goes on air automatically
+- [ ] Caller approved while nothing playing → Caller goes on air immediately
+- [ ] Caller goes on air → filler stops immediately
 - [ ] Phase label shows "ON AIR" during filler
 - [ ] Empty state never shows when filler is playing
 

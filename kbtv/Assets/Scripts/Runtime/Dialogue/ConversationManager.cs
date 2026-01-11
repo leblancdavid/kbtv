@@ -55,7 +55,6 @@ namespace KBTV.Dialogue
         private bool _isPlayingDeadAirFiller = false;
         private float _deadAirFillerTimer = 0f;
         private float _currentFillerLineDuration = 0f;
-        private bool _callerWaitingAfterFiller = false;
         private DialogueLine _currentFillerLine = null;
 
         // Broadcast flow state
@@ -369,6 +368,10 @@ namespace KBTV.Dialogue
             _lineTimer = 0f;
             _isWaitingForTransition = false;
             
+            // Set initial duration based on text BEFORE async operations
+            // This prevents Update() from completing the line prematurely during audio load
+            _currentLineDuration = line.GetDisplayDuration(_baseDelay, _perCharacterDelay);
+            
             // Store reference to check if conversation changes during async operations
             var conversationAtStart = _currentConversation;
             int lineIndexAtStart = _currentConversation?.CurrentIndex ?? -1;
@@ -472,6 +475,8 @@ namespace KBTV.Dialogue
             _currentBroadcastClipId = template.Id;
 
             _broadcastLineTimer = 0f;
+            // Set initial duration based on text - will be updated if audio loads
+            _broadcastLineDuration = _currentBroadcastLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
             _onBroadcastLineComplete = onComplete;
             _isPlayingBroadcastLine = true;
             
@@ -480,24 +485,32 @@ namespace KBTV.Dialogue
             if (VoiceAudioService.Instance != null && !string.IsNullOrEmpty(template.Id))
             {
                 Debug.Log($"ConversationManager: Loading broadcast audio for ID: {template.Id}");
-                var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
-                
-                // Guard: Check if broadcast was cancelled during async load (e.g., caller went on air)
-                if (!_isPlayingBroadcastLine)
+                try
                 {
-                    Debug.Log($"ConversationManager: Broadcast cancelled during audio load, skipping playback");
-                    return;
+                    var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
+                    Debug.Log($"ConversationManager: GetBroadcastClipAsync returned, clip is {(clip != null ? "not null" : "null")}");
+                    
+                    // Guard: Check if broadcast was cancelled during async load (e.g., caller went on air)
+                    if (!_isPlayingBroadcastLine)
+                    {
+                        Debug.Log($"ConversationManager: Broadcast cancelled during audio load, skipping playback");
+                        return;
+                    }
+                    
+                    if (clip != null)
+                    {
+                        Debug.Log($"ConversationManager: Playing broadcast clip: {clip.name} ({clip.length:F2}s)");
+                        AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
+                        audioDuration = clip.length;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"ConversationManager: Broadcast clip not found for ID: {template.Id}");
+                    }
                 }
-                
-                if (clip != null)
+                catch (System.Exception ex)
                 {
-                    Debug.Log($"ConversationManager: Playing broadcast clip: {clip.name} ({clip.length:F2}s)");
-                    AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
-                    audioDuration = clip.length;
-                }
-                else
-                {
-                    Debug.LogWarning($"ConversationManager: Broadcast clip not found for ID: {template.Id}");
+                    Debug.LogError($"ConversationManager: Exception loading broadcast audio: {ex.Message}");
                 }
             }
             else
@@ -631,20 +644,20 @@ namespace KBTV.Dialogue
             // Check if current filler line display time is done
             if (_deadAirFillerTimer >= _currentFillerLineDuration)
             {
-                // Wait for the full cycle interval before showing next line
+                // Check if there are callers waiting on hold - put them on air
+                if (CallerQueue.Instance != null && CallerQueue.Instance.HasOnHoldCallers)
+                {
+                    Debug.Log("ConversationManager: Filler line done, on-hold caller available - putting on air");
+                    StopDeadAirFiller();
+                    CallerQueue.Instance.PutNextCallerOnAir();
+                    return;
+                }
+                
+                // Otherwise, wait for the full cycle interval before showing next line
                 if (_deadAirFillerTimer >= _deadAirCycleInterval)
                 {
-                    // Check if caller is waiting
-                    if (_callerWaitingAfterFiller)
-                    {
-                        StopDeadAirFiller();
-                        CallerQueue.Instance?.PutNextCallerOnAir();
-                    }
-                    else
-                    {
-                        // Cycle to next filler line
-                        DisplayNextFillerLine();
-                    }
+                    // Cycle to next filler line
+                    DisplayNextFillerLine();
                 }
             }
         }
@@ -664,7 +677,6 @@ namespace KBTV.Dialogue
             }
 
             _isPlayingDeadAirFiller = true;
-            _callerWaitingAfterFiller = false;
             DisplayNextFillerLine();
 
             Debug.Log("ConversationManager: Started dead air filler");
@@ -680,7 +692,6 @@ namespace KBTV.Dialogue
             _isPlayingDeadAirFiller = false;
             _deadAirFillerTimer = 0f;
             _currentFillerLine = null;
-            _callerWaitingAfterFiller = false;
             
             // Stop any playing voice audio from filler
             AudioManager.Instance?.StopVoice();
@@ -710,6 +721,10 @@ namespace KBTV.Dialogue
             );
 
             _deadAirFillerTimer = 0f;
+            
+            // Set initial duration based on text BEFORE async operations
+            // This prevents UpdateDeadAirFiller() from seeing duration as 0 during audio load
+            _currentFillerLineDuration = _currentFillerLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
             
             // Try to load and play voice audio
             float audioDuration = 0f;
@@ -759,15 +774,19 @@ namespace KBTV.Dialogue
 
         /// <summary>
         /// Handle when a caller is approved and put on hold.
-        /// If filler is playing, flag to auto-advance after current line ends.
+        /// The caller will automatically go on air when current content finishes.
         /// </summary>
         private void HandleCallerApproved(Caller caller)
         {
-            if (_isPlayingDeadAirFiller)
+            Debug.Log($"ConversationManager: HandleCallerApproved - caller {caller.Name} now on hold");
+            
+            // If nothing is playing, put caller on air immediately
+            if (!_isPlayingDeadAirFiller && !_isPlayingBroadcastLine && _currentConversation == null)
             {
-                _callerWaitingAfterFiller = true;
-                Debug.Log("ConversationManager: Caller approved, will auto-advance after filler line ends");
+                Debug.Log("ConversationManager: Nothing playing, putting caller on air immediately");
+                CallerQueue.Instance?.PutNextCallerOnAir();
             }
+            // Otherwise, caller waits - they'll be picked up when current content finishes
         }
 
         /// <summary>
@@ -807,11 +826,23 @@ namespace KBTV.Dialogue
             Debug.Log("ConversationManager: Playing show opening (deferred)");
             PlayShowOpening(() =>
             {
-                if (CallerQueue.Instance == null || !CallerQueue.Instance.IsOnAir)
+                // After show opening, check if caller is already on air
+                if (CallerQueue.Instance != null && CallerQueue.Instance.IsOnAir)
                 {
-                    Debug.Log("ConversationManager: No caller on air, starting dead air filler");
-                    StartDeadAirFiller();
+                    Debug.Log("ConversationManager: Caller already on air after show opening");
+                    return;
                 }
+                
+                // Check if there are callers on hold - put them on air
+                if (CallerQueue.Instance != null && CallerQueue.Instance.HasOnHoldCallers)
+                {
+                    Debug.Log("ConversationManager: On-hold caller available after show opening, putting on air");
+                    CallerQueue.Instance.PutNextCallerOnAir();
+                    return;
+                }
+                
+                Debug.Log("ConversationManager: No callers available, starting dead air filler");
+                StartDeadAirFiller();
             });
         }
 

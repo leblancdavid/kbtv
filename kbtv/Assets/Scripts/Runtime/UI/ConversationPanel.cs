@@ -292,26 +292,33 @@ namespace KBTV.UI
         {
             if (_conversationManager == null) return;
 
-            bool hasConversation = _conversationManager.HasActiveConversation;
             bool hasFillerPlaying = _conversationManager.IsPlayingDeadAirFiller;
             bool hasBroadcastLine = _conversationManager.IsPlayingBroadcastLine;
+            
+            // Get current lines with null safety - conversation state can change between checks
+            var currentConversation = _conversationManager.CurrentConversation;
+            var currentLine = currentConversation?.CurrentLine;
+            var currentBroadcastLine = hasBroadcastLine ? _conversationManager.CurrentBroadcastLine : null;
+            var currentFillerLine = hasFillerPlaying ? _conversationManager.CurrentFillerLine : null;
+            
+            bool hasActiveContent = currentLine != null || currentBroadcastLine != null || currentFillerLine != null;
 
-            _transcriptContainer.SetActive(hasConversation || hasFillerPlaying || hasBroadcastLine);
-            _emptyState.SetActive(!hasConversation && !hasFillerPlaying && !hasBroadcastLine);
+            _transcriptContainer.SetActive(hasActiveContent);
+            _emptyState.SetActive(!hasActiveContent);
 
-            if (hasConversation && _conversationManager.CurrentLine != null)
+            if (currentLine != null)
             {
-                DisplayLine(_conversationManager.CurrentLine);
-                UpdatePhaseLabel(_conversationManager.CurrentConversation.CurrentPhase);
+                DisplayLine(currentLine);
+                UpdatePhaseLabel(currentConversation?.CurrentPhase ?? ConversationPhase.Intro);
             }
-            else if (hasBroadcastLine && _conversationManager.CurrentBroadcastLine != null)
+            else if (currentBroadcastLine != null)
             {
-                DisplayLine(_conversationManager.CurrentBroadcastLine);
+                DisplayLine(currentBroadcastLine);
                 _phaseLabel.text = "ON AIR";
             }
-            else if (hasFillerPlaying && _conversationManager.CurrentFillerLine != null)
+            else if (currentFillerLine != null)
             {
-                DisplayLine(_conversationManager.CurrentFillerLine);
+                DisplayLine(currentFillerLine);
                 _phaseLabel.text = "ON AIR";
             }
         }
@@ -601,6 +608,7 @@ namespace KBTV.UI
         /// </summary>
         private void DisplayFillerOrBroadcastLine(DialogueLine line)
         {
+            Debug.Log($"ConversationPanel: DisplayFillerOrBroadcastLine called - line: {line?.Text?.Substring(0, System.Math.Min(30, line?.Text?.Length ?? 0))}...");
             if (line == null) return;
             ClearHistory();
             if (_phaseLabel != null)
