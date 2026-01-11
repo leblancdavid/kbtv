@@ -223,18 +223,8 @@ namespace KBTV.Callers
                 }
             }
 
-            // Update on-hold callers (they're more patient, so slower decay)
-            for (int i = _onHoldCallers.Count - 1; i >= 0; i--)
-            {
-                if (_onHoldCallers[i].UpdateWaitTime(deltaTime * 0.5f))
-                {
-                    // Caller hung up
-                    var caller = _onHoldCallers[i];
-                    UnsubscribeCaller(caller);
-                    OnCallerDisconnected?.Invoke(caller);
-                    _onHoldCallers.RemoveAt(i);
-                }
-            }
+            // Note: OnHold callers don't tick - they're committed once approved
+            // Their patience check is skipped in Caller.UpdateWaitTime()
 
             // Update screening caller
             _currentScreening?.UpdateWaitTime(deltaTime);

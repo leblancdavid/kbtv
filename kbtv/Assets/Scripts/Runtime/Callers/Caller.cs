@@ -115,10 +115,12 @@ namespace KBTV.Callers
         /// </summary>
         public bool UpdateWaitTime(float deltaTime)
         {
+            // OnHold and OnAir callers don't accumulate wait time - they're committed
             if (_state == CallerState.Completed || 
                 _state == CallerState.Rejected || 
                 _state == CallerState.Disconnected ||
-                _state == CallerState.OnAir)
+                _state == CallerState.OnAir ||
+                _state == CallerState.OnHold)
             {
                 return false;
             }
