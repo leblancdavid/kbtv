@@ -61,13 +61,13 @@ namespace KBTV.Dialogue
             if (data.intro != null)
             {
                 foreach (var line in data.intro)
-                    variant.Intro.Add(ConvertLine(line, lineIndex++));
+                    variant.Intro.Add(ConvertLine(line, lineIndex++, ArcSection.Intro));
             }
 
             if (data.development != null)
             {
                 foreach (var line in data.development)
-                    variant.Development.Add(ConvertLine(line, lineIndex++));
+                    variant.Development.Add(ConvertLine(line, lineIndex++, ArcSection.Development));
             }
 
             if (data.beliefBranch != null)
@@ -76,31 +76,31 @@ namespace KBTV.Dialogue
                 if (data.beliefBranch.Skeptical != null)
                 {
                     foreach (var line in data.beliefBranch.Skeptical)
-                        variant.BeliefBranch.Skeptical.Add(ConvertLine(line, lineIndex++));
+                        variant.BeliefBranch.Skeptical.Add(ConvertLine(line, lineIndex++, ArcSection.Skeptical));
                 }
                 // Believing lines come after skeptical in the index sequence
                 if (data.beliefBranch.Believing != null)
                 {
                     foreach (var line in data.beliefBranch.Believing)
-                        variant.BeliefBranch.Believing.Add(ConvertLine(line, lineIndex++));
+                        variant.BeliefBranch.Believing.Add(ConvertLine(line, lineIndex++, ArcSection.Believing));
                 }
             }
 
             if (data.conclusion != null)
             {
                 foreach (var line in data.conclusion)
-                    variant.Conclusion.Add(ConvertLine(line, lineIndex++));
+                    variant.Conclusion.Add(ConvertLine(line, lineIndex++, ArcSection.Conclusion));
             }
 
             return variant;
         }
 
-        private static ArcDialogueLine ConvertLine(ArcLineData data, int arcLineIndex)
+        private static ArcDialogueLine ConvertLine(ArcLineData data, int arcLineIndex, ArcSection section)
         {
             var speaker = string.Equals(data.speaker, "Vern", StringComparison.OrdinalIgnoreCase)
                 ? Speaker.Vern
                 : Speaker.Caller;
-            return new ArcDialogueLine(speaker, data.text ?? "", arcLineIndex);
+            return new ArcDialogueLine(speaker, data.text ?? "", arcLineIndex, section);
         }
     }
 }

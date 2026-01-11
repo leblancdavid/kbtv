@@ -90,6 +90,24 @@ namespace KBTV.Dialogue
     }
 
     /// <summary>
+    /// The section of a conversation arc where a dialogue line originates.
+    /// Used for audio file lookup (belief branch sections have different naming).
+    /// </summary>
+    public enum ArcSection
+    {
+        /// <summary>Opening section - Vern introduces caller</summary>
+        Intro,
+        /// <summary>Middle section - Caller elaborates on their story</summary>
+        Development,
+        /// <summary>Belief branch - Vern is skeptical</summary>
+        Skeptical,
+        /// <summary>Belief branch - Vern believes the caller</summary>
+        Believing,
+        /// <summary>Closing section - Wrapping up the call</summary>
+        Conclusion
+    }
+
+    /// <summary>
     /// The current state of conversation playback.
     /// </summary>
     public enum ConversationState
@@ -165,9 +183,15 @@ namespace KBTV.Dialogue
         /// </summary>
         public int ArcLineIndex = -1;
 
+        /// <summary>
+        /// The arc section this line belongs to (Intro, Development, Skeptical, Believing, Conclusion).
+        /// Used for audio file lookup - belief branch lines have different naming convention.
+        /// </summary>
+        public ArcSection Section = ArcSection.Intro;
+
         public DialogueLine() { }
 
-        public DialogueLine(Speaker speaker, string text, DialogueTone tone, ConversationPhase phase, float duration = 0f, int arcLineIndex = -1)
+        public DialogueLine(Speaker speaker, string text, DialogueTone tone, ConversationPhase phase, float duration = 0f, int arcLineIndex = -1, ArcSection section = ArcSection.Intro)
         {
             Speaker = speaker;
             Text = text;
@@ -175,6 +199,7 @@ namespace KBTV.Dialogue
             Phase = phase;
             Duration = duration;
             ArcLineIndex = arcLineIndex;
+            Section = section;
         }
 
         /// <summary>

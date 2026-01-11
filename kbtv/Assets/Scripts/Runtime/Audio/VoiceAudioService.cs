@@ -58,8 +58,8 @@ namespace KBTV.Audio
         /// <param name="arcId">The arc identifier (e.g., "compelling_whistleblower")</param>
         /// <param name="topic">The topic (e.g., "Conspiracies")</param>
         /// <param name="mood">Vern's current mood</param>
-        /// <param name="lineCount">Number of lines in the conversation</param>
-        public async Task PreloadConversationAsync(string arcId, string topic, VernMood mood, int lineCount)
+        /// <param name="lines">The dialogue lines to preload (with section info for correct audio paths)</param>
+        public async Task PreloadConversationAsync(string arcId, string topic, VernMood mood, IEnumerable<DialogueLine> lines)
         {
             // Unload previous conversation if any
             UnloadCurrentConversation();
@@ -70,12 +70,63 @@ namespace KBTV.Audio
             
             var tasks = new List<Task>();
             
-            for (int i = 0; i < lineCount; i++)
+            foreach (var line in lines)
             {
-                // Load both Vern and Caller clips for each line index
-                tasks.Add(LoadConversationClipAsync(arcId, topic, mood, i, Speaker.Vern));
-                tasks.Add(LoadConversationClipAsync(arcId, topic, mood, i, Speaker.Caller));
+                // Skip lines without arc line index (e.g., dynamically generated lines)
+                if (line.ArcLineIndex < 0) continue;
+                
+                // Load clip for this specific line with its section
+                tasks.Add(LoadConversationClipAsync(arcId, topic, mood, line.ArcLineIndex, line.Speaker, line.Section));
             }
+            
+            try
+            {
+                await Task.WhenAll(tasks);
+                Debug.Log($"VoiceAudioService: Preloaded {_conversationClipCache.Count} clips for {topic}/{arcId} ({mood})");
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"VoiceAudioService: Some clips failed to load: {e.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Preload all clips for a conversation arc using arc lines.
+        /// Call this when a conversation starts.
+        /// </summary>
+        /// <param name="arcId">The arc identifier (e.g., "compelling_whistleblower")</param>
+        /// <param name="topic">The topic (e.g., "Conspiracies")</param>
+        /// <param name="mood">Vern's current mood</param>
+        /// <param name="moodVariant">The mood variant containing all lines with section info</param>
+        public async Task PreloadConversationAsync(string arcId, string topic, VernMood mood, ArcMoodVariant moodVariant)
+        {
+            if (moodVariant == null) return;
+            
+            // Unload previous conversation if any
+            UnloadCurrentConversation();
+            
+            _currentArcId = arcId;
+            _currentTopic = topic;
+            _currentMood = mood;
+            
+            var tasks = new List<Task>();
+            
+            // Helper to add preload tasks for a section
+            void AddSectionTasks(IEnumerable<ArcDialogueLine> sectionLines)
+            {
+                if (sectionLines == null) return;
+                foreach (var line in sectionLines)
+                {
+                    tasks.Add(LoadConversationClipAsync(arcId, topic, mood, line.ArcLineIndex, line.Speaker, line.Section));
+                }
+            }
+            
+            // Preload all sections (including BOTH belief paths)
+            AddSectionTasks(moodVariant.Intro);
+            AddSectionTasks(moodVariant.Development);
+            AddSectionTasks(moodVariant.BeliefBranch?.Skeptical);
+            AddSectionTasks(moodVariant.BeliefBranch?.Believing);
+            AddSectionTasks(moodVariant.Conclusion);
             
             try
             {
@@ -91,9 +142,9 @@ namespace KBTV.Audio
         /// <summary>
         /// Load a single conversation clip and cache it.
         /// </summary>
-        private async Task LoadConversationClipAsync(string arcId, string topic, VernMood mood, int lineIndex, Speaker speaker)
+        private async Task LoadConversationClipAsync(string arcId, string topic, VernMood mood, int lineIndex, Speaker speaker, ArcSection section)
         {
-            string address = BuildConversationAddress(arcId, topic, mood, lineIndex, speaker);
+            string address = BuildConversationAddress(arcId, topic, mood, lineIndex, speaker, section);
             
             try
             {
@@ -117,7 +168,7 @@ namespace KBTV.Audio
                 
                 if (clip != null)
                 {
-                    string cacheKey = BuildCacheKey(lineIndex, speaker);
+                    string cacheKey = BuildCacheKey(lineIndex, speaker, section);
                     _conversationClipCache[cacheKey] = clip;
                 }
             }
@@ -135,9 +186,9 @@ namespace KBTV.Audio
         /// Get a cached conversation clip.
         /// Returns null if not found.
         /// </summary>
-        public AudioClip GetConversationClip(int lineIndex, Speaker speaker)
+        public AudioClip GetConversationClip(int lineIndex, Speaker speaker, ArcSection section)
         {
-            string cacheKey = BuildCacheKey(lineIndex, speaker);
+            string cacheKey = BuildCacheKey(lineIndex, speaker, section);
             
             if (_conversationClipCache.TryGetValue(cacheKey, out var clip))
             {
@@ -152,10 +203,10 @@ namespace KBTV.Audio
         /// Get a conversation clip, loading on-demand if not cached.
         /// Use this when preload hasn't completed yet.
         /// </summary>
-        public async Task<AudioClip> GetConversationClipAsync(int lineIndex, Speaker speaker)
+        public async Task<AudioClip> GetConversationClipAsync(int lineIndex, Speaker speaker, ArcSection section)
         {
             // Check cache first
-            string cacheKey = BuildCacheKey(lineIndex, speaker);
+            string cacheKey = BuildCacheKey(lineIndex, speaker, section);
             if (_conversationClipCache.TryGetValue(cacheKey, out var cachedClip))
             {
                 return cachedClip;
@@ -167,7 +218,7 @@ namespace KBTV.Audio
                 return null;
             }
             
-            await LoadConversationClipAsync(_currentArcId, _currentTopic, _currentMood, lineIndex, speaker);
+            await LoadConversationClipAsync(_currentArcId, _currentTopic, _currentMood, lineIndex, speaker, section);
             
             // Check cache again after load
             if (_conversationClipCache.TryGetValue(cacheKey, out var loadedClip))
@@ -275,19 +326,29 @@ namespace KBTV.Audio
 
         /// <summary>
         /// Build Addressable address for a conversation clip.
-        /// Format: {arcId}_{mood}_{lineIndex:D3}_{speaker}
-        /// Example: ufo_credible_dashcam_neutral_001_vern
+        /// Format for normal sections: {arcId}_{mood}_{lineIndex:D3}_{speaker}
+        /// Format for belief branches: {arcId}_{mood}_{beliefTag}_{lineIndex:D3}_{speaker}
+        /// Example: ufo_credible_dashcam_neutral_001_vern (normal)
+        /// Example: ufo_credible_dashcam_neutral_skep_009_vern (skeptical branch)
         /// </summary>
-        private string BuildConversationAddress(string arcId, string topic, VernMood mood, int lineIndex, Speaker speaker)
+        private string BuildConversationAddress(string arcId, string topic, VernMood mood, int lineIndex, Speaker speaker, ArcSection section)
         {
             string arcIdLower = arcId?.ToLowerInvariant() ?? "unknown";
             string moodLower = mood.ToString().ToLowerInvariant();
             string speakerLower = speaker == Speaker.Vern ? "vern" : "caller";
             int displayIndex = lineIndex + 1; // 1-based for file names
             
+            // Add belief tag for belief branch sections (matches generate_audio.py naming)
+            string beliefTag = section switch
+            {
+                ArcSection.Skeptical => "_skep",
+                ArcSection.Believing => "_beli",
+                _ => ""
+            };
+            
             // Note: topic parameter is unused - file names don't include topic prefix
-            // Files are named: {arcId}_{mood}_{index}_{speaker}.ogg
-            return $"{arcIdLower}_{moodLower}_{displayIndex:D3}_{speakerLower}";
+            // Files are named: {arcId}_{mood}[_{beliefTag}]_{index}_{speaker}.ogg
+            return $"{arcIdLower}_{moodLower}{beliefTag}_{displayIndex:D3}_{speakerLower}";
         }
 
         /// <summary>
@@ -302,10 +363,11 @@ namespace KBTV.Audio
 
         /// <summary>
         /// Build cache key for conversation clips.
+        /// Includes section to differentiate belief branch clips with same line index.
         /// </summary>
-        private string BuildCacheKey(int lineIndex, Speaker speaker)
+        private string BuildCacheKey(int lineIndex, Speaker speaker, ArcSection section)
         {
-            return $"{lineIndex}_{speaker}";
+            return $"{lineIndex}_{speaker}_{section}";
         }
 
         #endregion

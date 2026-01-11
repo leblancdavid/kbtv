@@ -55,7 +55,7 @@ namespace KBTV.Dialogue
             DialogueTone tone = DialogueTone.Neutral)
         {
             string substitutedText = Apply(arcLine.Text, caller, topicName);
-            return new DialogueLine(arcLine.Speaker, substitutedText, tone, phase, 0f, arcLine.ArcLineIndex);
+            return new DialogueLine(arcLine.Speaker, substitutedText, tone, phase, 0f, arcLine.ArcLineIndex, arcLine.Section);
         }
     }
 }

@@ -213,15 +213,14 @@ namespace KBTV.Dialogue
             if (VoiceAudioService.Instance != null && _arcGenerator.LastUsedArc != null)
             {
                 string arcId = _arcGenerator.LastUsedArc.ArcId;
-                string topic = _arcGenerator.LastUsedArc.Topic.ToString();
+                string topic = _arcGenerator.LastUsedArc.Topic;
                 VernMood mood = _arcGenerator.LastMood;
                 
-                // Get total arc line count (includes BOTH belief paths for complete preloading)
+                // Get the mood variant which has all lines with section info for correct audio paths
                 var moodVariant = _arcGenerator.LastUsedArc.GetMoodVariant(mood);
-                int totalArcLines = moodVariant?.GetTotalArcLineCount() ?? _currentConversation.Lines.Count;
                 
                 // Start preloading (fire and forget - let conversation start while loading)
-                _ = VoiceAudioService.Instance.PreloadConversationAsync(arcId, topic, mood, totalArcLines);
+                _ = VoiceAudioService.Instance.PreloadConversationAsync(arcId, topic, mood, moodVariant);
             }
 
             // Subscribe to conversation events
@@ -387,6 +386,7 @@ namespace KBTV.Dialogue
                 var result = await VoicePlaybackHelper.PlayConversationClipAsync(
                     arcLineIndex, 
                     line.Speaker,
+                    line.Section,
                     () => _currentConversation != conversationAtStart || _currentConversation?.CurrentIndex != lineIndexAtStart
                 );
                 

@@ -198,6 +198,7 @@ namespace KBTV.Dialogue
         [SerializeField] private Speaker _speaker;
         [SerializeField] private string _text;
         [SerializeField] private int _arcLineIndex = -1;
+        [SerializeField] private ArcSection _section = ArcSection.Intro;
 
         public Speaker Speaker => _speaker;
         public string Text => _text;
@@ -212,13 +213,24 @@ namespace KBTV.Dialogue
             set => _arcLineIndex = value;
         }
 
+        /// <summary>
+        /// The arc section this line belongs to (Intro, Development, Skeptical, Believing, Conclusion).
+        /// Used for audio file lookup - belief branch lines have different naming convention.
+        /// </summary>
+        public ArcSection Section
+        {
+            get => _section;
+            set => _section = value;
+        }
+
         public ArcDialogueLine() { }
 
-        public ArcDialogueLine(Speaker speaker, string text, int arcLineIndex = -1)
+        public ArcDialogueLine(Speaker speaker, string text, int arcLineIndex = -1, ArcSection section = ArcSection.Intro)
         {
             _speaker = speaker;
             _text = text;
             _arcLineIndex = arcLineIndex;
+            _section = section;
         }
 
         /// <summary>
@@ -226,7 +238,7 @@ namespace KBTV.Dialogue
         /// </summary>
         public DialogueLine ToDialogueLine(ConversationPhase phase, DialogueTone tone = DialogueTone.Neutral)
         {
-            return new DialogueLine(_speaker, _text, tone, phase, 0f, _arcLineIndex);
+            return new DialogueLine(_speaker, _text, tone, phase, 0f, _arcLineIndex, _section);
         }
     }
 }

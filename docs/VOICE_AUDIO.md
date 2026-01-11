@@ -247,7 +247,7 @@ Note: Caller conversation clips are organized by `Topic/ArcId/Mood/` with each m
 
 Audio files use a specific naming pattern that matches the Addressable address format:
 
-**Conversation lines:**
+**Conversation lines (intro, development, conclusion):**
 ```
 {arcId}_{mood}_{lineIndex:D3}_{speaker}.ogg
 
@@ -257,6 +257,19 @@ ufo_credible_dashcam_neutral_002_caller.ogg
 ufos_fake_prankster_tired_001_vern.ogg
 ```
 
+**Belief branch lines (skeptical/believing sections):**
+```
+{arcId}_{mood}_{beliefTag}_{lineIndex:D3}_{speaker}.ogg
+
+Examples:
+ufo_credible_dashcam_neutral_skep_009_vern.ogg  (skeptical branch)
+ufo_credible_dashcam_neutral_beli_011_caller.ogg (believing branch)
+```
+
+The `beliefTag` is:
+- `skep` for Skeptical belief branch lines (first 4 chars of "Skeptical")
+- `beli` for Believing belief branch lines (first 4 chars of "Believing")
+
 Note: The `arcId` comes from the arc JSON file and may or may not include a topic prefix. The arcId is used as-is without modification.
 
 ### Line Index and Belief Paths
@@ -265,13 +278,17 @@ The `lineIndex` in audio filenames is based on the **arc JSON structure**, not t
 
 ```
 Intro lines:       001, 002
-Development lines: 003, 004
-Skeptical lines:   005, 006  (belief branch option 1)
-Believing lines:   007, 008  (belief branch option 2)
-Conclusion lines:  009, 010
+Development lines: 003, 004, 005, 006, 007, 008
+Skeptical lines:   009, 010  (belief branch option 1) - uses "_skep_" prefix
+Believing lines:   011, 012  (belief branch option 2) - uses "_beli_" prefix
+Conclusion lines:  013, 014
 ```
 
-At runtime, only one belief path is used per conversation, but the audio file indices remain fixed. The `ArcLineIndex` property on each `DialogueLine` tracks the original arc position to ensure correct audio file lookup regardless of which belief path is taken.
+At runtime, only one belief path is used per conversation, but the audio file indices remain fixed. Each `DialogueLine` tracks:
+- `ArcLineIndex`: The original arc position (0-based index, becomes 1-based in filenames)
+- `Section`: Which arc section the line belongs to (Intro, Development, Skeptical, Believing, Conclusion)
+
+The `Section` property is critical for belief branch audio lookup - it determines whether the `_skep_` or `_beli_` prefix is added to the audio address.
 
 **Broadcast lines:**
 ```
@@ -355,17 +372,21 @@ Location: `Assets/Scripts/Runtime/Audio/VoiceAudioService.cs`
 Responsibilities:
 - Load clips via Addressables by address
 - Cache clips for current conversation in memory
-- Preload all clips for an arc when conversation starts
+- Preload all clips for an arc when conversation starts (using section info for correct paths)
 - Unload clips when conversation ends (memory management)
 - Fallback gracefully when clip not found (log warning, return null)
 
 Key Methods:
 ```csharp
 // Preload all clips for a conversation arc (call on conversation start)
-Task PreloadConversationAsync(string arcId, string topic, VernMood mood, int lineCount);
+// Uses mood variant to get section info for each line (critical for belief branch audio paths)
+Task PreloadConversationAsync(string arcId, string topic, VernMood mood, ArcMoodVariant moodVariant);
 
-// Get a cached conversation clip
-AudioClip GetConversationClip(string arcId, string topic, VernMood mood, int lineIndex, Speaker speaker);
+// Get a cached conversation clip (section determines belief path prefix)
+AudioClip GetConversationClip(int lineIndex, Speaker speaker, ArcSection section);
+
+// Get a conversation clip, loading on-demand if not cached
+Task<AudioClip> GetConversationClipAsync(int lineIndex, Speaker speaker, ArcSection section);
 
 // Get a broadcast clip by ID (e.g., "vern_opening_001")
 Task<AudioClip> GetBroadcastClipAsync(string clipId);
@@ -374,16 +395,27 @@ Task<AudioClip> GetBroadcastClipAsync(string clipId);
 void UnloadCurrentConversation();
 ```
 
+The `ArcSection` parameter is essential for belief branch lines - it determines whether the audio address includes `_skep_` or `_beli_` prefix.
+
 ### Audio File Address Format
 
 Addressables uses simplified addresses (filename without extension). The address is set by the `VoiceAudioSetup` editor script.
 
-**Conversation clips:**
+**Conversation clips (intro, development, conclusion):**
 ```
 Address: {arcId}_{mood}_{lineIndex:D3}_{speaker}
 Example: ufo_credible_dashcam_neutral_001_vern
 File:    Assets/Audio/Voice/Callers/UFOs/ufo_credible_dashcam/Neutral/ufo_credible_dashcam_neutral_001_vern.ogg
 ```
+
+**Belief branch clips (skeptical/believing sections):**
+```
+Address: {arcId}_{mood}_{beliefTag}_{lineIndex:D3}_{speaker}
+Example: ufo_credible_dashcam_neutral_skep_009_vern
+File:    Assets/Audio/Voice/Callers/UFOs/ufo_credible_dashcam/Neutral/ufo_credible_dashcam_neutral_skep_009_vern.ogg
+```
+
+The `beliefTag` is `skep` or `beli` depending on the arc section (Skeptical or Believing).
 
 Note: The address does NOT include topic prefix. The arcId from the JSON is used directly.
 

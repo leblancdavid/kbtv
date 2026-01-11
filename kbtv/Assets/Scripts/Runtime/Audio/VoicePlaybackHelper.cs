@@ -67,9 +67,10 @@ namespace KBTV.Audio
         /// </summary>
         /// <param name="arcLineIndex">The original arc line index (0-based, maps to audio file naming)</param>
         /// <param name="speaker">The speaker of the line</param>
+        /// <param name="section">The arc section this line belongs to (affects audio file naming for belief branches)</param>
         /// <param name="isCancelledCheck">Function that returns true if the operation should be cancelled</param>
         /// <returns>PlaybackResult with audio duration (0 if no clip) and cancellation status</returns>
-        public static async Task<PlaybackResult> PlayConversationClipAsync(int arcLineIndex, Speaker speaker, Func<bool> isCancelledCheck)
+        public static async Task<PlaybackResult> PlayConversationClipAsync(int arcLineIndex, Speaker speaker, ArcSection section, Func<bool> isCancelledCheck)
         {
             var result = new PlaybackResult { AudioDuration = 0f, WasCancelled = false };
 
@@ -79,12 +80,12 @@ namespace KBTV.Audio
             }
 
             // First try cached clip (from preload)
-            var clip = VoiceAudioService.Instance.GetConversationClip(arcLineIndex, speaker);
+            var clip = VoiceAudioService.Instance.GetConversationClip(arcLineIndex, speaker, section);
 
             // If not cached, load on-demand (preload may not have completed)
             if (clip == null)
             {
-                clip = await VoiceAudioService.Instance.GetConversationClipAsync(arcLineIndex, speaker);
+                clip = await VoiceAudioService.Instance.GetConversationClipAsync(arcLineIndex, speaker, section);
 
                 // Guard: Check if state changed during async load
                 if (isCancelledCheck())
