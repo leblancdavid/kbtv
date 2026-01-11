@@ -37,7 +37,6 @@ namespace KBTV.UI
         private DialogueLine _previousLine = null; // Track previous line for history
 
         // Audio settings
-        private int _lastBlipCharCount = 0;
         private const int CHARS_PER_BLIP = 3; // Play blip every N characters
 
         // Thinking indicator

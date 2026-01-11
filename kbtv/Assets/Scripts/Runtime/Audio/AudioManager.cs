@@ -126,6 +126,17 @@ namespace KBTV.Audio
             }
         }
 
+        public float AmbienceVolume
+        {
+            get => _ambienceVolume;
+            set
+            {
+                _ambienceVolume = Mathf.Clamp01(value);
+                if (_ambienceSource != null)
+                    _ambienceSource.volume = _ambienceVolume * _masterVolume;
+            }
+        }
+
         public float VoiceVolume
         {
             get => _voiceVolume;
