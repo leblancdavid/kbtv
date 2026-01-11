@@ -108,3 +108,6 @@ nul
 # Tools - Downloaded voice models and temp files
 /Tools/AudioGeneration/voices/
 /Tools/AudioGeneration/temp/
+
+# Unity upgrade logs
+UpgradeLog.htm
