@@ -290,6 +290,36 @@ public static class GameSetup
         return vernDialogue;
     }
 
+    /// <summary>
+    /// Force reload VernDialogue from JSON (useful after editing JSON files).
+    /// </summary>
+    [MenuItem("KBTV/Reload Vern Dialogue from JSON")]
+    public static void ReloadVernDialogueFromJson()
+    {
+        VernDialogueTemplate vernDialogue = AssetDatabase.LoadAssetAtPath<VernDialogueTemplate>(VERN_DIALOGUE_PATH);
+        
+        if (vernDialogue == null)
+        {
+            Debug.LogError($"GameSetup: VernDialogue not found at {VERN_DIALOGUE_PATH}. Run 'Setup Game Scene' first.");
+            return;
+        }
+
+        string jsonPath = DialogueLoader.GetVernDialoguePath();
+        var data = DialogueLoader.LoadVernDialogueJson(jsonPath);
+        
+        if (data != null)
+        {
+            DialogueLoader.PopulateVernTemplate(vernDialogue, data);
+            EditorUtility.SetDirty(vernDialogue);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"GameSetup: Reloaded VernDialogue from {jsonPath} - IDs should now be populated");
+        }
+        else
+        {
+            Debug.LogError($"GameSetup: Could not load Vern dialogue from {jsonPath}");
+        }
+    }
+
     [MenuItem("KBTV/Create Arc Repository")]
     public static void CreateArcRepositoryMenu()
     {
