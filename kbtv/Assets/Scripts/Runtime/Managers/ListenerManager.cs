@@ -200,9 +200,17 @@ namespace KBTV.Managers
         {
             if (_gameState == null || !_gameState.IsLive) return;
 
-            // Losing callers looks bad
-            ModifyListeners(-_disconnectPenalty);
-            Debug.Log($"ListenerManager: Caller disconnected. -{_disconnectPenalty} listeners");
+            // Only penalize for callers who hung up while waiting (Incoming/Screening)
+            // OnHold and OnAir callers shouldn't disconnect via patience timer
+            if (caller.State == CallerState.Incoming || caller.State == CallerState.Screening)
+            {
+                ModifyListeners(-_disconnectPenalty);
+                Debug.Log($"ListenerManager: Caller '{caller.Name}' disconnected ({caller.State}). -{_disconnectPenalty} listeners");
+            }
+            else
+            {
+                Debug.LogWarning($"ListenerManager: Unexpected disconnect - Caller '{caller.Name}' state was {caller.State}");
+            }
         }
 
         /// <summary>
