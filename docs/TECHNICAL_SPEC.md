@@ -35,9 +35,14 @@ Assets/Scripts/
 │   ├── Callers/        # Caller, CallerQueue, CallerGenerator, CallerScreeningManager, Topic
 │   ├── Dialogue/       # ConversationManager, ArcRepository, Conversation, MoodCalculator, etc.
 │   ├── UI/             # PreShowUIManager, LiveShowUIManager, BasePanel, panels, components
-│   └── Audio/          # AudioManager
+│   └── Audio/          # AudioManager, VoiceAudioService
 └── Editor/
-    └── GameSetup.cs    # One-click scene setup utility
+    ├── GameSetup.cs           # One-click scene setup utility
+    ├── DialogueLoader.cs      # Loads JSON dialogue files into ScriptableObjects
+    ├── VoiceAudioSetup.cs     # Configures Addressables for voice audio
+    ├── BuildScript.cs         # Build automation for CI/CD
+    ├── SampleTopicGenerator.cs      # Creates sample Topic assets
+    └── SampleModifierGenerator.cs   # Creates sample StatModifier assets
 ```
 
 ## Core Systems
@@ -289,9 +294,9 @@ Panels subscribe to game events for real-time updates:
 **Important**: When a UI element's state depends on data (e.g., button `interactable` based on queue count), ensure the panel subscribes to ALL events that can change that data. Missing event subscriptions cause UI to become stale.
 
 ## Audio System
-**Files**: `Audio/AudioManager.cs`
+**Files**: `Audio/AudioManager.cs`, `Audio/VoiceAudioService.cs`
 
-The audio system is centralized through `AudioManager`, which subscribes to game events and plays appropriate sounds automatically.
+The audio system is centralized through `AudioManager`, which subscribes to game events and plays appropriate sounds automatically. Voice audio is loaded asynchronously via `VoiceAudioService` using Unity Addressables.
 
 ### AudioManager
 
@@ -337,6 +342,19 @@ UI panels call AudioManager directly for immediate feedback:
 - `ScreeningPanel` - Approve/reject button clicks
 - `OnAirPanel` - End call/put on air button clicks
 - `ItemPanel` - Item use button clicks, empty item errors
+
+### VoiceAudioService
+
+`VoiceAudioService` handles asynchronous loading and caching of voice audio clips via Unity Addressables.
+
+| Method | Description |
+|--------|-------------|
+| `PreloadConversationAsync()` | Load all clips for an arc on conversation start |
+| `GetConversationClip()` | Get cached clip for a dialogue line |
+| `GetBroadcastClipAsync()` | Load broadcast clip by ID |
+| `UnloadCurrentConversation()` | Release cached clips on conversation end |
+
+See [VOICE_AUDIO.md](VOICE_AUDIO.md) for detailed integration architecture.
 
 ## Key Patterns
 

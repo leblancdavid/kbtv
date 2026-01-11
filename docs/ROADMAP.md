@@ -46,6 +46,19 @@ _Milestone 1 complete! Proceed to Milestone 2._
   - Topic selection grid with descriptions
   - Start Show button (disabled until topic selected)
   - Night counter display
+- [x] Arc-based dialogue system
+  - ConversationArc, ArcRepository, ArcConversationGenerator
+  - MoodCalculator, DiscernmentCalculator, DialogueSubstitution
+  - 17 sample arcs (4 topics x 4 legitimacy tiers, + 1 topic-switcher)
+  - 5 mood variants per arc with belief branches
+- [x] Voice audio system
+  - VoiceAudioService with Addressables for async loading
+  - ~950 pre-generated voice lines (Piper TTS)
+  - Audio Mixer with VernGroup and CallerGroup routing
+- [x] Broadcast flow
+  - Show opening/closing
+  - Between-caller transitions
+  - Dead air filler system
 
 ### TODO
 - [ ] PreShow enhancements
@@ -59,6 +72,10 @@ _Milestone 1 complete! Proceed to Milestone 2._
   - Income based on listeners/show quality
   - Item costs
 - [ ] Basic scene structure (Control Room as primary location)
+- [ ] Expand arc content (target: 80 arcs total - 4 topics x 4 legitimacy x 5 arcs each)
+- [ ] Audio polish
+  - Assign mixer groups to AudioManager in scene
+  - Dynamic typewriter speed synced to audio duration
 
 ---
 

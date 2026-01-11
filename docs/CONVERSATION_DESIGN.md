@@ -16,9 +16,11 @@ Arc selection is based on caller attributes (legitimacy, topic). Vern's current 
 ## Design Goals
 
 1. **Cohesion** - Each call is a complete narrative, not random line assembly
-2. **Variety** - 80 arcs x 5 moods x 2 belief paths = 800 unique conversations
+2. **Variety** - Target: 80 arcs x 5 moods x 2 belief paths = 800 unique conversations
 3. **Reactivity** - Vern's mood affects delivery; discernment affects belief path
 4. **Pacing** - Natural flow with appropriate timing between lines
+
+**Current Status**: 17 sample arcs implemented (4 topics x 4 legitimacy tiers + 1 topic-switcher arc). See [ROADMAP.md](ROADMAP.md) for expansion plans.
 
 ## Quick Reference
 
