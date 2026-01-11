@@ -266,6 +266,13 @@ namespace KBTV
                 audioObj.AddComponent<AudioManager>();
             }
 
+            // Create VoiceAudioService for TTS/voice clip playback
+            if (_enableAudio && VoiceAudioService.Instance == null)
+            {
+                GameObject voiceObj = new GameObject("VoiceAudioService");
+                voiceObj.AddComponent<VoiceAudioService>();
+            }
+
             // Create Live Show UI
             if (_enableLiveShowUI)
             {
