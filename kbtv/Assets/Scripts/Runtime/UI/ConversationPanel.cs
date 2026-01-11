@@ -368,6 +368,7 @@ namespace KBTV.UI
 
         private void OnBroadcastLineDisplayedWithDuration(DialogueLine line, float audioDuration)
         {
+            if (line == null) return;
             SetTypewriterSpeedForDuration(line.Text, audioDuration);
             DisplayFillerOrBroadcastLine(line);
         }
@@ -588,8 +589,12 @@ namespace KBTV.UI
         /// </summary>
         private void DisplayFillerOrBroadcastLine(DialogueLine line)
         {
+            if (line == null) return;
             ClearHistory();
-            _phaseLabel.text = "ON AIR";
+            if (_phaseLabel != null)
+            {
+                _phaseLabel.text = "ON AIR";
+            }
             DisplayLine(line);
         }
     }
