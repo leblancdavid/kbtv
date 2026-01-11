@@ -203,6 +203,7 @@ public static class VoiceAudioSetup
         
         if (settings == null)
         {
+            Debug.Log("VoiceAudioSetup: No existing Addressables settings, attempting to create...");
             // Try to create default settings
             settings = AddressableAssetSettingsDefaultObject.GetSettings(true);
             
@@ -212,6 +213,11 @@ public static class VoiceAudioSetup
                                "Open Window > Asset Management > Addressables > Groups to initialize.");
                 return false;
             }
+            Debug.Log("VoiceAudioSetup: Created Addressables settings successfully");
+        }
+        else
+        {
+            Debug.Log("VoiceAudioSetup: Found existing Addressables settings");
         }
 
         // Find or create VoiceAudio group
@@ -223,37 +229,49 @@ public static class VoiceAudioSetup
                 settings.DefaultGroup.Schemas);
             Debug.Log($"VoiceAudioSetup: Created Addressables group '{ADDRESSABLE_GROUP_NAME}'");
         }
+        else
+        {
+            Debug.Log($"VoiceAudioSetup: Found existing Addressables group '{ADDRESSABLE_GROUP_NAME}'");
+        }
 
         int assetsMarked = 0;
+        int assetsAlreadyAddressable = 0;
 
         // Mark Vern Broadcast folder as Addressable
-        assetsMarked += MarkFolderAddressable(settings, voiceGroup, VERN_BROADCAST_PATH);
+        var (marked1, existing1) = MarkFolderAddressableWithCount(settings, voiceGroup, VERN_BROADCAST_PATH);
+        assetsMarked += marked1;
+        assetsAlreadyAddressable += existing1;
 
         // Mark Callers folder as Addressable
-        assetsMarked += MarkFolderAddressable(settings, voiceGroup, CALLERS_PATH);
+        var (marked2, existing2) = MarkFolderAddressableWithCount(settings, voiceGroup, CALLERS_PATH);
+        assetsMarked += marked2;
+        assetsAlreadyAddressable += existing2;
 
-        Debug.Log($"VoiceAudioSetup: Marked {assetsMarked} audio assets as Addressable");
+        Debug.Log($"VoiceAudioSetup: Marked {assetsMarked} new audio assets as Addressable, {assetsAlreadyAddressable} already configured");
 
         // Save settings
         EditorUtility.SetDirty(settings);
         AssetDatabase.SaveAssets();
 
-        return assetsMarked > 0;
+        // Success if we have any assets configured (new or existing)
+        return (assetsMarked + assetsAlreadyAddressable) > 0;
     }
 
-    private static int MarkFolderAddressable(AddressableAssetSettings settings, 
+    private static (int marked, int existing) MarkFolderAddressableWithCount(AddressableAssetSettings settings, 
         AddressableAssetGroup group, string folderPath)
     {
         if (!AssetDatabase.IsValidFolder(folderPath))
         {
             Debug.LogWarning($"VoiceAudioSetup: Folder not found: {folderPath}");
-            return 0;
+            return (0, 0);
         }
 
-        int count = 0;
+        int newCount = 0;
+        int existingCount = 0;
 
         // Find all audio files in the folder (recursively)
         string[] guids = AssetDatabase.FindAssets("t:AudioClip", new[] { folderPath });
+        Debug.Log($"VoiceAudioSetup: Found {guids.Length} audio clips in {folderPath}");
 
         foreach (string guid in guids)
         {
@@ -263,6 +281,7 @@ public static class VoiceAudioSetup
             AddressableAssetEntry existingEntry = settings.FindAssetEntry(guid);
             if (existingEntry != null)
             {
+                existingCount++;
                 continue; // Already addressable
             }
 
@@ -274,11 +293,19 @@ public static class VoiceAudioSetup
                 // Simplify address to just the filename (without extension)
                 string fileName = Path.GetFileNameWithoutExtension(assetPath);
                 entry.address = fileName;
-                count++;
+                newCount++;
             }
         }
 
-        return count;
+        return (newCount, existingCount);
+    }
+
+    // Keep old method for compatibility but mark obsolete
+    private static int MarkFolderAddressable(AddressableAssetSettings settings, 
+        AddressableAssetGroup group, string folderPath)
+    {
+        var (marked, _) = MarkFolderAddressableWithCount(settings, group, folderPath);
+        return marked;
     }
 
     private static bool ConfigureAudioManager(AudioMixer mixer, AudioMixerGroup vernGroup, AudioMixerGroup callerGroup)
