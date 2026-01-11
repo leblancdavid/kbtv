@@ -219,18 +219,19 @@ namespace KBTV.Audio
 
         /// <summary>
         /// Build Addressable address for a conversation clip.
-        /// Format: {topic}_{arcId}_{mood}_{lineIndex:D3}_{speaker}
-        /// Example: conspiracies_compelling_whistleblower_tired_001_vern
+        /// Format: {arcId}_{mood}_{lineIndex:D3}_{speaker}
+        /// Example: ufo_credible_dashcam_neutral_001_vern
         /// </summary>
         private string BuildConversationAddress(string arcId, string topic, VernMood mood, int lineIndex, Speaker speaker)
         {
-            string topicLower = topic?.ToLowerInvariant() ?? "unknown";
             string arcIdLower = arcId?.ToLowerInvariant() ?? "unknown";
             string moodLower = mood.ToString().ToLowerInvariant();
             string speakerLower = speaker == Speaker.Vern ? "vern" : "caller";
             int displayIndex = lineIndex + 1; // 1-based for file names
             
-            return $"{topicLower}_{arcIdLower}_{moodLower}_{displayIndex:D3}_{speakerLower}";
+            // Note: topic parameter is unused - file names don't include topic prefix
+            // Files are named: {arcId}_{mood}_{index}_{speaker}.ogg
+            return $"{arcIdLower}_{moodLower}_{displayIndex:D3}_{speakerLower}";
         }
 
         /// <summary>
