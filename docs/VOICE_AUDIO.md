@@ -274,15 +274,21 @@ Note: The `arcId` comes from the arc JSON file and may or may not include a topi
 
 ### Line Index and Belief Paths
 
-The `lineIndex` in audio filenames is based on the **arc JSON structure**, not the runtime conversation order. Lines are indexed sequentially across all sections including BOTH belief paths:
+The `lineIndex` in audio filenames is based on the **arc JSON structure**, not the runtime conversation order. Lines are indexed sequentially across all sections including BOTH belief paths.
+
+**IMPORTANT**: The generation order is: Intro → Development → Conclusion → Skeptical → Believing
+
+This ordering ensures conclusion lines are numbered before belief branches, which makes the sequential numbering work correctly even though belief branches are mutually exclusive at runtime:
 
 ```
 Intro lines:       001, 002
-Development lines: 003, 004, 005, 006, 007, 008
-Skeptical lines:   009, 010  (belief branch option 1) - uses "_skep_" prefix
-Believing lines:   011, 012  (belief branch option 2) - uses "_beli_" prefix
-Conclusion lines:  013, 014
+Development lines: 003, 004, 005, 006
+Conclusion lines:  007, 008                 (processed BEFORE belief branches)
+Skeptical lines:   009, 010  (belief path) - uses "_skep_" prefix
+Believing lines:   011, 012  (belief path) - uses "_beli_" prefix
 ```
+
+The Python audio generator (`Tools/AudioGeneration/generate_audio.py`) and C# parser (`ArcJsonParser.cs`) must use the same section ordering to ensure audio addresses match file names.
 
 At runtime, only one belief path is used per conversation, but the audio file indices remain fixed. Each `DialogueLine` tracks:
 - `ArcLineIndex`: The original arc position (0-based index, becomes 1-based in filenames)
