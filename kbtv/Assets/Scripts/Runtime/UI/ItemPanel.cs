@@ -54,6 +54,8 @@ namespace KBTV.UI
             UITheme.AddLayoutElement(divider, preferredHeight: 2f);
 
             // Items will be added in Start when ItemManager is available
+            
+            MarkUIBuilt();
         }
 
         protected override bool DoSubscribe()

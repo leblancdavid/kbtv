@@ -67,6 +67,8 @@ namespace KBTV.UI
 
             // Create scroll view for on-hold
             CreateScrollView(onHoldScrollContainer, out _onHoldContainer);
+            
+            MarkUIBuilt();
         }
 
         private void CreateScrollView(GameObject container, out Transform contentTransform)

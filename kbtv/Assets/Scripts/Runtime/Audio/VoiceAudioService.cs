@@ -149,6 +149,36 @@ namespace KBTV.Audio
         }
 
         /// <summary>
+        /// Get a conversation clip, loading on-demand if not cached.
+        /// Use this when preload hasn't completed yet.
+        /// </summary>
+        public async Task<AudioClip> GetConversationClipAsync(int lineIndex, Speaker speaker)
+        {
+            // Check cache first
+            string cacheKey = BuildCacheKey(lineIndex, speaker);
+            if (_conversationClipCache.TryGetValue(cacheKey, out var cachedClip))
+            {
+                return cachedClip;
+            }
+            
+            // Not in cache - try to load on demand if we have arc info
+            if (string.IsNullOrEmpty(_currentArcId))
+            {
+                return null;
+            }
+            
+            await LoadConversationClipAsync(_currentArcId, _currentTopic, _currentMood, lineIndex, speaker);
+            
+            // Check cache again after load
+            if (_conversationClipCache.TryGetValue(cacheKey, out var loadedClip))
+            {
+                return loadedClip;
+            }
+            
+            return null;
+        }
+
+        /// <summary>
         /// Unload all cached conversation clips.
         /// Call this when a conversation ends.
         /// </summary>

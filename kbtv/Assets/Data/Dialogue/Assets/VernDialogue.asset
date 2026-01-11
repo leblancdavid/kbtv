@@ -13,325 +13,415 @@ MonoBehaviour:
   m_Name: VernDialogue
   m_EditorClassIdentifier: KBTV.Runtime::KBTV.Dialogue.VernDialogueTemplate
   IntroductionLines:
-  - Text: Alright night owls, we've got {callerName} on the line from {location}.
+  - Id: vern_introduction_001
+    Text: Alright night owls, we've got {callerName} on the line from {location}.
       What've you got for us tonight?
     Tone: 0
     Weight: 1
-  - Text: '{callerName}, you''re on the air with Vern Castellano. The board''s lighting
+  - Id: vern_introduction_002
+    Text: '{callerName}, you''re on the air with Vern Castellano. The board''s lighting
       up tonight, so let''s hear it.'
     Tone: 0
     Weight: 1
-  - Text: Next up, {callerName} calling in from {location}. Talk to me, friend.
+  - Id: vern_introduction_003
+    Text: Next up, {callerName} calling in from {location}. Talk to me, friend.
     Tone: 0
     Weight: 1
-  - Text: Welcome to the show, {callerName}. You're live on KBTV. What's on your
+  - Id: vern_introduction_004
+    Text: Welcome to the show, {callerName}. You're live on KBTV. What's on your
       mind tonight?
     Tone: 0
     Weight: 1
-  - Text: Truth-seekers, we've got {callerName} joining us from {location}. Go ahead,
+  - Id: vern_introduction_005
+    Text: Truth-seekers, we've got {callerName} joining us from {location}. Go ahead,
       caller.
     Tone: 0
     Weight: 1
   ProbingLines:
-  - Text: Alright, walk me through this. What exactly did you see out there?
+  - Id: vern_probing_001
+    Text: Alright, walk me through this. What exactly did you see out there?
     Tone: 0
     Weight: 1
-  - Text: And when did this happen? Give me the details, don't leave anything out.
+  - Id: vern_probing_002
+    Text: And when did this happen? Give me the details, don't leave anything out.
     Tone: 0
     Weight: 1
-  - Text: Hold on, slow down. Start from the beginning for the folks just tuning
+  - Id: vern_probing_003
+    Text: Hold on, slow down. Start from the beginning for the folks just tuning
       in.
     Tone: 0
     Weight: 1
-  - Text: Okay, I'm listening. Paint me a picture here.
+  - Id: vern_probing_004
+    Text: Okay, I'm listening. Paint me a picture here.
     Tone: 0
     Weight: 1
-  - Text: Let's get specific. Time, location, what were you doing when this happened?
+  - Id: vern_probing_005
+    Text: Let's get specific. Time, location, what were you doing when this happened?
     Tone: 0
     Weight: 1
   ExtraProbingLines:
-  - Text: Now that's interesting. Tell me more about that last part.
+  - Id: vern_extraprobing_001
+    Text: Now that's interesting. Tell me more about that last part.
     Tone: 0
     Weight: 1
-  - Text: And what happened after that? Don't stop now.
+  - Id: vern_extraprobing_002
+    Text: And what happened after that? Don't stop now.
     Tone: 1
     Weight: 1
-  - Text: Wait, back up. You said something there that caught my ear. Explain that
+  - Id: vern_extraprobing_003
+    Text: Wait, back up. You said something there that caught my ear. Explain that
       again.
     Tone: 0
     Weight: 1
-  - Text: The listeners are gonna want to know - did anyone else see this?
+  - Id: vern_extraprobing_004
+    Text: The listeners are gonna want to know - did anyone else see this?
     Tone: 0
     Weight: 1
-  - Text: Alright, I've got to ask - any physical evidence? Photos, recordings, anything?
+  - Id: vern_extraprobing_005
+    Text: Alright, I've got to ask - any physical evidence? Photos, recordings, anything?
     Tone: 0
     Weight: 1
   SkepticalLines:
-  - Text: Now hold on a second there, friend. That could've been anything up there.
+  - Id: vern_skeptical_001
+    Text: Now hold on a second there, friend. That could've been anything up there.
     Tone: 2
     Weight: 1
-  - Text: I gotta be honest with you, I'm not buying it. Not yet anyway.
+  - Id: vern_skeptical_002
+    Text: I gotta be honest with you, I'm not buying it. Not yet anyway.
     Tone: 2
     Weight: 1
-  - Text: You sure it wasn't just a plane? A satellite? Weather balloon maybe?
+  - Id: vern_skeptical_003
+    Text: You sure it wasn't just a plane? A satellite? Weather balloon maybe?
     Tone: 2
     Weight: 1
-  - Text: See, I've been doing this a long time. I've heard a lot of stories. What
+  - Id: vern_skeptical_004
+    Text: See, I've been doing this a long time. I've heard a lot of stories. What
       makes yours different?
     Tone: 2
     Weight: 1
-  - Text: I want to believe you, I really do. But you're gonna have to give me more
+  - Id: vern_skeptical_005
+    Text: I want to believe you, I really do. But you're gonna have to give me more
       than that.
     Tone: 2
     Weight: 1
   DismissiveLines:
-  - Text: Yeah, okay. Thanks for calling in. Next caller.
+  - Id: vern_dismissive_001
+    Text: Yeah, okay. Thanks for calling in. Next caller.
     Tone: 4
     Weight: 1
-  - Text: Right. We're gonna move on. The board's lighting up and I've got real callers
+  - Id: vern_dismissive_002
+    Text: Right. We're gonna move on. The board's lighting up and I've got real callers
       waiting.
     Tone: 4
     Weight: 1
-  - Text: Uh-huh. Appreciate it. Moving on.
+  - Id: vern_dismissive_003
+    Text: Uh-huh. Appreciate it. Moving on.
     Tone: 4
     Weight: 1
-  - Text: Look, I've got a show to run here. Thanks for your time.
+  - Id: vern_dismissive_004
+    Text: Look, I've got a show to run here. Thanks for your time.
     Tone: 4
     Weight: 1
-  - Text: Alright, that's... that's enough of that. We'll be right back after these
+  - Id: vern_dismissive_005
+    Text: Alright, that's... that's enough of that. We'll be right back after these
       messages.
     Tone: 4
     Weight: 1
   BelievingLines:
-  - Text: See, THIS is what I'm talking about, folks. This is why I do this show.
+  - Id: vern_believing_001
+    Text: See, THIS is what I'm talking about, folks. This is why I do this show.
     Tone: 1
     Weight: 1
-  - Text: Now that's fascinating. I believe you. I really do.
+  - Id: vern_believing_002
+    Text: Now that's fascinating. I believe you. I really do.
     Tone: 5
     Weight: 1
-  - Text: This is exactly the kind of call I live for, night owls. You hearing this?
+  - Id: vern_believing_003
+    Text: This is exactly the kind of call I live for, night owls. You hearing this?
     Tone: 1
     Weight: 1
-  - Text: You know what? Your voice tells me everything I need to know. You're telling
+  - Id: vern_believing_004
+    Text: You know what? Your voice tells me everything I need to know. You're telling
       the truth.
     Tone: 5
     Weight: 1
-  - Text: Folks, write this down. Mark the date. We're witnessing something here
+  - Id: vern_believing_005
+    Text: Folks, write this down. Mark the date. We're witnessing something here
       tonight.
     Tone: 1
     Weight: 1
   TiredLines:
-  - Text: Mm-hmm... go on.
+  - Id: vern_tired_001
+    Text: Mm-hmm... go on.
     Tone: 0
     Weight: 1
-  - Text: Alright... what else? *yawn* Sorry, long night.
+  - Id: vern_tired_002
+    Text: Alright... what else? *yawn* Sorry, long night.
     Tone: 0
     Weight: 1
-  - Text: Yeah... okay... I'm with you.
+  - Id: vern_tired_003
+    Text: Yeah... okay... I'm with you.
     Tone: 0
     Weight: 1
-  - Text: Keep going. Just need another coffee here...
+  - Id: vern_tired_004
+    Text: Keep going. Just need another coffee here...
     Tone: 0
     Weight: 1
-  - Text: Right, right... what time is it? Never mind, continue.
+  - Id: vern_tired_005
+    Text: Right, right... what time is it? Never mind, continue.
     Tone: 0
     Weight: 1
   AnnoyedLines:
-  - Text: Get to the point, caller. The clock's ticking.
+  - Id: vern_annoyed_001
+    Text: Get to the point, caller. The clock's ticking.
     Tone: 6
     Weight: 1
-  - Text: We don't have all night here. Well, we do, but I'd like to talk to more
+  - Id: vern_annoyed_002
+    Text: We don't have all night here. Well, we do, but I'd like to talk to more
       than one person.
     Tone: 6
     Weight: 1
-  - Text: Is there a point to this story? Because I'm losing the thread here.
+  - Id: vern_annoyed_003
+    Text: Is there a point to this story? Because I'm losing the thread here.
     Tone: 6
     Weight: 1
-  - Text: Look, I've got a board full of callers. You gonna give me something or
+  - Id: vern_annoyed_004
+    Text: Look, I've got a board full of callers. You gonna give me something or
       not?
     Tone: 6
     Weight: 1
-  - Text: I'm gonna stop you right there. Where is this going?
+  - Id: vern_annoyed_005
+    Text: I'm gonna stop you right there. Where is this going?
     Tone: 6
     Weight: 1
   EngagingLines:
-  - Text: Oh, is that right? Well, let's hear more about this adventure of yours.
+  - Id: vern_engaging_001
+    Text: Oh, is that right? Well, let's hear more about this adventure of yours.
     Tone: 0
     Weight: 1
-  - Text: Ha! You know what, I appreciate the creativity here. Keep going.
+  - Id: vern_engaging_002
+    Text: Ha! You know what, I appreciate the creativity here. Keep going.
     Tone: 1
     Weight: 1
-  - Text: Sure, sure. And what else happened in this totally real encounter?
+  - Id: vern_engaging_003
+    Text: Sure, sure. And what else happened in this totally real encounter?
     Tone: 0
     Weight: 1
-  - Text: Look, the listeners at home are entertained, so let's ride this out.
+  - Id: vern_engaging_004
+    Text: Look, the listeners at home are entertained, so let's ride this out.
     Tone: 0
     Weight: 1
-  - Text: You're pulling my leg, but you know what? It's late, I'll play along.
+  - Id: vern_engaging_005
+    Text: You're pulling my leg, but you know what? It's late, I'll play along.
     Tone: 0
     Weight: 1
   CutOffLines:
-  - Text: Alright, we're gonna have to cut you off there. Thanks for calling.
+  - Id: vern_cutoff_001
+    Text: Alright, we're gonna have to cut you off there. Thanks for calling.
     Tone: 4
     Weight: 1
-  - Text: I'm gonna stop you right there. We've got other callers waiting. Appreciate
+  - Id: vern_cutoff_002
+    Text: I'm gonna stop you right there. We've got other callers waiting. Appreciate
       it.
     Tone: 4
     Weight: 1
-  - Text: Yeah, that's all the time we've got for this one, folks. Moving on.
+  - Id: vern_cutoff_003
+    Text: Yeah, that's all the time we've got for this one, folks. Moving on.
     Tone: 4
     Weight: 1
-  - Text: We need to take a break. Thanks for calling in. *click*
+  - Id: vern_cutoff_004
+    Text: We need to take a break. Thanks for calling in. *click*
     Tone: 4
     Weight: 1
-  - Text: And on that note, let's go to the next caller. Keep watching the skies.
+  - Id: vern_cutoff_005
+    Text: And on that note, let's go to the next caller. Keep watching the skies.
     Tone: 0
     Weight: 1
   SignOffLines:
-  - Text: Appreciate the call, {callerName}. Keep watching the skies out there.
+  - Id: vern_signoff_001
+    Text: Appreciate the call, {callerName}. Keep watching the skies out there.
     Tone: 0
     Weight: 1
-  - Text: Thanks for sharing that with us tonight. Stay vigilant, truth-seeker.
+  - Id: vern_signoff_002
+    Text: Thanks for sharing that with us tonight. Stay vigilant, truth-seeker.
     Tone: 0
     Weight: 1
-  - Text: Stay safe out there, {callerName}. And keep those eyes on the horizon.
+  - Id: vern_signoff_003
+    Text: Stay safe out there, {callerName}. And keep those eyes on the horizon.
     Tone: 0
     Weight: 1
-  - Text: Powerful stuff, {callerName}. Thanks for having the courage to share it.
+  - Id: vern_signoff_004
+    Text: Powerful stuff, {callerName}. Thanks for having the courage to share it.
     Tone: 5
     Weight: 1
-  - Text: That's what this show is all about, folks. Thanks for the call. We'll be
+  - Id: vern_signoff_005
+    Text: That's what this show is all about, folks. Thanks for the call. We'll be
       right back.
     Tone: 0
     Weight: 1
   ShowOpeningLines:
-  - Text: Good evening, truth-seekers. You're tuned to KBTV, Beyond the Veil AM.
+  - Id: vern_opening_001
+    Text: Good evening, truth-seekers. You're tuned to KBTV, Beyond the Veil AM.
       I'm your host, Vern Castellano, and we've got a big show for you tonight.
     Tone: 1
     Weight: 1
-  - Text: It's midnight on the dial, and you know what that means. Welcome to KBTV.
+  - Id: vern_opening_002
+    Text: It's midnight on the dial, and you know what that means. Welcome to KBTV.
       The phone lines are open, and the truth is out there waiting.
     Tone: 0
     Weight: 1
-  - Text: Welcome back, night owls. This is Vern Castellano coming to you live from
+  - Id: vern_opening_003
+    Text: Welcome back, night owls. This is Vern Castellano coming to you live from
       the KBTV studios. Tonight, we're going deep.
     Tone: 0
     Weight: 1
-  - Text: You're listening to KBTV, where we pull back the curtain on what they don't
+  - Id: vern_opening_004
+    Text: You're listening to KBTV, where we pull back the curtain on what they don't
       want you to know. Let's get started.
     Tone: 0
     Weight: 1
-  - Text: The witching hour approaches, and so do the callers. This is KBTV. I'm
+  - Id: vern_opening_005
+    Text: The witching hour approaches, and so do the callers. This is KBTV. I'm
       Vern. Let's see what's out there tonight.
     Tone: 0
     Weight: 1
   ShowClosingLines:
-  - Text: And that's all the time we have tonight, folks. Thanks to everyone who
+  - Id: vern_closing_001
+    Text: And that's all the time we have tonight, folks. Thanks to everyone who
       called in. Keep watching the skies.
     Tone: 0
     Weight: 1
-  - Text: The sun's coming up, truth-seekers. Time to sign off. But remember - the
+  - Id: vern_closing_002
+    Text: The sun's coming up, truth-seekers. Time to sign off. But remember - the
       truth doesn't sleep, and neither should you.
     Tone: 0
     Weight: 1
-  - Text: That's a wrap on tonight's show. This is Vern Castellano saying goodnight,
+  - Id: vern_closing_003
+    Text: That's a wrap on tonight's show. This is Vern Castellano saying goodnight,
       and stay vigilant out there.
     Tone: 0
     Weight: 1
-  - Text: We're out of time, but never out of mysteries. Thanks for listening to
+  - Id: vern_closing_004
+    Text: We're out of time, but never out of mysteries. Thanks for listening to
       KBTV. Until next time.
     Tone: 0
     Weight: 1
-  - Text: Another night, another pile of evidence. Thanks for being part of the search,
+  - Id: vern_closing_005
+    Text: Another night, another pile of evidence. Thanks for being part of the search,
       folks. This is KBTV, signing off.
     Tone: 0
     Weight: 1
   BetweenCallersLines:
-  - Text: Fascinating stuff. Let's see who else is on the line.
+  - Id: vern_betweencallers_001
+    Text: Fascinating stuff. Let's see who else is on the line.
     Tone: 0
     Weight: 1
-  - Text: Alright, we've got more callers waiting. Let's keep this going.
+  - Id: vern_betweencallers_002
+    Text: Alright, we've got more callers waiting. Let's keep this going.
     Tone: 0
     Weight: 1
-  - Text: The board's lighting up tonight. Let's go to our next caller.
+  - Id: vern_betweencallers_003
+    Text: The board's lighting up tonight. Let's go to our next caller.
     Tone: 1
     Weight: 1
-  - Text: Interesting call. But we've got more stories to hear. Next caller, you're
+  - Id: vern_betweencallers_004
+    Text: Interesting call. But we've got more stories to hear. Next caller, you're
       on.
     Tone: 0
     Weight: 1
-  - Text: That's what I love about this show - you never know what's coming next.
+  - Id: vern_betweencallers_005
+    Text: That's what I love about this show - you never know what's coming next.
       Speaking of which...
     Tone: 0
     Weight: 1
-  - Text: The lines are burning up tonight. Let's keep the momentum going.
+  - Id: vern_betweencallers_006
+    Text: The lines are burning up tonight. Let's keep the momentum going.
     Tone: 1
     Weight: 1
-  - Text: More callers in the queue. Let's see what else is out there.
+  - Id: vern_betweencallers_007
+    Text: More callers in the queue. Let's see what else is out there.
     Tone: 0
     Weight: 1
-  - Text: Alright, next up on the lines...
+  - Id: vern_betweencallers_008
+    Text: Alright, next up on the lines...
     Tone: 0
     Weight: 1
-  - Text: Good stuff. We've got more waiting in the wings.
+  - Id: vern_betweencallers_009
+    Text: Good stuff. We've got more waiting in the wings.
     Tone: 0
     Weight: 1
-  - Text: That's the kind of call that keeps me coming back every night. Who's next?
+  - Id: vern_betweencallers_010
+    Text: That's the kind of call that keeps me coming back every night. Who's next?
     Tone: 1
     Weight: 1
   DeadAirFillerLines:
-  - Text: Phone lines are quiet for the moment. If you've got a story, now's the
+  - Id: vern_deadairfiller_001
+    Text: Phone lines are quiet for the moment. If you've got a story, now's the
       time to call in.
     Tone: 0
     Weight: 1
-  - Text: We're waiting on callers, folks. Don't be shy. The number's on your screen.
+  - Id: vern_deadairfiller_002
+    Text: We're waiting on callers, folks. Don't be shy. The number's on your screen.
     Tone: 0
     Weight: 1
-  - Text: You know, nights like this give me time to think about all the stories
+  - Id: vern_deadairfiller_003
+    Text: You know, nights like this give me time to think about all the stories
       we've heard over the years...
     Tone: 0
     Weight: 1
-  - Text: Quiet on the lines. That's unusual. Makes you wonder what's keeping people
+  - Id: vern_deadairfiller_004
+    Text: Quiet on the lines. That's unusual. Makes you wonder what's keeping people
       up tonight.
     Tone: 0
     Weight: 1
-  - Text: While we wait for callers, let me tell you - I've seen some things in my
+  - Id: vern_deadairfiller_005
+    Text: While we wait for callers, let me tell you - I've seen some things in my
       years doing this show.
     Tone: 0
     Weight: 1
-  - Text: The truth doesn't call itself in, folks. Someone out there has a story.
+  - Id: vern_deadairfiller_006
+    Text: The truth doesn't call itself in, folks. Someone out there has a story.
       I can feel it.
     Tone: 0
     Weight: 1
-  - Text: Empty lines. Either everyone's asleep or everyone's seen something and
+  - Id: vern_deadairfiller_007
+    Text: Empty lines. Either everyone's asleep or everyone's seen something and
       they're too scared to talk.
     Tone: 0
     Weight: 1
-  - Text: If you're just tuning in, this is KBTV. We're here all night, and we want
+  - Id: vern_deadairfiller_008
+    Text: If you're just tuning in, this is KBTV. We're here all night, and we want
       to hear from you.
     Tone: 0
     Weight: 1
-  - Text: Come on, night owls. Don't leave me hanging here. What's happening out
+  - Id: vern_deadairfiller_009
+    Text: Come on, night owls. Don't leave me hanging here. What's happening out
       there?
     Tone: 0
     Weight: 1
-  - Text: Slow night on the lines. But that's alright. The best calls always come
+  - Id: vern_deadairfiller_010
+    Text: Slow night on the lines. But that's alright. The best calls always come
       when you least expect them.
     Tone: 0
     Weight: 1
   DroppedCallerLines:
-  - Text: Looks like we lost that caller. Phone lines, am I right?
+  - Id: vern_droppedcaller_001
+    Text: Looks like we lost that caller. Phone lines, am I right?
     Tone: 0
     Weight: 1
-  - Text: And... they're gone. Technical difficulties, folks. Let's move on.
+  - Id: vern_droppedcaller_002
+    Text: And... they're gone. Technical difficulties, folks. Let's move on.
     Tone: 0
     Weight: 1
-  - Text: Hello? You still there? Guess not. Next caller.
+  - Id: vern_droppedcaller_003
+    Text: Hello? You still there? Guess not. Next caller.
     Tone: 0
     Weight: 1
-  - Text: We lost 'em. Happens sometimes. The truth doesn't always have a good signal.
+  - Id: vern_droppedcaller_004
+    Text: We lost 'em. Happens sometimes. The truth doesn't always have a good signal.
     Tone: 0
     Weight: 1
-  - Text: Caller dropped. Either bad reception or... well, let's not speculate.
+  - Id: vern_droppedcaller_005
+    Text: Caller dropped. Either bad reception or... well, let's not speculate.
     Tone: 0
     Weight: 1

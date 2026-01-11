@@ -70,6 +70,8 @@ namespace KBTV.UI
 
             // Show Quality display
             CreateShowQualityDisplay();
+            
+            MarkUIBuilt();
         }
 
         private void CreateDivider()

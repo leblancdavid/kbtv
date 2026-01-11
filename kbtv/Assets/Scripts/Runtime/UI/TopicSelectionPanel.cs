@@ -92,6 +92,8 @@ namespace KBTV.UI
                 "Select a topic above to see its description.",
                 UITheme.FontSizeNormal, UITheme.TextGray, TextAlignmentOptions.Center);
             UITheme.AddLayoutElement(_selectedTopicDescription.gameObject, flexibleHeight: 1f);
+            
+            MarkUIBuilt();
         }
 
         protected override bool DoSubscribe()

@@ -98,6 +98,8 @@ namespace KBTV.UI
             // Initially show empty state
             _callerContainer.SetActive(false);
             _emptyState.SetActive(true);
+            
+            MarkUIBuilt();
         }
 
         private void CreateDivider()

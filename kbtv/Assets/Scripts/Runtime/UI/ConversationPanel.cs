@@ -178,12 +178,18 @@ namespace KBTV.UI
             // Initially show empty state
             _transcriptContainer.SetActive(false);
             _emptyState.SetActive(true);
+            
+            MarkUIBuilt();
         }
 
         protected override bool DoSubscribe()
         {
             _conversationManager = ConversationManager.Instance;
-            if (_conversationManager == null) return false;
+            if (_conversationManager == null) 
+            {
+                Debug.Log("ConversationPanel: DoSubscribe failed - ConversationManager.Instance is null");
+                return false;
+            }
 
             _conversationManager.OnConversationStarted += OnConversationStarted;
             _conversationManager.OnConversationEnded += OnConversationEnded;
@@ -195,6 +201,8 @@ namespace KBTV.UI
             _conversationManager.OnBroadcastLineDisplayed += OnBroadcastLineDisplayed;
             _conversationManager.OnBroadcastLineDisplayedWithDuration += OnBroadcastLineDisplayedWithDuration;
             _conversationManager.OnBroadcastLineCompleted += OnBroadcastLineCompleted;
+            
+            Debug.Log("ConversationPanel: Successfully subscribed to ConversationManager events");
             return true;
         }
 
@@ -363,11 +371,13 @@ namespace KBTV.UI
 
         private void OnBroadcastLineDisplayed(DialogueLine line)
         {
+            Debug.Log($"ConversationPanel: OnBroadcastLineDisplayed received - {line?.Text}");
             DisplayFillerOrBroadcastLine(line);
         }
 
         private void OnBroadcastLineDisplayedWithDuration(DialogueLine line, float audioDuration)
         {
+            Debug.Log($"ConversationPanel: OnBroadcastLineDisplayedWithDuration received - duration: {audioDuration}s");
             if (line == null) return;
             SetTypewriterSpeedForDuration(line.Text, audioDuration);
             DisplayFillerOrBroadcastLine(line);
@@ -381,6 +391,8 @@ namespace KBTV.UI
         private void DisplayLine(DialogueLine line)
         {
             if (line == null) return;
+
+            Debug.Log($"ConversationPanel: DisplayLine called - Speaker: {line.Speaker}, Text: {line.Text?.Substring(0, System.Math.Min(30, line.Text?.Length ?? 0))}...");
 
             // Check if speaker changed for audio cue
             bool speakerChanged = _previousLine != null && _previousLine.Speaker != line.Speaker;

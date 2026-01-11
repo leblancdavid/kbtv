@@ -107,6 +107,8 @@ namespace KBTV.UI
             _callerContainer.SetActive(false);
             _emptyState.SetActive(true);
             _liveIndicator.SetActive(false);
+            
+            MarkUIBuilt();
         }
 
         private void CreateDivider()
