@@ -39,14 +39,14 @@ namespace KBTV.Dialogue
         /// The currently active dialogue line (or null if not playing).
         /// </summary>
         public DialogueLine CurrentLine =>
-            _currentIndex >= 0 && _currentIndex < _lines.Count
+            _lines != null && _currentIndex >= 0 && _currentIndex < _lines.Count
                 ? _lines[_currentIndex]
                 : null;
 
         /// <summary>
         /// Whether there are more lines to display.
         /// </summary>
-        public bool HasMoreLines => _currentIndex < _lines.Count - 1;
+        public bool HasMoreLines => _lines != null && _currentIndex < _lines.Count - 1;
 
         /// <summary>
         /// Current phase of the conversation based on current line.
@@ -58,7 +58,7 @@ namespace KBTV.Dialogue
         /// Progress through the conversation (0.0 to 1.0).
         /// </summary>
         public float Progress =>
-            _lines.Count > 0 ? (float)(_currentIndex + 1) / _lines.Count : 0f;
+            _lines != null && _lines.Count > 0 ? (float)(_currentIndex + 1) / _lines.Count : 0f;
 
         // Events
         public event Action<DialogueLine> OnLineStarted;
