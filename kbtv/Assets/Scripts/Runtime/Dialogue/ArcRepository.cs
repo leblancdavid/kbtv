@@ -56,7 +56,6 @@ namespace KBTV.Dialogue
             }
 
             _initialized = true;
-            Debug.Log($"ArcRepository: Initialized with {_arcs.Count} arcs");
         }
 
         /// <summary>

@@ -119,7 +119,6 @@ namespace KBTV.Dialogue
                 CallerQueue.Instance.OnCallerOnAir += HandleCallerOnAir;
                 CallerQueue.Instance.OnCallerCompleted += HandleCallerCompleted;
                 CallerQueue.Instance.OnCallerApproved += HandleCallerApproved;
-                Debug.Log("ConversationManager: Subscribed to CallerQueue events");
             }
             else
             {
@@ -130,7 +129,6 @@ namespace KBTV.Dialogue
             if (GameStateManager.Instance != null)
             {
                 GameStateManager.Instance.OnPhaseChanged += HandleGamePhaseChanged;
-                Debug.Log("ConversationManager: Subscribed to GameStateManager.OnPhaseChanged");
             }
             else
             {
@@ -233,8 +231,7 @@ namespace KBTV.Dialogue
             _currentConversation.Start();
             OnConversationStarted?.Invoke(_currentConversation);
 
-            Debug.Log($"ConversationManager: Started conversation with {caller.Name}, {_currentConversation.Lines.Count} lines " +
-                      $"(Mood: {_arcGenerator.LastMood}, Belief: {_arcGenerator.LastBeliefPath})");
+
         }
 
         /// <summary>
@@ -388,26 +385,19 @@ namespace KBTV.Dialogue
                 // If not cached, load on-demand (preload may not have completed)
                 if (clip == null)
                 {
-                    Debug.Log($"ConversationManager: Clip for line {lineIndex} ({line.Speaker}) not cached, loading on-demand");
                     clip = await VoiceAudioService.Instance.GetConversationClipAsync(lineIndex, line.Speaker);
                     
                     // Guard: Make sure conversation is still active after async load
                     if (_currentConversation != conversationAtStart || _currentConversation?.CurrentIndex != lineIndexAtStart)
                     {
-                        Debug.Log($"ConversationManager: Conversation state changed during audio load, skipping");
                         return;
                     }
                 }
                 
                 if (clip != null)
                 {
-                    Debug.Log($"ConversationManager: Playing conversation clip for line {lineIndex} ({line.Speaker}): {clip.name}");
                     AudioManager.Instance?.PlayVoiceClip(clip, line.Speaker);
                     audioDuration = clip.length;
-                }
-                else
-                {
-                    Debug.Log($"ConversationManager: No audio clip found for line {lineIndex} ({line.Speaker})");
                 }
             }
             
@@ -424,8 +414,6 @@ namespace KBTV.Dialogue
 
             OnLineDisplayed?.Invoke(line);
             OnLineDisplayedWithDuration?.Invoke(line, audioDuration);
-
-            Debug.Log($"ConversationManager: [{line.Speaker}] {line.Text} (duration: {_currentLineDuration:F2}s)");
         }
 
         private void HandleLineEnded(DialogueLine line)
@@ -436,7 +424,6 @@ namespace KBTV.Dialogue
         private void HandlePhaseChanged(ConversationPhase phase)
         {
             OnPhaseChanged?.Invoke(phase);
-            Debug.Log($"ConversationManager: Phase changed to {phase}");
         }
 
         #region Broadcast Flow Lines
@@ -484,28 +471,20 @@ namespace KBTV.Dialogue
             float audioDuration = 0f;
             if (VoiceAudioService.Instance != null && !string.IsNullOrEmpty(template.Id))
             {
-                Debug.Log($"ConversationManager: Loading broadcast audio for ID: {template.Id}");
                 try
                 {
                     var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
-                    Debug.Log($"ConversationManager: GetBroadcastClipAsync returned, clip is {(clip != null ? "not null" : "null")}");
                     
                     // Guard: Check if broadcast was cancelled during async load (e.g., caller went on air)
                     if (!_isPlayingBroadcastLine)
                     {
-                        Debug.Log($"ConversationManager: Broadcast cancelled during audio load, skipping playback");
                         return;
                     }
                     
                     if (clip != null)
                     {
-                        Debug.Log($"ConversationManager: Playing broadcast clip: {clip.name} ({clip.length:F2}s)");
                         AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
                         audioDuration = clip.length;
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"ConversationManager: Broadcast clip not found for ID: {template.Id}");
                     }
                 }
                 catch (System.Exception ex)
@@ -513,15 +492,10 @@ namespace KBTV.Dialogue
                     Debug.LogError($"ConversationManager: Exception loading broadcast audio: {ex.Message}");
                 }
             }
-            else
-            {
-                Debug.LogWarning($"ConversationManager: Cannot load broadcast audio - VoiceAudioService: {VoiceAudioService.Instance != null}, Template.Id: '{template.Id}'");
-            }
             
             // Guard: Check again in case state changed during async operations
             if (!_isPlayingBroadcastLine)
             {
-                Debug.Log($"ConversationManager: Broadcast cancelled, not firing events");
                 return;
             }
             
@@ -532,10 +506,8 @@ namespace KBTV.Dialogue
 
             if (_currentBroadcastLine != null)
             {
-                Debug.Log($"ConversationManager: Firing OnBroadcastLineDisplayed event (subscribers: {OnBroadcastLineDisplayed?.GetInvocationList()?.Length ?? 0})");
                 OnBroadcastLineDisplayed?.Invoke(_currentBroadcastLine);
                 OnBroadcastLineDisplayedWithDuration?.Invoke(_currentBroadcastLine, audioDuration);
-                Debug.Log($"ConversationManager: [BROADCAST] {_currentBroadcastLine.Text} (duration: {_broadcastLineDuration:F2}s)");
             }
         }
 
@@ -562,7 +534,6 @@ namespace KBTV.Dialogue
         {
             if (!_isPlayingBroadcastLine) return;
             
-            Debug.Log("ConversationManager: Cancelling broadcast line");
             _isPlayingBroadcastLine = false;
             _currentBroadcastLine = null;
             _onBroadcastLineComplete = null; // Discard callback
@@ -578,25 +549,19 @@ namespace KBTV.Dialogue
         /// </summary>
         private void PlayShowOpening(System.Action onComplete)
         {
-            Debug.Log("ConversationManager: PlayShowOpening called");
             if (_vernTemplate == null)
             {
-                Debug.LogWarning("ConversationManager: Cannot play show opening - VernDialogueTemplate is null");
                 onComplete?.Invoke();
                 return;
             }
-            
-            Debug.Log($"ConversationManager: VernTemplate has {_vernTemplate.ShowOpeningLines?.Length ?? 0} show opening lines");
 
             var template = _vernTemplate.GetShowOpening();
             if (template == null)
             {
-                Debug.LogWarning("ConversationManager: GetShowOpening returned null (no show opening lines configured)");
                 onComplete?.Invoke();
                 return;
             }
             
-            Debug.Log($"ConversationManager: Playing show opening with ID: '{template.Id}', Text: '{template.Text}'");
             PlayBroadcastLine(template, onComplete);
         }
 
@@ -647,7 +612,6 @@ namespace KBTV.Dialogue
                 // Check if there are callers waiting on hold - put them on air
                 if (CallerQueue.Instance != null && CallerQueue.Instance.HasOnHoldCallers)
                 {
-                    Debug.Log("ConversationManager: Filler line done, on-hold caller available - putting on air");
                     StopDeadAirFiller();
                     CallerQueue.Instance.PutNextCallerOnAir();
                     return;
@@ -667,19 +631,14 @@ namespace KBTV.Dialogue
         /// </summary>
         private void StartDeadAirFiller()
         {
-            Debug.Log($"ConversationManager: StartDeadAirFiller called - _isPlayingDeadAirFiller: {_isPlayingDeadAirFiller}, _vernTemplate: {_vernTemplate != null}");
-            
             if (_isPlayingDeadAirFiller) return;
             if (_vernTemplate == null)
             {
-                Debug.LogWarning("ConversationManager: Cannot start dead air filler - VernDialogueTemplate not assigned");
                 return;
             }
 
             _isPlayingDeadAirFiller = true;
             DisplayNextFillerLine();
-
-            Debug.Log("ConversationManager: Started dead air filler");
         }
 
         /// <summary>
@@ -697,7 +656,6 @@ namespace KBTV.Dialogue
             AudioManager.Instance?.StopVoice();
 
             OnFillerStopped?.Invoke();
-            Debug.Log("ConversationManager: Stopped dead air filler");
         }
 
         /// <summary>
@@ -730,36 +688,24 @@ namespace KBTV.Dialogue
             float audioDuration = 0f;
             if (VoiceAudioService.Instance != null && !string.IsNullOrEmpty(template.Id))
             {
-                Debug.Log($"ConversationManager: Loading filler audio for ID: {template.Id}");
                 var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
                 
                 // Guard: Check if filler was stopped during async load (e.g., caller went on air)
                 if (!_isPlayingDeadAirFiller)
                 {
-                    Debug.Log($"ConversationManager: Filler stopped during audio load, skipping playback");
                     return;
                 }
                 
                 if (clip != null)
                 {
-                    Debug.Log($"ConversationManager: Playing filler clip: {clip.name} ({clip.length:F2}s)");
                     AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
                     audioDuration = clip.length;
                 }
-                else
-                {
-                    Debug.LogWarning($"ConversationManager: Filler clip not found for ID: {template.Id}");
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"ConversationManager: Cannot load filler audio - VoiceAudioService: {VoiceAudioService.Instance != null}, Template.Id: '{template.Id}'");
             }
             
             // Guard: Check again in case state changed during async operations
             if (!_isPlayingDeadAirFiller)
             {
-                Debug.Log($"ConversationManager: Filler stopped, not firing events");
                 return;
             }
             
@@ -769,7 +715,6 @@ namespace KBTV.Dialogue
                 : _currentFillerLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
 
             OnFillerLineDisplayed?.Invoke(_currentFillerLine);
-            Debug.Log($"ConversationManager: [FILLER] {_currentFillerLine.Text} (duration: {_currentFillerLineDuration:F2}s)");
         }
 
         /// <summary>
@@ -778,12 +723,9 @@ namespace KBTV.Dialogue
         /// </summary>
         private void HandleCallerApproved(Caller caller)
         {
-            Debug.Log($"ConversationManager: HandleCallerApproved - caller {caller.Name} now on hold");
-            
             // If nothing is playing, put caller on air immediately
             if (!_isPlayingDeadAirFiller && !_isPlayingBroadcastLine && _currentConversation == null)
             {
-                Debug.Log("ConversationManager: Nothing playing, putting caller on air immediately");
                 CallerQueue.Instance?.PutNextCallerOnAir();
             }
             // Otherwise, caller waits - they'll be picked up when current content finishes
@@ -794,11 +736,8 @@ namespace KBTV.Dialogue
         /// </summary>
         private void HandleGamePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
         {
-            Debug.Log($"ConversationManager: HandleGamePhaseChanged called - {oldPhase} -> {newPhase}");
-            
             if (newPhase == GamePhase.LiveShow)
             {
-                Debug.Log("ConversationManager: LiveShow started, deferring show opening to allow UI to subscribe");
                 // Defer show opening by one frame to allow UI panels to activate and subscribe to events.
                 // The phase change event activates the LiveShowUI, which then enables child panels.
                 // Without this delay, the show opening would fire before panels have subscribed.
@@ -806,7 +745,6 @@ namespace KBTV.Dialogue
             }
             else if (oldPhase == GamePhase.LiveShow)
             {
-                Debug.Log("ConversationManager: LiveShow ended, stopping filler and playing closing");
                 // Stop filler when leaving LiveShow
                 StopDeadAirFiller();
 
@@ -823,25 +761,21 @@ namespace KBTV.Dialogue
             // Wait one frame for UI panels to activate and subscribe
             yield return null;
             
-            Debug.Log("ConversationManager: Playing show opening (deferred)");
             PlayShowOpening(() =>
             {
                 // After show opening, check if caller is already on air
                 if (CallerQueue.Instance != null && CallerQueue.Instance.IsOnAir)
                 {
-                    Debug.Log("ConversationManager: Caller already on air after show opening");
                     return;
                 }
                 
                 // Check if there are callers on hold - put them on air
                 if (CallerQueue.Instance != null && CallerQueue.Instance.HasOnHoldCallers)
                 {
-                    Debug.Log("ConversationManager: On-hold caller available after show opening, putting on air");
                     CallerQueue.Instance.PutNextCallerOnAir();
                     return;
                 }
                 
-                Debug.Log("ConversationManager: No callers available, starting dead air filler");
                 StartDeadAirFiller();
             });
         }
@@ -902,8 +836,6 @@ namespace KBTV.Dialogue
 
         private void HandleConversationCompleted()
         {
-            Debug.Log($"ConversationManager: Conversation completed");
-            
             var conversation = _currentConversation;
             
             // Clean up

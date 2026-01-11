@@ -53,12 +53,6 @@ namespace KBTV.Dialogue
                     caller.ClaimedTopic, 
                     caller.ActualTopic, 
                     caller.Legitimacy);
-                
-                if (arc != null)
-                {
-                    Debug.Log($"ArcConversationGenerator: Using topic-switcher arc '{arc.ArcId}' " +
-                              $"(claimed: {caller.ClaimedTopic} -> actual: {caller.ActualTopic})");
-                }
             }
 
             // Fall back to regular arc selection using actual topic

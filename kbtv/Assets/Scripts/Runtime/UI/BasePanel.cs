@@ -18,12 +18,10 @@ namespace KBTV.UI
         protected void MarkUIBuilt()
         {
             _isUIBuilt = true;
-            Debug.Log($"{GetType().Name}: MarkUIBuilt called");
         }
 
         protected virtual void Start()
         {
-            Debug.Log($"{GetType().Name}: Start called, _isUIBuilt={_isUIBuilt}");
             TrySubscribe();
             if (_isSubscribed)
             {
@@ -33,7 +31,6 @@ namespace KBTV.UI
 
         protected virtual void OnEnable()
         {
-            Debug.Log($"{GetType().Name}: OnEnable called, _isUIBuilt={_isUIBuilt}, _isSubscribed={_isSubscribed}");
             // Only try to subscribe if UI has been built.
             // OnEnable is called during AddComponent, before BuildUI() runs.
             if (!_isUIBuilt) return;
@@ -54,7 +51,6 @@ namespace KBTV.UI
                 TrySubscribe();
                 if (_isSubscribed)
                 {
-                    Debug.Log($"{GetType().Name}: Subscribed via Update");
                     UpdateDisplay();
                 }
             }
