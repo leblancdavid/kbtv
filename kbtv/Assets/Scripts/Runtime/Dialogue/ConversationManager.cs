@@ -209,7 +209,7 @@ namespace KBTV.Dialogue
                 VernMood mood = _arcGenerator.LastMood;
                 int lineCount = _currentConversation.Lines.Count;
                 
-                // Start preloading (don't await - let conversation start while loading)
+                // Start preloading (don't await - let introduction play while loading)
                 _ = VoiceAudioService.Instance.PreloadConversationAsync(arcId, topic, mood, lineCount);
             }
 
@@ -219,12 +219,66 @@ namespace KBTV.Dialogue
             _currentConversation.OnPhaseChanged += HandlePhaseChanged;
             _currentConversation.OnConversationCompleted += HandleConversationCompleted;
 
+            // Play caller introduction before starting the arc conversation
+            await PlayCallerIntroductionAsync(caller);
+
             // Start playback
             _currentConversation.Start();
             OnConversationStarted?.Invoke(_currentConversation);
 
             Debug.Log($"ConversationManager: Started conversation with {caller.Name}, {_currentConversation.Lines.Count} lines " +
                       $"(Mood: {_arcGenerator.LastMood}, Belief: {_arcGenerator.LastBeliefPath})");
+        }
+
+        /// <summary>
+        /// Play Vern's introduction for a caller before the arc conversation starts.
+        /// </summary>
+        private async System.Threading.Tasks.Task PlayCallerIntroductionAsync(Caller caller)
+        {
+            if (_vernTemplate == null) return;
+            
+            var template = _vernTemplate.GetIntroduction();
+            if (template == null) return;
+            
+            // Replace placeholders in introduction text
+            string introText = template.Text
+                .Replace("{callerName}", caller.Name)
+                .Replace("{location}", caller.Location ?? "somewhere out there");
+            
+            var introLine = new DialogueLine(
+                Speaker.Vern,
+                introText,
+                template.Tone,
+                ConversationPhase.Intro
+            );
+            
+            // Try to load and play voice audio
+            float audioDuration = 0f;
+            if (VoiceAudioService.Instance != null && !string.IsNullOrEmpty(template.Id))
+            {
+                var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
+                if (clip != null)
+                {
+                    AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
+                    audioDuration = clip.length;
+                }
+            }
+            
+            // Use audio duration if available, otherwise calculate from text
+            float introDuration = audioDuration > 0f 
+                ? audioDuration 
+                : introLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
+            
+            // Fire events for UI to display
+            OnBroadcastLineDisplayed?.Invoke(introLine);
+            OnBroadcastLineDisplayedWithDuration?.Invoke(introLine, audioDuration);
+            
+            Debug.Log($"ConversationManager: [INTRO] {introLine.Text} (duration: {introDuration:F2}s)");
+            
+            // Wait for introduction to complete before starting arc conversation
+            await System.Threading.Tasks.Task.Delay((int)(introDuration * 1000));
+            
+            OnBroadcastLineCompleted?.Invoke();
         }
 
         /// <summary>
@@ -585,7 +639,7 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Display the next dead air filler line.
         /// </summary>
-        private void DisplayNextFillerLine()
+        private async void DisplayNextFillerLine()
         {
             var template = _vernTemplate.GetDeadAirFiller();
             if (template == null)
@@ -603,10 +657,26 @@ namespace KBTV.Dialogue
             );
 
             _deadAirFillerTimer = 0f;
-            _currentFillerLineDuration = _currentFillerLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
+            
+            // Try to load and play voice audio
+            float audioDuration = 0f;
+            if (VoiceAudioService.Instance != null && !string.IsNullOrEmpty(template.Id))
+            {
+                var clip = await VoiceAudioService.Instance.GetBroadcastClipAsync(template.Id);
+                if (clip != null)
+                {
+                    AudioManager.Instance?.PlayVoiceClip(clip, Speaker.Vern);
+                    audioDuration = clip.length;
+                }
+            }
+            
+            // Use audio duration if available, otherwise calculate from text
+            _currentFillerLineDuration = audioDuration > 0f 
+                ? audioDuration 
+                : _currentFillerLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
 
             OnFillerLineDisplayed?.Invoke(_currentFillerLine);
-            Debug.Log($"ConversationManager: [FILLER] {_currentFillerLine.Text}");
+            Debug.Log($"ConversationManager: [FILLER] {_currentFillerLine.Text} (duration: {_currentFillerLineDuration:F2}s)");
         }
 
         /// <summary>
