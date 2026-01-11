@@ -50,12 +50,14 @@ namespace KBTV.Dialogue
         private float _lineTimer;
         private float _currentLineDuration;
         private bool _isWaitingForTransition;
+        private bool _isWaitingForAudioLoad = false; // Prevents timer from advancing during async audio load
 
         // Dead air filler state
         private bool _isPlayingDeadAirFiller = false;
         private float _deadAirFillerTimer = 0f;
         private float _currentFillerLineDuration = 0f;
         private DialogueLine _currentFillerLine = null;
+        private bool _isWaitingForFillerAudioLoad = false; // Prevents filler timer from advancing during async audio load
 
         // Broadcast flow state
         private bool _isPlayingBroadcastLine = false;
@@ -64,6 +66,7 @@ namespace KBTV.Dialogue
         private DialogueLine _currentBroadcastLine = null;
         private System.Action _onBroadcastLineComplete = null;
         private string _currentBroadcastClipId = null; // ID for current broadcast line audio
+        private bool _isWaitingForBroadcastAudioLoad = false; // Prevents broadcast timer from advancing during async audio load
 
         // Properties
         public Conversation CurrentConversation => _currentConversation;
@@ -265,6 +268,7 @@ namespace KBTV.Dialogue
             _currentConversation = null;
             _lineTimer = 0f;
             _isWaitingForTransition = false;
+            _isWaitingForAudioLoad = false;
         }
 
         /// <summary>
@@ -314,6 +318,11 @@ namespace KBTV.Dialogue
 
         private void UpdateLineTimer()
         {
+            // Don't advance timer while waiting for audio to load
+            // This prevents premature line completion during async audio loading
+            if (_isWaitingForAudioLoad)
+                return;
+            
             _lineTimer += Time.deltaTime;
 
             // Check if we're in transition between speakers
@@ -371,6 +380,10 @@ namespace KBTV.Dialogue
             // This prevents Update() from completing the line prematurely during audio load
             _currentLineDuration = line.GetDisplayDuration(_baseDelay, _perCharacterDelay);
             
+            // Pause the timer while we load audio - prevents race condition where
+            // timer exceeds text-based duration before audio duration is set
+            _isWaitingForAudioLoad = true;
+            
             // Store reference to check if conversation changes during async operations
             var conversationAtStart = _currentConversation;
             int lineIndexAtStart = _currentConversation?.CurrentIndex ?? -1;
@@ -392,6 +405,7 @@ namespace KBTV.Dialogue
                 
                 if (result.WasCancelled)
                 {
+                    _isWaitingForAudioLoad = false;
                     return;
                 }
                 
@@ -401,6 +415,7 @@ namespace KBTV.Dialogue
             // Guard: Check again before firing events
             if (_currentConversation != conversationAtStart)
             {
+                _isWaitingForAudioLoad = false;
                 return;
             }
             
@@ -408,6 +423,9 @@ namespace KBTV.Dialogue
             _currentLineDuration = audioDuration > 0f 
                 ? audioDuration 
                 : line.GetDisplayDuration(_baseDelay, _perCharacterDelay);
+
+            // Resume timer now that we have the correct duration
+            _isWaitingForAudioLoad = false;
 
             OnLineDisplayed?.Invoke(line);
             OnLineDisplayedWithDuration?.Invoke(line, audioDuration);
@@ -430,6 +448,10 @@ namespace KBTV.Dialogue
         /// </summary>
         private void UpdateBroadcastLine()
         {
+            // Don't advance timer while waiting for audio to load
+            if (_isWaitingForBroadcastAudioLoad)
+                return;
+            
             _broadcastLineTimer += Time.deltaTime;
 
             if (_broadcastLineTimer >= _broadcastLineDuration)
@@ -464,6 +486,9 @@ namespace KBTV.Dialogue
             _onBroadcastLineComplete = onComplete;
             _isPlayingBroadcastLine = true;
             
+            // Pause the timer while we load audio
+            _isWaitingForBroadcastAudioLoad = true;
+            
             // Try to load and play voice audio
             var result = await VoicePlaybackHelper.PlayBroadcastClipAsync(
                 template.Id,
@@ -472,6 +497,7 @@ namespace KBTV.Dialogue
             
             if (result.WasCancelled)
             {
+                _isWaitingForBroadcastAudioLoad = false;
                 return;
             }
             
@@ -479,6 +505,9 @@ namespace KBTV.Dialogue
             _broadcastLineDuration = result.AudioDuration > 0f 
                 ? result.AudioDuration 
                 : _currentBroadcastLine?.GetDisplayDuration(_baseDelay, _perCharacterDelay) ?? 3f;
+
+            // Resume timer now that we have the correct duration
+            _isWaitingForBroadcastAudioLoad = false;
 
             if (_currentBroadcastLine != null)
             {
@@ -513,6 +542,7 @@ namespace KBTV.Dialogue
             _isPlayingBroadcastLine = false;
             _currentBroadcastLine = null;
             _onBroadcastLineComplete = null; // Discard callback
+            _isWaitingForBroadcastAudioLoad = false;
             
             // Stop any playing voice audio
             AudioManager.Instance?.StopVoice();
@@ -580,6 +610,10 @@ namespace KBTV.Dialogue
         /// </summary>
         private void UpdateDeadAirFiller()
         {
+            // Don't advance timer while waiting for audio to load
+            if (_isWaitingForFillerAudioLoad)
+                return;
+            
             _deadAirFillerTimer += Time.deltaTime;
 
             // Check if current filler line display time is done
@@ -627,6 +661,7 @@ namespace KBTV.Dialogue
             _isPlayingDeadAirFiller = false;
             _deadAirFillerTimer = 0f;
             _currentFillerLine = null;
+            _isWaitingForFillerAudioLoad = false;
             
             // Stop any playing voice audio from filler
             AudioManager.Instance?.StopVoice();
@@ -660,6 +695,9 @@ namespace KBTV.Dialogue
             // This prevents UpdateDeadAirFiller() from seeing duration as 0 during audio load
             _currentFillerLineDuration = _currentFillerLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
             
+            // Pause the timer while we load audio
+            _isWaitingForFillerAudioLoad = true;
+            
             // Try to load and play voice audio
             var result = await VoicePlaybackHelper.PlayBroadcastClipAsync(
                 template.Id,
@@ -668,6 +706,7 @@ namespace KBTV.Dialogue
             
             if (result.WasCancelled)
             {
+                _isWaitingForFillerAudioLoad = false;
                 return;
             }
             
@@ -675,6 +714,9 @@ namespace KBTV.Dialogue
             _currentFillerLineDuration = result.AudioDuration > 0f 
                 ? result.AudioDuration 
                 : _currentFillerLine.GetDisplayDuration(_baseDelay, _perCharacterDelay);
+
+            // Resume timer now that we have the correct duration
+            _isWaitingForFillerAudioLoad = false;
 
             OnFillerLineDisplayed?.Invoke(_currentFillerLine);
         }
