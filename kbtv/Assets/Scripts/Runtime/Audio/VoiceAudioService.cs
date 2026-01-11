@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using KBTV.Core;
 using KBTV.Dialogue;
@@ -96,7 +97,19 @@ namespace KBTV.Audio
             
             try
             {
-                Debug.Log($"VoiceAudioService: Loading clip at address '{address}'");
+                // Check if the address exists in Addressables before trying to load
+                var locationsHandle = Addressables.LoadResourceLocationsAsync(address, typeof(AudioClip));
+                var locations = await locationsHandle.Task;
+                
+                if (locations == null || locations.Count == 0)
+                {
+                    // Address doesn't exist - this is expected for non-existent speaker/line combinations
+                    // (e.g., line 0 is Vern, so no Caller clip exists for line 0)
+                    Addressables.Release(locationsHandle);
+                    return;
+                }
+                Addressables.Release(locationsHandle);
+                
                 var handle = Addressables.LoadAssetAsync<AudioClip>(address);
                 _activeHandles.Add(handle);
                 
@@ -106,17 +119,15 @@ namespace KBTV.Audio
                 {
                     string cacheKey = BuildCacheKey(lineIndex, speaker);
                     _conversationClipCache[cacheKey] = clip;
-                    Debug.Log($"VoiceAudioService: Loaded clip '{address}' successfully");
-                }
-                else
-                {
-                    Debug.LogWarning($"VoiceAudioService: Loaded null clip for address '{address}'");
                 }
             }
             catch (Exception e)
             {
-                // Log failed loads - helps diagnose Addressables issues
-                Debug.LogWarning($"VoiceAudioService: Failed to load clip '{address}': {e.Message}");
+                // Log failed loads only if unexpected (not InvalidKeyException for missing clips)
+                if (!(e is InvalidKeyException))
+                {
+                    Debug.LogWarning($"VoiceAudioService: Failed to load clip '{address}': {e.Message}");
+                }
             }
         }
 
@@ -130,15 +141,10 @@ namespace KBTV.Audio
             
             if (_conversationClipCache.TryGetValue(cacheKey, out var clip))
             {
-                Debug.Log($"VoiceAudioService: Found cached clip for key '{cacheKey}'");
                 return clip;
             }
             
-            // Log warning in development
-            #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            Debug.LogWarning($"VoiceAudioService: Clip not found in cache for key '{cacheKey}' (line {lineIndex}, speaker {speaker}). Cache has {_conversationClipCache.Count} entries.");
-            #endif
-            
+            // Not finding a clip is normal - not all lines have audio
             return null;
         }
 
@@ -180,7 +186,6 @@ namespace KBTV.Audio
             // Check cache first
             if (_broadcastClipCache.TryGetValue(clipId, out var cachedClip))
             {
-                Debug.Log($"VoiceAudioService: Returning cached broadcast clip '{clipId}'");
                 return cachedClip;
             }
             
@@ -189,24 +194,33 @@ namespace KBTV.Audio
             
             try
             {
-                Debug.Log($"VoiceAudioService: Loading broadcast clip at address '{address}'");
+                // Check if the address exists before loading
+                var locationsHandle = Addressables.LoadResourceLocationsAsync(address, typeof(AudioClip));
+                var locations = await locationsHandle.Task;
+                
+                if (locations == null || locations.Count == 0)
+                {
+                    Addressables.Release(locationsHandle);
+                    Debug.LogWarning($"VoiceAudioService: Broadcast clip not found: {clipId}");
+                    return null;
+                }
+                Addressables.Release(locationsHandle);
+                
                 var handle = Addressables.LoadAssetAsync<AudioClip>(address);
                 var clip = await handle.Task;
                 
                 if (clip != null)
                 {
                     _broadcastClipCache[clipId] = clip;
-                    Debug.Log($"VoiceAudioService: Loaded broadcast clip '{address}' successfully");
                     return clip;
-                }
-                else
-                {
-                    Debug.LogWarning($"VoiceAudioService: Loaded null broadcast clip for address '{address}'");
                 }
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"VoiceAudioService: Failed to load broadcast clip '{address}': {e.Message}");
+                if (!(e is InvalidKeyException))
+                {
+                    Debug.LogWarning($"VoiceAudioService: Failed to load broadcast clip '{address}': {e.Message}");
+                }
             }
             
             return null;
