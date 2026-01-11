@@ -212,59 +212,66 @@ See [TOOLS.md](TOOLS.md) for detailed usage instructions.
 
 ## File Organization
 
+### Actual Directory Structure
+
 ```
-Assets/
-├── Audio/
-│   ├── Voice/
-│   │   ├── Vern/
-│   │   │   ├── Broadcast/
-│   │   │   │   ├── Opening/
-│   │   │   │   ├── Closing/
-│   │   │   │   ├── BetweenCallers/
-│   │   │   │   └── DeadAirFiller/
-│   │   │   └── Conversations/
-│   │   │       ├── Tired/
-│   │   │       ├── Grumpy/
-│   │   │       ├── Neutral/
-│   │   │       ├── Engaged/
-│   │   │       └── Excited/
-│   │   └── Callers/
-│   │       ├── UFOs/
-│   │       ├── Cryptids/
-│   │       ├── Conspiracies/
-│   │       └── Ghosts/
-│   └── SFX/
-│       ├── Radio/
-│       └── Phone/
+Assets/Audio/Voice/
+├── Vern/
+│   └── Broadcast/
+│       ├── Opening/           # vern_opening_001.ogg, etc.
+│       ├── Closing/           # vern_closing_001.ogg, etc.
+│       ├── BetweenCallers/    # vern_betweencallers_001.ogg, etc.
+│       ├── DeadAirFiller/     # vern_deadairfiller_001.ogg, etc.
+│       ├── Introduction/      # vern_introduction_001.ogg, etc.
+│       ├── SignOff/           # vern_signoff_001.ogg, etc.
+│       └── ... (other categories)
+└── Callers/
+    ├── UFOs/
+    │   ├── ufo_credible_dashcam/
+    │   │   ├── Neutral/       # ufo_credible_dashcam_neutral_001_vern.ogg, etc.
+    │   │   ├── Tired/
+    │   │   ├── Grumpy/
+    │   │   ├── Engaged/
+    │   │   └── Excited/
+    │   ├── ufos_fake_prankster/
+    │   │   └── ... (mood folders)
+    │   └── ... (other arcs)
+    ├── Cryptids/
+    ├── Conspiracies/
+    └── Ghosts/
 ```
+
+Note: Caller conversation clips are organized by `Topic/ArcId/Mood/` with each mood containing all lines for that variant.
 
 ## Naming Convention
 
-Audio files match dialogue line IDs for easy lookup:
+Audio files use a specific naming pattern that matches the Addressable address format:
 
 **Conversation lines:**
 ```
-{arc_id}_{mood}_{line_index}_{speaker}.ogg
+{arcId}_{mood}_{lineIndex:D3}_{speaker}.ogg
 
 Examples:
-ufo_lights_01_neutral_001_vern.ogg
-ufo_lights_01_neutral_002_caller.ogg
-ufo_lights_01_tired_001_vern.ogg
+ufo_credible_dashcam_neutral_001_vern.ogg
+ufo_credible_dashcam_neutral_002_caller.ogg
+ufos_fake_prankster_tired_001_vern.ogg
 ```
+
+Note: The `arcId` comes from the arc JSON file and may or may not include a topic prefix. The arcId is used as-is without modification.
 
 **Broadcast lines:**
 ```
-broadcast_{type}_{index}.ogg
+vern_{category}_{index:D3}.ogg
 
 Examples:
-broadcast_opening_001.ogg
-broadcast_filler_012.ogg
-broadcast_between_003.ogg
+vern_opening_001.ogg
+vern_deadairfiller_012.ogg
+vern_betweencallers_003.ogg
 ```
 
 ## Implementation Plan
 
-### Phase 1: Setup & Prototype ✅
+### Phase 1: Setup & Prototype
 - [x] Install Piper TTS and dependencies
 - [x] Test voice models, select best for Vern and callers
 - [x] Create basic generation script (normalize only, no effects)
@@ -272,22 +279,24 @@ broadcast_between_003.ogg
 - [x] Generate all 950 voice lines (Vern broadcasts + caller conversations)
 - [x] Validate audio quality and timing
 
-### Phase 2: Unity Audio Integration (Current)
+### Phase 2: Unity Audio Integration
 - [x] Install Addressables package for async clip loading
-- [ ] Create Audio Mixer with VernGroup and CallerGroup (basic routing only)
-- [ ] Create VoiceAudioService for clip loading/caching via Addressables
-- [ ] Add Id field to DialogueTemplate for broadcast line matching
-- [ ] Add IDs to VernDialogue.json broadcast entries
-- [ ] Update AudioManager with speaker-based mixer routing
-- [ ] Update ConversationManager to trigger voice playback
+- [x] Create VoiceAudioService for clip loading/caching via Addressables
+- [x] Add Id field to DialogueTemplate for broadcast line matching
+- [x] Add IDs to VernDialogue.json broadcast entries
+- [x] Update AudioManager with speaker-based mixer routing
+- [x] Update ConversationManager to trigger voice playback
+- [x] Configure Addressables groups for voice audio folders
+- [x] Add VoiceAudioService instantiation to GameBootstrap
+- [x] Create Audio Mixer with VernGroup and CallerGroup (basic routing only)
+- [ ] Assign mixer groups to AudioManager in scene (Inspector)
 - [ ] Update ConversationPanel with dynamic typewriter speed (synced to audio duration)
-- [ ] Configure Addressables groups for voice audio folders
 
 ### Phase 3: Audio Effects & Polish (Future)
 - [ ] Add effect components to mixer (filters, distortion, compression)
 - [ ] Expose parameters for equipment upgrade control
 - [ ] Create AudioQualityController to map equipment level to mixer params
-- [ ] Test equipment upgrade progression (Level 1 → 4)
+- [ ] Test equipment upgrade progression (Level 1 -> 4)
 - [ ] Listen through and identify problem lines
 - [ ] Regenerate or manually edit issues
 - [ ] Fine-tune timing/pacing
@@ -353,20 +362,22 @@ void UnloadCurrentConversation();
 
 ### Audio File Address Format
 
-Addressables uses simplified addresses derived from the file path:
+Addressables uses simplified addresses (filename without extension). The address is set by the `VoiceAudioSetup` editor script.
 
 **Conversation clips:**
 ```
-Address: {topic}_{arcId}_{mood}_{lineIndex:D3}_{speaker}
-Example: conspiracies_compelling_whistleblower_tired_001_vern
-Path:    Assets/Audio/Voice/Callers/Conspiracies/compelling_whistleblower_tired_001_vern.ogg
+Address: {arcId}_{mood}_{lineIndex:D3}_{speaker}
+Example: ufo_credible_dashcam_neutral_001_vern
+File:    Assets/Audio/Voice/Callers/UFOs/ufo_credible_dashcam/Neutral/ufo_credible_dashcam_neutral_001_vern.ogg
 ```
+
+Note: The address does NOT include topic prefix. The arcId from the JSON is used directly.
 
 **Broadcast clips:**
 ```
-Address: vern_{type}_{index:D3}
+Address: vern_{category}_{index:D3}
 Example: vern_opening_001
-Path:    Assets/Audio/Voice/Vern/Broadcast/Opening/vern_opening_001.ogg
+File:    Assets/Audio/Voice/Vern/Broadcast/Opening/vern_opening_001.ogg
 ```
 
 ### Typewriter Synchronization
@@ -400,18 +411,32 @@ To avoid loading all 950+ clips at once:
 
 ### Addressables Configuration
 
-Create an Addressables group "VoiceAudio" with these settings:
-- **Build Path**: LocalBuildPath
-- **Load Path**: LocalLoadPath
-- **Bundle Mode**: Pack Together by Label (or Pack Separately for streaming)
-- **Labels**: `vern-broadcast`, `caller-ufos`, `caller-cryptids`, `caller-conspiracies`, `caller-ghosts`
+The voice audio system uses Unity Addressables for efficient async loading. Configuration is automated via editor scripts.
 
-Mark folders as Addressable:
-- `Assets/Audio/Voice/Vern/Broadcast/` → Simplify addresses, label `vern-broadcast`
-- `Assets/Audio/Voice/Callers/UFOs/` → Simplify addresses, label `caller-ufos`
-- `Assets/Audio/Voice/Callers/Cryptids/` → Simplify addresses, label `caller-cryptids`
-- `Assets/Audio/Voice/Callers/Conspiracies/` → Simplify addresses, label `caller-conspiracies`
-- `Assets/Audio/Voice/Callers/Ghosts/` → Simplify addresses, label `caller-ghosts`
+#### Automated Setup (Recommended)
+
+Run from Unity menu: **KBTV > Setup Voice Audio > Configure Addressables Only**
+
+This will:
+1. Create/find Addressables settings
+2. Create a "VoiceAudio" group
+3. Mark all `.ogg` files in `Assets/Audio/Voice/Vern/Broadcast/` and `Assets/Audio/Voice/Callers/` as Addressable
+4. Set each file's address to its filename (without extension)
+
+#### Manual Verification
+
+After running the setup, verify in **Window > Asset Management > Addressables > Groups**:
+- A "VoiceAudio" group should exist
+- It should contain ~950 audio clip entries
+- Each entry's address should match its filename (e.g., `ufo_credible_dashcam_neutral_001_vern`)
+
+#### Building for Release
+
+For standalone builds, you must build the Addressables catalog:
+1. Open **Window > Asset Management > Addressables > Groups**
+2. Click **Build > New Build > Default Build Script**
+
+Note: In the Unity Editor, Addressables work without building if using "Use Asset Database" play mode.
 
 ### Audio Mixer Structure (Phase 2A - Basic)
 
