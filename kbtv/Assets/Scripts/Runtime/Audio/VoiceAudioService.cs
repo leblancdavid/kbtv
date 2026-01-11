@@ -109,14 +109,6 @@ namespace KBTV.Audio
             _currentTopic = topic;
             _currentMood = mood;
             
-            // TEMPORARY DIAGNOSTIC - Remove after debugging audio preload issue
-            Debug.Log($"VoiceAudioService: Preload sections for {arcId} ({mood}) - " +
-                $"Intro: {moodVariant.Intro?.Count ?? 0}, " +
-                $"Dev: {moodVariant.Development?.Count ?? 0}, " +
-                $"Skep: {moodVariant.BeliefBranch?.Skeptical?.Count ?? 0}, " +
-                $"Beli: {moodVariant.BeliefBranch?.Believing?.Count ?? 0}, " +
-                $"Concl: {moodVariant.Conclusion?.Count ?? 0}");
-            
             var tasks = new List<Task>();
             
             // Helper to add preload tasks for a section
@@ -162,8 +154,6 @@ namespace KBTV.Audio
                 
                 if (locations == null || locations.Count == 0)
                 {
-                    // TEMPORARY DIAGNOSTIC - Remove after debugging audio preload issue
-                    Debug.LogWarning($"VoiceAudioService: Address not found: '{address}'");
                     Addressables.Release(locationsHandle);
                     return;
                 }

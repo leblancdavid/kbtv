@@ -56,7 +56,10 @@ namespace KBTV.Dialogue
         private static ArcMoodVariant ConvertMoodVariant(ArcMoodVariantData data)
         {
             var variant = new ArcMoodVariant();
-            int lineIndex = 0; // Track sequential index across all sections
+            // Track sequential index across all sections.
+            // IMPORTANT: Order must match generate_audio.py to align with audio file naming.
+            // Python processes: intro -> development -> conclusion -> beliefBranch (skep, beli)
+            int lineIndex = 0;
 
             if (data.intro != null)
             {
@@ -70,6 +73,14 @@ namespace KBTV.Dialogue
                     variant.Development.Add(ConvertLine(line, lineIndex++, ArcSection.Development));
             }
 
+            // Conclusion comes BEFORE belief branches to match audio file naming
+            if (data.conclusion != null)
+            {
+                foreach (var line in data.conclusion)
+                    variant.Conclusion.Add(ConvertLine(line, lineIndex++, ArcSection.Conclusion));
+            }
+
+            // Belief branches come after conclusion
             if (data.beliefBranch != null)
             {
                 // Skeptical lines come first in the index sequence
@@ -84,12 +95,6 @@ namespace KBTV.Dialogue
                     foreach (var line in data.beliefBranch.Believing)
                         variant.BeliefBranch.Believing.Add(ConvertLine(line, lineIndex++, ArcSection.Believing));
                 }
-            }
-
-            if (data.conclusion != null)
-            {
-                foreach (var line in data.conclusion)
-                    variant.Conclusion.Add(ConvertLine(line, lineIndex++, ArcSection.Conclusion));
             }
 
             return variant;
