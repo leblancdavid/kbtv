@@ -148,6 +148,37 @@ KBTV uses Godot's built-in input system with action mappings defined in the proj
 ### Export Presets
 Configure export presets in **Project > Export** for different platforms (Windows, Linux, macOS, HTML5).
 
+## UID (Unique Identifier) System
+
+Godot uses UIDs to track script and resource references across scenes and files. These are stored in `.uid` files alongside each script.
+
+### Handling UID Issues
+
+**When you see UID warnings:**
+```
+WARNING: scene/resources/resource_format_text.cpp:444 - res://scenes/Main.tscn:14 - ext_resource, invalid UID
+```
+
+**Quick Fix:**
+1. Delete all `.uid` files: `find . -name "*.uid" -delete`
+2. Open Godot and let it regenerate UIDs automatically
+3. Save all scenes to persist new UIDs
+
+**Why UIDs Break:**
+- Moving or renaming files changes their absolute paths
+- UIDs are generated from file paths + content hashes
+- File restructuring (like our migration) invalidates existing UIDs
+
+**Prevention:**
+- Always move files through Godot's FileSystem dock when possible
+- If moving manually, regenerate UIDs afterward
+- Commit `.uid` files along with their corresponding scripts
+
+**UID File Management:**
+- `.uid` files are auto-generated - never edit them manually
+- Include them in version control for consistent references
+- They ensure scene references remain valid across different machines
+
 ## Testing
 
 ### GDScript Unit Testing
