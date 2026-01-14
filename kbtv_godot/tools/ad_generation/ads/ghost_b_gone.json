@@ -1,0 +1,12 @@
+{
+  "id": "ghost_b_gone",
+  "advertiser": "Ghost-B-Gone",
+  "type": "NationalSponsor",
+  "tagline": "Spectral removal since 1987. Satisfaction mostly guaranteed.",
+  "generation_method": "suno",
+  "duration_target": 18,
+  "style": "cheerful 80s commercial jingle, upbeat and professional",
+  "lyrics": "Got a ghost? Don't be scared!\nGhost-B-Gone is always prepared!\nSpectral removal since '87,\nWe'll send those spirits straight to heaven!\nGhost-B-Gone - satisfaction mostly guaranteed!\nCall now: 1-800-NO-GHOST!",
+  "suno_prompt": "cheerful 1980s commercial jingle, upbeat synth pop, professional male chorus, ghostbusters-inspired parody, confident and catchy, 18 seconds",
+  "notes": "Ghostbusters-style parody pest control for the paranormal"
+}

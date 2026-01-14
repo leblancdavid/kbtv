@@ -1,0 +1,195 @@
+{
+  "arcId": "ghosts_questionable_footsteps",
+  "topic": "Ghosts",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Homeowner with cold spots and electronics acting up - three electricians found nothing wrong",
+  "dialogue": [
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "You're on the air. What's happening at your place?"
+        },
+        {
+          "mood": "tired",
+          "text": "Alright, you're on. What's happening?"
+        },
+        {
+          "mood": "energized",
+          "text": "YOU ARE ON THE AIR! What's happening at your place?!"
+        },
+        {
+          "mood": "irritated",
+          "text": "You're on. What's this about?"
+        },
+        {
+          "mood": "gruff",
+          "text": "You're on. So?"
+        },
+        {
+          "mood": "amused",
+          "text": "Oh good, a caller! What's happening?!"
+        },
+        {
+          "mood": "focused",
+          "text": "You're on. Describe the unusual activity in your residence."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Strange occurrences, Vern. Nothing dramatic, but consistent enough that I can't ignore it anymore."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Give me specifics. What's been happening?"
+        },
+        {
+          "mood": "tired",
+          "text": "Give me specifics... what's been happening?"
+        },
+        {
+          "mood": "energized",
+          "text": "NOTHING DRAMATIC but CONSISTENT! This is EXCITING! Details please!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Alright, alright. Give me specifics."
+        },
+        {
+          "mood": "gruff",
+          "text": "Give me specifics."
+        },
+        {
+          "mood": "amused",
+          "text": "This is GREAT! Give us the details!"
+        },
+        {
+          "mood": "focused",
+          "text": "Specific phenomena observed. Please describe in detail."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Cold spots in one corner of the living room. Just one spot, maybe six feet across. You can feel it when you walk past. Then the electronics in that area start acting up - the radio turns on by itself, the TV input switches randomly."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Electrical interference and cold spots together. How long has this been going on?"
+        },
+        {
+          "mood": "tired",
+          "text": "Electrical stuff and cold spots... how long?"
+        },
+        {
+          "mood": "energized",
+          "text": "COLD SPOTS and ELECTRONICS GOING WILD! This is AMAZING!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Cold spots and electronics. Let me guess - the ghost likes watching TV?"
+        },
+        {
+          "mood": "gruff",
+          "text": "Electrical and cold spots. How long?"
+        },
+        {
+          "mood": "amused",
+          "text": "A COLD SPOT that makes ELECTRONICS GO CRAZY! I love this!"
+        },
+        {
+          "mood": "focused",
+          "text": "Localized thermal anomaly and electromagnetic interference. Duration of phenomena?"
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Started about three weeks ago. Nothing before that. I've lived here for ten years with no issues."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. Have you had an electrician look at it?"
+        },
+        {
+          "mood": "tired",
+          "text": "Look, bad wiring could cause this stuff. Did you call an electrician?"
+        },
+        {
+          "mood": "energized",
+          "text": "BAD WIRING could explain this?! Have you called an ELECTRICIAN?!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Electrical issues could explain this. You called an electrician, right?"
+        },
+        {
+          "mood": "gruff",
+          "text": "Could be wiring. Did you get it checked?"
+        },
+        {
+          "mood": "amused",
+          "text": "Could it be BAD WIRING?! This is the MYSTERY!"
+        },
+        {
+          "mood": "focused",
+          "text": "Electrical infrastructure assessment. Have you consulted qualified personnel to evaluate potential causes?"
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "I called three different electricians. They all found nothing wrong with the wiring. The cold spot is real - one of them felt it himself."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Get an EMF detector if you can and track the readings. Document the temperature in that spot. If it's genuinely anomalous, the data will show it. Thanks for calling in."
+        },
+        {
+          "mood": "tired",
+          "text": "Yeah, maybe get an EMF detector or something. Thanks."
+        },
+        {
+          "mood": "energized",
+          "text": "Get an EMF DETECTOR! Document EVERYTHING! This is INCREDIBLE!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Right, well... get an EMF detector if you want. Thanks."
+        },
+        {
+          "mood": "gruff",
+          "text": "Good report. Get documentation if you can. Thanks."
+        },
+        {
+          "mood": "amused",
+          "text": "This is PERFECT! Get an EMF detector and DOCUMENT IT!"
+        },
+        {
+          "mood": "focused",
+          "text": "Please acquire electromagnetic field measurement equipment and document temperature differentials. Systematic data collection will clarify whether this represents genuine anomaly."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Good idea. I'll look into getting a proper detector. Thanks for listening, Vern."
+    }
+  ],
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Gradual onset activity, electrical + temperature anomaly, multiple inspections, skeptical but investigating"
+}

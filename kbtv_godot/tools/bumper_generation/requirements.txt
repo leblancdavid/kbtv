@@ -1,0 +1,2 @@
+# No additional dependencies required - uses Python stdlib only
+# ffmpeg must be installed separately for audio processing

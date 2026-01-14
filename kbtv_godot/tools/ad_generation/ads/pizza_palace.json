@@ -1,0 +1,12 @@
+{
+  "id": "pizza_palace",
+  "advertiser": "Pizza Palace",
+  "type": "LocalBusiness",
+  "tagline": "Open 'til 3 AM. We've seen things too.",
+  "generation_method": "suno",
+  "duration_target": 18,
+  "style": "80s synth pop jingle, cheesy and fun",
+  "lyrics": "Pizza Palace, we're open late!\nHot and fresh, it tastes so great!\nThree AM and still goin' strong,\nCome on in, you can't go wrong!\nPizza Palace - we've seen things too!\nBut our pizza? Always fresh for you!",
+  "suno_prompt": "80s synth pop radio jingle, catchy and cheesy, male and female vocals, retro keyboards, fun local pizza commercial vibe, 18 seconds",
+  "notes": "Late-night pizza joint that hints at seeing strange customers"
+}

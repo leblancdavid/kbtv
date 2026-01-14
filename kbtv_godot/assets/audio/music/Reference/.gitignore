@@ -1,0 +1,5 @@
+# Reference music files (source MP3s, not needed in repo)
+*.mp3
+
+# Keep this .gitignore
+!.gitignore

@@ -1,0 +1,12 @@
+{
+  "id": "area_51_tours",
+  "advertiser": "Area 51 Tours",
+  "type": "NationalSponsor",
+  "tagline": "See what they DON'T want you to see. Bus leaves at midnight.",
+  "generation_method": "suno",
+  "duration_target": 18,
+  "style": "mysterious sci-fi, theremin and synths, X-Files vibe",
+  "lyrics": "The truth is out there waiting,\nArea 51 Tours will take you there!\nSee what they don't want you to see,\nSecrets floating in the air!\nBus leaves at midnight - don't be late!\nArea 51 Tours - discover your fate!",
+  "suno_prompt": "mysterious sci-fi jingle, theremin and analog synths, X-Files inspired, whispery male vocals, UFO documentary style, eerie but exciting, 18 seconds",
+  "notes": "Premium tour company for UFO enthusiasts"
+}

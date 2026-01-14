@@ -1,0 +1,196 @@
+{
+  "arcId": "cryptid_credible_claims_ufos",
+  "claimedTopic": "UFOs",
+  "topic": "Cryptids",
+  "legitimacy": "Credible",
+  "screeningSummary": "Topic-switcher - claimed UFO, actually saw seven-foot bipedal creature with green eyes in woods",
+  "dialogue": [
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "You're on the air. Said you had a UFO sighting?"
+        },
+        {
+          "mood": "tired",
+          "text": "Alright, you're on. Said you had a UFO sighting?"
+        },
+        {
+          "mood": "energized",
+          "text": "YOU ARE ON THE AIR! UFO sighting! Tell us everything!"
+        },
+        {
+          "mood": "irritated",
+          "text": "You're on. Let me guess - lights in the sky?"
+        },
+        {
+          "mood": "gruff",
+          "text": "You're on. So you had a UFO sighting?"
+        },
+        {
+          "mood": "amused",
+          "text": "Oh good, a UFO caller! What's your story?"
+        },
+        {
+          "mood": "focused",
+          "text": "You're on. Describe your UFO observation from the beginning."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "I have to be honest, Vern. I said UFOs to get past screening, but that's not what I actually saw."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Alright, I appreciate the honesty. What did you actually see?"
+        },
+        {
+          "mood": "tired",
+          "text": "Oh... okay. What did you actually see?"
+        },
+        {
+          "mood": "energized",
+          "text": "WAIT - you're being HONEST?! I LOVE this already! What did you actually see?!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Oh for... you lied to get through. What did you actually see?"
+        },
+        {
+          "mood": "gruff",
+          "text": "Lied to get on. Fine. What did you actually see?"
+        },
+        {
+          "mood": "amused",
+          "text": "You're being HONEST! This is GREAT! What did you actually see?!"
+        },
+        {
+          "mood": "focused",
+          "text": "Topic misrepresentation acknowledged. What phenomenon did you actually observe?"
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "I was out in the woods last Tuesday, about 3 AM, hoping to catch some unusual lights. Instead, I heard something crashing through the brush."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "In the woods at 3 AM. And you saw something?"
+        },
+        {
+          "mood": "tired",
+          "text": "In the woods at 3 AM... okay, what'd you see?"
+        },
+        {
+          "mood": "energized",
+          "text": "IN THE WOODS at 3 AM! This is getting GOOD! What did you see?!"
+        },
+        {
+          "mood": "irritated",
+          "text": "In the woods at 3 AM. Let me guess - something scary?"
+        },
+        {
+          "mood": "gruff",
+          "text": "In the woods at 3 AM. What'd you see?"
+        },
+        {
+          "mood": "amused",
+          "text": "CRASHING through the brush at 3 AM! This is PERFECT! What was it?!"
+        },
+        {
+          "mood": "focused",
+          "text": "Woodland environment, 3 AM. Describe the auditory and visual phenomena encountered."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Bipedal. At least seven feet tall. Covered in dark, matted fur. It broke through the tree line maybe forty feet from me and just... stood there. Looking at me."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Seven feet tall, bipedal, fur. Could've been a bear standing on its hind legs. They do that sometimes."
+        },
+        {
+          "mood": "tired",
+          "text": "Seven feet... alright, could've been a bear standing up. You know how it is..."
+        },
+        {
+          "mood": "energized",
+          "text": "SEVEN FEET TALL, BIPEDAL, FURRY! This is INCREDIBLE! Bear, maybe?!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Seven feet tall, bipedal. Of course it was. Bear standing up, right?"
+        },
+        {
+          "mood": "gruff",
+          "text": "Seven feet. Could be a bear. What's your take?"
+        },
+        {
+          "mood": "amused",
+          "text": "SEVEN FEET OF TERRIFYING GLORY! Bear, you think?!"
+        },
+        {
+          "mood": "focused",
+          "text": "Seven foot bipedal organism with fur covering. What distinguishing characteristics ruled out Ursus arctos horribilis in upright posture?"
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "I've lived here my whole life, Vern. I've seen bears. This had shoulders like a person. And its eyes reflected green in my flashlight. Like a predator."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Appreciate you coming clean about the topic. Don't lie to get through next time, but this is legitimate. Set up a trail camera if you can."
+        },
+        {
+          "mood": "tired",
+          "text": "Yeah, don't lie to get through next time. But this is legit. Get a camera. Thanks."
+        },
+        {
+          "mood": "energized",
+          "text": "THIS IS AMAZING! Don't lie to get on next time but THIS IS REAL! Get a CAMERA!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Right, well... don't lie to get through next time. But this is actually interesting. Camera. Thanks."
+        },
+        {
+          "mood": "gruff",
+          "text": "Good report. Don't lie to get on next time. Get a camera. Thanks."
+        },
+        {
+          "mood": "amused",
+          "text": "This is PERFECT! Don't lie to get on but WE BELIEVE YOU! Get a CAMERA!"
+        },
+        {
+          "mood": "focused",
+          "text": "Honesty regarding topic is appreciated. Please document future encounters with trail camera placement. Misrepresentation undermines the research process. Thank you for your report."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Already ordered one. Thanks for hearing me out, Vern. Sorry about the UFO thing."
+    }
+  ],
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Topic-switcher (claimed UFO, actual cryptid), green eye shine detail, local resident, researching after"
+}

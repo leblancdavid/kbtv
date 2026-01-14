@@ -1,0 +1,11 @@
+# KBTV Audio Generation Dependencies
+# Install with: pip install -r requirements.txt
+
+# Piper TTS - offline neural text-to-speech
+piper-tts>=1.2.0
+
+# Audio processing
+pydub>=0.25.1
+
+# Progress bars for batch processing
+tqdm>=4.65.0

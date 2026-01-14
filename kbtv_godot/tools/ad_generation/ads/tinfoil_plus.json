@@ -1,0 +1,12 @@
+{
+  "id": "tinfoil_plus",
+  "advertiser": "TinFoil Plus",
+  "type": "RegionalBrand",
+  "tagline": "Premium signal-blocking headwear. Now in camo.",
+  "generation_method": "suno",
+  "duration_target": 18,
+  "style": "dramatic infomercial, serious male narrator with building music",
+  "lyrics": "Are THEY listening to your thoughts?\nTinFoil Plus has got you covered!\nPremium signal-blocking headwear,\nNow available in camo!\nTinFoil Plus - block the signal,\nFree your mind, protect what's yours!\nOrder now: 1-800-TIN-FOIL!",
+  "suno_prompt": "dramatic infomercial jingle, serious male narrator singing, synth pads building tension then triumphant resolution, conspiracy theory product commercial parody, 18 seconds",
+  "notes": "Parody of late-night infomercials selling conspiracy-themed products"
+}

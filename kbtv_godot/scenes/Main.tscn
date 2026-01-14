@@ -1,0 +1,57 @@
+[gd_scene load_steps=12 format=3 uid="uid://c27fhrd4srkip"]
+
+[ext_resource type="Script" uid="uid://lm83rlpacd3r" path="res://scripts/core/GameStateManager.cs" id="1"]
+[ext_resource type="Script" uid="uid://dx035j2446f3o" path="res://scripts/managers/TimeManager.cs" id="2"]
+[ext_resource type="Script" uid="uid://3j85q2x2tvfc" path="res://scripts/managers/ListenerManager.cs" id="3"]
+[ext_resource type="Script" uid="uid://cny3xrug14i7e" path="res://scripts/economy/EconomyManager.cs" id="4"]
+[ext_resource type="Script" uid="uid://dbycruigj411n" path="res://scripts/ui/UIManagerBootstrap.cs" id="5"]
+[ext_resource type="Script" uid="uid://bx0x17oquqhgo" path="res://scripts/callers/CallerQueue.cs" id="6"]
+[ext_resource type="Script" uid="uid://dxr2u5388ej41" path="res://scripts/callers/CallerGenerator.cs" id="7"]
+[ext_resource type="Script" uid="uid://ccledr600nqc2" path="res://scripts/persistence/SaveManager.cs" id="8"]
+[ext_resource type="Script" uid="uid://dg6ooccscx5w8" path="res://scripts/ui/InputHandler.cs" id="9"]
+[ext_resource type="Script" uid="uid://cmkjxx7ughtqg" path="res://scripts/ui/DebugHelper.cs" id="10"]
+[ext_resource type="Script" path="res://scripts/data/VernStats.cs" id="11"]
+[ext_resource type="Script" uid="uid://c2j5x7qh2p8l4" path="res://scripts/ui/UIManager.cs" id="12"]
+[ext_resource type="Script" uid="uid://d1n8q4v2x9m5p" path="res://scripts/ui/PreShowUIManager.cs" id="13"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+
+[node name="TimeManager" type="Node" parent="."]
+script = ExtResource("2")
+
+[node name="ListenerManager" type="Node" parent="."]
+script = ExtResource("3")
+
+[node name="EconomyManager" type="Node" parent="."]
+script = ExtResource("4")
+
+[node name="CallerQueue" type="Node" parent="."]
+script = ExtResource("6")
+
+[node name="CallerGenerator" type="Node" parent="."]
+script = ExtResource("7")
+
+[node name="SaveManager" type="Node" parent="."]
+script = ExtResource("8")
+
+[node name="VernStats" type="Node" parent="."]
+script = ExtResource("11")
+
+[node name="UIManager" type="Node" parent="."]
+script = ExtResource("12")
+
+[node name="PreShowUIManager" type="Node" parent="."]
+script = ExtResource("13")
+
+[node name="UIManagerBootstrap" type="Node" parent="."]
+script = ExtResource("5")
+
+[node name="InputHandler" type="Node" parent="."]
+script = ExtResource("9")
+
+[node name="DebugHelper" type="Node" parent="."]
+script = ExtResource("10")

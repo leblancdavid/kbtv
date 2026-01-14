@@ -1,0 +1,195 @@
+{
+  "arcId": "cryptids_credible_forest_hiker",
+  "topic": "Cryptids",
+  "legitimacy": "Credible",
+  "screeningSummary": "Experienced hiker with clear daylight sighting of eight-foot creature - made eye contact",
+  "dialogue": [
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "You're on the air. Tell me what happened."
+        },
+        {
+          "mood": "tired",
+          "text": "Alright, you're on. What's this about?"
+        },
+        {
+          "mood": "energized",
+          "text": "YOU ARE ON THE AIR! Tell us your story!"
+        },
+        {
+          "mood": "irritated",
+          "text": "You're on. Make it quick - what did you see?"
+        },
+        {
+          "mood": "gruff",
+          "text": "You're on. So?"
+        },
+        {
+          "mood": "amused",
+          "text": "Oh good, a caller! What's your story?"
+        },
+        {
+          "mood": "focused",
+          "text": "You're on. Describe your experience from the beginning."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Vern, I've been hiking the Pacific Northwest for fifteen years. Last weekend, I had an encounter I can't explain and it's been eating at me since."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Alright, I'm listening. Give me the details."
+        },
+        {
+          "mood": "tired",
+          "text": "Alright, I'm listening... give me the details."
+        },
+        {
+          "mood": "energized",
+          "text": "FIFTEEN YEARS of hiking experience! This is gonna be GOOD! Details please!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Alright, alright. Give me the details."
+        },
+        {
+          "mood": "gruff",
+          "text": "Fifteen years, huh? Fine, I'm listening. Details."
+        },
+        {
+          "mood": "amused",
+          "text": "FIFTEEN YEARS and NOW you call?! This is EXCITING! Tell me everything!"
+        },
+        {
+          "mood": "focused",
+          "text": "Fifteen years of regional wilderness experience. What specific encounter triggered this response?"
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Mount Rainier area, about ten miles in on a trail I've done dozens of times. Mid-afternoon, clear visibility. Through the trees, maybe fifty yards out, something was standing there. Eight feet tall, dark brown fur, standing completely upright like a person."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Fifty yards in clear light. What happened next?"
+        },
+        {
+          "mood": "tired",
+          "text": "Fifty yards in clear light... okay, what happened?"
+        },
+        {
+          "mood": "energized",
+          "text": "FIFTY YARDS in CLEAR LIGHT?! EIGHT FEET TALL?! This is INCREDIBLE!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Fifty yards, clear light, eight feet tall. Let me guess - it ran away?"
+        },
+        {
+          "mood": "gruff",
+          "text": "Fifty yards. That's not nothing. What happened?"
+        },
+        {
+          "mood": "amused",
+          "text": "EIGHT FEET TALL in broad daylight! This is AMAZING! What happened?!"
+        },
+        {
+          "mood": "focused",
+          "text": "Fifty yard observation distance, mid-afternoon, clear visibility. What was the duration of this encounter?"
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "We made eye contact. I'm certain of it. It just stood there for maybe ten seconds, then turned and walked deeper into the forest. Not running, not hurrying. Like it didn't care that I saw it. Like I was the one intruding."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Eye contact. I have to ask - could it have been a bear standing upright? People mistake them all the time."
+        },
+        {
+          "mood": "tired",
+          "text": "Eye contact... alright. Could've been a bear, you know how it is..."
+        },
+        {
+          "mood": "energized",
+          "text": "EYE CONTACT with an EIGHT-FOOT CREATURE! This is TEXTBOOK! Bear? Really?!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Eye contact. Of course it made eye contact. You know bears stand up sometimes, right?"
+        },
+        {
+          "mood": "gruff",
+          "text": "Eye contact. Fine, could've been a bear. What's your take?"
+        },
+        {
+          "mood": "amused",
+          "text": "THEY MADE EYE CONTACT! This is PERFECT! Bear, you think?!"
+        },
+        {
+          "mood": "focused",
+          "text": "Sustained eye contact. Regarding the bear hypothesis - what distinguishing characteristics ruled out Ursus species?"
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "I've photographed black bears and grizzlies for years, Vern. This had human proportions. Shoulders, the way it turned its head. And the size - bears don't stand eight feet tall on their hind legs that comfortably."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Appreciate you sharing this. If you go back, bring documentation - camera, maybe a friend. We need evidence. Stay safe out there."
+        },
+        {
+          "mood": "tired",
+          "text": "Yeah, thanks for calling. Maybe bring a camera next time. Stay safe."
+        },
+        {
+          "mood": "energized",
+          "text": "This is AMAZING! Go BACK with a CAMERA! We need PROOF! Stay safe my friend!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Right, well... bring a camera if you go back. Thanks for calling."
+        },
+        {
+          "mood": "gruff",
+          "text": "Good report. Bring documentation next time. Stay safe."
+        },
+        {
+          "mood": "amused",
+          "text": "This is PERFECT! Get a CAMERA and go BACK! We believe you! Stay safe!"
+        },
+        {
+          "mood": "focused",
+          "text": "Please document any future encounters with photographic or video evidence. Secondary observers also strengthen witness credibility. Recommend approaching with appropriate safety precautions."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Already ordered a trail camera. I'm going back next weekend. Thanks for taking this seriously, Vern."
+    }
+  ],
+  "callerPersonality": "gruff_experienced",
+  "arcNotes": "Experienced hiker, clear daylight sighting, rational attempt to debunk, eye contact, self-researching after"
+}

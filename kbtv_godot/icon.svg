@@ -1,0 +1,8 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" fill="#36393f"/>
+  <circle cx="32" cy="32" r="24" fill="#7289da"/>
+  <circle cx="24" cy="24" r="4" fill="#ffffff"/>
+  <circle cx="40" cy="24" r="4" fill="#ffffff"/>
+  <path d="M 20 40 Q 32 50 44 40" stroke="#ffffff" stroke-width="3" fill="none"/>
+  <text x="32" y="58" text-anchor="middle" font-family="Arial, sans-serif" font-size="8" fill="#ffffff">KBTV</text>
+</svg>

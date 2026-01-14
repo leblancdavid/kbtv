@@ -1,0 +1,12 @@
+{
+  "id": "bigfoot_repellent",
+  "advertiser": "Bigfoot Repellent",
+  "type": "RegionalBrand",
+  "tagline": "Keep your campsite safe! 97% effective.*",
+  "generation_method": "suno",
+  "duration_target": 18,
+  "style": "folk/bluegrass jingle, outdoorsy camping vibe",
+  "lyrics": "Heading to the woods tonight?\nKeep those sasquatch out of sight!\nBigfoot Repellent, spray it round,\nNinety-seven percent - they won't be found!\nBigfoot Repellent - camp in peace!\n*Results may vary, ask your local cryptid expert.",
+  "suno_prompt": "folk bluegrass radio jingle, banjo and acoustic guitar, friendly outdoorsy male voice, camping product commercial, humorous tone, 18 seconds",
+  "notes": "Camping product with asterisk disclaimer about effectiveness"
+}

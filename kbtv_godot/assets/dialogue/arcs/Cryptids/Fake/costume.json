@@ -1,0 +1,158 @@
+{
+  "arcId": "cryptids_fake_costume",
+  "topic": "Cryptids",
+  "legitimacy": "Fake",
+  "screeningSummary": "Prank caller claiming Bigfoot behind 7-Eleven - reveals friend in gorilla suit",
+  "dialogue": [
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "You're on the air. What's your story?"
+        },
+        {
+          "mood": "tired",
+          "text": "Alright, you're on. What's your story?"
+        },
+        {
+          "mood": "energized",
+          "text": "YOU ARE ON THE AIR! Tell us your story!"
+        },
+        {
+          "mood": "irritated",
+          "text": "You're on. What's this about?"
+        },
+        {
+          "mood": "gruff",
+          "text": "You're on. So?"
+        },
+        {
+          "mood": "amused",
+          "text": "Oh good, a caller! What's your story?"
+        },
+        {
+          "mood": "focused",
+          "text": "You're on. State your experience concisely."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Okay, so this is gonna sound crazy, but my buddy dared me and I've had three beers and... look, I saw Bigfoot behind the 7-Eleven last Tuesday. Right behind the dumpsters."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Behind the convenience store. Doing what exactly?"
+        },
+        {
+          "mood": "tired",
+          "text": "Behind the 7-Eleven... okay, doing what?"
+        },
+        {
+          "mood": "energized",
+          "text": "BEHIND THE 7-ELEVEN?! This is AMAZING! Doing what?!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Behind the convenience store. Let me guess - it was eating a hot dog?"
+        },
+        {
+          "mood": "gruff",
+          "text": "Behind the 7-Eleven. Fine, what was it doing?"
+        },
+        {
+          "mood": "amused",
+          "text": "BEHIND THE DUMPSTERS! I love this already! What was it DOING?!"
+        },
+        {
+          "mood": "focused",
+          "text": "Behind the convenience store. Describe the observed behavior and any distinctive characteristics."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Just... standing there. Huge, hairy, looking right at me. Made eye contact, Vern. Then it walked into the parking lot."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "And?"
+        },
+        {
+          "mood": "tired",
+          "text": "...and?"
+        },
+        {
+          "mood": "energized",
+          "text": "AND?! This is INCREDIBLE!"
+        },
+        {
+          "mood": "irritated",
+          "text": "And? Let me guess - it drove away in a Honda?"
+        },
+        {
+          "mood": "gruff",
+          "text": "And?"
+        },
+        {
+          "mood": "amused",
+          "text": "AND?! What happened next?!"
+        },
+        {
+          "mood": "focused",
+          "text": "Subsequent actions and trajectory."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "Got in a Honda Civic. My buddy Derek. He had this gorilla suit he'd been saving for Halloween. I can't believe I actually called about this."
+    },
+    {
+      "speaker": "Vern",
+      "textVariants": [
+        {
+          "mood": "neutral",
+          "text": "Probably buying beef jerky. Next caller."
+        },
+        {
+          "mood": "tired",
+          "text": "Right... Derek's gorilla suit. Next."
+        },
+        {
+          "mood": "energized",
+          "text": "DEREK in a GORILLA SUIT buying BEEF JERKY! This is the BEST call of the night!"
+        },
+        {
+          "mood": "irritated",
+          "text": "Of course it was Derek. Next caller."
+        },
+        {
+          "mood": "gruff",
+          "text": "Honda Civic and a gorilla suit. Next."
+        },
+        {
+          "mood": "amused",
+          "text": "DEREK IN A GORILLA SUIT! I can't believe you called about this but I LOVE it! NEXT!"
+        },
+        {
+          "mood": "focused",
+          "text": "Convenience store procurement of snacks. Classic bigfoot behavior. Next caller."
+        }
+      ]
+    },
+    {
+      "speaker": "Caller",
+      "text": "*snorts* Okay you got me, great show though Vern. I'm never living this down."
+    }
+  ],
+  "callerPersonality": "charismatic_storyteller",
+  "arcNotes": "Prank call, reveals it's a friend in a gorilla suit, self-aware humor"
+}
