@@ -20,7 +20,7 @@ As Vern Tell, the enigmatic host of KBTV, you manage a live radio talk show wher
 - **.NET 6.0** or later (for C# support)
 
 ### Setup
-1. **Open in Godot**: Import the `kbtv_godot` directory
+1. **Open in Godot**: Import the project by selecting the `project.godot` file
 2. **Main Scene**: `scenes/Main.tscn` is automatically set as the main scene
 3. **Run**: Press F5 or click Play
 

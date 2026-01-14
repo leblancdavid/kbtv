@@ -227,5 +227,5 @@ Features to consider for future development:
 - [x] Unit tests for core data classes (Stat, VernStats, Caller)
 
 ### TODO
-- [ ] Unity license activation (follow docs/technical/CI_CD_SETUP.md)
+- [ ] CI/CD setup for automated builds (see docs/technical/CI_CD_SETUP.md)
 - [ ] Steam deployment pipeline (requires Steamworks account)

@@ -3,7 +3,7 @@
 ## Overview
 **Genre**: Simulation / Management / Tycoon-style
 **Setting**: Paranormal/conspiracy talk radio station (inspired by Coast to Coast AM)
-**Platform**: 2D Unity game
+**Platform**: 2D Godot game
 
 ## Premise
 Player acts as the managing producer of KBTV, a paranormal/conspiracy talk radio station. The goal is to grow the show's credibility and popularity by exposing the truth about paranormal topics (aliens, government conspiracies, supernatural phenomena).

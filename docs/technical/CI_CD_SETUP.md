@@ -1,12 +1,29 @@
 # CI/CD Setup Guide
 
-This project uses GitHub Actions with [GameCI](https://game.ci/) for automated Unity builds.
+# CI/CD Setup (Not Currently Implemented)
 
-## Overview
+This document describes build automation setup for Godot projects. CI/CD is not currently implemented for KBTV.
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `build.yml` | Version tags (`v*`) | Build Windows + WebGL, create GitHub Release |
+## Manual Export Process
+
+For now, builds are created manually using Godot's export system:
+
+### Windows Build
+```bash
+godot --export "Windows Desktop" --output "builds/KBTV_Windows.exe" project.godot
+```
+
+### Web Export
+```bash
+godot --export "HTML5" --output "builds/web/" project.godot
+```
+
+### Export Presets
+Configure export presets in Godot Editor under **Project > Export**.
+
+## Future CI/CD Setup
+
+When implemented, this will use GitHub Actions with Godot's command-line export functionality.
 
 ## First-Time Setup: Unity License Activation
 

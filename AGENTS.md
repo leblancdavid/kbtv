@@ -47,7 +47,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [ART_STYLE.md](docs/art/ART_STYLE.md) | Visual direction, color palette, and asset guidelines |
 | [AUDIO_DESIGN.md](docs/audio/AUDIO_DESIGN.md) | Sound design, music, and audio technical specs |
 | [ROADMAP.md](docs/design/ROADMAP.md) | Development milestones and feature backlog |
-| [CI_CD_SETUP.md](docs/technical/CI_CD_SETUP.md) | GitHub Actions build/release setup and Unity license activation |
+| [CI_CD_SETUP.md](docs/technical/CI_CD_SETUP.md) | Build and export setup for Godot (CI/CD not currently implemented) |
 | [UI_DESIGN.md](docs/ui/UI_DESIGN.md) | UI design document - layout, panels, typography, and interaction design |
 | [UI_IMPLEMENTATION.md](docs/ui/UI_IMPLEMENTATION.md) | UI implementation pattern - uGUI Canvas, phase-based UI, creating panels |
 | [SCREENING_DESIGN.md](docs/ui/SCREENING_DESIGN.md) | Screening system design - information gathering game, property revelations, patience system |
@@ -67,7 +67,6 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [EVIDENCE_SYSTEM.md](docs/systems/EVIDENCE_SYSTEM.md) | Evidence collection - types, tiers, cabinet, set bonuses |
 | [TOOLS_EQUIPMENT.md](docs/systems/TOOLS_EQUIPMENT.md) | Investigation tools - camera, EMF reader, audio recorder, upgrades |
 | [VERN_STATS.md](docs/systems/VERN_STATS.md) | Vern's stats system - dependencies, VIBE, mood types, sigmoid functions |
-| [SESSION_LOG.md](SESSION_LOG.md) | Session continuity - current task, work done, next steps for recovery |
 
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
 
@@ -86,6 +85,38 @@ To run the game:
 4. Press **F5** or click the Play button
 
 The project is set up with all necessary scenes and scripts for the KBTV radio station game.
+
+## Development Workflow
+
+KBTV uses gitflow for organized development. See [GITFLOW.md](GITFLOW.md) for detailed branching guidelines.
+
+### Quick Gitflow Reference
+- **Start feature**: `git flow feature start my-feature`
+- **Finish feature**: `git flow feature finish my-feature`
+- **Start bugfix**: `git flow bugfix start fix-issue`
+- **Finish bugfix**: `git flow bugfix finish fix-issue`
+
+### Unity to Godot Migration Notes
+Common gotchas when working with this codebase:
+
+#### Architecture Differences
+- **Signals vs Events**: Use `Connect()` for signals instead of C# event handlers
+- **Node vs Component**: Scripts extend Node classes, not attach as components
+- **Resources vs ScriptableObjects**: Use `.tres` files loaded with `ResourceLoader`
+- **Scene vs Prefab**: Use `.tscn` files instantiated with `PackedScene`
+
+#### Lifecycle Methods
+- `_Ready()` instead of `Awake()`
+- `_Process(delta)` instead of `Update()`
+- `_PhysicsProcess(delta)` instead of `FixedUpdate()`
+
+#### Input Handling
+- `Input.IsActionPressed("action_name")` instead of Unity Input System
+- Configure input actions in Project Settings > Input Map
+
+#### File Paths
+- `user://` for persistent data instead of Unity's Application.persistentDataPath
+- `res://` for project resources
 
 ## Input System
 

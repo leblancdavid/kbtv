@@ -3,12 +3,12 @@
 ## Getting Started
 
 ### Quick Setup (Recommended)
-1. Open Unity with the project (`kbtv/kbtv`)
-2. Open `Assets/Scenes/SampleScene.unity`
-3. From menu: **KBTV > Setup Game Scene**
-4. Press **Play**
+1. Open Godot 4.x
+2. Import the project by selecting `project.godot`
+3. Open the main scene (`scenes/Main.tscn`)
+4. Press **F5** or click Play
 
-The setup utility auto-creates missing assets and configures `GameBootstrap` with all required references.
+The project is pre-configured with all necessary scenes and scripts.
 
 ### Manual Setup
 If you prefer manual configuration:

@@ -4,7 +4,7 @@
 
 This document outlines the strategy for producing voice audio for KBTV's dialogue system, including Vern's broadcasts, caller conversations, and filler content.
 
-**Approach**: Pre-generated audio using Piper TTS (offline, free) with runtime effects applied via Unity Audio Mixer.
+**Approach**: Pre-generated audio using Piper TTS (offline, free) with runtime effects applied via Godot audio bus system.
 
 ## Audio Scope
 
@@ -41,7 +41,7 @@ All audio is generated offline during development using Piper TTS, then imported
 - Quality is good enough, especially with post-processing effects
 
 **Why Pre-Generated?**
-- Simpler Unity integration (just load AudioClips)
+- Simpler Godot integration (just load AudioStream resources)
 - No runtime dependencies
 - Consistent audio quality
 - Can fine-tune individual lines
@@ -60,12 +60,11 @@ All audio is generated offline during development using Piper TTS, then imported
         ↓
 5. Convert to OGG, organize by folder
         ↓
-6. Import to Unity Assets/Audio/Voice/
+6. Import to Godot project (res://assets/audio/voice/)
         ↓
-7. Unity Audio Mixer applies effects at runtime
-```
+7. Godot audio bus system applies effects at runtime
 
-**Note**: Audio effects (phone filter, radio compression, static) are applied at runtime in Unity, not baked into the files. This enables the equipment upgrade system to dynamically improve audio quality.
+**Note**: Audio effects (phone filter, radio compression, static) are applied at runtime in Godot, not baked into the files. This enables the equipment upgrade system to dynamically improve audio quality.
 
 ## Voice Profiles
 

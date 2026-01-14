@@ -119,20 +119,14 @@ This release represents the successful completion of a major game engine migrati
 
 ---
 
-## Previous Versions
-
-### [Legacy] - Unity Version
-- Original Unity implementation
-- Canvas-based UI system
-- Unity Input System integration
-- Unity ScriptableObject architecture
-- Unity build pipeline
-
----
-
 ## Contributing
 
-This migration establishes the foundation for future KBTV development. See `DEVELOPER_GUIDE.md` for contribution guidelines and extension procedures.
+KBTV now uses gitflow for organized development. See `GITFLOW.md` for branching guidelines and `AGENTS.md` for development best practices.
+
+### Development Workflow
+- Use gitflow for all feature development and bug fixes
+- Follow conventional commits for clear change tracking
+- Create pull requests for all changes to develop branch
 
 ## Acknowledgments
 
