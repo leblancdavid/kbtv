@@ -56,4 +56,5 @@ put_on_air={
 
 [rendering]
 
+renderer/rendering_method="forward_plus"
 renderer/rendering_method.mobile="forward_plus"
