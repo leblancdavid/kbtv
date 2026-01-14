@@ -24,6 +24,83 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime
 
+try:
+    import requests
+    REQUESTS_AVAILABLE = True
+except ImportError:
+    REQUESTS_AVAILABLE = False
+
+
+# =============================================================================
+# MODEL DOWNLOADING
+# =============================================================================
+
+def download_piper_model(model_name: str, voices_dir: Path) -> bool:
+    """Download Piper TTS model and config from Hugging Face if not present."""
+    if not REQUESTS_AVAILABLE:
+        print(f"Warning: requests library not available, cannot download {model_name}")
+        return False
+
+    model_file = voices_dir / f"{model_name}.onnx"
+    config_file = voices_dir / f"{model_name}.onnx.json"
+
+    if model_file.exists() and config_file.exists():
+        return True  # Already downloaded
+
+    # Parse model name (e.g., "en_US-lessac-medium" -> lang=en_US, voice=lessac, quality=medium)
+    try:
+        parts = model_name.split('-')
+        if len(parts) < 3:
+            raise ValueError(f"Unexpected model name format: {model_name}")
+
+        lang_code = parts[0]
+        region = parts[1] if len(parts) > 1 else ""
+        voice = parts[2] if len(parts) > 2 else ""
+        quality = parts[3] if len(parts) > 3 else "medium"
+
+        lang = f"{lang_code}_{region}" if region else lang_code
+
+    except Exception as e:
+        print(f"Warning: Cannot parse model name '{model_name}': {e}")
+        return False
+
+    base_url = f"https://huggingface.co/rhasspy/piper-voices/resolve/main/{lang_code}/{lang}/{voice}/{quality}"
+    model_url = f"{base_url}/{model_name}.onnx"
+    config_url = f"{base_url}/{model_name}.onnx.json"
+
+    try:
+        voices_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Downloading Piper model: {model_name}...")
+
+        # Download model file
+        response = requests.get(model_url, stream=True, timeout=60)
+        response.raise_for_status()
+        with open(model_file, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+        # Download config file
+        response = requests.get(config_url, stream=True, timeout=30)
+        response.raise_for_status()
+        with open(config_file, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+
+        print(f"Successfully downloaded {model_name}")
+        return True
+
+    except requests.RequestException as e:
+        print(f"Failed to download {model_name}: {e}")
+        # Clean up partial downloads
+        if model_file.exists():
+            model_file.unlink()
+        if config_file.exists():
+            config_file.unlink()
+        return False
+    except Exception as e:
+        print(f"Error downloading {model_name}: {e}")
+        return False
+
 
 # =============================================================================
 # CONFIGURATION
@@ -516,17 +593,20 @@ def check_piper_installed() -> bool:
 
 
 def resolve_model_path(model_name: str) -> str:
-    """Resolve a model name to a full path."""
+    """Resolve a model name to a full path, downloading if necessary."""
     if '/' in model_name or '\\' in model_name or model_name.endswith('.onnx'):
         return model_name
-    
+
     voices_dir = Path(__file__).parent / "voices"
     local_model = voices_dir / f"{model_name}.onnx"
-    
-    if local_model.exists():
-        return str(local_model)
-    
-    return model_name
+
+    # Download if not present
+    if not local_model.exists():
+        if not download_piper_model(model_name, voices_dir):
+            print(f"Warning: Could not download {model_name}, falling back to Piper's built-in download")
+            return model_name  # Let Piper handle it
+
+    return str(local_model)
 
 
 def generate_audio_piper(

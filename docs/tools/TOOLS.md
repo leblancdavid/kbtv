@@ -21,10 +21,9 @@ Generates voice audio files for all dialogue (Vern broadcasts, caller conversati
 
 ```
 Tools/AudioGeneration/
-├── generate_audio.py     # Main generation script
-├── download_voices.py    # Download required Piper voice models
+├── generate_audio.py     # Main generation script (includes automatic voice model downloading)
 ├── config.json           # Voice mappings and audio settings
-├── voices/               # Downloaded voice models (gitignored)
+├── voices/               # Auto-downloaded voice models (gitignored)
 └── temp/                 # Temporary files (gitignored)
 ```
 
@@ -34,20 +33,15 @@ Tools/AudioGeneration/
 
 2. **Install Python dependencies:**
    ```bash
-   pip install piper-tts pydub
+   pip install piper-tts pydub requests
    ```
 
 3. **ffmpeg** - Required for OGG conversion
    - Windows: Download from https://ffmpeg.org/download.html and add to PATH
    - Or use: `winget install ffmpeg`
 
-4. **Download Piper voice models** (required before first run):
-   ```bash
-   cd Tools/AudioGeneration
-   python download_voices.py
-   ```
-   This downloads all 5 voice models to `Tools/AudioGeneration/voices/` (~500MB total).
-   The generate_audio.py script automatically uses these local models.
+4. **Voice models** - Downloaded automatically on first use
+   The generate_audio.py script automatically downloads required Piper voice models from Hugging Face when first needed. Models are cached locally in `Tools/AudioGeneration/voices/` (~60MB each).
 
 ### Usage
 
@@ -191,7 +185,7 @@ Only new or changed lines are regenerated. Use `--force` to regenerate everythin
 ### Troubleshooting
 
 **"Unable to find voice" error:**
-Run `python download_voices.py` to download the required voice models.
+The script should automatically download missing voice models. Check your internet connection. If the error persists, voice models may need to be downloaded manually from https://huggingface.co/rhasspy/piper-voices
 
 **"ffmpeg not found" error:**
 Install ffmpeg and ensure it's in your PATH:

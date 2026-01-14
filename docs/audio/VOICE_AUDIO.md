@@ -198,28 +198,67 @@ Effects are applied at runtime via Unity Audio Mixer (see "Runtime Audio Effects
 
 ### Piper Voice Models
 
-Download voice models from [Piper Voices](https://github.com/rhasspy/piper/blob/master/VOICES.md) or use the auto-download feature.
+Voice models are automatically downloaded when first needed by the audio generation scripts. The scripts download both the `.onnx` model file and `.onnx.json` configuration file from the official Hugging Face repository.
 
+**Automatic Download Behavior:**
+- Models are cached locally in `Tools/AudioGeneration/voices/` (Unity) or `kbtv_godot/tools/audio_generation/voices/` (Godot)
+- Downloads happen transparently when a script encounters a missing voice model
+- No manual download required - scripts handle model management automatically
+- Models are ~60MB each and cached after first use
+
+**Manual Testing:**
 ```bash
-# List available voices
+# List available voices (if Piper is installed)
 piper --list-voices
 
-# Generate sample
+# Generate sample with local cached model
 echo "Welcome to Beyond the Veil AM" | piper --model en_US-ryan-medium --output_file test.wav
 ```
+
+**Voice Model Sources:**
+- Repository: [Piper Voices on Hugging Face](https://huggingface.co/rhasspy/piper-voices)
+- Model format: `{lang}_{voice}-{quality}` (e.g., `en_US-ryan-medium`)
+- Files downloaded: `{model_name}.onnx` and `{model_name}.onnx.json`
 
 ### Project Scripts Location
 
 ```
 Tools/
 ├── AudioGeneration/
-│   ├── generate_audio.py      # Main batch generation script
-│   ├── download_voices.py     # Download required Piper voice models
+│   ├── generate_audio.py      # Main batch generation script (includes automatic voice model downloading)
 │   ├── config.json            # Voice mappings and settings
+│   ├── voices/                # Cached voice models (auto-downloaded, gitignored)
 │   └── temp/                  # Temporary files (gitignored)
 ```
 
+**Note:** Voice models are automatically downloaded and cached in the `voices/` subdirectory when first needed. No separate download script is required.
+
 See [TOOLS.md](../tools/TOOLS.md) for detailed usage instructions.
+
+### Automatic Voice Model Management
+
+The audio generation scripts now automatically download and cache Piper TTS voice models when needed:
+
+**How It Works:**
+1. When a script needs a voice model (e.g., `en_US-ryan-medium`), it checks the local `voices/` directory
+2. If the model is missing, it downloads both `.onnx` and `.onnx.json` files from Hugging Face
+3. Downloaded models are cached locally for future use
+4. Subsequent runs use the cached models, eliminating redundant downloads
+
+**Benefits:**
+- **Zero setup:** No manual model downloads required
+- **Automatic updates:** Scripts always use the latest available models
+- **Space efficient:** Models downloaded on-demand, not pre-committed to repository
+- **Cross-platform:** Works for both Unity and Godot versions
+
+**Network Requirements:**
+- Internet connection required for initial model downloads
+- Models cached locally after first download
+- Graceful fallback if download fails (logs warning, continues with available models)
+
+**Dependencies:**
+- `requests` library (install with `pip install requests`)
+- Internet access for model downloads
 
 ## File Organization
 
@@ -338,7 +377,7 @@ vern_betweencallers_003.ogg
 - [x] Install Piper TTS and dependencies
 - [x] Test voice models, select best for Vern and callers
 - [x] Create basic generation script (normalize only, no effects)
-- [x] Create voice download helper script
+- [x] Integrate automatic voice model downloading
 - [x] Generate all 950 voice lines (Vern broadcasts + caller conversations)
 - [x] Validate audio quality and timing
 

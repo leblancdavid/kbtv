@@ -1,6 +1,6 @@
 # AGENTS.md - KBTV Unity Project Guidelines
 
-This document provides guidelines for AI agents working on the KBTV Unity project.
+This document provides guidelines for AI agents working on the KBTV Godot project.
 
 ## AI Agent Best Practices
 
@@ -72,215 +72,141 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
 
 ## Project Overview
-- **Engine**: Unity 6000.3.1f1 (Unity 6)
-- **Template**: 2D Game with Universal Render Pipeline (URP)
-- **Language**: C# (Unity MonoBehaviour architecture)
-- **Solution**: kbtv/kbtv.sln
+- **Engine**: Godot 4.x
+- **Template**: 2D Game
+- **Language**: GDScript
+- **Project**: project.godot
 
 ## Quick Start
 
 To run the game:
-1. Open Unity with the project (`kbtv/kbtv`)
-2. Open `Assets/Scenes/SampleScene.unity`
-3. From menu: **KBTV > Setup Game Scene**
-4. Press **Play**
+1. Open Godot 4.x
+2. Import the project by selecting the `project.godot` file
+3. Open the main scene (typically `scenes/Main.tscn`)
+4. Press **F5** or click the Play button
 
-The `GameSetup` utility (`Assets/Scripts/Editor/GameSetup.cs`) auto-creates missing assets and configures the scene.
+The project is set up with all necessary scenes and scripts for the KBTV radio station game.
 
 ## Input System
 
-KBTV uses Unity's **Input System package (v1.17.0)** for all input handling. The project has been fully migrated from the deprecated Input Manager.
+KBTV uses Godot's built-in input system with action mappings defined in the project settings.
 
 ### Configuration
-- **Active Input Handler**: Input System Package (ProjectSettings > Player > Active Input Handling)
-- **UI Input Module**: `InputSystemUIInputModule` (created by GameBootstrap)
-- **Input Actions**: Create `Assets/Input/KBTVInputActions.inputactions` in Unity Editor when adding controller/gamepad support
+- **Input Actions**: Defined in Project Settings > Input Map
+- **Controller Support**: Gamepad inputs are automatically mapped
 
 ### Usage Guidelines
-- **Never use legacy APIs**: Avoid `UnityEngine.Input.*`, `Input.GetKey()`, etc.
-- **UI Interactions**: All handled automatically by InputSystemUIInputModule
-- **Future Input Features**: Use Input Actions asset for any new input requirements
-- **Controller Support**: Input Actions are pre-configured for gamepad/controller input
-
-### Migration Notes
-- Legacy `InputManager.asset` has been removed
-- All UI components work with Input System automatically
-- EventSystem uses `InputSystemUIInputModule` for proper input handling
+- Use `Input.is_action_pressed()`, `Input.is_action_just_pressed()` for input detection
+- Input actions are defined in `project.godot` settings
+- Controller/gamepad inputs work automatically
 
 ## Build Commands
 
-### Unity Editor
-- Open the project in Unity Hub or directly via `kbtv/kbtv/kbtv.sln`
-- Use Build Settings (Ctrl+Shift+B) to build for target platform
+### Godot Editor
+- Open the project in Godot 4.x
+- Use **Project > Export** to build for target platforms
 - **Command-line build**:
   ```bash
   # Windows build
-  Unity.exe -buildTarget Win64 -buildPath Build/Windows -projectPath kbtv -quit -batchmode -executeMethod BuildScript.BuildWindows
-  
+  godot --export "Windows Desktop" --output "builds/KBTV_Windows.exe"
+
   # Development build with debug symbols
-  Unity.exe -buildTarget Win64 -buildPath Build/Windows -projectPath kbtv -quit -batchmode -executeMethod BuildScript.BuildWindows -developmentBuild
+  godot --export-debug "Windows Desktop" --output "builds/KBTV_Windows_Debug.exe"
   ```
 
-### Build Script Pattern
-Create a `BuildScript.cs` in `Assets/Scripts/Editor/`:
-```csharp
-public class BuildScript {
-    [MenuItem("Build/Build Windows")]
-    public static void BuildWindows() {
-        // Standard Unity build pipeline
-    }
-}
-```
+### Export Presets
+Configure export presets in **Project > Export** for different platforms (Windows, Linux, macOS, HTML5).
 
 ## Testing
 
-### Unity Test Framework (UTF)
-- Tests located in `Assets/Tests/` or `Assets/Scripts/Tests/`
-- **Run all tests**: `Window > General > Test Runner > Run All`
-- **Run single test**: Click the play icon next to the test method name
+### GDScript Unit Testing
+- Tests located in `tests/` directory (if implemented)
+- **Run tests**: Use Godot's built-in testing or external tools
 - **Command-line test run**:
   ```bash
-  Unity.exe -projectPath kbtv/kbtv -batchmode -runTests -testPlatform editmode -testResults Results.xml
-  Unity.exe -projectPath kbtv/kbtv -batchmode -runTests -testPlatform playmode -testResults Results.xml
-  ```
-- **Filter single test**:
-  ```bash
-  -testFilter "TestClassName.TestMethodName"
+  # Run with custom test runner if implemented
+  godot --script test_runner.gd
   ```
 
-### Script Compilation Check
-Check C# scripts for compilation errors without doing a full build:
+### Script Validation
+Check GDScript syntax and basic validation:
 
-**PowerShell:**
-```powershell
-.\check_compilation.ps1
-```
-
-**Direct Unity invocation:**
 ```bash
-Unity.exe -projectPath kbtv/kbtv -batchmode -quit -executeMethod KBTV.Editor.CompilationCheck.Check
+# Basic syntax check
+godot --check-only project.godot
 ```
-
-**Exit codes:**
-- `0` = Success (no compilation errors)
-- `1` = Compilation errors found
-- `2` = Unity API error
 
 ### Test Structure
-```csharp
-using UnityEngine;
-using UnityEngine.TestTools;
-using NUnit.Framework;
+```gdscript
+extends Node
 
-public class MyComponentTests {
-    [Test]
-    public void ComponentInitialization() { }
-    
-    [Test]
-    public void ComponentBehavior_ContextResets() { }
-}
+func test_example():
+    assert(true, "This test should pass")
 ```
 
 ## Code Style Guidelines
 
 ### Naming Conventions
-- **Classes/Components**: PascalCase, descriptive (e.g., `PlayerController`, `EnemyAI`)
-- **Methods**: PascalCase, verb-noun pattern (e.g., `MovePlayer()`, `CalculateDamage()`)
-- **Variables/Fields**: camelCase (e.g., `playerHealth`, `movementSpeed`)
-- **Private/Protected Fields**: camelCase with underscore prefix (e.g., `_playerHealth`)
-- **Constants**: UPPER_CASE with underscores (e.g., `MAX_HEALTH = 100`)
-- **Unity Events**: Prefix with `On` (e.g., `OnPlayerDeath`)
+- **Classes/Scripts**: PascalCase (e.g., `PlayerController`, `EnemyAI`)
+- **Functions**: snake_case (e.g., `move_player()`, `calculate_damage()`)
+- **Variables**: snake_case (e.g., `player_health`, `movement_speed`)
+- **Constants**: ALL_CAPS (e.g., `MAX_HEALTH = 100`)
+- **Signals**: snake_case (e.g., `player_died`, `health_changed`)
 
-### Unity-Specific Patterns
-```csharp
-public class PlayerController : MonoBehaviour {
-    [Header("Movement Settings")]
-    [SerializeField] private float _speed = 5f;
-    [SerializeField] private float _jumpForce = 10f;
-    
-    [SerializeField] private Rigidbody2D _rigidbody;
-    
-    private void Awake() {
-        _rigidbody = GetComponent<Rigidbody2D>();
-    }
-    
-    private void FixedUpdate() {
-        HandleMovement();
-    }
-    
-    public void TakeDamage(float amount) { }
-}
+### GDScript Patterns
+```gdscript
+extends Node2D
+
+@export var speed: float = 5.0
+@export var jump_force: float = 10.0
+
+@onready var sprite = $Sprite2D
+
+func _ready():
+    # Initialize when node enters scene tree
+    pass
+
+func _process(delta):
+    # Handle input and updates
+    handle_movement(delta)
+
+func handle_movement(delta):
+    # Movement logic here
+    pass
+
+func take_damage(amount: float):
+    # Damage handling
+    pass
 ```
 
 ### File Organization
-- **Scripts**: `Assets/Scripts/[Domain]/[Component].cs`
-- **Scripts/Editor**: Editor scripts in `Assets/Scripts/Editor/`
-- **Scripts/Runtime**: Runtime scripts in `Assets/Scripts/Runtime/`
-- **Prefabs**: `Assets/Prefabs/[Component].prefab`
-- **Scenes**: `Assets/Scenes/[SceneName].unity`
+- **Scripts**: `scripts/[Domain]/[Component].gd`
+- **Scenes**: `scenes/[SceneName].tscn`
+- **Resources**: `assets/[Type]/[ResourceName].tres`
 
-### Component Architecture
-- Use `[RequireComponent(typeof(ComponentType))]` for dependencies
-- Implement proper lifecycle methods: `Awake()`, `Start()`, `OnEnable()`, `OnDisable()`
-- Use `OnDestroy()` for cleanup (取消订阅事件)
-- Place physics logic in `FixedUpdate()`, input in `Update()`
-
-### Serialization
-- Use `[SerializeField]` for private fields visible in Inspector
-- Use `[Header("Group Name")]` for organization
-- Use `[Range(min, max)]` for numeric values
-- Use `[Tooltip("description")]` for documentation
-- Avoid public fields; prefer properties with `[SerializeField]`
-
-### Input Handling (New Input System)
-- Use `InputActionAsset` for input definitions
-- Reference actions via `PlayerInput` component
-- Use callback methods: `OnMove(InputValue value)`
-- Never poll input in `FixedUpdate()`
+### Node Architecture
+- Use Godot's node system with proper inheritance
+- Implement `_ready()`, `_process()`, `_physics_process()` for lifecycle
+- Use signals for communication between nodes
+- Group related functionality in custom node types
 
 ### Error Handling
-- Use `Debug.LogError()` for critical errors
-- Use `Debug.LogWarning()` for warnings
-- Validate null references with `Assert.IsNotNull()`
-- Wrap Unity API calls in try-catch for coroutines
-- Never swallow exceptions silently
+- Use `push_error()` for critical errors
+- Use `push_warning()` for warnings
+- Validate node references before use
+- Use assertions for debugging
 
 ### Performance
-- Cache component references in `Awake()` or `Start()`
-- Use object pooling for frequently instantiated objects
-- Avoid `GameObject.Find*` in Update loops
-- Use `[SerializeField]` instead of `GetComponent` in Update
-- Profile before optimizing; use Unity Profiler
+- Cache node references in `_ready()`
+- Use Godot's built-in pooling for frequently instantiated scenes
+- Minimize use of `get_node()` in `_process()` loops
+- Use Godot's profiler for optimization
 
 ### Git & Collaboration
 - Create descriptive commit messages explaining the "why"
 - Reference ticket/issue numbers in commits
-- Use feature branches: `feature/[name]`, `bugfix/[name]`
-
-#### Unity Meta Files (IMPORTANT)
-Unity generates `.meta` files for every asset and folder. These files contain GUIDs that Unity uses to track references between assets.
-
-**Always commit `.meta` files together with their assets:**
-- When adding a new `.cs` file, also stage its `.cs.meta` file
-- When creating a new folder, also stage its `.meta` file
-- When deleting assets, also delete the corresponding `.meta` files
-- Never commit an asset without its `.meta` file (causes broken references)
-
-**Example workflow:**
-```bash
-# After creating new files, check for untracked meta files
-git status
-
-# Stage both the file and its meta
-git add Assets/Scripts/MyNewScript.cs Assets/Scripts/MyNewScript.cs.meta
-
-# Or stage all changes in a directory (includes meta files)
-git add Assets/Scripts/NewFeature/
-```
-
-**Why this matters:**
-- Missing `.meta` files cause Unity to regenerate GUIDs, breaking prefab/scene references
-- Different GUIDs on different machines cause merge conflicts and broken references
+- Use gitflow branching: `feature/`, `bugfix/`, `hotfix/`, `release/`
+- Follow conventional commits: `feat:`, `fix:`, `docs:`, etc.
 - The `.meta` file stores import settings (texture compression, script execution order, etc.)
 
 ## Unity Editor Configuration
