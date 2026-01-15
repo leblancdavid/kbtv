@@ -8,9 +8,9 @@ namespace KBTV.UI
 {
     /// <summary>
     /// Manages UI display updates and synchronization with game state.
-    /// Handles clock, listeners, money, and live indicators.
+    /// Handles clock, listeners, money, live indicators, and event-driven updates.
     /// </summary>
-    public class DisplayManager
+    public partial class DisplayManager
     {
         private readonly UIManagerBootstrap _uiManager;
 

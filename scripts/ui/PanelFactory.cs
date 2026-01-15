@@ -7,9 +7,9 @@ namespace KBTV.UI
 {
     /// <summary>
     /// Factory class for creating UI panels programmatically.
-    /// Handles all panel instantiation and configuration.
+    /// Handles all panel instantiation and configuration with scene-based loading and programmatic fallbacks.
     /// </summary>
-    public class PanelFactory
+    public partial class PanelFactory
     {
         private readonly UIManagerBootstrap _uiManager;
 
