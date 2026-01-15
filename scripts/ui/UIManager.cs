@@ -30,13 +30,13 @@ namespace KBTV.UI
         public void RegisterPreShowLayer(CanvasLayer layer)
         {
             _preShowLayer = layer;
-            GD.Print("UIManager: PreShow layer registered");
+            GD.Print($"UIManager: PreShow layer registered: {layer != null}");
         }
 
         public void RegisterLiveShowLayer(CanvasLayer layer)
         {
             _liveShowLayer = layer;
-            GD.Print("UIManager: LiveShow layer registered");
+            GD.Print($"UIManager: LiveShow layer registered: {layer != null}");
         }
 
         public override void _Ready()
@@ -96,7 +96,7 @@ namespace KBTV.UI
             GamePhase oldPhase = (GamePhase)oldPhaseInt;
             GamePhase newPhase = (GamePhase)newPhaseInt;
 
-            // GD.Print($"UIManager: Updating UI visibility for phase {newPhase}");
+            GD.Print($"UIManager: Updating UI visibility for phase {newPhase}");
 
             if (_preShowLayer == null || _liveShowLayer == null)
             {
@@ -104,14 +104,14 @@ namespace KBTV.UI
                 return;
             }
 
-            // GD.Print($"UIManager: Before update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
+            GD.Print($"UIManager: Before update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
 
             switch (newPhase)
             {
                 case GamePhase.PreShow:
                     _preShowLayer.Show();
                     _liveShowLayer.Hide();
-                    // GD.Print("UIManager: PreShow UI visible, LiveShow UI hidden");
+                    GD.Print("UIManager: PreShow UI visible, LiveShow UI hidden");
                     break;
 
                 case GamePhase.LiveShow:
@@ -125,7 +125,7 @@ namespace KBTV.UI
                     break;
             }
 
-            // GD.Print($"UIManager: After update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
+            GD.Print($"UIManager: After update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
         }
 
         public override void _ExitTree()

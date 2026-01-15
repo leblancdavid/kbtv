@@ -54,14 +54,15 @@ namespace KBTV.UI
 		AddChild(canvasLayer);
 
 		// Register with UIManager
-		var uiManager = GetNode<UIManager>("/root/Main/UIManager");
+		var uiManager = UIManager.Instance;
 		if (uiManager != null)
 		{
 			uiManager.RegisterPreShowLayer(canvasLayer);
+			GD.Print("PreShowUIManager: Successfully registered with UIManager");
 		}
 		else
 		{
-			GD.PrintErr("PreShowUIManager: Could not find UIManager node");
+			GD.PrintErr("PreShowUIManager: Could not find UIManager instance");
 		}
 
 		// Create container within the canvas layer

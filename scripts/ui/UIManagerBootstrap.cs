@@ -86,6 +86,13 @@ namespace KBTV.UI
 				_canvas.Layer = 100; // Above other UI
 				AddChild(_canvas);
 
+				// Add full-screen background to block lower layers
+				var background = new Panel();
+				background.Name = "Background";
+				background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+				background.Modulate = new Color(0, 0, 0, 0.8f); // Semi-transparent black background
+				_canvas.AddChild(background);
+
 				// Create root container
 				_rootContainer = new VBoxContainer();
 				_rootContainer.Name = "RootContainer";
