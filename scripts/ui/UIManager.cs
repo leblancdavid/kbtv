@@ -14,10 +14,10 @@ namespace KBTV.UI
             get
             {
                 var root = ((SceneTree)Engine.GetMainLoop()).Root;
-                var uiManager = root.GetNode("/root/UIManager") as UIManager;
+                var uiManager = root.GetNode("/root/Main/UIManager") as UIManager;
                 if (uiManager == null)
                 {
-                    GD.PrintErr("UIManager.Instance: UIManager node not found at /root/UIManager");
+                    GD.PrintErr("UIManager.Instance: UIManager node not found at /root/Main/UIManager");
                 }
                 return uiManager;
             }

@@ -45,40 +45,47 @@ namespace KBTV.UI
 
 	private void CreatePreShowUI()
 	{
-		// GD.Print("PreShowUIManager: CreatePreShowUI called");
-
-		// Create CanvasLayer for proper layering
-		var canvasLayer = new CanvasLayer();
-		canvasLayer.Name = "PreShowCanvasLayer";
-		canvasLayer.Layer = 10; // Higher layer for PreShow
-		AddChild(canvasLayer);
-
-		// Register with UIManager
+		// Register with UIManager (deferred to ensure UIManager is ready)
+		CallDeferred(nameof(RegisterWithUIManager));
+	}
+	private void RegisterWithUIManager()
+	{
 		var uiManager = UIManager.Instance;
 		if (uiManager != null)
 		{
+			// Need to recreate canvas layer since this is deferred
+			var canvasLayer = new CanvasLayer();
+			canvasLayer.Name = "PreShowCanvasLayer";
+			canvasLayer.Layer = 10; // Higher layer for PreShow
+			AddChild(canvasLayer);
+
 			uiManager.RegisterPreShowLayer(canvasLayer);
 			GD.Print("PreShowUIManager: Successfully registered with UIManager");
+
+			// Set up the container now that canvas layer exists
+			var preShowContainer = new CenterContainer();
+			preShowContainer.Name = "PreShowContainer";
+			preShowContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+			canvasLayer.AddChild(preShowContainer);
+
+			// Continue with UI setup...
+			SetupPreShowUI(preShowContainer);
 		}
 		else
 		{
-			GD.PrintErr("PreShowUIManager: Could not find UIManager instance");
+			GD.PrintErr("PreShowUIManager: Could not find UIManager instance during deferred registration");
 		}
+	}
 
-		// Create container within the canvas layer
-		var preShowContainer = new CenterContainer();
-		preShowContainer.Name = "PreShowContainer";
-		preShowContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-		canvasLayer.AddChild(preShowContainer);
-
-		// GD.Print("PreShowUIManager: Created CanvasLayer and container programmatically");
-
+	private void SetupPreShowUI(CenterContainer container)
+	{
 		// Create a VBoxContainer to hold our UI elements
 		var contentContainer = new VBoxContainer();
 		contentContainer.Name = "PreShowContent";
 		contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
 		contentContainer.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
 		contentContainer.CustomMinimumSize = new Vector2(700, 500);
+		container.AddChild(contentContainer);
 
 		// Create UI elements and add them to the content container
 		var title = CreateTitle();
@@ -98,16 +105,6 @@ namespace KBTV.UI
 		contentContainer.AddChild(UITheme.CreateSpacer(false, false)); // Small vertical space
 		contentContainer.AddChild(startButton);
 		contentContainer.AddChild(errorDisplay);
-
-		// Add the content container to the center container
-		preShowContainer.AddChild(contentContainer);
-
-		// GD.Print($"PreShowUIManager: Content container added to center container");
-		// GD.Print($"PreShowUIManager: Center container has {preShowContainer.GetChildCount()} children");
-
-		// Force layout update
-		preShowContainer.QueueSort();
-		// GD.Print("PreShowUIManager: UI setup complete");
 
 		// Select first topic by default after UI is fully created
 		if (_availableTopics.Count > 0)
