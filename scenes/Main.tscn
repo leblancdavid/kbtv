@@ -5,12 +5,12 @@
 [ext_resource type="Script" uid="uid://dsuqpxc8yi25t" path="res://scripts/managers/ListenerManager.cs" id="3"]
 [ext_resource type="Script" uid="uid://c17ma182xc3lf" path="res://scripts/economy/EconomyManager.cs" id="4"]
 [ext_resource type="Script" uid="uid://7dlmfffrec07" path="res://scripts/callers/CallerQueue.cs" id="5"]
-[ext_resource type="Script" uid="uid://h45kooryn023" path="res://scripts/callers/CallerGenerator.cs" id="7"]
-[ext_resource type="Script" uid="uid://clxsqck3lsvwx" path="res://scripts/persistence/SaveManager.cs" id="8"]
-[ext_resource type="Script" uid="uid://ciyybuimuubtw" path="res://scripts/ui/InputHandler.cs" id="9"]
-[ext_resource type="Script" uid="uid://b2u086adkhe2n" path="res://scripts/ui/DebugHelper.cs" id="10"]
-[ext_resource type="Script" uid="uid://do8hx8rpjogwt" path="res://scripts/ui/UIManager.cs" id="11"]
-[ext_resource type="Script" uid="uid://bpe2imk2pcypt" path="res://scripts/ui/PreShowUIManager.cs" id="12"]
+[ext_resource type="Script" uid="uid://h45kooryn023" path="res://scripts/callers/CallerGenerator.cs" id="6"]
+[ext_resource type="Script" uid="uid://clxsqck3lsvwx" path="res://scripts/persistence/SaveManager.cs" id="7"]
+[ext_resource type="Script" uid="uid://ciyybuimuubtw" path="res://scripts/ui/InputHandler.cs" id="8"]
+[ext_resource type="Script" uid="uid://b2u086adkhe2n" path="res://scripts/ui/DebugHelper.cs" id="9"]
+[ext_resource type="Script" uid="uid://do8hx8rpjogwt" path="res://scripts/ui/UIManager.cs" id="10"]
+[ext_resource type="Script" uid="uid://bpe2imk2pcypt" path="res://scripts/ui/PreShowUIManager.cs" id="11"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -28,19 +28,19 @@ script = ExtResource("3")
 script = ExtResource("4")
 
 [node name="CallerQueue" type="Node" parent="."]
-script = ExtResource("6")
+script = ExtResource("5")
 
 [node name="CallerGenerator" type="Node" parent="."]
-script = ExtResource("7")
+script = ExtResource("6")
 
 [node name="SaveManager" type="Node" parent="."]
-script = ExtResource("8")
+script = ExtResource("7")
 
 [node name="UIManager" type="Node" parent="."]
-script = ExtResource("11")
+script = ExtResource("10")
 
 [node name="InputHandler" type="Node" parent="."]
-script = ExtResource("9")
+script = ExtResource("8")
 
 [node name="DebugHelper" type="Node" parent="."]
-script = ExtResource("10")
+script = ExtResource("9")
