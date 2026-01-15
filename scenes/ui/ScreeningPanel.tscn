@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d3wvglfnhcdnr"]
 
-[ext_resource type="Script" path="res://scripts/ui/ScreeningPanel.cs" id="1"]
+[ext_resource type="Script" uid="uid://b1bg38p8qk7ja" path="res://scripts/ui/ScreeningPanel.cs" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="PanelStyle"]
 bg_color = Color(0.15, 0.15, 0.15, 1)
