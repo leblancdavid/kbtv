@@ -118,6 +118,27 @@ namespace KBTV.Callers
     }
 
     /// <summary>
+    /// The current state of a caller in the system.
+    /// </summary>
+    public enum CallerState
+    {
+        /// <summary>Waiting to be screened</summary>
+        Incoming,
+        /// <summary>Currently being screened by player</summary>
+        Screening,
+        /// <summary>Approved and waiting to go on air</summary>
+        OnHold,
+        /// <summary>Currently on air with Vern</summary>
+        OnAir,
+        /// <summary>Call completed</summary>
+        Completed,
+        /// <summary>Rejected by screener</summary>
+        Rejected,
+        /// <summary>Hung up or disconnected</summary>
+        Disconnected
+    }
+
+    /// <summary>
     /// State of a property during screening revelation.
     /// </summary>
     public enum RevelationState

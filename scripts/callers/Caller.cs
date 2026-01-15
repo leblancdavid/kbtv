@@ -10,6 +10,7 @@ namespace KBTV.Callers
     /// </summary>
     [Serializable]
     public partial class Caller : Resource
+    {
 
     /// <summary>
     /// Tracks the revelation progress of a single property.
@@ -56,34 +57,9 @@ namespace KBTV.Callers
         public float Progress => Mathf.Clamp(ElapsedTime / RevealDuration, 0f, 1f);
     }
 
-    /// <summary>
-    /// The current state of a caller in the system.
-    /// </summary>
-    public enum CallerState
-    {
-        /// <summary>Waiting to be screened</summary>
-        Incoming,
-        /// <summary>Currently being screened by player</summary>
-        Screening,
-        /// <summary>Approved and waiting to go on air</summary>
-        OnHold,
-        /// <summary>Currently on air with Vern</summary>
-        OnAir,
-        /// <summary>Call completed</summary>
-        Completed,
-        /// <summary>Rejected by screener</summary>
-        Rejected,
-        /// <summary>Hung up or disconnected</summary>
-        Disconnected
-    }
 
-    /// <summary>
-    /// Represents a caller to the radio station.
-    /// Contains all info the player uses to screen them.
-    /// </summary>
-    [Serializable]
-    public partial class Caller : Resource
-    {
+
+
         // Identity
         private string _name;
         private string _phoneNumber;
