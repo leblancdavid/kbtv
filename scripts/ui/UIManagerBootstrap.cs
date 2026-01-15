@@ -17,6 +17,14 @@ namespace KBTV.UI
 	{
 		public static UIManagerBootstrap Instance => (UIManagerBootstrap)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/UIManagerBootstrap");
 		public CallerQueue CallerQueue => _callerQueue;
+
+		// Public accessors for DisplayManager
+		public Label GetClockText() => _clockText;
+		public Label GetListenerCount() => _listenerCount;
+		public Label GetMoneyText() => _moneyText;
+		public Control GetLiveIndicator() => _liveIndicator;
+		public LiveShowHeader GetLiveShowHeader() => _liveShowHeader;
+
 		private TabContainer _tabContainer;
 		private List<TabDefinition> _tabs;
 
@@ -43,6 +51,7 @@ namespace KBTV.UI
 
 		// Factories and managers
 		private PanelFactory _panelFactory;
+		private DisplayManager _displayManager;
 
         public override void _Ready()
         {
@@ -92,9 +101,10 @@ namespace KBTV.UI
 
             // Initialize factories
             _panelFactory = new PanelFactory(this);
+            _displayManager = new DisplayManager(this);
 
             SubscribeToEvents();
-            RefreshAllDisplays();
+            _displayManager.RefreshAllDisplays();
             GD.Print("UIManagerBootstrap._Ready completed");
 
             // Pre-populate STATS content will be called after tab controller initialization
@@ -187,7 +197,7 @@ namespace KBTV.UI
 			}
 		}
 
-		private void RefreshCurrentTab()
+		public void RefreshCurrentTab()
 		{
 			if (_tabContainer != null)
 			{
@@ -794,28 +804,27 @@ namespace KBTV.UI
 
         private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
         {
-            RefreshAllDisplays();
+            _displayManager.HandlePhaseChanged(oldPhase, newPhase);
         }
 
 		private void HandleTimeTick(float deltaTime)
 		{
-			UpdateClockDisplay();
+			_displayManager.HandleTimeTick(deltaTime);
 		}
 
 		private void HandleListenersChanged(int oldCount, int newCount)
 		{
-			UpdateListenerDisplay();
+			_displayManager.HandleListenersChanged(oldCount, newCount);
 		}
 
 		private void HandleMoneyChanged(int oldAmount, int newAmount)
 		{
-			UpdateMoneyDisplay();
+			_displayManager.HandleMoneyChanged(oldAmount, newAmount);
 		}
 
 		private void HandleStatsChanged()
 		{
-			// Refresh STATS tab if it's currently visible
-			RefreshCurrentTab();
+			_displayManager.HandleStatsChanged();
 		}
 
 		private void HandleCallerQueueChanged(Caller caller = null)
@@ -824,64 +833,7 @@ namespace KBTV.UI
 			RefreshTabContent(0); // CALLERS is index 0
 		}
 
-		private void RefreshAllDisplays()
-		{
-			UpdateClockDisplay();
-			UpdateListenerDisplay();
-			UpdateMoneyDisplay();
-			UpdateLiveIndicator();
-		}
 
-		private void UpdateClockDisplay()
-		{
-			if (_liveShowHeader != null)
-			{
-				_liveShowHeader.RefreshClock();
-			}
-			else if (_clockText != null)
-			{
-				// Fallback
-				var currentTime = TimeManager.Instance?.CurrentTimeFormatted ?? "12:00 AM";
-				var remaining = TimeManager.Instance?.RemainingTimeFormatted ?? "45:00";
-				_clockText.Text = $"{currentTime} ({remaining})";
-			}
-		}
-
-		private void UpdateListenerDisplay()
-		{
-			if (_liveShowHeader != null)
-			{
-				_liveShowHeader.RefreshListeners();
-			}
-			else if (_listenerCount != null && _listenerManager != null)
-			{
-				// Fallback
-				var count = _listenerManager.GetFormattedListeners();
-				var change = _listenerManager.GetFormattedChange();
-				var changeValue = _listenerManager.ListenerChange;
-				var color = changeValue >= 0 ? new Color(0f, 0.8f, 0f) : new Color(0.8f, 0.2f, 0.2f);
-
-				_listenerCount.Text = $"{count} ({change})";
-				_listenerCount.AddThemeColorOverride("font_color", color);
-			}
-		}
-
-		private void UpdateMoneyDisplay()
-		{
-			if (_moneyText == null || _economyManager == null) return;
-
-			_moneyText.Text = $"${_economyManager.CurrentMoney}";
-		}
-
-		private void UpdateLiveIndicator()
-		{
-			// Update live indicator based on game phase
-			if (_liveIndicator != null)
-			{
-				bool isLive = GameStateManager.Instance?.CurrentPhase == GamePhase.LiveShow;
-				_liveIndicator.Visible = isLive;
-			}
-		}
 
 		// Button handlers for caller screening
 		public void OnApprovePressed()
