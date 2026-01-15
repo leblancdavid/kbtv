@@ -16,6 +16,7 @@ namespace KBTV.UI
 	public partial class UIManagerBootstrap : Node
 	{
 		public static UIManagerBootstrap Instance => (UIManagerBootstrap)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/UIManagerBootstrap");
+		public CallerQueue CallerQueue => _callerQueue;
 		private TabContainer _tabContainer;
 		private List<TabDefinition> _tabs;
 
@@ -40,7 +41,8 @@ namespace KBTV.UI
 		private Label spiritLabel;
 		private Label patienceLabel;
 
-
+		// Factories and managers
+		private PanelFactory _panelFactory;
 
         public override void _Ready()
         {
@@ -87,6 +89,9 @@ namespace KBTV.UI
             _timeManager = TimeManager.Instance;
             _listenerManager = ListenerManager.Instance;
             _callerQueue = CallerQueue.Instance;
+
+            // Initialize factories
+            _panelFactory = new PanelFactory(this);
 
             SubscribeToEvents();
             RefreshAllDisplays();
@@ -553,7 +558,7 @@ namespace KBTV.UI
 			mainContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
 
 			// Left panel: Incoming callers (25% width)
-			var incomingPanel = CreateCallerPanelScene("INCOMING CALLERS", _callerQueue.IncomingCallers, new Color(1f, 0.7f, 0f), new Color(0.8f, 0.8f, 0.8f));
+			var incomingPanel = _panelFactory.CreateCallerPanelScene("INCOMING CALLERS", _callerQueue.IncomingCallers, new Color(1f, 0.7f, 0f), new Color(0.8f, 0.8f, 0.8f));
 			if (incomingPanel != null)
 			{
 				incomingPanel.SizeFlagsStretchRatio = 1; // 25%
@@ -561,12 +566,12 @@ namespace KBTV.UI
 			}
 
 			// Middle panel: Screening controls (50% width)
-			var screeningPanel = CreateScreeningPanelScene();
+			var screeningPanel = _panelFactory.CreateScreeningPanelScene();
 			screeningPanel.SizeFlagsStretchRatio = 2; // 50%
 			mainContainer.AddChild(screeningPanel);
 
 			// Right panel: On-hold callers (25% width)
-			var onHoldPanel = CreateCallerPanelScene("ON HOLD", _callerQueue.OnHoldCallers, new Color(0f, 0.7f, 1f), new Color(0.6f, 0.6f, 0.6f));
+			var onHoldPanel = _panelFactory.CreateCallerPanelScene("ON HOLD", _callerQueue.OnHoldCallers, new Color(0f, 0.7f, 1f), new Color(0.6f, 0.6f, 0.6f));
 			if (onHoldPanel != null)
 			{
 				onHoldPanel.SizeFlagsStretchRatio = 1; // 25%
@@ -655,104 +660,6 @@ namespace KBTV.UI
 
 			return panel;
 		}
-
-		private Control CreateScreeningPanelScene()
-		{
-			var scene = ResourceLoader.Load<PackedScene>("res://scenes/ui/ScreeningPanel.tscn");
-			if (scene != null)
-			{
-				var panel = scene.Instantiate<ScreeningPanel>();
-				if (panel != null)
-				{
-					// Set caller info
-					if (_callerQueue.IsScreening)
-					{
-						panel.SetCaller(_callerQueue.CurrentScreening);
-					}
-					else
-					{
-						panel.SetCaller(null);
-					}
-
-					// Connect buttons
-					panel.ConnectButtons(Callable.From(OnApprovePressed), Callable.From(OnRejectPressed));
-
-					return panel;
-				}
-			}
-			// Fallback to programmatic
-			return CreateScreeningPanelFallback();
-		}
-
-		private Control CreateScreeningPanelFallback()
-		{
-			return CreateScreeningPanel();
-		}
-
-		private Control CreateScreeningPanel()
-		{
-			var panel = new Panel();
-			panel.Name = "ScreeningPanel";
-			UITheme.ApplyPanelStyle(panel);
-			panel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			panel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-
-			var layout = new VBoxContainer();
-			layout.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			layout.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			layout.AddThemeConstantOverride("separation", 10);
-			panel.AddChild(layout);
-
-			// Header
-			var header = new Label();
-			header.Text = "SCREENING";
-			header.AddThemeColorOverride("font_color", new Color(0f, 1f, 0f));
-			header.HorizontalAlignment = HorizontalAlignment.Center;
-			layout.AddChild(header);
-
-			// Current caller info
-			if (_callerQueue.IsScreening)
-			{
-				var caller = _callerQueue.CurrentScreening;
-				var callerLabel = new Label();
-				callerLabel.Text = $"{caller.Name}\n{caller.Location}\nTopic: {caller.ClaimedTopic}";
-				callerLabel.HorizontalAlignment = HorizontalAlignment.Center;
-				callerLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-				layout.AddChild(callerLabel);
-		}
-
-			// Spacer
-			var spacer = new Control();
-			spacer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			layout.AddChild(spacer);
-
-			// Buttons container
-			var buttonsContainer = new HBoxContainer();
-			buttonsContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			buttonsContainer.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-			buttonsContainer.AddThemeConstantOverride("separation", 10);
-			layout.AddChild(buttonsContainer);
-
-			// Approve button
-			var approveButton = new Button();
-			approveButton.Text = "APPROVE";
-			approveButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			approveButton.AddThemeColorOverride("font_color", new Color(0f, 0.8f, 0f));
-			approveButton.Pressed += OnApprovePressed;
-			buttonsContainer.AddChild(approveButton);
-
-			// Reject button
-			var rejectButton = new Button();
-			rejectButton.Text = "REJECT";
-			rejectButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			rejectButton.AddThemeColorOverride("font_color", new Color(0.8f, 0.2f, 0.2f));
-			rejectButton.Pressed += OnRejectPressed;
-			buttonsContainer.AddChild(rejectButton);
-
-			return panel;
-		}
-
-
 
 		private void PopulateItemsContent(Control contentArea)
 		{
@@ -977,7 +884,7 @@ namespace KBTV.UI
 		}
 
 		// Button handlers for caller screening
-		private void OnApprovePressed()
+		public void OnApprovePressed()
 		{
 			if (_callerQueue != null && _callerQueue.ApproveCurrentCaller())
 			{
@@ -986,7 +893,7 @@ namespace KBTV.UI
 			}
 		}
 
-		private void OnRejectPressed()
+		public void OnRejectPressed()
 		{
 			if (_callerQueue != null && _callerQueue.RejectCurrentCaller())
 			{
