@@ -22,6 +22,7 @@ namespace KBTV.UI
 		// Canvas and managers
 		private VBoxContainer _rootContainer;
 		private Control _mainContent;
+		private LiveShowHeader _liveShowHeader;
 		private CallerQueue _callerQueue;
 		private EconomyManager _economyManager;
 		private ListenerManager _listenerManager;
@@ -256,6 +257,30 @@ namespace KBTV.UI
 		}
 
 		private Control CreateHeaderBar()
+		{
+			// Load the scene-based header
+			var headerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LiveShowHeader.tscn");
+			if (headerScene != null)
+			{
+				var header = headerScene.Instantiate<Control>();
+				header.Name = "LiveShowHeader";
+				header.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+				header.CustomMinimumSize = new Vector2(0, UITheme.HEADER_HEIGHT);
+
+				// Store reference for updates
+				_liveShowHeader = header as LiveShowHeader;
+
+				return header;
+			}
+			else
+			{
+				// Fallback to programmatic creation
+				GD.PrintErr("Failed to load LiveShowHeader.tscn, using fallback");
+				return CreateHeaderBarFallback();
+			}
+		}
+
+		private Control CreateHeaderBarFallback()
 		{
 			var headerContainer = new HBoxContainer();
 			headerContainer.Name = "HeaderBar";
@@ -808,26 +833,36 @@ namespace KBTV.UI
 
 		private void UpdateClockDisplay()
 		{
-			if (_clockText == null) return;
-
-			var currentTime = TimeManager.Instance?.CurrentTimeFormatted ?? "12:00 AM";
-			var remaining = TimeManager.Instance?.RemainingTimeFormatted ?? "45:00";
-			_clockText.Text = $"{currentTime} ({remaining})";
+			if (_liveShowHeader != null)
+			{
+				_liveShowHeader.RefreshClock();
+			}
+			else if (_clockText != null)
+			{
+				// Fallback
+				var currentTime = TimeManager.Instance?.CurrentTimeFormatted ?? "12:00 AM";
+				var remaining = TimeManager.Instance?.RemainingTimeFormatted ?? "45:00";
+				_clockText.Text = $"{currentTime} ({remaining})";
+			}
 		}
 
 		private void UpdateListenerDisplay()
 		{
-			if (_listenerCount == null || _listenerManager == null) return;
+			if (_liveShowHeader != null)
+			{
+				_liveShowHeader.RefreshListeners();
+			}
+			else if (_listenerCount != null && _listenerManager != null)
+			{
+				// Fallback
+				var count = _listenerManager.GetFormattedListeners();
+				var change = _listenerManager.GetFormattedChange();
+				var changeValue = _listenerManager.ListenerChange;
+				var color = changeValue >= 0 ? new Color(0f, 0.8f, 0f) : new Color(0.8f, 0.2f, 0.2f);
 
-			var count = _listenerManager.GetFormattedListeners();
-			var change = _listenerManager.GetFormattedChange();
-
-			// Color based on change
-			var changeValue = _listenerManager.ListenerChange;
-			var color = changeValue >= 0 ? new Color(0f, 0.8f, 0f) : new Color(0.8f, 0.2f, 0.2f);
-
-			_listenerCount.Text = $"{count} ({change})";
-			_listenerCount.AddThemeColorOverride("font_color", color);
+				_listenerCount.Text = $"{count} ({change})";
+				_listenerCount.AddThemeColorOverride("font_color", color);
+			}
 		}
 
 		private void UpdateMoneyDisplay()
