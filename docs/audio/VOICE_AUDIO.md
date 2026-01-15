@@ -380,9 +380,12 @@ vern_betweencallers_003.ogg
 - [x] Generate all 950 voice lines (Vern broadcasts + caller conversations)
 - [x] Validate audio quality and timing
 
-### Phase 2: Unity Audio Integration
-- [x] Install Addressables package for async clip loading
-- [x] Create VoiceAudioService for clip loading/caching via Addressables
+### Phase 2: Audio Integration (Godot Migration Pending)
+
+**Note**: This section describes Unity Addressables implementation. For Godot, audio loading will use Godot's ResourceLoader system instead.
+
+- [x] Install Addressables package for async clip loading (Unity only)
+- [x] Create VoiceAudioService for clip loading/caching via Addressables (Unity only)
 - [x] Add Id field to DialogueTemplate for broadcast line matching
 - [x] Add IDs to VernDialogue.json broadcast entries
 - [x] Update AudioManager with speaker-based mixer routing

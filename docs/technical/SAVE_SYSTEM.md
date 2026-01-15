@@ -2,7 +2,7 @@
 
 ## Overview
 
-The save system provides persistent storage for game progress, player resources, equipment upgrades, and inventory. It uses JSON file serialization to `Application.persistentDataPath`.
+The save system provides persistent storage for game progress, player resources, equipment upgrades, and inventory. It uses JSON file serialization to Godot's `user://` directory.
 
 ## Architecture
 
@@ -16,12 +16,16 @@ The save system provides persistent storage for game progress, player resources,
 
 ### File Location
 
+The save file is stored in Godot's `user://` directory, which maps to:
+
 ```
-Windows: C:\Users\{User}\AppData\LocalLow\{CompanyName}\KBTV\kbtv_save.json
-macOS:   ~/Library/Application Support/{CompanyName}/KBTV/kbtv_save.json
-Linux:   ~/.config/unity3d/{CompanyName}/KBTV/kbtv_save.json
-WebGL:   IndexedDB (via Unity's persistentDataPath abstraction)
+Windows: %APPDATA%\Godot\app_userdata\KBTV\
+macOS:   ~/Library/Application Support/Godot/app_userdata/KBTV/
+Linux:   ~/.local/share/godot/app_userdata/KBTV/
+HTML5:   IndexedDB (via Godot's persistent storage)
 ```
+
+File: `user://kbtv_save.json`
 
 ## SaveData Structure
 
@@ -162,9 +166,9 @@ public class ItemManager : SingletonMonoBehaviour<ItemManager>, ISaveable
 }
 ```
 
-## SerializableDictionary
+## Dictionary Serialization
 
-Unity's `JsonUtility` doesn't support `Dictionary<K,V>`. We use a custom serializable dictionary:
+Godot's JSON class supports dictionaries directly. No custom serialization wrapper needed:
 
 ```csharp
 [Serializable]

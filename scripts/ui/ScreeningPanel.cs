@@ -12,14 +12,24 @@ namespace KBTV.UI
 
 		public override void _Ready()
 		{
-			_headerLabel = GetNode<Label>("VBoxContainer/HeaderLabel");
-			_callerInfoLabel = GetNode<Label>("VBoxContainer/CallerInfoLabel");
-			_approveButton = GetNode<Button>("VBoxContainer/HBoxContainer/ApproveButton");
-			_rejectButton = GetNode<Button>("VBoxContainer/HBoxContainer/RejectButton");
+			EnsureNodesInitialized();
+		}
+
+		private void EnsureNodesInitialized()
+		{
+			if (_headerLabel == null)
+				_headerLabel = GetNode<Label>("VBoxContainer/HeaderLabel");
+			if (_callerInfoLabel == null)
+				_callerInfoLabel = GetNode<Label>("VBoxContainer/CallerInfoLabel");
+			if (_approveButton == null)
+				_approveButton = GetNode<Button>("VBoxContainer/HBoxContainer/ApproveButton");
+			if (_rejectButton == null)
+				_rejectButton = GetNode<Button>("VBoxContainer/HBoxContainer/RejectButton");
 		}
 
 		public void SetCaller(Caller caller)
 		{
+			EnsureNodesInitialized();
 			if (caller != null)
 			{
 				_callerInfoLabel.Text = $"{caller.Name}\n{caller.Location}\nTopic: {caller.ClaimedTopic}";
@@ -32,6 +42,7 @@ namespace KBTV.UI
 
 		public void ConnectButtons(Callable approveCallable, Callable rejectCallable)
 		{
+			EnsureNodesInitialized();
 			if (_approveButton != null)
 			{
 				_approveButton.Connect("pressed", approveCallable);

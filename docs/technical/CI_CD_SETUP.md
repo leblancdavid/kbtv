@@ -23,40 +23,27 @@ Configure export presets in Godot Editor under **Project > Export**.
 
 ## Future CI/CD Setup
 
-When implemented, this will use GitHub Actions with Godot's command-line export functionality.
+When implemented, this will use GitHub Actions with Godot's command-line export functionality:
 
-## First-Time Setup: Unity License Activation
-
-GameCI requires a Unity license to build. For Personal licenses, follow these steps:
-
-### Step 1: Get Your License File from Unity Hub
-
-1. **Install Unity Hub** on your local machine if you haven't already
-2. **Log in to Unity Hub** with the Unity account you want to use for CI
-3. **Activate a license**:
-   - Go to `Unity Hub` > `Preferences` > `Licenses`
-   - Click the `Add` button
-   - Select **"Get a free personal license"**
-4. **Locate the `.ulf` file** on your machine:
-   - **Windows**: `C:\ProgramData\Unity\Unity_lic.ulf`
-   - **Mac**: `/Library/Application Support/Unity/Unity_lic.ulf`
-   - **Linux**: `~/.local/share/unity3d/Unity/Unity_lic.ulf`
-
-> **Note**: The `ProgramData` folder on Windows is hidden by default. Type the path directly in File Explorer or enable "Show hidden files".
-
-### Step 2: Add Secrets to GitHub
-
-1. Go to your repository on GitHub
-2. Navigate to **Settings** > **Secrets and variables** > **Actions**
-3. Click **"New repository secret"** and add these three secrets:
-
-| Secret | Value |
-|--------|-------|
-| `UNITY_LICENSE` | Contents of the `.ulf` file (open in text editor, copy-paste entire file) |
-| `UNITY_EMAIL` | Your Unity account email |
-| `UNITY_PASSWORD` | Your Unity account password |
-
-> **Security note**: GameCI does not store your credentials. They are only used during the build to activate Unity.
+```yaml
+# Example GitHub Actions workflow
+name: Export Game
+on: [push]
+jobs:
+  export-windows:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-dotnet@v1
+    - uses: mirzaturk/godot-actions@v1
+      with:
+        version: 4.2.1
+    - run: godot --export "Windows Desktop" --output "builds/KBTV_Windows.exe"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: windows-build
+        path: builds/
+```
 
 ## Creating a Release
 

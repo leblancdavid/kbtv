@@ -2,15 +2,15 @@
 
 ## Overview
 
-KBTV uses a **programmatic uGUI Canvas** approach for all UI. This was chosen over UI Toolkit due to rendering issues in Unity 6000.3.1f1 with URP.
+KBTV uses a **scene-based UI system** in Godot 4.x, with programmatic instantiation and configuration. Panels are defined as reusable `.tscn` scenes and instantiated through a PanelFactory pattern.
 
-## Why uGUI Over UI Toolkit
+## Why Scene-Based UI
 
-- Consistent, reliable rendering without PanelSettings/ThemeStyleSheet configuration issues
-- Works seamlessly with CanvasScaler for resolution independence
-- No UXML/USS file dependencies - all UI created in code
-- Easier to debug (visible in Scene view)
-- Mature component library
+- **Modular Design**: Each UI panel is a self-contained scene that can be edited in the Godot editor
+- **Visual Editing**: Use Godot's scene editor for precise layout and styling
+- **Reusability**: Scenes can be instantiated multiple times with different configurations
+- **Maintainability**: Separation of concerns between UI structure (scenes) and logic (scripts)
+- **Performance**: Godot's optimized scene instantiation and node management
 
 ## UI Architecture
 
@@ -18,137 +18,182 @@ KBTV uses a **programmatic uGUI Canvas** approach for all UI. This was chosen ov
 
 | File | Lines | Responsibility |
 |------|-------|----------------|
-| `UIManagerBootstrap.cs` | ~1500 | Consolidated UI manager with all functionality |
-| `UIHelpers.cs` | ~280 | Static helper methods for UI creation |
-| `UIPanelBuilder.cs` | ~280 | Fluent API for building panels |
-| `PreShowUIManager.cs` | ~100 | Pre-show UI for topic selection |
+| `UIManagerBootstrap.cs` | ~2000 | Main UI orchestrator for live show |
+| `PanelFactory.cs` | ~250 | Factory for creating UI panel scenes |
+| `ScreeningPanel.cs` | ~50 | Screening panel logic |
+| `CallerPanel.cs` | ~50 | Caller list panel logic |
+| `LiveShowHeader.cs` | ~100 | Header panel logic |
 
-### Two UI Managers
+### UI Manager Structure
 
-| Manager | Purpose | Sorting Order | Active Phase |
-|---------|---------|---------------|--------------|
-| `PreShowUIManager` | Topic selection, start show | 150 | PreShow only |
-| `UIManagerBootstrap` | Live show UI (callers, stats, ads, transcript) | 100 | LiveShow only |
+| Manager | Purpose | Active Phase |
+|---------|---------|--------------|
+| `UIManagerBootstrap` | Live show UI (tabs, panels, header, footer) | LiveShow only |
 
-### Canvas Configuration
+### Scene Configuration
 
-```csharp
-_canvas = gameObject.AddComponent<Canvas>();
-_canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-_canvas.sortingOrder = 100;
-
-_scaler = gameObject.AddComponent<CanvasScaler>();
-_scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-_scaler.referenceResolution = new Vector2(1920, 1080);
-_scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-_scaler.matchWidthOrHeight = 0.5f;
-```
+The main UI uses a TabContainer scene (`TabContainerUI.tscn`) that contains:
+- Header panel for show info and controls
+- Tab container with three tabs: Callers, Items, Stats
+- Footer panels for status displays
 
 ### Phase-Based Visibility
 
 ```csharp
-var canvas = GetComponent<Canvas>();
-if (canvas != null)
+// In UIManagerBootstrap.cs
+public override void _Ready()
 {
-    canvas.enabled = _gameState.CurrentPhase == GamePhase.LiveShow;
+    // Initialize only when entering live show phase
+    if (_gameState.CurrentPhase == GamePhase.LiveShow)
+    {
+        InitializeUI();
+    }
 }
 ```
 
-## Using UIHelpers
+## Using PanelFactory
+
+The `PanelFactory` class handles programmatic creation of UI panels:
 
 ```csharp
-// Create a text element
-var text = UIHelpers.CreateText("Hello", 14, Color.white, TextAnchor.MiddleLeft);
+// Create screening panel with caller data
+var screeningPanel = _panelFactory.CreateScreeningPanelScene();
 
-// Create a button with click handler
-var button = UIHelpers.CreateButton("Click Me", 12, Color.gray, Color.white, () => { /* handler */ });
+// Create caller list panel
+var callerPanel = _panelFactory.CreateCallerPanelScene("INCOMING CALLERS", callers, headerColor, itemColor);
 
-// Create a horizontal layout container
-var hLayout = UIHelpers.CreateHLayout(padding: 8, spacing: 4);
-
-// Create a scrollable list
-var (container, content) = UIHelpers.CreateScrollList(minHeight: 100);
-
-// Create a spacer
-var spacer = UIHelpers.CreateSpacer(flexibleWidth: 1);
+// Add to scene tree
+mainContainer.AddChild(screeningPanel);
 ```
 
-## Using UIPanelBuilder (Fluent API)
+## Scene-Based Panel Creation
+
+Panels are created using Godot's PackedScene system:
 
 ```csharp
-var panel = UIPanelBuilder.Create("MyPanel")
-    .WithBackground(new Color(0.1f, 0.1f, 0.1f))
-    .WithMinHeight(120)
-    .WithHLayout(padding: 8, spacing: 4)
-    .AddHeader("PANEL TITLE", fontSize: 12)
-    .AddButton("Action", onClick: HandleAction, fontSize: 14)
-    .AddSpacer(flexibleWidth: 1)
-    .Build();
+// Load and instantiate scene
+var scene = ResourceLoader.Load<PackedScene>("res://scenes/ui/ScreeningPanel.tscn");
+var panel = scene.Instantiate<ScreeningPanel>();
+
+// Configure panel
+panel.SetCaller(caller);
+panel.ConnectButtons(approveCallable, rejectCallable);
 ```
 
 ## Creating New UI Components
 
-### Pattern 1: Header Element (using UIPanelBuilder)
+### Pattern 1: Scene-Based Panel
+
+Create a `.tscn` file in `scenes/ui/` with the desired layout, then create a corresponding script:
 
 ```csharp
-private void CreateMyElement(Transform parent)
+// MyPanel.cs
+public partial class MyPanel : Panel
 {
-    var element = UIPanelBuilder.Create("MyElement")
-        .WithMinWidth(100)
-        .WithHLayout(4, 4)
-        .Build();
-    element.transform.SetParent(parent, false);
-    
-    UIHelpers.AddTextToParent(element.transform, "Label", 12, Color.gray);
-}
-```
-
-### Pattern 2: Footer Panel
-
-```csharp
-private void CreateMyFooterPanel(Transform parent)
-{
-    var panel = UIPanelBuilder.Create("MyPanel")
-        .WithBackground(new Color(0.12f, 0.12f, 0.12f))
-        .WithMinHeight(140)
-        .WithPreferredHeight(140)
-        .WithHLayout(8, 8)
-        .Build();
-    panel.transform.SetParent(parent, false);
-}
-```
-
-### Pattern 3: Event Handler
-
-```csharp
-private void SubscribeToEvents()
-{
-    if (_someManager != null)
+    public void Initialize(string title, Color backgroundColor)
     {
-        _someManager.OnSomeEvent += OnSomeEvent;
+        // Configure panel appearance and content
+        var titleLabel = GetNode<Label>("TitleLabel");
+        titleLabel.Text = title;
+
+        var styleBox = new StyleBoxFlat();
+        styleBox.BgColor = backgroundColor;
+        AddThemeStyleboxOverride("panel", styleBox);
+    }
+}
+```
+
+### Pattern 2: Programmatic Fallback
+
+For dynamic content, create panels programmatically as fallback:
+
+```csharp
+private Control CreateMyPanelFallback(string title, Color color)
+{
+    var panel = new Panel();
+    panel.Name = "MyPanel";
+
+    var layout = new VBoxContainer();
+    layout.AddThemeConstantOverride("separation", 10);
+    panel.AddChild(layout);
+
+    var titleLabel = new Label();
+    titleLabel.Text = title;
+    titleLabel.HorizontalAlignment = HorizontalAlignment.Center;
+    layout.AddChild(titleLabel);
+
+    return panel;
+}
+```
+
+### Pattern 3: Signal Connections
+
+Use Godot's signal system for event handling:
+
+```csharp
+private void ConnectSignals()
+{
+    if (_callerQueue != null)
+    {
+        _callerQueue.CallerQueueChanged += OnCallerQueueChanged;
     }
 }
 
-private void UnsubscribeFromEvents()
+private void DisconnectSignals()
 {
-    if (_someManager != null)
+    if (_callerQueue != null)
     {
-        _someManager.OnSomeEvent -= OnSomeEvent;
+        _callerQueue.CallerQueueChanged -= OnCallerQueueChanged;
     }
 }
 
-private void OnSomeEvent(SomeType value)
+private void OnCallerQueueChanged()
 {
-    // Update display
+    // Update UI display
+    RefreshTabContent(0); // Refresh callers tab
 }
 ```
 
-## Font
+## Theme and Styling
 
-Use Unity's legacy runtime font for compatibility:
+Use Godot's theme system for consistent styling:
 
 ```csharp
-text.font = UIHelpers.DefaultFont; // Uses Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf")
+// Apply theme colors
+var styleBox = new StyleBoxFlat();
+styleBox.BgColor = new Color(0.15f, 0.15f, 0.15f); // Dark background
+panel.AddThemeStyleboxOverride("panel", styleBox);
+
+// Theme colors
+label.AddThemeColorOverride("font_color", new Color(0f, 1f, 0f)); // Green text
+```
+
+## Color Palette
+
+```csharp
+// KBTV Color Palette
+new Color(1f, 0.7f, 0f)      // Gold - primary accent
+new Color(0f, 0.8f, 0f)      // Green - success/money
+new Color(0.8f, 0.2f, 0.2f)  // Red - error/alert
+new Color(0.6f, 0.6f, 0.6f)  // Gray - secondary text
+new Color(0.15f, 0.15f, 0.15f) // Dark bg
+```
+
+## File Structure
+
+```
+scripts/UI/
+├── UIManagerBootstrap.cs     # Main UI orchestrator
+├── PanelFactory.cs           # Panel creation factory
+├── ScreeningPanel.cs         # Screening panel logic
+├── CallerPanel.cs            # Caller list panel logic
+└── LiveShowHeader.cs         # Header panel logic
+
+scenes/ui/
+├── TabContainerUI.tscn       # Main tab container scene
+├── ScreeningPanel.tscn       # Screening panel scene
+├── CallerPanel.tscn          # Caller list panel scene
+└── LiveShowHeader.tscn       # Header panel scene
 ```
 
 ## Color Constants
@@ -178,58 +223,49 @@ Assets/Scripts/Runtime/UI/
 └── PreShowUIManager.cs      # Pre-show UI
 ```
 
-## Integration with GameBootstrap
+## Integration with Game State
 
-The UI managers are automatically created by `GameBootstrap.cs`:
+The UI is created and managed by the game state system:
 
 ```csharp
-// Create PreShow UI
-if (PreShowUIManager.Instance == null)
+// In game initialization
+if (gameState.CurrentPhase == GamePhase.LiveShow)
 {
-    GameObject preShowUIObj = new GameObject("PreShowUIManager");
-    preShowUIObj.AddComponent<PreShowUIManager>();
-}
-
-// Create Live Show UI (only if enabled)
-if (_enableLiveShowUI && UIManagerBootstrap.Instance == null)
-{
-    GameObject uiObj = new GameObject("UIManager");
-    uiObj.AddComponent<UIManagerBootstrap>();
+    var uiManager = new UIManagerBootstrap();
+    uiManager.Initialize(gameState, callerQueue, etc.);
+    AddChild(uiManager);
 }
 ```
-
-UI creation is controlled by the `_enableLiveShowUI` boolean field in the GameBootstrap inspector.
 
 ## Common Issues
 
 ### UI Not Visible
-1. Check Canvas sortingOrder
-2. Verify Canvas.enabled is true
-3. Ensure CanvasScaler reference resolution matches target
-4. Check if parent RectTransform has valid anchors
+1. Check Control.visible is true
+2. Verify node is added to scene tree
+3. Ensure parent containers have proper size flags
+4. Check theme overrides aren't hiding elements
 
 ### UI Not Filling Screen
-Set `childForceExpandHeight = false` in VerticalLayoutGroup and use `flexibleHeight = 1` on the element that should expand.
+Use `SizeFlagsExpandFill` on containers and set `SizeFlagsStretchRatio` for proportional sizing.
 
 ### Buttons Not Clickable
-1. Ensure Canvas has GraphicRaycaster
-2. Check button.targetGraphic is set
-3. Verify button.interactable is true
+1. Ensure button is visible and enabled
+2. Check signal connections are properly established
+3. Verify no overlapping controls blocking input
 
-### Text Looks Blurry
-Use CanvasScaler with appropriate reference resolution (1920x1080 recommended)
+### Text Not Displaying
+1. Check Label.text is set after node enters scene tree
+2. Verify font and theme settings
+3. Ensure container has sufficient size
 
-### UI Not Displaying
-1. Check Unity Console for debug messages from UIManagerBootstrap
-2. Verify canvas test panel appears (red semi-transparent panel)
-3. Use debug context menu options on UIManager GameObject:
-   - `Debug/Test Font Loading` - Tests font loading
-   - `Debug/Create Minimal UI Test` - Creates simple test UI
-4. Check for exceptions in UI creation (now properly logged)
+### Scenes Not Loading
+1. Check scene file paths are correct (`res://scenes/ui/...`)
+2. Verify scenes exist and are not corrupted
+3. Use GD.Print to debug ResourceLoader.Load calls
 
 ## Future Improvements
 
-Consider migrating to TextMeshPro for better text rendering:
-- Install TextMeshPro package
-- Replace `Text` with `TMPro.TextMeshProUGUI`
-- Update font references to TMP fonts
+Consider enhancing the theme system:
+- Create custom theme resources for consistent styling
+- Add theme switching for different visual modes
+- Implement responsive design for various screen sizes

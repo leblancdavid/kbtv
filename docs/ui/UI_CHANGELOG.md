@@ -1,61 +1,64 @@
 # UI Change Log
 
-## Version 1.0 - Live Show UI Fixes (2026-01-14)
+## Version 2.0 - Godot Migration & Scene-Based UI (2026-01-15)
 
 ### Summary
-Fixed critical compilation errors and UI layout issues in the live-show UI system. Implemented missing methods, corrected layout distributions, and added comprehensive debugging tools.
+Migrated UI system from Unity uGUI to Godot scene-based architecture. Replaced programmatic UI creation with reusable scene files, implemented TabContainer system, and fixed NullReferenceException in screening panel.
 
-### Compilation Errors Fixed
+### Migration Changes
+| Component | Old (Unity) | New (Godot) |
+|-----------|------------|-------------|
+| UI Framework | uGUI Canvas | Control nodes with theme styling |
+| Panel Creation | UIPanelBuilder fluent API | PackedScene instantiation |
+| Layout System | Horizontal/Vertical Layout Groups | VBoxContainer/HBoxContainer |
+| Tab System | Custom TabController | Godot TabContainer node |
+| Event System | Unity Events | Godot Signals |
+
+### Scene-Based Architecture
+- **TabContainerUI.tscn**: Main tab container scene with three tabs
+- **ScreeningPanel.tscn**: Screening panel with approve/reject buttons
+- **CallerPanel.tscn**: Caller list panel with scrollable content
+- **LiveShowHeader.tscn**: Header with show information and controls
+
+### Key Improvements
+| Improvement | Benefit |
+|-------------|---------|
+| Scene-based panels | Visual editing in Godot editor, better maintainability |
+| PanelFactory pattern | Centralized panel creation with scene/fallback logic |
+| Lazy initialization | Prevents NullReferenceException when panels called before _Ready |
+| Modular architecture | Easier to modify individual panels without affecting others |
+
+### Bug Fixes
 | Issue | Resolution |
 |-------|------------|
-| CS0103: The name 'UpdatePhaseDisplay' does not exist | Implemented missing UpdatePhaseDisplay() method |
-| CS0103: The name 'UpdateTimeDisplay' does not exist | Implemented missing UpdateTimeDisplay() method |
-| CS0103: The name 'UpdateListenerDisplay' does not exist | Implemented missing UpdateListenerDisplay() method |
-| CS0103: The name 'UpdateAdBreakDisplay' does not exist | Implemented missing UpdateAdBreakDisplay() method |
-| CS0103: The name 'UpdateQueueButtonState' does not exist | Implemented missing UpdateQueueButtonState() method |
-| CS0103: The name 'UpdateMoneyDisplay' does not exist | Implemented missing UpdateMoneyDisplay() method |
-| CS1061: 'IReadOnlyList<ItemSlot>' has no Length property | Changed `.Length` to `.Count` for IReadOnlyList |
-
-### UI Layout Issues Fixed
-| Issue | Resolution |
-|-------|------------|
-| Header elements scrunched to left | Changed HorizontalLayoutGroup alignment to MiddleCenter and added flexible spacers between elements |
-| Tab buttons don't expand to fill width | Set childForceExpandWidth = true and changed alignment to MiddleCenter |
-| Footer panels left-aligned instead of full width | Changed HorizontalLayoutGroup alignment to MiddleCenter and added flexible spacers between panels |
-| Time display shows wrong remaining time | Fixed RemainingShowTime calculation to use ShowDuration - ElapsedTime |
-
-### Debugging Tools Added
-| Feature | Purpose |
-|---------|---------|
-| Exception handling in UI creation | Prevents silent failures and logs detailed error messages |
-| Canvas test panel | Verifies basic canvas rendering with visible red panel |
-| Font loading test method | Context menu option to test font loading independently |
-| Minimal UI test method | Context menu option to create simple test UI for debugging |
+| NullReferenceException in ScreeningPanel.SetCaller | Added EnsureNodesInitialized() to lazy-load node references |
+| UI not loading on scene start | Fixed instantiation order in UIManagerBootstrap |
 
 ### Current UI State
-The live-show UI system is now fully functional with proper layout distribution:
-- **Header**: Live indicator, clock, and listener count evenly distributed across full width
-- **Tabs**: CALLERS/ITEMS/STATS buttons expand to fill the full tab header width
-- **Footer**: On Air, Transcript, Ad Break, and Money panels evenly distributed across full width
-- **Display Updates**: All UI elements properly update with game state (time, listeners, money, etc.)
-- **Debug Tools**: Exception handling, canvas test panel, and context menu debug methods available
+The live-show UI system uses Godot's native UI components:
+- **Header**: Show status, time, and listener information
+- **Tabs**: TabContainer with Callers/Items/Stats tabs
+- **Content**: Scene-instantiated panels for each tab section
+- **Footer**: Status panels (On Air, Transcript, Ads, Money)
 
 ### Testing Results
-- ✅ Compilation errors (19 → 0 errors)
-- ✅ UI elements display correctly when hitting Play
-- ✅ Layout properly distributes across full screen width
-- ✅ Font loading works with fallback system
-- ✅ Canvas rendering verified with test panel
+- ✅ Compilation successful with dotnet build
+- ✅ UI loads correctly in Godot editor
+- ✅ Tab switching works with scene instances
+- ✅ Panel instantiation handles edge cases
+- ✅ No runtime NullReferenceException
 
 ### Files Modified
-- `UIManagerBootstrap.cs` - Main UI manager with consolidated functionality
-- `UIHelpers.cs` - Static helper methods for UI creation
-- `UIPanelBuilder.cs` - Fluent API for building panels
-- Various partial class files for UI components
+- `UIManagerBootstrap.cs` - Migrated to Godot, scene-based initialization
+- `PanelFactory.cs` - New factory for scene instantiation
+- `ScreeningPanel.cs` - Added lazy initialization, fixed NullReferenceException
+- `scenes/ui/TabContainerUI.tscn` - New main tab container scene
+- `scenes/ui/ScreeningPanel.tscn` - Screening panel scene
+- Various scene files for UI panels
 
 ### Technical Details
-- Canvas configuration: 1920x1080 reference resolution with ScaleWithScreenSize mode
-- Font fallback system: LegacyRuntime.ttf → Arial → system fonts
-- Phase-based visibility: UI only active during LiveShow phase
-- Sorting order: 100 (above other UI elements)</content>
+- Godot 4.x Control nodes with theme overrides
+- PackedScene instantiation for reusable panels
+- Signal-based event handling
+- Scene tree management for UI lifecycle</content>
 <parameter name="filePath">D:\Dev\Games\kbtv\docs\UI_CHANGELOG.md
