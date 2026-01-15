@@ -268,8 +268,8 @@ def cmd_process():
     if processed > 0:
         print()
         print("Next steps:")
-        print("  1. Open Unity")
-        print("  2. Run: KBTV > Assign Bumper Audio")
+        print("  1. Open Godot")
+        print("  2. Import the generated audio files")
 
 
 def cmd_status():

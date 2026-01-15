@@ -1,11 +1,11 @@
 # UI Design Document
 
-This document describes the KBTV Unity UI architecture using **UI Toolkit** (USS/UXML), a modern CSS-like approach for building game UI.
+This document describes the KBTV Godot UI architecture using **Control nodes** with theme styling, a flexible approach for building game UI.
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [UI Toolkit Architecture](#ui-toolkit-architecture)
+2. [Control Node Architecture](#control-node-architecture)
 3. [USS Styling](#uss-styling)
 4. [Panel Creation Patterns](#panel-creation-patterns)
 5. [Standard Dimensions](#standard-dimensions)
@@ -16,37 +16,40 @@ This document describes the KBTV Unity UI architecture using **UI Toolkit** (USS
 
 ## Overview
 
-The KBTV UI system uses **Unity UI Toolkit** with CSS-like styling:
+The KBTV UI system uses **Godot Control nodes** with theme-based styling:
 
-- **USS (Unity Style Sheets)** - CSS-like styling with variables, flexbox layout
-- **UXML** - XML-based UI structure (optional, can use code-generated UI)
-- **VisualElement hierarchy** - DOM-like structure for UI elements
-- **GameUIManager** - Central manager handling UI initialization and updates
+- **Theme resources** - Centralized styling with variables and overrides
+- **Control node hierarchy** - Flexible UI structure with containers
+- **PackedScene instantiation** - Reusable UI components
+- **UIManagerBootstrap** - Central manager handling UI initialization and updates
 
-### Key Benefits Over uGUI
+### Key Benefits
 
-- **No LayoutGroup conflicts** - CSS flexbox handles all layout
-- **Clean styling separation** - USS files contain all visual styles
-- **Runtime-reloadable** - Changes to USS apply without recompiling
-- **Better performance** - Native C++ UI Toolkit rendering
+- **Flexible layout** - Container nodes handle layout automatically
+- **Clean styling separation** - Theme resources contain all visual styles
+- **Visual editing** - UI can be designed in Godot editor
+- **Better performance** - Native Godot UI rendering
 
 ---
 
-## UI Toolkit Architecture
+## Control Node Architecture
 
 ### Folder Structure
 
 ```
-Assets/
-├── Scripts/
-│   └── Runtime/
-│       └── UI/
-│           ├── GameUIManager.cs      ← Central UI manager
-│           ├── GameUI.cs             ← Root VisualElement
-│           ├── HeaderBarUI.cs        ← Panel components
-│           ├── OnAirPanel.cs
-│           ├── ConversationPanel.cs
-│           └── ...
+scenes/
+├── ui/
+│   ├── UIManagerBootstrap.cs      ← Central UI manager
+│   ├── TabContainerUI.tscn         ← Root UI scene
+│   ├── LiveShowHeader.tscn         ← Header component
+│   ├── ScreeningPanel.tscn         ← Panel components
+│   ├── CallerPanel.tscn
+│   └── ...
+scripts/
+└── ui/
+    ├── UIManagerBootstrap.cs
+    ├── PanelFactory.cs
+    └── ...
 ```
 
 ### UI Hierarchy
@@ -80,11 +83,11 @@ GameUI (root)
 
 ---
 
-## USS Styling
+## Theme Styling
 
-### Main Stylesheet
+### Main Theme
 
-The main stylesheet is loaded from: `Assets/Scripts/Runtime/UI/game-ui.uss`
+The main theme is loaded from: `res://themes/default_theme.tres`
 
 ### CSS Variables
 
@@ -172,36 +175,33 @@ OnAirColumn {
 ### Creating a New Panel
 
 ```csharp
-using UnityEngine;
-using UnityEngine.UIElements;
+using Godot;
 
 namespace KBTV.UI
 {
-    public class MyPanel : VisualElement
+    public partial class MyPanel : Control
     {
         public Label TitleText;
-        public VisualElement ContentContainer;
+        public Control ContentContainer;
 
         public MyPanel()
         {
             // Set container styles
-            style.flexDirection = FlexDirection.Column;
-            style.height = new Length(100, LengthUnit.Percent);
+            SizeFlagsVertical = SizeFlags.Fill;
 
             // Create header
-            var header = new Label("My Panel");
-            header.style.color = new Color(1f, 0.7f, 0f);  /* --text-amber */
-            header.style.fontSize = 10;
-            header.style.fontWeight = FontStyle.Bold;
-            Add(header);
+            var header = new Label { Text = "My Panel" };
+            header.AddThemeColorOverride("font_color", new Color(1f, 0.7f, 0f));
+            header.AddThemeFontSizeOverride("font_size", 10);
+            AddChild(header);
 
             // Create content
-            ContentContainer = new VisualElement();
-            ContentContainer.style.flexGrow = 1;
-            Add(ContentContainer);
+            ContentContainer = new Control();
+            ContentContainer.SizeFlagsVertical = SizeFlags.ExpandFill;
+            AddChild(ContentContainer);
         }
 
-        public void Initialize()
+        public void _Ready()
         {
             // Subscribe to events, load data
         }

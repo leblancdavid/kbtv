@@ -200,6 +200,6 @@ Ad jingles for each sponsor:
 
 ### Compression
 
-- Use Unity's default Vorbis compression
+- Use Godot's default OGG Vorbis compression
 - Quality: 70% for SFX, 50% for music/voice
 - Load Type: Decompress on Load for short SFX, Streaming for music

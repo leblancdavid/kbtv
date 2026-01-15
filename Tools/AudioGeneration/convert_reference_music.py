@@ -253,10 +253,9 @@ def main():
     print()
     print("Conversion complete!")
     print()
-    print("To use in Unity:")
-    print("1. Open Unity and let it import the new audio files")
-    print("2. Run KBTV > Setup Game Scene to auto-configure")
-    print("3. Or manually assign clips to TransitionMusicConfig ScriptableObject")
+    print("To use in Godot:")
+    print("1. Open Godot and let it import the new audio files")
+    print("2. Manually assign clips to TransitionMusicConfig resource")
 
 
 if __name__ == "__main__":

@@ -198,10 +198,9 @@ def main():
     save_as_ogg(audio_data, str(output_path), args.sample_rate)
     
     print("Done!")
-    print(f"\nTo use in Unity:")
+    print(f"\nTo use in Godot:")
     print(f"1. Import {output_path.name} into your project")
-    print(f"2. Assign to StaticNoiseController._staticLoopClip")
-    print(f"3. The clip is loopable with crossfade edges")
+    print(f"2. Assign to the static noise controller")
 
 
 if __name__ == "__main__":

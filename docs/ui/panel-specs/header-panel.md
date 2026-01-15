@@ -23,7 +23,7 @@ The header panel displays critical broadcast status information at the top of th
 ## Content Requirements
 
 ### Live Indicator
-- **Type**: TextMeshProUGUI or Unity Text
+- **Type**: Label node
 - **Content**: "LIVE" when broadcast active, "OFF AIR" when inactive
 - **Styling**: Bold, gold/orange color (#FFA500), 16-20pt font
 - **Animation**: Optional pulsing effect when live
@@ -51,11 +51,11 @@ The header panel displays critical broadcast status information at the top of th
 - **Performance**: Efficient updates, no expensive operations per frame
 
 ## Technical Requirements
-- **Canvas Integration**: Part of main UIManagerBootstrap canvas
+- **Integration**: Part of main UIManagerBootstrap Control hierarchy
 - **Font**: Uses UIHelpers.DefaultFont with fallback system
 - **Memory**: Minimal allocations, reuse text components
 - **Accessibility**: Screen reader support for time and listener values
-- **Platform**: Works on all Unity supported platforms
+- **Platform**: Works on all Godot supported platforms
 
 ## Visual Design References
 - See `ART_STYLE.md` for color palette and typography guidelines
@@ -64,8 +64,8 @@ The header panel displays critical broadcast status information at the top of th
 - Clean, broadcast-studio aesthetic
 
 ## Implementation Notes
-- Created in `UIManagerBootstrap.CreateHeader()` method
-- Uses `UIHelpers.CreateHLayout()` for distribution
+- Created in `UIManagerBootstrap._Ready()` method
+- Uses `HBoxContainer` for distribution
 - Event subscriptions in `SubscribeToEvents()`
 - See `UI_IMPLEMENTATION.md` for code patterns and canvas setup
 

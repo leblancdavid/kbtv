@@ -1,10 +1,10 @@
 {
   "paths": {
-    "dialogue_arcs": "../../kbtv/Assets/Data/Dialogue/Arcs",
-    "vern_dialogue": "../../kbtv/Assets/Data/Dialogue/Vern/VernDialogue.json",
-    "output_dir": "../../kbtv/Assets/Audio/Voice",
+    "dialogue_arcs": "../../kbtv/assets/data/dialogue/arcs",
+    "vern_dialogue": "../../kbtv/assets/data/dialogue/vern/VernDialogue.json",
+    "output_dir": "../../kbtv/assets/audio/voice",
     "temp_dir": "./temp",
-    "manifest": "../../kbtv/Assets/Data/Dialogue/voice_manifest.json"
+    "manifest": "../../kbtv/assets/data/dialogue/voice_manifest.json"
   },
   "audio": {
     "sample_rate": 22050,

@@ -116,7 +116,7 @@ The system now uses 7 mood types instead of 5 tones:
 #### Output Folders
 
 ```
-kbtv/Assets/Audio/Voice/
+kbtv/assets/Audio/Voice/
 ├── Vern/Broadcast/
 │   ├── Opening/
 │   ├── Closing/
@@ -175,7 +175,7 @@ The project uses these Piper TTS voices:
 
 ### Incremental Generation
 
-The script maintains a manifest at `Assets/Data/Dialogue/voice_manifest.json` to track:
+The script maintains a manifest at `assets/Data/Dialogue/voice_manifest.json` to track:
 - Generated files and their content hashes
 - Processed arcs (for batch resume)
 - Last batch timestamp
@@ -233,7 +233,7 @@ python generate_static.py
 python generate_static.py --duration 10
 
 # Custom output path
-python generate_static.py --output ../../kbtv/Assets/Audio/SFX/my_static.ogg
+python generate_static.py --output ../../kbtv/assets/Audio/SFX/my_static.ogg
 
 # Check dependencies
 python generate_static.py --check-deps
@@ -241,7 +241,7 @@ python generate_static.py --check-deps
 
 ### Output
 
-Default output: `kbtv/Assets/Audio/SFX/phone_static_loop.ogg`
+Default output: `kbtv/assets/Audio/SFX/phone_static_loop.ogg`
 
 The generated audio contains:
 - Band-limited white noise (phone line hiss)
@@ -253,7 +253,7 @@ The generated audio contains:
 
 After generating:
 
-1. The file is automatically placed in `Assets/Audio/SFX/`
+1. The file is automatically placed in `assets/Audio/SFX/`
 2. Assign `phone_static_loop.ogg` to `StaticNoiseController._staticLoopClip` in the Inspector
 3. Or run **KBTV > Setup Game Scene** which will configure everything
 
@@ -360,7 +360,7 @@ The system uses 7 mood types instead of the old 5 tones:
 #### Output Folders
 
 ```
-kbtv/Assets/Audio/Voice/
+kbtv/assets/Audio/Voice/
 ├── Vern/Broadcast/
 │   ├── Opening/
 │   ├── Closing/
@@ -396,7 +396,7 @@ Audio is generated as OGG Vorbis at quality 6 for Unity compatibility:
 
 ### Output
 
-Default output: `kbtv/Assets/Audio/Music/break_transition_*.ogg`
+Default output: `kbtv/assets/Audio/Music/break_transition_*.ogg`
 
 The 5 variations are:
 
@@ -433,9 +433,9 @@ pip install pydub
 ### Workflow
 
 1. Download royalty-free music from [Pixabay](https://pixabay.com/music/) or similar
-2. Place MP3 files in `kbtv/Assets/Audio/Music/Reference/`
+2. Place MP3 files in `kbtv/assets/Audio/Music/Reference/`
 3. Run the conversion script
-4. Open Unity and run **KBTV > Setup Game Scene**
+4. Open Godot and import the generated files
 
 ### Usage
 
@@ -473,7 +473,7 @@ Unknown files are named based on their first 20 characters.
 
 ### Output
 
-Default output: `kbtv/Assets/Audio/Music/break_transition_*.ogg`
+Default output: `kbtv/assets/Audio/Music/break_transition_*.ogg`
 
 Each converted clip has:
 - 20 second duration (clipped from start)
@@ -484,12 +484,12 @@ Each converted clip has:
 
 After conversion:
 
-1. The files are automatically placed in `Assets/Audio/Music/`
+1. The files are automatically placed in `assets/Audio/Music/`
 2. Run **KBTV > Setup Game Scene** which will:
    - Create/update `TransitionMusicConfig` ScriptableObject
    - Auto-discover all `break_transition_*.ogg` files
    - Add new tracks to the config with Enabled = true
-3. To enable/disable specific tracks, edit `Assets/Data/TransitionMusicConfig.asset` in the Inspector
+3. To enable/disable specific tracks, edit `assets/Data/TransitionMusicConfig.asset` in the Inspector
 
 The `TransitionMusicConfig` ScriptableObject allows you to:
 - Toggle individual tracks on/off
@@ -552,13 +552,13 @@ pip install -r requirements.txt
    python generate_ads.py process
    ```
 
-4. **Assign in Unity:** Run `KBTV > Setup Ad Audio`
+4. **Import in Godot:** Run the setup script
 
 ### Output
 
 Generated audio is saved to:
 ```
-kbtv/Assets/Audio/Ads/
+kbtv/assets/Audio/Ads/
 ├── big_earls_auto/
 │   └── big_earls_auto_v1.ogg
 ├── pizza_palace/
@@ -634,7 +634,7 @@ Tools/BumperGeneration/
    python generate_bumpers.py status
    ```
 
-5. **Assign in Unity:**
+5. **Import in Godot:**
    - Run `KBTV > Create Bumper Configs` (if not already done)
    - Run `KBTV > Assign Bumper Audio`
    - Run `KBTV > Setup Game Scene` (auto-assigns configs to GameBootstrap)
@@ -643,7 +643,7 @@ Tools/BumperGeneration/
 
 Generated audio is saved to:
 ```
-kbtv/Assets/Audio/Bumpers/
+kbtv/assets/Audio/Bumpers/
 ├── Intro/
 │   ├── intro_01_v1.ogg
 │   ├── intro_02_v1.ogg
@@ -654,4 +654,4 @@ kbtv/Assets/Audio/Bumpers/
     └── return_03_v1.ogg
 ```
 
-The bumper configs (`IntroBumperConfig.asset` and `ReturnBumperConfig.asset`) are created in `Assets/Data/Audio/` and automatically assigned to `GameBootstrap` when running `KBTV > Setup Game Scene`. The configs are then wired to `AudioManager` at runtime.
+The bumper configs (`IntroBumperConfig.asset` and `ReturnBumperConfig.asset`) are created in `assets/Data/Audio/` and automatically assigned to `GameBootstrap` when running `KBTV > Setup Game Scene`. The configs are then wired to `AudioManager` at runtime.

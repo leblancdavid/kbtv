@@ -1,4 +1,4 @@
-# AGENTS.md - KBTV Unity Project Guidelines
+# AGENTS.md - KBTV Godot Project Guidelines
 
 This document provides guidelines for AI agents working on the KBTV Godot project.
 
@@ -96,27 +96,7 @@ KBTV uses gitflow for organized development. See [GITFLOW.md](GITFLOW.md) for de
 - **Start bugfix**: `git flow bugfix start fix-issue`
 - **Finish bugfix**: `git flow bugfix finish fix-issue`
 
-### Unity to Godot Migration Notes
-Common gotchas when working with this codebase:
 
-#### Architecture Differences
-- **Signals vs Events**: Use `Connect()` for signals instead of C# event handlers
-- **Node vs Component**: Scripts extend Node classes, not attach as components
-- **Resources vs ScriptableObjects**: Use `.tres` files loaded with `ResourceLoader`
-- **Scene vs Prefab**: Use `.tscn` files instantiated with `PackedScene`
-
-#### Lifecycle Methods
-- `_Ready()` instead of `Awake()`
-- `_Process(delta)` instead of `Update()`
-- `_PhysicsProcess(delta)` instead of `FixedUpdate()`
-
-#### Input Handling
-- `Input.IsActionPressed("action_name")` instead of Unity Input System
-- Configure input actions in Project Settings > Input Map
-
-#### File Paths
-- `user://` for persistent data instead of Unity's Application.persistentDataPath
-- `res://` for project resources
 
 ## Input System
 
@@ -285,7 +265,4 @@ func take_damage(amount: float):
 - Follow conventional commits: `feat:`, `fix:`, `docs:`, etc.
 - The `.meta` file stores import settings (texture compression, script execution order, etc.)
 
-## Unity Editor Configuration
-- **Serialization Mode**: Force Binary (see EditorSettings.asset)
-- **Line Endings**: OS Native
-- **Behavior Mode**: 2D (set in EditorSettings)
+

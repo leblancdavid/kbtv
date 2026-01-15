@@ -298,7 +298,7 @@ Panels subscribe to game events for real-time updates:
 ## Audio System
 **Files**: `Audio/AudioManager.cs`, `Audio/VoiceAudioService.cs`
 
-The audio system is centralized through `AudioManager`, which subscribes to game events and plays appropriate sounds automatically. Voice audio is loaded asynchronously via `VoiceAudioService` using Unity Addressables.
+The audio system is centralized through `AudioManager`, which subscribes to game events and plays appropriate sounds automatically. Voice audio is loaded asynchronously via `VoiceAudioService` using Godot ResourceLoader.
 
 ### AudioManager
 
@@ -347,7 +347,7 @@ UI panels call AudioManager directly for immediate feedback:
 
 ### VoiceAudioService
 
-`VoiceAudioService` handles asynchronous loading and caching of voice audio clips via Unity Addressables.
+`VoiceAudioService` handles asynchronous loading and caching of voice audio clips via Godot ResourceLoader.
 
 | Method | Description |
 |--------|-------------|
@@ -451,27 +451,25 @@ Benefits:
 
 ### Test Structure
 
-Tests are located in `Assets/Scripts/Tests/Editor/` and use Unity's Edit Mode testing with NUnit.
+Tests are located in `tests/` directory and use Godot's built-in testing framework.
 
 ```
-Assets/Scripts/Tests/
-└── Editor/
-    ├── KBTV.Tests.Editor.asmdef  # Test assembly definition
-    ├── StatTests.cs              # Tests for Stat class
-    ├── VernStatsTests.cs         # Tests for VernStats ScriptableObject
-    └── CallerTests.cs            # Tests for Caller class
+tests/
+├── StatTests.cs              # Tests for Stat class
+├── VernStatsTests.cs         # Tests for VernStats Resource
+└── CallerTests.cs            # Tests for Caller class
 ```
 
 ### Running Tests
 
 **In Unity Editor**:
-1. Open `Window > General > Test Runner`
-2. Select **EditMode** tab
-3. Click **Run All** or click individual tests
+1. Open Godot Editor
+2. Go to `Project > Tools > Run Tests`
+3. Or use command line
 
 **Command Line**:
 ```bash
-Unity.exe -projectPath kbtv/kbtv -batchmode -runTests -testPlatform editmode -testResults Results.xml
+godot --run-tests project.godot
 ```
 
 ### Test Coverage

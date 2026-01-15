@@ -31,7 +31,7 @@ This document outlines the strategy for producing voice audio for KBTV's dialogu
 
 ### Chosen: Pre-Generated with Piper TTS
 
-All audio is generated offline during development using Piper TTS, then imported into Unity as static audio files.
+All audio is generated offline during development using Piper TTS, then imported into Godot as AudioStream resources.
 
 **Why Piper?**
 - Fully offline and free (no API costs)
@@ -100,11 +100,11 @@ All audio is generated offline during development using Piper TTS, then imported
 | **Enthusiastic** | `en_US-lessac-medium` | 1.2x | +3% | Excited delivery |
 | **Conspiracy Theorist** | `en_US-ryan-medium` | 1.15x | 0% | Intense, rapid |
 
-All caller audio receives phone filter via Unity Audio Mixer at runtime.
+All caller audio receives phone filter via Godot Audio Buses at runtime.
 
-## Runtime Audio Effects (Unity Audio Mixer)
+## Runtime Audio Effects (Godot Audio Buses)
 
-Audio effects are applied at runtime via Unity's Audio Mixer system. This allows the equipment upgrade system to dynamically improve audio quality as the player progresses.
+Audio effects are applied at runtime via Godot's Audio Bus system. This allows the equipment upgrade system to dynamically improve audio quality as the player progresses.
 
 ### Audio Mixer Structure
 
@@ -163,14 +163,14 @@ These parameters are controlled by the equipment level:
 | Property | Value |
 |----------|-------|
 | **Source Format** | WAV (from Piper) |
-| **Output Format** | OGG Vorbis (Unity preferred) |
+| **Output Format** | OGG Vorbis (Godot preferred) |
 | **Sample Rate** | 22.05 kHz (Piper default) or 44.1 kHz |
 | **Channels** | Mono |
 | **OGG Quality** | 0.5-0.7 |
 
 ### Effects Chain
 
-Effects are applied at runtime via Unity Audio Mixer (see "Runtime Audio Effects" section above).
+Effects are applied at runtime via Godot Audio Buses (see "Runtime Audio Effects" section above).
 
 **Vern (Radio Broadcast) - VernGroup:**
 1. High-pass filter (80Hz) - remove rumble
@@ -200,7 +200,7 @@ Effects are applied at runtime via Unity Audio Mixer (see "Runtime Audio Effects
 Voice models are automatically downloaded when first needed by the audio generation scripts. The scripts download both the `.onnx` model file and `.onnx.json` configuration file from the official Hugging Face repository.
 
 **Automatic Download Behavior:**
-- Models are cached locally in `Tools/AudioGeneration/voices/` (Unity) or `kbtv_godot/tools/audio_generation/voices/` (Godot)
+- Models are cached locally in `Tools/AudioGeneration/voices/`
 - Downloads happen transparently when a script encounters a missing voice model
 - No manual download required - scripts handle model management automatically
 - Models are ~60MB each and cached after first use
@@ -248,7 +248,7 @@ The audio generation scripts now automatically download and cache Piper TTS voic
 - **Zero setup:** No manual model downloads required
 - **Automatic updates:** Scripts always use the latest available models
 - **Space efficient:** Models downloaded on-demand, not pre-committed to repository
-- **Cross-platform:** Works for both Unity and Godot versions
+- **Cross-platform:** Works on Godot supported platforms
 
 **Network Requirements:**
 - Internet connection required for initial model downloads
@@ -382,10 +382,9 @@ vern_betweencallers_003.ogg
 
 ### Phase 2: Audio Integration (Godot Migration Pending)
 
-**Note**: This section describes Unity Addressables implementation. For Godot, audio loading will use Godot's ResourceLoader system instead.
+**Note**: Audio loading uses Godot's ResourceLoader system.
 
-- [x] Install Addressables package for async clip loading (Unity only)
-- [x] Create VoiceAudioService for clip loading/caching via Addressables (Unity only)
+- [x] Create VoiceAudioService for clip loading/caching via ResourceLoader
 - [x] Add Id field to DialogueTemplate for broadcast line matching
 - [x] Add IDs to VernDialogue.json broadcast entries
 - [x] Update AudioManager with speaker-based mixer routing
@@ -409,11 +408,11 @@ vern_betweencallers_003.ogg
 - [ ] Optimize file sizes
 - [ ] Test full conversation flow with audio
 
-## Unity Integration Architecture
+## Godot Integration Architecture
 
 ### Overview
 
-Voice audio is loaded via Unity Addressables and played through the AudioManager when dialogue lines are displayed. The typewriter text effect speed is dynamically adjusted to match the audio clip duration.
+Voice audio is loaded via Godot ResourceLoader and played through the AudioManager when dialogue lines are displayed. The typewriter text effect speed is dynamically adjusted to match the audio clip duration.
 
 ### System Components
 
@@ -541,11 +540,11 @@ To avoid loading all 950+ clips at once:
 
 ### Addressables Configuration
 
-The voice audio system uses Unity Addressables for efficient async loading. Configuration is automated via editor scripts.
+The voice audio system uses Godot ResourceLoader for efficient async loading. Configuration is automated via editor scripts.
 
 #### Automated Setup (Recommended)
 
-Run from Unity menu: **KBTV > Setup Voice Audio > Configure Addressables Only**
+Run the setup script: **Tools/AudioGeneration/setup_voice_audio.py**
 
 This will:
 1. Create/find Addressables settings
@@ -566,7 +565,7 @@ For standalone builds, you must build the Addressables catalog:
 1. Open **Window > Asset Management > Addressables > Groups**
 2. Click **Build > New Build > Default Build Script**
 
-Note: In the Unity Editor, Addressables work without building if using "Use Asset Database" play mode.
+Note: In Godot Editor, resources load directly from the project.
 
 ### Audio Mixer Structure (Phase 2A - Basic)
 
@@ -581,13 +580,13 @@ KBTVMixer
 │   └── MusicGroup      ← Background music (existing)
 ```
 
-### Phase 3: Audio Mixer Effects Setup (Unity Editor)
+### Phase 3: Audio Bus Effects Setup (Godot Editor)
 
 Follow these steps to add audio effects that respond to equipment upgrades.
 
 #### Step 1: Open the Audio Mixer
 
-1. In Unity, go to **Window > Audio > Audio Mixer**
+1. In Godot, go to **Audio > Audio Buses**
 2. Open `Assets/Audio/KBTVMixer.mixer`
 
 #### Step 2: Add Effects to CallerGroup
@@ -740,7 +739,7 @@ If higher voice quality is needed later:
 2. **Custom Piper voice** - Train a custom voice model on specific voice samples
 3. **Voice actor recording** - Replace TTS with human recordings for key lines
 
-The file naming and Unity integration will remain the same regardless of voice source.
+The file naming and Godot integration will remain the same regardless of voice source.
 
 ## References
 

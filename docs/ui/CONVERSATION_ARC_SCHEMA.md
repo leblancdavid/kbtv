@@ -102,7 +102,7 @@ Conversation arcs are pre-scripted dialogues between Vern and callers. Each arc 
 
 ## Schema Reference
 
-> **Note**: As of the latest update, `textVariants` uses an array format instead of a dictionary object for Unity JsonUtility compatibility.
+
 
 ### Root Object
 

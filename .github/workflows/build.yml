@@ -7,7 +7,7 @@ on:
   workflow_dispatch:  # Allow manual trigger
 
 env:
-  UNITY_PROJECT_PATH: kbtv
+  GODOT_PROJECT_PATH: .
 
 jobs:
   build:
@@ -21,32 +21,22 @@ jobs:
           fetch-depth: 0
           lfs: true
 
-      - name: Cache Library folder
-        uses: actions/cache@v4
+      - name: Setup Godot
+        uses: chickensoft-games/setup-godot@v1
         with:
-          path: ${{ env.UNITY_PROJECT_PATH }}/Library
-          key: Library-Windows-${{ hashFiles('kbtv/Assets/**', 'kbtv/Packages/**', 'kbtv/ProjectSettings/**') }}
-          restore-keys: |
-            Library-Windows-
-            Library-
+          version: 4.2.1
+          include-templates: true
 
-      - name: Build Unity project
-        uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          projectPath: ${{ env.UNITY_PROJECT_PATH }}
-          targetPlatform: StandaloneWindows64
-          buildName: KBTV
-          versioning: Tag
+      - name: Build Godot project
+        run: |
+          mkdir -p builds
+          godot --export "Windows Desktop" builds/KBTV_Windows.exe project.godot
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: Build-Windows
-          path: build/StandaloneWindows64
+          path: builds/
           retention-days: 14
 
   release:
@@ -60,12 +50,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: Build-Windows
-          path: build/windows
+          path: builds
 
       - name: Zip Windows build
         run: |
-          cd build/windows
-          zip -r ../../KBTV-Windows-${{ github.ref_name }}.zip .
+          cd builds
+          zip -r ../KBTV-Windows-${{ github.ref_name }}.zip .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1

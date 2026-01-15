@@ -323,11 +323,9 @@ def main():
     print()
     print("Done!")
     print()
-    print("To use in Unity:")
-    print("1. Open Unity and let it import the new audio files")
-    print("2. Select the AudioManager in your scene")
-    print("3. Assign the break_transition_*.ogg clips to the 'Break Transition Clips' array")
-    print("4. The clips will play with fade-in when a break is queued")
+    print("To use in Godot:")
+    print("1. Open Godot and let it import the new audio files")
+    print("2. Assign the break_transition_*.ogg clips to the AudioManager's break transition array")
 
 
 if __name__ == "__main__":

@@ -76,30 +76,9 @@ Note: Manual runs without a tag won't create a GitHub Release.
 
 ## Local Builds
 
-From Unity Editor:
-- **Build > Build Windows** - Outputs to `Build/Windows/KBTV.exe`
-- **Build > Build WebGL** - Outputs to `Build/WebGL/`
-- **Build > Build All** - Builds both platforms
-
-## Troubleshooting
-
-### "License not found" error
-- Verify `UNITY_LICENSE` secret contains the full `.ulf` file contents
-- Make sure you copied the entire file including the XML tags
-- Try re-activating in Unity Hub and getting a fresh `.ulf` file
-
-### Can't find the `.ulf` file
-- Make sure you clicked **Add** in Unity Hub Licenses and completed activation
-- Enable "Show hidden files" in your file explorer
-- The file is created after activation, not just after logging in
-
-### Build fails on first run
-- The Library cache is empty on first run, so builds take longer
-- Subsequent builds use cached Library folder
-
-### WebGL build fails
-- Ensure WebGL Build Support is installed in Unity
-- Check that no unsupported APIs are used (e.g., System.IO file access)
+Use Godot Editor:
+- **Project > Export** - Configure export presets and export manually
+- Use command-line as shown in Manual Export Process above
 
 ## Future: Steam Deployment
 

@@ -289,9 +289,9 @@ void SpendMoney(int amount)
 
 ### Save File Location (Development)
 
-In Unity Editor, saves go to:
+In Godot, saves go to user:// directory:
 ```
-C:\Users\{User}\AppData\LocalLow\DefaultCompany\kbtv\kbtv_save.json
+user://kbtv_save.json
 ```
 
 ## Future Considerations

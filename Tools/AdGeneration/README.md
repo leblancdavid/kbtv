@@ -47,11 +47,11 @@ pip install -r requirements.txt
    ```bash
    python generate_ads.py process
    ```
-   This normalizes audio and converts to OGG in the Unity folder.
+   This normalizes audio and converts to OGG in the assets folder.
 
-5. **Assign in Unity:**
-   - Open Unity
-   - Run: `KBTV > Setup Ad Audio`
+ 5. **Import in Godot:**
+    - Open Godot
+    - Import the generated audio files
 
 ## Check Status
 
@@ -72,7 +72,7 @@ Tools/AdGeneration/
 ├── requirements.txt
 └── README.md
 
-kbtv/Assets/Audio/Ads/      # Unity audio output
+kbtv/assets/audio/ads/      # Godot audio output
 ├── big_earls_auto/
 │   └── big_earls_auto_v1.ogg
 ├── pizza_palace/

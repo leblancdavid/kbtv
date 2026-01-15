@@ -3,10 +3,10 @@
 ## Version 2.0 - Godot Migration & Scene-Based UI (2026-01-15)
 
 ### Summary
-Migrated UI system from Unity uGUI to Godot scene-based architecture. Replaced programmatic UI creation with reusable scene files, implemented TabContainer system, and fixed NullReferenceException in screening panel.
+Migrated UI system to Godot scene-based architecture. Replaced programmatic UI creation with reusable scene files, implemented TabContainer system, and fixed NullReferenceException in screening panel.
 
 ### Migration Changes
-| Component | Old (Unity) | New (Godot) |
+| Component | Old | New (Godot) |
 |-----------|------------|-------------|
 | UI Framework | uGUI Canvas | Control nodes with theme styling |
 | Panel Creation | UIPanelBuilder fluent API | PackedScene instantiation |

@@ -79,13 +79,12 @@ Use `_v2`, `_v3` suffixes for additional variations.
 python generate_bumpers.py process
 ```
 
-This normalizes audio and converts to OGG in the Unity folder.
+This normalizes audio and converts to OGG in the assets folder.
 
-### 5. Assign in Unity
+### 5. Import in Godot
 
-1. Open Unity
-2. Run: `KBTV > Create Bumper Configs` (if not already done)
-3. Run: `KBTV > Assign Bumper Audio`
+1. Open Godot
+2. Import the generated audio files
 
 ## Check Status
 
@@ -110,7 +109,7 @@ Tools/BumperGeneration/
 ├── generate_bumpers.py       # Suno workflow script
 └── README.md
 
-kbtv/Assets/Audio/Bumpers/    # Unity audio output
+kbtv/assets/audio/bumpers/    # Godot audio output
 ├── Intro/
 │   ├── intro_01_v1.ogg
 │   ├── intro_02_v1.ogg
