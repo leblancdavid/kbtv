@@ -11,11 +11,13 @@ namespace KBTV.UI
     /// </summary>
     public partial class PanelFactory
     {
-        private readonly UIManagerBootstrap _uiManager;
+        private readonly CallerQueue _callerQueue;
+        private readonly ICallerActions _callerActions;
 
-        public PanelFactory(UIManagerBootstrap uiManager)
+        public PanelFactory(CallerQueue callerQueue, ICallerActions callerActions)
         {
-            _uiManager = uiManager;
+            _callerQueue = callerQueue;
+            _callerActions = callerActions;
         }
 
         /// <summary>
@@ -30,9 +32,9 @@ namespace KBTV.UI
                 if (panel != null)
                 {
                     // Set caller info
-                    if (_uiManager.CallerQueue.IsScreening)
+                    if (_callerQueue.IsScreening)
                     {
-                        panel.SetCaller(_uiManager.CallerQueue.CurrentScreening);
+                        panel.SetCaller(_callerQueue.CurrentScreening);
                     }
                     else
                     {
@@ -40,7 +42,7 @@ namespace KBTV.UI
                     }
 
                     // Connect buttons
-                    panel.ConnectButtons(Callable.From(_uiManager.OnApprovePressed), Callable.From(_uiManager.OnRejectPressed));
+                    panel.ConnectButtons(Callable.From(() => _callerActions.OnApproveCaller()), Callable.From(() => _callerActions.OnRejectCaller()));
 
                     return panel;
                 }
@@ -82,9 +84,9 @@ namespace KBTV.UI
             layout.AddChild(header);
 
             // Current caller info
-            if (_uiManager.CallerQueue.IsScreening)
+            if (_callerQueue.IsScreening)
             {
-                var caller = _uiManager.CallerQueue.CurrentScreening;
+                var caller = _callerQueue.CurrentScreening;
                 var callerLabel = new Label();
                 callerLabel.Text = $"{caller.Name}\n{caller.Location}\nTopic: {caller.ClaimedTopic}";
                 callerLabel.HorizontalAlignment = HorizontalAlignment.Center;
@@ -109,7 +111,7 @@ namespace KBTV.UI
             approveButton.Text = "APPROVE";
             approveButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             approveButton.AddThemeColorOverride("font_color", new Color(0f, 0.8f, 0f));
-            approveButton.Pressed += _uiManager.OnApprovePressed;
+            approveButton.Pressed += () => _callerActions.OnApproveCaller();
             buttonsContainer.AddChild(approveButton);
 
             // Reject button
@@ -117,7 +119,7 @@ namespace KBTV.UI
             rejectButton.Text = "REJECT";
             rejectButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             rejectButton.AddThemeColorOverride("font_color", new Color(0.8f, 0.2f, 0.2f));
-            rejectButton.Pressed += _uiManager.OnRejectPressed;
+            rejectButton.Pressed += () => _callerActions.OnRejectCaller();
             buttonsContainer.AddChild(rejectButton);
 
             return panel;

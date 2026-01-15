@@ -13,7 +13,7 @@ using KBTV.UI.Controllers;
 
 namespace KBTV.UI
 {
-	public partial class UIManagerBootstrap : Node
+	public partial class UIManagerBootstrap : Node, ICallerActions
 	{
 		public static UIManagerBootstrap Instance => (UIManagerBootstrap)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/UIManagerBootstrap");
 		public CallerQueue CallerQueue => _callerQueue;
@@ -33,6 +33,7 @@ namespace KBTV.UI
 		private Control _mainContent;
 		private LiveShowHeader _liveShowHeader;
 		private CallerQueue _callerQueue;
+		private ICallerTabManager _callerTabManager;
 		private EconomyManager _economyManager;
 		private ListenerManager _listenerManager;
 		private GameStateManager _gameState;
@@ -86,7 +87,7 @@ namespace KBTV.UI
             // Create tabs list
             _tabs = new List<TabDefinition>
             {
-                new TabDefinition { Name = "CALLERS", PopulateContent = PopulateCallersContent },
+                new TabDefinition { Name = "CALLERS", PopulateContent = PopulateCallersTab },
                 new TabDefinition { Name = "ITEMS", PopulateContent = PopulateItemsContent },
                 new TabDefinition { Name = "STATS", PopulateContent = PopulateStatsContent }
             };
@@ -99,8 +100,11 @@ namespace KBTV.UI
             _listenerManager = ListenerManager.Instance;
             _callerQueue = CallerQueue.Instance;
 
+            // Initialize caller tab manager
+            _callerTabManager = new CallerTabManager(_callerQueue, this);
+
             // Initialize factories
-            _panelFactory = new PanelFactory(this);
+            _panelFactory = new PanelFactory(_callerQueue, this);
             _displayManager = new DisplayManager(this);
 
             SubscribeToEvents();
@@ -149,6 +153,7 @@ namespace KBTV.UI
 
 			var contentArea = new Control();
 			contentArea.Name = "Content";
+			contentArea.SetAnchorsPreset(Control.LayoutPreset.FullRect);  // Fix: Add anchors so it fills ScrollContainer
 			contentArea.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			contentArea.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
 
@@ -550,126 +555,11 @@ namespace KBTV.UI
 		}
 
 		// Content population methods for tabs
-		private void PopulateCallersContent(Control contentArea)
+		private void PopulateCallersTab(Control contentArea)
 		{
-			GD.Print("PopulateCallersContent called");
-
-			if (_callerQueue == null)
-			{
-				var errorLabel = new Label();
-				errorLabel.Text = "CallerQueue not available";
-				contentArea.AddChild(errorLabel);
-				return;
-			}
-
-			var mainContainer = new HBoxContainer();
-			mainContainer.Name = "CallersMainContainer";
-			mainContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			mainContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-
-			// Left panel: Incoming callers (25% width)
-			var incomingPanel = _panelFactory.CreateCallerPanelScene("INCOMING CALLERS", _callerQueue.IncomingCallers, new Color(1f, 0.7f, 0f), new Color(0.8f, 0.8f, 0.8f));
-			if (incomingPanel != null)
-			{
-				incomingPanel.SizeFlagsStretchRatio = 1; // 25%
-				mainContainer.AddChild(incomingPanel);
-			}
-
-			// Middle panel: Screening controls (50% width)
-			var screeningPanel = _panelFactory.CreateScreeningPanelScene();
-			screeningPanel.SizeFlagsStretchRatio = 2; // 50%
-			mainContainer.AddChild(screeningPanel);
-
-			// Right panel: On-hold callers (25% width)
-			var onHoldPanel = _panelFactory.CreateCallerPanelScene("ON HOLD", _callerQueue.OnHoldCallers, new Color(0f, 0.7f, 1f), new Color(0.6f, 0.6f, 0.6f));
-			if (onHoldPanel != null)
-			{
-				onHoldPanel.SizeFlagsStretchRatio = 1; // 25%
-				mainContainer.AddChild(onHoldPanel);
-			}
-
-			GD.Print($"Created mainContainer with {mainContainer.GetChildCount()} children");
-
-			contentArea.AddChild(mainContainer);
+			_callerTabManager?.PopulateContent(contentArea);
 		}
 
-		private Control CreateCallerPanelScene(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
-		{
-			var scene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerPanel.tscn");
-			if (scene != null)
-			{
-				var panel = scene.Instantiate<CallerPanel>();
-				if (panel != null)
-				{
-					panel.SetHeader(headerText, headerColor);
-					panel.SetCallers(callers, itemColor);
-					return panel;
-				}
-			}
-			// Fallback to programmatic
-			return CreateCallerPanelFallback(headerText, callers, headerColor, itemColor);
-		}
-
-		private Control CreateCallerPanelFallback(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
-		{
-			return CreateCallerPanel("FallbackPanel", headerText, callers, headerColor, itemColor);
-		}
-
-		private Control CreateCallerPanel(string name, string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
-		{
-			GD.Print($"Creating caller panel {name} with {callers.Count} callers");
-
-			var panel = new Panel();
-			panel.Name = name;
-			UITheme.ApplyPanelStyle(panel);
-			panel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			panel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-
-			var layout = new VBoxContainer();
-			layout.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			layout.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			panel.AddChild(layout);
-
-			// Header
-			var header = new Label();
-			header.Text = headerText;
-			header.AddThemeColorOverride("font_color", headerColor);
-			header.HorizontalAlignment = HorizontalAlignment.Center;
-			layout.AddChild(header);
-
-			// Scrollable list
-			var scroll = new ScrollContainer();
-			scroll.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			scroll.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			layout.AddChild(scroll);
-
-			var listContainer = new VBoxContainer();
-			listContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			listContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			scroll.AddChild(listContainer);
-
-			// Add caller items
-			if (callers != null && callers.Count > 0)
-			{
-				foreach (var caller in callers)
-				{
-					var callerLabel = new Label();
-					callerLabel.Text = $"{caller.Name} - {caller.Location}";
-					callerLabel.AddThemeColorOverride("font_color", itemColor);
-					listContainer.AddChild(callerLabel);
-				}
-			}
-			else
-			{
-				var emptyLabel = new Label();
-				emptyLabel.Text = "None";
-				emptyLabel.HorizontalAlignment = HorizontalAlignment.Center;
-				emptyLabel.AddThemeColorOverride("font_color", new Color(0.5f, 0.5f, 0.5f));
-				listContainer.AddChild(emptyLabel);
-			}
-
-			return panel;
-		}
 
 		private void PopulateItemsContent(Control contentArea)
 		{
@@ -835,8 +725,8 @@ namespace KBTV.UI
 
 
 
-		// Button handlers for caller screening
-		public void OnApprovePressed()
+		// ICallerActions implementation
+		public void OnApproveCaller()
 		{
 			if (_callerQueue != null && _callerQueue.ApproveCurrentCaller())
 			{
@@ -845,13 +735,24 @@ namespace KBTV.UI
 			}
 		}
 
-		public void OnRejectPressed()
+		public void OnRejectCaller()
 		{
 			if (_callerQueue != null && _callerQueue.RejectCurrentCaller())
 			{
 				// Refresh the callers tab
 				RefreshTabContent(0);
 			}
+		}
+
+		// Legacy button handlers (keep for backward compatibility)
+		public void OnApprovePressed()
+		{
+			OnApproveCaller();
+		}
+
+		public void OnRejectPressed()
+		{
+			OnRejectCaller();
 		}
 	}
 }
