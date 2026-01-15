@@ -92,7 +92,8 @@ namespace KBTV.UI
 				_rootContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 				_canvas.AddChild(_rootContainer);
 
-				UIManager.Instance.RegisterLiveShowLayer(_canvas);
+				// Defer UIManager registration to ensure it's ready
+				CallDeferred(nameof(RegisterWithUIManager));
 
 				// Create tabs list
 				_tabs = new List<TabDefinition>
@@ -768,6 +769,18 @@ namespace KBTV.UI
 			{
 				// Refresh the callers tab
 				RefreshTabContent(0);
+			}
+		}
+
+		private void RegisterWithUIManager()
+		{
+			if (UIManager.Instance != null)
+			{
+				UIManager.Instance.RegisterLiveShowLayer(_canvas);
+			}
+			else
+			{
+				GD.PrintErr("RegisterWithUIManager: UIManager.Instance is still null");
 			}
 		}
 

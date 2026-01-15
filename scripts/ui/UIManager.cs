@@ -9,7 +9,19 @@ namespace KBTV.UI
     /// </summary>
     public partial class UIManager : Node
     {
-        public static UIManager Instance => (UIManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/UIManager");
+        public static UIManager Instance
+        {
+            get
+            {
+                var root = ((SceneTree)Engine.GetMainLoop()).Root;
+                var uiManager = root.GetNode("/root/UIManager") as UIManager;
+                if (uiManager == null)
+                {
+                    GD.PrintErr("UIManager.Instance: UIManager node not found at /root/UIManager");
+                }
+                return uiManager;
+            }
+        }
 
         private CanvasLayer _preShowLayer;
         private CanvasLayer _liveShowLayer;
