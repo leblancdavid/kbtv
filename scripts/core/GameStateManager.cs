@@ -14,32 +14,23 @@ namespace KBTV.Core
 	public partial class GameStateManager : Node
 	{
 		[Signal] public delegate void PhaseChangedEventHandler(GamePhase oldPhase, GamePhase newPhase);
+	[Signal] public delegate void NightStartedEventHandler(int nightNumber);
 
-		public static GameStateManager Instance => (GameStateManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/GameStateManager");
+	public static GameStateManager Instance => (GameStateManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/GameStateManager");
 
-		// ═══════════════════════════════════════════════════════════════════════════════════════════════
-		// FIELDS
-		// ═══════════════════════════════════════════════════════════════════════════════
+	// ═══════════════════════════════════════════════════════════════════════════════════════════════
+	// FIELDS
+	// ═══════════════════════════════════════════════════════════════════════════════
 
-		private GamePhase _currentPhase = GamePhase.PreShow;
-		private VernStats _vernStats;
-		private int _currentNight = 1;
-		private Topic _selectedTopic;
+	private GamePhase _currentPhase = GamePhase.PreShow;
+	private VernStats _vernStats;
+	private int _currentNight = 1;
+	private Topic _selectedTopic;
 
-		public VernStats VernStats => _vernStats;
-		public GamePhase CurrentPhase => _currentPhase;
-		public int CurrentNight => _currentNight;
-		public Topic SelectedTopic => _selectedTopic;
-
-		/// <summary>
-		/// Fired when the game phase changes.
-		/// </summary>
-		public event Action<GamePhase, GamePhase> OnPhaseChanged; // oldPhase, newPhase
-
-		/// <summary>
-		/// Fired when a new night begins.
-		/// </summary>
-		public event Action<int> OnNightStarted;
+	public VernStats VernStats => _vernStats;
+	public GamePhase CurrentPhase => _currentPhase;
+	public int CurrentNight => _currentNight;
+	public Topic SelectedTopic => _selectedTopic;
 
 		public override void _Ready()
 		{
@@ -91,7 +82,7 @@ namespace KBTV.Core
 					return;
 			}
 
-			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
+			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
 		}
 
 		/// <summary>
@@ -108,7 +99,7 @@ namespace KBTV.Core
 			// GD.Print($"GameStateManager: Starting live show with topic '{_selectedTopic.DisplayName}'");
 			GamePhase oldPhase = _currentPhase;
 			_currentPhase = GamePhase.LiveShow;
-			EmitSignal(nameof(PhaseChanged), (int)oldPhase, (int)_currentPhase);
+			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
 
 			// Start the show clock
 			TimeManager.Instance?.StartClock();
@@ -122,7 +113,7 @@ namespace KBTV.Core
 		{
 			var oldPhase = _currentPhase;
 			_currentPhase = phase;
-			OnPhaseChanged?.Invoke(oldPhase, phase);
+			EmitSignal("PhaseChanged", (int)oldPhase, (int)phase);
 		}
 
     /// <summary>
@@ -160,8 +151,8 @@ namespace KBTV.Core
 				_vernStats.Initialize();
 			}
 
-			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
-			OnNightStarted?.Invoke(_currentNight);
+			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
+			EmitSignal("NightStarted", _currentNight);
 		}
 
 		/// <summary>

@@ -13,6 +13,11 @@ namespace KBTV.Persistence
     /// </summary>
     public partial class SaveManager : Node
     {
+		[Signal] public delegate void SaveCompletedEventHandler();
+		[Signal] public delegate void LoadCompletedEventHandler();
+		[Signal] public delegate void SaveDeletedEventHandler();
+		[Signal] public delegate void DataChangedEventHandler();
+
 		public static SaveManager Instance => (SaveManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/SaveManager");
 
         // ─────────────────────────────────────────────────────────────
@@ -50,17 +55,7 @@ namespace KBTV.Persistence
         // Events
         // ─────────────────────────────────────────────────────────────
 
-        /// <summary>Fired after successful save.</summary>
-        public event Action OnSaveCompleted;
 
-        /// <summary>Fired after successful load.</summary>
-        public event Action OnLoadCompleted;
-
-        /// <summary>Fired after save is deleted.</summary>
-        public event Action OnSaveDeleted;
-
-        /// <summary>Fired when save data changes.</summary>
-        public event Action OnDataChanged;
 
         // ─────────────────────────────────────────────────────────────
         // Lifecycle
@@ -181,7 +176,7 @@ namespace KBTV.Persistence
             NotifyLoadComplete();
 
             _isDirty = false;
-            OnLoadCompleted?.Invoke();
+            EmitSignal("LoadCompleted");
         }
 
         /// <summary>
@@ -232,7 +227,7 @@ namespace KBTV.Persistence
 
                 _isDirty = false;
                 GD.Print($"[SaveManager] Saved to {path}");
-                OnSaveCompleted?.Invoke();
+                EmitSignal("SaveCompleted");
             }
             catch (Exception e)
             {
@@ -265,7 +260,7 @@ namespace KBTV.Persistence
             NotifyLoadComplete();
 
             _isDirty = false;
-            OnSaveDeleted?.Invoke();
+            EmitSignal("SaveDeleted");
         }
 
         /// <summary>
@@ -308,7 +303,7 @@ namespace KBTV.Persistence
         public void MarkDirty()
         {
             _isDirty = true;
-            OnDataChanged?.Invoke();
+            EmitSignal("DataChanged");
         }
 
         // ─────────────────────────────────────────────────────────────

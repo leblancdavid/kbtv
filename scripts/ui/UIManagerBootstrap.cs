@@ -102,32 +102,26 @@ namespace KBTV.UI
 
 		private void InitializeTabController()
 		{
-			GD.Print($"InitializeTabController called. _tabs: {_tabs?.Count}, _mainContent: {_mainContent}");
-		if (_tabs != null && _mainContent != null)
-		{
-			// Create TabContainer
-			_tabContainer = new TabContainer();
-			_tabContainer.Name = "TabContainer";
-			_tabContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-			_mainContent.AddChild(_tabContainer);
-
-			// Create tabs
-			for (int i = 0; i < _tabs.Count; i++)
+			GD.Print($"InitializeTabController called. _tabs: {_tabs?.Count}, _mainContent: {_mainContent}, _tabContainer: {_tabContainer}");
+			if (_tabs != null && _mainContent != null && _tabContainer != null)
 			{
-				var tabContent = CreateTabContent(_tabs[i]);
-				_tabContainer.AddChild(tabContent);
-				_tabContainer.SetTabTitle(i, _tabs[i].Name);
+				// TabContainer already loaded from scene, populate with tabs
+				for (int i = 0; i < _tabs.Count; i++)
+				{
+					var tabContent = CreateTabContent(_tabs[i]);
+					_tabContainer.AddChild(tabContent);
+					_tabContainer.SetTabTitle(i, _tabs[i].Name);
+				}
+
+				GD.Print("TabContainer initialized successfully");
+
+				// Refresh initial tab
+				RefreshCurrentTab();
 			}
-
-			GD.Print("TabContainer initialized successfully");
-
-			// Refresh initial tab
-			RefreshCurrentTab();
-		}
-		else
-		{
-			GD.PrintErr($"InitializeTabController failed: _tabs null: {_tabs == null}, _mainContent null: {_mainContent == null}");
-		}
+			else
+			{
+				GD.PrintErr($"InitializeTabController failed: _tabs null: {_tabs == null}, _mainContent null: {_mainContent == null}, _tabContainer null: {_tabContainer == null}");
+			}
 		}
 
 		private Control CreateTabContent(TabDefinition tab)
@@ -244,6 +238,27 @@ namespace KBTV.UI
 
 
 		private Control CreateMainContent()
+		{
+			// Load the scene-based tab container
+			var tabContainerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/TabContainerUI.tscn");
+			if (tabContainerScene != null)
+			{
+				var mainContent = tabContainerScene.Instantiate<TabContainer>();
+				mainContent.Name = "MainContent";
+				// Store references
+				_mainContent = mainContent;
+				_tabContainer = mainContent;
+				return mainContent;
+			}
+			else
+			{
+				// Fallback to programmatic creation
+				GD.PrintErr("Failed to load TabContainerUI.tscn, using fallback");
+				return CreateMainContentFallback();
+			}
+		}
+
+		private Control CreateMainContentFallback()
 		{
 			var mainContent = new Control();
 			mainContent.Name = "MainContent";
@@ -546,7 +561,7 @@ namespace KBTV.UI
 			}
 
 			// Middle panel: Screening controls (50% width)
-			var screeningPanel = CreateScreeningPanel();
+			var screeningPanel = CreateScreeningPanelScene();
 			screeningPanel.SizeFlagsStretchRatio = 2; // 50%
 			mainContainer.AddChild(screeningPanel);
 
@@ -641,10 +656,19 @@ namespace KBTV.UI
 			return panel;
 		}
 
+		private Control CreateScreeningPanelScene()
+		{
+			// Use programmatic creation to avoid scene loading issues
+			return CreateScreeningPanelFallback();
+		}
+
+		private Control CreateScreeningPanelFallback()
+		{
+			return CreateScreeningPanel();
+		}
+
 		private Control CreateScreeningPanel()
 		{
-			GD.Print("Creating screening panel");
-
 			var panel = new Panel();
 			panel.Name = "ScreeningPanel";
 			UITheme.ApplyPanelStyle(panel);
@@ -673,14 +697,7 @@ namespace KBTV.UI
 				callerLabel.HorizontalAlignment = HorizontalAlignment.Center;
 				callerLabel.AutowrapMode = TextServer.AutowrapMode.Word;
 				layout.AddChild(callerLabel);
-			}
-			else
-			{
-				var noCallerLabel = new Label();
-				noCallerLabel.Text = "No caller\ncurrently\nscreening";
-				noCallerLabel.HorizontalAlignment = HorizontalAlignment.Center;
-				layout.AddChild(noCallerLabel);
-			}
+		}
 
 			// Spacer
 			var spacer = new Control();
@@ -776,36 +793,36 @@ namespace KBTV.UI
 		{
 			if (_gameState != null)
 			{
-				_gameState.OnPhaseChanged += HandlePhaseChanged;
+				_gameState.Connect("PhaseChanged", Callable.From<GamePhase, GamePhase>(HandlePhaseChanged));
 			}
 
 			if (_timeManager != null)
 			{
-				_timeManager.OnTick += HandleTimeTick;
+				_timeManager.Connect("Tick", Callable.From<float>(HandleTimeTick));
 			}
 
 			if (_listenerManager != null)
 			{
-				_listenerManager.OnListenersChanged += HandleListenersChanged;
+				_listenerManager.Connect("ListenersChanged", Callable.From<int, int>(HandleListenersChanged));
 			}
 
 			if (_economyManager != null)
 			{
-				_economyManager.OnMoneyChanged += HandleMoneyChanged;
+				_economyManager.Connect("MoneyChanged", Callable.From<int, int>(HandleMoneyChanged));
 			}
 
 			var vernStats = GameStateManager.Instance?.VernStats;
 			if (vernStats != null)
 			{
-				vernStats.OnStatsChanged += HandleStatsChanged;
+				vernStats.Connect("StatsChanged", Callable.From(HandleStatsChanged));
 			}
 
 			if (_callerQueue != null)
 			{
-				_callerQueue.OnCallerAdded += HandleCallerQueueChanged;
-				_callerQueue.OnCallerRemoved += HandleCallerQueueChanged;
-				_callerQueue.OnCallerOnAir += HandleCallerQueueChanged;
-				_callerQueue.OnCallerCompleted += HandleCallerQueueChanged;
+				_callerQueue.Connect("CallerAdded", Callable.From<Caller>(HandleCallerQueueChanged));
+				_callerQueue.Connect("CallerRemoved", Callable.From<Caller>(HandleCallerQueueChanged));
+				_callerQueue.Connect("CallerOnAir", Callable.From<Caller>(HandleCallerQueueChanged));
+				_callerQueue.Connect("CallerCompleted", Callable.From<Caller>(HandleCallerQueueChanged));
 			}
 		}
 
@@ -813,36 +830,36 @@ namespace KBTV.UI
 		{
 			if (_gameState != null)
 			{
-				_gameState.OnPhaseChanged -= HandlePhaseChanged;
+				_gameState.Disconnect("PhaseChanged", Callable.From<GamePhase, GamePhase>(HandlePhaseChanged));
 			}
 
 			if (_timeManager != null)
 			{
-				_timeManager.OnTick -= HandleTimeTick;
+				_timeManager.Disconnect("Tick", Callable.From<float>(HandleTimeTick));
 			}
 
 			if (_listenerManager != null)
 			{
-				_listenerManager.OnListenersChanged -= HandleListenersChanged;
+				_listenerManager.Disconnect("ListenersChanged", Callable.From<int, int>(HandleListenersChanged));
 			}
 
 			if (_economyManager != null)
 			{
-				_economyManager.OnMoneyChanged -= HandleMoneyChanged;
+				_economyManager.Disconnect("MoneyChanged", Callable.From<int, int>(HandleMoneyChanged));
 			}
 
 			var vernStats = GameStateManager.Instance?.VernStats;
 			if (vernStats != null)
 			{
-				vernStats.OnStatsChanged -= HandleStatsChanged;
+				vernStats.Disconnect("StatsChanged", Callable.From(HandleStatsChanged));
 			}
 
 			if (_callerQueue != null)
 			{
-				_callerQueue.OnCallerAdded -= HandleCallerQueueChanged;
-				_callerQueue.OnCallerRemoved -= HandleCallerQueueChanged;
-				_callerQueue.OnCallerOnAir -= HandleCallerQueueChanged;
-				_callerQueue.OnCallerCompleted -= HandleCallerQueueChanged;
+				_callerQueue.Disconnect("CallerAdded", Callable.From<Caller>(HandleCallerQueueChanged));
+				_callerQueue.Disconnect("CallerRemoved", Callable.From<Caller>(HandleCallerQueueChanged));
+				_callerQueue.Disconnect("CallerOnAir", Callable.From<Caller>(HandleCallerQueueChanged));
+				_callerQueue.Disconnect("CallerCompleted", Callable.From<Caller>(HandleCallerQueueChanged));
 			}
 		}
 

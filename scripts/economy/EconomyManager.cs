@@ -8,8 +8,12 @@ namespace KBTV.Economy
     /// <summary>
     /// Manages the player's money and transactions.
     /// </summary>
-	public partial class EconomyManager : Node
-	{
+ 	public partial class EconomyManager : Node
+ 	{
+		[Signal] public delegate void MoneyChangedEventHandler(int oldAmount, int newAmount);
+		[Signal] public delegate void PurchaseEventHandler(int amount, string reason);
+		[Signal] public delegate void PurchaseFailedEventHandler(int amount);
+
 		public static EconomyManager Instance => (EconomyManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/EconomyManager");
         [Export] private int _startingMoney = 500;
 
@@ -28,14 +32,7 @@ namespace KBTV.Economy
         // Events
         // ─────────────────────────────────────────────────────────────
 
-        /// <summary>Fired when money changes. (oldAmount, newAmount)</summary>
-        public event Action<int, int> OnMoneyChanged;
 
-        /// <summary>Fired on successful purchase. (amount, reason)</summary>
-        public event Action<int, string> OnPurchase;
-
-        /// <summary>Fired when purchase fails due to insufficient funds.</summary>
-        public event Action<int> OnPurchaseFailed;
 
         // ─────────────────────────────────────────────────────────────
         // Lifecycle
@@ -92,7 +89,7 @@ namespace KBTV.Economy
             int oldMoney = _currentMoney;
             _currentMoney += amount;
 
-            OnMoneyChanged?.Invoke(oldMoney, _currentMoney);
+            EmitSignal("MoneyChanged", oldMoney, _currentMoney);
 
             // TODO: Add when SaveManager is ported
             // if (SaveManager.Instance != null)
@@ -118,7 +115,7 @@ namespace KBTV.Economy
             if (!CanAfford(amount))
             {
                 GD.Print($"[EconomyManager] Cannot afford ${amount}. Balance: ${_currentMoney}");
-                OnPurchaseFailed?.Invoke(amount);
+                EmitSignal("PurchaseFailed", amount);
                 return false;
             }
 
@@ -130,8 +127,8 @@ namespace KBTV.Economy
                 GD.Print($"[EconomyManager] -${amount} ({reason}). Balance: ${_currentMoney}");
             }
 
-            OnMoneyChanged?.Invoke(oldMoney, _currentMoney);
-            OnPurchase?.Invoke(amount, reason);
+            EmitSignal("MoneyChanged", oldMoney, _currentMoney);
+            EmitSignal("Purchase", amount, reason);
 
             // TODO: Add when SaveManager is ported
             // if (SaveManager.Instance != null)
@@ -152,7 +149,7 @@ namespace KBTV.Economy
 
             if (oldMoney != _currentMoney)
             {
-                OnMoneyChanged?.Invoke(oldMoney, _currentMoney);
+                EmitSignal("MoneyChanged", oldMoney, _currentMoney);
             }
         }
 

@@ -7,45 +7,33 @@ using KBTV.Core;
 
 namespace KBTV.Callers
 {
-    /// <summary>
-    /// Manages the queue of incoming callers during a live show.
-    /// Handles caller lifecycle from incoming -> screening -> on-hold -> on-air.
-    /// </summary>
 	public partial class CallerQueue : Node
 	{
+		[Signal] public delegate void CallerAddedEventHandler(Caller caller);
+		[Signal] public delegate void CallerRemovedEventHandler(Caller caller);
+		[Signal] public delegate void CallerDisconnectedEventHandler(Caller caller);
+		[Signal] public delegate void CallerOnAirEventHandler(Caller caller);
+		[Signal] public delegate void CallerCompletedEventHandler(Caller caller);
+		[Signal] public delegate void CallerApprovedEventHandler(Caller caller);
+
 		public static CallerQueue Instance => (CallerQueue)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/CallerQueue");
-        [Export] private int _maxQueueSize = 3;
-        [Export] private int _maxOnHold = 3;
 
-        // Caller lists by state
-        private System.Collections.Generic.List<Caller> _incomingCallers = new System.Collections.Generic.List<Caller>();
-        private System.Collections.Generic.List<Caller> _onHoldCallers = new System.Collections.Generic.List<Caller>();
-        private Caller _currentScreening;
-        private Caller _onAirCaller;
+		private Dictionary<Caller, Action> _disconnectHandlers = new();
+		private List<Caller> _incomingCallers = new();
+		private List<Caller> _onHoldCallers = new();
+		private Caller _currentScreening;
+		private Caller _onAirCaller;
 
-        // Track event handlers to prevent memory leaks
-        private Dictionary<Caller, Action> _disconnectHandlers = new Dictionary<Caller, Action>();
-
-        // Properties
-        public System.Collections.Generic.IReadOnlyList<Caller> IncomingCallers => _incomingCallers;
-        public System.Collections.Generic.IReadOnlyList<Caller> OnHoldCallers => _onHoldCallers;
-        public Caller CurrentScreening => _currentScreening;
-        public Caller OnAirCaller => _onAirCaller;
-        public int TotalWaiting => _incomingCallers.Count + _onHoldCallers.Count;
-        public bool HasIncomingCallers => _incomingCallers.Count > 0;
-        public bool HasOnHoldCallers => _onHoldCallers.Count > 0;
-        public bool IsScreening => _currentScreening != null;
-        public bool IsOnAir => _onAirCaller != null;
-        public bool CanAcceptMoreCallers => _incomingCallers.Count < _maxQueueSize;
-        public bool CanPutOnHold => _onHoldCallers.Count < _maxOnHold;
-
-        // Events
-        public event Action<Caller> OnCallerAdded;
-        public event Action<Caller> OnCallerRemoved;
-        public event Action<Caller> OnCallerDisconnected;
-        public event Action<Caller> OnCallerOnAir;
-        public event Action<Caller> OnCallerCompleted;
-        public event Action<Caller> OnCallerApproved;  // Fired when caller moves to on-hold
+		public bool CanAcceptMoreCallers => _incomingCallers.Count < 10; // Max 10 incoming callers
+		public bool CanPutOnHold => _onHoldCallers.Count < 10; // Max 10 on-hold callers
+		public bool IsScreening => _currentScreening != null;
+		public bool IsOnAir => _onAirCaller != null;
+		public Caller OnAirCaller => _onAirCaller;
+		public IReadOnlyList<Caller> IncomingCallers => _incomingCallers;
+		public IReadOnlyList<Caller> OnHoldCallers => _onHoldCallers;
+		public Caller CurrentScreening => _currentScreening;
+		public bool HasIncomingCallers => _incomingCallers.Count > 0;
+		public bool HasOnHoldCallers => _onHoldCallers.Count > 0;
 
         public override void _Process(double delta)
         {
@@ -71,7 +59,7 @@ namespace KBTV.Callers
 
             _incomingCallers.Add(caller);
 
-            OnCallerAdded?.Invoke(caller);
+            EmitSignal("CallerAdded", caller);
             return true;
         }
 
@@ -120,7 +108,7 @@ namespace KBTV.Callers
 
             Caller approved = _currentScreening;
             _currentScreening = null;
-            OnCallerApproved?.Invoke(approved);
+            EmitSignal("CallerApproved", approved);
             return true;
         }
 
@@ -138,7 +126,7 @@ namespace KBTV.Callers
             _currentScreening.SetState(CallerState.Rejected);
 
             UnsubscribeCaller(_currentScreening);
-            OnCallerRemoved?.Invoke(_currentScreening);
+            EmitSignal("CallerRemoved", _currentScreening);
             _currentScreening = null;
             return true;
         }
@@ -176,7 +164,7 @@ namespace KBTV.Callers
             _onHoldCallers.RemoveAt(0);
             _onAirCaller.SetState(CallerState.OnAir);
 
-            OnCallerOnAir?.Invoke(_onAirCaller);
+            EmitSignal("CallerOnAir", _onAirCaller);
             return _onAirCaller;
         }
 
@@ -195,7 +183,7 @@ namespace KBTV.Callers
             Caller completed = _onAirCaller;
 
             UnsubscribeCaller(_onAirCaller);
-            OnCallerCompleted?.Invoke(_onAirCaller);
+            EmitSignal("CallerCompleted", _onAirCaller);
             _onAirCaller = null;
             return completed;
         }
@@ -256,7 +244,7 @@ namespace KBTV.Callers
 
         private void HandleCallerDisconnected(Caller caller)
         {
-            OnCallerDisconnected?.Invoke(caller);
+            EmitSignal("CallerDisconnected", caller);
         }
     }
 }

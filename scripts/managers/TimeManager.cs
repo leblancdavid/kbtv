@@ -8,8 +8,12 @@ namespace KBTV.Managers
     /// Manages the in-game clock for the radio show.
     /// Handles time progression during live broadcasts.
     /// </summary>
-	public partial class TimeManager : Node
-    {
+ 	public partial class TimeManager : Node
+     {
+		[Signal] public delegate void TickEventHandler(float delta);
+		[Signal] public delegate void ShowEndedEventHandler();
+		[Signal] public delegate void RunningChangedEventHandler(bool isRunning);
+
 		public static TimeManager Instance => (TimeManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/TimeManager");
         [Export] private float _showDurationSeconds = 600f; // 10 minutes real-time
         [Export] private float _showDurationHours = 4f;
@@ -34,20 +38,7 @@ namespace KBTV.Managers
         /// </summary>
         public float CurrentHour => _showStartHour + (_showDurationHours * Progress);
 
-        /// <summary>
-        /// Fired every frame while the clock is running. Passes delta time.
-        /// </summary>
-        public event Action<float> OnTick;
 
-        /// <summary>
-        /// Fired when the show time runs out.
-        /// </summary>
-        public event Action OnShowEnded;
-
-        /// <summary>
-        /// Fired when time starts or stops.
-        /// </summary>
-        public event Action<bool> OnRunningChanged;
 
         public override void _Ready()
         {
@@ -63,7 +54,7 @@ namespace KBTV.Managers
             float deltaTime = (float)delta;
             _elapsedTime += deltaTime;
 
-            OnTick?.Invoke(deltaTime);
+            EmitSignal("Tick", deltaTime);
 
             if (_elapsedTime >= _showDurationSeconds)
             {
@@ -79,7 +70,7 @@ namespace KBTV.Managers
             if (_isRunning) return;
 
             _isRunning = true;
-            OnRunningChanged?.Invoke(true);
+            EmitSignal("RunningChanged", true);
         }
 
         /// <summary>
@@ -90,7 +81,7 @@ namespace KBTV.Managers
             if (!_isRunning) return;
 
             _isRunning = false;
-            OnRunningChanged?.Invoke(false);
+            EmitSignal("RunningChanged", false);
         }
 
         /// <summary>
@@ -108,7 +99,7 @@ namespace KBTV.Managers
         public void EndShow()
         {
             _isRunning = false;
-            OnShowEnded?.Invoke();
+            EmitSignal("ShowEnded");
         }
 
         private string GetFormattedTime()

@@ -47,7 +47,7 @@ namespace KBTV.UI
             if (gameState != null)
             {
                 // Connect to phase changes
-                gameState.Connect("PhaseChanged", Callable.From<int, int>((old, @new) => UpdateUIVisibility((GamePhase)old, (GamePhase)@new)));
+                gameState.Connect("PhaseChanged", Callable.From<int, int>(UpdateUIVisibility));
 
                 // Set initial visibility based on current phase - defer to ensure layers are registered
                 CallDeferred(nameof(UpdateInitialVisibility));
@@ -69,16 +69,19 @@ namespace KBTV.UI
             var gameState = GameStateManager.Instance;
             if (gameState != null)
             {
-                UpdateUIVisibility(GamePhase.PreShow, gameState.CurrentPhase);
+                UpdateUIVisibility((int)GamePhase.PreShow, (int)gameState.CurrentPhase);
             }
             else
             {
-                UpdateUIVisibility(GamePhase.PreShow, GamePhase.PreShow);
+                UpdateUIVisibility((int)GamePhase.PreShow, (int)GamePhase.PreShow);
             }
         }
 
-        private void UpdateUIVisibility(GamePhase oldPhase, GamePhase newPhase)
+        private void UpdateUIVisibility(int oldPhaseInt, int newPhaseInt)
         {
+            GamePhase oldPhase = (GamePhase)oldPhaseInt;
+            GamePhase newPhase = (GamePhase)newPhaseInt;
+
             // GD.Print($"UIManager: Updating UI visibility for phase {newPhase}");
 
             if (_preShowLayer == null || _liveShowLayer == null)
@@ -117,7 +120,7 @@ namespace KBTV.UI
             var gameState = GameStateManager.Instance;
             if (gameState != null)
             {
-                gameState.OnPhaseChanged -= UpdateUIVisibility;
+                gameState.Disconnect("PhaseChanged", Callable.From<int, int>(UpdateUIVisibility));
                 // GD.Print("UIManager: Disconnected from GameStateManager");
             }
         }

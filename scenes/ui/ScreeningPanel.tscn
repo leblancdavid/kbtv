@@ -1,0 +1,38 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3wvglfnhcdnr"]
+
+[ext_resource type="Script" path="res://scripts/ui/ScreeningPanel.cs" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="PanelStyle"]
+bg_color = Color(0.15, 0.15, 0.15, 1)
+
+[node name="ScreeningPanel" type="Panel"]
+script = ExtResource("1")
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HeaderLabel" type="Label" parent="VBoxContainer"]
+text = "SCREENING"
+horizontal_alignment = 1
+
+[node name="CallerInfoLabel" type="Label" parent="VBoxContainer"]
+text = "Caller info"
+autowrap_mode = 3
+
+[node name="Control" type="Control" parent="VBoxContainer"]
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+alignment = 1
+
+[node name="ApproveButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+text = "APPROVE"
+
+[node name="RejectButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+text = "REJECT"

@@ -274,7 +274,7 @@ namespace KBTV.UI
 			var gameState = GameStateManager.Instance;
 			if (gameState != null)
 			{
-				gameState.OnPhaseChanged += HandlePhaseChanged;
+				gameState.Connect("PhaseChanged", Callable.From<GamePhase, GamePhase>(HandlePhaseChanged));
 				HandlePhaseChanged(GamePhase.PreShow, gameState.CurrentPhase);
 			}
 		}

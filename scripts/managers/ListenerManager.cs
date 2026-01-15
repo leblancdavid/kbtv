@@ -11,8 +11,11 @@ namespace KBTV.Managers
     /// Listener count fluctuates based on VIBE (sigmoid curve) and caller quality.
     /// See docs/VERN_STATS.md for VIBE documentation.
     /// </summary>
-	public partial class ListenerManager : Node
-	{
+ 	public partial class ListenerManager : Node
+ 	{
+		[Signal] public delegate void ListenersChangedEventHandler(int oldCount, int newCount);
+		[Signal] public delegate void PeakReachedEventHandler(int newPeak);
+
 		public static ListenerManager Instance => (ListenerManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/ListenerManager");
         [Export] private int _baseListeners = 1000;
         [Export] private int _listenerVariance = 200;
@@ -41,15 +44,7 @@ namespace KBTV.Managers
         /// </summary>
         public int ListenerChange => _currentListeners - _startingListeners;
 
-        /// <summary>
-        /// Fired when listener count changes. (oldCount, newCount)
-        /// </summary>
-        public event Action<int, int> OnListenersChanged;
 
-        /// <summary>
-        /// Fired when a new peak is reached.
-        /// </summary>
-        public event Action<int> OnPeakReached;
 
         private GameStateManager _gameState;
         private TimeManager _timeManager;
@@ -63,18 +58,18 @@ namespace KBTV.Managers
 
 			if (_gameState != null)
 			{
-				_gameState.Connect("PhaseChanged", Callable.From<int, int>((old, @new) => HandlePhaseChanged((GamePhase)old, (GamePhase)@new)));
+				_gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
 			}
 
             if (_timeManager != null)
             {
-                _timeManager.OnTick += HandleTick;
+                _timeManager.Connect("Tick", Callable.From<float>(HandleTick));
             }
 
             if (_callerQueue != null)
             {
-                _callerQueue.OnCallerCompleted += HandleCallerCompleted;
-                _callerQueue.OnCallerDisconnected += HandleCallerDisconnected;
+                _callerQueue.Connect("CallerCompleted", Callable.From<Caller>(HandleCallerCompleted));
+                _callerQueue.Connect("CallerDisconnected", Callable.From<Caller>(HandleCallerDisconnected));
             }
         }
 
@@ -82,23 +77,26 @@ namespace KBTV.Managers
         {
             if (_gameState != null)
             {
-                _gameState.OnPhaseChanged -= HandlePhaseChanged;
+                _gameState.Disconnect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
             }
 
             if (_timeManager != null)
             {
-                _timeManager.OnTick -= HandleTick;
+                _timeManager.Disconnect("Tick", Callable.From<float>(HandleTick));
             }
 
             if (_callerQueue != null)
             {
-                _callerQueue.OnCallerCompleted -= HandleCallerCompleted;
-                _callerQueue.OnCallerDisconnected -= HandleCallerDisconnected;
+                _callerQueue.Disconnect("CallerCompleted", Callable.From<Caller>(HandleCallerCompleted));
+                _callerQueue.Disconnect("CallerDisconnected", Callable.From<Caller>(HandleCallerDisconnected));
             }
         }
 
-        private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
+        private void HandlePhaseChanged(int oldPhaseInt, int newPhaseInt)
         {
+            GamePhase oldPhase = (GamePhase)oldPhaseInt;
+            GamePhase newPhase = (GamePhase)newPhaseInt;
+
             if (newPhase == GamePhase.LiveShow)
             {
                 InitializeListeners();
@@ -114,7 +112,7 @@ namespace KBTV.Managers
             _peakListeners = _startingListeners;
             _accumulatedGrowth = 0f;
 
-            OnListenersChanged?.Invoke(0, _currentListeners);
+            EmitSignal("ListenersChanged", 0, _currentListeners);
         }
 
         private void HandleTick(float deltaTime)
@@ -177,12 +175,12 @@ namespace KBTV.Managers
 
             if (_currentListeners != oldCount)
             {
-                OnListenersChanged?.Invoke(oldCount, _currentListeners);
+                EmitSignal("ListenersChanged", oldCount, _currentListeners);
 
                 if (_currentListeners > _peakListeners)
                 {
                     _peakListeners = _currentListeners;
-                    OnPeakReached?.Invoke(_peakListeners);
+                    EmitSignal("PeakReached", _peakListeners);
                 }
             }
         }

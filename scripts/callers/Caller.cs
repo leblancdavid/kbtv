@@ -194,7 +194,7 @@ namespace KBTV.Callers
     /// Contains all info the player uses to screen them.
     /// </summary>
     [Serializable]
-    public partial class Caller
+    public partial class Caller : Resource
     {
         // Identity
         private string _name;

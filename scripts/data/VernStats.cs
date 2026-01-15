@@ -10,6 +10,10 @@ namespace KBTV.Data
 	/// </summary>
 	public partial class VernStats : Resource
 	{
+		[Signal] public delegate void StatsChangedEventHandler();
+		[Signal] public delegate void VibeChangedEventHandler(float newVibe);
+		[Signal] public delegate void MoodTypeChangedEventHandler(VernMoodType newMood);
+
 		// ═══════════════════════════════════════════════════════════════════════════════
 		// DEPENDENCIES - Decay-only, cause withdrawal when low
 		// ═══════════════════════════════════════════════════════════════════════════════
@@ -96,20 +100,7 @@ namespace KBTV.Data
 		// Public accessors - Long-Term
 		public Stat Skepticism => _skepticism;
 
-		/// <summary>
-		/// Event fired when any stat changes. Useful for UI updates.
-		/// </summary>
-		public event Action OnStatsChanged;
 
-		/// <summary>
-		/// Event fired when VIBE changes significantly.
-		/// </summary>
-		public event Action<float> OnVibeChanged;
-
-		/// <summary>
-		/// Event fired when mood type changes.
-		/// </summary>
-		public event Action<VernMoodType> OnMoodTypeChanged;
 
 		private VernMoodType _currentMoodType = VernMoodType.Neutral;
 		private float _lastVibe = 0f;
@@ -151,7 +142,7 @@ namespace KBTV.Data
 			_currentMoodType = VernMoodType.Neutral;
 			_lastVibe = CalculateVIBE();
 
-			OnStatsChanged?.Invoke();
+			EmitSignal("StatsChanged");
 		}
 
 		private void SubscribeToStatChanges()
@@ -170,14 +161,14 @@ namespace KBTV.Data
 
 		private void NotifyStatsChanged(float oldVal, float newVal)
 		{
-			OnStatsChanged?.Invoke();
+			EmitSignal("StatsChanged");
 
 			// Check for VIBE change
 			float newVibe = CalculateVIBE();
 			if (Mathf.Abs(newVibe - _lastVibe) > 0.01f)
 			{
 				_lastVibe = newVibe;
-				OnVibeChanged?.Invoke(_lastVibe);
+				EmitSignal("VibeChanged", _lastVibe);
 			}
 
 			// Check for mood type change
@@ -185,7 +176,7 @@ namespace KBTV.Data
 			if (newMoodType != _currentMoodType)
 			{
 				_currentMoodType = newMoodType;
-				OnMoodTypeChanged?.Invoke(_currentMoodType);
+				EmitSignal("MoodTypeChanged", (int)_currentMoodType);
 			}
 		}
 

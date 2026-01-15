@@ -54,7 +54,7 @@ namespace KBTV.Callers
 
 			if (_gameState != null)
 			{
-				_gameState.Connect("PhaseChanged", Callable.From<int, int>((old, @new) => HandlePhaseChanged((GamePhase)old, (GamePhase)@new)));
+				_gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
 
                 // Check if we're already in LiveShow
                 if (_gameState.CurrentPhase == GamePhase.LiveShow)
@@ -68,7 +68,7 @@ namespace KBTV.Callers
         {
             if (_gameState != null)
             {
-                _gameState.OnPhaseChanged -= HandlePhaseChanged;
+                _gameState.Disconnect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
             }
         }
 
@@ -205,8 +205,11 @@ namespace KBTV.Callers
             }
         }
 
-        private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
+        private void HandlePhaseChanged(int oldPhaseInt, int newPhaseInt)
         {
+            GamePhase oldPhase = (GamePhase)oldPhaseInt;
+            GamePhase newPhase = (GamePhase)newPhaseInt;
+
             if (newPhase == GamePhase.LiveShow)
             {
                 StartGenerating();
