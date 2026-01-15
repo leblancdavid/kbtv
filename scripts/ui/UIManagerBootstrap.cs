@@ -92,6 +92,8 @@ namespace KBTV.UI
                 new TabDefinition { Name = "STATS", PopulateContent = PopulateStatsContent }
             };
 
+            GD.Print($"UIManagerBootstrap: Created {_tabs.Count} tabs");
+
             CreateUI();
 
             // Get manager references
@@ -100,9 +102,19 @@ namespace KBTV.UI
             _listenerManager = ListenerManager.Instance;
             _callerQueue = CallerQueue.Instance;
 
+            GD.Print($"UIManagerBootstrap._Ready: Managers loaded - GameState: {_gameState != null}, CallerQueue: {_callerQueue != null}");
+
             // Initialize caller tab manager
-            _callerTabManager = new CallerTabManager(_callerQueue, this);
-            GD.Print($"CallerTabManager initialized: {_callerTabManager != null}");
+            try
+            {
+                _callerTabManager = new CallerTabManager(_callerQueue, this);
+                GD.Print($"CallerTabManager initialized: {_callerTabManager != null}");
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"CallerTabManager initialization failed: {ex.Message}\n{ex.StackTrace}");
+                _callerTabManager = null;
+            }
 
             // Initialize factories
             _panelFactory = new PanelFactory(_callerQueue, this);
@@ -128,9 +140,18 @@ namespace KBTV.UI
 				// TabContainer already loaded from scene, populate with tabs
 				for (int i = 0; i < _tabs.Count; i++)
 				{
+					GD.Print($"InitializeTabController: Creating tab {i} - {_tabs[i].Name}");
 					var tabContent = CreateTabContent(_tabs[i]);
-					_tabContainer.AddChild(tabContent);
-					_tabContainer.SetTabTitle(i, _tabs[i].Name);
+					if (tabContent != null)
+					{
+						_tabContainer.AddChild(tabContent);
+						_tabContainer.SetTabTitle(i, _tabs[i].Name);
+						GD.Print($"InitializeTabController: Added tab {i} successfully");
+					}
+					else
+					{
+						GD.PrintErr($"InitializeTabController: Failed to create content for tab {i} - {_tabs[i].Name}");
+					}
 				}
 
 				GD.Print("TabContainer initialized successfully");
@@ -206,6 +227,8 @@ namespace KBTV.UI
 
         private void CreateUI()
         {
+            GD.Print("UIManagerBootstrap.CreateUI: Starting UI creation");
+
             try
             {
                 // GD.Print("UIManagerBootstrap: CreateUI started");
@@ -238,6 +261,7 @@ namespace KBTV.UI
                 _rootContainer.AddChild(footer);
 
                 // Initialize tab controller immediately now that UI is created
+                GD.Print("UIManagerBootstrap: Calling InitializeTabController");
                 InitializeTabController();
 
                 // GD.Print("UIManagerBootstrap: Full UI created successfully");
@@ -253,16 +277,31 @@ namespace KBTV.UI
 
 		private Control CreateMainContent()
 		{
+			GD.Print("UIManagerBootstrap.CreateMainContent: Loading TabContainerUI.tscn");
+
 			// Load the scene-based tab container
-			var tabContainerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/TabContainerUI.tscn");
+			string scenePath = "res://scenes/ui/TabContainerUI.tscn";
+			var tabContainerScene = ResourceLoader.Load<PackedScene>(scenePath);
+			GD.Print($"UIManagerBootstrap: TabContainer scene loaded: {tabContainerScene != null}, path exists: {ResourceLoader.Exists(scenePath)}");
+
 			if (tabContainerScene != null)
 			{
 				var mainContent = tabContainerScene.Instantiate<TabContainer>();
-				mainContent.Name = "MainContent";
-				// Store references
-				_mainContent = mainContent;
-				_tabContainer = mainContent;
-				return mainContent;
+				GD.Print($"UIManagerBootstrap: TabContainer instantiated: {mainContent != null}");
+
+				if (mainContent != null)
+				{
+					mainContent.Name = "MainContent";
+					// Store references
+					_mainContent = mainContent;
+					_tabContainer = mainContent;
+					GD.Print("UIManagerBootstrap: TabContainer setup complete");
+					return mainContent;
+				}
+				else
+				{
+					GD.PrintErr("UIManagerBootstrap: TabContainer instantiation failed");
+				}
 			}
 			else
 			{
@@ -270,6 +309,8 @@ namespace KBTV.UI
 				GD.PrintErr("Failed to load TabContainerUI.tscn, using fallback");
 				return CreateMainContentFallback();
 			}
+
+			return null;
 		}
 
 		private Control CreateMainContentFallback()
