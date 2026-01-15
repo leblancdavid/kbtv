@@ -102,6 +102,7 @@ namespace KBTV.UI
 
             // Initialize caller tab manager
             _callerTabManager = new CallerTabManager(_callerQueue, this);
+            GD.Print($"CallerTabManager initialized: {_callerTabManager != null}");
 
             // Initialize factories
             _panelFactory = new PanelFactory(_callerQueue, this);
@@ -550,6 +551,7 @@ namespace KBTV.UI
 		// Content population methods for tabs
 		private void PopulateCallersTab(Control contentArea)
 		{
+			GD.Print($"PopulateCallersTab called: manager null={_callerTabManager == null}, contentArea null={contentArea == null}");
 			_callerTabManager?.PopulateContent(contentArea);
 		}
 

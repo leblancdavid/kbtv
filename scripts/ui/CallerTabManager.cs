@@ -46,13 +46,15 @@ namespace KBTV.UI
         /// <summary>
         /// Populate the caller tab content area
         /// </summary>
-        public void PopulateContent(Control contentArea)
-        {
-            try
-            {
-                _currentContentArea = contentArea ?? throw new ArgumentNullException(nameof(contentArea));
+		public void PopulateContent(Control contentArea)
+		{
+			GD.Print($"CallerTabManager.PopulateContent called: contentArea null={contentArea == null}");
 
-                GD.Print("CallerTabManager: Populating caller content");
+			try
+			{
+				_currentContentArea = contentArea ?? throw new ArgumentNullException(nameof(contentArea));
+
+				GD.Print("CallerTabManager: Creating MarginContainer...");
 
                 if (_callerQueue == null)
                 {
@@ -63,11 +65,21 @@ namespace KBTV.UI
                 // Clear any existing content
                 ClearContentArea(contentArea);
 
-                // Create main container
-                _mainContainer = CreateMainContainer();
-                contentArea.AddChild(_mainContainer);
+				// Create main container
+				GD.Print("CallerTabManager: Calling CreateMainContainer...");
+				_mainContainer = CreateMainContainer();
+				GD.Print($"CallerTabManager: CreateMainContainer returned: {_mainContainer != null}");
 
-                GD.Print($"CallerTabManager: Created main container with {_mainContainer.GetChildCount()} children");
+				if (_mainContainer != null)
+				{
+					GD.Print("CallerTabManager: Adding main container to contentArea...");
+					contentArea.AddChild(_mainContainer);
+					GD.Print($"CallerTabManager: Created main container with {_mainContainer.GetChildCount()} children");
+				}
+				else
+				{
+					GD.PrintErr("CallerTabManager: CreateMainContainer returned null!");
+				}
             }
             catch (Exception ex)
             {
@@ -117,74 +129,142 @@ namespace KBTV.UI
             }
         }
 
-    private Control CreateMainContainer()
-    {
-        // MarginContainer provides padding and ensures full size usage
-        var marginContainer = new MarginContainer();
-        marginContainer.Name = "CallerTabMarginContainer";
-        marginContainer.AddThemeConstantOverride("margin_left", 10);
-        marginContainer.AddThemeConstantOverride("margin_top", 10);
-        marginContainer.AddThemeConstantOverride("margin_right", 10);
-        marginContainer.AddThemeConstantOverride("margin_bottom", 10);
+		private Control CreateMainContainer()
+		{
+			GD.Print("CallerTabManager.CreateMainContainer: Starting...");
 
-        // HBoxContainer distributes panels horizontally
-        var mainContainer = new HBoxContainer();
-        mainContainer.Name = "CallersMainContainer";
-        // Removed minimum size constraint to allow full expansion
-        mainContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        mainContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			try
+			{
+				// MarginContainer provides padding and ensures full size usage
+				var marginContainer = new MarginContainer();
+				marginContainer.Name = "CallerTabMarginContainer";
+				GD.Print("CallerTabManager: Created MarginContainer");
 
-        // Left panel: Incoming callers with vertical scrolling (25% width)
-        var incomingScroll = CreateScrollableCallerPanel("INCOMING CALLERS", _callerQueue.IncomingCallers, new Color(1f, 0.7f, 0f), new Color(0.8f, 0.8f, 0.8f));
-        incomingScroll.SizeFlagsStretchRatio = 1; // 25%
-        mainContainer.AddChild(incomingScroll);
+				marginContainer.AddThemeConstantOverride("margin_left", 10);
+				marginContainer.AddThemeConstantOverride("margin_top", 10);
+				marginContainer.AddThemeConstantOverride("margin_right", 10);
+				marginContainer.AddThemeConstantOverride("margin_bottom", 10);
+				GD.Print("CallerTabManager: Set margin constants");
 
-        // Middle panel: Screening controls (50% width)
-        var screeningPanel = CreateScreeningPanelScene();
-        screeningPanel.SizeFlagsStretchRatio = 2; // 50%
-        mainContainer.AddChild(screeningPanel);
+				// HBoxContainer distributes panels horizontally
+				var mainContainer = new HBoxContainer();
+				mainContainer.Name = "CallersMainContainer";
+				// Removed minimum size constraint to allow full expansion
+				mainContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+				mainContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+				GD.Print("CallerTabManager: Created HBoxContainer");
 
-        // Right panel: On-hold callers with vertical scrolling (25% width)
-        var onHoldScroll = CreateScrollableCallerPanel("ON HOLD", _callerQueue.OnHoldCallers, new Color(0f, 0.7f, 1f), new Color(0.6f, 0.6f, 0.6f));
-        onHoldScroll.SizeFlagsStretchRatio = 1; // 25%
-        mainContainer.AddChild(onHoldScroll);
+				// Left panel: Incoming callers with vertical scrolling (25% width)
+				GD.Print("CallerTabManager: Creating incoming callers panel...");
+				var incomingScroll = CreateScrollableCallerPanel("INCOMING CALLERS", _callerQueue.IncomingCallers, new Color(1f, 0.7f, 0f), new Color(0.8f, 0.8f, 0.8f));
+				if (incomingScroll != null)
+				{
+					incomingScroll.SizeFlagsStretchRatio = 1; // 25%
+					mainContainer.AddChild(incomingScroll);
+					GD.Print("CallerTabManager: Added incoming callers panel");
+				}
+				else
+				{
+					GD.PrintErr("CallerTabManager: Incoming callers panel creation failed!");
+				}
 
-        marginContainer.AddChild(mainContainer);
-        return marginContainer;
+				// Middle panel: Screening controls (50% width)
+				GD.Print("CallerTabManager: Creating screening panel...");
+				var screeningPanel = CreateScreeningPanelScene();
+				if (screeningPanel != null)
+				{
+					screeningPanel.SizeFlagsStretchRatio = 2; // 50%
+					mainContainer.AddChild(screeningPanel);
+					GD.Print("CallerTabManager: Added screening panel");
+				}
+				else
+				{
+					GD.PrintErr("CallerTabManager: Screening panel creation failed!");
+				}
+
+				// Right panel: On-hold callers with vertical scrolling (25% width)
+				GD.Print("CallerTabManager: Creating on-hold callers panel...");
+				var onHoldScroll = CreateScrollableCallerPanel("ON HOLD", _callerQueue.OnHoldCallers, new Color(0f, 0.7f, 1f), new Color(0.6f, 0.6f, 0.6f));
+				if (onHoldScroll != null)
+				{
+					onHoldScroll.SizeFlagsStretchRatio = 1; // 25%
+					mainContainer.AddChild(onHoldScroll);
+					GD.Print("CallerTabManager: Added on-hold callers panel");
+				}
+				else
+				{
+					GD.PrintErr("CallerTabManager: On-hold callers panel creation failed!");
+				}
+
+				marginContainer.AddChild(mainContainer);
+				GD.Print($"CallerTabManager: CreateMainContainer completed successfully with {mainContainer.GetChildCount()} panels");
+				return marginContainer;
+			}
+			catch (Exception ex)
+			{
+				GD.PrintErr($"CallerTabManager.CreateMainContainer failed: {ex.Message}\n{ex.StackTrace}");
+				return null;
+			}
     }
 
-    private Control CreateScrollableCallerPanel(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
-    {
-        var scrollContainer = new ScrollContainer();
-        scrollContainer.Name = $"{headerText.Replace(" ", "")}ScrollContainer";
-        scrollContainer.ScrollHorizontal = (int)ScrollContainer.ScrollMode.Disabled; // No horizontal scrolling
-        scrollContainer.ScrollVertical = (int)ScrollContainer.ScrollMode.Auto; // Auto vertical scrolling
-        scrollContainer.CustomMinimumSize = new Vector2(200, 300); // Minimum size for caller panels
+		private Control CreateScrollableCallerPanel(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
+		{
+			GD.Print($"CallerTabManager.CreateScrollableCallerPanel: Creating '{headerText}' panel");
 
-        var callerPanel = CreateCallerPanelScene(headerText, callers, headerColor, itemColor);
-        if (callerPanel != null)
-        {
-            scrollContainer.AddChild(callerPanel);
-        }
+			try
+			{
+				var scrollContainer = new ScrollContainer();
+				scrollContainer.Name = $"{headerText.Replace(" ", "")}ScrollContainer";
+				scrollContainer.ScrollHorizontal = (int)ScrollContainer.ScrollMode.Disabled; // No horizontal scrolling
+				scrollContainer.ScrollVertical = (int)ScrollContainer.ScrollMode.Auto; // Auto vertical scrolling
+				scrollContainer.CustomMinimumSize = new Vector2(200, 300); // Minimum size for caller panels
+				GD.Print("CallerTabManager: Created ScrollContainer");
 
-        return scrollContainer;
-    }
+				var callerPanel = CreateCallerPanelScene(headerText, callers, headerColor, itemColor);
+				if (callerPanel != null)
+				{
+					scrollContainer.AddChild(callerPanel);
+					GD.Print($"CallerTabManager: Added caller panel to ScrollContainer");
+				}
+				else
+				{
+					GD.PrintErr("CallerTabManager: CreateCallerPanelScene returned null!");
+				}
 
-    private Control CreateCallerPanelScene(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
-        {
-            try
-            {
-                var scene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerPanel.tscn");
-                if (scene != null)
-                {
-                    var panel = scene.Instantiate<CallerPanel>();
-                    if (panel != null)
-                    {
-                        panel.SetHeader(headerText, headerColor);
-                        panel.SetCallers(callers, itemColor);
-                        return panel;
-                    }
-                }
+				return scrollContainer;
+			}
+			catch (Exception ex)
+			{
+				GD.PrintErr($"CallerTabManager.CreateScrollableCallerPanel failed: {ex.Message}");
+				return null;
+			}
+		}
+
+		private Control CreateCallerPanelScene(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
+		{
+			GD.Print($"CallerTabManager.CreateCallerPanelScene: Loading scene for '{headerText}'");
+
+			try
+			{
+				string scenePath = "res://scenes/ui/CallerPanel.tscn";
+				var scene = ResourceLoader.Load<PackedScene>(scenePath);
+				GD.Print($"CallerTabManager: Scene loaded: {scene != null}, path exists: {ResourceLoader.Exists(scenePath)}");
+
+				if (scene != null)
+				{
+					var panel = scene.Instantiate<CallerPanel>();
+					GD.Print($"CallerTabManager: Panel instantiated: {panel != null}");
+
+					if (panel != null)
+					{
+						GD.Print($"CallerTabManager: Calling SetHeader with '{headerText}'");
+						panel.SetHeader(headerText, headerColor);
+						GD.Print("CallerTabManager: Calling SetCallers");
+						panel.SetCallers(callers, itemColor);
+						GD.Print("CallerTabManager: Panel creation successful");
+						return panel;
+					}
+				}
 
                 // Fallback to programmatic creation
                 GD.Print("CallerTabManager: Using fallback panel creation");
@@ -197,38 +277,50 @@ namespace KBTV.UI
             }
         }
 
-        private Control CreateScreeningPanelScene()
-        {
-            try
-            {
-                var scene = ResourceLoader.Load<PackedScene>("res://scenes/ui/ScreeningPanel.tscn");
-                if (scene != null)
-                {
-                    var panel = scene.Instantiate<ScreeningPanel>();
-                    if (panel != null)
-                    {
-                        // Ensure proper sizing for the panel
-                        panel.CustomMinimumSize = new Vector2(300, 300); // Minimum screening panel size
+		private Control CreateScreeningPanelScene()
+		{
+			GD.Print("CallerTabManager.CreateScreeningPanelScene: Loading screening panel");
 
-                        // Set caller info
-                        if (_callerQueue.IsScreening)
-                        {
-                            panel.SetCaller(_callerQueue.CurrentScreening);
-                        }
-                        else
-                        {
-                            panel.SetCaller(null);
-                        }
+			try
+			{
+				string scenePath = "res://scenes/ui/ScreeningPanel.tscn";
+				var scene = ResourceLoader.Load<PackedScene>(scenePath);
+				GD.Print($"CallerTabManager: Screening scene loaded: {scene != null}, path exists: {ResourceLoader.Exists(scenePath)}");
 
-                        // Connect buttons
-                        panel.ConnectButtons(
-                            Callable.From(() => OnApprovePressed()),
-                            Callable.From(() => OnRejectPressed())
-                        );
+				if (scene != null)
+				{
+					var panel = scene.Instantiate<ScreeningPanel>();
+					GD.Print($"CallerTabManager: Screening panel instantiated: {panel != null}");
 
-                        return panel;
-                    }
-                }
+					if (panel != null)
+					{
+						// Ensure proper sizing for the panel
+						panel.CustomMinimumSize = new Vector2(300, 300); // Minimum screening panel size
+						GD.Print("CallerTabManager: Set screening panel size");
+
+						// Set caller info
+						if (_callerQueue.IsScreening)
+						{
+							GD.Print("CallerTabManager: Setting current screening caller");
+							panel.SetCaller(_callerQueue.CurrentScreening);
+						}
+						else
+						{
+							GD.Print("CallerTabManager: No caller screening, setting null");
+							panel.SetCaller(null);
+						}
+
+						// Connect buttons
+						GD.Print("CallerTabManager: Connecting screening panel buttons");
+						panel.ConnectButtons(
+							Callable.From(() => OnApprovePressed()),
+							Callable.From(() => OnRejectPressed())
+						);
+
+						GD.Print("CallerTabManager: Screening panel creation successful");
+						return panel;
+					}
+				}
 
                 // Fallback would go here if needed
                 GD.PrintErr("CallerTabManager: Failed to create screening panel");
