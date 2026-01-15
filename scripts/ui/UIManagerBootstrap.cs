@@ -524,10 +524,65 @@ namespace KBTV.UI
 		{
 			GD.Print("PopulateCallersContent called");
 
-			// Temporary simple test
-			var testLabel = new Label();
-			testLabel.Text = "Callers Tab Test";
-			contentArea.AddChild(testLabel);
+			if (_callerQueue == null)
+			{
+				var errorLabel = new Label();
+				errorLabel.Text = "CallerQueue not available";
+				contentArea.AddChild(errorLabel);
+				return;
+			}
+
+			var mainContainer = new HBoxContainer();
+			mainContainer.Name = "CallersMainContainer";
+			mainContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			mainContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+
+			// Left panel: Incoming callers (25% width)
+			var incomingPanel = CreateCallerPanelScene("INCOMING CALLERS", _callerQueue.IncomingCallers, new Color(1f, 0.7f, 0f), new Color(0.8f, 0.8f, 0.8f));
+			if (incomingPanel != null)
+			{
+				incomingPanel.SizeFlagsStretchRatio = 1; // 25%
+				mainContainer.AddChild(incomingPanel);
+			}
+
+			// Middle panel: Screening controls (50% width)
+			var screeningPanel = CreateScreeningPanel();
+			screeningPanel.SizeFlagsStretchRatio = 2; // 50%
+			mainContainer.AddChild(screeningPanel);
+
+			// Right panel: On-hold callers (25% width)
+			var onHoldPanel = CreateCallerPanelScene("ON HOLD", _callerQueue.OnHoldCallers, new Color(0f, 0.7f, 1f), new Color(0.6f, 0.6f, 0.6f));
+			if (onHoldPanel != null)
+			{
+				onHoldPanel.SizeFlagsStretchRatio = 1; // 25%
+				mainContainer.AddChild(onHoldPanel);
+			}
+
+			GD.Print($"Created mainContainer with {mainContainer.GetChildCount()} children");
+
+			contentArea.AddChild(mainContainer);
+		}
+
+		private Control CreateCallerPanelScene(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
+		{
+			var scene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerPanel.tscn");
+			if (scene != null)
+			{
+				var panel = scene.Instantiate<CallerPanel>();
+				if (panel != null)
+				{
+					panel.SetHeader(headerText, headerColor);
+					panel.SetCallers(callers, itemColor);
+					return panel;
+				}
+			}
+			// Fallback to programmatic
+			return CreateCallerPanelFallback(headerText, callers, headerColor, itemColor);
+		}
+
+		private Control CreateCallerPanelFallback(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
+		{
+			return CreateCallerPanel("FallbackPanel", headerText, callers, headerColor, itemColor);
 		}
 
 		private Control CreateCallerPanel(string name, string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
