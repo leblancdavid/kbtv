@@ -9,6 +9,8 @@ namespace KBTV.UI
     /// </summary>
     public partial class UIManager : Node
     {
+        public static UIManager Instance => (UIManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/UIManager");
+
         private CanvasLayer _preShowLayer;
         private CanvasLayer _liveShowLayer;
 

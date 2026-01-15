@@ -29,6 +29,7 @@ namespace KBTV.UI
 		private List<TabDefinition> _tabs;
 
 		// Canvas and managers
+		private CanvasLayer _canvas;
 		private VBoxContainer _rootContainer;
 		private Control _mainContent;
 		private LiveShowHeader _liveShowHeader;
@@ -54,78 +55,68 @@ namespace KBTV.UI
 		private PanelFactory _panelFactory;
 		private DisplayManager _displayManager;
 
-        public override void _Ready()
-        {
-            GD.Print("UIManagerBootstrap._Ready called");
-            base._Ready();
+		public override void _Ready()
+		{
+			try
+			{
+				GD.Print("UIManagerBootstrap._Ready called");
 
-            // Create our own CanvasLayer and container programmatically
-            var canvasLayer = new CanvasLayer();
-            canvasLayer.Name = "LiveShowCanvasLayer";
-            canvasLayer.Layer = 5; // Lower layer for LiveShow
-            AddChild(canvasLayer);
-            GD.Print("UIManagerBootstrap: CanvasLayer created");
+				// Get manager references FIRST
+				_gameState = GameStateManager.Instance;
+				_timeManager = TimeManager.Instance;
+				_listenerManager = ListenerManager.Instance;
+				_callerQueue = CallerQueue.Instance;
 
-            // Register with UIManager
-            var uiManager = GetNode<UIManager>("/root/Main/UIManager");
-            if (uiManager != null)
-            {
-                uiManager.RegisterLiveShowLayer(canvasLayer);
-            }
-            else
-            {
-                GD.PrintErr("UIManagerBootstrap: Could not find UIManager node");
-            }
+				GD.Print($"UIManagerBootstrap._Ready: Managers loaded - GameState: {_gameState != null}, CallerQueue: {_callerQueue != null}");
 
-            _rootContainer = new VBoxContainer();
-            _rootContainer.Name = "LiveShowContainer";
-            _rootContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-            _rootContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            _rootContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            canvasLayer.AddChild(_rootContainer);
+				// Initialize caller tab manager
+				try
+				{
+					_callerTabManager = new CallerTabManager(_callerQueue, this);
+					GD.Print($"CallerTabManager initialized: {_callerTabManager != null}");
+				}
+				catch (Exception ex)
+				{
+					GD.PrintErr($"CallerTabManager initialization failed: {ex.Message}\n{ex.StackTrace}");
+					_callerTabManager = null;
+				}
 
-            // Create tabs list
-            _tabs = new List<TabDefinition>
-            {
-                new TabDefinition { Name = "CALLERS", PopulateContent = PopulateCallersTab },
-                new TabDefinition { Name = "ITEMS", PopulateContent = PopulateItemsContent },
-                new TabDefinition { Name = "STATS", PopulateContent = PopulateStatsContent }
-            };
+				// Create canvas layer
+				_canvas = new CanvasLayer();
+				_canvas.Layer = 100; // Above other UI
+				AddChild(_canvas);
 
-            GD.Print($"UIManagerBootstrap: Created {_tabs.Count} tabs");
+				// Create root container
+				_rootContainer = new VBoxContainer();
+				_rootContainer.Name = "RootContainer";
+				_rootContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+				_canvas.AddChild(_rootContainer);
 
-            CreateUI();
+				UIManager.Instance.RegisterLiveShowLayer(_canvas);
 
-            // Get manager references
-            _gameState = GameStateManager.Instance;
-            _timeManager = TimeManager.Instance;
-            _listenerManager = ListenerManager.Instance;
-            _callerQueue = CallerQueue.Instance;
+				// Create tabs list
+				_tabs = new List<TabDefinition>
+				{
+					new TabDefinition { Name = "CALLERS", PopulateContent = PopulateCallersTab },
+					new TabDefinition { Name = "ITEMS", PopulateContent = PopulateItemsContent },
+					new TabDefinition { Name = "STATS", PopulateContent = PopulateStatsContent }
+				};
 
-            GD.Print($"UIManagerBootstrap._Ready: Managers loaded - GameState: {_gameState != null}, CallerQueue: {_callerQueue != null}");
+				GD.Print($"UIManagerBootstrap: Created {_tabs.Count} tabs");
 
-            // Initialize caller tab manager
-            try
-            {
-                _callerTabManager = new CallerTabManager(_callerQueue, this);
-                GD.Print($"CallerTabManager initialized: {_callerTabManager != null}");
-            }
-            catch (Exception ex)
-            {
-                GD.PrintErr($"CallerTabManager initialization failed: {ex.Message}\n{ex.StackTrace}");
-                _callerTabManager = null;
-            }
+				CreateUI();
 
-            // Initialize factories
-            _panelFactory = new PanelFactory(_callerQueue, this);
-            _displayManager = new DisplayManager(this);
+				SubscribeToEvents();
+				_displayManager.RefreshAllDisplays();
+				GD.Print("UIManagerBootstrap._Ready completed");
 
-            SubscribeToEvents();
-            _displayManager.RefreshAllDisplays();
-            GD.Print("UIManagerBootstrap._Ready completed");
-
-            // Pre-populate STATS content will be called after tab controller initialization
-        }
+				// Pre-populate STATS content will be called after tab controller initialization
+			}
+			catch (Exception ex)
+			{
+				GD.PrintErr($"UIManagerBootstrap._Ready failed: {ex.Message}\n{ex.StackTrace}");
+			}
+		}
 
 		public override void _ExitTree()
 		{
