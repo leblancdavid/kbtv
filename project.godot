@@ -24,7 +24,7 @@ EconomyManager="res://scripts/economy/EconomyManager.cs"
 CallerQueue="res://scripts/callers/CallerQueue.cs"
 CallerGenerator="res://scripts/callers/CallerGenerator.cs"
 SaveManager="res://scripts/persistence/SaveManager.cs"
-UIManagerBootstrap="res://scripts/ui/UIManagerBootstrap.cs"
+TabContainerManager="res://scripts/ui/TabContainerManager.cs"
 PreShowUIManager="res://scripts/ui/PreShowUIManager.cs"
 
 [display]

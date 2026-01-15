@@ -102,10 +102,9 @@ namespace KBTV.UI
 				// Defer UIManager registration to ensure it's ready
 				CallDeferred(nameof(RegisterWithUIManager));
 
-				// Create tabs list
+				// Create tabs list (Callers tab is now handled by TabContainerManager)
 				_tabs = new List<TabDefinition>
 				{
-					new TabDefinition { Name = "CALLERS", PopulateContent = PopulateCallersTab },
 					new TabDefinition { Name = "ITEMS", PopulateContent = PopulateItemsContent },
 					new TabDefinition { Name = "STATS", PopulateContent = PopulateStatsContent }
 				};
@@ -589,11 +588,6 @@ namespace KBTV.UI
 		}
 
 		// Content population methods for tabs
-		private void PopulateCallersTab(Control contentArea)
-		{
-			GD.Print($"PopulateCallersTab called: manager null={_callerTabManager == null}, contentArea null={contentArea == null}");
-			_callerTabManager?.PopulateContent(contentArea);
-		}
 
 
 		private void PopulateItemsContent(Control contentArea)
