@@ -13,6 +13,7 @@ namespace KBTV.UI.Controllers
         // Tab buttons and content containers (dynamically created)
         private List<Button> _tabButtons = new List<Button>();
         private List<Control> _tabContents = new List<Control>();
+        private List<ScrollContainer> _tabScrolls = new List<ScrollContainer>();
 
         private int _currentTab = 0;
 
@@ -24,14 +25,18 @@ namespace KBTV.UI.Controllers
 
         public void Initialize(Control parent)
         {
+            GD.Print("TabController.Initialize called");
             _parent = parent;
             CreateTabSection();
+            GD.Print("TabController: TabSection created");
             // Set default active tab (CALLERS at index 0)
             SwitchTab(0);
         }
 
         public void SwitchTab(int tabIndex)
         {
+            GD.Print($"SwitchTab called with index {tabIndex}");
+
             if (_currentTab == tabIndex || tabIndex < 0 || tabIndex >= _tabs.Count) return;
 
             // Reset all tab button colors
@@ -53,12 +58,12 @@ namespace KBTV.UI.Controllers
                 _tabButtons[tabIndex].AddThemeStyleboxOverride("normal", styleBox);
             }
 
-            // Show/hide tab content
-            for (int i = 0; i < _tabContents.Count; i++)
+            // Show/hide tab scroll containers
+            for (int i = 0; i < _tabScrolls.Count; i++)
             {
-                if (_tabContents[i] != null)
+                if (_tabScrolls[i] != null)
                 {
-                    _tabContents[i].Visible = i == tabIndex;
+                    _tabScrolls[i].Visible = i == tabIndex;
                 }
             }
 
@@ -70,6 +75,8 @@ namespace KBTV.UI.Controllers
 
         public void RefreshTabContent(int tabIndex)
         {
+            GD.Print($"RefreshTabContent called for tab {tabIndex}");
+
             if (tabIndex < 0 || tabIndex >= _tabs.Count) return;
 
             var contentArea = _tabContents[tabIndex];
@@ -168,15 +175,16 @@ namespace KBTV.UI.Controllers
             // Create tab content areas dynamically
             for (int i = 0; i < _tabs.Count; i++)
             {
-                var content = CreateScrollableTabPane(contentContainer, _tabs[i].Name);
-                content.Visible = i == 0; // First tab active by default
-                _tabContents.Add(content);
+                var scrollContainer = CreateScrollableTabPane(contentContainer, _tabs[i].Name);
+                scrollContainer.Visible = i == 0; // First tab active by default
+                _tabScrolls.Add(scrollContainer);
+                _tabContents.Add(scrollContainer.GetChild(0) as Control);
             }
 
             parent.AddChild(contentContainer);
         }
 
-        private Control CreateScrollableTabPane(Control parent, string name)
+        private ScrollContainer CreateScrollableTabPane(Control parent, string name)
         {
             // Create scroll container
             var scrollContainer = new ScrollContainer();
@@ -195,7 +203,7 @@ namespace KBTV.UI.Controllers
             scrollContainer.AddChild(contentArea);
             parent.AddChild(scrollContainer);
 
-            return contentArea;
+            return scrollContainer;
         }
 
         private Button CreateTabButton(Control parent, string label, int tabIndex)

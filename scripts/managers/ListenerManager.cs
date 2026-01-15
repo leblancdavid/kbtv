@@ -11,8 +11,9 @@ namespace KBTV.Managers
     /// Listener count fluctuates based on VIBE (sigmoid curve) and caller quality.
     /// See docs/VERN_STATS.md for VIBE documentation.
     /// </summary>
-    public partial class ListenerManager : SingletonNode<ListenerManager>
-    {
+	public partial class ListenerManager : Node
+	{
+		public static ListenerManager Instance => (ListenerManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/ListenerManager");
         [Export] private int _baseListeners = 1000;
         [Export] private int _listenerVariance = 200;
         [Export] private float _baseGrowthRate = 2f;
@@ -54,16 +55,16 @@ namespace KBTV.Managers
         private TimeManager _timeManager;
         private CallerQueue _callerQueue;
 
-        protected override void OnSingletonReady()
+        public override void _Ready()
         {
             _gameState = GameStateManager.Instance;
             _timeManager = TimeManager.Instance;
             _callerQueue = CallerQueue.Instance;
 
-            if (_gameState != null)
-            {
-                _gameState.OnPhaseChanged += HandlePhaseChanged;
-            }
+			if (_gameState != null)
+			{
+				_gameState.Connect("PhaseChanged", Callable.From<int, int>((old, @new) => HandlePhaseChanged((GamePhase)old, (GamePhase)@new)));
+			}
 
             if (_timeManager != null)
             {

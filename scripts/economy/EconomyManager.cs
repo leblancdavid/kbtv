@@ -8,8 +8,9 @@ namespace KBTV.Economy
     /// <summary>
     /// Manages the player's money and transactions.
     /// </summary>
-    public partial class EconomyManager : SingletonNode<EconomyManager>
-    {
+	public partial class EconomyManager : Node
+	{
+		public static EconomyManager Instance => (EconomyManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/EconomyManager");
         [Export] private int _startingMoney = 500;
 
         private int _currentMoney;
@@ -40,7 +41,7 @@ namespace KBTV.Economy
         // Lifecycle
         // ─────────────────────────────────────────────────────────────
 
-        protected override void OnSingletonReady()
+        public override void _Ready()
         {
             _currentMoney = _startingMoney;
         }

@@ -11,8 +11,9 @@ namespace KBTV.Callers
     /// Manages the queue of incoming callers during a live show.
     /// Handles caller lifecycle from incoming -> screening -> on-hold -> on-air.
     /// </summary>
-    public partial class CallerQueue : SingletonNode<CallerQueue>
-    {
+	public partial class CallerQueue : Node
+	{
+		public static CallerQueue Instance => (CallerQueue)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/CallerQueue");
         [Export] private int _maxQueueSize = 3;
         [Export] private int _maxOnHold = 3;
 

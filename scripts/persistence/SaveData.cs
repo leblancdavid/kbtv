@@ -42,7 +42,7 @@ namespace KBTV.Persistence
         /// Equipment levels keyed by EquipmentType name (e.g., "PhoneLine" -> 2).
         /// All equipment starts at level 1.
         /// </summary>
-        public Dictionary<string, int> EquipmentLevels;
+        public System.Collections.Generic.Dictionary<string, int> EquipmentLevels;
 
         // ─────────────────────────────────────────────────────────────
         // Inventory
@@ -51,7 +51,7 @@ namespace KBTV.Persistence
         /// <summary>
         /// Item quantities keyed by item ID (e.g., "coffee" -> 5).
         /// </summary>
-        public Dictionary<string, int> ItemQuantities;
+        public System.Collections.Generic.Dictionary<string, int> ItemQuantities;
 
         // ─────────────────────────────────────────────────────────────
         // Lifetime Stats
@@ -87,8 +87,8 @@ namespace KBTV.Persistence
                 LastSaveTime = DateTime.UtcNow.ToString("o"),
                 CurrentNight = 1,
                 Money = 500,
-                EquipmentLevels = new Dictionary<string, int>(),
-                ItemQuantities = new Dictionary<string, int>(),
+                EquipmentLevels = new System.Collections.Generic.Dictionary<string, int>(),
+                ItemQuantities = new System.Collections.Generic.Dictionary<string, int>(),
                 TotalCallersScreened = 0,
                 TotalShowsCompleted = 0,
                 PeakListenersAllTime = 0

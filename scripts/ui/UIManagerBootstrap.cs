@@ -13,9 +13,11 @@ using KBTV.UI.Controllers;
 
 namespace KBTV.UI
 {
-	public partial class UIManagerBootstrap : SingletonNode<UIManagerBootstrap>
+	public partial class UIManagerBootstrap : Node
 	{
-		private TabController _tabController;
+		public static UIManagerBootstrap Instance => (UIManagerBootstrap)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/UIManagerBootstrap");
+		private TabContainer _tabContainer;
+		private List<TabDefinition> _tabs;
 
 		// Canvas and managers
 		private VBoxContainer _rootContainer;
@@ -37,15 +39,19 @@ namespace KBTV.UI
 		private Label spiritLabel;
 		private Label patienceLabel;
 
-        protected override void OnSingletonReady()
+
+
+        public override void _Ready()
         {
-            // GD.Print("UIManagerBootstrap.OnSingletonReady called");
+            GD.Print("UIManagerBootstrap._Ready called");
+            base._Ready();
 
             // Create our own CanvasLayer and container programmatically
             var canvasLayer = new CanvasLayer();
             canvasLayer.Name = "LiveShowCanvasLayer";
             canvasLayer.Layer = 5; // Lower layer for LiveShow
             AddChild(canvasLayer);
+            GD.Print("UIManagerBootstrap: CanvasLayer created");
 
             // Register with UIManager
             var uiManager = GetNode<UIManager>("/root/Main/UIManager");
@@ -65,49 +71,25 @@ namespace KBTV.UI
             _rootContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
             canvasLayer.AddChild(_rootContainer);
 
-            // GD.Print("UIManagerBootstrap: Created CanvasLayer and container programmatically");
+            // Create tabs list
+            _tabs = new List<TabDefinition>
+            {
+                new TabDefinition { Name = "CALLERS", PopulateContent = PopulateCallersContent },
+                new TabDefinition { Name = "ITEMS", PopulateContent = PopulateItemsContent },
+                new TabDefinition { Name = "STATS", PopulateContent = PopulateStatsContent }
+            };
 
-			// Create tab controller FIRST, before UI creation
-			var tabs = new List<TabDefinition> {
-				new TabDefinition {
-					Name = "CALLERS",
-					PopulateContent = PopulateCallersContent
-				},
-				new TabDefinition {
-					Name = "ITEMS",
-					PopulateContent = PopulateItemsContent
-				},
-				new TabDefinition {
-					Name = "STATS",
-					PopulateContent = PopulateStatsContent
-				}
-			};
+            CreateUI();
 
-			_tabController = new TabController(tabs, this);
-			AddChild(_tabController);
-			GD.Print("Tab controller created in OnSingletonReady");
-
-			GD.Print("UIManagerBootstrap: Creating UI within container...");
-			CreateUI();
-			GD.Print("UIManagerBootstrap: UI creation complete");
-		}
-
-        public override void _Ready()
-        {
-            // Call base._Ready() first to initialize singleton and call OnSingletonReady()
-            base._Ready();
-
-            // GD.Print($"UIManagerBootstrap._Ready called. _tabController: {_tabController}");
-
-            // Get manager references (UI creation happens in OnSingletonReady)
+            // Get manager references
             _gameState = GameStateManager.Instance;
             _timeManager = TimeManager.Instance;
             _listenerManager = ListenerManager.Instance;
-            _economyManager = EconomyManager.Instance;
             _callerQueue = CallerQueue.Instance;
 
             SubscribeToEvents();
             RefreshAllDisplays();
+            GD.Print("UIManagerBootstrap._Ready completed");
 
             // Pre-populate STATS content will be called after tab controller initialization
         }
@@ -117,43 +99,101 @@ namespace KBTV.UI
 			UnsubscribeFromEvents();
 		}
 
-        private void InitializeTabController()
-        {
-            // GD.Print($"InitializeTabController called. _tabController: {_tabController}, _mainContent: {_mainContent}");
-            if (_tabController != null && _mainContent != null)
-            {
-                // TabController will create its own TabSection as a child of _mainContent
-                _tabController.Initialize(_mainContent);
-                // GD.Print("Tab controller initialized successfully");
+		private void InitializeTabController()
+		{
+			GD.Print($"InitializeTabController called. _tabs: {_tabs?.Count}, _mainContent: {_mainContent}");
+		if (_tabs != null && _mainContent != null)
+		{
+			// Create TabContainer
+			_tabContainer = new TabContainer();
+			_tabContainer.Name = "TabContainer";
+			_tabContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+			_mainContent.AddChild(_tabContainer);
 
-                // Now that tab controller is initialized, refresh the stats tab
-                TryRefreshStatsTab();
-            }
-            else
-            {
-                GD.PrintErr($"_tabController or _mainContent is null during initialization. _tabController: {_tabController}, _mainContent: {_mainContent}");
-            }
-        }
+			// Create tabs
+			for (int i = 0; i < _tabs.Count; i++)
+			{
+				var tabContent = CreateTabContent(_tabs[i]);
+				_tabContainer.AddChild(tabContent);
+				_tabContainer.SetTabTitle(i, _tabs[i].Name);
+			}
 
-        private void TryRefreshStatsTab()
-        {
-            // GD.Print($"TryRefreshStatsTab called. _tabController: {_tabController}");
-            if (_tabController != null)
-            {
-                _tabController.RefreshTabContent(2);
-                // GD.Print("Stats tab pre-populated successfully");
-            }
-            else
-            {
-                GD.PrintErr("Tab controller still null in TryRefreshStatsTab");
-                // Debug: Check if tab controller was ever created
-                // GD.Print("Checking all children of UIManager for TabController...");
-                foreach (var child in GetChildren())
-                {
-                    // GD.Print($"  Child: {child.Name} ({child.GetType().Name})");
-                }
-            }
-        }
+			GD.Print("TabContainer initialized successfully");
+
+			// Refresh initial tab
+			RefreshCurrentTab();
+		}
+		else
+		{
+			GD.PrintErr($"InitializeTabController failed: _tabs null: {_tabs == null}, _mainContent null: {_mainContent == null}");
+		}
+		}
+
+		private Control CreateTabContent(TabDefinition tab)
+		{
+			var scrollContainer = new ScrollContainer();
+			scrollContainer.Name = $"{tab.Name}Scroll";
+			scrollContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+			scrollContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			scrollContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+
+			var contentArea = new Control();
+			contentArea.Name = "Content";
+			contentArea.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			contentArea.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+
+			scrollContainer.AddChild(contentArea);
+
+			// Populate content
+			tab.PopulateContent?.Invoke(contentArea);
+
+			return scrollContainer;
+		}
+
+		private void TryRefreshStatsTab()
+		{
+			// GD.Print("TryRefreshStatsTab called");
+			if (_tabContainer != null)
+			{
+				RefreshTabContent(2);
+				// GD.Print("Stats tab refreshed successfully");
+			}
+			else
+			{
+				GD.PrintErr("TabContainer null in TryRefreshStatsTab");
+			}
+		}
+
+		private void RefreshTabContent(int tabIndex)
+		{
+			if (_tabContainer == null || tabIndex < 0 || tabIndex >= _tabs.Count) return;
+
+			var scrollContainer = _tabContainer.GetChild(tabIndex) as ScrollContainer;
+			if (scrollContainer != null)
+			{
+				var contentArea = scrollContainer.GetChild(0) as Control;
+				if (contentArea != null)
+				{
+					// Clear existing content
+					foreach (var child in contentArea.GetChildren())
+					{
+						contentArea.RemoveChild(child);
+						child.QueueFree();
+					}
+
+					// Repopulate
+					_tabs[tabIndex].PopulateContent?.Invoke(contentArea);
+				}
+			}
+		}
+
+		private void RefreshCurrentTab()
+		{
+			if (_tabContainer != null)
+			{
+				RefreshTabContent(_tabContainer.CurrentTab);
+			}
+		}
 
         private void CreateUI()
         {
@@ -266,8 +306,9 @@ namespace KBTV.UI
 			// "ON AIR" text
 			var liveLabel = new Label();
 			liveLabel.Text = "ON AIR";
-			liveLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.2f, 0.2f));
+			liveLabel.HorizontalAlignment = HorizontalAlignment.Center;
 			liveLabel.VerticalAlignment = VerticalAlignment.Center;
+			liveLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.2f, 0.2f));
 			liveContainer.AddChild(liveLabel);
 
 			_liveIndicator = liveContainer;
@@ -276,40 +317,22 @@ namespace KBTV.UI
 
 		private void CreateClockDisplay(Control parent)
 		{
-			var clockContainer = new VBoxContainer();
-			clockContainer.Name = "ClockDisplay";
-
 			_clockText = new Label();
-			_clockText.Text = "12:00 AM";
+			_clockText.Name = "ClockDisplay";
+			_clockText.Text = "12:00 AM (45:00)";
 			_clockText.HorizontalAlignment = HorizontalAlignment.Center;
-			clockContainer.AddChild(_clockText);
-
-			_remainingText = new Label();
-			_remainingText.Text = "45:00";
-			_remainingText.HorizontalAlignment = HorizontalAlignment.Center;
-			_remainingText.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.7f));
-			clockContainer.AddChild(_remainingText);
-
-			parent.AddChild(clockContainer);
+			_clockText.VerticalAlignment = VerticalAlignment.Center;
+			parent.AddChild(_clockText);
 		}
 
 		private void CreateListenerDisplay(Control parent)
 		{
-			var listenerContainer = new VBoxContainer();
-			listenerContainer.Name = "ListenerDisplay";
-
 			_listenerCount = new Label();
-			_listenerCount.Text = "1,234";
+			_listenerCount.Name = "ListenerDisplay";
+			_listenerCount.Text = "1,234 (+123)";
 			_listenerCount.HorizontalAlignment = HorizontalAlignment.Center;
-			listenerContainer.AddChild(_listenerCount);
-
-			_listenerChange = new Label();
-			_listenerChange.Text = "+123";
-			_listenerChange.HorizontalAlignment = HorizontalAlignment.Center;
-			_listenerChange.AddThemeColorOverride("font_color", new Color(0f, 0.8f, 0f));
-			listenerContainer.AddChild(_listenerChange);
-
-			parent.AddChild(listenerContainer);
+			_listenerCount.VerticalAlignment = VerticalAlignment.Center;
+			parent.AddChild(_listenerCount);
 		}
 
 		private Control CreateFooter()
@@ -474,88 +497,143 @@ namespace KBTV.UI
 		// Content population methods for tabs
 		private void PopulateCallersContent(Control contentArea)
 		{
-			if (_callerQueue == null)
+			GD.Print("PopulateCallersContent called");
+
+			// Temporary simple test
+			var testLabel = new Label();
+			testLabel.Text = "Callers Tab Test";
+			contentArea.AddChild(testLabel);
+		}
+
+		private Control CreateCallerPanel(string name, string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
+		{
+			GD.Print($"Creating caller panel {name} with {callers.Count} callers");
+
+			var panel = new Panel();
+			panel.Name = name;
+			UITheme.ApplyPanelStyle(panel);
+			panel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			panel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+
+			var layout = new VBoxContainer();
+			layout.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			layout.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			panel.AddChild(layout);
+
+			// Header
+			var header = new Label();
+			header.Text = headerText;
+			header.AddThemeColorOverride("font_color", headerColor);
+			header.HorizontalAlignment = HorizontalAlignment.Center;
+			layout.AddChild(header);
+
+			// Scrollable list
+			var scroll = new ScrollContainer();
+			scroll.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			scroll.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			layout.AddChild(scroll);
+
+			var listContainer = new VBoxContainer();
+			listContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			listContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			scroll.AddChild(listContainer);
+
+			// Add caller items
+			if (callers != null && callers.Count > 0)
 			{
-				var errorLabel = new Label();
-				errorLabel.Text = "CallerQueue not available";
-				contentArea.AddChild(errorLabel);
-				return;
-			}
-
-			var container = new VBoxContainer();
-			container.Name = "CallersContainer";
-
-			// Incoming callers
-			if (_callerQueue.HasIncomingCallers)
-			{
-				var incomingHeader = new Label();
-				incomingHeader.Text = "INCOMING CALLERS:";
-				incomingHeader.AddThemeColorOverride("font_color", new Color(1f, 0.7f, 0f));
-				container.AddChild(incomingHeader);
-
-				foreach (var caller in _callerQueue.IncomingCallers)
+				foreach (var caller in callers)
 				{
 					var callerLabel = new Label();
 					callerLabel.Text = $"{caller.Name} - {caller.Location}";
-					callerLabel.AddThemeColorOverride("font_color", new Color(0.8f, 0.8f, 0.8f));
-					container.AddChild(callerLabel);
+					callerLabel.AddThemeColorOverride("font_color", itemColor);
+					listContainer.AddChild(callerLabel);
 				}
 			}
-
-			// Current screening
-			if (_callerQueue.IsScreening)
-			{
-				var screeningHeader = new Label();
-				screeningHeader.Text = "\nCURRENTLY SCREENING:";
-				screeningHeader.AddThemeColorOverride("font_color", new Color(0f, 1f, 0f));
-				container.AddChild(screeningHeader);
-
-				var screeningLabel = new Label();
-				screeningLabel.Text = $"{_callerQueue.CurrentScreening.Name} - {_callerQueue.CurrentScreening.Location}";
-				container.AddChild(screeningLabel);
-			}
-
-			// On hold callers
-			if (_callerQueue.HasOnHoldCallers)
-			{
-				var holdHeader = new Label();
-				holdHeader.Text = "\nON HOLD:";
-				holdHeader.AddThemeColorOverride("font_color", new Color(0f, 0.7f, 1f));
-				container.AddChild(holdHeader);
-
-				foreach (var caller in _callerQueue.OnHoldCallers)
-				{
-					var callerLabel = new Label();
-					callerLabel.Text = $"{caller.Name} - {caller.Location}";
-					callerLabel.AddThemeColorOverride("font_color", new Color(0.6f, 0.6f, 0.6f));
-					container.AddChild(callerLabel);
-				}
-			}
-
-			// On air caller
-			if (_callerQueue.IsOnAir)
-			{
-				var airHeader = new Label();
-				airHeader.Text = "\nON AIR:";
-				airHeader.AddThemeColorOverride("font_color", new Color(1f, 0.2f, 0.2f));
-				container.AddChild(airHeader);
-
-				var airLabel = new Label();
-				airLabel.Text = $"{_callerQueue.OnAirCaller.Name} - {_callerQueue.OnAirCaller.Location}";
-				container.AddChild(airLabel);
-			}
-
-			// Empty state
-			if (!_callerQueue.HasIncomingCallers && !_callerQueue.IsScreening && !_callerQueue.HasOnHoldCallers && !_callerQueue.IsOnAir)
+			else
 			{
 				var emptyLabel = new Label();
-				emptyLabel.Text = "No callers waiting";
+				emptyLabel.Text = "None";
 				emptyLabel.HorizontalAlignment = HorizontalAlignment.Center;
-				container.AddChild(emptyLabel);
+				emptyLabel.AddThemeColorOverride("font_color", new Color(0.5f, 0.5f, 0.5f));
+				listContainer.AddChild(emptyLabel);
 			}
 
-			contentArea.AddChild(container);
+			return panel;
 		}
+
+		private Control CreateScreeningPanel()
+		{
+			GD.Print("Creating screening panel");
+
+			var panel = new Panel();
+			panel.Name = "ScreeningPanel";
+			UITheme.ApplyPanelStyle(panel);
+			panel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			panel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+
+			var layout = new VBoxContainer();
+			layout.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			layout.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			layout.AddThemeConstantOverride("separation", 10);
+			panel.AddChild(layout);
+
+			// Header
+			var header = new Label();
+			header.Text = "SCREENING";
+			header.AddThemeColorOverride("font_color", new Color(0f, 1f, 0f));
+			header.HorizontalAlignment = HorizontalAlignment.Center;
+			layout.AddChild(header);
+
+			// Current caller info
+			if (_callerQueue.IsScreening)
+			{
+				var caller = _callerQueue.CurrentScreening;
+				var callerLabel = new Label();
+				callerLabel.Text = $"{caller.Name}\n{caller.Location}\nTopic: {caller.ClaimedTopic}";
+				callerLabel.HorizontalAlignment = HorizontalAlignment.Center;
+				callerLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+				layout.AddChild(callerLabel);
+			}
+			else
+			{
+				var noCallerLabel = new Label();
+				noCallerLabel.Text = "No caller\ncurrently\nscreening";
+				noCallerLabel.HorizontalAlignment = HorizontalAlignment.Center;
+				layout.AddChild(noCallerLabel);
+			}
+
+			// Spacer
+			var spacer = new Control();
+			spacer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			layout.AddChild(spacer);
+
+			// Buttons container
+			var buttonsContainer = new HBoxContainer();
+			buttonsContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			buttonsContainer.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+			buttonsContainer.AddThemeConstantOverride("separation", 10);
+			layout.AddChild(buttonsContainer);
+
+			// Approve button
+			var approveButton = new Button();
+			approveButton.Text = "APPROVE";
+			approveButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			approveButton.AddThemeColorOverride("font_color", new Color(0f, 0.8f, 0f));
+			approveButton.Pressed += OnApprovePressed;
+			buttonsContainer.AddChild(approveButton);
+
+			// Reject button
+			var rejectButton = new Button();
+			rejectButton.Text = "REJECT";
+			rejectButton.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			rejectButton.AddThemeColorOverride("font_color", new Color(0.8f, 0.2f, 0.2f));
+			rejectButton.Pressed += OnRejectPressed;
+			buttonsContainer.AddChild(rejectButton);
+
+			return panel;
+		}
+
+
 
 		private void PopulateItemsContent(Control contentArea)
 		{
@@ -711,13 +789,13 @@ namespace KBTV.UI
 		private void HandleStatsChanged()
 		{
 			// Refresh STATS tab if it's currently visible
-			_tabController.RefreshCurrentTab();
+			RefreshCurrentTab();
 		}
 
 		private void HandleCallerQueueChanged(Caller caller = null)
 		{
 			// Refresh CALLERS tab if it's currently visible
-			_tabController.RefreshTabContent(0); // CALLERS is index 0
+			RefreshTabContent(0); // CALLERS is index 0
 		}
 
 		private void RefreshAllDisplays()
@@ -730,24 +808,26 @@ namespace KBTV.UI
 
 		private void UpdateClockDisplay()
 		{
-			if (_clockText == null || _remainingText == null) return;
+			if (_clockText == null) return;
 
-			// TODO: Implement proper time display
-			_clockText.Text = "12:00 AM";
-			_remainingText.Text = "45:00";
+			var currentTime = TimeManager.Instance?.CurrentTimeFormatted ?? "12:00 AM";
+			var remaining = TimeManager.Instance?.RemainingTimeFormatted ?? "45:00";
+			_clockText.Text = $"{currentTime} ({remaining})";
 		}
 
 		private void UpdateListenerDisplay()
 		{
-			if (_listenerCount == null || _listenerChange == null || _listenerManager == null) return;
+			if (_listenerCount == null || _listenerManager == null) return;
 
-			_listenerCount.Text = _listenerManager.GetFormattedListeners();
-			_listenerChange.Text = _listenerManager.GetFormattedChange();
+			var count = _listenerManager.GetFormattedListeners();
+			var change = _listenerManager.GetFormattedChange();
 
 			// Color based on change
-			var change = _listenerManager.ListenerChange;
-			var color = change >= 0 ? new Color(0f, 0.8f, 0f) : new Color(0.8f, 0.2f, 0.2f);
-			_listenerChange.AddThemeColorOverride("font_color", color);
+			var changeValue = _listenerManager.ListenerChange;
+			var color = changeValue >= 0 ? new Color(0f, 0.8f, 0f) : new Color(0.8f, 0.2f, 0.2f);
+
+			_listenerCount.Text = $"{count} ({change})";
+			_listenerCount.AddThemeColorOverride("font_color", color);
 		}
 
 		private void UpdateMoneyDisplay()
@@ -764,6 +844,25 @@ namespace KBTV.UI
 			{
 				bool isLive = GameStateManager.Instance?.CurrentPhase == GamePhase.LiveShow;
 				_liveIndicator.Visible = isLive;
+			}
+		}
+
+		// Button handlers for caller screening
+		private void OnApprovePressed()
+		{
+			if (_callerQueue != null && _callerQueue.ApproveCurrentCaller())
+			{
+				// Refresh the callers tab
+				RefreshTabContent(0);
+			}
+		}
+
+		private void OnRejectPressed()
+		{
+			if (_callerQueue != null && _callerQueue.RejectCurrentCaller())
+			{
+				// Refresh the callers tab
+				RefreshTabContent(0);
 			}
 		}
 	}

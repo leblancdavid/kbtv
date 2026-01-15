@@ -9,8 +9,9 @@ namespace KBTV.Callers
     /// Generates random callers during the live show.
     /// Spawns a mix of legitimate, questionable, and fake callers.
     /// </summary>
-    public partial class CallerGenerator : SingletonNode<CallerGenerator>
-    {
+	public partial class CallerGenerator : Node
+	{
+		public static CallerGenerator Instance => (CallerGenerator)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/CallerGenerator");
         [Export] private float _minSpawnInterval = 1f;
         [Export] private float _maxSpawnInterval = 3f;
         [Export] private float _basePatience = 30f;
@@ -46,14 +47,14 @@ namespace KBTV.Callers
 
         private GameStateManager _gameState;
 
-        protected override void OnSingletonReady()
+        public override void _Ready()
         {
             _gameState = GameStateManager.Instance;
             _queue = CallerQueue.Instance;
 
-            if (_gameState != null)
-            {
-                _gameState.OnPhaseChanged += HandlePhaseChanged;
+			if (_gameState != null)
+			{
+				_gameState.Connect("PhaseChanged", Callable.From<int, int>((old, @new) => HandlePhaseChanged((GamePhase)old, (GamePhase)@new)));
 
                 // Check if we're already in LiveShow
                 if (_gameState.CurrentPhase == GamePhase.LiveShow)

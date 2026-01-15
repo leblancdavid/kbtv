@@ -11,15 +11,22 @@ namespace KBTV.Persistence
     /// Manages game save/load functionality.
     /// Saves to user:// as JSON.
     /// </summary>
-    public partial class SaveManager : SingletonNode<SaveManager>
+    public partial class SaveManager : Node
     {
-        private const string SAVE_FILENAME = "kbtv_save.json";
-        private const int CURRENT_VERSION = 1;
+		public static SaveManager Instance => (SaveManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/SaveManager");
+
+        // ─────────────────────────────────────────────────────────────
+        // FIELDS
+        // ─────────────────────────────────────────────────────────────
 
         private SaveData _currentSave;
         private bool _isDirty;
         private List<ISaveable> _saveables = new List<ISaveable>();
+        private const string SAVE_FILENAME = "save.json";
+        private const int CURRENT_VERSION = 1;
 
+        // ─────────────────────────────────────────────────────────────
+        // CONSTANTS
         // ─────────────────────────────────────────────────────────────
         // Properties
         // ─────────────────────────────────────────────────────────────
@@ -59,10 +66,7 @@ namespace KBTV.Persistence
         // Lifecycle
         // ─────────────────────────────────────────────────────────────
 
-        protected override void OnSingletonReady()
-        {
-            // No equivalent to DontDestroyOnLoad in Godot for autoloads
-        }
+
 
         private void HandleTreeExiting()
         {

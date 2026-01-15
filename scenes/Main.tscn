@@ -40,12 +40,6 @@ script = ExtResource("8")
 [node name="UIManager" type="Node" parent="."]
 script = ExtResource("11")
 
-[node name="PreShowUIManager" type="Node" parent="."]
-script = ExtResource("12")
-
-[node name="UIManagerBootstrap" type="Node" parent="."]
-script = ExtResource("5")
-
 [node name="InputHandler" type="Node" parent="."]
 script = ExtResource("9")
 

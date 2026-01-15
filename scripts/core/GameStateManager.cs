@@ -11,10 +11,18 @@ namespace KBTV.Core
 	/// <summary>
 	/// Manages the game state and phase transitions for nightly broadcasts.
 	/// </summary>
-	public partial class GameStateManager : SingletonNode<GameStateManager>
+	public partial class GameStateManager : Node
 	{
-		private VernStats _vernStats;
+		[Signal] public delegate void PhaseChangedEventHandler(GamePhase oldPhase, GamePhase newPhase);
+
+		public static GameStateManager Instance => (GameStateManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/GameStateManager");
+
+		// ═══════════════════════════════════════════════════════════════════════════════════════════════
+		// FIELDS
+		// ═══════════════════════════════════════════════════════════════════════════════
+
 		private GamePhase _currentPhase = GamePhase.PreShow;
+		private VernStats _vernStats;
 		private int _currentNight = 1;
 		private Topic _selectedTopic;
 
@@ -33,16 +41,16 @@ namespace KBTV.Core
 		/// </summary>
 		public event Action<int> OnNightStarted;
 
-    protected override void OnSingletonReady()
-    {
-        // GD.Print("GameStateManager: OnSingletonReady called - singleton now available");
+		public override void _Ready()
+		{
+			GD.Print("GameStateManager: _Ready called");
 
-        // Create VernStats dynamically
-        _vernStats = new VernStats();
-        InitializeGame();
+			// Create VernStats dynamically
+			_vernStats = new VernStats();
+			InitializeGame();
 
-        // GD.Print($"GameStateManager: Initialized with phase {_currentPhase}");
-    }
+			// GD.Print($"GameStateManager: Initialized with phase {_currentPhase}");
+		}
 
 		/// <summary>
 		/// Initialize the game state. VernStats is created automatically.
@@ -86,23 +94,26 @@ namespace KBTV.Core
 			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
 		}
 
-    /// <summary>
-    /// Start the live show phase if a topic is selected.
-    /// </summary>
-    public void StartLiveShow()
-    {
-        if (!CanStartLiveShow())
-        {
-            GD.PrintErr("GameStateManager: Cannot start live show - invalid state or no topic selected");
-            return;
-        }
+		/// <summary>
+		/// Start the live show phase if a topic is selected.
+		/// </summary>
+		public void StartLiveShow()
+		{
+			if (!CanStartLiveShow())
+			{
+				GD.PrintErr("GameStateManager: Cannot start live show - invalid state or no topic selected");
+				return;
+			}
 
-        // GD.Print($"GameStateManager: Starting live show with topic '{_selectedTopic.DisplayName}'");
-        GamePhase oldPhase = _currentPhase;
-        _currentPhase = GamePhase.LiveShow;
-        OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
-        // TODO: Initialize live show systems with selected topic
-    }
+			// GD.Print($"GameStateManager: Starting live show with topic '{_selectedTopic.DisplayName}'");
+			GamePhase oldPhase = _currentPhase;
+			_currentPhase = GamePhase.LiveShow;
+			EmitSignal(nameof(PhaseChanged), (int)oldPhase, (int)_currentPhase);
+
+			// Start the show clock
+			TimeManager.Instance?.StartClock();
+			// TODO: Initialize other live show systems with selected topic
+		}
 
 		/// <summary>
 		/// Directly set the game phase (useful for testing/debugging).
@@ -186,6 +197,9 @@ namespace KBTV.Core
 				}
 				save.CurrentNight = _currentNight;
 			}
+
+			// Reset the clock for next show
+			TimeManager.Instance?.ResetClock();
 
 			// Auto-save at end of show
 			if (SaveManager.Instance != null)

@@ -10,8 +10,9 @@ namespace KBTV.UI
 	/// Manages the pre-show UI for topic selection and show preparation.
 	/// Only active during the PreShow game phase.
 	/// </summary>
-	public partial class PreShowUIManager : SingletonNode<PreShowUIManager>
+	public partial class PreShowUIManager : Node
 	{
+		public static PreShowUIManager Instance => (PreShowUIManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/PreShowUIManager");
 		private OptionButton _topicSelector;
 		private Button _startShowButton;
 		private Label _errorLabel;
@@ -106,6 +107,20 @@ namespace KBTV.UI
 		// Force layout update
 		preShowContainer.QueueSort();
 		// GD.Print("PreShowUIManager: UI setup complete");
+
+		// Select first topic by default after UI is fully created
+		if (_availableTopics.Count > 0)
+		{
+			_topicSelector.Select(0);
+			if (GameStateManager.Instance != null)
+			{
+				OnTopicSelected(0);
+			}
+			else
+			{
+				CallDeferred(nameof(SelectDefaultTopic));
+			}
+		}
 	}
 
 	private Control CreateTitle()
@@ -212,6 +227,14 @@ namespace KBTV.UI
 				_startShowButton.Disabled = false;
 				_errorLabel.Text = "";
 				// GD.Print($"PreShowUIManager: Topic selected - {selectedTopic.DisplayName}");
+			}
+		}
+
+		private void SelectDefaultTopic()
+		{
+			if (_availableTopics.Count > 0)
+			{
+				OnTopicSelected(0);
 			}
 		}
 

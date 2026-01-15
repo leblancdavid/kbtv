@@ -47,20 +47,33 @@ namespace KBTV.UI
             if (gameState != null)
             {
                 // Connect to phase changes
-                gameState.OnPhaseChanged += UpdateUIVisibility;
+                gameState.Connect("PhaseChanged", Callable.From<int, int>((old, @new) => UpdateUIVisibility((GamePhase)old, (GamePhase)@new)));
 
-                // Set initial visibility based on current phase
-                UpdateUIVisibility(GamePhase.PreShow, gameState.CurrentPhase);
+                // Set initial visibility based on current phase - defer to ensure layers are registered
+                CallDeferred(nameof(UpdateInitialVisibility));
                 // GD.Print("UIManager: Successfully connected to GameStateManager");
             }
             else
             {
-                // Still not available - show PreShow as default
-                UpdateUIVisibility(GamePhase.PreShow, GamePhase.PreShow);
+                // Still not available - show PreShow as default - defer
+                CallDeferred(nameof(UpdateInitialVisibility));
                 // GD.Print("UIManager: GameStateManager still not available, using PreShow default");
 
                 // Try again in next frame
                 CallDeferred(nameof(TryConnectToGameStateManager));
+            }
+        }
+
+        private void UpdateInitialVisibility()
+        {
+            var gameState = GameStateManager.Instance;
+            if (gameState != null)
+            {
+                UpdateUIVisibility(GamePhase.PreShow, gameState.CurrentPhase);
+            }
+            else
+            {
+                UpdateUIVisibility(GamePhase.PreShow, GamePhase.PreShow);
             }
         }
 
@@ -87,7 +100,7 @@ namespace KBTV.UI
                 case GamePhase.LiveShow:
                     _preShowLayer.Hide();
                     _liveShowLayer.Show();
-                    // GD.Print("UIManager: PreShow UI hidden, LiveShow UI visible");
+                    GD.Print("UIManager: PreShow UI hidden, LiveShow UI visible");
                     break;
 
                 default:

@@ -8,8 +8,9 @@ namespace KBTV.Managers
     /// Manages the in-game clock for the radio show.
     /// Handles time progression during live broadcasts.
     /// </summary>
-    public partial class TimeManager : SingletonNode<TimeManager>
+	public partial class TimeManager : Node
     {
+		public static TimeManager Instance => (TimeManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/TimeManager");
         [Export] private float _showDurationSeconds = 600f; // 10 minutes real-time
         [Export] private float _showDurationHours = 4f;
         [Export] private int _showStartHour = 22;
@@ -48,7 +49,7 @@ namespace KBTV.Managers
         /// </summary>
         public event Action<bool> OnRunningChanged;
 
-        protected override void OnSingletonReady()
+        public override void _Ready()
         {
             // Ensure clean state on startup
             _elapsedTime = 0f;
