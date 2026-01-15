@@ -12,7 +12,6 @@ namespace KBTV.UI
     {
         private GameStateManager _gameState;
         private CallerQueue _callerQueue;
-        private UIManagerBootstrap _uiManager;
 
         // Input action names (defined in Godot project settings)
         private const string ACTION_SCREEN_ACCEPT = "screen_accept";
@@ -24,7 +23,6 @@ namespace KBTV.UI
         {
             _gameState = GameStateManager.Instance;
             _callerQueue = CallerQueue.Instance;
-            _uiManager = UIManagerBootstrap.Instance;
 
             GD.Print("InputHandler: Initialized input handling");
         }
