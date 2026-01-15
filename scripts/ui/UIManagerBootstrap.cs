@@ -658,7 +658,7 @@ namespace KBTV.UI
 
 		private Control CreateScreeningPanelScene()
 		{
-			// Use programmatic creation to avoid scene loading issues
+			// Use programmatic creation to avoid scene loading issues with UIDs
 			return CreateScreeningPanelFallback();
 		}
 
