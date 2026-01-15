@@ -658,7 +658,29 @@ namespace KBTV.UI
 
 		private Control CreateScreeningPanelScene()
 		{
-			// Use programmatic creation to avoid scene loading issues with UIDs
+			var scene = ResourceLoader.Load<PackedScene>("res://scenes/ui/ScreeningPanel.tscn");
+			if (scene != null)
+			{
+				var panel = scene.Instantiate<ScreeningPanel>();
+				if (panel != null)
+				{
+					// Set caller info
+					if (_callerQueue.IsScreening)
+					{
+						panel.SetCaller(_callerQueue.CurrentScreening);
+					}
+					else
+					{
+						panel.SetCaller(null);
+					}
+
+					// Connect buttons
+					panel.ConnectButtons(Callable.From(OnApprovePressed), Callable.From(OnRejectPressed));
+
+					return panel;
+				}
+			}
+			// Fallback to programmatic
 			return CreateScreeningPanelFallback();
 		}
 

@@ -164,6 +164,11 @@ WARNING: scene/resources/resource_format_text.cpp:444 - res://scenes/Main.tscn:1
 2. Open Godot and let it regenerate UIDs automatically
 3. Save all scenes to persist new UIDs
 
+**Manual Fix (when Godot not available):**
+1. Delete all `.uid` files to regenerate them
+2. Update all scene files' ext_resource entries to use the new UIDs from the regenerated `.uid` files
+3. Commit both `.uid` files and updated scene files
+
 **Why UIDs Break:**
 - Moving or renaming files changes their absolute paths
 - UIDs are generated from file paths + content hashes

@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c8j8w8w8w8w8"]
 
-[ext_resource type="Script" path="res://scripts/ui/LiveShowHeader.cs" id="1"]
+[ext_resource type="Script" uid="uid://dtpxhai2uxkpe" path="res://scripts/ui/LiveShowHeader.cs" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0"]
 bg_color = Color(0.15, 0.15, 0.15, 1)
