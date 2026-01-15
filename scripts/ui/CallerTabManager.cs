@@ -130,7 +130,7 @@ namespace KBTV.UI
         // HBoxContainer distributes panels horizontally
         var mainContainer = new HBoxContainer();
         mainContainer.Name = "CallersMainContainer";
-        mainContainer.CustomMinimumSize = new Vector2(800, 400); // Minimum layout size
+        // Removed minimum size constraint to allow full expansion
         mainContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
         mainContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
 

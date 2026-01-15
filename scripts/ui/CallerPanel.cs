@@ -15,14 +15,15 @@ namespace KBTV.UI
             _callerList = GetNode<VBoxContainer>("VBoxContainer/ScrollContainer/CallerList");
         }
 
-        public void SetHeader(string headerText, Color headerColor)
-        {
-            if (_headerLabel != null)
-            {
-                _headerLabel.Text = headerText;
-                _headerLabel.AddThemeColorOverride("font_color", headerColor);
-            }
-        }
+		public void SetHeader(string headerText, Color headerColor)
+		{
+			GD.Print($"CallerPanel.SetHeader: '{headerText}' (label null: {_headerLabel == null})");
+			if (_headerLabel != null)
+			{
+				_headerLabel.Text = headerText;
+				_headerLabel.AddThemeColorOverride("font_color", headerColor);
+			}
+		}
 
         public void SetCallers(IEnumerable<Caller> callers, Color itemColor)
         {

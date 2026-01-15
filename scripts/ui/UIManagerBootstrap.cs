@@ -145,24 +145,17 @@ namespace KBTV.UI
 
 		private Control CreateTabContent(TabDefinition tab)
 		{
-			var scrollContainer = new ScrollContainer();
-			scrollContainer.Name = $"{tab.Name}Scroll";
-			scrollContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-			scrollContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			scrollContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-
+			// Create content area directly (no ScrollContainer wrapper since individual panels handle scrolling)
 			var contentArea = new Control();
-			contentArea.Name = "Content";
-			contentArea.SetAnchorsPreset(Control.LayoutPreset.FullRect);  // Fix: Add anchors so it fills ScrollContainer
+			contentArea.Name = $"{tab.Name}Content";
+			contentArea.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 			contentArea.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			contentArea.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-
-			scrollContainer.AddChild(contentArea);
 
 			// Populate content
 			tab.PopulateContent?.Invoke(contentArea);
 
-			return scrollContainer;
+			return contentArea;
 		}
 
 		private void TryRefreshStatsTab()
