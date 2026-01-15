@@ -40,6 +40,9 @@ namespace KBTV.UI
                 // Initialize tabs
                 InitializeTabs();
                 GD.Print("TabContainerManager: UI system initialized successfully");
+
+                // Register with UIManager (deferred to ensure it's ready)
+                CallDeferred(nameof(RegisterWithUIManager));
             }
             else
             {
@@ -85,6 +88,21 @@ namespace KBTV.UI
             _tabContainer.SetTabTitle(placeholder.GetIndex(), title);
 
             GD.Print($"TabContainerManager: Added placeholder tab for {title}");
+        }
+
+        private void RegisterWithUIManager()
+        {
+            GD.Print("TabContainerManager: Registering LiveShow layer with UIManager");
+
+            var uiManager = UIManager.Instance;
+            if (uiManager == null)
+            {
+                GD.PrintErr("TabContainerManager: UIManager.Instance is null - cannot register LiveShow layer!");
+                return;
+            }
+
+            uiManager.RegisterLiveShowLayer(_canvas);
+            GD.Print("TabContainerManager: LiveShow layer registered successfully");
         }
 
         public override void _ExitTree()
