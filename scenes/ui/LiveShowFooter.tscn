@@ -1,0 +1,114 @@
+[gd_scene load_steps=2 format=3 uid="uid://d4fin5tqcu14t"]
+
+[ext_resource type="Script" path="res://scripts/ui/LiveShowFooter.cs" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="PanelBackground"]
+bg_color = Color(0.15, 0.15, 0.15, 1)
+
+[node name="LiveShowFooter" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OnAirPanel" type="Panel" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.35
+theme_override_styles/panel = SubResource("PanelBackground")
+
+[node name="OnAirVBox" type="VBoxContainer" parent="HBoxContainer/OnAirPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OnAirHeader" type="Label" parent="HBoxContainer/OnAirPanel/OnAirVBox"]
+layout_mode = 2
+text = "ON AIR"
+horizontal_alignment = 1
+
+[node name="CallerNameLabel" type="Label" parent="HBoxContainer/OnAirPanel/OnAirVBox"]
+layout_mode = 2
+text = "No caller"
+horizontal_alignment = 1
+
+[node name="TranscriptPanel" type="Panel" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.45
+theme_override_styles/panel = SubResource("PanelBackground")
+
+[node name="TranscriptVBox" type="VBoxContainer" parent="HBoxContainer/TranscriptPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TranscriptHeader" type="Label" parent="HBoxContainer/TranscriptPanel/TranscriptVBox"]
+layout_mode = 2
+text = "TRANSCRIPT"
+horizontal_alignment = 1
+
+[node name="TranscriptScroll" type="ScrollContainer" parent="HBoxContainer/TranscriptPanel/TranscriptVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="TranscriptText" type="Label" parent="HBoxContainer/TranscriptPanel/TranscriptVBox/TranscriptScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+autowrap_mode = 3
+text = "[Transcript will appear here]"
+
+[node name="AdBreakPanel" type="Panel" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.2
+theme_override_styles/panel = SubResource("PanelBackground")
+
+[node name="AdBreakVBox" type="VBoxContainer" parent="HBoxContainer/AdBreakPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="AdBreakHeader" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
+layout_mode = 2
+text = "AD BREAK"
+horizontal_alignment = 1
+
+[node name="AdBreakControls" type="VBoxContainer" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="StartAdBreakButton" type="Button" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
+layout_mode = 2
+text = "Start Break"
+
+[node name="EndAdBreakButton" type="Button" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
+layout_mode = 2
+text = "End Break"
+disabled = true
+
+[node name="AdBreakTimerLabel" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
+layout_mode = 2
+text = "00:00"
+horizontal_alignment = 1

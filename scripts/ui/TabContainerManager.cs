@@ -29,25 +29,66 @@ namespace KBTV.UI
             background.Modulate = new Color(0, 0, 0, 0.8f); // Semi-transparent background
             _canvas.AddChild(background);
 
+            // Create main layout container
+            var mainLayout = new VBoxContainer();
+            mainLayout.Name = "MainLayout";
+            mainLayout.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+            _canvas.AddChild(mainLayout);
+
+            // Load and instantiate Header
+            var headerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LiveShowHeader.tscn");
+            if (headerScene != null)
+            {
+                var header = headerScene.Instantiate<Control>();
+                header.Name = "LiveShowHeader";
+                header.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin;
+                header.CustomMinimumSize = new Vector2(0, 28); // Fixed header height
+                mainLayout.AddChild(header);
+                GD.Print("TabContainerManager: Header loaded successfully");
+            }
+            else
+            {
+                GD.PrintErr("TabContainerManager: Failed to load LiveShowHeader.tscn");
+            }
+
             // Load and instantiate TabContainer scene
             var tabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/TabContainerUI.tscn");
             if (tabScene != null)
             {
                 _tabContainer = tabScene.Instantiate<TabContainer>();
                 _tabContainer.Name = "MainTabContainer";
-                _canvas.AddChild(_tabContainer);
+                _tabContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+                mainLayout.AddChild(_tabContainer);
 
                 // Initialize tabs
                 InitializeTabs();
-                GD.Print("TabContainerManager: UI system initialized successfully");
-
-                // Register with UIManager (deferred to ensure it's ready)
-                CallDeferred(nameof(RegisterWithUIManager));
+                GD.Print("TabContainerManager: TabContainer loaded successfully");
             }
             else
             {
                 GD.PrintErr("TabContainerManager: Failed to load TabContainerUI.tscn");
             }
+
+            // Load and instantiate Footer
+            var footerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LiveShowFooter.tscn");
+            if (footerScene != null)
+            {
+                var footer = footerScene.Instantiate<Control>();
+                footer.Name = "LiveShowFooter";
+                footer.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd;
+                footer.CustomMinimumSize = new Vector2(0, 140); // Fixed footer height
+                mainLayout.AddChild(footer);
+                GD.Print("TabContainerManager: Footer loaded successfully");
+            }
+            else
+            {
+                GD.PrintErr("TabContainerManager: Failed to load LiveShowFooter.tscn");
+            }
+
+            GD.Print("TabContainerManager: UI system initialized successfully");
+
+            // Register with UIManager (deferred to ensure it's ready)
+            CallDeferred(nameof(RegisterWithUIManager));
         }
 
         private void InitializeTabs()

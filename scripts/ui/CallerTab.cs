@@ -23,9 +23,9 @@ namespace KBTV.UI
             GD.Print("CallerTab: Initializing self-contained caller tab");
 
             // Get UI references from scene
-            _incomingPanel = GetNode<Control>("MarginContainer/HBoxContainer/IncomingScroll/IncomingPanel");
-            _screeningPanel = GetNode<Control>("MarginContainer/HBoxContainer/ScreeningPanel");
-            _onHoldPanel = GetNode<Control>("MarginContainer/HBoxContainer/OnHoldScroll/OnHoldPanel");
+            _incomingPanel = GetNode<Control>("HBoxContainer/IncomingScroll/IncomingPanel");
+            _screeningPanel = GetNode<Control>("HBoxContainer/ScreeningContainer");
+            _onHoldPanel = GetNode<Control>("HBoxContainer/OnHoldScroll/OnHoldPanel");
 
             // Initialize dependencies
             _callerQueue = CallerQueue.Instance;
@@ -54,6 +54,16 @@ namespace KBTV.UI
         private void PopulateTabContent()
         {
             GD.Print("CallerTab: Populating tab content");
+
+            // Debug: Check caller queue status
+            if (_callerQueue != null)
+            {
+                GD.Print($"CallerTab: Incoming callers: {_callerQueue.IncomingCallers.Count}, On-hold: {_callerQueue.OnHoldCallers.Count}, IsScreening: {_callerQueue.IsScreening}");
+            }
+            else
+            {
+                GD.PrintErr("CallerTab: CallerQueue is null!");
+            }
 
             // Create incoming callers panel
             _tabManager.CreateIncomingPanel(_incomingPanel);

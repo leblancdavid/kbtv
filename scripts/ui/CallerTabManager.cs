@@ -69,8 +69,12 @@ namespace KBTV.UI
 
                     if (screeningPanel != null)
                     {
-                        screeningPanel.CustomMinimumSize = new Vector2(300, 300);
-                        GD.Print("CallerTabManager: Set screening panel size");
+                        // Configure for proper containment within the tab
+                        screeningPanel.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                        screeningPanel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+                        screeningPanel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+                        screeningPanel.CustomMinimumSize = Vector2.Zero;
+                        GD.Print("CallerTabManager: Configured screening panel for full rect containment");
 
                         // Set caller info
                         if (_callerQueue.IsScreening)
@@ -140,6 +144,13 @@ namespace KBTV.UI
             {
                 GD.Print($"CallerTabManager: Populating caller panel '{headerText}' with {callers?.Count ?? 0} callers");
 
+                // Clear existing children first
+                foreach (var child in panel.GetChildren())
+                {
+                    panel.RemoveChild(child);
+                    child.QueueFree();
+                }
+
                 // Create header
                 var header = new Label();
                 header.Text = headerText;
@@ -161,12 +172,14 @@ namespace KBTV.UI
                 // Add caller items
                 if (callers != null && callers.Count > 0)
                 {
+                    GD.Print($"CallerTabManager: Adding {callers.Count} callers to '{headerText}'");
                     foreach (var caller in callers)
                     {
                         var callerLabel = new Label();
-                        callerLabel.Text = $"{caller.Name} - {caller.Location}";
+                        callerLabel.Text = $"• {caller.Name} - {caller.Location}";
                         callerLabel.AddThemeColorOverride("font_color", itemColor);
                         listContainer.AddChild(callerLabel);
+                        GD.Print($"CallerTabManager: Added caller {caller.Name}");
                     }
                 }
                 else
@@ -176,9 +189,10 @@ namespace KBTV.UI
                     emptyLabel.HorizontalAlignment = HorizontalAlignment.Center;
                     emptyLabel.AddThemeColorOverride("font_color", new Color(0.5f, 0.5f, 0.5f));
                     listContainer.AddChild(emptyLabel);
+                    GD.Print($"CallerTabManager: No callers for '{headerText}', showing 'None'");
                 }
 
-                GD.Print($"CallerTabManager: Successfully populated '{headerText}' panel");
+                GD.Print($"CallerTabManager: Successfully populated '{headerText}' panel with {panel.GetChildCount()} children");
             }
             catch (Exception ex)
             {
