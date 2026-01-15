@@ -27,7 +27,7 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            GD.Print("UIManager: _Ready called");
+            // GD.Print("UIManager: _Ready called");
 
             // CanvasLayers will be registered by UI managers when they create them
             // Try to connect to GameStateManager immediately
@@ -36,7 +36,7 @@ namespace KBTV.UI
             // If still not connected, set up deferred retry
             if (GameStateManager.Instance == null)
             {
-                GD.Print("UIManager: GameStateManager not ready, deferring connection");
+                // GD.Print("UIManager: GameStateManager not ready, deferring connection");
                 CallDeferred(nameof(TryConnectToGameStateManager));
             }
         }
@@ -51,13 +51,13 @@ namespace KBTV.UI
 
                 // Set initial visibility based on current phase
                 UpdateUIVisibility(GamePhase.PreShow, gameState.CurrentPhase);
-                GD.Print("UIManager: Successfully connected to GameStateManager");
+                // GD.Print("UIManager: Successfully connected to GameStateManager");
             }
             else
             {
                 // Still not available - show PreShow as default
                 UpdateUIVisibility(GamePhase.PreShow, GamePhase.PreShow);
-                GD.Print("UIManager: GameStateManager still not available, using PreShow default");
+                // GD.Print("UIManager: GameStateManager still not available, using PreShow default");
 
                 // Try again in next frame
                 CallDeferred(nameof(TryConnectToGameStateManager));
@@ -66,7 +66,7 @@ namespace KBTV.UI
 
         private void UpdateUIVisibility(GamePhase oldPhase, GamePhase newPhase)
         {
-            GD.Print($"UIManager: Updating UI visibility for phase {newPhase}");
+            // GD.Print($"UIManager: Updating UI visibility for phase {newPhase}");
 
             if (_preShowLayer == null || _liveShowLayer == null)
             {
@@ -74,20 +74,20 @@ namespace KBTV.UI
                 return;
             }
 
-            GD.Print($"UIManager: Before update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
+            // GD.Print($"UIManager: Before update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
 
             switch (newPhase)
             {
                 case GamePhase.PreShow:
                     _preShowLayer.Show();
                     _liveShowLayer.Hide();
-                    GD.Print("UIManager: PreShow UI visible, LiveShow UI hidden");
+                    // GD.Print("UIManager: PreShow UI visible, LiveShow UI hidden");
                     break;
 
                 case GamePhase.LiveShow:
                     _preShowLayer.Hide();
                     _liveShowLayer.Show();
-                    GD.Print("UIManager: PreShow UI hidden, LiveShow UI visible");
+                    // GD.Print("UIManager: PreShow UI hidden, LiveShow UI visible");
                     break;
 
                 default:
@@ -95,7 +95,7 @@ namespace KBTV.UI
                     break;
             }
 
-            GD.Print($"UIManager: After update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
+            // GD.Print($"UIManager: After update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
         }
 
         public override void _ExitTree()
@@ -105,7 +105,7 @@ namespace KBTV.UI
             if (gameState != null)
             {
                 gameState.OnPhaseChanged -= UpdateUIVisibility;
-                GD.Print("UIManager: Disconnected from GameStateManager");
+                // GD.Print("UIManager: Disconnected from GameStateManager");
             }
         }
     }

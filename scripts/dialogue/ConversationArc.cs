@@ -12,7 +12,6 @@ namespace KBTV.Dialogue
     /// Contains a flat dialogue array where Vern's lines have mood-specific text variants.
     /// First line is always Vern's intro, last line is always Vern's conclusion.
     /// </summary>
-    [Serializable]
     public partial class ConversationArc : Resource
     {
         [Export] private string _arcId;
@@ -173,7 +172,6 @@ namespace KBTV.Dialogue
     /// For Vern: contains TextVariants with mood-specific text.
     /// For Caller: contains single Text field.
     /// </summary>
-    [Serializable]
     public partial class ArcDialogueLine : Resource
     {
         [Export] private Speaker _speaker;

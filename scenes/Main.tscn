@@ -1,18 +1,17 @@
-[gd_scene load_steps=14 format=3 uid="uid://c27fhrd4srkip"]
+[gd_scene load_steps=13 format=3 uid="uid://bihn7867mu4ew"]
 
-[ext_resource type="Script" uid="uid://lm83rlpacd3r" path="res://scripts/core/GameStateManager.cs" id="1"]
+[ext_resource type="Script" uid="uid://gcnqvpjyf3mu" path="res://scripts/core/GameStateManager.cs" id="1"]
 [ext_resource type="Script" uid="uid://dx035j2446f3o" path="res://scripts/managers/TimeManager.cs" id="2"]
-[ext_resource type="Script" uid="uid://3j85q2x2tvfc" path="res://scripts/managers/ListenerManager.cs" id="3"]
+[ext_resource type="Script" uid="uid://c26f7ktqjj3oe" path="res://scripts/managers/ListenerManager.cs" id="3"]
 [ext_resource type="Script" uid="uid://cny3xrug14i7e" path="res://scripts/economy/EconomyManager.cs" id="4"]
-[ext_resource type="Script" uid="uid://dbycruigj411n" path="res://scripts/ui/UIManagerBootstrap.cs" id="5"]
-[ext_resource type="Script" uid="uid://bx0x17oquqhgo" path="res://scripts/callers/CallerQueue.cs" id="6"]
-[ext_resource type="Script" uid="uid://dxr2u5388ej41" path="res://scripts/callers/CallerGenerator.cs" id="7"]
-[ext_resource type="Script" uid="uid://ccledr600nqc2" path="res://scripts/persistence/SaveManager.cs" id="8"]
+[ext_resource type="Script" uid="uid://o6ovimthy2aw" path="res://scripts/ui/UIManagerBootstrap.cs" id="5"]
+[ext_resource type="Script" uid="uid://bkmu4pp03qn5g" path="res://scripts/callers/CallerQueue.cs" id="6"]
+[ext_resource type="Script" uid="uid://dntynicdfxyf7" path="res://scripts/callers/CallerGenerator.cs" id="7"]
+[ext_resource type="Script" uid="uid://df67eas7q0u5n" path="res://scripts/persistence/SaveManager.cs" id="8"]
 [ext_resource type="Script" uid="uid://dg6ooccscx5w8" path="res://scripts/ui/InputHandler.cs" id="9"]
-[ext_resource type="Script" uid="uid://cmkjxx7ughtqg" path="res://scripts/ui/DebugHelper.cs" id="10"]
-[ext_resource type="Script" uid="uid://diyput8larvj5" path="res://scripts/data/VernStats.cs" id="11"]
-[ext_resource type="Script" uid="uid://due7mn837hw7t" path="res://scripts/ui/UIManager.cs" id="12"]
-[ext_resource type="Script" uid="uid://deie6aceavoqy" path="res://scripts/ui/PreShowUIManager.cs" id="13"]
+[ext_resource type="Script" uid="uid://njvlp2trmlq8" path="res://scripts/ui/DebugHelper.cs" id="10"]
+[ext_resource type="Script" uid="uid://dvhg2p8a048o3" path="res://scripts/ui/UIManager.cs" id="11"]
+[ext_resource type="Script" uid="uid://qyifxndfg0vl" path="res://scripts/ui/PreShowUIManager.cs" id="12"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -38,14 +37,11 @@ script = ExtResource("7")
 [node name="SaveManager" type="Node" parent="."]
 script = ExtResource("8")
 
-[node name="VernStats" type="Node" parent="."]
+[node name="UIManager" type="Node" parent="."]
 script = ExtResource("11")
 
-[node name="UIManager" type="Node" parent="."]
-script = ExtResource("12")
-
 [node name="PreShowUIManager" type="Node" parent="."]
-script = ExtResource("13")
+script = ExtResource("12")
 
 [node name="UIManagerBootstrap" type="Node" parent="."]
 script = ExtResource("5")

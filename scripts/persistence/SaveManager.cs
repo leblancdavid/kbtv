@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Godot;
+using Godot.Collections;
 using KBTV.Core;
 
 namespace KBTV.Persistence
@@ -122,17 +123,27 @@ namespace KBTV.Persistence
                         file.Close();
 
                         var jsonParse = Json.ParseString(json);
-                        if (jsonParse.Equals(null))
+                        if (jsonParse.VariantType == Variant.Type.Nil)
                         {
                             GD.PrintErr("[SaveManager] Failed to parse JSON");
                             _currentSave = CreateNewSave();
                         }
                         else
                         {
-                            // TODO: Implement proper JSON deserialization for SaveData
-                            // For now, create new save
-                            _currentSave = CreateNewSave();
-                            GD.Print("[SaveManager] JSON parsing not yet implemented, created new save");
+                            // Deserialize JSON to SaveData
+                            var dict = (Godot.Collections.Dictionary)jsonParse;
+                            _currentSave = new SaveData
+                            {
+                                Version = (int)(long)dict["Version"],
+                                LastSaveTime = (string)dict["LastSaveTime"],
+                                CurrentNight = (int)(long)dict["CurrentNight"],
+                                Money = (int)(long)dict["Money"],
+                                EquipmentLevels = ConvertToSystemDictionary((Godot.Collections.Dictionary)dict["EquipmentLevels"]),
+                                ItemQuantities = ConvertToSystemDictionary((Godot.Collections.Dictionary)dict["ItemQuantities"]),
+                                TotalCallersScreened = (int)(long)dict["TotalCallersScreened"],
+                                TotalShowsCompleted = (int)(long)dict["TotalShowsCompleted"],
+                                PeakListenersAllTime = (int)(long)dict["PeakListenersAllTime"]
+                            };
                         }
 
                         // TODO: Handle version migration
@@ -190,8 +201,6 @@ namespace KBTV.Persistence
 
             try
             {
-                // TODO: Implement proper JSON serialization for SaveData
-                // For now, just save a placeholder
                 var file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Write);
                 if (file == null)
                 {
@@ -199,7 +208,22 @@ namespace KBTV.Persistence
                     return;
                 }
 
-                file.StoreString("{}"); // Placeholder JSON
+                // Serialize SaveData to JSON
+                var dict = new Godot.Collections.Dictionary
+                {
+                    ["Version"] = _currentSave.Version,
+                    ["LastSaveTime"] = _currentSave.LastSaveTime,
+                    ["CurrentNight"] = _currentSave.CurrentNight,
+                    ["Money"] = _currentSave.Money,
+                    ["EquipmentLevels"] = ConvertToGodotDictionary(_currentSave.EquipmentLevels),
+                    ["ItemQuantities"] = ConvertToGodotDictionary(_currentSave.ItemQuantities),
+                    ["TotalCallersScreened"] = _currentSave.TotalCallersScreened,
+                    ["TotalShowsCompleted"] = _currentSave.TotalShowsCompleted,
+                    ["PeakListenersAllTime"] = _currentSave.PeakListenersAllTime
+                };
+
+                string json = Json.Stringify(dict);
+                file.StoreString(json);
                 file.Close();
 
                 _isDirty = false;
@@ -241,11 +265,37 @@ namespace KBTV.Persistence
         }
 
         /// <summary>
-        /// Create a fresh save with default values.
+        /// Creates a new save with default values.
         /// </summary>
-        public SaveData CreateNewSave()
+        private SaveData CreateNewSave()
         {
             return SaveData.CreateNew();
+        }
+
+        /// <summary>
+        /// Converts Godot.Collections.Dictionary to System.Collections.Generic.Dictionary<string, int>
+        /// </summary>
+        private System.Collections.Generic.Dictionary<string, int> ConvertToSystemDictionary(Godot.Collections.Dictionary godotDict)
+        {
+            var systemDict = new System.Collections.Generic.Dictionary<string, int>();
+            foreach (var kv in godotDict)
+            {
+                systemDict[(string)kv.Key] = (int)(long)kv.Value;
+            }
+            return systemDict;
+        }
+
+        /// <summary>
+        /// Converts System.Collections.Generic.Dictionary<string, int> to Godot.Collections.Dictionary
+        /// </summary>
+        private Godot.Collections.Dictionary ConvertToGodotDictionary(System.Collections.Generic.Dictionary<string, int> systemDict)
+        {
+            var godotDict = new Godot.Collections.Dictionary();
+            foreach (var kv in systemDict)
+            {
+                godotDict[kv.Key] = kv.Value;
+            }
+            return godotDict;
         }
 
         /// <summary>

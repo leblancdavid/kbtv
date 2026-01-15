@@ -7,7 +7,6 @@ namespace KBTV.Callers
     /// <summary>
     /// A screening rule that callers must pass to be accepted.
     /// </summary>
-    [Serializable]
     public partial class ScreeningRule : Resource
     {
         [Export] private string _description;

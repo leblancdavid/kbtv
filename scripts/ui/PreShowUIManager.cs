@@ -25,7 +25,7 @@ namespace KBTV.UI
 		CreatePreShowUI();
 		SubscribeToEvents();
 		UpdateUI();
-		GD.Print("PreShowUIManager: Ready and initialized");
+		// GD.Print("PreShowUIManager: Ready and initialized");
 	}
 
 		private void LoadTopics()
@@ -38,13 +38,13 @@ namespace KBTV.UI
 			}
 			else
 			{
-				GD.Print($"PreShowUIManager: Loaded {_availableTopics.Count} topics");
+				// GD.Print($"PreShowUIManager: Loaded {_availableTopics.Count} topics");
 			}
 		}
 
 	private void CreatePreShowUI()
 	{
-		GD.Print("PreShowUIManager: CreatePreShowUI called");
+		// GD.Print("PreShowUIManager: CreatePreShowUI called");
 
 		// Create CanvasLayer for proper layering
 		var canvasLayer = new CanvasLayer();
@@ -69,7 +69,7 @@ namespace KBTV.UI
 		preShowContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		canvasLayer.AddChild(preShowContainer);
 
-		GD.Print("PreShowUIManager: Created CanvasLayer and container programmatically");
+		// GD.Print("PreShowUIManager: Created CanvasLayer and container programmatically");
 
 		// Create a VBoxContainer to hold our UI elements
 		var contentContainer = new VBoxContainer();
@@ -85,7 +85,7 @@ namespace KBTV.UI
 		var startButton = CreateStartButton();
 		var errorDisplay = CreateErrorDisplay();
 
-		GD.Print("PreShowUIManager: Created UI elements");
+		// GD.Print("PreShowUIManager: Created UI elements");
 
 		// Add elements to content container with spacing
 		contentContainer.AddChild(title);
@@ -100,12 +100,12 @@ namespace KBTV.UI
 		// Add the content container to the center container
 		preShowContainer.AddChild(contentContainer);
 
-		GD.Print($"PreShowUIManager: Content container added to center container");
-		GD.Print($"PreShowUIManager: Center container has {preShowContainer.GetChildCount()} children");
+		// GD.Print($"PreShowUIManager: Content container added to center container");
+		// GD.Print($"PreShowUIManager: Center container has {preShowContainer.GetChildCount()} children");
 
 		// Force layout update
 		preShowContainer.QueueSort();
-		GD.Print("PreShowUIManager: UI setup complete");
+		// GD.Print("PreShowUIManager: UI setup complete");
 	}
 
 	private Control CreateTitle()
@@ -211,7 +211,7 @@ namespace KBTV.UI
 				_topicDescription.Text = selectedTopic.Description;
 				_startShowButton.Disabled = false;
 				_errorLabel.Text = "";
-				GD.Print($"PreShowUIManager: Topic selected - {selectedTopic.DisplayName}");
+				// GD.Print($"PreShowUIManager: Topic selected - {selectedTopic.DisplayName}");
 			}
 		}
 
@@ -220,7 +220,7 @@ namespace KBTV.UI
 			if (GameStateManager.Instance.CanStartLiveShow())
 			{
 				GameStateManager.Instance.StartLiveShow();
-				GD.Print("PreShowUIManager: Starting live show");
+				// GD.Print("PreShowUIManager: Starting live show");
 			}
 			else
 			{
@@ -231,18 +231,18 @@ namespace KBTV.UI
 
 		private void UpdateUI()
 		{
-			GD.Print($"PreShowUIManager.UpdateUI: gameState={GameStateManager.Instance}, _startShowButton={_startShowButton}");
+			// GD.Print($"PreShowUIManager.UpdateUI: gameState={GameStateManager.Instance}, _startShowButton={_startShowButton}");
 
 			var gameState = GameStateManager.Instance;
 			if (gameState != null && _startShowButton != null)
 			{
 				var canStart = gameState.CanStartLiveShow();
 				_startShowButton.Disabled = !canStart;
-				GD.Print($"PreShowUIManager.UpdateUI: canStart={canStart}, button disabled={_startShowButton.Disabled}");
+				// GD.Print($"PreShowUIManager.UpdateUI: canStart={canStart}, button disabled={_startShowButton.Disabled}");
 			}
 			else
 			{
-				GD.Print($"PreShowUIManager.UpdateUI: Skipping update - gameState null: {gameState == null}, button null: {_startShowButton == null}");
+				// GD.Print($"PreShowUIManager.UpdateUI: Skipping update - gameState null: {gameState == null}, button null: {_startShowButton == null}");
 			}
 		}
 

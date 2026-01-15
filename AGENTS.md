@@ -198,6 +198,15 @@ Check GDScript syntax and basic validation:
 godot --check-only project.godot
 ```
 
+### C# Compilation
+For C# scripts, build the project after making changes to catch compilation errors:
+
+- **In Godot Editor**: Project > Tools > C# > Build
+- **Check Output**: Review the Output/MSBuild panel for errors
+- **Frequency**: Run build after editing C# scripts to ensure they compile correctly before testing
+
+**Important**: C# scripts must be built before running the game. Unbuilt changes may cause runtime errors or crashes.
+
 ### Test Structure
 ```gdscript
 extends Node

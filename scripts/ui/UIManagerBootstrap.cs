@@ -37,35 +37,35 @@ namespace KBTV.UI
 		private Label spiritLabel;
 		private Label patienceLabel;
 
-		protected override void OnSingletonReady()
-		{
-			GD.Print("UIManagerBootstrap.OnSingletonReady called");
+        protected override void OnSingletonReady()
+        {
+            // GD.Print("UIManagerBootstrap.OnSingletonReady called");
 
-			// Create our own CanvasLayer and container programmatically
-			var canvasLayer = new CanvasLayer();
-			canvasLayer.Name = "LiveShowCanvasLayer";
-			canvasLayer.Layer = 5; // Lower layer for LiveShow
-			AddChild(canvasLayer);
+            // Create our own CanvasLayer and container programmatically
+            var canvasLayer = new CanvasLayer();
+            canvasLayer.Name = "LiveShowCanvasLayer";
+            canvasLayer.Layer = 5; // Lower layer for LiveShow
+            AddChild(canvasLayer);
 
-			// Register with UIManager
-			var uiManager = GetNode<UIManager>("/root/Main/UIManager");
-			if (uiManager != null)
-			{
-				uiManager.RegisterLiveShowLayer(canvasLayer);
-			}
-			else
-			{
-				GD.PrintErr("UIManagerBootstrap: Could not find UIManager node");
-			}
+            // Register with UIManager
+            var uiManager = GetNode<UIManager>("/root/Main/UIManager");
+            if (uiManager != null)
+            {
+                uiManager.RegisterLiveShowLayer(canvasLayer);
+            }
+            else
+            {
+                GD.PrintErr("UIManagerBootstrap: Could not find UIManager node");
+            }
 
-			_rootContainer = new VBoxContainer();
-			_rootContainer.Name = "LiveShowContainer";
-			_rootContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-			_rootContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			_rootContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			canvasLayer.AddChild(_rootContainer);
+            _rootContainer = new VBoxContainer();
+            _rootContainer.Name = "LiveShowContainer";
+            _rootContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+            _rootContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            _rootContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+            canvasLayer.AddChild(_rootContainer);
 
-			GD.Print("UIManagerBootstrap: Created CanvasLayer and container programmatically");
+            // GD.Print("UIManagerBootstrap: Created CanvasLayer and container programmatically");
 
 			// Create tab controller FIRST, before UI creation
 			var tabs = new List<TabDefinition> {
@@ -92,113 +92,113 @@ namespace KBTV.UI
 			GD.Print("UIManagerBootstrap: UI creation complete");
 		}
 
-		public override void _Ready()
-		{
-			// Call base._Ready() first to initialize singleton and call OnSingletonReady()
-			base._Ready();
+        public override void _Ready()
+        {
+            // Call base._Ready() first to initialize singleton and call OnSingletonReady()
+            base._Ready();
 
-			GD.Print($"UIManagerBootstrap._Ready called. _tabController: {_tabController}");
+            // GD.Print($"UIManagerBootstrap._Ready called. _tabController: {_tabController}");
 
-			// Get manager references (UI creation happens in OnSingletonReady)
-			_gameState = GameStateManager.Instance;
-			_timeManager = TimeManager.Instance;
-			_listenerManager = ListenerManager.Instance;
-			_economyManager = EconomyManager.Instance;
-			_callerQueue = CallerQueue.Instance;
+            // Get manager references (UI creation happens in OnSingletonReady)
+            _gameState = GameStateManager.Instance;
+            _timeManager = TimeManager.Instance;
+            _listenerManager = ListenerManager.Instance;
+            _economyManager = EconomyManager.Instance;
+            _callerQueue = CallerQueue.Instance;
 
-			SubscribeToEvents();
-			RefreshAllDisplays();
+            SubscribeToEvents();
+            RefreshAllDisplays();
 
-			// Pre-populate STATS content will be called after tab controller initialization
-		}
+            // Pre-populate STATS content will be called after tab controller initialization
+        }
 
 		public override void _ExitTree()
 		{
 			UnsubscribeFromEvents();
 		}
 
-		private void InitializeTabController()
-		{
-			GD.Print($"InitializeTabController called. _tabController: {_tabController}, _mainContent: {_mainContent}");
-			if (_tabController != null && _mainContent != null)
-			{
-				// TabController will create its own TabSection as a child of _mainContent
-				_tabController.Initialize(_mainContent);
-				GD.Print("Tab controller initialized successfully");
+        private void InitializeTabController()
+        {
+            // GD.Print($"InitializeTabController called. _tabController: {_tabController}, _mainContent: {_mainContent}");
+            if (_tabController != null && _mainContent != null)
+            {
+                // TabController will create its own TabSection as a child of _mainContent
+                _tabController.Initialize(_mainContent);
+                // GD.Print("Tab controller initialized successfully");
 
-				// Now that tab controller is initialized, refresh the stats tab
-				TryRefreshStatsTab();
-			}
-			else
-			{
-				GD.PrintErr($"_tabController or _mainContent is null during initialization. _tabController: {_tabController}, _mainContent: {_mainContent}");
-			}
-		}
+                // Now that tab controller is initialized, refresh the stats tab
+                TryRefreshStatsTab();
+            }
+            else
+            {
+                GD.PrintErr($"_tabController or _mainContent is null during initialization. _tabController: {_tabController}, _mainContent: {_mainContent}");
+            }
+        }
 
-		private void TryRefreshStatsTab()
-		{
-			GD.Print($"TryRefreshStatsTab called. _tabController: {_tabController}");
-			if (_tabController != null)
-			{
-				_tabController.RefreshTabContent(2);
-				GD.Print("Stats tab pre-populated successfully");
-			}
-			else
-			{
-				GD.PrintErr("Tab controller still null in TryRefreshStatsTab");
-				// Debug: Check if tab controller was ever created
-				GD.Print("Checking all children of UIManager for TabController...");
-				foreach (var child in GetChildren())
-				{
-					GD.Print($"  Child: {child.Name} ({child.GetType().Name})");
-				}
-			}
-		}
+        private void TryRefreshStatsTab()
+        {
+            // GD.Print($"TryRefreshStatsTab called. _tabController: {_tabController}");
+            if (_tabController != null)
+            {
+                _tabController.RefreshTabContent(2);
+                // GD.Print("Stats tab pre-populated successfully");
+            }
+            else
+            {
+                GD.PrintErr("Tab controller still null in TryRefreshStatsTab");
+                // Debug: Check if tab controller was ever created
+                // GD.Print("Checking all children of UIManager for TabController...");
+                foreach (var child in GetChildren())
+                {
+                    // GD.Print($"  Child: {child.Name} ({child.GetType().Name})");
+                }
+            }
+        }
 
-		private void CreateUI()
-		{
-			try
-			{
-				GD.Print("UIManagerBootstrap: CreateUI started");
+        private void CreateUI()
+        {
+            try
+            {
+                // GD.Print("UIManagerBootstrap: CreateUI started");
 
-				CreateFullLayoutUI();
-				GD.Print("UIManagerBootstrap: CreateUI completed successfully");
-			}
-			catch (Exception e)
-			{
-				GD.PrintErr($"UIManagerBootstrap: CreateUI failed with exception: {e.Message}");
-				throw; // Re-throw to prevent silent failures
-			}
-		}
+                CreateFullLayoutUI();
+                // GD.Print("UIManagerBootstrap: CreateUI completed successfully");
+            }
+            catch (Exception e)
+            {
+                GD.PrintErr($"UIManagerBootstrap: CreateUI failed with exception: {e.Message}");
+                throw; // Re-throw to prevent silent failures
+            }
+        }
 
 
 
-		private void CreateFullLayoutUI()
-		{
-			try
-			{
-				GD.Print("UIManagerBootstrap: CreateFullLayoutUI started");
+        private void CreateFullLayoutUI()
+        {
+            try
+            {
+                // GD.Print("UIManagerBootstrap: CreateFullLayoutUI started");
 
-				// Create and add UI components to the root container
-				var headerBar = CreateHeaderBar();
-				var mainContent = CreateMainContent();
-				var footer = CreateFooter();
+                // Create and add UI components to the root container
+                var headerBar = CreateHeaderBar();
+                var mainContent = CreateMainContent();
+                var footer = CreateFooter();
 
-				_rootContainer.AddChild(headerBar);
-				_rootContainer.AddChild(mainContent);
-				_rootContainer.AddChild(footer);
+                _rootContainer.AddChild(headerBar);
+                _rootContainer.AddChild(mainContent);
+                _rootContainer.AddChild(footer);
 
-				// Initialize tab controller immediately now that UI is created
-				InitializeTabController();
+                // Initialize tab controller immediately now that UI is created
+                InitializeTabController();
 
-				GD.Print("UIManagerBootstrap: Full UI created successfully");
-			}
-			catch (Exception e)
-			{
-				GD.PrintErr($"UIManagerBootstrap: CreateFullLayoutUI failed with exception: {e.Message}");
-				throw; // Re-throw to prevent silent failures
-			}
-		}
+                // GD.Print("UIManagerBootstrap: Full UI created successfully");
+            }
+            catch (Exception e)
+            {
+                GD.PrintErr($"UIManagerBootstrap: CreateFullLayoutUI failed with exception: {e.Message}");
+                throw; // Re-throw to prevent silent failures
+            }
+        }
 
 
 
@@ -688,10 +688,10 @@ namespace KBTV.UI
 			}
 		}
 
-		private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
-		{
-			RefreshAllDisplays();
-		}
+        private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
+        {
+            RefreshAllDisplays();
+        }
 
 		private void HandleTimeTick(float deltaTime)
 		{
