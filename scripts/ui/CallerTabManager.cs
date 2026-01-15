@@ -117,38 +117,60 @@ namespace KBTV.UI
             }
         }
 
-        private Control CreateMainContainer()
+    private Control CreateMainContainer()
+    {
+        // MarginContainer provides padding and ensures full size usage
+        var marginContainer = new MarginContainer();
+        marginContainer.Name = "CallerTabMarginContainer";
+        marginContainer.AddThemeConstantOverride("margin_left", 10);
+        marginContainer.AddThemeConstantOverride("margin_top", 10);
+        marginContainer.AddThemeConstantOverride("margin_right", 10);
+        marginContainer.AddThemeConstantOverride("margin_bottom", 10);
+
+        // HBoxContainer distributes panels horizontally
+        var mainContainer = new HBoxContainer();
+        mainContainer.Name = "CallersMainContainer";
+        mainContainer.CustomMinimumSize = new Vector2(800, 400); // Minimum layout size
+        mainContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        mainContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+
+        // Left panel: Incoming callers with vertical scrolling (25% width)
+        var incomingScroll = CreateScrollableCallerPanel("INCOMING CALLERS", _callerQueue.IncomingCallers, new Color(1f, 0.7f, 0f), new Color(0.8f, 0.8f, 0.8f));
+        incomingScroll.SizeFlagsStretchRatio = 1; // 25%
+        mainContainer.AddChild(incomingScroll);
+
+        // Middle panel: Screening controls (50% width)
+        var screeningPanel = CreateScreeningPanelScene();
+        screeningPanel.SizeFlagsStretchRatio = 2; // 50%
+        mainContainer.AddChild(screeningPanel);
+
+        // Right panel: On-hold callers with vertical scrolling (25% width)
+        var onHoldScroll = CreateScrollableCallerPanel("ON HOLD", _callerQueue.OnHoldCallers, new Color(0f, 0.7f, 1f), new Color(0.6f, 0.6f, 0.6f));
+        onHoldScroll.SizeFlagsStretchRatio = 1; // 25%
+        mainContainer.AddChild(onHoldScroll);
+
+        marginContainer.AddChild(mainContainer);
+        return marginContainer;
+    }
+
+    private Control CreateScrollableCallerPanel(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
+    {
+        var scrollContainer = new ScrollContainer();
+        scrollContainer.Name = $"{headerText.Replace(" ", "")}ScrollContainer";
+        scrollContainer.ScrollHorizontal = (int)ScrollContainer.ScrollMode.Disabled; // No horizontal scrolling
+        scrollContainer.ScrollVertical = (int)ScrollContainer.ScrollMode.Auto; // Auto vertical scrolling
+        scrollContainer.CustomMinimumSize = new Vector2(200, 300); // Minimum size for caller panels
+
+        var callerPanel = CreateCallerPanelScene(headerText, callers, headerColor, itemColor);
+        if (callerPanel != null)
         {
-            var mainContainer = new HBoxContainer();
-            mainContainer.Name = "CallersMainContainer";
-            mainContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            mainContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-
-            // Left panel: Incoming callers (25% width)
-            var incomingPanel = CreateCallerPanelScene("INCOMING CALLERS", _callerQueue.IncomingCallers, new Color(1f, 0.7f, 0f), new Color(0.8f, 0.8f, 0.8f));
-            if (incomingPanel != null)
-            {
-                incomingPanel.SizeFlagsStretchRatio = 1; // 25%
-                mainContainer.AddChild(incomingPanel);
-            }
-
-            // Middle panel: Screening controls (50% width)
-            var screeningPanel = CreateScreeningPanelScene();
-            screeningPanel.SizeFlagsStretchRatio = 2; // 50%
-            mainContainer.AddChild(screeningPanel);
-
-            // Right panel: On-hold callers (25% width)
-            var onHoldPanel = CreateCallerPanelScene("ON HOLD", _callerQueue.OnHoldCallers, new Color(0f, 0.7f, 1f), new Color(0.6f, 0.6f, 0.6f));
-            if (onHoldPanel != null)
-            {
-                onHoldPanel.SizeFlagsStretchRatio = 1; // 25%
-                mainContainer.AddChild(onHoldPanel);
-            }
-
-            return mainContainer;
+            scrollContainer.AddChild(callerPanel);
         }
 
-        private Control CreateCallerPanelScene(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
+        return scrollContainer;
+    }
+
+    private Control CreateCallerPanelScene(string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
         {
             try
             {
@@ -185,6 +207,9 @@ namespace KBTV.UI
                     var panel = scene.Instantiate<ScreeningPanel>();
                     if (panel != null)
                     {
+                        // Ensure proper sizing for the panel
+                        panel.CustomMinimumSize = new Vector2(300, 300); // Minimum screening panel size
+
                         // Set caller info
                         if (_callerQueue.IsScreening)
                         {
