@@ -92,6 +92,9 @@ namespace KBTV.UI
                             Callable.From(() => _callerActions.OnRejectCaller())
                         );
 
+                        // Connect screening changed signal for UI refresh
+                        _callerQueue.ScreeningChanged += OnScreeningChanged;
+
                         panel.AddChild(screeningPanel);
                         GD.Print("CallerTabManager: Screening panel creation successful");
                     }
@@ -107,6 +110,11 @@ namespace KBTV.UI
                 GD.PrintErr($"CallerTabManager.CreateScreeningPanel failed: {ex.Message}");
                 panel.AddChild(CreateErrorPanel("Failed to create screening panel"));
             }
+        }
+
+        private void OnScreeningChanged()
+        {
+            RefreshContent();
         }
 
         /// <summary>
@@ -132,6 +140,7 @@ namespace KBTV.UI
         /// </summary>
         public void Cleanup()
         {
+            _callerQueue.ScreeningChanged -= OnScreeningChanged;
             GD.Print("CallerTabManager: Cleanup completed");
         }
 

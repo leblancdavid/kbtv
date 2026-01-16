@@ -37,8 +37,3 @@ custom_minimum_size = Vector2(50, 20)
 max_value = 1.0
 value = 1.0
 show_percentage = false
-
-[node name="SelectButton" type="Button" parent="HBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 0
-text = "Select"

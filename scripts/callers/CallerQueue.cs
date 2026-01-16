@@ -15,6 +15,7 @@ namespace KBTV.Callers
 		[Signal] public delegate void CallerOnAirEventHandler(Caller caller);
 		[Signal] public delegate void CallerCompletedEventHandler(Caller caller);
 		[Signal] public delegate void CallerApprovedEventHandler(Caller caller);
+		[Signal] public delegate void ScreeningChangedEventHandler();
 
 		public static CallerQueue Instance => (CallerQueue)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/CallerQueue");
 
@@ -88,6 +89,7 @@ namespace KBTV.Callers
 
         /// <summary>
         /// Start screening a specific incoming caller.
+        /// Caller stays visible in the incoming list.
         /// </summary>
         public bool StartScreeningCaller(Caller caller)
         {
@@ -97,19 +99,26 @@ namespace KBTV.Callers
                 return false;
             }
 
-            if (!_incomingCallers.Contains(caller))
-            {
-                GD.Print("CallerQueue: Caller not in incoming queue");
-                return false;
-            }
-
-            _incomingCallers.Remove(caller);
             _currentScreening = caller;
             _currentScreening.SetState(CallerState.Screening);
-
-            EmitSignal("CallerRemoved", caller);
+            EmitSignal("ScreeningChanged");
 
             return true;
+        }
+
+        /// <summary>
+        /// Replace the current screening caller with a new one.
+        /// The current screening caller stays visible in the incoming list.
+        /// </summary>
+        public bool ReplaceScreeningCaller(Caller caller)
+        {
+            if (_currentScreening != null)
+            {
+                _currentScreening.SetState(CallerState.Incoming);
+                _currentScreening = null;
+            }
+
+            return StartScreeningCaller(caller);
         }
 
         /// <summary>
@@ -135,6 +144,7 @@ namespace KBTV.Callers
             Caller approved = _currentScreening;
             _currentScreening = null;
             EmitSignal("CallerApproved", approved);
+            EmitSignal("ScreeningChanged");
             return true;
         }
 
@@ -153,6 +163,7 @@ namespace KBTV.Callers
 
             UnsubscribeCaller(_currentScreening);
             EmitSignal("CallerRemoved", _currentScreening);
+            EmitSignal("ScreeningChanged");
             _currentScreening = null;
             return true;
         }

@@ -8,15 +8,13 @@ namespace KBTV.UI
         private Caller _caller;
         private Label _nameLabel;
         private ProgressBar _statusIndicator;
-        private Button _selectButton;
 
         public override void _Ready()
         {
             _nameLabel = GetNode<Label>("HBoxContainer/NameLabel");
             _statusIndicator = GetNode<ProgressBar>("HBoxContainer/StatusIndicator");
-            _selectButton = GetNode<Button>("HBoxContainer/SelectButton");
 
-            _selectButton.Pressed += OnSelectPressed;
+            GuiInput += OnGuiInput;
         }
 
         public override void _Process(double delta)
@@ -24,6 +22,30 @@ namespace KBTV.UI
             if (_caller != null)
             {
                 UpdateStatusIndicator();
+            }
+        }
+
+        private void OnGuiInput(InputEvent @event)
+        {
+            if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed && mouseEvent.ButtonIndex == MouseButton.Left)
+            {
+                OnItemClicked();
+            }
+        }
+
+        private void OnItemClicked()
+        {
+            if (_caller != null && CallerQueue.Instance != null)
+            {
+                bool success = CallerQueue.Instance.ReplaceScreeningCaller(_caller);
+                if (success)
+                {
+                    GD.Print($"Replaced screening with caller {_caller.Name}");
+                }
+                else
+                {
+                    GD.PrintErr($"Failed to replace screening caller {_caller.Name}");
+                }
             }
         }
 
@@ -40,6 +62,36 @@ namespace KBTV.UI
                 _nameLabel.Text = name;
             }
             UpdateStatusIndicator();
+            UpdateVisualSelection();
+        }
+
+        private void UpdateVisualSelection()
+        {
+            if (_caller == null || _statusIndicator == null) return;
+
+            bool isScreening = CallerQueue.Instance?.CurrentScreening == _caller;
+
+            var style = GetThemeStylebox("panel") as StyleBoxFlat;
+            if (style == null)
+            {
+                style = new StyleBoxFlat();
+                style.CornerRadiusTopLeft = 4;
+                style.CornerRadiusTopRight = 4;
+                style.CornerRadiusBottomRight = 4;
+                style.CornerRadiusBottomLeft = 4;
+                style.BgColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+            }
+
+            if (isScreening)
+            {
+                style.BgColor = new Color(0.2f, 0.5f, 0.2f);
+            }
+            else
+            {
+                style.BgColor = new Color(0.2f, 0.2f, 0.2f, 1f);
+            }
+
+            AddThemeStyleboxOverride("panel", style);
         }
 
         private void UpdateStatusIndicator()
@@ -68,23 +120,6 @@ namespace KBTV.UI
             }
 
             _statusIndicator.AddThemeColorOverride("fill", color);
-        }
-
-        private void OnSelectPressed()
-        {
-            if (_caller != null && CallerQueue.Instance != null)
-            {
-                bool success = CallerQueue.Instance.StartScreeningCaller(_caller);
-                if (success)
-                {
-                    GD.Print($"Selected caller {_caller.Name} for screening");
-                    // UI refresh will be handled by the tab manager
-                }
-                else
-                {
-                    GD.PrintErr($"Failed to select caller {_caller.Name} for screening");
-                }
-            }
         }
     }
 }
