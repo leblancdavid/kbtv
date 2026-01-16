@@ -55,7 +55,16 @@ namespace KBTV.UI
         public void SetCaller(Caller? caller)
         {
             _callerId = caller?.Id;
-            ApplyCallerName(caller?.Name ?? "");
+            CallDeferred(nameof(_ApplyCallerNameDeferred), caller?.Name ?? "");
+        }
+
+        private void _ApplyCallerNameDeferred(string name)
+        {
+            if (_nameLabel != null)
+            {
+                _nameLabel.Text = name;
+                _nameLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.7f));
+            }
             UpdateStatusIndicator();
             UpdateVisualSelection();
         }
