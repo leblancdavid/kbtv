@@ -25,6 +25,21 @@ namespace KBTV
             }
 #endif
             GD.Print("Main: Game scene loaded");
+
+            var transitionManager = ServiceRegistry.Instance?.GlobalTransitionManager;
+            if (transitionManager != null)
+            {
+                CallDeferred(nameof(FadeInFromLoading));
+            }
+        }
+
+        private async void FadeInFromLoading()
+        {
+            var transitionManager = ServiceRegistry.Instance?.GlobalTransitionManager;
+            if (transitionManager != null)
+            {
+                await transitionManager.FadeFromBlack(0.4f);
+            }
         }
 
 #if DEBUG

@@ -76,9 +76,16 @@ namespace KBTV.UI
 
         public async Task TransitionToScene(string scenePath, float fadeOutDuration = DEFAULT_FADE_DURATION, float fadeInDuration = DEFAULT_FADE_DURATION)
         {
+            var tree = GetTree();
+            if (tree == null)
+            {
+                GD.PrintErr("GlobalTransitionManager: GetTree() is null, cannot transition");
+                return;
+            }
+
             await FadeToBlack(fadeOutDuration);
-            GetTree().ChangeSceneToFile(scenePath);
-            await ToSignal(GetTree(), "process_frame");
+            tree.ChangeSceneToFile(scenePath);
+            await ToSignal(tree, "process_frame");
             await FadeFromBlack(fadeInDuration);
         }
     }

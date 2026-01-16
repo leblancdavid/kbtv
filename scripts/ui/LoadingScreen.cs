@@ -81,6 +81,9 @@ namespace KBTV.UI
 
         public override void _Process(double delta)
         {
+            if (!IsInstanceValid(this) || _statusLabel == null || _progressBar == null)
+                return;
+
             float deltaF = (float)delta;
             _totalLoadingTime += deltaF;
 
@@ -134,28 +137,43 @@ namespace KBTV.UI
 
         private async void PerformTransition()
         {
+            if (!IsInstanceValid(this) || GetParent() == null)
+            {
+                GD.PrintErr("LoadingScreen: Node already disposed, aborting transition");
+                return;
+            }
+
             var transitionManager = ServiceRegistry.Instance?.GlobalTransitionManager;
             if (transitionManager == null)
             {
                 GD.PrintErr("LoadingScreen: GlobalTransitionManager not available, using fallback");
-                await ToSignal(GetTree().CreateTimer(0.5f), "timeout");
+                var tree = GetTree();
+                if (tree != null)
+                {
+                    await ToSignal(tree.CreateTimer(0.5f), "timeout");
+                }
                 LoadGameScene();
                 return;
             }
 
             await transitionManager.FadeToBlack(0.4f);
             LoadGameScene();
-            await ToSignal(GetTree(), "process_frame");
-            await transitionManager.FadeFromBlack(0.4f);
-
-            QueueFree();
+            return;
         }
 
         private void LoadGameScene()
         {
             _transitionStarted = false;
             GD.Print("LoadingScreen: Loading game scene");
-            GetTree().ChangeSceneToFile(GameScenePath);
+            var tree = GetTree();
+            if (tree != null)
+            {
+                tree.ChangeSceneToFile(GameScenePath);
+            }
+            else
+            {
+                GD.PrintErr("LoadingScreen: GetTree() is null during LoadGameScene!");
+            }
         }
 
         private void CreateLoadingUI()

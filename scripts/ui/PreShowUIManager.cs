@@ -37,11 +37,14 @@ namespace KBTV.UI
 			}
 		}
 
+		private bool _servicesSubscribed;
+
 		private void SubscribeAndWait()
 		{
 			var registry = ServiceRegistry.Instance;
 			if (registry != null)
 			{
+				_servicesSubscribed = true;
 				registry.Connect("AllServicesReady", Callable.From(DelayedRegister));
 			}
 		}
@@ -51,7 +54,11 @@ namespace KBTV.UI
 			var registry = ServiceRegistry.Instance;
 			if (registry != null)
 			{
-				registry.Disconnect("AllServicesReady", Callable.From(DelayedRegister));
+				if (_servicesSubscribed)
+				{
+					registry.Disconnect("AllServicesReady", Callable.From(DelayedRegister));
+					_servicesSubscribed = false;
+				}
 			}
 			GD.Print("PreShowUIManager: All services ready, creating and registering UI");
 			CreatePreShowUI();
