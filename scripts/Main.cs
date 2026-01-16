@@ -1,5 +1,6 @@
 using System.Reflection;
 using Godot;
+using KBTV.Core;
 
 #if DEBUG
 using Chickensoft.GoDotTest;
@@ -23,7 +24,7 @@ namespace KBTV
                 return;
             }
 #endif
-            GetTree().ChangeSceneToFile("res://scenes/Game.tscn");
+            GD.Print("Main: Game scene loaded");
         }
 
 #if DEBUG

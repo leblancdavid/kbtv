@@ -51,47 +51,25 @@ namespace KBTV.Managers
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<ListenerManager>(this);
-
-            if (ServiceRegistry.Instance == null)
-            {
-                GD.PrintErr("ListenerManager: ServiceRegistry not available");
-                return;
-            }
-
-            _repository = ServiceRegistry.Instance.CallerRepository;
-            _gameState = ServiceRegistry.Instance.GameStateManager;
-            _timeManager = ServiceRegistry.Instance.TimeManager;
-
-            if (_gameState == null || _timeManager == null || _repository == null)
-            {
-                GD.Print("ListenerManager: Some services not available yet, deferring initialization");
-                CallDeferred(nameof(DeferredInit));
-                return;
-            }
-
-            CompleteInitialization();
-        }
-
-        private void DeferredInit()
-        {
-            _repository = ServiceRegistry.Instance.CallerRepository;
-            _gameState = ServiceRegistry.Instance.GameStateManager;
-            _timeManager = ServiceRegistry.Instance.TimeManager;
-
-            if (_gameState == null || _timeManager == null || _repository == null)
-            {
-                GD.PrintErr("ListenerManager: Failed to initialize - services still not available");
-                return;
-            }
-
-            CompleteInitialization();
+            CallDeferred(nameof(CompleteInitialization));
         }
 
         private void CompleteInitialization()
         {
+            _repository = ServiceRegistry.Instance.CallerRepository;
+            _gameState = ServiceRegistry.Instance.GameStateManager;
+            _timeManager = ServiceRegistry.Instance.TimeManager;
+
+            if (_gameState == null || _timeManager == null || _repository == null)
+            {
+                GD.PrintErr("ListenerManager: Required services not available after all services ready");
+                return;
+            }
+
             _gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
             _timeManager.Connect("Tick", Callable.From<float>(HandleTick));
             _repository.Subscribe(_repositoryObserver);
+            GD.Print("ListenerManager: Initialization complete");
         }
 
         private readonly ICallerRepositoryObserver _repositoryObserver = new ListenerRepositoryObserver();

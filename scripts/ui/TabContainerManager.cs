@@ -19,30 +19,57 @@ namespace KBTV.UI
             GD.Print("TabContainerManager: Initializing UI system");
             ServiceRegistry.Instance.RegisterSelf<TabContainerManager>(this);
 
+            var registry = ServiceRegistry.Instance;
+            if (registry != null && ServiceRegistry.IsInitialized && registry.RegisteredCount >= registry.ExpectedCount)
+            {
+                GD.Print("TabContainerManager: Services already ready, creating UI");
+                CallDeferred(nameof(CreateUI));
+            }
+            else
+            {
+                GD.Print("TabContainerManager: Waiting for AllServicesReady");
+                CallDeferred(nameof(SubscribeAndWait));
+            }
+        }
+
+        private void SubscribeAndWait()
+        {
+            var registry = ServiceRegistry.Instance;
+            if (registry != null)
+            {
+                registry.Connect("AllServicesReady", Callable.From(OnAllServicesReady));
+            }
+        }
+
+        private void OnAllServicesReady()
+        {
+            var registry = ServiceRegistry.Instance;
+            if (registry != null)
+            {
+                registry.Disconnect("AllServicesReady", Callable.From(OnAllServicesReady));
+            }
+            GD.Print("TabContainerManager: All services ready, creating UI");
+            CreateUI();
+        }
+
+        private void CreateUI()
+        {
             _canvas = new CanvasLayer();
             _canvas.Layer = 100;
             AddChild(_canvas);
 
-            var background = new Panel();
-            background.Name = "Background";
-            background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-            background.Modulate = new Color(0, 0, 0, 0.8f);
-            _canvas.AddChild(background);
-
-            // Create main layout container
             var mainLayout = new VBoxContainer();
             mainLayout.Name = "MainLayout";
             mainLayout.SetAnchorsPreset(Control.LayoutPreset.FullRect);
             _canvas.AddChild(mainLayout);
 
-            // Load and instantiate Header
             var headerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LiveShowHeader.tscn");
             if (headerScene != null)
             {
                 var header = headerScene.Instantiate<Control>();
                 header.Name = "LiveShowHeader";
                 header.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin;
-                header.CustomMinimumSize = new Vector2(0, 28); // Fixed header height
+                header.CustomMinimumSize = new Vector2(0, 28);
                 mainLayout.AddChild(header);
                 GD.Print("TabContainerManager: Header loaded successfully");
             }
@@ -51,7 +78,6 @@ namespace KBTV.UI
                 GD.PrintErr("TabContainerManager: Failed to load LiveShowHeader.tscn");
             }
 
-            // Load and instantiate TabContainer scene
             var tabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/TabContainerUI.tscn");
             if (tabScene != null)
             {
@@ -59,8 +85,6 @@ namespace KBTV.UI
                 _tabContainer.Name = "MainTabContainer";
                 _tabContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
                 mainLayout.AddChild(_tabContainer);
-
-                // Initialize tabs
                 InitializeTabs();
                 GD.Print("TabContainerManager: TabContainer loaded successfully");
             }
@@ -69,14 +93,13 @@ namespace KBTV.UI
                 GD.PrintErr("TabContainerManager: Failed to load TabContainerUI.tscn");
             }
 
-            // Load and instantiate Footer
             var footerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LiveShowFooter.tscn");
             if (footerScene != null)
             {
                 var footer = footerScene.Instantiate<Control>();
                 footer.Name = "LiveShowFooter";
                 footer.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd;
-                footer.CustomMinimumSize = new Vector2(0, 140); // Fixed footer height
+                footer.CustomMinimumSize = new Vector2(0, 140);
                 mainLayout.AddChild(footer);
                 GD.Print("TabContainerManager: Footer loaded successfully");
             }
@@ -87,7 +110,6 @@ namespace KBTV.UI
 
             GD.Print("TabContainerManager: UI system initialized successfully");
 
-            // Register with UIManager (deferred to ensure it's ready)
             CallDeferred(nameof(RegisterWithUIManager));
         }
 

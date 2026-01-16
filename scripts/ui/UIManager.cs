@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Godot;
 using KBTV.Core;
 
@@ -12,8 +13,8 @@ namespace KBTV.UI
         private CanvasLayer _preShowLayer;
         private CanvasLayer _liveShowLayer;
         private bool _gameStateConnected;
-        private int _visibilityUpdateAttempts;
-        private const int MAX_UPDATE_ATTEMPTS = 60;
+        private GameStateManager _gameState;
+        private bool _isTransitioning;
 
         public void RegisterPreShowLayer(CanvasLayer layer)
         {
@@ -32,34 +33,22 @@ namespace KBTV.UI
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<UIManager>(this);
-
-            var gameState = ServiceRegistry.Instance?.GameStateManager;
-            if (gameState != null)
-            {
-                gameState.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
-                _gameStateConnected = true;
-                TryUpdateVisibility();
-            }
-            else
-            {
-                GD.Print("UIManager: GameStateManager not available yet, deferring initialization");
-                CallDeferred(nameof(DeferredInit));
-            }
+            CallDeferred(nameof(CompleteInitialization));
         }
 
-        private void DeferredInit()
+        private void CompleteInitialization()
         {
-            var gameState = ServiceRegistry.Instance?.GameStateManager;
-            if (gameState != null)
+            _gameState = ServiceRegistry.Instance.GameStateManager;
+            if (_gameState != null)
             {
-                gameState.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
+                _gameState.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
                 _gameStateConnected = true;
                 TryUpdateVisibility();
+                GD.Print("UIManager: Initialization complete");
             }
             else
             {
-                GD.Print("UIManager: GameStateManager still not available after deferral, will retry");
-                CallDeferred(nameof(DeferredInit));
+                GD.PrintErr("UIManager: GameStateManager not available after all services ready");
             }
         }
 
@@ -67,20 +56,13 @@ namespace KBTV.UI
         {
             if (_preShowLayer == null || _liveShowLayer == null)
             {
-                _visibilityUpdateAttempts++;
-                if (_visibilityUpdateAttempts >= MAX_UPDATE_ATTEMPTS)
-                {
-                    GD.PrintErr("UIManager: Max visibility update attempts reached, layers not registered");
-                    return;
-                }
-                CallDeferred(nameof(TryUpdateVisibility));
+                GD.Print("UIManager: Layers not yet registered, visibility update deferred");
                 return;
             }
 
-            var gameState = ServiceRegistry.Instance?.GameStateManager;
-            if (gameState != null)
+            if (_gameState != null)
             {
-                PerformVisibilityUpdate(gameState.CurrentPhase);
+                PerformVisibilityUpdate(_gameState.CurrentPhase);
             }
         }
 
@@ -95,10 +77,37 @@ namespace KBTV.UI
                 return;
             }
 
-            PerformVisibilityUpdate(newPhase);
+            if (_isTransitioning)
+            {
+                GD.Print("UIManager: Already transitioning, skipping");
+                return;
+            }
+
+            CallDeferred(nameof(PerformTransitionAsync), (int)newPhase);
         }
 
-        private void PerformVisibilityUpdate(GamePhase newPhase)
+        private async void PerformTransitionAsync(int newPhaseInt)
+        {
+            var newPhase = (GamePhase)newPhaseInt;
+            _isTransitioning = true;
+
+            var transitionManager = ServiceRegistry.Instance?.GlobalTransitionManager;
+            if (transitionManager != null)
+            {
+                await transitionManager.FadeToBlack(0.3f);
+            }
+
+            PerformVisibilityUpdateInstant(newPhase);
+
+            if (transitionManager != null)
+            {
+                await transitionManager.FadeFromBlack(0.3f);
+            }
+
+            _isTransitioning = false;
+        }
+
+        private void PerformVisibilityUpdateInstant(GamePhase newPhase)
         {
             GD.Print($"UIManager: Before update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
 
@@ -124,15 +133,16 @@ namespace KBTV.UI
             GD.Print($"UIManager: After update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
         }
 
+        private void PerformVisibilityUpdate(GamePhase newPhase)
+        {
+            PerformVisibilityUpdateInstant(newPhase);
+        }
+
         public override void _ExitTree()
         {
-            if (_gameStateConnected)
+            if (_gameStateConnected && _gameState != null)
             {
-                var gameState = ServiceRegistry.Instance?.GameStateManager;
-                if (gameState != null)
-                {
-                    gameState.Disconnect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
-                }
+                _gameState.Disconnect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
             }
         }
     }

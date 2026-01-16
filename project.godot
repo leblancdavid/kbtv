@@ -11,20 +11,23 @@ config_version=5
 [application]
 
 config/name="KBTV"
-run/main_scene="res://scenes/Main.tscn"
+run/main_scene="res://scenes/ui/LoadingScreen.tscn"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
 ServiceRegistry="res://scripts/core/ServiceRegistry.cs"
-UIManager="res://scripts/ui/UIManager.cs"
-GameStateManager="res://scripts/core/GameStateManager.cs"
+GlobalTransitionManager="res://scripts/ui/GlobalTransitionManager.cs"
 TimeManager="res://scripts/managers/TimeManager.cs"
-ListenerManager="res://scripts/managers/ListenerManager.cs"
 EconomyManager="res://scripts/economy/EconomyManager.cs"
+SaveManager="res://scripts/persistence/SaveManager.cs"
+GameStateManager="res://scripts/core/GameStateManager.cs"
+ListenerManager="res://scripts/managers/ListenerManager.cs"
+UIManager="res://scripts/ui/UIManager.cs"
 TabContainerManager="res://scripts/ui/TabContainerManager.cs"
 PreShowUIManager="res://scripts/ui/PreShowUIManager.cs"
+CallerGenerator="res://scripts/callers/CallerGenerator.cs"
 
 [display]
 

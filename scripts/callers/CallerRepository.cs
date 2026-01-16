@@ -119,6 +119,10 @@ namespace KBTV.Callers
             }
 
             var caller = GetCaller(incoming);
+            if (caller == null)
+            {
+                return Result<Caller>.Fail("Caller not found", "CALLER_NOT_FOUND");
+            }
             return StartScreening(caller);
         }
 

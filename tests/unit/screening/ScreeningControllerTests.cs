@@ -131,7 +131,7 @@ namespace KBTV.Tests.Unit.Screening
             var caller = CreateTestCaller();
             _controller.Start(caller);
 
-            ScreeningProgress? triggeredProgress = null;
+            ScreeningProgress triggeredProgress = default;
             _controller.ProgressUpdated += progress => triggeredProgress = progress;
 
             _controller.Update(1f);

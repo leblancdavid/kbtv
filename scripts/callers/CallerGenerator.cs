@@ -11,7 +11,6 @@ namespace KBTV.Callers
     /// </summary>
 	public partial class CallerGenerator : Node
 	{
-		public static CallerGenerator Instance => (CallerGenerator)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/CallerGenerator");
         [Export] private float _minSpawnInterval = 1f;
         [Export] private float _maxSpawnInterval = 3f;
         [Export] private float _basePatience = 30f;
@@ -24,8 +23,8 @@ namespace KBTV.Callers
         private float _nextSpawnTime;
         private bool _isGenerating;
         private ICallerRepository _repository;
-        // TODO: Add when Topic is implemented
-        // private Topic _currentTopic;
+
+        private GameStateManager _gameState;
 
         // Simple name generation data
         private static readonly string[] FirstNames = {
@@ -45,65 +44,37 @@ namespace KBTV.Callers
             "Ghosts", "UFOs", "Bigfoot", "Aliens", "Demons", "Hauntings", "Cryptids", "Paranormal"
         };
 
-        private GameStateManager _gameState;
-
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<CallerGenerator>(this);
-
-            if (ServiceRegistry.Instance == null)
-            {
-                GD.PrintErr("CallerGenerator: ServiceRegistry not available");
-                return;
-            }
-
-            _repository = ServiceRegistry.Instance.CallerRepository;
-            _gameState = ServiceRegistry.Instance.GameStateManager;
-
-            if (_repository == null)
-            {
-                GD.PrintErr("CallerGenerator: ICallerRepository not available");
-                return;
-            }
-
-            if (_gameState == null)
-            {
-                GD.Print("CallerGenerator: GameStateManager not available yet, deferring initialization");
-                CallDeferred(nameof(DeferredInit));
-                return;
-            }
-
-            CompleteInitialization();
-        }
-
-        private void DeferredInit()
-        {
-            _repository = ServiceRegistry.Instance.CallerRepository;
-            _gameState = ServiceRegistry.Instance.GameStateManager;
-
-            if (_repository == null)
-            {
-                GD.PrintErr("CallerGenerator: ICallerRepository not available after deferral");
-                return;
-            }
-
-            if (_gameState == null)
-            {
-                GD.PrintErr("CallerGenerator: GameStateManager not available after deferral");
-                return;
-            }
-
-            CompleteInitialization();
+            CallDeferred(nameof(CompleteInitialization));
         }
 
         private void CompleteInitialization()
         {
+            _repository = ServiceRegistry.Instance.CallerRepository;
+            _gameState = ServiceRegistry.Instance.GameStateManager;
+
+            if (_repository == null)
+            {
+                GD.PrintErr("CallerGenerator: ICallerRepository not available after all services ready");
+                return;
+            }
+
+            if (_gameState == null)
+            {
+                GD.PrintErr("CallerGenerator: GameStateManager not available after all services ready");
+                return;
+            }
+
             _gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
 
             if (_gameState.CurrentPhase == GamePhase.LiveShow)
             {
                 StartGenerating();
             }
+
+            GD.Print("CallerGenerator: Initialization complete");
         }
 
         public override void _ExitTree()

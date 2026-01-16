@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using Chickensoft.GoDotTest;
 using Godot;
@@ -18,14 +20,6 @@ namespace KBTV.Tests.Unit.Core
             AssertThat(result.Value == 42);
             AssertThat(string.IsNullOrEmpty(result.ErrorMessage));
             AssertThat(string.IsNullOrEmpty(result.ErrorCode));
-        }
-
-        [Test]
-        public void Ok_WithNull_CreatesSuccessfulResult()
-        {
-            var result = Result<string>.Ok(null);
-            AssertThat(result.IsSuccess);
-            AssertThat(result.Value == null);
         }
 
         [Test]

@@ -19,9 +19,15 @@ namespace KBTV.Core
     [GlobalClass]
     public partial class ServiceRegistry : Node
     {
+        [Signal] public delegate void AllServicesReadyEventHandler();
+
         private static ServiceRegistry _instance;
         private readonly Dictionary<Type, object> _services = new();
         private readonly Dictionary<Type, Func<object>> _factories = new();
+
+        private int _registeredCount;
+        private int _expectedCount = 14;
+        private bool _allReadyEmitted;
 
         public static bool IsInitialized { get; private set; } = false;
 
@@ -40,27 +46,49 @@ namespace KBTV.Core
         public override void _Ready()
         {
             _instance = this;
-            RegisterCoreServices();
+            _registeredCount = 0;
+            _allReadyEmitted = false;
             IsInitialized = true;
-            GD.Print("ServiceRegistry: Initialized");
-        }
 
-        public override void _ExitTree()
-        {
-            _instance = null;
+            RegisterCoreServices();
+
+            GD.Print("ServiceRegistry: Initialized");
         }
 
         private void RegisterCoreServices()
         {
             var eventAggregator = new EventAggregator();
-            RegisterSelf<IEventAggregator>(eventAggregator);
+            Register<IEventAggregator>(eventAggregator);
+            NotifyRegistered();
 
             var repository = new CallerRepository();
-            RegisterSelf<ICallerRepository>(repository);
+            Register<ICallerRepository>(repository);
+            NotifyRegistered();
 
             var screeningController = new ScreeningController();
-            RegisterSelf<IScreeningController>(screeningController);
+            Register<IScreeningController>(screeningController);
+            NotifyRegistered();
         }
+
+        public void NotifyRegistered()
+        {
+            _registeredCount++;
+            GD.Print($"ServiceRegistry: Service registered ({_registeredCount}/{_expectedCount})");
+
+            if (!_allReadyEmitted && _registeredCount >= _expectedCount)
+            {
+                _allReadyEmitted = true;
+                EmitSignal("AllServicesReady");
+                GD.Print("ServiceRegistry: All services ready!");
+            }
+        }
+
+        public float InitializationProgress => _expectedCount > 0
+            ? Mathf.Clamp((float)_registeredCount / _expectedCount, 0f, 1f)
+            : 0f;
+
+        public int RegisteredCount => _registeredCount;
+        public int ExpectedCount => _expectedCount;
 
         public void Register<TService>(TService instance) where TService : class
         {
@@ -101,6 +129,8 @@ namespace KBTV.Core
             {
                 GD.Print($"ServiceRegistry: Registered {type.Name}");
             }
+
+            NotifyRegistered();
         }
 
         public void Register<TInterface, TImplementation>()
@@ -188,6 +218,7 @@ namespace KBTV.Core
         public EconomyManager EconomyManager => Get<EconomyManager>();
         public SaveManager SaveManager => Get<SaveManager>();
         public UIManager UIManager => Get<UIManager>();
+        public GlobalTransitionManager GlobalTransitionManager => Get<GlobalTransitionManager>();
         public CallerGenerator CallerGenerator => Get<CallerGenerator>();
     }
 }

@@ -24,9 +24,44 @@ namespace KBTV.UI
 			base._Ready();
 			ServiceRegistry.Instance.RegisterSelf<PreShowUIManager>(this);
 			LoadTopics();
+			GD.Print("PreShowUIManager: Waiting for AllServicesReady before showing UI");
+
+			var registry = ServiceRegistry.Instance;
+			if (registry != null && ServiceRegistry.IsInitialized && registry.RegisteredCount >= registry.ExpectedCount)
+			{
+				CallDeferred(nameof(DelayedRegister));
+			}
+			else
+			{
+				CallDeferred(nameof(SubscribeAndWait));
+			}
+		}
+
+		private void SubscribeAndWait()
+		{
+			var registry = ServiceRegistry.Instance;
+			if (registry != null)
+			{
+				registry.Connect("AllServicesReady", Callable.From(DelayedRegister));
+			}
+		}
+
+		private void DelayedRegister()
+		{
+			var registry = ServiceRegistry.Instance;
+			if (registry != null)
+			{
+				registry.Disconnect("AllServicesReady", Callable.From(DelayedRegister));
+			}
+			GD.Print("PreShowUIManager: All services ready, creating and registering UI");
 			CreatePreShowUI();
 			SubscribeToEvents();
+		}
+
+		private void CompleteInitialization()
+		{
 			UpdateUI();
+			GD.Print("PreShowUIManager: Initialization complete");
 		}
 
 		private void LoadTopics()
@@ -53,27 +88,26 @@ namespace KBTV.UI
 		var uiManager = ServiceRegistry.Instance?.UIManager;
 		if (uiManager != null)
 		{
-			// Need to recreate canvas layer since this is deferred
 			var canvasLayer = new CanvasLayer();
 			canvasLayer.Name = "PreShowCanvasLayer";
-			canvasLayer.Layer = 10; // Higher layer for PreShow
+			canvasLayer.Layer = 10;
+			canvasLayer.Visible = true;
 			AddChild(canvasLayer);
 
 			uiManager.RegisterPreShowLayer(canvasLayer);
-			GD.Print("PreShowUIManager: Successfully registered with UIManager");
+			GD.Print("PreShowUIManager: Registered with UIManager");
 
-			// Set up the container now that canvas layer exists
 			var preShowContainer = new CenterContainer();
 			preShowContainer.Name = "PreShowContainer";
 			preShowContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 			canvasLayer.AddChild(preShowContainer);
 
-			// Continue with UI setup...
 			SetupPreShowUI(preShowContainer);
+			CompleteInitialization();
 		}
 		else
 		{
-			GD.PrintErr("PreShowUIManager: Could not find UIManager instance during deferred registration");
+			GD.PrintErr("PreShowUIManager: UIManager not available");
 		}
 	}
 
@@ -110,16 +144,10 @@ namespace KBTV.UI
 		if (_availableTopics.Count > 0)
 		{
 			_topicSelector.Select(0);
-			if (ServiceRegistry.Instance?.GameStateManager != null)
-			{
-				OnTopicSelected(0);
-			}
-			else
-			{
-				CallDeferred(nameof(SelectDefaultTopic));
-			}
+			OnTopicSelected(0);
 		}
-	}
+		}
+
 
 	private Control CreateTitle()
 	{
@@ -215,28 +243,19 @@ namespace KBTV.UI
 		return _errorLabel;
 	}
 
-		private void OnTopicSelected(long index)
-		{
-			if (index >= 0 && index < _availableTopics.Count)
-			{
-				var selectedTopic = _availableTopics[(int)index];
-				ServiceRegistry.Instance.GameStateManager.SetSelectedTopic(selectedTopic);
-				_topicDescription.Text = selectedTopic.Description;
-				_startShowButton.Disabled = false;
-				_errorLabel.Text = "";
-				// GD.Print($"PreShowUIManager: Topic selected - {selectedTopic.DisplayName}");
-			}
-		}
+ 		private void OnTopicSelected(long index)
+ 		{
+ 			if (index >= 0 && index < _availableTopics.Count)
+ 			{
+ 				var selectedTopic = _availableTopics[(int)index];
+ 				ServiceRegistry.Instance.GameStateManager.SetSelectedTopic(selectedTopic);
+ 				_topicDescription.Text = selectedTopic.Description;
+ 				_startShowButton.Disabled = false;
+ 				_errorLabel.Text = "";
+ 			}
+ 		}
 
-		private void SelectDefaultTopic()
-		{
-			if (_availableTopics.Count > 0)
-			{
-				OnTopicSelected(0);
-			}
-		}
-
-		private void OnStartShowPressed()
+ 		private void OnStartShowPressed()
 		{
 			if (ServiceRegistry.Instance.GameStateManager.CanStartLiveShow())
 			{
@@ -250,32 +269,21 @@ namespace KBTV.UI
 			}
 		}
 
-		private void UpdateUI()
-		{
-			// GD.Print($"PreShowUIManager.UpdateUI: gameState={ServiceRegistry.Instance.GameStateManager}, _startShowButton={_startShowButton}");
+ 		private void UpdateUI()
+ 		{
+ 			var gameState = ServiceRegistry.Instance.GameStateManager;
+ 			if (gameState != null && _startShowButton != null)
+ 			{
+ 				_startShowButton.Disabled = !gameState.CanStartLiveShow();
+ 			}
+ 		}
 
-			var gameState = ServiceRegistry.Instance?.GameStateManager;
-			if (gameState != null && _startShowButton != null)
-			{
-				var canStart = gameState.CanStartLiveShow();
-				_startShowButton.Disabled = !canStart;
-				// GD.Print($"PreShowUIManager.UpdateUI: canStart={canStart}, button disabled={_startShowButton.Disabled}");
-			}
-			else
-			{
-				// GD.Print($"PreShowUIManager.UpdateUI: Skipping update - gameState null: {gameState == null}, button null: {_startShowButton == null}");
-			}
-		}
-
-		private void SubscribeToEvents()
-		{
-			var gameState = ServiceRegistry.Instance?.GameStateManager;
-			if (gameState != null)
-			{
-				gameState.Connect("PhaseChanged", Callable.From<GamePhase, GamePhase>(HandlePhaseChanged));
-				HandlePhaseChanged(GamePhase.PreShow, gameState.CurrentPhase);
-			}
-		}
+ 		private void SubscribeToEvents()
+ 		{
+ 			var gameState = ServiceRegistry.Instance.GameStateManager;
+ 			gameState.Connect("PhaseChanged", Callable.From<GamePhase, GamePhase>(HandlePhaseChanged));
+ 			HandlePhaseChanged(GamePhase.PreShow, gameState.CurrentPhase);
+ 		}
 
 	private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
 	{

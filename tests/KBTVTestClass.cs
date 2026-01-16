@@ -32,13 +32,13 @@ namespace KBTV.Tests
                 throw new AssertionException(message);
         }
 
-        protected void AssertNotNull(object? obj)
+        protected void AssertNotNull(object obj)
         {
             if (obj == null)
                 throw new AssertionException("Expected non-null value");
         }
 
-        protected void AssertNull(object? obj)
+        protected void AssertNull(object obj)
         {
             if (obj != null)
                 throw new AssertionException("Expected null value");

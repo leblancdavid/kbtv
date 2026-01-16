@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Godot;
 using KBTV.Core;
 
@@ -14,6 +16,7 @@ namespace KBTV.Callers
     /// Use ServiceRegistry.Instance.CallerRepository for new code.
     /// </summary>
     [Obsolete("Use ICallerRepository from ServiceRegistry instead")]
+    [SuppressMessage("csharp", "CS0618")]
     public partial class CallerQueue : Node, ICallerRepositoryObserver
     {
         [Signal] public delegate void CallerAddedEventHandler(Caller caller);

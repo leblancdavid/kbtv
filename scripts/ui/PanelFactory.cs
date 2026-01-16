@@ -1,3 +1,5 @@
+#pragma warning disable CS0618 // CallerQueue is obsolete
+
 #nullable enable
 
 using Godot;
