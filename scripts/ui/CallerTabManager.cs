@@ -23,6 +23,7 @@ namespace KBTV.UI
         void CreateOnHoldPanel(Control panel);
         void RefreshContent();
         void Cleanup();
+        void OnScreeningPanelCleared();
     }
 
     /// <summary>
@@ -33,11 +34,14 @@ namespace KBTV.UI
     {
         private readonly CallerQueue _callerQueue;
         private readonly ICallerActions _callerActions;
+        private ScreeningPanel _screeningPanel;
+        private Control _screeningPanelContainer;
 
         public CallerTabManager(CallerQueue callerQueue, ICallerActions callerActions)
         {
             _callerQueue = callerQueue ?? throw new ArgumentNullException(nameof(callerQueue));
             _callerActions = callerActions ?? throw new ArgumentNullException(nameof(callerActions));
+            _callerQueue.ScreeningChanged += OnScreeningChanged;
         }
 
         /// <summary>
@@ -50,12 +54,26 @@ namespace KBTV.UI
         }
 
         /// <summary>
-        /// Create the screening panel
+        /// Create or update the screening panel
         /// </summary>
         public void CreateScreeningPanel(Control panel)
         {
-            GD.Print("CallerTabManager: Creating screening panel");
+            GD.Print("CallerTabManager: Setting up screening panel");
 
+            _screeningPanelContainer = panel;
+
+            if (_screeningPanel == null)
+            {
+                CreateScreeningPanelInstance(panel);
+            }
+            else
+            {
+                UpdateScreeningPanelContent();
+            }
+        }
+
+        private void CreateScreeningPanelInstance(Control panel)
+        {
             try
             {
                 string scenePath = "res://scenes/ui/ScreeningPanel.tscn";
@@ -64,38 +82,24 @@ namespace KBTV.UI
 
                 if (scene != null)
                 {
-                    var screeningPanel = scene.Instantiate<ScreeningPanel>();
-                    GD.Print($"CallerTabManager: Screening panel instantiated: {screeningPanel != null}");
+                    _screeningPanel = scene.Instantiate<ScreeningPanel>();
+                    GD.Print($"CallerTabManager: Screening panel instantiated: {_screeningPanel != null}");
 
-                    if (screeningPanel != null)
+                    if (_screeningPanel != null)
                     {
-                        // Configure for proper containment within the tab
-                        screeningPanel.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-                        screeningPanel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-                        screeningPanel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-                        screeningPanel.CustomMinimumSize = Vector2.Zero;
+                        _screeningPanel.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                        _screeningPanel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+                        _screeningPanel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+                        _screeningPanel.CustomMinimumSize = Vector2.Zero;
                         GD.Print("CallerTabManager: Configured screening panel for full rect containment");
 
-                        // Set caller info
-                        if (_callerQueue.IsScreening)
-                        {
-                            screeningPanel.SetCaller(_callerQueue.CurrentScreening);
-                        }
-                        else
-                        {
-                            screeningPanel.SetCaller(null);
-                        }
-
-                        // Connect buttons
-                        screeningPanel.ConnectButtons(
+                        _screeningPanel.ConnectButtons(
                             Callable.From(() => _callerActions.OnApproveCaller()),
                             Callable.From(() => _callerActions.OnRejectCaller())
                         );
 
-                        // Connect screening changed signal for UI refresh
-                        _callerQueue.ScreeningChanged += OnScreeningChanged;
-
-                        panel.AddChild(screeningPanel);
+                        panel.AddChild(_screeningPanel);
+                        UpdateScreeningPanelContent();
                         GD.Print("CallerTabManager: Screening panel creation successful");
                     }
                 }
@@ -112,9 +116,23 @@ namespace KBTV.UI
             }
         }
 
+        private void UpdateScreeningPanelContent()
+        {
+            if (_screeningPanel == null) return;
+
+            if (_callerQueue.IsScreening)
+            {
+                _screeningPanel.SetCaller(_callerQueue.CurrentScreening);
+            }
+            else
+            {
+                _screeningPanel.SetCaller(null);
+            }
+        }
+
         private void OnScreeningChanged()
         {
-            RefreshContent();
+            UpdateScreeningPanelContent();
         }
 
         /// <summary>
@@ -141,7 +159,21 @@ namespace KBTV.UI
         public void Cleanup()
         {
             _callerQueue.ScreeningChanged -= OnScreeningChanged;
+            if (_screeningPanel != null)
+            {
+                _screeningPanel.QueueFree();
+                _screeningPanel = null;
+            }
+            _screeningPanelContainer = null;
             GD.Print("CallerTabManager: Cleanup completed");
+        }
+
+        /// <summary>
+        /// Called when the screening panel is cleared/destroyed by CallerTab
+        /// </summary>
+        public void OnScreeningPanelCleared()
+        {
+            _screeningPanel = null;
         }
 
         /// <summary>

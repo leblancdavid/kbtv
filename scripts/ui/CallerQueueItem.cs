@@ -15,6 +15,24 @@ namespace KBTV.UI
             _statusIndicator = GetNode<ProgressBar>("HBoxContainer/StatusIndicator");
 
             GuiInput += OnGuiInput;
+
+            if (CallerQueue.Instance != null)
+            {
+                CallerQueue.Instance.ScreeningChanged += OnScreeningChanged;
+            }
+        }
+
+        private void OnScreeningChanged()
+        {
+            UpdateVisualSelection();
+        }
+
+        public override void _ExitTree()
+        {
+            if (CallerQueue.Instance != null)
+            {
+                CallerQueue.Instance.ScreeningChanged -= OnScreeningChanged;
+            }
         }
 
         public override void _Process(double delta)

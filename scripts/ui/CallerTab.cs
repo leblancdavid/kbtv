@@ -96,20 +96,24 @@ namespace KBTV.UI
         private void RefreshTabContent()
         {
             // Clear existing content
-            ClearPanel(_incomingPanel);
-            ClearPanel(_screeningPanel);
-            ClearPanel(_onHoldPanel);
+            ClearPanel(_incomingPanel, false);
+            ClearPanel(_screeningPanel, true);
+            ClearPanel(_onHoldPanel, false);
 
             // Re-populate
             PopulateTabContent();
         }
 
-        private void ClearPanel(Control panel)
+        private void ClearPanel(Control panel, bool isScreeningPanel)
         {
             foreach (var child in panel.GetChildren())
             {
                 panel.RemoveChild(child);
                 child.QueueFree();
+            }
+            if (isScreeningPanel && _tabManager != null)
+            {
+                _tabManager.OnScreeningPanelCleared();
             }
         }
 
