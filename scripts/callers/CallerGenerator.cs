@@ -63,7 +63,7 @@ namespace KBTV.Callers
                 return;
             }
 
-            _gameState = GameStateManager.Instance;
+            _gameState = ServiceRegistry.Instance.GameStateManager;
 
 			if (_gameState != null)
 			{

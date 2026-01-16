@@ -8,13 +8,11 @@ namespace KBTV.Economy
     /// <summary>
     /// Manages the player's money and transactions.
     /// </summary>
- 	public partial class EconomyManager : Node
- 	{
+  	public partial class EconomyManager : Node
+  	{
 		[Signal] public delegate void MoneyChangedEventHandler(int oldAmount, int newAmount);
 		[Signal] public delegate void PurchaseEventHandler(int amount, string reason);
 		[Signal] public delegate void PurchaseFailedEventHandler(int amount);
-
-		public static EconomyManager Instance => (EconomyManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/EconomyManager");
         [Export] private int _startingMoney = 500;
 
         private int _currentMoney;

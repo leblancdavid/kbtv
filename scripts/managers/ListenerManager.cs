@@ -11,12 +11,10 @@ namespace KBTV.Managers
     /// Listener count fluctuates based on VIBE (sigmoid curve) and caller quality.
     /// See docs/VERN_STATS.md for VIBE documentation.
     /// </summary>
- 	public partial class ListenerManager : Node
- 	{
+  	public partial class ListenerManager : Node
+  	{
 		[Signal] public delegate void ListenersChangedEventHandler(int oldCount, int newCount);
 		[Signal] public delegate void PeakReachedEventHandler(int newPeak);
-
-		public static ListenerManager Instance => (ListenerManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/ListenerManager");
         [Export] private int _baseListeners = 1000;
         [Export] private int _listenerVariance = 200;
         [Export] private float _baseGrowthRate = 2f;
@@ -59,20 +57,14 @@ namespace KBTV.Managers
             else
             {
                 _repository = ServiceRegistry.Instance.CallerRepository;
+                _gameState = ServiceRegistry.Instance.GameStateManager;
+                _timeManager = ServiceRegistry.Instance.TimeManager;
             }
 
-            if (_repository == null)
+            if (_gameState != null)
             {
-                GD.PrintErr("ListenerManager: ICallerRepository not available");
+                _gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
             }
-
-            _gameState = GameStateManager.Instance;
-            _timeManager = TimeManager.Instance;
-
-			if (_gameState != null)
-			{
-				_gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
-			}
 
             if (_timeManager != null)
             {

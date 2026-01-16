@@ -7,22 +7,8 @@ namespace KBTV.UI
     /// Manages UI layer visibility based on game phases.
     /// Handles the CanvasLayer-based UI architecture for proper draw ordering.
     /// </summary>
-    public partial class UIManager : Node
+    public partial class UIManager : Node, IUIManager
     {
-        public static UIManager Instance
-        {
-            get
-            {
-                var root = ((SceneTree)Engine.GetMainLoop()).Root;
-                var uiManager = root.GetNode("/root/Main/UIManager") as UIManager;
-                if (uiManager == null)
-                {
-                    GD.PrintErr("UIManager.Instance: UIManager node not found at /root/Main/UIManager");
-                }
-                return uiManager;
-            }
-        }
-
         private CanvasLayer _preShowLayer;
         private CanvasLayer _liveShowLayer;
 
@@ -48,7 +34,7 @@ namespace KBTV.UI
             TryConnectToGameStateManager();
 
             // If still not connected, set up deferred retry
-            if (GameStateManager.Instance == null)
+            if (ServiceRegistry.Instance?.GameStateManager == null)
             {
                 // GD.Print("UIManager: GameStateManager not ready, deferring connection");
                 CallDeferred(nameof(TryConnectToGameStateManager));
@@ -57,7 +43,7 @@ namespace KBTV.UI
 
         private void TryConnectToGameStateManager()
         {
-            var gameState = GameStateManager.Instance;
+            var gameState = ServiceRegistry.Instance?.GameStateManager;
             if (gameState != null)
             {
                 // Connect to phase changes
@@ -80,7 +66,7 @@ namespace KBTV.UI
 
         private void UpdateInitialVisibility()
         {
-            var gameState = GameStateManager.Instance;
+            var gameState = ServiceRegistry.Instance?.GameStateManager;
             if (gameState != null)
             {
                 UpdateUIVisibility((int)GamePhase.PreShow, (int)gameState.CurrentPhase);
@@ -131,7 +117,7 @@ namespace KBTV.UI
         public override void _ExitTree()
         {
             // Unsubscribe from events
-            var gameState = GameStateManager.Instance;
+            var gameState = ServiceRegistry.Instance?.GameStateManager;
             if (gameState != null)
             {
                 gameState.Disconnect("PhaseChanged", Callable.From<int, int>(UpdateUIVisibility));

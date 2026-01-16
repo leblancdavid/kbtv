@@ -19,15 +19,15 @@ namespace KBTV.UI
 		private Label _topicDescription;
 		private List<Topic> _availableTopics;
 
-	public override void _Ready()
-	{
-		base._Ready();
-		LoadTopics();
-		CreatePreShowUI();
-		SubscribeToEvents();
-		UpdateUI();
-		// GD.Print("PreShowUIManager: Ready and initialized");
-	}
+		public override void _Ready()
+		{
+			base._Ready();
+			LoadTopics();
+			CreatePreShowUI();
+			SubscribeToEvents();
+			UpdateUI();
+			// GD.Print("PreShowUIManager: Ready and initialized");
+		}
 
 		private void LoadTopics()
 		{
@@ -50,7 +50,7 @@ namespace KBTV.UI
 	}
 	private void RegisterWithUIManager()
 	{
-		var uiManager = UIManager.Instance;
+		var uiManager = ServiceRegistry.Instance?.UIManager;
 		if (uiManager != null)
 		{
 			// Need to recreate canvas layer since this is deferred
@@ -110,7 +110,7 @@ namespace KBTV.UI
 		if (_availableTopics.Count > 0)
 		{
 			_topicSelector.Select(0);
-			if (GameStateManager.Instance != null)
+			if (ServiceRegistry.Instance?.GameStateManager != null)
 			{
 				OnTopicSelected(0);
 			}
@@ -220,7 +220,7 @@ namespace KBTV.UI
 			if (index >= 0 && index < _availableTopics.Count)
 			{
 				var selectedTopic = _availableTopics[(int)index];
-				GameStateManager.Instance.SetSelectedTopic(selectedTopic);
+				ServiceRegistry.Instance.GameStateManager.SetSelectedTopic(selectedTopic);
 				_topicDescription.Text = selectedTopic.Description;
 				_startShowButton.Disabled = false;
 				_errorLabel.Text = "";
@@ -238,9 +238,9 @@ namespace KBTV.UI
 
 		private void OnStartShowPressed()
 		{
-			if (GameStateManager.Instance.CanStartLiveShow())
+			if (ServiceRegistry.Instance.GameStateManager.CanStartLiveShow())
 			{
-				GameStateManager.Instance.StartLiveShow();
+				ServiceRegistry.Instance.GameStateManager.StartLiveShow();
 				// GD.Print("PreShowUIManager: Starting live show");
 			}
 			else
@@ -252,9 +252,9 @@ namespace KBTV.UI
 
 		private void UpdateUI()
 		{
-			// GD.Print($"PreShowUIManager.UpdateUI: gameState={GameStateManager.Instance}, _startShowButton={_startShowButton}");
+			// GD.Print($"PreShowUIManager.UpdateUI: gameState={ServiceRegistry.Instance.GameStateManager}, _startShowButton={_startShowButton}");
 
-			var gameState = GameStateManager.Instance;
+			var gameState = ServiceRegistry.Instance?.GameStateManager;
 			if (gameState != null && _startShowButton != null)
 			{
 				var canStart = gameState.CanStartLiveShow();
@@ -269,7 +269,7 @@ namespace KBTV.UI
 
 		private void SubscribeToEvents()
 		{
-			var gameState = GameStateManager.Instance;
+			var gameState = ServiceRegistry.Instance?.GameStateManager;
 			if (gameState != null)
 			{
 				gameState.Connect("PhaseChanged", Callable.From<GamePhase, GamePhase>(HandlePhaseChanged));

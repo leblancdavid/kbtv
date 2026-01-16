@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Economy;
+using KBTV.Managers;
+using KBTV.Persistence;
 using KBTV.Screening;
+using KBTV.UI;
 
 namespace KBTV.Core
 {
@@ -51,11 +55,32 @@ namespace KBTV.Core
             var eventAggregator = new EventAggregator();
             Register<IEventAggregator>(eventAggregator);
 
-            var repository = new Callers.CallerRepository();
+            var repository = new CallerRepository();
             Register<ICallerRepository>(repository);
 
-            var screeningController = new Screening.ScreeningController();
+            var screeningController = new ScreeningController();
             Register<IScreeningController>(screeningController);
+
+            var gameStateManager = new GameStateManager();
+            Register<GameStateManager>(gameStateManager);
+
+            var timeManager = new TimeManager();
+            Register<TimeManager>(timeManager);
+
+            var listenerManager = new ListenerManager();
+            Register<ListenerManager>(listenerManager);
+
+            var economyManager = new EconomyManager();
+            Register<EconomyManager>(economyManager);
+
+            var saveManager = new SaveManager();
+            Register<SaveManager>(saveManager);
+
+            var uiManager = new UIManager();
+            Register<UIManager>(uiManager);
+
+            var callerGenerator = new CallerGenerator();
+            Register<CallerGenerator>(callerGenerator);
         }
 
         public void Register<TService>(TService instance) where TService : class
@@ -155,5 +180,12 @@ namespace KBTV.Core
         public ICallerRepository CallerRepository => Get<ICallerRepository>();
         public IScreeningController ScreeningController => Get<IScreeningController>();
         public IEventAggregator EventAggregator => Get<IEventAggregator>();
+        public GameStateManager GameStateManager => Get<GameStateManager>();
+        public TimeManager TimeManager => Get<TimeManager>();
+        public ListenerManager ListenerManager => Get<ListenerManager>();
+        public EconomyManager EconomyManager => Get<EconomyManager>();
+        public SaveManager SaveManager => Get<SaveManager>();
+        public UIManager UIManager => Get<UIManager>();
+        public CallerGenerator CallerGenerator => Get<CallerGenerator>();
     }
 }

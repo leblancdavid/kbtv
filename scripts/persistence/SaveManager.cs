@@ -18,8 +18,6 @@ namespace KBTV.Persistence
 		[Signal] public delegate void SaveDeletedEventHandler();
 		[Signal] public delegate void DataChangedEventHandler();
 
-		public static SaveManager Instance => (SaveManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/SaveManager");
-
         // ─────────────────────────────────────────────────────────────
         // FIELDS
         // ─────────────────────────────────────────────────────────────

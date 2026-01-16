@@ -39,8 +39,8 @@ namespace KBTV.UI
             _moneyLabel = GetNode<Label>("HBoxContainer/MoneyLabel");
 
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
-            _listenerManager = ListenerManager.Instance;
-            _economyManager = EconomyManager.Instance;
+            _listenerManager = Core.ServiceRegistry.Instance.ListenerManager;
+            _economyManager = Core.ServiceRegistry.Instance.EconomyManager;
 
             var events = Core.ServiceRegistry.Instance.EventAggregator;
             events?.Subscribe(this, (Core.Events.OnAir.CallerOnAir evt) => OnCallerOnAir(evt));

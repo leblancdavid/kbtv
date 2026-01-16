@@ -92,7 +92,20 @@ var events = ServiceRegistry.Instance.EventAggregator;
 
 **Files:**
 - `scripts/core/ServiceRegistry.cs` - Main service registry (Autoload)
-- (Services are registered via interfaces in their respective directories)
+- Services are registered in `RegisterCoreServices()` method with their concrete types
+- Interface definitions exist in respective directories for future dependency injection
+
+**Registered Services:**
+- `GameStateManager` - Controls game phases
+- `TimeManager` - Handles show timing
+- `ListenerManager` - Tracks audience size
+- `EconomyManager` - Manages money
+- `SaveManager` - Handles persistence
+- `UIManager` - Main UI orchestrator
+- `CallerGenerator` - Spawns incoming callers
+- `CallerRepository` - Manages caller data
+- `ScreeningController` - Handles caller screening
+- `EventAggregator` - Pub/sub event system
 
 ### Event Aggregation Pattern
 

@@ -30,8 +30,8 @@ namespace KBTV.UI
                 GD.PrintErr("DebugHelper: ICallerRepository not available");
             }
 
-            _gameState = GameStateManager.Instance;
-            _callerGenerator = CallerGenerator.Instance;
+            _gameState = ServiceRegistry.Instance.GameStateManager;
+            _callerGenerator = ServiceRegistry.Instance.CallerGenerator;
 
             // Reduced debug output to prevent TextEdit overflow issues
             // GD.Print("DebugHelper: Ready for testing commands");

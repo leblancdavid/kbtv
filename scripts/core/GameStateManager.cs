@@ -16,8 +16,6 @@ namespace KBTV.Core
 		[Signal] public delegate void PhaseChangedEventHandler(GamePhase oldPhase, GamePhase newPhase);
 	[Signal] public delegate void NightStartedEventHandler(int nightNumber);
 
-	public static GameStateManager Instance => (GameStateManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/GameStateManager");
-
 	// ═══════════════════════════════════════════════════════════════════════════════════════════════
 	// FIELDS
 	// ═══════════════════════════════════════════════════════════════════════════════
@@ -102,7 +100,7 @@ namespace KBTV.Core
 			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
 
 			// Start the show clock
-			TimeManager.Instance?.StartClock();
+			ServiceRegistry.Instance.TimeManager?.StartClock();
 			// TODO: Initialize other live show systems with selected topic
 		}
 
@@ -166,21 +164,21 @@ namespace KBTV.Core
 		private void ProcessEndOfShow()
 		{
 			// Get show performance data
-			int peakListeners = ListenerManager.Instance?.PeakListeners ?? 0;
+			int peakListeners = ServiceRegistry.Instance.ListenerManager?.PeakListeners ?? 0;
 
 			float showQuality = _vernStats?.CalculateVIBE() ?? 50f;
 
 			// Calculate and award income
 			int income = IncomeCalculator.CalculateShowIncome(peakListeners, showQuality);
-			if (EconomyManager.Instance != null)
+			if (ServiceRegistry.Instance.EconomyManager != null)
 			{
-				EconomyManager.Instance.AddMoney(income, "Show Income");
+				ServiceRegistry.Instance.EconomyManager.AddMoney(income, "Show Income");
 			}
 
 			// Update save data
-			if (SaveManager.Instance?.CurrentSave != null)
+			if (ServiceRegistry.Instance.SaveManager?.CurrentSave != null)
 			{
-				var save = SaveManager.Instance.CurrentSave;
+				var save = ServiceRegistry.Instance.SaveManager.CurrentSave;
 				save.TotalShowsCompleted++;
 				if (peakListeners > save.PeakListenersAllTime)
 				{
@@ -190,12 +188,12 @@ namespace KBTV.Core
 			}
 
 			// Reset the clock for next show
-			TimeManager.Instance?.ResetClock();
+			ServiceRegistry.Instance.TimeManager?.ResetClock();
 
 			// Auto-save at end of show
-			if (SaveManager.Instance != null)
+			if (ServiceRegistry.Instance.SaveManager != null)
 			{
-				SaveManager.Instance.Save();
+				ServiceRegistry.Instance.SaveManager.Save();
 			}
 		}
 	}

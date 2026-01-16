@@ -1,4 +1,5 @@
 using Godot;
+using KBTV.Core;
 
 namespace KBTV.UI
 {
@@ -135,10 +136,10 @@ namespace KBTV.UI
         {
             GD.Print("TabContainerManager: Registering LiveShow layer with UIManager");
 
-            var uiManager = UIManager.Instance;
+            var uiManager = ServiceRegistry.Instance?.UIManager;
             if (uiManager == null)
             {
-                GD.PrintErr("TabContainerManager: UIManager.Instance is null - cannot register LiveShow layer!");
+                GD.PrintErr("TabContainerManager: UIManager is null - cannot register LiveShow layer!");
                 return;
             }
 

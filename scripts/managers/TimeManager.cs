@@ -13,8 +13,6 @@ namespace KBTV.Managers
 		[Signal] public delegate void TickEventHandler(float delta);
 		[Signal] public delegate void ShowEndedEventHandler();
 		[Signal] public delegate void RunningChangedEventHandler(bool isRunning);
-
-		public static TimeManager Instance => (TimeManager)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/TimeManager");
         [Export] private float _showDurationSeconds = 600f; // 10 minutes real-time
         [Export] private float _showDurationHours = 4f;
         [Export] private int _showStartHour = 22;

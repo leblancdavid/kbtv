@@ -33,7 +33,7 @@ namespace KBTV.UI
                 return;
             }
 
-            _gameState = GameStateManager.Instance;
+            _gameState = Core.ServiceRegistry.Instance.GameStateManager;
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
 
             if (_repository == null)
