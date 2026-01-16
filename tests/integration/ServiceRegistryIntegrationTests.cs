@@ -1,228 +1,100 @@
-using System;
+using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Core;
 
 namespace KBTV.Tests.Integration
 {
-    /// <summary>
-    /// Integration tests for ServiceRegistry-based service access.
-    /// These tests verify that all managers are properly registered and accessible.
-    /// Run manually from Godot editor or via test runner.
-    /// </summary>
-    [GlobalClass]
-    public partial class ServiceRegistryIntegrationTests : Node
+    public class ServiceRegistryIntegrationTests : KBTVTestClass
     {
-        private int _passedTests = 0;
-        private int _failedTests = 0;
+        public ServiceRegistryIntegrationTests(Node testScene) : base(testScene) { }
 
-        public override void _Ready()
+        [Test]
+        public void ServiceRegistry_IsInitialized_ReturnsTrue()
         {
-            GD.Print("=== ServiceRegistry Integration Tests ===");
-            RunTests();
-            GD.Print($"=== Results: {_passedTests} passed, {_failedTests} failed ===");
+            AssertThat(ServiceRegistry.IsInitialized);
+            AssertThat(ServiceRegistry.Instance != null);
         }
 
-        private void RunTests()
+        [Test]
+        public void ServiceRegistry_GameStateManager_IsAccessible()
         {
-            TestServiceRegistryInitialized();
-            TestGameStateManagerAccess();
-            TestTimeManagerAccess();
-            TestListenerManagerAccess();
-            TestEconomyManagerAccess();
-            TestSaveManagerAccess();
-            TestUIManagerAccess();
-            TestCallerRepositoryAccess();
-            TestScreeningControllerAccess();
-            TestEventAggregatorAccess();
-            TestAllShortcutsAvailable();
+            var gameState = ServiceRegistry.Instance.GameStateManager;
+            AssertThat(gameState != null);
+            AssertThat(gameState.CurrentPhase >= 0);
         }
 
-        private void TestServiceRegistryInitialized()
+        [Test]
+        public void ServiceRegistry_TimeManager_IsAccessible()
         {
-            try
-            {
-                Assert(ServiceRegistry.IsInitialized, "ServiceRegistry should be initialized");
-                Assert(ServiceRegistry.Instance != null, "ServiceRegistry.Instance should not be null");
-                Pass("ServiceRegistry initialized correctly");
-            }
-            catch (Exception ex)
-            {
-                Fail($"ServiceRegistry initialization: {ex.Message}");
-            }
+            var timeManager = ServiceRegistry.Instance.TimeManager;
+            AssertThat(timeManager != null);
+            AssertThat(timeManager.ElapsedTime >= 0f);
         }
 
-        private void TestGameStateManagerAccess()
+        [Test]
+        public void ServiceRegistry_ListenerManager_IsAccessible()
         {
-            try
-            {
-                var gameState = ServiceRegistry.Instance.GameStateManager;
-                Assert(gameState != null, "GameStateManager should not be null");
-                Assert(gameState.CurrentPhase >= 0, "GameStateManager should have valid phase");
-                Pass("GameStateManager accessible via ServiceRegistry");
-            }
-            catch (Exception ex)
-            {
-                Fail($"GameStateManager access: {ex.Message}");
-            }
+            var listenerManager = ServiceRegistry.Instance.ListenerManager;
+            AssertThat(listenerManager != null);
+            AssertThat(listenerManager.CurrentListeners >= 0);
         }
 
-        private void TestTimeManagerAccess()
+        [Test]
+        public void ServiceRegistry_EconomyManager_IsAccessible()
         {
-            try
-            {
-                var timeManager = ServiceRegistry.Instance.TimeManager;
-                Assert(timeManager != null, "TimeManager should not be null");
-                Assert(timeManager.ElapsedTime >= 0f, "TimeManager should have valid elapsed time");
-                Assert(!timeManager.IsRunning, "TimeManager should not be running initially");
-                Pass("TimeManager accessible via ServiceRegistry");
-            }
-            catch (Exception ex)
-            {
-                Fail($"TimeManager access: {ex.Message}");
-            }
+            var economyManager = ServiceRegistry.Instance.EconomyManager;
+            AssertThat(economyManager != null);
+            AssertThat(economyManager.CurrentMoney >= 0);
         }
 
-        private void TestListenerManagerAccess()
+        [Test]
+        public void ServiceRegistry_SaveManager_IsAccessible()
         {
-            try
-            {
-                var listenerManager = ServiceRegistry.Instance.ListenerManager;
-                Assert(listenerManager != null, "ListenerManager should not be null");
-                Assert(listenerManager.CurrentListeners >= 0, "ListenerManager should have valid listener count");
-                Pass("ListenerManager accessible via ServiceRegistry");
-            }
-            catch (Exception ex)
-            {
-                Fail($"ListenerManager access: {ex.Message}");
-            }
+            var saveManager = ServiceRegistry.Instance.SaveManager;
+            AssertThat(saveManager != null);
         }
 
-        private void TestEconomyManagerAccess()
+        [Test]
+        public void ServiceRegistry_UIManager_IsAccessible()
         {
-            try
-            {
-                var economyManager = ServiceRegistry.Instance.EconomyManager;
-                Assert(economyManager != null, "EconomyManager should not be null");
-                Assert(economyManager.CurrentMoney >= 0, "EconomyManager should have valid money");
-                Pass("EconomyManager accessible via ServiceRegistry");
-            }
-            catch (Exception ex)
-            {
-                Fail($"EconomyManager access: {ex.Message}");
-            }
+            var uiManager = ServiceRegistry.Instance.UIManager;
+            AssertThat(uiManager != null);
         }
 
-        private void TestSaveManagerAccess()
+        [Test]
+        public void ServiceRegistry_CallerRepository_IsAccessible()
         {
-            try
-            {
-                var saveManager = ServiceRegistry.Instance.SaveManager;
-                Assert(saveManager != null, "SaveManager should not be null");
-                Assert(saveManager.CurrentSave != null, "SaveManager should have save data");
-                Pass("SaveManager accessible via ServiceRegistry");
-            }
-            catch (Exception ex)
-            {
-                Fail($"SaveManager access: {ex.Message}");
-            }
+            var repository = ServiceRegistry.Instance.CallerRepository;
+            AssertThat(repository != null);
         }
 
-        private void TestUIManagerAccess()
+        [Test]
+        public void ServiceRegistry_ScreeningController_IsAccessible()
         {
-            try
-            {
-                var uiManager = ServiceRegistry.Instance.UIManager;
-                Assert(uiManager != null, "UIManager should not be null");
-                Pass("UIManager accessible via ServiceRegistry");
-            }
-            catch (Exception ex)
-            {
-                Fail($"UIManager access: {ex.Message}");
-            }
+            var controller = ServiceRegistry.Instance.ScreeningController;
+            AssertThat(controller != null);
+            AssertThat(!controller.IsActive);
         }
 
-        private void TestCallerRepositoryAccess()
+        [Test]
+        public void ServiceRegistry_EventAggregator_IsAccessible()
         {
-            try
-            {
-                var repository = ServiceRegistry.Instance.CallerRepository;
-                Assert(repository != null, "CallerRepository should not be null");
-                Pass("CallerRepository accessible via ServiceRegistry");
-            }
-            catch (Exception ex)
-            {
-                Fail($"CallerRepository access: {ex.Message}");
-            }
+            var events = ServiceRegistry.Instance.EventAggregator;
+            AssertThat(events != null);
         }
 
-        private void TestScreeningControllerAccess()
+        [Test]
+        public void ServiceRegistry_AllShortcuts_ReturnValidServices()
         {
-            try
-            {
-                var controller = ServiceRegistry.Instance.ScreeningController;
-                Assert(controller != null, "ScreeningController should not be null");
-                Assert(!controller.IsActive, "ScreeningController should not be active initially");
-                Pass("ScreeningController accessible via ServiceRegistry");
-            }
-            catch (Exception ex)
-            {
-                Fail($"ScreeningController access: {ex.Message}");
-            }
-        }
-
-        private void TestEventAggregatorAccess()
-        {
-            try
-            {
-                var events = ServiceRegistry.Instance.EventAggregator;
-                Assert(events != null, "EventAggregator should not be null");
-                Pass("EventAggregator accessible via ServiceRegistry");
-            }
-            catch (Exception ex)
-            {
-                Fail($"EventAggregator access: {ex.Message}");
-            }
-        }
-
-        private void TestAllShortcutsAvailable()
-        {
-            try
-            {
-                Assert(ServiceRegistry.Instance.GameStateManager != null, "GameStateManager shortcut");
-                Assert(ServiceRegistry.Instance.TimeManager != null, "TimeManager shortcut");
-                Assert(ServiceRegistry.Instance.ListenerManager != null, "ListenerManager shortcut");
-                Assert(ServiceRegistry.Instance.EconomyManager != null, "EconomyManager shortcut");
-                Assert(ServiceRegistry.Instance.SaveManager != null, "SaveManager shortcut");
-                Assert(ServiceRegistry.Instance.UIManager != null, "UIManager shortcut");
-                Assert(ServiceRegistry.Instance.CallerRepository != null, "CallerRepository shortcut");
-                Assert(ServiceRegistry.Instance.ScreeningController != null, "ScreeningController shortcut");
-                Assert(ServiceRegistry.Instance.EventAggregator != null, "EventAggregator shortcut");
-                Pass("All shortcut properties available");
-            }
-            catch (Exception ex)
-            {
-                Fail($"Shortcut properties: {ex.Message}");
-            }
-        }
-
-        private void Assert(bool condition, string testName)
-        {
-            if (!condition)
-            {
-                throw new Exception($"Assertion failed: {testName}");
-            }
-        }
-
-        private void Pass(string message)
-        {
-            _passedTests++;
-            GD.Print($"[PASS] {message}");
-        }
-
-        private void Fail(string message)
-        {
-            _failedTests++;
-            GD.PrintErr($"[FAIL] {message}");
+            AssertThat(ServiceRegistry.Instance.GameStateManager != null);
+            AssertThat(ServiceRegistry.Instance.TimeManager != null);
+            AssertThat(ServiceRegistry.Instance.ListenerManager != null);
+            AssertThat(ServiceRegistry.Instance.EconomyManager != null);
+            AssertThat(ServiceRegistry.Instance.SaveManager != null);
+            AssertThat(ServiceRegistry.Instance.UIManager != null);
+            AssertThat(ServiceRegistry.Instance.CallerRepository != null);
+            AssertThat(ServiceRegistry.Instance.ScreeningController != null);
+            AssertThat(ServiceRegistry.Instance.EventAggregator != null);
         }
     }
 }

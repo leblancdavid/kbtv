@@ -12,6 +12,7 @@ namespace KBTV.Core
     {
         public T? Value { get; }
         public bool IsSuccess { get; }
+        public bool IsFailure => !IsSuccess;
         public string ErrorMessage { get; }
         public string ErrorCode { get; }
 

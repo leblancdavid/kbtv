@@ -13,6 +13,7 @@ namespace KBTV.Core
     {
         private readonly ConcurrentDictionary<Type, List<WeakReference<Action<object>>>> _subscriptions = new();
         private readonly ConcurrentDictionary<int, HashSet<Type>> _subscriberTypes = new();
+        private readonly Dictionary<(int subscriberId, Type eventType), WeakReference<Action<object>>> _handlerReferences = new();
 
         public void Subscribe<TEvent>(object subscriber, Action<TEvent> handler)
         {
@@ -45,6 +46,11 @@ namespace KBTV.Core
                 subscriptions.Add(new WeakReference<Action<object>>(actionWrapper));
             }
 
+            lock (_handlerReferences)
+            {
+                _handlerReferences[(subscriberId, eventType)] = new WeakReference<Action<object>>(actionWrapper);
+            }
+
             _subscriberTypes.GetOrAdd(subscriberId, _ => new HashSet<Type>()).Add(eventType);
 
             GD.Print($"EventAggregator: Subscriber {subscriber.GetType().Name} subscribed to {eventType.Name}");
@@ -63,7 +69,18 @@ namespace KBTV.Core
             {
                 foreach (var eventType in types)
                 {
-                    CleanupDeadReferences(eventType);
+                    lock (_subscriptions)
+                    {
+                        if (_subscriptions.TryGetValue(eventType, out var subscriptions))
+                        {
+                            var key = (subscriberId, eventType);
+                            if (_handlerReferences.TryGetValue(key, out var handlerRef) && handlerRef.TryGetTarget(out var handler))
+                            {
+                                subscriptions.RemoveAll(r => r.TryGetTarget(out var existing) && existing == handler);
+                            }
+                            _handlerReferences.Remove(key);
+                        }
+                    }
                 }
                 GD.Print($"EventAggregator: Unsubscribed {subscriber.GetType().Name} from all events");
             }
@@ -79,7 +96,18 @@ namespace KBTV.Core
             var eventType = typeof(TEvent);
             var subscriberId = subscriber.GetHashCode();
 
-            CleanupDeadReferences(eventType);
+            lock (_subscriptions)
+            {
+                if (_subscriptions.TryGetValue(eventType, out var subscriptions))
+                {
+                    var key = (subscriberId, eventType);
+                    if (_handlerReferences.TryGetValue(key, out var handlerRef) && handlerRef.TryGetTarget(out var handler))
+                    {
+                        subscriptions.RemoveAll(r => r.TryGetTarget(out var existing) && existing == handler);
+                    }
+                    _handlerReferences.Remove(key);
+                }
+            }
 
             _subscriberTypes.AddOrUpdate(subscriberId,
                 _ => new HashSet<Type>(),
@@ -143,23 +171,6 @@ namespace KBTV.Core
 
             var subscriberId = subscriber.GetHashCode();
             return _subscriberTypes.TryGetValue(subscriberId, out var types) && types.Count > 0;
-        }
-
-        private void CleanupDeadReferences(Type eventType)
-        {
-            if (!_subscriptions.TryGetValue(eventType, out var subscriptions))
-            {
-                return;
-            }
-
-            lock (subscriptions)
-            {
-                var deadRefs = subscriptions.Where(r => !r.TryGetTarget(out _)).ToList();
-                foreach (var deadRef in deadRefs)
-                {
-                    subscriptions.Remove(deadRef);
-                }
-            }
         }
     }
 }
