@@ -46,7 +46,7 @@ namespace KBTV.UI
         public void CreateIncomingPanel(Control panel)
         {
             GD.Print("CallerTabManager: Creating incoming callers panel");
-            PopulateCallerPanel(panel, "INCOMING CALLERS", _callerQueue.IncomingCallers, new Color(1f, 0.7f, 0f), new Color(0.8f, 0.8f, 0.8f));
+            PopulateScrollableCallerPanel(panel, "INCOMING CALLERS", _callerQueue.IncomingCallers, new Color(1f, 0.7f, 0f), new Color(0.8f, 0.8f, 0.8f));
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace KBTV.UI
         public void CreateOnHoldPanel(Control panel)
         {
             GD.Print("CallerTabManager: Creating on-hold callers panel");
-            PopulateCallerPanel(panel, "ON HOLD", _callerQueue.OnHoldCallers, new Color(0f, 0.7f, 1f), new Color(0.6f, 0.6f, 0.6f));
+            PopulateScrollableCallerPanel(panel, "ON HOLD", _callerQueue.OnHoldCallers, new Color(0f, 0.7f, 1f), new Color(0.6f, 0.6f, 0.6f));
         }
 
         /// <summary>
@@ -133,6 +133,126 @@ namespace KBTV.UI
         public void Cleanup()
         {
             GD.Print("CallerTabManager: Cleanup completed");
+        }
+
+        /// <summary>
+        /// Populate a caller list panel that is already inside a ScrollContainer
+        /// </summary>
+        private void PopulateScrollableCallerPanel(Control panel, string headerText, System.Collections.Generic.IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
+        {
+            try
+            {
+                GD.Print($"CallerTabManager: Populating scrollable caller panel '{headerText}' with {callers?.Count ?? 0} callers");
+
+                // Clear existing children first
+                foreach (var child in panel.GetChildren())
+                {
+                    panel.RemoveChild(child);
+                    child.QueueFree();
+                }
+
+                // Create root container to manage layout
+                var rootContainer = new VBoxContainer();
+                rootContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                rootContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+                rootContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+                panel.AddChild(rootContainer);
+
+                // Create header
+                var header = new Label();
+                header.Text = headerText;
+                header.AddThemeColorOverride("font_color", headerColor);
+                header.HorizontalAlignment = HorizontalAlignment.Center;
+                header.SizeFlagsVertical = 0; // Don't expand vertically
+                header.CustomMinimumSize = new Vector2(0, 24); // Minimum height for header
+                rootContainer.AddChild(header);
+
+                // Add spacing between header and list
+                var spacer = new Control();
+                spacer.SizeFlagsVertical = 0;
+                spacer.CustomMinimumSize = new Vector2(0, 16);
+                rootContainer.AddChild(spacer);
+
+                // Create list container directly (no inner scroll since panel is already in ScrollContainer)
+                var listContainer = new VBoxContainer();
+                listContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+                listContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+                listContainer.AddThemeConstantOverride("separation", 4); // 4px between caller items
+                rootContainer.AddChild(listContainer);
+
+                // Add caller items
+                if (callers != null && callers.Count > 0)
+                {
+                    GD.Print($"CallerTabManager: Adding {callers.Count} callers to scrollable '{headerText}'");
+                    foreach (var caller in callers)
+                    {
+                        if (caller == null)
+                        {
+                            GD.PrintErr("CallerTabManager: Null caller in list, skipping");
+                            continue;
+                        }
+
+                        if (headerText == "INCOMING CALLERS")
+                        {
+                            // Use interactive CallerQueueItem for incoming callers
+                            var itemScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerQueueItem.tscn");
+                            if (itemScene != null)
+                            {
+                                var node = itemScene.Instantiate();
+                                if (node is CallerQueueItem callerItem)
+                                {
+                                    callerItem.SetCaller(caller);
+                                    listContainer.AddChild(callerItem);
+                                    GD.Print($"CallerTabManager: Added interactive caller item {caller.Name}");
+                                }
+                                else
+                                {
+                                    GD.PrintErr($"CallerTabManager: Instantiated node is not CallerQueueItem, got {node?.GetType()}");
+                                    // Fallback to simple label
+                                    var callerLabel = new Label();
+                                    callerLabel.Text = $"• {caller.Name} - {caller.Location}";
+                                    callerLabel.AddThemeColorOverride("font_color", itemColor);
+                                    listContainer.AddChild(callerLabel);
+                                }
+                            }
+                            else
+                            {
+                                GD.PrintErr("CallerTabManager: Failed to load CallerQueueItem scene");
+                                // Fallback to simple label
+                                var callerLabel = new Label();
+                                callerLabel.Text = $"• {caller.Name} - {caller.Location}";
+                                callerLabel.AddThemeColorOverride("font_color", itemColor);
+                                listContainer.AddChild(callerLabel);
+                            }
+                        }
+                        else
+                        {
+                            // Use simple label for other panels (on-hold, etc.)
+                            var callerLabel = new Label();
+                            callerLabel.Text = $"• {caller.Name} - {caller.Location}";
+                            callerLabel.AddThemeColorOverride("font_color", itemColor);
+                            listContainer.AddChild(callerLabel);
+                            GD.Print($"CallerTabManager: Added caller {caller.Name}");
+                        }
+                    }
+                }
+                else
+                {
+                    var emptyLabel = new Label();
+                    emptyLabel.Text = "None";
+                    emptyLabel.HorizontalAlignment = HorizontalAlignment.Center;
+                    emptyLabel.AddThemeColorOverride("font_color", new Color(0.5f, 0.5f, 0.5f));
+                    listContainer.AddChild(emptyLabel);
+                    GD.Print($"CallerTabManager: No callers for scrollable '{headerText}', showing 'None'");
+                }
+
+                GD.Print($"CallerTabManager: Successfully populated scrollable '{headerText}' panel with {panel.GetChildCount()} children");
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"CallerTabManager.PopulateScrollableCallerPanel failed: {ex.Message}");
+                panel.AddChild(CreateErrorPanel($"Failed to create scrollable {headerText.ToLower()} panel"));
+            }
         }
 
         /// <summary>
@@ -175,11 +295,54 @@ namespace KBTV.UI
                     GD.Print($"CallerTabManager: Adding {callers.Count} callers to '{headerText}'");
                     foreach (var caller in callers)
                     {
-                        var callerLabel = new Label();
-                        callerLabel.Text = $"• {caller.Name} - {caller.Location}";
-                        callerLabel.AddThemeColorOverride("font_color", itemColor);
-                        listContainer.AddChild(callerLabel);
-                        GD.Print($"CallerTabManager: Added caller {caller.Name}");
+                        if (caller == null)
+                        {
+                            GD.PrintErr("CallerTabManager: Null caller in list, skipping");
+                            continue;
+                        }
+
+                        if (headerText == "INCOMING CALLERS")
+                        {
+                            // Use interactive CallerQueueItem for incoming callers
+                            var itemScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerQueueItem.tscn");
+                            if (itemScene != null)
+                            {
+                                var node = itemScene.Instantiate();
+                                if (node is CallerQueueItem callerItem)
+                                {
+                                    callerItem.SetCaller(caller);
+                                    listContainer.AddChild(callerItem);
+                                    GD.Print($"CallerTabManager: Added interactive caller item {caller.Name}");
+                                }
+                                else
+                                {
+                                    GD.PrintErr($"CallerTabManager: Instantiated node is not CallerQueueItem, got {node?.GetType()}");
+                                    // Fallback to simple label
+                                    var callerLabel = new Label();
+                                    callerLabel.Text = $"• {caller.Name} - {caller.Location}";
+                                    callerLabel.AddThemeColorOverride("font_color", itemColor);
+                                    listContainer.AddChild(callerLabel);
+                                }
+                            }
+                            else
+                            {
+                                GD.PrintErr("CallerTabManager: Failed to load CallerQueueItem scene");
+                                // Fallback to simple label
+                                var callerLabel = new Label();
+                                callerLabel.Text = $"• {caller.Name} - {caller.Location}";
+                                callerLabel.AddThemeColorOverride("font_color", itemColor);
+                                listContainer.AddChild(callerLabel);
+                            }
+                        }
+                        else
+                        {
+                            // Use simple label for other panels (on-hold, etc.)
+                            var callerLabel = new Label();
+                            callerLabel.Text = $"• {caller.Name} - {caller.Location}";
+                            callerLabel.AddThemeColorOverride("font_color", itemColor);
+                            listContainer.AddChild(callerLabel);
+                            GD.Print($"CallerTabManager: Added caller {caller.Name}");
+                        }
                     }
                 }
                 else

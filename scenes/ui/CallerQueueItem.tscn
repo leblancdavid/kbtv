@@ -1,0 +1,44 @@
+[gd_scene load_steps=3 format=3 uid="uid://callerqueueitem"]
+
+[ext_resource type="Script" path="res://scripts/ui/CallerQueueItem.cs" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="ItemBackground"]
+bg_color = Color(0.2, 0.2, 0.2, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="CallerQueueItem" type="Panel"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+script = ExtResource("1")
+theme_override_styles/panel = SubResource("ItemBackground")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="NameLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = ""
+vertical_alignment = 1
+
+[node name="StatusIndicator" type="ProgressBar" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+custom_minimum_size = Vector2(50, 20)
+max_value = 1.0
+value = 1.0
+show_percentage = false
+
+[node name="SelectButton" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Select"

@@ -258,6 +258,28 @@ func take_damage(amount: float):
 - Minimize use of `get_node()` in `_process()` loops
 - Use Godot's profiler for optimization
 
+### UI Initialization Timing (Deferred Calls)
+When dynamically instantiating scenes and setting properties immediately after, `_ready()` may not have run yet. Use `CallDeferred()` to safely schedule UI updates:
+
+```csharp
+public void SetData(MyData data)
+{
+    _data = data;
+    // Defer UI updates until after _ready() completes
+    CallDeferred(nameof(_ApplyDataDeferred), data.Name);
+}
+
+private void _ApplyDataDeferred(string name)
+{
+    if (_nameLabel != null)
+    {
+        _nameLabel.Text = name;
+    }
+}
+```
+
+See [UI_IMPLEMENTATION.md](docs/ui/UI_IMPLEMENTATION.md) - Pattern 4 for full documentation.
+
 ### Git & Collaboration
 - Create descriptive commit messages explaining the "why"
 - Reference ticket/issue numbers in commits

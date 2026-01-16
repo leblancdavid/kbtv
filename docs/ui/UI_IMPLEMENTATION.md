@@ -154,6 +154,39 @@ private void OnCallerQueueChanged()
 }
 ```
 
+### Pattern 4: Deferred Call for UI Initialization
+
+When setting properties on newly instantiated nodes, `_Ready()` may not have run yet. Use `CallDeferred()` to schedule operations after the node is fully initialized:
+
+```csharp
+public void SetCaller(Caller caller)
+{
+    _caller = caller;
+    // Defer name assignment until after _Ready() runs
+    CallDeferred(nameof(_ApplyCallerName), caller?.Name ?? "");
+}
+
+private void _ApplyCallerName(string name)
+{
+    if (_nameLabel != null)
+    {
+        _nameLabel.Text = name;
+    }
+    UpdateStatusIndicator();
+}
+```
+
+**Why this pattern is needed:**
+- `Instantiate()` creates a node but doesn't guarantee `_Ready()` has run
+- Calling `SetCaller()` immediately after `Instantiate()` may find child node references as `null`
+- Godot defers `CallDeferred()` calls until after `_Ready()` completes
+- This ensures `_nameLabel` and other `@onready` nodes are available
+
+**When to use:**
+- Setting text on Labels in UI items created dynamically
+- Configuring UI elements immediately after scene instantiation
+- Any scenario where data binding happens before `_Ready()`
+
 ## Theme and Styling
 
 Use Godot's theme system for consistent styling:

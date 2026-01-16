@@ -87,6 +87,32 @@ namespace KBTV.Callers
         }
 
         /// <summary>
+        /// Start screening a specific incoming caller.
+        /// </summary>
+        public bool StartScreeningCaller(Caller caller)
+        {
+            if (_currentScreening != null)
+            {
+                GD.Print("CallerQueue: Already screening a caller");
+                return false;
+            }
+
+            if (!_incomingCallers.Contains(caller))
+            {
+                GD.Print("CallerQueue: Caller not in incoming queue");
+                return false;
+            }
+
+            _incomingCallers.Remove(caller);
+            _currentScreening = caller;
+            _currentScreening.SetState(CallerState.Screening);
+
+            EmitSignal("CallerRemoved", caller);
+
+            return true;
+        }
+
+        /// <summary>
         /// Approve the current caller and put them on hold.
         /// </summary>
         public bool ApproveCurrentCaller()
