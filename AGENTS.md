@@ -138,7 +138,8 @@ if (!_allReadyEmitted && _registeredCount >= MIN_SERVICES_EXPECTED)
 2. `UIManager` - Needed by TabContainerManager/PreShowUIManager
 3. `GameStateManager` - Needed by many services
 4. `TimeManager`, `ListenerManager`, `EconomyManager` - Can depend on GameStateManager
-5. `TabContainerManager`, `PreShowUIManager` - Need UIManager for layer registration
+5. `GlobalTransitionManager` - Handles fade transitions
+6. `TabContainerManager`, `PreShowUIManager` - Need UIManager for layer registration
 
 **Files:**
 - `scripts/core/ServiceRegistry.cs` - Main service registry (Autoload)
@@ -155,6 +156,7 @@ if (!_allReadyEmitted && _registeredCount >= MIN_SERVICES_EXPECTED)
 - `CallerRepository` - Manages caller data
 - `ScreeningController` - Handles caller screening
 - `EventAggregator` - Pub/sub event system
+- `GlobalTransitionManager` - Handles fade-to-black transitions
 
 ### Event Aggregation Pattern
 

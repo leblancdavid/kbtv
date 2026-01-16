@@ -35,6 +35,8 @@ namespace KBTV.Tests.Unit.Core
         {
             bool handlerCalled = false;
             _eventAggregator.Subscribe<TestEvent>(this, (evt) => handlerCalled = true);
+            _eventAggregator.Publish(new TestEvent());
+            AssertThat(handlerCalled);
             AssertThat(_eventAggregator.IsSubscribed(this));
         }
 

@@ -161,6 +161,14 @@ namespace KBTV.Tests.Unit.Core
             AssertThat(_registry.ScreeningController != null);
             AssertThat(_registry.EventAggregator != null);
             AssertThat(_registry.CallerGenerator != null);
+            AssertThat(_registry.GlobalTransitionManager != null);
+        }
+
+        [Test]
+        public void InitializationProgress_StartsAtZero()
+        {
+            AssertThat(_registry.InitializationProgress >= 0f);
+            AssertThat(_registry.InitializationProgress <= 1f);
         }
 
         [Test]

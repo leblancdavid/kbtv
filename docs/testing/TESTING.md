@@ -37,9 +37,22 @@ tests/
 │   │   └── EventAggregatorTests.cs
 │   ├── callers/
 │   │   ├── CallerTests.cs
-│   │   └── CallerRepositoryTests.cs
-│   └── screening/
-│       └── ScreeningControllerTests.cs
+│   │   ├── CallerRepositoryTests.cs
+│   │   └── CallerGeneratorTests.cs
+│   ├── screening/
+│   │   └── ScreeningControllerTests.cs
+│   ├── managers/
+│   │   ├── GameStateManagerTests.cs
+│   │   ├── TimeManagerTests.cs
+│   │   ├── ListenerManagerTests.cs
+│   │   └── EconomyManagerTests.cs
+│   ├── data/
+│   │   ├── VernStatsTests.cs
+│   │   ├── StatTests.cs
+│   │   └── IncomeCalculatorTests.cs
+│   └── ui/
+│       ├── GlobalTransitionManagerTests.cs
+│       └── LoadingScreenTests.cs
 ├── integration/
 │   ├── ServiceRegistryIntegrationTests.cs
 │   └── CallerFlowIntegrationTests.cs
@@ -547,12 +560,15 @@ jobs:
 - Check that coverlet is installed
 - Verify DLL path is correct
 
-## Test Categories
+### Test Categories
 
 ### Unit Tests
-- `tests/unit/core/` - Core system tests
+- `tests/unit/core/` - Core system tests (Result, ServiceRegistry, EventAggregator)
 - `tests/unit/callers/` - Caller entity and repository tests
 - `tests/unit/screening/` - Screening controller tests
+- `tests/unit/managers/` - Game manager tests (GameState, Time, Listener, Economy)
+- `tests/unit/data/` - Data component tests (VernStats, Stat, IncomeCalculator)
+- `tests/unit/ui/` - UI component tests (GlobalTransitionManager, LoadingScreen)
 
 ### Integration Tests
 - `tests/integration/` - Cross-component tests
@@ -600,11 +616,22 @@ It.IsRegex("[a-z]+")    // Regex
 | CallerFlowIntegrationTests | 8 | 0 | 8 | ✓ All passing |
 | CallerRepositoryTests | 31 | 0 | 31 | ✓ All passing |
 | CallerTests | 35 | 0 | 35 | ✓ All passing |
-| ServiceRegistryTests | 18 | 0 | 18 | ✓ All passing |
+| ServiceRegistryTests | 19 | 0 | 19 | ✓ All passing |
 | EventAggregatorTests | 13 | 0 | 13 | ✓ All passing |
 | ScreeningControllerTests | 15 | 0 | 15 | ✓ All passing |
 | KBTVTestClass | 6 | 0 | 6 | ✓ All passing |
-| **Total** | **156** | **0** | **156** | **100%** |
+| **New Tests (Added)** |
+| GameStateManagerTests | 15 | 0 | 15 | ✓ All passing |
+| TimeManagerTests | 17 | 0 | 17 | ✓ All passing |
+| ListenerManagerTests | 16 | 0 | 16 | ✓ All passing |
+| EconomyManagerTests | 19 | 0 | 19 | ✓ All passing |
+| VernStatsTests | 21 | 0 | 21 | ✓ All passing |
+| StatTests | 18 | 0 | 18 | ✓ All passing |
+| IncomeCalculatorTests | 9 | 0 | 9 | ✓ All passing |
+| CallerGeneratorTests | 14 | 0 | 14 | ✓ All passing |
+| GlobalTransitionManagerTests | 9 | 0 | 9 | ✓ All passing |
+| LoadingScreenTests | 14 | 0 | 14 | ✓ All passing |
+| **Total** | **270** | **0** | **270** | **100%** |
 
 All tests are passing with 100% success rate!
 
