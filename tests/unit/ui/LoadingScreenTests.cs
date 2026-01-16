@@ -20,8 +20,8 @@ namespace KBTV.Tests.Unit.UI
         [Test]
         public void Constructor_SetsDefaultGameScenePath()
         {
-            var field = typeof(LoadingScreen).GetField("GameScenePath", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            AssertThat(field?.GetValue(_loadingScreen) as string == "res://scenes/Game.tscn");
+            var loadingScreen = new LoadingScreen();
+            AssertThat(loadingScreen.GameScenePath == "res://scenes/Game.tscn");
         }
 
         [Test]

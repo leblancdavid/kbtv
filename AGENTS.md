@@ -343,23 +343,61 @@ tests/
 
 ### AI Agent Testing Guidelines
 
-When modifying code, AI agents MUST:
+When modifying code, AI agents MUST follow these testing guidelines:
 
-1. **Update or add tests** for any code changes:
-   - New feature → Add unit tests covering the feature
-   - Bug fix → Add regression test to prevent future bugs
-   - Refactor → Verify tests still pass; update if behavior changes
+#### Before Making Changes
 
-2. **Run tests before committing**:
+1. **Run existing tests to establish a baseline:**
    ```bash
    godot --run-tests --quit-on-finish
    ```
 
-3. **Coverage requirement**: New code should maintain >= 80% coverage
+2. **Note any pre-existing failures** - Document these at the start of your work
 
-4. **Test file locations**:
-   - Unit tests: `tests/unit/[domain]/[Component]Tests.cs`
-   - Integration tests: `tests/integration/[Feature]Tests.cs`
+3. **Identify tests that cover the code being modified:**
+   - Tests in the same directory as your change
+   - Tests that exercise the changed code path
+   - Integration tests for affected components
+
+#### After Making Changes
+
+1. **Build the project first:**
+   ```bash
+   dotnet build
+   ```
+
+2. **Run tests related to your changes:**
+   ```bash
+   godot --run-tests --quit-on-finish
+   ```
+
+3. **Evaluate test results:**
+   - If tests fail, determine the cause:
+     - **Bug in implementation**: Fix the implementation
+     - **Test expectations are incorrect**: Update the test
+     - **Test is outdated**: Update or document the issue
+   - All tests related to your changes should pass
+   - Document any intentional test skips or known issues
+
+#### When to Add New Tests
+
+| Change Type | Test Action |
+|-------------|-------------|
+| **New feature** | Add unit tests before or after implementation |
+| **New method** | Add test covering the method's logic and edge cases |
+| **Bug fix** | Add regression test that would have caught the bug |
+| **Refactor** | Verify existing tests pass; add tests for new behavior |
+| **UI component** | Add UI integration test for the component |
+
+#### Coverage Requirement
+
+- New code should maintain **>= 80%** coverage
+- Check coverage with: `godot --run-tests --coverage --quit-on-finish`
+
+#### Test File Locations
+
+- Unit tests: `tests/unit/[domain]/[Component]Tests.cs`
+- Integration tests: `tests/integration/[Feature]Tests.cs`
 
 ### Test Patterns
 

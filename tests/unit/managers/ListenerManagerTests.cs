@@ -157,6 +157,7 @@ namespace KBTV.Tests.Unit.Managers
         [Test]
         public void GetFormattedChange_NegativeChange_ShowsMinusSign()
         {
+            _listenerManager.ModifyListeners(500);
             _listenerManager.ModifyListeners(-100);
             string formatted = _listenerManager.GetFormattedChange();
 
@@ -166,7 +167,8 @@ namespace KBTV.Tests.Unit.Managers
         [Test]
         public void GetFormattedListeners_NegativeListeners_FormatsCorrectly()
         {
-            _listenerManager.ModifyListeners(-500);
+            _listenerManager.ModifyListeners(500);
+            _listenerManager.ModifyListeners(-600);
             string formatted = _listenerManager.GetFormattedListeners();
 
             AssertThat(formatted.StartsWith("-"));

@@ -217,24 +217,65 @@ public class ScreeningPanelTests : TestClass
 }
 ```
 
-## Test Maintenance
+## Development Workflow Requirements
 
-### When to Write Tests
+### Before Making Changes
+
+1. **Run existing tests to establish a baseline:**
+   ```bash
+   godot --run-tests --quit-on-finish
+   ```
+
+2. **Note any pre-existing failures** in your commit message or task notes
+
+3. **Identify tests that cover the code being modified**:
+   - Tests in the same directory as your change
+   - Tests that exercise the changed code path
+   - Integration tests for affected components
+
+### After Making Changes
+
+1. **Build the project first:**
+   ```bash
+   dotnet build
+   ```
+
+2. **Run tests related to your changes:**
+   ```bash
+   godot --run-tests --quit-on-finish
+   ```
+
+3. **Evaluate test results:**
+   - If tests fail, determine the cause:
+     - **Bug in implementation**: Fix the implementation
+     - **Test expectations are incorrect**: Update the test
+     - **Test is outdated**: Update or document the issue
+   - All tests related to your changes should pass
+   - Document any intentional test skips or known issues
+
+### When to Add New Tests
 
 | Change Type | Test Action |
 |-------------|-------------|
 | **New feature** | Add unit tests before or after implementation |
+| **New method** | Add test covering the method's logic and edge cases |
 | **Bug fix** | Add regression test to prevent future bugs |
-| **Refactor** | Verify tests still pass; update if behavior changes |
-| **UI change** | Update or add UI integration tests |
+| **Refactor** | Verify existing tests pass; add tests for new behavior |
+| **UI component** | Add UI integration test for the component |
+| **Data model** | Add tests for validation and transformations |
 
-### Test Coverage Requirements
+### Test Selection Guidelines
 
-| Category | Target |
-|----------|--------|
-| Unit Tests | 80% |
-| Integration Tests | 70% |
-| **Overall** | **80%** |
+- **Unit tests** (`tests/unit/`): Test individual methods and classes in isolation
+- **Integration tests** (`tests/integration/`): Test interactions between components
+- **Related tests**: Tests in the same directory as your change, or tests that exercise the changed code path
+
+### Coverage Requirement
+
+- New code should maintain **>= 80%** coverage
+- Check coverage with: `godot --run-tests --coverage --quit-on-finish`
+
+## Test Maintenance
 
 ### Updating Tests
 
@@ -607,33 +648,42 @@ It.IsRegex("[a-z]+")    // Regex
 - Use deterministic random seeds when needed
 - Clean up resources in `[Cleanup]`
 
-## Test Results
+## Current Test Status
 
-| Test Suite | Passed | Failed | Total | Status |
-|------------|--------|--------|-------|--------|
-| ResultTests | 20 | 0 | 20 | ✓ All passing |
-| ServiceRegistryIntegrationTests | 10 | 0 | 10 | ✓ All passing |
-| CallerFlowIntegrationTests | 8 | 0 | 8 | ✓ All passing |
-| CallerRepositoryTests | 31 | 0 | 31 | ✓ All passing |
-| CallerTests | 35 | 0 | 35 | ✓ All passing |
-| ServiceRegistryTests | 19 | 0 | 19 | ✓ All passing |
-| EventAggregatorTests | 13 | 0 | 13 | ✓ All passing |
-| ScreeningControllerTests | 15 | 0 | 15 | ✓ All passing |
-| KBTVTestClass | 6 | 0 | 6 | ✓ All passing |
-| **New Tests (Added)** |
-| GameStateManagerTests | 15 | 0 | 15 | ✓ All passing |
-| TimeManagerTests | 17 | 0 | 17 | ✓ All passing |
-| ListenerManagerTests | 16 | 0 | 16 | ✓ All passing |
-| EconomyManagerTests | 19 | 0 | 19 | ✓ All passing |
-| VernStatsTests | 21 | 0 | 21 | ✓ All passing |
-| StatTests | 18 | 0 | 18 | ✓ All passing |
-| IncomeCalculatorTests | 9 | 0 | 9 | ✓ All passing |
-| CallerGeneratorTests | 14 | 0 | 14 | ✓ All passing |
-| GlobalTransitionManagerTests | 9 | 0 | 9 | ✓ All passing |
-| LoadingScreenTests | 14 | 0 | 14 | ✓ All passing |
-| **Total** | **270** | **0** | **270** | **100%** |
+**Last run:** January 2026
+**Result: 274 passed, 13 failed, 287 total**
 
-All tests are passing with 100% success rate!
+### Test Summary
+
+| Category | Passed | Failed | Total |
+|----------|--------|--------|-------|
+| Unit Tests | ~240 | 13 | ~253 |
+| Integration Tests | ~34 | 0 | ~34 |
+| **Total** | **274** | **13** | **287** |
+
+### Known Failing Tests
+
+| Test Suite | Failing Tests | Issue Type | Notes |
+|------------|---------------|------------|-------|
+| ListenerManagerTests | 4 | Assertion mismatch | Formatting tests need alignment with implementation |
+| VernStatsTests | 2 | Assertion mismatch | VIBE calculation and event emission assertions |
+| CallerGeneratorTests | 8 | Missing data | Tests require JSON data file loading setup |
+| ServiceRegistryIntegrationTests | 0 | Resolved | All integration tests now passing |
+
+### Notes
+
+- Some tests have assertions that don't match current implementation behavior
+- These failures will be addressed incrementally as features are developed
+- New tests should be added alongside new functionality
+- The 13 failing tests represent ~4.5% failure rate
+
+### Test Maintenance Notes
+
+When addressing test failures:
+
+1. **For assertion mismatches**: Determine whether the test expectation or implementation is incorrect
+2. **For missing data/setup**: Create necessary test fixtures or mock dependencies
+3. **Document known issues**: Note any intentional test skips or known limitations
 
 ## Coverage Target
 
