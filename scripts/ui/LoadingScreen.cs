@@ -183,17 +183,24 @@ namespace KBTV.UI
             _background = new Panel();
             _background.Name = "Background";
             _background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-            _background.Modulate = new Color(0.12f, 0.12f, 0.16f, 1f);
+            var backgroundStyle = new StyleBoxFlat();
+            backgroundStyle.BgColor = new Color(0.15f, 0.15f, 0.15f);
+            _background.AddThemeStyleboxOverride("panel", backgroundStyle);
             AddChild(_background);
+
+            var containerWrapper = new CenterContainer();
+            containerWrapper.Name = "ContainerWrapper";
+            containerWrapper.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+            _background.AddChild(containerWrapper);
 
             var container = new VBoxContainer();
             container.Name = "Container";
-            container.SetAnchorsPreset(Control.LayoutPreset.Center);
             container.CustomMinimumSize = new Vector2(400, 300);
             container.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
             container.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            container.Alignment = BoxContainer.AlignmentMode.Center;
             container.AddThemeConstantOverride("separation", 20);
-            _background.AddChild(container);
+            containerWrapper.AddChild(container);
 
             _titleLabel = new Label();
             _titleLabel.Name = "Title";
