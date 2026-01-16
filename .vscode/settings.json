@@ -1,0 +1,21 @@
+{
+  "editor.formatOnSave": true,
+  "dotnet.defaultSolution": "KBTV.sln",
+  "terminal.integrated.env.windows": {
+    "GODOT": "D:\\Software\\Godot\\Godot_v4.5.1-stable_mono_win64.exe"
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": []
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": []
+  },
+  "csharp.debugger": {
+    "stopOnException": false,
+    "breakOnThrows": {
+      "exceptions": []
+    }
+  }
+}

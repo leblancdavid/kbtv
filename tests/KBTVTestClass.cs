@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Chickensoft.GoDotTest;
 using Godot;
 
@@ -6,42 +7,44 @@ namespace KBTV.Tests
 {
     public abstract class KBTVTestClass : TestClass
     {
+        private readonly List<Exception> _recordedFailures = new();
+
         protected KBTVTestClass(Node testScene) : base(testScene) { }
 
         protected void AssertThat(bool condition)
         {
             if (!condition)
-                throw new AssertionException("Assertion failed");
+                RecordFailure("Assertion failed");
         }
 
         protected void AssertThat(bool condition, string message)
         {
             if (!condition)
-                throw new AssertionException(message);
+                RecordFailure(message);
         }
 
         protected void AssertAreEqual<T>(T expected, T actual)
         {
             if (!Equals(expected, actual))
-                throw new AssertionException($"Expected {expected}, got {actual}");
+                RecordFailure($"Expected {expected}, got {actual}");
         }
 
         protected void AssertAreEqual<T>(T expected, T actual, string message)
         {
             if (!Equals(expected, actual))
-                throw new AssertionException(message);
+                RecordFailure(message);
         }
 
         protected void AssertNotNull(object obj)
         {
             if (obj == null)
-                throw new AssertionException("Expected non-null value");
+                RecordFailure("Expected non-null value");
         }
 
         protected void AssertNull(object obj)
         {
             if (obj != null)
-                throw new AssertionException("Expected null value");
+                RecordFailure("Expected null value");
         }
 
         protected void AssertThrows<T>(Action action) where T : Exception
@@ -49,7 +52,7 @@ namespace KBTV.Tests
             try
             {
                 action();
-                throw new AssertionException($"Expected {typeof(T).Name} to be thrown");
+                RecordFailure($"Expected {typeof(T).Name} to be thrown");
             }
             catch (T)
             {
@@ -60,7 +63,7 @@ namespace KBTV.Tests
             }
             catch (Exception ex)
             {
-                throw new AssertionException($"Expected {typeof(T).Name} but got {ex.GetType().Name}");
+                RecordFailure($"Expected {typeof(T).Name} but got {ex.GetType().Name}");
             }
         }
 
@@ -69,22 +72,37 @@ namespace KBTV.Tests
         protected void AssertGreater<T>(T actual, T limit) where T : IComparable<T>
         {
             if (actual.CompareTo(limit) <= 0)
-                throw new AssertionException($"Expected {actual} > {limit}");
+                RecordFailure($"Expected {actual} > {limit}");
         }
         protected void AssertLess<T>(T actual, T limit) where T : IComparable<T>
         {
             if (actual.CompareTo(limit) >= 0)
-                throw new AssertionException($"Expected {actual} < {limit}");
+                RecordFailure($"Expected {actual} < {limit}");
         }
         protected void AssertGreaterOrEqual<T>(T actual, T limit) where T : IComparable<T>
         {
             if (actual.CompareTo(limit) < 0)
-                throw new AssertionException($"Expected {actual} >= {limit}");
+                RecordFailure($"Expected {actual} >= {limit}");
         }
         protected void AssertLessOrEqual<T>(T actual, T limit) where T : IComparable<T>
         {
             if (actual.CompareTo(limit) > 0)
-                throw new AssertionException($"Expected {actual} <= {limit}");
+                RecordFailure($"Expected {actual} <= {limit}");
+        }
+
+        private void RecordFailure(string message)
+        {
+            _recordedFailures.Add(new AssertionException(message));
+            GD.PrintErr($"Test assertion failed: {message}");
+        }
+
+        [Cleanup]
+        public void Cleanup()
+        {
+            if (_recordedFailures.Count > 0)
+            {
+                GD.PrintErr($"Test suite had {_recordedFailures.Count} failure(s)");
+            }
         }
     }
 

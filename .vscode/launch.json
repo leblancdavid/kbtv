@@ -1,0 +1,141 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Play",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "D:\\Software\\Godot\\Godot_v4.5.1-stable_mono_win64.exe",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "justMyCode": true,
+      "enableStepFiltering": true
+    },
+    {
+      "name": "Debug Tests (Continue on Error)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "D:\\Software\\Godot\\Godot_v4.5.1-stable_mono_win64.exe",
+      "args": [
+        "--main-scene",
+        "res://test/Tests.tscn",
+        "--run-tests",
+        "--quit-on-finish"
+      ],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "justMyCode": true,
+      "enableStepFiltering": true,
+      "stopOnException": false,
+      "exceptionHandling": {
+        "mode": "userUnhandled",
+        "options": {
+          "KBTV.Tests.AssertionException": "never"
+        }
+      }
+    },
+    {
+      "name": "Debug Tests",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "D:\\Software\\Godot\\Godot_v4.5.1-stable_mono_win64.exe",
+      "args": [
+        "--main-scene",
+        "res://test/Tests.tscn",
+        "--run-tests",
+        "--quit-on-finish"
+      ],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "justMyCode": true,
+      "enableStepFiltering": true,
+      "stopOnException": false
+    },
+    {
+      "name": "Debug Current Test",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "D:\\Software\\Godot\\Godot_v4.5.1-stable_mono_win64.exe",
+      "args": [
+        "--main-scene",
+        "res://test/Tests.tscn",
+        "--run-tests=${fileBasenameNoExtension}",
+        "--quit-on-finish"
+      ],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "justMyCode": true,
+      "enableStepFiltering": true,
+      "stopOnException": false
+    },
+    {
+      "name": "Debug Tests with Coverage",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "D:\\Software\\Godot\\Godot_v4.5.1-stable_mono_win64.exe",
+      "args": [
+        "--main-scene",
+        "res://test/Tests.tscn",
+        "--run-tests",
+        "--coverage",
+        "--quit-on-finish"
+      ],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "justMyCode": true,
+      "enableStepFiltering": true,
+      "stopOnException": false
+    },
+    {
+      "name": "Debug Tests (Stop on First Error)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "D:\\Software\\Godot\\Godot_v4.5.1-stable_mono_win64.exe",
+      "args": [
+        "--main-scene",
+        "res://test/Tests.tscn",
+        "--run-tests",
+        "--stop-on-error",
+        "--quit-on-finish"
+      ],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "justMyCode": true,
+      "enableStepFiltering": true,
+      "stopOnException": true
+    },
+    {
+      "name": "Debug Tests (Sequential - Skip on Fail)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "D:\\Software\\Godot\\Godot_v4.5.1-stable_mono_win64.exe",
+      "args": [
+        "--main-scene",
+        "res://test/Tests.tscn",
+        "--run-tests",
+        "--sequential",
+        "--quit-on-finish"
+      ],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "console": "internalConsole",
+      "justMyCode": true,
+      "enableStepFiltering": true,
+      "stopOnException": false
+    }
+  ]
+}

@@ -121,7 +121,7 @@ namespace KBTV.Tests.Unit.Managers
         [Test]
         public void GetFormattedListeners_WithThousands_FormatsAsK()
         {
-            _listenerManager.ModifyListeners(1500);
+            _listenerManager.ModifyListeners(15000);
             string formatted = _listenerManager.GetFormattedListeners();
 
             AssertThat(formatted.Contains("K"));
