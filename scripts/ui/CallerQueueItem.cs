@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Linq;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
@@ -11,18 +12,23 @@ namespace KBTV.UI
 {
     public partial class CallerQueueItem : Panel, ICallerListItem
     {
-        [ExportGroup("Node References")]
-        [Export]
         private Label _nameLabel = null!;
-
-        [Export]
         private ProgressBar _statusIndicator = null!;
 
-        private Caller? _caller;
+        private string? _callerId;
         private ICallerRepository? _repository;
 
         public override void _Ready()
         {
+            try
+            {
+                _nameLabel = GetNode<Label>("HBoxContainer/NameLabel");
+                _statusIndicator = GetNode<ProgressBar>("HBoxContainer/StatusIndicator");
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr("[CallerQueueItem] ERROR getting node references: " + ex.Message);
+            }
             CallDeferred(nameof(InitializeDeferred));
         }
 
@@ -48,7 +54,7 @@ namespace KBTV.UI
 
         public void SetCaller(Caller? caller)
         {
-            _caller = caller;
+            _callerId = caller?.Id;
             ApplyCallerName(caller?.Name ?? "");
             UpdateStatusIndicator();
             UpdateVisualSelection();
@@ -64,15 +70,47 @@ namespace KBTV.UI
             if (_nameLabel != null)
             {
                 _nameLabel.Text = name;
+                _nameLabel.Modulate = new Color(0.7f, 0.7f, 0.7f);
             }
         }
 
         public override void _Process(double delta)
         {
-            if (_caller != null)
+            UpdateStatusIndicator();
+        }
+
+        private Caller? GetCurrentCaller()
+        {
+            if (_callerId == null || _repository == null)
             {
-                UpdateStatusIndicator();
+                return null;
             }
+
+            var incomingCallers = _repository.IncomingCallers.ToList();
+            foreach (var caller in incomingCallers)
+            {
+                if (caller.Id == _callerId)
+                {
+                    return caller;
+                }
+            }
+
+            var onHoldCallers = _repository.OnHoldCallers.ToList();
+            foreach (var caller in onHoldCallers)
+            {
+                if (caller.Id == _callerId)
+                {
+                    return caller;
+                }
+            }
+
+            var currentScreening = _repository.CurrentScreening;
+            if (currentScreening != null && currentScreening.Id == _callerId)
+            {
+                return currentScreening;
+            }
+
+            return null;
         }
 
         private void OnGuiInput(InputEvent @event)
@@ -87,20 +125,21 @@ namespace KBTV.UI
 
         private void OnItemClicked()
         {
-            if (_caller == null || _repository == null)
+            var caller = GetCurrentCaller();
+            if (caller == null || _repository == null)
             {
                 return;
             }
 
-            if (_repository.CurrentScreening == _caller)
+            if (_repository.CurrentScreening == caller)
             {
                 return;
             }
 
-            var success = _repository.StartScreening(_caller);
+            var success = _repository.StartScreening(caller);
             if (success.IsSuccess)
             {
-                GD.Print($"CallerQueueItem: Started screening {_caller.Name}");
+                GD.Print($"CallerQueueItem: Started screening {caller.Name}");
             }
             else
             {
@@ -110,7 +149,8 @@ namespace KBTV.UI
 
         private void OnCallerStateChanged(Core.Events.Queue.CallerStateChanged evt)
         {
-            if (evt.Caller == _caller)
+            var currentCaller = GetCurrentCaller();
+            if (evt.Caller != null && evt.Caller.Id == _callerId)
             {
                 UpdateVisualSelection();
             }
@@ -118,7 +158,8 @@ namespace KBTV.UI
 
         private void OnScreeningStarted(Core.Events.Screening.ScreeningStarted evt)
         {
-            if (evt.Caller == _caller)
+            var currentCaller = GetCurrentCaller();
+            if (evt.Caller != null && evt.Caller.Id == _callerId)
             {
                 UpdateVisualSelection();
             }
@@ -126,12 +167,13 @@ namespace KBTV.UI
 
         private void UpdateVisualSelection()
         {
-            if (_caller == null || _statusIndicator == null)
+            var caller = GetCurrentCaller();
+            if (caller == null || _statusIndicator == null)
             {
                 return;
             }
 
-            bool isScreening = _repository?.CurrentScreening == _caller;
+            bool isScreening = _repository?.CurrentScreening == caller;
 
             var style = new StyleBoxFlat
             {
@@ -155,13 +197,14 @@ namespace KBTV.UI
 
         private void UpdateStatusIndicator()
         {
-            if (_caller == null || _statusIndicator == null)
+            var caller = GetCurrentCaller();
+            if (caller == null || _statusIndicator == null)
             {
                 return;
             }
 
-            float remainingPatience = _caller.Patience - _caller.WaitTime;
-            float patienceRatio = Mathf.Clamp(remainingPatience / _caller.Patience, 0f, 1f);
+            float remainingPatience = caller.Patience - caller.WaitTime;
+            float patienceRatio = Mathf.Clamp(remainingPatience / caller.Patience, 0f, 1f);
 
             _statusIndicator.Value = patienceRatio;
             _statusIndicator.AddThemeColorOverride("fill", UIColors.GetPatienceColor(patienceRatio));

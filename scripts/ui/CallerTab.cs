@@ -107,6 +107,29 @@ namespace KBTV.UI
 
             ClearPanel(_incomingPanel);
 
+            var rootContainer = new VBoxContainer
+            {
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                SizeFlagsVertical = SizeFlags.ExpandFill
+            };
+            _incomingPanel.AddChild(rootContainer);
+
+            var header = new Label
+            {
+                Text = "INCOMING CALLERS",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                CustomMinimumSize = new Vector2(0, 24)
+            };
+            header.AddThemeColorOverride("font_color", UIColors.Queue.Incoming);
+            rootContainer.AddChild(header);
+
+            var spacer = new Control
+            {
+                CustomMinimumSize = new Vector2(0, 16),
+                SizeFlagsVertical = SizeFlags.ShrinkEnd
+            };
+            rootContainer.AddChild(spacer);
+
             var adapter = new CallerListAdapter();
             var reactiveList = new ReactiveListPanel<Caller>
             {
@@ -116,7 +139,7 @@ namespace KBTV.UI
             reactiveList.SetAdapter(adapter);
             reactiveList.SetData(_repository.IncomingCallers.ToList());
 
-            _incomingPanel.AddChild(reactiveList);
+            rootContainer.AddChild(reactiveList);
 
             GD.Print($"CallerTab: Created incoming panel with {_repository.IncomingCallers.Count} callers");
         }

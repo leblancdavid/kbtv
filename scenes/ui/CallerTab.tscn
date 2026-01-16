@@ -22,6 +22,11 @@ theme_override_constants/separation = 8
 
 [node name="IncomingScroll" type="ScrollContainer" parent="HBoxContainer"]
 layout_mode = 2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.8
@@ -30,17 +35,32 @@ vertical_scroll_mode = 1
 
 [node name="IncomingPanel" type="Control" parent="HBoxContainer/IncomingScroll"]
 layout_mode = 2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="ScreeningContainer" type="Control" parent="HBoxContainer"]
 layout_mode = 2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 2.4
 
 [node name="OnHoldScroll" type="ScrollContainer" parent="HBoxContainer"]
 layout_mode = 2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.8
@@ -49,5 +69,10 @@ vertical_scroll_mode = 1
 
 [node name="OnHoldPanel" type="Control" parent="HBoxContainer/OnHoldScroll"]
 layout_mode = 2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
