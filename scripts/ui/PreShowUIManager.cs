@@ -22,11 +22,11 @@ namespace KBTV.UI
 		public override void _Ready()
 		{
 			base._Ready();
+			ServiceRegistry.Instance.RegisterSelf<PreShowUIManager>(this);
 			LoadTopics();
 			CreatePreShowUI();
 			SubscribeToEvents();
 			UpdateUI();
-			// GD.Print("PreShowUIManager: Ready and initialized");
 		}
 
 		private void LoadTopics()

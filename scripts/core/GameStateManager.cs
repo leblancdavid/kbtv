@@ -20,25 +20,26 @@ namespace KBTV.Core
 	// FIELDS
 	// ═══════════════════════════════════════════════════════════════════════════════
 
-	private GamePhase _currentPhase = GamePhase.PreShow;
-	private VernStats _vernStats;
-	private int _currentNight = 1;
-	private Topic _selectedTopic;
+    private GamePhase _currentPhase = GamePhase.PreShow;
+    private VernStats _vernStats;
+    private int _currentNight = 1;
+    private Topic _selectedTopic;
+    private static int _instanceCount;
+    private int _instanceId;
 
-	public VernStats VernStats => _vernStats;
-	public GamePhase CurrentPhase => _currentPhase;
-	public int CurrentNight => _currentNight;
-	public Topic SelectedTopic => _selectedTopic;
+    public VernStats VernStats => _vernStats;
+    public GamePhase CurrentPhase => _currentPhase;
+    public int CurrentNight => _currentNight;
+    public Topic SelectedTopic => _selectedTopic;
 
-		public override void _Ready()
-		{
-			GD.Print("GameStateManager: _Ready called");
+    public override void _Ready()
+    {
+        _instanceId = ++_instanceCount;
+        GD.Print($"GameStateManager: _Ready called (instance #{_instanceId})");
+        ServiceRegistry.Instance.RegisterSelf<GameStateManager>(this);
 
-			// Create VernStats dynamically
 			_vernStats = new VernStats();
 			InitializeGame();
-
-			// GD.Print($"GameStateManager: Initialized with phase {_currentPhase}");
 		}
 
 		/// <summary>

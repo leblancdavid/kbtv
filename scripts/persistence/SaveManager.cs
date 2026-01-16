@@ -59,7 +59,10 @@ namespace KBTV.Persistence
         // Lifecycle
         // ─────────────────────────────────────────────────────────────
 
-
+        public override void _Ready()
+        {
+            ServiceRegistry.Instance.RegisterSelf<SaveManager>(this);
+        }
 
         private void HandleTreeExiting()
         {

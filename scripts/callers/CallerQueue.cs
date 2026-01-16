@@ -25,6 +25,8 @@ namespace KBTV.Callers
         [Signal] public delegate void ScreeningChangedEventHandler();
 
         private ICallerRepository _repository = null!;
+        private static int _instanceCount;
+        private int _instanceId;
 
         public bool CanAcceptMoreCallers => _repository.CanAcceptMoreCallers;
         public bool CanPutOnHold => _repository.CanPutOnHold;
@@ -39,6 +41,10 @@ namespace KBTV.Callers
 
         public override void _Ready()
         {
+            _instanceId = ++_instanceCount;
+            GD.Print($"CallerQueue: _Ready called (instance #{_instanceId})");
+            ServiceRegistry.Instance.RegisterSelf<CallerQueue>(this);
+
             if (ServiceRegistry.Instance == null)
             {
                 GD.PrintErr("CallerQueue: ServiceRegistry not available");
@@ -68,7 +74,7 @@ namespace KBTV.Callers
             events.Subscribe<Core.Events.OnAir.CallerOnAir>(this, OnCallerOnAir);
             events.Subscribe<Core.Events.OnAir.CallerOnAirEnded>(this, OnCallerOnAirEnded);
 
-            GD.Print("CallerQueue: Initialized (legacy wrapper)");
+            GD.Print($"CallerQueue: Initialized (legacy wrapper, instance #{_instanceId})");
         }
 
         public override void _ExitTree()

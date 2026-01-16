@@ -39,6 +39,7 @@ namespace KBTV.Economy
         public override void _Ready()
         {
             _currentMoney = _startingMoney;
+            ServiceRegistry.Instance.RegisterSelf<EconomyManager>(this);
         }
 
         // TODO: Add when SaveManager is ported

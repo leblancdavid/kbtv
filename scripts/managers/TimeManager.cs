@@ -40,9 +40,9 @@ namespace KBTV.Managers
 
         public override void _Ready()
         {
-            // Ensure clean state on startup
             _elapsedTime = 0f;
             _isRunning = false;
+            ServiceRegistry.Instance.RegisterSelf<TimeManager>(this);
         }
 
         public override void _Process(double delta)

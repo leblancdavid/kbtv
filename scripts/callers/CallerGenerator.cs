@@ -49,6 +49,8 @@ namespace KBTV.Callers
 
         public override void _Ready()
         {
+            ServiceRegistry.Instance.RegisterSelf<CallerGenerator>(this);
+
             if (ServiceRegistry.Instance == null)
             {
                 GD.PrintErr("CallerGenerator: ServiceRegistry not available");
@@ -56,6 +58,7 @@ namespace KBTV.Callers
             }
 
             _repository = ServiceRegistry.Instance.CallerRepository;
+            _gameState = ServiceRegistry.Instance.GameStateManager;
 
             if (_repository == null)
             {
@@ -63,17 +66,43 @@ namespace KBTV.Callers
                 return;
             }
 
+            if (_gameState == null)
+            {
+                GD.Print("CallerGenerator: GameStateManager not available yet, deferring initialization");
+                CallDeferred(nameof(DeferredInit));
+                return;
+            }
+
+            CompleteInitialization();
+        }
+
+        private void DeferredInit()
+        {
+            _repository = ServiceRegistry.Instance.CallerRepository;
             _gameState = ServiceRegistry.Instance.GameStateManager;
 
-			if (_gameState != null)
-			{
-				_gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
+            if (_repository == null)
+            {
+                GD.PrintErr("CallerGenerator: ICallerRepository not available after deferral");
+                return;
+            }
 
-                // Check if we're already in LiveShow
-                if (_gameState.CurrentPhase == GamePhase.LiveShow)
-                {
-                    StartGenerating();
-                }
+            if (_gameState == null)
+            {
+                GD.PrintErr("CallerGenerator: GameStateManager not available after deferral");
+                return;
+            }
+
+            CompleteInitialization();
+        }
+
+        private void CompleteInitialization()
+        {
+            _gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
+
+            if (_gameState.CurrentPhase == GamePhase.LiveShow)
+            {
+                StartGenerating();
             }
         }
 

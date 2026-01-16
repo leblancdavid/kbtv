@@ -11,85 +11,95 @@ namespace KBTV.UI
     {
         private CanvasLayer _preShowLayer;
         private CanvasLayer _liveShowLayer;
+        private bool _gameStateConnected;
+        private int _visibilityUpdateAttempts;
+        private const int MAX_UPDATE_ATTEMPTS = 60;
 
-        // Public methods for UI managers to register their layers
         public void RegisterPreShowLayer(CanvasLayer layer)
         {
             _preShowLayer = layer;
             GD.Print($"UIManager: PreShow layer registered: {layer != null}");
+            TryUpdateVisibility();
         }
 
         public void RegisterLiveShowLayer(CanvasLayer layer)
         {
             _liveShowLayer = layer;
             GD.Print($"UIManager: LiveShow layer registered: {layer != null}");
+            TryUpdateVisibility();
         }
 
         public override void _Ready()
         {
-            // GD.Print("UIManager: _Ready called");
+            ServiceRegistry.Instance.RegisterSelf<UIManager>(this);
 
-            // CanvasLayers will be registered by UI managers when they create them
-            // Try to connect to GameStateManager immediately
-            TryConnectToGameStateManager();
-
-            // If still not connected, set up deferred retry
-            if (ServiceRegistry.Instance?.GameStateManager == null)
+            var gameState = ServiceRegistry.Instance?.GameStateManager;
+            if (gameState != null)
             {
-                // GD.Print("UIManager: GameStateManager not ready, deferring connection");
-                CallDeferred(nameof(TryConnectToGameStateManager));
+                gameState.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
+                _gameStateConnected = true;
+                TryUpdateVisibility();
+            }
+            else
+            {
+                GD.Print("UIManager: GameStateManager not available yet, deferring initialization");
+                CallDeferred(nameof(DeferredInit));
             }
         }
 
-        private void TryConnectToGameStateManager()
+        private void DeferredInit()
         {
             var gameState = ServiceRegistry.Instance?.GameStateManager;
             if (gameState != null)
             {
-                // Connect to phase changes
-                gameState.Connect("PhaseChanged", Callable.From<int, int>(UpdateUIVisibility));
-
-                // Set initial visibility based on current phase - defer to ensure layers are registered
-                CallDeferred(nameof(UpdateInitialVisibility));
-                // GD.Print("UIManager: Successfully connected to GameStateManager");
+                gameState.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
+                _gameStateConnected = true;
+                TryUpdateVisibility();
             }
             else
             {
-                // Still not available - show PreShow as default - defer
-                CallDeferred(nameof(UpdateInitialVisibility));
-                // GD.Print("UIManager: GameStateManager still not available, using PreShow default");
-
-                // Try again in next frame
-                CallDeferred(nameof(TryConnectToGameStateManager));
+                GD.Print("UIManager: GameStateManager still not available after deferral, will retry");
+                CallDeferred(nameof(DeferredInit));
             }
         }
 
-        private void UpdateInitialVisibility()
+        private void TryUpdateVisibility()
         {
-            var gameState = ServiceRegistry.Instance?.GameStateManager;
-            if (gameState != null)
-            {
-                UpdateUIVisibility((int)GamePhase.PreShow, (int)gameState.CurrentPhase);
-            }
-            else
-            {
-                UpdateUIVisibility((int)GamePhase.PreShow, (int)GamePhase.PreShow);
-            }
-        }
-
-        private void UpdateUIVisibility(int oldPhaseInt, int newPhaseInt)
-        {
-            GamePhase oldPhase = (GamePhase)oldPhaseInt;
-            GamePhase newPhase = (GamePhase)newPhaseInt;
-
-            GD.Print($"UIManager: Updating UI visibility for phase {newPhase}");
-
             if (_preShowLayer == null || _liveShowLayer == null)
             {
-                GD.PrintErr("UIManager: CanvasLayers not found!");
+                _visibilityUpdateAttempts++;
+                if (_visibilityUpdateAttempts >= MAX_UPDATE_ATTEMPTS)
+                {
+                    GD.PrintErr("UIManager: Max visibility update attempts reached, layers not registered");
+                    return;
+                }
+                CallDeferred(nameof(TryUpdateVisibility));
                 return;
             }
 
+            var gameState = ServiceRegistry.Instance?.GameStateManager;
+            if (gameState != null)
+            {
+                PerformVisibilityUpdate(gameState.CurrentPhase);
+            }
+        }
+
+        private void OnPhaseChanged(int oldPhaseInt, int newPhaseInt)
+        {
+            var newPhase = (GamePhase)newPhaseInt;
+            GD.Print($"UIManager: Phase changed to {newPhase}");
+
+            if (_preShowLayer == null || _liveShowLayer == null)
+            {
+                CallDeferred(nameof(TryUpdateVisibility));
+                return;
+            }
+
+            PerformVisibilityUpdate(newPhase);
+        }
+
+        private void PerformVisibilityUpdate(GamePhase newPhase)
+        {
             GD.Print($"UIManager: Before update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
 
             switch (newPhase)
@@ -116,12 +126,13 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            // Unsubscribe from events
-            var gameState = ServiceRegistry.Instance?.GameStateManager;
-            if (gameState != null)
+            if (_gameStateConnected)
             {
-                gameState.Disconnect("PhaseChanged", Callable.From<int, int>(UpdateUIVisibility));
-                // GD.Print("UIManager: Disconnected from GameStateManager");
+                var gameState = ServiceRegistry.Instance?.GameStateManager;
+                if (gameState != null)
+                {
+                    gameState.Disconnect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
+                }
             }
         }
     }

@@ -90,10 +90,42 @@ var events = ServiceRegistry.Instance.EventAggregator;
 - Lazy initialization
 - Clear dependency relationships
 
+**How Services Register:**
+
+1. **Node-based services (autoloads/scene nodes):** Register themselves in `_Ready()`
+```csharp
+public override void _Ready()
+{
+    ServiceRegistry.Instance.RegisterSelf<MyService>(this);
+    // ... rest of initialization
+}
+```
+
+2. **Plain class services (created by ServiceRegistry):** Registered in `RegisterCoreServices()`
+```csharp
+private void RegisterCoreServices()
+{
+    var eventAggregator = new EventAggregator();
+    RegisterSelf<IEventAggregator>(eventAggregator);
+
+    var repository = new CallerRepository();
+    RegisterSelf<ICallerRepository>(repository);
+
+    var screeningController = new ScreeningController();
+    RegisterSelf<IScreeningController>(screeningController);
+}
+```
+
+**Autoload Order (Critical):**
+1. `ServiceRegistry` - Always first, creates base services
+2. `UIManager` - Needed by TabContainerManager/PreShowUIManager
+3. `GameStateManager` - Needed by many services
+4. `TimeManager`, `ListenerManager`, `EconomyManager` - Can depend on GameStateManager
+5. `TabContainerManager`, `PreShowUIManager` - Need UIManager for layer registration
+
 **Files:**
 - `scripts/core/ServiceRegistry.cs` - Main service registry (Autoload)
-- Services are registered in `RegisterCoreServices()` method with their concrete types
-- Interface definitions exist in respective directories for future dependency injection
+- `RegisterSelf<T>()` method handles both interface and concrete type registration
 
 **Registered Services:**
 - `GameStateManager` - Controls game phases

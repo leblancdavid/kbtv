@@ -50,31 +50,48 @@ namespace KBTV.Managers
 
         public override void _Ready()
         {
+            ServiceRegistry.Instance.RegisterSelf<ListenerManager>(this);
+
             if (ServiceRegistry.Instance == null)
             {
                 GD.PrintErr("ListenerManager: ServiceRegistry not available");
-            }
-            else
-            {
-                _repository = ServiceRegistry.Instance.CallerRepository;
-                _gameState = ServiceRegistry.Instance.GameStateManager;
-                _timeManager = ServiceRegistry.Instance.TimeManager;
+                return;
             }
 
-            if (_gameState != null)
+            _repository = ServiceRegistry.Instance.CallerRepository;
+            _gameState = ServiceRegistry.Instance.GameStateManager;
+            _timeManager = ServiceRegistry.Instance.TimeManager;
+
+            if (_gameState == null || _timeManager == null || _repository == null)
             {
-                _gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
+                GD.Print("ListenerManager: Some services not available yet, deferring initialization");
+                CallDeferred(nameof(DeferredInit));
+                return;
             }
 
-            if (_timeManager != null)
+            CompleteInitialization();
+        }
+
+        private void DeferredInit()
+        {
+            _repository = ServiceRegistry.Instance.CallerRepository;
+            _gameState = ServiceRegistry.Instance.GameStateManager;
+            _timeManager = ServiceRegistry.Instance.TimeManager;
+
+            if (_gameState == null || _timeManager == null || _repository == null)
             {
-                _timeManager.Connect("Tick", Callable.From<float>(HandleTick));
+                GD.PrintErr("ListenerManager: Failed to initialize - services still not available");
+                return;
             }
 
-            if (_repository != null)
-            {
-                _repository.Subscribe(_repositoryObserver);
-            }
+            CompleteInitialization();
+        }
+
+        private void CompleteInitialization()
+        {
+            _gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
+            _timeManager.Connect("Tick", Callable.From<float>(HandleTick));
+            _repository.Subscribe(_repositoryObserver);
         }
 
         private readonly ICallerRepositoryObserver _repositoryObserver = new ListenerRepositoryObserver();

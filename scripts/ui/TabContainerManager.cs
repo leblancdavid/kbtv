@@ -17,17 +17,16 @@ namespace KBTV.UI
         public override void _Ready()
         {
             GD.Print("TabContainerManager: Initializing UI system");
+            ServiceRegistry.Instance.RegisterSelf<TabContainerManager>(this);
 
-            // Create canvas layer for UI
             _canvas = new CanvasLayer();
-            _canvas.Layer = 100; // Above other UI layers
+            _canvas.Layer = 100;
             AddChild(_canvas);
 
-            // Add full-screen background to block lower layers
             var background = new Panel();
             background.Name = "Background";
             background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-            background.Modulate = new Color(0, 0, 0, 0.8f); // Semi-transparent background
+            background.Modulate = new Color(0, 0, 0, 0.8f);
             _canvas.AddChild(background);
 
             // Create main layout container

@@ -53,34 +53,13 @@ namespace KBTV.Core
         private void RegisterCoreServices()
         {
             var eventAggregator = new EventAggregator();
-            Register<IEventAggregator>(eventAggregator);
+            RegisterSelf<IEventAggregator>(eventAggregator);
 
             var repository = new CallerRepository();
-            Register<ICallerRepository>(repository);
+            RegisterSelf<ICallerRepository>(repository);
 
             var screeningController = new ScreeningController();
-            Register<IScreeningController>(screeningController);
-
-            var gameStateManager = new GameStateManager();
-            Register<GameStateManager>(gameStateManager);
-
-            var timeManager = new TimeManager();
-            Register<TimeManager>(timeManager);
-
-            var listenerManager = new ListenerManager();
-            Register<ListenerManager>(listenerManager);
-
-            var economyManager = new EconomyManager();
-            Register<EconomyManager>(economyManager);
-
-            var saveManager = new SaveManager();
-            Register<SaveManager>(saveManager);
-
-            var uiManager = new UIManager();
-            Register<UIManager>(uiManager);
-
-            var callerGenerator = new CallerGenerator();
-            Register<CallerGenerator>(callerGenerator);
+            RegisterSelf<IScreeningController>(screeningController);
         }
 
         public void Register<TService>(TService instance) where TService : class
@@ -99,6 +78,29 @@ namespace KBTV.Core
 
             _services[type] = instance;
             GD.Print($"ServiceRegistry: Registered {type.Name}");
+        }
+
+        public void RegisterSelf<TService>(TService instance) where TService : class
+        {
+            if (instance == null)
+            {
+                GD.PrintErr($"ServiceRegistry: Attempted to register null service for type {typeof(TService).Name}");
+                return;
+            }
+
+            var type = typeof(TService);
+            _services[type] = instance;
+
+            var concreteType = instance.GetType();
+            if (concreteType != type)
+            {
+                _services[concreteType] = instance;
+                GD.Print($"ServiceRegistry: Registered {type.Name} (concrete: {concreteType.Name})");
+            }
+            else
+            {
+                GD.Print($"ServiceRegistry: Registered {type.Name}");
+            }
         }
 
         public void Register<TInterface, TImplementation>()
