@@ -27,7 +27,7 @@ namespace KBTV.UI
 			GD.Print("PreShowUIManager: Waiting for AllServicesReady before showing UI");
 
 			var registry = ServiceRegistry.Instance;
-			if (registry != null && ServiceRegistry.IsInitialized && registry.RegisteredCount >= registry.ExpectedCount)
+			if (registry != null && ServiceRegistry.IsInitialized)
 			{
 				CallDeferred(nameof(DelayedRegister));
 			}

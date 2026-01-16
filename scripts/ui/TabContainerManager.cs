@@ -20,7 +20,7 @@ namespace KBTV.UI
             ServiceRegistry.Instance.RegisterSelf<TabContainerManager>(this);
 
             var registry = ServiceRegistry.Instance;
-            if (registry != null && ServiceRegistry.IsInitialized && registry.RegisteredCount >= registry.ExpectedCount)
+            if (registry != null && ServiceRegistry.IsInitialized)
             {
                 GD.Print("TabContainerManager: Services already ready, creating UI");
                 CallDeferred(nameof(CreateUI));

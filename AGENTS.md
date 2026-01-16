@@ -116,6 +116,23 @@ private void RegisterCoreServices()
 }
 ```
 
+**AllServicesReady Signal:**
+- The registry emits `AllServicesReady` after services finish registering
+- Uses **timeout-based detection** (0.5s) instead of hardcoded counts
+- No need to update expected service count when adding/removing services
+- Minimum 5 services required before checking timeout
+```csharp
+// Timeout-based detection in ServiceRegistry._Process()
+if (!_allReadyEmitted && _registeredCount >= MIN_SERVICES_EXPECTED)
+{
+    if (Time.GetTicksMsec() / 1000.0 - _lastRegistrationTime >= REGISTRATION_TIMEOUT)
+    {
+        _allReadyEmitted = true;
+        EmitSignal("AllServicesReady");
+    }
+}
+```
+
 **Autoload Order (Critical):**
 1. `ServiceRegistry` - Always first, creates base services
 2. `UIManager` - Needed by TabContainerManager/PreShowUIManager

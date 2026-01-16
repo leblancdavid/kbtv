@@ -54,9 +54,9 @@ namespace KBTV.UI
 
         private void TryUpdateVisibility()
         {
-            if (_preShowLayer == null || _liveShowLayer == null)
+            if (_preShowLayer == null)
             {
-                GD.Print("UIManager: Layers not yet registered, visibility update deferred");
+                GD.Print("UIManager: PreShow layer not yet registered, visibility update deferred");
                 return;
             }
 
@@ -71,8 +71,15 @@ namespace KBTV.UI
             var newPhase = (GamePhase)newPhaseInt;
             GD.Print($"UIManager: Phase changed to {newPhase}");
 
-            if (_preShowLayer == null || _liveShowLayer == null)
+            if (newPhase == GamePhase.PreShow && _preShowLayer == null)
             {
+                CallDeferred(nameof(TryUpdateVisibility));
+                return;
+            }
+
+            if (newPhase == GamePhase.LiveShow && _liveShowLayer == null)
+            {
+                GD.PrintErr("UIManager: Cannot switch to LiveShow - LiveShow layer not registered");
                 CallDeferred(nameof(TryUpdateVisibility));
                 return;
             }

@@ -27,11 +27,14 @@ namespace KBTV.UI
         private bool _transitionStarted;
         private float _totalLoadingTime;
         private const float MIN_LOADING_TIME = 1.5f;
+        private const float MAX_LOADING_TIME = 10.0f;
+        private bool _timeoutTriggered;
 
         public override void _Ready()
         {
             GD.Print("LoadingScreen: _Ready - blocking until ready");
             _totalLoadingTime = 0f;
+            _timeoutTriggered = false;
             CreateLoadingUI();
 
             _messageIndex = 0;
@@ -41,10 +44,10 @@ namespace KBTV.UI
             var registry = ServiceRegistry.Instance;
             if (registry != null)
             {
-                GD.Print($"LoadingScreen: Found ServiceRegistry, registered={registry.RegisteredCount}/{registry.ExpectedCount}");
+                GD.Print($"LoadingScreen: Found ServiceRegistry, registered={registry.RegisteredCount} services");
                 registry.Connect("AllServicesReady", Callable.From(OnAllServicesReady));
 
-                if (ServiceRegistry.IsInitialized && registry.RegisteredCount >= registry.ExpectedCount)
+                if (ServiceRegistry.IsInitialized)
                 {
                     GD.Print("LoadingScreen: Services already ready");
                     _totalLoadingTime = MIN_LOADING_TIME;
@@ -64,7 +67,7 @@ namespace KBTV.UI
             if (registry != null)
             {
                 registry.Connect("AllServicesReady", Callable.From(OnAllServicesReady));
-                if (registry.RegisteredCount >= registry.ExpectedCount)
+                if (ServiceRegistry.IsInitialized)
                 {
                     _totalLoadingTime = MIN_LOADING_TIME;
                     StartFadeTransition();
@@ -83,6 +86,15 @@ namespace KBTV.UI
 
             if (!_transitionStarted)
             {
+                if (_totalLoadingTime >= MAX_LOADING_TIME && !_timeoutTriggered)
+                {
+                    _timeoutTriggered = true;
+                    var registry = ServiceRegistry.Instance;
+                    GD.PrintErr($"LoadingScreen: Timeout reached ({MAX_LOADING_TIME}s), registered={registry?.RegisteredCount ?? 0} services. Proceeding with available services.");
+                    StartFadeTransition();
+                    return;
+                }
+
                 _animationTimer += deltaF;
                 if (_animationTimer >= 0.6f)
                 {
@@ -106,7 +118,8 @@ namespace KBTV.UI
         private void OnAllServicesReady()
         {
             if (_transitionStarted) return;
-            GD.Print($"LoadingScreen: All services ready after {_totalLoadingTime:F2}s");
+            var registry = ServiceRegistry.Instance;
+            GD.Print($"LoadingScreen: All services ready after {_totalLoadingTime:F2}s ({registry?.RegisteredCount ?? 0} services)");
             StartFadeTransition();
         }
 
@@ -152,7 +165,7 @@ namespace KBTV.UI
             _background = new Panel();
             _background.Name = "Background";
             _background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-            _background.Modulate = new Color(0.05f, 0.05f, 0.08f, 1f);
+            _background.Modulate = new Color(0.12f, 0.12f, 0.16f, 1f);
             AddChild(_background);
 
             var container = new VBoxContainer();
@@ -177,7 +190,7 @@ namespace KBTV.UI
             loadingLabel.Name = "LoadingLabel";
             loadingLabel.Text = "INITIALIZING...";
             loadingLabel.HorizontalAlignment = HorizontalAlignment.Center;
-            loadingLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+            loadingLabel.AddThemeColorOverride("font_color", UITheme.TEXT_PRIMARY);
             loadingLabel.AddThemeFontSizeOverride("font_size", 14);
             container.AddChild(loadingLabel);
 
@@ -187,13 +200,35 @@ namespace KBTV.UI
             _progressBar.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
             _progressBar.Value = 0f;
             _progressBar.ShowPercentage = false;
+
+            var fillStyle = new StyleBoxFlat();
+            fillStyle.BgColor = UITheme.ACCENT_GOLD;
+            fillStyle.CornerRadiusTopLeft = 3;
+            fillStyle.CornerRadiusTopRight = 3;
+            fillStyle.CornerRadiusBottomLeft = 3;
+            fillStyle.CornerRadiusBottomRight = 3;
+            _progressBar.AddThemeStyleboxOverride("fill", fillStyle);
+
+            var bgStyle = new StyleBoxFlat();
+            bgStyle.BgColor = UITheme.BG_PANEL;
+            bgStyle.BorderColor = UITheme.BG_BORDER;
+            bgStyle.BorderWidthBottom = 1;
+            bgStyle.BorderWidthTop = 1;
+            bgStyle.BorderWidthLeft = 1;
+            bgStyle.BorderWidthRight = 1;
+            bgStyle.CornerRadiusTopLeft = 3;
+            bgStyle.CornerRadiusTopRight = 3;
+            bgStyle.CornerRadiusBottomLeft = 3;
+            bgStyle.CornerRadiusBottomRight = 3;
+            _progressBar.AddThemeStyleboxOverride("background", bgStyle);
+
             container.AddChild(_progressBar);
 
             _statusLabel = new Label();
             _statusLabel.Name = "StatusLabel";
             _statusLabel.Text = _loadingMessages[0];
             _statusLabel.HorizontalAlignment = HorizontalAlignment.Center;
-            _statusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+            _statusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_PRIMARY);
             _statusLabel.AddThemeFontSizeOverride("font_size", 12);
             container.AddChild(_statusLabel);
 
