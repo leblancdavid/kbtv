@@ -1,3 +1,5 @@
+#nullable enable
+
 using KBTV.Callers;
 
 namespace KBTV.Core.Events.OnAir

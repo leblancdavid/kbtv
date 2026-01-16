@@ -58,30 +58,40 @@ As Vern Tell, the enigmatic host of KBTV, you manage a live radio talk show wher
 ## 📁 Project Structure
 
 ```
-kbtv_godot/
+kbtv/
 ├── scenes/
-│   └── Main.tscn              # Main game scene
+│   └── Main.tscn              # Main game scene with all managers
 ├── scripts/
-│   ├── core/                  # Core game systems
+│   ├── core/                  # Core patterns and systems
+│   │   ├── ServiceRegistry.cs # Service registry for dependency injection
 │   │   ├── GameStateManager.cs
 │   │   ├── GamePhase.cs
-│   │   └── SingletonNode.cs
+│   │   ├── EventAggregator.cs
+│   │   └── patterns/
+│   │       └── Result.cs      # Result<T> type for error handling
 │   ├── managers/              # Game managers
 │   │   ├── TimeManager.cs
 │   │   └── ListenerManager.cs
 │   ├── ui/                    # UI systems
-│   │   ├── UIManagerBootstrap.cs
+│   │   ├── UIManager.cs
 │   │   ├── InputHandler.cs
 │   │   ├── DebugHelper.cs
 │   │   ├── UIHelpers.cs
+│   │   ├── themes/
+│   │   │   └── UIColors.cs
+│   │   ├── components/
+│   │   │   └── ReactiveListPanel.cs
 │   │   └── controllers/
-│   │       ├── TabController.cs
 │   │       └── TabDefinition.cs
 │   ├── callers/               # Caller management
 │   │   ├── Caller.cs
 │   │   ├── CallerQueue.cs
 │   │   ├── CallerGenerator.cs
+│   │   ├── CallerRepository.cs
 │   │   └── Topic.cs
+│   ├── screening/             # Screening workflow
+│   │   ├── ScreeningController.cs
+│   │   └── ScreeningSession.cs
 │   ├── data/                  # Data structures
 │   │   ├── VernStats.cs
 │   │   ├── Stat.cs
@@ -110,7 +120,16 @@ kbtv_godot/
 │   └── ads/                   # Advertisement system
 │       ├── AdData.cs
 │       └── AdType.cs
-├── TESTING_GUIDE.md           # Testing instructions
+├── docs/                      # Documentation
+│   ├── technical/
+│   │   └── TECHNICAL_SPEC.md
+│   ├── ui/
+│   │   └── UI_IMPLEMENTATION.md
+│   └── testing/
+│       └── TESTING.md
+├── tests/                     # Test files
+│   ├── unit/
+│   └── integration/
 └── project.godot              # Godot configuration
 ```
 
@@ -129,16 +148,17 @@ kbtv_godot/
 ## 🛠️ Development
 
 ### Architecture Principles
-- **SingletonNode Pattern**: All major systems inherit from `SingletonNode<T>` for global access
-- **Event-Driven**: Systems communicate via C# events and Godot signals
+- **Service Registry Pattern**: All major systems are registered in `ServiceRegistry` for dependency injection
+- **Event-Driven**: Systems communicate via `EventAggregator` pub/sub system
 - **Resource-Based**: Game data stored as Godot Resources (`.tres` files)
-- **Modular UI**: Control-based UI system with reusable components
+- **Modular UI**: Control-based UI system with reusable scene-based components
+- **Repository Pattern**: Data access encapsulated in repositories with Result<T> return types
 
 ### Key Classes
 
 #### GameStateManager
 ```csharp
-public partial class GameStateManager : SingletonNode<GameStateManager>
+public partial class GameStateManager : Node
 {
     public GamePhase CurrentPhase { get; private set; }
     public event Action<GamePhase, GamePhase> OnPhaseChanged;
@@ -146,36 +166,47 @@ public partial class GameStateManager : SingletonNode<GameStateManager>
     public void StartLiveShow() { /* ... */ }
     public void EndLiveShow() { /* ... */ }
 }
+
+// Access via ServiceRegistry
+var gameState = ServiceRegistry.Instance.GameStateManager;
 ```
 
-#### UIManagerBootstrap
+#### UIManager
 ```csharp
-public partial class UIManagerBootstrap : SingletonNode<UIManagerBootstrap>
+public partial class UIManager : Node
 {
-    protected override void OnSingletonReady() {
+    public void Initialize() {
         CreateCanvasUI();
         // Initialize tabs and UI components
     }
 }
+
+// Access via ServiceRegistry
+var uiManager = ServiceRegistry.Instance.UIManager;
 ```
 
 #### CallerQueue
 ```csharp
-public partial class CallerQueue : SingletonNode<CallerQueue>
+public partial class CallerQueue : Node
 {
     public bool AddCaller(Caller caller) { /* ... */ }
     public Caller StartScreeningNext() { /* ... */ }
     public bool ApproveCurrentCaller() { /* ... */ }
     public Caller PutNextCallerOnAir() { /* ... */ }
 }
+
+// Access via ServiceRegistry
+var queue = ServiceRegistry.Instance.CallerRepository;
 ```
 
 ### Adding New Features
 
-1. **Create new system**: Inherit from `SingletonNode<T>` in appropriate directory
-2. **Add to main scene**: Attach script to node in `scenes/Main.tscn`
-3. **Initialize in `_Ready()`**: Set up references and event subscriptions
-4. **Test integration**: Use `DebugHelper` for testing new functionality
+1. **Create new interface**: Define `IMyService` interface in appropriate directory
+2. **Create implementation**: Implement `IMyService` as a Node
+3. **Register in ServiceRegistry**: Add to `RegisterCoreServices()` method
+4. **Add to main scene**: Attach script to node in `scenes/Main.tscn`
+5. **Access via ServiceRegistry**: Use `ServiceRegistry.Instance.MyService`
+6. **Test integration**: Use `DebugHelper` for testing new functionality
 
 ## 🧪 Testing
 
@@ -238,11 +269,11 @@ Defined in `project.godot`:
 
 ## 📝 Technical Details
 
-- **Engine**: Godot 4.5.1 with C# support
-- **Architecture**: SingletonNode pattern with event-driven systems
-- **UI**: Control-based responsive design
-- **Data**: Resource-based storage (.tres files)
-- **Events**: C# events with Godot signal integration
+- **Engine**: Godot 4.x with C# support
+- **Architecture**: Service Registry pattern with event-driven systems
+- **UI**: Control-based responsive design with scene-based panels
+- **Data**: Resource-based storage (`.tres` files)
+- **Events**: EventAggregator pub/sub with weak references
 - **Persistence**: JSON-based save system
 - **Input**: Keyboard controls with configurable actions
 

@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using System.Linq;
 using Godot;
@@ -261,7 +263,7 @@ namespace KBTV.UI
         {
             GD.Print("CallerTab: Approve button pressed");
             var result = _screeningController.Approve();
-            if (result.Success)
+            if (result.IsSuccess)
             {
                 GD.Print("CallerTab: Caller approved successfully");
             }
@@ -275,7 +277,7 @@ namespace KBTV.UI
         {
             GD.Print("CallerTab: Reject button pressed");
             var result = _screeningController.Reject();
-            if (result.Success)
+            if (result.IsSuccess)
             {
                 GD.Print("CallerTab: Caller rejected successfully");
             }

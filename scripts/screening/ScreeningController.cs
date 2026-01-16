@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using Godot;
 using KBTV.Callers;
@@ -39,17 +41,17 @@ namespace KBTV.Screening
             GD.Print($"ScreeningController: Started for {caller.Name}");
         }
 
-        public ScreeningApprovalResult Approve()
+        public Result<Caller> Approve()
         {
             if (_session == null)
             {
-                return ScreeningApprovalResult.Fail("NO_SESSION", "No active screening session");
+                return Result<Caller>.Fail("NO_SESSION", "No active screening session");
             }
 
             var repository = ServiceRegistry.Instance?.CallerRepository;
             if (repository == null)
             {
-                return ScreeningApprovalResult.Fail("NO_REPOSITORY", "Repository not available");
+                return Result<Caller>.Fail("NO_REPOSITORY", "Repository not available");
             }
 
             var result = repository.ApproveScreening();
@@ -60,24 +62,24 @@ namespace KBTV.Screening
             events?.Publish(new Core.Events.Screening.ScreeningApproved { Caller = _session.Caller });
 
                 GD.Print($"ScreeningController: Approved {_session.Caller.Name}");
-                return ScreeningApprovalResult.Ok(_session.Caller);
+                return Result<Caller>.Ok(_session.Caller);
             }
 
             GD.PrintErr($"ScreeningController: Failed to approve - {result.ErrorMessage}");
-            return ScreeningApprovalResult.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
+            return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
         }
 
-        public ScreeningApprovalResult Reject()
+        public Result<Caller> Reject()
         {
             if (_session == null)
             {
-                return ScreeningApprovalResult.Fail("NO_SESSION", "No active screening session");
+                return Result<Caller>.Fail("NO_SESSION", "No active screening session");
             }
 
             var repository = ServiceRegistry.Instance?.CallerRepository;
             if (repository == null)
             {
-                return ScreeningApprovalResult.Fail("NO_REPOSITORY", "Repository not available");
+                return Result<Caller>.Fail("NO_REPOSITORY", "Repository not available");
             }
 
             var result = repository.RejectScreening();
@@ -88,11 +90,11 @@ namespace KBTV.Screening
             events?.Publish(new Core.Events.Screening.ScreeningRejected { Caller = _session.Caller });
 
                 GD.Print($"ScreeningController: Rejected {_session.Caller.Name}");
-                return ScreeningApprovalResult.Ok(_session.Caller);
+                return Result<Caller>.Ok(_session.Caller);
             }
 
             GD.PrintErr($"ScreeningController: Failed to reject - {result.ErrorMessage}");
-            return ScreeningApprovalResult.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
+            return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
         }
 
         public void Update(float deltaTime)

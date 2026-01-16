@@ -92,7 +92,7 @@ var events = ServiceRegistry.Instance.EventAggregator;
 
 **Files:**
 - `scripts/core/ServiceRegistry.cs` - Main service registry (Autoload)
-- `scripts/core/IServiceRegistry.cs` - Interface definition
+- (Services are registered via interfaces in their respective directories)
 
 ### Event Aggregation Pattern
 

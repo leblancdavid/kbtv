@@ -1,4 +1,8 @@
+#nullable enable
+
 using System;
+using KBTV.Callers;
+using KBTV.Core;
 
 namespace KBTV.Screening
 {
@@ -31,35 +35,18 @@ namespace KBTV.Screening
     }
 
     /// <summary>
-    /// Result of a screening approval action.
-    /// </summary>
-    public record ScreeningApprovalResult(
-        bool Success,
-        string? ErrorCode,
-        string? ErrorMessage,
-        Callers.Caller? Caller
-    )
-    {
-        public static ScreeningApprovalResult Ok(Callers.Caller caller) =>
-            new(true, null, null, caller);
-
-        public static ScreeningApprovalResult Fail(string errorCode, string errorMessage) =>
-            new(false, errorCode, errorMessage, null);
-    }
-
-    /// <summary>
     /// Controller interface for the screening workflow.
     /// </summary>
     public interface IScreeningController
     {
-        Callers.Caller? CurrentCaller { get; }
+        Caller? CurrentCaller { get; }
         bool IsActive { get; }
         ScreeningPhase Phase { get; }
         ScreeningProgress Progress { get; }
 
-        void Start(Callers.Caller caller);
-        ScreeningApprovalResult Approve();
-        ScreeningApprovalResult Reject();
+        void Start(Caller caller);
+        Result<Caller> Approve();
+        Result<Caller> Reject();
         void Update(float deltaTime);
 
         event Action<ScreeningPhase> PhaseChanged;

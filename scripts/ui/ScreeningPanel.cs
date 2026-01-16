@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using Godot;
 using KBTV.Callers;
@@ -111,7 +113,7 @@ namespace KBTV.UI
         private void OnApprovePressed()
         {
             var result = _controller.Approve();
-            if (!result.Success)
+            if (!result.IsSuccess)
             {
                 GD.PrintErr($"ScreeningPanel: Approve failed - {result.ErrorCode}: {result.ErrorMessage}");
             }
@@ -120,7 +122,7 @@ namespace KBTV.UI
         private void OnRejectPressed()
         {
             var result = _controller.Reject();
-            if (!result.Success)
+            if (!result.IsSuccess)
             {
                 GD.PrintErr($"ScreeningPanel: Reject failed - {result.ErrorCode}: {result.ErrorMessage}");
             }

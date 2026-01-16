@@ -10,54 +10,72 @@
 
 The project is pre-configured with all necessary scenes and scripts.
 
-### Manual Setup
-If you prefer manual configuration:
-1. Create a VernStats asset: **Assets > Create > KBTV > Vern Stats**
-2. Create an empty GameObject named `GameBootstrap`
-3. Add the `GameBootstrap` component
-4. Assign fields in Inspector (VernStats, Topics, Items, Event modifiers)
-5. Press Play
+### Scene Structure
+The main scene (`scenes/Main.tscn`) contains:
+- GameStateManager - Controls game phases
+- TimeManager - Handles show timing
+- ListenerManager - Tracks audience size
+- EconomyManager - Manages money
+- SaveManager - Handles persistence
+- CallerGenerator - Spawns incoming callers
+- UIManager - Main UI orchestrator
+- VernStats - Resource with host character stats
 
 ## Architecture Overview
 
-- **Pattern**: Singleton managers with event-driven communication
+- **Pattern**: Service Registry with event-driven communication
 - **Namespaces**: `KBTV.Core`, `KBTV.Data`, `KBTV.Managers`, `KBTV.Callers`, `KBTV.Dialogue`, `KBTV.UI`, `KBTV.Audio`
-- **Bootstrap**: `GameBootstrap` creates all managers at runtime via reflection injection
-- **Data**: ScriptableObjects for configuration (Topics, Items, Events, VernStats)
+- **Bootstrap**: Main scene (`scenes/Main.tscn`) creates all managers at startup
+- **Data**: Godot Resources for configuration (Topics, Items, VernStats)
 
 ### File Structure
 ```
-Assets/Scripts/
-├── Runtime/
-│   ├── Core/           # GamePhase, GameStateManager, GameBootstrap, SingletonMonoBehaviour<T>
-│   ├── Data/           # Stat, VernStats, StatModifier, Item, ItemSlot
-│   ├── Managers/       # TimeManager, LiveShowManager, ListenerManager, ItemManager
-│   ├── Callers/        # Caller, CallerQueue, CallerGenerator, CallerScreeningManager, Topic
-│   ├── Dialogue/       # ConversationManager, ArcRepository, Conversation, VernStateCalculator, etc.
-│   ├── UI/             # PreShowUIManager, LiveShowUIManager, BasePanel, panels, components
-│   └── Audio/          # AudioManager, VoiceAudioService, VoicePlaybackHelper
-└── Editor/
-    ├── GameSetup.cs           # One-click scene setup utility
-    ├── DialogueLoader.cs      # Loads JSON dialogue files into ScriptableObjects
-    ├── VoiceAudioSetup.cs     # Configures Addressables for voice audio
-    ├── BuildScript.cs         # Build automation for CI/CD
-    ├── SampleTopicGenerator.cs      # Creates sample Topic assets
-    └── SampleModifierGenerator.cs   # Creates sample StatModifier assets
+scripts/
+├── core/           # Core patterns (ServiceRegistry, EventAggregator, GameStateManager, GamePhase)
+├── managers/       # Game managers (TimeManager, ListenerManager)
+├── callers/        # Caller domain (Caller, CallerQueue, CallerGenerator, CallerRepository, Topic)
+├── screening/      # Screening workflow (ScreeningController, ScreeningSession)
+├── ui/             # UI components and managers (UIManager, panels, components)
+├── economy/        # Money system (EconomyManager, IncomeCalculator)
+├── persistence/    # Save/load (SaveManager, SaveData, ISaveable)
+├── data/           # Data models (VernStats, Stat, StatModifier, StatType)
+├── dialogue/       # Conversation arcs (ConversationManager, ArcRepository, ArcJsonParser)
+├── audio/          # Audio configs (AudioManager, BumperConfig, TransitionMusicConfig)
+├── ads/            # Ad system (AdData, AdType)
+├── upgrades/       # Equipment upgrades (EquipmentConfig, EquipmentUpgrade, EquipmentType)
+└── patterns/       # Result<T> type pattern
+
+scenes/
+├── Main.tscn              # Main game scene
+└── ui/                    # UI panel scenes
+    ├── TabContainerUI.tscn
+    ├── ScreeningPanel.tscn
+    ├── CallerPanel.tscn
+    ├── CallerQueueItem.tscn
+    ├── CallerTab.tscn
+    ├── LiveShowHeader.tscn
+    └── LiveShowFooter.tscn
+
+assets/
+├── dialogue/              # JSON conversation arc files
+├── stats/                 # VernStats resource files
+├── topics/                # Topic definition files
+└── items/                 # Item definition files
 ```
 
 ## Core Systems
 
 ### Stats System
-**Files**: `Data/Stat.cs`, `Data/VernStats.cs`, `Data/StatModifier.cs`
+**Files**: `scripts/data/Stat.cs`, `scripts/data/VernStats.cs`, `scripts/data/StatModifier.cs`
 
-- `VernStats` (ScriptableObject) contains 7 stats (0-100 range):
+- `VernStats` (Resource) contains 7 stats (0-100 range):
   - **Mood** - Affected by events, interactions, items
   - **Energy** - Drops over time, restored by caffeine/items
   - **Hunger/Thirst** - Basic needs, increase over time
   - **Patience** - Tolerance for waiting/bad callers
   - **Susceptibility** - How much evidence impacts Vern's beliefs
   - **Belief** - Core meter, correlates to show quality
-- `StatModifier` ScriptableObjects apply stat changes (items/events call `Apply(VernStats)`)
+  - `StatModifier` Resources apply stat changes (items/events call `Apply(VernStats)`)
 - `CalculateShowQuality()` returns 0-1: Belief (40%) + Mood (25%) + Energy (20%) + Patience (15%), penalized by high Hunger/Thirst
 - `ApplyDecay(deltaTime, multiplier)` degrades stats during live shows
 
@@ -94,9 +112,9 @@ Assets/Scripts/
 - Properties: `CurrentListeners`, `PeakListeners`, `ListenerChange`
 
 ### Item System
-**Files**: `Data/Item.cs`, `Managers/ItemManager.cs`, `UI/ItemPanel.cs`
+**Files**: `scripts/data/Item.cs`, `scripts/managers/ItemManager.cs`, `scripts/ui/ItemPanel.cs`
 
-- `Item` (ScriptableObject, extends StatModifier): Consumable items with additional settings
+- `Item` (Resource, extends StatModifier): Consumable items with additional settings
   - `ItemId` - Unique identifier
   - `Cost` - Purchase price (for PreShow shop)
   - `Cooldown` - Seconds before item can be used again
@@ -136,9 +154,9 @@ Assets/Scripts/
   - Applies StatModifiers on call completion based on impact
 
 ### Topics System
-**Files**: `Callers/Topic.cs`
+**Files**: `scripts/callers/Topic.cs`
 
-- `Topic` (ScriptableObject): Defines show topics with screening rules
+- `Topic` (Resource): Defines show topics with screening rules
   - `ScreeningRules[]` - Array of rules callers must pass
   - `DeceptionRate` - Chance callers lie about their topic
   - `QualityMultiplier` - Bonus for on-topic callers
@@ -163,7 +181,7 @@ The dialogue system uses **arc-based conversations** - pre-scripted complete dia
 | Class | Description |
 |-------|-------------|
 | `ConversationManager` | Singleton managing playback, timing, dead air filler, broadcast flow |
-| `ArcRepository` | ScriptableObject holding arc JSON files, provides arc selection by topic+legitimacy |
+| `ArcRepository` | Resource holding arc JSON files, provides arc selection by topic+legitimacy |
 | `ArcConversationGenerator` | Generates `Conversation` from arcs using mood and belief path |
 | `Conversation` | Runtime playback state with lines list and progress tracking |
 | `ConversationArc` | Arc data with mood variants and belief branches |
@@ -171,7 +189,7 @@ The dialogue system uses **arc-based conversations** - pre-scripted complete dia
 | `DialogueLine` | Single line with speaker, text, tone, phase |
 | `ArcJsonParser` | Static utility for parsing arc JSON into ConversationArc objects |
 | `VernStateCalculator` | Static utility for mood and discernment calculation |
-| `VernDialogueTemplate` | ScriptableObject for Vern's broadcast lines (opening, filler, signoff) |
+| `VernDialogueTemplate` | Resource for Vern's broadcast lines (opening, filler, signoff) |
 
 #### Mood Calculation
 `VernStateCalculator.CalculateMood(VernStats)` returns `VernMood` based on:
@@ -206,7 +224,7 @@ The dialogue system uses **arc-based conversations** - pre-scripted complete dia
 
 ## Data Assets
 
-Located in `Assets/Data/`:
+Located in `assets/` or defined as Resources in the editor:
 
 | Type | Assets |
 |------|--------|
@@ -215,9 +233,9 @@ Located in `Assets/Data/`:
 | **Events** | GoodCaller, BadCaller, GreatCaller, Evidence, Debunked, TechnicalDifficulties |
 
 ## UI System
-**Files**: `UI/LiveShowUIManager.cs`, `UI/UITheme.cs`, and panel/component scripts
+**Files**: `scripts/ui/UIManager.cs`, `scripts/ui/UITheme.cs`, and panel/component scripts
 
-The Live Show UI is **runtime-generated uGUI** (no prefabs). All UI elements are created via code in `LiveShowUIManager.CreateUI()`.
+The Live Show UI uses scene-based panels instantiated at runtime.
 
 ### Architecture
 
@@ -360,34 +378,26 @@ See [VOICE_AUDIO.md](VOICE_AUDIO.md) for detailed integration architecture.
 
 ## Key Patterns
 
-### SingletonMonoBehaviour<T>
+### Service Registry
 
-All singleton managers inherit from `SingletonMonoBehaviour<T>` (`Core/SingletonMonoBehaviour.cs`):
+Access all core services through the Service Registry:
 
 ```csharp
-public class MyManager : SingletonMonoBehaviour<MyManager>
-{
-    protected override void OnSingletonAwake() 
-    {
-        // Init code here instead of Awake()
-    }
-    
-    protected override void OnDestroy()
-    {
-        base.OnDestroy(); // Important! Clears Instance
-        // Unsubscribe from events
-    }
-}
+// Access services through ServiceRegistry
+var repository = ServiceRegistry.Instance.CallerRepository;
+var screeningController = ServiceRegistry.Instance.ScreeningController;
+var events = ServiceRegistry.Instance.EventAggregator;
+var gameState = ServiceRegistry.Instance.GameStateManager;
 ```
 
-Benefits:
-- Eliminates duplicate singleton boilerplate
-- Automatically handles duplicate destruction
-- Clears `Instance` on destroy to prevent stale references
+Services are registered in `scripts/core/ServiceRegistry.cs` and accessed via:
+- `ServiceRegistry.Instance.Get<T>()` - Get any registered service
+- `ServiceRegistry.Instance.HasService<T>()` - Check if service exists
+- Shortcut properties for commonly used services
 
 ### BasePanel
 
-UI panels that subscribe to singleton events inherit from `BasePanel` (`UI/BasePanel.cs`):
+UI panels that subscribe to singleton events inherit from `BasePanel` (`ui/BasePanel.cs`):
 
 ```csharp
 public class MyPanel : BasePanel
@@ -432,15 +442,15 @@ Benefits:
 3. **Check raycast blocking** - Text/images above button may have `raycastTarget = true`
 4. **Check button size** - LayoutGroups may give button zero dimensions
 
-### ScriptableObject State Persisting Between Play Sessions
-- ScriptableObjects (like VernStats) persist runtime changes in Editor
+### Resource State Persisting Between Play Sessions
+- Resources (like VernStats) persist runtime changes in Editor
 - Always reinitialize state in `Initialize()` methods, don't check for null
 - Example: `_mood = new Stat("Mood", initialValue)` not `if (_mood == null) _mood = ...`
 
 ### Singleton Not Available in Start()
 - Singletons may not be created yet when `Start()` runs
-- **Solution**: Extend `BasePanel` which handles late-binding automatically
-- If not using BasePanel: check for null in `Update()` and subscribe when available
+- **Solution**: Use `ServiceRegistry.Instance.HasService<T>()` to check, then subscribe
+- Or check for null and subscribe in `Update()` until available
 - Call `UpdateDisplay()` immediately after late-subscribing
 
 ### Stat Bars Not Updating Visually
@@ -451,40 +461,45 @@ Benefits:
 
 ### Test Structure
 
-Tests are located in `tests/` directory and use Godot's built-in testing framework.
+Tests are located in `tests/` directory and use GdUnit4 testing framework.
 
 ```
 tests/
-├── StatTests.cs              # Tests for Stat class
-├── VernStatsTests.cs         # Tests for VernStats Resource
-└── CallerTests.cs            # Tests for Caller class
+├── unit/
+│   ├── core/              # ServiceRegistry, EventAggregator, Result tests
+│   ├── callers/           # Caller, CallerRepository tests
+│   ├── screening/         # ScreeningController tests
+│   └── ui/                # UI panel tests
+└── integration/           # Cross-system tests
 ```
 
 ### Running Tests
 
-**In Unity Editor**:
+**In Godot Editor**:
 1. Open Godot Editor
 2. Go to `Project > Tools > Run Tests`
 3. Or use command line
 
 **Command Line**:
 ```bash
-godot --run-tests project.godot
+godot --script addons/gdUnit4/bin/GdUnit4Cmd.gd --quit
 ```
 
 ### Test Coverage
 
 | Class | File | Coverage |
 |-------|------|----------|
-| `Stat` | `StatTests.cs` | Constructor, SetValue, Modify, Reset, Normalized, IsEmpty/IsFull, events |
-| `VernStats` | `VernStatsTests.cs` | Initialize, CalculateShowQuality, ApplyDecay, event firing |
-| `Caller` | `CallerTests.cs` | Constructor, UpdateWaitTime, SetState, CalculateShowImpact, events |
+| `Stat` | `tests/unit/core/StatTests.cs` | Constructor, SetValue, Modify, Reset, Normalized, IsEmpty/IsFull, events |
+| `VernStats` | `tests/unit/core/VernStatsTests.cs` | Initialize, CalculateShowQuality, ApplyDecay, event firing |
+| `Caller` | `tests/unit/callers/CallerTests.cs` | Constructor, UpdateWaitTime, SetState, CalculateShowImpact, events |
+| `ServiceRegistry` | `tests/unit/core/ServiceRegistryTests.cs` | Service registration, retrieval, lifecycle |
+| `EventAggregator` | `tests/unit/core/EventAggregatorTests.cs` | Subscribe, publish, weak reference handling |
 
 ### Writing Tests
 
-**Edit Mode tests** (for pure logic classes):
+**Unit tests**:
 ```csharp
-using NUnit.Framework;
+using Godot;
 using KBTV.Data;
 
 public class MyTests
@@ -499,18 +514,14 @@ public class MyTests
 }
 ```
 
-**Testing ScriptableObjects**:
+**Testing Resources**:
 ```csharp
-[SetUp]
-public void SetUp()
+[Test]
+public void VernStats_Initialize_SetsDefaults()
 {
-    _stats = ScriptableObject.CreateInstance<VernStats>();
-}
-
-[TearDown]
-public void TearDown()
-{
-    Object.DestroyImmediate(_stats);
+    var stats = new VernStats();
+    stats.Initialize();
+    Assert.AreEqual(50f, stats.Mood.Value);
 }
 ```
 

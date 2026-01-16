@@ -1,3 +1,5 @@
+#nullable enable
+
 using System;
 using Godot;
 using KBTV.Callers;

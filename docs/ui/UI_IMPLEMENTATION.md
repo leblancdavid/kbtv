@@ -2,7 +2,7 @@
 
 ## Overview
 
-KBTV uses a **scene-based UI system** in Godot 4.x, with programmatic instantiation and configuration. Panels are defined as reusable `.tscn` scenes and instantiated through a PanelFactory pattern.
+KBTV uses a **scene-based UI system** in Godot 4.x, with programmatic instantiation and scene-based panels. Panels are defined as reusable `.tscn` scenes and managed through `UIManager.cs`.
 
 ## Why Scene-Based UI
 
@@ -18,7 +18,7 @@ KBTV uses a **scene-based UI system** in Godot 4.x, with programmatic instantiat
 
 | File | Lines | Responsibility |
 |------|-------|----------------|
-| `UIManagerBootstrap.cs` | ~2000 | Main UI orchestrator for live show |
+| `UIManager.cs` | ~400 | Main UI orchestrator for live show |
 | `PanelFactory.cs` | ~250 | Factory for creating UI panel scenes |
 | `ScreeningPanel.cs` | ~50 | Screening panel logic |
 | `CallerPanel.cs` | ~50 | Caller list panel logic |
@@ -28,7 +28,7 @@ KBTV uses a **scene-based UI system** in Godot 4.x, with programmatic instantiat
 
 | Manager | Purpose | Active Phase |
 |---------|---------|--------------|
-| `UIManagerBootstrap` | Live show UI (tabs, panels, header, footer) | LiveShow only |
+| `UIManager` | Live show UI (tabs, panels, header, footer) | LiveShow only |
 
 ### Scene Configuration
 
@@ -40,7 +40,7 @@ The main UI uses a TabContainer scene (`TabContainerUI.tscn`) that contains:
 ### Phase-Based Visibility
 
 ```csharp
-// In UIManagerBootstrap.cs
+// In UIManager.cs
 public override void _Ready()
 {
     // Initialize only when entering live show phase
@@ -215,58 +215,49 @@ new Color(0.15f, 0.15f, 0.15f) // Dark bg
 ## File Structure
 
 ```
-scripts/UI/
-├── UIManagerBootstrap.cs     # Main UI orchestrator
+scripts/ui/
+├── UIManager.cs              # Main UI orchestrator
 ├── PanelFactory.cs           # Panel creation factory
 ├── ScreeningPanel.cs         # Screening panel logic
 ├── CallerPanel.cs            # Caller list panel logic
-└── LiveShowHeader.cs         # Header panel logic
+├── LiveShowHeader.cs         # Header panel logic
+├── LiveShowFooter.cs         # Footer panel logic
+├── PreShowUIManager.cs       # Pre-show UI
+├── TabContainerManager.cs    # Tab system manager
+├── CallerTabManager.cs       # Caller-specific tab management
+├── InputHandler.cs           # Input processing
+├── DebugHelper.cs            # Debug tools
+├── UITheme.cs                # Theme and styling
+├── UIHelpers.cs              # Static helper methods
+├── themes/
+│   └── UIColors.cs           # Centralized color definitions
+├── components/
+│   ├── ReactiveListPanel.cs  # Differential UI updates
+│   ├── CallerListAdapter.cs  # Caller list adapter
+│   └── IListAdapter.cs       # List adapter interface
+└── controllers/
+    └── TabDefinition.cs      # Tab definition
 
 scenes/ui/
 ├── TabContainerUI.tscn       # Main tab container scene
 ├── ScreeningPanel.tscn       # Screening panel scene
 ├── CallerPanel.tscn          # Caller list panel scene
-└── LiveShowHeader.tscn       # Header panel scene
-```
-
-## Color Constants
-
-```csharp
-// KBTV Color Palette
-new Color(1f, 0.7f, 0f)      // Gold - primary accent
-new Color(0.2f, 0.8f, 0.2f)  // Green - success/money
-new Color(0.8f, 0.2f, 0.2f)  // Red - error/alert
-new Color(0.267f, 0.667f, 0.267f)  // Green - positive change
-new Color(0.439f, 0.439f, 0.439f)  // Gray - secondary text
-new Color(0.05f, 0.05f, 0.08f)     // Dark bg
-```
-
-## File Structure
-
-```
-Assets/Scripts/Runtime/UI/
-├── UIManagerBootstrap.cs     # Main orchestrator (partial)
-├── UIHeader.cs              # Header creation (partial)
-├── UITabs.cs                # Tab system (partial)
-├── UIFooter.cs              # Footer panels (partial)
-├── UIEvents.cs              # Event subscriptions (partial)
-├── UIDisplays.cs            # Display updates (partial)
-├── UIHelpers.cs             # Static helper methods
-├── UIPanelBuilder.cs        # Fluent panel builder
-└── PreShowUIManager.cs      # Pre-show UI
+├── CallerQueueItem.tscn      # Caller queue item scene
+├── CallerTab.tscn            # Caller tab scene
+├── LiveShowHeader.tscn       # Header panel scene
+└── LiveShowFooter.tscn       # Footer panel scene
 ```
 
 ## Integration with Game State
 
-The UI is created and managed by the game state system:
+The UI is managed by the UIManager which is created in the main scene:
 
 ```csharp
-// In game initialization
+// In main scene (scenes/Main.tscn), UIManager is a child node
+// It initializes when the game enters LiveShow phase
 if (gameState.CurrentPhase == GamePhase.LiveShow)
 {
-    var uiManager = new UIManagerBootstrap();
-    uiManager.Initialize(gameState, callerQueue, etc.);
-    AddChild(uiManager);
+    uiManager.ShowLiveUI();
 }
 ```
 

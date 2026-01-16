@@ -6,11 +6,12 @@ This guide explains how to work with and extend the KBTV codebase. Whether you'r
 
 ### Core Principles
 
-1. **Singleton Pattern**: All major systems use `SingletonNode<T>` for global access
-2. **Event-Driven**: Systems communicate via C# events and Godot signals
+1. **Service Registry Pattern**: All major systems are registered in `ServiceRegistry` for dependency injection
+2. **Event-Driven**: Systems communicate via `EventAggregator` pub/sub system
 3. **Resource-Based**: Game data stored as Godot Resources (`.tres` files)
-4. **Modular UI**: Control-based UI with reusable components
-5. **Separation of Concerns**: Each system has a single responsibility
+4. **Modular UI**: Control-based UI with reusable scene-based components
+5. **Repository Pattern**: Data access encapsulated in repositories with Result<T> return types
+6. **Separation of Concerns**: Each system has a single responsibility
 
 ### System Categories
 
@@ -27,7 +28,22 @@ This guide explains how to work with and extend the KBTV codebase. Whether you'r
 ### 1. Creating a New Manager
 
 ```csharp
-// 1. Create new script in appropriate directory
+// 1. Create interface in appropriate directory
+// scripts/managers/INewManager.cs
+
+namespace KBTV.Managers
+{
+    public interface INewManager
+    {
+        bool IsActive { get; }
+        void Activate();
+        void Deactivate();
+    }
+}
+```
+
+```csharp
+// 2. Create implementation
 // scripts/managers/NewManager.cs
 
 using Godot;
@@ -35,49 +51,44 @@ using KBTV.Core;
 
 namespace KBTV.Managers
 {
-    public partial class NewManager : SingletonNode<NewManager>
+    public partial class NewManager : Node, INewManager
     {
-        // Export properties for editor configuration
         [Export] private float _someSetting = 1.0f;
 
-        // Properties
         public bool IsActive { get; private set; }
-
-        // Events
-        public event Action OnActivated;
-        public event Action OnDeactivated;
-
-        protected override void OnSingletonReady()
-        {
-            // Initialize your manager
-            GD.Print("NewManager initialized");
-        }
 
         public void Activate()
         {
             IsActive = true;
-            OnActivated?.Invoke();
+            ServiceRegistry.Instance.EventAggregator.Publish(new NewManagerActivated());
         }
 
         public void Deactivate()
         {
             IsActive = false;
-            OnDeactivated?.Invoke();
         }
     }
 }
 ```
 
 ```csharp
-// 2. Add to main scene (scenes/Main.tscn)
+// 3. Register in ServiceRegistry (scripts/core/ServiceRegistry.cs)
+private void RegisterCoreServices()
+{
+    Register<INewManager, NewManager>();
+}
+```
+
+```csharp
+// 4. Add to main scene (scenes/Main.tscn)
 [node name="NewManager" type="Node" parent="."]
 script = ExtResource("path_to_newmanager_script")
 someSetting = 2.0
 ```
 
 ```csharp
-// 3. Access from other systems
-var newManager = NewManager.Instance;
+// 5. Access from other systems
+var newManager = ServiceRegistry.Instance.Get<INewManager>();
 newManager.Activate();
 ```
 
@@ -116,8 +127,8 @@ namespace KBTV.UI.Components
 ```
 
 ```csharp
-// 2. Add to UIManagerBootstrap
-public partial class UIManagerBootstrap : SingletonNode<UIManagerBootstrap>
+// 2. Add to UIManager
+public partial class UIManager : Node
 {
     private void CreateNewUIComponent(Control parent)
     {
@@ -235,7 +246,7 @@ public class SaveData
 }
 
 // 2. Implement ISaveable in your manager
-public partial class NewManager : SingletonNode<NewManager>, ISaveable
+public partial class NewManager : Node, ISaveable
 {
     public void OnBeforeSave(SaveData data)
     {
@@ -249,9 +260,13 @@ public partial class NewManager : SingletonNode<NewManager>, ISaveable
 }
 
 // 3. Register with SaveManager
-protected override void OnSingletonReady()
+public partial class NewManager : Node, ISaveable
 {
-    SaveManager.Instance?.RegisterSaveable(this);
+    public override void _Ready()
+    {
+        var saveManager = ServiceRegistry.Instance.SaveManager;
+        saveManager?.RegisterSaveable(this);
+    }
 }
 ```
 
@@ -260,8 +275,8 @@ protected override void OnSingletonReady()
 ### Using DebugHelper
 
 ```csharp
-// In Godot editor, call these methods on the DebugHelper node
-var debugHelper = GetNode<DebugHelper>("/root/Main/DebugHelper");
+// Access DebugHelper via ServiceRegistry
+var debugHelper = ServiceRegistry.Instance.Get<DebugHelper>();
 
 // Test game flow
 debugHelper.StartShow();
@@ -273,7 +288,7 @@ debugHelper.ShowGameState();
 
 ```csharp
 // Add debug logging to any system
-public partial class MySystem : SingletonNode<MySystem>
+public partial class MySystem : Node
 {
     private void SomeMethod()
     {
@@ -346,23 +361,27 @@ private void StyleButton(Button button)
 
 ### Creating Custom Events
 
-```csharp
-public partial class MySystem : SingletonNode<MySystem>
-{
-    // Define events
-    public event Action<int> OnValueChanged;
-    public event Action<string> OnMessageReceived;
+Define events in the appropriate event domain file:
 
-    // Trigger events
+```csharp
+// scripts/core/events/MySystemEvents.cs
+namespace KBTV.Core.Events.MySystem
+{
+    public record ValueChangedEvent(int OldValue, int NewValue) : IEvent;
+    public record MessageReceivedEvent(string Message) : IEvent;
+}
+```
+
+Publish events from your system:
+
+```csharp
+public partial class MySystem : Node
+{
     private void UpdateValue(int newValue)
     {
         _currentValue = newValue;
-        OnValueChanged?.Invoke(newValue);
-    }
-
-    private void ReceiveMessage(string message)
-    {
-        OnMessageReceived?.Invoke(message);
+        ServiceRegistry.Instance.EventAggregator.Publish(
+            new ValueChangedEvent(_currentValue, newValue));
     }
 }
 ```
@@ -370,30 +389,30 @@ public partial class MySystem : SingletonNode<MySystem>
 ### Subscribing to Events
 
 ```csharp
-public partial class AnotherSystem : SingletonNode<AnotherSystem>
+public partial class AnotherSystem : Node
 {
-    protected override void OnSingletonReady()
+    public override void _Ready()
     {
-        // Subscribe to events
-        MySystem.Instance.OnValueChanged += HandleValueChanged;
-        MySystem.Instance.OnMessageReceived += HandleMessageReceived;
+        var events = ServiceRegistry.Instance.EventAggregator;
+        events.Subscribe<ValueChangedEvent>(OnValueChanged);
+        events.Subscribe<MessageReceivedEvent>(OnMessageReceived);
     }
 
     public override void _ExitTree()
     {
-        // Always unsubscribe
-        MySystem.Instance.OnValueChanged -= HandleValueChanged;
-        MySystem.Instance.OnMessageReceived -= HandleMessageReceived;
+        var events = ServiceRegistry.Instance.EventAggregator;
+        events.Unsubscribe<ValueChangedEvent>(OnValueChanged);
+        events.Unsubscribe<MessageReceivedEvent>(OnMessageReceived);
     }
 
-    private void HandleValueChanged(int newValue)
+    private void OnValueChanged(ValueChangedEvent evt)
     {
-        GD.Print($"Value changed to: {newValue}");
+        GD.Print($"Value changed from {evt.OldValue} to {evt.NewValue}");
     }
 
-    private void HandleMessageReceived(string message)
+    private void OnMessageReceived(MessageReceivedEvent evt)
     {
-        GD.Print($"Message received: {message}");
+        GD.Print($"Message received: {evt.Message}");
     }
 }
 ```
@@ -437,7 +456,7 @@ public class ObjectPool<T> where T : Node
 
 ```csharp
 // Only update when necessary
-public partial class OptimizedSystem : SingletonNode<OptimizedSystem>
+public partial class OptimizedSystem : Node
 {
     private bool _needsUpdate = false;
     private float _updateTimer = 0f;

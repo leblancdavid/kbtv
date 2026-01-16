@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using KBTV.Callers;
+using KBTV.Core;
 using KBTV.Screening;
 
 namespace KBTV.Core
@@ -73,6 +74,15 @@ namespace KBTV.Core
 
             _services[type] = instance;
             GD.Print($"ServiceRegistry: Registered {type.Name}");
+        }
+
+        public void Register<TInterface, TImplementation>()
+            where TInterface : class
+            where TImplementation : class, TInterface, new()
+        {
+            var interfaceType = typeof(TInterface);
+            _factories[interfaceType] = () => new TImplementation();
+            GD.Print($"ServiceRegistry: Registered factory for {interfaceType.Name}");
         }
 
         public void RegisterFactory<TService>(Func<TService> factory) where TService : class

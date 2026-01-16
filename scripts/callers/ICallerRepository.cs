@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.Collections.Generic;
 using KBTV.Callers;
 using KBTV.Core;
