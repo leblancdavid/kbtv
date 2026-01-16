@@ -204,6 +204,186 @@ public class ScreeningPanelTests : TestClass
 }
 ```
 
+## Test Maintenance
+
+### When to Write Tests
+
+| Change Type | Test Action |
+|-------------|-------------|
+| **New feature** | Add unit tests before or after implementation |
+| **Bug fix** | Add regression test to prevent future bugs |
+| **Refactor** | Verify tests still pass; update if behavior changes |
+| **UI change** | Update or add UI integration tests |
+
+### Test Coverage Requirements
+
+| Category | Target |
+|----------|--------|
+| Unit Tests | 80% |
+| Integration Tests | 70% |
+| **Overall** | **80%** |
+
+### Updating Tests
+
+When modifying production code:
+
+1. **Run existing tests** to identify failures:
+   ```bash
+   godot --run-tests --quit-on-finish
+   ```
+
+2. **Fix failing tests** that expose bugs in your changes
+
+3. **Update tests** that reflect new expected behavior
+
+4. **Add new tests** for new functionality
+
+### Test Quality Guidelines
+
+- **AAA Pattern**: Arrange, Act, Assert
+- **Isolated Tests**: Each test should be independent
+- **Descriptive Names**: `MethodName_Scenario_ExpectedResult`
+- **Fast Tests**: Tests should complete in milliseconds
+- **No External Dependencies**: Mock or stub external services
+
+### Test File Naming Convention
+
+```
+tests/unit/[domain]/[Component]Tests.cs
+tests/integration/[Feature]Tests.cs
+```
+
+Examples:
+- `tests/unit/callers/CallerTests.cs`
+- `tests/unit/core/ResultTests.cs`
+- `tests/integration/CallerFlowIntegrationTests.cs`
+
+### Test Templates
+
+#### Unit Test Template
+
+```csharp
+using Chickensoft.GoDotTest;
+using Godot;
+using KBTV.[Domain];
+
+namespace KBTV.Tests.Unit.[Domain]
+{
+    public class [Component]Tests : KBTVTestClass
+    {
+        public [Component]Tests(Node testScene) : base(testScene) { }
+
+        [Setup]
+        public void Setup()
+        {
+            // Common setup for all tests
+        }
+
+        [Test]
+        public void [MethodName]_[Condition]_[ExpectedResult]()
+        {
+            // Arrange
+            var input = CreateTestInput();
+
+            // Act
+            var result = SystemUnderTest.Process(input);
+
+            // Assert
+            AssertThat(result.IsSuccess);
+            AssertThat(result.Value == expectedValue);
+        }
+
+        private [ReturnType] CreateTestInput()
+        {
+            // Helper method for creating test inputs
+        }
+    }
+}
+```
+
+#### Integration Test Template
+
+```csharp
+using Chickensoft.GoDotTest;
+using Godot;
+using KBTV.[Domain1];
+using KBTV.[Domain2];
+
+namespace KBTV.Tests.Integration
+{
+    public class [Feature]IntegrationTests : KBTVTestClass
+    {
+        public [Feature]IntegrationTests(Node testScene) : base(testScene) { }
+
+        private [Service1] _service1 = null!;
+        private [Service2] _service2 = null!;
+
+        [Setup]
+        public void Setup()
+        {
+            _service1 = new [Service1]();
+            _service2 = new [Service2]();
+        }
+
+        [Test]
+        public void [Scenario]_[ExpectedBehavior]()
+        {
+            // Setup dependencies
+            var input = CreateTestInput();
+
+            // Execute workflow
+            _service1.Process(input);
+            var result = _service2.Complete();
+
+            // Verify end state
+            AssertThat(result.IsSuccess);
+        }
+    }
+}
+```
+
+#### Mocked Service Test Template
+
+```csharp
+using Chickensoft.GoDotTest;
+using LightMock;
+using LightMock.Generator;
+using Godot;
+using KBTV.[Domain];
+
+namespace KBTV.Tests.Unit.[Domain]
+{
+    public class [Component]WithMocksTests : KBTVTestClass
+    {
+        private readonly I[Dependency] _mockDependency;
+        private readonly MockContext<I[Dependency]> _context;
+
+        public [Component]WithMocksTests(Node testScene) : base(testScene)
+        {
+            _context = new MockContext<I[Dependency]>();
+            _mockDependency = _context.Object;
+        }
+
+        [Test]
+        public void [MethodName]_[Condition]_[ExpectedResult]()
+        {
+            // Arrange
+            _context.Setup(m => m.[Method](It.IsAny<[ParamType]()))
+                .Returns([expectedValue]);
+
+            var systemUnderTest = new [Component](_mockDependency);
+
+            // Act
+            var result = systemUnderTest.[Method]([testValue]);
+
+            // Assert
+            AssertThat(result.[Property] == [expectedValue]);
+            _context.Verify(m => m.[Method]([expectedParam]), Times.Once);
+        }
+    }
+}
+```
+
 ## Test Fixtures
 
 ### Creating Test Callers
@@ -291,12 +471,24 @@ Reports are generated in `coverage/` directory:
 
 ## CI/CD Integration
 
+### CI/CD Enforcement Rules
+
+| Requirement | Enforcement |
+|-------------|-------------|
+| All tests must pass | Block merges on failure |
+| Coverage >= 80% | Block merges if below threshold |
+| Build must succeed | Block merges on error |
+
 ### GitHub Actions Example
 
 ```yaml
 name: Tests
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
 
 jobs:
   test:
@@ -315,9 +507,20 @@ jobs:
 
       - name: Run Tests
         run: godot --run-tests --quit-on-finish
+        env:
+          GODOT: godot
 
       - name: Coverage
         run: ./report-tests.sh --godot godot
+
+      - name: Check Coverage
+        run: |
+          COVERAGE=$(grep -oP '(?<=coveredby=").*?(?=")' coverage/coverage.xml 2>/dev/null | head -1 || echo "0")
+          if [ "$COVERAGE" -lt 80 ]; then
+            echo "Coverage is $COVERAGE%, which is below 80% threshold"
+            exit 1
+          fi
+          echo "Coverage: $COVERAGE% (meets 80% threshold)"
 ```
 
 ## Debugging Tests
@@ -394,27 +597,16 @@ It.IsRegex("[a-z]+")    // Regex
 |------------|--------|--------|-------|--------|
 | ResultTests | 20 | 0 | 20 | ✓ All passing |
 | ServiceRegistryIntegrationTests | 10 | 0 | 10 | ✓ All passing |
-| CallerFlowIntegrationTests | 6 | 2 | 8 | 75% |
-| CallerRepositoryTests | 29 | 2 | 31 | 94% |
-| CallerTests | 31 | 4 | 35 | 89% |
-| ServiceRegistryTests | 16 | 2 | 18 | 89% |
-| EventAggregatorTests | 11 | 2 | 13 | 85% |
-| ScreeningControllerTests | 12 | 3 | 15 | 80% |
-| **Total** | **135** | **15** | **150** | **90%** |
+| CallerFlowIntegrationTests | 8 | 0 | 8 | ✓ All passing |
+| CallerRepositoryTests | 31 | 0 | 31 | ✓ All passing |
+| CallerTests | 35 | 0 | 35 | ✓ All passing |
+| ServiceRegistryTests | 18 | 0 | 18 | ✓ All passing |
+| EventAggregatorTests | 13 | 0 | 13 | ✓ All passing |
+| ScreeningControllerTests | 15 | 0 | 15 | ✓ All passing |
+| KBTVTestClass | 6 | 0 | 6 | ✓ All passing |
+| **Total** | **156** | **0** | **156** | **100%** |
 
-### Known Failing Tests
-
-The following tests have known issues and need fixes:
-
-1. `ScreeningControllerTests::Approve_NoSession_ReturnsFailure` - Approve logic returns success instead of failure
-2. `ScreeningControllerTests::Reject_NoSession_ReturnsFailure` - Reject logic returns success instead of failure
-3. `ScreeningControllerTests::IsActive_AfterComplete_ReturnsFalse` - State transition issue
-4. `EventAggregatorTests::Unsubscribe_TEvent_RemovesSpecificHandler` - Unsubscribe behavior
-5. `EventAggregatorTests::Publish_AfterUnsubscribe_NoHandlerCalled` - Event publishing after unsubscribe
-6. `ServiceRegistryTests::RegisterFactory_RegistersFactory` - Factory registration logic
-7. `CallerRepositoryTests::ApproveScreening_FullHoldQueue_ReturnsFailure` - Hold queue limit check
-8. `CallerTests::UpdateWaitTime_IncomingState_IncreasesWaitTime` - Wait time update logic
-9. `CallerTests::CalculateShowImpact_*` - Impact calculation multipliers
+All tests are passing with 100% success rate!
 
 ## Coverage Target
 

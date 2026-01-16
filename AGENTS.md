@@ -264,19 +264,19 @@ WARNING: scene/resources/resource_format_text.cpp:444 - res://scenes/Main.tscn:1
 
 ## Testing
 
-### GdUnit4 Testing Framework
-KBTV uses **GdUnit4** for unit and integration testing. See [TESTING.md](docs/testing/TESTING.md) for detailed setup and patterns.
+### GoDotTest Testing Framework
+KBTV uses **GoDotTest** for unit and integration testing. See [TESTING.md](docs/testing/TESTING.md) for detailed setup and patterns.
 
 **Installation:**
-1. Open Godot 4.x
-2. Go to AssetLib
-3. Search for "GdUnit4"
-4. Download and import
-5. Restart Godot
+NuGet packages are already configured in `KBTV.csproj`:
+- Chickensoft.GoDotTest (v2.0.28)
+- LightMock.Generator (v1.2.3)
+- Chickensoft.GodotTestDriver (v3.0.0)
 
 **Running Tests:**
-- **Editor**: GdUnit4 menu → Run Tests
-- **CLI**: `godot --script addons/gdUnit4/bin/GdUnit4Cmd.gd --quit`
+- **Editor**: Run with `--run-tests` flag or use VS Code "Debug Tests" launch config
+- **CLI**: `godot --run-tests --quit-on-finish`
+- **With Coverage**: `godot --run-tests --coverage --quit-on-finish`
 
 **Test Structure:**
 ```
@@ -284,12 +284,75 @@ tests/
 ├── unit/
 │   ├── callers/
 │   ├── screening/
-│   ├── ui/
 │   └── core/
 └── integration/
 ```
 
 **Coverage Target:** 80% unit test coverage minimum
+
+### AI Agent Testing Guidelines
+
+When modifying code, AI agents MUST:
+
+1. **Update or add tests** for any code changes:
+   - New feature → Add unit tests covering the feature
+   - Bug fix → Add regression test to prevent future bugs
+   - Refactor → Verify tests still pass; update if behavior changes
+
+2. **Run tests before committing**:
+   ```bash
+   godot --run-tests --quit-on-finish
+   ```
+
+3. **Coverage requirement**: New code should maintain >= 80% coverage
+
+4. **Test file locations**:
+   - Unit tests: `tests/unit/[domain]/[Component]Tests.cs`
+   - Integration tests: `tests/integration/[Feature]Tests.cs`
+
+### Test Patterns
+
+**Unit Test Pattern:**
+```csharp
+[Test]
+public void MethodName_Condition_ExpectedResult()
+{
+    // Arrange
+    var input = CreateTestInput();
+    
+    // Act
+    var result = SystemUnderTest.Process(input);
+    
+    // Assert
+    AssertThat(result.IsSuccess);
+    AssertThat(result.Value == expectedValue);
+}
+```
+
+**Integration Test Pattern:**
+```csharp
+[Test]
+public void FullWorkflow_StartingFromState_CompletesSuccessfully()
+{
+    // Setup dependencies
+    var repository = new CallerRepository();
+    var controller = new ScreeningController();
+    
+    // Execute workflow
+    var caller = CreateTestCaller();
+    repository.AddCaller(caller);
+    repository.StartScreening(caller);
+    
+    // Verify end state
+    AssertThat(repository.IsScreening);
+}
+```
+
+### CI/CD Enforcement
+
+Tests must pass and meet coverage requirements:
+- All tests must pass (failures block merges)
+- Coverage must be >= 80% (failures block merges)
 
 ### Script Validation
 Check GDScript syntax and basic validation:
@@ -307,14 +370,6 @@ For C# scripts, build the project after making changes to catch compilation erro
 - **Frequency**: Run build after editing C# scripts to ensure they compile correctly before testing
 
 **Important**: C# scripts must be built before running the game. Unbuilt changes may cause runtime errors or crashes.
-
-### Test Structure
-```gdscript
-extends Node
-
-func test_example():
-    assert(true, "This test should pass")
-```
 
 ## Code Style Guidelines
 
