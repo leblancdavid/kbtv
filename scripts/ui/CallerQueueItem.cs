@@ -89,16 +89,11 @@ namespace KBTV.UI
 
             bool isScreening = CallerQueue.Instance?.CurrentScreening == _caller;
 
-            var style = GetThemeStylebox("panel") as StyleBoxFlat;
-            if (style == null)
-            {
-                style = new StyleBoxFlat();
-                style.CornerRadiusTopLeft = 4;
-                style.CornerRadiusTopRight = 4;
-                style.CornerRadiusBottomRight = 4;
-                style.CornerRadiusBottomLeft = 4;
-                style.BgColor = new Color(0.2f, 0.2f, 0.2f, 1f);
-            }
+            var style = new StyleBoxFlat();
+            style.CornerRadiusTopLeft = 4;
+            style.CornerRadiusTopRight = 4;
+            style.CornerRadiusBottomRight = 4;
+            style.CornerRadiusBottomLeft = 4;
 
             if (isScreening)
             {
@@ -110,6 +105,8 @@ namespace KBTV.UI
             }
 
             AddThemeStyleboxOverride("panel", style);
+            AddThemeStyleboxOverride("panel_pressed", style);
+            QueueRedraw();
         }
 
         private void UpdateStatusIndicator()
