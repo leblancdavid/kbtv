@@ -11,7 +11,7 @@ namespace KBTV.UI
     public partial class InputHandler : Node
     {
         private GameStateManager _gameState;
-        private CallerQueue _callerQueue;
+        private ICallerRepository _repository;
 
         // Input action names (defined in Godot project settings)
         private const string ACTION_SCREEN_ACCEPT = "screen_accept";
@@ -21,8 +21,26 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
+            CallDeferred(nameof(InitializeDeferred));
+        }
+
+        private void InitializeDeferred()
+        {
+            if (!Core.ServiceRegistry.IsInitialized)
+            {
+                GD.PrintErr("InputHandler: ServiceRegistry not initialized, retrying...");
+                CallDeferred(nameof(InitializeDeferred));
+                return;
+            }
+
             _gameState = GameStateManager.Instance;
-            _callerQueue = CallerQueue.Instance;
+            _repository = Core.ServiceRegistry.Instance.CallerRepository;
+
+            if (_repository == null)
+            {
+                GD.PrintErr("InputHandler: ICallerRepository not available");
+                return;
+            }
 
             GD.Print("InputHandler: Initialized input handling");
         }
@@ -41,73 +59,104 @@ namespace KBTV.UI
 
         private void HandleKeyInput(Key keycode)
         {
+            if (_repository == null)
+            {
+                return;
+            }
+
             switch (keycode)
             {
                 case Key.Y: // Accept caller (Y key)
-                    if (_callerQueue.IsScreening)
+                    if (_repository.IsScreening)
                     {
-                        if (_callerQueue.ApproveCurrentCaller())
+                        var result = _repository.ApproveScreening();
+                        if (result.IsSuccess)
                         {
                             GD.Print("InputHandler: Approved caller");
                             ShowFeedback("Caller approved!");
+                        }
+                        else
+                        {
+                            GD.PrintErr($"InputHandler: Failed to approve caller - {result.ErrorCode}: {result.ErrorMessage}");
                         }
                     }
                     break;
 
                 case Key.N: // Reject caller (N key)
-                    if (_callerQueue.IsScreening)
+                    if (_repository.IsScreening)
                     {
-                        if (_callerQueue.RejectCurrentCaller())
+                        var result = _repository.RejectScreening();
+                        if (result.IsSuccess)
                         {
                             GD.Print("InputHandler: Rejected caller");
                             ShowFeedback("Caller rejected!");
+                        }
+                        else
+                        {
+                            GD.PrintErr($"InputHandler: Failed to reject caller - {result.ErrorCode}: {result.ErrorMessage}");
                         }
                     }
                     break;
 
                 case Key.E: // End current call (E key)
-                    if (_callerQueue.IsOnAir)
+                    if (_repository.IsOnAir)
                     {
-                        var completed = _callerQueue.EndCurrentCall();
-                        if (completed != null)
+                        var result = _repository.EndOnAir();
+                        if (result.IsSuccess)
                         {
+                            var completed = result.Value;
                             GD.Print("InputHandler: Ended call");
                             ShowFeedback("Call ended!");
 
                             // Auto-put next caller on air if available
-                            if (_callerQueue.HasOnHoldCallers)
+                            if (_repository.HasOnHoldCallers)
                             {
-                                var nextCaller = _callerQueue.PutNextCallerOnAir();
-                                if (nextCaller != null)
+                                var nextResult = _repository.PutOnAir();
+                                if (nextResult.IsSuccess)
                                 {
+                                    var nextCaller = nextResult.Value;
                                     GD.Print("InputHandler: Put next caller on air");
                                     ShowFeedback($"{nextCaller.Name} is now on air!");
                                 }
                             }
                         }
+                        else
+                        {
+                            GD.PrintErr($"InputHandler: Failed to end call - {result.ErrorCode}: {result.ErrorMessage}");
+                        }
                     }
                     break;
 
                 case Key.S: // Start screening next caller (S key)
-                    if (!_callerQueue.IsScreening && _callerQueue.HasIncomingCallers)
+                    if (!_repository.IsScreening && _repository.HasIncomingCallers)
                     {
-                        var caller = _callerQueue.StartScreeningNext();
-                        if (caller != null)
+                        var result = _repository.StartScreeningNext();
+                        if (result.IsSuccess)
                         {
+                            var caller = result.Value;
                             GD.Print($"InputHandler: Started screening {caller.Name}");
                             ShowFeedback($"Now screening: {caller.Name}");
+                        }
+                        else
+                        {
+                            GD.PrintErr($"InputHandler: Failed to start screening - {result.ErrorCode}: {result.ErrorMessage}");
                         }
                     }
                     break;
 
                 case Key.Space: // Put next caller on air (Space key)
-                    if (!_callerQueue.IsOnAir && _callerQueue.HasOnHoldCallers)
+                    if (!_repository.IsOnAir && _repository.HasOnHoldCallers)
                     {
-                        var caller = _callerQueue.PutNextCallerOnAir();
-                        if (caller != null)
+                        var result = _repository.PutOnAir();
+                        if (result.IsSuccess)
                         {
+                            var caller = result.Value;
                             GD.Print($"InputHandler: Put {caller.Name} on air");
                             ShowFeedback($"{caller.Name} is now on air!");
+                        }
+                        else
+                        {
+                            GD.PrintErr($"InputHandler: Failed to put caller on air - {result.ErrorCode}: {result.ErrorMessage}");
                         }
                     }
                     break;

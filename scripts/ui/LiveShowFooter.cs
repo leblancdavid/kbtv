@@ -1,5 +1,6 @@
 using Godot;
 using KBTV.Callers;
+using KBTV.Core;
 
 namespace KBTV.UI
 {
@@ -9,75 +10,72 @@ namespace KBTV.UI
     /// </summary>
     public partial class LiveShowFooter : Control
     {
-        // On-Air panel
-        private Label _callerNameLabel;
+        private Label _callerNameLabel = null!;
+        private Label _transcriptText = null!;
+        private Button _startAdBreakButton = null!;
+        private Button _endAdBreakButton = null!;
+        private Label _adBreakTimerLabel = null!;
 
-        // Transcript panel
-        private Label _transcriptText;
+        private ICallerRepository _repository = null!;
 
-        // Ad Break panel
-        private Button _startAdBreakButton;
-        private Button _endAdBreakButton;
-        private Label _adBreakTimerLabel;
-
-        private CallerQueue _callerQueue;
-
-        // Ad break state
         private bool _adBreakActive = false;
         private float _adBreakTime = 0f;
 
         public override void _Ready()
         {
-            // Get UI references
+            CallDeferred(nameof(InitializeDeferred));
+        }
+
+        private void InitializeDeferred()
+        {
+            if (!Core.ServiceRegistry.IsInitialized)
+            {
+                GD.PrintErr("LiveShowFooter: ServiceRegistry not initialized, retrying...");
+                CallDeferred(nameof(InitializeDeferred));
+                return;
+            }
+
             _callerNameLabel = GetNode<Label>("HBoxContainer/OnAirPanel/OnAirVBox/CallerNameLabel");
             _transcriptText = GetNode<Label>("HBoxContainer/TranscriptPanel/TranscriptVBox/TranscriptScroll/TranscriptText");
             _startAdBreakButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/StartAdBreakButton");
             _endAdBreakButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/EndAdBreakButton");
             _adBreakTimerLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/AdBreakTimerLabel");
 
-            // Get manager references
-            _callerQueue = CallerQueue.Instance;
+            _repository = Core.ServiceRegistry.Instance.CallerRepository;
 
-            // Connect signals
-            if (_callerQueue != null)
-            {
-                _callerQueue.Connect("CallerOnAir", Callable.From<Caller>(OnCallerOnAir));
-                _callerQueue.Connect("CallerCompleted", Callable.From<Caller>(OnCallerCompleted));
-            }
+            var events = Core.ServiceRegistry.Instance.EventAggregator;
+            events?.Subscribe(this, (Core.Events.OnAir.CallerOnAir evt) => OnCallerOnAir(evt));
+            events?.Subscribe(this, (Core.Events.OnAir.CallerOnAirEnded evt) => OnCallerCompleted(evt));
 
-            // Connect button signals
             _startAdBreakButton.Connect("pressed", Callable.From(OnStartAdBreakPressed));
             _endAdBreakButton.Connect("pressed", Callable.From(OnEndAdBreakPressed));
 
-            // Initial updates
             UpdateOnAirCaller();
             UpdateTranscript();
             UpdateAdBreakControls();
         }
 
-        private void OnCallerOnAir(Caller caller)
+        private void OnCallerOnAir(Core.Events.OnAir.CallerOnAir evt)
         {
             UpdateOnAirCaller();
         }
 
-        private void OnCallerCompleted(Caller caller)
+        private void OnCallerCompleted(Core.Events.OnAir.CallerOnAirEnded evt)
         {
             UpdateOnAirCaller();
         }
 
         private void UpdateOnAirCaller()
         {
-            if (_callerQueue != null && _callerNameLabel != null)
+            if (_callerNameLabel != null)
             {
-                var caller = _callerQueue.OnAirCaller;
+                var caller = _repository.OnAirCaller;
                 _callerNameLabel.Text = caller != null ? caller.Name : "No caller";
             }
         }
 
         private void UpdateTranscript()
         {
-            // TODO: Connect to actual conversation system
-            // For now, just show placeholder
             if (_transcriptText != null)
             {
                 _transcriptText.Text = "[Transcript will appear here when conversation system is active]";
@@ -134,12 +132,8 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            // Clean up signal connections
-            if (_callerQueue != null)
-            {
-                _callerQueue.Disconnect("CallerOnAir", Callable.From<Caller>(OnCallerOnAir));
-                _callerQueue.Disconnect("CallerCompleted", Callable.From<Caller>(OnCallerCompleted));
-            }
+            var events = Core.ServiceRegistry.Instance?.EventAggregator;
+            events?.Unsubscribe(this);
 
             if (_startAdBreakButton != null)
             {

@@ -67,13 +67,98 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [EVIDENCE_SYSTEM.md](docs/systems/EVIDENCE_SYSTEM.md) | Evidence collection - types, tiers, cabinet, set bonuses |
 | [TOOLS_EQUIPMENT.md](docs/systems/TOOLS_EQUIPMENT.md) | Investigation tools - camera, EMF reader, audio recorder, upgrades |
 | [VERN_STATS.md](docs/systems/VERN_STATS.md) | Vern's stats system - dependencies, VIBE, mood types, sigmoid functions |
+| [TESTING.md](docs/testing/TESTING.md) | GdUnit4 testing framework setup, patterns, and best practices |
 
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
+
+## Architecture Patterns
+
+### Service Registry Pattern
+
+KBTV uses a **Service Registry** (Autoload) for global service access instead of singletons:
+
+```csharp
+// Access services through ServiceRegistry
+var repository = ServiceRegistry.Instance.CallerRepository;
+var screeningController = ServiceRegistry.Instance.ScreeningController;
+var events = ServiceRegistry.Instance.EventAggregator;
+```
+
+**Pattern Benefits:**
+- Centralized service management
+- Testability (can replace services with mocks)
+- Lazy initialization
+- Clear dependency relationships
+
+**Files:**
+- `scripts/core/ServiceRegistry.cs` - Main service registry (Autoload)
+- `scripts/core/IServiceRegistry.cs` - Interface definition
+
+### Event Aggregation Pattern
+
+Components communicate through events instead of direct coupling:
+
+```csharp
+// Subscribe to events
+ServiceRegistry.Instance.EventAggregator.Subscribe<Events.Screening.ScreeningStarted>(OnScreeningStarted);
+
+// Publish events
+ServiceRegistry.Instance.EventAggregator.Publish(new Events.Screening.ScreeningStarted(caller));
+```
+
+**Event Domains:**
+- `Core.Events.Screening` - Screening process events
+- `Core.Events.Queue` - Queue state events
+- `Core.Events.OnAir` - On-air caller events
+
+### Result Type Pattern
+
+Use `Result<T>` for operations that can fail:
+
+```csharp
+var result = repository.AddCaller(caller);
+if (result.IsSuccess)
+{
+    // Handle success
+}
+else
+{
+    GD.PrintErr($"Failed: {result.ErrorCode}: {result.ErrorMessage}");
+}
+
+// Or use pattern matching
+result.Switch(
+    onSuccess: caller => { /* ... */ },
+    onFailure: (message, code) => { GD.PrintErr($"{code}: {message}"); }
+);
+```
+
+### Repository Pattern
+
+Data access is encapsulated in repositories:
+
+```csharp
+// Define interfaces
+public interface ICallerRepository
+{
+    Result<Caller> AddCaller(Caller caller);
+    Result<Caller> StartScreening(Caller caller);
+    // ...
+}
+
+// Implementations are registered in ServiceRegistry
+```
+
+### UI Component Patterns
+
+1. **[Export] attributes** for node references instead of `GetNode<>()` with strings
+2. **ReactiveListPanel** for differential UI updates (no full rebuilds)
+3. **Centralized colors** in `scripts/ui/themes/UIColors.cs`
 
 ## Project Overview
 - **Engine**: Godot 4.x
 - **Template**: 2D Game
-- **Language**: GDScript
+- **Language**: C# (primary) with some GDScript
 - **Project**: project.godot
 
 ## Quick Start
@@ -166,14 +251,32 @@ WARNING: scene/resources/resource_format_text.cpp:444 - res://scenes/Main.tscn:1
 
 ## Testing
 
-### GDScript Unit Testing
-- Tests located in `tests/` directory (if implemented)
-- **Run tests**: Use Godot's built-in testing or external tools
-- **Command-line test run**:
-  ```bash
-  # Run with custom test runner if implemented
-  godot --script test_runner.gd
-  ```
+### GdUnit4 Testing Framework
+KBTV uses **GdUnit4** for unit and integration testing. See [TESTING.md](docs/testing/TESTING.md) for detailed setup and patterns.
+
+**Installation:**
+1. Open Godot 4.x
+2. Go to AssetLib
+3. Search for "GdUnit4"
+4. Download and import
+5. Restart Godot
+
+**Running Tests:**
+- **Editor**: GdUnit4 menu → Run Tests
+- **CLI**: `godot --script addons/gdUnit4/bin/GdUnit4Cmd.gd --quit`
+
+**Test Structure:**
+```
+tests/
+├── unit/
+│   ├── callers/
+│   ├── screening/
+│   ├── ui/
+│   └── core/
+└── integration/
+```
+
+**Coverage Target:** 80% unit test coverage minimum
 
 ### Script Validation
 Check GDScript syntax and basic validation:

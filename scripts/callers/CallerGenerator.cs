@@ -23,7 +23,7 @@ namespace KBTV.Callers
 
         private float _nextSpawnTime;
         private bool _isGenerating;
-        private CallerQueue _queue;
+        private ICallerRepository _repository;
         // TODO: Add when Topic is implemented
         // private Topic _currentTopic;
 
@@ -49,8 +49,21 @@ namespace KBTV.Callers
 
         public override void _Ready()
         {
+            if (ServiceRegistry.Instance == null)
+            {
+                GD.PrintErr("CallerGenerator: ServiceRegistry not available");
+                return;
+            }
+
+            _repository = ServiceRegistry.Instance.CallerRepository;
+
+            if (_repository == null)
+            {
+                GD.PrintErr("CallerGenerator: ICallerRepository not available");
+                return;
+            }
+
             _gameState = GameStateManager.Instance;
-            _queue = CallerQueue.Instance;
 
 			if (_gameState != null)
 			{
@@ -112,13 +125,14 @@ namespace KBTV.Callers
 
         private Caller TrySpawnCaller()
         {
-            if (_queue == null || !_queue.CanAcceptMoreCallers)
+            if (_repository == null || !_repository.CanAcceptMoreCallers)
             {
                 return null;
             }
 
             Caller caller = GenerateRandomCaller();
-            if (_queue.AddCaller(caller))
+            var result = _repository.AddCaller(caller);
+            if (result.IsSuccess)
             {
                 // GD.Print($"CallerGenerator: Generated caller {caller.Name}");
                 return caller;

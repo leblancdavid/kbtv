@@ -1,0 +1,80 @@
+using Godot;
+using KBTV.Callers;
+using KBTV.Core;
+using KBTV.Screening;
+
+namespace KBTV.Tests.Integration
+{
+    /// <summary>
+    /// Integration tests for the complete caller flow.
+    /// Tests the interaction between Repository, ScreeningController, and EventAggregator.
+    /// Uses GdUnit4 testing framework.
+    /// </summary>
+    public class CallerFlowIntegrationTests : Node
+    {
+        [Test]
+        public void FullFlow_AddToScreening_ToOnAir()
+        {
+            var repository = new CallerRepository();
+            var caller = CreateTestCaller("Test Caller", "555-0001");
+
+            var addResult = repository.AddCaller(caller);
+            Assert.IsTrue(addResult.IsSuccess);
+
+            var screeningResult = repository.StartScreening(caller);
+            Assert.IsTrue(screeningResult.IsSuccess);
+            Assert.IsTrue(repository.IsScreening);
+            Assert.AreEqual(caller, repository.CurrentScreening);
+
+            var approveResult = repository.ApproveScreening();
+            Assert.IsTrue(approveResult.IsSuccess);
+            Assert.IsFalse(repository.IsScreening);
+            Assert.IsTrue(repository.OnHoldCallers.Contains(caller));
+
+            var onAirResult = repository.PutOnAir();
+            Assert.IsTrue(onAirResult.IsSuccess);
+            Assert.AreEqual(caller, repository.OnAirCaller);
+        }
+
+        [Test]
+        public void FullFlow_AddToScreening_Reject()
+        {
+            var repository = new CallerRepository();
+            var caller = CreateTestCaller("Test Caller", "555-0002");
+
+            repository.AddCaller(caller);
+            repository.StartScreening(caller);
+
+            var rejectResult = repository.RejectScreening();
+            Assert.IsTrue(rejectResult.IsSuccess);
+
+            Assert.IsFalse(repository.HasIncomingCallers);
+            Assert.IsFalse(repository.IsScreening);
+        }
+
+        private Caller CreateTestCaller(string name, string phone)
+        {
+            return new Caller(
+                name,
+                phone,
+                "Test Location",
+                "Ghosts",
+                "Ghosts",
+                "Test Reason",
+                CallerLegitimacy.Credible,
+                CallerPhoneQuality.Good,
+                CallerEmotionalState.Calm,
+                CallerCurseRisk.Low,
+                CallerBeliefLevel.Curious,
+                CallerEvidenceLevel.None,
+                CallerCoherence.Coherent,
+                CallerUrgency.Low,
+                "nervous_hiker",
+                "test_arc",
+                "Test summary",
+                30f,
+                0.8f
+            );
+        }
+    }
+}

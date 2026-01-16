@@ -11,13 +11,26 @@ namespace KBTV.UI
     public partial class DebugHelper : Node
     {
         private GameStateManager _gameState;
-        private CallerQueue _callerQueue;
+        private ICallerRepository _repository;
         private CallerGenerator _callerGenerator;
 
         public override void _Ready()
         {
+            if (ServiceRegistry.Instance == null)
+            {
+                GD.PrintErr("DebugHelper: ServiceRegistry not available");
+            }
+            else
+            {
+                _repository = ServiceRegistry.Instance.CallerRepository;
+            }
+
+            if (_repository == null)
+            {
+                GD.PrintErr("DebugHelper: ICallerRepository not available");
+            }
+
             _gameState = GameStateManager.Instance;
-            _callerQueue = CallerQueue.Instance;
             _callerGenerator = CallerGenerator.Instance;
 
             // Reduced debug output to prevent TextEdit overflow issues
@@ -60,15 +73,16 @@ namespace KBTV.UI
 
         public void ApproveCaller()
         {
-            if (_callerQueue != null && _callerQueue.IsScreening)
+            if (_repository != null && _repository.IsScreening)
             {
-                if (_callerQueue.ApproveCurrentCaller())
+                var result = _repository.ApproveScreening();
+                if (result.IsSuccess)
                 {
                     GD.Print("DebugHelper: Approved caller");
                 }
                 else
                 {
-                    GD.Print("DebugHelper: Failed to approve caller");
+                    GD.Print($"DebugHelper: Failed to approve caller - {result.ErrorCode}: {result.ErrorMessage}");
                 }
             }
             else
@@ -79,15 +93,16 @@ namespace KBTV.UI
 
         public void RejectCaller()
         {
-            if (_callerQueue != null && _callerQueue.IsScreening)
+            if (_repository != null && _repository.IsScreening)
             {
-                if (_callerQueue.RejectCurrentCaller())
+                var result = _repository.RejectScreening();
+                if (result.IsSuccess)
                 {
                     GD.Print("DebugHelper: Rejected caller");
                 }
                 else
                 {
-                    GD.Print("DebugHelper: Failed to reject caller");
+                    GD.Print($"DebugHelper: Failed to reject caller - {result.ErrorCode}: {result.ErrorMessage}");
                 }
             }
             else
@@ -98,11 +113,12 @@ namespace KBTV.UI
 
         public void EndCall()
         {
-            if (_callerQueue != null && _callerQueue.IsOnAir)
+            if (_repository != null && _repository.IsOnAir)
             {
-                var caller = _callerQueue.EndCurrentCall();
-                if (caller != null)
+                var result = _repository.EndOnAir();
+                if (result.IsSuccess)
                 {
+                    var caller = result.Value;
                     GD.Print($"DebugHelper: Ended call with {caller.Name}");
                 }
             }
@@ -114,11 +130,12 @@ namespace KBTV.UI
 
         public void PutNextOnAir()
         {
-            if (_callerQueue != null && _callerQueue.HasOnHoldCallers)
+            if (_repository != null && _repository.HasOnHoldCallers)
             {
-                var caller = _callerQueue.PutNextCallerOnAir();
-                if (caller != null)
+                var result = _repository.PutOnAir();
+                if (result.IsSuccess)
                 {
+                    var caller = result.Value;
                     GD.Print($"DebugHelper: Put {caller.Name} on air");
                 }
             }
@@ -137,18 +154,18 @@ namespace KBTV.UI
                 GD.Print($"Night: {_gameState.CurrentNight}");
             }
 
-            if (_callerQueue != null)
+            if (_repository != null)
             {
-                GD.Print($"Incoming callers: {_callerQueue.IncomingCallers.Count}");
-                GD.Print($"On hold callers: {_callerQueue.OnHoldCallers.Count}");
-                GD.Print($"Is screening: {_callerQueue.IsScreening}");
-                GD.Print($"Is on air: {_callerQueue.IsOnAir}");
+                GD.Print($"Incoming callers: {_repository.IncomingCallers.Count}");
+                GD.Print($"On hold callers: {_repository.OnHoldCallers.Count}");
+                GD.Print($"Is screening: {_repository.IsScreening}");
+                GD.Print($"Is on air: {_repository.IsOnAir}");
 
-                if (_callerQueue.IsScreening)
-                    GD.Print($"Screening: {_callerQueue.CurrentScreening?.Name ?? "null"}");
+                if (_repository.IsScreening)
+                    GD.Print($"Screening: {_repository.CurrentScreening?.Name ?? "null"}");
 
-                if (_callerQueue.IsOnAir)
-                    GD.Print($"On air: {_callerQueue.OnAirCaller?.Name ?? "null"}");
+                if (_repository.IsOnAir)
+                    GD.Print($"On air: {_repository.OnAirCaller?.Name ?? "null"}");
             }
 
             GD.Print("======================");

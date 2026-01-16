@@ -1,160 +1,294 @@
+using System;
+using System.Linq;
 using Godot;
 using KBTV.Callers;
+using KBTV.Core;
+using KBTV.Screening;
+using KBTV.UI.Components;
+using KBTV.UI.Themes;
 
 namespace KBTV.UI
 {
-    /// <summary>
-    /// Self-contained caller tab component.
-    /// Manages its own lifecycle, connects to signals, and handles UI updates.
-    /// Follows Godot's component-based architecture with no external dependencies.
-    /// </summary>
     public partial class CallerTab : Control, ICallerActions
     {
-        private CallerQueue _callerQueue;
-        private CallerTabManager _tabManager;
+        [ExportGroup("Node References")]
+        [Export]
+        private Control? _incomingPanel;
 
-        // UI references (set in scene)
-        private Control _incomingPanel;
-        private Control _screeningPanel;
-        private Control _onHoldPanel;
+        [Export]
+        private Control? _screeningPanel;
+
+        [Export]
+        private Control? _onHoldPanel;
+
+        private ICallerRepository _repository = null!;
+        private IScreeningController _screeningController = null!;
+        private CallerTabManager _tabManager = null!;
+        private readonly CallerListAdapter _incomingAdapter = new();
 
         public override void _Ready()
         {
-            GD.Print("CallerTab: Initializing self-contained caller tab");
+            GD.Print("CallerTab: Initializing with Service Registry pattern");
 
-            // Get UI references from scene
-            _incomingPanel = GetNode<Control>("HBoxContainer/IncomingScroll/IncomingPanel");
-            _screeningPanel = GetNode<Control>("HBoxContainer/ScreeningContainer");
-            _onHoldPanel = GetNode<Control>("HBoxContainer/OnHoldScroll/OnHoldPanel");
+            CallDeferred(nameof(InitializeDeferred));
+        }
 
-            // Initialize dependencies
-            _callerQueue = CallerQueue.Instance;
-            if (_callerQueue == null)
+        private void InitializeDeferred()
+        {
+            if (!ServiceRegistry.IsInitialized)
             {
-                GD.PrintErr("CallerTab: CallerQueue not found!");
+                GD.PrintErr("CallerTab: ServiceRegistry not initialized, retrying...");
+                CallDeferred(nameof(InitializeDeferred));
                 return;
             }
 
-            // Create tab manager with self as actions handler
-            _tabManager = new CallerTabManager(_callerQueue, this);
-
-            // Connect to CallerQueue signals for real-time updates
-            _callerQueue.Connect("CallerAdded", Callable.From<Caller>(OnCallerAdded));
-            _callerQueue.Connect("CallerRemoved", Callable.From<Caller>(OnCallerRemoved));
-            _callerQueue.Connect("CallerApproved", Callable.From<Caller>(OnCallerApproved));
-
-            GD.Print("CallerTab: Connected to CallerQueue signals");
-
-            // Initial population
+            InitializeServices();
+            InitializeNodeReferences();
+            CreateTabManager();
+            SubscribeToEvents();
             PopulateTabContent();
 
             GD.Print("CallerTab: Initialization complete");
+        }
+
+        private void InitializeNodeReferences()
+        {
+            _incomingPanel = GetNode<Control>("HBoxContainer/IncomingScroll/IncomingPanel");
+            _screeningPanel = GetNode<Control>("HBoxContainer/ScreeningContainer");
+            _onHoldPanel = GetNode<Control>("HBoxContainer/OnHoldScroll/OnHoldPanel");
+        }
+
+        private void InitializeServices()
+        {
+            _repository = ServiceRegistry.Instance.CallerRepository;
+            _screeningController = ServiceRegistry.Instance.ScreeningController;
+        }
+
+        private void CreateTabManager()
+        {
+            _tabManager = new CallerTabManager(_repository, _screeningController, this);
+        }
+
+        private void SubscribeToEvents()
+        {
+            var events = ServiceRegistry.Instance.EventAggregator;
+
+            events?.Subscribe(this, (Core.Events.Queue.CallerAdded evt) => OnCallerAdded(evt));
+            events?.Subscribe(this, (Core.Events.Queue.CallerRemoved evt) => OnCallerRemoved(evt));
+            events?.Subscribe(this, (Core.Events.Queue.CallerStateChanged evt) => OnCallerStateChanged(evt));
+            events?.Subscribe(this, (Core.Events.Screening.ScreeningStarted evt) => OnScreeningStarted(evt));
+            events?.Subscribe(this, (Core.Events.Screening.ScreeningEnded evt) => OnScreeningEnded(evt));
+            events?.Subscribe(this, (Core.Events.Screening.ScreeningApproved evt) => OnScreeningApproved(evt));
+            events?.Subscribe(this, (Core.Events.Screening.ScreeningRejected evt) => OnScreeningRejected(evt));
         }
 
         private void PopulateTabContent()
         {
             GD.Print("CallerTab: Populating tab content");
 
-            // Debug: Check caller queue status
-            if (_callerQueue != null)
+            GD.Print($"CallerTab: Incoming callers: {_repository.IncomingCallers.Count}, " +
+                     $"On-hold: {_repository.OnHoldCallers.Count}, " +
+                     $"IsScreening: {_repository.IsScreening}");
+
+            CreateIncomingPanel();
+            CreateScreeningPanel();
+            CreateOnHoldPanel();
+        }
+
+        private void CreateIncomingPanel()
+        {
+            if (_incomingPanel == null)
             {
-                GD.Print($"CallerTab: Incoming callers: {_callerQueue.IncomingCallers.Count}, On-hold: {_callerQueue.OnHoldCallers.Count}, IsScreening: {_callerQueue.IsScreening}");
+                GD.PrintErr("CallerTab.CreateIncomingPanel: _incomingPanel is null - node not found in scene");
+                return;
+            }
+
+            ClearPanel(_incomingPanel);
+
+            var adapter = new CallerListAdapter();
+            var reactiveList = new ReactiveListPanel<Caller>
+            {
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                SizeFlagsVertical = SizeFlags.ExpandFill
+            };
+            reactiveList.SetAdapter(adapter);
+            reactiveList.SetData(_repository.IncomingCallers.ToList());
+
+            _incomingPanel.AddChild(reactiveList);
+
+            GD.Print($"CallerTab: Created incoming panel with {_repository.IncomingCallers.Count} callers");
+        }
+
+        private void CreateScreeningPanel()
+        {
+            if (_screeningPanel == null)
+            {
+                GD.PrintErr("CallerTab.CreateScreeningPanel: _screeningPanel is null - node not found in scene");
+                return;
+            }
+            ClearPanel(_screeningPanel, true);
+        }
+
+        private void CreateOnHoldPanel()
+        {
+            if (_onHoldPanel == null)
+            {
+                GD.PrintErr("CallerTab.CreateOnHoldPanel: _onHoldPanel is null - node not found in scene");
+                return;
+            }
+
+            ClearPanel(_onHoldPanel);
+
+            var rootContainer = new VBoxContainer
+            {
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                SizeFlagsVertical = SizeFlags.ExpandFill
+            };
+            _onHoldPanel.AddChild(rootContainer);
+
+            var header = new Label
+            {
+                Text = "ON HOLD",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                CustomMinimumSize = new Vector2(0, 24)
+            };
+            header.AddThemeColorOverride("font_color", UIColors.Queue.OnHold);
+            rootContainer.AddChild(header);
+
+            var spacer = new Control
+            {
+                CustomMinimumSize = new Vector2(0, 16),
+                SizeFlagsVertical = SizeFlags.ShrinkEnd
+            };
+            rootContainer.AddChild(spacer);
+
+            var listContainer = new VBoxContainer
+            {
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                SizeFlagsVertical = SizeFlags.ExpandFill
+            };
+            listContainer.AddThemeConstantOverride("separation", 4);
+            rootContainer.AddChild(listContainer);
+
+            if (_repository.OnHoldCallers.Count > 0)
+            {
+                foreach (var caller in _repository.OnHoldCallers)
+                {
+                    var callerLabel = new Label
+                    {
+                        Text = $"• {caller.Name} - {caller.Location}"
+                    };
+                    callerLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+                    listContainer.AddChild(callerLabel);
+                }
             }
             else
             {
-                GD.PrintErr("CallerTab: CallerQueue is null!");
+                var emptyLabel = new Label
+                {
+                    Text = "None",
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                emptyLabel.AddThemeColorOverride("font_color", UIColors.TEXT_DISABLED);
+                listContainer.AddChild(emptyLabel);
             }
 
-            // Create incoming callers panel
-            _tabManager.CreateIncomingPanel(_incomingPanel);
-
-            // Create screening panel
-            _tabManager.CreateScreeningPanel(_screeningPanel);
-
-            // Create on-hold callers panel
-            _tabManager.CreateOnHoldPanel(_onHoldPanel);
+            GD.Print($"CallerTab: Created on-hold panel with {_repository.OnHoldCallers.Count} callers");
         }
 
-        private void OnCallerAdded(Caller caller)
+        private void OnCallerAdded(Core.Events.Queue.CallerAdded evt)
         {
-            GD.Print($"CallerTab: Caller added - {caller.Name}");
+            GD.Print($"CallerTab: Caller added - {evt.Caller?.Name}");
             RefreshTabContent();
         }
 
-        private void OnCallerRemoved(Caller caller)
+        private void OnCallerRemoved(Core.Events.Queue.CallerRemoved evt)
         {
-            GD.Print($"CallerTab: Caller removed - {caller.Name}");
+            GD.Print($"CallerTab: Caller removed - {evt.Caller?.Name}");
             RefreshTabContent();
         }
 
-        private void OnCallerApproved(Caller caller)
+        private void OnCallerStateChanged(Core.Events.Queue.CallerStateChanged evt)
         {
-            GD.Print($"CallerTab: Caller approved - {caller.Name}");
+            RefreshTabContent();
+        }
+
+        private void OnScreeningStarted(Core.Events.Screening.ScreeningStarted evt)
+        {
+            GD.Print($"CallerTab: Screening started - {evt.Caller?.Name}");
+            RefreshTabContent();
+        }
+
+        private void OnScreeningEnded(Core.Events.Screening.ScreeningEnded evt)
+        {
+            GD.Print($"CallerTab: Screening ended - {evt.Caller?.Name}");
+            RefreshTabContent();
+        }
+
+        private void OnScreeningApproved(Core.Events.Screening.ScreeningApproved evt)
+        {
+            GD.Print($"CallerTab: Caller approved - {evt.Caller?.Name}");
+            RefreshTabContent();
+        }
+
+        private void OnScreeningRejected(Core.Events.Screening.ScreeningRejected evt)
+        {
+            GD.Print($"CallerTab: Caller rejected - {evt.Caller?.Name}");
             RefreshTabContent();
         }
 
         private void RefreshTabContent()
         {
-            // Clear existing content
-            ClearPanel(_incomingPanel, false);
-            ClearPanel(_screeningPanel, true);
-            ClearPanel(_onHoldPanel, false);
-
-            // Re-populate
             PopulateTabContent();
         }
 
-        private void ClearPanel(Control panel, bool isScreeningPanel)
+        private void ClearPanel(Control? panel, bool isScreeningPanel = false)
         {
-            foreach (var child in panel.GetChildren())
+            if (panel == null)
+            {
+                GD.PrintErr("CallerTab.ClearPanel: panel is null");
+                return;
+            }
+
+            foreach (var child in panel.GetChildren().ToList())
             {
                 panel.RemoveChild(child);
                 child.QueueFree();
             }
-            if (isScreeningPanel && _tabManager != null)
-            {
-                _tabManager.OnScreeningPanelCleared();
-            }
         }
 
-        // ICallerActions implementation
         public void OnApproveCaller()
         {
             GD.Print("CallerTab: Approve button pressed");
-            if (_callerQueue.ApproveCurrentCaller())
+            var result = _screeningController.Approve();
+            if (result.Success)
             {
                 GD.Print("CallerTab: Caller approved successfully");
-                RefreshTabContent();
             }
             else
             {
-                GD.PrintErr("CallerTab: Failed to approve caller");
+                GD.PrintErr($"CallerTab: Failed to approve caller: {result.ErrorCode}: {result.ErrorMessage}");
             }
         }
 
         public void OnRejectCaller()
         {
             GD.Print("CallerTab: Reject button pressed");
-            if (_callerQueue.RejectCurrentCaller())
+            var result = _screeningController.Reject();
+            if (result.Success)
             {
                 GD.Print("CallerTab: Caller rejected successfully");
-                RefreshTabContent();
             }
             else
             {
-                GD.PrintErr("CallerTab: Failed to reject caller");
+                GD.PrintErr($"CallerTab: Failed to reject caller: {result.ErrorCode}: {result.ErrorMessage}");
             }
         }
 
         public override void _ExitTree()
         {
-            // Clean up signal connections
-            if (_callerQueue != null)
-            {
-                _callerQueue.Disconnect("CallerAdded", Callable.From<Caller>(OnCallerAdded));
-                _callerQueue.Disconnect("CallerRemoved", Callable.From<Caller>(OnCallerRemoved));
-                _callerQueue.Disconnect("CallerApproved", Callable.From<Caller>(OnCallerApproved));
-            }
+            var events = ServiceRegistry.Instance?.EventAggregator;
+            events?.Unsubscribe(this);
 
             GD.Print("CallerTab: Cleanup complete");
         }

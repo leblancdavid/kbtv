@@ -1,7 +1,8 @@
 using Godot;
 using KBTV.Callers;
-using KBTV.Managers;
+using KBTV.Core;
 using KBTV.Economy;
+using KBTV.Managers;
 
 namespace KBTV.UI
 {
@@ -11,32 +12,39 @@ namespace KBTV.UI
     /// </summary>
     public partial class LiveShowHeader : Control
     {
-        private Label _onAirLabel;
-        private Label _listenersLabel;
-        private Label _moneyLabel;
+        private Label _onAirLabel = null!;
+        private Label _listenersLabel = null!;
+        private Label _moneyLabel = null!;
 
-        private CallerQueue _callerQueue;
-        private ListenerManager _listenerManager;
-        private EconomyManager _economyManager;
+        private ICallerRepository _repository = null!;
+        private ListenerManager _listenerManager = null!;
+        private EconomyManager _economyManager = null!;
 
         public override void _Ready()
         {
-            // Get UI references
+            CallDeferred(nameof(InitializeDeferred));
+        }
+
+        private void InitializeDeferred()
+        {
+            if (!Core.ServiceRegistry.IsInitialized)
+            {
+                GD.PrintErr("LiveShowHeader: ServiceRegistry not initialized, retrying...");
+                CallDeferred(nameof(InitializeDeferred));
+                return;
+            }
+
             _onAirLabel = GetNode<Label>("HBoxContainer/OnAirLabel");
             _listenersLabel = GetNode<Label>("HBoxContainer/ListenersLabel");
             _moneyLabel = GetNode<Label>("HBoxContainer/MoneyLabel");
 
-            // Get manager references
-            _callerQueue = CallerQueue.Instance;
+            _repository = Core.ServiceRegistry.Instance.CallerRepository;
             _listenerManager = ListenerManager.Instance;
             _economyManager = EconomyManager.Instance;
 
-            // Connect to signals
-            if (_callerQueue != null)
-            {
-                _callerQueue.Connect("CallerOnAir", Callable.From<Caller>(OnCallerOnAir));
-                _callerQueue.Connect("CallerCompleted", Callable.From<Caller>(OnCallerCompleted));
-            }
+            var events = Core.ServiceRegistry.Instance.EventAggregator;
+            events?.Subscribe(this, (Core.Events.OnAir.CallerOnAir evt) => OnCallerOnAir(evt));
+            events?.Subscribe(this, (Core.Events.OnAir.CallerOnAirEnded evt) => OnCallerCompleted(evt));
 
             if (_listenerManager != null)
             {
@@ -48,18 +56,17 @@ namespace KBTV.UI
                 _economyManager.Connect("MoneyChanged", Callable.From<int, int>(OnMoneyChanged));
             }
 
-            // Initial updates
             UpdateOnAirStatus();
             UpdateListeners();
             UpdateMoney();
         }
 
-        private void OnCallerOnAir(Caller caller)
+        private void OnCallerOnAir(Core.Events.OnAir.CallerOnAir evt)
         {
             UpdateOnAirStatus();
         }
 
-        private void OnCallerCompleted(Caller caller)
+        private void OnCallerCompleted(Core.Events.OnAir.CallerOnAirEnded evt)
         {
             UpdateOnAirStatus();
         }
@@ -76,9 +83,9 @@ namespace KBTV.UI
 
         private void UpdateOnAirStatus()
         {
-            if (_callerQueue != null && _onAirLabel != null)
+            if (_onAirLabel != null)
             {
-                bool isOnAir = _callerQueue.IsOnAir;
+                bool isOnAir = _repository.IsOnAir;
                 _onAirLabel.Text = "ON-AIR";
                 _onAirLabel.AddThemeColorOverride("font_color", isOnAir ? Colors.Green : Colors.Red);
             }
@@ -102,12 +109,8 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            // Clean up signal connections
-            if (_callerQueue != null)
-            {
-                _callerQueue.Disconnect("CallerOnAir", Callable.From<Caller>(OnCallerOnAir));
-                _callerQueue.Disconnect("CallerCompleted", Callable.From<Caller>(OnCallerCompleted));
-            }
+            var events = Core.ServiceRegistry.Instance?.EventAggregator;
+            events?.Unsubscribe(this);
 
             if (_listenerManager != null)
             {

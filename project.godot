@@ -17,6 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+ServiceRegistry="res://scripts/core/ServiceRegistry.cs"
 GameStateManager="res://scripts/core/GameStateManager.cs"
 TimeManager="res://scripts/managers/TimeManager.cs"
 ListenerManager="res://scripts/managers/ListenerManager.cs"
@@ -37,6 +38,10 @@ window/size/mode=2
 
 project/assembly_name="KBTV"
 project/assembly_version="1.0.0.0"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
 
 [input]
 

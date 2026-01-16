@@ -48,13 +48,26 @@ namespace KBTV.Managers
 
         private GameStateManager _gameState;
         private TimeManager _timeManager;
-        private CallerQueue _callerQueue;
+        private ICallerRepository _repository;
 
         public override void _Ready()
         {
+            if (ServiceRegistry.Instance == null)
+            {
+                GD.PrintErr("ListenerManager: ServiceRegistry not available");
+            }
+            else
+            {
+                _repository = ServiceRegistry.Instance.CallerRepository;
+            }
+
+            if (_repository == null)
+            {
+                GD.PrintErr("ListenerManager: ICallerRepository not available");
+            }
+
             _gameState = GameStateManager.Instance;
             _timeManager = TimeManager.Instance;
-            _callerQueue = CallerQueue.Instance;
 
 			if (_gameState != null)
 			{
@@ -66,12 +79,13 @@ namespace KBTV.Managers
                 _timeManager.Connect("Tick", Callable.From<float>(HandleTick));
             }
 
-            if (_callerQueue != null)
+            if (_repository != null)
             {
-                _callerQueue.Connect("CallerCompleted", Callable.From<Caller>(HandleCallerCompleted));
-                _callerQueue.Connect("CallerDisconnected", Callable.From<Caller>(HandleCallerDisconnected));
+                _repository.Subscribe(_repositoryObserver);
             }
         }
+
+        private readonly ICallerRepositoryObserver _repositoryObserver = new ListenerRepositoryObserver();
 
         public override void _ExitTree()
         {
@@ -85,10 +99,9 @@ namespace KBTV.Managers
                 _timeManager.Disconnect("Tick", Callable.From<float>(HandleTick));
             }
 
-            if (_callerQueue != null)
+            if (_repository != null)
             {
-                _callerQueue.Disconnect("CallerCompleted", Callable.From<Caller>(HandleCallerCompleted));
-                _callerQueue.Disconnect("CallerDisconnected", Callable.From<Caller>(HandleCallerDisconnected));
+                _repository.Unsubscribe(_repositoryObserver);
             }
         }
 
@@ -267,5 +280,12 @@ namespace KBTV.Managers
                 GD.Print($"ListenerManager: Unexpected disconnect - Caller '{caller.Name}' state was {caller.State}");
             }
         }
+    }
+
+    internal class ListenerRepositoryObserver : ICallerRepositoryObserver
+    {
+        public void OnCallerAdded(Caller caller) { }
+        public void OnCallerRemoved(Caller caller) { }
+        public void OnCallerStateChanged(Caller caller, CallerState oldState, CallerState newState) { }
     }
 }

@@ -1,0 +1,104 @@
+using Godot;
+using KBTV.Callers;
+using KBTV.Core;
+
+namespace KBTV.Tests.Unit.Core
+{
+    /// <summary>
+    /// Unit tests for the Result type pattern.
+    /// Uses GdUnit4 testing framework.
+    /// </summary>
+    public class ResultTests : Node
+    {
+        [Test]
+        public void Result_Ok_ReturnsSuccess()
+        {
+            var result = Result<string>.Ok("test");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual("test", result.Value);
+            Assert.AreEqual("", result.ErrorMessage);
+        }
+
+        [Test]
+        public void Result_Fail_ReturnsFailure()
+        {
+            var result = Result<string>.Fail("Something went wrong", "ERROR_CODE");
+
+            Assert.IsFalse(result.IsSuccess);
+            Assert.IsNull(result.Value);
+            Assert.AreEqual("Something went wrong", result.ErrorMessage);
+            Assert.AreEqual("ERROR_CODE", result.ErrorCode);
+        }
+
+        [Test]
+        public void Result_Switch_CallsSuccessHandler()
+        {
+            var result = Result<int>.Ok(42);
+            bool successCalled = false;
+            bool failureCalled = false;
+
+            result.Switch(
+                onSuccess: v => { successCalled = true; Assert.AreEqual(42, v); },
+                onFailure: (msg, code) => { failureCalled = true; }
+            );
+
+            Assert.IsTrue(successCalled);
+            Assert.IsFalse(failureCalled);
+        }
+
+        [Test]
+        public void Result_Switch_CallsFailureHandler()
+        {
+            var result = Result<int>.Fail("Error", "CODE");
+            bool successCalled = false;
+            bool failureCalled = false;
+
+            result.Switch(
+                onSuccess: v => { successCalled = true; },
+                onFailure: (msg, code) => { failureCalled = true; Assert.AreEqual("Error", msg); }
+            );
+
+            Assert.IsFalse(successCalled);
+            Assert.IsTrue(failureCalled);
+        }
+
+        [Test]
+        public void Result_Map_TransformsValue()
+        {
+            var result = Result<int>.Ok(10);
+            var mapped = result.Map(v => v * 2);
+
+            Assert.IsTrue(mapped.IsSuccess);
+            Assert.AreEqual(20, mapped.Value);
+        }
+
+        [Test]
+        public void Result_Map_PropagatesFailure()
+        {
+            var result = Result<int>.Fail("Error", "CODE");
+            var mapped = result.Map(v => v * 2);
+
+            Assert.IsFalse(mapped.IsSuccess);
+            Assert.AreEqual("Error", mapped.ErrorMessage);
+        }
+
+        [Test]
+        public void Result_Extensions_Try_Succeeds()
+        {
+            var result = ResultExtensions.Try(() => "success");
+
+            Assert.IsTrue(result.IsSuccess);
+            Assert.AreEqual("success", result.Value);
+        }
+
+        [Test]
+        public void Result_Extensions_Try_CatchesException()
+        {
+            var result = ResultExtensions.Try<int>(() => throw new System.Exception("test error"));
+
+            Assert.IsFalse(result.IsSuccess);
+            Assert.AreEqual("test error", result.ErrorMessage);
+        }
+    }
+}

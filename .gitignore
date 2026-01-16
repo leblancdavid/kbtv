@@ -19,6 +19,9 @@ data_*/
 # Optional addons
 # addons/
 
+# GdUnit4 testing framework
+addons/gdUnit4/
+
 # Audio generation tools
 /Tools/AudioGeneration/voices/
 /Tools/AudioGeneration/temp/
@@ -40,6 +43,17 @@ data_*/
 __pycache__/
 *.pyc
 *.pyo
+
+# .NET/C# build artifacts
+*.dll
+*.pdb
+*.mdb
+bin/
+obj/
+*.user
+*.binlog
+*.ipdb
+*.updb
 
 # OS-specific
 .DS_Store

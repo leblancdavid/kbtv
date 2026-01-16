@@ -1,37 +1,67 @@
+using System;
 using Godot;
 using KBTV.Callers;
+using KBTV.Core;
+using KBTV.UI.Components;
+using KBTV.UI.Themes;
 
 namespace KBTV.UI
 {
-    public partial class CallerQueueItem : Panel
+    public partial class CallerQueueItem : Panel, ICallerListItem
     {
-        private Caller _caller;
-        private Label _nameLabel;
-        private ProgressBar _statusIndicator;
+        [ExportGroup("Node References")]
+        [Export]
+        private Label _nameLabel = null!;
+
+        [Export]
+        private ProgressBar _statusIndicator = null!;
+
+        private Caller? _caller;
+        private ICallerRepository? _repository;
 
         public override void _Ready()
         {
-            _nameLabel = GetNode<Label>("HBoxContainer/NameLabel");
-            _statusIndicator = GetNode<ProgressBar>("HBoxContainer/StatusIndicator");
+            CallDeferred(nameof(InitializeDeferred));
+        }
+
+        private void InitializeDeferred()
+        {
+            if (!Core.ServiceRegistry.IsInitialized)
+            {
+                GD.PrintErr("CallerQueueItem: ServiceRegistry not initialized, retrying...");
+                CallDeferred(nameof(InitializeDeferred));
+                return;
+            }
+
+            _repository = Core.ServiceRegistry.Instance.CallerRepository;
 
             GuiInput += OnGuiInput;
 
-            if (CallerQueue.Instance != null)
-            {
-                CallerQueue.Instance.ScreeningChanged += OnScreeningChanged;
-            }
+            var events = Core.ServiceRegistry.Instance.EventAggregator;
+            events?.Subscribe<Core.Events.Queue.CallerStateChanged>(this, OnCallerStateChanged);
+            events?.Subscribe<Core.Events.Screening.ScreeningStarted>(this, OnScreeningStarted);
+
+            UpdateVisualSelection();
         }
 
-        private void OnScreeningChanged()
+        public void SetCaller(Caller? caller)
+        {
+            _caller = caller;
+            ApplyCallerName(caller?.Name ?? "");
+            UpdateStatusIndicator();
+            UpdateVisualSelection();
+        }
+
+        public void SetSelected(bool selected)
         {
             UpdateVisualSelection();
         }
 
-        public override void _ExitTree()
+        private void ApplyCallerName(string name)
         {
-            if (CallerQueue.Instance != null)
+            if (_nameLabel != null)
             {
-                CallerQueue.Instance.ScreeningChanged -= OnScreeningChanged;
+                _nameLabel.Text = name;
             }
         }
 
@@ -45,7 +75,9 @@ namespace KBTV.UI
 
         private void OnGuiInput(InputEvent @event)
         {
-            if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed && mouseEvent.ButtonIndex == MouseButton.Left)
+            if (@event is InputEventMouseButton mouseEvent &&
+                mouseEvent.Pressed &&
+                mouseEvent.ButtonIndex == MouseButton.Left)
             {
                 OnItemClicked();
             }
@@ -53,88 +85,90 @@ namespace KBTV.UI
 
         private void OnItemClicked()
         {
-            if (_caller != null && CallerQueue.Instance != null)
+            if (_caller == null || _repository == null)
             {
-                bool success = CallerQueue.Instance.ReplaceScreeningCaller(_caller);
-                if (success)
-                {
-                    GD.Print($"Replaced screening with caller {_caller.Name}");
-                }
-                else
-                {
-                    GD.PrintErr($"Failed to replace screening caller {_caller.Name}");
-                }
+                return;
+            }
+
+            if (_repository.CurrentScreening == _caller)
+            {
+                return;
+            }
+
+            var success = _repository.StartScreening(_caller);
+            if (success.IsSuccess)
+            {
+                GD.Print($"CallerQueueItem: Started screening {_caller.Name}");
+            }
+            else
+            {
+                GD.PrintErr($"CallerQueueItem: Failed to start screening - {success.ErrorMessage}");
             }
         }
 
-        public void SetCaller(Caller caller)
+        private void OnCallerStateChanged(Core.Events.Queue.CallerStateChanged evt)
         {
-            _caller = caller;
-            CallDeferred(nameof(_ApplyCallerName), caller?.Name ?? "");
+            if (evt.Caller == _caller)
+            {
+                UpdateVisualSelection();
+            }
         }
 
-        private void _ApplyCallerName(string name)
+        private void OnScreeningStarted(Core.Events.Screening.ScreeningStarted evt)
         {
-            if (_nameLabel != null)
+            if (evt.Caller == _caller)
             {
-                _nameLabel.Text = name;
+                UpdateVisualSelection();
             }
-            UpdateStatusIndicator();
-            UpdateVisualSelection();
         }
 
         private void UpdateVisualSelection()
         {
-            if (_caller == null || _statusIndicator == null) return;
-
-            bool isScreening = CallerQueue.Instance?.CurrentScreening == _caller;
-
-            var style = new StyleBoxFlat();
-            style.CornerRadiusTopLeft = 4;
-            style.CornerRadiusTopRight = 4;
-            style.CornerRadiusBottomRight = 4;
-            style.CornerRadiusBottomLeft = 4;
-
-            if (isScreening)
+            if (_caller == null || _statusIndicator == null)
             {
-                style.BgColor = new Color(0.2f, 0.5f, 0.2f);
+                return;
             }
-            else
+
+            bool isScreening = _repository?.CurrentScreening == _caller;
+
+            var style = new StyleBoxFlat
             {
-                style.BgColor = new Color(0.2f, 0.2f, 0.2f, 1f);
-            }
+                CornerRadiusTopLeft = 4,
+                CornerRadiusTopRight = 4,
+                CornerRadiusBottomRight = 4,
+                CornerRadiusBottomLeft = 4,
+                BgColor = isScreening ? UIColors.Screening.Selected : UIColors.Screening.Default
+            };
 
             AddThemeStyleboxOverride("panel", style);
             AddThemeStyleboxOverride("panel_pressed", style);
             QueueRedraw();
+
+            if (_nameLabel != null)
+            {
+                _nameLabel.AddThemeColorOverride("font_color",
+                    isScreening ? UIColors.Screening.SelectedText : UIColors.Screening.DefaultText);
+            }
         }
 
         private void UpdateStatusIndicator()
         {
-            if (_caller == null || _statusIndicator == null) return;
+            if (_caller == null || _statusIndicator == null)
+            {
+                return;
+            }
 
-            // Calculate remaining patience
             float remainingPatience = _caller.Patience - _caller.WaitTime;
             float patienceRatio = Mathf.Clamp(remainingPatience / _caller.Patience, 0f, 1f);
 
             _statusIndicator.Value = patienceRatio;
+            _statusIndicator.AddThemeColorOverride("fill", UIColors.GetPatienceColor(patienceRatio));
+        }
 
-            // Color coding based on patience level
-            Color color;
-            if (patienceRatio > 0.66f)
-            {
-                color = new Color(0f, 1f, 0f); // Green
-            }
-            else if (patienceRatio > 0.33f)
-            {
-                color = new Color(1f, 1f, 0f); // Yellow
-            }
-            else
-            {
-                color = new Color(1f, 0f, 0f); // Red
-            }
-
-            _statusIndicator.AddThemeColorOverride("fill", color);
+        public override void _ExitTree()
+        {
+            var events = Core.ServiceRegistry.Instance?.EventAggregator;
+            events?.Unsubscribe(this);
         }
     }
 }

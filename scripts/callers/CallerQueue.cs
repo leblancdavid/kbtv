@@ -1,287 +1,270 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using KBTV.Core;
-// TODO: Add when ported - using KBTV.Ads;
-// TODO: Add when ported - using KBTV.Audio;
 
 namespace KBTV.Callers
 {
-	public partial class CallerQueue : Node
-	{
-		[Signal] public delegate void CallerAddedEventHandler(Caller caller);
-		[Signal] public delegate void CallerRemovedEventHandler(Caller caller);
-		[Signal] public delegate void CallerDisconnectedEventHandler(Caller caller);
-		[Signal] public delegate void CallerOnAirEventHandler(Caller caller);
-		[Signal] public delegate void CallerCompletedEventHandler(Caller caller);
-		[Signal] public delegate void CallerApprovedEventHandler(Caller caller);
-		[Signal] public delegate void ScreeningChangedEventHandler();
+    /// <summary>
+    /// Legacy wrapper for backward compatibility.
+    /// Delegates to ICallerRepository and handles patience updates.
+    /// Use ServiceRegistry.Instance.CallerRepository for new code.
+    /// </summary>
+    [Obsolete("Use ICallerRepository from ServiceRegistry instead")]
+    public partial class CallerQueue : Node, ICallerRepositoryObserver
+    {
+        [Signal] public delegate void CallerAddedEventHandler(Caller caller);
+        [Signal] public delegate void CallerRemovedEventHandler(Caller caller);
+        [Signal] public delegate void CallerDisconnectedEventHandler(Caller caller);
+        [Signal] public delegate void CallerOnAirEventHandler(Caller caller);
+        [Signal] public delegate void CallerCompletedEventHandler(Caller caller);
+        [Signal] public delegate void CallerApprovedEventHandler(Caller caller);
+        [Signal] public delegate void ScreeningChangedEventHandler();
 
-		public static CallerQueue Instance => (CallerQueue)((SceneTree)Engine.GetMainLoop()).Root.GetNode("/root/CallerQueue");
+        private ICallerRepository _repository = null!;
 
-		private Dictionary<Caller, Action> _disconnectHandlers = new();
-		private List<Caller> _incomingCallers = new();
-		private List<Caller> _onHoldCallers = new();
-		private Caller _currentScreening;
-		private Caller _onAirCaller;
+        public bool CanAcceptMoreCallers => _repository.CanAcceptMoreCallers;
+        public bool CanPutOnHold => _repository.CanPutOnHold;
+        public bool IsScreening => _repository.IsScreening;
+        public bool IsOnAir => _repository.IsOnAir;
+        public Caller? OnAirCaller => _repository.OnAirCaller;
+        public IReadOnlyList<Caller> IncomingCallers => _repository.IncomingCallers;
+        public IReadOnlyList<Caller> OnHoldCallers => _repository.OnHoldCallers;
+        public Caller? CurrentScreening => _repository.CurrentScreening;
+        public bool HasIncomingCallers => _repository.HasIncomingCallers;
+        public bool HasOnHoldCallers => _repository.HasOnHoldCallers;
 
-		public bool CanAcceptMoreCallers => _incomingCallers.Count < 10; // Max 10 incoming callers
-		public bool CanPutOnHold => _onHoldCallers.Count < 10; // Max 10 on-hold callers
-		public bool IsScreening => _currentScreening != null;
-		public bool IsOnAir => _onAirCaller != null;
-		public Caller OnAirCaller => _onAirCaller;
-		public IReadOnlyList<Caller> IncomingCallers => _incomingCallers;
-		public IReadOnlyList<Caller> OnHoldCallers => _onHoldCallers;
-		public Caller CurrentScreening => _currentScreening;
-		public bool HasIncomingCallers => _incomingCallers.Count > 0;
-		public bool HasOnHoldCallers => _onHoldCallers.Count > 0;
+        public override void _Ready()
+        {
+            if (ServiceRegistry.Instance == null)
+            {
+                GD.PrintErr("CallerQueue: ServiceRegistry not available");
+                return;
+            }
+
+            _repository = ServiceRegistry.Instance.CallerRepository;
+
+            if (_repository == null)
+            {
+                GD.PrintErr("CallerQueue: ICallerRepository not available");
+                return;
+            }
+
+            _repository.Subscribe(this);
+
+            var events = ServiceRegistry.Instance.EventAggregator;
+            if (events == null)
+            {
+                GD.Print("WARNING: CallerQueue: EventAggregator not available");
+                return;
+            }
+
+            events.Subscribe<Core.Events.Screening.ScreeningApproved>(this, OnScreeningApproved);
+            events.Subscribe<Core.Events.Screening.ScreeningRejected>(this, OnScreeningRejected);
+            events.Subscribe<Core.Events.Screening.ScreeningStarted>(this, OnScreeningStarted);
+            events.Subscribe<Core.Events.OnAir.CallerOnAir>(this, OnCallerOnAir);
+            events.Subscribe<Core.Events.OnAir.CallerOnAirEnded>(this, OnCallerOnAirEnded);
+
+            GD.Print("CallerQueue: Initialized (legacy wrapper)");
+        }
+
+        public override void _ExitTree()
+        {
+            if (_repository != null)
+            {
+                _repository.Unsubscribe(this);
+            }
+
+            var events = ServiceRegistry.Instance?.EventAggregator;
+            if (events == null)
+            {
+                return;
+            }
+
+            events.Unsubscribe<Core.Events.Screening.ScreeningApproved>(this);
+            events.Unsubscribe<Core.Events.Screening.ScreeningRejected>(this);
+            events.Unsubscribe<Core.Events.Screening.ScreeningStarted>(this);
+            events.Unsubscribe<Core.Events.OnAir.CallerOnAir>(this);
+            events.Unsubscribe<Core.Events.OnAir.CallerOnAirEnded>(this);
+        }
 
         public override void _Process(double delta)
         {
+            if (_repository == null)
+            {
+                return;
+            }
             UpdateCallerPatience((float)delta);
         }
 
-        /// <summary>
-        /// Add a new incoming caller to the queue.
-        /// </summary>
         public bool AddCaller(Caller caller)
         {
-            if (!CanAcceptMoreCallers)
+            if (_repository == null)
             {
+                GD.PrintErr("CallerQueue: Repository not available");
                 return false;
             }
-
-            caller.SetState(CallerState.Incoming);
-
-            // Track handler to prevent memory leak
-            Action handler = () => HandleCallerDisconnected(caller);
-            _disconnectHandlers[caller] = handler;
-            caller.OnDisconnected += handler;
-
-            _incomingCallers.Add(caller);
-
-            EmitSignal("CallerAdded", caller);
-            return true;
+            var result = _repository.AddCaller(caller);
+            return result.IsSuccess;
         }
 
-        /// <summary>
-        /// Start screening the next incoming caller.
-        /// </summary>
-        public Caller StartScreeningNext()
+        public Caller? StartScreeningNext()
         {
-            if (_currentScreening != null)
+            if (_repository == null)
             {
-                GD.Print("CallerQueue: Already screening a caller");
+                GD.PrintErr("CallerQueue: Repository not available");
                 return null;
             }
-
-            if (_incomingCallers.Count == 0)
-            {
-                return null;
-            }
-
-            _currentScreening = _incomingCallers[0];
-            _incomingCallers.RemoveAt(0);
-            _currentScreening.SetState(CallerState.Screening);
-
-            return _currentScreening;
+            var result = _repository.StartScreeningNext();
+            return result.ValueOrDefault();
         }
 
-        /// <summary>
-        /// Start screening a specific incoming caller.
-        /// Caller stays visible in the incoming list.
-        /// </summary>
         public bool StartScreeningCaller(Caller caller)
         {
-            if (_currentScreening != null)
+            if (_repository == null)
             {
-                GD.Print("CallerQueue: Already screening a caller");
+                GD.PrintErr("CallerQueue: Repository not available");
                 return false;
             }
-
-            _currentScreening = caller;
-            _currentScreening.SetState(CallerState.Screening);
-            EmitSignal("ScreeningChanged");
-
-            return true;
+            var result = _repository.StartScreening(caller);
+            return result.IsSuccess;
         }
 
-        /// <summary>
-        /// Replace the current screening caller with a new one.
-        /// The current screening caller stays visible in the incoming list.
-        /// </summary>
         public bool ReplaceScreeningCaller(Caller caller)
         {
-            if (_currentScreening != null)
+            if (caller == null)
             {
-                _currentScreening.SetState(CallerState.Incoming);
-                _currentScreening = null;
+                return false;
             }
 
-            return StartScreeningCaller(caller);
+            if (IsScreening && CurrentScreening != null)
+            {
+                _repository.SetCallerState(CurrentScreening, CallerState.Incoming);
+            }
+
+            return _repository.StartScreening(caller).IsSuccess;
         }
 
-        /// <summary>
-        /// Approve the current caller and put them on hold.
-        /// </summary>
         public bool ApproveCurrentCaller()
         {
-            if (_currentScreening == null)
+            if (_repository == null)
             {
-                GD.Print("CallerQueue: No caller being screened");
+                GD.PrintErr("CallerQueue: Repository not available");
                 return false;
             }
-
-            if (!CanPutOnHold)
-            {
-                GD.Print("CallerQueue: On-hold queue is full");
-                return false;
-            }
-
-            _currentScreening.SetState(CallerState.OnHold);
-            _onHoldCallers.Add(_currentScreening);
-
-            Caller approved = _currentScreening;
-            _currentScreening = null;
-            EmitSignal("CallerApproved", approved);
-            EmitSignal("ScreeningChanged");
-            return true;
+            var result = _repository.ApproveScreening();
+            return result.IsSuccess;
         }
 
-        /// <summary>
-        /// Reject the current caller.
-        /// </summary>
         public bool RejectCurrentCaller()
         {
-            if (_currentScreening == null)
+            if (_repository == null)
             {
-                GD.Print("CallerQueue: No caller being screened");
+                GD.PrintErr("CallerQueue: Repository not available");
                 return false;
             }
-
-            _currentScreening.SetState(CallerState.Rejected);
-
-            UnsubscribeCaller(_currentScreening);
-            EmitSignal("CallerRemoved", _currentScreening);
-            EmitSignal("ScreeningChanged");
-            _currentScreening = null;
-            return true;
+            var result = _repository.RejectScreening();
+            return result.IsSuccess;
         }
 
-        /// <summary>
-        /// Put the next on-hold caller on air with Vern.
-        /// Blocked during bumpers and ad breaks to prevent audio interruption.
-        /// </summary>
-        public Caller PutNextCallerOnAir()
+        public Caller? PutNextCallerOnAir()
         {
-            // TODO: Block during bumpers and ad breaks
-            // if (AdManager.Instance?.IsInBreak == true)
-            // {
-            //     GD.Print("CallerQueue: Cannot put caller on air during ad break");
-            //     return null;
-            // }
-            // if (AudioManager.Instance?.IsPlayingBumper == true)
-            // {
-            //     GD.Print("CallerQueue: Cannot put caller on air during bumper");
-            //     return null;
-            // }
-
-            if (_onAirCaller != null)
+            if (_repository == null)
             {
-                GD.Print("CallerQueue: Already have a caller on air");
+                GD.PrintErr("CallerQueue: Repository not available");
                 return null;
             }
-
-            if (_onHoldCallers.Count == 0)
-            {
-                return null;
-            }
-
-            _onAirCaller = _onHoldCallers[0];
-            _onHoldCallers.RemoveAt(0);
-            _onAirCaller.SetState(CallerState.OnAir);
-
-            EmitSignal("CallerOnAir", _onAirCaller);
-            return _onAirCaller;
+            var result = _repository.PutOnAir();
+            return result.ValueOrDefault();
         }
 
-        /// <summary>
-        /// End the current on-air call.
-        /// </summary>
-        public Caller EndCurrentCall()
+        public Caller? EndCurrentCall()
         {
-            if (_onAirCaller == null)
+            if (_repository == null)
             {
-                GD.Print("CallerQueue: No caller on air");
+                GD.PrintErr("CallerQueue: Repository not available");
                 return null;
             }
-
-            _onAirCaller.SetState(CallerState.Completed);
-            Caller completed = _onAirCaller;
-
-            UnsubscribeCaller(_onAirCaller);
-            EmitSignal("CallerCompleted", _onAirCaller);
-            _onAirCaller = null;
-            return completed;
+            var result = _repository.EndOnAir();
+            return result.ValueOrDefault();
         }
 
-        /// <summary>
-        /// Clear all callers (used when show ends).
-        /// </summary>
         public void ClearAll()
         {
-            // Unsubscribe from all callers
-            foreach (var caller in _incomingCallers)
-                UnsubscribeCaller(caller);
-            foreach (var caller in _onHoldCallers)
-                UnsubscribeCaller(caller);
-            if (_currentScreening != null)
-                UnsubscribeCaller(_currentScreening);
-            if (_onAirCaller != null)
-                UnsubscribeCaller(_onAirCaller);
-
-            _incomingCallers.Clear();
-            _onHoldCallers.Clear();
-            _currentScreening = null;
-            _onAirCaller = null;
+            if (_repository == null)
+            {
+                return;
+            }
+            _repository.ClearAll();
         }
 
         private void UpdateCallerPatience(float deltaTime)
         {
-            // Update incoming callers
-            for (int i = _incomingCallers.Count - 1; i >= 0; i--)
+            foreach (var caller in _repository.IncomingCallers.ToList())
             {
-                if (_incomingCallers[i].UpdateWaitTime(deltaTime))
+                if (caller.UpdateWaitTime(deltaTime))
                 {
-                    // Caller hung up
-                    var caller = _incomingCallers[i];
-                    UnsubscribeCaller(caller);
-                    _incomingCallers.RemoveAt(i);
+                    _repository.RemoveCaller(caller);
                 }
             }
 
-            // Note: OnHold callers don't tick - they're committed once approved
-            // Their patience check is skipped in Caller.UpdateWaitTime()
-
-            // Update screening caller
-            _currentScreening?.UpdateWaitTime(deltaTime);
+            _repository.CurrentScreening?.UpdateWaitTime(deltaTime);
         }
 
-        /// <summary>
-        /// Unsubscribe from a caller's events and clean up handler reference.
-        /// </summary>
-        private void UnsubscribeCaller(Caller caller)
+        private void OnScreeningApproved(Core.Events.Screening.ScreeningApproved evt)
         {
-            if (_disconnectHandlers.TryGetValue(caller, out Action handler))
+            if (evt.Caller != null)
             {
-                caller.OnDisconnected -= handler;
-                _disconnectHandlers.Remove(caller);
+                EmitSignal("CallerApproved", evt.Caller);
+                EmitSignal("ScreeningChanged");
             }
         }
 
-        private void HandleCallerDisconnected(Caller caller)
+        private void OnScreeningRejected(Core.Events.Screening.ScreeningRejected evt)
         {
+            EmitSignal("CallerRemoved", evt.Caller);
+            EmitSignal("ScreeningChanged");
+        }
+
+        private void OnScreeningStarted(Core.Events.Screening.ScreeningStarted evt)
+        {
+            EmitSignal("ScreeningChanged");
+        }
+
+        private void OnCallerOnAir(Core.Events.OnAir.CallerOnAir evt)
+        {
+            if (evt.Caller != null)
+            {
+                EmitSignal("CallerOnAir", evt.Caller);
+            }
+        }
+
+        private void OnCallerOnAirEnded(Core.Events.OnAir.CallerOnAirEnded evt)
+        {
+            if (evt.Caller != null)
+            {
+                EmitSignal("CallerCompleted", evt.Caller);
+            }
+        }
+
+        public void OnCallerAdded(Caller caller)
+        {
+            EmitSignal("CallerAdded", caller);
+        }
+
+        public void OnCallerRemoved(Caller caller)
+        {
+            EmitSignal("CallerRemoved", caller);
             EmitSignal("CallerDisconnected", caller);
+        }
+
+        public void OnCallerStateChanged(Caller caller, CallerState oldState, CallerState newState)
+        {
+            if (newState == CallerState.Disconnected)
+            {
+                EmitSignal("CallerDisconnected", caller);
+            }
         }
     }
 }
