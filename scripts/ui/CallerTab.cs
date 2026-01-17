@@ -15,18 +15,19 @@ namespace KBTV.UI
     {
         [ExportGroup("Node References")]
         [Export]
-        private Control? _incomingPanel;
+        private VBoxContainer? _incomingPanel;
 
         [Export]
         private Control? _screeningPanel;
 
         [Export]
-        private Control? _onHoldPanel;
+        private VBoxContainer? _onHoldPanel;
 
         private ICallerRepository _repository = null!;
         private IScreeningController _screeningController = null!;
         private CallerTabManager _tabManager = null!;
         private readonly CallerListAdapter _incomingAdapter = new();
+        private ReactiveListPanel<Caller>? _reactiveListPanel;
 
         public override void _Ready()
         {
@@ -55,9 +56,9 @@ namespace KBTV.UI
 
         private void InitializeNodeReferences()
         {
-            _incomingPanel = GetNode<Control>("HBoxContainer/IncomingScroll/IncomingPanel");
+            _incomingPanel = GetNode<VBoxContainer>("HBoxContainer/IncomingScroll/IncomingList");
             _screeningPanel = GetNode<Control>("HBoxContainer/ScreeningContainer");
-            _onHoldPanel = GetNode<Control>("HBoxContainer/OnHoldScroll/OnHoldPanel");
+            _onHoldPanel = GetNode<VBoxContainer>("HBoxContainer/OnHoldScroll/OnHoldList");
         }
 
         private void InitializeServices()
@@ -105,38 +106,54 @@ namespace KBTV.UI
                 return;
             }
 
-            ClearPanel(_incomingPanel);
-
-            var rootContainer = new VBoxContainer
+            // Only create the panel structure once
+            if (_reactiveListPanel == null)
             {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill,
-                SizeFlagsVertical = SizeFlags.ExpandFill
-            };
-            _incomingPanel.AddChild(rootContainer);
+                // Clear existing children but keep the container
+                foreach (var child in _incomingPanel.GetChildren().ToList())
+                {
+                    _incomingPanel.RemoveChild(child);
+                    child.QueueFree();
+                }
 
-            var header = new Label
-            {
-                Text = "INCOMING CALLERS",
-                HorizontalAlignment = HorizontalAlignment.Center,
-                CustomMinimumSize = new Vector2(0, 24)
-            };
-            header.AddThemeColorOverride("font_color", UIColors.Queue.Incoming);
-            rootContainer.AddChild(header);
+                var header = new Label
+                {
+                    Text = "INCOMING CALLERS",
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    CustomMinimumSize = new Vector2(0, 24)
+                };
+                header.AddThemeColorOverride("font_color", UIColors.Queue.Incoming);
+                _incomingPanel.AddChild(header);
 
-            var spacer = new Control
-            {
-                CustomMinimumSize = new Vector2(0, 16),
-                SizeFlagsVertical = SizeFlags.ShrinkEnd
-            };
-            rootContainer.AddChild(spacer);
+                var spacer = new Control
+                {
+                    CustomMinimumSize = new Vector2(0, 16),
+                    SizeFlagsVertical = SizeFlags.ShrinkEnd
+                };
+                _incomingPanel.AddChild(spacer);
 
-            var adapter = new CallerListAdapter();
-            var reactiveList = new ReactiveListPanel<Caller>
+                _reactiveListPanel = new ReactiveListPanel<Caller>
+                {
+                    SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                    SizeFlagsVertical = SizeFlags.ExpandFill
+                };
+                _reactiveListPanel.SetAdapter(_incomingAdapter);
+
+                _incomingPanel.AddChild(_reactiveListPanel);
+
+                GD.Print("CallerTab: Created persistent incoming panel");
+            }
+
+            // Always update the data
+            UpdateIncomingPanelData();
+        }
+
+        private void UpdateIncomingPanelData()
+        {
+            if (_reactiveListPanel == null)
             {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill,
-                SizeFlagsVertical = SizeFlags.ExpandFill
-            };
-            reactiveList.SetAdapter(adapter);
+                return;
+            }
 
             var incomingCallers = _repository.IncomingCallers.ToList();
             var screeningCaller = _repository.CurrentScreening;
@@ -145,11 +162,9 @@ namespace KBTV.UI
             {
                 allCallers.Insert(0, screeningCaller);
             }
-            reactiveList.SetData(allCallers);
+            _reactiveListPanel.SetData(allCallers);
 
-            rootContainer.AddChild(reactiveList);
-
-            GD.Print($"CallerTab: Created incoming panel with {allCallers.Count} callers (incoming: {incomingCallers.Count}, screening: {screeningCaller?.Name ?? "none"})");
+            GD.Print($"CallerTab: Updated incoming panel with {allCallers.Count} callers (incoming: {incomingCallers.Count}, screening: {screeningCaller?.Name ?? "none"})");
         }
 
         private void CreateScreeningPanel()
@@ -182,14 +197,12 @@ namespace KBTV.UI
                 return;
             }
 
-            ClearPanel(_onHoldPanel);
-
-            var rootContainer = new VBoxContainer
+            // Clear existing children
+            foreach (var child in _onHoldPanel.GetChildren().ToList())
             {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill,
-                SizeFlagsVertical = SizeFlags.ExpandFill
-            };
-            _onHoldPanel.AddChild(rootContainer);
+                _onHoldPanel.RemoveChild(child);
+                child.QueueFree();
+            }
 
             var header = new Label
             {
@@ -198,14 +211,14 @@ namespace KBTV.UI
                 CustomMinimumSize = new Vector2(0, 24)
             };
             header.AddThemeColorOverride("font_color", UIColors.Queue.OnHold);
-            rootContainer.AddChild(header);
+            _onHoldPanel.AddChild(header);
 
             var spacer = new Control
             {
                 CustomMinimumSize = new Vector2(0, 16),
                 SizeFlagsVertical = SizeFlags.ShrinkEnd
             };
-            rootContainer.AddChild(spacer);
+            _onHoldPanel.AddChild(spacer);
 
             var listContainer = new VBoxContainer
             {
@@ -213,7 +226,7 @@ namespace KBTV.UI
                 SizeFlagsVertical = SizeFlags.ExpandFill
             };
             listContainer.AddThemeConstantOverride("separation", 4);
-            rootContainer.AddChild(listContainer);
+            _onHoldPanel.AddChild(listContainer);
 
             if (_repository.OnHoldCallers.Count > 0)
             {
@@ -284,7 +297,12 @@ namespace KBTV.UI
 
         private void RefreshTabContent()
         {
-            PopulateTabContent();
+            // Update incoming panel data without recreating the panel
+            UpdateIncomingPanelData();
+            
+            // Still need to recreate screening and on-hold panels as they change more dynamically
+            CreateScreeningPanel();
+            CreateOnHoldPanel();
         }
 
         private void ClearPanel(Control? panel, bool isScreeningPanel = false)

@@ -63,7 +63,8 @@ namespace KBTV.UI.Components
                 float remainingPatience = caller.Patience - caller.WaitTime;
                 float patienceRatio = Mathf.Clamp(remainingPatience / caller.Patience, 0f, 1f);
                 statusIndicator.Value = patienceRatio;
-                statusIndicator.AddThemeColorOverride("fill", UIColors.GetPatienceColor(patienceRatio));
+                var fillStyle = new StyleBoxFlat { BgColor = UIColors.GetPatienceColor(patienceRatio) };
+                statusIndicator.AddThemeStyleboxOverride("fill", fillStyle);
             }
 
             var styleBox = new StyleBoxFlat();
@@ -130,7 +131,7 @@ namespace KBTV.UI.Components
                 Value = 1.0,
                 ShowPercentage = false
             };
-            statusIndicator.AddThemeColorOverride("fill", UIColors.Patience.High);
+            statusIndicator.AddThemeStyleboxOverride("fill", new StyleBoxFlat { BgColor = UIColors.Patience.High });
             hbox.AddChild(statusIndicator);
 
             return panel;

@@ -29,17 +29,12 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-size_flags_stretch_ratio = 0.8
+ size_flags_stretch_ratio = 1.0
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
-[node name="IncomingPanel" type="Control" parent="HBoxContainer/IncomingScroll"]
+[node name="IncomingList" type="VBoxContainer" parent="HBoxContainer/IncomingScroll"]
 layout_mode = 2
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -52,7 +47,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-size_flags_stretch_ratio = 2.4
+ size_flags_stretch_ratio = 2.0
 
 [node name="OnHoldScroll" type="ScrollContainer" parent="HBoxContainer"]
 layout_mode = 2
@@ -63,16 +58,11 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-size_flags_stretch_ratio = 0.8
+ size_flags_stretch_ratio = 1.0
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
-[node name="OnHoldPanel" type="Control" parent="HBoxContainer/OnHoldScroll"]
+[node name="OnHoldList" type="VBoxContainer" parent="HBoxContainer/OnHoldScroll"]
 layout_mode = 2
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3

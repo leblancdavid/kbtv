@@ -212,11 +212,30 @@ namespace KBTV.UI
                 return;
             }
 
-            float remainingPatience = caller.Patience - caller.WaitTime;
+            float remainingPatience;
+            if (caller.State == CallerState.Screening)
+            {
+                // During screening, show remaining screening patience
+                remainingPatience = caller.ScreeningPatience;
+            }
+            else
+            {
+                // For incoming/on-hold callers, show patience minus wait time
+                remainingPatience = caller.Patience - caller.WaitTime;
+            }
+            
             float patienceRatio = Mathf.Clamp(remainingPatience / caller.Patience, 0f, 1f);
 
             _statusIndicator.Value = patienceRatio;
-            _statusIndicator.AddThemeColorOverride("fill", UIColors.GetPatienceColor(patienceRatio));
+            
+            var fillStyle = new StyleBoxFlat { BgColor = UIColors.GetPatienceColor(patienceRatio) };
+            _statusIndicator.AddThemeStyleboxOverride("fill", fillStyle);
+
+            // Debug logging every 5 seconds
+            if (Engine.GetProcessFrames() % 300 == 0) // ~5 seconds at 60 FPS
+            {
+                GD.Print($"CallerQueueItem: {caller.Name} - State: {caller.State}, Patience: {remainingPatience:F1}/{caller.Patience:F1}, Ratio: {patienceRatio:F2}");
+            }
         }
 
         public override void _ExitTree()
