@@ -58,6 +58,7 @@ obj/
 # OS-specific
 .DS_Store
 Thumbs.db
+nul
 
 # Editor files
 .vscode/
