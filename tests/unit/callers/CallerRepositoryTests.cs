@@ -13,11 +13,19 @@ namespace KBTV.Tests.Unit.Callers
         public List<Caller> AddedCallers = new();
         public List<Caller> RemovedCallers = new();
         public List<(Caller caller, CallerState oldState, CallerState newState)> StateChanges = new();
+        public List<Caller> ScreeningStartedCallers = new();
+        public List<(Caller caller, bool approved)> ScreeningEndedCallers = new();
+        public List<Caller> OnAirCallers = new();
+        public List<Caller> OnAirEndedCallers = new();
 
         public void OnCallerAdded(Caller caller) => AddedCallers.Add(caller);
         public void OnCallerRemoved(Caller caller) => RemovedCallers.Add(caller);
         public void OnCallerStateChanged(Caller caller, CallerState oldState, CallerState newState)
             => StateChanges.Add((caller, oldState, newState));
+        public void OnScreeningStarted(Caller caller) => ScreeningStartedCallers.Add(caller);
+        public void OnScreeningEnded(Caller caller, bool approved) => ScreeningEndedCallers.Add((caller, approved));
+        public void OnCallerOnAir(Caller caller) => OnAirCallers.Add(caller);
+        public void OnCallerOnAirEnded(Caller caller) => OnAirEndedCallers.Add(caller);
     }
 
     public class CallerRepositoryTests : KBTVTestClass

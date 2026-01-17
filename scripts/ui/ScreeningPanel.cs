@@ -35,6 +35,7 @@ namespace KBTV.UI
 		private Caller? _pendingCaller;
 
 		private bool _nodesInitialized;
+		private Caller? _previousCaller;
 
 		public override void _Ready()
 		{
@@ -75,13 +76,6 @@ namespace KBTV.UI
 
 			_approveButton!.Pressed += OnApprovePressed;
 			_rejectButton!.Pressed += OnRejectPressed;
-
-			var events = Core.ServiceRegistry.Instance.EventAggregator;
-			if (events != null)
-			{
-				events.Subscribe(this, (Core.Events.Screening.ScreeningStarted evt) => OnScreeningStarted(evt));
-				events.Subscribe(this, (Core.Events.Screening.ScreeningEnded evt) => OnScreeningEnded(evt));
-			}
 		}
 
 		private void ValidateNodeReferences()
@@ -103,6 +97,17 @@ namespace KBTV.UI
 			if (_rejectButton == null) missing.Add("VBoxContainer/HBoxContainer/RejectButton");
 
 			return missing;
+		}
+
+		public override void _Process(double delta)
+		{
+			var currentCaller = _controller.CurrentCaller;
+			if (currentCaller != _previousCaller)
+			{
+				_previousCaller = currentCaller;
+				SetCaller(currentCaller);
+				UpdateButtons();
+			}
 		}
 
 		public void SetCaller(Caller? caller)
@@ -138,6 +143,12 @@ namespace KBTV.UI
 
 		private void OnApprovePressed()
 		{
+			if (_controller.CurrentCaller == null)
+			{
+				GD.Print("ScreeningPanel: Approve pressed but no caller is being screened - ignoring");
+				return;
+			}
+
 			var result = _controller.Approve();
 			if (!result.IsSuccess)
 			{
@@ -147,6 +158,12 @@ namespace KBTV.UI
 
 		private void OnRejectPressed()
 		{
+			if (_controller.CurrentCaller == null)
+			{
+				GD.Print("ScreeningPanel: Reject pressed but no caller is being screened - ignoring");
+				return;
+			}
+
 			var result = _controller.Reject();
 			if (!result.IsSuccess)
 			{
@@ -162,17 +179,6 @@ namespace KBTV.UI
 		private void OnProgressUpdated(ScreeningProgress progress)
 		{
 			UpdatePatienceDisplay(progress);
-		}
-
-		private void OnScreeningStarted(Core.Events.Screening.ScreeningStarted evt)
-		{
-			SetCaller(evt.Caller);
-			UpdateFromController();
-		}
-
-		private void OnScreeningEnded(Core.Events.Screening.ScreeningEnded evt)
-		{
-			SetCaller(null);
 		}
 
 		private void UpdateFromController()
@@ -276,8 +282,7 @@ namespace KBTV.UI
 				_controller.ProgressUpdated -= OnProgressUpdated;
 			}
 
-			var events = Core.ServiceRegistry.Instance?.EventAggregator;
-			events?.Unsubscribe(this);
+			GD.Print("ScreeningPanel: Cleanup complete");
 		}
 
 		private void EnsureNodesInitialized()

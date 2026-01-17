@@ -15,7 +15,6 @@ namespace KBTV.Tests.Integration
         private CallerRepository _repository = null!;
         private ScreeningController _controller = null!;
         private List<string> _eventLog = null!;
-        private readonly object _eventSubscriber = new();
 
         [Setup]
         public void Setup()
@@ -24,11 +23,7 @@ namespace KBTV.Tests.Integration
             _controller = new ScreeningController();
             _eventLog = new List<string>();
 
-            ServiceRegistry.Instance.EventAggregator.Subscribe(_eventSubscriber, (Core.Events.Queue.CallerAdded evt) => _eventLog.Add($"CallerAdded: {evt.Caller.Name}"));
-            ServiceRegistry.Instance.EventAggregator.Subscribe(_eventSubscriber, (Core.Events.Queue.CallerRemoved evt) => _eventLog.Add($"CallerRemoved: {evt.Caller.Name}"));
-            ServiceRegistry.Instance.EventAggregator.Subscribe(_eventSubscriber, (Core.Events.Screening.ScreeningStarted evt) => _eventLog.Add($"ScreeningStarted: {evt.Caller.Name}"));
-            ServiceRegistry.Instance.EventAggregator.Subscribe(_eventSubscriber, (Core.Events.Screening.ScreeningApproved evt) => _eventLog.Add($"ScreeningApproved: {evt.Caller.Name}"));
-            ServiceRegistry.Instance.EventAggregator.Subscribe(_eventSubscriber, (Core.Events.Screening.ScreeningRejected evt) => _eventLog.Add($"ScreeningRejected: {evt.Caller.Name}"));
+            _repository.Subscribe(new TestCallerRepositoryObserver(_eventLog));
         }
 
         [Test]
@@ -145,7 +140,7 @@ namespace KBTV.Tests.Integration
         }
 
         [Test]
-        public void StateTransitions_EmitEvents()
+        public void StateTransitions_TriggerObservers()
         {
             var caller = CreateTestCaller("Frank");
 
@@ -204,6 +199,40 @@ namespace KBTV.Tests.Integration
                 30f,
                 0.8f
             );
+        }
+
+        private class TestCallerRepositoryObserver : ICallerRepositoryObserver
+        {
+            private readonly List<string> _eventLog;
+
+            public TestCallerRepositoryObserver(List<string> eventLog)
+            {
+                _eventLog = eventLog;
+            }
+
+            public void OnCallerAdded(Caller caller) =>
+                _eventLog.Add($"CallerAdded: {caller.Name}");
+
+            public void OnCallerRemoved(Caller caller) =>
+                _eventLog.Add($"CallerRemoved: {caller.Name}");
+
+            public void OnCallerStateChanged(Caller caller, CallerState oldState, CallerState newState) =>
+                _eventLog.Add($"StateChanged: {caller.Name}:{oldState}->{newState}");
+
+            public void OnScreeningStarted(Caller caller) =>
+                _eventLog.Add($"ScreeningStarted: {caller.Name}");
+
+            public void OnScreeningEnded(Caller caller, bool approved)
+            {
+                _eventLog.Add($"ScreeningEnded: {caller.Name}");
+                _eventLog.Add(approved ? $"ScreeningApproved: {caller.Name}" : $"ScreeningRejected: {caller.Name}");
+            }
+
+            public void OnCallerOnAir(Caller caller) =>
+                _eventLog.Add($"OnAir: {caller.Name}");
+
+            public void OnCallerOnAirEnded(Caller caller) =>
+                _eventLog.Add($"OnAirEnded: {caller.Name}");
         }
     }
 }

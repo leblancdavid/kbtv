@@ -77,13 +77,6 @@ namespace KBTV.Tests.Integration
         }
 
         [Test]
-        public void ServiceRegistry_EventAggregator_IsAccessible()
-        {
-            var events = ServiceRegistry.Instance.EventAggregator;
-            AssertThat(events != null);
-        }
-
-        [Test]
         public void ServiceRegistry_AllShortcuts_ReturnValidServices()
         {
             AssertThat(ServiceRegistry.Instance.GameStateManager != null);
@@ -94,7 +87,6 @@ namespace KBTV.Tests.Integration
             AssertThat(ServiceRegistry.Instance.UIManager != null);
             AssertThat(ServiceRegistry.Instance.CallerRepository != null);
             AssertThat(ServiceRegistry.Instance.ScreeningController != null);
-            AssertThat(ServiceRegistry.Instance.EventAggregator != null);
         }
     }
 }

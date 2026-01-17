@@ -14,6 +14,10 @@ namespace KBTV.Callers
         void OnCallerAdded(Caller caller);
         void OnCallerRemoved(Caller caller);
         void OnCallerStateChanged(Caller caller, CallerState oldState, CallerState newState);
+        void OnScreeningStarted(Caller caller);
+        void OnScreeningEnded(Caller caller, bool approved);
+        void OnCallerOnAir(Caller caller);
+        void OnCallerOnAirEnded(Caller caller);
     }
 
     /// <summary>
@@ -50,6 +54,7 @@ namespace KBTV.Callers
         bool SetCallerState(Caller caller, CallerState newState);
         bool RemoveCaller(Caller caller);
         void ClearAll();
+        Caller? GetCaller(string callerId);
 
         // Observation
         void Subscribe(ICallerRepositoryObserver observer);

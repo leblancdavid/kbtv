@@ -274,5 +274,9 @@ namespace KBTV.Managers
         public void OnCallerAdded(Caller caller) { }
         public void OnCallerRemoved(Caller caller) { }
         public void OnCallerStateChanged(Caller caller, CallerState oldState, CallerState newState) { }
+        public void OnScreeningStarted(Caller caller) { }
+        public void OnScreeningEnded(Caller caller, bool approved) { }
+        public void OnCallerOnAir(Caller caller) { }
+        public void OnCallerOnAirEnded(Caller caller) { }
     }
 }

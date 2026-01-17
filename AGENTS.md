@@ -81,7 +81,6 @@ KBTV uses a **Service Registry** (Autoload) for global service access instead of
 // Access services through ServiceRegistry
 var repository = ServiceRegistry.Instance.CallerRepository;
 var screeningController = ServiceRegistry.Instance.ScreeningController;
-var events = ServiceRegistry.Instance.EventAggregator;
 ```
 
 **Pattern Benefits:**
@@ -105,9 +104,6 @@ public override void _Ready()
 ```csharp
 private void RegisterCoreServices()
 {
-    var eventAggregator = new EventAggregator();
-    RegisterSelf<IEventAggregator>(eventAggregator);
-
     var repository = new CallerRepository();
     RegisterSelf<ICallerRepository>(repository);
 
@@ -155,25 +151,58 @@ if (!_allReadyEmitted && _registeredCount >= MIN_SERVICES_EXPECTED)
 - `CallerGenerator` - Spawns incoming callers
 - `CallerRepository` - Manages caller data
 - `ScreeningController` - Handles caller screening
-- `EventAggregator` - Pub/sub event system
 - `GlobalTransitionManager` - Handles fade-to-black transitions
 
-### Event Aggregation Pattern
+### Observer Pattern
 
-Components communicate through events instead of direct coupling:
+Components observe state changes through `ICallerRepositoryObserver` interface instead of events:
 
 ```csharp
-// Subscribe to events
-ServiceRegistry.Instance.EventAggregator.Subscribe<Events.Screening.ScreeningStarted>(OnScreeningStarted);
-
-// Publish events
-ServiceRegistry.Instance.EventAggregator.Publish(new Events.Screening.ScreeningStarted(caller));
+public interface ICallerRepositoryObserver
+{
+    void OnCallerAdded(Caller caller);
+    void OnCallerRemoved(Caller caller);
+    void OnCallerStateChanged(Caller caller, CallerState oldState, CallerState newState);
+    void OnScreeningStarted(Caller caller);
+    void OnScreeningEnded(Caller caller, bool approved);
+    void OnCallerOnAir(Caller caller);
+    void OnCallerOnAirEnded(Caller caller);
+}
 ```
 
-**Event Domains:**
-- `Core.Events.Screening` - Screening process events
-- `Core.Events.Queue` - Queue state events
-- `Core.Events.OnAir` - On-air caller events
+**To observe repository changes:**
+```csharp
+// Subscribe to observer callbacks
+_repository.Subscribe(myObserver);
+
+// Implement interface methods
+public void OnScreeningStarted(Caller caller)
+{
+    GD.Print($"Screening started: {caller.Name}");
+}
+
+public void OnScreeningEnded(Caller caller, bool approved)
+{
+    GD.Print($"Screening ended: {caller.Name}, approved: {approved}");
+}
+```
+
+**When to use:**
+- **Observer callbacks** - For discrete state changes (caller added, screening started, on-air, etc.)
+- **Direct property access** - For current state queries (`ScreeningController.IsActive`, `CallerRepository.OnAirCaller`)
+- **Polling in _Process()** - For continuous updates (progress bars, timers)
+
+**Example - UI polling for progress:**
+```csharp
+public override void _Process(double delta)
+{
+    if (ServiceRegistry.Instance?.ScreeningController.IsActive == true)
+    {
+        var progress = ServiceRegistry.Instance.ScreeningController.Progress;
+        UpdateProgressBar(progress.PropertiesRevealed, progress.TotalProperties);
+    }
+}
+```
 
 ### Result Type Pattern
 

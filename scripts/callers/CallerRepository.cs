@@ -66,6 +66,16 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Caller already exists", "DUPLICATE_CALLER");
             }
 
+            if (_stateIndex[CallerState.Screening].Contains(caller.Id))
+            {
+                return Result<Caller>.Fail("Caller already screening", "CALLER_SCREENING");
+            }
+
+            if (_stateIndex[CallerState.OnHold].Contains(caller.Id))
+            {
+                return Result<Caller>.Fail("Caller already on hold", "CALLER_ON_HOLD");
+            }
+
             _callers[caller.Id] = caller;
             UpdateStateIndex(caller.Id, CallerState.Incoming);
             caller.SetState(CallerState.Incoming);
@@ -75,7 +85,6 @@ namespace KBTV.Callers
             caller.OnDisconnected += handler;
 
             NotifyObservers(o => o.OnCallerAdded(caller));
-            PublishEvent(new Core.Events.Queue.CallerAdded { Caller = caller });
 
             return Result<Caller>.Ok(caller);
         }
@@ -94,11 +103,6 @@ namespace KBTV.Callers
 
             if (IsScreening && _currentScreeningId != null && _currentScreeningId != caller.Id)
             {
-                var currentCaller = GetCaller(_currentScreeningId);
-                if (currentCaller != null)
-                {
-                    PublishEvent(new Core.Events.Screening.ScreeningEnded { Caller = currentCaller });
-                }
                 _currentScreeningId = null;
             }
 
@@ -107,7 +111,7 @@ namespace KBTV.Callers
             var screeningController = Core.ServiceRegistry.Instance?.ScreeningController;
             screeningController?.Start(caller);
 
-            PublishEvent(new Core.Events.Screening.ScreeningStarted { Caller = caller });
+            NotifyObservers(o => o.OnScreeningStarted(caller));
 
             return Result<Caller>.Ok(caller);
         }
@@ -154,9 +158,10 @@ namespace KBTV.Callers
             var previousState = caller.State;
             SetCallerState(caller, CallerState.OnHold);
 
-            PublishEvent(new Core.Events.Screening.ScreeningApproved { Caller = caller });
-
             _currentScreeningId = null;
+
+            NotifyObservers(o => o.OnScreeningEnded(caller, approved: true));
+
             return Result<Caller>.Ok(caller);
         }
 
@@ -173,12 +178,14 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Screening caller not found", "CALLER_NOT_FOUND");
             }
 
-            SetCallerState(caller, CallerState.Rejected);
-
-            PublishEvent(new Core.Events.Screening.ScreeningRejected { Caller = caller });
+            _stateIndex[CallerState.Screening].Remove(caller.Id);
+            _stateIndex[CallerState.Rejected].Add(caller.Id);
+            caller.SetState(CallerState.Rejected);
 
             RemoveCaller(caller);
             _currentScreeningId = null;
+
+            NotifyObservers(o => o.OnScreeningEnded(caller, approved: false));
 
             return Result<Caller>.Ok(caller);
         }
@@ -205,7 +212,7 @@ namespace KBTV.Callers
             _onAirCallerId = caller.Id;
             SetCallerState(caller, CallerState.OnAir);
 
-            PublishEvent(new Core.Events.OnAir.CallerOnAir { Caller = caller });
+            NotifyObservers(o => o.OnCallerOnAir(caller));
 
             return Result<Caller>.Ok(caller);
         }
@@ -225,10 +232,10 @@ namespace KBTV.Callers
 
             SetCallerState(caller, CallerState.Completed);
 
-            PublishEvent(new Core.Events.OnAir.CallerOnAirEnded { Caller = caller });
-
             RemoveCaller(caller);
             _onAirCallerId = null;
+
+            NotifyObservers(o => o.OnCallerOnAirEnded(caller));
 
             return Result<Caller>.Ok(caller);
         }
@@ -250,7 +257,6 @@ namespace KBTV.Callers
             caller.SetState(newState);
 
             NotifyObservers(o => o.OnCallerStateChanged(caller, oldState, newState));
-            PublishEvent(new Core.Events.Queue.CallerStateChanged { Caller = caller, OldState = oldState, NewState = newState });
 
             return true;
         }
@@ -263,7 +269,16 @@ namespace KBTV.Callers
             }
 
             UnsubscribeCaller(caller);
-            _stateIndex[caller.State].Remove(caller.Id);
+
+            if (_stateIndex[caller.State].Contains(caller.Id))
+            {
+                _stateIndex[caller.State].Remove(caller.Id);
+            }
+            else
+            {
+                GD.PrintErr($"RemoveCaller: Caller {caller.Id} ({caller.Name}) was not in expected state {caller.State}, cleaning up anyway");
+            }
+
             _callers.Remove(caller.Id);
 
             if (_currentScreeningId == caller.Id)
@@ -276,7 +291,6 @@ namespace KBTV.Callers
             }
 
             NotifyObservers(o => o.OnCallerRemoved(caller));
-            PublishEvent(new Core.Events.Queue.CallerRemoved { Caller = caller });
 
             return true;
         }
@@ -327,11 +341,6 @@ namespace KBTV.Callers
                 .ToList()!;
         }
 
-        private Caller? GetCaller(string callerId)
-        {
-            return _callers.TryGetValue(callerId, out var caller) ? caller : null;
-        }
-
         private void UnsubscribeCaller(Caller caller)
         {
             if (caller == null)
@@ -350,8 +359,6 @@ namespace KBTV.Callers
         {
             SetCallerState(caller, CallerState.Disconnected);
             RemoveCaller(caller);
-
-            PublishEvent(new Core.Events.Queue.CallerRemoved { Caller = caller });
         }
 
         private void NotifyObservers(Action<ICallerRepositoryObserver> action)
@@ -362,16 +369,9 @@ namespace KBTV.Callers
             }
         }
 
-        private void PublishEvent<TEvent>(TEvent eventData)
+        public Caller? GetCaller(string callerId)
         {
-            try
-            {
-                ServiceRegistry.Instance?.EventAggregator?.Publish(eventData);
-            }
-            catch (Exception ex)
-            {
-                GD.PrintErr($"CallerRepository: Failed to publish event: {ex.Message}");
-            }
+            return _callers.TryGetValue(callerId, out var caller) ? caller : null;
         }
     }
 }

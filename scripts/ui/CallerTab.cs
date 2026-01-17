@@ -29,6 +29,10 @@ namespace KBTV.UI
         private readonly CallerListAdapter _incomingAdapter = new();
         private ReactiveListPanel<Caller>? _reactiveListPanel;
 
+        private string? _previousScreeningCallerId;
+        private int _previousIncomingCount;
+        private int _previousOnHoldCount;
+
         public override void _Ready()
         {
             GD.Print("CallerTab: Initializing with Service Registry pattern");
@@ -48,8 +52,9 @@ namespace KBTV.UI
             InitializeServices();
             InitializeNodeReferences();
             CreateTabManager();
-            SubscribeToEvents();
             PopulateTabContent();
+
+            TrackStateForRefresh();
 
             GD.Print("CallerTab: Initialization complete");
         }
@@ -70,19 +75,6 @@ namespace KBTV.UI
         private void CreateTabManager()
         {
             _tabManager = new CallerTabManager(_repository, _screeningController, this);
-        }
-
-        private void SubscribeToEvents()
-        {
-            var events = ServiceRegistry.Instance.EventAggregator;
-
-            events?.Subscribe(this, (Core.Events.Queue.CallerAdded evt) => OnCallerAdded(evt));
-            events?.Subscribe(this, (Core.Events.Queue.CallerRemoved evt) => OnCallerRemoved(evt));
-            events?.Subscribe(this, (Core.Events.Queue.CallerStateChanged evt) => OnCallerStateChanged(evt));
-            events?.Subscribe(this, (Core.Events.Screening.ScreeningStarted evt) => OnScreeningStarted(evt));
-            events?.Subscribe(this, (Core.Events.Screening.ScreeningEnded evt) => OnScreeningEnded(evt));
-            events?.Subscribe(this, (Core.Events.Screening.ScreeningApproved evt) => OnScreeningApproved(evt));
-            events?.Subscribe(this, (Core.Events.Screening.ScreeningRejected evt) => OnScreeningRejected(evt));
         }
 
         private void PopulateTabContent()
@@ -106,10 +98,8 @@ namespace KBTV.UI
                 return;
             }
 
-            // Only create the panel structure once
             if (_reactiveListPanel == null)
             {
-                // Clear existing children but keep the container
                 foreach (var child in _incomingPanel.GetChildren().ToList())
                 {
                     _incomingPanel.RemoveChild(child);
@@ -144,7 +134,6 @@ namespace KBTV.UI
                 GD.Print("CallerTab: Created persistent incoming panel");
             }
 
-            // Always update the data
             UpdateIncomingPanelData();
         }
 
@@ -189,7 +178,6 @@ namespace KBTV.UI
                 return;
             }
 
-            // Clear existing children
             foreach (var child in _onHoldPanel.GetChildren().ToList())
             {
                 _onHoldPanel.RemoveChild(child);
@@ -246,45 +234,30 @@ namespace KBTV.UI
             GD.Print($"CallerTab: Created on-hold panel with {_repository.OnHoldCallers.Count} callers");
         }
 
-        private void OnCallerAdded(Core.Events.Queue.CallerAdded evt)
+        private void TrackStateForRefresh()
         {
-            GD.Print($"CallerTab: Caller added - {evt.Caller?.Name}");
-            RefreshTabContent();
+            _previousScreeningCallerId = _repository.CurrentScreening?.Id;
+            _previousIncomingCount = _repository.IncomingCallers.Count;
+            _previousOnHoldCount = _repository.OnHoldCallers.Count;
         }
 
-        private void OnCallerRemoved(Core.Events.Queue.CallerRemoved evt)
+        public override void _Process(double delta)
         {
-            GD.Print($"CallerTab: Caller removed - {evt.Caller?.Name}");
-            RefreshTabContent();
-        }
+            if (_repository == null) return;
 
-        private void OnCallerStateChanged(Core.Events.Queue.CallerStateChanged evt)
-        {
-            RefreshTabContent();
-        }
+            var screeningCallerId = _repository.CurrentScreening?.Id;
+            var incomingCount = _repository.IncomingCallers.Count;
+            var onHoldCount = _repository.OnHoldCallers.Count;
 
-        private void OnScreeningStarted(Core.Events.Screening.ScreeningStarted evt)
-        {
-            GD.Print($"CallerTab: Screening started - {evt.Caller?.Name}");
-            RefreshTabContent();
-        }
-
-        private void OnScreeningEnded(Core.Events.Screening.ScreeningEnded evt)
-        {
-            GD.Print($"CallerTab: Screening ended - {evt.Caller?.Name}");
-            RefreshTabContent();
-        }
-
-        private void OnScreeningApproved(Core.Events.Screening.ScreeningApproved evt)
-        {
-            GD.Print($"CallerTab: Caller approved - {evt.Caller?.Name}");
-            RefreshTabContent();
-        }
-
-        private void OnScreeningRejected(Core.Events.Screening.ScreeningRejected evt)
-        {
-            GD.Print($"CallerTab: Caller rejected - {evt.Caller?.Name}");
-            RefreshTabContent();
+            if (screeningCallerId != _previousScreeningCallerId ||
+                incomingCount != _previousIncomingCount ||
+                onHoldCount != _previousOnHoldCount)
+            {
+                RefreshTabContent();
+                _previousScreeningCallerId = screeningCallerId;
+                _previousIncomingCount = incomingCount;
+                _previousOnHoldCount = onHoldCount;
+            }
         }
 
         private void RefreshTabContent()
@@ -294,24 +267,16 @@ namespace KBTV.UI
             CreateOnHoldPanel();
         }
 
-        private void ClearPanel(Control? panel, bool isScreeningPanel = false)
-        {
-            if (panel == null)
-            {
-                GD.PrintErr("CallerTab.ClearPanel: panel is null");
-                return;
-            }
-
-            foreach (var child in panel.GetChildren().ToList())
-            {
-                panel.RemoveChild(child);
-                child.QueueFree();
-            }
-        }
-
         public void OnApproveCaller()
         {
             GD.Print("CallerTab: Approve button pressed");
+
+            if (_screeningController.CurrentCaller == null)
+            {
+                GD.Print("CallerTab: Approve pressed but no caller is being screened - ignoring");
+                return;
+            }
+
             var result = _screeningController.Approve();
             if (result.IsSuccess)
             {
@@ -326,6 +291,13 @@ namespace KBTV.UI
         public void OnRejectCaller()
         {
             GD.Print("CallerTab: Reject button pressed");
+
+            if (_screeningController.CurrentCaller == null)
+            {
+                GD.Print("CallerTab: Reject pressed but no caller is being screened - ignoring");
+                return;
+            }
+
             var result = _screeningController.Reject();
             if (result.IsSuccess)
             {
@@ -339,9 +311,6 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            var events = ServiceRegistry.Instance?.EventAggregator;
-            events?.Unsubscribe(this);
-
             GD.Print("CallerTab: Cleanup complete");
         }
     }

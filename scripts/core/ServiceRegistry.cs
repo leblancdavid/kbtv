@@ -29,7 +29,7 @@ namespace KBTV.Core
         private bool _allReadyEmitted;
         private double _lastRegistrationTime;
         private const double REGISTRATION_TIMEOUT = 0.5;
-        private const int MIN_SERVICES_EXPECTED = 5;
+        private const int MIN_SERVICES_EXPECTED = 4;
 
         public static bool IsInitialized { get; private set; } = false;
 
@@ -75,10 +75,6 @@ namespace KBTV.Core
 
         private void RegisterCoreServices()
         {
-            var eventAggregator = new EventAggregator();
-            Register<IEventAggregator>(eventAggregator);
-            NotifyRegistered();
-
             var repository = new CallerRepository();
             Register<ICallerRepository>(repository);
             NotifyRegistered();
@@ -235,7 +231,6 @@ namespace KBTV.Core
 
         public ICallerRepository CallerRepository => Get<ICallerRepository>();
         public IScreeningController ScreeningController => Get<IScreeningController>();
-        public IEventAggregator EventAggregator => Get<IEventAggregator>();
         public GameStateManager GameStateManager => Get<GameStateManager>();
         public TimeManager TimeManager => Get<TimeManager>();
         public ListenerManager ListenerManager => Get<ListenerManager>();

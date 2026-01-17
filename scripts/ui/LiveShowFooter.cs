@@ -21,6 +21,8 @@ namespace KBTV.UI
         private bool _adBreakActive = false;
         private float _adBreakTime = 0f;
 
+        private string _previousOnAirCallerId = string.Empty;
+
         public override void _Ready()
         {
             CallDeferred(nameof(InitializeDeferred));
@@ -43,26 +45,34 @@ namespace KBTV.UI
 
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
 
-            var events = Core.ServiceRegistry.Instance.EventAggregator;
-            events?.Subscribe(this, (Core.Events.OnAir.CallerOnAir evt) => OnCallerOnAir(evt));
-            events?.Subscribe(this, (Core.Events.OnAir.CallerOnAirEnded evt) => OnCallerCompleted(evt));
-
             _startAdBreakButton.Connect("pressed", Callable.From(OnStartAdBreakPressed));
             _endAdBreakButton.Connect("pressed", Callable.From(OnEndAdBreakPressed));
 
+            TrackStateForRefresh();
             UpdateOnAirCaller();
             UpdateTranscript();
             UpdateAdBreakControls();
         }
 
-        private void OnCallerOnAir(Core.Events.OnAir.CallerOnAir evt)
+        private void TrackStateForRefresh()
         {
-            UpdateOnAirCaller();
+            _previousOnAirCallerId = _repository.OnAirCaller?.Id;
         }
 
-        private void OnCallerCompleted(Core.Events.OnAir.CallerOnAirEnded evt)
+        public override void _Process(double delta)
         {
-            UpdateOnAirCaller();
+            var currentOnAirCallerId = _repository.OnAirCaller?.Id;
+            if (currentOnAirCallerId != _previousOnAirCallerId)
+            {
+                UpdateOnAirCaller();
+                _previousOnAirCallerId = currentOnAirCallerId;
+            }
+
+            if (_adBreakActive)
+            {
+                _adBreakTime += (float)delta;
+                UpdateAdBreakTimer();
+            }
         }
 
         private void UpdateOnAirCaller()
@@ -111,15 +121,6 @@ namespace KBTV.UI
             }
         }
 
-        public override void _Process(double delta)
-        {
-            if (_adBreakActive)
-            {
-                _adBreakTime += (float)delta;
-                UpdateAdBreakTimer();
-            }
-        }
-
         private void UpdateAdBreakTimer()
         {
             if (_adBreakTimerLabel != null)
@@ -132,9 +133,6 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            var events = Core.ServiceRegistry.Instance?.EventAggregator;
-            events?.Unsubscribe(this);
-
             if (_startAdBreakButton != null)
             {
                 _startAdBreakButton.Disconnect("pressed", Callable.From(OnStartAdBreakPressed));
@@ -144,6 +142,8 @@ namespace KBTV.UI
             {
                 _endAdBreakButton.Disconnect("pressed", Callable.From(OnEndAdBreakPressed));
             }
+
+            GD.Print("LiveShowFooter: Cleanup complete");
         }
     }
 }

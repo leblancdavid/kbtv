@@ -20,6 +20,10 @@ namespace KBTV.UI
         private ListenerManager _listenerManager = null!;
         private EconomyManager _economyManager = null!;
 
+        private bool _previousIsOnAir;
+        private int _previousListeners;
+        private int _previousMoney;
+
         public override void _Ready()
         {
             CallDeferred(nameof(InitializeDeferred));
@@ -42,10 +46,6 @@ namespace KBTV.UI
             _listenerManager = Core.ServiceRegistry.Instance.ListenerManager;
             _economyManager = Core.ServiceRegistry.Instance.EconomyManager;
 
-            var events = Core.ServiceRegistry.Instance.EventAggregator;
-            events?.Subscribe(this, (Core.Events.OnAir.CallerOnAir evt) => OnCallerOnAir(evt));
-            events?.Subscribe(this, (Core.Events.OnAir.CallerOnAirEnded evt) => OnCallerCompleted(evt));
-
             if (_listenerManager != null)
             {
                 _listenerManager.Connect("ListenersChanged", Callable.From<int, int>(OnListenersChanged));
@@ -56,19 +56,39 @@ namespace KBTV.UI
                 _economyManager.Connect("MoneyChanged", Callable.From<int, int>(OnMoneyChanged));
             }
 
+            TrackStateForRefresh();
             UpdateOnAirStatus();
             UpdateListeners();
             UpdateMoney();
         }
 
-        private void OnCallerOnAir(Core.Events.OnAir.CallerOnAir evt)
+        private void TrackStateForRefresh()
         {
-            UpdateOnAirStatus();
+            _previousIsOnAir = _repository.IsOnAir;
+            _previousListeners = _listenerManager?.CurrentListeners ?? 0;
+            _previousMoney = _economyManager?.CurrentMoney ?? 0;
         }
 
-        private void OnCallerCompleted(Core.Events.OnAir.CallerOnAirEnded evt)
+        public override void _Process(double delta)
         {
-            UpdateOnAirStatus();
+            if (_repository == null) return;
+
+            var isOnAir = _repository.IsOnAir;
+            var listeners = _listenerManager?.CurrentListeners ?? 0;
+            var money = _economyManager?.CurrentMoney ?? 0;
+
+            if (isOnAir != _previousIsOnAir ||
+                listeners != _previousListeners ||
+                money != _previousMoney)
+            {
+                UpdateOnAirStatus();
+                UpdateListeners();
+                UpdateMoney();
+
+                _previousIsOnAir = isOnAir;
+                _previousListeners = listeners;
+                _previousMoney = money;
+            }
         }
 
         private void OnListenersChanged(int oldCount, int newCount)
@@ -109,9 +129,6 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            var events = Core.ServiceRegistry.Instance?.EventAggregator;
-            events?.Unsubscribe(this);
-
             if (_listenerManager != null)
             {
                 _listenerManager.Disconnect("ListenersChanged", Callable.From<int, int>(OnListenersChanged));
@@ -121,6 +138,8 @@ namespace KBTV.UI
             {
                 _economyManager.Disconnect("MoneyChanged", Callable.From<int, int>(OnMoneyChanged));
             }
+
+            GD.Print("LiveShowHeader: Cleanup complete");
         }
     }
 }

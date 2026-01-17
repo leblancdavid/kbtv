@@ -64,19 +64,6 @@ namespace KBTV.Callers
 
             _repository.Subscribe(this);
 
-            var events = ServiceRegistry.Instance.EventAggregator;
-            if (events == null)
-            {
-                GD.Print("WARNING: CallerQueue: EventAggregator not available");
-                return;
-            }
-
-            events.Subscribe<Core.Events.Screening.ScreeningApproved>(this, OnScreeningApproved);
-            events.Subscribe<Core.Events.Screening.ScreeningRejected>(this, OnScreeningRejected);
-            events.Subscribe<Core.Events.Screening.ScreeningStarted>(this, OnScreeningStarted);
-            events.Subscribe<Core.Events.OnAir.CallerOnAir>(this, OnCallerOnAir);
-            events.Subscribe<Core.Events.OnAir.CallerOnAirEnded>(this, OnCallerOnAirEnded);
-
             GD.Print($"CallerQueue: Initialized (legacy wrapper, instance #{_instanceId})");
         }
 
@@ -86,18 +73,6 @@ namespace KBTV.Callers
             {
                 _repository.Unsubscribe(this);
             }
-
-            var events = ServiceRegistry.Instance?.EventAggregator;
-            if (events == null)
-            {
-                return;
-            }
-
-            events.Unsubscribe<Core.Events.Screening.ScreeningApproved>(this);
-            events.Unsubscribe<Core.Events.Screening.ScreeningRejected>(this);
-            events.Unsubscribe<Core.Events.Screening.ScreeningStarted>(this);
-            events.Unsubscribe<Core.Events.OnAir.CallerOnAir>(this);
-            events.Unsubscribe<Core.Events.OnAir.CallerOnAirEnded>(this);
         }
 
         public override void _Process(double delta)
@@ -223,39 +198,37 @@ namespace KBTV.Callers
             _repository.CurrentScreening?.UpdateWaitTime(deltaTime);
         }
 
-        private void OnScreeningApproved(Core.Events.Screening.ScreeningApproved evt)
-        {
-            if (evt.Caller != null)
-            {
-                EmitSignal("CallerApproved", evt.Caller);
-                EmitSignal("ScreeningChanged");
-            }
-        }
-
-        private void OnScreeningRejected(Core.Events.Screening.ScreeningRejected evt)
-        {
-            EmitSignal("CallerRemoved", evt.Caller);
-            EmitSignal("ScreeningChanged");
-        }
-
-        private void OnScreeningStarted(Core.Events.Screening.ScreeningStarted evt)
+        public void OnScreeningStarted(Caller caller)
         {
             EmitSignal("ScreeningChanged");
         }
 
-        private void OnCallerOnAir(Core.Events.OnAir.CallerOnAir evt)
+        public void OnScreeningEnded(Caller caller, bool approved)
         {
-            if (evt.Caller != null)
+            EmitSignal("ScreeningChanged");
+            if (approved && caller != null)
             {
-                EmitSignal("CallerOnAir", evt.Caller);
+                EmitSignal("CallerApproved", caller);
+            }
+            else
+            {
+                EmitSignal("CallerRemoved", caller);
             }
         }
 
-        private void OnCallerOnAirEnded(Core.Events.OnAir.CallerOnAirEnded evt)
+        public void OnCallerOnAir(Caller caller)
         {
-            if (evt.Caller != null)
+            if (caller != null)
             {
-                EmitSignal("CallerCompleted", evt.Caller);
+                EmitSignal("CallerOnAir", caller);
+            }
+        }
+
+        public void OnCallerOnAirEnded(Caller caller)
+        {
+            if (caller != null)
+            {
+                EmitSignal("CallerCompleted", caller);
             }
         }
 

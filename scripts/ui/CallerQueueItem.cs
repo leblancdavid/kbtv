@@ -20,6 +20,9 @@ namespace KBTV.UI
         private Caller? _pendingCaller;
         private ICallerRepository? _repository;
 
+        private string? _previousCallerId;
+        private CallerState _previousState;
+
         public override void _Ready()
         {
             try
@@ -46,12 +49,8 @@ namespace KBTV.UI
 
             GuiInput += OnGuiInput;
 
-            var events = Core.ServiceRegistry.Instance.EventAggregator;
-            events?.Subscribe<Core.Events.Queue.CallerStateChanged>(this, OnCallerStateChanged);
-            events?.Subscribe<Core.Events.Screening.ScreeningStarted>(this, OnScreeningStarted);
-            events?.Subscribe<Core.Events.Screening.ScreeningProgressUpdated>(this, OnScreeningProgressUpdated);
-
             ApplyPendingCallerData();
+            TrackStateForRefresh();
             UpdateVisualSelection();
             UpdateStatusIndicator();
         }
@@ -97,13 +96,36 @@ namespace KBTV.UI
             UpdateVisualSelection();
         }
 
-        public override void _Process(double delta)
+        private void TrackStateForRefresh()
         {
+            if (_cachedCaller != null)
+            {
+                _previousCallerId = _cachedCaller.Id;
+                _previousState = _cachedCaller.State;
+            }
         }
 
-        private Caller? GetCurrentCaller()
+        public override void _Process(double delta)
         {
-            return _cachedCaller;
+            if (_repository == null || _callerId == null) return;
+
+            var currentCaller = _repository.GetCaller(_callerId);
+            if (currentCaller == null)
+            {
+                _cachedCaller = null;
+                _callerId = null;
+                ApplyCallerData(null);
+                return;
+            }
+
+            if (currentCaller.Id != _previousCallerId || currentCaller.State != _previousState)
+            {
+                _cachedCaller = currentCaller;
+                _previousCallerId = currentCaller.Id;
+                _previousState = currentCaller.State;
+                UpdateVisualSelection();
+                UpdateStatusIndicator();
+            }
         }
 
         private void OnGuiInput(InputEvent @event)
@@ -118,9 +140,18 @@ namespace KBTV.UI
 
         private void OnItemClicked()
         {
-            var caller = GetCurrentCaller();
-            if (caller == null || _repository == null)
+            if (_repository == null || _callerId == null)
             {
+                return;
+            }
+
+            var caller = _repository.GetCaller(_callerId);
+            if (caller == null)
+            {
+                GD.Print($"CallerQueueItem: Caller {_callerId} no longer exists - clearing UI");
+                _cachedCaller = null;
+                _callerId = null;
+                ApplyCallerData(null);
                 return;
             }
 
@@ -141,37 +172,15 @@ namespace KBTV.UI
             }
         }
 
-        private void OnCallerStateChanged(Core.Events.Queue.CallerStateChanged evt)
-        {
-            var currentCaller = GetCurrentCaller();
-            if (evt.Caller != null && evt.Caller.Id == _callerId)
-            {
-                UpdateVisualSelection();
-            }
-        }
-
-        private void OnScreeningStarted(Core.Events.Screening.ScreeningStarted evt)
-        {
-            if (evt.Caller != null && evt.Caller.Id == _callerId)
-            {
-                _cachedCaller = evt.Caller;
-                UpdateVisualSelection();
-                UpdateStatusIndicator();
-            }
-        }
-
-        private void OnScreeningProgressUpdated(Core.Events.Screening.ScreeningProgressUpdated evt)
-        {
-            if (_cachedCaller != null && _cachedCaller.State == CallerState.Screening)
-            {
-                UpdateStatusIndicator();
-            }
-        }
-
         private void UpdateVisualSelection()
         {
-            var caller = GetCurrentCaller();
-            if (caller == null || _statusIndicator == null)
+            if (_cachedCaller == null || _statusIndicator == null || _callerId == null)
+            {
+                return;
+            }
+
+            var caller = _repository?.GetCaller(_callerId);
+            if (caller == null)
             {
                 return;
             }
@@ -200,7 +209,12 @@ namespace KBTV.UI
 
         private void UpdateStatusIndicator()
         {
-            var caller = GetCurrentCaller();
+            if (_callerId == null)
+            {
+                return;
+            }
+
+            var caller = _repository?.GetCaller(_callerId);
             if (caller == null || _statusIndicator == null)
             {
                 return;
@@ -229,8 +243,7 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            var events = Core.ServiceRegistry.Instance?.EventAggregator;
-            events?.Unsubscribe(this);
+            GD.Print("CallerQueueItem: Cleanup complete");
         }
     }
 }

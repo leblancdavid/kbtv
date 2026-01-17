@@ -159,7 +159,6 @@ namespace KBTV.Tests.Unit.Core
             AssertThat(_registry.UIManager != null);
             AssertThat(_registry.CallerRepository != null);
             AssertThat(_registry.ScreeningController != null);
-            AssertThat(_registry.EventAggregator != null);
             AssertThat(_registry.CallerGenerator != null);
             AssertThat(_registry.GlobalTransitionManager != null);
         }

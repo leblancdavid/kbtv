@@ -35,9 +35,6 @@ namespace KBTV.Screening
             _session = new ScreeningSession(caller);
             SetPhase(ScreeningPhase.Gathering);
 
-            var events = ServiceRegistry.Instance?.EventAggregator;
-            events?.Publish(new Core.Events.Screening.ScreeningStarted { Caller = caller });
-
             GD.Print($"ScreeningController: Started for {caller.Name}");
         }
 
@@ -54,15 +51,22 @@ namespace KBTV.Screening
                 return Result<Caller>.Fail("NO_REPOSITORY", "Repository not available");
             }
 
+            if (!repository.IsScreening)
+            {
+                GD.PrintErr($"ScreeningController: State mismatch - controller has session but repository is not screening. Caller: {_session.Caller.Name}");
+                _session = null;
+                return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
+            }
+
             var result = repository.ApproveScreening();
             if (result.IsSuccess)
             {
                 SetPhase(ScreeningPhase.Completed);
-            var events = ServiceRegistry.Instance?.EventAggregator;
-            events?.Publish(new Core.Events.Screening.ScreeningApproved { Caller = _session.Caller });
+                var caller = _session.Caller;
 
-                GD.Print($"ScreeningController: Approved {_session.Caller.Name}");
-                return Result<Caller>.Ok(_session.Caller);
+                GD.Print($"ScreeningController: Approved {caller.Name}");
+                _session = null;
+                return Result<Caller>.Ok(caller);
             }
 
             GD.PrintErr($"ScreeningController: Failed to approve - {result.ErrorMessage}");
@@ -82,15 +86,22 @@ namespace KBTV.Screening
                 return Result<Caller>.Fail("NO_REPOSITORY", "Repository not available");
             }
 
+            if (!repository.IsScreening)
+            {
+                GD.PrintErr($"ScreeningController: State mismatch - controller has session but repository is not screening. Caller: {_session.Caller.Name}");
+                _session = null;
+                return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
+            }
+
             var result = repository.RejectScreening();
             if (result.IsSuccess)
             {
                 SetPhase(ScreeningPhase.Completed);
-            var events = ServiceRegistry.Instance?.EventAggregator;
-            events?.Publish(new Core.Events.Screening.ScreeningRejected { Caller = _session.Caller });
+                var caller = _session.Caller;
 
-                GD.Print($"ScreeningController: Rejected {_session.Caller.Name}");
-                return Result<Caller>.Ok(_session.Caller);
+                GD.Print($"ScreeningController: Rejected {caller.Name}");
+                _session = null;
+                return Result<Caller>.Ok(caller);
             }
 
             GD.PrintErr($"ScreeningController: Failed to reject - {result.ErrorMessage}");
@@ -113,15 +124,6 @@ namespace KBTV.Screening
 
             var progress = CreateProgress();
             ProgressUpdated?.Invoke(progress);
-
-            var events = ServiceRegistry.Instance?.EventAggregator;
-            events?.Publish(new Core.Events.Screening.ScreeningProgressUpdated
-            {
-                PropertiesRevealed = _session.PropertiesRevealed,
-                TotalProperties = _session.TotalProperties,
-                PatienceRemaining = _session.PatienceRemaining,
-                ElapsedTime = _session.ElapsedTime
-            });
         }
 
         private void HandlePatienceExpired()
@@ -135,9 +137,6 @@ namespace KBTV.Screening
 
             var repository = ServiceRegistry.Instance?.CallerRepository;
             repository?.RemoveCaller(_session.Caller);
-
-            var events = ServiceRegistry.Instance?.EventAggregator;
-            events?.Publish(new Core.Events.Screening.ScreeningEnded { Caller = _session.Caller });
 
             _session = null;
             SetPhase(ScreeningPhase.Completed);
@@ -154,13 +153,11 @@ namespace KBTV.Screening
             _phase = newPhase;
             PhaseChanged?.Invoke(_phase);
 
-            var events = ServiceRegistry.Instance?.EventAggregator;
             switch (newPhase)
             {
                 case ScreeningPhase.Gathering:
                     break;
                 case ScreeningPhase.Deciding:
-                    events?.Publish(new Core.Events.Screening.ScreeningEnded { Caller = null });
                     break;
             }
 
