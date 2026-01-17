@@ -86,6 +86,12 @@ namespace KBTV.UI
         public override void _Process(double delta)
         {
             UpdateStatusIndicator();
+            
+            // Additional debug logging to verify _Process is called
+            if (Engine.GetProcessFrames() % 120 == 0) // ~2 seconds at 60 FPS
+            {
+                GD.Print($"CallerQueueItem._Process: Processing frame {Engine.GetProcessFrames()} for {GetCurrentCaller()?.Name ?? "null"}");
+            }
         }
 
         private Caller? GetCurrentCaller()
@@ -231,10 +237,14 @@ namespace KBTV.UI
             var fillStyle = new StyleBoxFlat { BgColor = UIColors.GetPatienceColor(patienceRatio) };
             _statusIndicator.AddThemeStyleboxOverride("fill", fillStyle);
 
-            // Debug logging every 5 seconds
-            if (Engine.GetProcessFrames() % 300 == 0) // ~5 seconds at 60 FPS
+            // Force UI redraw
+            _statusIndicator.QueueRedraw();
+            QueueRedraw();
+
+            // Debug logging every second (more frequent for debugging)
+            if (Engine.GetProcessFrames() % 60 == 0) // ~1 second at 60 FPS
             {
-                GD.Print($"CallerQueueItem: {caller.Name} - State: {caller.State}, Patience: {remainingPatience:F1}/{caller.Patience:F1}, Ratio: {patienceRatio:F2}");
+                GD.Print($"CallerQueueItem: {caller.Name} - State: {caller.State}, Patience: {remainingPatience:F1}/{caller.Patience:F1}, Ratio: {patienceRatio:F2}, Color: {fillStyle.BgColor}");
             }
         }
 

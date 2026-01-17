@@ -174,19 +174,7 @@ namespace KBTV.UI
                 GD.PrintErr("CallerTab.CreateScreeningPanel: _screeningPanel is null - node not found in scene");
                 return;
             }
-            ClearPanel(_screeningPanel, true);
-
-            var screeningScene = GD.Load<PackedScene>("res://scenes/ui/ScreeningPanel.tscn");
-            if (screeningScene != null)
-            {
-                var screeningInstance = screeningScene.Instantiate();
-                _screeningPanel.AddChild(screeningInstance);
-                GD.Print("CallerTab: Created ScreeningPanel");
-            }
-            else
-            {
-                GD.PrintErr("CallerTab: Failed to load ScreeningPanel.tscn");
-            }
+            _tabManager.CreateScreeningPanel(_screeningPanel);
         }
 
         private void CreateOnHoldPanel()

@@ -48,6 +48,11 @@ namespace KBTV.UI.Components
             if (item is ICallerListItem listItem)
             {
                 listItem.SetCaller(caller);
+                // Ensure the item can process updates
+                if (item is Node node)
+                {
+                    node.ProcessMode = Godot.Node.ProcessModeEnum.Inherit;
+                }
                 return;
             }
 
@@ -65,6 +70,7 @@ namespace KBTV.UI.Components
                 statusIndicator.Value = patienceRatio;
                 var fillStyle = new StyleBoxFlat { BgColor = UIColors.GetPatienceColor(patienceRatio) };
                 statusIndicator.AddThemeStyleboxOverride("fill", fillStyle);
+                statusIndicator.QueueRedraw();
             }
 
             var styleBox = new StyleBoxFlat();
