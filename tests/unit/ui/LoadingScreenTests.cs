@@ -35,7 +35,7 @@ namespace KBTV.Tests.Unit.UI
         [Test]
         public void Constructor_CreatesTitleLabel()
         {
-            var title = _loadingScreen.GetNodeOrNull<Label>("Background/Container/Title");
+            var title = _loadingScreen.GetNodeOrNull<Label>("Background/ContainerWrapper/Container/Title");
 
             AssertThat(title != null);
             AssertThat(title.Text == "KBTV RADIO");
@@ -52,7 +52,7 @@ namespace KBTV.Tests.Unit.UI
         [Test]
         public void Constructor_CreatesStatusLabel()
         {
-            var statusLabel = _loadingScreen.GetNodeOrNull<Label>("Background/Container/StatusLabel");
+            var statusLabel = _loadingScreen.GetNodeOrNull<Label>("Background/ContainerWrapper/Container/StatusLabel");
 
             AssertThat(statusLabel != null);
         }
@@ -69,7 +69,7 @@ namespace KBTV.Tests.Unit.UI
         [Test]
         public void StatusLabel_ShowsInitialMessage()
         {
-            var statusLabel = _loadingScreen.GetNodeOrNull<Label>("Background/Container/StatusLabel");
+            var statusLabel = _loadingScreen.GetNodeOrNull<Label>("Background/ContainerWrapper/Container/StatusLabel");
             var field = typeof(LoadingScreen).GetField("_loadingMessages", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var messages = field?.GetValue(_loadingScreen) as string[];
 

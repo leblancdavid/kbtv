@@ -91,11 +91,14 @@ namespace KBTV.UI
             if (_callerQueue.IsScreening)
             {
                 var caller = _callerQueue.CurrentScreening;
-                var callerLabel = new Label();
-                callerLabel.Text = $"{caller.Name}\n{caller.Location}\nTopic: {caller.ClaimedTopic}";
-                callerLabel.HorizontalAlignment = HorizontalAlignment.Center;
-                callerLabel.AutowrapMode = TextServer.AutowrapMode.Word;
-                layout.AddChild(callerLabel);
+                if (caller != null)
+                {
+                    var callerLabel = new Label();
+                    callerLabel.Text = $"{caller.Name}\n{caller.Location}\nTopic: {caller.ClaimedTopic}";
+                    callerLabel.HorizontalAlignment = HorizontalAlignment.Center;
+                    callerLabel.AutowrapMode = TextServer.AutowrapMode.Word;
+                    layout.AddChild(callerLabel);
+                }
             }
 
             // Spacer

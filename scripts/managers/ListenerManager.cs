@@ -199,8 +199,8 @@ namespace KBTV.Managers
         public string GetFormattedChange()
         {
             int change = ListenerChange;
-            string sign = change >= 0 ? "+" : "";
-            return $"{sign}{FormatListenerCount(change)}";
+            string prefix = change >= 0 ? "+" : "";
+            return $"{prefix}{FormatListenerCount(Mathf.Abs(change))}";
         }
 
         private static string FormatListenerCount(int count)

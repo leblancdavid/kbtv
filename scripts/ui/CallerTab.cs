@@ -137,11 +137,19 @@ namespace KBTV.UI
                 SizeFlagsVertical = SizeFlags.ExpandFill
             };
             reactiveList.SetAdapter(adapter);
-            reactiveList.SetData(_repository.IncomingCallers.ToList());
+
+            var incomingCallers = _repository.IncomingCallers.ToList();
+            var screeningCaller = _repository.CurrentScreening;
+            var allCallers = incomingCallers.ToList();
+            if (screeningCaller != null && !allCallers.Contains(screeningCaller))
+            {
+                allCallers.Insert(0, screeningCaller);
+            }
+            reactiveList.SetData(allCallers);
 
             rootContainer.AddChild(reactiveList);
 
-            GD.Print($"CallerTab: Created incoming panel with {_repository.IncomingCallers.Count} callers");
+            GD.Print($"CallerTab: Created incoming panel with {allCallers.Count} callers (incoming: {incomingCallers.Count}, screening: {screeningCaller?.Name ?? "none"})");
         }
 
         private void CreateScreeningPanel()
@@ -152,6 +160,18 @@ namespace KBTV.UI
                 return;
             }
             ClearPanel(_screeningPanel, true);
+
+            var screeningScene = GD.Load<PackedScene>("res://scenes/ui/ScreeningPanel.tscn");
+            if (screeningScene != null)
+            {
+                var screeningInstance = screeningScene.Instantiate();
+                _screeningPanel.AddChild(screeningInstance);
+                GD.Print("CallerTab: Created ScreeningPanel");
+            }
+            else
+            {
+                GD.PrintErr("CallerTab: Failed to load ScreeningPanel.tscn");
+            }
         }
 
         private void CreateOnHoldPanel()

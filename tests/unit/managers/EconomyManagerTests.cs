@@ -1,3 +1,5 @@
+#nullable enable
+
 using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Core;
