@@ -100,6 +100,9 @@ namespace KBTV.Callers
             _currentScreeningId = caller.Id;
             SetCallerState(caller, CallerState.Screening);
 
+            var screeningController = Core.ServiceRegistry.Instance?.ScreeningController;
+            screeningController?.Start(caller);
+
             PublishEvent(new Core.Events.Screening.ScreeningStarted { Caller = caller });
 
             return Result<Caller>.Ok(caller);

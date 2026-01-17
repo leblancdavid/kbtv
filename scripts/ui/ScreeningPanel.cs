@@ -34,9 +34,13 @@ namespace KBTV.UI
 		private IScreeningController _controller = null!;
 		private Caller? _pendingCaller;
 
+		private bool _nodesInitialized;
+
 		public override void _Ready()
 		{
 			EnsureNodesInitialized();
+			_nodesInitialized = _headerLabel != null && _callerInfoLabel != null &&
+			                   _approveButton != null && _rejectButton != null;
 			InitializeController();
 			if (_approveButton != null && _rejectButton != null)
 			{
@@ -104,7 +108,14 @@ namespace KBTV.UI
 		public void SetCaller(Caller? caller)
 		{
 			_pendingCaller = caller;
-			CallDeferred(nameof(_ApplyCallerDeferred));
+			if (_nodesInitialized)
+			{
+				_SetCallerImmediate(_pendingCaller);
+			}
+			else
+			{
+				CallDeferred(nameof(_ApplyCallerDeferred));
+			}
 		}
 
 		private void _ApplyCallerDeferred()
@@ -166,7 +177,8 @@ namespace KBTV.UI
 
 		private void UpdateFromController()
 		{
-			SetCaller(_controller.CurrentCaller);
+			var caller = _controller.CurrentCaller;
+			SetCaller(caller);
 			UpdateButtons();
 		}
 
