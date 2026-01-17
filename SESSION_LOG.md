@@ -1,4 +1,4 @@
-## Current Session
+## Previous Session
 - **Task**: Fix caller selection performance - slow screener info display
 - **Status**: Completed
 - **Started**: Fri Jan 16 2026
@@ -49,6 +49,41 @@
 
 ## Next Steps
 - Test the screening view in-game to verify performance improvement
+- Commit and push changes
+
+## Blockers
+- None
+
+---
+
+## Current Session
+- **Task**: Fix caller selection - only first caller selectable
+- **Status**: Completed
+- **Started**: Sat Jan 17 2026
+- **Last Updated**: Sat Jan 17 2026
+
+## Work Done
+
+**Root Cause Identified:**
+The `CallerRepository.StartScreening()` method was blocking selection of different callers when screening was already active. When you clicked on a different caller, the system returned a `SCREENING_BUSY` error without allowing the switch.
+
+**Changes Made:**
+
+**scripts/callers/CallerRepository.cs:**
+- Modified `StartScreening()` to allow switching to a different caller mid-screening
+- When selecting a different caller while screening is active, the current screening now ends (caller returns to Incoming state) and the new caller starts screening
+- Added explicit null check for `_currentScreeningId` to fix compiler warning
+
+**Verification:**
+- Build: Success (0 warnings, 0 errors)
+- Tests: ScreeningControllerTests and CallerRepositoryTests all pass
+- Pre-existing test failures in LoadingScreenTests and ListenerManagerTests are unrelated to this change
+
+## Files Modified
+- scripts/callers/CallerRepository.cs
+
+## Next Steps
+- Test in-game to verify callers can be selected
 - Commit and push changes
 
 ## Blockers

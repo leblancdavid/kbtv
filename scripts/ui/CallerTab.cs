@@ -156,15 +156,9 @@ namespace KBTV.UI
             }
 
             var incomingCallers = _repository.IncomingCallers.ToList();
-            var screeningCaller = _repository.CurrentScreening;
-            var allCallers = incomingCallers.ToList();
-            if (screeningCaller != null && !allCallers.Contains(screeningCaller))
-            {
-                allCallers.Insert(0, screeningCaller);
-            }
-            _reactiveListPanel.SetData(allCallers);
+            _reactiveListPanel.SetData(incomingCallers);
 
-            GD.Print($"CallerTab: Updated incoming panel with {allCallers.Count} callers (incoming: {incomingCallers.Count}, screening: {screeningCaller?.Name ?? "none"})");
+            GD.Print($"CallerTab: Updated incoming panel with {incomingCallers.Count} callers");
         }
 
         private void CreateScreeningPanel()

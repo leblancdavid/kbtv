@@ -87,18 +87,22 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Caller cannot be null", "NULL_CALLER");
             }
 
-            if (IsScreening)
-            {
-                return Result<Caller>.Fail("Already screening a caller", "SCREENING_BUSY");
-            }
-
             if (!_callers.ContainsKey(caller.Id))
             {
                 return Result<Caller>.Fail("Caller not found", "CALLER_NOT_FOUND");
             }
 
+            if (IsScreening && _currentScreeningId != null && _currentScreeningId != caller.Id)
+            {
+                var currentCaller = GetCaller(_currentScreeningId);
+                if (currentCaller != null)
+                {
+                    PublishEvent(new Core.Events.Screening.ScreeningEnded { Caller = currentCaller });
+                }
+                _currentScreeningId = null;
+            }
+
             _currentScreeningId = caller.Id;
-            SetCallerState(caller, CallerState.Screening);
 
             var screeningController = Core.ServiceRegistry.Instance?.ScreeningController;
             screeningController?.Start(caller);
