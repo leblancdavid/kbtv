@@ -118,25 +118,32 @@ namespace KBTV.UI
             {
                 _cachedCaller = null;
                 _callerId = null;
+                _previousState = CallerState.Disconnected;
                 ApplyCallerData(null);
                 return;
             }
 
-            bool needsRefresh = currentCaller.Id != _previousCallerId ||
-                                currentCaller.State != _previousState ||
-                                currentCaller.WaitTime != _previousWaitTime ||
-                                (currentCaller.State == CallerState.Screening &&
-                                 currentCaller.ScreeningPatience != _previousScreeningPatience);
+            _cachedCaller = currentCaller;
 
-            if (needsRefresh)
+            bool needsStatusUpdate = currentCaller.WaitTime != _previousWaitTime ||
+                                     (currentCaller.State == CallerState.Screening &&
+                                      currentCaller.ScreeningPatience != _previousScreeningPatience);
+
+            if (needsStatusUpdate)
             {
-                _cachedCaller = currentCaller;
-                _previousCallerId = currentCaller.Id;
-                _previousState = currentCaller.State;
                 _previousWaitTime = currentCaller.WaitTime;
                 _previousScreeningPatience = currentCaller.ScreeningPatience;
-                UpdateVisualSelection();
                 UpdateStatusIndicator();
+            }
+
+            bool needsFullRefresh = currentCaller.Id != _previousCallerId ||
+                                    currentCaller.State != _previousState;
+
+            if (needsFullRefresh)
+            {
+                _previousCallerId = currentCaller.Id;
+                _previousState = currentCaller.State;
+                UpdateVisualSelection();
             }
         }
 

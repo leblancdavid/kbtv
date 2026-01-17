@@ -196,38 +196,77 @@
 ---
 
 ## Current Session
-- **Task**: Fix duplicate caller appearing in queue
+- **Task**: Fix caller patience status indicator not updating
 - **Status**: Completed
 - **Started**: Sat Jan 17 2026
 - **Last Updated**: Sat Jan 17 2026
 
 ### Issue
-A duplicate caller is getting added to the caller queue. The issue was traced to the `RejectScreening()` method.
+Patience status indicator in `CallerQueueItem` wasn't updating despite `UpdateWaitTime()` being called.
 
 ### Root Cause
-The `RejectScreening()` method was manually modifying `_stateIndex` before calling `caller.SetState()`:
-```csharp
-_stateIndex[CallerState.Screening].Remove(caller.Id);
-_stateIndex[CallerState.Rejected].Add(caller.Id);
-caller.SetState(CallerState.Rejected);  // Triggers OnStateChanged -> SetCallerState -> UpdateStateIndex
-```
-
-This caused a race condition where:
-1. Manual state index changes could conflict with `SetCallerState()` updates
-2. The caller could end up in inconsistent state index entries
+The `_Process()` method was comparing `_cachedCaller.WaitTime` against `_previousWaitTime`, but:
+1. `_previousWaitTime` was initialized to the same value as `_cachedCaller.WaitTime` (both 0)
+2. The comparison was always false because they started equal
+3. The logic checked patience values BEFORE getting the current caller from the repository
 
 ### Fix Applied
-Changed `RejectScreening()` to use `SetCallerState()` which properly handles state index transitions:
-```csharp
-SetCallerState(caller, CallerState.Rejected);
-RemoveCaller(caller);
-```
+Reordered `_Process()` logic in `CallerQueueItem.cs`:
+1. Get current caller from repository FIRST
+2. Check if `WaitTime` or `ScreeningPatience` changed from tracked previous values
+3. Only call `UpdateStatusIndicator()` when values actually change
+4. Separated status-only updates from full refresh (state/selection changes)
 
 ### Files Modified
-- `scripts/callers/CallerRepository.cs` - Fixed `RejectScreening()` method
+- `scripts/ui/CallerQueueItem.cs` - Rewrote `_Process()` to poll current caller from repository
 
-### Test Added
-- `RejectScreening_RemovedFromIncomingCallers` - Verifies rejected callers don't appear in IncomingCallers list
+### Tests Added
+- `tests/integration/CallerQueueItemPatienceTests.cs` (new) - Comprehensive patience tests:
+  - Incoming caller patience depletion over wait time
+  - Screening caller patience depletion at 50% rate
+  - Caller disconnection when patience runs out
+  - OnHold/OnAir callers don't accumulate wait time
+  - Patience ratio calculations and color thresholds
+
+### Build Status
+**Build: SUCCESS** (0 errors, 0 warnings)
+
+---
+
+## Current Session
+- **Task**: Fix caller patience status indicator not updating (no patience drain)
+- **Status**: Completed
+- **Started**: Sat Jan 17 2026
+- **Last Updated**: Sat Jan 17 2026
+
+### Issue
+Patience status indicator wasn't changing because `UpdateWaitTime()` was never being called on callers.
+
+### Root Cause
+- `CallerRepository` is a plain C# class (not a Godot Node), so `_Process()` is never called on it
+- `CallerQueue._Process()` had `UpdateCallerPatience()` but the `CallerQueue` might not be in the scene tree reliably
+- Result: `WaitTime` stayed at 0, patience ratio stayed at 1.0 (green), callers never disconnected
+
+### Fix Applied
+
+**1. Created `scripts/callers/CallerPatienceMonitor.cs`:**
+- New Node that runs `_Process()` every frame
+- Updates `WaitTime` for all incoming callers
+- Updates `ScreeningPatience` for the screening caller
+- Handles disconnection when patience runs out (via `OnDisconnected` event)
+
+**2. Fixed `scripts/ui/CallerQueueItem._Process()`:**
+- Reset `_previousState` to `CallerState.Disconnected` when caller is null
+- Prevents stale UI state after caller disconnects
+
+**3. Updated `scenes/Main.tscn`:**
+- Added `CallerPatienceMonitor` node as child of Main
+- Ensures the monitor is always active in the game
+
+### Files Modified
+- `scripts/callers/CallerPatienceMonitor.cs` (new)
+- `scripts/ui/CallerQueueItem.cs` - Fixed null caller handling
+- `scenes/Main.tscn` - Added CallerPatienceMonitor node
 
 ### Build Status
 **Build: SUCCESS** (0 errors, 0 warnings)

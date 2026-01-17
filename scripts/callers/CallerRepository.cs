@@ -9,13 +9,12 @@ using KBTV.Core;
 namespace KBTV.Callers
 {
     /// <summary>
-    /// Unified caller storage with state-based indexing.
-    /// Replaces separate _incomingCallers and _onHoldCallers lists.
+    /// Unified caller storage using caller state as the source of truth.
+    /// Caller's State property determines which list they belong to.
     /// </summary>
     public partial class CallerRepository : ICallerRepository
     {
         private readonly Dictionary<string, Caller> _callers = new();
-        private readonly Dictionary<CallerState, HashSet<string>> _stateIndex = new();
         private string? _currentScreeningId;
         private string? _onAirCallerId;
         private readonly List<ICallerRepositoryObserver> _observers = new();
@@ -24,30 +23,24 @@ namespace KBTV.Callers
         private const int MAX_INCOMING = 10;
         private const int MAX_ON_HOLD = 10;
 
-        public CallerRepository()
-        {
-            InitializeStateIndex();
-        }
+        public IReadOnlyList<Caller> IncomingCallers => 
+            _callers.Values.Where(c => c.State == CallerState.Incoming).ToList();
+        
+        public IReadOnlyList<Caller> OnHoldCallers => 
+            _callers.Values.Where(c => c.State == CallerState.OnHold).ToList();
+        
+        public Caller? CurrentScreening => 
+            _currentScreeningId != null ? GetCaller(_currentScreeningId) : null;
+        
+        public Caller? OnAirCaller => 
+            _onAirCallerId != null ? GetCaller(_onAirCallerId) : null;
 
-        private void InitializeStateIndex()
-        {
-            foreach (CallerState state in Enum.GetValues(typeof(CallerState)))
-            {
-                _stateIndex[state] = new HashSet<string>();
-            }
-        }
-
-        public IReadOnlyList<Caller> IncomingCallers => GetCallersByState(CallerState.Incoming);
-        public IReadOnlyList<Caller> OnHoldCallers => GetCallersByState(CallerState.OnHold);
-        public Caller? CurrentScreening => _currentScreeningId != null ? GetCaller(_currentScreeningId) : null;
-        public Caller? OnAirCaller => _onAirCallerId != null ? GetCaller(_onAirCallerId) : null;
-
-        public bool HasIncomingCallers => _stateIndex[CallerState.Incoming].Count > 0;
-        public bool HasOnHoldCallers => _stateIndex[CallerState.OnHold].Count > 0;
+        public bool HasIncomingCallers => IncomingCallers.Count > 0;
+        public bool HasOnHoldCallers => OnHoldCallers.Count > 0;
         public bool IsScreening => _currentScreeningId != null;
         public bool IsOnAir => _onAirCallerId != null;
-        public bool CanAcceptMoreCallers => _stateIndex[CallerState.Incoming].Count < MAX_INCOMING;
-        public bool CanPutOnHold => _stateIndex[CallerState.OnHold].Count < MAX_ON_HOLD;
+        public bool CanAcceptMoreCallers => IncomingCallers.Count < MAX_INCOMING;
+        public bool CanPutOnHold => OnHoldCallers.Count < MAX_ON_HOLD;
 
         public Result<Caller> AddCaller(Caller caller)
         {
@@ -66,18 +59,12 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Caller already exists", "DUPLICATE_CALLER");
             }
 
-            if (_stateIndex[CallerState.Screening].Contains(caller.Id))
+            if (caller.State == CallerState.Screening || caller.State == CallerState.OnHold)
             {
-                return Result<Caller>.Fail("Caller already screening", "CALLER_SCREENING");
-            }
-
-            if (_stateIndex[CallerState.OnHold].Contains(caller.Id))
-            {
-                return Result<Caller>.Fail("Caller already on hold", "CALLER_ON_HOLD");
+                return Result<Caller>.Fail("Caller already in another state", "CALLER_BUSY");
             }
 
             _callers[caller.Id] = caller;
-            UpdateStateIndex(caller.Id, CallerState.Incoming);
             caller.SetState(CallerState.Incoming);
 
             var handler = new Action(() => HandleCallerDisconnected(caller));
@@ -88,7 +75,7 @@ namespace KBTV.Callers
 
             return Result<Caller>.Ok(caller);
         }
-
+        
         public Result<Caller> StartScreening(Caller caller)
         {
             if (caller == null)
@@ -101,13 +88,17 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Caller not found", "CALLER_NOT_FOUND");
             }
 
-            if (IsScreening && _currentScreeningId != null && _currentScreeningId != caller.Id)
-            {
-                _stateIndex[CallerState.Screening].Remove(_currentScreeningId);
-                _currentScreeningId = null;
-            }
-
+            var previousScreening = _currentScreeningId;
             _currentScreeningId = caller.Id;
+
+            if (previousScreening != null && previousScreening != caller.Id)
+            {
+                var prev = GetCaller(previousScreening);
+                if (prev != null)
+                {
+                    prev.SetState(CallerState.Incoming);
+                }
+            }
 
             var screeningController = Core.ServiceRegistry.Instance?.ScreeningController;
             screeningController?.Start(caller);
@@ -116,7 +107,7 @@ namespace KBTV.Callers
 
             return Result<Caller>.Ok(caller);
         }
-
+        
         public Result<Caller> StartScreeningNext()
         {
             if (IsScreening)
@@ -124,20 +115,15 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Already screening a caller", "SCREENING_BUSY");
             }
 
-            var incoming = _stateIndex[CallerState.Incoming].FirstOrDefault();
+            var incoming = IncomingCallers.FirstOrDefault();
             if (incoming == null)
             {
                 return Result<Caller>.Fail("No incoming callers", "NO_INCOMING");
             }
 
-            var caller = GetCaller(incoming);
-            if (caller == null)
-            {
-                return Result<Caller>.Fail("Caller not found", "CALLER_NOT_FOUND");
-            }
-            return StartScreening(caller);
+            return StartScreening(incoming);
         }
-
+        
         public Result<Caller> ApproveScreening()
         {
             if (!IsScreening || _currentScreeningId == null)
@@ -156,16 +142,14 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Screening caller not found", "CALLER_NOT_FOUND");
             }
 
-            var previousState = caller.State;
-            SetCallerState(caller, CallerState.OnHold);
-
+            caller.SetState(CallerState.OnHold);
             _currentScreeningId = null;
 
             NotifyObservers(o => o.OnScreeningEnded(caller, approved: true));
 
             return Result<Caller>.Ok(caller);
         }
-
+        
         public Result<Caller> RejectScreening()
         {
             if (!IsScreening || _currentScreeningId == null)
@@ -179,8 +163,7 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Screening caller not found", "CALLER_NOT_FOUND");
             }
 
-            SetCallerState(caller, CallerState.Rejected);
-
+            caller.SetState(CallerState.Rejected);
             RemoveCaller(caller);
             _currentScreeningId = null;
 
@@ -188,7 +171,7 @@ namespace KBTV.Callers
 
             return Result<Caller>.Ok(caller);
         }
-
+        
         public Result<Caller> PutOnAir()
         {
             if (IsOnAir)
@@ -196,26 +179,20 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Already have a caller on air", "ON_AIR_BUSY");
             }
 
-            var onHold = _stateIndex[CallerState.OnHold].FirstOrDefault();
+            var onHold = OnHoldCallers.FirstOrDefault();
             if (onHold == null)
             {
                 return Result<Caller>.Fail("No on-hold callers", "NO_ON_HOLD");
             }
 
-            var caller = GetCaller(onHold);
-            if (caller == null)
-            {
-                return Result<Caller>.Fail("On-hold caller not found", "CALLER_NOT_FOUND");
-            }
+            _onAirCallerId = onHold.Id;
+            onHold.SetState(CallerState.OnAir);
 
-            _onAirCallerId = caller.Id;
-            SetCallerState(caller, CallerState.OnAir);
+            NotifyObservers(o => o.OnCallerOnAir(onHold));
 
-            NotifyObservers(o => o.OnCallerOnAir(caller));
-
-            return Result<Caller>.Ok(caller);
+            return Result<Caller>.Ok(onHold);
         }
-
+        
         public Result<Caller> EndOnAir()
         {
             if (!IsOnAir || _onAirCallerId == null)
@@ -229,8 +206,7 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("On-air caller not found", "CALLER_NOT_FOUND");
             }
 
-            SetCallerState(caller, CallerState.Completed);
-
+            caller.SetState(CallerState.Completed);
             RemoveCaller(caller);
             _onAirCallerId = null;
 
@@ -238,7 +214,7 @@ namespace KBTV.Callers
 
             return Result<Caller>.Ok(caller);
         }
-
+        
         public bool SetCallerState(Caller caller, CallerState newState)
         {
             if (caller == null || !_callers.ContainsKey(caller.Id))
@@ -252,14 +228,12 @@ namespace KBTV.Callers
                 return false;
             }
 
-            UpdateStateIndex(caller.Id, newState);
             caller.SetState(newState);
-
             NotifyObservers(o => o.OnCallerStateChanged(caller, oldState, newState));
 
             return true;
         }
-
+        
         public bool RemoveCaller(Caller caller)
         {
             if (caller == null || !_callers.ContainsKey(caller.Id))
@@ -268,16 +242,6 @@ namespace KBTV.Callers
             }
 
             UnsubscribeCaller(caller);
-
-            if (_stateIndex[caller.State].Contains(caller.Id))
-            {
-                _stateIndex[caller.State].Remove(caller.Id);
-            }
-            else
-            {
-                GD.PrintErr($"RemoveCaller: Caller {caller.Id} ({caller.Name}) was not in expected state {caller.State}, cleaning up anyway");
-            }
-
             _callers.Remove(caller.Id);
 
             if (_currentScreeningId == caller.Id)
@@ -293,7 +257,7 @@ namespace KBTV.Callers
 
             return true;
         }
-
+        
         public void ClearAll()
         {
             foreach (var caller in _callers.Values.ToList())
@@ -302,13 +266,12 @@ namespace KBTV.Callers
             }
 
             _callers.Clear();
-            InitializeStateIndex();
             _currentScreeningId = null;
             _onAirCallerId = null;
 
             GD.Print("CallerRepository: Cleared all callers");
         }
-
+        
         public void Subscribe(ICallerRepositoryObserver observer)
         {
             if (observer != null && !_observers.Contains(observer))
@@ -316,28 +279,10 @@ namespace KBTV.Callers
                 _observers.Add(observer);
             }
         }
-
+        
         public void Unsubscribe(ICallerRepositoryObserver observer)
         {
             _observers.Remove(observer);
-        }
-
-        private void UpdateStateIndex(string callerId, CallerState newState)
-        {
-            var caller = GetCaller(callerId);
-            if (caller != null)
-            {
-                _stateIndex[caller.State].Remove(callerId);
-            }
-            _stateIndex[newState].Add(callerId);
-        }
-
-        private IReadOnlyList<Caller> GetCallersByState(CallerState state)
-        {
-            return _stateIndex[state]
-                .Select(GetCaller)
-                .Where(c => c != null)
-                .ToList()!;
         }
 
         private void UnsubscribeCaller(Caller caller)
@@ -356,11 +301,7 @@ namespace KBTV.Callers
 
         private void HandleCallerDisconnected(Caller caller)
         {
-            if (caller.State == CallerState.Screening)
-            {
-                _stateIndex[CallerState.Screening].Remove(caller.Id);
-            }
-            SetCallerState(caller, CallerState.Disconnected);
+            caller.SetState(CallerState.Disconnected);
             RemoveCaller(caller);
         }
 
