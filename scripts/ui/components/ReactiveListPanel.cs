@@ -18,8 +18,8 @@ namespace KBTV.UI.Components
         private IListAdapter<T>? _adapter;
         private int _nextItemId;
 
-        [Export] public bool AnimateChanges { get; set; } = true;
-        [Export] public float AnimationDuration { get; set; } = 0.2f;
+        [Export] public bool AnimateChanges { get; set; } = false;
+        [Export] public float AnimationDuration { get; set; } = 0.1f;
 
         public void SetAdapter(IListAdapter<T> adapter)
         {
@@ -87,6 +87,7 @@ namespace KBTV.UI.Components
         private void UpdateDifferentially()
         {
             var currentIds = new HashSet<int>();
+            var itemsToUpdate = new List<(int index, T item, Control control)>();
 
             for (int i = 0; i < _dataSource.Count; i++)
             {
@@ -96,14 +97,20 @@ namespace KBTV.UI.Components
                 if (_itemCache.TryGetValue(i, out var cached))
                 {
                     control = cached;
-                    _adapter?.UpdateItem(control, item);
+                    itemsToUpdate.Add((i, item, control));
                 }
                 else
                 {
                     control = CreateAndAddItem(i, item);
+                    itemsToUpdate.Add((i, item, control));
                 }
 
                 currentIds.Add(i);
+            }
+
+            foreach (var (index, item, control) in itemsToUpdate)
+            {
+                _adapter?.UpdateItem(control, item);
             }
 
             var toRemove = _itemCache.Keys.Except(currentIds).ToList();

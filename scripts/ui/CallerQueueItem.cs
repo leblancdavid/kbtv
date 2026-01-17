@@ -16,6 +16,8 @@ namespace KBTV.UI
         private ProgressBar _statusIndicator = null!;
 
         private string? _callerId;
+        private Caller? _cachedCaller;
+        private Caller? _pendingCaller;
         private ICallerRepository? _repository;
 
         public override void _Ready()
@@ -36,7 +38,6 @@ namespace KBTV.UI
         {
             if (!Core.ServiceRegistry.IsInitialized)
             {
-                GD.PrintErr("CallerQueueItem: ServiceRegistry not initialized, retrying...");
                 CallDeferred(nameof(InitializeDeferred));
                 return;
             }
@@ -48,21 +49,43 @@ namespace KBTV.UI
             var events = Core.ServiceRegistry.Instance.EventAggregator;
             events?.Subscribe<Core.Events.Queue.CallerStateChanged>(this, OnCallerStateChanged);
             events?.Subscribe<Core.Events.Screening.ScreeningStarted>(this, OnScreeningStarted);
+            events?.Subscribe<Core.Events.Screening.ScreeningProgressUpdated>(this, OnScreeningProgressUpdated);
 
+            ApplyPendingCallerData();
             UpdateVisualSelection();
+            UpdateStatusIndicator();
+        }
+
+        private void ApplyPendingCallerData()
+        {
+            if (_pendingCaller != null)
+            {
+                _cachedCaller = _pendingCaller;
+                _callerId = _pendingCaller.Id;
+                _pendingCaller = null;
+            }
+            ApplyCallerData(_cachedCaller);
         }
 
         public void SetCaller(Caller? caller)
         {
             _callerId = caller?.Id;
-            CallDeferred(nameof(_ApplyCallerNameDeferred), caller?.Name ?? "");
+            _cachedCaller = caller;
+
+            if (_nameLabel == null)
+            {
+                _pendingCaller = caller;
+                return;
+            }
+
+            ApplyCallerData(caller);
         }
 
-        private void _ApplyCallerNameDeferred(string name)
+        private void ApplyCallerData(Caller? caller)
         {
             if (_nameLabel != null)
             {
-                _nameLabel.Text = name;
+                _nameLabel.Text = caller?.Name ?? "";
                 _nameLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.7f));
             }
             UpdateStatusIndicator();
@@ -74,58 +97,13 @@ namespace KBTV.UI
             UpdateVisualSelection();
         }
 
-        private void ApplyCallerName(string name)
-        {
-            if (_nameLabel != null)
-            {
-                _nameLabel.Text = name;
-                _nameLabel.Modulate = new Color(0.7f, 0.7f, 0.7f);
-            }
-        }
-
         public override void _Process(double delta)
         {
-            UpdateStatusIndicator();
-            
-            // Additional debug logging to verify _Process is called
-            if (Engine.GetProcessFrames() % 120 == 0) // ~2 seconds at 60 FPS
-            {
-                GD.Print($"CallerQueueItem._Process: Processing frame {Engine.GetProcessFrames()} for {GetCurrentCaller()?.Name ?? "null"}");
-            }
         }
 
         private Caller? GetCurrentCaller()
         {
-            if (_callerId == null || _repository == null)
-            {
-                return null;
-            }
-
-            var incomingCallers = _repository.IncomingCallers.ToList();
-            foreach (var caller in incomingCallers)
-            {
-                if (caller.Id == _callerId)
-                {
-                    return caller;
-                }
-            }
-
-            var onHoldCallers = _repository.OnHoldCallers.ToList();
-            foreach (var caller in onHoldCallers)
-            {
-                if (caller.Id == _callerId)
-                {
-                    return caller;
-                }
-            }
-
-            var currentScreening = _repository.CurrentScreening;
-            if (currentScreening != null && currentScreening.Id == _callerId)
-            {
-                return currentScreening;
-            }
-
-            return null;
+            return _cachedCaller;
         }
 
         private void OnGuiInput(InputEvent @event)
@@ -154,6 +132,7 @@ namespace KBTV.UI
             var success = _repository.StartScreening(caller);
             if (success.IsSuccess)
             {
+                _cachedCaller = caller;
                 GD.Print($"CallerQueueItem: Started screening {caller.Name}");
             }
             else
@@ -173,10 +152,19 @@ namespace KBTV.UI
 
         private void OnScreeningStarted(Core.Events.Screening.ScreeningStarted evt)
         {
-            var currentCaller = GetCurrentCaller();
             if (evt.Caller != null && evt.Caller.Id == _callerId)
             {
+                _cachedCaller = evt.Caller;
                 UpdateVisualSelection();
+                UpdateStatusIndicator();
+            }
+        }
+
+        private void OnScreeningProgressUpdated(Core.Events.Screening.ScreeningProgressUpdated evt)
+        {
+            if (_cachedCaller != null && _cachedCaller.State == CallerState.Screening)
+            {
+                UpdateStatusIndicator();
             }
         }
 
@@ -221,31 +209,22 @@ namespace KBTV.UI
             float remainingPatience;
             if (caller.State == CallerState.Screening)
             {
-                // During screening, show remaining screening patience
                 remainingPatience = caller.ScreeningPatience;
             }
             else
             {
-                // For incoming/on-hold callers, show patience minus wait time
                 remainingPatience = caller.Patience - caller.WaitTime;
             }
-            
+
             float patienceRatio = Mathf.Clamp(remainingPatience / caller.Patience, 0f, 1f);
 
             _statusIndicator.Value = patienceRatio;
-            
+
             var fillStyle = new StyleBoxFlat { BgColor = UIColors.GetPatienceColor(patienceRatio) };
             _statusIndicator.AddThemeStyleboxOverride("fill", fillStyle);
 
-            // Force UI redraw
             _statusIndicator.QueueRedraw();
             QueueRedraw();
-
-            // Debug logging every second (more frequent for debugging)
-            if (Engine.GetProcessFrames() % 60 == 0) // ~1 second at 60 FPS
-            {
-                GD.Print($"CallerQueueItem: {caller.Name} - State: {caller.State}, Patience: {remainingPatience:F1}/{caller.Patience:F1}, Ratio: {patienceRatio:F2}, Color: {fillStyle.BgColor}");
-            }
         }
 
         public override void _ExitTree()

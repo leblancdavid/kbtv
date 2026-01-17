@@ -177,6 +177,16 @@ namespace KBTV.UI
             _tabManager.CreateScreeningPanel(_screeningPanel);
         }
 
+        private void UpdateScreeningPanel()
+        {
+            if (_screeningPanel == null)
+            {
+                GD.PrintErr("CallerTab.UpdateScreeningPanel: _screeningPanel is null - node not found in scene");
+                return;
+            }
+            _tabManager.UpdateScreeningPanelContent();
+        }
+
         private void CreateOnHoldPanel()
         {
             if (_onHoldPanel == null)
@@ -285,11 +295,8 @@ namespace KBTV.UI
 
         private void RefreshTabContent()
         {
-            // Update incoming panel data without recreating the panel
             UpdateIncomingPanelData();
-            
-            // Still need to recreate screening and on-hold panels as they change more dynamically
-            CreateScreeningPanel();
+            UpdateScreeningPanel();
             CreateOnHoldPanel();
         }
 

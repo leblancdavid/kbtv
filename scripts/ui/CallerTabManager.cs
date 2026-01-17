@@ -68,13 +68,15 @@ namespace KBTV.UI
                         _screeningPanel.CustomMinimumSize = Vector2.Zero;
                         GD.Print("CallerTabManager: Configured screening panel for full rect containment");
 
+                        panel.AddChild(_screeningPanel);
+
                         _screeningPanel.ConnectButtons(
                             Callable.From(() => _callerActions.OnApproveCaller()),
                             Callable.From(() => _callerActions.OnRejectCaller())
                         );
 
-                        panel.AddChild(_screeningPanel);
-                        UpdateScreeningPanelContent();
+                        var currentScreening = _repository.CurrentScreening;
+                        _screeningPanel.SetCaller(currentScreening);
                         GD.Print("CallerTabManager: Screening panel creation successful");
                     }
                 }

@@ -32,21 +32,10 @@ namespace KBTV.UI
 		private Label? _patienceLabel;
 
 		private IScreeningController _controller = null!;
+		private Caller? _pendingCaller;
 
 		public override void _Ready()
 		{
-			CallDeferred(nameof(InitializeDeferred));
-		}
-
-		private void InitializeDeferred()
-		{
-			if (!Core.ServiceRegistry.IsInitialized)
-			{
-				GD.PrintErr("ScreeningPanel: ServiceRegistry not initialized, retrying...");
-				CallDeferred(nameof(InitializeDeferred));
-				return;
-			}
-
 			EnsureNodesInitialized();
 			InitializeController();
 			if (_approveButton != null && _rejectButton != null)
@@ -114,11 +103,18 @@ namespace KBTV.UI
 
 		public void SetCaller(Caller? caller)
 		{
-			if (_callerInfoLabel == null)
-			{
-				EnsureNodesInitialized();
-			}
+			_pendingCaller = caller;
+			CallDeferred(nameof(_ApplyCallerDeferred));
+		}
 
+		private void _ApplyCallerDeferred()
+		{
+			EnsureNodesInitialized();
+			_SetCallerImmediate(_pendingCaller);
+		}
+
+		private void _SetCallerImmediate(Caller? caller)
+		{
 			if (caller != null)
 			{
 				_callerInfoLabel!.Text = BuildCallerInfoText(caller);
@@ -250,7 +246,6 @@ namespace KBTV.UI
 
 		public void ConnectButtons(Callable approveCallable, Callable rejectCallable)
 		{
-			EnsureNodesInitialized();
 			if (_approveButton != null)
 			{
 				_approveButton.Connect("pressed", approveCallable);
