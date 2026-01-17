@@ -68,11 +68,8 @@ namespace KBTV.Managers
 
             _gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
             _timeManager.Connect("Tick", Callable.From<float>(HandleTick));
-            _repository.Subscribe(_repositoryObserver);
             GD.Print("ListenerManager: Initialization complete");
         }
-
-        private readonly ICallerRepositoryObserver _repositoryObserver = new ListenerRepositoryObserver();
 
         public override void _ExitTree()
         {
@@ -84,11 +81,6 @@ namespace KBTV.Managers
             if (_timeManager != null)
             {
                 _timeManager.Disconnect("Tick", Callable.From<float>(HandleTick));
-            }
-
-            if (_repository != null)
-            {
-                _repository.Unsubscribe(_repositoryObserver);
             }
         }
 
@@ -267,16 +259,5 @@ namespace KBTV.Managers
                 GD.Print($"ListenerManager: Unexpected disconnect - Caller '{caller.Name}' state was {caller.State}");
             }
         }
-    }
-
-    internal class ListenerRepositoryObserver : ICallerRepositoryObserver
-    {
-        public void OnCallerAdded(Caller caller) { }
-        public void OnCallerRemoved(Caller caller) { }
-        public void OnCallerStateChanged(Caller caller, CallerState oldState, CallerState newState) { }
-        public void OnScreeningStarted(Caller caller) { }
-        public void OnScreeningEnded(Caller caller, bool approved) { }
-        public void OnCallerOnAir(Caller caller) { }
-        public void OnCallerOnAirEnded(Caller caller) { }
     }
 }

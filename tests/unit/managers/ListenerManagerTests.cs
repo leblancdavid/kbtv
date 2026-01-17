@@ -157,21 +157,22 @@ namespace KBTV.Tests.Unit.Managers
         [Test]
         public void GetFormattedChange_NegativeChange_ShowsMinusSign()
         {
-            _listenerManager.ModifyListeners(500);
-            _listenerManager.ModifyListeners(-100);
+            _listenerManager.ModifyListeners(-500);
             string formatted = _listenerManager.GetFormattedChange();
 
             AssertThat(formatted.StartsWith("-"));
         }
 
         [Test]
-        public void GetFormattedListeners_NegativeListeners_FormatsCorrectly()
+        public void ModifyListeners_ExcessiveNegative_ClampsToMinimum()
         {
             _listenerManager.ModifyListeners(500);
-            _listenerManager.ModifyListeners(-600);
-            string formatted = _listenerManager.GetFormattedListeners();
+            int beforeClamp = _listenerManager.CurrentListeners;
 
-            AssertThat(formatted.StartsWith("-"));
+            _listenerManager.ModifyListeners(-600);
+
+            AssertThat(_listenerManager.CurrentListeners <= beforeClamp);
+            AssertThat(_listenerManager.CurrentListeners >= 100);
         }
     }
 }

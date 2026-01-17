@@ -19,17 +19,9 @@ namespace KBTV.Core
     [GlobalClass]
     public partial class ServiceRegistry : Node
     {
-        [Signal] public delegate void AllServicesReadyEventHandler();
-
         private static ServiceRegistry _instance;
         private readonly Dictionary<Type, object> _services = new();
         private readonly Dictionary<Type, Func<object>> _factories = new();
-
-        private int _registeredCount;
-        private bool _allReadyEmitted;
-        private double _lastRegistrationTime;
-        private const double REGISTRATION_TIMEOUT = 0.5;
-        private const int MIN_SERVICES_EXPECTED = 4;
 
         public static bool IsInitialized { get; private set; } = false;
 
@@ -48,29 +40,11 @@ namespace KBTV.Core
         public override void _Ready()
         {
             _instance = this;
-            _registeredCount = 0;
-            _allReadyEmitted = false;
-            _lastRegistrationTime = 0.0;
             IsInitialized = true;
 
             RegisterCoreServices();
 
             GD.Print("ServiceRegistry: Initialized");
-        }
-
-        public override void _Process(double delta)
-        {
-            if (_allReadyEmitted || _registeredCount < MIN_SERVICES_EXPECTED)
-            {
-                return;
-            }
-
-            if (Time.GetTicksMsec() / 1000.0 - _lastRegistrationTime >= REGISTRATION_TIMEOUT)
-            {
-                _allReadyEmitted = true;
-                GD.Print($"ServiceRegistry: All services ready after timeout ({_registeredCount} services registered)");
-                EmitSignal("AllServicesReady");
-            }
         }
 
         private void RegisterCoreServices()
@@ -86,29 +60,8 @@ namespace KBTV.Core
 
         public void NotifyRegistered()
         {
-            _registeredCount++;
-            _lastRegistrationTime = Time.GetTicksMsec() / 1000.0;
-            GD.Print($"ServiceRegistry: Service registered ({_registeredCount} total)");
-
-            if (_allReadyEmitted)
-            {
-                return;
-            }
-
-            if (_registeredCount >= MIN_SERVICES_EXPECTED &&
-                Time.GetTicksMsec() / 1000.0 - _lastRegistrationTime >= REGISTRATION_TIMEOUT)
-            {
-                _allReadyEmitted = true;
-                GD.Print($"ServiceRegistry: All services ready! ({_registeredCount} services)");
-                EmitSignal("AllServicesReady");
-            }
+            GD.Print($"ServiceRegistry: Service registered");
         }
-
-        public float InitializationProgress => _registeredCount <= 0
-            ? 0f
-            : Mathf.Clamp((float)_registeredCount / 15f, 0f, 1f);
-
-        public int RegisteredCount => _registeredCount;
 
         public void Register<TService>(TService instance) where TService : class
         {

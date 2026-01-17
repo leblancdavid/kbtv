@@ -24,43 +24,33 @@ namespace KBTV.UI
 			base._Ready();
 			ServiceRegistry.Instance.RegisterSelf<PreShowUIManager>(this);
 			LoadTopics();
-			GD.Print("PreShowUIManager: Waiting for AllServicesReady before showing UI");
+			GD.Print("PreShowUIManager: Initializing, checking service registry");
 
-			var registry = ServiceRegistry.Instance;
-			if (registry != null && ServiceRegistry.IsInitialized)
+			if (ServiceRegistry.IsInitialized)
 			{
 				CallDeferred(nameof(DelayedRegister));
 			}
 			else
 			{
-				CallDeferred(nameof(SubscribeAndWait));
+				CallDeferred(nameof(RetryInitialization));
 			}
 		}
 
-		private bool _servicesSubscribed;
-
-		private void SubscribeAndWait()
+		private void RetryInitialization()
 		{
-			var registry = ServiceRegistry.Instance;
-			if (registry != null)
+			if (ServiceRegistry.IsInitialized)
 			{
-				_servicesSubscribed = true;
-				registry.Connect("AllServicesReady", Callable.From(DelayedRegister));
+				DelayedRegister();
+			}
+			else
+			{
+				CallDeferred(nameof(RetryInitialization));
 			}
 		}
 
 		private void DelayedRegister()
 		{
-			var registry = ServiceRegistry.Instance;
-			if (registry != null)
-			{
-				if (_servicesSubscribed)
-				{
-					registry.Disconnect("AllServicesReady", Callable.From(DelayedRegister));
-					_servicesSubscribed = false;
-				}
-			}
-			GD.Print("PreShowUIManager: All services ready, creating and registering UI");
+			GD.Print("PreShowUIManager: Services ready, creating and registering UI");
 			CreatePreShowUI();
 			SubscribeToEvents();
 		}

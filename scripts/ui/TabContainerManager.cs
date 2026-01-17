@@ -19,37 +19,29 @@ namespace KBTV.UI
             GD.Print("TabContainerManager: Initializing UI system");
             ServiceRegistry.Instance.RegisterSelf<TabContainerManager>(this);
 
-            var registry = ServiceRegistry.Instance;
-            if (registry != null && ServiceRegistry.IsInitialized)
+            if (ServiceRegistry.IsInitialized)
             {
-                GD.Print("TabContainerManager: Services already ready, creating UI");
+                GD.Print("TabContainerManager: Services ready, creating UI");
                 CallDeferred(nameof(CreateUI));
             }
             else
             {
-                GD.Print("TabContainerManager: Waiting for AllServicesReady");
-                CallDeferred(nameof(SubscribeAndWait));
+                GD.Print("TabContainerManager: Services not ready, retrying...");
+                CallDeferred(nameof(RetryInitialization));
             }
         }
 
-        private void SubscribeAndWait()
+        private void RetryInitialization()
         {
-            var registry = ServiceRegistry.Instance;
-            if (registry != null)
+            if (ServiceRegistry.IsInitialized)
             {
-                registry.Connect("AllServicesReady", Callable.From(OnAllServicesReady));
+                GD.Print("TabContainerManager: Services now ready, creating UI");
+                CreateUI();
             }
-        }
-
-        private void OnAllServicesReady()
-        {
-            var registry = ServiceRegistry.Instance;
-            if (registry != null)
+            else
             {
-                registry.Disconnect("AllServicesReady", Callable.From(OnAllServicesReady));
+                CallDeferred(nameof(RetryInitialization));
             }
-            GD.Print("TabContainerManager: All services ready, creating UI");
-            CreateUI();
         }
 
         private void CreateUI()

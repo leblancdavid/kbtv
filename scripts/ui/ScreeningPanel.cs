@@ -57,8 +57,6 @@ namespace KBTV.UI
 		private void InitializeController()
 		{
 			_controller = Core.ServiceRegistry.Instance.ScreeningController;
-			_controller.PhaseChanged += OnPhaseChanged;
-			_controller.ProgressUpdated += OnProgressUpdated;
 		}
 
 		private void ConnectSignals()
@@ -108,6 +106,7 @@ namespace KBTV.UI
 				SetCaller(currentCaller);
 				UpdateButtons();
 			}
+			UpdatePatienceDisplay(_controller.Progress);
 		}
 
 		public void SetCaller(Caller? caller)
@@ -169,23 +168,6 @@ namespace KBTV.UI
 			{
 				GD.PrintErr($"ScreeningPanel: Reject failed - {result.ErrorCode}: {result.ErrorMessage}");
 			}
-		}
-
-		private void OnPhaseChanged(ScreeningPhase phase)
-		{
-			UpdateFromController();
-		}
-
-		private void OnProgressUpdated(ScreeningProgress progress)
-		{
-			UpdatePatienceDisplay(progress);
-		}
-
-		private void UpdateFromController()
-		{
-			var caller = _controller.CurrentCaller;
-			SetCaller(caller);
-			UpdateButtons();
 		}
 
 		private void UpdateButtons()
@@ -276,12 +258,6 @@ namespace KBTV.UI
 
 		public override void _ExitTree()
 		{
-			if (_controller != null)
-			{
-				_controller.PhaseChanged -= OnPhaseChanged;
-				_controller.ProgressUpdated -= OnProgressUpdated;
-			}
-
 			GD.Print("ScreeningPanel: Cleanup complete");
 		}
 

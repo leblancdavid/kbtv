@@ -32,7 +32,7 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            GD.Print("LoadingScreen: _Ready - blocking until ready");
+            GD.Print("LoadingScreen: _Ready - starting loading sequence");
             _totalLoadingTime = 0f;
             _timeoutTriggered = false;
             CreateLoadingUI();
@@ -42,40 +42,31 @@ namespace KBTV.UI
             _transitionStarted = false;
 
             var registry = ServiceRegistry.Instance;
-            if (registry != null)
+            if (registry != null && ServiceRegistry.IsInitialized)
             {
-                GD.Print($"LoadingScreen: Found ServiceRegistry, registered={registry.RegisteredCount} services");
-                registry.Connect("AllServicesReady", Callable.From(OnAllServicesReady));
-
-                if (ServiceRegistry.IsInitialized)
-                {
-                    GD.Print("LoadingScreen: Services already ready");
-                    _totalLoadingTime = MIN_LOADING_TIME;
-                    CallDeferred(nameof(StartFadeTransition));
-                }
+                GD.Print("LoadingScreen: ServiceRegistry is initialized, proceeding with loading");
+                _totalLoadingTime = MIN_LOADING_TIME;
+                CallDeferred(nameof(StartFadeTransition));
             }
             else
             {
-                GD.PrintErr("LoadingScreen: ServiceRegistry not found!");
-                CallDeferred(nameof(WaitForServicesRegistry));
+                GD.PrintErr("LoadingScreen: ServiceRegistry not available!");
+                CallDeferred(nameof(RetryInitialization));
             }
         }
 
-        private void WaitForServicesRegistry()
+        private void RetryInitialization()
         {
             var registry = ServiceRegistry.Instance;
-            if (registry != null)
+            if (registry != null && ServiceRegistry.IsInitialized)
             {
-                registry.Connect("AllServicesReady", Callable.From(OnAllServicesReady));
-                if (ServiceRegistry.IsInitialized)
-                {
-                    _totalLoadingTime = MIN_LOADING_TIME;
-                    StartFadeTransition();
-                }
+                GD.Print("LoadingScreen: ServiceRegistry now available");
+                _totalLoadingTime = MIN_LOADING_TIME;
+                StartFadeTransition();
             }
             else
             {
-                CallDeferred(nameof(WaitForServicesRegistry));
+                CallDeferred(nameof(RetryInitialization));
             }
         }
 
@@ -92,8 +83,7 @@ namespace KBTV.UI
                 if (_totalLoadingTime >= MAX_LOADING_TIME && !_timeoutTriggered)
                 {
                     _timeoutTriggered = true;
-                    var registry = ServiceRegistry.Instance;
-                    GD.PrintErr($"LoadingScreen: Timeout reached ({MAX_LOADING_TIME}s), registered={registry?.RegisteredCount ?? 0} services. Proceeding with available services.");
+                    GD.PrintErr($"LoadingScreen: Timeout reached ({MAX_LOADING_TIME}s). Proceeding with loading.");
                     StartFadeTransition();
                     return;
                 }
@@ -108,22 +98,9 @@ namespace KBTV.UI
 
                 if (_progressBar != null)
                 {
-                    var registry = ServiceRegistry.Instance;
-                    if (registry != null)
-                    {
-                        float progress = registry.InitializationProgress;
-                        _progressBar.Value = progress * 100f;
-                    }
+                    _progressBar.Value = Mathf.Clamp(_totalLoadingTime / MIN_LOADING_TIME * 50f, 0f, 50f);
                 }
             }
-        }
-
-        private void OnAllServicesReady()
-        {
-            if (_transitionStarted) return;
-            var registry = ServiceRegistry.Instance;
-            GD.Print($"LoadingScreen: All services ready after {_totalLoadingTime:F2}s ({registry?.RegisteredCount ?? 0} services)");
-            StartFadeTransition();
         }
 
         private void StartFadeTransition()

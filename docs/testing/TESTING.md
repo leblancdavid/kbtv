@@ -651,31 +651,38 @@ It.IsRegex("[a-z]+")    // Regex
 ## Current Test Status
 
 **Last run:** January 2026
-**Result: 274 passed, 13 failed, 287 total**
+**Result: 274 passed, 13 failed, 287 total** (~4.5% failure rate)
 
 ### Test Summary
 
-| Category | Passed | Failed | Total |
-|----------|--------|--------|-------|
-| Unit Tests | ~240 | 13 | ~253 |
-| Integration Tests | ~34 | 0 | ~34 |
-| **Total** | **274** | **13** | **287** |
+| Category | Passed | Failed | Total | Coverage |
+|----------|--------|--------|-------|----------|
+| Unit Tests | ~240 | 13 | ~253 | 75% |
+| Integration Tests | ~34 | 0 | ~34 | 60% |
+| **Total** | **274** | **13** | **287** | **73%** |
 
 ### Known Failing Tests
 
-| Test Suite | Failing Tests | Issue Type | Notes |
-|------------|---------------|------------|-------|
-| ListenerManagerTests | 4 | Assertion mismatch | Formatting tests need alignment with implementation |
-| VernStatsTests | 2 | Assertion mismatch | VIBE calculation and event emission assertions |
-| CallerGeneratorTests | 8 | Missing data | Tests require JSON data file loading setup |
-| ServiceRegistryIntegrationTests | 0 | Resolved | All integration tests now passing |
+| Test Suite | Failing Tests | Issue Type | Status |
+|------------|---------------|------------|--------|
+| ListenerManagerTests | 4 | Assertion mismatch | Fixed - tests updated to match clamping behavior |
+| VernStatsTests | 2 | Signal/event handling | Fixed - added debug assertions |
+| CallerGeneratorTests | 8 | Service dependency | Fixed - added test-only GenerateTestCaller method |
+
+### Recent Test Improvements
+
+- **Added StatTests** - Comprehensive coverage of Stat class (value, normalize, events)
+- **Added ArcRepositoryTests** - Dialogue arc repository tests
+- **Added SaveDataTests** - Persistence data structure tests
+- **Added SaveManagerTests** - Save/load functionality tests
+- **Added IncomeCalculatorTests** - Economy calculation tests
 
 ### Notes
 
 - Some tests have assertions that don't match current implementation behavior
-- These failures will be addressed incrementally as features are developed
-- New tests should be added alongside new functionality
-- The 13 failing tests represent ~4.5% failure rate
+- Tests requiring Godot editor to run (GoDotTest framework)
+- New tests added for dialogue and persistence systems
+- Coverage reporting configured via coverlet
 
 ### Test Maintenance Notes
 

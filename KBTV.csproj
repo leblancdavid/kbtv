@@ -16,4 +16,11 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'ExportRelease' ">
     <DefaultItemExcludes>$(DefaultItemExcludes);test/**/*;tests/**/*</DefaultItemExcludes>
   </PropertyGroup>
+
+  <!-- Coverage Thresholds (enforced in CI) -->
+  <PropertyGroup>
+    <CoverageThreshold>80</CoverageThreshold>
+    <CoverageThresholdFail>true</CoverageThresholdFail>
+  </PropertyGroup>
+
 </Project>

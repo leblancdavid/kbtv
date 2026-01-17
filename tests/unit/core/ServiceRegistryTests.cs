@@ -164,13 +164,6 @@ namespace KBTV.Tests.Unit.Core
         }
 
         [Test]
-        public void InitializationProgress_StartsAtZero()
-        {
-            AssertThat(_registry.InitializationProgress >= 0f);
-            AssertThat(_registry.InitializationProgress <= 1f);
-        }
-
-        [Test]
         public void IsInitialized_AfterReady_IsTrue()
         {
             AssertThat(ServiceRegistry.IsInitialized);

@@ -46,16 +46,6 @@ namespace KBTV.UI
             _listenerManager = Core.ServiceRegistry.Instance.ListenerManager;
             _economyManager = Core.ServiceRegistry.Instance.EconomyManager;
 
-            if (_listenerManager != null)
-            {
-                _listenerManager.Connect("ListenersChanged", Callable.From<int, int>(OnListenersChanged));
-            }
-
-            if (_economyManager != null)
-            {
-                _economyManager.Connect("MoneyChanged", Callable.From<int, int>(OnMoneyChanged));
-            }
-
             TrackStateForRefresh();
             UpdateOnAirStatus();
             UpdateListeners();
@@ -91,16 +81,6 @@ namespace KBTV.UI
             }
         }
 
-        private void OnListenersChanged(int oldCount, int newCount)
-        {
-            UpdateListeners();
-        }
-
-        private void OnMoneyChanged(int oldAmount, int newAmount)
-        {
-            UpdateMoney();
-        }
-
         private void UpdateOnAirStatus()
         {
             if (_onAirLabel != null)
@@ -129,16 +109,6 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            if (_listenerManager != null)
-            {
-                _listenerManager.Disconnect("ListenersChanged", Callable.From<int, int>(OnListenersChanged));
-            }
-
-            if (_economyManager != null)
-            {
-                _economyManager.Disconnect("MoneyChanged", Callable.From<int, int>(OnMoneyChanged));
-            }
-
             GD.Print("LiveShowHeader: Cleanup complete");
         }
     }

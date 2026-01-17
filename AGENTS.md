@@ -112,23 +112,6 @@ private void RegisterCoreServices()
 }
 ```
 
-**AllServicesReady Signal:**
-- The registry emits `AllServicesReady` after services finish registering
-- Uses **timeout-based detection** (0.5s) instead of hardcoded counts
-- No need to update expected service count when adding/removing services
-- Minimum 5 services required before checking timeout
-```csharp
-// Timeout-based detection in ServiceRegistry._Process()
-if (!_allReadyEmitted && _registeredCount >= MIN_SERVICES_EXPECTED)
-{
-    if (Time.GetTicksMsec() / 1000.0 - _lastRegistrationTime >= REGISTRATION_TIMEOUT)
-    {
-        _allReadyEmitted = true;
-        EmitSignal("AllServicesReady");
-    }
-}
-```
-
 **Autoload Order (Critical):**
 1. `ServiceRegistry` - Always first, creates base services
 2. `UIManager` - Needed by TabContainerManager/PreShowUIManager
@@ -136,6 +119,35 @@ if (!_allReadyEmitted && _registeredCount >= MIN_SERVICES_EXPECTED)
 4. `TimeManager`, `ListenerManager`, `EconomyManager` - Can depend on GameStateManager
 5. `GlobalTransitionManager` - Handles fade transitions
 6. `TabContainerManager`, `PreShowUIManager` - Need UIManager for layer registration
+
+**Service Initialization Pattern:**
+- Use `ServiceRegistry.IsInitialized` to check if the registry is ready
+- Components that need services should defer initialization and retry:
+```csharp
+public override void _Ready()
+{
+    if (ServiceRegistry.IsInitialized)
+    {
+        CallDeferred(nameof(InitializeWithServices));
+    }
+    else
+    {
+        CallDeferred(nameof(RetryInitialization));
+    }
+}
+
+private void RetryInitialization()
+{
+    if (ServiceRegistry.IsInitialized)
+    {
+        InitializeWithServices();
+    }
+    else
+    {
+        CallDeferred(nameof(RetryInitialization));
+    }
+}
+```
 
 **Files:**
 - `scripts/core/ServiceRegistry.cs` - Main service registry (Autoload)
@@ -155,42 +167,24 @@ if (!_allReadyEmitted && _registeredCount >= MIN_SERVICES_EXPECTED)
 
 ### Observer Pattern
 
-Components observe state changes through `ICallerRepositoryObserver` interface instead of events:
+Components can observe state changes through `ICallerRepositoryObserver` interface. However, **prefer direct property access and polling** for simplicity:
 
 ```csharp
-public interface ICallerRepositoryObserver
+// Direct property access (PREFERRED - simplest approach)
+public override void _Process(double delta)
 {
-    void OnCallerAdded(Caller caller);
-    void OnCallerRemoved(Caller caller);
-    void OnCallerStateChanged(Caller caller, CallerState oldState, CallerState newState);
-    void OnScreeningStarted(Caller caller);
-    void OnScreeningEnded(Caller caller, bool approved);
-    void OnCallerOnAir(Caller caller);
-    void OnCallerOnAirEnded(Caller caller);
+    var isOnAir = ServiceRegistry.Instance.CallerRepository.IsOnAir;
+    if (isOnAir != _previousIsOnAir)
+    {
+        UpdateOnAirStatus();
+        _previousIsOnAir = isOnAir;
+    }
 }
 ```
 
-**To observe repository changes:**
-```csharp
-// Subscribe to observer callbacks
-_repository.Subscribe(myObserver);
-
-// Implement interface methods
-public void OnScreeningStarted(Caller caller)
-{
-    GD.Print($"Screening started: {caller.Name}");
-}
-
-public void OnScreeningEnded(Caller caller, bool approved)
-{
-    GD.Print($"Screening ended: {caller.Name}, approved: {approved}");
-}
-```
-
-**When to use:**
-- **Observer callbacks** - For discrete state changes (caller added, screening started, on-air, etc.)
-- **Direct property access** - For current state queries (`ScreeningController.IsActive`, `CallerRepository.OnAirCaller`)
-- **Polling in _Process()** - For continuous updates (progress bars, timers)
+**When to use each approach:**
+- **Direct property access + _Process() polling** - For UI updates, continuous state changes (RECOMMENDED for most cases)
+- **Observer callbacks** - Only when you need to react to discrete events that might not be polled (e.g., logging, analytics)
 
 **Example - UI polling for progress:**
 ```csharp

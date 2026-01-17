@@ -1,0 +1,28 @@
+{
+  "Exclude": [
+    "**/test/**/*",
+    "**/tests/**/*",
+    "**/*Test*.cs",
+    "**/*Tests.cs",
+    "**/Godot.SourceGenerators/**/*",
+    "**/Godot.Sdk/**/*",
+    "**/KBTVTestClass.cs",
+    "**/*.Designer.cs",
+    "**/*.Generated.cs",
+    "**/AssemblyInfo.cs",
+    "**/AssemblyAttributes.cs"
+  ],
+  "Include": [
+    "KBTV.*"
+  ],
+  "CoverletSettings": {
+    "UseSourceLink": false,
+    "SingleHit": false,
+    "MergeWith": "",
+    "ExcludeByAttribute": [
+      "Obsolete",
+      "GeneratedCode",
+      "CompilerGenerated"
+    ]
+  }
+}

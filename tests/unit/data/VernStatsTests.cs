@@ -131,12 +131,13 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void VibeChanged_EmitsWhenVibeChanges()
         {
+            float initialVibe = _vernStats.CalculateVIBE();
             float? newVibe = null;
             _vernStats.VibeChanged += (vibe) => newVibe = vibe;
 
             _vernStats.Energy.Modify(-50f);
 
-            AssertThat(newVibe != null);
+            AssertThat(newVibe != null, $"VibeChanged did not fire. Initial vibe: {initialVibe}");
         }
     }
 }

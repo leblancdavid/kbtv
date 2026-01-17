@@ -34,76 +34,76 @@ namespace KBTV.Tests.Unit.Callers
         }
 
         [Test]
-        public void SpawnCaller_HasValidName()
+        public void GenerateTestCaller_HasValidName()
         {
-            var caller = _generator.SpawnCaller();
+            var caller = _generator.GenerateTestCaller();
 
             AssertThat(!string.IsNullOrEmpty(caller.Name));
         }
 
         [Test]
-        public void SpawnCaller_HasValidPhoneNumber()
+        public void GenerateTestCaller_HasValidPhoneNumber()
         {
-            var caller = _generator.SpawnCaller();
+            var caller = _generator.GenerateTestCaller();
 
             AssertThat(!string.IsNullOrEmpty(caller.PhoneNumber));
             AssertThat(caller.PhoneNumber.Contains("-"));
         }
 
         [Test]
-        public void SpawnCaller_HasValidLocation()
+        public void GenerateTestCaller_HasValidLocation()
         {
-            var caller = _generator.SpawnCaller();
+            var caller = _generator.GenerateTestCaller();
 
             AssertThat(!string.IsNullOrEmpty(caller.Location));
         }
 
         [Test]
-        public void SpawnCaller_HasValidTopic()
+        public void GenerateTestCaller_HasValidTopic()
         {
-            var caller = _generator.SpawnCaller();
+            var caller = _generator.GenerateTestCaller();
 
             AssertThat(!string.IsNullOrEmpty(caller.ClaimedTopic));
         }
 
         [Test]
-        public void SpawnCaller_HasValidCallReason()
+        public void GenerateTestCaller_HasValidCallReason()
         {
-            var caller = _generator.SpawnCaller();
+            var caller = _generator.GenerateTestCaller();
 
             AssertThat(!string.IsNullOrEmpty(caller.CallReason));
         }
 
         [Test]
-        public void SpawnCaller_HasPositivePatience()
+        public void GenerateTestCaller_HasPositivePatience()
         {
-            var caller = _generator.SpawnCaller();
+            var caller = _generator.GenerateTestCaller();
 
             AssertThat(caller.Patience > 0f);
         }
 
         [Test]
-        public void SpawnCaller_HasValidLegitimacy()
+        public void GenerateTestCaller_HasValidLegitimacy()
         {
-            var caller = _generator.SpawnCaller();
+            var caller = _generator.GenerateTestCaller();
 
             AssertThat(caller.Legitimacy >= CallerLegitimacy.Fake);
             AssertThat(caller.Legitimacy <= CallerLegitimacy.Compelling);
         }
 
         [Test]
-        public void SpawnCaller_HasUniqueId()
+        public void GenerateTestCaller_HasUniqueId()
         {
-            var caller1 = _generator.SpawnCaller();
-            var caller2 = _generator.SpawnCaller();
+            var caller1 = _generator.GenerateTestCaller();
+            var caller2 = _generator.GenerateTestCaller();
 
             AssertThat(caller1.Id != caller2.Id);
         }
 
         [Test]
-        public void SpawnCaller_InInitialState()
+        public void GenerateTestCaller_InInitialState()
         {
-            var caller = _generator.SpawnCaller();
+            var caller = _generator.GenerateTestCaller();
 
             AssertThat(caller.State == CallerState.Incoming);
         }

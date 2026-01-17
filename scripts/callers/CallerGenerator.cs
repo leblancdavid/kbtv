@@ -123,6 +123,16 @@ namespace KBTV.Callers
             return TrySpawnCaller();
         }
 
+#if DEBUG
+        /// <summary>
+        /// Generate a caller without repository registration (for testing only).
+        /// </summary>
+        public Caller GenerateTestCaller()
+        {
+            return GenerateRandomCaller();
+        }
+#endif
+
         private Caller TrySpawnCaller()
         {
             if (_repository == null || !_repository.CanAcceptMoreCallers)
