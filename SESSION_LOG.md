@@ -158,3 +158,76 @@
 - Coverage reporting requires Godot with `--coverage` flag
 - New tests added for previously untested areas (dialogue, persistence)
 - All original failing tests have been fixed
+
+---
+
+## Current Session
+- **Task**: Fix incoming caller queue issues (patience updates, disconnect handling, screening duplicates)
+- **Status**: Completed
+- **Started**: Sat Jan 17 2026
+- **Last Updated**: Sat Jan 17 2026
+
+### Issues Fixed
+
+**Issue 1: Caller patience status not updating**
+- **Root Cause**: `CallerQueueItem._Process()` only refreshed when caller ID/state changed, not when patience values changed
+- **Fix**: Added `_previousWaitTime` and `_previousScreeningPatience` tracking, updated `_Process()` to detect patience value changes
+
+**Issue 2: Callers not disconnected/removed when patience runs out**
+- **Root Cause**: Double-remove issue - `UpdateWaitTime()` invoked `OnDisconnected` (triggering `HandleCallerDisconnected` → `RemoveCaller`), then returned `true` causing `UpdateCallerPatience()` to call `RemoveCaller` again
+- **Fix**: `UpdateCallerPatience()` now just calls `UpdateWaitTime()` without checking return value; let the event handler manage removal
+
+**Issue 3: Duplicates when approving/rejecting during screening**
+- **Root Cause**: `StartScreening()` overwrote `_currentScreeningId` without removing previous caller from `_stateIndex[CallerState.Screening]`
+- **Fix**: Added cleanup of previous screening caller from state index in `StartScreening()`
+
+### Additional Fixes
+- Added null check for `caller` in `OnScreeningEnded()` to fix compiler warning
+- Added cleanup of `_stateIndex[CallerState.Screening]` in `HandleCallerDisconnected()` before setting state to Disconnected
+
+### Files Modified
+- `scripts/ui/CallerQueueItem.cs` - Added patience tracking and UI refresh on value changes
+- `scripts/callers/CallerRepository.cs` - Fixed state index cleanup in `StartScreening()` and `HandleCallerDisconnected()`
+- `scripts/callers/CallerQueue.cs` - Removed redundant `RemoveCaller()` call, added null check
+
+### Build Status
+**Build: SUCCESS** (0 errors, 0 warnings)
+
+---
+
+## Current Session
+- **Task**: Fix duplicate caller appearing in queue
+- **Status**: Completed
+- **Started**: Sat Jan 17 2026
+- **Last Updated**: Sat Jan 17 2026
+
+### Issue
+A duplicate caller is getting added to the caller queue. The issue was traced to the `RejectScreening()` method.
+
+### Root Cause
+The `RejectScreening()` method was manually modifying `_stateIndex` before calling `caller.SetState()`:
+```csharp
+_stateIndex[CallerState.Screening].Remove(caller.Id);
+_stateIndex[CallerState.Rejected].Add(caller.Id);
+caller.SetState(CallerState.Rejected);  // Triggers OnStateChanged -> SetCallerState -> UpdateStateIndex
+```
+
+This caused a race condition where:
+1. Manual state index changes could conflict with `SetCallerState()` updates
+2. The caller could end up in inconsistent state index entries
+
+### Fix Applied
+Changed `RejectScreening()` to use `SetCallerState()` which properly handles state index transitions:
+```csharp
+SetCallerState(caller, CallerState.Rejected);
+RemoveCaller(caller);
+```
+
+### Files Modified
+- `scripts/callers/CallerRepository.cs` - Fixed `RejectScreening()` method
+
+### Test Added
+- `RejectScreening_RemovedFromIncomingCallers` - Verifies rejected callers don't appear in IncomingCallers list
+
+### Build Status
+**Build: SUCCESS** (0 errors, 0 warnings)

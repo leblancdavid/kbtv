@@ -189,10 +189,7 @@ namespace KBTV.Callers
         {
             foreach (var caller in _repository.IncomingCallers.ToList())
             {
-                if (caller.UpdateWaitTime(deltaTime))
-                {
-                    _repository.RemoveCaller(caller);
-                }
+                caller.UpdateWaitTime(deltaTime);
             }
 
             _repository.CurrentScreening?.UpdateWaitTime(deltaTime);
@@ -210,7 +207,7 @@ namespace KBTV.Callers
             {
                 EmitSignal("CallerApproved", caller);
             }
-            else
+            else if (caller != null)
             {
                 EmitSignal("CallerRemoved", caller);
             }

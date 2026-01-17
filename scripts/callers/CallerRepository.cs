@@ -103,6 +103,7 @@ namespace KBTV.Callers
 
             if (IsScreening && _currentScreeningId != null && _currentScreeningId != caller.Id)
             {
+                _stateIndex[CallerState.Screening].Remove(_currentScreeningId);
                 _currentScreeningId = null;
             }
 
@@ -178,9 +179,7 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Screening caller not found", "CALLER_NOT_FOUND");
             }
 
-            _stateIndex[CallerState.Screening].Remove(caller.Id);
-            _stateIndex[CallerState.Rejected].Add(caller.Id);
-            caller.SetState(CallerState.Rejected);
+            SetCallerState(caller, CallerState.Rejected);
 
             RemoveCaller(caller);
             _currentScreeningId = null;
@@ -357,6 +356,10 @@ namespace KBTV.Callers
 
         private void HandleCallerDisconnected(Caller caller)
         {
+            if (caller.State == CallerState.Screening)
+            {
+                _stateIndex[CallerState.Screening].Remove(caller.Id);
+            }
             SetCallerState(caller, CallerState.Disconnected);
             RemoveCaller(caller);
         }

@@ -297,6 +297,23 @@ namespace KBTV.Tests.Unit.Callers
         }
 
         [Test]
+        public void RejectScreening_RemovedFromIncomingCallers()
+        {
+            var caller = CreateTestCaller();
+            _repository.AddCaller(caller);
+            AssertThat(_repository.IncomingCallers.Contains(caller));
+
+            _repository.StartScreening(caller);
+            AssertThat(!_repository.IncomingCallers.Contains(caller));
+
+            _repository.RejectScreening();
+
+            AssertThat(_repository.CurrentScreening == null);
+            AssertThat(_repository.IncomingCallers.Count == 0);
+            AssertThat(!_repository.IncomingCallers.Contains(caller));
+        }
+
+        [Test]
         public void PutOnAir_AlreadyOnAir_ReturnsFailure()
         {
             var caller = CreateTestCaller();

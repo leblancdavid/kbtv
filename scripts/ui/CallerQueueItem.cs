@@ -22,6 +22,8 @@ namespace KBTV.UI
 
         private string? _previousCallerId;
         private CallerState _previousState;
+        private float _previousWaitTime;
+        private float _previousScreeningPatience;
 
         public override void _Ready()
         {
@@ -102,6 +104,8 @@ namespace KBTV.UI
             {
                 _previousCallerId = _cachedCaller.Id;
                 _previousState = _cachedCaller.State;
+                _previousWaitTime = _cachedCaller.WaitTime;
+                _previousScreeningPatience = _cachedCaller.ScreeningPatience;
             }
         }
 
@@ -118,11 +122,19 @@ namespace KBTV.UI
                 return;
             }
 
-            if (currentCaller.Id != _previousCallerId || currentCaller.State != _previousState)
+            bool needsRefresh = currentCaller.Id != _previousCallerId ||
+                                currentCaller.State != _previousState ||
+                                currentCaller.WaitTime != _previousWaitTime ||
+                                (currentCaller.State == CallerState.Screening &&
+                                 currentCaller.ScreeningPatience != _previousScreeningPatience);
+
+            if (needsRefresh)
             {
                 _cachedCaller = currentCaller;
                 _previousCallerId = currentCaller.Id;
                 _previousState = currentCaller.State;
+                _previousWaitTime = currentCaller.WaitTime;
+                _previousScreeningPatience = currentCaller.ScreeningPatience;
                 UpdateVisualSelection();
                 UpdateStatusIndicator();
             }
