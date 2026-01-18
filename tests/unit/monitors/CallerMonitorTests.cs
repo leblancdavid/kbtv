@@ -4,12 +4,13 @@ using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Monitors;
 
-namespace KBTV.Tests.Unit.Callers
+namespace KBTV.Tests.Unit.Monitors
 {
-    public class CallerPatienceMonitorTests : KBTVTestClass
+    public class CallerMonitorTests : KBTVTestClass
     {
-        public CallerPatienceMonitorTests(Node testScene) : base(testScene) { }
+        public CallerMonitorTests(Node testScene) : base(testScene) { }
 
         private CallerRepository _repository = null!;
         private List<string> _eventLog = null!;
@@ -25,7 +26,7 @@ namespace KBTV.Tests.Unit.Callers
         [Test]
         public void Monitor_DoesNotThrowWithNullRepository()
         {
-            var monitor = new CallerPatienceMonitor();
+            var monitor = new CallerMonitor();
 
             monitor._Ready();
 
@@ -35,7 +36,7 @@ namespace KBTV.Tests.Unit.Callers
         [Test]
         public void Monitor_DoesNotThrowWithNoCallers()
         {
-            var monitor = new CallerPatienceMonitor();
+            var monitor = new CallerMonitor();
             monitor._Ready();
 
             monitor._Process(0.016f);
@@ -46,7 +47,7 @@ namespace KBTV.Tests.Unit.Callers
         [Test]
         public void Monitor_DoesNotThrowWithCallers()
         {
-            var monitor = new CallerPatienceMonitor();
+            var monitor = new CallerMonitor();
             monitor._Ready();
 
             var caller = CreateTestCaller();
@@ -60,7 +61,7 @@ namespace KBTV.Tests.Unit.Callers
         [Test]
         public void Monitor_UpdatesCallerWaitTime()
         {
-            var monitor = new CallerPatienceMonitor();
+            var monitor = new CallerMonitor();
             monitor._Ready();
 
             var caller = CreateTestCaller();
@@ -76,7 +77,7 @@ namespace KBTV.Tests.Unit.Callers
         [Test]
         public void Monitor_UpdatesScreeningCallerPatience()
         {
-            var monitor = new CallerPatienceMonitor();
+            var monitor = new CallerMonitor();
             monitor._Ready();
 
             var caller = CreateTestCaller();
@@ -93,7 +94,7 @@ namespace KBTV.Tests.Unit.Callers
         [Test]
         public void Monitor_MultipleCallers_UpdatesAll()
         {
-            var monitor = new CallerPatienceMonitor();
+            var monitor = new CallerMonitor();
             monitor._Ready();
 
             var caller1 = CreateTestCaller("Caller1");
@@ -110,7 +111,7 @@ namespace KBTV.Tests.Unit.Callers
         [Test]
         public void Monitor_CallerDisconnectsWhenPatienceRunsOut()
         {
-            var monitor = new CallerPatienceMonitor();
+            var monitor = new CallerMonitor();
             monitor._Ready();
 
             var caller = CreateTestCaller("Test", patience: 2f);

@@ -68,6 +68,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [TOOLS_EQUIPMENT.md](docs/systems/TOOLS_EQUIPMENT.md) | Investigation tools - camera, EMF reader, audio recorder, upgrades |
 | [VERN_STATS.md](docs/systems/VERN_STATS.md) | Vern's stats system - dependencies, VIBE, mood types, sigmoid functions |
 | [TESTING.md](docs/testing/TESTING.md) | GdUnit4 testing framework setup, patterns, and best practices |
+| [MONITOR_PATTERN.md](docs/technical/MONITOR_PATTERN.md) | Domain monitor pattern - state updates per frame, side effects |
 
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
 
@@ -197,6 +198,50 @@ public override void _Process(double delta)
     }
 }
 ```
+
+### Monitor Pattern
+
+Domain-specific monitors handle state updates in the game loop. Each monitor runs in the scene tree's `_Process()` loop, updating ONE domain's state values each frame.
+
+```csharp
+// scripts/monitors/CallerMonitor.cs
+public partial class CallerMonitor : DomainMonitor
+{
+    protected override void OnUpdate(float deltaTime)
+    {
+        var incoming = _repository!.IncomingCallers;
+        var screening = _repository.CurrentScreening;
+
+        if (incoming.Count > 0)
+        {
+            foreach (var caller in incoming.ToList())
+            {
+                caller.UpdateWaitTime(deltaTime);
+            }
+        }
+
+        screening?.UpdateWaitTime(deltaTime);
+    }
+}
+```
+
+**Pattern Guidelines:**
+- **One domain per monitor** - Callers, VernStats, etc. each get their own monitor
+- **State updates only** - Update values (wait time, stat decay), trigger side effects (disconnections)
+- **No UI logic** - UI polls or observes state changes separately
+- **No persistence** - SaveManager handles save/load
+
+**Creating a New Monitor:**
+1. Create `scripts/monitors/[Domain]Monitor.cs` inheriting from `DomainMonitor`
+2. Implement `OnUpdate(float deltaTime)` for state logic
+3. Add to `scenes/Game.tscn` as a child node
+4. Add unit tests in `tests/unit/monitors/`
+
+**Files:**
+- `scripts/monitors/DomainMonitor.cs` - Abstract base class
+- `scripts/monitors/CallerMonitor.cs` - Caller patience/wait time updates
+- `scripts/monitors/VernStatsMonitor.cs` - Vern's stat decay
+- `docs/technical/MONITOR_PATTERN.md` - Full pattern documentation
 
 ### Result Type Pattern
 

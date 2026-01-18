@@ -234,39 +234,53 @@ Reordered `_Process()` logic in `CallerQueueItem.cs`:
 ---
 
 ## Current Session
-- **Task**: Fix caller patience status indicator not updating (no patience drain)
+- **Task**: Fix Game.tscn scene loading errors (invalid UID, missing root node)
 - **Status**: Completed
 - **Started**: Sat Jan 17 2026
 - **Last Updated**: Sat Jan 17 2026
 
-### Issue
-Patience status indicator wasn't changing because `UpdateWaitTime()` was never being called on callers.
+### Issues Fixed
 
-### Root Cause
-- `CallerRepository` is a plain C# class (not a Godot Node), so `_Process()` is never called on it
-- `CallerQueue._Process()` had `UpdateCallerPatience()` but the `CallerQueue` might not be in the scene tree reliably
-- Result: `WaitTime` stayed at 0, patience ratio stayed at 1.0 (green), callers never disconnected
+**Issue 1: Runtime error - "root node cannot specify a parent node"**
+- **Root Cause**: Scene file lacked explicit root node definition
+- **Fix**: Added `Main` (Node2D) as explicit root node with Main.cs script attached
 
-### Fix Applied
+**Issue 2: Invalid UID warnings for CallerMonitor**
+- **Root Cause**: Stale UID reference `uid://uva2cifv1m7h` in scene file
+- **Fix**: Updated to correct UID `uid://b3ihb2axyu6ad` from CallerMonitor.cs.uid
 
-**1. Created `scripts/callers/CallerPatienceMonitor.cs`:**
-- New Node that runs `_Process()` every frame
-- Updates `WaitTime` for all incoming callers
-- Updates `ScreeningPatience` for the screening caller
-- Handles disconnection when patience runs out (via `OnDisconnected` event)
+**Issue 3: Invalid UID warnings for VernStatsMonitor**
+- **Root Cause**: Stale UID reference `uid://bqw8c2x3k1m4p` in scene file
+- **Fix**: Updated to correct UID `uid://do111yirun4wa` from VernStatsMonitor.cs.uid
 
-**2. Fixed `scripts/ui/CallerQueueItem._Process()`:**
-- Reset `_previousState` to `CallerState.Disconnected` when caller is null
-- Prevents stale UI state after caller disconnects
-
-**3. Updated `scenes/Main.tscn`:**
-- Added `CallerPatienceMonitor` node as child of Main
-- Ensures the monitor is always active in the game
+**Issue 4: Parent path vanished error**
+- **Root Cause**: Child nodes used `parent="Main"` instead of `parent="."`
+- **Fix**: Changed all child nodes to use `parent="."` for direct children of root
 
 ### Files Modified
-- `scripts/callers/CallerPatienceMonitor.cs` (new)
-- `scripts/ui/CallerQueueItem.cs` - Fixed null caller handling
-- `scenes/Main.tscn` - Added CallerPatienceMonitor node
+- `scenes/Game.tscn` - Fixed scene structure with proper root node, UIDs, and parent paths
+- `docs/technical/MONITOR_PATTERN.md` - Updated scene setup examples with correct structure and UIDs
+
+### Final Scene Structure
+```tscn
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" uid="uid://ciyhpovkok5te" path="res://scripts/Main.cs" id="1"]
+[ext_resource type="Script" uid="uid://b3ihb2axyu6ad" path="res://scripts/monitors/CallerMonitor.cs" id="2"]
+[ext_resource type="Script" uid="uid://do111yirun4wa" path="res://scripts/monitors/VernStatsMonitor.cs" id="3"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1")
+
+[node name="CallerMonitor" type="Node" parent="."]
+script = ExtResource("2")
+
+[node name="VernStatsMonitor" type="Node" parent="."]
+script = ExtResource("3")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(960, 540)
+```
 
 ### Build Status
 **Build: SUCCESS** (0 errors, 0 warnings)

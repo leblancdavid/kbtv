@@ -100,6 +100,13 @@ namespace KBTV.Data
 		// Public accessors - Long-Term
 		public Stat Skepticism => _skepticism;
 
+		// Public decay rate accessors for monitors
+		public float CaffeineDecayRate => _caffeineDecayRate;
+		public float NicotineDecayRate => _nicotineDecayRate;
+		public float EnergyDecayRate => _energyDecayRate;
+		public float SatietyDecayRate => _satietyDecayRate;
+		public float PatienceDecayRate => _patienceDecayRate;
+
 
 
 		private VernMoodType _currentMoodType = VernMoodType.Neutral;
