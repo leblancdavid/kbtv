@@ -112,19 +112,31 @@ namespace KBTV.Tests.Unit.Dialogue
             var arc = new ConversationArc("ghost_arc", "Ghosts", CallerLegitimacy.Credible);
             _repository.AddArc(arc);
 
-            var result = _repository.GetRandomArc("Ghosts", CallerLegitimacy.Credible);
+            var result = _repository.GetRandomArc(CallerLegitimacy.Credible);
 
             AssertThat(result != null);
             AssertThat(result.ArcId == "ghost_arc");
         }
 
         [Test]
-        public void GetRandomArc_WithNoMatchingArc_ReturnsNull()
+        public void GetRandomArc_WithMatchingLegitimacy_ReturnsArc()
         {
             var arc = new ConversationArc("ghost_arc", "Ghosts", CallerLegitimacy.Credible);
             _repository.AddArc(arc);
 
-            var result = _repository.GetRandomArc("UFOs", CallerLegitimacy.Credible);
+            var result = _repository.GetRandomArc(CallerLegitimacy.Credible);
+
+            AssertThat(result != null);
+            AssertThat(result.ArcId == "ghost_arc");
+        }
+
+        [Test]
+        public void GetRandomArc_WithNoMatchingLegitimacy_ReturnsNull()
+        {
+            var arc = new ConversationArc("ghost_arc", "Ghosts", CallerLegitimacy.Credible);
+            _repository.AddArc(arc);
+
+            var result = _repository.GetRandomArc(CallerLegitimacy.Fake);
 
             AssertThat(result == null);
         }

@@ -31,7 +31,8 @@ namespace KBTV.Tests.Unit.Callers
                 CallerCoherence.Coherent,
                 CallerUrgency.Low,
                 "nervous_hiker",
-                "test_arc",
+                null,
+                null,
                 "Test summary",
                 patience,
                 quality
@@ -131,7 +132,7 @@ namespace KBTV.Tests.Unit.Callers
                 CallerEmotionalState.Calm, CallerCurseRisk.Low,
                 CallerBeliefLevel.Curious, CallerEvidenceLevel.None,
                 CallerCoherence.Coherent, CallerUrgency.Low,
-                "personality", "arc", "summary", 30f, 0.8f
+                "personality", null, null, "summary", 30f, 0.8f
             );
             AssertThat(caller.IsLyingAboutTopic);
         }

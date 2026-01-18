@@ -2,6 +2,7 @@ using System;
 using Godot;
 using KBTV.Core;
 using KBTV.Callers;
+using KBTV.Dialogue;
 
 namespace KBTV.Callers
 {
@@ -185,8 +186,37 @@ namespace KBTV.Callers
             CallerPhoneQuality phoneQuality = CallerPhoneQuality.Average;
 
             string personality = "Average caller";
-            string arcId = ""; // TODO: Add arc system
-            string screeningSummary = "Generated caller";
+
+            // Assign arcs upfront
+            var arcRepo = ServiceRegistry.Instance?.ArcRepository;
+            ConversationArc? claimedArc = null;
+            ConversationArc? actualArc = null;
+
+            if (arcRepo != null)
+            {
+                actualArc = arcRepo.GetRandomArc(legitimacy);
+                if (actualArc == null)
+                {
+                    GD.PrintErr($"CallerGenerator: No arc found for legitimacy {legitimacy}, using default values");
+                    // Continue with null arcs - will be handled gracefully
+                }
+
+                // 30% chance of deception - pick different claimed arc
+                if ((float)GD.Randf() < 0.3f)
+                {
+                    claimedArc = arcRepo.GetRandomArc(legitimacy);
+                    if (claimedArc == null || claimedArc.ArcId == actualArc?.ArcId)
+                    {
+                        claimedArc = actualArc; // No deception if same or no alternative
+                    }
+                }
+                else
+                {
+                    claimedArc = actualArc; // No deception
+                }
+            }
+
+            string screeningSummary = actualArc?.ScreeningSummary ?? "Generated caller";
 
             float patience = _basePatience + (float)GD.RandRange(-_patienceVariance, _patienceVariance);
             float quality = 50f; // Base quality
@@ -195,7 +225,7 @@ namespace KBTV.Callers
                 claimedTopic, actualTopic, reason,
                 legitimacy, phoneQuality, emotionalState, curseRisk,
                 beliefLevel, evidenceLevel, coherence, urgency,
-                personality, arcId, screeningSummary, patience, quality);
+                personality, claimedArc, actualArc, screeningSummary, patience, quality);
         }
 
         private CallerLegitimacy DetermineRandomLegitimacy()

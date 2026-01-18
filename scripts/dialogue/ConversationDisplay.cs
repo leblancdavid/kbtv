@@ -17,7 +17,6 @@ namespace KBTV.Dialogue
         private float _lineTimer = 0f;
         private float _lineDuration = 0f;
         private bool _isPlaying = false;
-        private bool _waitingForCaller = false;
 
         public ConversationDisplayInfo DisplayInfo => _displayInfo;
 
@@ -57,8 +56,20 @@ namespace KBTV.Dialogue
         {
             float dt = (float)delta;
 
-            if (_waitingForCaller)
+            var controlAction = _coordinator.GetPendingControlAction();
+            if (controlAction == ControlAction.PutCallerOnAir)
             {
+                var result = _repository.PutOnAir();
+                if (result.IsSuccess && result.Value != null)
+                {
+                    GD.Print("ConversationDisplay: Put caller on air");
+                    _coordinator.OnCallerPutOnAir(result.Value);
+                    _coordinator.OnControlActionCompleted();
+                }
+                else
+                {
+                    GD.PrintErr($"ConversationDisplay: Failed to put caller on air: {result.ErrorCode}");
+                }
                 return;
             }
 
@@ -84,35 +95,15 @@ namespace KBTV.Dialogue
 
         private void TryGetNextLine()
         {
-            var line = _coordinator.GetNextLine();
+            var line = _coordinator.GetNextDisplayLine();
 
-            switch (line.Type)
+            if (line == null)
             {
-                case BroadcastLineType.PutCallerOnAir:
-                    if (!_waitingForCaller)
-                    {
-                        _waitingForCaller = true;
-                        var result = _repository.PutOnAir();
-                        if (result.IsSuccess)
-                        {
-                            GD.Print("ConversationDisplay: Put caller on air");
-                        }
-                        else
-                        {
-                            _waitingForCaller = false;
-                            GD.PrintErr($"ConversationDisplay: Failed to put caller on air: {result.ErrorCode}");
-                        }
-                    }
-                    break;
-
-                case BroadcastLineType.None:
-                    _displayInfo = ConversationDisplayInfo.CreateIdle();
-                    break;
-
-                default:
-                    StartLine(line);
-                    break;
+                _displayInfo = ConversationDisplayInfo.CreateIdle();
+                return;
             }
+
+            StartLine(line.Value);
         }
 
         private void StartLine(BroadcastLine line)
@@ -121,7 +112,6 @@ namespace KBTV.Dialogue
             _lineTimer = 0f;
             _lineDuration = CalculateLineDuration(line.Text);
             _isPlaying = true;
-            _waitingForCaller = false;
 
             _displayInfo = CreateDisplayInfo(line);
             _displayInfo.CurrentLineDuration = _lineDuration;
@@ -168,14 +158,12 @@ namespace KBTV.Dialogue
 
         public void OnCallerOnAir(Caller caller)
         {
-            _waitingForCaller = false;
             _coordinator.OnCallerOnAir(caller);
             _isPlaying = false;
         }
 
         public void OnCallerOnAirEnded(Caller caller)
         {
-            _waitingForCaller = false;
             _coordinator.OnCallerOnAirEnded(caller);
         }
 

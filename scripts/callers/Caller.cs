@@ -80,6 +80,8 @@ namespace KBTV.Callers
         private string _personality;
         private string _arcId;
         private ConversationArc? _arc;
+        private ConversationArc? _claimedArc;
+        private ConversationArc? _actualArc;
         private string _screeningSummary;
         private CallerState _state;
         private float _patience;
@@ -103,6 +105,8 @@ namespace KBTV.Callers
         public string Personality => _personality;
         public string ArcId => _arcId;
         public ConversationArc? Arc => _arc;
+        public ConversationArc? ClaimedArc => _claimedArc;
+        public ConversationArc? ActualArc => _actualArc;
         public string ScreeningSummary => _screeningSummary;
         public CallerState State => _state;
         public float Patience => _patience;
@@ -160,8 +164,8 @@ namespace KBTV.Callers
             CallerEmotionalState emotionalState, CallerCurseRisk curseRisk,
             CallerBeliefLevel beliefLevel, CallerEvidenceLevel evidenceLevel,
             CallerCoherence coherence, CallerUrgency urgency,
-            string personality, string arcId, string screeningSummary,
-            float patience, float quality)
+            string personality, ConversationArc? claimedArc, ConversationArc? actualArc,
+            string screeningSummary, float patience, float quality)
         {
             Id = Guid.NewGuid().ToString();
             _name = name;
@@ -179,7 +183,10 @@ namespace KBTV.Callers
             _coherence = coherence;
             _urgency = urgency;
             _personality = personality;
-            _arcId = arcId;
+            _claimedArc = claimedArc;
+            _actualArc = actualArc;
+            _arc = actualArc;  // Default to actual arc
+            _arcId = actualArc?.ArcId ?? "";
             _screeningSummary = screeningSummary;
             _patience = patience;
             ScreeningPatience = patience;

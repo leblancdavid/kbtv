@@ -141,10 +141,50 @@ switch (line.Type)
 ---
 
 ## Current Session
-- **Task**: Fix failing unit tests and improve code coverage
+- **Task**: Fix on-hold callers not transferring to on-air and transcripts not playing caller dialogs
 - **Status**: Completed
-- **Started**: Sat Jan 17 2026
-- **Last Updated**: Sat Jan 17 2026
+- **Started**: Sun Jan 18 2026
+- **Last Updated**: Sun Jan 18 2026
+
+### Architectural Changes
+
+**Problem:** The old architecture mixed display lines with control signals in a single `GetNextLine()` method. Control signals like `PutCallerOnAir` were treated as "lines" with timing, causing:
+- State management complexity when control actions needed immediate execution
+- Premature arc setup before caller was actually on air
+- First caller dialogue line being skipped
+
+**Solution:** Separated display lines from control actions with a new split API:
+
+**New API Methods:**
+- `GetNextDisplayLine()` - Returns next displayable line (or null if no line)
+- `GetPendingControlAction()` - Returns any pending control action (PutCallerOnAir, None)
+- `OnControlActionCompleted()` - Clears the pending action
+- `OnCallerPutOnAir(Caller caller)` - Properly sets up arc when caller goes on air
+
+**Files Created:**
+- `scripts/dialogue/ControlAction.cs` - New enum for control signals
+
+**Files Modified:**
+- `scripts/dialogue/BroadcastLineType.cs` - Removed `PutCallerOnAir` enum value
+- `scripts/dialogue/BroadcastLine.cs` - Removed `PutCallerOnAir` factory method
+- `scripts/dialogue/BroadcastCoordinator.cs` - Complete rewrite with split API
+- `scripts/dialogue/ConversationDisplay.cs` - Updated to use new split API
+- `scripts/ui/LiveShowFooter.cs` - Removed `PutCallerOnAir` check
+- `scripts/ui/LiveShowPanel.cs` - Removed `PutCallerOnAir` check
+- `scripts/ui/TranscriptPanel.cs` - Removed `PutCallerOnAir` check
+
+**Corrected Flow:**
+1. `GetPendingControlAction()` returns `PutCallerOnAir` when needed
+2. `ConversationDisplay` calls `PutOnAir()` → moves caller to on-air state
+3. `ConversationDisplay` calls `OnCallerPutOnAir(caller)` → properly sets arc with index 0
+4. `ConversationDisplay` calls `OnControlActionCompleted()` → clears pending action
+5. Next `GetNextDisplayLine()` call returns first arc line (index 0)
+6. Caller dialogue displays and appears in transcripts
+
+### Build Status
+**Build: SUCCESS** (0 errors, 8 warnings - pre-existing nullable annotations)
+
+---
 
 ## Work Completed
 

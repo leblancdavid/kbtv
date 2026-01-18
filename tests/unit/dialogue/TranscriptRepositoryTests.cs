@@ -177,7 +177,8 @@ namespace KBTV.Tests.Unit.Dialogue
                 CallerCoherence.Coherent,
                 CallerUrgency.Low,
                 "nervous_hesitant",
-                "",
+                null,
+                null,
                 "",
                 60f,
                 0.5f

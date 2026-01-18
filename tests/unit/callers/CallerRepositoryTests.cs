@@ -61,7 +61,8 @@ namespace KBTV.Tests.Unit.Callers
                 CallerCoherence.Coherent,
                 CallerUrgency.Low,
                 "personality",
-                "arc",
+                null,
+                null,
                 "summary",
                 30f,
                 0.8f

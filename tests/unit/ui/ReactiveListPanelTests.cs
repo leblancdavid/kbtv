@@ -110,7 +110,8 @@ namespace KBTV.Tests.Unit.UI
                 coherence: CallerCoherence.Coherent,
                 urgency: CallerUrgency.Medium,
                 personality: "Test",
-                arcId: "test",
+                claimedArc: null,
+                actualArc: null,
                 screeningSummary: "Test",
                 patience: 60f,
                 quality: 1.0f

@@ -18,15 +18,6 @@ namespace KBTV.Dialogue
             Phase = ConversationPhase.Intro
         };
 
-        public static BroadcastLine PutCallerOnAir(ConversationPhase phase = ConversationPhase.Intro) => new()
-        {
-            Type = BroadcastLineType.PutCallerOnAir,
-            Text = string.Empty,
-            Speaker = string.Empty,
-            SpeakerId = string.Empty,
-            Phase = phase
-        };
-
         public static BroadcastLine ShowOpening(string text) => new()
         {
             Type = BroadcastLineType.ShowOpening,

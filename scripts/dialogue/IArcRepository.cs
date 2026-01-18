@@ -25,10 +25,10 @@ namespace KBTV.Dialogue
         List<ConversationArc> FindMatchingArcs(string topic, CallerLegitimacy legitimacy);
 
         /// <summary>
-        /// Get a random arc matching the given criteria.
+        /// Get a random arc matching the given legitimacy.
         /// Returns null if no matching arcs found.
         /// </summary>
-        ConversationArc? GetRandomArc(string topic, CallerLegitimacy legitimacy);
+        ConversationArc? GetRandomArc(CallerLegitimacy legitimacy);
 
         /// <summary>
         /// Find all topic-switcher arcs matching a caller who lied about their topic.

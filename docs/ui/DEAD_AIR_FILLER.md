@@ -121,13 +121,15 @@ ShowOpening → Conversation → BetweenCallers → Conversation
 
 ## Arc-Caller Association
 
-**Critical:** Each caller stores their conversation arc when approved:
+**Critical:** Each caller has their conversation arc assigned during generation:
 
-1. **Screening approval** → Arc is loaded and stored on caller: `caller.SetArc(arc)`
-2. **Put on air** → Arc is retrieved: `coordinator.OnCallerOnAir(caller)` → uses `caller.Arc`
+1. **Caller generation** → Arc selected by legitimacy, stored as `caller.ActualArc` and `caller.ClaimedArc`
+2. **Screening approval** → Uses `caller.ActualArc` for the conversation
+3. **Put on air** → Arc is retrieved: `coordinator.OnCallerOnAir(caller)` → uses `caller.ActualArc`
 
 This ensures:
-- Screening summary matches what Vern discusses on-air
+- Arcs are known upfront, enabling screening preview
+- Deception possible: claimed arc ≠ actual arc (30% chance)
 - Consistent conversation regardless of when caller goes on air
 
 ## Implementation Details
@@ -142,7 +144,7 @@ This ensures:
 | `scripts/dialogue/ConversationDisplay.cs` | UI display that polls GetNextLine() |
 | `scripts/dialogue/ArcRepository.cs` | Auto-discovers arc files from `assets/dialogue/arcs/` |
 | `scripts/dialogue/ArcJsonParser.cs` | Parses arc JSON files using Godot's JSON class |
-| `scripts/callers/Caller.cs` | Stores Arc reference: `public ConversationArc? Arc { get; }` |
+| `scripts/callers/Caller.cs` | Stores Arc references: `ActualArc`, `ClaimedArc`, `Arc` properties |
 
 ### BroadcastCoordinator API
 

@@ -89,28 +89,34 @@ namespace KBTV.UI
 
         private void UpdateTranscript()
         {
-            if (_transcriptText == null || _coordinator == null)
+            if (_transcriptText == null)
             {
                 return;
             }
 
-            var line = _coordinator.GetNextLine();
-
-            if (line.Type == BroadcastLineType.None || line.Type == BroadcastLineType.PutCallerOnAir)
+            var transcriptRepository = Core.ServiceRegistry.Instance.TranscriptRepository;
+            if (transcriptRepository == null)
             {
-                if (string.IsNullOrEmpty(line.Text))
-                {
-                    _transcriptText.Text = "TRANSCRIPT";
-                }
+                _transcriptText.Text = "TRANSCRIPT";
                 return;
             }
 
-            if (line.Text != _currentLineText)
+            var entries = transcriptRepository.GetCurrentShowTranscript();
+            if (entries.Count == 0)
             {
-                _currentLineText = line.Text;
-                var speakerIcon = line.Speaker == "Vern" ? "VERN" : "CALLER";
-                _transcriptText.Text = $"{speakerIcon}: {line.Text}";
+                _transcriptText.Text = "TRANSCRIPT";
+                return;
             }
+
+            // Build full transcript text
+            var transcriptLines = new System.Collections.Generic.List<string>();
+            foreach (var entry in entries)
+            {
+                var speaker = entry.Speaker == KBTV.Dialogue.Speaker.Vern ? "VERN" : entry.SpeakerName ?? "CALLER";
+                transcriptLines.Add($"{speaker}: {entry.Text}");
+            }
+
+            _transcriptText.Text = string.Join("\n", transcriptLines);
         }
 
         private void OnStartAdBreakPressed()

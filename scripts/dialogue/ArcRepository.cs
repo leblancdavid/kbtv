@@ -119,9 +119,19 @@ namespace KBTV.Dialogue
             return matches;
         }
 
-        public ConversationArc GetRandomArc(string topic, CallerLegitimacy legitimacy)
+        public ConversationArc GetRandomArc(CallerLegitimacy legitimacy)
         {
-            var matches = FindMatchingArcs(topic, legitimacy);
+            EnsureInitialized();
+            var matches = new List<ConversationArc>();
+
+            foreach (var arc in _arcs)
+            {
+                if (arc.Legitimacy == legitimacy)
+                {
+                    matches.Add(arc);
+                }
+            }
+
             if (matches.Count == 0) return null;
 
             return matches[(int)(GD.Randi() % matches.Count)];

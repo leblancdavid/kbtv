@@ -29,6 +29,8 @@ namespace KBTV.Dialogue
         private float _lineStartTime = 0f;
         private float _lineDuration = 0f;
 
+        private ControlAction _pendingControlAction = ControlAction.None;
+
         private enum BroadcastState
         {
             Idle,
@@ -99,6 +101,7 @@ namespace KBTV.Dialogue
             _state = BroadcastState.ShowOpening;
             _fillerCycleCount = 0;
             _lineInProgress = false;
+            _pendingControlAction = ControlAction.None;
         }
 
         public void OnLiveShowEnding()
@@ -106,15 +109,22 @@ namespace KBTV.Dialogue
             _state = BroadcastState.ShowClosing;
             _broadcastActive = false;
             _lineInProgress = false;
+            _pendingControlAction = ControlAction.None;
             _transcriptRepository?.ClearCurrentShow();
         }
 
-        public void OnCallerOnAir(Caller caller)
+        public void OnCallerPutOnAir(Caller caller)
         {
             _currentArc = caller.Arc;
             _arcLineIndex = 0;
             _state = BroadcastState.Conversation;
             _lineInProgress = false;
+            _pendingControlAction = ControlAction.None;
+        }
+
+        public void OnCallerOnAir(Caller caller)
+        {
+            OnCallerPutOnAir(caller);
         }
 
         public void OnCallerOnAirEnded(Caller caller)
@@ -135,11 +145,50 @@ namespace KBTV.Dialogue
             _lineInProgress = false;
         }
 
-        public BroadcastLine GetNextLine()
+        public ControlAction GetPendingControlAction()
         {
             if (!_broadcastActive && _state != BroadcastState.ShowClosing)
             {
-                return BroadcastLine.None();
+                return ControlAction.None;
+            }
+
+            if (_pendingControlAction != ControlAction.None)
+            {
+                return _pendingControlAction;
+            }
+
+            if (_lineInProgress)
+            {
+                return ControlAction.None;
+            }
+
+            CheckForControlAction();
+            return _pendingControlAction;
+        }
+
+        private void CheckForControlAction()
+        {
+            if (_state == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
+            {
+                _pendingControlAction = ControlAction.PutCallerOnAir;
+            }
+            else if (_state == BroadcastState.DeadAirFiller && _fillerCycleCount >= MaxFillerCyclesBeforeAutoAdvance && _repository.HasOnHoldCallers)
+            {
+                _pendingControlAction = ControlAction.PutCallerOnAir;
+                _fillerCycleCount = 0;
+            }
+        }
+
+        public void OnControlActionCompleted()
+        {
+            _pendingControlAction = ControlAction.None;
+        }
+
+        public BroadcastLine? GetNextDisplayLine()
+        {
+            if (!_broadcastActive && _state != BroadcastState.ShowClosing)
+            {
+                return null;
             }
 
             if (_lineInProgress)
@@ -147,22 +196,16 @@ namespace KBTV.Dialogue
                 return _currentLine;
             }
 
+            if (_pendingControlAction != ControlAction.None)
+            {
+                return null;
+            }
+
             _currentLine = CalculateNextLine();
 
-            if (_currentLine.Type == BroadcastLineType.PutCallerOnAir && _repository.HasOnHoldCallers)
+            if (_currentLine.Type == BroadcastLineType.None)
             {
-                var nextCaller = _repository.OnHoldCallers[0];
-                _currentArc = nextCaller.Arc;
-                _arcLineIndex = 0;
-                _state = BroadcastState.Conversation;
-
-                if (_currentArc != null && _currentArc.Dialogue.Count > 0)
-                {
-                    var arcLine = _currentArc.Dialogue[0];
-                    _currentLine = arcLine.Speaker == Speaker.Vern
-                        ? BroadcastLine.VernDialogue(arcLine.Text, ConversationPhase.Intro, _currentArc.ArcId)
-                        : BroadcastLine.CallerDialogue(arcLine.Text, nextCaller.Name, nextCaller.Id, ConversationPhase.Probe, _currentArc.ArcId);
-                }
+                return null;
             }
 
             _lineInProgress = true;
@@ -176,15 +219,21 @@ namespace KBTV.Dialogue
             return _currentLine;
         }
 
+        public BroadcastLine GetNextLine()
+        {
+            var displayLine = GetNextDisplayLine();
+            return displayLine ?? BroadcastLine.None();
+        }
+
         private BroadcastLine CalculateNextLine()
         {
             return _state switch
             {
-                BroadcastState.ShowOpening => GetShowOpeningLine(calculateOnly: true),
-                BroadcastState.Conversation => GetConversationLine(calculateOnly: true),
-                BroadcastState.BetweenCallers => GetBetweenCallersLine(calculateOnly: true),
-                BroadcastState.DeadAirFiller => GetFillerLine(calculateOnly: true),
-                BroadcastState.ShowClosing => GetShowClosingLine(calculateOnly: true),
+                BroadcastState.ShowOpening => GetShowOpeningLine(),
+                BroadcastState.Conversation => GetConversationLine(),
+                BroadcastState.BetweenCallers => GetBetweenCallersLine(),
+                BroadcastState.DeadAirFiller => GetFillerLine(),
+                BroadcastState.ShowClosing => GetShowClosingLine(),
                 _ => BroadcastLine.None()
             };
         }
@@ -193,7 +242,7 @@ namespace KBTV.Dialogue
         {
             _lineInProgress = false;
 
-            if (_currentArc != null)
+            if (_currentArc != null && _arcLineIndex >= 0)
             {
                 _arcLineIndex++;
             }
@@ -242,16 +291,11 @@ namespace KBTV.Dialogue
             };
         }
 
-        private BroadcastLine GetShowOpeningLine(bool calculateOnly = false)
+        private BroadcastLine GetShowOpeningLine()
         {
             var line = _vernDialogue.GetShowOpening();
             var result = line != null ? BroadcastLine.ShowOpening(line.Text) : BroadcastLine.None();
-
-            if (!calculateOnly)
-            {
-                AdvanceFromShowOpening();
-            }
-
+            AdvanceFromShowOpening();
             return result;
         }
 
@@ -268,20 +312,20 @@ namespace KBTV.Dialogue
             }
         }
 
-        private BroadcastLine GetConversationLine(bool calculateOnly = false)
+        private BroadcastLine GetConversationLine()
         {
             var caller = _repository.OnAirCaller;
             if (caller == null)
             {
                 if (_repository.HasOnHoldCallers)
                 {
-                    return BroadcastLine.PutCallerOnAir(ConversationPhase.Intro);
+                    return BroadcastLine.None();  // Allow control action polling instead of filler loop
                 }
                 else
                 {
                     _state = BroadcastState.DeadAirFiller;
                     _fillerCycleCount = 0;
-                    return GetFillerLine(calculateOnly: true);
+                    return GetFillerLine();
                 }
             }
 
@@ -293,8 +337,21 @@ namespace KBTV.Dialogue
 
             if (_currentArc == null || _arcLineIndex >= _currentArc.Dialogue.Count)
             {
-                _state = BroadcastState.BetweenCallers;
-                return BroadcastLine.PutCallerOnAir(ConversationPhase.Resolution);
+                var currentCaller = _repository.OnAirCaller;
+                if (currentCaller != null)
+                {
+                    _repository.EndOnAir();
+                    OnCallerOnAirEnded(currentCaller);
+                }
+                // State is now set to BetweenCallers or DeadAirFiller
+                if (_state == BroadcastState.BetweenCallers)
+                {
+                    return GetBetweenCallersLine();
+                }
+                else
+                {
+                    return GetFillerLine();
+                }
             }
 
             var arcLine = _currentArc.Dialogue[_arcLineIndex];
@@ -322,27 +379,16 @@ namespace KBTV.Dialogue
             }
         }
 
-        private BroadcastLine GetBetweenCallersLine(bool calculateOnly = false)
+        private BroadcastLine GetBetweenCallersLine()
         {
             var line = _vernDialogue.GetBetweenCallers();
             var result = line != null ? BroadcastLine.BetweenCallers(line.Text) : BroadcastLine.None();
-
-            if (!calculateOnly)
-            {
-                AdvanceFromBetweenCallers();
-            }
-
+            AdvanceFromBetweenCallers();
             return result;
         }
 
         private void AdvanceFromBetweenCallers()
         {
-            if (_repository.HasOnHoldCallers && _fillerCycleCount >= MaxFillerCyclesBeforeAutoAdvance)
-            {
-                _fillerCycleCount = 0;
-                return;
-            }
-
             if (_repository.HasOnHoldCallers)
             {
                 _state = BroadcastState.Conversation;
@@ -354,18 +400,21 @@ namespace KBTV.Dialogue
             }
         }
 
-        private BroadcastLine GetFillerLine(bool calculateOnly = false)
+        private BroadcastLine GetFillerLine()
         {
             if (_repository.HasOnHoldCallers && _fillerCycleCount >= MaxFillerCyclesBeforeAutoAdvance)
             {
                 _fillerCycleCount = 0;
-                return BroadcastLine.PutCallerOnAir(ConversationPhase.Intro);
+                return GetFillerLineText();
             }
 
-            var line = _vernDialogue.GetDeadAirFiller();
-            var result = line != null ? BroadcastLine.DeadAirFiller(line.Text) : BroadcastLine.None();
+            return GetFillerLineText();
+        }
 
-            return result;
+        private BroadcastLine GetFillerLineText()
+        {
+            var line = _vernDialogue.GetDeadAirFiller();
+            return line != null ? BroadcastLine.DeadAirFiller(line.Text) : BroadcastLine.None();
         }
 
         private void AdvanceFromFiller()
@@ -380,22 +429,17 @@ namespace KBTV.Dialogue
             }
         }
 
-        private BroadcastLine GetShowClosingLine(bool calculateOnly = false)
+        private BroadcastLine GetShowClosingLine()
         {
             var line = _vernDialogue.GetShowClosing();
             var result = line != null ? BroadcastLine.ShowClosing(line.Text) : BroadcastLine.None();
-
-            if (!calculateOnly)
-            {
-                _state = BroadcastState.Idle;
-            }
-
+            _state = BroadcastState.Idle;
             return result;
         }
 
         private void AddTranscriptEntry(BroadcastLine line)
         {
-            if (line.Type == BroadcastLineType.PutCallerOnAir || line.Type == BroadcastLineType.None)
+            if (line.Type == BroadcastLineType.None)
             {
                 return;
             }

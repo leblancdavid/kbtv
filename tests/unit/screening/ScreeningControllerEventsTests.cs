@@ -165,7 +165,8 @@ namespace KBTV.Tests.Unit.Screening
                 CallerCoherence.Coherent,
                 CallerUrgency.Low,
                 "personality",
-                "arc",
+                null,
+                null,
                 "summary",
                 patience,
                 0.8f

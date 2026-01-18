@@ -68,7 +68,7 @@ namespace KBTV.UI
 
             var line = _coordinator.GetNextLine();
 
-            if (line.Type == BroadcastLineType.None || line.Type == BroadcastLineType.PutCallerOnAir)
+            if (line.Type == BroadcastLineType.None)
             {
                 return;
             }

@@ -8,7 +8,6 @@ namespace KBTV.Dialogue
         CallerDialogue,
         BetweenCallers,
         DeadAirFiller,
-        ShowClosing,
-        PutCallerOnAir
+        ShowClosing
     }
 }

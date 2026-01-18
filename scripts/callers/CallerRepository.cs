@@ -153,13 +153,10 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Screening caller not found", "CALLER_NOT_FOUND");
             }
 
-            var arcRepo = GetArcRepository();
-            if (arcRepo != null)
+            // Arc is already assigned during generation, use actual arc
+            if (caller.ActualArc != null)
             {
-                var topic = GetCallerTopic(caller);
-                var legitimacy = GetCallerLegitimacy(caller);
-                var arc = arcRepo.GetRandomArc(topic, legitimacy);
-                caller.SetArc(arc);
+                caller.SetArc(caller.ActualArc);
             }
 
             caller.SetState(CallerState.OnHold);

@@ -4,7 +4,9 @@
 
 The conversation system plays dialogue between Vern Tell (the host) and callers during the LiveShow phase. Each call is a **conversation arc** - a pre-scripted cohesive narrative where every line responds naturally to the previous.
 
-Arc selection is based on caller attributes (legitimacy, topic). Vern's current **mood** and **discernment** determine which variant plays and whether he challenges or believes the caller.
+**Arc Assignment**: Arcs are assigned to callers during generation, not post-screening. Each caller has both a **claimed arc** (what they say they'll discuss) and an **actual arc** (what they really discuss). 30% of callers deceive about their arc content. Screening can detect this deception.
+
+Arc selection is based on caller legitimacy only (not topic). Vern's current **mood** and **discernment** determine which variant plays and whether he challenges or believes the caller.
 
 ## Related Documentation
 
