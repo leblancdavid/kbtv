@@ -57,6 +57,10 @@ namespace KBTV.Core
             var screeningController = new ScreeningController();
             Register<IScreeningController>(screeningController);
             NotifyRegistered();
+
+            var arcRepository = new ArcRepository();
+            Register<IArcRepository>(arcRepository);
+            NotifyRegistered();
         }
 
         public void NotifyRegistered()
@@ -187,6 +191,7 @@ namespace KBTV.Core
         public IScreeningController ScreeningController => Get<IScreeningController>();
         public IConversationManager ConversationManager => Get<IConversationManager>();
         public ITranscriptRepository TranscriptRepository => Get<ITranscriptRepository>();
+        public IArcRepository ArcRepository => Get<IArcRepository>();
         public GameStateManager GameStateManager => Get<GameStateManager>();
         public TimeManager TimeManager => Get<TimeManager>();
         public ListenerManager ListenerManager => Get<ListenerManager>();

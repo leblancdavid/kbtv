@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using Godot;
 using KBTV.Callers;
 
@@ -54,36 +55,48 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Parse arc JSON text into a ConversationArc.
         /// </summary>
-        public static ConversationArc Parse(string jsonText)
+        public static ConversationArc? Parse(string jsonText)
         {
-            var jsonParse = Json.ParseString(jsonText);
-            if (jsonParse.Equals(null))
+            try
             {
-                GD.PrintErr("ArcJsonParser: Failed to parse JSON");
+                var jsonParse = Json.ParseString(jsonText);
+                if (jsonParse.Equals(null))
+                {
+                    GD.PrintErr("ArcJsonParser: Failed to parse JSON");
+                    return null;
+                }
+
+                var data = JsonSerializer.Deserialize<ArcJsonData>(jsonText);
+                if (data == null)
+                {
+                    GD.PrintErr("ArcJsonParser: Failed to deserialize JSON data");
+                    return null;
+                }
+
+                var legitimacy = ParseLegitimacy(data.legitimacy ?? "Questionable");
+                var arc = new ConversationArc(
+                    data.arcId ?? "",
+                    data.topic ?? "",
+                    legitimacy,
+                    data.claimedTopic ?? ""
+                );
+
+                if (data.dialogue != null && data.dialogue.Length > 0)
+                {
+                    arc.SetDialogue(ConvertDialogue(data.dialogue));
+                }
+
+                arc.SetScreeningSummary(data.screeningSummary ?? "");
+                arc.SetCallerPersonality(data.callerPersonality ?? "");
+
+                GD.Print($"ArcJsonParser: Successfully parsed arc '{arc.ArcId}'");
+                return arc;
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"ArcJsonParser: Error parsing arc JSON: {ex.Message}");
                 return null;
             }
-
-            // For now, return null since proper JSON deserialization for complex objects
-            // needs to be implemented. This is a placeholder.
-            GD.Print("ArcJsonParser: JSON parsing not yet fully implemented");
-            return null;
-
-            // TODO: Implement proper JSON deserialization
-            // var data = Json.ParseString<ArcJsonData>(jsonText);
-            // if (data == null) return null;
-
-            // var legitimacy = ParseLegitimacy(data.legitimacy);
-            // var arc = new ConversationArc(data.arcId, data.topic, legitimacy, data.claimedTopic);
-
-            // if (data.dialogue != null && data.dialogue.Length > 0)
-            // {
-            //     arc.SetDialogue(ConvertDialogue(data.dialogue));
-            // }
-
-            // arc.SetScreeningSummary(data.screeningSummary ?? "");
-            // arc.SetCallerPersonality(data.callerPersonality ?? "");
-
-            // return arc;
         }
 
         /// <summary>

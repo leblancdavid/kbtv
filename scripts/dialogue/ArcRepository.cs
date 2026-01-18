@@ -9,7 +9,7 @@ namespace KBTV.Dialogue
     /// Runtime repository for conversation arcs.
     /// Arcs are loaded by the editor and stored here for runtime access.
     /// </summary>
-    public partial class ArcRepository : Resource
+    public partial class ArcRepository : Resource, IArcRepository
     {
         [Export] private Godot.Collections.Array<string> _arcJsonFilePaths = new Godot.Collections.Array<string>();
 

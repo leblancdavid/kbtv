@@ -10,6 +10,7 @@ namespace KBTV.Dialogue
     public partial class VernDialogueTemplate : Resource
     {
         [Export] private Godot.Collections.Array<DialogueTemplate> _showOpeningLines = new Godot.Collections.Array<DialogueTemplate>();
+        [Export] private Godot.Collections.Array<DialogueTemplate> _introductionLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _showClosingLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _betweenCallersLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _deadAirFillerLines = new Godot.Collections.Array<DialogueTemplate>();
@@ -18,6 +19,7 @@ namespace KBTV.Dialogue
         [Export] private Godot.Collections.Array<DialogueTemplate> _offTopicRemarkLines = new Godot.Collections.Array<DialogueTemplate>();
 
         public Godot.Collections.Array<DialogueTemplate> ShowOpeningLines => _showOpeningLines;
+        public Godot.Collections.Array<DialogueTemplate> IntroductionLines => _introductionLines;
         public Godot.Collections.Array<DialogueTemplate> ShowClosingLines => _showClosingLines;
         public Godot.Collections.Array<DialogueTemplate> BetweenCallersLines => _betweenCallersLines;
         public Godot.Collections.Array<DialogueTemplate> DeadAirFillerLines => _deadAirFillerLines;
@@ -26,6 +28,7 @@ namespace KBTV.Dialogue
         public Godot.Collections.Array<DialogueTemplate> OffTopicRemarkLines => _offTopicRemarkLines;
 
         public void SetShowOpeningLines(DialogueTemplate[] lines) => _showOpeningLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+        public void SetIntroductionLines(DialogueTemplate[] lines) => _introductionLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetShowClosingLines(DialogueTemplate[] lines) => _showClosingLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetBetweenCallersLines(DialogueTemplate[] lines) => _betweenCallersLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetDeadAirFillerLines(DialogueTemplate[] lines) => _deadAirFillerLines = new Godot.Collections.Array<DialogueTemplate>(lines);
@@ -37,6 +40,11 @@ namespace KBTV.Dialogue
         /// Get a show opening line.
         /// </summary>
         public DialogueTemplate GetShowOpening() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_showOpeningLines));
+
+        /// <summary>
+        /// Get an introduction line for a caller.
+        /// </summary>
+        public DialogueTemplate GetIntroduction() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_introductionLines));
 
         /// <summary>
         /// Get a show closing line.

@@ -20,6 +20,7 @@ namespace KBTV.Dialogue
         private ICallerRepository _repository = null!;
         private VernDialogueTemplate _vernDialogue = null!;
         private ITranscriptRepository _transcriptRepository = null!;
+        private IArcRepository _arcRepository = null!;
 
         private ConversationDisplayInfo _displayInfo = new();
         private BroadcastFlowState _state = BroadcastFlowState.Idle;
@@ -31,9 +32,13 @@ namespace KBTV.Dialogue
         private float _lineDuration = 0f;
 
         private float _deadAirTimer = 0f;
+        private float _betweenCallersTimer = 0f;
         private const float DeadAirCycleInterval = 8f;
-        private const float BaseDelay = 1.5f;
-        private const float PerCharDelay = 0.04f;
+        private const float BetweenCallersInterval = 4f;
+
+        private ConversationArc? _currentArc;
+        private int _arcLineIndex = -1;
+        private bool _arcIsCallerTurn;
 
         public ConversationDisplayInfo DisplayInfo => _displayInfo;
         public BroadcastFlowState CurrentState => _state;
@@ -68,6 +73,7 @@ namespace KBTV.Dialogue
         {
             _repository = ServiceRegistry.Instance.CallerRepository;
             _transcriptRepository = ServiceRegistry.Instance.TranscriptRepository;
+            _arcRepository = ServiceRegistry.Instance.ArcRepository;
             _vernDialogue = LoadVernDialogue();
 
             ServiceRegistry.Instance.RegisterSelf<IConversationManager>(this);
@@ -108,6 +114,7 @@ namespace KBTV.Dialogue
                 }
 
                 result.SetShowOpeningLines(ParseDialogueArray(data, "showOpeningLines"));
+                result.SetIntroductionLines(ParseDialogueArray(data, "introductionLines"));
                 result.SetShowClosingLines(ParseDialogueArray(data, "showClosingLines"));
                 result.SetBetweenCallersLines(ParseDialogueArray(data, "betweenCallersLines"));
                 result.SetDeadAirFillerLines(ParseDialogueArray(data, "deadAirFillerLines"));
@@ -156,8 +163,23 @@ namespace KBTV.Dialogue
 
             switch (_state)
             {
+                case BroadcastFlowState.Idle:
+                    UpdateIdle(dt);
+                    break;
+                case BroadcastFlowState.ShowOpening:
+                    UpdateShowOpening(dt);
+                    break;
+                case BroadcastFlowState.Conversation:
+                    UpdateConversation(dt);
+                    break;
+                case BroadcastFlowState.BetweenCallers:
+                    UpdateBetweenCallers(dt);
+                    break;
                 case BroadcastFlowState.DeadAirFiller:
                     UpdateDeadAirFiller(dt);
+                    break;
+                case BroadcastFlowState.ShowClosing:
+                    UpdateShowClosing(dt);
                     break;
             }
         }
@@ -291,9 +313,97 @@ namespace KBTV.Dialogue
             }
         }
 
+        public void PlayIntroduction()
+        {
+            _state = BroadcastFlowState.Conversation;
+            _lineTimer = 0f;
+
+            var onAirCaller = _repository.OnAirCaller;
+            if (onAirCaller != null)
+            {
+                var legitimacy = GetCallerLegitimacy(onAirCaller);
+                var topic = GetCallerTopic(onAirCaller);
+                _currentArc = _arcRepository.GetRandomArc(topic, legitimacy);
+            }
+
+            if (_currentArc != null && _currentArc.Dialogue.Count > 0)
+            {
+                _arcLineIndex = 0;
+                _arcIsCallerTurn = false;
+                PlayNextArcLine();
+            }
+            else
+            {
+                PlayTemplateIntroduction();
+            }
+        }
+
+        private void PlayTemplateIntroduction()
+        {
+            var line = _vernDialogue.GetIntroduction();
+            if (line != null)
+            {
+                _lineDuration = CalculateLineDuration(line.Text);
+
+                _displayInfo = ConversationDisplayInfo.CreateBroadcastLine("Vern", "VERN", line.Text, ConversationPhase.Intro);
+                _displayInfo.CurrentLineDuration = _lineDuration;
+
+                var timestamp = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                _transcriptRepository?.AddEntry(TranscriptEntry.CreateVernLine(line.Text, ConversationPhase.Intro, timestamp));
+            }
+        }
+
+        private void PlayNextArcLine()
+        {
+            if (_currentArc == null || _arcLineIndex < 0 || _arcLineIndex >= _currentArc.Dialogue.Count)
+            {
+                EndCurrentConversation();
+                return;
+            }
+
+            var line = _currentArc.Dialogue[_arcLineIndex];
+            _lineTimer = 0f;
+            _lineDuration = CalculateLineDuration(line.Text);
+
+            var speaker = line.Speaker == Speaker.Vern ? "Vern" : "Caller";
+            var speakerId = line.Speaker == Speaker.Vern ? "VERN" : _repository.OnAirCaller?.Name ?? "Caller";
+
+            if (line.Speaker == Speaker.Vern)
+            {
+                _displayInfo = ConversationDisplayInfo.CreateBroadcastLine(speaker, speakerId, line.Text, ConversationPhase.Intro);
+                var timestamp = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                _transcriptRepository?.AddEntry(TranscriptEntry.CreateVernLine(line.Text, ConversationPhase.Intro, timestamp));
+            }
+            else
+            {
+                _displayInfo = ConversationDisplayInfo.CreateBroadcastLine(speaker, speakerId, line.Text, ConversationPhase.Probe);
+                var timestamp = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                var onAirCaller = _repository.OnAirCaller;
+                if (onAirCaller != null)
+                {
+                    _transcriptRepository?.AddEntry(TranscriptEntry.CreateCallerLine(onAirCaller, line.Text, ConversationPhase.Probe, timestamp));
+                }
+            }
+
+            _displayInfo.CurrentLineDuration = _lineDuration;
+            _arcIsCallerTurn = line.Speaker == Speaker.Caller;
+            _arcLineIndex++;
+        }
+
+        private CallerLegitimacy GetCallerLegitimacy(Caller caller)
+        {
+            return CallerLegitimacy.Questionable;
+        }
+
+        private string GetCallerTopic(Caller caller)
+        {
+            return string.IsNullOrEmpty(caller.ClaimedTopic) ? caller.ActualTopic : caller.ClaimedTopic;
+        }
+
         private void PlayBetweenCallers()
         {
             _state = BroadcastFlowState.BetweenCallers;
+            _betweenCallersTimer = 0f;
 
             var line = _vernDialogue.GetBetweenCallers();
             if (line != null)
@@ -356,6 +466,100 @@ namespace KBTV.Dialogue
             }
         }
 
+        private void UpdateBetweenCallers(float dt)
+        {
+            _lineTimer += dt;
+            _betweenCallersTimer += dt;
+
+            if (_lineTimer >= _lineDuration)
+            {
+                if (_betweenCallersTimer >= BetweenCallersInterval && _repository.HasOnHoldCallers)
+                {
+                    var result = _repository.PutOnAir();
+                    if (result.IsSuccess)
+                    {
+                        GD.Print("ConversationManager: Auto-advanced from between-callers to caller");
+                    }
+                }
+            }
+        }
+
+        private void UpdateIdle(float dt)
+        {
+            if (!_broadcastActive)
+            {
+                return;
+            }
+
+            if (_repository.HasOnHoldCallers)
+            {
+                var result = _repository.PutOnAir();
+                if (result.IsSuccess)
+                {
+                    GD.Print("ConversationManager: Auto-advanced from idle to caller");
+                }
+            }
+            else
+            {
+                StartDeadAirFiller();
+            }
+        }
+
+        private void UpdateShowOpening(float dt)
+        {
+            _lineTimer += dt;
+
+            if (_lineTimer >= _lineDuration)
+            {
+                if (_repository.HasOnHoldCallers)
+                {
+                    var result = _repository.PutOnAir();
+                    if (result.IsSuccess)
+                    {
+                        GD.Print("ConversationManager: Auto-advanced from show opening to caller");
+                    }
+                }
+                else
+                {
+                    StartDeadAirFiller();
+                }
+            }
+        }
+
+        private void UpdateConversation(float dt)
+        {
+            _lineTimer += dt;
+
+            if (_currentArc != null)
+            {
+                _displayInfo.Progress = _lineDuration > 0 ? _lineTimer / _lineDuration : 0f;
+                _displayInfo.ElapsedLineTime = _lineTimer;
+            }
+
+            if (_lineTimer >= _lineDuration)
+            {
+                if (_currentArc != null && _arcLineIndex < _currentArc.Dialogue.Count)
+                {
+                    PlayNextArcLine();
+                }
+                else
+                {
+                    EndCurrentConversation();
+                }
+            }
+        }
+
+        private void UpdateShowClosing(float dt)
+        {
+            _lineTimer += dt;
+
+            if (_lineTimer >= _lineDuration)
+            {
+                _state = BroadcastFlowState.Idle;
+                GD.Print("ConversationManager: Show closing completed");
+            }
+        }
+
         private void PlayNextFillerLine()
         {
             var line = _vernDialogue.GetDeadAirFiller();
@@ -376,7 +580,7 @@ namespace KBTV.Dialogue
 
         private float CalculateLineDuration(string text)
         {
-            return BaseDelay + (text.Length * PerCharDelay);
+            return 4f;
         }
 
         public void OnCallerOnAir(Caller caller)
@@ -385,6 +589,7 @@ namespace KBTV.Dialogue
             {
                 StopDeadAirFiller();
             }
+            PlayIntroduction();
         }
 
         public void OnCallerOnAirEnded(Caller caller)
