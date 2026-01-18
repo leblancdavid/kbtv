@@ -461,3 +461,41 @@ When callers got impatient and disconnected:
 
 ### Build Status
 **Build: SUCCESS** (0 errors, 0 warnings)
+
+---
+
+## Current Session
+- **Task**: Fix transcript not playing (no entries being added during broadcast)
+- **Status**: Completed
+- **Started**: Sat Jan 18 2026
+- **Last Updated**: Sat Jan 18 2026
+
+### Root Cause
+`ConversationManager` displayed dialogue lines but never called `AddEntry()` on `TranscriptRepository`. The UI components (`LiveShowPanel`, `LiveShowFooter`) were polling correctly, but there were no entries to display.
+
+### Fix Applied
+
+**scripts/dialogue/ConversationManager.cs:**
+
+1. **Added `ITranscriptRepository` reference** (line 22)
+   - Added `_transcriptRepository` field and initialized in `InitializeWithServices()`
+
+2. **Show lifecycle integration:**
+   - `OnLiveShowStarted()`: Calls `_transcriptRepository.StartNewShow()` to activate the show
+   - `OnLiveShowEnding()`: Calls `_transcriptRepository.ClearCurrentShow()` to reset
+
+3. **Added transcript entries for all broadcast dialogue:**
+   - `PlayShowOpening()`: Records show opening lines with `ConversationPhase.Intro`
+   - `PlayBetweenCallers()`: Records transition lines with `ConversationPhase.Resolution`
+   - `PlayShowClosing()`: Records closing lines with `ConversationPhase.Resolution`
+   - `StartDeadAirFiller()`: Records filler lines with `ConversationPhase.Intro`
+   - `PlayNextFillerLine()`: Records subsequent filler lines
+
+4. **Timestamp handling:**
+   - Uses `ServiceRegistry.Instance.TimeManager?.ElapsedTime` for entry timestamps
+
+### Files Modified
+- `scripts/dialogue/ConversationManager.cs`
+
+### Build Status
+**Build: SUCCESS** (0 errors, 0 warnings)

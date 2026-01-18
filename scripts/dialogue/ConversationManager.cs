@@ -19,6 +19,7 @@ namespace KBTV.Dialogue
     {
         private ICallerRepository _repository = null!;
         private VernDialogueTemplate _vernDialogue = null!;
+        private ITranscriptRepository _transcriptRepository = null!;
 
         private ConversationDisplayInfo _displayInfo = new();
         private BroadcastFlowState _state = BroadcastFlowState.Idle;
@@ -66,6 +67,7 @@ namespace KBTV.Dialogue
         private void InitializeWithServices()
         {
             _repository = ServiceRegistry.Instance.CallerRepository;
+            _transcriptRepository = ServiceRegistry.Instance.TranscriptRepository;
             _vernDialogue = LoadVernDialogue();
 
             ServiceRegistry.Instance.RegisterSelf<IConversationManager>(this);
@@ -169,6 +171,7 @@ namespace KBTV.Dialogue
             }
 
             _broadcastActive = true;
+            _transcriptRepository?.StartNewShow();
             PlayShowOpening();
             GD.Print("ConversationManager: LiveShow started");
         }
@@ -183,6 +186,7 @@ namespace KBTV.Dialogue
             StopDeadAirFiller();
             PlayShowClosing();
             _broadcastActive = false;
+            _transcriptRepository?.ClearCurrentShow();
             GD.Print("ConversationManager: LiveShow ending");
         }
 
@@ -230,6 +234,9 @@ namespace KBTV.Dialogue
 
                 _displayInfo = ConversationDisplayInfo.CreateDeadAir(line.Text);
                 _displayInfo.CurrentLineDuration = _lineDuration;
+
+                var timestamp = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                _transcriptRepository?.AddEntry(TranscriptEntry.CreateVernLine(line.Text, ConversationPhase.Intro, timestamp));
             }
 
             GD.Print("ConversationManager: Started dead air filler");
@@ -278,6 +285,9 @@ namespace KBTV.Dialogue
 
                 _displayInfo = ConversationDisplayInfo.CreateBroadcastLine("Vern", "VERN", line.Text, ConversationPhase.Intro);
                 _displayInfo.CurrentLineDuration = _lineDuration;
+
+                var timestamp = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                _transcriptRepository?.AddEntry(TranscriptEntry.CreateVernLine(line.Text, ConversationPhase.Intro, timestamp));
             }
         }
 
@@ -293,6 +303,9 @@ namespace KBTV.Dialogue
 
                 _displayInfo = ConversationDisplayInfo.CreateBroadcastLine("Vern", "VERN", line.Text, ConversationPhase.Resolution);
                 _displayInfo.CurrentLineDuration = _lineDuration;
+
+                var timestamp = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                _transcriptRepository?.AddEntry(TranscriptEntry.CreateVernLine(line.Text, ConversationPhase.Resolution, timestamp));
             }
         }
 
@@ -308,6 +321,9 @@ namespace KBTV.Dialogue
 
                 _displayInfo = ConversationDisplayInfo.CreateBroadcastLine("Vern", "VERN", line.Text, ConversationPhase.Resolution);
                 _displayInfo.CurrentLineDuration = _lineDuration;
+
+                var timestamp = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                _transcriptRepository?.AddEntry(TranscriptEntry.CreateVernLine(line.Text, ConversationPhase.Resolution, timestamp));
             }
         }
 
@@ -352,6 +368,9 @@ namespace KBTV.Dialogue
 
                 _displayInfo = ConversationDisplayInfo.CreateDeadAir(line.Text);
                 _displayInfo.CurrentLineDuration = _lineDuration;
+
+                var timestamp = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                _transcriptRepository?.AddEntry(TranscriptEntry.CreateVernLine(line.Text, ConversationPhase.Intro, timestamp));
             }
         }
 
