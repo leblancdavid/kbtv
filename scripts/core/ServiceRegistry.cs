@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Dialogue;
 using KBTV.Economy;
 using KBTV.Managers;
 using KBTV.Persistence;
@@ -184,6 +185,8 @@ namespace KBTV.Core
 
         public ICallerRepository CallerRepository => Get<ICallerRepository>();
         public IScreeningController ScreeningController => Get<IScreeningController>();
+        public IConversationManager ConversationManager => Get<IConversationManager>();
+        public ITranscriptRepository TranscriptRepository => Get<ITranscriptRepository>();
         public GameStateManager GameStateManager => Get<GameStateManager>();
         public TimeManager TimeManager => Get<TimeManager>();
         public ListenerManager ListenerManager => Get<ListenerManager>();

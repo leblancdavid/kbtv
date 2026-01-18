@@ -25,6 +25,14 @@ namespace KBTV.Dialogue
         public Godot.Collections.Array<DialogueTemplate> BreakTransitionLines => _breakTransitionLines;
         public Godot.Collections.Array<DialogueTemplate> OffTopicRemarkLines => _offTopicRemarkLines;
 
+        public void SetShowOpeningLines(DialogueTemplate[] lines) => _showOpeningLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+        public void SetShowClosingLines(DialogueTemplate[] lines) => _showClosingLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+        public void SetBetweenCallersLines(DialogueTemplate[] lines) => _betweenCallersLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+        public void SetDeadAirFillerLines(DialogueTemplate[] lines) => _deadAirFillerLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+        public void SetDroppedCallerLines(DialogueTemplate[] lines) => _droppedCallerLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+        public void SetBreakTransitionLines(DialogueTemplate[] lines) => _breakTransitionLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+        public void SetOffTopicRemarkLines(DialogueTemplate[] lines) => _offTopicRemarkLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+
         /// <summary>
         /// Get a show opening line.
         /// </summary>

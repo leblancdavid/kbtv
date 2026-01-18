@@ -284,3 +284,145 @@ position = Vector2(960, 540)
 
 ### Build Status
 **Build: SUCCESS** (0 errors, 0 warnings)
+
+---
+
+## Current Session
+- **Task**: Create ScreeningMonitor to follow DomainMonitor pattern
+- **Status**: Completed
+- **Started**: Sat Jan 18 2026
+- **Last Updated**: Sat Jan 18 2026
+
+## Work Done
+
+**Issue Identified**: `ScreeningController.Update()` was only called in tests, never in the game loop. This meant property revelations and patience tracking weren't updating during actual gameplay.
+
+**Solution**: Created `ScreeningMonitor` that follows the established DomainMonitor pattern:
+
+**Files Created:**
+- `scripts/monitors/ScreeningMonitor.cs` - New monitor that calls `ScreeningController.Update(deltaTime)` each frame when screening is active
+
+**Files Modified:**
+- `scenes/Game.tscn` - Added `ScreeningMonitor` node to the scene tree
+
+**Architecture Now Follows DomainMonitor Pattern:**
+| Domain | Monitor | Service | Update Frequency |
+|--------|---------|---------|------------------|
+| Callers | `CallerMonitor` | `CallerRepository` | Per-frame wait time |
+| Screening | `ScreeningMonitor` | `ScreeningController` | Per-frame revelations |
+| Vern Stats | `VernStatsMonitor` | `VernStats` | Per-frame decay |
+
+## Build Status
+**Build: SUCCESS** (0 errors, 18 warnings - pre-existing nullable annotations)
+
+---
+
+## Current Session
+- **Task**: Fix missing VernDialogue.tres resource error
+- **Status**: Completed
+- **Started**: Sat Jan 18 2026
+- **Last Updated**: Sat Jan 18 2026
+
+### Issue
+Runtime error at startup: `Cannot open file 'res://assets/dialogue/vern/VernDialogue.tres'`
+
+### Root Cause
+`ConversationManager.LoadVernDialogue()` was trying to load a `.tres` file, but only `VernDialogue.json` exists in the project.
+
+### Fix Applied
+Modified `ConversationManager` to load from JSON instead of `.tres`:
+
+**scripts/dialogue/ConversationManager.cs:**
+- Added `System.IO` and `System.Linq` using statements
+- Rewrote `LoadVernDialogue()` to parse `VernDialogue.json` using Godot's `Json` class
+- Added `ParseDialogueArray()` helper to convert JSON to `DialogueTemplate` objects
+
+**scripts/dialogue/Templates/VernDialogueTemplate.cs:**
+- Added setter methods (`SetShowOpeningLines`, `SetShowClosingLines`, etc.) to populate the template from parsed JSON
+
+### Files Modified
+- `scripts/dialogue/ConversationManager.cs`
+- `scripts/dialogue/Templates/VernDialogueTemplate.cs`
+
+### Build Status
+**Build: SUCCESS** (0 errors, 0 warnings)
+
+---
+
+## Current Session
+- **Task**: Fix invalid UIDs causing service registration failures
+- **Status**: Completed
+- **Started**: Sat Jan 18 2026
+- **Last Updated**: Sat Jan 18 2026
+
+### Issue
+Runtime error: `ServiceRegistry: Service not found for type ITranscriptRepository`
+
+### Root Cause
+Invalid UID placeholders in `scenes/Game.tscn`:
+- `uid://transcriptrepository` (should be `uid://k4fjh52254l3`)
+- `uid://conversationmanager` (should be `uid://d4f6xdxo5tii2`)
+- `uid://screeningmonitor` (should be `uid://ctpfckefebaeh`)
+
+These placeholder UIDs prevented scripts from loading, so `_Ready()` never ran and services weren't registered.
+
+### Fix Applied
+Updated UIDs in `scenes/Game.tscn` to match actual `.uid` files.
+
+### Files Modified
+- `scenes/Game.tscn`
+
+### Build Status
+**Build: SUCCESS** (0 errors, 18 warnings - pre-existing nullable annotations)
+
+---
+
+## Current Session
+- **Task**: Convert ConversationManager to autoload
+- **Status**: Completed
+- **Started**: Sat Jan 18 2026
+- **Last Updated**: Sat Jan 18 2026
+
+### Issue
+"ServiceRegistry: Service not found for type ITranscriptRepository" and retry logic complexity.
+
+### Root Cause
+Services that are scene nodes in Game.tscn aren't available until that scene loads. UI components instantiated independently can't access them.
+
+### Fix Applied
+Converted services that UI components need to access into autoloads:
+
+**scripts/dialogue/ConversationManager.cs:**
+- Added `[GlobalClass]` attribute
+- Now loads at startup as autoload
+
+**project.godot:**
+- Added `ConversationManager="res://scripts/dialogue/ConversationManager.cs"` to autoload section
+
+**scenes/Game.tscn:**
+- Removed ConversationManager node (load_steps: 5 → 4)
+- Simplified scene structure
+
+**scripts/ui/LiveShowPanel.cs:**
+- Removed retry logic (services always available)
+
+**scripts/ui/LiveShowFooter.cs:**
+- Removed retry logic (services always available)
+
+### Final Autoload Pattern
+| Service | Type | Registration |
+|---------|------|--------------|
+| `CallerRepository` | Plain class | `RegisterCoreServices()` |
+| `ScreeningController` | Plain class | `RegisterCoreServices()` |
+| `TranscriptRepository` | Autoload | `_Ready()` in autoload |
+| `ConversationManager` | Autoload | `_Ready()` in autoload |
+
+### Files Modified
+- `scripts/dialogue/ConversationManager.cs`
+- `project.godot`
+- `scenes/Game.tscn`
+- `scripts/ui/LiveShowPanel.cs`
+- `scripts/ui/LiveShowFooter.cs`
+
+### Build Status
+**Build: SUCCESS** (0 errors, 18 warnings - pre-existing nullable annotations)

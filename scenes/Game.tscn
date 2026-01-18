@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=4 format=3 uid="uid://game"]
 
 [ext_resource type="Script" uid="uid://ciyhpovkok5te" path="res://scripts/Main.cs" id="1"]
 [ext_resource type="Script" uid="uid://b3ihb2axyu6ad" path="res://scripts/monitors/CallerMonitor.cs" id="2"]
 [ext_resource type="Script" uid="uid://do111yirun4wa" path="res://scripts/monitors/VernStatsMonitor.cs" id="3"]
+[ext_resource type="Script" uid="uid://ctpfckefebaeh" path="res://scripts/monitors/ScreeningMonitor.cs" id="4"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -12,6 +13,9 @@ script = ExtResource("2")
 
 [node name="VernStatsMonitor" type="Node" parent="."]
 script = ExtResource("3")
+
+[node name="ScreeningMonitor" type="Node" parent="."]
+script = ExtResource("4")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(960, 540)

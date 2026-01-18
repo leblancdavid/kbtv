@@ -92,12 +92,28 @@ var screeningController = ServiceRegistry.Instance.ScreeningController;
 
 **How Services Register:**
 
-1. **Node-based services (autoloads/scene nodes):** Register themselves in `_Ready()`
+1. **Autoload services (for UI access):** Register themselves in `_Ready()` with `[GlobalClass]` attribute
 ```csharp
-public override void _Ready()
+[GlobalClass]
+public partial class TranscriptRepository : Node, ITranscriptRepository
 {
-    ServiceRegistry.Instance.RegisterSelf<MyService>(this);
-    // ... rest of initialization
+    public override void _Ready()
+    {
+        ServiceRegistry.Instance.RegisterSelf<ITranscriptRepository>(this);
+        ServiceRegistry.Instance.RegisterSelf<TranscriptRepository>(this);
+    }
+}
+```
+
+2. **Plain class services (internal to ServiceRegistry):** Registered in `RegisterCoreServices()`
+```csharp
+private void RegisterCoreServices()
+{
+    var repository = new CallerRepository();
+    RegisterSelf<ICallerRepository>(repository);
+
+    var screeningController = new ScreeningController();
+    RegisterSelf<IScreeningController>(screeningController);
 }
 ```
 
@@ -120,6 +136,27 @@ private void RegisterCoreServices()
 4. `TimeManager`, `ListenerManager`, `EconomyManager` - Can depend on GameStateManager
 5. `GlobalTransitionManager` - Handles fade transitions
 6. `TabContainerManager`, `PreShowUIManager` - Need UIManager for layer registration
+
+**Autoload vs Plain Class Pattern:**
+
+Use **autoloads** (with `[GlobalClass]` attribute) when:
+- UI components need to access the service (UI components are instantiated independently)
+- The service needs to exist before `Game.tscn` loads
+- Example: `ConversationManager`, `TranscriptRepository`
+
+Use **plain classes** (registered in `RegisterCoreServices()`) when:
+- Only other services or Game.tscn components need the service
+- The service is created and managed entirely within the ServiceRegistry
+- Example: `CallerRepository`, `ScreeningController`
+
+**How to Add a New Autoload:**
+1. Add `[GlobalClass]` attribute to the class
+2. Implement any interfaces the service provides
+3. Register in `_Ready()`: `ServiceRegistry.Instance.RegisterSelf<TInterface>(this)`
+4. Add to `project.godot` autoload section:
+```toml
+MyService="res://scripts/path/MyService.cs"
+```
 
 **Service Initialization Pattern:**
 - Use `ServiceRegistry.IsInitialized` to check if the registry is ready

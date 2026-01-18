@@ -28,6 +28,8 @@ UIManager="res://scripts/ui/UIManager.cs"
 TabContainerManager="res://scripts/ui/TabContainerManager.cs"
 PreShowUIManager="res://scripts/ui/PreShowUIManager.cs"
 CallerGenerator="res://scripts/callers/CallerGenerator.cs"
+TranscriptRepository="res://scripts/dialogue/TranscriptRepository.cs"
+ConversationManager="res://scripts/dialogue/ConversationManager.cs"
 
 [display]
 

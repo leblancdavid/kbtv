@@ -1,8 +1,9 @@
 using System;
 using Godot;
 using KBTV.Data;
-using KBTV.Managers;
+using KBTV.Dialogue;
 using KBTV.Economy;
+using KBTV.Managers;
 using KBTV.Persistence;
 using KBTV.Callers;
 
@@ -102,7 +103,9 @@ namespace KBTV.Core
 
 			// Start the show clock
 			ServiceRegistry.Instance.TimeManager?.StartClock();
-			// TODO: Initialize other live show systems with selected topic
+
+			// Initialize broadcast flow
+			ServiceRegistry.Instance.ConversationManager?.OnLiveShowStarted();
 		}
 
 		/// <summary>
@@ -164,6 +167,9 @@ namespace KBTV.Core
 		/// </summary>
 		private void ProcessEndOfShow()
 		{
+			// End broadcast flow first
+			ServiceRegistry.Instance.ConversationManager?.OnLiveShowEnding();
+
 			// Get show performance data
 			int peakListeners = ServiceRegistry.Instance.ListenerManager?.PeakListeners ?? 0;
 

@@ -1,6 +1,8 @@
+using System.Text;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Dialogue;
 
 namespace KBTV.UI
 {
@@ -17,11 +19,13 @@ namespace KBTV.UI
         private Label _adBreakTimerLabel = null!;
 
         private ICallerRepository _repository = null!;
+        private ITranscriptRepository _transcriptRepository = null!;
 
         private bool _adBreakActive = false;
         private float _adBreakTime = 0f;
 
         private string _previousOnAirCallerId = string.Empty;
+        private int _previousTranscriptCount = -1;
 
         public override void _Ready()
         {
@@ -44,6 +48,7 @@ namespace KBTV.UI
             _adBreakTimerLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/AdBreakTimerLabel");
 
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
+            _transcriptRepository = Core.ServiceRegistry.Instance.TranscriptRepository;
 
             _startAdBreakButton.Connect("pressed", Callable.From(OnStartAdBreakPressed));
             _endAdBreakButton.Connect("pressed", Callable.From(OnEndAdBreakPressed));
@@ -68,6 +73,12 @@ namespace KBTV.UI
                 _previousOnAirCallerId = currentOnAirCallerId;
             }
 
+            if (_transcriptRepository != null && _transcriptRepository.EntryCount != _previousTranscriptCount)
+            {
+                UpdateTranscript();
+                _previousTranscriptCount = _transcriptRepository.EntryCount;
+            }
+
             if (_adBreakActive)
             {
                 _adBreakTime += (float)delta;
@@ -86,10 +97,30 @@ namespace KBTV.UI
 
         private void UpdateTranscript()
         {
-            if (_transcriptText != null)
+            if (_transcriptText == null || _transcriptRepository == null)
             {
-                _transcriptText.Text = "[Transcript will appear here when conversation system is active]";
+                return;
             }
+
+            var transcript = _transcriptRepository.GetCurrentShowTranscript();
+            if (transcript.Count == 0)
+            {
+                _transcriptText.Text = "[Transcript will appear here during the broadcast]";
+                return;
+            }
+
+            var sb = new StringBuilder();
+            const int maxEntries = 20;
+
+            int startIndex = System.Math.Max(0, transcript.Count - maxEntries);
+            for (int i = startIndex; i < transcript.Count; i++)
+            {
+                var entry = transcript[i];
+                var speakerLabel = entry.SpeakerName ?? (entry.Speaker == Dialogue.Speaker.Vern ? "Vern" : "Caller");
+                sb.AppendLine($"[{entry.Timestamp:F1}s] {speakerLabel}: {entry.Text}");
+            }
+
+            _transcriptText.Text = sb.ToString();
         }
 
         private void OnStartAdBreakPressed()
