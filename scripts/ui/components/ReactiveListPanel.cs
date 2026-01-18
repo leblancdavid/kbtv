@@ -155,6 +155,7 @@ namespace KBTV.UI.Components
             }
 
             _itemCache.Remove(index);
+            RemoveChild(control);
 
             if (AnimateChanges)
             {
@@ -175,17 +176,9 @@ namespace KBTV.UI.Components
 
             for (int i = 0; i < children.Count; i++)
             {
-                if (_itemCache.TryGetValue(i + _itemCache.Count - children.Count, out var control))
+                if (children[i] is Control control)
                 {
                     newCache[i] = control;
-                }
-            }
-
-            foreach (var kvp in _itemCache)
-            {
-                if (!newCache.ContainsValue(kvp.Value))
-                {
-                    newCache[newCache.Count] = kvp.Value;
                 }
             }
 

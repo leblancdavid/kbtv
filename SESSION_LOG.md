@@ -410,6 +410,8 @@ Converted services that UI components need to access into autoloads:
 - Removed retry logic (services always available)
 
 ### Final Autoload Pattern
+
+### Final Autoload Pattern
 | Service | Type | Registration |
 |---------|------|--------------|
 | `CallerRepository` | Plain class | `RegisterCoreServices()` |
@@ -426,3 +428,36 @@ Converted services that UI components need to access into autoloads:
 
 ### Build Status
 **Build: SUCCESS** (0 errors, 18 warnings - pre-existing nullable annotations)
+
+---
+
+## Current Session
+- **Task**: Fix incoming queue list corruption (duplicates, >10 items, selection broken)
+- **Status**: Completed
+- **Started**: Sat Jan 18 2026
+- **Last Updated**: Sat Jan 18 2026
+
+### Issue
+When callers got impatient and disconnected:
+- Duplicates appeared in the incoming list
+- List grew beyond the 10-caller limit
+- Selection was broken (selected index didn't match actual caller)
+
+### Root Cause
+`ReactiveListPanel.RebuildCacheIndices()` had a faulty index remapping formula that didn't correctly map remaining items to sequential indices after removals. Also, `RemoveItemDifferentially()` called `QueueFree()` without first removing the child from the VBoxContainer, causing the freed node to still be counted in `GetChildren()`.
+
+### Fix Applied
+
+**scripts/ui/components/ReactiveListPanel.cs:**
+
+1. **Rewrote `RebuildCacheIndices()`** - Simplified to directly map children to sequential indices
+2. **Added `RemoveChild()` before `QueueFree()`** in `RemoveItemDifferentially()`
+
+### Files Modified
+- `scripts/ui/components/ReactiveListPanel.cs`
+
+### Files Added
+- `tests/unit/ui/ReactiveListPanelTests.cs` - Unit tests for list rebuild correctness
+
+### Build Status
+**Build: SUCCESS** (0 errors, 0 warnings)
