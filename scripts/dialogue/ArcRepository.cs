@@ -13,13 +13,9 @@ namespace KBTV.Dialogue
     {
         [Export] private Godot.Collections.Array<string> _arcJsonFilePaths = new Godot.Collections.Array<string>();
 
-        // Runtime cache of loaded arcs
         private Godot.Collections.Array<ConversationArc> _arcs = new Godot.Collections.Array<ConversationArc>();
         private bool _initialized;
 
-        /// <summary>
-        /// All loaded conversation arcs.
-        /// </summary>
         public Godot.Collections.Array<ConversationArc> Arcs
         {
             get
@@ -29,14 +25,18 @@ namespace KBTV.Dialogue
             }
         }
 
-        /// <summary>
-        /// Initialize the repository by parsing all arc JSON files.
-        /// </summary>
         public void Initialize()
         {
+            var filePathsToLoad = new Godot.Collections.Array<string>(_arcJsonFilePaths);
+
+            if (filePathsToLoad.Count == 0)
+            {
+                filePathsToLoad = DiscoverArcFiles();
+            }
+
             _arcs.Clear();
 
-            foreach (var filePath in _arcJsonFilePaths)
+            foreach (var filePath in filePathsToLoad)
             {
                 if (string.IsNullOrEmpty(filePath)) continue;
 
@@ -45,7 +45,6 @@ namespace KBTV.Dialogue
                     var file = FileAccess.Open(filePath, FileAccess.ModeFlags.Read);
                     if (file == null)
                     {
-                        GD.PrintErr($"ArcRepository: Failed to open arc JSON file '{filePath}': {FileAccess.GetOpenError()}");
                         continue;
                     }
 
@@ -58,18 +57,52 @@ namespace KBTV.Dialogue
                         _arcs.Add(arc);
                     }
                 }
-                catch (Exception e)
+                catch
                 {
-                    GD.PrintErr($"ArcRepository: Failed to parse arc JSON '{filePath}': {e.Message}");
                 }
             }
 
             _initialized = true;
         }
 
-        /// <summary>
-        /// Find all arcs matching the given topic and legitimacy.
-        /// </summary>
+        private Godot.Collections.Array<string> DiscoverArcFiles()
+        {
+            var foundFiles = new Godot.Collections.Array<string>();
+            var searchDir = "res://assets/dialogue/arcs";
+
+            var dirAccess = DirAccess.Open(searchDir);
+            if (dirAccess == null)
+            {
+                return foundFiles;
+            }
+
+            DiscoverArcFilesRecursive(searchDir, foundFiles);
+            return foundFiles;
+        }
+
+        private void DiscoverArcFilesRecursive(string dir, Godot.Collections.Array<string> foundFiles)
+        {
+            var dirAccess = DirAccess.Open(dir);
+            if (dirAccess == null)
+            {
+                return;
+            }
+
+            foreach (var entry in dirAccess.GetFiles())
+            {
+                if (entry.EndsWith(".json"))
+                {
+                    var fullPath = dir + "/" + entry;
+                    foundFiles.Add(fullPath);
+                }
+            }
+
+            foreach (var subDir in dirAccess.GetDirectories())
+            {
+                DiscoverArcFilesRecursive(dir + "/" + subDir, foundFiles);
+            }
+        }
+
         public List<ConversationArc> FindMatchingArcs(string topic, CallerLegitimacy legitimacy)
         {
             EnsureInitialized();
@@ -86,10 +119,6 @@ namespace KBTV.Dialogue
             return matches;
         }
 
-        /// <summary>
-        /// Get a random arc matching the given criteria.
-        /// Returns null if no matching arcs found.
-        /// </summary>
         public ConversationArc GetRandomArc(string topic, CallerLegitimacy legitimacy)
         {
             var matches = FindMatchingArcs(topic, legitimacy);
@@ -98,9 +127,6 @@ namespace KBTV.Dialogue
             return matches[(int)(GD.Randi() % matches.Count)];
         }
 
-        /// <summary>
-        /// Find all topic-switcher arcs matching a caller who lied about their topic.
-        /// </summary>
         public List<ConversationArc> FindTopicSwitcherArcs(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy)
         {
             EnsureInitialized();
@@ -117,10 +143,6 @@ namespace KBTV.Dialogue
             return matches;
         }
 
-        /// <summary>
-        /// Get a random topic-switcher arc for a caller who lied about their topic.
-        /// Returns null if no matching switcher arc found.
-        /// </summary>
         public ConversationArc GetRandomTopicSwitcherArc(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy)
         {
             var matches = FindTopicSwitcherArcs(claimedTopic, actualTopic, legitimacy);
@@ -129,18 +151,12 @@ namespace KBTV.Dialogue
             return matches[(int)(GD.Randi() % matches.Count)];
         }
 
-        /// <summary>
-        /// Add an arc to the repository (used by editor tools).
-        /// </summary>
         public void AddArc(ConversationArc arc)
         {
             EnsureInitialized();
             _arcs.Add(arc);
         }
 
-        /// <summary>
-        /// Clear all arcs from the repository.
-        /// </summary>
         public void Clear()
         {
             _arcs.Clear();

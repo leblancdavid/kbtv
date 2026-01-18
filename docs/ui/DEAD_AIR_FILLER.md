@@ -2,31 +2,50 @@
 
 ## Overview
 
-The broadcast flow system manages Vern's dialogue during transitions in the LiveShow phase:
+The broadcast flow system manages Vern's dialogue during transitions in the LiveShow phase using the **pull-based BroadcastCoordinator** pattern:
 
 1. **Show Opening** - Vern's intro line when LiveShow begins
-2. **Dead Air Filler** - Vern's monologue when no caller is on air
+2. **Dead Air Filler** - Vern's monologue when no caller is on air (8s per cycle)
 3. **Between Callers** - Transition lines when auto-advancing to next caller
 4. **Show Closing** - Vern's outro line when LiveShow ends
 
 These features maintain broadcast atmosphere, prevent awkward silence, and make the show feel alive.
 
-## Broadcast Flow
+## BroadcastCoordinator Pattern
 
-### Show Opening
-When the game transitions to LiveShow phase, Vern delivers an opening line before anything else happens. After the opening completes, dead air filler begins if no caller is on air.
+The `BroadcastCoordinator` is a **pull-based** service that manages the entire broadcast flow:
 
-### Show Closing
-When leaving LiveShow phase, Vern delivers a closing line to wrap up the show.
+```csharp
+// Consumer asks "what's next?" - coordinator decides
+BroadcastLine GetNextLine();
 
-### Between Callers
-When a conversation ends and there are callers on hold, Vern delivers a transition line before auto-advancing to the next caller. This creates a natural flow between calls.
+// Consumer calls this when line finishes playing
+void OnLineCompleted();
+
+// UI calls these when state changes
+void OnCallerOnAir(Caller caller);
+void OnCallerOnAirEnded(Caller caller);
+void OnLiveShowStarted();
+void OnLiveShowEnding();
+```
+
+### State Machine
+
+```
+ShowOpening → Conversation → BetweenCallers → Conversation
+                 ↓                    ↓
+           (no callers)        (no callers)
+                 ↓                    ↓
+           DeadAirFiller      DeadAirFiller
+                 ↓                    ↓
+           (1 cycle)           (1 cycle)
+                 ↓                    ↓
+           Conversation        Conversation
+```
 
 ## Dead Air Filler
 
 ### Behavior Specification
-
-### State Transitions
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -40,164 +59,151 @@ When a conversation ends and there are callers on hold, Vern delivers a transiti
                            │                │
                       Yes  │                │  No
                            ▼                ▼
-               ┌───────────────────┐  ┌───────────────────┐
-               │ Play between-     │  │ Start dead air    │
-               │ callers line,     │  │ filler mode       │
-               │ then put on air   │  │                   │
-               └───────────────────┘  └───────────────────┘
-                                              │
-                    ┌─────────────────────────┤
-                    │                         │
-                    ▼                         ▼
-         ┌───────────────────┐    ┌───────────────────────────┐
-         │ Display filler    │    │ Timer expires (~8s)       │
-         │ line with         │    │ → Cycle to next           │
-         │ typewriter effect │    │   filler line             │
-         └───────────────────┘    └───────────────────────────┘
-                    │                         │
-                    └──────────┬──────────────┘
-                               │
-                               ▼
-                    ┌───────────────────────────┐
-                    │ Filler line ends AND      │
-                    │ callers on hold?          │
-                    └───────────────────────────┘
-                               │
-                          Yes  │
-                               ▼
-                    ┌───────────────────────────┐
-                    │ Stop filler, put next     │
-                    │ caller on air             │
-                    └───────────────────────────┘
+                ┌───────────────────┐  ┌───────────────────┐
+                │ Play between-     │  │ Start dead air    │
+                │ callers line,     │  │ filler mode       │
+                │ then put on air   │  │                   │
+                └───────────────────┘  └───────────────────┘
+                           │                │
+                           └────────┬───────┘
+                                    │
+                                    ▼
+                         ┌───────────────────┐
+                         │ Filler line ends  │
+                         │ (8s cycle)        │
+                         └───────────────────┘
+                                    │
+                           ┌────────┴────────┐
+                           │                 │
+                           ▼                 ▼
+                ┌───────────────────┐  ┌───────────────────┐
+                │ Callers on hold?  │  │ Continue filler   │
+                └───────────────────┘  │ (next line)       │
+                           │          └───────────────────┘
+                      Yes  │
+                           ▼
+                ┌───────────────────┐
+                │ Stop filler, put  │
+                │ next caller on air│
+                └───────────────────┘
 ```
 
-### Auto-Advance Logic
+### Key Timing Rules
 
-When Vern finishes speaking (filler line, broadcast line, or show opening), the system automatically checks for on-hold callers:
+| Phase | Duration |
+|-------|----------|
+| Show Opening | 5 seconds |
+| Vern Dialogue | 4 seconds |
+| Caller Dialogue | 4 seconds |
+| Between Callers | 4 seconds |
+| Dead Air Filler | 8 seconds per line |
+| Show Closing | 5 seconds |
 
-1. **Show opening ends** → Check `CallerQueue.HasOnHoldCallers` → Put caller on air OR start filler
-2. **Filler line ends** → Check `CallerQueue.HasOnHoldCallers` → Put caller on air OR continue filler cycle
-3. **Conversation ends** → Check `CallerQueue.HasOnHoldCallers` → Play between-callers transition OR start filler
-4. **Caller approved while nothing playing** → Put caller on air immediately
+### Auto-Advance Rules
 
-This eliminates the need for manual "Put On Air" actions - callers flow on air automatically when Vern is ready.
+1. **Filler ends + callers on hold** → Put next caller on air after 1 filler cycle
+2. **Between-callers ends + callers on hold** → Put next caller on air
+3. **No callers ever** → Filler cycles forever
+4. **Arc dialogue exhausted** → Between-callers transition → auto-advance
 
-### Scenarios
+## Scenarios
 
 | Scenario | Behavior |
 |----------|----------|
-| LiveShow starts | Show opening plays, then check for on-hold callers or start filler |
-| Show opening ends, callers on hold | Put next caller on air automatically |
-| Show opening ends, no callers on hold | Start dead air filler (Vern monologue) |
-| Conversation ends, callers on hold | Between-callers transition, then next caller on air |
+| LiveShow starts | Show opening plays (5s), then check for on-hold callers or start filler |
+| Show opening ends, callers on hold | First caller goes on air automatically |
+| Show opening ends, no callers on hold | Dead air filler starts (8s cycle) |
+| Conversation ends, callers on hold | Between-callers transition (4s), then next caller on air |
 | Conversation ends, no callers on hold | Start dead air filler |
 | Filler line ends, callers on hold | Stop filler, put next caller on air automatically |
-| Filler line ends, no callers on hold | Wait for cycle interval (~8s), then show next filler line |
-| Caller approved while nothing playing | Put caller on air immediately |
-| Caller goes on air during filler | Stop filler immediately |
-| LiveShow ends | Show closing plays |
+| Filler line ends, no callers on hold | Wait for cycle interval (8s), then show next filler line |
+| LiveShow ends | Show closing plays (5s) |
 
-### Timing
+## Arc-Caller Association
 
-- **Filler line duration**: Calculated same as conversation lines (`baseDelay + text.Length * perCharDelay`)
-- **Cycle interval**: ~8 seconds between filler lines (configurable via `_deadAirCycleInterval`)
-- **Transition delay**: When caller becomes available, wait for current filler line to finish naturally
+**Critical:** Each caller stores their conversation arc when approved:
+
+1. **Screening approval** → Arc is loaded and stored on caller: `caller.SetArc(arc)`
+2. **Put on air** → Arc is retrieved: `coordinator.OnCallerOnAir(caller)` → uses `caller.Arc`
+
+This ensures:
+- Screening summary matches what Vern discusses on-air
+- Consistent conversation regardless of when caller goes on air
 
 ## Implementation Details
 
-### Files Modified
+### Files
 
-| File | Changes |
+| File | Purpose |
 |------|---------|
-| `CallerQueue.cs` | No changes needed - `OnCallerApproved` event already exists |
-| `ConversationManager.cs` | Add dead air filler state, methods, and auto-advance logic |
-| `ConversationPanel.cs` | Subscribe to filler events, display Vern monologue mode |
+| `scripts/dialogue/BroadcastCoordinator.cs` | Main pull-based coordinator service |
+| `scripts/dialogue/BroadcastLineType.cs` | Enum: ShowOpening, VernDialogue, CallerDialogue, BetweenCallers, DeadAirFiller, ShowClosing, PutCallerOnAir, None |
+| `scripts/dialogue/BroadcastLine.cs` | Struct with Text, Speaker, Type, Phase, ArcId |
+| `scripts/dialogue/ConversationDisplay.cs` | UI display that polls GetNextLine() |
+| `scripts/dialogue/ArcRepository.cs` | Auto-discovers arc files from `assets/dialogue/arcs/` |
+| `scripts/dialogue/ArcJsonParser.cs` | Parses arc JSON files using Godot's JSON class |
+| `scripts/callers/Caller.cs` | Stores Arc reference: `public ConversationArc? Arc { get; }` |
 
-### ConversationManager.cs Changes
-
-#### New Fields
-
-```csharp
-// Dead air filler state
-private bool _isPlayingDeadAirFiller = false;
-private float _deadAirFillerTimer = 0f;
-private float _currentFillerLineDuration = 0f;
-private DialogueLine _currentFillerLine = null;
-
-[Header("Dead Air Settings")]
-[Tooltip("Time between filler lines when no callers available")]
-[SerializeField] private float _deadAirCycleInterval = 8f;
-```
-
-#### New Properties
+### BroadcastCoordinator API
 
 ```csharp
-public bool IsPlayingDeadAirFiller => _isPlayingDeadAirFiller;
-public DialogueLine CurrentFillerLine => _currentFillerLine;
+public partial class BroadcastCoordinator : Node
+{
+    // Pull-based API
+    public BroadcastLine GetNextLine();
+    public void OnLineCompleted();
+    
+    // State change callbacks (called by UI)
+    public void OnLiveShowStarted();
+    public void OnLiveShowEnding();
+    public void OnCallerOnAir(Caller caller);
+    public void OnCallerOnAirEnded(Caller caller);
+    
+    // Line duration (seconds)
+    private static float GetLineDuration(BroadcastLine line)
+    {
+        return line.Type switch
+        {
+            BroadcastLineType.ShowOpening => 5f,
+            BroadcastLineType.VernDialogue => 4f,
+            BroadcastLineType.CallerDialogue => 4f,
+            BroadcastLineType.BetweenCallers => 4f,
+            BroadcastLineType.DeadAirFiller => 8f,
+            BroadcastLineType.ShowClosing => 5f,
+            _ => 0f
+        };
+    }
+}
 ```
 
-#### New Events
+### Auto-Discovery of Arc Files
+
+`ArcRepository.Initialize()` automatically discovers arc JSON files:
 
 ```csharp
-public event Action<DialogueLine> OnFillerLineDisplayed;
-public event Action OnFillerStopped;
-public event Action<DialogueLine> OnBroadcastLineDisplayed;
-public event Action OnBroadcastLineCompleted;
+private Godot.Collections.Array<string> DiscoverArcFiles()
+{
+    var foundFiles = new Godot.Collections.Array<string>();
+    var searchDir = "res://assets/dialogue/arcs";
+    
+    // Recursively find all .json files
+    DiscoverArcFilesRecursive(searchDir, foundFiles);
+    return foundFiles;
+}
 ```
 
-#### New Methods
-
-**Dead Air Filler:**
-- `StartDeadAirFiller()` - Begin filler mode
-- `StopDeadAirFiller()` - End filler mode
-- `DisplayNextFillerLine()` - Show next filler line from template
-- `UpdateDeadAirFiller()` - Handle filler timing; auto-advance callers when line ends
-- `HandleCallerApproved()` - Put caller on air immediately if nothing playing
-
-**Broadcast Flow:**
-- `PlayBroadcastLine(template, onComplete)` - Play a broadcast line with callback
-- `UpdateBroadcastLine()` - Handle broadcast line timing
-- `CompleteBroadcastLine()` - Complete broadcast line and invoke callback
-- `CancelBroadcastLine()` - Cancel broadcast line without invoking callback
-- `PlayShowOpening(onComplete)` - Play show opening line
-- `PlayShowClosing(onComplete)` - Play show closing line
-- `PlayBetweenCallers(onComplete)` - Play between-callers transition
-
-#### Modified Methods
-
-- `Start()` - Subscribe to `OnCallerApproved`
-- `OnDestroy()` - Unsubscribe from `OnCallerApproved`
-- `Update()` - Add filler update logic
-- `HandleConversationCompleted()` - Check queue and start filler or auto-advance
-- `HandleCallerOnAir()` - Stop filler when caller goes on air
-
-### ConversationPanel.cs Changes
-
-#### New Event Subscriptions
-
-- `OnFillerLineDisplayed` - Display filler line with typewriter effect
-- `OnFillerStopped` - Return to empty state if no conversation
-- `OnBroadcastLineDisplayed` - Display broadcast line (opening/closing/between)
-- `OnBroadcastLineCompleted` - Update display after broadcast line ends
-
-#### Modified Methods
-
-- `DoSubscribe()` / `DoUnsubscribe()` - Add filler event handlers
-- `UpdateDisplay()` - Show conversation container during filler
-- `GetCallerName()` - Handle filler mode (no caller)
-
-## UI Display
-
-When dead air filler is playing:
-
-| Element | Display |
-|---------|---------|
-| Speaker Icon | Green (Vern color) |
-| Speaker Label | "VERN" |
-| Phase Label | "ON AIR" |
-| Dialogue Text | Filler line with typewriter effect |
-| History | Empty (cleared for filler mode) |
-| Progress Bar | Shows progress through current filler line |
+Arc files are organized by topic and legitimacy:
+```
+assets/dialogue/arcs/
+├── UFOs/
+│   ├── Questionable/lights.json
+│   ├── Fake/prankster.json
+│   └── Credible/dashcam_trucker.json
+├── Ghosts/
+│   ├── Questionable/footsteps.json
+│   └── ...
+└── ...
+```
 
 ## Testing Checklist
 
@@ -212,15 +218,14 @@ When dead air filler is playing:
 ### Dead Air Filler
 - [ ] Conversation ends with no callers → filler starts
 - [ ] Filler displays with typewriter effect
-- [ ] Filler cycles to new line after ~8 seconds (if no callers)
+- [ ] Filler cycles to new line after 8 seconds (if no callers)
 - [ ] Filler line ends with caller on hold → Caller goes on air automatically
 - [ ] Caller approved while nothing playing → Caller goes on air immediately
 - [ ] Caller goes on air → filler stops immediately
-- [ ] Phase label shows "ON AIR" during filler
-- [ ] Empty state never shows when filler is playing
+- [ ] Phase label shows "DEAD AIR" during filler
 
-## Future Enhancements
-
-- Add variety weighting to prevent recently-used filler lines from repeating
-- Add configurable timing for opening/closing/between-callers display duration
-- Add special opening lines for topic-specific shows
+### Arc Loading
+- [ ] Arcs auto-discovered from `assets/dialogue/arcs/`
+- [ ] Arc loaded when caller is approved (screening)
+- [ ] Arc retrieved when caller goes on air
+- [ ] Arc dialogue lines display correctly in transcript

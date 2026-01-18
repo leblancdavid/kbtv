@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Godot;
+using KBTV.Dialogue;
 
 namespace KBTV.Callers
 {
@@ -11,54 +13,50 @@ namespace KBTV.Callers
     [Serializable]
     public partial class Caller : Resource
     {
-
-    /// <summary>
-    /// Tracks the revelation progress of a single property.
-    /// </summary>
-    [Serializable]
-    public partial class PropertyRevelation : Resource
-    {
-        [Export] public string PropertyKey;
-        [Export] public RevelationState State;
-        [Export] public float ElapsedTime;
-        [Export] public float RevealDuration;
-        [Export] public int IntValue;
-        [Export] public string StringValue;
-
-        public PropertyRevelation(string propertyName, float revealDuration)
+        /// <summary>
+        /// Tracks the revelation progress of a single property.
+        /// </summary>
+        [Serializable]
+        public partial class PropertyRevelation : Resource
         {
-            PropertyKey = propertyName;
-            State = RevelationState.Hidden;
-            ElapsedTime = 0f;
-            RevealDuration = revealDuration;
-            IntValue = 0;
-            StringValue = null;
-        }
+            [Export] public string PropertyKey;
+            [Export] public RevelationState State;
+            [Export] public float ElapsedTime;
+            [Export] public float RevealDuration;
+            [Export] public int IntValue;
+            [Export] public string StringValue;
 
-        public bool IsRevealed => State == RevelationState.Revealed;
-
-        public void Update(float deltaTime)
-        {
-            if (State == RevelationState.Hidden)
+            public PropertyRevelation(string propertyName, float revealDuration)
             {
-                State = RevelationState.Revealing;
+                PropertyKey = propertyName;
+                State = RevelationState.Hidden;
+                ElapsedTime = 0f;
+                RevealDuration = revealDuration;
+                IntValue = 0;
+                StringValue = null;
             }
 
-            if (State == RevelationState.Revealing)
+            public bool IsRevealed => State == RevelationState.Revealed;
+
+            public void Update(float deltaTime)
             {
-                ElapsedTime += deltaTime;
-                if (ElapsedTime >= RevealDuration)
+                if (State == RevelationState.Hidden)
                 {
-                    State = RevelationState.Revealed;
+                    State = RevelationState.Revealing;
+                }
+
+                if (State == RevelationState.Revealing)
+                {
+                    ElapsedTime += deltaTime;
+                    if (ElapsedTime >= RevealDuration)
+                    {
+                        State = RevelationState.Revealed;
+                    }
                 }
             }
+
+            public float Progress => Mathf.Clamp(ElapsedTime / RevealDuration, 0f, 1f);
         }
-
-        public float Progress => Mathf.Clamp(ElapsedTime / RevealDuration, 0f, 1f);
-    }
-
-
-
 
         // Identity
         private string _name;
@@ -81,6 +79,7 @@ namespace KBTV.Callers
         private CallerUrgency _urgency;
         private string _personality;
         private string _arcId;
+        private ConversationArc? _arc;
         private string _screeningSummary;
         private CallerState _state;
         private float _patience;
@@ -103,6 +102,7 @@ namespace KBTV.Callers
         public CallerUrgency Urgency => _urgency;
         public string Personality => _personality;
         public string ArcId => _arcId;
+        public ConversationArc? Arc => _arc;
         public string ScreeningSummary => _screeningSummary;
         public CallerState State => _state;
         public float Patience => _patience;
@@ -219,9 +219,9 @@ namespace KBTV.Callers
         /// </summary>
         private void ShuffleRevelations()
         {
-            var tier1 = new System.Collections.Generic.List<PropertyRevelation>();
-            var tier2 = new System.Collections.Generic.List<PropertyRevelation>();
-            var tier3 = new System.Collections.Generic.List<PropertyRevelation>();
+            var tier1 = new List<PropertyRevelation>();
+            var tier2 = new List<PropertyRevelation>();
+            var tier3 = new List<PropertyRevelation>();
 
             foreach (var rev in Revelations)
             {
@@ -247,19 +247,19 @@ namespace KBTV.Callers
                 }
             }
 
-            var rng = new System.Random();
+            var rng = new Random();
             ShuffleList(tier1, rng);
             ShuffleList(tier2, rng);
             ShuffleList(tier3, rng);
 
-            var shuffled = new System.Collections.Generic.List<PropertyRevelation>();
+            var shuffled = new List<PropertyRevelation>();
             shuffled.AddRange(tier1);
             shuffled.AddRange(tier2);
             shuffled.AddRange(tier3);
             Revelations = shuffled.ToArray();
         }
 
-        private void ShuffleList<T>(System.Collections.Generic.List<T> list, System.Random rng)
+        private void ShuffleList<T>(List<T> list, Random rng)
         {
             int n = list.Count;
             while (n > 1)
@@ -281,6 +281,16 @@ namespace KBTV.Callers
         }
 
         /// <summary>
+        /// Set the conversation arc for this caller.
+        /// Loaded when caller is approved to on-hold.
+        /// </summary>
+        public void SetArc(ConversationArc arc)
+        {
+            _arc = arc;
+            _arcId = arc?.ArcId ?? "";
+        }
+
+        /// <summary>
         /// Get a revelation by property name.
         /// </summary>
         public PropertyRevelation GetRevelation(string propertyName)
@@ -296,9 +306,9 @@ namespace KBTV.Callers
         /// <summary>
         /// Get all currently revealed properties.
         /// </summary>
-        public System.Collections.Generic.List<PropertyRevelation> GetRevealedProperties()
+        public List<PropertyRevelation> GetRevealedProperties()
         {
-            var revealed = new System.Collections.Generic.List<PropertyRevelation>();
+            var revealed = new List<PropertyRevelation>();
             foreach (var rev in Revelations)
             {
                 if (rev.IsRevealed)
@@ -338,7 +348,6 @@ namespace KBTV.Callers
         /// </summary>
         public bool UpdateWaitTime(float deltaTime)
         {
-            // OnHold and OnAir callers don't accumulate wait time - they're committed
             if (_state == CallerState.Completed ||
                 _state == CallerState.Rejected ||
                 _state == CallerState.Disconnected ||
@@ -350,17 +359,14 @@ namespace KBTV.Callers
 
             WaitTime += deltaTime;
 
-            // During screening, patience drains at 50% rate
             float patienceCheck = _patience;
             if (_state == CallerState.Screening)
             {
                 patienceCheck = ScreeningPatience;
                 ScreeningPatience -= deltaTime * 0.5f;
 
-                // Update revelations during screening
                 UpdateRevelations(deltaTime);
 
-                // Check if screening patience ran out
                 if (ScreeningPatience <= 0f)
                 {
                     SetState(CallerState.Disconnected);
@@ -370,7 +376,6 @@ namespace KBTV.Callers
             }
             else
             {
-                // Check if regular patience ran out
                 if (WaitTime > _patience)
                 {
                     SetState(CallerState.Disconnected);
@@ -424,7 +429,6 @@ namespace KBTV.Callers
         {
             float impact = _quality;
 
-            // Bonus for matching topic
             if (_actualTopic == currentTopic)
             {
                 impact *= 1.5f;
@@ -434,7 +438,6 @@ namespace KBTV.Callers
                 impact *= 0.5f;
             }
 
-            // Legitimacy multiplier
             impact *= _legitimacy switch
             {
                 CallerLegitimacy.Fake => -1f,

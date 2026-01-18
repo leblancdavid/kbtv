@@ -86,7 +86,7 @@ namespace KBTV.Dialogue
             };
         }
 
-        public static ConversationDisplayInfo CreateBroadcastLine(string speaker, string icon, string text, ConversationPhase phase)
+        public static ConversationDisplayInfo CreateBroadcastLine(string speaker, string icon, string text, ConversationPhase phase, BroadcastFlowState flowState)
         {
             return new ConversationDisplayInfo
             {
@@ -94,7 +94,7 @@ namespace KBTV.Dialogue
                 SpeakerIcon = icon,
                 Text = text,
                 Phase = phase,
-                FlowState = BroadcastFlowState.ShowOpening,
+                FlowState = flowState,
                 IsTyping = true,
                 IsConversationActive = false
             };

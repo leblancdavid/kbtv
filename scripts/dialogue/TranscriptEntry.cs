@@ -8,7 +8,7 @@ namespace KBTV.Dialogue
 {
     /// <summary>
     /// A single entry in the broadcast transcript.
-    /// Records who spoke, what was said, the conversation phase, and when it occurred.
+    /// Records who spoke, what was said, the conversation phase, and arc info.
     /// </summary>
     [Serializable]
     public partial class TranscriptEntry : Resource
@@ -16,38 +16,34 @@ namespace KBTV.Dialogue
         [Export] public Speaker Speaker;
         [Export] public string Text;
         [Export] public ConversationPhase Phase;
-        [Export] public float Timestamp;
         [Export] public string? ArcId;
         [Export] public string? SpeakerName;
-        [Export] public string? CallerId;
 
         public TranscriptEntry() { Text = string.Empty; }
 
-        public TranscriptEntry(Speaker speaker, string text, ConversationPhase phase, float timestamp, string? arcId = null, string? speakerName = null, string? callerId = null)
+        public TranscriptEntry(Speaker speaker, string text, ConversationPhase phase, string? arcId = null, string? speakerName = null)
         {
             Speaker = speaker;
             Text = text;
             Phase = phase;
-            Timestamp = timestamp;
             ArcId = arcId;
             SpeakerName = speakerName;
-            CallerId = callerId;
         }
 
-        public static TranscriptEntry CreateVernLine(string text, ConversationPhase phase, float timestamp, string? arcId = null)
+        public static TranscriptEntry CreateVernLine(string text, ConversationPhase phase, string? arcId = null)
         {
-            return new TranscriptEntry(Speaker.Vern, text, phase, timestamp, arcId, "Vern");
+            return new TranscriptEntry(Speaker.Vern, text, phase, arcId, "Vern");
         }
 
-        public static TranscriptEntry CreateCallerLine(Caller caller, string text, ConversationPhase phase, float timestamp, string? arcId = null)
+        public static TranscriptEntry CreateCallerLine(Caller caller, string text, ConversationPhase phase, string? arcId = null)
         {
-            return new TranscriptEntry(Speaker.Caller, text, phase, timestamp, arcId, caller.Name, caller.Id);
+            return new TranscriptEntry(Speaker.Caller, text, phase, arcId, caller.Name);
         }
 
         public string GetDisplayText()
         {
             var speakerLabel = SpeakerName ?? (Speaker == Speaker.Vern ? "Vern" : "Caller");
-            return $"[{Timestamp:F1}s] {speakerLabel}: {Text}";
+            return $"{speakerLabel}: {Text}";
         }
     }
 }

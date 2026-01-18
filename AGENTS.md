@@ -142,7 +142,7 @@ private void RegisterCoreServices()
 Use **autoloads** (with `[GlobalClass]` attribute) when:
 - UI components need to access the service (UI components are instantiated independently)
 - The service needs to exist before `Game.tscn` loads
-- Example: `ConversationManager`, `TranscriptRepository`
+- Example: `BroadcastCoordinator`, `TranscriptRepository`, `ArcRepository`
 
 Use **plain classes** (registered in `RegisterCoreServices()`) when:
 - Only other services or Game.tscn components need the service
@@ -202,6 +202,9 @@ private void RetryInitialization()
 - `CallerRepository` - Manages caller data
 - `ScreeningController` - Handles caller screening
 - `GlobalTransitionManager` - Handles fade-to-black transitions
+- `BroadcastCoordinator` - Manages broadcast flow and dialogue timing
+- `TranscriptRepository` - Stores broadcast transcript entries
+- `ArcRepository` - Stores conversation arcs (auto-discovers from `assets/dialogue/arcs/`)
 
 ### Observer Pattern
 
@@ -279,6 +282,85 @@ public partial class CallerMonitor : DomainMonitor
 - `scripts/monitors/CallerMonitor.cs` - Caller patience/wait time updates
 - `scripts/monitors/VernStatsMonitor.cs` - Vern's stat decay
 - `docs/technical/MONITOR_PATTERN.md` - Full pattern documentation
+
+### BroadcastCoordinator Pattern
+
+KBTV uses a **pull-based BroadcastCoordinator** service to manage the radio broadcast flow. This replaces the old event-driven ConversationManager with a simpler, more predictable architecture.
+
+**Key Benefits:**
+- **Pull-based API** - Consumer asks "what's next?" instead of reacting to events
+- **Single source of truth** - Coordinator decides flow, timing, and state transitions
+- **No timing complexity** - Consumer controls pacing via `_Process()` loop
+- **Auto-advance built-in** - Coordinator returns `PutCallerOnAir` signal when appropriate
+
+**Core API:**
+```csharp
+// Get the next line to display. Returns same line if current line is still playing.
+BroadcastLine GetNextLine();
+
+// Call when a line finishes playing. Advances to next line in the flow.
+void OnLineCompleted();
+
+// Called by UI when a caller goes on air
+void OnCallerOnAir(Caller caller);
+
+// Called by UI when a call ends
+void OnCallerOnAirEnded(Caller caller);
+
+// Lifecycle
+void OnLiveShowStarted();
+void OnLiveShowEnding();
+```
+
+**Line Types:**
+| Type | Description |
+|------|-------------|
+| `ShowOpening` | Vern's show intro (5s duration) |
+| `VernDialogue` | Vern's turn in conversation (4s) |
+| `CallerDialogue` | Caller's turn in conversation (4s) |
+| `BetweenCallers` | Transition after call ends (4s) |
+| `DeadAirFiller` | Vern monologue when no callers (8s) |
+| `ShowClosing` | Vern's outro (5s) |
+| `PutCallerOnAir` | Signal to put next caller on air |
+| `None` | No content, wait for event |
+
+**Flow Example:**
+```csharp
+// In ConversationDisplay._Process()
+var line = _coordinator.GetNextLine();
+switch (line.Type)
+{
+    case BroadcastLineType.PutCallerOnAir:
+        _repository.PutOnAir();  // Caller goes on air
+        break;
+    case BroadcastLineType.None:
+        // No content, wait
+        break;
+    default:
+        DisplayLine(line);  // Show the line
+        // Wait for duration, then call OnLineCompleted()
+        break;
+}
+```
+
+**State Machine:**
+```
+ShowOpening → Conversation → BetweenCallers → Conversation
+                 ↓                    ↓
+           (no callers)        (no callers)
+                 ↓                    ↓
+           DeadAirFiller      DeadAirFiller
+                 ↓                    ↓
+           (1 cycle)           (1 cycle)
+                 ↓                    ↓
+           Conversation        Conversation
+```
+
+**Files:**
+- `scripts/dialogue/BroadcastCoordinator.cs` - Main coordinator (Autoload)
+- `scripts/dialogue/BroadcastLineType.cs` - Line type enum
+- `scripts/dialogue/BroadcastLine.cs` - Line struct
+- `scripts/dialogue/ConversationDisplay.cs` - UI display using the coordinator
 
 ### Result Type Pattern
 

@@ -1,54 +1,113 @@
 ## Previous Session
-- **Task**: Fix caller selection performance - slow screener info display
+- **Task**: Implement pull-based BroadcastCoordinator architecture
 - **Status**: Completed
-- **Started**: Fri Jan 16 2026
-- **Last Updated**: Fri Jan 16 2026
+- **Started**: Sun Jan 18 2026
+- **Last Updated**: Sun Jan 18 2026
 
 ## Work Done
-- **Root Cause Identified**: `SetCaller()` was being called before node references were ready in `_Ready()`, causing the name update to be silently skipped. The name only appeared on subsequent event-driven refresh.
+- **Root Cause Identified**: The old event-driven ConversationManager had complex timing logic causing callers to go on air immediately instead of waiting for Vern to finish filler segments.
 
 ### Changes Made
 
-**scripts/ui/CallerQueueItem.cs:**
-- Added `_pendingCaller` field to cache caller data when nodes aren't ready
-- Modified `SetCaller()` to check if `_nameLabel` is null before setting text
-- Added `ApplyPendingCallerData()` to apply cached caller data when initialized
-- Removed per-frame `_Process()` calls (was running 60fps with O(n) lookup)
-- Cached `_cachedCaller` reference for O(1) access instead of linear search
+**New Files Created:**
+- `scripts/dialogue/BroadcastLineType.cs` - Enum for line types (ShowOpening, VernDialogue, CallerDialogue, BetweenCallers, DeadAirFiller, ShowClosing, PutCallerOnAir, None)
+- `scripts/dialogue/BroadcastLine.cs` - Struct representing a broadcast line with speaker, text, phase, arc info
+- `scripts/dialogue/BroadcastCoordinator.cs` - Main pull-based coordinator service that manages broadcast flow
+- `scripts/dialogue/ConversationDisplay.cs` - Simple UI display that polls GetNextLine() and shows lines with typewriter effect
 
-**scripts/ui/ScreeningPanel.cs:**
-- Added `_pendingCaller` field for deferred updates
-- Modified `SetCaller()` to store caller and defer the update via `CallDeferred`
-- Added `_ApplyCallerDeferred()` method that runs after `_Ready()` completes
+**Files Modified:**
+- `scripts/callers/Caller.cs` - Added `Arc` property and `SetArc()` method to store conversation arc on caller
+- `scripts/callers/CallerRepository.cs` - Modified `ApproveScreening()` to load arc for caller when approved
+- `scripts/dialogue/TranscriptEntry.cs` - Removed Timestamp property (no longer needed)
+- `scripts/dialogue/TranscriptRepository.cs` - Removed timestamp-related methods
+- `scripts/dialogue/ITranscriptRepository.cs` - Removed `GetEntriesSince()` method
+- `scripts/core/ServiceRegistry.cs` - Replaced `ConversationManager` with `BroadcastCoordinator`
+- `scripts/core/GameStateManager.cs` - Updated to call `BroadcastCoordinator.OnLiveShowStarted()/OnLiveShowEnding()`
+- `scripts/ui/LiveShowFooter.cs` - Updated to use `BroadcastCoordinator` instead of `IConversationManager`
+- `scripts/ui/LiveShowPanel.cs` - Updated to use `BroadcastCoordinator` for display
+- `scenes/Game.tscn` - Added `ConversationDisplay` node
+- `project.godot` - Replaced `ConversationManager` autoload with `BroadcastCoordinator`
 
-**scripts/ui/CallerTabManager.cs:**
-- Moved `ConnectButtons()` call to after `AddChild()` for proper initialization
-- Set caller info immediately after panel is added to tree
+**Files Deleted:**
+- `scripts/dialogue/ConversationManager.cs` - Replaced by new architecture
+- `scripts/dialogue/IConversationManager.cs` - Replaced by direct BroadcastCoordinator usage
+- `scripts/dialogue/ConversationDisplayInfo.cs` - Still used by ConversationDisplay
 
-**scripts/ui/components/ReactiveListPanel.cs:**
-- Disabled animations by default (`AnimateChanges = false`) for faster updates
-- Improved `UpdateDifferentially()` to always update items after creation
+### Architecture Changes
 
-**scripts/ui/CallerTab.cs:**
-- Added `UpdateScreeningPanel()` method for content-only updates
-- Changed `RefreshTabContent()` to use `UpdateScreeningPanel()` instead of recreating panel
+**Before (Push-Based):**
+- Events fire (call ended, caller approved, etc.)
+- `_Process()` loops check timers every frame
+- Auto-advance logic scattered across methods
+- Race conditions between events and timing
 
-### Performance Impact
-| Issue | Before | After |
-|-------|--------|-------|
-| CallerQueueItem._Process | 60 calls/sec, O(n) lookup | 0 calls/sec, O(1) cached |
-| ScreeningPanel init | Deferred, multi-frame delay | Immediate in _Ready() with deferred SetCaller |
-| Panel refresh | Full recreation on each state change | Content-only update |
+**After (Pull-Based):**
+```csharp
+// Simple API - caller just asks "what's next?"
+var line = coordinator.GetNextLine();
+switch (line.Type)
+{
+    case BroadcastLineType.PutCallerOnAir:
+        repository.PutOnAir();
+        break;
+    case BroadcastLineType.None:
+        // Wait
+        break;
+    default:
+        PlayLine(line);
+        coordinator.OnLineCompleted();
+        break;
+}
+```
 
-## Files Modified
-- scripts/ui/CallerQueueItem.cs
-- scripts/ui/CallerTab.cs
-- scripts/ui/CallerTabManager.cs
-- scripts/ui/ScreeningPanel.cs
-- scripts/ui/components/ReactiveListPanel.cs
+### Key Behavior Changes
+
+| Scenario | Before | After |
+|----------|--------|-------|
+| Caller approved mid-filler | Immediate on-air | Waits until filler cycle ends + 1 cycle before auto-advancing |
+| Call ends, callers waiting | Immediate auto-advance | Between-callers plays → 1 filler cycle → auto-advance |
+| Show opens | Auto-advance or filler | Show opening → auto-advance or filler |
+| No callers ever | Filler cycles forever | Filler cycles forever (unchanged) |
+| Arc-caller association | Loaded when on air | Loaded when approved (matches screening) |
+| Transcript | Timestamps included | Speaker + text only |
+
+### Additional Fixes Applied
+
+**Arc Auto-Discovery:**
+- `scripts/dialogue/ArcRepository.cs` - Added auto-discovery of arc files from `assets/dialogue/arcs/` when no file paths are configured
+- 17 arc files auto-discovered from directory structure
+
+**JSON Parsing Fix:**
+- `scripts/dialogue/ArcJsonParser.cs` - Rewrote to use Godot's built-in JSON parsing instead of `System.Text.Json`
+- Properly handles Variant types and dictionary access
+- Fixed arc loading that was returning null arcs
+
+**Transcript Fix:**
+- `scripts/dialogue/BroadcastCoordinator.cs` - Fixed first dialogue line not being added to transcript
+- Arc pre-loading now directly gets first line from arc instead of calling `GetConversationLine()` (which would return PutCallerOnAir again since no caller was on air yet)
+
+### Files Modified
+- scripts/callers/Caller.cs
+- scripts/callers/CallerRepository.cs
+- scripts/dialogue/BroadcastLine.cs (new)
+- scripts/dialogue/BroadcastLineType.cs (new)
+- scripts/dialogue/BroadcastCoordinator.cs (new)
+- scripts/dialogue/ConversationDisplay.cs (new)
+- scripts/dialogue/TranscriptEntry.cs
+- scripts/dialogue/TranscriptRepository.cs
+- scripts/dialogue/ITranscriptRepository.cs
+- scripts/dialogue/ArcRepository.cs
+- scripts/dialogue/ArcJsonParser.cs
+- scripts/core/ServiceRegistry.cs
+- scripts/core/GameStateManager.cs
+- scripts/ui/LiveShowFooter.cs
+- scripts/ui/LiveShowPanel.cs
+- scenes/Game.tscn
+- project.godot
+- tests/unit/dialogue/TranscriptRepositoryTests.cs
 
 ## Next Steps
-- Test the screening view in-game to verify performance improvement
+- Test the broadcast flow in-game to verify conversations display correctly
 - Commit and push changes
 
 ## Blockers
@@ -57,7 +116,7 @@
 ---
 
 ## Previous Session
-- **Task**: Refactor events to direct service calls
+- **Task**: Fix caller selection performance - slow screener info display
 - **Status**: Completed
 - **Started**: Sat Jan 17 2026
 - **Last Updated**: Sat Jan 17 2026
@@ -499,3 +558,166 @@ When callers got impatient and disconnected:
 
 ### Build Status
 **Build: SUCCESS** (0 errors, 0 warnings)
+
+---
+
+## Current Session
+- **Task**: Change transcript UI to rolling text (one line at a time)
+- **Status**: Completed
+- **Started**: Sat Jan 18 2026
+- **Last Updated**: Sat Jan 18 2026
+
+### Changes Made
+
+**Created `scripts/ui/RollingTranscriptPanel.cs`:**
+- New component that displays transcript as a rolling ticker
+- Letter-by-letter reveal animation based on line duration
+- Shows "[MUSIC PLAYING]" during show opening, closing, between callers, and dead air filler
+- Displays speaker name followed by dialog (e.g., "Vern: Hello there")
+- Pauses briefly after each line completes before scrolling
+
+**Modified `scenes/ui/LiveShowPanel.tscn`:**
+- Removed `TranscriptScroll/TranscriptContent` RichTextLabel nodes
+- Added `RollingTranscriptPanel` Control with nested `TranscriptLabel`
+- Added ext_resource for RollingTranscriptPanel script
+
+**Modified `scripts/ui/LiveShowPanel.cs`:**
+- Removed `UpdateTranscript()` method and `_transcriptContent` reference
+- Removed transcript polling logic (now handled by RollingTranscriptPanel)
+- Cleaned up unused using statements
+
+### Behavior
+- New transcript entries appear with letter-by-letter reveal animation
+- Speed matches the calculated line duration (~0.05s per character)
+- When a line finishes, pauses 0.5s then displays the full line
+- Shows "[MUSIC PLAYING]" during non-conversation phases (show open/close, between callers, dead air)
+- Only one entry visible at a time, previous entries scroll up and off-screen
+
+### Files Modified
+- `scripts/ui/RollingTranscriptPanel.cs` (new)
+- `scenes/ui/LiveShowPanel.tscn`
+- `scripts/ui/LiveShowPanel.cs`
+
+### Build Status
+**Build: SUCCESS** (0 errors, 3 warnings - pre-existing nullable annotations)
+
+---
+
+## Current Session
+- **Task**: Fix transcript UI synchronization with dialogue
+- **Status**: Completed
+- **Started**: Sat Jan 18 2026
+- **Last Updated**: Sat Jan 18 2026
+
+### Changes Made
+
+**Modified `scripts/ui/RollingTranscriptPanel.cs`:**
+- Now syncs typewriter reveal to `ConversationDisplayInfo.ElapsedLineTime / CurrentLineDuration`
+- Tracks `_previousDisplayInfo` to detect line changes
+- Each new line resets and starts fresh, replacing the previous transcript entirely
+- Removed independent timer-based reveal logic
+
+### Behavior
+- Transcript reveals at the exact same rate as the main dialogue label
+- New dialog lines replace the previous transcript immediately
+- Still shows "[MUSIC PLAYING]" during bumpers
+- Still shows "TRANSCRIPT" when no broadcast is active
+
+### Build Status
+**Build: SUCCESS** (0 errors, 3 warnings)
+
+---
+
+## Current Session
+- **Task**: Consolidate transcript to single panel (LiveShowFooter)
+- **Status**: Completed
+- **Started**: Sat Jan 18 2026
+- **Last Updated**: Sat Jan 18 2026
+
+### Root Cause
+Two transcript displays existed:
+1. `LiveShowFooter.tscn` - Showed full log with timestamps (old behavior)
+2. `LiveShowPanel.tscn` - New rolling single-line display
+
+### Changes Made
+
+**Modified `scripts/ui/LiveShowFooter.cs`:**
+- Added `IConversationManager` reference
+- Replaced `StringBuilder` log with single-line synced display
+- Removed `_previousTranscriptCount` and transcript repository polling
+- Now mirrors `ConversationDisplayInfo` directly (like RollingTranscriptPanel)
+- Shows "Speaker: text" synced to dialogue with typewriter reveal
+- Shows "[MUSIC PLAYING]" during bumpers
+
+**Modified `scenes/ui/LiveShowPanel.tscn`:**
+- Removed `RollingTranscriptPanel` node and ext_resource
+- Removed `TranscriptContainer` section entirely (no longer needed)
+- Reduced scene to only essential dialogue display elements
+
+**Deleted:**
+- `scripts/ui/RollingTranscriptPanel.cs`
+- `scripts/ui/RollingTranscriptPanel.cs.uid`
+
+### Behavior
+- Single transcript display in LiveShowFooter
+- Shows "VERN: text" or "CALLER: text" (speaker icon + current text)
+- Typewriter reveal synced to conversation display
+- Each new dialogue line replaces the previous one
+- Shows "[MUSIC PLAYING]" during show open/close, between callers, dead air
+- Shows "TRANSCRIPT" when no broadcast is active
+
+### Build Status
+**Build: SUCCESS** (0 errors, 3 warnings) 
+
+---
+
+## Current Session
+- **Task**: Fix transcript panel stuck showing "PLAYING MUSIC"
+- **Status**: Completed
+- **Started**: Sun Jan 18 2026
+- **Last Updated**: Sun Jan 18 2026
+
+### Issue
+Transcript panel was stuck showing "[MUSIC PLAYING]" and never displayed Vern or caller text during show.
+
+### Root Cause
+The transcript logic in `LiveShowFooter.cs` was showing "[MUSIC PLAYING]" during non-conversation states (ShowOpening, ShowClosing, BetweenCallers, DeadAirFiller) even though Vern had actual dialogue to display. Additionally, `ConversationDisplayInfo.CreateBroadcastLine()` was hardcoding `FlowState = ShowOpening` regardless of context.
+
+### Fix Applied
+
+**1. Prioritized Vern speech over music placeholder in `scripts/ui/LiveShowFooter.cs`:**
+- Rewrote `UpdateTranscript()` to always check for dialogue content first
+- Vern's speech now takes priority - if `_displayInfo.Text` has content, it's displayed
+- "[MUSIC PLAYING]" only shows as fallback when there's no dialogue content
+- Removed unused `_showMusicPlaceholder` field and `UpdateMusicState()` method
+
+**2. Fixed `ConversationDisplayInfo.CreateBroadcastLine()` in `scripts/dialogue/ConversationDisplayInfo.cs`:**
+- Added `BroadcastFlowState flowState` parameter
+- Now correctly sets the flow state passed to it
+
+**3. Updated all call sites in `scripts/dialogue/ConversationManager.cs`:**
+- `PlayShowOpening()`: Uses `BroadcastFlowState.ShowOpening`
+- `PlayTemplateIntroduction()`: Uses `BroadcastFlowState.Conversation`
+- `PlayNextArcLine()`: Uses `BroadcastFlowState.Conversation` for both Vern and Caller lines
+- `PlayBetweenCallers()`: Uses `BroadcastFlowState.BetweenCallers`
+- `PlayShowClosing()`: Uses `BroadcastFlowState.ShowClosing`
+
+**4. Updated test file `tests/unit/dialogue/ConversationManagerTests.cs`:**
+- Updated `CreateBroadcastLine` calls to include the new flow state parameter
+
+### Behavior After Fix
+- **ShowOpening**: Displays Vern's show opening dialogue
+- **Conversation**: Displays Vern/caller dialogue with typewriter reveal
+- **BetweenCallers**: Displays transition banter
+- **DeadAirFiller**: Displays Vern's filler lines (not "[MUSIC PLAYING]")
+- **ShowClosing**: Displays Vern's closing remarks
+- **No dialogue**: Shows "TRANSCRIPT" (idle state)
+
+### Files Modified
+- `scripts/ui/LiveShowFooter.cs`
+- `scripts/dialogue/ConversationDisplayInfo.cs`
+- `scripts/dialogue/ConversationManager.cs`
+- `tests/unit/dialogue/ConversationManagerTests.cs`
+
+### Build Status
+**Build: SUCCESS** (0 errors, 3 warnings - pre-existing nullable annotations)

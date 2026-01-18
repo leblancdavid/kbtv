@@ -105,7 +105,7 @@ namespace KBTV.Core
 			ServiceRegistry.Instance.TimeManager?.StartClock();
 
 			// Initialize broadcast flow
-			ServiceRegistry.Instance.ConversationManager?.OnLiveShowStarted();
+			ServiceRegistry.Instance.BroadcastCoordinator?.OnLiveShowStarted();
 		}
 
 		/// <summary>
@@ -168,7 +168,7 @@ namespace KBTV.Core
 		private void ProcessEndOfShow()
 		{
 			// End broadcast flow first
-			ServiceRegistry.Instance.ConversationManager?.OnLiveShowEnding();
+			ServiceRegistry.Instance.BroadcastCoordinator?.OnLiveShowEnding();
 
 			// Get show performance data
 			int peakListeners = ServiceRegistry.Instance.ListenerManager?.PeakListeners ?? 0;

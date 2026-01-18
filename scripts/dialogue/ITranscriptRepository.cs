@@ -43,13 +43,6 @@ namespace KBTV.Dialogue
         TranscriptEntry? GetLatestEntry();
 
         /// <summary>
-        /// Get entries since a specific timestamp.
-        /// </summary>
-        /// <param name="sinceTimestamp">Get entries after this timestamp.</param>
-        /// <returns>List of entries since the timestamp.</returns>
-        IReadOnlyList<TranscriptEntry> GetEntriesSince(float sinceTimestamp);
-
-        /// <summary>
         /// Get entries for a specific arc.
         /// </summary>
         /// <param name="arcId">The arc ID to filter by.</param>

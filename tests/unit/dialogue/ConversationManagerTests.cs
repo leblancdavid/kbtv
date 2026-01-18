@@ -81,7 +81,7 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void ConversationDisplayInfo_CreateBroadcastLine_CreatesCorrectInfo()
         {
-            var info = ConversationDisplayInfo.CreateBroadcastLine("Vern", "VERN", "Welcome", ConversationPhase.Intro);
+            var info = ConversationDisplayInfo.CreateBroadcastLine("Vern", "VERN", "Welcome", ConversationPhase.Intro, BroadcastFlowState.ShowOpening);
 
             AssertThat(info.SpeakerName == "Vern");
             AssertThat(info.SpeakerIcon == "VERN");
@@ -114,9 +114,9 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void ConversationDisplayInfo_HasChanged_DetectsChanges()
         {
-            var info1 = ConversationDisplayInfo.CreateBroadcastLine("A", "ICON", "Text1", ConversationPhase.Intro);
-            var info2 = ConversationDisplayInfo.CreateBroadcastLine("A", "ICON", "Text1", ConversationPhase.Intro);
-            var info3 = ConversationDisplayInfo.CreateBroadcastLine("B", "ICON", "Text1", ConversationPhase.Intro);
+            var info1 = ConversationDisplayInfo.CreateBroadcastLine("A", "ICON", "Text1", ConversationPhase.Intro, BroadcastFlowState.ShowOpening);
+            var info2 = ConversationDisplayInfo.CreateBroadcastLine("A", "ICON", "Text1", ConversationPhase.Intro, BroadcastFlowState.ShowOpening);
+            var info3 = ConversationDisplayInfo.CreateBroadcastLine("B", "ICON", "Text1", ConversationPhase.Intro, BroadcastFlowState.ShowOpening);
 
             AssertThat(!info1.HasChanged(info2));
             AssertThat(info1.HasChanged(info3));

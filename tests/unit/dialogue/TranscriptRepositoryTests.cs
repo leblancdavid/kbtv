@@ -19,8 +19,8 @@ namespace KBTV.Tests.Unit.Dialogue
                 Speaker.Vern,
                 "Test line",
                 ConversationPhase.Intro,
-                1.5f,
-                "test_arc"
+                "test_arc",
+                "Vern"
             );
 
             repo.AddEntry(entry);
@@ -33,8 +33,8 @@ namespace KBTV.Tests.Unit.Dialogue
         {
             var repo = new TranscriptRepository();
 
-            var entry1 = TranscriptEntry.CreateVernLine("Line 1", ConversationPhase.Intro, 0.5f);
-            var entry2 = TranscriptEntry.CreateVernLine("Line 2", ConversationPhase.Probe, 1.0f);
+            var entry1 = TranscriptEntry.CreateVernLine("Line 1", ConversationPhase.Intro);
+            var entry2 = TranscriptEntry.CreateVernLine("Line 2", ConversationPhase.Probe);
 
             repo.AddEntry(entry1);
             repo.AddEntry(entry2);
@@ -48,8 +48,8 @@ namespace KBTV.Tests.Unit.Dialogue
         {
             var repo = new TranscriptRepository();
 
-            var entry1 = TranscriptEntry.CreateVernLine("First", ConversationPhase.Intro, 0.5f);
-            var entry2 = TranscriptEntry.CreateVernLine("Second", ConversationPhase.Probe, 1.0f);
+            var entry1 = TranscriptEntry.CreateVernLine("First", ConversationPhase.Intro);
+            var entry2 = TranscriptEntry.CreateVernLine("Second", ConversationPhase.Probe);
 
             repo.AddEntry(entry1);
             repo.AddEntry(entry2);
@@ -60,31 +60,13 @@ namespace KBTV.Tests.Unit.Dialogue
         }
 
         [Test]
-        public void GetEntriesSince_ReturnsEntriesAfterTimestamp()
-        {
-            var repo = new TranscriptRepository();
-
-            var entry1 = TranscriptEntry.CreateVernLine("First", ConversationPhase.Intro, 0.5f);
-            var entry2 = TranscriptEntry.CreateVernLine("Second", ConversationPhase.Probe, 1.0f);
-            var entry3 = TranscriptEntry.CreateVernLine("Third", ConversationPhase.Probe, 2.0f);
-
-            repo.AddEntry(entry1);
-            repo.AddEntry(entry2);
-            repo.AddEntry(entry3);
-
-            var entries = repo.GetEntriesSince(1.0f);
-            AssertThat(entries.Count == 1);
-            AssertThat(entries[0].Text == "Third");
-        }
-
-        [Test]
         public void GetEntriesForArc_ReturnsMatchingEntries()
         {
             var repo = new TranscriptRepository();
 
-            var entry1 = TranscriptEntry.CreateVernLine("Arc1 line", ConversationPhase.Intro, 0.5f, "arc_001");
-            var entry2 = TranscriptEntry.CreateVernLine("Arc2 line", ConversationPhase.Probe, 1.0f, "arc_002");
-            var entry3 = TranscriptEntry.CreateVernLine("Arc1 again", ConversationPhase.Challenge, 1.5f, "arc_001");
+            var entry1 = TranscriptEntry.CreateVernLine("Arc1 line", ConversationPhase.Intro, "arc_001");
+            var entry2 = TranscriptEntry.CreateVernLine("Arc2 line", ConversationPhase.Probe, "arc_002");
+            var entry3 = TranscriptEntry.CreateVernLine("Arc1 again", ConversationPhase.Challenge, "arc_001");
 
             repo.AddEntry(entry1);
             repo.AddEntry(entry2);
@@ -102,7 +84,7 @@ namespace KBTV.Tests.Unit.Dialogue
         {
             var repo = new TranscriptRepository();
 
-            var entry = TranscriptEntry.CreateVernLine("Test", ConversationPhase.Intro, 0.5f, "arc_001");
+            var entry = TranscriptEntry.CreateVernLine("Test", ConversationPhase.Intro, "arc_001");
             repo.AddEntry(entry);
 
             var entries = repo.GetEntriesForArc("nonexistent");
@@ -114,7 +96,7 @@ namespace KBTV.Tests.Unit.Dialogue
         {
             var repo = new TranscriptRepository();
 
-            var entry = TranscriptEntry.CreateVernLine("Test", ConversationPhase.Intro, 0.5f, "arc_001");
+            var entry = TranscriptEntry.CreateVernLine("Test", ConversationPhase.Intro, "arc_001");
             repo.AddEntry(entry);
 
             var entries = repo.GetEntriesForArc("");
@@ -126,7 +108,7 @@ namespace KBTV.Tests.Unit.Dialogue
         {
             var repo = new TranscriptRepository();
 
-            var entry = TranscriptEntry.CreateVernLine("Test", ConversationPhase.Intro, 0.5f);
+            var entry = TranscriptEntry.CreateVernLine("Test", ConversationPhase.Intro);
             repo.AddEntry(entry);
 
             repo.ClearCurrentShow();
@@ -152,13 +134,11 @@ namespace KBTV.Tests.Unit.Dialogue
                 Speaker.Vern,
                 "Hello world",
                 ConversationPhase.Intro,
-                1.5f,
                 "test_arc",
                 "Vern"
             );
 
             var display = entry.GetDisplayText();
-            AssertThat(display.Contains("[1.5s]"));
             AssertThat(display.Contains("Vern:"));
             AssertThat(display.Contains("Hello world"));
         }
@@ -171,13 +151,11 @@ namespace KBTV.Tests.Unit.Dialogue
                 caller,
                 "Test message",
                 ConversationPhase.Probe,
-                2.0f,
                 "arc_001"
             );
 
             AssertThat(entry.Speaker == Speaker.Caller);
             AssertThat(entry.SpeakerName == "TestCaller");
-            AssertThat(entry.CallerId == "caller_001");
             AssertThat(entry.Text == "Test message");
         }
 

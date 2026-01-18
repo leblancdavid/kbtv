@@ -189,9 +189,9 @@ namespace KBTV.Core
 
         public ICallerRepository CallerRepository => Get<ICallerRepository>();
         public IScreeningController ScreeningController => Get<IScreeningController>();
-        public IConversationManager ConversationManager => Get<IConversationManager>();
         public ITranscriptRepository TranscriptRepository => Get<ITranscriptRepository>();
         public IArcRepository ArcRepository => Get<IArcRepository>();
+        public BroadcastCoordinator BroadcastCoordinator => Get<BroadcastCoordinator>();
         public GameStateManager GameStateManager => Get<GameStateManager>();
         public TimeManager TimeManager => Get<TimeManager>();
         public ListenerManager ListenerManager => Get<ListenerManager>();
