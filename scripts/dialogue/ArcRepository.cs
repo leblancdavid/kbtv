@@ -152,8 +152,10 @@ namespace KBTV.Dialogue
 
             foreach (var arc in _arcs)
             {
+                // Use case-insensitive comparison for topic matching
+                bool topicMatches = string.Equals(arc.Topic, excludeTopicId, StringComparison.OrdinalIgnoreCase);
                 if (arc.Legitimacy == legitimacy &&
-                    arc.Topic != excludeTopicId &&
+                    !topicMatches &&
                     !arc.IsTopicSwitcher)
                 {
                     candidates.Add(arc);
@@ -162,6 +164,39 @@ namespace KBTV.Dialogue
 
             if (candidates.Count == 0) return null;
             return candidates[(int)(GD.Randi() % candidates.Count)];
+        }
+
+        /// <summary>
+        /// Find arcs that don't match the specified topic name (case-insensitive).
+        /// Used for generating off-topic callers.
+        /// </summary>
+        public List<ConversationArc> FindArcsNotMatchingTopic(string excludeTopicName, CallerLegitimacy legitimacy)
+        {
+            EnsureInitialized();
+            var matches = new List<ConversationArc>();
+
+            foreach (var arc in _arcs)
+            {
+                // Use case-insensitive comparison for topic matching
+                bool topicMatches = string.Equals(arc.Topic, excludeTopicName, StringComparison.OrdinalIgnoreCase);
+                if (arc.Legitimacy == legitimacy && !topicMatches && !arc.IsTopicSwitcher)
+                {
+                    matches.Add(arc);
+                }
+            }
+
+            return matches;
+        }
+
+        /// <summary>
+        /// Get a random arc that doesn't match the specified topic name (case-insensitive).
+        /// Used for generating off-topic callers.
+        /// </summary>
+        public ConversationArc? GetRandomArcForDifferentTopicName(string excludeTopicName, CallerLegitimacy legitimacy)
+        {
+            var matches = FindArcsNotMatchingTopic(excludeTopicName, legitimacy);
+            if (matches.Count == 0) return null;
+            return matches[(int)(GD.Randi() % matches.Count)];
         }
 
         public List<ConversationArc> FindTopicSwitcherArcs(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy)

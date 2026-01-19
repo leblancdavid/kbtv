@@ -100,6 +100,13 @@ namespace KBTV.Callers
         public string DisplayName => _displayName;
         public string Description => _description;
         public string TopicId => _topicId;
+
+        /// <summary>
+        /// Simple topic name for matching with arc topics.
+        /// Returns the display name as-is (e.g., "UFOs", "Ghosts", "Cryptids", "government").
+        /// </summary>
+        public string TopicName => _displayName;
+
         public Godot.Collections.Array<ScreeningRule> Rules => _rules;
         public Godot.Collections.Array<string> Keywords => _keywords;
         public float OffTopicRate => _offTopicRate;

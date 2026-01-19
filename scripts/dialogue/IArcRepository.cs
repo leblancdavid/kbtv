@@ -38,9 +38,22 @@ namespace KBTV.Dialogue
 
         /// <summary>
         /// Get a random arc from a different topic than specified.
+        /// Uses case-insensitive comparison.
         /// Used for generating off-topic callers.
         /// </summary>
         ConversationArc? GetRandomArcForDifferentTopic(string excludeTopicId, CallerLegitimacy legitimacy);
+
+        /// <summary>
+        /// Find arcs that don't match the specified topic name (case-insensitive).
+        /// Used for generating off-topic callers.
+        /// </summary>
+        List<ConversationArc> FindArcsNotMatchingTopic(string excludeTopicName, CallerLegitimacy legitimacy);
+
+        /// <summary>
+        /// Get a random arc that doesn't match the specified topic name (case-insensitive).
+        /// Used for generating off-topic callers.
+        /// </summary>
+        ConversationArc? GetRandomArcForDifferentTopicName(string excludeTopicName, CallerLegitimacy legitimacy);
 
         /// <summary>
         /// Find all topic-switcher arcs matching a caller who lied about their topic.

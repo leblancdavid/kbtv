@@ -194,8 +194,9 @@ namespace KBTV.Callers
 
             var showTopic = _gameState?.SelectedTopic;
             string showTopicId = showTopic?.TopicId ?? "";
+            string showTopicName = showTopic?.TopicName ?? "";
 
-            if (showTopic != null && !string.IsNullOrEmpty(showTopicId) && arcRepo != null)
+            if (showTopic != null && !string.IsNullOrEmpty(showTopicName) && arcRepo != null)
             {
                 // Use Topic.OffTopicRate for off-topic probability (default 0.1 = 10%)
                 float offTopicChance = showTopic.OffTopicRate;
@@ -204,13 +205,14 @@ namespace KBTV.Callers
                 if (generateOffTopic)
                 {
                     // 10% off-topic: arc from different topic (transparent, not show topic)
-                    actualArc = arcRepo.GetRandomArcForDifferentTopic(showTopicId, legitimacy);
+                    actualArc = arcRepo.GetRandomArcForDifferentTopicName(showTopicName, legitimacy);
                     if (actualArc != null)
                     {
                         actualTopic = actualArc.Topic;
                         claimedTopic = actualTopic;  // Transparent - claim actual topic
                         claimedArc = actualArc;
-                        isOffTopic = actualTopic != showTopicId;
+                        // Use case-insensitive comparison for off-topic check
+                        isOffTopic = !string.Equals(actualTopic, showTopicName, StringComparison.OrdinalIgnoreCase);
                     }
                     else
                     {
@@ -221,21 +223,21 @@ namespace KBTV.Callers
                             actualTopic = actualArc.Topic;
                             claimedTopic = actualTopic;
                             claimedArc = actualArc;
-                            isOffTopic = actualTopic != showTopicId;
+                            isOffTopic = !string.Equals(actualTopic, showTopicName, StringComparison.OrdinalIgnoreCase);
                         }
                         else
                         {
                             // Ultimate fallback: random topic from hardcoded array
                             actualTopic = Topics[(int)(GD.Randi() % Topics.Length)];
                             claimedTopic = actualTopic;
-                            isOffTopic = actualTopic != showTopicId;
+                            isOffTopic = !string.Equals(actualTopic, showTopicName, StringComparison.OrdinalIgnoreCase);
                         }
                     }
                 }
                 else
                 {
                     // 90% on-topic: arc matching show topic
-                    actualArc = arcRepo.GetRandomArcForTopic(showTopicId, legitimacy);
+                    actualArc = arcRepo.GetRandomArcForTopic(showTopicName, legitimacy);
                     if (actualArc != null)
                     {
                         actualTopic = actualArc.Topic;
@@ -252,14 +254,14 @@ namespace KBTV.Callers
                             actualTopic = actualArc.Topic;
                             claimedTopic = actualTopic;
                             claimedArc = actualArc;
-                            isOffTopic = actualTopic != showTopicId;
+                            isOffTopic = !string.Equals(actualTopic, showTopicName, StringComparison.OrdinalIgnoreCase);
                         }
                         else
                         {
                             // Ultimate fallback: random topic from hardcoded array
                             actualTopic = Topics[(int)(GD.Randi() % Topics.Length)];
                             claimedTopic = actualTopic;
-                            isOffTopic = actualTopic != showTopicId;
+                            isOffTopic = !string.Equals(actualTopic, showTopicName, StringComparison.OrdinalIgnoreCase);
                         }
                     }
                 }
