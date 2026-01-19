@@ -170,9 +170,6 @@ namespace KBTV.Callers
 
             string location = Locations[(int)(GD.Randi() % Locations.Length)];
 
-            string actualTopic = Topics[(int)(GD.Randi() % Topics.Length)];
-            string claimedTopic = actualTopic; // Simplified - no deception for now
-
             string reason = GenerateCallReason(legitimacy);
 
             // Simplified attributes
@@ -187,33 +184,68 @@ namespace KBTV.Callers
 
             string personality = "Average caller";
 
-            // Assign arcs upfront
+            // Assign arcs based on show topic (90% on-topic, 10% off-topic)
             var arcRepo = ServiceRegistry.Instance?.ArcRepository;
             ConversationArc? claimedArc = null;
             ConversationArc? actualArc = null;
+            string actualTopic;
+            string claimedTopic;
+            bool isOffTopic = false;
 
-            if (arcRepo != null)
+            var showTopic = _gameState?.SelectedTopic;
+            string showTopicId = showTopic?.TopicId ?? "";
+
+            if (showTopic != null && !string.IsNullOrEmpty(showTopicId) && arcRepo != null)
             {
-                actualArc = arcRepo.GetRandomArc(legitimacy);
-                if (actualArc == null)
-                {
-                    GD.PrintErr($"CallerGenerator: No arc found for legitimacy {legitimacy}, using default values");
-                    // Continue with null arcs - will be handled gracefully
-                }
+                // Use Topic.OffTopicRate for off-topic probability (default 0.1 = 10%)
+                float offTopicChance = showTopic.OffTopicRate;
+                bool generateOffTopic = (float)GD.Randf() < offTopicChance;
 
-                // 30% chance of deception - pick different claimed arc
-                if ((float)GD.Randf() < 0.3f)
+                if (generateOffTopic)
                 {
-                    claimedArc = arcRepo.GetRandomArc(legitimacy);
-                    if (claimedArc == null || claimedArc.ArcId == actualArc?.ArcId)
+                    // 10% off-topic: arc from different topic (transparent, not show topic)
+                    actualArc = arcRepo.GetRandomArcForDifferentTopic(showTopicId, legitimacy);
+                    if (actualArc != null)
                     {
-                        claimedArc = actualArc; // No deception if same or no alternative
+                        actualTopic = actualArc.Topic;
+                        claimedTopic = actualTopic;  // Transparent - claim actual topic
+                        claimedArc = actualArc;
+                        isOffTopic = actualTopic != showTopicId;
+                    }
+                    else
+                    {
+                        // Fallback: no different topic arc available, use random topic
+                        actualTopic = Topics[(int)(GD.Randi() % Topics.Length)];
+                        claimedTopic = actualTopic;
+                        isOffTopic = actualTopic != showTopicId;
                     }
                 }
                 else
                 {
-                    claimedArc = actualArc; // No deception
+                    // 90% on-topic: arc matching show topic
+                    actualArc = arcRepo.GetRandomArcForTopic(showTopicId, legitimacy);
+                    if (actualArc != null)
+                    {
+                        actualTopic = actualArc.Topic;
+                        claimedTopic = actualTopic;
+                        claimedArc = actualArc;
+                        isOffTopic = false;
+                    }
+                    else
+                    {
+                        // Fallback: no matching arc, use random topic
+                        actualTopic = Topics[(int)(GD.Randi() % Topics.Length)];
+                        claimedTopic = actualTopic;
+                        isOffTopic = actualTopic != showTopicId;
+                    }
                 }
+            }
+            else
+            {
+                // No show topic selected - use random topic from hardcoded array
+                actualTopic = Topics[(int)(GD.Randi() % Topics.Length)];
+                claimedTopic = actualTopic;
+                isOffTopic = false;
             }
 
             string screeningSummary = actualArc?.ScreeningSummary ?? "Generated caller";
@@ -221,11 +253,18 @@ namespace KBTV.Callers
             float patience = _basePatience + (float)GD.RandRange(-_patienceVariance, _patienceVariance);
             float quality = 50f; // Base quality
 
-            return new Caller(name, phoneNumber, location,
+            var caller = new Caller(name, phoneNumber, location,
                 claimedTopic, actualTopic, reason,
                 legitimacy, phoneQuality, emotionalState, curseRisk,
                 beliefLevel, evidenceLevel, coherence, urgency,
                 personality, claimedArc, actualArc, screeningSummary, patience, quality);
+
+            if (isOffTopic)
+            {
+                caller.SetOffTopic(true);
+            }
+
+            return caller;
         }
 
         private CallerLegitimacy DetermineRandomLegitimacy()

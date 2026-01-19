@@ -1,68 +1,51 @@
 ## Current Session
-- **Task**: Add off-topic remark lines for callers not talking about show topic
+- **Task**: Implement off-topic caller generation (90% on-topic, 10% off-topic based on show topic)
 - **Status**: Completed
 - **Started**: Mon Jan 19 2026
 - **Last Updated**: Mon Jan 19 2026
 
 ### Feature Summary
 
-When a caller who is off-topic (actual topic differs from show's current topic) finishes their conversation, Vern now makes an off-topic remark before continuing to the next phase (BetweenCallers or DeadAirFiller).
+Callers are now generated based on the show's selected topic:
+- **90% on-topic**: Arcs are picked matching the show's current topic (from SelectedTopic.TopicId)
+- **10% off-topic**: Arcs are picked from a DIFFERENT topic than the show's topic
+- Uses `Topic.OffTopicRate` (default 0.1f = 10%) for the off-topic probability
+- Off-topic callers are transparent - they claim their actual topic, not the show topic
+- `Caller.IsOffTopic` is set automatically during generation
 
 ### Changes Made
 
-**1. BroadcastLineType.cs - Added OffTopicRemark enum value**
+**1. IArcRepository.cs - Added interface methods:**
+- `GetRandomArcForTopic(topicId, legitimacy)` - Get arc matching specified topic
+- `GetRandomArcForDifferentTopic(excludeTopicId, legitimacy)` - Get arc from different topic
 
-**2. BroadcastLine.cs - Added OffTopicRemark() factory method**
-- Returns a `BroadcastLine` with `Type = OffTopicRemark`, `Phase = Resolution`
+**2. ArcRepository.cs - Added implementation methods:**
+- `GetRandomArcForTopic()` - Uses `FindMatchingArcs()` and returns random from matches
+- `GetRandomArcForDifferentTopic()` - Filters arcs by legitimacy, excludes topic-switcher arcs, excludes specified topic
 
-**3. VernDialogueTemplate.cs - Added mood support to GetOffTopicRemark()**
-- Added `GetOffTopicRemark(VernMoodType mood)` overload
-- Filters off-topic remark lines by mood, fallback to neutral, then to any line
-- Uses same mood-filtering pattern as `GetBetweenCallers(VernMoodType mood)`
+**3. CallerGenerator.cs - Complete rewrite of arc assignment logic:**
+- Removed old random arc assignment (30% deception was not respecting show topic)
+- Added 90/10 split based on `showTopic.OffTopicRate`
+- On-topic path: `GetRandomArcForTopic(showTopicId, legitimacy)` → sets IsOffTopic = false
+- Off-topic path: `GetRandomArcForDifferentTopic(showTopicId, legitimacy)` → sets IsOffTopic = true
+- Fallback to hardcoded Topics array if no matching arcs available
+- Calls `caller.SetOffTopic(true)` for off-topic callers after construction
 
-**4. BroadcastCoordinator.cs - Added off-topic remark handling**
-- Added `OffTopicRemark` state to `BroadcastState` enum
-- Added `_nextStateAfterOffTopic` field to track where to transition after remark
-- Modified `EndConversation()` to check `caller.IsOffTopic`:
-  - If true: Sets state to `OffTopicRemark`, stores next state based on waiting callers
-  - If false: Standard transition to `BetweenCallers` or `DeadAirFiller`
-- Added `GetOffTopicRemarkLine()` method with mood-based selection
-- Added `AdvanceFromOffTopicRemark()` method to transition to stored next state
-- Updated `CalculateNextLine()` to handle `OffTopicRemark` state
-- Updated `AdvanceState()` to handle `OffTopicRemark` transition
-- Updated `AddTranscriptEntry()` to log off-topic remarks to transcript
+### Off-Topic vs Deception (Separate Features)
 
-### Flow
-
-```
-Conversation ends normally
-    ↓
-EndConversation() called
-    ↓
-caller.IsOffTopic == true ?
-    ├─→ YES: Set state = OffTopicRemark, nextState = BetweenCallers (if callers waiting)
-    │                                               OR DeadAirFiller (no callers)
-    │                                                           ↓
-    │                                               Off-topic remark line plays (4s)
-    │                                                           ↓
-    │                                               OnLineCompleted() → AdvanceState()
-    │                                                           ↓
-    │                                               AdvanceFromOffTopicRemark() executes
-    │                                                           ↓
-    │                                               State transitions to nextState
-    │                                                           ↓
-    │                                               Show continues normally
-    │
-    └─→ NO: Standard transition to BetweenCallers/DeadAirFiller
+| Scenario | Show Topic | Claimed Topic | Actual Topic | IsOffTopic | IsLyingAboutTopic |
+|----------|------------|---------------|--------------|------------|-------------------|
+| On-topic | Ghosts | Ghosts | Ghosts | false | false |
+| Off-topic | Ghosts | UFOs | UFOs | true | false |
+| Deception | Ghosts | Ghosts | Demons | false | true |
 
 ### Files Modified
-- scripts/dialogue/BroadcastLineType.cs
-- scripts/dialogue/BroadcastLine.cs
-- scripts/dialogue/Templates/VernDialogueTemplate.cs
-- scripts/dialogue/BroadcastCoordinator.cs
+- scripts/dialogue/IArcRepository.cs
+- scripts/dialogue/ArcRepository.cs
+- scripts/callers/CallerGenerator.cs
 
 ### Build Status
-**Build: SUCCESS** (0 errors, 22 warnings - pre-existing nullable annotations)
+**Build: SUCCESS** (0 errors, 26 warnings - pre-existing nullable annotations)
 
 ---
 

@@ -137,6 +137,33 @@ namespace KBTV.Dialogue
             return matches[(int)(GD.Randi() % matches.Count)];
         }
 
+        public ConversationArc? GetRandomArcForTopic(string topicId, CallerLegitimacy legitimacy)
+        {
+            var matches = FindMatchingArcs(topicId, legitimacy);
+            if (matches.Count == 0) return null;
+
+            return matches[(int)(GD.Randi() % matches.Count)];
+        }
+
+        public ConversationArc? GetRandomArcForDifferentTopic(string excludeTopicId, CallerLegitimacy legitimacy)
+        {
+            EnsureInitialized();
+            var candidates = new List<ConversationArc>();
+
+            foreach (var arc in _arcs)
+            {
+                if (arc.Legitimacy == legitimacy &&
+                    arc.Topic != excludeTopicId &&
+                    !arc.IsTopicSwitcher)
+                {
+                    candidates.Add(arc);
+                }
+            }
+
+            if (candidates.Count == 0) return null;
+            return candidates[(int)(GD.Randi() % candidates.Count)];
+        }
+
         public List<ConversationArc> FindTopicSwitcherArcs(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy)
         {
             EnsureInitialized();

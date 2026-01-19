@@ -31,6 +31,18 @@ namespace KBTV.Dialogue
         ConversationArc? GetRandomArc(CallerLegitimacy legitimacy);
 
         /// <summary>
+        /// Get a random arc matching the specified topic and legitimacy.
+        /// Returns null if no matching arc found.
+        /// </summary>
+        ConversationArc? GetRandomArcForTopic(string topicId, CallerLegitimacy legitimacy);
+
+        /// <summary>
+        /// Get a random arc from a different topic than specified.
+        /// Used for generating off-topic callers.
+        /// </summary>
+        ConversationArc? GetRandomArcForDifferentTopic(string excludeTopicId, CallerLegitimacy legitimacy);
+
+        /// <summary>
         /// Find all topic-switcher arcs matching a caller who lied about their topic.
         /// </summary>
         List<ConversationArc> FindTopicSwitcherArcs(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy);
