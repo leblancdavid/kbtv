@@ -15,37 +15,49 @@ namespace KBTV.Dialogue
     public partial class ConversationArc : Resource
     {
         [Export] private string _arcId;
-        [Export] private string _topic;
-        [Export] private string _claimedTopic;
+        [Export] private ShowTopic _topic;
+        [Export] private ShowTopic _claimedTopic;
+        [Export] private bool _hasClaimedTopic;
         [Export] private CallerLegitimacy _legitimacy;
         [Export] private Godot.Collections.Array<ArcDialogueLine> _dialogue = new Godot.Collections.Array<ArcDialogueLine>();
         [Export] private string _callerPersonality;
         [Export] private string _screeningSummary;
 
         public string ArcId => _arcId;
-        public string Topic => _topic;
-        public string ClaimedTopic => _claimedTopic;
+        public ShowTopic Topic => _topic;
+        public ShowTopic? ClaimedTopic => _hasClaimedTopic ? _claimedTopic : null;
         public CallerLegitimacy Legitimacy => _legitimacy;
         public string CallerPersonality => _callerPersonality;
         public string ScreeningSummary => _screeningSummary;
 
         /// <summary>
-        /// The dialogue lines for this arc. First line is Vern's intro, last is Vern's conclusion.
+        /// The topic as a string for debugging/display purposes.
         /// </summary>
-        public Godot.Collections.Array<ArcDialogueLine> Dialogue => _dialogue;
+        public string TopicName => _topic.ToTopicName();
+
+        /// <summary>
+        /// The claimed topic as a string for debugging/display purposes.
+        /// </summary>
+        public string ClaimedTopicName => _hasClaimedTopic ? _claimedTopic.ToTopicName() : "";
 
         /// <summary>
         /// True if this is a topic-switcher arc (has a claimed topic different from actual topic).
         /// </summary>
-        public bool IsTopicSwitcher => !string.IsNullOrEmpty(_claimedTopic);
+        public bool IsTopicSwitcher => _hasClaimedTopic;
 
-        public ConversationArc(string arcId, string topic, CallerLegitimacy legitimacy, string claimedTopic = null)
+        public ConversationArc(string arcId, ShowTopic topic, CallerLegitimacy legitimacy, ShowTopic? claimedTopic = null)
         {
             _arcId = arcId;
             _topic = topic;
-            _claimedTopic = claimedTopic;
+            _claimedTopic = claimedTopic ?? ShowTopic.Ghosts;
+            _hasClaimedTopic = claimedTopic.HasValue;
             _legitimacy = legitimacy;
         }
+
+        /// <summary>
+        /// The dialogue lines for this arc. First line is Vern's intro, last is Vern's conclusion.
+        /// </summary>
+        public Godot.Collections.Array<ArcDialogueLine> Dialogue => _dialogue;
 
         /// <summary>
         /// Set the screening summary for this arc.
@@ -143,11 +155,10 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Check if this arc matches the given topic and legitimacy.
         /// </summary>
-        public bool Matches(string topic, CallerLegitimacy legitimacy)
+        public bool Matches(ShowTopic topic, CallerLegitimacy legitimacy)
         {
             bool legitimacyMatch = _legitimacy == legitimacy;
-            bool topicMatch = string.IsNullOrEmpty(_topic) ||
-                               string.Equals(_topic, topic, StringComparison.OrdinalIgnoreCase);
+            bool topicMatch = _topic == topic;
             return legitimacyMatch && topicMatch;
         }
 
@@ -155,13 +166,13 @@ namespace KBTV.Dialogue
         /// Check if this arc matches as a topic-switcher arc.
         /// Used when a caller lied about their topic during screening.
         /// </summary>
-        public bool MatchesTopicSwitcher(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy)
+        public bool MatchesTopicSwitcher(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy)
         {
             if (!IsTopicSwitcher) return false;
 
             bool legitimacyMatch = _legitimacy == legitimacy;
-            bool claimedMatch = string.Equals(_claimedTopic, claimedTopic, StringComparison.OrdinalIgnoreCase);
-            bool actualMatch = string.Equals(_topic, actualTopic, StringComparison.OrdinalIgnoreCase);
+            bool claimedMatch = _claimedTopic == claimedTopic;
+            bool actualMatch = _topic == actualTopic;
 
             return legitimacyMatch && claimedMatch && actualMatch;
         }

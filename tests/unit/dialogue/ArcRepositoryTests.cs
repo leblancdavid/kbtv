@@ -28,7 +28,7 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void AddArc_IncreasesCount()
         {
-            var arc = new ConversationArc("test_arc", "Ghosts", CallerLegitimacy.Credible);
+            var arc = new ConversationArc("test_arc", ShowTopic.Ghosts, CallerLegitimacy.Credible);
             arc.SetScreeningSummary("Test summary");
             arc.SetCallerPersonality("Average");
 
@@ -40,20 +40,20 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void AddArc_StoresCorrectArc()
         {
-            var arc = new ConversationArc("test_arc", "Ghosts", CallerLegitimacy.Credible);
+            var arc = new ConversationArc("test_arc", ShowTopic.Ghosts, CallerLegitimacy.Credible);
             arc.SetScreeningSummary("Test summary");
 
             _repository.AddArc(arc);
 
             var retrieved = _repository.Arcs[0];
             AssertThat(retrieved.ArcId == "test_arc");
-            AssertThat(retrieved.Topic == "Ghosts");
+            AssertThat(retrieved.Topic == ShowTopic.Ghosts);
         }
 
         [Test]
         public void Clear_RemovesAllArcs()
         {
-            var arc = new ConversationArc("test_arc", "Ghosts", CallerLegitimacy.Credible);
+            var arc = new ConversationArc("test_arc", ShowTopic.Ghosts, CallerLegitimacy.Credible);
             _repository.AddArc(arc);
 
             _repository.Clear();
@@ -64,10 +64,10 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void FindMatchingArcs_WithMatchingTopic_ReturnsArc()
         {
-            var arc = new ConversationArc("ghost_arc", "Ghosts", CallerLegitimacy.Credible);
+            var arc = new ConversationArc("ghost_arc", ShowTopic.Ghosts, CallerLegitimacy.Credible);
             _repository.AddArc(arc);
 
-            var matches = _repository.FindMatchingArcs("Ghosts", CallerLegitimacy.Credible);
+            var matches = _repository.FindMatchingArcs(ShowTopic.Ghosts, CallerLegitimacy.Credible);
 
             AssertThat(matches.Count == 1);
             AssertThat(matches[0].ArcId == "ghost_arc");
@@ -76,10 +76,10 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void FindMatchingArcs_WithNonMatchingTopic_ReturnsEmpty()
         {
-            var arc = new ConversationArc("ghost_arc", "Ghosts", CallerLegitimacy.Credible);
+            var arc = new ConversationArc("ghost_arc", ShowTopic.Ghosts, CallerLegitimacy.Credible);
             _repository.AddArc(arc);
 
-            var matches = _repository.FindMatchingArcs("UFOs", CallerLegitimacy.Credible);
+            var matches = _repository.FindMatchingArcs(ShowTopic.UFOs, CallerLegitimacy.Credible);
 
             AssertThat(matches.Count == 0);
         }
@@ -87,10 +87,10 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void FindMatchingArcs_WithMatchingLegitimacy_ReturnsArc()
         {
-            var arc = new ConversationArc("fake_arc", "Ghosts", CallerLegitimacy.Fake);
+            var arc = new ConversationArc("fake_arc", ShowTopic.Ghosts, CallerLegitimacy.Fake);
             _repository.AddArc(arc);
 
-            var matches = _repository.FindMatchingArcs("Ghosts", CallerLegitimacy.Fake);
+            var matches = _repository.FindMatchingArcs(ShowTopic.Ghosts, CallerLegitimacy.Fake);
 
             AssertThat(matches.Count == 1);
         }
@@ -98,10 +98,10 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void FindMatchingArcs_WithNonMatchingLegitimacy_ReturnsEmpty()
         {
-            var arc = new ConversationArc("fake_arc", "Ghosts", CallerLegitimacy.Fake);
+            var arc = new ConversationArc("fake_arc", ShowTopic.Ghosts, CallerLegitimacy.Fake);
             _repository.AddArc(arc);
 
-            var matches = _repository.FindMatchingArcs("Ghosts", CallerLegitimacy.Credible);
+            var matches = _repository.FindMatchingArcs(ShowTopic.Ghosts, CallerLegitimacy.Credible);
 
             AssertThat(matches.Count == 0);
         }
@@ -109,7 +109,7 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void GetRandomArc_WithMatchingArc_ReturnsArc()
         {
-            var arc = new ConversationArc("ghost_arc", "Ghosts", CallerLegitimacy.Credible);
+            var arc = new ConversationArc("ghost_arc", ShowTopic.Ghosts, CallerLegitimacy.Credible);
             _repository.AddArc(arc);
 
             var result = _repository.GetRandomArc(CallerLegitimacy.Credible);
@@ -121,7 +121,7 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void GetRandomArc_WithMatchingLegitimacy_ReturnsArc()
         {
-            var arc = new ConversationArc("ghost_arc", "Ghosts", CallerLegitimacy.Credible);
+            var arc = new ConversationArc("ghost_arc", ShowTopic.Ghosts, CallerLegitimacy.Credible);
             _repository.AddArc(arc);
 
             var result = _repository.GetRandomArc(CallerLegitimacy.Credible);
@@ -133,7 +133,7 @@ namespace KBTV.Tests.Unit.Dialogue
         [Test]
         public void GetRandomArc_WithNoMatchingLegitimacy_ReturnsNull()
         {
-            var arc = new ConversationArc("ghost_arc", "Ghosts", CallerLegitimacy.Credible);
+            var arc = new ConversationArc("ghost_arc", ShowTopic.Ghosts, CallerLegitimacy.Credible);
             _repository.AddArc(arc);
 
             var result = _repository.GetRandomArc(CallerLegitimacy.Fake);

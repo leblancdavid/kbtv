@@ -73,6 +73,7 @@ namespace KBTV.Callers
         [Export] private string _displayName;
         [Export] private string _description;
         [Export] private string _topicId;
+        [Export] private ShowTopic _topicValue;
 
         [Export] private Godot.Collections.Array<ScreeningRule> _rules = new Godot.Collections.Array<ScreeningRule>();
 
@@ -95,6 +96,16 @@ namespace KBTV.Callers
             _displayName = displayName;
             _topicId = topicId;
             _description = string.IsNullOrEmpty(description) ? $"Discuss {displayName.ToLower()}" : description;
+            _topicValue = ParseTopicValue(displayName);
+        }
+
+        /// <summary>
+        /// Parse display name to ShowTopic enum value.
+        /// </summary>
+        private static ShowTopic ParseTopicValue(string displayName)
+        {
+            var parsed = ShowTopicExtensions.ParseTopic(displayName);
+            return parsed ?? ShowTopic.Ghosts;  // Default to Ghosts if parsing fails
         }
 
         public string DisplayName => _displayName;
@@ -102,8 +113,14 @@ namespace KBTV.Callers
         public string TopicId => _topicId;
 
         /// <summary>
+        /// The ShowTopic enum value for this topic.
+        /// Used for arc matching and topic-based operations.
+        /// </summary>
+        public ShowTopic TopicValue => _topicValue;
+
+        /// <summary>
         /// Simple topic name for matching with arc topics.
-        /// Returns the display name as-is (e.g., "UFOs", "Ghosts", "Cryptids", "government").
+        /// Returns the display name as-is (e.g., "UFOs", "Ghosts", "Cryptids", "Conspiracies").
         /// </summary>
         public string TopicName => _displayName;
 
@@ -168,8 +185,8 @@ namespace KBTV.Callers
             return rule.RuleType switch
             {
                 ScreeningRuleType.TopicMustMatch =>
-                    caller.ClaimedTopic.Equals(rule.RequiredValue, StringComparison.OrdinalIgnoreCase) ||
-                    caller.ClaimedTopic.Equals(_topicId, StringComparison.OrdinalIgnoreCase),
+                    string.Equals(caller.ClaimedTopic, _displayName, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(caller.ClaimedTopic, _topicValue.ToTopicName(), StringComparison.OrdinalIgnoreCase),
 
                 ScreeningRuleType.LocationRequired =>
                     caller.Location.Contains(rule.RequiredValue, StringComparison.OrdinalIgnoreCase),

@@ -103,7 +103,7 @@ namespace KBTV.Dialogue
             }
         }
 
-        public List<ConversationArc> FindMatchingArcs(string topic, CallerLegitimacy legitimacy)
+        public List<ConversationArc> FindMatchingArcs(ShowTopic topic, CallerLegitimacy legitimacy)
         {
             EnsureInitialized();
             var matches = new List<ConversationArc>();
@@ -137,25 +137,23 @@ namespace KBTV.Dialogue
             return matches[(int)(GD.Randi() % matches.Count)];
         }
 
-        public ConversationArc? GetRandomArcForTopic(string topicId, CallerLegitimacy legitimacy)
+        public ConversationArc? GetRandomArcForTopic(ShowTopic topic, CallerLegitimacy legitimacy)
         {
-            var matches = FindMatchingArcs(topicId, legitimacy);
+            var matches = FindMatchingArcs(topic, legitimacy);
             if (matches.Count == 0) return null;
 
             return matches[(int)(GD.Randi() % matches.Count)];
         }
 
-        public ConversationArc? GetRandomArcForDifferentTopic(string excludeTopicId, CallerLegitimacy legitimacy)
+        public ConversationArc? GetRandomArcForDifferentTopic(ShowTopic excludeTopic, CallerLegitimacy legitimacy)
         {
             EnsureInitialized();
             var candidates = new List<ConversationArc>();
 
             foreach (var arc in _arcs)
             {
-                // Use case-insensitive comparison for topic matching
-                bool topicMatches = string.Equals(arc.Topic, excludeTopicId, StringComparison.OrdinalIgnoreCase);
                 if (arc.Legitimacy == legitimacy &&
-                    !topicMatches &&
+                    arc.Topic != excludeTopic &&
                     !arc.IsTopicSwitcher)
                 {
                     candidates.Add(arc);
@@ -166,40 +164,7 @@ namespace KBTV.Dialogue
             return candidates[(int)(GD.Randi() % candidates.Count)];
         }
 
-        /// <summary>
-        /// Find arcs that don't match the specified topic name (case-insensitive).
-        /// Used for generating off-topic callers.
-        /// </summary>
-        public List<ConversationArc> FindArcsNotMatchingTopic(string excludeTopicName, CallerLegitimacy legitimacy)
-        {
-            EnsureInitialized();
-            var matches = new List<ConversationArc>();
-
-            foreach (var arc in _arcs)
-            {
-                // Use case-insensitive comparison for topic matching
-                bool topicMatches = string.Equals(arc.Topic, excludeTopicName, StringComparison.OrdinalIgnoreCase);
-                if (arc.Legitimacy == legitimacy && !topicMatches && !arc.IsTopicSwitcher)
-                {
-                    matches.Add(arc);
-                }
-            }
-
-            return matches;
-        }
-
-        /// <summary>
-        /// Get a random arc that doesn't match the specified topic name (case-insensitive).
-        /// Used for generating off-topic callers.
-        /// </summary>
-        public ConversationArc? GetRandomArcForDifferentTopicName(string excludeTopicName, CallerLegitimacy legitimacy)
-        {
-            var matches = FindArcsNotMatchingTopic(excludeTopicName, legitimacy);
-            if (matches.Count == 0) return null;
-            return matches[(int)(GD.Randi() % matches.Count)];
-        }
-
-        public List<ConversationArc> FindTopicSwitcherArcs(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy)
+        public List<ConversationArc> FindTopicSwitcherArcs(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy)
         {
             EnsureInitialized();
             var matches = new List<ConversationArc>();
@@ -215,7 +180,7 @@ namespace KBTV.Dialogue
             return matches;
         }
 
-        public ConversationArc GetRandomTopicSwitcherArc(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy)
+        public ConversationArc GetRandomTopicSwitcherArc(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy)
         {
             var matches = FindTopicSwitcherArcs(claimedTopic, actualTopic, legitimacy);
             if (matches.Count == 0) return null;

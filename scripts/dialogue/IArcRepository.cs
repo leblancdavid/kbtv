@@ -22,7 +22,7 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Find all arcs matching the given topic and legitimacy.
         /// </summary>
-        List<ConversationArc> FindMatchingArcs(string topic, CallerLegitimacy legitimacy);
+        List<ConversationArc> FindMatchingArcs(ShowTopic topic, CallerLegitimacy legitimacy);
 
         /// <summary>
         /// Get a random arc matching the given legitimacy.
@@ -34,37 +34,24 @@ namespace KBTV.Dialogue
         /// Get a random arc matching the specified topic and legitimacy.
         /// Returns null if no matching arc found.
         /// </summary>
-        ConversationArc? GetRandomArcForTopic(string topicId, CallerLegitimacy legitimacy);
+        ConversationArc? GetRandomArcForTopic(ShowTopic topic, CallerLegitimacy legitimacy);
 
         /// <summary>
         /// Get a random arc from a different topic than specified.
-        /// Uses case-insensitive comparison.
         /// Used for generating off-topic callers.
         /// </summary>
-        ConversationArc? GetRandomArcForDifferentTopic(string excludeTopicId, CallerLegitimacy legitimacy);
-
-        /// <summary>
-        /// Find arcs that don't match the specified topic name (case-insensitive).
-        /// Used for generating off-topic callers.
-        /// </summary>
-        List<ConversationArc> FindArcsNotMatchingTopic(string excludeTopicName, CallerLegitimacy legitimacy);
-
-        /// <summary>
-        /// Get a random arc that doesn't match the specified topic name (case-insensitive).
-        /// Used for generating off-topic callers.
-        /// </summary>
-        ConversationArc? GetRandomArcForDifferentTopicName(string excludeTopicName, CallerLegitimacy legitimacy);
+        ConversationArc? GetRandomArcForDifferentTopic(ShowTopic excludeTopic, CallerLegitimacy legitimacy);
 
         /// <summary>
         /// Find all topic-switcher arcs matching a caller who lied about their topic.
         /// </summary>
-        List<ConversationArc> FindTopicSwitcherArcs(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy);
+        List<ConversationArc> FindTopicSwitcherArcs(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy);
 
         /// <summary>
         /// Get a random topic-switcher arc for a caller who lied about their topic.
         /// Returns null if no matching switcher arc found.
         /// </summary>
-        ConversationArc? GetRandomTopicSwitcherArc(string claimedTopic, string actualTopic, CallerLegitimacy legitimacy);
+        ConversationArc? GetRandomTopicSwitcherArc(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy);
 
         /// <summary>
         /// Add an arc to the repository (used by editor tools).

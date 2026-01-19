@@ -29,16 +29,25 @@ namespace KBTV.Dialogue
                 }
 
                 var arcId = data.GetValueOrDefault("arcId", "").AsString();
-                var topic = data.GetValueOrDefault("topic", "").AsString();
+                var topicStr = data.GetValueOrDefault("topic", "").AsString();
                 var legitimacyStr = data.GetValueOrDefault("legitimacy", "Questionable").AsString();
-                var claimedTopic = data.GetValueOrDefault("claimedTopic", "").AsString();
+                var claimedTopicStr = data.GetValueOrDefault("claimedTopic", "").AsString();
                 var screeningSummary = data.GetValueOrDefault("screeningSummary", "").AsString();
                 var callerPersonality = data.GetValueOrDefault("callerPersonality", "").AsString();
 
                 var legitimacy = ParseLegitimacy(legitimacyStr);
+                var topic = ParseTopic(topicStr);
+                var claimedTopic = ParseTopic(claimedTopicStr);
+
+                if (topic == null)
+                {
+                    GD.PrintErr($"[ArcJsonParser] Invalid topic '{topicStr}' in arc {arcId}");
+                    return null;
+                }
+
                 var arc = new ConversationArc(
                     arcId,
-                    topic,
+                    topic.Value,
                     legitimacy,
                     claimedTopic
                 );
@@ -144,6 +153,11 @@ namespace KBTV.Dialogue
                 return legitimacy;
 
             return CallerLegitimacy.Questionable;
+        }
+
+        public static ShowTopic? ParseTopic(string topicString)
+        {
+            return ShowTopicExtensions.ParseTopic(topicString);
         }
     }
 }
