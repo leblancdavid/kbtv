@@ -145,6 +145,7 @@ namespace KBTV.UI
                     break;
 
                 case Key.Space: // Put next caller on air (Space key)
+                    GD.Print($"InputHandler: Space key pressed - IsOnAir: {_repository.IsOnAir}, HasOnHold: {_repository.HasOnHoldCallers}");
                     if (!_repository.IsOnAir && _repository.HasOnHoldCallers)
                     {
                         var result = _repository.PutOnAir();
@@ -159,7 +160,15 @@ namespace KBTV.UI
                             GD.PrintErr($"InputHandler: Failed to put caller on air - {result.ErrorCode}: {result.ErrorMessage}");
                         }
                     }
+                    else
+                    {
+                        GD.Print("InputHandler: Cannot put caller on air - conditions not met");
+                    }
                     break;
+
+                case Key.P: // Test: Put next caller on air (P key)
+                    GD.Print("InputHandler: P key pressed - Manual trigger for putting caller on air");
+                    goto case Key.Space;
             }
         }
 

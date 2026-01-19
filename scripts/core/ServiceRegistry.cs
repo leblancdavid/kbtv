@@ -61,6 +61,14 @@ namespace KBTV.Core
             var arcRepository = new ArcRepository();
             Register<IArcRepository>(arcRepository);
             NotifyRegistered();
+
+            var eventBus = new EventBus();
+            Register<EventBus>(eventBus);
+            NotifyRegistered();
+
+            var audioPlayer = new AudioDialoguePlayer();
+            Register<IDialoguePlayer>(audioPlayer);
+            NotifyRegistered();
         }
 
         public void NotifyRegistered()
@@ -200,5 +208,7 @@ namespace KBTV.Core
         public UIManager UIManager => Get<UIManager>();
         public GlobalTransitionManager GlobalTransitionManager => Get<GlobalTransitionManager>();
         public CallerGenerator CallerGenerator => Get<CallerGenerator>();
+        public EventBus EventBus => Get<EventBus>();
+        public IDialoguePlayer AudioPlayer => Get<IDialoguePlayer>();
     }
 }

@@ -50,7 +50,7 @@ namespace KBTV.Dialogue
 
             _entries.Add(entry);
             var displayText = entry.Text.Length > 50 ? entry.Text.Substring(0, 50) + "..." : entry.Text;
-            GD.Print($"TranscriptRepository: Added entry {entry.SpeakerName}: {displayText}");
+            GD.Print($"TranscriptRepository: Added entry {entry.SpeakerName}: {displayText} (total: {_entries.Count})");
         }
 
         public IReadOnlyList<TranscriptEntry> GetCurrentShowTranscript()

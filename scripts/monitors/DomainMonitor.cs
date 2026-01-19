@@ -45,5 +45,16 @@ namespace KBTV.Monitors
         /// </summary>
         /// <param name="deltaTime">Elapsed time in seconds since last frame</param>
         protected abstract void OnUpdate(float deltaTime);
+
+        /// <summary>
+        /// Override to handle event-driven updates.
+        /// Called when relevant game events are published.
+        /// Default implementation does nothing - override in subclasses that need event handling.
+        /// </summary>
+        /// <param name="gameEvent">The game event to process</param>
+        public virtual void OnEvent(GameEvent gameEvent)
+        {
+            // Default: no-op. Subclasses override for event-driven behavior.
+        }
     }
 }

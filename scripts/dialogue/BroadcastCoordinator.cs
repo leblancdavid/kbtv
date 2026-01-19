@@ -5,6 +5,7 @@ using System.Linq;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Data;
 
 namespace KBTV.Dialogue
 {
@@ -18,6 +19,10 @@ namespace KBTV.Dialogue
 
         private BroadcastState _state = BroadcastState.Idle;
         private ConversationArc? _currentArc;
+        private System.Collections.Generic.List<ArcDialogueLine>? _resolvedDialogue;
+        private ConversationFlow? _currentFlow;
+        private ConversationStateMachine? _stateMachine;
+        private ConversationContext? _conversationContext;
         private int _arcLineIndex = -1;
         private int _fillerCycleCount = 0;
         private bool _broadcastActive = false;
@@ -115,11 +120,43 @@ namespace KBTV.Dialogue
 
         public void OnCallerPutOnAir(Caller caller)
         {
+            GD.Print($"BroadcastCoordinator: Starting conversation for caller: {caller.Name}");
+
             _currentArc = caller.Arc;
+            var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+            VernMoodType mood = VernMoodType.Neutral;
+            if (vernStats != null)
+            {
+                mood = vernStats.CurrentMoodType;
+                _resolvedDialogue = _currentArc.GetDialogueForMood(mood);
+                GD.Print($"BroadcastCoordinator: Resolved dialogue for mood {mood}, {(_resolvedDialogue?.Count ?? 0)} lines");
+            }
+            else
+            {
+                _resolvedDialogue = new System.Collections.Generic.List<ArcDialogueLine>(_currentArc.Dialogue);
+                GD.Print("BroadcastCoordinator: No VernStats available, using raw dialogue");
+            }
+
+            // Initialize functional conversation system
+            _currentFlow = ConversationFlow.CreateLinear(_resolvedDialogue);
+            GD.Print($"BroadcastCoordinator: Created conversation flow with {_currentFlow.Steps.Count} steps");
+
+            _stateMachine = new ConversationStateMachine();
+            _conversationContext = new ConversationContext(mood);
+
+            _stateMachine.ProcessEvent(ConversationEvent.Start());
+            GD.Print($"BroadcastCoordinator: State machine started in state: {_stateMachine.CurrentState}");
+
             _arcLineIndex = 0;
             _state = BroadcastState.Conversation;
             _lineInProgress = false;
             _pendingControlAction = ControlAction.None;
+
+            GD.Print("BroadcastCoordinator: Conversation initialization complete");
+
+            // Auto-start conversation by publishing event
+            var startedEvent = new ConversationStartedEvent();
+            ServiceRegistry.Instance.EventBus.Publish(startedEvent);
         }
 
         public void OnCallerOnAir(Caller caller)
@@ -130,6 +167,10 @@ namespace KBTV.Dialogue
         public void OnCallerOnAirEnded(Caller caller)
         {
             _currentArc = null;
+            _resolvedDialogue = null;
+            _currentFlow = null;
+            _stateMachine = null;
+            _conversationContext = null;
             _arcLineIndex = -1;
 
             if (_repository.HasOnHoldCallers)
@@ -240,12 +281,19 @@ namespace KBTV.Dialogue
 
         public void OnLineCompleted()
         {
+            GD.Print($"BroadcastCoordinator.OnLineCompleted called");
             _lineInProgress = false;
 
-            if (_currentArc != null && _arcLineIndex >= 0)
+            // Update state machine
+            if (_stateMachine != null)
             {
-                _arcLineIndex++;
+                _stateMachine.ProcessEvent(ConversationEvent.LineCompleted());
+                GD.Print($"BroadcastCoordinator: State machine transitioned to {_stateMachine.CurrentState}");
             }
+
+            // Publish event for conversation advancement
+            var advancedEvent = new ConversationAdvancedEvent(null);
+            ServiceRegistry.Instance.EventBus.Publish(advancedEvent);
 
             if (_state == BroadcastState.DeadAirFiller)
             {
@@ -253,6 +301,25 @@ namespace KBTV.Dialogue
             }
 
             AdvanceState();
+        }
+
+        private void EndConversation()
+        {
+            GD.Print("BroadcastCoordinator: Ending conversation");
+            _stateMachine?.ProcessEvent(ConversationEvent.End());
+
+            var currentCaller = _repository.OnAirCaller;
+            if (currentCaller != null)
+            {
+                _repository.EndOnAir();
+                OnCallerOnAirEnded(currentCaller);
+            }
+
+            // Reset conversation state
+            _currentFlow = null;
+            _stateMachine = null;
+            _conversationContext = null;
+            _arcLineIndex = -1;
         }
 
         private void AdvanceState()
@@ -314,12 +381,17 @@ namespace KBTV.Dialogue
 
         private BroadcastLine GetConversationLine()
         {
+            GD.Print("BroadcastCoordinator.GetConversationLine: Called");
+
             var caller = _repository.OnAirCaller;
             if (caller == null)
             {
+                GD.Print("BroadcastCoordinator.GetConversationLine: No caller on air");
                 if (_repository.HasOnHoldCallers)
                 {
+                    GD.Print("BroadcastCoordinator.GetConversationLine: Has on-hold callers, returning None");
                     return BroadcastLine.None();  // Allow control action polling instead of filler loop
+
                 }
                 else
                 {
@@ -329,38 +401,63 @@ namespace KBTV.Dialogue
                 }
             }
 
-            if (_currentArc == null || _arcLineIndex < 0)
+            // Use functional conversation system
+            GD.Print("BroadcastCoordinator.GetConversationLine: Using functional conversation system");
+
+            if (_stateMachine == null || _currentFlow == null || _conversationContext == null)
             {
-                _currentArc = caller.Arc;
-                _arcLineIndex = 0;
+                GD.Print("BroadcastCoordinator.GetConversationLine: Conversation system not initialized");
+                _state = BroadcastState.DeadAirFiller;
+                return GetFillerLine();
             }
 
-            if (_currentArc == null || _arcLineIndex >= _currentArc.Dialogue.Count)
+            GD.Print($"BroadcastCoordinator.GetConversationLine: StateMachine state: {_stateMachine.CurrentState}, CanProcessLines: {_stateMachine.CanProcessLines}");
+
+            if (!_stateMachine.CanProcessLines)
             {
-                var currentCaller = _repository.OnAirCaller;
-                if (currentCaller != null)
-                {
-                    _repository.EndOnAir();
-                    OnCallerOnAirEnded(currentCaller);
-                }
-                // State is now set to BetweenCallers or DeadAirFiller
-                if (_state == BroadcastState.BetweenCallers)
-                {
-                    return GetBetweenCallersLine();
-                }
-                else
-                {
-                    return GetFillerLine();
-                }
+                GD.Print($"BroadcastCoordinator.GetConversationLine: Cannot process lines in state {_stateMachine.CurrentState}");
+                return BroadcastLine.None();
             }
 
-            var arcLine = _currentArc.Dialogue[_arcLineIndex];
+            // Get next step from conversation flow
+            GD.Print($"BroadcastCoordinator.GetConversationLine: CurrentStepIndex: {_conversationContext.CurrentStepIndex}, TotalSteps: {_currentFlow.Steps.Count}");
 
-            var line = arcLine.Speaker == Speaker.Vern
-                ? BroadcastLine.VernDialogue(arcLine.Text, ConversationPhase.Intro, _currentArc.ArcId)
-                : BroadcastLine.CallerDialogue(arcLine.Text, caller.Name, caller.Id, ConversationPhase.Probe, _currentArc.ArcId);
+            if (_conversationContext.CurrentStepIndex >= _currentFlow.Steps.Count)
+            {
+                GD.Print("BroadcastCoordinator.GetConversationLine: Conversation flow completed");
+                EndConversation();
+                return BroadcastLine.None();
+            }
 
-            return line;
+            var step = _currentFlow.Steps[_conversationContext.CurrentStepIndex];
+            GD.Print($"BroadcastCoordinator.GetConversationLine: Processing step {_conversationContext.CurrentStepIndex} of type {step.Type}");
+
+            if (!step.CanExecute(_conversationContext))
+            {
+                GD.Print($"BroadcastCoordinator.GetConversationLine: Step {_conversationContext.CurrentStepIndex} cannot execute");
+                return BroadcastLine.None();
+            }
+
+            // Process the step
+            if (step is DialogueStep dialogueStep)
+            {
+                var broadcastLine = dialogueStep.CreateBroadcastLine();
+                GD.Print($"BroadcastCoordinator.GetConversationLine: Created broadcast line: {broadcastLine.Speaker} - {broadcastLine.Text}");
+
+                _stateMachine.ProcessEvent(ConversationEvent.LineAvailable(broadcastLine));
+                GD.Print($"BroadcastCoordinator.GetConversationLine: State machine processed LineAvailable, new state: {_stateMachine.CurrentState}");
+
+                _conversationContext.CurrentStepIndex++;
+                GD.Print($"BroadcastCoordinator.GetConversationLine: Returning dialogue line: {broadcastLine.Speaker} - {broadcastLine.Text}");
+                return broadcastLine;
+            }
+            else
+            {
+                // Skip non-dialogue steps
+                GD.Print($"BroadcastCoordinator.GetConversationLine: Skipping non-dialogue step {step.Type}");
+                _conversationContext.CurrentStepIndex++;
+                return GetConversationLine(); // Recurse
+            }
         }
 
         private void AdvanceFromConversation()
@@ -456,13 +553,17 @@ namespace KBTV.Dialogue
             }
             else if (line.Type == BroadcastLineType.CallerDialogue)
             {
-                var caller = _repository.GetCaller(line.SpeakerId);
-                if (caller != null)
-                {
-                    _transcriptRepository?.AddEntry(
-                        TranscriptEntry.CreateCallerLine(caller, line.Text, line.Phase, line.ArcId)
-                    );
-                }
+                _transcriptRepository?.AddEntry(
+                    new TranscriptEntry(Speaker.Caller, line.Text, line.Phase, line.ArcId, line.Speaker)
+                );
+                GD.Print($"BroadcastCoordinator: Added caller transcript entry for {line.Speaker}: {line.Text}");
+            }
+            else if (line.Type == BroadcastLineType.VernDialogue)
+            {
+                _transcriptRepository?.AddEntry(
+                    new TranscriptEntry(Speaker.Vern, line.Text, line.Phase, line.ArcId, "Vern")
+                );
+                GD.Print($"BroadcastCoordinator: Added Vern transcript entry: {line.Text}");
             }
         }
 

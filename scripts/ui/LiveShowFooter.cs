@@ -102,11 +102,14 @@ namespace KBTV.UI
             }
 
             var entries = transcriptRepository.GetCurrentShowTranscript();
+
             if (entries.Count == 0)
             {
                 _transcriptText.Text = "TRANSCRIPT";
                 return;
             }
+
+            GD.Print($"LiveShowFooter: Displaying {entries.Count} transcript entries");
 
             // Build full transcript text
             var transcriptLines = new System.Collections.Generic.List<string>();

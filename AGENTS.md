@@ -241,7 +241,10 @@ public override void _Process(double delta)
 
 ### Monitor Pattern
 
-Domain-specific monitors handle state updates in the game loop. Each monitor runs in the scene tree's `_Process()` loop, updating ONE domain's state values each frame.
+Domain-specific monitors handle state updates in the game loop. Each monitor runs in the scene tree's `_Process()` loop, updating ONE domain's state values each frame. Monitors can also respond to events for reactive state changes.
+
+**Event-Driven Extension:**
+Monitors can now inherit from `DomainMonitor` and override `OnEvent(GameEvent)` to respond to system-wide events. This enables reactive, event-driven behavior alongside traditional timer-based updates.
 
 ```csharp
 // scripts/monitors/CallerMonitor.cs
@@ -268,19 +271,55 @@ public partial class CallerMonitor : DomainMonitor
 **Pattern Guidelines:**
 - **One domain per monitor** - Callers, VernStats, etc. each get their own monitor
 - **State updates only** - Update values (wait time, stat decay), trigger side effects (disconnections)
+- **Event-driven optional** - Override `OnEvent()` for reactive updates to game events
 - **No UI logic** - UI polls or observes state changes separately
 - **No persistence** - SaveManager handles save/load
 
 **Creating a New Monitor:**
 1. Create `scripts/monitors/[Domain]Monitor.cs` inheriting from `DomainMonitor`
-2. Implement `OnUpdate(float deltaTime)` for state logic
-3. Add to `scenes/Game.tscn` as a child node
-4. Add unit tests in `tests/unit/monitors/`
+2. Implement `OnUpdate(float deltaTime)` for timer-based state logic
+3. Override `OnEvent(GameEvent)` for event-driven updates (optional)
+4. Subscribe to events in `_Ready()` if needed
+5. Add to `scenes/Game.tscn` as a child node
+6. Add unit tests in `tests/unit/monitors/`
+
+**Event-Driven Monitor Example:**
+```csharp
+public partial class ConversationMonitor : DomainMonitor
+{
+    public override void _Ready()
+    {
+        base._Ready();
+        ServiceRegistry.Instance.EventBus.Subscribe<AudioCompletedEvent>(OnAudioCompleted);
+    }
+
+    public override void OnEvent(GameEvent gameEvent)
+    {
+        if (gameEvent is AudioCompletedEvent audioEvent)
+        {
+            // Handle audio completion
+            AdvanceConversation(audioEvent.LineId);
+        }
+    }
+
+    protected override void OnUpdate(float deltaTime)
+    {
+        // Timer-based updates if needed
+    }
+}
+```
 
 **Files:**
 - `scripts/monitors/DomainMonitor.cs` - Abstract base class
 - `scripts/monitors/CallerMonitor.cs` - Caller patience/wait time updates
 - `scripts/monitors/VernStatsMonitor.cs` - Vern's stat decay
+- `scripts/core/EventBus.cs` - Global event bus for inter-system communication
+- `scripts/core/GameEvent.cs` - Base class for game events
+- `scripts/dialogue/ConversationFlow.cs` - Declarative conversation flows
+- `scripts/dialogue/ConversationSteps.cs` - Reusable conversation step types
+- `scripts/dialogue/ConversationStateMachine.cs` - Pure functional state machine
+- `scripts/dialogue/IDialoguePlayer.cs` - Audio player interface
+- `scripts/dialogue/AudioDialoguePlayer.cs` - Event-driven audio implementation
 - `docs/technical/MONITOR_PATTERN.md` - Full pattern documentation
 
 ### BroadcastCoordinator Pattern
@@ -405,6 +444,82 @@ public interface ICallerRepository
 1. **[Export] attributes** for node references instead of `GetNode<>()` with strings
 2. **ReactiveListPanel** for differential UI updates (no full rebuilds)
 3. **Centralized colors** in `scripts/ui/themes/UIColors.cs`
+
+### Event-Driven Conversation System
+
+The conversation system uses a pull-based BroadcastCoordinator with event-driven architecture for synchronized dialogue and audio playback.
+
+#### BroadcastCoordinator Pattern
+
+KBTV uses a **pull-based BroadcastCoordinator** service to manage the radio broadcast flow. This replaces timer-based systems with a predictable, event-driven architecture.
+
+**Key Benefits:**
+- **Pull-based API** - Consumer asks "what's next?" instead of reacting to events
+- **Single source of truth** - Coordinator decides flow, timing, and state transitions
+- **No timing complexity** - Consumer controls pacing via event responses
+- **Auto-advance built-in** - Coordinator returns signals when appropriate
+
+**Core API:**
+```csharp
+// Get the next line to display. Returns same line if current line is still playing.
+BroadcastLine GetNextLine();
+
+// Call when a line finishes playing. Advances to next line in the flow.
+void OnLineCompleted();
+
+// Called by UI when a caller goes on air
+void OnCallerOnAir(Caller caller);
+
+// Called by UI when a call ends
+void OnCallerOnAirEnded(Caller caller);
+```
+
+#### Event Flow Pattern
+
+Conversations progress through event-driven state transitions:
+
+```csharp
+// 1. User puts caller on air → OnCallerOnAir()
+// 2. BroadcastCoordinator publishes ConversationStartedEvent
+// 3. ConversationDisplay receives event → requests first line
+// 4. Audio plays → fires AudioCompletedEvent when done
+// 5. ConversationDisplay receives event → calls OnLineCompleted()
+// 6. BroadcastCoordinator publishes ConversationAdvancedEvent
+// 7. ConversationDisplay receives event → requests next line
+// 8. Loop continues until conversation ends
+```
+
+**Event Types:**
+- `ConversationStartedEvent` - Signals conversation initialization
+- `AudioCompletedEvent` - Fired when audio line finishes playing
+- `ConversationAdvancedEvent` - Signals advancement to next line
+
+#### Event Subscription Pattern
+
+Components subscribe to relevant events during initialization:
+
+```csharp
+// In ConversationDisplay.InitializeWithServices()
+var eventBus = ServiceRegistry.Instance.EventBus;
+eventBus.Subscribe<ConversationStartedEvent>(HandleConversationStarted);
+eventBus.Subscribe<AudioCompletedEvent>(HandleAudioCompleted);
+eventBus.Subscribe<ConversationAdvancedEvent>(HandleConversationAdvanced);
+```
+
+**Benefits:**
+- Loose coupling between conversation logic and UI display
+- Natural audio synchronization through event completion
+- Predictable state transitions without timers
+- Easy to extend with new event types
+
+**Files:**
+- `scripts/dialogue/BroadcastCoordinator.cs` - Main coordinator (Autoload)
+- `scripts/dialogue/ConversationDisplay.cs` - Event-driven UI display
+- `scripts/dialogue/IDialoguePlayer.cs` - Audio player interface
+- `scripts/dialogue/AudioDialoguePlayer.cs` - Event-driven audio implementation
+- `scripts/core/EventBus.cs` - Global event bus for inter-system communication
+- `scripts/core/GameEvent.cs` - Base event classes
+- `scripts/dialogue/ConversationEvents.cs` - Conversation-specific events
 
 ## Project Overview
 - **Engine**: Godot 4.x
