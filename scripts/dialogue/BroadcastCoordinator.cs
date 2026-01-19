@@ -200,15 +200,6 @@ namespace KBTV.Dialogue
 
         private void CheckForControlAction()
         {
-            if (_state == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
-            {
-                _pendingControlAction = ControlAction.PutCallerOnAir;
-            }
-            else if (_state == BroadcastState.DeadAirFiller && _fillerCycleCount >= MaxFillerCyclesBeforeAutoAdvance && _repository.HasOnHoldCallers)
-            {
-                _pendingControlAction = ControlAction.PutCallerOnAir;
-                _fillerCycleCount = 0;
-            }
         }
 
         public void OnControlActionCompleted()
@@ -287,6 +278,11 @@ namespace KBTV.Dialogue
                 _fillerCycleCount++;
             }
 
+            if (_state == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
+            {
+                TryPutNextCallerOnAir();
+            }
+
             AdvanceState();
         }
 
@@ -301,11 +297,19 @@ namespace KBTV.Dialogue
                 OnCallerOnAirEnded(currentCaller);
             }
 
-            // Reset conversation state
             _currentFlow = null;
             _stateMachine = null;
             _conversationContext = null;
             _arcLineIndex = -1;
+        }
+
+        private void TryPutNextCallerOnAir()
+        {
+            var result = _repository.PutOnAir();
+            if (result.IsSuccess)
+            {
+                OnCallerPutOnAir(result.Value);
+            }
         }
 
         private void AdvanceState()
