@@ -35,7 +35,7 @@ KBTV uses a **scene-based UI system** in Godot 4.x, with programmatic instantiat
 The main UI uses a TabContainer scene (`TabContainerUI.tscn`) that contains:
 - Header panel for show info and controls
 - Tab container with three tabs: Callers, Items, Stats
-- Footer panels for status displays
+- Footer panels arranged as: Ad Break controls (25%) | Transcript (50%) | On-Air status (25%)
 
 ### Phase-Based Visibility
 
