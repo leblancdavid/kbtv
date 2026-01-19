@@ -8,6 +8,8 @@ namespace KBTV.Dialogue
     /// </summary>
     public enum Speaker
     {
+        /// <summary>Bumper music is playing</summary>
+        Music,
         /// <summary>The caller on the line</summary>
         Caller,
         /// <summary>Vern Tell, the host</summary>

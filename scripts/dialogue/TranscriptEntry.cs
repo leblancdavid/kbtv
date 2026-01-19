@@ -30,6 +30,11 @@ namespace KBTV.Dialogue
             SpeakerName = speakerName;
         }
 
+        public static TranscriptEntry CreateMusicLine()
+        {
+            return new TranscriptEntry(Speaker.Music, "Bumper Music", ConversationPhase.Intro, null, "Music");
+        }
+
         public static TranscriptEntry CreateVernLine(string text, ConversationPhase phase, string? arcId = null)
         {
             return new TranscriptEntry(Speaker.Vern, text, phase, arcId, "Vern");
@@ -42,8 +47,17 @@ namespace KBTV.Dialogue
 
         public string GetDisplayText()
         {
-            var speakerLabel = SpeakerName ?? (Speaker == Speaker.Vern ? "Vern" : "Caller");
-            return $"{speakerLabel}: {Text}";
+            switch (Speaker)
+            {
+                case Speaker.Music:
+                    return "MUSIC";
+                case Speaker.Vern:
+                    return $"VERN: {Text}";
+                case Speaker.Caller:
+                    return $"CALLER: {Text}";
+                default:
+                    return "TRANSCRIPT";
+            }
         }
     }
 }

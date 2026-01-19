@@ -18,6 +18,15 @@ namespace KBTV.Dialogue
             Phase = ConversationPhase.Intro
         };
 
+        public static BroadcastLine Music() => new()
+        {
+            Type = BroadcastLineType.Music,
+            Text = "Bumper Music",
+            Speaker = "Music",
+            SpeakerId = "MUSIC",
+            Phase = ConversationPhase.Intro
+        };
+
         public static BroadcastLine ShowOpening(string text) => new()
         {
             Type = BroadcastLineType.ShowOpening,

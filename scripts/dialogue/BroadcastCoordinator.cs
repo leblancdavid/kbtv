@@ -334,14 +334,20 @@ namespace KBTV.Dialogue
         {
             return line.Type switch
             {
+                BroadcastLineType.Music => 5f,
                 BroadcastLineType.ShowOpening => 5f,
                 BroadcastLineType.VernDialogue => 4f,
                 BroadcastLineType.CallerDialogue => 4f,
                 BroadcastLineType.BetweenCallers => 4f,
                 BroadcastLineType.DeadAirFiller => 8f,
                 BroadcastLineType.ShowClosing => 5f,
-                _ => 0f
+                _ => 4f
             };
+        }
+
+        private BroadcastLine GetMusicLine()
+        {
+            return BroadcastLine.Music();
         }
 
         private BroadcastLine GetShowOpeningLine()
@@ -501,7 +507,11 @@ namespace KBTV.Dialogue
                 return;
             }
 
-            if (line.Type == BroadcastLineType.VernDialogue ||
+            if (line.Type == BroadcastLineType.Music)
+            {
+                _transcriptRepository?.AddEntry(TranscriptEntry.CreateMusicLine());
+            }
+            else if (line.Type == BroadcastLineType.VernDialogue ||
                 line.Type == BroadcastLineType.DeadAirFiller ||
                 line.Type == BroadcastLineType.BetweenCallers ||
                 line.Type == BroadcastLineType.ShowOpening ||

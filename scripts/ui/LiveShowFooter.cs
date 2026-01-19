@@ -93,6 +93,12 @@ namespace KBTV.UI
                 return;
             }
 
+            if (_adBreakActive)
+            {
+                _transcriptText.Text = "AD BREAK";
+                return;
+            }
+
             var transcriptRepository = Core.ServiceRegistry.Instance.TranscriptRepository;
             if (transcriptRepository == null)
             {
@@ -100,22 +106,15 @@ namespace KBTV.UI
                 return;
             }
 
-            var entries = transcriptRepository.GetCurrentShowTranscript();
-
-            if (entries.Count == 0)
+            var latestEntry = transcriptRepository.GetLatestEntry();
+            if (latestEntry != null)
+            {
+                _transcriptText.Text = latestEntry.GetDisplayText();
+            }
+            else
             {
                 _transcriptText.Text = "TRANSCRIPT";
-                return;
             }
-
-            var transcriptLines = new System.Collections.Generic.List<string>();
-            foreach (var entry in entries)
-            {
-                var speaker = entry.Speaker == KBTV.Dialogue.Speaker.Vern ? "VERN" : entry.SpeakerName ?? "CALLER";
-                transcriptLines.Add($"{speaker}: {entry.Text}");
-            }
-
-            _transcriptText.Text = string.Join("\n", transcriptLines);
         }
 
         private void OnStartAdBreakPressed()
