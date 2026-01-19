@@ -64,7 +64,11 @@ namespace KBTV.UI
 
 		private void OnPhaseChanged(ScreeningPhase newPhase)
 		{
-			if (newPhase == ScreeningPhase.Completed)
+			if (newPhase != ScreeningPhase.Idle && newPhase != ScreeningPhase.Completed)
+			{
+				UpdateButtons();
+			}
+			else if (newPhase == ScreeningPhase.Completed)
 			{
 				UpdateButtons();
 			}
@@ -160,6 +164,7 @@ namespace KBTV.UI
 			{
 				_headerRow.Text = $"Name: {caller.Name}  |  Phone: {caller.PhoneNumber}  |  Location: {caller.Location}  |  Topic: {caller.ClaimedTopic}";
 				BuildPropertyGrid(caller);
+				UpdateButtons();
 			}
 			else
 			{

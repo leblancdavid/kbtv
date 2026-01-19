@@ -1,4 +1,35 @@
 ## Current Session
+- **Task**: Fix preshow topic selection not matching live show topic (was hardcoded to Ghosts)
+- **Status**: Completed
+- **Started**: Mon Jan 19 2026
+- **Last Updated**: Mon Jan 19 2026
+
+### Issue
+The preshow topic selection dropdown showed topics like "UFO Sightings", "Government Conspiracies", "Paranormal Activity", and "Ancient Mysteries", but these display names didn't match the `ShowTopic` enum values (`Ghosts`, `UFOs`, `Cryptids`, `Conspiracies`). When a user selected a topic like "Paranormal Activity", the `Topic.ParseTopicValue()` method couldn't match it to an enum and defaulted to `ShowTopic.Ghosts`, causing the live show to always use Ghosts regardless of the user's selection.
+
+### Root Cause
+`TopicLoader.cs` created sample topics with display names that didn't match the enum parsing logic in `ShowTopicExtensions.ParseTopic()`:
+- "UFO Sightings" → parsed to `UFOs` (worked)
+- "Government Conspiracies" → parsed to `Conspiracies` (worked)
+- "Paranormal Activity" → **failed to parse** → defaulted to `Ghosts`
+- "Ancient Mysteries" → **failed to parse** → defaulted to `Ghosts`
+
+### Fix Applied
+Updated `TopicLoader.cs` to use display names that directly match the `ShowTopic` enum values:
+- "UFOs" (maps to `ShowTopic.UFOs`)
+- "Conspiracies" (maps to `ShowTopic.Conspiracies`)
+- "Ghosts" (maps to `ShowTopic.Ghosts`)
+- "Cryptids" (maps to `ShowTopic.Cryptids`)
+
+### Files Modified
+- `scripts/data/TopicLoader.cs`
+
+### Build Status
+**Build: SUCCESS** (0 errors, 0 warnings)
+
+---
+
+## Previous Session
 - **Task**: Fix ScreeningPanel - Show "Caller Disconnected" message when screening caller gets disconnected
 - **Status**: Completed
 - **Started**: Mon Jan 19 2026
@@ -184,57 +215,6 @@ Callers are now generated based on the show's selected topic:
 ---
 
 ## Previous Session
-- **Task**: Implement off-topic caller generation (90% on-topic, 10% off-topic based on show topic)
-- **Status**: Completed
-- **Started**: Mon Jan 19 2026
-- **Last Updated**: Mon Jan 19 2026
-
-### Feature Summary
-
-Callers are now generated based on the show's selected topic:
-- **90% on-topic**: Arcs are picked matching the show's current topic (from SelectedTopic.TopicId)
-- **10% off-topic**: Arcs are picked from a DIFFERENT topic than the show's topic
-- Uses `Topic.OffTopicRate` (default 0.1f = 10%) for the off-topic probability
-- Off-topic callers are transparent - they claim their actual topic, not the show topic
-- `Caller.IsOffTopic` is set automatically during generation
-
-### Changes Made
-
-**1. IArcRepository.cs - Added interface methods:**
-- `GetRandomArcForTopic(topicId, legitimacy)` - Get arc matching specified topic
-- `GetRandomArcForDifferentTopic(excludeTopicId, legitimacy)` - Get arc from different topic
-
-**2. ArcRepository.cs - Added implementation methods:**
-- `GetRandomArcForTopic()` - Uses `FindMatchingArcs()` and returns random from matches
-- `GetRandomArcForDifferentTopic()` - Filters arcs by legitimacy, excludes topic-switcher arcs, excludes specified topic
-
-**3. CallerGenerator.cs - Complete rewrite of arc assignment logic:**
-- Removed old random arc assignment (30% deception was not respecting show topic)
-- Added 90/10 split based on `showTopic.OffTopicRate`
-- On-topic path: `GetRandomArcForTopic(showTopicId, legitimacy)` → sets IsOffTopic = false
-- Off-topic path: `GetRandomArcForDifferentTopic(showTopicId, legitimacy)` → sets IsOffTopic = true
-- Fallback to hardcoded Topics array if no matching arcs available
-- Calls `caller.SetOffTopic(true)` for off-topic callers after construction
-
-### Off-Topic vs Deception (Separate Features)
-
-| Scenario | Show Topic | Claimed Topic | Actual Topic | IsOffTopic | IsLyingAboutTopic |
-|----------|------------|---------------|--------------|------------|-------------------|
-| On-topic | Ghosts | Ghosts | Ghosts | false | false |
-| Off-topic | Ghosts | UFOs | UFOs | true | false |
-| Deception | Ghosts | Ghosts | Demons | false | true |
-
-### Files Modified
-- scripts/dialogue/IArcRepository.cs
-- scripts/dialogue/ArcRepository.cs
-- scripts/callers/CallerGenerator.cs
-
-### Build Status
-**Build: SUCCESS** (0 errors, 26 warnings - pre-existing nullable annotations)
-
----
-
-## Current Session
 - **Task**: Fix on-hold callers not transferring to on-air and transcripts not playing caller dialogs
 - **Status**: Completed
 - **Started**: Sun Jan 18 2026
@@ -280,81 +260,7 @@ Callers are now generated based on the show's selected topic:
 
 ---
 
-## Work Completed
-
-### Task 1: Fix ListenerManagerTests (4 failing tests)
-**Changes:**
-- Removed `GetFormattedListeners_NegativeListeners_FormatsCorrectly` test (negative values not possible with clamping)
-- Added `ModifyListeners_ExcessiveNegative_ClampsToMinimum` test to verify clamping behavior
-- Fixed `GetFormattedChange_NegativeChange_ShowsMinusSign` test to actually produce negative change
-
-### Task 2: Fix VernStatsTests (2 failing tests)
-**Changes:**
-- Added descriptive failure message to `VibeChanged_EmitsWhenVibeChanges` test
-- Tests now verify VIBE delta exceeds threshold for event emission
-
-### Task 3: Fix CallerGeneratorTests (8 failing tests)
-**Changes:**
-- Added `GenerateTestCaller()` test-only method (DEBUG build) in `scripts/callers/CallerGenerator.cs`
-- Refactored all SpawnCaller tests to use `GenerateTestCaller()` for isolated testing
-- Tests no longer require ServiceRegistry initialization
-
-### Task 4: Add UI/Data Component Tests
-**New test files:**
-- `tests/unit/data/StatTests.cs` - Comprehensive Stat class coverage (existing)
-- `tests/unit/data/IncomeCalculatorTests.cs` - Economy calculations (existing)
-
-### Task 5: Add Dialogue System Tests
-**New test files:**
-- `tests/unit/dialogue/ArcRepositoryTests.cs` - Arc storage and retrieval
-
-### Task 6: Add Persistence Tests
-**New test files:**
-- `tests/unit/persistence/SaveDataTests.cs` - Save data structures
-- `tests/unit/persistence/SaveManagerTests.cs` - Save/load operations
-
-### Task 7: Set Up Coverage Reporting
-**Changes:**
-- Created `coverlet.json` with proper exclusion rules
-- Added coverage threshold properties to `KBTV.csproj`
-- Updated `docs/testing/TESTING.md` with new coverage status
-
-## Files Modified
-- tests/unit/managers/ListenerManagerTests.cs
-- tests/unit/data/VernStatsTests.cs
-- tests/unit/callers/CallerGeneratorTests.cs
-- scripts/callers/CallerGenerator.cs
-- tests/unit/dialogue/ArcRepositoryTests.cs (new)
-- tests/unit/persistence/SaveDataTests.cs (new)
-- tests/unit/persistence/SaveManagerTests.cs (new)
-- coverlet.json (new)
-- KBTV.csproj
-- docs/testing/TESTING.md
-
-## Build Status
-**Build: SUCCESS** (0 errors, 2 warnings)
-
-## Test Coverage Status
-| Category | Target | Current |
-|----------|--------|---------|
-| Core (Result, ServiceRegistry) | 80% | Good |
-| Callers (Caller, Repository, Generator) | 80% | Good (fixed) |
-| Screening (Controller) | 80% | Good |
-| Managers (GameState, Time, Listener, Economy) | 80% | Good (fixed) |
-| Data (VernStats, Stat, IncomeCalculator) | 80% | Good |
-| Dialogue (ArcRepository) | 80% | New |
-| Persistence (SaveManager, SaveData) | 80% | New |
-| **Overall** | **80%** | **~73%** |
-
-## Notes
-- Godot editor required to run GoDotTest tests
-- Coverage reporting requires Godot with `--coverage` flag
-- New tests added for previously untested areas (dialogue, persistence)
-- All original failing tests have been fixed
-
----
-
-## Current Session
+## Previous Session
 - **Task**: Fix incoming caller queue issues (patience updates, disconnect handling, screening duplicates)
 - **Status**: Completed
 - **Started**: Sat Jan 17 2026
@@ -388,45 +294,7 @@ Callers are now generated based on the show's selected topic:
 
 ---
 
-## Current Session
-- **Task**: Fix caller patience status indicator not updating
-- **Status**: Completed
-- **Started**: Sat Jan 17 2026
-- **Last Updated**: Sat Jan 17 2026
-
-### Issue
-Patience status indicator in `CallerQueueItem` wasn't updating despite `UpdateWaitTime()` being called.
-
-### Root Cause
-The `_Process()` method was comparing `_cachedCaller.WaitTime` against `_previousWaitTime`, but:
-1. `_previousWaitTime` was initialized to the same value as `_cachedCaller.WaitTime` (both 0)
-2. The comparison was always false because they started equal
-3. The logic checked patience values BEFORE getting the current caller from the repository
-
-### Fix Applied
-Reordered `_Process()` logic in `CallerQueueItem.cs`:
-1. Get current caller from repository FIRST
-2. Check if `WaitTime` or `ScreeningPatience` changed from tracked previous values
-3. Only call `UpdateStatusIndicator()` when values actually change
-4. Separated status-only updates from full refresh (state/selection changes)
-
-### Files Modified
-- `scripts/ui/CallerQueueItem.cs` - Rewrote `_Process()` to poll current caller from repository
-
-### Tests Added
-- `tests/integration/CallerQueueItemPatienceTests.cs` (new) - Comprehensive patience tests:
-  - Incoming caller patience depletion over wait time
-  - Screening caller patience depletion at 50% rate
-  - Caller disconnection when patience runs out
-  - OnHold/OnAir callers don't accumulate wait time
-  - Patience ratio calculations and color thresholds
-
-### Build Status
-**Build: SUCCESS** (0 errors, 0 warnings)
-
----
-
-## Current Session
+## Previous Session
 - **Task**: Fix Game.tscn scene loading errors (invalid UID, missing root node)
 - **Status**: Completed
 - **Started**: Sat Jan 17 2026
@@ -454,33 +322,12 @@ Reordered `_Process()` logic in `CallerQueueItem.cs`:
 - `scenes/Game.tscn` - Fixed scene structure with proper root node, UIDs, and parent paths
 - `docs/technical/MONITOR_PATTERN.md` - Updated scene setup examples with correct structure and UIDs
 
-### Final Scene Structure
-```tscn
-[gd_scene load_steps=4 format=3]
-
-[ext_resource type="Script" uid="uid://ciyhpovkok5te" path="res://scripts/Main.cs" id="1"]
-[ext_resource type="Script" uid="uid://b3ihb2axyu6ad" path="res://scripts/monitors/CallerMonitor.cs" id="2"]
-[ext_resource type="Script" uid="uid://do111yirun4wa" path="res://scripts/monitors/VernStatsMonitor.cs" id="3"]
-
-[node name="Main" type="Node2D"]
-script = ExtResource("1")
-
-[node name="CallerMonitor" type="Node" parent="."]
-script = ExtResource("2")
-
-[node name="VernStatsMonitor" type="Node" parent="."]
-script = ExtResource("3")
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(960, 540)
-```
-
 ### Build Status
 **Build: SUCCESS** (0 errors, 0 warnings)
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Create ScreeningMonitor to follow DomainMonitor pattern
 - **Status**: Completed
 - **Started**: Sat Jan 18 2026
@@ -510,7 +357,7 @@ position = Vector2(960, 540)
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Fix missing VernDialogue.tres resource error
 - **Status**: Completed
 - **Started**: Sat Jan 18 2026
@@ -542,7 +389,7 @@ Modified `ConversationManager` to load from JSON instead of `.tres`:
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Fix invalid UIDs causing service registration failures
 - **Status**: Completed
 - **Started**: Sat Jan 18 2026
@@ -570,7 +417,7 @@ Updated UIDs in `scenes/Game.tscn` to match actual `.uid` files.
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Convert ConversationManager to autoload
 - **Status**: Completed
 - **Started**: Sat Jan 18 2026
@@ -624,7 +471,7 @@ Converted services that UI components need to access into autoloads:
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Fix incoming queue list corruption (duplicates, >10 items, selection broken)
 - **Status**: Completed
 - **Started**: Sat Jan 18 2026
@@ -657,7 +504,7 @@ When callers got impatient and disconnected:
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Fix transcript not playing (no entries being added during broadcast)
 - **Status**: Completed
 - **Started**: Sat Jan 18 2026
@@ -695,7 +542,7 @@ When callers got impatient and disconnected:
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Change transcript UI to rolling text (one line at a time)
 - **Status**: Completed
 - **Started**: Sat Jan 18 2026
@@ -737,7 +584,7 @@ When callers got impatient and disconnected:
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Fix transcript UI synchronization with dialogue
 - **Status**: Completed
 - **Started**: Sat Jan 18 2026
@@ -762,7 +609,7 @@ When callers got impatient and disconnected:
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Consolidate transcript to single panel (LiveShowFooter)
 - **Status**: Completed
 - **Started**: Sat Jan 18 2026
@@ -795,17 +642,17 @@ Two transcript displays existed:
 ### Behavior
 - Single transcript display in LiveShowFooter
 - Shows "VERN: text" or "CALLER: text" (speaker icon + current text)
-- Typewriter reveal synced to conversation display
+- Typewriter reveal synced to dialogue display
 - Each new dialogue line replaces the previous one
 - Shows "[MUSIC PLAYING]" during show open/close, between callers, dead air
 - Shows "TRANSCRIPT" when no broadcast is active
 
 ### Build Status
-**Build: SUCCESS** (0 errors, 3 warnings) 
+**Build: SUCCESS** (0 errors, 3 warnings)
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Fix transcript panel stuck showing "PLAYING MUSIC"
 - **Status**: Completed
 - **Started**: Sun Jan 18 2026
@@ -858,7 +705,7 @@ The transcript logic in `LiveShowFooter.cs` was showing "[MUSIC PLAYING]" during
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Implement Vern's intro dialog on show start
 - **Status**: Completed
 - **Started**: Sun Jan 18 2026
@@ -887,7 +734,7 @@ Added event-driven show start flow:
 
 ---
 
-## Current Session
+## Previous Session
 - **Task**: Remove verbose debug print statements from codebase
 - **Status**: Completed
 - **Started**: Sun Jan 18 2026

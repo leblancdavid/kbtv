@@ -20,10 +20,10 @@ namespace KBTV.Data
 
             // TODO: Load topics from Godot resources
             // For now, create sample topics as fallback
-            topics.Add(CreateSampleTopic("UFO Sightings"));
-            topics.Add(CreateSampleTopic("Government Conspiracies"));
-            topics.Add(CreateSampleTopic("Paranormal Activity"));
-            topics.Add(CreateSampleTopic("Ancient Mysteries"));
+            topics.Add(CreateSampleTopic("UFOs"));
+            topics.Add(CreateSampleTopic("Conspiracies"));
+            topics.Add(CreateSampleTopic("Ghosts"));
+            topics.Add(CreateSampleTopic("Cryptids"));
 
             GD.Print($"TopicLoader: Loaded {topics.Count} topics");
             return topics;
