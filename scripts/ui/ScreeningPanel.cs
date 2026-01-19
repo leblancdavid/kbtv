@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
@@ -13,10 +14,10 @@ namespace KBTV.UI
 	{
 		[ExportGroup("Node References")]
 		[Export]
-		private Label _headerLabel = null!;
+		private Label _headerRow = null!;
 
 		[Export]
-		private Label _callerInfoLabel = null!;
+		private GridContainer _propertiesGrid = null!;
 
 		[Export]
 		private Button _approveButton = null!;
@@ -40,7 +41,7 @@ namespace KBTV.UI
 		public override void _Ready()
 		{
 			EnsureNodesInitialized();
-			_nodesInitialized = _headerLabel != null && _callerInfoLabel != null &&
+			_nodesInitialized = _headerRow != null && _propertiesGrid != null &&
 			                   _approveButton != null && _rejectButton != null;
 			InitializeController();
 			if (_approveButton != null && _rejectButton != null)
@@ -89,8 +90,8 @@ namespace KBTV.UI
 		{
 			var missing = new System.Collections.Generic.List<string>();
 
-			if (_headerLabel == null) missing.Add("VBoxContainer/HeaderLabel");
-			if (_callerInfoLabel == null) missing.Add("VBoxContainer/CallerInfoScroll/CallerInfoLabel");
+			if (_headerRow == null) missing.Add("VBoxContainer/CallerInfoScroll/InfoVBox/HeaderRow");
+			if (_propertiesGrid == null) missing.Add("VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesGrid");
 			if (_approveButton == null) missing.Add("VBoxContainer/HBoxContainer/ApproveButton");
 			if (_rejectButton == null) missing.Add("VBoxContainer/HBoxContainer/RejectButton");
 
@@ -132,11 +133,94 @@ namespace KBTV.UI
 		{
 			if (caller != null)
 			{
-				_callerInfoLabel!.Text = BuildCallerInfoText(caller);
+				_headerRow.Text = $"Name: {caller.Name}  |  Phone: {caller.PhoneNumber}  |  Location: {caller.Location}  |  Topic: {caller.ClaimedTopic}";
+				BuildPropertyGrid(caller);
 			}
 			else
 			{
-				_callerInfoLabel!.Text = "No caller\ncurrently\nscreening";
+				_headerRow.Text = "Name: --  |  Phone: --  |  Location: --  |  Topic: --";
+				ClearPropertyGrid();
+			}
+		}
+
+		private void ClearPropertyGrid()
+		{
+			// Clear all children in the properties grid
+			for (int i = _propertiesGrid.GetChildCount() - 1; i >= 0; i--)
+			{
+				var child = _propertiesGrid.GetChild(i);
+				child.QueueFree();
+			}
+		}
+
+		private void BuildPropertyGrid(Caller caller)
+		{
+			ClearPropertyGrid();
+
+			// Build property pairs for 2-column layout
+			var propertyPairs = new List<(string Label, string Value)>
+			{
+				("Quality", caller.PhoneQuality.ToString()),
+				("Belief Level", caller.BeliefLevel.ToString()),
+				("Emotional State", caller.EmotionalState.ToString()),
+				("Evidence", caller.EvidenceLevel.ToString()),
+				("Curse Risk", caller.CurseRisk.ToString()),
+				("Coherence", caller.Coherence.ToString()),
+				("Urgency", caller.Urgency.ToString()),
+				("Legitimacy", caller.Legitimacy.ToString()),
+			};
+
+			// Create label-value pairs in 2 columns
+			for (int i = 0; i < propertyPairs.Count; i++)
+			{
+				var (labelText, valueText) = propertyPairs[i];
+
+				// Create left column (property name: value)
+				var leftLabel = new Label();
+				leftLabel.Text = $"{labelText}: {valueText}";
+				leftLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+				leftLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+				_propertiesGrid.AddChild(leftLabel);
+
+				// Create right column (next property, or empty if odd count)
+				int nextIndex = i + 1;
+				if (nextIndex < propertyPairs.Count)
+				{
+					var (nextLabel, nextValue) = propertyPairs[nextIndex];
+					var rightLabel = new Label();
+					rightLabel.Text = $"{nextLabel}: {nextValue}";
+					rightLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+					rightLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+					_propertiesGrid.AddChild(rightLabel);
+				}
+				else
+				{
+					// Odd number - add empty spacer
+					var spacer = new Label();
+					spacer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+					_propertiesGrid.AddChild(spacer);
+				}
+
+				i++; // Skip the one we just paired
+			}
+
+			// Add personality as full-width row at the bottom
+			var personalityLabel = new Label();
+			personalityLabel.Text = $"Personality: {caller.Personality}";
+			personalityLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			personalityLabel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			personalityLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+			_propertiesGrid.AddChild(personalityLabel);
+
+			// Add screening summary if present
+			if (!string.IsNullOrEmpty(caller.ScreeningSummary))
+			{
+				var summaryLabel = new Label();
+				summaryLabel.Text = caller.ScreeningSummary;
+				summaryLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+				summaryLabel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+				summaryLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+				_propertiesGrid.AddChild(summaryLabel);
 			}
 		}
 
@@ -220,39 +304,6 @@ namespace KBTV.UI
 			}
 		}
 
-		private string BuildCallerInfoText(Caller caller)
-		{
-			var sb = new System.Text.StringBuilder();
-
-			// Header row: Name | Phone | Location | Topic
-			sb.Append($"Name: {caller.Name}");
-			sb.Append($"  |  Phone: {caller.PhoneNumber}");
-			sb.Append($"  |  Location: {caller.Location}");
-			sb.AppendLine($"  |  Topic: {caller.ClaimedTopic}");
-
-			// Divider line
-			sb.AppendLine(new string('─', 60));
-
-			// All properties as simple "Property: Value" lines
-			sb.AppendLine($"Quality: {caller.PhoneQuality}");
-			sb.AppendLine($"Emotional State: {caller.EmotionalState}");
-			sb.AppendLine($"Curse Risk: {caller.CurseRisk}");
-			sb.AppendLine($"Belief Level: {caller.BeliefLevel}");
-			sb.AppendLine($"Evidence: {caller.EvidenceLevel}");
-			sb.AppendLine($"Coherence: {caller.Coherence}");
-			sb.AppendLine($"Urgency: {caller.Urgency}");
-			sb.AppendLine($"Legitimacy: {caller.Legitimacy}");
-			sb.AppendLine($"Personality: {caller.Personality}");
-
-			if (!string.IsNullOrEmpty(caller.ScreeningSummary))
-			{
-				sb.AppendLine();
-				sb.AppendLine(caller.ScreeningSummary);
-			}
-
-			return sb.ToString();
-		}
-
 		public void ConnectButtons(Callable approveCallable, Callable rejectCallable)
 		{
 			if (_approveButton != null)
@@ -272,26 +323,26 @@ namespace KBTV.UI
 
 		private void EnsureNodesInitialized()
 		{
-			if (_headerLabel == null)
+			if (_headerRow == null)
 			{
 				try
 				{
-					_headerLabel = GetNode<Label>("VBoxContainer/HeaderLabel");
+					_headerRow = GetNode<Label>("VBoxContainer/CallerInfoScroll/InfoVBox/HeaderRow");
 				}
 				catch (Exception ex)
 				{
-					GD.PrintErr($"ScreeningPanel: Failed to find HeaderLabel at VBoxContainer/HeaderLabel: {ex.Message}");
+					GD.PrintErr($"ScreeningPanel: Failed to find HeaderRow at VBoxContainer/CallerInfoScroll/InfoVBox/HeaderRow: {ex.Message}");
 				}
 			}
-			if (_callerInfoLabel == null)
+			if (_propertiesGrid == null)
 			{
 				try
 				{
-					_callerInfoLabel = GetNode<Label>("VBoxContainer/CallerInfoScroll/CallerInfoLabel");
+					_propertiesGrid = GetNode<GridContainer>("VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesGrid");
 				}
 				catch (Exception ex)
 				{
-					GD.PrintErr($"ScreeningPanel: Failed to find CallerInfoLabel at VBoxContainer/CallerInfoScroll/CallerInfoLabel: {ex.Message}");
+					GD.PrintErr($"ScreeningPanel: Failed to find PropertiesGrid at VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesGrid: {ex.Message}");
 				}
 			}
 			if (_approveButton == null)

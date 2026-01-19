@@ -44,16 +44,29 @@ size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
 
-[node name="CallerInfoLabel" type="Label" parent="VBoxContainer/CallerInfoScroll"]
+[node name="InfoVBox" type="VBoxContainer" parent="VBoxContainer/CallerInfoScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "Caller info"
+
+[node name="HeaderRow" type="Label" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Name: --  |  Phone: --  |  Location: --  |  Topic: --"
 autowrap_mode = 3
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_bottom = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_right = 8
+
+[node name="Divider" type="Label" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "────────────────────────────────────────────────────────────────────────────────────────"
+
+[node name="PropertiesGrid" type="GridContainer" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 4
+columns = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2

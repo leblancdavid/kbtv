@@ -1,4 +1,51 @@
 ## Current Session
+- **Task**: ScreeningPanel UI - 2-column property grid with header row and word wrap
+- **Status**: Completed
+- **Started**: Mon Jan 19 2026
+- **Last Updated**: Mon Jan 19 2026
+
+### Changes Made
+
+**1. Scene Structure (`scenes/ui/ScreeningPanel.tscn`):**
+- Replaced single `CallerInfoLabel` with nested structure:
+  - `CallerInfoScroll` → `InfoVBox` → `HeaderRow` + `Divider` + `PropertiesGrid`
+- HeaderRow displays: `Name: X | Phone: X | Location: X | Topic: X`
+- Divider line separates header from properties
+- PropertiesGrid with 2 columns, h_separation=24, v_separation=4
+- Tighter VBoxContainer spacing (separation = 4)
+- Taller button row (custom_minimum_size.y = 60)
+- Larger button text (font_size = 16)
+- Rounded button corners (8px)
+
+**2. Script Changes (`scripts/ui/ScreeningPanel.cs`):**
+- Removed unused `_headerLabel` export
+- Added `_headerRow` export for the caller info header
+- Added `_propertiesGrid` export for the 2-column property grid
+- Rewrote `BuildPropertyGrid()` to create Label nodes dynamically
+- Properties paired in 2 columns (Quality + Belief Level, Emotional State + Evidence, etc.)
+- Personality and ScreeningSummary as full-width rows at bottom
+- Updated `_SetCallerImmediate()` to set header text with caller info
+
+**3. Word Wrap Fixes:**
+- All property grid labels now have `AutowrapMode = TextServer.AutowrapMode.WordSmart`
+- Added vertical expand (`SizeFlagsVertical = ExpandFill`) to Personality and ScreeningSummary labels
+- Long fields like ScreeningSummary now wrap instead of overflowing
+
+**4. Fixed script-scene mismatch:**
+- Updated `GetMissingNodeReferences()` to check for correct node paths
+- Updated `EnsureNodesInitialized()` to get nodes from correct paths
+- Changed `caller.Topic` to `caller.ClaimedTopic` (correct property)
+
+### Files Modified
+- `scenes/ui/ScreeningPanel.tscn`
+- `scripts/ui/ScreeningPanel.cs`
+
+### Build Status
+**Build: SUCCESS** (0 errors, 26 warnings - pre-existing nullable annotations)
+
+---
+
+## Previous Session
 - **Task**: Implement off-topic caller generation (90% on-topic, 10% off-topic based on show topic)
 - **Status**: Completed
 - **Started**: Mon Jan 19 2026
@@ -50,25 +97,53 @@ Callers are now generated based on the show's selected topic:
 ---
 
 ## Previous Session
-- **Task**: Fix caller selection performance - slow screener info display
+- **Task**: Implement off-topic caller generation (90% on-topic, 10% off-topic based on show topic)
 - **Status**: Completed
-- **Started**: Sat Jan 17 2026
-- **Last Updated**: Sat Jan 17 2026
+- **Started**: Mon Jan 19 2026
+- **Last Updated**: Mon Jan 19 2026
 
-## Work Completed
+### Feature Summary
 
-**Refactoring Summary:**
-- Removed EventAggregator pub/sub system entirely
-- Expanded ICallerRepositoryObserver with 4 new callbacks (OnScreeningStarted, OnScreeningEnded, OnCallerOnAir, OnCallerOnAirEnded)
-- CallerRepository now notifies observers on all state changes
-- ScreeningController removed all EventAggregator publishes, uses .NET events for progress polling
-- CallerQueue uses observer callbacks instead of event subscriptions
-- UI components poll for progress instead of subscribing to events
-- Updated AGENTS.md with new architecture documentation
+Callers are now generated based on the show's selected topic:
+- **90% on-topic**: Arcs are picked matching the show's current topic (from SelectedTopic.TopicId)
+- **10% off-topic**: Arcs are picked from a DIFFERENT topic than the show's topic
+- Uses `Topic.OffTopicRate` (default 0.1f = 10%) for the off-topic probability
+- Off-topic callers are transparent - they claim their actual topic, not the show topic
+- `Caller.IsOffTopic` is set automatically during generation
 
-**Files Changed:** 35 files, +920/-856 lines
+### Changes Made
 
-**Commit:** 17def5c - "refactor: Replace EventAggregator with Observer pattern"
+**1. IArcRepository.cs - Added interface methods:**
+- `GetRandomArcForTopic(topicId, legitimacy)` - Get arc matching specified topic
+- `GetRandomArcForDifferentTopic(excludeTopicId, legitimacy)` - Get arc from different topic
+
+**2. ArcRepository.cs - Added implementation methods:**
+- `GetRandomArcForTopic()` - Uses `FindMatchingArcs()` and returns random from matches
+- `GetRandomArcForDifferentTopic()` - Filters arcs by legitimacy, excludes topic-switcher arcs, excludes specified topic
+
+**3. CallerGenerator.cs - Complete rewrite of arc assignment logic:**
+- Removed old random arc assignment (30% deception was not respecting show topic)
+- Added 90/10 split based on `showTopic.OffTopicRate`
+- On-topic path: `GetRandomArcForTopic(showTopicId, legitimacy)` → sets IsOffTopic = false
+- Off-topic path: `GetRandomArcForDifferentTopic(showTopicId, legitimacy)` → sets IsOffTopic = true
+- Fallback to hardcoded Topics array if no matching arcs available
+- Calls `caller.SetOffTopic(true)` for off-topic callers after construction
+
+### Off-Topic vs Deception (Separate Features)
+
+| Scenario | Show Topic | Claimed Topic | Actual Topic | IsOffTopic | IsLyingAboutTopic |
+|----------|------------|---------------|--------------|------------|-------------------|
+| On-topic | Ghosts | Ghosts | Ghosts | false | false |
+| Off-topic | Ghosts | UFOs | UFOs | true | false |
+| Deception | Ghosts | Ghosts | Demons | false | true |
+
+### Files Modified
+- scripts/dialogue/IArcRepository.cs
+- scripts/dialogue/ArcRepository.cs
+- scripts/callers/CallerGenerator.cs
+
+### Build Status
+**Build: SUCCESS** (0 errors, 26 warnings - pre-existing nullable annotations)
 
 ---
 
