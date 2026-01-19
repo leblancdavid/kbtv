@@ -40,6 +40,7 @@ namespace KBTV.Dialogue
         private enum BroadcastState
         {
             Idle,
+            IntroMusic,
             ShowOpening,
             Conversation,
             BetweenCallers,
@@ -87,7 +88,7 @@ namespace KBTV.Dialogue
         {
             _broadcastActive = true;
             _transcriptRepository?.StartNewShow();
-            _state = BroadcastState.ShowOpening;
+            _state = BroadcastState.IntroMusic;
             _fillerCycleCount = 0;
             _lineInProgress = false;
             _pendingControlAction = ControlAction.None;
@@ -236,6 +237,7 @@ namespace KBTV.Dialogue
         {
             return _state switch
             {
+                BroadcastState.IntroMusic => GetMusicLine(),
                 BroadcastState.ShowOpening => GetShowOpeningLine(),
                 BroadcastState.Conversation => GetConversationLine(),
                 BroadcastState.BetweenCallers => GetBetweenCallersLine(),
@@ -344,6 +346,9 @@ namespace KBTV.Dialogue
         {
             switch (_state)
             {
+                case BroadcastState.IntroMusic:
+                    AdvanceFromIntroMusic();
+                    break;
                 case BroadcastState.ShowOpening:
                     AdvanceFromShowOpening();
                     break;
@@ -369,7 +374,7 @@ namespace KBTV.Dialogue
         {
             return line.Type switch
             {
-                BroadcastLineType.Music => 5f,
+                BroadcastLineType.Music => 4f,
                 BroadcastLineType.ShowOpening => 5f,
                 BroadcastLineType.VernDialogue => 4f,
                 BroadcastLineType.CallerDialogue => 4f,
@@ -389,6 +394,11 @@ namespace KBTV.Dialogue
         {
             var line = _vernDialogue.GetShowOpening();
             return line != null ? BroadcastLine.ShowOpening(line.Text) : BroadcastLine.None();
+        }
+
+        private void AdvanceFromIntroMusic()
+        {
+            _state = BroadcastState.ShowOpening;
         }
 
         private void AdvanceFromShowOpening()

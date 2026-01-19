@@ -100,6 +100,20 @@ namespace KBTV.Dialogue
             };
         }
 
+        public static ConversationDisplayInfo CreateMusic(string text)
+        {
+            return new ConversationDisplayInfo
+            {
+                SpeakerName = "Music",
+                SpeakerIcon = "MUSIC",
+                Text = text,
+                Phase = ConversationPhase.Intro,
+                FlowState = BroadcastFlowState.ShowOpening,
+                IsTyping = false,
+                IsConversationActive = false
+            };
+        }
+
         public static ConversationDisplayInfo CreateConversationLine(
             string speaker,
             string icon,

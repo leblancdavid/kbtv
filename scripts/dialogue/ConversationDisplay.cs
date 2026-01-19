@@ -172,6 +172,7 @@ namespace KBTV.Dialogue
         {
             return line.Type switch
             {
+                BroadcastLineType.Music => ConversationDisplayInfo.CreateMusic(line.Text),
                 BroadcastLineType.ShowOpening => ConversationDisplayInfo.CreateBroadcastLine(
                     line.Speaker, line.SpeakerId, line.Text, line.Phase, BroadcastFlowState.ShowOpening),
                 BroadcastLineType.BetweenCallers => ConversationDisplayInfo.CreateBroadcastLine(

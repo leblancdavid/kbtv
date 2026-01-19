@@ -1,4 +1,69 @@
 ## Current Session
+- **Task**: Implement show intro music (4-second bumper before Vern's opening)
+- **Status**: Completed
+- **Started**: Mon Jan 19 2026
+- **Last Updated**: Mon Jan 19 2026
+
+### Feature Summary
+Added intro music bumper that plays at the start of the live show before Vern's show opening dialogue. The transcript displays "MUSIC" during the bumper.
+
+### Changes Made
+
+**1. Created placeholder audio file:**
+- `assets/audio/music/intro_music.wav` - 4 seconds of silent audio (44.1kHz, 16-bit mono WAV)
+- Ready to be replaced with real audio in the future
+
+**2. Modified `scripts/dialogue/BroadcastCoordinator.cs`:**
+- Added `BroadcastState.IntroMusic` enum value (between Idle and ShowOpening)
+- Changed `OnLiveShowStarted()` to start with `IntroMusic` state instead of `ShowOpening`
+- Added `BroadcastState.IntroMusic => GetMusicLine()` to `CalculateNextLine()`
+- Added `case BroadcastState.IntroMusic:` to `AdvanceState()` 
+- Added `AdvanceFromIntroMusic()` method that advances to `ShowOpening`
+- Changed music duration from 5f to 4f to match the WAV file
+
+**3. Modified `scripts/dialogue/ConversationDisplayInfo.cs`:**
+- Added `CreateMusic(string text)` factory method for music display info
+
+**4. Modified `scripts/dialogue/ConversationDisplay.cs`:**
+- Added `BroadcastLineType.Music` case to `CreateDisplayInfo()` to use the new factory method
+
+### Flow After Implementation
+```
+Start Show
+    ↓
+OnLiveShowStarted() → state = IntroMusic
+    ↓
+GetNextDisplayLine() → returns Music line
+    ↓
+Audio plays (4s silent) / Transcript shows "MUSIC"
+    ↓
+OnLineCompleted() → AdvanceFromIntroMusic() → state = ShowOpening
+    ↓
+GetNextDisplayLine() → returns Vern's show opening line
+    ↓
+Vern speaks + transcript shows "VERN: Good evening..."
+```
+
+### Future扩展 (Ad Break & Outro Music)
+This implementation sets up the music system for future expansion:
+- Ad break music: Play after ads (when ad system is implemented)
+- Outro music: Play at show end (when show closing logic is finalized)
+- Both can reuse the existing `BroadcastLine.Music()` and `TranscriptEntry.CreateMusicLine()` infrastructure
+
+### Files Created
+- `assets/audio/music/intro_music.wav` (4s silent placeholder)
+
+### Files Modified
+- `scripts/dialogue/BroadcastCoordinator.cs`
+- `scripts/dialogue/ConversationDisplayInfo.cs`
+- `scripts/dialogue/ConversationDisplay.cs`
+
+### Build Status
+**Build: SUCCESS** (0 errors, 26 warnings - pre-existing)
+
+---
+
+## Previous Session
 - **Task**: Fix preshow topic selection not matching live show topic (was hardcoded to Ghosts)
 - **Status**: Completed
 - **Started**: Mon Jan 19 2026
