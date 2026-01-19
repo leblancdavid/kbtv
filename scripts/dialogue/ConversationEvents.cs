@@ -55,4 +55,16 @@ namespace KBTV.Dialogue
             Source = "BroadcastCoordinator";
         }
     }
+
+    /// <summary>
+    /// Event fired when the live show starts.
+    /// Triggers Vern's intro dialog to begin playing.
+    /// </summary>
+    public partial class ShowStartedEvent : GameEvent
+    {
+        public ShowStartedEvent()
+        {
+            Source = "BroadcastCoordinator";
+        }
+    }
 }

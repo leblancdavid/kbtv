@@ -15,16 +15,12 @@ namespace KBTV.Dialogue
 
         private ConversationDisplayInfo _displayInfo = new();
         private BroadcastLine _currentLine;
-        private static int _instanceCount = 0;
 
         public ConversationDisplayInfo DisplayInfo => _displayInfo;
 
         public override void _Ready()
         {
-            _instanceCount++;
-            GD.Print($"ConversationDisplay #{_instanceCount} initialized: {GetPath()}, instance={GetInstanceId()}");
-
-            base._Ready(); // Initialize DomainMonitor
+            base._Ready();
 
             if (!ServiceRegistry.IsInitialized)
             {
@@ -41,6 +37,7 @@ namespace KBTV.Dialogue
             var eventBus = ServiceRegistry.Instance?.EventBus;
             if (eventBus != null)
             {
+                eventBus.Unsubscribe<ShowStartedEvent>(HandleShowStarted);
                 eventBus.Unsubscribe<ConversationStartedEvent>(HandleConversationStarted);
                 eventBus.Unsubscribe<AudioCompletedEvent>(HandleAudioCompleted);
             }
@@ -77,38 +74,39 @@ namespace KBTV.Dialogue
 
             // Subscribe to event bus for conversation events
             var eventBus = ServiceRegistry.Instance.EventBus;
+            eventBus.Subscribe<ShowStartedEvent>(HandleShowStarted);
             eventBus.Subscribe<ConversationStartedEvent>(HandleConversationStarted);
             eventBus.Subscribe<AudioCompletedEvent>(HandleAudioCompleted);
             eventBus.Subscribe<ConversationAdvancedEvent>(HandleConversationAdvanced);
         }
 
+        private void HandleShowStarted(ShowStartedEvent @event)
+        {
+            TryGetNextLine();
+        }
+
         private void HandleConversationStarted(ConversationStartedEvent @event)
         {
-            GD.Print("ConversationDisplay: Received ConversationStartedEvent, requesting first line");
-            // Conversation started, get the first line
             TryGetNextLine();
         }
 
         private void HandleAudioCompleted(AudioCompletedEvent @event)
         {
-            GD.Print($"ConversationDisplay: Received AudioCompletedEvent for {@event.LineId}, advancing conversation");
-            // Audio completed, advance the conversation
             _coordinator.OnLineCompleted();
         }
 
         private void HandleConversationAdvanced(ConversationAdvancedEvent @event)
         {
-            GD.Print("ConversationDisplay.HandleConversationAdvanced: Received ConversationAdvancedEvent, requesting next line");
-            // Conversation advanced, get next line if available
             TryGetNextLine();
         }
 
-        // Keep OnEvent for DomainMonitor compatibility, but delegate to handlers
         public override void OnEvent(GameEvent gameEvent)
         {
-            GD.Print($"ConversationDisplay.OnEvent: Received {gameEvent.GetType().Name} from {gameEvent.Source}");
-
-            if (gameEvent is ConversationStartedEvent startedEvent)
+            if (gameEvent is ShowStartedEvent showEvent)
+            {
+                HandleShowStarted(showEvent);
+            }
+            else if (gameEvent is ConversationStartedEvent startedEvent)
             {
                 HandleConversationStarted(startedEvent);
             }
@@ -120,10 +118,6 @@ namespace KBTV.Dialogue
             {
                 HandleConversationAdvanced(advancedEvent);
             }
-            else
-            {
-                GD.Print($"ConversationDisplay: Unhandled event type: {gameEvent.GetType().Name}");
-            }
         }
 
         protected override void OnUpdate(float deltaTime)
@@ -134,28 +128,21 @@ namespace KBTV.Dialogue
 
         private void TryGetNextLine()
         {
-            GD.Print("ConversationDisplay.TryGetNextLine: Requesting next line from coordinator");
             var line = _coordinator.GetNextDisplayLine();
 
             if (line == null)
             {
-                GD.Print("ConversationDisplay.TryGetNextLine: No line available, setting idle");
                 _displayInfo = ConversationDisplayInfo.CreateIdle();
                 return;
             }
 
-            GD.Print($"ConversationDisplay.TryGetNextLine: Got line: {line.Value.Speaker} - {line.Value.Text}");
             StartLine(line.Value);
         }
 
         private async void StartLine(BroadcastLine line)
         {
             _currentLine = line;
-
             _displayInfo = CreateDisplayInfo(line);
-            // Note: Duration will be determined by actual audio length
-
-            GD.Print($"ConversationDisplay: Starting audio playback for line - {line.Speaker}: {line.Text}");
 
             if (_audioPlayer != null)
             {
@@ -170,13 +157,8 @@ namespace KBTV.Dialogue
 
         private void OnAudioLineCompleted(AudioCompletedEvent audioEvent)
         {
-            GD.Print($"ConversationDisplay: Audio completed for line {audioEvent.LineId}, advancing conversation");
-
-            // Update display info to show completion
             _displayInfo.Progress = 1f;
-            _displayInfo.ElapsedLineTime = 0; // Audio duration not tracked yet
-
-            // Advance the conversation
+            _displayInfo.ElapsedLineTime = 0;
             _coordinator.OnLineCompleted();
         }
 
@@ -202,7 +184,6 @@ namespace KBTV.Dialogue
 
         public void OnCallerOnAir(Caller caller)
         {
-            GD.Print($"ConversationDisplay: Caller going on air: {caller.Name}");
             _coordinator.OnCallerOnAir(caller);
         }
 

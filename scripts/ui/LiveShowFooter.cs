@@ -20,7 +20,6 @@ namespace KBTV.UI
         private float _adBreakTime = 0f;
 
         private string _previousOnAirCallerId = string.Empty;
-        private string _currentLineText = "";
 
         public override void _Ready()
         {
@@ -109,9 +108,6 @@ namespace KBTV.UI
                 return;
             }
 
-            GD.Print($"LiveShowFooter: Displaying {entries.Count} transcript entries");
-
-            // Build full transcript text
             var transcriptLines = new System.Collections.Generic.List<string>();
             foreach (var entry in entries)
             {
@@ -127,7 +123,6 @@ namespace KBTV.UI
             _adBreakActive = true;
             _adBreakTime = 0f;
             UpdateAdBreakControls();
-            GD.Print("Ad break started");
         }
 
         private void OnEndAdBreakPressed()
@@ -135,7 +130,6 @@ namespace KBTV.UI
             _adBreakActive = false;
             _adBreakTime = 0f;
             UpdateAdBreakControls();
-            GD.Print("Ad break ended");
         }
 
         private void UpdateAdBreakControls()
@@ -172,8 +166,6 @@ namespace KBTV.UI
             {
                 _endAdBreakButton.Disconnect("pressed", Callable.From(OnEndAdBreakPressed));
             }
-
-            GD.Print("LiveShowFooter: Cleanup complete");
         }
     }
 }

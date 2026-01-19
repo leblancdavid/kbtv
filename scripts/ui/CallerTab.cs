@@ -35,8 +35,6 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            GD.Print("CallerTab: Initializing with Service Registry pattern");
-
             CallDeferred(nameof(InitializeDeferred));
         }
 
@@ -44,7 +42,6 @@ namespace KBTV.UI
         {
             if (!ServiceRegistry.IsInitialized)
             {
-                GD.PrintErr("CallerTab: ServiceRegistry not initialized, retrying...");
                 CallDeferred(nameof(InitializeDeferred));
                 return;
             }
@@ -55,8 +52,6 @@ namespace KBTV.UI
             PopulateTabContent();
 
             TrackStateForRefresh();
-
-            GD.Print("CallerTab: Initialization complete");
         }
 
         private void InitializeNodeReferences()
@@ -79,12 +74,6 @@ namespace KBTV.UI
 
         private void PopulateTabContent()
         {
-            GD.Print("CallerTab: Populating tab content");
-
-            GD.Print($"CallerTab: Incoming callers: {_repository.IncomingCallers.Count}, " +
-                     $"On-hold: {_repository.OnHoldCallers.Count}, " +
-                     $"IsScreening: {_repository.IsScreening}");
-
             CreateIncomingPanel();
             CreateScreeningPanel();
             CreateOnHoldPanel();
@@ -130,8 +119,6 @@ namespace KBTV.UI
                 _reactiveListPanel.SetAdapter(_incomingAdapter);
 
                 _incomingPanel.AddChild(_reactiveListPanel);
-
-                GD.Print("CallerTab: Created persistent incoming panel");
             }
 
             UpdateIncomingPanelData();
@@ -146,8 +133,6 @@ namespace KBTV.UI
 
             var incomingCallers = _repository.IncomingCallers.ToList();
             _reactiveListPanel.SetData(incomingCallers);
-
-            GD.Print($"CallerTab: Updated incoming panel with {incomingCallers.Count} callers");
         }
 
         private void CreateScreeningPanel()
@@ -230,8 +215,6 @@ namespace KBTV.UI
                 emptyLabel.AddThemeColorOverride("font_color", UIColors.TEXT_DISABLED);
                 listContainer.AddChild(emptyLabel);
             }
-
-            GD.Print($"CallerTab: Created on-hold panel with {_repository.OnHoldCallers.Count} callers");
         }
 
         private void TrackStateForRefresh()
@@ -269,20 +252,13 @@ namespace KBTV.UI
 
         public void OnApproveCaller()
         {
-            GD.Print("CallerTab: Approve button pressed");
-
             if (_screeningController.CurrentCaller == null)
             {
-                GD.Print("CallerTab: Approve pressed but no caller is being screened - ignoring");
                 return;
             }
 
             var result = _screeningController.Approve();
-            if (result.IsSuccess)
-            {
-                GD.Print("CallerTab: Caller approved successfully");
-            }
-            else
+            if (!result.IsSuccess)
             {
                 GD.PrintErr($"CallerTab: Failed to approve caller: {result.ErrorCode}: {result.ErrorMessage}");
             }
@@ -290,20 +266,13 @@ namespace KBTV.UI
 
         public void OnRejectCaller()
         {
-            GD.Print("CallerTab: Reject button pressed");
-
             if (_screeningController.CurrentCaller == null)
             {
-                GD.Print("CallerTab: Reject pressed but no caller is being screened - ignoring");
                 return;
             }
 
             var result = _screeningController.Reject();
-            if (result.IsSuccess)
-            {
-                GD.Print("CallerTab: Caller rejected successfully");
-            }
-            else
+            if (!result.IsSuccess)
             {
                 GD.PrintErr($"CallerTab: Failed to reject caller: {result.ErrorCode}: {result.ErrorMessage}");
             }
@@ -311,7 +280,6 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            GD.Print("CallerTab: Cleanup complete");
         }
     }
 }

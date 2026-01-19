@@ -167,7 +167,6 @@ namespace KBTV.UI
             var caller = _repository.GetCaller(_callerId);
             if (caller == null)
             {
-                GD.Print($"CallerQueueItem: Caller {_callerId} no longer exists - clearing UI");
                 _cachedCaller = null;
                 _callerId = null;
                 ApplyCallerData(null);
@@ -180,12 +179,7 @@ namespace KBTV.UI
             }
 
             var success = _repository.StartScreening(caller);
-            if (success.IsSuccess)
-            {
-                _cachedCaller = caller;
-                GD.Print($"CallerQueueItem: Started screening {caller.Name}");
-            }
-            else
+            if (!success.IsSuccess)
             {
                 GD.PrintErr($"CallerQueueItem: Failed to start screening - {success.ErrorMessage}");
             }
@@ -262,7 +256,6 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            GD.Print("CallerQueueItem: Cleanup complete");
         }
     }
 }

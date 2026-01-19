@@ -18,7 +18,6 @@ namespace KBTV.Core
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<EventBus>(this);
-            GD.Print("EventBus: Initialized");
         }
 
         /// <summary>
@@ -34,16 +33,13 @@ namespace KBTV.Core
             }
 
             var eventType = gameEvent.GetType();
-            GD.Print($"EventBus.Publish: Publishing {eventType.Name} from {gameEvent.Source}");
 
             if (_subscribers.TryGetValue(eventType, out var subscribers))
             {
-                GD.Print($"EventBus.Publish: Found {subscribers.Count} subscribers for {eventType.Name}");
-                foreach (var subscriber in subscribers.ToArray()) // Copy to avoid modification during iteration
+                foreach (var subscriber in subscribers.ToArray())
                 {
                     try
                     {
-                        GD.Print($"EventBus.Publish: Invoking subscriber for {eventType.Name}");
                         subscriber.DynamicInvoke(gameEvent);
                     }
                     catch (Exception ex)
@@ -51,10 +47,6 @@ namespace KBTV.Core
                         GD.PrintErr($"EventBus.Publish: Error invoking subscriber for {eventType.Name}: {ex.Message}");
                     }
                 }
-            }
-            else
-            {
-                GD.Print($"EventBus.Publish: No subscribers found for {eventType.Name}");
             }
         }
 

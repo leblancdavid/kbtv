@@ -24,14 +24,12 @@ namespace KBTV.Dialogue
         {
             ServiceRegistry.Instance.RegisterSelf<ITranscriptRepository>(this);
             ServiceRegistry.Instance.RegisterSelf<TranscriptRepository>(this);
-            GD.Print("TranscriptRepository: Initialized");
         }
 
         public void StartNewShow()
         {
             _entries.Clear();
             _showActive = true;
-            GD.Print("TranscriptRepository: New show started");
         }
 
         public void AddEntry(TranscriptEntry entry)
@@ -44,13 +42,10 @@ namespace KBTV.Dialogue
 
             if (!_showActive)
             {
-                GD.Print("TranscriptRepository: No show active, entry not added");
                 return;
             }
 
             _entries.Add(entry);
-            var displayText = entry.Text.Length > 50 ? entry.Text.Substring(0, 50) + "..." : entry.Text;
-            GD.Print($"TranscriptRepository: Added entry {entry.SpeakerName}: {displayText} (total: {_entries.Count})");
         }
 
         public IReadOnlyList<TranscriptEntry> GetCurrentShowTranscript()
@@ -62,7 +57,6 @@ namespace KBTV.Dialogue
         {
             _entries.Clear();
             _showActive = false;
-            GD.Print("TranscriptRepository: Show cleared");
         }
 
         public TranscriptEntry? GetLatestEntry()

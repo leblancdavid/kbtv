@@ -19,14 +19,12 @@ namespace KBTV.UI
         public void RegisterPreShowLayer(CanvasLayer layer)
         {
             _preShowLayer = layer;
-            GD.Print($"UIManager: PreShow layer registered: {layer != null}");
             TryUpdateVisibility();
         }
 
         public void RegisterLiveShowLayer(CanvasLayer layer)
         {
             _liveShowLayer = layer;
-            GD.Print($"UIManager: LiveShow layer registered: {layer != null}");
             TryUpdateVisibility();
         }
 
@@ -44,7 +42,6 @@ namespace KBTV.UI
                 _gameState.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
                 _gameStateConnected = true;
                 TryUpdateVisibility();
-                GD.Print("UIManager: Initialization complete");
             }
             else
             {
@@ -56,7 +53,6 @@ namespace KBTV.UI
         {
             if (_preShowLayer == null)
             {
-                GD.Print("UIManager: PreShow layer not yet registered, visibility update deferred");
                 return;
             }
 
@@ -69,7 +65,6 @@ namespace KBTV.UI
         private void OnPhaseChanged(int oldPhaseInt, int newPhaseInt)
         {
             var newPhase = (GamePhase)newPhaseInt;
-            GD.Print($"UIManager: Phase changed to {newPhase}");
 
             if (newPhase == GamePhase.PreShow && _preShowLayer == null)
             {
@@ -86,7 +81,6 @@ namespace KBTV.UI
 
             if (_isTransitioning)
             {
-                GD.Print("UIManager: Already transitioning, skipping");
                 return;
             }
 
@@ -116,28 +110,22 @@ namespace KBTV.UI
 
         private void PerformVisibilityUpdateInstant(GamePhase newPhase)
         {
-            GD.Print($"UIManager: Before update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
-
             switch (newPhase)
             {
                 case GamePhase.PreShow:
                     _preShowLayer.Show();
                     _liveShowLayer.Hide();
-                    GD.Print("UIManager: PreShow UI visible, LiveShow UI hidden");
                     break;
 
                 case GamePhase.LiveShow:
                     _preShowLayer.Hide();
                     _liveShowLayer.Show();
-                    GD.Print("UIManager: PreShow UI hidden, LiveShow UI visible");
                     break;
 
                 default:
                     GD.PrintErr($"UIManager: Unknown game phase {newPhase}");
                     break;
             }
-
-            GD.Print($"UIManager: After update - PreShow visible: {_preShowLayer.Visible}, LiveShow visible: {_liveShowLayer.Visible}");
         }
 
         private void PerformVisibilityUpdate(GamePhase newPhase)

@@ -21,35 +21,23 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
-            GD.Print("AudioDialoguePlayer._Ready: Initializing");
             _audioPlayer = new AudioStreamPlayer();
             AddChild(_audioPlayer);
             _audioPlayer.Finished += OnAudioFinished;
-            GD.Print("AudioDialoguePlayer._Ready: Event subscription set up");
         }
 
         public async Task PlayLineAsync(BroadcastLine line)
         {
-            GD.Print($"AudioDialoguePlayer.PlayLineAsync: Called with line {line.Speaker}: {line.Text}");
-
             if (_audioPlayer == null)
             {
                 GD.PrintErr("AudioDialoguePlayer.PlayLineAsync: AudioStreamPlayer not initialized");
                 return;
             }
 
-            // Stop any current playback
             Stop();
-
             _currentLineId = line.SpeakerId;
 
-            GD.Print($"AudioDialoguePlayer.PlayLineAsync: Simulating 4s playback for {line.Speaker}: {line.Text}");
-
-            // Simulate 4-second audio playback delay
             await Task.Delay(4000);
-
-            // Fire completion event
-            GD.Print($"AudioDialoguePlayer.PlayLineAsync: Playback completed, firing completion event for {_currentLineId}");
             OnAudioFinished();
         }
 
@@ -58,26 +46,17 @@ namespace KBTV.Dialogue
             if (_audioPlayer?.Playing ?? false)
             {
                 _audioPlayer.Stop();
-                GD.Print("AudioDialoguePlayer: Playback stopped");
             }
             _currentLineId = null;
         }
 
         private void OnAudioFinished()
         {
-            GD.Print($"AudioDialoguePlayer.OnAudioFinished: Called with _currentLineId={_currentLineId}");
-
             if (_currentLineId != null)
             {
-                var completedEvent = new AudioCompletedEvent(_currentLineId, Speaker.Caller); // TODO: Determine speaker from line
-                GD.Print($"AudioDialoguePlayer.OnAudioFinished: Firing AudioCompletedEvent for {_currentLineId}");
+                var completedEvent = new AudioCompletedEvent(_currentLineId, Speaker.Caller);
                 LineCompleted?.Invoke(completedEvent);
-                GD.Print($"AudioDialoguePlayer.OnAudioFinished: Event fired, resetting _currentLineId");
                 _currentLineId = null;
-            }
-            else
-            {
-                GD.Print("AudioDialoguePlayer.OnAudioFinished: No current line ID");
             }
         }
 

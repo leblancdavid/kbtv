@@ -761,3 +761,73 @@ The transcript logic in `LiveShowFooter.cs` was showing "[MUSIC PLAYING]" during
 
 ### Build Status
 **Build: SUCCESS** (0 errors, 3 warnings - pre-existing nullable annotations)
+
+---
+
+## Current Session
+- **Task**: Implement Vern's intro dialog on show start
+- **Status**: Completed
+- **Started**: Sun Jan 18 2026
+- **Last Updated**: Sun Jan 18 2026
+
+### Problem
+When the show started, Vern's intro dialog wasn't playing. The `BroadcastCoordinator` set state to `ShowOpening` and started the transcript, but `ConversationDisplay` had no trigger to start polling for the opening line.
+
+### Solution
+Added event-driven show start flow:
+
+**Files Modified:**
+1. `scripts/dialogue/ConversationEvents.cs` - Added `ShowStartedEvent` class
+2. `scripts/dialogue/BroadcastCoordinator.cs` - Publishes `ShowStartedEvent` in `OnLiveShowStarted()`
+3. `scripts/dialogue/ConversationDisplay.cs` - Subscribes to and handles `ShowStartedEvent`
+
+### Flow After Changes
+1. Show starts → `GameStateManager` calls `BroadcastCoordinator.OnLiveShowStarted()`
+2. `OnLiveShowStarted()` sets state to `ShowOpening`, starts transcript, publishes `ShowStartedEvent`
+3. `ConversationDisplay` receives event → calls `TryGetNextLine()`
+4. Gets show opening line from `VernDialogue.json` → plays audio → displays text → adds to transcript
+5. After 5 seconds → `OnLineCompleted()` → advances to next state (conversation or dead air)
+
+### Build Status
+**Build: SUCCESS** (0 errors, 21 warnings - pre-existing nullable annotations)
+
+---
+
+## Current Session
+- **Task**: Remove verbose debug print statements from codebase
+- **Status**: Completed
+- **Started**: Sun Jan 18 2026
+- **Last Updated**: Sun Jan 18 2026
+
+### Changes Made
+Removed ~70+ verbose debug print statements from the following files:
+
+**High Priority Cleanup:**
+1. `scripts/core/EventBus.cs` - Removed all 6 verbose event publishing logs
+2. `scripts/dialogue/BroadcastCoordinator.cs` - Removed 20+ conversation flow debug prints
+3. `scripts/dialogue/ConversationDisplay.cs` - Removed 15+ event handling debug prints
+
+**Medium Priority Cleanup:**
+4. `scripts/dialogue/AudioDialoguePlayer.cs` - Removed 10+ audio playback debug prints
+5. `scripts/ui/InputHandler.cs` - Removed 12+ verbose input handling prints
+
+**Low Priority Cleanup:**
+6. `scripts/dialogue/TranscriptRepository.cs` - Removed 5 verbose transcript logs
+7. `scripts/ui/LiveShowFooter.cs` - Removed 4 UI update debug prints
+
+### Preserved Logging
+- **Error logging** - All GD.PrintErr statements preserved for error reporting
+- **DebugHelper.cs** - All intentional debug feature prints preserved (F3 key)
+- **Service initialization** - Essential initialization errors preserved
+
+### Files Modified
+- scripts/core/EventBus.cs
+- scripts/dialogue/BroadcastCoordinator.cs
+- scripts/dialogue/ConversationDisplay.cs
+- scripts/dialogue/AudioDialoguePlayer.cs
+- scripts/ui/InputHandler.cs
+- scripts/dialogue/TranscriptRepository.cs
+- scripts/ui/LiveShowFooter.cs
+
+### Build Status
+**Build: SUCCESS** (0 errors, 20 warnings - all pre-existing)

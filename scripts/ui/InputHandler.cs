@@ -41,8 +41,6 @@ namespace KBTV.UI
                 GD.PrintErr("InputHandler: ICallerRepository not available");
                 return;
             }
-
-            GD.Print("InputHandler: Initialized input handling");
         }
 
         public override void _Input(InputEvent @event)
@@ -66,13 +64,12 @@ namespace KBTV.UI
 
             switch (keycode)
             {
-                case Key.Y: // Accept caller (Y key)
+                case Key.Y:
                     if (_repository.IsScreening)
                     {
                         var result = _repository.ApproveScreening();
                         if (result.IsSuccess)
                         {
-                            GD.Print("InputHandler: Approved caller");
                             ShowFeedback("Caller approved!");
                         }
                         else
@@ -82,13 +79,12 @@ namespace KBTV.UI
                     }
                     break;
 
-                case Key.N: // Reject caller (N key)
+                case Key.N:
                     if (_repository.IsScreening)
                     {
                         var result = _repository.RejectScreening();
                         if (result.IsSuccess)
                         {
-                            GD.Print("InputHandler: Rejected caller");
                             ShowFeedback("Caller rejected!");
                         }
                         else
@@ -98,24 +94,19 @@ namespace KBTV.UI
                     }
                     break;
 
-                case Key.E: // End current call (E key)
+                case Key.E:
                     if (_repository.IsOnAir)
                     {
                         var result = _repository.EndOnAir();
                         if (result.IsSuccess)
                         {
-                            var completed = result.Value;
-                            GD.Print("InputHandler: Ended call");
                             ShowFeedback("Call ended!");
-
-                            // Auto-put next caller on air if available
                             if (_repository.HasOnHoldCallers)
                             {
                                 var nextResult = _repository.PutOnAir();
                                 if (nextResult.IsSuccess)
                                 {
                                     var nextCaller = nextResult.Value;
-                                    GD.Print("InputHandler: Put next caller on air");
                                     ShowFeedback($"{nextCaller.Name} is now on air!");
                                 }
                             }
@@ -127,14 +118,13 @@ namespace KBTV.UI
                     }
                     break;
 
-                case Key.S: // Start screening next caller (S key)
+                case Key.S:
                     if (!_repository.IsScreening && _repository.HasIncomingCallers)
                     {
                         var result = _repository.StartScreeningNext();
                         if (result.IsSuccess)
                         {
                             var caller = result.Value;
-                            GD.Print($"InputHandler: Started screening {caller.Name}");
                             ShowFeedback($"Now screening: {caller.Name}");
                         }
                         else
@@ -144,15 +134,13 @@ namespace KBTV.UI
                     }
                     break;
 
-                case Key.Space: // Put next caller on air (Space key)
-                    GD.Print($"InputHandler: Space key pressed - IsOnAir: {_repository.IsOnAir}, HasOnHold: {_repository.HasOnHoldCallers}");
+                case Key.Space:
                     if (!_repository.IsOnAir && _repository.HasOnHoldCallers)
                     {
                         var result = _repository.PutOnAir();
                         if (result.IsSuccess)
                         {
                             var caller = result.Value;
-                            GD.Print($"InputHandler: Put {caller.Name} on air");
                             ShowFeedback($"{caller.Name} is now on air!");
                         }
                         else
@@ -160,23 +148,15 @@ namespace KBTV.UI
                             GD.PrintErr($"InputHandler: Failed to put caller on air - {result.ErrorCode}: {result.ErrorMessage}");
                         }
                     }
-                    else
-                    {
-                        GD.Print("InputHandler: Cannot put caller on air - conditions not met");
-                    }
                     break;
 
-                case Key.P: // Test: Put next caller on air (P key)
-                    GD.Print("InputHandler: P key pressed - Manual trigger for putting caller on air");
+                case Key.P:
                     goto case Key.Space;
             }
         }
 
         private void ShowFeedback(string message)
         {
-            // TODO: Implement visual feedback system
-            // For now, just log to console
-            GD.Print($"FEEDBACK: {message}");
         }
 
         // Optional: Add controller/gamepad support
