@@ -15,6 +15,7 @@ namespace KBTV.UI
 
         private ICallerRepository _repository = null!;
         private BroadcastCoordinator _coordinator = null!;
+        private ITranscriptRepository _transcriptRepository = null!;
 
         private bool _adBreakActive = false;
         private float _adBreakTime = 0f;
@@ -43,15 +44,38 @@ namespace KBTV.UI
 
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
             _coordinator = Core.ServiceRegistry.Instance.BroadcastCoordinator;
+            _transcriptRepository = Core.ServiceRegistry.Instance.TranscriptRepository;
 
             _startAdBreakButton.Connect("pressed", Callable.From(OnStartAdBreakPressed));
             _endAdBreakButton.Connect("pressed", Callable.From(OnEndAdBreakPressed));
+
+            if (_transcriptRepository != null)
+            {
+                _transcriptRepository.EntryAdded += OnTranscriptEntryAdded;
+            }
 
             TrackStateForRefresh();
             UpdateOnAirCaller();
             UpdateAdBreakControls();
 
             _transcriptText.Text = "TRANSCRIPT";
+        }
+
+        private void OnTranscriptEntryAdded(TranscriptEntry entry)
+        {
+            if (_adBreakActive)
+            {
+                return;
+            }
+
+            if (_transcriptText == null)
+            {
+                return;
+            }
+
+            var displayText = entry.GetDisplayText();
+            GD.Print($"[LiveShowFooter] Transcript updated: '{displayText}'");
+            _transcriptText.Text = displayText;
         }
 
         private void TrackStateForRefresh()
@@ -68,8 +92,6 @@ namespace KBTV.UI
                 _previousOnAirCallerId = currentOnAirCallerId;
             }
 
-            UpdateTranscript();
-
             if (_adBreakActive)
             {
                 _adBreakTime += (float)delta;
@@ -83,37 +105,6 @@ namespace KBTV.UI
             {
                 var caller = _repository.OnAirCaller;
                 _callerNameLabel.Text = caller != null ? caller.Name : "No caller";
-            }
-        }
-
-        private void UpdateTranscript()
-        {
-            if (_transcriptText == null)
-            {
-                return;
-            }
-
-            if (_adBreakActive)
-            {
-                _transcriptText.Text = "AD BREAK";
-                return;
-            }
-
-            var transcriptRepository = Core.ServiceRegistry.Instance.TranscriptRepository;
-            if (transcriptRepository == null)
-            {
-                _transcriptText.Text = "TRANSCRIPT";
-                return;
-            }
-
-            var latestEntry = transcriptRepository.GetLatestEntry();
-            if (latestEntry != null)
-            {
-                _transcriptText.Text = latestEntry.GetDisplayText();
-            }
-            else
-            {
-                _transcriptText.Text = "TRANSCRIPT";
             }
         }
 
@@ -156,6 +147,11 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
+            if (_transcriptRepository != null)
+            {
+                _transcriptRepository.EntryAdded -= OnTranscriptEntryAdded;
+            }
+
             if (_startAdBreakButton != null)
             {
                 _startAdBreakButton.Disconnect("pressed", Callable.From(OnStartAdBreakPressed));

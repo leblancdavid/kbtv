@@ -67,6 +67,7 @@ namespace KBTV.Core
             NotifyRegistered();
 
             var audioPlayer = new AudioDialoguePlayer();
+            AddChild(audioPlayer);
             Register<IDialoguePlayer>(audioPlayer);
             NotifyRegistered();
         }

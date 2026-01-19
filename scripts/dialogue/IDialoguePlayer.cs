@@ -12,13 +12,11 @@ namespace KBTV.Dialogue
     public interface IDialoguePlayer
     {
         /// <summary>
-        /// Play a dialogue line asynchronously.
-        /// Returns a Task that completes when audio playback starts.
-        /// The player will fire events when playback completes.
+        /// Play a dialogue line. Returns immediately; playback completion is handled via events.
+        /// The player will fire LineCompleted event when playback finishes.
         /// </summary>
         /// <param name="line">The dialogue line to play</param>
-        /// <returns>Task that completes when playback begins</returns>
-        Task PlayLineAsync(BroadcastLine line);
+        void PlayLineAsync(BroadcastLine line);
 
         /// <summary>
         /// Stop current playback if any.

@@ -213,23 +213,28 @@ namespace KBTV.Dialogue
         {
             if (!_broadcastActive && _state != BroadcastState.ShowClosing)
             {
+                GD.Print($"[BroadcastCoordinator] GetNextDisplayLine: broadcast not active, state={_state}, returning null");
                 return null;
             }
 
             if (_lineInProgress)
             {
+                GD.Print($"[BroadcastCoordinator] GetNextDisplayLine: line in progress, returning current line type={_currentLine.Type}");
                 return _currentLine;
             }
 
             if (_pendingControlAction != ControlAction.None)
             {
+                GD.Print($"[BroadcastCoordinator] GetNextDisplayLine: pending control action={_pendingControlAction}, returning null");
                 return null;
             }
 
             _currentLine = CalculateNextLine();
+            GD.Print($"[BroadcastCoordinator] GetNextDisplayLine: state={_state}, calculated line type={_currentLine.Type}, text='{_currentLine.Text}'");
 
             if (_currentLine.Type == BroadcastLineType.None)
             {
+                GD.Print($"[BroadcastCoordinator] GetNextDisplayLine: line type is None, returning null");
                 return null;
             }
 
@@ -267,34 +272,48 @@ namespace KBTV.Dialogue
         {
             _lineInProgress = false;
 
+            GD.Print($"[BroadcastCoordinator] OnLineCompleted called: state={_state}, _conversationContext={_conversationContext != null}");
+
             if (_stateMachine != null)
             {
                 _stateMachine.ProcessEvent(ConversationEvent.LineCompleted());
             }
 
             // Check if conversation has reached its end after this line completed
+            bool conversationJustEnded = false;
+
             if (_state == BroadcastState.Conversation &&
                 _conversationContext != null &&
                 _currentFlow != null &&
                 _conversationContext.CurrentStepIndex >= _currentFlow.Steps.Count)
             {
                 EndConversation();
+                conversationJustEnded = true;
+                GD.Print($"[BroadcastCoordinator] OnLineCompleted: conversation ended, state is now {_state}");
             }
-
-            var advancedEvent = new ConversationAdvancedEvent(null);
-            ServiceRegistry.Instance.EventBus.Publish(advancedEvent);
 
             if (_state == BroadcastState.DeadAirFiller)
             {
                 _fillerCycleCount++;
             }
 
-            if (_state == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
+            GD.Print($"[BroadcastCoordinator] OnLineCompleted: state={_state}, conversationJustEnded={conversationJustEnded}");
+            if (!conversationJustEnded)
             {
-                TryPutNextCallerOnAir();
+                AdvanceState();
+                GD.Print($"[BroadcastCoordinator] OnLineCompleted: after AdvanceState, state={_state}");
+                if (_state == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
+                {
+                    GD.Print($"[BroadcastCoordinator] OnLineCompleted: putting next caller on air, { _repository.OnHoldCallers.Count} waiting");
+                    TryPutNextCallerOnAir();
+                    GD.Print($"[BroadcastCoordinator] OnLineCompleted: after TryPutNextCallerOnAir, OnAirCaller={_repository.OnAirCaller?.Name ?? "null"}");
+                }
             }
 
-            AdvanceState();
+            var advancedEvent = new ConversationAdvancedEvent(null);
+            GD.Print($"[BroadcastCoordinator] OnLineCompleted: publishing ConversationAdvancedEvent, state={_state}");
+            ServiceRegistry.Instance.EventBus.Publish(advancedEvent);
+            GD.Print($"[BroadcastCoordinator] OnLineCompleted: event published");
         }
 
         private void EndConversation()
@@ -368,9 +387,7 @@ namespace KBTV.Dialogue
         private BroadcastLine GetShowOpeningLine()
         {
             var line = _vernDialogue.GetShowOpening();
-            var result = line != null ? BroadcastLine.ShowOpening(line.Text) : BroadcastLine.None();
-            AdvanceFromShowOpening();
-            return result;
+            return line != null ? BroadcastLine.ShowOpening(line.Text) : BroadcastLine.None();
         }
 
         private void AdvanceFromShowOpening()
@@ -463,14 +480,11 @@ namespace KBTV.Dialogue
             if (line != null)
             {
                 GD.Print($"[BroadcastCoordinator] Selected between-callers line: '{line.Text}' (ID: {line.Id})");
-                var result = BroadcastLine.BetweenCallers(line.Text);
-                AdvanceFromBetweenCallers();
-                return result;
+                return BroadcastLine.BetweenCallers(line.Text);
             }
             else
             {
                 GD.Print($"[BroadcastCoordinator] No between-callers line found for mood {currentMood}, returning None");
-                AdvanceFromBetweenCallers();
                 return BroadcastLine.None();
             }
         }

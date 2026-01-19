@@ -20,6 +20,8 @@ namespace KBTV.Dialogue
 
         public int EntryCount => _entries.Count;
 
+        public event System.Action<TranscriptEntry>? EntryAdded;
+
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<ITranscriptRepository>(this);
@@ -42,10 +44,13 @@ namespace KBTV.Dialogue
 
             if (!_showActive)
             {
+                GD.Print($"[TranscriptRepository] AddEntry: show not active, skipping entry: {entry.GetDisplayText()}");
                 return;
             }
 
+            GD.Print($"[TranscriptRepository] AddEntry: Speaker={entry.Speaker}, Text='{entry.Text}', Phase={entry.Phase}");
             _entries.Add(entry);
+            EntryAdded?.Invoke(entry);
         }
 
         public IReadOnlyList<TranscriptEntry> GetCurrentShowTranscript()

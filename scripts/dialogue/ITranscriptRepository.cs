@@ -48,5 +48,11 @@ namespace KBTV.Dialogue
         /// <param name="arcId">The arc ID to filter by.</param>
         /// <returns>List of entries for the arc.</returns>
         IReadOnlyList<TranscriptEntry> GetEntriesForArc(string arcId);
+
+        /// <summary>
+        /// Event fired when a new transcript entry is added.
+        /// UI components can subscribe to update displays without polling.
+        /// </summary>
+        event System.Action<TranscriptEntry> EntryAdded;
     }
 }

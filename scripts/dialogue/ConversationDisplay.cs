@@ -128,6 +128,7 @@ namespace KBTV.Dialogue
 
         private void TryGetNextLine()
         {
+            GD.Print("[ConversationDisplay] TryGetNextLine: calling GetNextDisplayLine");
             var line = _coordinator.GetNextDisplayLine();
 
             if (line == null)
@@ -141,7 +142,7 @@ namespace KBTV.Dialogue
             StartLine(line.Value);
         }
 
-        private async void StartLine(BroadcastLine line)
+        private void StartLine(BroadcastLine line)
         {
             _currentLine = line;
             _displayInfo = CreateDisplayInfo(line);
@@ -150,7 +151,7 @@ namespace KBTV.Dialogue
 
             if (_audioPlayer != null)
             {
-                await _audioPlayer.PlayLineAsync(line);
+                _audioPlayer.PlayLineAsync(line);
             }
             else
             {
@@ -161,9 +162,19 @@ namespace KBTV.Dialogue
 
         private void OnAudioLineCompleted(AudioCompletedEvent audioEvent)
         {
+            GD.Print($"[ConversationDisplay] OnAudioLineCompleted called: LineId={audioEvent.LineId}, _coordinator={_coordinator != null}");
             _displayInfo.Progress = 1f;
             _displayInfo.ElapsedLineTime = 0;
-            _coordinator.OnLineCompleted();
+            if (_coordinator != null)
+            {
+                GD.Print($"[ConversationDisplay] Calling _coordinator.OnLineCompleted()");
+                _coordinator.OnLineCompleted();
+                GD.Print($"[ConversationDisplay] OnLineCompleted() returned, state should now be advancing");
+            }
+            else
+            {
+                GD.PrintErr("[ConversationDisplay] _coordinator is null, cannot call OnLineCompleted");
+            }
         }
 
 

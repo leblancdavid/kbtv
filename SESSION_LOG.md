@@ -1,19 +1,24 @@
 ## Previous Session
-- **Task**: Implement pull-based BroadcastCoordinator architecture
+- **Task**: Fix on-hold callers not transferring to on-air and transcripts not playing caller dialogs
 - **Status**: Completed
 - **Started**: Sun Jan 18 2026
 - **Last Updated**: Sun Jan 18 2026
 
-## Work Done
-- **Root Cause Identified**: The old event-driven ConversationManager had complex timing logic causing callers to go on air immediately instead of waiting for Vern to finish filler segments.
+### Root Cause
+The old event-driven ConversationManager had complex timing logic causing callers to go on air immediately instead of waiting for Vern to finish filler segments.
+
+### Solution
+Implemented pull-based BroadcastCoordinator architecture with clean separation between display lines and control actions.
 
 ### Changes Made
 
 **New Files Created:**
-- `scripts/dialogue/BroadcastLineType.cs` - Enum for line types (ShowOpening, VernDialogue, CallerDialogue, BetweenCallers, DeadAirFiller, ShowClosing, PutCallerOnAir, None)
+- `scripts/dialogue/BroadcastLineType.cs` - Enum for line types (ShowOpening, VernDialogue, CallerDialogue, BetweenCallers, DeadAirFiller, ShowClosing, None)
 - `scripts/dialogue/BroadcastLine.cs` - Struct representing a broadcast line with speaker, text, phase, arc info
 - `scripts/dialogue/BroadcastCoordinator.cs` - Main pull-based coordinator service that manages broadcast flow
 - `scripts/dialogue/ConversationDisplay.cs` - Simple UI display that polls GetNextLine() and shows lines with typewriter effect
+- `scripts/dialogue/ControlAction.cs` - Enum for control signals (PutCallerOnAir, None)
+- `scripts/dialogue/ConversationEvents.cs` - Event classes for conversation lifecycle (ConversationStartedEvent, AudioCompletedEvent, ConversationAdvancedEvent)
 
 **Files Modified:**
 - `scripts/callers/Caller.cs` - Added `Arc` property and `SetArc()` method to store conversation arc on caller
@@ -31,9 +36,8 @@
 **Files Deleted:**
 - `scripts/dialogue/ConversationManager.cs` - Replaced by new architecture
 - `scripts/dialogue/IConversationManager.cs` - Replaced by direct BroadcastCoordinator usage
-- `scripts/dialogue/ConversationDisplayInfo.cs` - Still used by ConversationDisplay
 
-### Architecture Changes
+### Architectural Changes
 
 **Before (Push-Based):**
 - Events fire (call ended, caller approved, etc.)
@@ -86,6 +90,56 @@ switch (line.Type)
 - `scripts/dialogue/BroadcastCoordinator.cs` - Fixed first dialogue line not being added to transcript
 - Arc pre-loading now directly gets first line from arc instead of calling `GetConversationLine()` (which would return PutCallerOnAir again since no caller was on air yet)
 
+### Split API Implementation
+
+Separated display lines from control actions with a new split API:
+
+**New API Methods:**
+- `GetNextDisplayLine()` - Returns next displayable line (or null if no line)
+- `GetPendingControlAction()` - Returns any pending control action (PutCallerOnAir, None)
+- `OnControlActionCompleted()` - Clears the pending action
+- `OnCallerPutOnAir(Caller caller)` - Properly sets up arc when caller goes on air
+
+**Corrected Flow:**
+1. `GetPendingControlAction()` returns `PutCallerOnAir` when needed
+2. `ConversationDisplay` calls `PutOnAir()` → moves caller to on-air state
+3. `ConversationDisplay` calls `OnCallerPutOnAir(caller)` → properly sets arc with index 0
+4. `ConversationDisplay` calls `OnControlActionCompleted()` → clears pending action
+5. Next `GetNextDisplayLine()` call returns first arc line (index 0)
+6. Caller dialogue displays and appears in transcripts
+
+### Audio Dialog Player Fix
+
+**Problem:** Between-callers and show opening flows were hanging after first line.
+
+**Root Cause:** Manual timer-based approach was unreliable and AudioStreamGenerator doesn't fire Finished signal properly for timing.
+
+**Solution:**
+- `scripts/dialogue/AudioDialoguePlayer.cs`:
+  - Added `CreateSilentAudioStream()` method using `AudioStreamGenerator` for silent playback with proper duration
+  - Added `LoadAudioForLine()` method that loads real audio files from `assets/dialogue/audio/` (wav/mp3) or falls back to silent audio with duration calculated from text length (0.4s per word)
+  - Updated `PlayLineAsync()` to use audio loading system instead of manual timers
+  - Removed `_Process()` override and manual timer fields - now uses `AudioStreamPlayer`'s built-in `Finished` signal
+
+### Double State Advancement Fix
+
+**Problem:** Flow hung after between-callers dialog - `OnLineCompleted` called but nothing happened.
+
+**Root Cause:** `GetBetweenCallersLine()` and `GetShowOpeningLine()` were calling their `AdvanceFrom*()` methods immediately when calculating the line, not when the line completed. Since `OnLineCompleted()` also calls `AdvanceState()`, this caused a double state advancement.
+
+**Flow with the bug:**
+1. State = BetweenCallers
+2. `GetBetweenCallersLine()` called → returns line AND calls `AdvanceFromBetweenCallers()` → State changes to Conversation
+3. Line plays and completes
+4. `OnLineCompleted()` called → calls `AdvanceState()` → State changes again (but conversation hasn't started yet)
+5. System hangs in inconsistent state
+
+**Fix Applied:**
+- `scripts/dialogue/BroadcastCoordinator.cs`:
+  - Removed `AdvanceFromBetweenCallers()` call from `GetBetweenCallersLine()` (line 486)
+  - Removed `AdvanceFromShowOpening()` call from `GetShowOpeningLine()` (line 391)
+  - State transitions now only happen in `OnLineCompleted()` via `AdvanceState()`
+
 ### Files Modified
 - scripts/callers/Caller.cs
 - scripts/callers/CallerRepository.cs
@@ -93,11 +147,14 @@ switch (line.Type)
 - scripts/dialogue/BroadcastLineType.cs (new)
 - scripts/dialogue/BroadcastCoordinator.cs (new)
 - scripts/dialogue/ConversationDisplay.cs (new)
+- scripts/dialogue/ControlAction.cs (new)
+- scripts/dialogue/ConversationEvents.cs (new)
 - scripts/dialogue/TranscriptEntry.cs
 - scripts/dialogue/TranscriptRepository.cs
 - scripts/dialogue/ITranscriptRepository.cs
 - scripts/dialogue/ArcRepository.cs
 - scripts/dialogue/ArcJsonParser.cs
+- scripts/dialogue/AudioDialoguePlayer.cs
 - scripts/core/ServiceRegistry.cs
 - scripts/core/GameStateManager.cs
 - scripts/ui/LiveShowFooter.cs
@@ -106,12 +163,8 @@ switch (line.Type)
 - project.godot
 - tests/unit/dialogue/TranscriptRepositoryTests.cs
 
-## Next Steps
-- Test the broadcast flow in-game to verify conversations display correctly
-- Commit and push changes
-
-## Blockers
-- None
+### Build Status
+**Build: SUCCESS** (0 errors, 22 warnings - pre-existing nullable annotations)
 
 ---
 
@@ -133,8 +186,6 @@ switch (line.Type)
 - Updated AGENTS.md with new architecture documentation
 
 **Files Changed:** 35 files, +920/-856 lines
-
-**Build Status:** Success
 
 **Commit:** 17def5c - "refactor: Replace EventAggregator with Observer pattern"
 
