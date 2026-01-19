@@ -212,32 +212,29 @@ namespace KBTV.UI
 		{
 			var sb = new System.Text.StringBuilder();
 
-			sb.AppendLine($"Name: {caller.Name}");
-			sb.AppendLine($"Location: {caller.Location}");
-			sb.AppendLine($"Topic: {caller.ClaimedTopic}");
-			sb.AppendLine();
+			// Header row: Name | Phone | Location | Topic
+			sb.Append($"Name: {caller.Name}");
+			sb.Append($"  |  Phone: {caller.PhoneNumber}");
+			sb.Append($"  |  Location: {caller.Location}");
+			sb.AppendLine($"  |  Topic: {caller.ClaimedTopic}");
 
-			sb.AppendLine("AUDIO & EMOTIONAL:");
-			sb.AppendLine($"  Quality: {caller.PhoneQuality}");
-			sb.AppendLine($"  Emotional State: {caller.EmotionalState}");
-			sb.AppendLine($"  Curse Risk: {caller.CurseRisk}");
-			sb.AppendLine();
+			// Divider line
+			sb.AppendLine(new string('─', 60));
 
-			sb.AppendLine("ASSESSMENT:");
-			sb.AppendLine($"  Belief Level: {caller.BeliefLevel}");
-			sb.AppendLine($"  Evidence: {caller.EvidenceLevel}");
-			sb.AppendLine($"  Coherence: {caller.Coherence}");
-			sb.AppendLine($"  Urgency: {caller.Urgency}");
-			sb.AppendLine();
-
-			sb.AppendLine("OVERALL:");
-			sb.AppendLine($"  Legitimacy: {caller.Legitimacy}");
-			sb.AppendLine($"  Personality: {caller.Personality}");
+			// All properties as simple "Property: Value" lines
+			sb.AppendLine($"Quality: {caller.PhoneQuality}");
+			sb.AppendLine($"Emotional State: {caller.EmotionalState}");
+			sb.AppendLine($"Curse Risk: {caller.CurseRisk}");
+			sb.AppendLine($"Belief Level: {caller.BeliefLevel}");
+			sb.AppendLine($"Evidence: {caller.EvidenceLevel}");
+			sb.AppendLine($"Coherence: {caller.Coherence}");
+			sb.AppendLine($"Urgency: {caller.Urgency}");
+			sb.AppendLine($"Legitimacy: {caller.Legitimacy}");
+			sb.AppendLine($"Personality: {caller.Personality}");
 
 			if (!string.IsNullOrEmpty(caller.ScreeningSummary))
 			{
 				sb.AppendLine();
-				sb.AppendLine("SUMMARY:");
 				sb.AppendLine(caller.ScreeningSummary);
 			}
 
