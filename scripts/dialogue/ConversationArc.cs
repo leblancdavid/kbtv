@@ -127,10 +127,6 @@ namespace KBTV.Dialogue
                 }
 
                 // Caller lines - return as-is
-                if (line.Speaker == Speaker.Vern)
-                {
-                    GD.Print($"[ConversationArc] Vern line {line.ArcLineIndex} has no TextVariants or empty TextVariants");
-                }
                 return line;
             }).ToList();
         }

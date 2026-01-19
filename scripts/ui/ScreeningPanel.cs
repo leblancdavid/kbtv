@@ -37,6 +37,7 @@ namespace KBTV.UI
 
 		private bool _nodesInitialized;
 		private Caller? _previousCaller;
+		private float _previousProgressPercent = -1f;
 
 		public override void _Ready()
 		{
@@ -58,6 +59,15 @@ namespace KBTV.UI
 		private void InitializeController()
 		{
 			_controller = Core.ServiceRegistry.Instance.ScreeningController;
+			_controller.PhaseChanged += OnPhaseChanged;
+		}
+
+		private void OnPhaseChanged(ScreeningPhase newPhase)
+		{
+			if (newPhase == ScreeningPhase.Completed)
+			{
+				UpdateButtons();
+			}
 		}
 
 		private void ConnectSignals()
@@ -101,13 +111,28 @@ namespace KBTV.UI
 		public override void _Process(double delta)
 		{
 			var currentCaller = _controller.CurrentCaller;
-			if (currentCaller != _previousCaller)
+			var isScreening = ServiceRegistry.Instance?.CallerRepository.IsScreening == true;
+			
+			if (currentCaller != _previousCaller || !isScreening)
 			{
+				if (!isScreening && _previousCaller != null && _previousCaller.State == CallerState.Disconnected)
+				{
+					SetDisconnected(_previousCaller.Name);
+				}
+				else
+				{
+					SetCaller(currentCaller);
+				}
+				
 				_previousCaller = currentCaller;
-				SetCaller(currentCaller);
-				UpdateButtons();
 			}
-			UpdatePatienceDisplay(_controller.Progress);
+			
+			var currentProgress = _controller.Progress;
+			if (currentProgress.ProgressPercent != _previousProgressPercent)
+			{
+				UpdatePatienceDisplay(currentProgress);
+				_previousProgressPercent = currentProgress.ProgressPercent;
+			}
 		}
 
 		public void SetCaller(Caller? caller)
@@ -141,6 +166,13 @@ namespace KBTV.UI
 				_headerRow.Text = "Name: --  |  Phone: --  |  Location: --  |  Topic: --";
 				ClearPropertyGrid();
 			}
+		}
+
+		public void SetDisconnected(string callerName)
+		{
+			_headerRow.Text = $"CALLER DISCONNECTED: {callerName}";
+			ClearPropertyGrid();
+			UpdateButtons();
 		}
 
 		private void ClearPropertyGrid()
@@ -256,37 +288,13 @@ namespace KBTV.UI
 
 		private void UpdateButtons()
 		{
-			bool hasCaller = _controller.CurrentCaller != null;
+			var repository = ServiceRegistry.Instance?.CallerRepository;
+			var hasCaller = _controller.CurrentCaller != null && repository?.IsScreening == true;
 			_approveButton!.Disabled = !hasCaller;
 			_rejectButton!.Disabled = !hasCaller;
 
-			// Approve button style
-			var approveStyle = new StyleBoxFlat();
-			approveStyle.BgColor = hasCaller ? UIColors.Button.Approve : UIColors.BG_DISABLED;
-			approveStyle.CornerRadiusTopLeft = 8;
-			approveStyle.CornerRadiusTopRight = 8;
-			approveStyle.CornerRadiusBottomLeft = 8;
-			approveStyle.CornerRadiusBottomRight = 8;
-			approveStyle.ContentMarginLeft = 20;
-			approveStyle.ContentMarginRight = 20;
-			approveStyle.ContentMarginTop = 12;
-			approveStyle.ContentMarginBottom = 12;
-			_approveButton.AddThemeStyleboxOverride("normal", approveStyle);
-			_approveButton.AddThemeColorOverride("font_color", UIColors.Button.ApproveText);
-
-			// Reject button style
-			var rejectStyle = new StyleBoxFlat();
-			rejectStyle.BgColor = hasCaller ? UIColors.Button.Reject : UIColors.BG_DISABLED;
-			rejectStyle.CornerRadiusTopLeft = 8;
-			rejectStyle.CornerRadiusTopRight = 8;
-			rejectStyle.CornerRadiusBottomLeft = 8;
-			rejectStyle.CornerRadiusBottomRight = 8;
-			rejectStyle.ContentMarginLeft = 20;
-			rejectStyle.ContentMarginRight = 20;
-			rejectStyle.ContentMarginTop = 12;
-			rejectStyle.ContentMarginBottom = 12;
-			_rejectButton.AddThemeStyleboxOverride("normal", rejectStyle);
-			_rejectButton.AddThemeColorOverride("font_color", UIColors.Button.RejectText);
+			ButtonStyler.StyleApprove(_approveButton!, hasCaller);
+			ButtonStyler.StyleReject(_rejectButton!, hasCaller);
 		}
 
 		private void UpdatePatienceDisplay(ScreeningProgress progress)
@@ -318,6 +326,10 @@ namespace KBTV.UI
 
 		public override void _ExitTree()
 		{
+			if (_controller != null)
+			{
+				_controller.PhaseChanged -= OnPhaseChanged;
+			}
 			GD.Print("ScreeningPanel: Cleanup complete");
 		}
 

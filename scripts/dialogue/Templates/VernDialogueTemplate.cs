@@ -63,37 +63,21 @@ namespace KBTV.Dialogue
         /// </summary>
         public DialogueTemplate GetBetweenCallers(VernMoodType mood)
         {
-            GD.Print($"[VernDialogueTemplate] Total between-callers lines loaded: {_betweenCallersLines.Count}");
-            foreach (var line in _betweenCallersLines)
-            {
-                GD.Print($"[VernDialogueTemplate] Available line: ID={line.Id}, Mood={line.Mood}, Text='{line.Text}'");
-            }
-
             var moodString = mood.ToString().ToLower();
-            GD.Print($"[VernDialogueTemplate] Looking for between-callers lines for mood: {moodString}");
 
-            // Filter lines by mood, fallback to neutral if no matches
             var moodLines = System.Linq.Enumerable.Where(_betweenCallersLines, line => line.Mood == moodString);
-            GD.Print($"[VernDialogueTemplate] Found {moodLines.Count()} lines for mood {moodString}");
 
             if (!moodLines.Any())
             {
-                GD.Print($"[VernDialogueTemplate] No lines for mood {moodString}, trying neutral fallback");
                 moodLines = System.Linq.Enumerable.Where(_betweenCallersLines, line => line.Mood == "neutral");
-                GD.Print($"[VernDialogueTemplate] Found {moodLines.Count()} neutral lines");
             }
 
             if (!moodLines.Any())
             {
-                GD.Print($"[VernDialogueTemplate] No neutral lines, using all {_betweenCallersLines.Count} lines as final fallback");
-                // Final fallback to any line
                 moodLines = _betweenCallersLines;
             }
 
-            var selectedLine = DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(moodLines));
-            GD.Print($"[VernDialogueTemplate] Selected line: '{selectedLine?.Text}' (ID: {selectedLine?.Id})");
-
-            return selectedLine;
+            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(moodLines));
         }
 
         /// <summary>

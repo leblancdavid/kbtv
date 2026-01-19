@@ -1,44 +1,131 @@
 ## Current Session
-- **Task**: ScreeningPanel UI - 2-column property grid with header row and word wrap
+- **Task**: Fix ScreeningPanel - Show "Caller Disconnected" message when screening caller gets disconnected
 - **Status**: Completed
 - **Started**: Mon Jan 19 2026
 - **Last Updated**: Mon Jan 19 2026
 
-### Changes Made
+### Bug Description
+When a caller's patience ran out during screening and they disconnected:
+- Previously showed empty header "Name: -- | Phone: -- | Location: -- | Topic: --"
+- User had no clear indication of what happened
 
-**1. Scene Structure (`scenes/ui/ScreeningPanel.tscn`):**
-- Replaced single `CallerInfoLabel` with nested structure:
-  - `CallerInfoScroll` → `InfoVBox` → `HeaderRow` + `Divider` + `PropertiesGrid`
-- HeaderRow displays: `Name: X | Phone: X | Location: X | Topic: X`
-- Divider line separates header from properties
-- PropertiesGrid with 2 columns, h_separation=24, v_separation=4
-- Tighter VBoxContainer spacing (separation = 4)
-- Taller button row (custom_minimum_size.y = 60)
-- Larger button text (font_size = 16)
-- Rounded button corners (8px)
+### Fix Applied
 
-**2. Script Changes (`scripts/ui/ScreeningPanel.cs`):**
-- Removed unused `_headerLabel` export
-- Added `_headerRow` export for the caller info header
-- Added `_propertiesGrid` export for the 2-column property grid
-- Rewrote `BuildPropertyGrid()` to create Label nodes dynamically
-- Properties paired in 2 columns (Quality + Belief Level, Emotional State + Evidence, etc.)
-- Personality and ScreeningSummary as full-width rows at bottom
-- Updated `_SetCallerImmediate()` to set header text with caller info
+**1. Added `SetDisconnected()` method:**
+```csharp
+public void SetDisconnected(string callerName)
+{
+    _headerRow.Text = $"CALLER DISCONNECTED: {callerName}";
+    ClearPropertyGrid();
+    UpdateButtons();
+}
+```
 
-**3. Word Wrap Fixes:**
-- All property grid labels now have `AutowrapMode = TextServer.AutowrapMode.WordSmart`
-- Added vertical expand (`SizeFlagsVertical = ExpandFill`) to Personality and ScreeningSummary labels
-- Long fields like ScreeningSummary now wrap instead of overflowing
+**2. Updated `_Process()` to detect disconnect state:**
+```csharp
+public override void _Process(double delta)
+{
+    var currentCaller = _controller.CurrentCaller;
+    var isScreening = ServiceRegistry.Instance?.CallerRepository.IsScreening == true;
+    
+    if (currentCaller != _previousCaller || !isScreening)
+    {
+        if (!isScreening && _previousCaller != null && _previousCaller.State == CallerState.Disconnected)
+        {
+            SetDisconnected(_previousCaller.Name);
+        }
+        else
+        {
+            SetCaller(currentCaller);
+        }
+        
+        _previousCaller = currentCaller;
+    }
+    
+    var currentProgress = _controller.Progress;
+    if (currentProgress.ProgressPercent != _previousProgressPercent)
+    {
+        UpdatePatienceDisplay(currentProgress);
+        _previousProgressPercent = currentProgress.ProgressPercent;
+    }
+}
+```
 
-**4. Fixed script-scene mismatch:**
-- Updated `GetMissingNodeReferences()` to check for correct node paths
-- Updated `EnsureNodesInitialized()` to get nodes from correct paths
-- Changed `caller.Topic` to `caller.ClaimedTopic` (correct property)
+**3. Added progress tracking field:**
+```csharp
+private float _previousProgressPercent = -1f;
+```
+
+### Behavior After Fix
+| Event | Header | Property Grid | Buttons |
+|-------|--------|---------------|---------|
+| Caller screening | "Name: X \| Phone: X \| Location: X \| Topic: X" | Populated | Enabled |
+| Caller disconnects | "CALLER DISCONNECTED: [Name]" | Cleared | Disabled |
+| Next caller starts screening | Full info for new caller | Populated | Enabled |
 
 ### Files Modified
-- `scenes/ui/ScreeningPanel.tscn`
 - `scripts/ui/ScreeningPanel.cs`
+
+### Build Status
+**Build: SUCCESS** (0 errors, 26 warnings - pre-existing nullable annotations)
+
+---
+
+## Previous Session
+Comprehensive refactoring of KBTV codebase to remove dead code, abstract duplicated patterns, and improve test coverage.
+
+### Phase 1: Debug Print Cleanup
+
+**Removed ~40+ debug GD.Print statements from:**
+- `scripts/dialogue/BroadcastCoordinator.cs` - Removed 14 debug prints from state machine and line handling
+- `scripts/dialogue/AudioDialoguePlayer.cs` - Removed 12 debug prints from audio playback
+- `scripts/dialogue/ConversationDisplay.cs` - Removed 6 debug prints from conversation flow
+- `scripts/dialogue/Templates/VernDialogueTemplate.cs` - Removed 8 debug prints from dialogue lookup
+- `scripts/dialogue/ConversationArc.cs` - Removed 1 debug print
+- `scripts/dialogue/TranscriptRepository.cs` - Removed 2 debug prints
+- `scripts/ui/LiveShowFooter.cs` - Removed 1 debug print
+
+### Phase 2: Pattern Abstraction
+
+**Created new base class `scripts/ui/ServiceAwareComponent.cs`:**
+- Abstracts the common `RetryInitialization()` pattern used across 6+ files
+- Provides `InitializeWithServices()` virtual method for subclasses
+- Eliminates code duplication in BroadcastCoordinator, ConversationDisplay, PreShowUIManager, etc.
+
+**Refactored files to use new base class:**
+- `scripts/dialogue/BroadcastCoordinator.cs` - Simplified from 40 lines of initialization to 20
+- `scripts/dialogue/ConversationDisplay.cs` - Removed duplicate retry logic
+
+**Created `scripts/ui/ButtonStyler.cs` helper:**
+- Abstracts duplicated button styling code from ScreeningPanel
+- Provides `StyleApprove()` and `StyleReject()` static methods
+- Reduces ScreeningPanel.cs by ~25 lines
+
+### Phase 3: Test Coverage
+
+**New test files added:**
+- `tests/unit/ui/ServiceAwareComponentTests.cs` - Base class tests
+- `tests/unit/ui/ButtonStylerTests.cs` - Button styling tests
+- `tests/unit/dialogue/AudioDialoguePlayerTests.cs` - Audio player tests
+- `tests/unit/dialogue/ConversationManagerTests.cs` - Extended with VernDialogueTemplate tests
+
+### Files Created
+- `scripts/ui/ServiceAwareComponent.cs`
+- `scripts/ui/ButtonStyler.cs`
+- `tests/unit/ui/ServiceAwareComponentTests.cs`
+- `tests/unit/ui/ButtonStylerTests.cs`
+- `tests/unit/dialogue/AudioDialoguePlayerTests.cs`
+
+### Files Modified
+- `scripts/dialogue/BroadcastCoordinator.cs` - Removed debug prints, simplified initialization
+- `scripts/dialogue/AudioDialoguePlayer.cs` - Removed 12 debug prints
+- `scripts/dialogue/ConversationDisplay.cs` - Removed 6 debug prints, simplified initialization
+- `scripts/dialogue/Templates/VernDialogueTemplate.cs` - Removed 8 debug prints
+- `scripts/dialogue/ConversationArc.cs` - Removed 1 debug print
+- `scripts/dialogue/TranscriptRepository.cs` - Removed 2 debug prints
+- `scripts/ui/LiveShowFooter.cs` - Removed 1 debug print
+- `scripts/ui/ScreeningPanel.cs` - Uses ButtonStyler helper
+- `tests/unit/dialogue/ConversationManagerTests.cs` - Added VernDialogueTemplate tests
 
 ### Build Status
 **Build: SUCCESS** (0 errors, 26 warnings - pre-existing nullable annotations)

@@ -33,7 +33,6 @@ namespace KBTV.Dialogue
 
         public override void _ExitTree()
         {
-            // Unsubscribe from events to prevent memory leaks
             var eventBus = ServiceRegistry.Instance?.EventBus;
             if (eventBus != null)
             {
@@ -42,7 +41,6 @@ namespace KBTV.Dialogue
                 eventBus.Unsubscribe<AudioCompletedEvent>(HandleAudioCompleted);
             }
 
-            // Unsubscribe from repository
             _repository?.Unsubscribe(this);
 
             base._ExitTree();
@@ -72,7 +70,6 @@ namespace KBTV.Dialogue
                 _audioPlayer.LineCompleted += OnAudioLineCompleted;
             }
 
-            // Subscribe to event bus for conversation events
             var eventBus = ServiceRegistry.Instance.EventBus;
             eventBus.Subscribe<ShowStartedEvent>(HandleShowStarted);
             eventBus.Subscribe<ConversationStartedEvent>(HandleConversationStarted);
@@ -128,17 +125,14 @@ namespace KBTV.Dialogue
 
         private void TryGetNextLine()
         {
-            GD.Print("[ConversationDisplay] TryGetNextLine: calling GetNextDisplayLine");
             var line = _coordinator.GetNextDisplayLine();
 
             if (line == null)
             {
-                GD.Print("[ConversationDisplay] No line available, setting idle state");
                 _displayInfo = ConversationDisplayInfo.CreateIdle();
                 return;
             }
 
-            GD.Print($"[ConversationDisplay] Received line: {line.Value.Type} - '{line.Value.Text}'");
             StartLine(line.Value);
         }
 
@@ -146,8 +140,6 @@ namespace KBTV.Dialogue
         {
             _currentLine = line;
             _displayInfo = CreateDisplayInfo(line);
-
-            GD.Print($"[ConversationDisplay] Starting line playback: {line.Type} - Speaker: {line.Speaker}, Text: '{line.Text}'");
 
             if (_audioPlayer != null)
             {
@@ -162,18 +154,15 @@ namespace KBTV.Dialogue
 
         private void OnAudioLineCompleted(AudioCompletedEvent audioEvent)
         {
-            GD.Print($"[ConversationDisplay] OnAudioLineCompleted called: LineId={audioEvent.LineId}, _coordinator={_coordinator != null}");
             _displayInfo.Progress = 1f;
             _displayInfo.ElapsedLineTime = 0;
             if (_coordinator != null)
             {
-                GD.Print($"[ConversationDisplay] Calling _coordinator.OnLineCompleted()");
                 _coordinator.OnLineCompleted();
-                GD.Print($"[ConversationDisplay] OnLineCompleted() returned, state should now be advancing");
             }
             else
             {
-                GD.PrintErr("[ConversationDisplay] _coordinator is null, cannot call OnLineCompleted");
+                GD.PrintErr("ConversationDisplay: _coordinator is null, cannot call OnLineCompleted");
             }
         }
 

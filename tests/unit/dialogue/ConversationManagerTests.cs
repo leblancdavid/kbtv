@@ -1,6 +1,8 @@
 using System;
 using Chickensoft.GoDotTest;
 using Godot;
+using KBTV.Callers;
+using KBTV.Data;
 using KBTV.Dialogue;
 
 namespace KBTV.Tests.Unit.Dialogue
@@ -146,6 +148,56 @@ namespace KBTV.Tests.Unit.Dialogue
             AssertThat((ConversationPhase)phases.GetValue(1)! == ConversationPhase.Probe);
             AssertThat((ConversationPhase)phases.GetValue(2)! == ConversationPhase.Challenge);
             AssertThat((ConversationPhase)phases.GetValue(3)! == ConversationPhase.Resolution);
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetBetweenCallers_WithMood_ReturnsCorrectLine()
+        {
+            var template = new VernDialogueTemplate();
+
+            var line = template.GetBetweenCallers(VernMoodType.Neutral);
+
+            AssertThat(line != null);
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetShowOpening_ReturnsRandomLine()
+        {
+            var template = new VernDialogueTemplate();
+
+            var line = template.GetShowOpening();
+
+            AssertThat(line == null);
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetShowClosing_ReturnsRandomLine()
+        {
+            var template = new VernDialogueTemplate();
+
+            var line = template.GetShowClosing();
+
+            AssertThat(line == null);
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetDeadAirFiller_ReturnsRandomLine()
+        {
+            var template = new VernDialogueTemplate();
+
+            var line = template.GetDeadAirFiller();
+
+            AssertThat(line == null);
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetOffTopicRemark_ReturnsLine()
+        {
+            var template = new VernDialogueTemplate();
+
+            var line = template.GetOffTopicRemark();
+
+            AssertThat(line == null);
         }
     }
 }

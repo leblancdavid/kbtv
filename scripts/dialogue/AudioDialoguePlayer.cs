@@ -22,17 +22,13 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
-            GD.Print($"[AudioDialoguePlayer] _Ready() called, IsInsideTree={IsInsideTree()}, Parent={GetParent()?.Name ?? "null"}");
             _audioPlayer = new AudioStreamPlayer();
             AddChild(_audioPlayer);
-            GD.Print($"[AudioDialoguePlayer] _Ready(): AudioStreamPlayer created, Playing={_audioPlayer.Playing}");
             _audioPlayer.Finished += OnAudioFinished;
-            GD.Print($"[AudioDialoguePlayer] _Ready() completed");
         }
 
         public async void PlayLineAsync(BroadcastLine line)
         {
-            GD.Print($"[AudioDialoguePlayer] PlayLineAsync() called, _audioPlayer={(_audioPlayer != null ? "initialized" : "NULL")}");
             if (_audioPlayer == null)
             {
                 GD.PrintErr("AudioDialoguePlayer.PlayLineAsync: AudioStreamPlayer not initialized");
@@ -41,28 +37,21 @@ namespace KBTV.Dialogue
 
             Stop();
             _currentLineId = line.SpeakerId;
-            GD.Print($"[AudioDialoguePlayer] _currentLineId set to: '{_currentLineId}' (line.SpeakerId='{line.SpeakerId}')");
-            GD.Print($"[AudioDialoguePlayer] Starting playback for line: {line.SpeakerId}, text='{line.Text}', IsInsideTree={IsInsideTree()}, Parent={GetParent()?.Name ?? "null"}");
 
-            // Load audio for the line (real audio or silent stream)
             var audioStream = await LoadAudioForLine(line);
             if (audioStream != null)
             {
                 _audioPlayer.Stream = audioStream;
                 _audioPlayer.Play();
-                GD.Print($"[AudioDialoguePlayer] Playing audio stream");
             }
             else
             {
-                // No audio available, fire completion immediately
-                GD.Print($"[AudioDialoguePlayer] No audio stream available, firing completion immediately");
                 OnAudioFinished();
             }
         }
 
         public void Stop()
         {
-            GD.Print($"[AudioDialoguePlayer] Stop() called, _currentLineId='{_currentLineId ?? "null"}'");
             if (_audioPlayer?.Playing ?? false)
             {
                 _audioPlayer.Stop();
@@ -72,43 +61,31 @@ namespace KBTV.Dialogue
 
         private void OnAudioFinished()
         {
-            GD.Print($"[AudioDialoguePlayer] OnAudioFinished called, _currentLineId={_currentLineId}");
             if (_currentLineId != null)
             {
                 var completedEvent = new AudioCompletedEvent(_currentLineId, Speaker.Caller);
-                GD.Print($"[AudioDialoguePlayer] Invoking LineCompleted event for {_currentLineId}");
                 LineCompleted?.Invoke(completedEvent);
                 _currentLineId = null;
-            }
-            else
-            {
-                GD.Print($"[AudioDialoguePlayer] OnAudioFinished: _currentLineId is null, skipping event");
             }
         }
 
         private async Task<AudioStream?> LoadAudioForLine(BroadcastLine line)
         {
-            // Try to load actual audio file for this line
             var audioPath = $"res://assets/dialogue/audio/{line.SpeakerId}.wav";
             var audioStream = GD.Load<AudioStream>(audioPath);
             if (audioStream != null)
             {
-                GD.Print($"[AudioDialoguePlayer] Loaded audio file: {audioPath}");
                 return audioStream;
             }
 
-            // Check for MP3
             audioPath = $"res://assets/dialogue/audio/{line.SpeakerId}.mp3";
             audioStream = GD.Load<AudioStream>(audioPath);
             if (audioStream != null)
             {
-                GD.Print($"[AudioDialoguePlayer] Loaded audio file: {audioPath}");
                 return audioStream;
             }
 
-            // Generate silent audio stream with duration matching line text length
             var duration = CalculateDurationForText(line.Text);
-            GD.Print($"[AudioDialoguePlayer] No audio file found, creating silent stream with duration: {duration}s");
             return CreateSilentAudioStream(duration);
         }
 

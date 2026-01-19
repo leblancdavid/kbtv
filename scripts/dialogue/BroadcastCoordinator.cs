@@ -35,7 +35,7 @@ namespace KBTV.Dialogue
         private float _lineDuration = 0f;
 
         private ControlAction _pendingControlAction = ControlAction.None;
-        private BroadcastState _nextStateAfterOffTopic;  // Tracks where to go after off-topic remark
+        private BroadcastState _nextStateAfterOffTopic;
 
         private enum BroadcastState
         {
@@ -50,25 +50,7 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
-            if (!ServiceRegistry.IsInitialized)
-            {
-                CallDeferred(nameof(RetryInitialization));
-                return;
-            }
-
             InitializeWithServices();
-        }
-
-        private void RetryInitialization()
-        {
-            if (ServiceRegistry.IsInitialized)
-            {
-                InitializeWithServices();
-            }
-            else
-            {
-                CallDeferred(nameof(RetryInitialization));
-            }
         }
 
         private void InitializeWithServices()
@@ -168,12 +150,10 @@ namespace KBTV.Dialogue
 
             if (_repository.HasOnHoldCallers)
             {
-                GD.Print($"[BroadcastCoordinator] Conversation ended, transitioning to BetweenCallers state ({_repository.OnHoldCallers.Count} callers waiting)");
                 _state = BroadcastState.BetweenCallers;
             }
             else
             {
-                GD.Print($"[BroadcastCoordinator] Conversation ended, no callers waiting, transitioning to DeadAirFiller state");
                 _state = BroadcastState.DeadAirFiller;
                 _fillerCycleCount = 0;
             }
@@ -270,14 +250,11 @@ namespace KBTV.Dialogue
         {
             _lineInProgress = false;
 
-            GD.Print($"[BroadcastCoordinator] OnLineCompleted called: state={_state}, _conversationContext={_conversationContext != null}");
-
             if (_stateMachine != null)
             {
                 _stateMachine.ProcessEvent(ConversationEvent.LineCompleted());
             }
 
-            // Check if conversation has reached its end after this line completed
             bool conversationJustEnded = false;
 
             if (_state == BroadcastState.Conversation &&
@@ -287,7 +264,6 @@ namespace KBTV.Dialogue
             {
                 EndConversation();
                 conversationJustEnded = true;
-                GD.Print($"[BroadcastCoordinator] OnLineCompleted: conversation ended, state is now {_state}");
             }
 
             if (_state == BroadcastState.DeadAirFiller)
@@ -295,23 +271,17 @@ namespace KBTV.Dialogue
                 _fillerCycleCount++;
             }
 
-            GD.Print($"[BroadcastCoordinator] OnLineCompleted: state={_state}, conversationJustEnded={conversationJustEnded}");
             if (!conversationJustEnded)
             {
                 AdvanceState();
-                GD.Print($"[BroadcastCoordinator] OnLineCompleted: after AdvanceState, state={_state}");
                 if (_state == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
                 {
-                    GD.Print($"[BroadcastCoordinator] OnLineCompleted: putting next caller on air, { _repository.OnHoldCallers.Count} waiting");
                     TryPutNextCallerOnAir();
-                    GD.Print($"[BroadcastCoordinator] OnLineCompleted: after TryPutNextCallerOnAir, OnAirCaller={_repository.OnAirCaller?.Name ?? "null"}");
                 }
             }
 
             var advancedEvent = new ConversationAdvancedEvent(null);
-            GD.Print($"[BroadcastCoordinator] OnLineCompleted: publishing ConversationAdvancedEvent, state={_state}");
             ServiceRegistry.Instance.EventBus.Publish(advancedEvent);
-            GD.Print($"[BroadcastCoordinator] OnLineCompleted: event published");
         }
 
         private void EndConversation()
@@ -509,20 +479,15 @@ namespace KBTV.Dialogue
         private BroadcastLine GetBetweenCallersLine()
         {
             var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
-            GD.Print($"[BroadcastCoordinator] VernStats available: {vernStats != null}");
-
             var currentMood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
-            GD.Print($"[BroadcastCoordinator] Getting between-callers line for mood: {currentMood} (int value: {(int)currentMood})");
 
             var line = _vernDialogue.GetBetweenCallers(currentMood);
             if (line != null)
             {
-                GD.Print($"[BroadcastCoordinator] Selected between-callers line: '{line.Text}' (ID: {line.Id})");
                 return BroadcastLine.BetweenCallers(line.Text);
             }
             else
             {
-                GD.Print($"[BroadcastCoordinator] No between-callers line found for mood {currentMood}, returning None");
                 return BroadcastLine.None();
             }
         }

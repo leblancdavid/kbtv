@@ -74,7 +74,6 @@ namespace KBTV.UI
             }
 
             var displayText = entry.GetDisplayText();
-            GD.Print($"[LiveShowFooter] Transcript updated: '{displayText}'");
             _transcriptText.Text = displayText;
         }
 

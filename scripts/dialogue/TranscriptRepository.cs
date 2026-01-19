@@ -44,11 +44,9 @@ namespace KBTV.Dialogue
 
             if (!_showActive)
             {
-                GD.Print($"[TranscriptRepository] AddEntry: show not active, skipping entry: {entry.GetDisplayText()}");
                 return;
             }
 
-            GD.Print($"[TranscriptRepository] AddEntry: Speaker={entry.Speaker}, Text='{entry.Text}', Phase={entry.Phase}");
             _entries.Add(entry);
             EntryAdded?.Invoke(entry);
         }
