@@ -215,28 +215,23 @@ namespace KBTV.Dialogue
         {
             if (!_broadcastActive && _state != BroadcastState.ShowClosing)
             {
-                GD.Print($"[BroadcastCoordinator] GetNextDisplayLine: broadcast not active, state={_state}, returning null");
                 return null;
             }
 
             if (_lineInProgress)
             {
-                GD.Print($"[BroadcastCoordinator] GetNextDisplayLine: line in progress, returning current line type={_currentLine.Type}");
                 return _currentLine;
             }
 
             if (_pendingControlAction != ControlAction.None)
             {
-                GD.Print($"[BroadcastCoordinator] GetNextDisplayLine: pending control action={_pendingControlAction}, returning null");
                 return null;
             }
 
             _currentLine = CalculateNextLine();
-            GD.Print($"[BroadcastCoordinator] GetNextDisplayLine: state={_state}, calculated line type={_currentLine.Type}, text='{_currentLine.Text}'");
 
             if (_currentLine.Type == BroadcastLineType.None)
             {
-                GD.Print($"[BroadcastCoordinator] GetNextDisplayLine: line type is None, returning null");
                 return null;
             }
 
@@ -442,6 +437,7 @@ namespace KBTV.Dialogue
         private BroadcastLine GetConversationLine()
         {
             var caller = _repository.OnAirCaller;
+
             if (caller == null)
             {
                 if (_repository.HasOnHoldCallers)
@@ -467,10 +463,16 @@ namespace KBTV.Dialogue
                 return BroadcastLine.None();
             }
 
+            if (_conversationContext.CurrentStepIndex >= _currentFlow.Steps.Count)
+            {
+                return BroadcastLine.None();
+            }
+
             var step = _currentFlow.Steps[_conversationContext.CurrentStepIndex];
 
             if (!step.CanExecute(_conversationContext))
             {
+                _conversationContext.CurrentStepIndex++;
                 return BroadcastLine.None();
             }
 

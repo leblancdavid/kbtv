@@ -42,7 +42,7 @@ namespace KBTV.Callers
         };
 
         private static readonly string[] Topics = {
-            "Ghosts", "UFOs", "Bigfoot", "Aliens", "Demons", "Hauntings", "Cryptids", "Paranormal"
+            "Ghosts", "UFOs", "Cryptids", "government"
         };
 
         public override void _Ready()
@@ -214,10 +214,22 @@ namespace KBTV.Callers
                     }
                     else
                     {
-                        // Fallback: no different topic arc available, use random topic
-                        actualTopic = Topics[(int)(GD.Randi() % Topics.Length)];
-                        claimedTopic = actualTopic;
-                        isOffTopic = actualTopic != showTopicId;
+                        // Fallback: try any arc with matching legitimacy
+                        actualArc = arcRepo.GetRandomArc(legitimacy);
+                        if (actualArc != null)
+                        {
+                            actualTopic = actualArc.Topic;
+                            claimedTopic = actualTopic;
+                            claimedArc = actualArc;
+                            isOffTopic = actualTopic != showTopicId;
+                        }
+                        else
+                        {
+                            // Ultimate fallback: random topic from hardcoded array
+                            actualTopic = Topics[(int)(GD.Randi() % Topics.Length)];
+                            claimedTopic = actualTopic;
+                            isOffTopic = actualTopic != showTopicId;
+                        }
                     }
                 }
                 else
@@ -233,10 +245,22 @@ namespace KBTV.Callers
                     }
                     else
                     {
-                        // Fallback: no matching arc, use random topic
-                        actualTopic = Topics[(int)(GD.Randi() % Topics.Length)];
-                        claimedTopic = actualTopic;
-                        isOffTopic = actualTopic != showTopicId;
+                        // Fallback: try any arc with matching legitimacy
+                        actualArc = arcRepo.GetRandomArc(legitimacy);
+                        if (actualArc != null)
+                        {
+                            actualTopic = actualArc.Topic;
+                            claimedTopic = actualTopic;
+                            claimedArc = actualArc;
+                            isOffTopic = actualTopic != showTopicId;
+                        }
+                        else
+                        {
+                            // Ultimate fallback: random topic from hardcoded array
+                            actualTopic = Topics[(int)(GD.Randi() % Topics.Length)];
+                            claimedTopic = actualTopic;
+                            isOffTopic = actualTopic != showTopicId;
+                        }
                     }
                 }
             }
