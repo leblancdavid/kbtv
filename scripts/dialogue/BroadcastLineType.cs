@@ -9,7 +9,6 @@ public enum BroadcastLineType
     BetweenCallers,
     DeadAirFiller,
     ShowClosing,
-    Music,
-    VernSignoff
+    Music
 }
 }

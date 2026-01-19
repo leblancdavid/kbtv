@@ -68,14 +68,17 @@ namespace KBTV.Dialogue
     [Serializable]
     public partial class DialogueTemplate : Resource
     {
-        /// <summary>Unique identifier for this template (e.g., "vern_opening_001"). Used for audio file lookup.</summary>
-        [Export] public string Id;
+    /// <summary>Unique identifier for this template (e.g., "vern_opening_001"). Used for audio file lookup.</summary>
+    [Export] public string Id;
 
-        /// <summary>The dialogue text (supports placeholders like {callerName}).</summary>
-        [Export] public string Text;
+    /// <summary>The dialogue text (supports placeholders like {callerName}).</summary>
+    [Export] public string Text;
 
-        /// <summary>Selection weight for random picking (higher = more likely).</summary>
-        [Export] public float Weight = 1f;
+    /// <summary>Selection weight for random picking (higher = more likely).</summary>
+    [Export] public float Weight = 1f;
+
+    /// <summary>Vern's mood when this line should be used (optional - for mood-based selection).</summary>
+    [Export] public string Mood;
 
         public DialogueTemplate() { }
 
@@ -85,11 +88,12 @@ namespace KBTV.Dialogue
             Weight = weight;
         }
 
-        public DialogueTemplate(string id, string text, float weight = 1f)
+        public DialogueTemplate(string id, string text, float weight = 1f, string mood = "")
         {
             Id = id;
             Text = text;
             Weight = weight;
+            Mood = mood;
         }
     }
 

@@ -69,13 +69,7 @@
     { "id": "vern_cutoff_004", "text": "We need to take a break. Thanks for calling in. *click*", "tone": "Dismissive", "weight": 1.0 },
     { "id": "vern_cutoff_005", "text": "And on that note, let's go to the next caller. Keep watching the skies.", "tone": "Neutral", "weight": 1.0 }
   ],
-  "signOffLines": [
-    { "id": "vern_signoff_001", "text": "Appreciate the call, {callerName}. Keep watching the skies out there.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_signoff_002", "text": "Thanks for sharing that with us tonight. Stay vigilant, truth-seeker.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_signoff_003", "text": "Stay safe out there, {callerName}. And keep those eyes on the horizon.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_signoff_004", "text": "Powerful stuff, {callerName}. Thanks for having the courage to share it.", "tone": "Believing", "weight": 1.0 },
-    { "id": "vern_signoff_005", "text": "That's what this show is all about, folks. Thanks for the call. We'll be right back.", "tone": "Neutral", "weight": 1.0 }
-  ],
+
   "showOpeningLines": [
     { "id": "vern_opening_001", "text": "Good evening, truth-seekers. You're tuned to KBTV, Beyond the Veil AM. I'm your host, Vern Castellano, and we've got a big show for you tonight.", "tone": "Excited", "weight": 1.0 },
     { "id": "vern_opening_002", "text": "It's midnight on the dial, and you know what that means. Welcome to KBTV. The phone lines are open, and the truth is out there waiting.", "tone": "Neutral", "weight": 1.0 },
@@ -91,16 +85,41 @@
     { "id": "vern_closing_005", "text": "Another night, another pile of evidence. Thanks for being part of the search, folks. This is KBTV, signing off.", "tone": "Neutral", "weight": 1.0 }
   ],
   "betweenCallersLines": [
-    { "id": "vern_betweencallers_001", "text": "Fascinating stuff. Let's see who else is on the line.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_betweencallers_002", "text": "Alright, we've got more callers waiting. Let's keep this going.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_betweencallers_003", "text": "The board's lighting up tonight. Let's go to our next caller.", "tone": "Excited", "weight": 1.0 },
-    { "id": "vern_betweencallers_004", "text": "Interesting call. But we've got more stories to hear. Next caller, you're on.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_betweencallers_005", "text": "That's what I love about this show - you never know what's coming next. Speaking of which...", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_betweencallers_006", "text": "The lines are burning up tonight. Let's keep the momentum going.", "tone": "Excited", "weight": 1.0 },
-    { "id": "vern_betweencallers_007", "text": "More callers in the queue. Let's see what else is out there.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_betweencallers_008", "text": "Alright, next up on the lines...", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_betweencallers_009", "text": "Good stuff. We've got more waiting in the wings.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_betweencallers_010", "text": "That's the kind of call that keeps me coming back every night. Who's next?", "tone": "Excited", "weight": 1.0 }
+    {
+      "id": "vern_betweencallers_neutral",
+      "mood": "neutral",
+      "text": "Fascinating stuff. Let's see who else is on the line."
+    },
+    {
+      "id": "vern_betweencallers_tired",
+      "mood": "tired",
+      "text": "Alright, we've got more callers waiting. Let's keep this going."
+    },
+    {
+      "id": "vern_betweencallers_energized",
+      "mood": "energized",
+      "text": "The board's lighting up tonight! Let's go to our next caller!"
+    },
+    {
+      "id": "vern_betweencallers_irritated",
+      "mood": "irritated",
+      "text": "Interesting call. But we've got more stories to hear. Next caller, you're on."
+    },
+    {
+      "id": "vern_betweencallers_gruff",
+      "mood": "gruff",
+      "text": "More callers in the queue. Let's see what else is out there."
+    },
+    {
+      "id": "vern_betweencallers_amused",
+      "mood": "amused",
+      "text": "That's what I love about this show - you never know what's coming next. Speaking of which..."
+    },
+    {
+      "id": "vern_betweencallers_focused",
+      "mood": "focused",
+      "text": "Additional callers are waiting. Proceeding to next interaction."
+    }
   ],
   "deadAirFillerLines": [
     { "id": "vern_deadairfiller_001", "text": "Phone lines are quiet for the moment. If you've got a story, now's the time to call in.", "tone": "Neutral", "weight": 1.0 },

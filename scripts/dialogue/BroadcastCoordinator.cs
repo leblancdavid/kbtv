@@ -41,7 +41,6 @@ namespace KBTV.Dialogue
             Idle,
             ShowOpening,
             Conversation,
-            CallSignoff,
             BetweenCallers,
             DeadAirFiller,
             ShowClosing
@@ -165,8 +164,15 @@ namespace KBTV.Dialogue
             _conversationContext = null;
             _arcLineIndex = -1;
 
-            // Always transition to signoff after call ends
-            _state = BroadcastState.CallSignoff;
+            if (_repository.HasOnHoldCallers)
+            {
+                _state = BroadcastState.BetweenCallers;
+            }
+            else
+            {
+                _state = BroadcastState.DeadAirFiller;
+                _fillerCycleCount = 0;
+            }
 
             _lineInProgress = false;
         }
@@ -248,7 +254,6 @@ namespace KBTV.Dialogue
             {
                 BroadcastState.ShowOpening => GetShowOpeningLine(),
                 BroadcastState.Conversation => GetConversationLine(),
-                BroadcastState.CallSignoff => GetCallSignoffLine(),
                 BroadcastState.BetweenCallers => GetBetweenCallersLine(),
                 BroadcastState.DeadAirFiller => GetFillerLine(),
                 BroadcastState.ShowClosing => GetShowClosingLine(),
@@ -326,9 +331,6 @@ namespace KBTV.Dialogue
                 case BroadcastState.Conversation:
                     AdvanceFromConversation();
                     break;
-                case BroadcastState.CallSignoff:
-                    AdvanceFromCallSignoff();
-                    break;
                 case BroadcastState.BetweenCallers:
                     AdvanceFromBetweenCallers();
                     break;
@@ -352,7 +354,6 @@ namespace KBTV.Dialogue
                 BroadcastLineType.BetweenCallers => 4f,
                 BroadcastLineType.DeadAirFiller => 8f,
                 BroadcastLineType.ShowClosing => 5f,
-                BroadcastLineType.VernSignoff => 4f,
                 _ => 4f
             };
         }
@@ -450,7 +451,9 @@ namespace KBTV.Dialogue
 
         private BroadcastLine GetBetweenCallersLine()
         {
-            var line = _vernDialogue.GetBetweenCallers();
+            var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+            var currentMood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+            var line = _vernDialogue.GetBetweenCallers(currentMood);
             var result = line != null ? BroadcastLine.BetweenCallers(line.Text) : BroadcastLine.None();
             AdvanceFromBetweenCallers();
             return result;
@@ -461,27 +464,6 @@ namespace KBTV.Dialogue
             if (_repository.HasOnHoldCallers)
             {
                 _state = BroadcastState.Conversation;
-            }
-            else
-            {
-                _state = BroadcastState.DeadAirFiller;
-                _fillerCycleCount = 0;
-            }
-        }
-
-        private BroadcastLine GetCallSignoffLine()
-        {
-            var line = _vernDialogue.GetSignOff();
-            var result = line != null ? BroadcastLine.VernSignoff(line.Text) : BroadcastLine.None();
-            AdvanceFromCallSignoff();
-            return result;
-        }
-
-        private void AdvanceFromCallSignoff()
-        {
-            if (_repository.HasOnHoldCallers)
-            {
-                _state = BroadcastState.BetweenCallers;
             }
             else
             {
@@ -542,8 +524,7 @@ namespace KBTV.Dialogue
                 line.Type == BroadcastLineType.DeadAirFiller ||
                 line.Type == BroadcastLineType.BetweenCallers ||
                 line.Type == BroadcastLineType.ShowOpening ||
-                line.Type == BroadcastLineType.ShowClosing ||
-                line.Type == BroadcastLineType.VernSignoff)
+                line.Type == BroadcastLineType.ShowClosing)
             {
                 _transcriptRepository?.AddEntry(
                     TranscriptEntry.CreateVernLine(line.Text, line.Phase, line.ArcId)
@@ -593,7 +574,6 @@ namespace KBTV.Dialogue
                 result.SetDroppedCallerLines(ParseDialogueArray(data, "droppedCallerLines"));
                 result.SetBreakTransitionLines(ParseDialogueArray(data, "breakTransitionLines"));
                 result.SetOffTopicRemarkLines(ParseDialogueArray(data, "offTopicRemarkLines"));
-                result.SetSignOffLines(ParseDialogueArray(data, "signOffLines"));
 
                 return result;
             }
@@ -623,8 +603,9 @@ namespace KBTV.Dialogue
                 var id = itemDict.ContainsKey("id") ? itemDict["id"].AsString() : "";
                 var text = itemDict.ContainsKey("text") ? itemDict["text"].AsString() : "";
                 var weight = itemDict.ContainsKey("weight") ? itemDict["weight"].AsSingle() : 1f;
+                var mood = itemDict.ContainsKey("mood") ? itemDict["mood"].AsString() : "";
 
-                return new DialogueTemplate(id, text, weight);
+                return new DialogueTemplate(id, text, weight, mood);
             }).Where(x => x != null).ToArray()!;
         }
     }

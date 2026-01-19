@@ -27,15 +27,6 @@ namespace KBTV.Dialogue
             Phase = ConversationPhase.Intro
         };
 
-        public static BroadcastLine VernSignoff(string text) => new()
-        {
-            Type = BroadcastLineType.VernSignoff,
-            Text = text,
-            Speaker = "Vern",
-            SpeakerId = "VERN",
-            Phase = ConversationPhase.Resolution
-        };
-
         public static BroadcastLine ShowOpening(string text) => new()
         {
             Type = BroadcastLineType.ShowOpening,
