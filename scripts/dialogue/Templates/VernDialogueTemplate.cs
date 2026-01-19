@@ -17,6 +17,7 @@ namespace KBTV.Dialogue
         [Export] private Godot.Collections.Array<DialogueTemplate> _droppedCallerLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _breakTransitionLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _offTopicRemarkLines = new Godot.Collections.Array<DialogueTemplate>();
+        [Export] private Godot.Collections.Array<DialogueTemplate> _signOffLines = new Godot.Collections.Array<DialogueTemplate>();
 
         public Godot.Collections.Array<DialogueTemplate> ShowOpeningLines => _showOpeningLines;
         public Godot.Collections.Array<DialogueTemplate> IntroductionLines => _introductionLines;
@@ -26,6 +27,7 @@ namespace KBTV.Dialogue
         public Godot.Collections.Array<DialogueTemplate> DroppedCallerLines => _droppedCallerLines;
         public Godot.Collections.Array<DialogueTemplate> BreakTransitionLines => _breakTransitionLines;
         public Godot.Collections.Array<DialogueTemplate> OffTopicRemarkLines => _offTopicRemarkLines;
+        public Godot.Collections.Array<DialogueTemplate> SignOffLines => _signOffLines;
 
         public void SetShowOpeningLines(DialogueTemplate[] lines) => _showOpeningLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetIntroductionLines(DialogueTemplate[] lines) => _introductionLines = new Godot.Collections.Array<DialogueTemplate>(lines);
@@ -35,6 +37,7 @@ namespace KBTV.Dialogue
         public void SetDroppedCallerLines(DialogueTemplate[] lines) => _droppedCallerLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetBreakTransitionLines(DialogueTemplate[] lines) => _breakTransitionLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetOffTopicRemarkLines(DialogueTemplate[] lines) => _offTopicRemarkLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+        public void SetSignOffLines(DialogueTemplate[] lines) => _signOffLines = new Godot.Collections.Array<DialogueTemplate>(lines);
 
         /// <summary>
         /// Get a show opening line.
@@ -72,8 +75,13 @@ namespace KBTV.Dialogue
         public DialogueTemplate GetBreakTransition() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_breakTransitionLines));
 
         /// <summary>
-        /// Get an off-topic remark line (when caller goes off-topic).
+        /// Get an off-topic remark line.
         /// </summary>
         public DialogueTemplate GetOffTopicRemark() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_offTopicRemarkLines));
+
+        /// <summary>
+        /// Get a call signoff line.
+        /// </summary>
+        public DialogueTemplate GetSignOff() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_signOffLines));
     }
 }

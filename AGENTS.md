@@ -357,7 +357,8 @@ void OnLiveShowEnding();
 | `ShowOpening` | Vern's show intro (5s duration) |
 | `VernDialogue` | Vern's turn in conversation (4s) |
 | `CallerDialogue` | Caller's turn in conversation (4s) |
-| `BetweenCallers` | Transition after call ends (4s) |
+| `VernSignoff` | Vern's polite signoff after call ends (4s) |
+| `BetweenCallers` | Transition to next caller (4s) |
 | `DeadAirFiller` | Vern monologue when no callers (8s) |
 | `ShowClosing` | Vern's outro (5s) |
 | `PutCallerOnAir` | Signal to put next caller on air |
@@ -384,15 +385,15 @@ switch (line.Type)
 
 **State Machine:**
 ```
-ShowOpening → Conversation → BetweenCallers → Conversation
-                 ↓                    ↓
-           (no callers)        (no callers)
-                 ↓                    ↓
-           DeadAirFiller      DeadAirFiller
-                 ↓                    ↓
-           (1 cycle)           (1 cycle)
-                 ↓                    ↓
-           Conversation        Conversation
+ShowOpening → Conversation → CallSignoff → BetweenCallers → Conversation
+                 ↓                    ↓                    ↓
+           (no callers)        (no callers)        (no callers)
+                 ↓                    ↓                    ↓
+           DeadAirFiller      DeadAirFiller      DeadAirFiller
+                 ↓                    ↓                    ↓
+           (1 cycle)           (1 cycle)           (1 cycle)
+                 ↓                    ↓                    ↓
+           Conversation        Conversation        Conversation
 ```
 
 **Files:**
@@ -400,6 +401,11 @@ ShowOpening → Conversation → BetweenCallers → Conversation
 - `scripts/dialogue/BroadcastLineType.cs` - Line type enum
 - `scripts/dialogue/BroadcastLine.cs` - Line struct
 - `scripts/dialogue/ConversationDisplay.cs` - UI display using the coordinator
+- `scripts/dialogue/Templates/VernDialogueTemplate.cs` - Vern's dialogue templates including signoff lines
+
+**Recent Improvements:**
+- **Call Signoff Feature**: Added `CallSignoff` state where Vern provides polite signoff dialog after each call before transitioning to between-callers
+- **Conversation Ending Fix**: Fixed timing issue where conversations would hang on caller's last line; now properly ends conversation immediately after last line completes
 
 ### Result Type Pattern
 
