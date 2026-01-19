@@ -114,6 +114,29 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Get an off-topic remark line.
         /// </summary>
-        public DialogueTemplate GetOffTopicRemark() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_offTopicRemarkLines));
+        public DialogueTemplate GetOffTopicRemark() => GetOffTopicRemark(VernMoodType.Neutral);
+
+        /// <summary>
+        /// Get an off-topic remark line for the specified mood.
+        /// </summary>
+        public DialogueTemplate GetOffTopicRemark(VernMoodType mood)
+        {
+            var moodString = mood.ToString().ToLower();
+
+            // Filter lines by mood, fallback to neutral if no matches
+            var moodLines = System.Linq.Enumerable.Where(_offTopicRemarkLines, line => line.Mood == moodString);
+
+            if (!moodLines.Any())
+            {
+                moodLines = System.Linq.Enumerable.Where(_offTopicRemarkLines, line => line.Mood == "neutral");
+            }
+
+            if (!moodLines.Any())
+            {
+                moodLines = _offTopicRemarkLines;
+            }
+
+            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(moodLines));
+        }
     }
 }

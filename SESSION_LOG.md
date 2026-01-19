@@ -1,167 +1,65 @@
-## Previous Session
-- **Task**: Fix on-hold callers not transferring to on-air and transcripts not playing caller dialogs
+## Current Session
+- **Task**: Add off-topic remark lines for callers not talking about show topic
 - **Status**: Completed
-- **Started**: Sun Jan 18 2026
-- **Last Updated**: Sun Jan 18 2026
+- **Started**: Mon Jan 19 2026
+- **Last Updated**: Mon Jan 19 2026
 
-### Root Cause
-The old event-driven ConversationManager had complex timing logic causing callers to go on air immediately instead of waiting for Vern to finish filler segments.
+### Feature Summary
 
-### Solution
-Implemented pull-based BroadcastCoordinator architecture with clean separation between display lines and control actions.
+When a caller who is off-topic (actual topic differs from show's current topic) finishes their conversation, Vern now makes an off-topic remark before continuing to the next phase (BetweenCallers or DeadAirFiller).
 
 ### Changes Made
 
-**New Files Created:**
-- `scripts/dialogue/BroadcastLineType.cs` - Enum for line types (ShowOpening, VernDialogue, CallerDialogue, BetweenCallers, DeadAirFiller, ShowClosing, None)
-- `scripts/dialogue/BroadcastLine.cs` - Struct representing a broadcast line with speaker, text, phase, arc info
-- `scripts/dialogue/BroadcastCoordinator.cs` - Main pull-based coordinator service that manages broadcast flow
-- `scripts/dialogue/ConversationDisplay.cs` - Simple UI display that polls GetNextLine() and shows lines with typewriter effect
-- `scripts/dialogue/ControlAction.cs` - Enum for control signals (PutCallerOnAir, None)
-- `scripts/dialogue/ConversationEvents.cs` - Event classes for conversation lifecycle (ConversationStartedEvent, AudioCompletedEvent, ConversationAdvancedEvent)
+**1. BroadcastLineType.cs - Added OffTopicRemark enum value**
 
-**Files Modified:**
-- `scripts/callers/Caller.cs` - Added `Arc` property and `SetArc()` method to store conversation arc on caller
-- `scripts/callers/CallerRepository.cs` - Modified `ApproveScreening()` to load arc for caller when approved
-- `scripts/dialogue/TranscriptEntry.cs` - Removed Timestamp property (no longer needed)
-- `scripts/dialogue/TranscriptRepository.cs` - Removed timestamp-related methods
-- `scripts/dialogue/ITranscriptRepository.cs` - Removed `GetEntriesSince()` method
-- `scripts/core/ServiceRegistry.cs` - Replaced `ConversationManager` with `BroadcastCoordinator`
-- `scripts/core/GameStateManager.cs` - Updated to call `BroadcastCoordinator.OnLiveShowStarted()/OnLiveShowEnding()`
-- `scripts/ui/LiveShowFooter.cs` - Updated to use `BroadcastCoordinator` instead of `IConversationManager`
-- `scripts/ui/LiveShowPanel.cs` - Updated to use `BroadcastCoordinator` for display
-- `scenes/Game.tscn` - Added `ConversationDisplay` node
-- `project.godot` - Replaced `ConversationManager` autoload with `BroadcastCoordinator`
+**2. BroadcastLine.cs - Added OffTopicRemark() factory method**
+- Returns a `BroadcastLine` with `Type = OffTopicRemark`, `Phase = Resolution`
 
-**Files Deleted:**
-- `scripts/dialogue/ConversationManager.cs` - Replaced by new architecture
-- `scripts/dialogue/IConversationManager.cs` - Replaced by direct BroadcastCoordinator usage
+**3. VernDialogueTemplate.cs - Added mood support to GetOffTopicRemark()**
+- Added `GetOffTopicRemark(VernMoodType mood)` overload
+- Filters off-topic remark lines by mood, fallback to neutral, then to any line
+- Uses same mood-filtering pattern as `GetBetweenCallers(VernMoodType mood)`
 
-### Architectural Changes
+**4. BroadcastCoordinator.cs - Added off-topic remark handling**
+- Added `OffTopicRemark` state to `BroadcastState` enum
+- Added `_nextStateAfterOffTopic` field to track where to transition after remark
+- Modified `EndConversation()` to check `caller.IsOffTopic`:
+  - If true: Sets state to `OffTopicRemark`, stores next state based on waiting callers
+  - If false: Standard transition to `BetweenCallers` or `DeadAirFiller`
+- Added `GetOffTopicRemarkLine()` method with mood-based selection
+- Added `AdvanceFromOffTopicRemark()` method to transition to stored next state
+- Updated `CalculateNextLine()` to handle `OffTopicRemark` state
+- Updated `AdvanceState()` to handle `OffTopicRemark` transition
+- Updated `AddTranscriptEntry()` to log off-topic remarks to transcript
 
-**Before (Push-Based):**
-- Events fire (call ended, caller approved, etc.)
-- `_Process()` loops check timers every frame
-- Auto-advance logic scattered across methods
-- Race conditions between events and timing
+### Flow
 
-**After (Pull-Based):**
-```csharp
-// Simple API - caller just asks "what's next?"
-var line = coordinator.GetNextLine();
-switch (line.Type)
-{
-    case BroadcastLineType.PutCallerOnAir:
-        repository.PutOnAir();
-        break;
-    case BroadcastLineType.None:
-        // Wait
-        break;
-    default:
-        PlayLine(line);
-        coordinator.OnLineCompleted();
-        break;
-}
 ```
-
-### Key Behavior Changes
-
-| Scenario | Before | After |
-|----------|--------|-------|
-| Caller approved mid-filler | Immediate on-air | Waits until filler cycle ends + 1 cycle before auto-advancing |
-| Call ends, callers waiting | Immediate auto-advance | Between-callers plays → 1 filler cycle → auto-advance |
-| Show opens | Auto-advance or filler | Show opening → auto-advance or filler |
-| No callers ever | Filler cycles forever | Filler cycles forever (unchanged) |
-| Arc-caller association | Loaded when on air | Loaded when approved (matches screening) |
-| Transcript | Timestamps included | Speaker + text only |
-
-### Additional Fixes Applied
-
-**Arc Auto-Discovery:**
-- `scripts/dialogue/ArcRepository.cs` - Added auto-discovery of arc files from `assets/dialogue/arcs/` when no file paths are configured
-- 17 arc files auto-discovered from directory structure
-
-**JSON Parsing Fix:**
-- `scripts/dialogue/ArcJsonParser.cs` - Rewrote to use Godot's built-in JSON parsing instead of `System.Text.Json`
-- Properly handles Variant types and dictionary access
-- Fixed arc loading that was returning null arcs
-
-**Transcript Fix:**
-- `scripts/dialogue/BroadcastCoordinator.cs` - Fixed first dialogue line not being added to transcript
-- Arc pre-loading now directly gets first line from arc instead of calling `GetConversationLine()` (which would return PutCallerOnAir again since no caller was on air yet)
-
-### Split API Implementation
-
-Separated display lines from control actions with a new split API:
-
-**New API Methods:**
-- `GetNextDisplayLine()` - Returns next displayable line (or null if no line)
-- `GetPendingControlAction()` - Returns any pending control action (PutCallerOnAir, None)
-- `OnControlActionCompleted()` - Clears the pending action
-- `OnCallerPutOnAir(Caller caller)` - Properly sets up arc when caller goes on air
-
-**Corrected Flow:**
-1. `GetPendingControlAction()` returns `PutCallerOnAir` when needed
-2. `ConversationDisplay` calls `PutOnAir()` → moves caller to on-air state
-3. `ConversationDisplay` calls `OnCallerPutOnAir(caller)` → properly sets arc with index 0
-4. `ConversationDisplay` calls `OnControlActionCompleted()` → clears pending action
-5. Next `GetNextDisplayLine()` call returns first arc line (index 0)
-6. Caller dialogue displays and appears in transcripts
-
-### Audio Dialog Player Fix
-
-**Problem:** Between-callers and show opening flows were hanging after first line.
-
-**Root Cause:** Manual timer-based approach was unreliable and AudioStreamGenerator doesn't fire Finished signal properly for timing.
-
-**Solution:**
-- `scripts/dialogue/AudioDialoguePlayer.cs`:
-  - Added `CreateSilentAudioStream()` method using `AudioStreamGenerator` for silent playback with proper duration
-  - Added `LoadAudioForLine()` method that loads real audio files from `assets/dialogue/audio/` (wav/mp3) or falls back to silent audio with duration calculated from text length (0.4s per word)
-  - Updated `PlayLineAsync()` to use audio loading system instead of manual timers
-  - Removed `_Process()` override and manual timer fields - now uses `AudioStreamPlayer`'s built-in `Finished` signal
-
-### Double State Advancement Fix
-
-**Problem:** Flow hung after between-callers dialog - `OnLineCompleted` called but nothing happened.
-
-**Root Cause:** `GetBetweenCallersLine()` and `GetShowOpeningLine()` were calling their `AdvanceFrom*()` methods immediately when calculating the line, not when the line completed. Since `OnLineCompleted()` also calls `AdvanceState()`, this caused a double state advancement.
-
-**Flow with the bug:**
-1. State = BetweenCallers
-2. `GetBetweenCallersLine()` called → returns line AND calls `AdvanceFromBetweenCallers()` → State changes to Conversation
-3. Line plays and completes
-4. `OnLineCompleted()` called → calls `AdvanceState()` → State changes again (but conversation hasn't started yet)
-5. System hangs in inconsistent state
-
-**Fix Applied:**
-- `scripts/dialogue/BroadcastCoordinator.cs`:
-  - Removed `AdvanceFromBetweenCallers()` call from `GetBetweenCallersLine()` (line 486)
-  - Removed `AdvanceFromShowOpening()` call from `GetShowOpeningLine()` (line 391)
-  - State transitions now only happen in `OnLineCompleted()` via `AdvanceState()`
+Conversation ends normally
+    ↓
+EndConversation() called
+    ↓
+caller.IsOffTopic == true ?
+    ├─→ YES: Set state = OffTopicRemark, nextState = BetweenCallers (if callers waiting)
+    │                                               OR DeadAirFiller (no callers)
+    │                                                           ↓
+    │                                               Off-topic remark line plays (4s)
+    │                                                           ↓
+    │                                               OnLineCompleted() → AdvanceState()
+    │                                                           ↓
+    │                                               AdvanceFromOffTopicRemark() executes
+    │                                                           ↓
+    │                                               State transitions to nextState
+    │                                                           ↓
+    │                                               Show continues normally
+    │
+    └─→ NO: Standard transition to BetweenCallers/DeadAirFiller
 
 ### Files Modified
-- scripts/callers/Caller.cs
-- scripts/callers/CallerRepository.cs
-- scripts/dialogue/BroadcastLine.cs (new)
-- scripts/dialogue/BroadcastLineType.cs (new)
-- scripts/dialogue/BroadcastCoordinator.cs (new)
-- scripts/dialogue/ConversationDisplay.cs (new)
-- scripts/dialogue/ControlAction.cs (new)
-- scripts/dialogue/ConversationEvents.cs (new)
-- scripts/dialogue/TranscriptEntry.cs
-- scripts/dialogue/TranscriptRepository.cs
-- scripts/dialogue/ITranscriptRepository.cs
-- scripts/dialogue/ArcRepository.cs
-- scripts/dialogue/ArcJsonParser.cs
-- scripts/dialogue/AudioDialoguePlayer.cs
-- scripts/core/ServiceRegistry.cs
-- scripts/core/GameStateManager.cs
-- scripts/ui/LiveShowFooter.cs
-- scripts/ui/LiveShowPanel.cs
-- scenes/Game.tscn
-- project.godot
-- tests/unit/dialogue/TranscriptRepositoryTests.cs
+- scripts/dialogue/BroadcastLineType.cs
+- scripts/dialogue/BroadcastLine.cs
+- scripts/dialogue/Templates/VernDialogueTemplate.cs
+- scripts/dialogue/BroadcastCoordinator.cs
 
 ### Build Status
 **Build: SUCCESS** (0 errors, 22 warnings - pre-existing nullable annotations)

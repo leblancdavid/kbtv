@@ -35,6 +35,7 @@ namespace KBTV.Dialogue
         private float _lineDuration = 0f;
 
         private ControlAction _pendingControlAction = ControlAction.None;
+        private BroadcastState _nextStateAfterOffTopic;  // Tracks where to go after off-topic remark
 
         private enum BroadcastState
         {
@@ -43,6 +44,7 @@ namespace KBTV.Dialogue
             Conversation,
             BetweenCallers,
             DeadAirFiller,
+            OffTopicRemark,
             ShowClosing
         }
 
@@ -263,6 +265,7 @@ namespace KBTV.Dialogue
                 BroadcastState.Conversation => GetConversationLine(),
                 BroadcastState.BetweenCallers => GetBetweenCallersLine(),
                 BroadcastState.DeadAirFiller => GetFillerLine(),
+                BroadcastState.OffTopicRemark => GetOffTopicRemarkLine(),
                 BroadcastState.ShowClosing => GetShowClosingLine(),
                 _ => BroadcastLine.None()
             };
@@ -321,6 +324,8 @@ namespace KBTV.Dialogue
             _stateMachine?.ProcessEvent(ConversationEvent.End());
 
             var currentCaller = _repository.OnAirCaller;
+            bool wasOffTopic = currentCaller?.IsOffTopic ?? false;
+
             if (currentCaller != null)
             {
                 _repository.EndOnAir();
@@ -331,6 +336,34 @@ namespace KBTV.Dialogue
             _stateMachine = null;
             _conversationContext = null;
             _arcLineIndex = -1;
+
+            if (wasOffTopic)
+            {
+                _state = BroadcastState.OffTopicRemark;
+                if (_repository.HasOnHoldCallers)
+                {
+                    _nextStateAfterOffTopic = BroadcastState.BetweenCallers;
+                }
+                else
+                {
+                    _nextStateAfterOffTopic = BroadcastState.DeadAirFiller;
+                    _fillerCycleCount = 0;
+                }
+            }
+            else
+            {
+                if (_repository.HasOnHoldCallers)
+                {
+                    _state = BroadcastState.BetweenCallers;
+                }
+                else
+                {
+                    _state = BroadcastState.DeadAirFiller;
+                    _fillerCycleCount = 0;
+                }
+            }
+
+            _lineInProgress = false;
         }
 
         private void TryPutNextCallerOnAir()
@@ -357,6 +390,9 @@ namespace KBTV.Dialogue
                     break;
                 case BroadcastState.DeadAirFiller:
                     AdvanceFromFiller();
+                    break;
+                case BroadcastState.OffTopicRemark:
+                    AdvanceFromOffTopicRemark();
                     break;
                 case BroadcastState.ShowClosing:
                     _state = BroadcastState.Idle;
@@ -502,6 +538,11 @@ namespace KBTV.Dialogue
             }
         }
 
+        private void AdvanceFromOffTopicRemark()
+        {
+            _state = _nextStateAfterOffTopic;
+        }
+
         private BroadcastLine GetFillerLine()
         {
             if (_repository.HasOnHoldCallers && _fillerCycleCount >= MaxFillerCyclesBeforeAutoAdvance)
@@ -517,6 +558,15 @@ namespace KBTV.Dialogue
         {
             var line = _vernDialogue.GetDeadAirFiller();
             return line != null ? BroadcastLine.DeadAirFiller(line.Text) : BroadcastLine.None();
+        }
+
+        private BroadcastLine GetOffTopicRemarkLine()
+        {
+            var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+            var currentMood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+
+            var line = _vernDialogue.GetOffTopicRemark(currentMood);
+            return line != null ? BroadcastLine.OffTopicRemark(line.Text) : BroadcastLine.None();
         }
 
         private void AdvanceFromFiller()
@@ -553,6 +603,7 @@ namespace KBTV.Dialogue
             else if (line.Type == BroadcastLineType.VernDialogue ||
                 line.Type == BroadcastLineType.DeadAirFiller ||
                 line.Type == BroadcastLineType.BetweenCallers ||
+                line.Type == BroadcastLineType.OffTopicRemark ||
                 line.Type == BroadcastLineType.ShowOpening ||
                 line.Type == BroadcastLineType.ShowClosing)
             {

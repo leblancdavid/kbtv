@@ -65,6 +65,15 @@ namespace KBTV.Dialogue
             Phase = ConversationPhase.Resolution
         };
 
+        public static BroadcastLine OffTopicRemark(string text) => new()
+        {
+            Type = BroadcastLineType.OffTopicRemark,
+            Text = text,
+            Speaker = "Vern",
+            SpeakerId = "VERN",
+            Phase = ConversationPhase.Resolution
+        };
+
         public static BroadcastLine DeadAirFiller(string text) => new()
         {
             Type = BroadcastLineType.DeadAirFiller,

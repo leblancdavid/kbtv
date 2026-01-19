@@ -9,6 +9,7 @@ public enum BroadcastLineType
     BetweenCallers,
     DeadAirFiller,
     ShowClosing,
+    OffTopicRemark,
     Music
 }
 }
