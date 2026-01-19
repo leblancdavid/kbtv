@@ -132,10 +132,12 @@ namespace KBTV.Dialogue
 
             if (line == null)
             {
+                GD.Print("[ConversationDisplay] No line available, setting idle state");
                 _displayInfo = ConversationDisplayInfo.CreateIdle();
                 return;
             }
 
+            GD.Print($"[ConversationDisplay] Received line: {line.Value.Type} - '{line.Value.Text}'");
             StartLine(line.Value);
         }
 
@@ -143,6 +145,8 @@ namespace KBTV.Dialogue
         {
             _currentLine = line;
             _displayInfo = CreateDisplayInfo(line);
+
+            GD.Print($"[ConversationDisplay] Starting line playback: {line.Type} - Speaker: {line.Speaker}, Text: '{line.Text}'");
 
             if (_audioPlayer != null)
             {

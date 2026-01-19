@@ -166,10 +166,12 @@ namespace KBTV.Dialogue
 
             if (_repository.HasOnHoldCallers)
             {
+                GD.Print($"[BroadcastCoordinator] Conversation ended, transitioning to BetweenCallers state ({_repository.OnHoldCallers.Count} callers waiting)");
                 _state = BroadcastState.BetweenCallers;
             }
             else
             {
+                GD.Print($"[BroadcastCoordinator] Conversation ended, no callers waiting, transitioning to DeadAirFiller state");
                 _state = BroadcastState.DeadAirFiller;
                 _fillerCycleCount = 0;
             }
@@ -452,11 +454,25 @@ namespace KBTV.Dialogue
         private BroadcastLine GetBetweenCallersLine()
         {
             var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+            GD.Print($"[BroadcastCoordinator] VernStats available: {vernStats != null}");
+
             var currentMood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+            GD.Print($"[BroadcastCoordinator] Getting between-callers line for mood: {currentMood} (int value: {(int)currentMood})");
+
             var line = _vernDialogue.GetBetweenCallers(currentMood);
-            var result = line != null ? BroadcastLine.BetweenCallers(line.Text) : BroadcastLine.None();
-            AdvanceFromBetweenCallers();
-            return result;
+            if (line != null)
+            {
+                GD.Print($"[BroadcastCoordinator] Selected between-callers line: '{line.Text}' (ID: {line.Id})");
+                var result = BroadcastLine.BetweenCallers(line.Text);
+                AdvanceFromBetweenCallers();
+                return result;
+            }
+            else
+            {
+                GD.Print($"[BroadcastCoordinator] No between-callers line found for mood {currentMood}, returning None");
+                AdvanceFromBetweenCallers();
+                return BroadcastLine.None();
+            }
         }
 
         private void AdvanceFromBetweenCallers()
