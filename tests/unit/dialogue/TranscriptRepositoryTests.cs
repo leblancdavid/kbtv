@@ -48,15 +48,18 @@ namespace KBTV.Tests.Unit.Dialogue
         {
             var repo = new TranscriptRepository();
 
-            var entry1 = TranscriptEntry.CreateVernLine("First", ConversationPhase.Intro);
-            var entry2 = TranscriptEntry.CreateVernLine("Second", ConversationPhase.Probe);
+            var entry1 = new TranscriptEntry(Speaker.Vern, "First", ConversationPhase.Intro, null, "Vern");
+            var entry2 = new TranscriptEntry(Speaker.Vern, "Second", ConversationPhase.Probe, null, "Vern");
 
             repo.AddEntry(entry1);
             repo.AddEntry(entry2);
 
             var latest = repo.GetLatestEntry();
             AssertThat(latest != null);
-            AssertThat(latest!.Text == "Second");
+            if (latest != null)
+            {
+                AssertThat(latest.Text == "Second");
+            }
         }
 
         [Test]

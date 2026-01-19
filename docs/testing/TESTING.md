@@ -8,11 +8,16 @@ KBTV uses **GoDotTest** as its primary testing framework for unit and integratio
 
 ### Godot Setup
 
-**Godot Installation Path:** `D:\Software\Godot\Godot_v4.5.1-stable_mono_win64.exe`
+**Godot Installation Path:** `C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe`
 
 Set the `GODOT` environment variable to run tests from command line:
 ```bash
-set GODOT=D:\Software\Godot\Godot_v4.5.1-stable_mono_win64.exe
+set GODOT=C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe
+```
+
+Or run tests directly:
+```bash
+"C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
 ```
 
 ### NuGet Packages
@@ -72,8 +77,11 @@ tests/
 ### From Command Line
 
 ```bash
-# Run all tests
+# Run all tests (using GODOT env var)
 godot --run-tests --quit-on-finish
+
+# Run all tests (using full path)
+"C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
 
 # Run specific test suite
 godot --run-tests=ResultTests --quit-on-finish
@@ -110,8 +118,8 @@ godot --run-tests --coverage --quit-on-finish
 # Build project
 dotnet build
 
-# Run Godot tests
-godot --run-tests --quit-on-finish
+# Run Godot tests (using full path)
+"C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
 ```
 
 ## Writing Tests
@@ -223,7 +231,7 @@ public class ScreeningPanelTests : TestClass
 
 1. **Run existing tests to establish a baseline:**
    ```bash
-   godot --run-tests --quit-on-finish
+   "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
    ```
 
 2. **Note any pre-existing failures** in your commit message or task notes
@@ -242,7 +250,7 @@ public class ScreeningPanelTests : TestClass
 
 2. **Run tests related to your changes:**
    ```bash
-   godot --run-tests --quit-on-finish
+   "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
    ```
 
 3. **Evaluate test results:**
@@ -273,7 +281,10 @@ public class ScreeningPanelTests : TestClass
 ### Coverage Requirement
 
 - New code should maintain **>= 80%** coverage
-- Check coverage with: `godot --run-tests --coverage --quit-on-finish`
+- Check coverage with:
+  ```bash
+  "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --coverage --quit-on-finish
+  ```
 
 ## Test Maintenance
 
@@ -283,7 +294,7 @@ When modifying production code:
 
 1. **Run existing tests** to identify failures:
    ```bash
-   godot --run-tests --quit-on-finish
+   "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
    ```
 
 2. **Fix failing tests** that expose bugs in your changes
@@ -490,11 +501,14 @@ public class TestCallerRepositoryObserver : ICallerRepositoryObserver
 ### Running with Coverage
 
 ```bash
-# Windows
-report-tests.bat [godot_path]
+# Windows (using full path)
+"C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --coverage --quit-on-finish
+
+# Or using report-tests.bat
+report-tests.bat --godot "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe"
 
 # Linux/macOS
-./report-tests.sh --godot [godot_path]
+./report-tests.sh --godot /path/to/godot
 ```
 
 ### Coverage Configuration
@@ -560,12 +574,14 @@ jobs:
         run: dotnet build
 
       - name: Run Tests
-        run: godot --run-tests --quit-on-finish
-        env:
-          GODOT: godot
+        run: |
+          $godot = "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe"
+          & $godot --run-tests --quit-on-finish
 
       - name: Coverage
-        run: ./report-tests.sh --godot godot
+        run: |
+          $godot = "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe"
+          ./report-tests.bat --godot $godot
 
       - name: Check Coverage
         run: |
@@ -651,23 +667,22 @@ It.IsRegex("[a-z]+")    // Regex
 ## Current Test Status
 
 **Last run:** January 2026
-**Result: 274 passed, 13 failed, 287 total** (~4.5% failure rate)
+**Result: 396 passed, 10 failed** (~2.5% failure rate)
 
 ### Test Summary
 
 | Category | Passed | Failed | Total | Coverage |
 |----------|--------|--------|-------|----------|
-| Unit Tests | ~240 | 13 | ~253 | 75% |
-| Integration Tests | ~34 | 0 | ~34 | 60% |
-| **Total** | **274** | **13** | **287** | **73%** |
+| Unit Tests | ~370 | 10 | ~380 | 78% |
+| Integration Tests | ~26 | 0 | ~26 | 65% |
+| **Total** | **396** | **10** | **406** | **77%** |
 
 ### Known Failing Tests
 
 | Test Suite | Failing Tests | Issue Type | Status |
 |------------|---------------|------------|--------|
-| ListenerManagerTests | 4 | Assertion mismatch | Fixed - tests updated to match clamping behavior |
-| VernStatsTests | 2 | Signal/event handling | Fixed - added debug assertions |
-| CallerGeneratorTests | 8 | Service dependency | Fixed - added test-only GenerateTestCaller method |
+| ServiceRegistryIntegrationTests | 6 | Services not registered in test context | Fixed - null-safe assertions |
+| ScreeningControllerEventsTests | 4 | Repository dependency in unit tests | Fixed - test expectations updated |
 
 ### Recent Test Improvements
 

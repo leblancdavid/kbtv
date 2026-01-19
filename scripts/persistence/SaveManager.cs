@@ -22,7 +22,7 @@ namespace KBTV.Persistence
         // FIELDS
         // ─────────────────────────────────────────────────────────────
 
-        private SaveData _currentSave;
+        private SaveData _currentSave = new SaveData();
         private bool _isDirty;
         private List<ISaveable> _saveables = new List<ISaveable>();
         private const string SAVE_FILENAME = "save.json";
