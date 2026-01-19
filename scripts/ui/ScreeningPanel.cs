@@ -176,21 +176,33 @@ namespace KBTV.UI
 			_approveButton!.Disabled = !hasCaller;
 			_rejectButton!.Disabled = !hasCaller;
 
+			// Approve button style
 			var approveStyle = new StyleBoxFlat();
 			approveStyle.BgColor = hasCaller ? UIColors.Button.Approve : UIColors.BG_DISABLED;
-			approveStyle.CornerRadiusTopLeft = 3;
-			approveStyle.CornerRadiusTopRight = 3;
-			approveStyle.CornerRadiusBottomLeft = 3;
-			approveStyle.CornerRadiusBottomRight = 3;
+			approveStyle.CornerRadiusTopLeft = 8;
+			approveStyle.CornerRadiusTopRight = 8;
+			approveStyle.CornerRadiusBottomLeft = 8;
+			approveStyle.CornerRadiusBottomRight = 8;
+			approveStyle.ContentMarginLeft = 20;
+			approveStyle.ContentMarginRight = 20;
+			approveStyle.ContentMarginTop = 12;
+			approveStyle.ContentMarginBottom = 12;
 			_approveButton.AddThemeStyleboxOverride("normal", approveStyle);
+			_approveButton.AddThemeColorOverride("font_color", UIColors.Button.ApproveText);
 
+			// Reject button style
 			var rejectStyle = new StyleBoxFlat();
 			rejectStyle.BgColor = hasCaller ? UIColors.Button.Reject : UIColors.BG_DISABLED;
-			rejectStyle.CornerRadiusTopLeft = 3;
-			rejectStyle.CornerRadiusTopRight = 3;
-			rejectStyle.CornerRadiusBottomLeft = 3;
-			rejectStyle.CornerRadiusBottomRight = 3;
+			rejectStyle.CornerRadiusTopLeft = 8;
+			rejectStyle.CornerRadiusTopRight = 8;
+			rejectStyle.CornerRadiusBottomLeft = 8;
+			rejectStyle.CornerRadiusBottomRight = 8;
+			rejectStyle.ContentMarginLeft = 20;
+			rejectStyle.ContentMarginRight = 20;
+			rejectStyle.ContentMarginTop = 12;
+			rejectStyle.ContentMarginBottom = 12;
 			_rejectButton.AddThemeStyleboxOverride("normal", rejectStyle);
+			_rejectButton.AddThemeColorOverride("font_color", UIColors.Button.RejectText);
 		}
 
 		private void UpdatePatienceDisplay(ScreeningProgress progress)
