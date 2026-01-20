@@ -10,7 +10,7 @@ using KBTV.Data;
 namespace KBTV.Dialogue
 {
     [GlobalClass]
-    public partial class BroadcastCoordinator : Node
+    public partial class BroadcastCoordinator : Node, IBroadcastCoordinator
     {
         private ICallerRepository _repository = null!;
         private ITranscriptRepository _transcriptRepository = null!;
@@ -44,6 +44,7 @@ namespace KBTV.Dialogue
             ShowOpening,
             Conversation,
             BetweenCallers,
+            AdBreak,
             DeadAirFiller,
             OffTopicRemark,
             ShowClosing
@@ -103,6 +104,28 @@ namespace KBTV.Dialogue
             _lineInProgress = false;
             _pendingControlAction = ControlAction.None;
             _transcriptRepository?.ClearCurrentShow();
+        }
+
+        public void OnAdBreakStarted()
+        {
+            _state = BroadcastState.AdBreak;
+            _lineInProgress = false;
+            GD.Print("BroadcastCoordinator: Entering AdBreak state");
+        }
+
+        public void OnAdBreakEnded()
+        {
+            if (_repository.HasOnHoldCallers)
+            {
+                _state = BroadcastState.BetweenCallers;
+            }
+            else
+            {
+                _state = BroadcastState.DeadAirFiller;
+                _fillerCycleCount = 0;
+            }
+            _lineInProgress = false;
+            GD.Print("BroadcastCoordinator: Exiting AdBreak state");
         }
 
         public void OnCallerPutOnAir(Caller caller)
@@ -241,6 +264,7 @@ namespace KBTV.Dialogue
                 BroadcastState.ShowOpening => GetShowOpeningLine(),
                 BroadcastState.Conversation => GetConversationLine(),
                 BroadcastState.BetweenCallers => GetBetweenCallersLine(),
+                BroadcastState.AdBreak => GetAdBreakMusicLine(),
                 BroadcastState.DeadAirFiller => GetFillerLine(),
                 BroadcastState.OffTopicRemark => GetOffTopicRemarkLine(),
                 BroadcastState.ShowClosing => GetShowClosingLine(),
@@ -386,6 +410,11 @@ namespace KBTV.Dialogue
         }
 
         private BroadcastLine GetMusicLine()
+        {
+            return BroadcastLine.Music();
+        }
+
+        private BroadcastLine GetAdBreakMusicLine()
         {
             return BroadcastLine.Music();
         }

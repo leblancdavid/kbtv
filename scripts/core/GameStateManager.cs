@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using KBTV.Ads;
 using KBTV.Data;
 using KBTV.Dialogue;
 using KBTV.Economy;
@@ -18,28 +19,31 @@ namespace KBTV.Core
 	[Signal] public delegate void NightStartedEventHandler(int nightNumber);
 
 	// ═══════════════════════════════════════════════════════════════════════════════════════════════
-	// FIELDS
-	// ═══════════════════════════════════════════════════════════════════════════════
+		// FIELDS
+		// ═══════════════════════════════════════════════════════════════════════════════
 
-    private GamePhase _currentPhase = GamePhase.PreShow;
-    private VernStats _vernStats;
-    private int _currentNight = 1;
-    private Topic _selectedTopic;
-    private static int _instanceCount;
-    private int _instanceId;
+		private GamePhase _currentPhase = GamePhase.PreShow;
+		private VernStats _vernStats;
+		private int _currentNight = 1;
+		private Topic _selectedTopic;
+		private AdSchedule _adSchedule;
+		private static int _instanceCount;
+		private int _instanceId;
 
-    public VernStats VernStats => _vernStats;
-    public GamePhase CurrentPhase => _currentPhase;
-    public int CurrentNight => _currentNight;
-    public Topic SelectedTopic => _selectedTopic;
+		public VernStats VernStats => _vernStats;
+		public GamePhase CurrentPhase => _currentPhase;
+		public int CurrentNight => _currentNight;
+		public Topic SelectedTopic => _selectedTopic;
+		public AdSchedule AdSchedule => _adSchedule;
 
-    public override void _Ready()
-    {
-        _instanceId = ++_instanceCount;
-        GD.Print($"GameStateManager: _Ready called (instance #{_instanceId})");
-        ServiceRegistry.Instance.RegisterSelf<GameStateManager>(this);
+		public override void _Ready()
+		{
+			_instanceId = ++_instanceCount;
+			GD.Print($"GameStateManager: _Ready called (instance #{_instanceId})");
+			ServiceRegistry.Instance.RegisterSelf<GameStateManager>(this);
 
 			_vernStats = new VernStats();
+			_adSchedule = new AdSchedule(AdConstants.DEFAULT_BREAKS_PER_SHOW, AdConstants.DEFAULT_SLOTS_PER_BREAK);
 			InitializeGame();
 		}
 
@@ -104,6 +108,17 @@ namespace KBTV.Core
 			// Start the show clock
 			ServiceRegistry.Instance.TimeManager?.StartClock();
 
+			// Initialize ad manager with schedule
+			var adManager = ServiceRegistry.Instance.AdManager;
+			if (adManager != null)
+			{
+				adManager.Initialize(_adSchedule, AdConstants.SHOW_DURATION_SECONDS);
+			}
+			else
+			{
+				GD.PrintErr("GameStateManager: AdManager not available");
+			}
+
 			// Initialize broadcast flow
 			ServiceRegistry.Instance.BroadcastCoordinator?.OnLiveShowStarted();
 		}
@@ -118,14 +133,22 @@ namespace KBTV.Core
 			EmitSignal("PhaseChanged", (int)oldPhase, (int)phase);
 		}
 
-    /// <summary>
-    /// Set the selected topic for the current show.
-    /// </summary>
-    public void SetSelectedTopic(Topic topic)
-    {
-        _selectedTopic = topic;
-        // GD.Print($"GameStateManager: Topic selected - {topic?.DisplayName ?? "None"}");
-    }
+    	/// <summary>
+    	/// Set the selected topic for the current show.
+    	/// </summary>
+    	public void SetSelectedTopic(Topic topic)
+    	{
+    		_selectedTopic = topic;
+    		// GD.Print($"GameStateManager: Topic selected - {topic?.DisplayName ?? "None"}");
+    	}
+
+		/// <summary>
+		/// Set the ad schedule for the current show.
+		/// </summary>
+		public void SetAdSchedule(AdSchedule schedule)
+		{
+			_adSchedule = schedule;
+		}
 
 		/// <summary>
 		/// Check if the game is ready to start live show.

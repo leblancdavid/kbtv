@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using KBTV.Ads;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Dialogue;
@@ -69,6 +70,11 @@ namespace KBTV.Core
             var audioPlayer = new AudioDialoguePlayer();
             AddChild(audioPlayer);
             Register<IDialoguePlayer>(audioPlayer);
+            NotifyRegistered();
+
+            var adManager = new AdManager();
+            AddChild(adManager);
+            RegisterSelf<AdManager>(adManager);
             NotifyRegistered();
         }
 
@@ -211,5 +217,6 @@ namespace KBTV.Core
         public CallerGenerator CallerGenerator => Get<CallerGenerator>();
         public EventBus EventBus => Get<EventBus>();
         public IDialoguePlayer AudioPlayer => Get<IDialoguePlayer>();
+        public AdManager AdManager => Get<AdManager>();
     }
 }

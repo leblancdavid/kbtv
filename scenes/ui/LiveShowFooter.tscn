@@ -41,22 +41,22 @@ layout_mode = 2
 text = "AD BREAK"
 horizontal_alignment = 1
 
+[node name="AdBreakStatusLabel" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
+layout_mode = 2
+text = "WAITING"
+horizontal_alignment = 1
+
 [node name="AdBreakControls" type="VBoxContainer" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="StartAdBreakButton" type="Button" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
+[node name="QueueAdsButton" type="Button" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
 layout_mode = 2
-text = "Start Break"
+text = "QUEUE ADS"
 
-[node name="EndAdBreakButton" type="Button" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
+[node name="BreaksRemainingLabel" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
 layout_mode = 2
-text = "End Break"
-disabled = true
-
-[node name="AdBreakTimerLabel" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
-layout_mode = 2
-text = "00:00"
+text = "Breaks: 0"
 horizontal_alignment = 1
 
 [node name="TranscriptPanel" type="Panel" parent="HBoxContainer"]

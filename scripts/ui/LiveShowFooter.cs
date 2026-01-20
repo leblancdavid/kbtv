@@ -1,4 +1,5 @@
 using Godot;
+using KBTV.Ads;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Dialogue;
@@ -9,16 +10,13 @@ namespace KBTV.UI
     {
         private Label _callerNameLabel = null!;
         private Label _transcriptText = null!;
-        private Button _startAdBreakButton = null!;
-        private Button _endAdBreakButton = null!;
-        private Label _adBreakTimerLabel = null!;
+        private Button _queueAdsButton = null!;
+        private Label _adBreakStatusLabel = null!;
+        private Label _breaksRemainingLabel = null!;
 
         private ICallerRepository _repository = null!;
-        private BroadcastCoordinator _coordinator = null!;
         private ITranscriptRepository _transcriptRepository = null!;
-
-        private bool _adBreakActive = false;
-        private float _adBreakTime = 0f;
+        private AdManager _adManager = null!;
 
         private string _previousOnAirCallerId = string.Empty;
 
@@ -38,20 +36,28 @@ namespace KBTV.UI
 
             _callerNameLabel = GetNode<Label>("HBoxContainer/OnAirPanel/OnAirVBox/CallerNameLabel");
             _transcriptText = GetNode<Label>("HBoxContainer/TranscriptPanel/TranscriptVBox/TranscriptScroll/TranscriptText");
-            _startAdBreakButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/StartAdBreakButton");
-            _endAdBreakButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/EndAdBreakButton");
-            _adBreakTimerLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/AdBreakTimerLabel");
+            _queueAdsButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/QueueAdsButton");
+            _adBreakStatusLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakStatusLabel");
+            _breaksRemainingLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/BreaksRemainingLabel");
 
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
-            _coordinator = Core.ServiceRegistry.Instance.BroadcastCoordinator;
             _transcriptRepository = Core.ServiceRegistry.Instance.TranscriptRepository;
+            _adManager = Core.ServiceRegistry.Instance.AdManager;
 
-            _startAdBreakButton.Connect("pressed", Callable.From(OnStartAdBreakPressed));
-            _endAdBreakButton.Connect("pressed", Callable.From(OnEndAdBreakPressed));
+            _queueAdsButton.Connect("pressed", Callable.From(OnQueueAdsPressed));
 
             if (_transcriptRepository != null)
             {
                 _transcriptRepository.EntryAdded += OnTranscriptEntryAdded;
+            }
+
+            if (_adManager != null)
+            {
+                _adManager.OnBreakWindowOpened += OnBreakWindowOpened;
+                _adManager.OnBreakQueued += OnBreakQueued;
+                _adManager.OnBreakStarted += OnBreakStarted;
+                _adManager.OnBreakEnded += OnBreakEnded;
+                _adManager.OnShowEnded += OnShowEnded;
             }
 
             TrackStateForRefresh();
@@ -63,7 +69,7 @@ namespace KBTV.UI
 
         private void OnTranscriptEntryAdded(TranscriptEntry entry)
         {
-            if (_adBreakActive)
+            if (_adManager != null && _adManager.IsAdBreakActive)
             {
                 return;
             }
@@ -91,10 +97,9 @@ namespace KBTV.UI
                 _previousOnAirCallerId = currentOnAirCallerId;
             }
 
-            if (_adBreakActive)
+            if (_adManager != null && _adManager.IsActive)
             {
-                _adBreakTime += (float)delta;
-                UpdateAdBreakTimer();
+                UpdateAdBreakControls();
             }
         }
 
@@ -107,40 +112,96 @@ namespace KBTV.UI
             }
         }
 
-        private void OnStartAdBreakPressed()
+        private void OnQueueAdsPressed()
         {
-            _adBreakActive = true;
-            _adBreakTime = 0f;
+            if (_adManager != null)
+            {
+                _adManager.QueueBreak();
+            }
+        }
+
+        private void OnBreakWindowOpened(float timeUntilBreak)
+        {
             UpdateAdBreakControls();
         }
 
-        private void OnEndAdBreakPressed()
+        private void OnBreakQueued()
         {
-            _adBreakActive = false;
-            _adBreakTime = 0f;
+            UpdateAdBreakControls();
+        }
+
+        private void OnBreakStarted()
+        {
+            UpdateAdBreakControls();
+        }
+
+        private void OnBreakEnded(float revenue)
+        {
+            UpdateAdBreakControls();
+        }
+
+        private void OnShowEnded()
+        {
             UpdateAdBreakControls();
         }
 
         private void UpdateAdBreakControls()
         {
-            if (_startAdBreakButton != null)
+            if (_adManager == null)
             {
-                _startAdBreakButton.Disabled = _adBreakActive;
+                if (_queueAdsButton != null)
+                {
+                    _queueAdsButton.Disabled = true;
+                    _queueAdsButton.Text = "N/A";
+                }
+                return;
             }
 
-            if (_endAdBreakButton != null)
-            {
-                _endAdBreakButton.Disabled = !_adBreakActive;
-            }
-        }
+            string buttonText = _adManager.GetQueueButtonText();
+            bool buttonEnabled = _adManager.IsQueueButtonEnabled();
 
-        private void UpdateAdBreakTimer()
-        {
-            if (_adBreakTimerLabel != null)
+            if (_queueAdsButton != null)
             {
-                int minutes = (int)(_adBreakTime / 60f);
-                int seconds = (int)(_adBreakTime % 60f);
-                _adBreakTimerLabel.Text = $"{minutes:00}:{seconds:00}";
+                _queueAdsButton.Text = buttonText;
+                _queueAdsButton.Disabled = !buttonEnabled;
+            }
+
+            if (_adBreakStatusLabel != null)
+            {
+                if (_adManager.IsAdBreakActive)
+                {
+                    _adBreakStatusLabel.Text = "ON BREAK";
+                    _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_RED);
+                }
+                else if (_adManager.IsInBreakWindow)
+                {
+                    _adBreakStatusLabel.Text = "WINDOW OPEN";
+                    _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_GREEN);
+                }
+                else if (_adManager.IsActive)
+                {
+                    int seconds = (int)_adManager.TimeUntilBreakWindow;
+                    if (seconds > 0)
+                    {
+                        _adBreakStatusLabel.Text = $"IN {seconds / 60}:{seconds % 60:D2}";
+                    }
+                    else
+                    {
+                        _adBreakStatusLabel.Text = "BREAK SOON";
+                    }
+                    _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+                }
+                else
+                {
+                    _adBreakStatusLabel.Text = "NO MORE";
+                    _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+                }
+            }
+
+            if (_breaksRemainingLabel != null)
+            {
+                int remaining = _adManager.BreaksRemaining;
+                _breaksRemainingLabel.Text = $"Breaks: {remaining}";
             }
         }
 
@@ -151,14 +212,18 @@ namespace KBTV.UI
                 _transcriptRepository.EntryAdded -= OnTranscriptEntryAdded;
             }
 
-            if (_startAdBreakButton != null)
+            if (_adManager != null)
             {
-                _startAdBreakButton.Disconnect("pressed", Callable.From(OnStartAdBreakPressed));
+                _adManager.OnBreakWindowOpened -= OnBreakWindowOpened;
+                _adManager.OnBreakQueued -= OnBreakQueued;
+                _adManager.OnBreakStarted -= OnBreakStarted;
+                _adManager.OnBreakEnded -= OnBreakEnded;
+                _adManager.OnShowEnded -= OnShowEnded;
             }
 
-            if (_endAdBreakButton != null)
+            if (_queueAdsButton != null)
             {
-                _endAdBreakButton.Disconnect("pressed", Callable.From(OnEndAdBreakPressed));
+                _queueAdsButton.Disconnect("pressed", Callable.From(OnQueueAdsPressed));
             }
         }
     }
