@@ -18,6 +18,9 @@ namespace KBTV.Dialogue
         private VernDialogueTemplate _vernDialogue = null!;
 
         private BroadcastState _state = BroadcastState.Idle;
+
+        // Public accessor for current state (used by AdManager for coordination)
+        public BroadcastState CurrentState => _state;
         private ConversationArc? _currentArc;
         private System.Collections.Generic.List<ArcDialogueLine>? _resolvedDialogue;
         private ConversationFlow? _currentFlow;
@@ -37,7 +40,14 @@ namespace KBTV.Dialogue
         private ControlAction _pendingControlAction = ControlAction.None;
         private BroadcastState _nextStateAfterOffTopic;
 
-        private enum BroadcastState
+        private bool _breakTransitionPending = false;
+        private BroadcastLine? _pendingTransitionLine = null;
+
+        // Events for break coordination
+        public event Action? OnBreakTransitionCompleted;
+        public event Action? OnTransitionLineAvailable;
+
+        public enum BroadcastState
         {
             Idle,
             IntroMusic,
@@ -45,6 +55,8 @@ namespace KBTV.Dialogue
             Conversation,
             BetweenCallers,
             AdBreak,
+            BreakGracePeriod,
+            BreakTransition,
             DeadAirFiller,
             OffTopicRemark,
             ShowClosing
@@ -61,6 +73,13 @@ namespace KBTV.Dialogue
             _transcriptRepository = ServiceRegistry.Instance.TranscriptRepository;
             _arcRepository = ServiceRegistry.Instance.ArcRepository;
             _vernDialogue = LoadVernDialogue();
+
+            var adManager = ServiceRegistry.Instance.AdManager;
+            if (adManager != null)
+            {
+                adManager.OnBreakGracePeriod += OnBreakGracePeriod;
+                adManager.OnBreakImminent += OnBreakImminent;
+            }
 
             ServiceRegistry.Instance.RegisterSelf<BroadcastCoordinator>(this);
         }
@@ -106,8 +125,89 @@ namespace KBTV.Dialogue
             _transcriptRepository?.ClearCurrentShow();
         }
 
+        private void OnBreakGracePeriod(float timeUntilBreak)
+        {
+            if (_state == BroadcastState.AdBreak || _state == BroadcastState.BreakGracePeriod) return;
+
+            _state = BroadcastState.BreakGracePeriod;
+            _breakTransitionPending = true;
+            GD.Print($"BroadcastCoordinator: Entering grace period, {timeUntilBreak:F1}s until break");
+        }
+
+        private void OnBreakImminent(float timeUntilBreak)
+        {
+            if (_state == BroadcastState.BreakGracePeriod && _lineInProgress)
+            {
+                // Interrupt current conversation line and start transition
+                StopCurrentLine();
+                StartBreakTransition();
+            }
+            // Removed: interruption of BreakTransition state
+            // Let transition lines complete naturally
+
+            GD.Print($"BroadcastCoordinator: Break imminent, {timeUntilBreak:F1}s remaining");
+        }
+
+        private void StartBreakTransition()
+        {
+            // Stop any currently playing line first
+            if (_lineInProgress)
+            {
+                GD.Print("BroadcastCoordinator: Stopping current line before transition");
+                StopCurrentLine();
+                OnLineCompleted(); // Process completion of interrupted line
+            }
+
+            _state = BroadcastState.BreakTransition;
+            _breakTransitionPending = false;
+
+            var transitionTemplate = _vernDialogue.GetBreakTransition();
+            if (transitionTemplate == null)
+            {
+                GD.PrintErr("BroadcastCoordinator: CRITICAL ERROR - No break transition template found!");
+                throw new InvalidOperationException("Break transition template is missing from VernDialogueTemplate");
+            }
+
+            // Prepare transition line for normal dialogue flow (don't play directly)
+            _pendingTransitionLine = CreateBroadcastLine(transitionTemplate, Speaker.Vern);
+
+            GD.Print($"BroadcastCoordinator: Prepared transition line for display: {_pendingTransitionLine?.Text ?? "null"}");
+
+            // Notify display that transition line is available
+            OnTransitionLineAvailable?.Invoke();
+            GD.Print("BroadcastCoordinator: Transition line prepared, notifying display");
+        }
+
+        private void StopCurrentLine()
+        {
+            if (_lineInProgress)
+            {
+                // Stop any audio playback
+                var dialoguePlayer = ServiceRegistry.Instance.EventBus as IDialoguePlayer;
+                if (dialoguePlayer != null)
+                {
+                    dialoguePlayer.Stop();
+                }
+
+                _lineInProgress = false;
+                _lineStartTime = 0f;
+                _lineDuration = 0f;
+            }
+        }
+
+        private BroadcastLine CreateBroadcastLine(DialogueTemplate template, Speaker speaker)
+        {
+            return BroadcastLine.VernDialogue(template.Text, ConversationPhase.Probe, template.Id);
+        }
+
         public void OnAdBreakStarted()
         {
+            // Ensure any playing line stops
+            if (_lineInProgress)
+            {
+                StopCurrentLine();
+            }
+
             _state = BroadcastState.AdBreak;
             _lineInProgress = false;
             GD.Print("BroadcastCoordinator: Entering AdBreak state");
@@ -222,6 +322,25 @@ namespace KBTV.Dialogue
                 return null;
             }
 
+            // Priority: Check for pending transition line first
+            if (_pendingTransitionLine != null)
+            {
+                var transitionLine = _pendingTransitionLine.Value;
+                _pendingTransitionLine = null;
+
+                // Set up transition line timing and state
+                _currentLine = transitionLine;
+                _lineInProgress = true;
+                _lineStartTime = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                _lineDuration = GetLineDuration(transitionLine);
+
+                // Add to transcript immediately
+                AddTranscriptEntry(transitionLine);
+
+                GD.Print($"BroadcastCoordinator: Delivering transition line to display: {transitionLine.Text}");
+                return transitionLine;
+            }
+
             if (_lineInProgress)
             {
                 return _currentLine;
@@ -268,6 +387,8 @@ namespace KBTV.Dialogue
                 BroadcastState.DeadAirFiller => GetFillerLine(),
                 BroadcastState.OffTopicRemark => GetOffTopicRemarkLine(),
                 BroadcastState.ShowClosing => GetShowClosingLine(),
+                BroadcastState.BreakGracePeriod => BroadcastLine.None(), // Wait for transition
+                BroadcastState.BreakTransition => BroadcastLine.None(),   // Handled by GetNextDisplayLine
                 _ => BroadcastLine.None()
             };
         }
@@ -275,6 +396,24 @@ namespace KBTV.Dialogue
         public void OnLineCompleted()
         {
             _lineInProgress = false;
+
+            // Check if break transition just completed - start the break
+            if (_state == BroadcastState.BreakTransition)
+            {
+                GD.Print("BroadcastCoordinator: Break transition completed, notifying listeners");
+                OnBreakTransitionCompleted?.Invoke();
+                _state = BroadcastState.AdBreak;
+                _lineInProgress = false;
+
+                return; // Break started, don't advance normal flow
+            }
+
+            // Check if we need to start break transition
+            if (_state == BroadcastState.BreakGracePeriod && _breakTransitionPending)
+            {
+                StartBreakTransition();
+                return; // Don't advance normal flow
+            }
 
             if (_stateMachine != null)
             {

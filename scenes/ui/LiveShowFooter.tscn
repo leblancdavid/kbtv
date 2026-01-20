@@ -52,7 +52,7 @@ size_flags_vertical = 3
 
 [node name="QueueAdsButton" type="Button" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
 layout_mode = 2
-text = "QUEUE ADS"
+text = "QUEUE AD-BREAK"
 
 [node name="BreaksRemainingLabel" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
 layout_mode = 2

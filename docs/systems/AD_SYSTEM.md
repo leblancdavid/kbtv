@@ -19,7 +19,7 @@ Players configure and schedule ad breaks during shows to generate income. Better
 | Ad slot duration | 18 seconds (avg) |
 | Break jingle | 5 seconds |
 | Return jingle | 3 seconds |
-| Max ad breaks | 4 per show |
+| Max ad breaks | 10 per show |
 | Max slots per break | 3 |
 
 ### Typical Configurations
@@ -80,7 +80,7 @@ Players configure their ad schedule before the show starts using the Ad Configur
 ```
 
 ### Default Values
-- Breaks per show: 2 (configurable 0-4)
+- Breaks per show: 2 (configurable 0-10)
 - Slots per break: 2 (configurable 1-3)
 
 ### Timing Calculation
@@ -101,31 +101,49 @@ The Ad Break panel in the live show footer shows different states:
 | State | Button Text | Description |
 |-------|-------------|-------------|
 | **Waiting** | "BREAK IN 1:32" | Countdown to break window |
-| **Ready** | "QUEUE ADS" | In break window, button enabled |
+| **Ready** | "QUEUE AD-BREAK" | In break window, button enabled |
 | **Queued** | "QUEUED 0:15" | Player queued, countdown to break |
 | **Playing** | "ON BREAK" | Ads are playing |
 | **Done** | "NO BREAKS" | All breaks used |
 
 ### Break Window Flow
 
-Each break has a **20-second window** before the scheduled break time. The "QUEUE ADS" button is only enabled during this window.
+Each break has a **20-second window** before the scheduled break time. The "QUEUE AD-BREAK" button is only enabled during this window.
 
 ```
-Show Progress: 0%────[WINDOW OPENS]────[BREAK TIME]────33%
-                           ↑                  ↑
-                      20 sec before      Break starts
-                      Button enabled     (always happens)
+Show Progress: 0%────[WINDOW OPENS]────[GRACE STARTS]────[BREAK TIME]────33%
+                           ↑                    ↑              ↑
+                      20 sec before        10 sec before  Break starts
+                      Button enabled       Transition prep   (always happens)
 ```
 
-**Key concept:** The break **always happens** at the scheduled time. The button is a **warning system** for Vern, not a break trigger.
+**Key concept:** The break **always happens** at the scheduled time. The button is a **warning system** for Vern, not a break trigger. When queued, Vern gets a natural transition instead of being cut off.
+
+#### Detailed Timing Flow
+
+**Break Window (T-20s to T-0s):**
+- **T-20s:** Button becomes visible and enabled ("QUEUE AD-BREAK")
+- **T-10s:** If queued, grace period begins (transition preparation)
+- **T-9s to T-5s:** Current conversation wraps up, transition line interrupts
+- **T-5s:** Imminent warning (fallback if transition fails)
+- **T-0s:** Break starts (smoothly if queued, abruptly if not)
+
+**Event-Driven Architecture:**
+- Uses events to coordinate between `BroadcastCoordinator` and `AdManager`
+- Transition lines interrupt current dialogue immediately when ready
+- Audio and UI update simultaneously for seamless experience
 
 ### Player Actions
 
-**If player clicks "QUEUE ADS" during window:**
+**If player clicks "QUEUE AD-BREAK" during window:**
 1. Transition music starts playing (audio cue to Vern)
 2. Button changes to "QUEUED" with countdown
-3. Vern hears the music and wraps up naturally
-4. At break time: break starts smoothly, **no penalty**
+3. **Grace period begins** (T-10s to T-5s):
+   - Vern hears the music and wraps up current conversation
+   - When current line finishes, transition line interrupts immediately
+   - Vern speaks break transition dialogue ("Alright folks, time for a quick break...")
+   - Transition line displays in UI and plays audio
+4. At break time: break starts smoothly after transition completes, **no penalty**
 
 **If player does NOT queue before break time:**
 1. Break starts immediately (interrupts everything)
@@ -134,23 +152,31 @@ Show Progress: 0%────[WINDOW OPENS]────[BREAK TIME]────3
 
 ### Full Break Sequence
 
-1. **Window opens (T-20 sec)** - "QUEUE ADS" button becomes enabled
-2. **Player clicks Queue** (optional) - Button shows "QUEUED" with countdown
-3. **Grace period (T-10 sec)** - If queued, let current dialogue line finish naturally
-4. **Transition line** - Once line finishes, Vern speaks break transition (if time permits)
-5. **Break imminent (T-5 sec)** - Fallback interrupt if grace period didn't trigger
-6. **Break time reached (T-0)** - Break starts (penalty if not queued)
-7. **Break jingle plays** (5 seconds)
-8. **Ad slots play sequentially** (18 seconds each)
-9. **Return jingle plays** (3 seconds)
-10. **Show resumes** - Next caller can be taken
+1. **Window opens (T-20 sec)** - "QUEUE AD-BREAK" button becomes visible and enabled
+2. **Player clicks Queue** (optional) - Button shows "QUEUED" with countdown, transition music plays
+3. **Grace period (T-10 sec)** - BroadcastCoordinator enters BreakGracePeriod state
+4. **Transition preparation (T-9 sec)** - Transition line created, OnTransitionLineAvailable event fired
+5. **Immediate interruption** - ConversationDisplay receives event, interrupts current line, displays transition
+6. **Transition line plays** - Vern speaks break transition ("Alright folks, time for a quick break...")
+7. **Break imminent (T-5 sec)** - Fallback interrupt if transition fails (rare)
+8. **Break time reached (T-0)** - Break starts smoothly after transition completes (no penalty)
+9. **Break jingle plays** (5 seconds)
+10. **Ad slots play sequentially** (18 seconds each)
+11. **Return jingle plays** (3 seconds)
+12. **Show resumes** - Next caller can be taken
+
+**Unqueued Break (penalty path):**
+1. **Window opens (T-20 sec)** - Button enabled but player doesn't click
+2. **Break imminent (T-5 sec)** - No transition, current line continues
+3. **Break time reached (T-0)** - Break starts immediately, interrupts everything
+4. **Mood penalty applied** (-15 Patience) for not warning Vern
 
 ### Mood Penalty
 
-If the player **doesn't click "QUEUE ADS"** before the break time, Vern suffers a mood penalty:
+If the player **doesn't click "QUEUE AD-BREAK"** before the break time, Vern suffers a mood penalty:
 - Penalty: **-15 Patience** (affects VIBE calculation)
 - The penalty applies even if Vern wasn't actively speaking
-- Queuing the break = no penalty (Vern had warning)
+- Queuing the break = no penalty (Vern gets natural transition instead of interruption)
 
 ## Listener Impact
 
@@ -221,7 +247,7 @@ If the player **doesn't click "QUEUE ADS"** before the break time, Vern suffers 
 |----------|-------|
 | `SHOW_DURATION_SECONDS` | 600 |
 | `AD_SLOT_DURATION` | 18 |
-| `MAX_BREAKS_PER_SHOW` | 4 |
+| `MAX_BREAKS_PER_SHOW` | 10 |
 | `MAX_SLOTS_PER_BREAK` | 3 |
 | `BREAK_JINGLE_DURATION` | 5 |
 | `RETURN_JINGLE_DURATION` | 3 |

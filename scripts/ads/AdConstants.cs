@@ -12,7 +12,7 @@ namespace KBTV.Ads
         public const float RETURN_JINGLE_DURATION = 3f;   // Return from break jingle
 
         // Break scheduling constants
-        public const int MAX_BREAKS_PER_SHOW = 4;
+        public const int MAX_BREAKS_PER_SHOW = 10;
         public const int MAX_SLOTS_PER_BREAK = 3;
         public const int DEFAULT_BREAKS_PER_SHOW = 2;
         public const int DEFAULT_SLOTS_PER_BREAK = 2;

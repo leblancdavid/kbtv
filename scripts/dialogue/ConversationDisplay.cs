@@ -75,6 +75,12 @@ namespace KBTV.Dialogue
             eventBus.Subscribe<ConversationStartedEvent>(HandleConversationStarted);
             eventBus.Subscribe<AudioCompletedEvent>(HandleAudioCompleted);
             eventBus.Subscribe<ConversationAdvancedEvent>(HandleConversationAdvanced);
+
+            // Subscribe to transition line notifications
+            if (_coordinator != null)
+            {
+                _coordinator.OnTransitionLineAvailable += OnTransitionLineAvailable;
+            }
         }
 
         private void HandleShowStarted(ShowStartedEvent @event)
@@ -90,6 +96,12 @@ namespace KBTV.Dialogue
         private void HandleAudioCompleted(AudioCompletedEvent @event)
         {
             _coordinator.OnLineCompleted();
+        }
+
+        private void OnTransitionLineAvailable()
+        {
+            GD.Print("ConversationDisplay: Transition line available, requesting new line");
+            TryGetNextLine();
         }
 
         private void HandleConversationAdvanced(ConversationAdvancedEvent @event)
@@ -138,11 +150,27 @@ namespace KBTV.Dialogue
 
         private void StartLine(BroadcastLine line)
         {
+            GD.Print($"ConversationDisplay: Starting line - Type: {line.Type}, Text: {line.Text}");
+
+            // Check if this is an interrupting line that should stop current audio
+            bool shouldInterrupt = IsInterruptingLine(line);
+
+            if (shouldInterrupt && _audioPlayer != null && _audioPlayer.IsPlaying)
+            {
+                GD.Print("ConversationDisplay: Interrupting current audio for new line");
+                _audioPlayer.Stop();
+
+                // Fire completion event for the interrupted line to maintain state consistency
+                OnAudioLineCompleted(new AudioCompletedEvent(_currentLine.SpeakerId,
+                    _currentLine.Speaker == "Vern" ? Speaker.Vern : Speaker.Caller));
+            }
+
             _currentLine = line;
             _displayInfo = CreateDisplayInfo(line);
 
             if (_audioPlayer != null)
             {
+                GD.Print("ConversationDisplay: Playing line through audio player");
                 _audioPlayer.PlayLineAsync(line);
             }
             else
@@ -152,17 +180,38 @@ namespace KBTV.Dialogue
             }
         }
 
+        private bool IsInterruptingLine(BroadcastLine line)
+        {
+            // For now, transition lines are interrupting
+            // Future: Add more interruption conditions (emergency broadcasts, etc.)
+            if (_coordinator == null) return false;
+
+            return line.Type == BroadcastLineType.VernDialogue &&
+                   _coordinator.CurrentState == BroadcastCoordinator.BroadcastState.BreakTransition;
+        }
+
         private void OnAudioLineCompleted(AudioCompletedEvent audioEvent)
         {
             _displayInfo.Progress = 1f;
             _displayInfo.ElapsedLineTime = 0;
-            if (_coordinator != null)
+
+            // Only notify coordinator of completion if this wasn't an interruption
+            // Interrupted lines don't advance the conversation state
+            bool wasInterrupted = IsInterruptingLine(_currentLine);
+            if (!wasInterrupted)
             {
-                _coordinator.OnLineCompleted();
+                if (_coordinator != null)
+                {
+                    _coordinator.OnLineCompleted();
+                }
+                else
+                {
+                    GD.PrintErr("ConversationDisplay: _coordinator is null, cannot call OnLineCompleted");
+                }
             }
             else
             {
-                GD.PrintErr("ConversationDisplay: _coordinator is null, cannot call OnLineCompleted");
+                GD.Print("ConversationDisplay: Line was interrupted, not advancing conversation state");
             }
         }
 

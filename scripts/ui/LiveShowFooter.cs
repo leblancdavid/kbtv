@@ -164,6 +164,7 @@ namespace KBTV.UI
             {
                 _queueAdsButton.Text = buttonText;
                 _queueAdsButton.Disabled = !buttonEnabled;
+                _queueAdsButton.Visible = _adManager.IsInBreakWindow;
             }
 
             if (_adBreakStatusLabel != null)

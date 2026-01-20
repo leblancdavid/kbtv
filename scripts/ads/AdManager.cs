@@ -29,9 +29,22 @@ namespace KBTV.Ads
         private float _queuedCountdown = 0f;
         private int _breaksPlayed = 0;
 
+        // State tracking for one-shot event firing
+        private bool _gracePeriodActive = false;
+        private bool _imminentActive = false;
+
+        // Clean break queue status
+        private enum BreakQueueStatus
+        {
+            NotQueued,
+            Queued
+        }
+        private BreakQueueStatus _breakQueueStatus = BreakQueueStatus.NotQueued;
+
         private TimeManager _timeManager;
         private ListenerManager _listenerManager;
         private BroadcastCoordinator _coordinator;
+        private AudioStreamPlayer _transitionMusicPlayer = null!;
 
         // Events
         public event Action<float> OnBreakWindowOpened;      // Time until break
@@ -55,6 +68,8 @@ namespace KBTV.Ads
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<AdManager>(this);
+            _transitionMusicPlayer = new AudioStreamPlayer();
+            AddChild(_transitionMusicPlayer);
         }
 
         public void Initialize(AdSchedule schedule, float showDuration)
@@ -67,12 +82,19 @@ namespace KBTV.Ads
             _listenerManager = ServiceRegistry.Instance.ListenerManager;
             _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
 
+            // Subscribe to coordinator events for break coordination
+            if (_coordinator != null)
+            {
+                _coordinator.OnBreakTransitionCompleted += OnBreakTransitionCompleted;
+            }
+
             _isActive = true;
             _elapsedTime = 0f;
             _breaksPlayed = 0;
             _currentBreakIndex = -1;
             _breakActive = false;
             _isQueued = false;
+            _breakQueueStatus = BreakQueueStatus.NotQueued;
 
             UpdateBreakTimers();
             GD.Print($"AdManager: Initialized with {schedule.BreaksPerShow} breaks × {schedule.SlotsPerBreak} slots");
@@ -103,18 +125,49 @@ namespace KBTV.Ads
             {
                 _queuedCountdown = _timeUntilNextBreak;
 
-                // Grace period (T-10s)
-                if (_timeUntilNextBreak <= AdConstants.BREAK_GRACE_TIME && _timeUntilNextBreak > AdConstants.BREAK_IMMINENT_TIME)
+                // One-shot event firing for grace period
+                bool shouldBeInGrace = _timeUntilNextBreak <= AdConstants.BREAK_GRACE_TIME && _timeUntilNextBreak > AdConstants.BREAK_IMMINENT_TIME;
+                if (shouldBeInGrace && !_gracePeriodActive)
                 {
+                    _gracePeriodActive = true;
                     OnBreakGracePeriod?.Invoke(_timeUntilNextBreak);
                 }
-
-                // Imminent (T-5s) - fallback only
-                if (_timeUntilNextBreak <= AdConstants.BREAK_IMMINENT_TIME)
+                else if (!shouldBeInGrace && _gracePeriodActive)
                 {
+                    _gracePeriodActive = false;
+                }
+
+                // One-shot event firing for imminent period
+                bool shouldBeImminent = _timeUntilNextBreak <= AdConstants.BREAK_IMMINENT_TIME;
+                if (shouldBeImminent && !_imminentActive)
+                {
+                    _imminentActive = true;
                     OnBreakImminent?.Invoke(_timeUntilNextBreak);
                 }
+                else if (!shouldBeImminent && _imminentActive)
+                {
+                    _imminentActive = false;
+                }
             }
+            else
+            {
+                // Reset state tracking when not queued
+                _breakQueueStatus = BreakQueueStatus.NotQueued;
+                _gracePeriodActive = false;
+                _imminentActive = false;
+            }
+        }
+
+        /// <summary>
+        /// Creates a silent audio stream for placeholder transition music.
+        /// </summary>
+        private AudioStream CreateSilentAudioStream(float duration)
+        {
+            var sampleStream = new AudioStreamGenerator
+            {
+                MixRate = 44100
+            };
+            return sampleStream;
         }
 
         /// <summary>
@@ -122,15 +175,16 @@ namespace KBTV.Ads
         /// </summary>
         public void QueueBreak()
         {
-            if (!_isActive || _isInBreakWindow == false || _isQueued) return;
+            if (!_isActive || _isInBreakWindow == false || _breakQueueStatus == BreakQueueStatus.Queued) return;
 
             _isQueued = true;
             _queuedCountdown = _timeUntilNextBreak;
+            _breakQueueStatus = BreakQueueStatus.Queued;
 
-            if (_currentBreakIndex >= 0 && _currentBreakIndex < _schedule.Breaks.Count)
-            {
-                _schedule.Breaks[_currentBreakIndex].WasQueued = true;
-            }
+            // Play transition music as audio cue to Vern
+            var silentStream = CreateSilentAudioStream(4.0f);
+            _transitionMusicPlayer.Stream = silentStream;
+            _transitionMusicPlayer.Play();
 
             OnBreakQueued?.Invoke();
             GD.Print($"AdManager: Break queued, {_timeUntilNextBreak:F1}s until break");
@@ -142,6 +196,13 @@ namespace KBTV.Ads
         private void StartBreak()
         {
             if (_breakActive) return;
+
+            // Check if break transition is still in progress - delay break start
+            if (_coordinator?.CurrentState == KBTV.Dialogue.BroadcastCoordinator.BroadcastState.BreakTransition)
+            {
+                GD.Print("AdManager: Delaying break start - transition in progress");
+                return;
+            }
 
             _breakActive = true;
             _isInBreakWindow = false;
@@ -157,7 +218,36 @@ namespace KBTV.Ads
             currentBreak.HasPlayed = true;
 
             // Apply mood penalty if not queued
-            bool wasQueued = currentBreak.WasQueued;
+            bool wasQueued = (_breakQueueStatus == BreakQueueStatus.Queued);
+            if (!wasQueued)
+            {
+                ApplyMoodPenalty();
+            }
+
+            // Reset queue status for next break
+            _breakQueueStatus = BreakQueueStatus.NotQueued;
+
+            // Apply listener dip
+            ApplyListenerDip();
+
+            // Notify broadcast coordinator
+            _coordinator.OnAdBreakStarted();
+
+            OnBreakStarted?.Invoke();
+            GD.Print($"AdManager: Break #{_currentBreakIndex + 1} started (queued: {wasQueued})");
+        }
+
+        private void OnBreakTransitionCompleted()
+        {
+            GD.Print("AdManager: Received break transition completed event, starting break");
+            StartBreakImmediately();
+        }
+
+        private void StartBreakImmediately()
+        {
+            // Force start the break now that transition is complete
+            var currentBreak = _schedule.Breaks[_currentBreakIndex];
+            bool wasQueued = (_breakQueueStatus == BreakQueueStatus.Queued);
             if (!wasQueued)
             {
                 ApplyMoodPenalty();
@@ -170,7 +260,10 @@ namespace KBTV.Ads
             _coordinator.OnAdBreakStarted();
 
             OnBreakStarted?.Invoke();
-            GD.Print($"AdManager: Break #{_currentBreakIndex + 1} started (queued: {wasQueued})");
+            GD.Print($"AdManager: Break #{_currentBreakIndex + 1} started after transition (queued: {wasQueued})");
+
+            // Reset queue status for next break
+            _breakQueueStatus = BreakQueueStatus.NotQueued;
         }
 
         /// <summary>
@@ -324,7 +417,7 @@ namespace KBTV.Ads
             if (!_isActive) return "NO BREAKS";
             if (_breakActive) return "ON BREAK";
             if (_isQueued) return $"QUEUED {_queuedCountdown:F1}";
-            if (_isInBreakWindow) return "QUEUE ADS";
+            if (_isInBreakWindow) return "QUEUE AD-BREAK";
             if (_timeUntilBreakWindow > 0)
             {
                 int seconds = (int)_timeUntilBreakWindow;
