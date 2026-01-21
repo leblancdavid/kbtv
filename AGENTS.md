@@ -110,22 +110,10 @@ public partial class TranscriptRepository : Node, ITranscriptRepository
 private void RegisterCoreServices()
 {
     var repository = new CallerRepository();
-    RegisterSelf<ICallerRepository>(repository);
+    Register<ICallerRepository>(repository);
 
     var screeningController = new ScreeningController();
-    RegisterSelf<IScreeningController>(screeningController);
-}
-```
-
-2. **Plain class services (created by ServiceRegistry):** Registered in `RegisterCoreServices()`
-```csharp
-private void RegisterCoreServices()
-{
-    var repository = new CallerRepository();
-    RegisterSelf<ICallerRepository>(repository);
-
-    var screeningController = new ScreeningController();
-    RegisterSelf<IScreeningController>(screeningController);
+    Register<IScreeningController>(screeningController);
 }
 ```
 
