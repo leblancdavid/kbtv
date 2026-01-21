@@ -55,6 +55,8 @@ namespace KBTV.Dialogue
                     return $"VERN: {Text}";
                 case Speaker.Caller:
                     return $"CALLER: {Text}";
+                case Speaker.System:
+                    return Text; // System messages display as-is
                 default:
                     return "TRANSCRIPT";
             }

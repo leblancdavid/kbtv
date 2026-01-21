@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using Godot;
+using KBTV.Ads;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Data;
@@ -219,11 +220,27 @@ namespace KBTV.Dialogue
             _totalAdsInBreak = ServiceRegistry.Instance.AdManager?.CurrentBreakSlots ?? 0;
             _adBreakActive = true;
 
+            // Add transcript entry for ad break start
+            _transcriptRepository?.AddEntry(new TranscriptEntry(
+                Speaker.System,
+                "=== AD BREAK ===",
+                ConversationPhase.Intro,
+                "system"
+            ));
+
             GD.Print($"BroadcastCoordinator: Starting ad break with {_totalAdsInBreak} ads");
         }
 
         public void OnAdBreakEnded()
         {
+            // Add transcript entry for ad break end
+            _transcriptRepository?.AddEntry(new TranscriptEntry(
+                Speaker.System,
+                "=== END AD BREAK ===",
+                ConversationPhase.Intro,
+                "system"
+            ));
+
             if (_repository.HasOnHoldCallers)
             {
                 _state = BroadcastState.BetweenCallers;
@@ -582,16 +599,23 @@ namespace KBTV.Dialogue
             if (!_adBreakActive)
                 return BroadcastLine.None();
 
-            if (_currentAdIndex == 0)
+            if (_currentAdIndex < _totalAdsInBreak)
             {
-                // First ad - show "AD BREAK" header with total count
-                string headerText = _totalAdsInBreak > 1 ? $"AD BREAK ({_totalAdsInBreak} ads)" : "AD BREAK";
-                return BroadcastLine.AdBreakStart(headerText);
-            }
-            else if (_currentAdIndex <= _totalAdsInBreak)
-            {
-                // Play individual ad with number
-                string adText = _totalAdsInBreak > 1 ? $"AD BREAK ({_currentAdIndex})" : "AD BREAK";
+                // Determine ad type and add transcript entry
+                var adManager = ServiceRegistry.Instance.AdManager;
+                var adType = DetermineAdType(adManager?.CurrentListeners ?? 100);
+                var sponsorName = AdData.GetAdTypeDisplayName(adType);
+
+                // Add transcript entry for this ad
+                _transcriptRepository?.AddEntry(new TranscriptEntry(
+                    Speaker.System,
+                    $"Ad sponsored by {sponsorName}",
+                    ConversationPhase.Intro,
+                    "system"
+                ));
+
+                // Play individual ad with number (1-based indexing for display)
+                string adText = _totalAdsInBreak > 1 ? $"AD BREAK ({_currentAdIndex + 1})" : "AD BREAK";
                 return BroadcastLine.Ad(adText);
             }
             else
@@ -601,6 +625,15 @@ namespace KBTV.Dialogue
                 ServiceRegistry.Instance.AdManager?.EndCurrentBreak();
                 return BroadcastLine.None();
             }
+        }
+
+        private AdType DetermineAdType(int listenerCount)
+        {
+            // Simple tiered system based on listener count
+            if (listenerCount >= 1000) return AdType.PremiumSponsor;
+            if (listenerCount >= 500) return AdType.NationalSponsor;
+            if (listenerCount >= 200) return AdType.RegionalBrand;
+            return AdType.LocalBusiness;
         }
 
         private BroadcastLine GetRandomAdLine()

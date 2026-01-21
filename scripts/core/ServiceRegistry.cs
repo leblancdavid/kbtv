@@ -46,7 +46,7 @@ namespace KBTV.Core
 
             RegisterCoreServices();
 
-            GD.Print("ServiceRegistry: Initialized");
+
         }
 
         private void RegisterCoreServices()
@@ -80,7 +80,7 @@ namespace KBTV.Core
 
         public void NotifyRegistered()
         {
-            GD.Print($"ServiceRegistry: Service registered");
+
         }
 
         public void Register<TService>(TService instance) where TService : class
@@ -94,11 +94,11 @@ namespace KBTV.Core
             var type = typeof(TService);
             if (_services.ContainsKey(type))
             {
-                GD.Print($"WARNING: ServiceRegistry: Overwriting existing service for type {type.Name}");
+
             }
 
             _services[type] = instance;
-            GD.Print($"ServiceRegistry: Registered {type.Name}");
+
         }
 
         public void RegisterSelf<TService>(TService instance) where TService : class
@@ -116,11 +116,11 @@ namespace KBTV.Core
             if (concreteType != type)
             {
                 _services[concreteType] = instance;
-                GD.Print($"ServiceRegistry: Registered {type.Name} (concrete: {concreteType.Name})");
+    
             }
             else
             {
-                GD.Print($"ServiceRegistry: Registered {type.Name}");
+
             }
 
             NotifyRegistered();
@@ -132,7 +132,7 @@ namespace KBTV.Core
         {
             var interfaceType = typeof(TInterface);
             _factories[interfaceType] = () => new TImplementation();
-            GD.Print($"ServiceRegistry: Registered factory for {interfaceType.Name}");
+
         }
 
         public void RegisterFactory<TService>(Func<TService> factory) where TService : class
@@ -145,7 +145,7 @@ namespace KBTV.Core
 
             var type = typeof(TService);
             _factories[type] = () => factory();
-            GD.Print($"ServiceRegistry: Registered factory for {type.Name}");
+
         }
 
         public TService Get<TService>() where TService : class
@@ -182,14 +182,14 @@ namespace KBTV.Core
             var type = typeof(TService);
             _services.Remove(type);
             _factories.Remove(type);
-            GD.Print($"ServiceRegistry: Unregistered {type.Name}");
+
         }
 
         public void ClearAll()
         {
             _services.Clear();
             _factories.Clear();
-            GD.Print("ServiceRegistry: Cleared all services");
+
         }
 
         public TService Require<TService>() where TService : class

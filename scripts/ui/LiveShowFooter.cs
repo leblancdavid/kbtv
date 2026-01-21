@@ -97,10 +97,8 @@ namespace KBTV.UI
                 _previousOnAirCallerId = currentOnAirCallerId;
             }
 
-            if (_adManager != null && _adManager.IsActive)
-            {
-                UpdateAdBreakControls();
-            }
+            // Update ad break controls (handles countdown display and button states)
+            UpdateAdBreakControls();
         }
 
         private void UpdateOnAirCaller()
@@ -145,26 +143,68 @@ namespace KBTV.UI
             UpdateAdBreakControls();
         }
 
+        private string GetQueueButtonText()
+        {
+            if (_adManager == null || !_adManager.IsInitialized)
+            {
+                return "N/A";
+            }
+
+            if (!_adManager.IsActive) return "NO BREAKS";
+            if (_adManager.IsAdBreakActive) return "ON BREAK";
+
+            if (_adManager.IsQueued)
+            {
+                float nextBreakTime = _adManager.GetNextBreakTime();
+                if (nextBreakTime > 0)
+                {
+                    float currentTime = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                    float countdown = Mathf.Max(0, nextBreakTime - currentTime);
+                    return $"QUEUED {countdown:F1}";
+                }
+            }
+
+            if (_adManager.IsInBreakWindow) return "QUEUE AD-BREAK";
+
+            float timeUntilWindow = _adManager.TimeUntilBreakWindow;
+            if (timeUntilWindow > 0)
+            {
+                int seconds = (int)timeUntilWindow;
+                return $"BREAK IN {seconds / 60}:{seconds % 60:D2}";
+            }
+
+            return "BREAK SOON";
+        }
+
         private void UpdateAdBreakControls()
         {
-            if (_adManager == null)
+            if (_adManager == null || !_adManager.IsInitialized)
             {
                 if (_queueAdsButton != null)
                 {
                     _queueAdsButton.Disabled = true;
                     _queueAdsButton.Text = "N/A";
                 }
+                if (_adBreakStatusLabel != null)
+                {
+                    _adBreakStatusLabel.Text = "NOT READY";
+                    _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+                }
+                if (_breaksRemainingLabel != null)
+                {
+                    _breaksRemainingLabel.Text = "Breaks: 0";
+                }
                 return;
             }
 
-            string buttonText = _adManager.GetQueueButtonText();
+            string buttonText = GetQueueButtonText();
             bool buttonEnabled = _adManager.IsQueueButtonEnabled();
 
             if (_queueAdsButton != null)
             {
                 _queueAdsButton.Text = buttonText;
                 _queueAdsButton.Disabled = !buttonEnabled;
-                _queueAdsButton.Visible = _adManager.IsInBreakWindow;
+                _queueAdsButton.Visible = _adManager.IsInBreakWindow || _adManager.IsAdBreakActive;
             }
 
             if (_adBreakStatusLabel != null)
@@ -181,16 +221,29 @@ namespace KBTV.UI
                 }
                 else if (_adManager.IsActive)
                 {
-                    int seconds = (int)_adManager.TimeUntilBreakWindow;
-                    if (seconds > 0)
+                    // Calculate time until break window opens (UI concern, not system state)
+                    float nextBreakTime = _adManager.GetNextBreakTime();
+                    if (nextBreakTime > 0)
                     {
-                        _adBreakStatusLabel.Text = $"IN {seconds / 60}:{seconds % 60:D2}";
+                        float currentTime = Core.ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                        float timeUntilWindow = Mathf.Max(0, nextBreakTime - AdConstants.BREAK_WINDOW_DURATION - currentTime);
+
+                        int seconds = (int)timeUntilWindow;
+                        if (seconds > 0)
+                        {
+                            _adBreakStatusLabel.Text = $"IN {seconds / 60}:{seconds % 60:D2}";
+                        }
+                        else
+                        {
+                            _adBreakStatusLabel.Text = "WINDOW OPEN";
+                        }
+                        _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
                     }
                     else
                     {
                         _adBreakStatusLabel.Text = "BREAK SOON";
+                        _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
                     }
-                    _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
                 }
                 else
                 {

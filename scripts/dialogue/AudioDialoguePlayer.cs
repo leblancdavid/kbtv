@@ -71,6 +71,12 @@ namespace KBTV.Dialogue
 
         private async Task<AudioStream?> LoadAudioForLine(BroadcastLine line)
         {
+            // Special handling for ad breaks - always 4 seconds
+            if (line.Type == BroadcastLineType.Ad)
+            {
+                return CreateSilentAudioStream(4.0f);
+            }
+
             var audioPath = $"res://assets/dialogue/audio/{line.SpeakerId}.wav";
             var audioStream = GD.Load<AudioStream>(audioPath);
             if (audioStream != null)

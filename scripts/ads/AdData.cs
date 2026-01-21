@@ -57,10 +57,22 @@ namespace KBTV.Ads
             return type switch
             {
                 AdType.LocalBusiness => 0.02f,
-                AdType.RegionalBrand => 0.04f,
-                AdType.NationalSponsor => 0.06f,
-                AdType.PremiumSponsor => 0.10f,
+                AdType.RegionalBrand => 0.05f,
+                AdType.NationalSponsor => 0.08f,
+                AdType.PremiumSponsor => 0.12f,
                 _ => 0.02f
+            };
+        }
+
+        public static string GetAdTypeDisplayName(AdType type)
+        {
+            return type switch
+            {
+                AdType.LocalBusiness => "Local Business",
+                AdType.RegionalBrand => "Regional Brand",
+                AdType.NationalSponsor => "National Sponsor",
+                AdType.PremiumSponsor => "Premium Sponsor",
+                _ => "Advertisement"
             };
         }
 

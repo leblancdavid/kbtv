@@ -13,7 +13,9 @@ namespace KBTV.Dialogue
         /// <summary>The caller on the line</summary>
         Caller,
         /// <summary>Vern Tell, the host</summary>
-        Vern
+        Vern,
+        /// <summary>System messages (ad breaks, etc.)</summary>
+        System
     }
 
     /// <summary>
