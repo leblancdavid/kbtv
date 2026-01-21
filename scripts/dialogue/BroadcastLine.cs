@@ -91,5 +91,21 @@ namespace KBTV.Dialogue
             SpeakerId = "VERN",
             Phase = ConversationPhase.Resolution
         };
+
+        public static BroadcastLine AdBreakStart(string customText = "AD BREAK") => new()
+        {
+            Type = BroadcastLineType.AdBreak,
+            Text = customText,
+            Speaker = "System",
+            SpeakerId = "system"
+        };
+
+        public static BroadcastLine Ad(string customText = "[Playing Advertisement]") => new()
+        {
+            Type = BroadcastLineType.Ad,
+            Text = customText,
+            Speaker = "System",
+            SpeakerId = "system"
+        };
     }
 }

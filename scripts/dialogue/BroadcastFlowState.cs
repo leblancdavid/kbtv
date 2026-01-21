@@ -22,7 +22,10 @@ namespace KBTV.Dialogue
         DeadAirFiller,
 
         /// <summary>Playing Vern's show closing line</summary>
-        ShowClosing
+        ShowClosing,
+
+        /// <summary>Playing advertisements during a break</summary>
+        AdBreak
     }
 
     /// <summary>
@@ -72,6 +75,7 @@ namespace KBTV.Dialogue
                 BroadcastFlowState.BetweenCallers => "Transition",
                 BroadcastFlowState.DeadAirFiller => "Dead Air",
                 BroadcastFlowState.ShowClosing => "Show Closing",
+                BroadcastFlowState.AdBreak => "Ad Break",
                 _ => "Unknown"
             };
         }

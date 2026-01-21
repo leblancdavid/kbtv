@@ -10,6 +10,8 @@ public enum BroadcastLineType
     DeadAirFiller,
     ShowClosing,
     OffTopicRemark,
-    Music
+    Music,
+    AdBreak,
+    Ad
 }
 }

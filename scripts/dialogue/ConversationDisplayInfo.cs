@@ -142,5 +142,33 @@ namespace KBTV.Dialogue
                 IsConversationActive = true
             };
         }
+
+        public static ConversationDisplayInfo CreateAdBreak(string text)
+        {
+            return new ConversationDisplayInfo
+            {
+                SpeakerName = "System",
+                SpeakerIcon = "SYSTEM",
+                Text = text,
+                Phase = ConversationPhase.Intro,
+                FlowState = BroadcastFlowState.AdBreak,
+                IsTyping = false,
+                IsConversationActive = false
+            };
+        }
+
+        public static ConversationDisplayInfo CreateAd(string text)
+        {
+            return new ConversationDisplayInfo
+            {
+                SpeakerName = "System",
+                SpeakerIcon = "SYSTEM",
+                Text = text,
+                Phase = ConversationPhase.Intro,
+                FlowState = BroadcastFlowState.AdBreak,
+                IsTyping = false,
+                IsConversationActive = false
+            };
+        }
     }
 }

@@ -43,6 +43,11 @@ namespace KBTV.Dialogue
         private bool _breakTransitionPending = false;
         private BroadcastLine? _pendingTransitionLine = null;
 
+        // Ad break state tracking
+        private int _currentAdIndex = 0;
+        private int _totalAdsInBreak = 0;
+        private bool _adBreakActive = false;
+
         // Events for break coordination
         public event Action? OnBreakTransitionCompleted;
         public event Action? OnTransitionLineAvailable;
@@ -210,7 +215,11 @@ namespace KBTV.Dialogue
 
             _state = BroadcastState.AdBreak;
             _lineInProgress = false;
-            GD.Print("BroadcastCoordinator: Entering AdBreak state");
+            _currentAdIndex = 0;
+            _totalAdsInBreak = ServiceRegistry.Instance.AdManager?.CurrentBreakSlots ?? 0;
+            _adBreakActive = true;
+
+            GD.Print($"BroadcastCoordinator: Starting ad break with {_totalAdsInBreak} ads");
         }
 
         public void OnAdBreakEnded()
@@ -383,7 +392,7 @@ namespace KBTV.Dialogue
                 BroadcastState.ShowOpening => GetShowOpeningLine(),
                 BroadcastState.Conversation => GetConversationLine(),
                 BroadcastState.BetweenCallers => GetBetweenCallersLine(),
-                BroadcastState.AdBreak => GetAdBreakMusicLine(),
+                BroadcastState.AdBreak => GetAdBreakLine(),
                 BroadcastState.DeadAirFiller => GetFillerLine(),
                 BroadcastState.OffTopicRemark => GetOffTopicRemarkLine(),
                 BroadcastState.ShowClosing => GetShowClosingLine(),
@@ -406,6 +415,14 @@ namespace KBTV.Dialogue
                 _lineInProgress = false;
 
                 return; // Break started, don't advance normal flow
+            }
+
+            // Check if ad break line completed - progress to next ad
+            if (_state == BroadcastState.AdBreak && _adBreakActive)
+            {
+                _currentAdIndex++;
+                GD.Print($"BroadcastCoordinator: Completed ad {_currentAdIndex - 1}, {_totalAdsInBreak - _currentAdIndex} remaining");
+                return; // Stay in AdBreak state, next call to GetNextDisplayLine will get next ad
             }
 
             // Check if we need to start break transition
@@ -544,6 +561,8 @@ namespace KBTV.Dialogue
                 BroadcastLineType.BetweenCallers => 4f,
                 BroadcastLineType.DeadAirFiller => 8f,
                 BroadcastLineType.ShowClosing => 5f,
+                BroadcastLineType.AdBreak => 2f, // Brief display for "AD BREAK" header
+                BroadcastLineType.Ad => 4f,      // 4-second placeholder ads
                 _ => 4f
             };
         }
@@ -556,6 +575,39 @@ namespace KBTV.Dialogue
         private BroadcastLine GetAdBreakMusicLine()
         {
             return BroadcastLine.Music();
+        }
+
+        private BroadcastLine GetAdBreakLine()
+        {
+            if (!_adBreakActive)
+                return BroadcastLine.None();
+
+            if (_currentAdIndex == 0)
+            {
+                // First ad - show "AD BREAK" header with total count
+                string headerText = _totalAdsInBreak > 1 ? $"AD BREAK ({_totalAdsInBreak} ads)" : "AD BREAK";
+                return BroadcastLine.AdBreakStart(headerText);
+            }
+            else if (_currentAdIndex <= _totalAdsInBreak)
+            {
+                // Play individual ad with number
+                string adText = _totalAdsInBreak > 1 ? $"AD BREAK ({_currentAdIndex})" : "AD BREAK";
+                return BroadcastLine.Ad(adText);
+            }
+            else
+            {
+                // All ads played - end break
+                _adBreakActive = false;
+                ServiceRegistry.Instance.AdManager?.EndCurrentBreak();
+                return BroadcastLine.None();
+            }
+        }
+
+        private BroadcastLine GetRandomAdLine()
+        {
+            // For now, return placeholder ad line with custom text
+            string adText = _totalAdsInBreak > 1 ? $"AD BREAK ({_currentAdIndex})" : "AD BREAK";
+            return BroadcastLine.Ad(adText);
         }
 
         private BroadcastLine GetShowOpeningLine()

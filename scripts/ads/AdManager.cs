@@ -41,6 +41,12 @@ namespace KBTV.Ads
         }
         private BreakQueueStatus _breakQueueStatus = BreakQueueStatus.NotQueued;
 
+        // Event-driven timers (replaces polling)
+        private SceneTreeTimer _windowTimer;
+        private SceneTreeTimer _graceTimer;
+        private SceneTreeTimer _imminentTimer;
+        private SceneTreeTimer _breakTimer;
+
         private TimeManager _timeManager;
         private ListenerManager _listenerManager;
         private BroadcastCoordinator _coordinator;
@@ -64,6 +70,8 @@ namespace KBTV.Ads
         public float TimeUntilNextBreak => _timeUntilNextBreak;
         public float TimeUntilBreakWindow => _timeUntilBreakWindow;
         public float QueuedCountdown => _queuedCountdown;
+        public int CurrentBreakSlots => _currentBreakIndex >= 0 && _currentBreakIndex < _schedule.Breaks.Count
+            ? _schedule.Breaks[_currentBreakIndex].SlotsPerBreak : 0;
 
         public override void _Ready()
         {
@@ -72,89 +80,133 @@ namespace KBTV.Ads
             AddChild(_transitionMusicPlayer);
         }
 
+        private void ScheduleBreakTimers()
+        {
+            CancelTimers();
+
+            if (_schedule == null || _schedule.Breaks.Count == 0) return;
+
+            float currentTime = _timeManager?.ElapsedTime ?? 0f;
+            int nextBreakIndex = _currentBreakIndex + 1;
+
+            if (nextBreakIndex >= _schedule.Breaks.Count) return;
+
+            float breakTime = _schedule.Breaks[nextBreakIndex].ScheduledTime;
+
+            // Schedule window opening
+            float windowDelay = breakTime - AdConstants.BREAK_WINDOW_DURATION - currentTime;
+            if (windowDelay > 0)
+            {
+                _windowTimer = CreateBreakTimer(windowDelay, () => HandleBreakWindowOpened(breakTime - currentTime));
+            }
+
+            // Schedule grace period start
+            float graceDelay = breakTime - AdConstants.BREAK_GRACE_TIME - currentTime;
+            if (graceDelay > 0)
+            {
+                _graceTimer = CreateBreakTimer(graceDelay, () => OnBreakGracePeriod(breakTime - currentTime));
+            }
+
+            // Schedule imminent warning
+            float imminentDelay = breakTime - AdConstants.BREAK_IMMINENT_TIME - currentTime;
+            if (imminentDelay > 0)
+            {
+                _imminentTimer = CreateBreakTimer(imminentDelay, () => OnBreakImminent(breakTime - currentTime));
+            }
+
+            // Schedule break start
+            float breakDelay = breakTime - currentTime;
+            if (breakDelay > 0)
+            {
+                _breakTimer = CreateBreakTimer(breakDelay, OnBreakTimeReached);
+            }
+        }
+
+        private SceneTreeTimer CreateBreakTimer(float delay, Action callback)
+        {
+            try
+            {
+                var timer = GetTree().CreateTimer(delay);
+                timer.Timeout += () =>
+                {
+                    try
+                    {
+                        callback();
+                    }
+                    catch (Exception ex)
+                    {
+                        GD.PrintErr($"AdManager: Timer callback failed: {ex.Message}");
+                        FallbackBreakStart();
+                    }
+                };
+                return timer;
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"AdManager: Failed to create timer (delay: {delay}): {ex.Message}");
+                FallbackBreakStart();
+                return null;
+            }
+        }
+
+        private void CancelTimers()
+        {
+            // SceneTreeTimer doesn't have Dispose method, just set to null
+            _windowTimer = null;
+            _graceTimer = null;
+            _imminentTimer = null;
+            _breakTimer = null;
+        }
+
+        private void OnBreakTimeReached()
+        {
+            GD.Print("AdManager: Break timer fired - starting break");
+            StartBreak();
+        }
+
+        private void HandleBreakWindowOpened(float timeUntilBreak)
+        {
+            _isInBreakWindow = true;
+            OnBreakWindowOpened?.Invoke(timeUntilBreak);
+            GD.Print($"AdManager: Break window opened, {timeUntilBreak:F1}s until break");
+        }
+
+        private void FallbackBreakStart()
+        {
+            GD.PrintErr("AdManager: Using fallback break start mechanism");
+            CallDeferred(nameof(StartBreak));
+        }
+
         public void Initialize(AdSchedule schedule, float showDuration)
         {
             _schedule = schedule;
             _showDuration = showDuration;
-            _schedule.GenerateBreakSchedule(showDuration);
-
-            _timeManager = ServiceRegistry.Instance.TimeManager;
-            _listenerManager = ServiceRegistry.Instance.ListenerManager;
-            _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-
-            // Subscribe to coordinator events for break coordination
-            if (_coordinator != null)
-            {
-                _coordinator.OnBreakTransitionCompleted += OnBreakTransitionCompleted;
-            }
-
             _isActive = true;
-            _elapsedTime = 0f;
-            _breaksPlayed = 0;
-            _currentBreakIndex = -1;
-            _breakActive = false;
-            _isQueued = false;
-            _breakQueueStatus = BreakQueueStatus.NotQueued;
 
-            UpdateBreakTimers();
-            GD.Print($"AdManager: Initialized with {schedule.BreaksPerShow} breaks × {schedule.SlotsPerBreak} slots");
+            // Schedule event-driven timers
+            ScheduleBreakTimers();
+
+            GD.Print($"AdManager: Initialized with {schedule.BreaksPerShow} breaks × {schedule.SlotsPerBreak} slots (event-driven)");
         }
 
         public override void _Process(double delta)
         {
-            if (!_isActive || _breakActive) return;
+            // Event-driven system - minimal processing needed
+            if (!_isActive) return;
 
             float deltaTime = (float)delta;
             _elapsedTime += deltaTime;
-            _timeUntilNextBreak -= deltaTime;
-            _timeUntilBreakWindow -= deltaTime;
 
-            // Check if we're entering break window
-            if (!_isInBreakWindow && _timeUntilBreakWindow <= 0 && _currentBreakIndex < _schedule.Breaks.Count - 1)
+            // Update queued countdown for UI display
+            if (_isQueued && _breakQueueStatus == BreakQueueStatus.Queued)
             {
-                _isInBreakWindow = true;
-                OnBreakWindowOpened?.Invoke(_timeUntilNextBreak);
-            }
-
-            // Check for break start
-            if (_timeUntilNextBreak <= 0)
-            {
-                StartBreak();
-            }
-            else if (_isQueued)
-            {
-                _queuedCountdown = _timeUntilNextBreak;
-
-                // One-shot event firing for grace period
-                bool shouldBeInGrace = _timeUntilNextBreak <= AdConstants.BREAK_GRACE_TIME && _timeUntilNextBreak > AdConstants.BREAK_IMMINENT_TIME;
-                if (shouldBeInGrace && !_gracePeriodActive)
+                // Calculate remaining time to next break (approximate for UI)
+                int nextBreakIndex = Math.Max(0, _currentBreakIndex + 1);
+                if (nextBreakIndex < _schedule?.Breaks.Count)
                 {
-                    _gracePeriodActive = true;
-                    OnBreakGracePeriod?.Invoke(_timeUntilNextBreak);
+                    float breakTime = _schedule.Breaks[nextBreakIndex].ScheduledTime;
+                    _queuedCountdown = Math.Max(0, breakTime - _elapsedTime);
                 }
-                else if (!shouldBeInGrace && _gracePeriodActive)
-                {
-                    _gracePeriodActive = false;
-                }
-
-                // One-shot event firing for imminent period
-                bool shouldBeImminent = _timeUntilNextBreak <= AdConstants.BREAK_IMMINENT_TIME;
-                if (shouldBeImminent && !_imminentActive)
-                {
-                    _imminentActive = true;
-                    OnBreakImminent?.Invoke(_timeUntilNextBreak);
-                }
-                else if (!shouldBeImminent && _imminentActive)
-                {
-                    _imminentActive = false;
-                }
-            }
-            else
-            {
-                // Reset state tracking when not queued
-                _breakQueueStatus = BreakQueueStatus.NotQueued;
-                _gracePeriodActive = false;
-                _imminentActive = false;
             }
         }
 
@@ -264,6 +316,18 @@ namespace KBTV.Ads
 
             // Reset queue status for next break
             _breakQueueStatus = BreakQueueStatus.NotQueued;
+        }
+
+        /// <summary>
+        /// Called by BroadcastCoordinator when all ads in current break are complete
+        /// </summary>
+        public void EndCurrentBreak()
+        {
+            if (_breakActive)
+            {
+                GD.Print("AdManager: Ending current break via coordinator signal");
+                EndAdBreak();
+            }
         }
 
         /// <summary>

@@ -229,6 +229,8 @@ namespace KBTV.Dialogue
                 BroadcastLineType.DeadAirFiller => ConversationDisplayInfo.CreateDeadAir(line.Text),
                 BroadcastLineType.ShowClosing => ConversationDisplayInfo.CreateBroadcastLine(
                     line.Speaker, line.SpeakerId, line.Text, line.Phase, BroadcastFlowState.ShowClosing),
+                BroadcastLineType.AdBreak => ConversationDisplayInfo.CreateAdBreak(line.Text),
+                BroadcastLineType.Ad => ConversationDisplayInfo.CreateAd(line.Text),
                 _ => ConversationDisplayInfo.CreateBroadcastLine(
                     line.Speaker, line.SpeakerId, line.Text, line.Phase, BroadcastFlowState.Conversation)
             };
