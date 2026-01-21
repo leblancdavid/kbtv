@@ -71,7 +71,9 @@ namespace KBTV.Dialogue
             ReturnFromBreak,
             DeadAirFiller,
             OffTopicRemark,
-            ShowClosing
+            ShowClosing,
+            ShowEndingQueue,
+            ShowEndingTransition
         }
 
         public override void _Ready()
@@ -135,6 +137,48 @@ namespace KBTV.Dialogue
             _lineInProgress = false;
             _pendingControlAction = ControlAction.None;
             _transcriptRepository?.ClearCurrentShow();
+        }
+
+        public void QueueShowEnd()
+        {
+            if (_broadcastActive && (_state == BroadcastState.Conversation || _state == BroadcastState.DeadAirFiller))
+            {
+                _state = BroadcastState.ShowEndingQueue;
+                _pendingControlAction = ControlAction.EndShow;
+                GD.Print("BroadcastCoordinator: Show end queued");
+            }
+        }
+
+        public void CheckShowEndCondition()
+        {
+            if (_pendingControlAction == ControlAction.EndShow &&
+                (_state == BroadcastState.ShowEndingQueue || _state == BroadcastState.Conversation))
+            {
+                StartShowEndingTransition();
+            }
+        }
+
+        private void StartShowEndingTransition()
+        {
+            _state = BroadcastState.ShowEndingTransition;
+
+            var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+            VernMoodType mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+
+            var closingTemplate = _vernDialogue.GetShowClosing(mood);
+            if (closingTemplate == null)
+            {
+                GD.PrintErr("BroadcastCoordinator: CRITICAL ERROR - No show closing template found!");
+                throw new InvalidOperationException("Show closing template is missing from VernDialogueTemplate");
+            }
+
+            // Prepare closing line for normal dialogue flow
+            _pendingTransitionLine = CreateBroadcastLine(closingTemplate, Speaker.Vern);
+
+            GD.Print($"BroadcastCoordinator: Prepared show closing line for display: {_pendingTransitionLine?.Text ?? "null"}");
+
+            // Notify display that transition line is available
+            OnTransitionLineAvailable?.Invoke();
         }
 
         private void OnBreakGracePeriod(float timeUntilBreak)
@@ -417,6 +461,8 @@ namespace KBTV.Dialogue
                 BroadcastState.BreakGracePeriod => BroadcastLine.None(), // Wait for transition
                 BroadcastState.BreakTransition => BroadcastLine.None(),   // Handled by GetNextDisplayLine
                 BroadcastState.ReturnFromBreak => BroadcastLine.None(),   // Handled by GetNextDisplayLine
+                BroadcastState.ShowEndingQueue => BroadcastLine.None(),   // Wait for transition
+                BroadcastState.ShowEndingTransition => BroadcastLine.None(), // Handled by GetNextDisplayLine
                 _ => BroadcastLine.None()
             };
         }
@@ -434,6 +480,14 @@ namespace KBTV.Dialogue
                 _lineInProgress = false;
 
                 return; // Break started, don't advance normal flow
+            }
+
+            // Check if show ending transition just completed - end the show
+            if (_state == BroadcastState.ShowEndingTransition)
+            {
+                GD.Print("BroadcastCoordinator: Show ending transition completed, ending show");
+                OnLiveShowEnding();
+                return; // Show ending, don't advance normal flow
             }
 
             // Check if return-from-break sequence step completed
@@ -862,9 +916,12 @@ namespace KBTV.Dialogue
 
         private BroadcastLine GetShowClosingLine()
         {
-            var line = _vernDialogue.GetShowClosing();
+            var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+            VernMoodType mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+
+            var line = _vernDialogue.GetShowClosing(mood);
             var result = line != null ? BroadcastLine.ShowClosing(line.Text) : BroadcastLine.None();
-            _state = BroadcastState.Idle;
+            _state = BroadcastState.Idle;  // State changes to Idle after line
             return result;
         }
 

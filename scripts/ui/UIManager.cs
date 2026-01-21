@@ -133,6 +133,18 @@ namespace KBTV.UI
             PerformVisibilityUpdateInstant(newPhase);
         }
 
+        public void HideAdBreakPanel()
+        {
+            // This method is called by EndShowPanel to hide the ad break panel
+            // The actual hiding is done in LiveShowFooter.OnLastSegmentStarted
+        }
+
+        public void ShowEndShowPanel()
+        {
+            // This method is called by EndShowPanel to show itself
+            // The actual showing is done in LiveShowFooter.OnLastSegmentStarted
+        }
+
         public override void _ExitTree()
         {
             if (_gameStateConnected && _gameState != null)

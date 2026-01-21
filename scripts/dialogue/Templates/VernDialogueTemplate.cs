@@ -54,7 +54,29 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Get a show closing line.
         /// </summary>
-        public DialogueTemplate GetShowClosing() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_showClosingLines));
+        public DialogueTemplate GetShowClosing() => GetShowClosing(VernMoodType.Neutral);
+
+        /// <summary>
+        /// Get a show closing line for the specified mood.
+        /// </summary>
+        public DialogueTemplate GetShowClosing(VernMoodType mood)
+        {
+            var moodString = mood.ToString().ToLower();
+
+            var moodLines = System.Linq.Enumerable.Where(_showClosingLines, line => line.Mood == moodString);
+
+            if (!moodLines.Any())
+            {
+                moodLines = System.Linq.Enumerable.Where(_showClosingLines, line => line.Mood == "neutral");
+            }
+
+            if (!moodLines.Any())
+            {
+                moodLines = _showClosingLines;
+            }
+
+            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(moodLines));
+        }
 
         /// <summary>
         /// Get a between-callers transition line.

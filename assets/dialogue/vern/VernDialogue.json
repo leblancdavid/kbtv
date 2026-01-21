@@ -78,11 +78,156 @@
     { "id": "vern_opening_005", "text": "The witching hour approaches, and so do the callers. This is KBTV. I'm Vern. Let's see what's out there tonight.", "tone": "Neutral", "weight": 1.0 }
   ],
   "showClosingLines": [
-    { "id": "vern_closing_001", "text": "And that's all the time we have tonight, folks. Thanks to everyone who called in. Keep watching the skies.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_closing_002", "text": "The sun's coming up, truth-seekers. Time to sign off. But remember - the truth doesn't sleep, and neither should you.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_closing_003", "text": "That's a wrap on tonight's show. This is Vern Castellano saying goodnight, and stay vigilant out there.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_closing_004", "text": "We're out of time, but never out of mysteries. Thanks for listening to KBTV. Until next time.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_closing_005", "text": "Another night, another pile of evidence. Thanks for being part of the search, folks. This is KBTV, signing off.", "tone": "Neutral", "weight": 1.0 }
+    {
+      "id": "vern_closing_001_neutral",
+      "mood": "neutral",
+      "text": "And that's all the time we have tonight, folks. Thanks to everyone who called in. Keep watching the skies.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_001_tired",
+      "mood": "tired",
+      "text": "*yawn* That's all the time we have tonight. Thanks for listening, night owls. Stay vigilant out there.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_001_energized",
+      "mood": "energized",
+      "text": "And that's all the time we have tonight! Thanks to everyone who called in. Keep watching the skies!",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_001_irritated",
+      "mood": "irritated",
+      "text": "And that's all the time we have tonight. Thanks to everyone who called in. Just... keep watching the skies.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_001_gruff",
+      "mood": "gruff",
+      "text": "That's all the time we have tonight. Thanks for calling in. Keep watching the skies.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_002_neutral",
+      "mood": "neutral",
+      "text": "The sun's coming up, truth-seekers. Time to sign off. But remember - the truth doesn't sleep, and neither should you.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_002_tired",
+      "mood": "tired",
+      "text": "*yawn* The sun's coming up. Time to sign off. Remember - the truth doesn't sleep...",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_002_energized",
+      "mood": "energized",
+      "text": "The sun's coming up, truth-seekers! Time to sign off. But remember - the truth doesn't sleep, and neither should you!",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_002_irritated",
+      "mood": "irritated",
+      "text": "The sun's coming up. Time to sign off. But remember - the truth doesn't sleep, and neither should you.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_002_gruff",
+      "mood": "gruff",
+      "text": "Sun's coming up. Time to sign off. Truth doesn't sleep, neither should you.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_003_neutral",
+      "mood": "neutral",
+      "text": "That's a wrap on tonight's show. This is Vern Castellano saying goodnight, and stay vigilant out there.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_003_tired",
+      "mood": "tired",
+      "text": "That's a wrap on tonight's show. This is Vern Castellano saying... goodnight. Stay vigilant.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_003_energized",
+      "mood": "energized",
+      "text": "That's a wrap on tonight's show! This is Vern Castellano saying goodnight, and stay vigilant out there!",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_003_irritated",
+      "mood": "irritated",
+      "text": "That's a wrap on tonight's show. This is Vern Castellano saying goodnight, and stay vigilant out there.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_003_gruff",
+      "mood": "gruff",
+      "text": "That's a wrap on tonight's show. Vern Castellano saying goodnight. Stay vigilant.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_004_neutral",
+      "mood": "neutral",
+      "text": "We're out of time, but never out of mysteries. Thanks for listening to KBTV. Until next time.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_004_tired",
+      "mood": "tired",
+      "text": "We're out of time, but never out of mysteries. Thanks for listening. Until next time.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_004_energized",
+      "mood": "energized",
+      "text": "We're out of time, but never out of mysteries! Thanks for listening to KBTV. Until next time!",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_004_irritated",
+      "mood": "irritated",
+      "text": "We're out of time, but never out of mysteries. Thanks for listening to KBTV. Until next time.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_004_gruff",
+      "mood": "gruff",
+      "text": "We're out of time, never out of mysteries. Thanks for listening. Until next time.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_005_neutral",
+      "mood": "neutral",
+      "text": "Another night, another pile of evidence. Thanks for being part of the search, folks. This is KBTV, signing off.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_005_tired",
+      "mood": "tired",
+      "text": "Another night, another pile of evidence. Thanks for being part of the search. Signing off.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_005_energized",
+      "mood": "energized",
+      "text": "Another night, another pile of evidence! Thanks for being part of the search, folks. This is KBTV, signing off!",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_005_irritated",
+      "mood": "irritated",
+      "text": "Another night, another pile of evidence. Thanks for being part of the search, folks. This is KBTV, signing off.",
+      "weight": 1.0
+    },
+    {
+      "id": "vern_closing_005_gruff",
+      "mood": "gruff",
+      "text": "Another night, another pile of evidence. Thanks for the search. Signing off.",
+      "weight": 1.0
+    }
   ],
   "betweenCallersLines": [
     {

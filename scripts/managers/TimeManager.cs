@@ -54,6 +54,12 @@ namespace KBTV.Managers
 
             EmitSignal("Tick", deltaTime);
 
+            // Check for show end condition (10 seconds remaining)
+            if (_elapsedTime >= _showDurationSeconds - 10f && _elapsedTime < _showDurationSeconds - 10f + deltaTime)
+            {
+                ServiceRegistry.Instance.BroadcastCoordinator?.CheckShowEndCondition();
+            }
+
             if (_elapsedTime >= _showDurationSeconds)
             {
                 EndShow();

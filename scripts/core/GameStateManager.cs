@@ -193,6 +193,9 @@ namespace KBTV.Core
 			// End broadcast flow first
 			ServiceRegistry.Instance.BroadcastCoordinator?.OnLiveShowEnding();
 
+			// Play final bumper music
+			// TODO: Play bumper music here
+
 			// Get show performance data
 			int peakListeners = ServiceRegistry.Instance.ListenerManager?.PeakListeners ?? 0;
 

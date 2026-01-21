@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/LiveShowFooter.cs" id="1"]
 [ext_resource type="PackedScene" uid="uid://b4h6q2j8x0p3k" path="res://scenes/ui/LiveShowPanel.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://endshowpanel" path="res://scenes/ui/EndShowPanel.tscn" id="3"]
 
 [sub_resource type="StyleBoxFlat" id="PanelBackground"]
 bg_color = Color(0.15, 0.15, 0.15, 1)
@@ -59,6 +60,11 @@ text = "QUEUE AD-BREAK"
 layout_mode = 2
 text = "Breaks: 0"
 horizontal_alignment = 1
+
+[node name="EndShowPanel" parent="HBoxContainer" instance=ExtResource("3")]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.33
 
 [node name="LiveShowPanel" parent="HBoxContainer" instance=ExtResource("2")]
 layout_mode = 2

@@ -12,6 +12,8 @@ namespace KBTV.UI
         private Button _queueAdsButton = null!;
         private Label _adBreakStatusLabel = null!;
         private Label _breaksRemainingLabel = null!;
+        private Control _adBreakPanel = null!;
+        private Control _endShowPanel = null!;
 
         private ICallerRepository _repository = null!;
         private AdManager _adManager = null!;
@@ -37,6 +39,8 @@ namespace KBTV.UI
             _queueAdsButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/QueueAdsButton");
             _adBreakStatusLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakStatusLabel");
             _breaksRemainingLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/BreaksRemainingLabel");
+            _adBreakPanel = GetNode<Control>("HBoxContainer/AdBreakPanel");
+            _endShowPanel = GetNode<Control>("HBoxContainer/EndShowPanel");
 
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
             _adManager = Core.ServiceRegistry.Instance.AdManager;
@@ -51,6 +55,7 @@ namespace KBTV.UI
                 _adManager.OnBreakStarted += OnBreakStarted;
                 _adManager.OnBreakEnded += OnBreakEnded;
                 _adManager.OnShowEnded += OnShowEnded;
+                _adManager.LastSegmentStarted += OnLastSegmentStarted;
             }
 
             TrackStateForRefresh();
@@ -117,6 +122,18 @@ namespace KBTV.UI
         private void OnShowEnded()
         {
             UpdateAdBreakControls();
+        }
+
+        private void OnLastSegmentStarted()
+        {
+            if (_adBreakPanel != null)
+            {
+                _adBreakPanel.Visible = false;
+            }
+            if (_endShowPanel != null)
+            {
+                _endShowPanel.Visible = true;
+            }
         }
 
         private string GetQueueButtonText()
@@ -252,6 +269,7 @@ namespace KBTV.UI
                 _adManager.OnBreakStarted -= OnBreakStarted;
                 _adManager.OnBreakEnded -= OnBreakEnded;
                 _adManager.OnShowEnded -= OnShowEnded;
+                _adManager.LastSegmentStarted -= OnLastSegmentStarted;
             }
 
             if (_queueAdsButton != null)

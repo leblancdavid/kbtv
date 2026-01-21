@@ -12,17 +12,20 @@ namespace KBTV.UI
     /// </summary>
     public partial class LiveShowHeader : Control
     {
-        private Label _onAirLabel = null!;
-        private Label _listenersLabel = null!;
-        private Label _moneyLabel = null!;
+    private Label _onAirLabel = null!;
+    private Label _listenersLabel = null!;
+    private Label _timerLabel = null!;
+    private Label _moneyLabel = null!;
 
-        private ICallerRepository _repository = null!;
-        private ListenerManager _listenerManager = null!;
-        private EconomyManager _economyManager = null!;
+    private ICallerRepository _repository = null!;
+    private ListenerManager _listenerManager = null!;
+    private EconomyManager _economyManager = null!;
+    private TimeManager _timeManager = null!;
 
-        private bool _previousIsOnAir;
-        private int _previousListeners;
-        private int _previousMoney;
+    private bool _previousIsOnAir;
+    private int _previousListeners;
+    private string _previousTimerText;
+    private int _previousMoney;
 
         public override void _Ready()
         {
@@ -40,11 +43,13 @@ namespace KBTV.UI
 
             _onAirLabel = GetNode<Label>("HBoxContainer/OnAirLabel");
             _listenersLabel = GetNode<Label>("HBoxContainer/ListenersLabel");
+            _timerLabel = GetNode<Label>("HBoxContainer/TimerLabel");
             _moneyLabel = GetNode<Label>("HBoxContainer/MoneyLabel");
 
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
             _listenerManager = Core.ServiceRegistry.Instance.ListenerManager;
             _economyManager = Core.ServiceRegistry.Instance.EconomyManager;
+            _timeManager = Core.ServiceRegistry.Instance.TimeManager;
 
             TrackStateForRefresh();
             UpdateOnAirStatus();
@@ -56,6 +61,7 @@ namespace KBTV.UI
         {
             _previousIsOnAir = _repository.IsOnAir;
             _previousListeners = _listenerManager?.CurrentListeners ?? 0;
+            _previousTimerText = _timeManager?.RemainingTimeFormatted ?? "--:--";
             _previousMoney = _economyManager?.CurrentMoney ?? 0;
         }
 
@@ -65,18 +71,22 @@ namespace KBTV.UI
 
             var isOnAir = _repository.IsOnAir;
             var listeners = _listenerManager?.CurrentListeners ?? 0;
+            var timerText = _timeManager?.RemainingTimeFormatted ?? "--:--";
             var money = _economyManager?.CurrentMoney ?? 0;
 
             if (isOnAir != _previousIsOnAir ||
                 listeners != _previousListeners ||
+                timerText != _previousTimerText ||
                 money != _previousMoney)
             {
                 UpdateOnAirStatus();
                 UpdateListeners();
+                UpdateTimer();
                 UpdateMoney();
 
                 _previousIsOnAir = isOnAir;
                 _previousListeners = listeners;
+                _previousTimerText = timerText;
                 _previousMoney = money;
             }
         }
@@ -96,6 +106,30 @@ namespace KBTV.UI
             if (_listenerManager != null && _listenersLabel != null)
             {
                 _listenersLabel.Text = $"Listeners: {_listenerManager.GetFormattedListeners()}";
+            }
+        }
+
+        private void UpdateTimer()
+        {
+            if (_timeManager != null && _timerLabel != null)
+            {
+                var remainingText = _timeManager.RemainingTimeFormatted;
+                _timerLabel.Text = remainingText;
+
+                // Color coding based on time remaining
+                var remainingSeconds = _timeManager.RemainingTime;
+                if (remainingSeconds <= 30f)
+                {
+                    _timerLabel.AddThemeColorOverride("font_color", Colors.Red);
+                }
+                else if (remainingSeconds <= 60f)
+                {
+                    _timerLabel.AddThemeColorOverride("font_color", Colors.Yellow);
+                }
+                else
+                {
+                    _timerLabel.AddThemeColorOverride("font_color", Colors.White);
+                }
             }
         }
 

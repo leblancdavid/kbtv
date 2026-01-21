@@ -207,7 +207,7 @@ namespace KBTV.UI
 
 			// Header
 			var header = new Label();
-			header.Text = "AD BREAK CONFIGURATION";
+			header.Text = "AD BREAK CONFIGURATION & SHOW SETTINGS";
 			header.HorizontalAlignment = HorizontalAlignment.Center;
 			header.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			header.AddThemeColorOverride("font_color", UITheme.TEXT_PRIMARY);

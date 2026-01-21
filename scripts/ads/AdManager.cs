@@ -31,6 +31,7 @@ namespace KBTV.Ads
         private bool _isActive = false;
         private int _currentBreakIndex = -1;
         private bool _breakActive = false;
+        private bool _isLastSegment = false;
 
         // Clean break queue status
         private enum BreakQueueStatus
@@ -54,6 +55,7 @@ namespace KBTV.Ads
         public event Action OnBreakStarted;                  // Break audio starting
         public event Action<float> OnBreakEnded;             // Revenue generated
         public event Action OnShowEnded;                     // All breaks complete
+        public event Action LastSegmentStarted;              // After last ad break
 
         public AdSchedule Schedule => _schedule;
         public int BreaksRemaining => _schedule != null ? _schedule.Breaks.Count - _breaksPlayed : 0;
@@ -61,6 +63,7 @@ namespace KBTV.Ads
         public bool IsActive => _isActive;
         public bool IsInBreakWindow => _isInBreakWindow;
         public bool IsQueued => _isQueued;
+        public bool IsLastSegment => _isLastSegment;
         public float TimeUntilNextBreak => _timeUntilNextBreak;
         public float TimeUntilBreakWindow => _timeUntilBreakWindow;
         public float QueuedCountdown => _queuedCountdown;
@@ -388,9 +391,11 @@ namespace KBTV.Ads
 
             if (_breaksPlayed >= _schedule.Breaks.Count)
             {
+                _isLastSegment = true;
+                LastSegmentStarted?.Invoke();
                 _isActive = false;
                 OnShowEnded?.Invoke();
-                GD.Print("AdManager: All breaks completed");
+                GD.Print("AdManager: All breaks completed - last segment started");
             }
 
             OnBreakEnded?.Invoke(revenue);
