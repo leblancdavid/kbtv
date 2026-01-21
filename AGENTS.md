@@ -514,6 +514,32 @@ eventBus.Subscribe<ConversationAdvancedEvent>(HandleConversationAdvanced);
 - `scripts/core/GameEvent.cs` - Base event classes
 - `scripts/dialogue/ConversationEvents.cs` - Conversation-specific events
 
+### Modularization Pattern
+
+When refactoring large scripts (>500 lines), break them into focused modules using composition:
+
+**Benefits:**
+- Improved maintainability and testability
+- Separation of concerns (state vs. timing vs. business logic)
+- Easier debugging and feature development
+
+**Implementation:**
+1. Identify responsibilities in the large class
+2. Create separate classes for each major responsibility
+3. Use composition in the main class to delegate to modules
+4. Register modules as services if needed
+
+**Example Structure:**
+- **MainCoordinator.cs**: Orchestrates modules, exposes public API
+- **StateManager.cs**: Handles state transitions and logic
+- **TimingManager.cs**: Manages timing and progress tracking
+- **BusinessLogic.cs**: Contains calculation and business rules
+
+**Recent Refactoring:**
+- Created BreakScheduler, BreakLogic, RevenueCalculator for AdManager modularization
+- Removed dead code from BroadcastCoordinator, AdManager, SaveManager, PreShowUIManager
+- Aimed to reduce file sizes by 60-80% while maintaining functionality
+
 ## Project Overview
 - **Engine**: Godot 4.x
 - **Template**: 2D Game

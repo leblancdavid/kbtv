@@ -17,26 +17,30 @@ namespace KBTV.Dialogue
         private ITranscriptRepository _transcriptRepository = null!;
         private IArcRepository _arcRepository = null!;
         private VernDialogueTemplate _vernDialogue = null!;
-
-        private BroadcastState _state = BroadcastState.Idle;
+        private VernDialogueLoader _vernLoader = null!;
+        private TranscriptManager _transcriptManager = null!;
+        private LineTimingManager _timingManager = null!;
+        private AdBreakCoordinator _adCoordinator = null!;
+        private BroadcastStateManager _stateManager = null!;
 
         // Public accessor for current state (used by AdManager for coordination)
-        public BroadcastState CurrentState => _state;
+        public BroadcastState CurrentState => _stateManager.CurrentState;
+
+        public void ResetFillerCycleCount() => _stateManager.ResetFillerCycleCount();
+
+        public BroadcastState GetNextStateAfterOffTopic() => _nextStateAfterOffTopic;
+
         private ConversationArc? _currentArc;
         private System.Collections.Generic.List<ArcDialogueLine>? _resolvedDialogue;
         private ConversationFlow? _currentFlow;
         private ConversationStateMachine? _stateMachine;
         private ConversationContext? _conversationContext;
         private int _arcLineIndex = -1;
-        private int _fillerCycleCount = 0;
         private bool _broadcastActive = false;
 
         private const int MaxFillerCyclesBeforeAutoAdvance = 1;
 
-        private BroadcastLine _currentLine;
-        private bool _lineInProgress = false;
-        private float _lineStartTime = 0f;
-        private float _lineDuration = 0f;
+
 
         private ControlAction _pendingControlAction = ControlAction.None;
         private BroadcastState _nextStateAfterOffTopic;
@@ -86,7 +90,15 @@ namespace KBTV.Dialogue
             _repository = ServiceRegistry.Instance.CallerRepository;
             _transcriptRepository = ServiceRegistry.Instance.TranscriptRepository;
             _arcRepository = ServiceRegistry.Instance.ArcRepository;
-            _vernDialogue = LoadVernDialogue();
+
+            _vernLoader = new VernDialogueLoader();
+            _vernLoader.LoadDialogue();
+            _vernDialogue = _vernLoader.VernDialogue;
+
+            _transcriptManager = new TranscriptManager(_transcriptRepository);
+            _timingManager = new LineTimingManager();
+            _adCoordinator = new AdBreakCoordinator(ServiceRegistry.Instance.AdManager, _vernDialogue);
+            _stateManager = new BroadcastStateManager(_repository, this);
 
             var adManager = ServiceRegistry.Instance.AdManager;
             if (adManager != null)
@@ -100,19 +112,7 @@ namespace KBTV.Dialogue
 
         public override void _Process(double delta)
         {
-            if (!_lineInProgress)
-            {
-                return;
-            }
-
-            var timeManager = ServiceRegistry.Instance.TimeManager;
-            if (timeManager == null)
-            {
-                return;
-            }
-
-            float elapsed = timeManager.ElapsedTime - _lineStartTime;
-            if (elapsed >= _lineDuration)
+            if (_timingManager.UpdateProgress((float)delta))
             {
                 OnLineCompleted();
             }
@@ -122,9 +122,9 @@ namespace KBTV.Dialogue
         {
             _broadcastActive = true;
             _transcriptRepository?.StartNewShow();
-            _state = BroadcastState.IntroMusic;
-            _fillerCycleCount = 0;
-            _lineInProgress = false;
+            _stateManager.SetState(BroadcastState.IntroMusic);
+            this.ResetFillerCycleCount();
+            _timingManager.StopLine();
             _pendingControlAction = ControlAction.None;
 
             ServiceRegistry.Instance.EventBus.Publish(new ShowStartedEvent());
@@ -132,18 +132,18 @@ namespace KBTV.Dialogue
 
         public void OnLiveShowEnding()
         {
-            _state = BroadcastState.ShowClosing;
+            _stateManager.SetState(BroadcastState.ShowClosing);
             _broadcastActive = false;
-            _lineInProgress = false;
+            _timingManager.StopLine();
             _pendingControlAction = ControlAction.None;
             _transcriptRepository?.ClearCurrentShow();
         }
 
         public void QueueShowEnd()
         {
-            if (_broadcastActive && (_state == BroadcastState.Conversation || _state == BroadcastState.DeadAirFiller))
+            if (_broadcastActive && (CurrentState == BroadcastState.Conversation || CurrentState == BroadcastState.DeadAirFiller))
             {
-                _state = BroadcastState.ShowEndingQueue;
+                _stateManager.SetState(BroadcastState.ShowEndingQueue);
                 _pendingControlAction = ControlAction.EndShow;
                 GD.Print("BroadcastCoordinator: Show end queued");
             }
@@ -152,7 +152,7 @@ namespace KBTV.Dialogue
         public void CheckShowEndCondition()
         {
             if (_pendingControlAction == ControlAction.EndShow &&
-                (_state == BroadcastState.ShowEndingQueue || _state == BroadcastState.Conversation))
+                (CurrentState == BroadcastState.ShowEndingQueue || CurrentState == BroadcastState.Conversation))
             {
                 StartShowEndingTransition();
             }
@@ -160,7 +160,7 @@ namespace KBTV.Dialogue
 
         private void StartShowEndingTransition()
         {
-            _state = BroadcastState.ShowEndingTransition;
+            _stateManager.SetState(BroadcastState.ShowEndingTransition);
 
             var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
             VernMoodType mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
@@ -183,16 +183,16 @@ namespace KBTV.Dialogue
 
         private void OnBreakGracePeriod(float timeUntilBreak)
         {
-            if (_state == BroadcastState.AdBreak || _state == BroadcastState.BreakGracePeriod) return;
+            if (CurrentState == BroadcastState.AdBreak || CurrentState == BroadcastState.BreakGracePeriod) return;
 
-            _state = BroadcastState.BreakGracePeriod;
+            _stateManager.SetState(BroadcastState.BreakGracePeriod);
             _breakTransitionPending = true;
             GD.Print($"BroadcastCoordinator: Entering grace period, {timeUntilBreak:F1}s until break");
         }
 
         private void OnBreakImminent(float timeUntilBreak)
         {
-            if (_state == BroadcastState.BreakGracePeriod && _lineInProgress)
+            if (CurrentState == BroadcastState.BreakGracePeriod && _timingManager.GetCurrentLine() != null)
             {
                 // Interrupt current conversation line and start transition
                 StopCurrentLine();
@@ -207,14 +207,14 @@ namespace KBTV.Dialogue
         private void StartBreakTransition()
         {
             // Stop any currently playing line first
-            if (_lineInProgress)
+            if (_timingManager.GetCurrentLine() != null)
             {
                 GD.Print("BroadcastCoordinator: Stopping current line before transition");
                 StopCurrentLine();
                 OnLineCompleted(); // Process completion of interrupted line
             }
 
-            _state = BroadcastState.BreakTransition;
+            _stateManager.SetState(BroadcastState.BreakTransition);
             _breakTransitionPending = false;
 
             var transitionTemplate = _vernDialogue.GetBreakTransition();
@@ -236,7 +236,7 @@ namespace KBTV.Dialogue
 
         private void StartReturnFromBreakSequence()
         {
-            _state = BroadcastState.ReturnFromBreak;
+            _stateManager.SetState(BroadcastState.ReturnFromBreak);
             _returnFromBreakStep = ReturnFromBreakStep.Music;
 
             // First step: Play return bumper music
@@ -251,7 +251,7 @@ namespace KBTV.Dialogue
 
         private void StopCurrentLine()
         {
-            if (_lineInProgress)
+            if (_timingManager.GetCurrentLine() != null)
             {
                 // Stop any audio playback
                 var dialoguePlayer = ServiceRegistry.Instance.EventBus as IDialoguePlayer;
@@ -260,9 +260,7 @@ namespace KBTV.Dialogue
                     dialoguePlayer.Stop();
                 }
 
-                _lineInProgress = false;
-                _lineStartTime = 0f;
-                _lineDuration = 0f;
+                _timingManager.StopLine();
             }
         }
 
@@ -273,29 +271,26 @@ namespace KBTV.Dialogue
 
         public void OnAdBreakStarted()
         {
-            if (_lineInProgress)
+            if (_timingManager.GetCurrentLine() != null)
             {
                 StopCurrentLine();
             }
 
-            _state = BroadcastState.AdBreak;
-            _lineInProgress = false;
-            _currentAdIndex = 0;
-            _totalAdsInBreak = ServiceRegistry.Instance.AdManager?.CurrentBreakSlots ?? 0;
-            _adBreakActive = true;
-            CurrentAdSponsor = null;
+            _stateManager.SetState(BroadcastState.AdBreak);
+            _timingManager.StopLine();
+            _adCoordinator.OnAdBreakStarted();
 
             GD.Print($"BroadcastCoordinator: Starting ad break with {_totalAdsInBreak} ads");
         }
 
         public void OnAdBreakEnded()
         {
-            CurrentAdSponsor = null;
+            _adCoordinator.OnAdBreakEnded();
 
             // Start the return-from-break sequence instead of immediate transition
             StartReturnFromBreakSequence();
 
-            _lineInProgress = false;
+            _timingManager.StopLine();
             GD.Print("BroadcastCoordinator: AdBreak ended, starting return-from-break sequence");
         }
 
@@ -321,8 +316,8 @@ namespace KBTV.Dialogue
             _stateMachine.ProcessEvent(ConversationEvent.Start());
 
             _arcLineIndex = 0;
-            _state = BroadcastState.Conversation;
-            _lineInProgress = false;
+            _stateManager.SetState(BroadcastState.Conversation);
+            _timingManager.StopLine();
             _pendingControlAction = ControlAction.None;
 
             var startedEvent = new ConversationStartedEvent();
@@ -345,20 +340,20 @@ namespace KBTV.Dialogue
 
             if (_repository.HasOnHoldCallers)
             {
-                _state = BroadcastState.BetweenCallers;
+                _stateManager.SetState(BroadcastState.BetweenCallers);
             }
             else
             {
-                _state = BroadcastState.DeadAirFiller;
-                _fillerCycleCount = 0;
+                _stateManager.SetState(BroadcastState.DeadAirFiller);
+                this.ResetFillerCycleCount();
             }
 
-            _lineInProgress = false;
+            _timingManager.StopLine();
         }
 
         public ControlAction GetPendingControlAction()
         {
-            if (!_broadcastActive && _state != BroadcastState.ShowClosing)
+            if (!_broadcastActive && CurrentState != BroadcastState.ShowClosing)
             {
                 return ControlAction.None;
             }
@@ -368,17 +363,12 @@ namespace KBTV.Dialogue
                 return _pendingControlAction;
             }
 
-            if (_lineInProgress)
+            if (_timingManager.GetCurrentLine() != null)
             {
                 return ControlAction.None;
             }
 
-            CheckForControlAction();
             return _pendingControlAction;
-        }
-
-        private void CheckForControlAction()
-        {
         }
 
         public void OnControlActionCompleted()
@@ -388,7 +378,7 @@ namespace KBTV.Dialogue
 
         public BroadcastLine? GetNextDisplayLine()
         {
-            if (!_broadcastActive && _state != BroadcastState.ShowClosing)
+            if (!_broadcastActive && CurrentState != BroadcastState.ShowClosing)
             {
                 return null;
             }
@@ -400,21 +390,19 @@ namespace KBTV.Dialogue
                 _pendingTransitionLine = null;
 
                 // Set up transition line timing and state
-                _currentLine = transitionLine;
-                _lineInProgress = true;
-                _lineStartTime = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
-                _lineDuration = GetLineDuration(transitionLine);
+                _timingManager.StartLine(transitionLine);
 
                 // Add to transcript immediately
-                AddTranscriptEntry(transitionLine);
+                _transcriptManager.AddEntry(transitionLine);
 
                 GD.Print($"BroadcastCoordinator: Delivering transition line to display: {transitionLine.Text}");
                 return transitionLine;
             }
 
-            if (_lineInProgress)
+            var playingLine = _timingManager.GetCurrentLine();
+            if (playingLine != null)
             {
-                return _currentLine;
+                return playingLine;
             }
 
             if (_pendingControlAction != ControlAction.None)
@@ -422,22 +410,18 @@ namespace KBTV.Dialogue
                 return null;
             }
 
-            _currentLine = CalculateNextLine();
+            var currentLine = CalculateNextLine();
 
-            if (_currentLine.Type == BroadcastLineType.None)
+            if (currentLine.Type == BroadcastLineType.None)
             {
                 return null;
             }
 
-            _lineInProgress = true;
+            _timingManager.StartLine(currentLine);
 
-            var timeManager = ServiceRegistry.Instance.TimeManager;
-            _lineStartTime = timeManager?.ElapsedTime ?? 0f;
-            _lineDuration = GetLineDuration(_currentLine);
+            _transcriptManager.AddEntry(currentLine, _repository.OnAirCaller);
 
-            AddTranscriptEntry(_currentLine);
-
-            return _currentLine;
+            return currentLine;
         }
 
         public BroadcastLine GetNextLine()
@@ -448,7 +432,7 @@ namespace KBTV.Dialogue
 
         private BroadcastLine CalculateNextLine()
         {
-            return _state switch
+            return CurrentState switch
             {
                 BroadcastState.IntroMusic => GetMusicLine(),
                 BroadcastState.ShowOpening => GetShowOpeningLine(),
@@ -469,21 +453,21 @@ namespace KBTV.Dialogue
 
         public void OnLineCompleted()
         {
-            _lineInProgress = false;
+            _timingManager.StopLine();
 
             // Check if break transition just completed - start the break
-            if (_state == BroadcastState.BreakTransition)
+            if (CurrentState == BroadcastState.BreakTransition)
             {
                 GD.Print("BroadcastCoordinator: Break transition completed, notifying listeners");
                 OnBreakTransitionCompleted?.Invoke();
-                _state = BroadcastState.AdBreak;
-                _lineInProgress = false;
+                _stateManager.SetState(BroadcastState.AdBreak);
+                _timingManager.StopLine();
 
                 return; // Break started, don't advance normal flow
             }
 
             // Check if show ending transition just completed - end the show
-            if (_state == BroadcastState.ShowEndingTransition)
+            if (CurrentState == BroadcastState.ShowEndingTransition)
             {
                 GD.Print("BroadcastCoordinator: Show ending transition completed, ending show");
                 OnLiveShowEnding();
@@ -491,7 +475,7 @@ namespace KBTV.Dialogue
             }
 
             // Check if return-from-break sequence step completed
-            if (_state == BroadcastState.ReturnFromBreak)
+            if (CurrentState == BroadcastState.ReturnFromBreak)
             {
                 if (_returnFromBreakStep == ReturnFromBreakStep.Music)
                 {
@@ -522,12 +506,12 @@ namespace KBTV.Dialogue
 
                     if (_repository.HasOnHoldCallers)
                     {
-                        _state = BroadcastState.BetweenCallers;
+                        _stateManager.SetState(BroadcastState.BetweenCallers);
                     }
                     else
                     {
-                        _state = BroadcastState.DeadAirFiller;
-                        _fillerCycleCount = 0;
+                    _stateManager.SetState(BroadcastState.DeadAirFiller);
+                    this.ResetFillerCycleCount();
                     }
 
                     GD.Print("BroadcastCoordinator: Return-from-break sequence completed, transitioning to normal flow");
@@ -536,7 +520,7 @@ namespace KBTV.Dialogue
             }
 
             // Check if ad break line completed - progress to next ad
-            if (_state == BroadcastState.AdBreak && _adBreakActive)
+            if (CurrentState == BroadcastState.AdBreak && _adCoordinator.IsAdBreakActive)
             {
                 _currentAdIndex++;
                 GD.Print($"BroadcastCoordinator: Completed ad {_currentAdIndex - 1}, {_totalAdsInBreak - _currentAdIndex} remaining");
@@ -544,7 +528,7 @@ namespace KBTV.Dialogue
             }
 
             // Check if we need to start break transition
-            if (_state == BroadcastState.BreakGracePeriod && _breakTransitionPending)
+            if (CurrentState == BroadcastState.BreakGracePeriod && _breakTransitionPending)
             {
                 StartBreakTransition();
                 return; // Don't advance normal flow
@@ -557,7 +541,7 @@ namespace KBTV.Dialogue
 
             bool conversationJustEnded = false;
 
-            if (_state == BroadcastState.Conversation &&
+            if (CurrentState == BroadcastState.Conversation &&
                 _conversationContext != null &&
                 _currentFlow != null &&
                 _conversationContext.CurrentStepIndex >= _currentFlow.Steps.Count)
@@ -566,15 +550,15 @@ namespace KBTV.Dialogue
                 conversationJustEnded = true;
             }
 
-            if (_state == BroadcastState.DeadAirFiller)
+            if (CurrentState == BroadcastState.DeadAirFiller)
             {
-                _fillerCycleCount++;
+                _stateManager.IncrementFillerCycle();
             }
 
             if (!conversationJustEnded)
             {
-                AdvanceState();
-                if (_state == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
+                _stateManager.AdvanceState();
+                if (CurrentState == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
                 {
                     TryPutNextCallerOnAir();
                 }
@@ -604,7 +588,7 @@ namespace KBTV.Dialogue
 
             if (wasOffTopic)
             {
-                _state = BroadcastState.OffTopicRemark;
+                _stateManager.SetState(BroadcastState.OffTopicRemark);
                 if (_repository.HasOnHoldCallers)
                 {
                     _nextStateAfterOffTopic = BroadcastState.BetweenCallers;
@@ -612,23 +596,23 @@ namespace KBTV.Dialogue
                 else
                 {
                     _nextStateAfterOffTopic = BroadcastState.DeadAirFiller;
-                    _fillerCycleCount = 0;
+                    this.ResetFillerCycleCount();
                 }
             }
             else
             {
                 if (_repository.HasOnHoldCallers)
                 {
-                    _state = BroadcastState.BetweenCallers;
+                    _stateManager.SetState(BroadcastState.BetweenCallers);
                 }
                 else
                 {
-                    _state = BroadcastState.DeadAirFiller;
-                    _fillerCycleCount = 0;
+                    _stateManager.SetState(BroadcastState.DeadAirFiller);
+                    this.ResetFillerCycleCount();
                 }
             }
 
-            _lineInProgress = false;
+            _timingManager.StopLine();
         }
 
         private void TryPutNextCallerOnAir()
@@ -640,49 +624,13 @@ namespace KBTV.Dialogue
             }
         }
 
-        private void AdvanceState()
-        {
-            switch (_state)
-            {
-                case BroadcastState.IntroMusic:
-                    AdvanceFromIntroMusic();
-                    break;
-                case BroadcastState.ShowOpening:
-                    AdvanceFromShowOpening();
-                    break;
-                case BroadcastState.Conversation:
-                    AdvanceFromConversation();
-                    break;
-                case BroadcastState.BetweenCallers:
-                    AdvanceFromBetweenCallers();
-                    break;
-                case BroadcastState.DeadAirFiller:
-                    AdvanceFromFiller();
-                    break;
-                case BroadcastState.OffTopicRemark:
-                    AdvanceFromOffTopicRemark();
-                    break;
-                case BroadcastState.ShowClosing:
-                    _state = BroadcastState.Idle;
-                    break;
-            }
-        }
 
-        private static float GetLineDuration(BroadcastLine line)
+
+
+
+        private BroadcastLine GetAdBreakLine()
         {
-            return line.Type switch
-            {
-                BroadcastLineType.Music => 4f,
-                BroadcastLineType.ShowOpening => 5f,
-                BroadcastLineType.VernDialogue => 4f,
-                BroadcastLineType.CallerDialogue => 4f,
-                BroadcastLineType.BetweenCallers => 4f,
-                BroadcastLineType.DeadAirFiller => 8f,
-                BroadcastLineType.ShowClosing => 5f,
-                BroadcastLineType.AdBreak => 2f, // Brief display for "AD BREAK" header
-                BroadcastLineType.Ad => 4f,      // 4-second placeholder ads
-                _ => 4f
-            };
+            return _adCoordinator.GetAdBreakLine();
         }
 
         private BroadcastLine GetMusicLine()
@@ -690,61 +638,11 @@ namespace KBTV.Dialogue
             return BroadcastLine.Music();
         }
 
-        private BroadcastLine GetAdBreakMusicLine()
-        {
-            return BroadcastLine.Music();
-        }
 
-        private BroadcastLine GetAdBreakLine()
-        {
-            if (!_adBreakActive)
-            {
-                CurrentAdSponsor = null;
-                return BroadcastLine.None();
-            }
 
-            if (_currentAdIndex < _totalAdsInBreak)
-            {
-                var adManager = ServiceRegistry.Instance.AdManager;
-                var adType = DetermineAdType(adManager?.CurrentListeners ?? 100);
-                var sponsorName = AdData.GetAdTypeDisplayName(adType);
 
-                CurrentAdSponsor = sponsorName;
 
-                _transcriptRepository?.AddEntry(new TranscriptEntry(
-                    Speaker.System,
-                    $"Ad sponsored by {sponsorName}",
-                    ConversationPhase.Intro,
-                    "system"
-                ));
 
-                string adText = _totalAdsInBreak > 1 ? $"AD BREAK ({_currentAdIndex + 1})" : "AD BREAK";
-                return BroadcastLine.Ad(adText);
-            }
-            else
-            {
-                _adBreakActive = false;
-                CurrentAdSponsor = null;
-                ServiceRegistry.Instance.AdManager?.EndCurrentBreak();
-                return BroadcastLine.None();
-            }
-        }
-
-        private AdType DetermineAdType(int listenerCount)
-        {
-            // Simple tiered system based on listener count
-            if (listenerCount >= 1000) return AdType.PremiumSponsor;
-            if (listenerCount >= 500) return AdType.NationalSponsor;
-            if (listenerCount >= 200) return AdType.RegionalBrand;
-            return AdType.LocalBusiness;
-        }
-
-        private BroadcastLine GetRandomAdLine()
-        {
-            // For now, return placeholder ad line with custom text
-            string adText = _totalAdsInBreak > 1 ? $"AD BREAK ({_currentAdIndex})" : "AD BREAK";
-            return BroadcastLine.Ad(adText);
-        }
 
         private BroadcastLine GetShowOpeningLine()
         {
@@ -752,23 +650,9 @@ namespace KBTV.Dialogue
             return line != null ? BroadcastLine.ShowOpening(line.Text) : BroadcastLine.None();
         }
 
-        private void AdvanceFromIntroMusic()
-        {
-            _state = BroadcastState.ShowOpening;
-        }
 
-        private void AdvanceFromShowOpening()
-        {
-            if (_repository.HasOnHoldCallers)
-            {
-                _state = BroadcastState.Conversation;
-            }
-            else
-            {
-                _state = BroadcastState.DeadAirFiller;
-                _fillerCycleCount = 0;
-            }
-        }
+
+
 
         private BroadcastLine GetConversationLine()
         {
@@ -782,15 +666,15 @@ namespace KBTV.Dialogue
                 }
                 else
                 {
-                    _state = BroadcastState.DeadAirFiller;
-                    _fillerCycleCount = 0;
+                    _stateManager.SetState(BroadcastState.DeadAirFiller);
+                    this.ResetFillerCycleCount();
                     return GetFillerLine();
                 }
             }
 
             if (_stateMachine == null || _currentFlow == null || _conversationContext == null)
             {
-                _state = BroadcastState.DeadAirFiller;
+                _stateManager.SetState(BroadcastState.DeadAirFiller);
                 return GetFillerLine();
             }
 
@@ -826,21 +710,7 @@ namespace KBTV.Dialogue
             }
         }
 
-        private void AdvanceFromConversation()
-        {
-            if (_repository.OnAirCaller == null)
-            {
-                if (_repository.HasOnHoldCallers)
-                {
-                    _state = BroadcastState.BetweenCallers;
-                }
-                else
-                {
-                    _state = BroadcastState.DeadAirFiller;
-                    _fillerCycleCount = 0;
-                }
-            }
-        }
+
 
         private BroadcastLine GetBetweenCallersLine()
         {
@@ -858,29 +728,15 @@ namespace KBTV.Dialogue
             }
         }
 
-        private void AdvanceFromBetweenCallers()
-        {
-            if (_repository.HasOnHoldCallers)
-            {
-                _state = BroadcastState.Conversation;
-            }
-            else
-            {
-                _state = BroadcastState.DeadAirFiller;
-                _fillerCycleCount = 0;
-            }
-        }
 
-        private void AdvanceFromOffTopicRemark()
-        {
-            _state = _nextStateAfterOffTopic;
-        }
+
+
 
         private BroadcastLine GetFillerLine()
         {
-            if (_repository.HasOnHoldCallers && _fillerCycleCount >= MaxFillerCyclesBeforeAutoAdvance)
+            if (_repository.HasOnHoldCallers && _stateManager.FillerCycleCount >= MaxFillerCyclesBeforeAutoAdvance)
             {
-                _fillerCycleCount = 0;
+                this.ResetFillerCycleCount();
                 return GetFillerLineText();
             }
 
@@ -902,17 +758,7 @@ namespace KBTV.Dialogue
             return line != null ? BroadcastLine.OffTopicRemark(line.Text) : BroadcastLine.None();
         }
 
-        private void AdvanceFromFiller()
-        {
-            if (_repository.HasOnHoldCallers)
-            {
-                _state = BroadcastState.Conversation;
-            }
-            else
-            {
-                _fillerCycleCount = 0;
-            }
-        }
+
 
         private BroadcastLine GetShowClosingLine()
         {
@@ -921,116 +767,12 @@ namespace KBTV.Dialogue
 
             var line = _vernDialogue.GetShowClosing(mood);
             var result = line != null ? BroadcastLine.ShowClosing(line.Text) : BroadcastLine.None();
-            _state = BroadcastState.Idle;  // State changes to Idle after line
+            _stateManager.SetState(BroadcastState.Idle);  // State changes to Idle after line
             return result;
         }
 
-        private void AddTranscriptEntry(BroadcastLine line)
-        {
-            if (line.Type == BroadcastLineType.None)
-            {
-                return;
-            }
 
-            if (line.Type == BroadcastLineType.Music)
-            {
-                _transcriptRepository?.AddEntry(TranscriptEntry.CreateMusicLine());
-            }
-            else if (line.Type == BroadcastLineType.VernDialogue ||
-                line.Type == BroadcastLineType.DeadAirFiller ||
-                line.Type == BroadcastLineType.BetweenCallers ||
-                line.Type == BroadcastLineType.OffTopicRemark ||
-                line.Type == BroadcastLineType.ShowOpening ||
-                line.Type == BroadcastLineType.ShowClosing)
-            {
-                _transcriptRepository?.AddEntry(
-                    TranscriptEntry.CreateVernLine(line.Text, line.Phase, line.ArcId)
-                );
-            }
-            else if (line.Type == BroadcastLineType.CallerDialogue)
-            {
-                _transcriptRepository?.AddEntry(
-                    new TranscriptEntry(Speaker.Caller, line.Text, line.Phase, line.ArcId, line.Speaker)
-                );
-            }
-            else if (line.Type == BroadcastLineType.AdBreak || line.Type == BroadcastLineType.Ad)
-            {
-                _transcriptRepository?.AddEntry(
-                    new TranscriptEntry(Speaker.System, line.Text, ConversationPhase.Intro, "system")
-                );
-            }
-        }
 
-        private static VernDialogueTemplate LoadVernDialogue()
-        {
-            var jsonPath = "res://assets/dialogue/vern/VernDialogue.json";
-            var file = Godot.FileAccess.FileExists(jsonPath) ? Godot.FileAccess.Open(jsonPath, Godot.FileAccess.ModeFlags.Read) : null;
-            if (file == null)
-            {
-                return new VernDialogueTemplate();
-            }
 
-            try
-            {
-                var jsonText = file.GetAsText();
-                file.Close();
-
-                var json = new Json();
-                var error = json.Parse(jsonText);
-                if (error != Error.Ok)
-                {
-                    return new VernDialogueTemplate();
-                }
-
-                var result = new VernDialogueTemplate();
-                var data = json.Data.As<Godot.Collections.Dictionary>();
-                if (data == null)
-                {
-                    return result;
-                }
-
-                result.SetShowOpeningLines(ParseDialogueArray(data, "showOpeningLines"));
-                result.SetIntroductionLines(ParseDialogueArray(data, "introductionLines"));
-                result.SetShowClosingLines(ParseDialogueArray(data, "showClosingLines"));
-                result.SetBetweenCallersLines(ParseDialogueArray(data, "betweenCallersLines"));
-                result.SetDeadAirFillerLines(ParseDialogueArray(data, "deadAirFillerLines"));
-                result.SetDroppedCallerLines(ParseDialogueArray(data, "droppedCallerLines"));
-                result.SetBreakTransitionLines(ParseDialogueArray(data, "breakTransitionLines"));
-                result.SetReturnFromBreakLines(ParseDialogueArray(data, "returnFromBreakLines"));
-                result.SetOffTopicRemarkLines(ParseDialogueArray(data, "offTopicRemarkLines"));
-
-                return result;
-            }
-            catch
-            {
-                return new VernDialogueTemplate();
-            }
-        }
-
-        private static DialogueTemplate[] ParseDialogueArray(Godot.Collections.Dictionary data, string key)
-        {
-            if (!data.ContainsKey(key))
-            {
-                return Array.Empty<DialogueTemplate>();
-            }
-
-            var array = data[key].As<Godot.Collections.Array>();
-            if (array == null || array.Count == 0)
-            {
-                return Array.Empty<DialogueTemplate>();
-            }
-
-            return array.Select(item => {
-                var itemDict = item.As<Godot.Collections.Dictionary>();
-                if (itemDict == null) return null;
-
-                var id = itemDict.ContainsKey("id") ? itemDict["id"].AsString() : "";
-                var text = itemDict.ContainsKey("text") ? itemDict["text"].AsString() : "";
-                var weight = itemDict.ContainsKey("weight") ? itemDict["weight"].AsSingle() : 1f;
-                var mood = itemDict.ContainsKey("mood") ? itemDict["mood"].AsString() : "";
-
-                return new DialogueTemplate(id, text, weight, mood);
-            }).Where(x => x != null).ToArray()!;
-        }
     }
 }

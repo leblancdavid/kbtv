@@ -328,28 +328,7 @@ namespace KBTV.Ads
             StartBreak();
         }
 
-        private void StartBreakImmediately()
-        {
-            // Force start the break now that transition is complete
-            var currentBreak = _schedule.Breaks[_currentBreakIndex];
-            bool wasQueued = (_breakQueueStatus == BreakQueueStatus.Queued);
-            if (!wasQueued)
-            {
-                ApplyMoodPenalty();
-            }
 
-            // Apply listener dip
-            ApplyListenerDip();
-
-            // Notify broadcast coordinator
-            _coordinator.OnAdBreakStarted();
-
-            OnBreakStarted?.Invoke();
-            GD.Print($"AdManager: Break #{_currentBreakIndex + 1} started after transition (queued: {wasQueued})");
-
-            // Reset queue status for next break
-            _breakQueueStatus = BreakQueueStatus.NotQueued;
-        }
 
         /// <summary>
         /// Called by BroadcastCoordinator when all ads in current break are complete
@@ -447,10 +426,7 @@ namespace KBTV.Ads
         /// <summary>
         /// Creates a placeholder audio stream for transition music with flexible duration.
         /// </summary>
-        private AudioStream CreatePlaceholderAudio(float duration)
-        {
-            return new AudioStreamGenerator { MixRate = 44100 };
-        }
+
 
         private void ApplyMoodPenalty()
         {

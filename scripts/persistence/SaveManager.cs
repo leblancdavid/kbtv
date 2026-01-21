@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Godot;
 using Godot.Collections;
 using KBTV.Core;
@@ -64,14 +63,7 @@ namespace KBTV.Persistence
             ServiceRegistry.Instance.RegisterSelf<SaveManager>(this);
         }
 
-        private void HandleTreeExiting()
-        {
-            // Safety save on exit
-            if (_isDirty && _currentSave != null)
-            {
-                Save();
-            }
-        }
+
 
         // ─────────────────────────────────────────────────────────────
         // Registration
@@ -346,19 +338,6 @@ namespace KBTV.Persistence
             }
         }
 
-        private SaveData MigrateSave(SaveData oldData)
-        {
-            // Version migrations go here
-            // Example:
-            // if (oldData.Version < 2)
-            // {
-            //     oldData.NewField = defaultValue;
-            //     oldData.Version = 2;
-            // }
 
-            GD.Print($"[SaveManager] Migrated save from version {oldData.Version} to {CURRENT_VERSION}");
-            oldData.Version = CURRENT_VERSION;
-            return oldData;
-        }
     }
 }

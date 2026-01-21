@@ -447,12 +447,9 @@ namespace KBTV.UI
 		private void SubscribeToEvents()
 		{
 			var gameState = ServiceRegistry.Instance.GameStateManager;
-			gameState.Connect("PhaseChanged", Callable.From<GamePhase, GamePhase>(HandlePhaseChanged));
-			HandlePhaseChanged(GamePhase.PreShow, gameState.CurrentPhase);
+
 		}
 
-		private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
-		{
-		}
+
 	}
 }
