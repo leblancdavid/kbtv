@@ -113,44 +113,30 @@ namespace KBTV.UI
                 return;
             }
 
-            if (line.Type == BroadcastLineType.CallerDialogue)
+            // Hide speaker name and phase label for minimal display
+            _speakerName.Text = "";
+            _phaseLabel.Text = "";
+
+            // Set speaker icon based on content type
+            if (line.Type == BroadcastLineType.AdBreak || line.Type == BroadcastLineType.Ad)
             {
-                _speakerIcon.Text = ""; // Hide "caller_id"
-                _speakerName.Text = line.Speaker.ToUpper(); // Uppercase caller name
+                _speakerIcon.Text = "AD BREAK";
+            }
+            else if (line.Type == BroadcastLineType.Music)
+            {
+                _speakerIcon.Text = "MUSIC";
+            }
+            else if (line.Type == BroadcastLineType.CallerDialogue)
+            {
+                _speakerIcon.Text = "CALLER";
             }
             else if (line.SpeakerId == "VERN")
             {
                 _speakerIcon.Text = "VERN";
-                _speakerName.Text = ""; // Hide duplicate "Vern"
             }
             else
             {
-                _speakerIcon.Text = line.SpeakerId;
-                _speakerName.Text = line.Speaker;
-            }
-
-            _phaseLabel.Text = GetFlowStateDisplayName(line.Type);
-
-            switch (line.Type)
-            {
-                case BroadcastLineType.DeadAirFiller:
-                    _phaseLabel.Modulate = new Color(0.5f, 0.5f, 0.5f);
-                    break;
-                case BroadcastLineType.VernDialogue:
-                case BroadcastLineType.CallerDialogue:
-                    _phaseLabel.Modulate = new Color(0.5f, 0.8f, 0.5f);
-                    break;
-                case BroadcastLineType.ShowOpening:
-                case BroadcastLineType.BetweenCallers:
-                case BroadcastLineType.ShowClosing:
-                    _phaseLabel.Modulate = new Color(0.9f, 0.7f, 0.3f);
-                    break;
-                case BroadcastLineType.Ad:
-                    _phaseLabel.Modulate = new Color(1f, 0.8f, 0f); // Gold/yellow for commercials
-                    break;
-                default:
-                    _phaseLabel.Modulate = new Color(1, 1, 1);
-                    break;
+                _speakerIcon.Text = line.SpeakerId; // Fallback for system messages, etc.
             }
 
             if (_dialogueLabel != null)
