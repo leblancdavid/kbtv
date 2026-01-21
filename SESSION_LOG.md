@@ -1,37 +1,30 @@
 ## Current Session
-- **Task**: Fix ad-break not starting (break timer fires but break never begins)
+- **Task**: Add transcript entries for ad breaks so sponsor info shows in transcript panel
 - **Status**: Completed
 - **Started**: Tue Jan 20 2026
 - **Last Updated**: Tue Jan 20 2026
 
-### Root Cause
-When `OnImminentTimerFired()` triggered, the `BroadcastCoordinator` entered `BreakTransition` state and played a transition line. When the break timer fired at T-0s, `StartBreak()` saw the coordinator was still in `BreakTransition` and returned early without retrying. The transition completed later, but no one called `StartBreak()` again.
+### Summary
+Added transcript entries for ad break sponsor info so the transcript panel shows "Ad sponsored by Local Business" etc. during ad breaks. Also removed the blocking logic that prevented transcript updates during ad breaks.
 
-### Logs (Before Fix)
-```
-BroadcastCoordinator: Break imminent, 5.0s remaining
-AdManager: Break starting now
-BroadcastCoordinator: Break transition completed, notifying listeners
-AdManager: Received break transition completed event, starting break
-[Missing: AdManager never called StartBreak() again!]
-AdManager: Delaying break start - transition in progress
-```
+### Changes Made
 
-### Fix Applied
-Changed `OnBreakTransitionCompleted()` handler to call `StartBreak()` instead of `StartBreakImmediately()`:
+**1. scripts/dialogue/BroadcastCoordinator.cs (GetAdBreakLine):**
+- Added transcript entry: `_transcriptRepository?.AddEntry(new TranscriptEntry(Speaker.System, $"Ad sponsored by {sponsorName}", ...))`
 
-```csharp
-// Before (scripts/ads/AdManager.cs line 323)
-StartBreakImmediately();
+**2. scripts/ui/LiveShowFooter.cs (OnTranscriptEntryAdded):**
+- Removed early return that blocked ALL transcript updates during ad breaks
+- Transcript now updates during ad breaks with sponsor information
 
-// After
-StartBreak();
-```
-
-This ensures the normal break start flow runs after the transition completes, with proper state checks and event firing.
+### Result
+| State | Transcript Shows |
+|-------|------------------|
+| Ad break | "Ad sponsored by Local Business" (or Regional Brand, National Sponsor, Premium Sponsor) |
+| Dialogue | Speaker: text as before |
 
 ### Files Modified
-- `scripts/ads/AdManager.cs` - Line 323: Changed `StartBreakImmediately()` → `StartBreak()`
+- scripts/dialogue/BroadcastCoordinator.cs
+- scripts/ui/LiveShowFooter.cs
 
 ### Build Status
 **Build: SUCCESS** (0 errors, pre-existing warnings)
