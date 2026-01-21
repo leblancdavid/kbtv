@@ -74,7 +74,7 @@ namespace KBTV.Dialogue
             // Special handling for ad breaks - always 4 seconds
             if (line.Type == BroadcastLineType.Ad)
             {
-                return CreateSilentAudioStream(4.0f);
+                return GetSilentAudioFile();
             }
 
             // Special handling for return bumper music - random selection
@@ -98,7 +98,7 @@ namespace KBTV.Dialogue
             }
 
             var duration = CalculateDurationForText(line.Text);
-            return CreateSilentAudioStream(duration);
+            return CreatePlaceholderAudio(duration);
         }
 
         private AudioStream? LoadRandomReturnBumper()
@@ -107,8 +107,8 @@ namespace KBTV.Dialogue
             var returnBumperDir = DirAccess.Open("res://assets/audio/bumpers/Return");
             if (returnBumperDir == null)
             {
-                GD.PrintErr("AudioDialoguePlayer.LoadRandomReturnBumper: Could not open return bumper directory");
-                throw new InvalidOperationException("Return bumper directory not found");
+                GD.PrintErr("AudioDialoguePlayer.LoadRandomReturnBumper: Return bumper directory not found, using silent fallback");
+                return GetSilentAudioFile();
             }
 
             var bumperFiles = new System.Collections.Generic.List<string>();
@@ -126,8 +126,8 @@ namespace KBTV.Dialogue
 
             if (bumperFiles.Count == 0)
             {
-                GD.PrintErr("AudioDialoguePlayer.LoadRandomReturnBumper: No return bumper files found");
-                throw new InvalidOperationException("No return bumper audio files found");
+                GD.PrintErr("AudioDialoguePlayer.LoadRandomReturnBumper: No return bumper files found, using silent fallback");
+                return GetSilentAudioFile();
             }
 
             // Randomly select one
@@ -138,22 +138,34 @@ namespace KBTV.Dialogue
             var audioStream = GD.Load<AudioStream>(audioPath);
             if (audioStream == null)
             {
-                GD.PrintErr($"AudioDialoguePlayer.LoadRandomReturnBumper: Failed to load {audioPath}");
-                throw new InvalidOperationException($"Failed to load return bumper: {selectedFile}");
+                GD.PrintErr($"AudioDialoguePlayer.LoadRandomReturnBumper: Failed to load {audioPath}, using silent fallback");
+                return GetSilentAudioFile();
             }
 
             GD.Print($"AudioDialoguePlayer: Selected return bumper: {selectedFile}");
             return audioStream;
         }
 
-        private AudioStream CreateSilentAudioStream(float duration)
+        /// <summary>
+        /// Loads the 4-second silent WAV file for timing-critical scenarios.
+        /// </summary>
+        private AudioStream? GetSilentAudioFile()
         {
-            var sampleStream = new AudioStreamGenerator
+            var audioStream = GD.Load<AudioStream>("res://assets/audio/silence_4sec.wav");
+            if (audioStream == null)
             {
-                MixRate = 44100
-            };
+                GD.PrintErr("AudioDialoguePlayer.GetSilentAudioFile: Failed to load silent audio file");
+                return null;
+            }
+            return audioStream;
+        }
 
-            return sampleStream;
+        /// <summary>
+        /// Creates a placeholder audio stream for dialogue with flexible duration.
+        /// </summary>
+        private AudioStream CreatePlaceholderAudio(float duration)
+        {
+            return new AudioStreamGenerator { MixRate = 44100 };
         }
 
         private float CalculateDurationForText(string text)

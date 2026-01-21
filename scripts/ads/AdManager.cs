@@ -408,24 +408,41 @@ namespace KBTV.Ads
             _breakQueueStatus = BreakQueueStatus.Queued;
 
             // Play transition music as audio cue to Vern
-            var silentStream = CreateSilentAudioStream(4.0f);
-            _transitionMusicPlayer.Stream = silentStream;
-            _transitionMusicPlayer.Play();
+            var silentStream = GetSilentAudioFile();
+            if (silentStream != null)
+            {
+                _transitionMusicPlayer.Stream = silentStream;
+                _transitionMusicPlayer.Play();
+            }
+            else
+            {
+                GD.PrintErr("AdManager: Failed to load silent audio file for transition music");
+            }
 
             OnBreakQueued?.Invoke();
             GD.Print($"AdManager: Break queued, {_timeUntilNextBreak:F1}s until break");
         }
 
         /// <summary>
-        /// Creates a silent audio stream for placeholder transition music.
+        /// Loads the 4-second silent WAV file for timing-critical scenarios.
         /// </summary>
-        private AudioStream CreateSilentAudioStream(float duration)
+        private AudioStream? GetSilentAudioFile()
         {
-            var sampleStream = new AudioStreamGenerator
+            var audioStream = GD.Load<AudioStream>("res://assets/audio/silence_4sec.wav");
+            if (audioStream == null)
             {
-                MixRate = 44100
-            };
-            return sampleStream;
+                GD.PrintErr("AdManager.GetSilentAudioFile: Failed to load silent audio file");
+                return null;
+            }
+            return audioStream;
+        }
+
+        /// <summary>
+        /// Creates a placeholder audio stream for transition music with flexible duration.
+        /// </summary>
+        private AudioStream CreatePlaceholderAudio(float duration)
+        {
+            return new AudioStreamGenerator { MixRate = 44100 };
         }
 
         private void ApplyMoodPenalty()
