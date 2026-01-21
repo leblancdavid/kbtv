@@ -113,8 +113,21 @@ namespace KBTV.UI
                 return;
             }
 
-            _speakerIcon.Text = line.SpeakerId;
-            _speakerName.Text = line.Speaker;
+            if (line.Type == BroadcastLineType.CallerDialogue)
+            {
+                _speakerIcon.Text = ""; // Hide "caller_id"
+                _speakerName.Text = line.Speaker.ToUpper(); // Uppercase caller name
+            }
+            else if (line.SpeakerId == "VERN")
+            {
+                _speakerIcon.Text = "VERN";
+                _speakerName.Text = ""; // Hide duplicate "Vern"
+            }
+            else
+            {
+                _speakerIcon.Text = line.SpeakerId;
+                _speakerName.Text = line.Speaker;
+            }
 
             _phaseLabel.Text = GetFlowStateDisplayName(line.Type);
 
