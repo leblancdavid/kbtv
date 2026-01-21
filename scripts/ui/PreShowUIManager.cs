@@ -28,6 +28,12 @@ namespace KBTV.UI
 
 		private int _breaksPerShow = AdConstants.DEFAULT_BREAKS_PER_SHOW;
 		private int _slotsPerBreak = AdConstants.DEFAULT_SLOTS_PER_BREAK;
+		private int _showDurationMinutes = 10;
+
+		// Show duration controls
+		private Button _decreaseDurationButton;
+		private Label _durationLabel;
+		private Button _increaseDurationButton;
 
 		public override void _Ready()
 		{
@@ -65,7 +71,20 @@ namespace KBTV.UI
 
 		private void CompleteInitialization()
 		{
+			LoadFromSave();
 			UpdateUI();
+		}
+
+		private void LoadFromSave()
+		{
+			if (ServiceRegistry.Instance?.SaveManager != null)
+			{
+				var save = ServiceRegistry.Instance.SaveManager.CurrentSave;
+				if (save.ShowDurationMinutes >= 1 && save.ShowDurationMinutes <= 20)
+				{
+					_showDurationMinutes = save.ShowDurationMinutes;
+				}
+			}
 		}
 
 		private void LoadTopics()
@@ -215,6 +234,12 @@ namespace KBTV.UI
 
 			container.AddChild(UITheme.CreateSpacer(false, false));
 
+			// Show duration row
+			var durationRow = CreateAdConfigRow("SHOW DURATION (MIN)", out _decreaseDurationButton, out _durationLabel, out _increaseDurationButton);
+			container.AddChild(durationRow);
+
+			container.AddChild(UITheme.CreateSpacer(false, false));
+
 			// Breaks per show row
 			var breaksRow = CreateAdConfigRow("BREAKS PER SHOW", out _decreaseBreaksButton, out _breaksCountLabel, out _increaseBreaksButton);
 			container.AddChild(breaksRow);
@@ -232,6 +257,10 @@ namespace KBTV.UI
 			// Connect slots buttons
 			_decreaseSlotsButton.Pressed += OnSlotsDecreasePressed;
 			_increaseSlotsButton.Pressed += OnSlotsIncreasePressed;
+
+			// Connect duration buttons
+			_decreaseDurationButton.Pressed += OnDurationDecreasePressed;
+			_increaseDurationButton.Pressed += OnDurationIncreasePressed;
 
 			container.AddChild(UITheme.CreateSpacer(false, false));
 
@@ -343,10 +372,40 @@ namespace KBTV.UI
 			UpdateAdConfigLabels();
 		}
 
+		private void OnDurationDecreasePressed()
+		{
+			if (_showDurationMinutes > 1)
+			{
+				_showDurationMinutes--;
+				UpdateAdConfigLabels();
+				UpdateSave();
+			}
+		}
+
+		private void OnDurationIncreasePressed()
+		{
+			if (_showDurationMinutes < 20)
+			{
+				_showDurationMinutes++;
+				UpdateAdConfigLabels();
+				UpdateSave();
+			}
+		}
+
+		private void UpdateSave()
+		{
+			if (ServiceRegistry.Instance?.SaveManager != null)
+			{
+				ServiceRegistry.Instance.SaveManager.CurrentSave.ShowDurationMinutes = _showDurationMinutes;
+				ServiceRegistry.Instance.SaveManager.MarkDirty();
+			}
+		}
+
 		private void UpdateAdConfigLabels()
 		{
 			if (_breaksCountLabel != null) _breaksCountLabel.Text = _breaksPerShow.ToString();
 			if (_slotsCountLabel != null) _slotsCountLabel.Text = _slotsPerBreak.ToString();
+			if (_durationLabel != null) _durationLabel.Text = _showDurationMinutes.ToString();
 
 			// Calculate estimates
 			int totalSlots = _breaksPerShow * _slotsPerBreak;
@@ -425,6 +484,9 @@ namespace KBTV.UI
 				// Set the ad schedule
 				var adSchedule = new AdSchedule(_breaksPerShow, _slotsPerBreak);
 				ServiceRegistry.Instance.GameStateManager.SetAdSchedule(adSchedule);
+
+				// Set the show duration
+				ServiceRegistry.Instance.TimeManager.SetShowDuration(_showDurationMinutes * 60f);
 
 				ServiceRegistry.Instance.GameStateManager.StartLiveShow();
 			}

@@ -34,6 +34,11 @@ namespace KBTV.Persistence
         /// </summary>
         public int Money = 500;
 
+        /// <summary>
+        /// Show duration in minutes (1-20, default 10).
+        /// </summary>
+        public int ShowDurationMinutes = 10;
+
         // ─────────────────────────────────────────────────────────────
         // Equipment
         // ─────────────────────────────────────────────────────────────
@@ -83,10 +88,11 @@ namespace KBTV.Persistence
         {
             var save = new SaveData
             {
-                Version = 1,
+                Version = 2,
                 LastSaveTime = DateTime.UtcNow.ToString("o"),
                 CurrentNight = 1,
                 Money = 500,
+                ShowDurationMinutes = 10,
                 EquipmentLevels = new System.Collections.Generic.Dictionary<string, int>(),
                 ItemQuantities = new System.Collections.Generic.Dictionary<string, int>(),
                 TotalCallersScreened = 0,

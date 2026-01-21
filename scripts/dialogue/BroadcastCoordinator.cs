@@ -44,19 +44,24 @@ namespace KBTV.Dialogue
 
         private ControlAction _pendingControlAction = ControlAction.None;
         private BroadcastState _nextStateAfterOffTopic;
-
-        private bool _breakTransitionPending = false;
-        private BroadcastLine? _pendingTransitionLine = null;
+        
+        // Show ending transition tracking
+        private bool _closingLineDelivered = false;
+        private bool _outroMusicQueued = false;
 
         // Ad break state tracking
         private int _currentAdIndex = 0;
         private int _totalAdsInBreak = 0;
         private bool _adBreakActive = false;
         public string? CurrentAdSponsor { get; private set; }
-
+        
         // Return from break sequence tracking
         private enum ReturnFromBreakStep { Music, Dialogue, Complete }
         private ReturnFromBreakStep _returnFromBreakStep = ReturnFromBreakStep.Music;
+
+        private bool _breakTransitionPending = false;
+        private BroadcastLine? _pendingTransitionLine = null;
+
 
         // Events for break coordination
         public event Action? OnBreakTransitionCompleted;
@@ -107,6 +112,12 @@ namespace KBTV.Dialogue
                 adManager.OnBreakImminent += OnBreakImminent;
             }
 
+            var timeManager = ServiceRegistry.Instance.TimeManager;
+            if (timeManager != null)
+            {
+                timeManager.ShowEndingWarning += OnShowEndingWarning;
+            }
+
             ServiceRegistry.Instance.RegisterSelf<BroadcastCoordinator>(this);
         }
 
@@ -126,35 +137,66 @@ namespace KBTV.Dialogue
             this.ResetFillerCycleCount();
             _timingManager.StopLine();
             _pendingControlAction = ControlAction.None;
+            _closingLineDelivered = false;
 
             ServiceRegistry.Instance.EventBus.Publish(new ShowStartedEvent());
         }
 
         public void OnLiveShowEnding()
         {
-            _stateManager.SetState(BroadcastState.ShowClosing);
+            GD.Print("BroadcastCoordinator: OnLiveShowEnding called");
+            _stateManager.SetState(BroadcastState.Idle);
             _broadcastActive = false;
             _timingManager.StopLine();
             _pendingControlAction = ControlAction.None;
+            _closingLineDelivered = false;
             _transcriptRepository?.ClearCurrentShow();
         }
 
         public void QueueShowEnd()
         {
-            if (_broadcastActive && (CurrentState == BroadcastState.Conversation || CurrentState == BroadcastState.DeadAirFiller))
+            // Only queue the outro music when user clicks end show button
+            // The actual closing dialog is triggered by timer at T-10s
+            QueueOutroMusic();
+        }
+
+        public void QueueOutroMusic()
+        {
+            if (!_outroMusicQueued)
             {
-                _stateManager.SetState(BroadcastState.ShowEndingQueue);
-                _pendingControlAction = ControlAction.EndShow;
-                GD.Print("BroadcastCoordinator: Show end queued");
+                _outroMusicQueued = true;
+                GD.Print("BroadcastCoordinator: Outro music queued for end of show");
             }
         }
 
+        public bool IsOutroMusicQueued() => _outroMusicQueued;
+
         public void CheckShowEndCondition()
         {
-            if (_pendingControlAction == ControlAction.EndShow &&
-                (CurrentState == BroadcastState.ShowEndingQueue || CurrentState == BroadcastState.Conversation))
+            // At T-10s, trigger the closing dialog sequence
+            // This allows the current line to complete, then ShowClosing will play
+            if (CurrentState == BroadcastState.Conversation || CurrentState == BroadcastState.DeadAirFiller)
             {
-                StartShowEndingTransition();
+                GD.Print("BroadcastCoordinator: T-10s trigger, setting state to ShowEndingTransition");
+                
+                var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+                VernMoodType mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+
+                var closingTemplate = _vernDialogue.GetShowClosing(mood);
+                if (closingTemplate == null)
+                {
+                    GD.PrintErr("BroadcastCoordinator: CRITICAL ERROR - No show closing template found!");
+                    throw new InvalidOperationException("Show closing template is missing from VernDialogueTemplate");
+                }
+
+                // Prepare closing line for normal dialogue flow (don't play directly)
+                _pendingTransitionLine = CreateBroadcastLine(closingTemplate, Speaker.Vern);
+                _stateManager.SetState(BroadcastState.ShowEndingTransition);
+
+                GD.Print($"BroadcastCoordinator: Prepared show ending transition line for display: {_pendingTransitionLine?.Text ?? "null"}");
+
+                // Notify display that transition line is available
+                OnTransitionLineAvailable?.Invoke();
             }
         }
 
@@ -202,6 +244,30 @@ namespace KBTV.Dialogue
             // Let transition lines complete naturally
 
             GD.Print($"BroadcastCoordinator: Break imminent, {timeUntilBreak:F1}s remaining");
+        }
+
+        private void OnShowEndingWarning(float secondsRemaining)
+        {
+            // Always trigger closing sequence regardless of current state
+            // The closing line will play after the current line completes
+            GD.Print($"BroadcastCoordinator.OnShowEndingWarning: setting up closing line, {secondsRemaining:F1}s remaining");
+
+            var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+            VernMoodType mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+
+            var closingTemplate = _vernDialogue.GetShowClosing(mood);
+            if (closingTemplate == null)
+            {
+                GD.PrintErr("BroadcastCoordinator: CRITICAL ERROR - No show closing template found!");
+                throw new InvalidOperationException("Show closing template is missing from VernDialogueTemplate");
+            }
+
+            _pendingTransitionLine = CreateBroadcastLine(closingTemplate, Speaker.Vern);
+            _stateManager.SetState(BroadcastState.ShowEndingTransition);
+
+            GD.Print($"BroadcastCoordinator: Prepared show ending transition line: {_pendingTransitionLine?.Text ?? "null"}");
+            GD.Print("BroadcastCoordinator: Firing OnTransitionLineAvailable");
+            OnTransitionLineAvailable?.Invoke();
         }
 
         private void StartBreakTransition()
@@ -353,7 +419,14 @@ namespace KBTV.Dialogue
 
         public ControlAction GetPendingControlAction()
         {
+            // Don't return EndShow during ShowClosing - let the closing line be displayed
             if (!_broadcastActive && CurrentState != BroadcastState.ShowClosing)
+            {
+                return ControlAction.None;
+            }
+
+            // Don't block the closing line from being displayed
+            if (CurrentState == BroadcastState.ShowClosing)
             {
                 return ControlAction.None;
             }
@@ -378,11 +451,15 @@ namespace KBTV.Dialogue
 
         public BroadcastLine? GetNextDisplayLine()
         {
-            if (!_broadcastActive && CurrentState != BroadcastState.ShowClosing)
+            GD.Print($"BroadcastCoordinator.GetNextDisplayLine: pending={_pendingTransitionLine != null}, state={CurrentState}");
+
+            // Allow closing line to display even when broadcast is no longer active
+            if (!_broadcastActive && CurrentState != BroadcastState.ShowClosing && CurrentState != BroadcastState.ShowEndingTransition && CurrentState != BroadcastState.ShowEndingQueue)
             {
+                GD.Print("BroadcastCoordinator.GetNextDisplayLine: returning null (broadcast inactive)");
                 return null;
             }
-
+ 
             // Priority: Check for pending transition line first
             if (_pendingTransitionLine != null)
             {
@@ -395,7 +472,7 @@ namespace KBTV.Dialogue
                 // Add to transcript immediately
                 _transcriptManager.AddEntry(transitionLine);
 
-                GD.Print($"BroadcastCoordinator: Delivering transition line to display: {transitionLine.Text}");
+                GD.Print($"BroadcastCoordinator.GetNextDisplayLine: returning transition line: {transitionLine.Text}");
                 return transitionLine;
             }
 
@@ -414,6 +491,7 @@ namespace KBTV.Dialogue
 
             if (currentLine.Type == BroadcastLineType.None)
             {
+                GD.Print("BroadcastCoordinator.GetNextDisplayLine: CalculateNextLine returned None, returning null");
                 return null;
             }
 
@@ -421,6 +499,7 @@ namespace KBTV.Dialogue
 
             _transcriptManager.AddEntry(currentLine, _repository.OnAirCaller);
 
+            GD.Print($"BroadcastCoordinator.GetNextDisplayLine: returning line of type {currentLine.Type}: {currentLine.Text}");
             return currentLine;
         }
 
@@ -466,10 +545,13 @@ namespace KBTV.Dialogue
                 return; // Break started, don't advance normal flow
             }
 
-            // Check if show ending transition just completed - end the show
+            // Check if show ending transition line just completed - end the show
+            // Note: We check _pendingTransitionLine to detect if a transition line was just delivered
+            // If _pendingTransitionLine is null and we're in ShowEndingTransition, the line just completed
             if (CurrentState == BroadcastState.ShowEndingTransition)
             {
-                GD.Print("BroadcastCoordinator: Show ending transition completed, ending show");
+                GD.Print("BroadcastCoordinator: ShowEndingTransition line completed (state is still ShowEndingTransition), calling OnLiveShowEnding");
+                _stateManager.SetState(BroadcastState.Idle);
                 OnLiveShowEnding();
                 return; // Show ending, don't advance normal flow
             }
@@ -767,7 +849,7 @@ namespace KBTV.Dialogue
 
             var line = _vernDialogue.GetShowClosing(mood);
             var result = line != null ? BroadcastLine.ShowClosing(line.Text) : BroadcastLine.None();
-            _stateManager.SetState(BroadcastState.Idle);  // State changes to Idle after line
+            // Don't change state here - state remains ShowClosing until line completes
             return result;
         }
 

@@ -1,35 +1,117 @@
 ## Current Session
-- **Task**: Add transcript entries for ad breaks so sponsor info shows in transcript panel
+- **Task**: Fix show ending transition - implement event-driven pattern (matching ad breaks)
 - **Status**: Completed
-- **Started**: Tue Jan 20 2026
-- **Last Updated**: Tue Jan 20 2026
+- **Started**: Wed Jan 21 2026
+- **Last Updated**: Wed Jan 21 2026
 
-### Summary
-Added transcript entries for ad break sponsor info so the transcript panel shows "Ad sponsored by Local Business" etc. during ad breaks. Also removed the blocking logic that prevented transcript updates during ad breaks.
+### Problem
+The show ending flow was polling-based (TimeManager directly calling CheckShowEndCondition in _Process), which broke the event-driven architecture.
+
+### Solution
+Implemented event-driven pattern matching the ad break flow:
+
+1. **TimeManager** fires `ShowEndingWarning` event at T-10s (instead of polling)
+2. **BroadcastCoordinator** subscribes to the event and sets up the closing line
+3. **ConversationDisplay** uses `OnTransitionLineAvailable` to trigger line retrieval (same as ad breaks)
 
 ### Changes Made
 
-**1. scripts/dialogue/BroadcastCoordinator.cs (GetAdBreakLine):**
-- Added transcript entry: `_transcriptRepository?.AddEntry(new TranscriptEntry(Speaker.System, $"Ad sponsored by {sponsorName}", ...))`
+**1. TimeManager.cs - Added event signal:**
+- Added `[Signal] public delegate void ShowEndingWarningEventHandler(float secondsRemaining);`
+- Changed _Process to emit signal instead of calling CheckShowEndCondition directly
 
-**2. scripts/ui/LiveShowFooter.cs (OnTranscriptEntryAdded):**
-- Removed early return that blocked ALL transcript updates during ad breaks
-- Transcript now updates during ad breaks with sponsor information
+**2. ITimeManager.cs - Added event declaration:**
+- Added `event Action<float> ShowEndingWarning;`
 
-### Result
-| State | Transcript Shows |
-|-------|------------------|
-| Ad break | "Ad sponsored by Local Business" (or Regional Brand, National Sponsor, Premium Sponsor) |
-| Dialogue | Speaker: text as before |
+**3. BroadcastCoordinator.cs - Event-driven subscription:**
+- Added subscription to `timeManager.ShowEndingWarning += OnShowEndingWarning;` in InitializeWithServices
+- Added `OnShowEndingWarning(float secondsRemaining)` handler that sets up _pendingTransitionLine and state
+- Removed `CheckShowEndCondition()` method (replaced by event handler)
+- Removed `StartShowEndingTransition()` method (no longer needed)
+- Removed verbose debug logging from GetNextDisplayLine()
+
+**4. GameStateManager.cs - Updated comment:**
+- Changed reference from CheckShowEndCondition to OnShowEndingWarning event
+
+### New Event-Driven Flow
+```
+T-10s: TimeManager emits ShowEndingWarning event
+    ↓
+BroadcastCoordinator.OnShowEndingWarning()
+    ↓
+Sets _pendingTransitionLine with closing template
+Sets state = ShowEndingTransition
+Fires OnTransitionLineAvailable
+    ↓
+ConversationDisplay.OnTransitionLineAvailable()
+    ↓
+Calls TryGetNextLine() → gets closing line from _pendingTransitionLine
+    ↓
+Closing line displays
+    ↓
+Audio completes → OnAudioLineCompleted → OnLineCompleted
+    ↓
+OnLineCompleted detects ShowEndingTransition → OnLiveShowEnding
+    ↓
+T=0: TimeManager emits ShowEnded → ProcessEndOfShow()
+```
 
 ### Files Modified
+- scripts/managers/TimeManager.cs
+- scripts/managers/ITimeManager.cs
 - scripts/dialogue/BroadcastCoordinator.cs
-- scripts/ui/LiveShowFooter.cs
+- scripts/core/GameStateManager.cs
 
 ### Build Status
-**Build: SUCCESS** (0 errors, pre-existing warnings)
+**Build: SUCCESS** (0 errors, 0 warnings)
+Closing dialog plays (normal state machine flow)
+    ↓
+OnLineCompleted() detects ShowClosing completion
+    ↓
+OnLiveShowEnding() → state = ShowClosing, _broadcastActive = false
+    ↓
+T=0: TimeManager.EndShow() → AdManager handles → ProcessEndOfShow()
+    ↓
+Clear callers → Calculate income → If _outroMusicQueued, play music → Show PostShow UI
+```
 
-### Phase 6: Fix Break Window Button Visibility - ✅ COMPLETED
+### Files Modified
+- scripts/dialogue/ControlAction.cs
+- scripts/dialogue/BroadcastCoordinator.cs
+- scripts/core/GameStateManager.cs
+
+### Build Status
+**Build: SUCCESS** (0 errors, 0 warnings)
+
+### Debug Logging Added
+Added comprehensive debug logging to trace the event-driven show ending flow:
+
+1. **TimeManager._Process()**: Logs when ShowEndingWarning is emitted with current elapsed time
+2. **BroadcastCoordinator.OnShowEndingWarning()**: Logs current state, whether condition passes, and when OnTransitionLineAvailable is fired
+3. **ConversationDisplay.InitializeWithServices()**: Logs subscription to OnTransitionLineAvailable
+4. **ConversationDisplay.OnTransitionLineAvailable()**: Logs when event is received
+5. **BroadcastCoordinator.GetNextDisplayLine()**: Logs pending line, current state, and return value
+
+### Expected Log Sequence
+```
+TimeManager: Emitting ShowEndingWarning at 590.0s
+BroadcastCoordinator.OnShowEndingWarning: state=Conversation
+BroadcastCoordinator: Setting up closing line, 10.0s remaining
+BroadcastCoordinator: Prepared show ending transition line: Well, that's all...
+BroadcastCoordinator: Firing OnTransitionLineAvailable
+ConversationDisplay: OnTransitionLineAvailable received
+ConversationDisplay: Subscribed to OnTransitionLineAvailable
+BroadcastCoordinator.GetNextDisplayLine: pending=True, state=ShowEndingTransition
+BroadcastCoordinator.GetNextDisplayLine: returning transition line: Well, that's all...
+ConversationDisplay: Starting line - Type: ShowClosing, Text: Well, that's all...
+```
+
+If any of these logs are missing, that identifies where the chain is breaking.
+
+---
+
+## Previous Session
+- **Task**: Add transcript entries for ad breaks so sponsor info shows in transcript panel
 - **Problem**: "BREAK WINDOW" status shown but "QUEUE AD-BREAK" button remained invisible
 - **Root Cause**: `_isInBreakWindow` flag was never set to `true` when window opened
 - **Solution**:

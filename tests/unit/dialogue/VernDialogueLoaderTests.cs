@@ -15,8 +15,8 @@ public class VernDialogueLoaderTests : KBTVTestClass
         loader.LoadDialogue();
 
         var dialogue = loader.VernDialogue;
-        AssertThat(dialogue).IsNotNull();
-        AssertThat(dialogue.GetShowOpeningLines()).IsNotNull();
-        AssertThat(dialogue.GetBetweenCallersLines()).IsNotNull();
+        AssertNotNull(dialogue);
+        AssertNotNull(dialogue.ShowOpeningLines);
+        AssertNotNull(dialogue.BetweenCallersLines);
     }
 }

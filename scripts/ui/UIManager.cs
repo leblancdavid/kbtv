@@ -12,6 +12,7 @@ namespace KBTV.UI
     {
         private CanvasLayer _preShowLayer;
         private CanvasLayer _liveShowLayer;
+        private CanvasLayer _postShowLayer;
         private bool _gameStateConnected;
         private GameStateManager _gameState;
         private bool _isTransitioning;
@@ -26,6 +27,11 @@ namespace KBTV.UI
         {
             _liveShowLayer = layer;
             TryUpdateVisibility();
+        }
+
+        public void RegisterPostShowLayer(CanvasLayer layer)
+        {
+            _postShowLayer = layer;
         }
 
         public override void _Ready()
@@ -115,11 +121,19 @@ namespace KBTV.UI
                 case GamePhase.PreShow:
                     _preShowLayer.Show();
                     _liveShowLayer.Hide();
+                    if (_postShowLayer != null) _postShowLayer.Hide();
                     break;
 
                 case GamePhase.LiveShow:
                     _preShowLayer.Hide();
                     _liveShowLayer.Show();
+                    if (_postShowLayer != null) _postShowLayer.Hide();
+                    break;
+
+                case GamePhase.PostShow:
+                    _preShowLayer.Hide();
+                    _liveShowLayer.Hide();
+                    if (_postShowLayer != null) _postShowLayer.Show();
                     break;
 
                 default:
@@ -143,6 +157,18 @@ namespace KBTV.UI
         {
             // This method is called by EndShowPanel to show itself
             // The actual showing is done in LiveShowFooter.OnBreakEnded when breaks remaining == 0
+        }
+
+        public void ShowPostShowLayer()
+        {
+            if (_postShowLayer == null)
+            {
+                GD.PrintErr("UIManager: PostShow layer not registered");
+                return;
+            }
+
+            _liveShowLayer.Hide();
+            _postShowLayer.Show();
         }
 
         public override void _ExitTree()

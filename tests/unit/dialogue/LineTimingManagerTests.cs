@@ -12,35 +12,35 @@ public class LineTimingManagerTests : KBTVTestClass
     public void StartLine_SetsCurrentLine()
     {
         var manager = new LineTimingManager();
-        var line = BroadcastLine.VernDialogue("Test");
+        var line = BroadcastLine.VernDialogue("Test", ConversationPhase.Intro);
         manager.StartLine(line);
 
         var current = manager.GetCurrentLine();
-        AssertThat(current).IsNotNull();
-        AssertThat(current.Value.Text).IsEqualTo("Test");
+        AssertNotNull(current);
+        AssertAreEqual("Test", current.Value.Text);
     }
 
     [Test]
     public void UpdateProgress_LineCompletes_ReturnsTrue()
     {
         var manager = new LineTimingManager();
-        var line = BroadcastLine.VernDialogue("Test");
+        var line = BroadcastLine.VernDialogue("Test", ConversationPhase.Intro);
         manager.StartLine(line);
 
         // Simulate time passing (4 seconds for VernDialogue)
         var completed = manager.UpdateProgress(4.1f);
-        AssertThat(completed).IsTrue();
+        AssertThat(completed);
     }
 
     [Test]
     public void StopLine_ClearsCurrentLine()
     {
         var manager = new LineTimingManager();
-        var line = BroadcastLine.VernDialogue("Test");
+        var line = BroadcastLine.VernDialogue("Test", ConversationPhase.Intro);
         manager.StartLine(line);
         manager.StopLine();
 
         var current = manager.GetCurrentLine();
-        AssertThat(current).IsNull();
+        AssertNull(current);
     }
 }

@@ -16,6 +16,7 @@ namespace KBTV.Managers
 
         event Action<float> Tick;
         event Action ShowEnded;
+        event Action<float> ShowEndingWarning;
         event Action<bool> RunningChanged;
 
         void StartClock();

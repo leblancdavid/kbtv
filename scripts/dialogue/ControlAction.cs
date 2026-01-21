@@ -4,6 +4,7 @@ namespace KBTV.Dialogue
     {
         None,
         PutCallerOnAir,
+        QueueOutroMusic,
         EndShow
     }
 }

@@ -7,6 +7,7 @@ using KBTV.Economy;
 using KBTV.Managers;
 using KBTV.Persistence;
 using KBTV.Callers;
+using static KBTV.Dialogue.BroadcastCoordinator;
 
 namespace KBTV.Core
 {
@@ -78,7 +79,7 @@ namespace KBTV.Core
 				case GamePhase.LiveShow:
 					_currentPhase = GamePhase.PostShow;
 					ProcessEndOfShow();
-					break;
+					return; // ProcessEndOfShow handles phase changed signal after bumper
 
 				case GamePhase.PostShow:
 					// Start a new night
@@ -110,13 +111,14 @@ namespace KBTV.Core
 
 			// Initialize ad manager with schedule
 			var adManager = ServiceRegistry.Instance.AdManager;
-			if (adManager != null)
+			var timeManager = ServiceRegistry.Instance.TimeManager;
+			if (adManager != null && timeManager != null)
 			{
-				adManager.Initialize(_adSchedule, AdConstants.SHOW_DURATION_SECONDS);
+				adManager.Initialize(_adSchedule, timeManager.ShowDuration);
 			}
 			else
 			{
-				GD.PrintErr("GameStateManager: AdManager not available");
+				GD.PrintErr("GameStateManager: AdManager or TimeManager not available");
 			}
 
 			// Initialize broadcast flow
@@ -187,14 +189,22 @@ namespace KBTV.Core
 
 		/// <summary>
 		/// Process end-of-show logic: calculate income, update stats, save game.
+		/// Called at T=0 when show time expires.
 		/// </summary>
-		private void ProcessEndOfShow()
+		private async void ProcessEndOfShow()
 		{
-			// End broadcast flow first
-			ServiceRegistry.Instance.BroadcastCoordinator?.OnLiveShowEnding();
+			GD.Print("GameStateManager: ProcessEndOfShow started (T=0)");
 
-			// Play final bumper music
-			// TODO: Play bumper music here
+			// The closing dialog was already triggered at T-10s by OnShowEndingWarning event
+			// and should have completed by now. We just need to:
+			// 1. Clear all callers
+			// 2. Calculate income and update save data
+			// 3. Play outro music if queued
+			// 4. Show PostShow UI
+
+			// Clear all callers (incoming, on-hold, on-air)
+			ServiceRegistry.Instance.CallerRepository?.ClearAll();
+			GD.Print("GameStateManager: All callers cleared");
 
 			// Get show performance data
 			int peakListeners = ServiceRegistry.Instance.ListenerManager?.PeakListeners ?? 0;
@@ -206,6 +216,7 @@ namespace KBTV.Core
 			if (ServiceRegistry.Instance.EconomyManager != null)
 			{
 				ServiceRegistry.Instance.EconomyManager.AddMoney(income, "Show Income");
+				GD.Print($"GameStateManager: Added income {income} (quality: {showQuality:F1}, peak listeners: {peakListeners})");
 			}
 
 			// Update save data
@@ -223,11 +234,36 @@ namespace KBTV.Core
 			// Reset the clock for next show
 			ServiceRegistry.Instance.TimeManager?.ResetClock();
 
+			// Play outro music if it was queued by user clicking "End Show" button
+			var broadcastCoordinator = ServiceRegistry.Instance.BroadcastCoordinator;
+			if (broadcastCoordinator != null && broadcastCoordinator.IsOutroMusicQueued())
+			{
+				GD.Print("GameStateManager: Playing queued outro music");
+				var audioPlayer = ServiceRegistry.Instance.EventBus as IDialoguePlayer;
+				if (audioPlayer != null)
+				{
+					var bumperLine = BroadcastLine.Music();
+					audioPlayer.PlayLineAsync(bumperLine);
+
+					// Wait for bumper to complete (4 seconds for music lines)
+					await ToSignal(GetTree().CreateTimer(4f), "timeout");
+					GD.Print("GameStateManager: Outro music completed");
+				}
+			}
+
 			// Auto-save at end of show
 			if (ServiceRegistry.Instance.SaveManager != null)
 			{
 				ServiceRegistry.Instance.SaveManager.Save();
+				GD.Print("GameStateManager: Game saved");
 			}
+
+			// Show PostShow UI
+			ServiceRegistry.Instance.UIManager?.ShowPostShowLayer();
+			GD.Print("GameStateManager: PostShow UI shown");
+
+			// Emit phase changed signal
+			EmitSignal("PhaseChanged", (int)GamePhase.LiveShow, (int)GamePhase.PostShow);
 		}
 	}
 }

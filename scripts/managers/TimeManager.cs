@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using KBTV.Core;
+using KBTV.Persistence;
 
 namespace KBTV.Managers
 {
@@ -8,10 +9,11 @@ namespace KBTV.Managers
     /// Manages the in-game clock for the radio show.
     /// Handles time progression during live broadcasts.
     /// </summary>
- 	public partial class TimeManager : Node
-     {
+   	public partial class TimeManager : Node, ISaveable
+      {
 		[Signal] public delegate void TickEventHandler(float delta);
 		[Signal] public delegate void ShowEndedEventHandler();
+		[Signal] public delegate void ShowEndingWarningEventHandler(float secondsRemaining);
 		[Signal] public delegate void RunningChangedEventHandler(bool isRunning);
         [Export] private float _showDurationSeconds = 600f; // 10 minutes real-time
         [Export] private float _showDurationHours = 4f;
@@ -36,13 +38,52 @@ namespace KBTV.Managers
         /// </summary>
         public float CurrentHour => _showStartHour + (_showDurationHours * Progress);
 
+        /// <summary>
+        /// Set the show duration in seconds.
+        /// </summary>
+        public void SetShowDuration(float seconds)
+        {
+            _showDurationSeconds = seconds;
+            _showDurationHours = seconds / 3600f; // Update hours for consistency
+        }
 
+        /// <summary>
+        /// Save current show duration.
+        /// </summary>
+        public void OnBeforeSave(SaveData data)
+        {
+            data.ShowDurationMinutes = (int)(_showDurationSeconds / 60f);
+        }
+
+        /// <summary>
+        /// Load show duration from save.
+        /// </summary>
+        public void OnAfterLoad(SaveData data)
+        {
+            if (data.ShowDurationMinutes > 0 && data.ShowDurationMinutes <= 20)
+            {
+                SetShowDuration(data.ShowDurationMinutes * 60f);
+            }
+        }
 
         public override void _Ready()
         {
             _elapsedTime = 0f;
             _isRunning = false;
             ServiceRegistry.Instance.RegisterSelf<TimeManager>(this);
+            CallDeferred(nameof(TryRegisterSaveable));
+        }
+
+        private void TryRegisterSaveable()
+        {
+            if (ServiceRegistry.Instance?.SaveManager != null)
+            {
+                ServiceRegistry.Instance.SaveManager.RegisterSaveable(this);
+            }
+            else
+            {
+                CallDeferred(nameof(TryRegisterSaveable));
+            }
         }
 
         public override void _Process(double delta)
@@ -54,10 +95,11 @@ namespace KBTV.Managers
 
             EmitSignal("Tick", deltaTime);
 
-            // Check for show end condition (10 seconds remaining)
+            // Check for show ending warning (10 seconds remaining)
             if (_elapsedTime >= _showDurationSeconds - 10f && _elapsedTime < _showDurationSeconds - 10f + deltaTime)
             {
-                ServiceRegistry.Instance.BroadcastCoordinator?.CheckShowEndCondition();
+                GD.Print($"TimeManager: Emitting ShowEndingWarning at {_elapsedTime:F1}s");
+                EmitSignal("ShowEndingWarning", 10f);
             }
 
             if (_elapsedTime >= _showDurationSeconds)

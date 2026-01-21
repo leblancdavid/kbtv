@@ -20,8 +20,8 @@ public class TranscriptManagerTests : KBTVTestClass
         manager.AddEntry(line);
 
         var entries = repo.GetCurrentShowTranscript();
-        AssertThat(entries.Count).IsEqualTo(1);
-        AssertThat(entries[0].Speaker).IsEqualTo(Speaker.Music);
+        AssertAreEqual(1, entries.Count);
+        AssertAreEqual(Speaker.Music, entries[0].Speaker);
     }
 
     [Test]
@@ -29,13 +29,34 @@ public class TranscriptManagerTests : KBTVTestClass
     {
         var repo = new TranscriptRepository();
         var manager = new TranscriptManager(repo);
-        var caller = new Caller("Test Caller");
+        var caller = new Caller(
+            "Test Caller",
+            "555-0123",
+            "Test Location",
+            "Ghosts",
+            "Ghosts",
+            "Test Reason",
+            CallerLegitimacy.Credible,
+            CallerPhoneQuality.Good,
+            CallerEmotionalState.Calm,
+            CallerCurseRisk.Low,
+            CallerBeliefLevel.Curious,
+            CallerEvidenceLevel.None,
+            CallerCoherence.Coherent,
+            CallerUrgency.Low,
+            "nervous_hiker",
+            null,
+            null,
+            "Test summary",
+            30f,
+            0.8f
+        );
 
-        var line = BroadcastLine.CallerDialogue("Test text");
+        var line = BroadcastLine.CallerDialogue("Test text", caller.Name, caller.Id, ConversationPhase.Intro);
         manager.AddEntry(line, caller);
 
         var entries = repo.GetCurrentShowTranscript();
-        AssertThat(entries.Count).IsEqualTo(1);
-        AssertThat(entries[0].SpeakerName).IsEqualTo("Test Caller");
+        AssertAreEqual(1, entries.Count);
+        AssertAreEqual("Test Caller", entries[0].SpeakerName);
     }
 }

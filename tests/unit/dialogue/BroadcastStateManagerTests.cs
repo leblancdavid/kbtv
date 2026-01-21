@@ -17,7 +17,7 @@ public class BroadcastStateManagerTests : KBTVTestClass
         var manager = new BroadcastStateManager(repo, coordinator);
 
         manager.SetState(BroadcastCoordinator.BroadcastState.Conversation);
-        AssertThat(manager.CurrentState).IsEqualTo(BroadcastCoordinator.BroadcastState.Conversation);
+        AssertAreEqual(BroadcastCoordinator.BroadcastState.Conversation, manager.CurrentState);
     }
 
     [Test]
@@ -28,10 +28,10 @@ public class BroadcastStateManagerTests : KBTVTestClass
         var manager = new BroadcastStateManager(repo, coordinator);
 
         manager.IncrementFillerCycle();
-        AssertThat(manager.FillerCycleCount).IsEqualTo(1);
+        AssertAreEqual(1, manager.FillerCycleCount);
 
         manager.ResetFillerCycleCount();
-        AssertThat(manager.FillerCycleCount).IsEqualTo(0);
+        AssertAreEqual(0, manager.FillerCycleCount);
     }
 
     [Test]
@@ -44,6 +44,6 @@ public class BroadcastStateManagerTests : KBTVTestClass
         manager.SetState(BroadcastCoordinator.BroadcastState.IntroMusic);
         manager.AdvanceState();
 
-        AssertThat(manager.CurrentState).IsEqualTo(BroadcastCoordinator.BroadcastState.ShowOpening);
+        AssertAreEqual(BroadcastCoordinator.BroadcastState.ShowOpening, manager.CurrentState);
     }
 }

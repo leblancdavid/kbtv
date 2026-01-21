@@ -17,8 +17,8 @@ public class AdBreakCoordinatorTests : KBTVTestClass
         var coordinator = new AdBreakCoordinator(adManager, dialogue);
 
         coordinator.OnAdBreakStarted();
-        AssertThat(coordinator.IsAdBreakActive).IsTrue();
-        AssertThat(coordinator.CurrentAdSponsor).IsEqualTo("Local Business");
+        AssertThat(coordinator.IsAdBreakActive);
+        AssertAreEqual("Local Business", coordinator.CurrentAdSponsor);
     }
 
     [Test]
@@ -31,7 +31,7 @@ public class AdBreakCoordinatorTests : KBTVTestClass
         coordinator.OnAdBreakStarted();
         var line = coordinator.GetAdBreakLine();
 
-        AssertThat(line.Type).IsEqualTo(BroadcastLineType.Ad);
-        AssertThat(line.Text).Contains("Local Business");
+        AssertAreEqual(BroadcastLineType.Ad, line.Type);
+        AssertThat(line.Text.Contains("Local Business"));
     }
 }

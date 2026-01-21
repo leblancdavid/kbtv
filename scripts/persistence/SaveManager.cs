@@ -25,7 +25,7 @@ namespace KBTV.Persistence
         private bool _isDirty;
         private List<ISaveable> _saveables = new List<ISaveable>();
         private const string SAVE_FILENAME = "save.json";
-        private const int CURRENT_VERSION = 1;
+        private const int CURRENT_VERSION = 2;
 
         // ─────────────────────────────────────────────────────────────
         // CONSTANTS
@@ -127,9 +127,10 @@ namespace KBTV.Persistence
                             _currentSave = new SaveData
                             {
                                 Version = (int)(long)dict["Version"],
-                                LastSaveTime = (string)dict["LastSaveTime"],
+                                LastSaveTime = dict["LastSaveTime"].ToString(),
                                 CurrentNight = (int)(long)dict["CurrentNight"],
                                 Money = (int)(long)dict["Money"],
+                                ShowDurationMinutes = dict.ContainsKey("ShowDurationMinutes") ? (int)(long)dict["ShowDurationMinutes"] : 10,
                                 EquipmentLevels = ConvertToSystemDictionary((Godot.Collections.Dictionary)dict["EquipmentLevels"]),
                                 ItemQuantities = ConvertToSystemDictionary((Godot.Collections.Dictionary)dict["ItemQuantities"]),
                                 TotalCallersScreened = (int)(long)dict["TotalCallersScreened"],
@@ -138,17 +139,17 @@ namespace KBTV.Persistence
                             };
                         }
 
-                        // TODO: Handle version migration
-                        // if (_currentSave.Version < CURRENT_VERSION)
-                        // {
-                        //     _currentSave = MigrateSave(_currentSave);
-                        //     _isDirty = true;
-                        // }
-                        // else if (_currentSave.Version > CURRENT_VERSION)
-                        // {
-                        //     GD.PrintErr($"[SaveManager] Save file is from a newer version ({_currentSave.Version} > {CURRENT_VERSION}). Cannot load.");
-                        //     _currentSave = CreateNewSave();
-                        // }
+                        // Handle version migration
+                        if (_currentSave.Version < CURRENT_VERSION)
+                        {
+                            _currentSave = MigrateSave(_currentSave);
+                            _isDirty = true;
+                        }
+                        else if (_currentSave.Version > CURRENT_VERSION)
+                        {
+                            GD.PrintErr($"[SaveManager] Save file is from a newer version ({_currentSave.Version} > {CURRENT_VERSION}). Cannot load.");
+                            _currentSave = CreateNewSave();
+                        }
 
                         GD.Print($"[SaveManager] Loaded save from {path} (Night {_currentSave.CurrentNight}, ${_currentSave.Money})");
                     }
@@ -170,6 +171,24 @@ namespace KBTV.Persistence
 
             _isDirty = false;
             EmitSignal("LoadCompleted");
+        }
+
+        /// <summary>
+        /// Migrate save data from older versions to current.
+        /// </summary>
+        private SaveData MigrateSave(SaveData oldData)
+        {
+            var migrated = oldData;
+
+            // Version 1 -> 2: Add ShowDurationMinutes default
+            if (oldData.Version < 2)
+            {
+                migrated.ShowDurationMinutes = 10; // Default value
+                migrated.Version = 2;
+                GD.Print("[SaveManager] Migrated save from version 1 to 2");
+            }
+
+            return migrated;
         }
 
         /// <summary>
@@ -207,6 +226,7 @@ namespace KBTV.Persistence
                     ["LastSaveTime"] = _currentSave.LastSaveTime,
                     ["CurrentNight"] = _currentSave.CurrentNight,
                     ["Money"] = _currentSave.Money,
+                    ["ShowDurationMinutes"] = _currentSave.ShowDurationMinutes,
                     ["EquipmentLevels"] = ConvertToGodotDictionary(_currentSave.EquipmentLevels),
                     ["ItemQuantities"] = ConvertToGodotDictionary(_currentSave.ItemQuantities),
                     ["TotalCallersScreened"] = _currentSave.TotalCallersScreened,
