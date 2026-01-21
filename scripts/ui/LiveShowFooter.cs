@@ -9,14 +9,13 @@ namespace KBTV.UI
     public partial class LiveShowFooter : Control
     {
         private Label _callerNameLabel = null!;
-        private Label _transcriptText = null!;
         private Button _queueAdsButton = null!;
         private Label _adBreakStatusLabel = null!;
         private Label _breaksRemainingLabel = null!;
 
         private ICallerRepository _repository = null!;
-        private ITranscriptRepository _transcriptRepository = null!;
         private AdManager _adManager = null!;
+        private BroadcastCoordinator _coordinator = null!;
 
         private string _previousOnAirCallerId = string.Empty;
 
@@ -35,21 +34,15 @@ namespace KBTV.UI
             }
 
             _callerNameLabel = GetNode<Label>("HBoxContainer/OnAirPanel/OnAirVBox/CallerNameLabel");
-            _transcriptText = GetNode<Label>("HBoxContainer/TranscriptPanel/TranscriptVBox/TranscriptScroll/TranscriptText");
             _queueAdsButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/QueueAdsButton");
             _adBreakStatusLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakStatusLabel");
             _breaksRemainingLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/BreaksRemainingLabel");
 
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
-            _transcriptRepository = Core.ServiceRegistry.Instance.TranscriptRepository;
             _adManager = Core.ServiceRegistry.Instance.AdManager;
+            _coordinator = Core.ServiceRegistry.Instance.BroadcastCoordinator;
 
             _queueAdsButton.Connect("pressed", Callable.From(OnQueueAdsPressed));
-
-            if (_transcriptRepository != null)
-            {
-                _transcriptRepository.EntryAdded += OnTranscriptEntryAdded;
-            }
 
             if (_adManager != null)
             {
@@ -63,25 +56,8 @@ namespace KBTV.UI
             TrackStateForRefresh();
             UpdateOnAirCaller();
             UpdateAdBreakControls();
-
-            _transcriptText.Text = "TRANSCRIPT";
         }
 
-        private void OnTranscriptEntryAdded(TranscriptEntry entry)
-        {
-            if (_adManager != null && _adManager.IsAdBreakActive)
-            {
-                return;
-            }
-
-            if (_transcriptText == null)
-            {
-                return;
-            }
-
-            var displayText = entry.GetDisplayText();
-            _transcriptText.Text = displayText;
-        }
 
         private void TrackStateForRefresh()
         {
@@ -211,7 +187,15 @@ namespace KBTV.UI
             {
                 if (_adManager.IsAdBreakActive)
                 {
-                    _adBreakStatusLabel.Text = "ON BREAK";
+                    var sponsor = _coordinator?.CurrentAdSponsor;
+                    if (!string.IsNullOrEmpty(sponsor))
+                    {
+                        _adBreakStatusLabel.Text = $"ON BREAK: {sponsor}";
+                    }
+                    else
+                    {
+                        _adBreakStatusLabel.Text = "ON BREAK";
+                    }
                     _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_RED);
                 }
                 else if (_adManager.IsInBreakWindow)
@@ -261,11 +245,6 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            if (_transcriptRepository != null)
-            {
-                _transcriptRepository.EntryAdded -= OnTranscriptEntryAdded;
-            }
-
             if (_adManager != null)
             {
                 _adManager.OnBreakWindowOpened -= OnBreakWindowOpened;

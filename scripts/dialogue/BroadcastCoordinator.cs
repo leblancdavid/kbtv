@@ -48,6 +48,7 @@ namespace KBTV.Dialogue
         private int _currentAdIndex = 0;
         private int _totalAdsInBreak = 0;
         private bool _adBreakActive = false;
+        public string? CurrentAdSponsor { get; private set; }
 
         // Events for break coordination
         public event Action? OnBreakTransitionCompleted;
@@ -208,7 +209,6 @@ namespace KBTV.Dialogue
 
         public void OnAdBreakStarted()
         {
-            // Ensure any playing line stops
             if (_lineInProgress)
             {
                 StopCurrentLine();
@@ -219,27 +219,14 @@ namespace KBTV.Dialogue
             _currentAdIndex = 0;
             _totalAdsInBreak = ServiceRegistry.Instance.AdManager?.CurrentBreakSlots ?? 0;
             _adBreakActive = true;
-
-            // Add transcript entry for ad break start
-            _transcriptRepository?.AddEntry(new TranscriptEntry(
-                Speaker.System,
-                "=== AD BREAK ===",
-                ConversationPhase.Intro,
-                "system"
-            ));
+            CurrentAdSponsor = null;
 
             GD.Print($"BroadcastCoordinator: Starting ad break with {_totalAdsInBreak} ads");
         }
 
         public void OnAdBreakEnded()
         {
-            // Add transcript entry for ad break end
-            _transcriptRepository?.AddEntry(new TranscriptEntry(
-                Speaker.System,
-                "=== END AD BREAK ===",
-                ConversationPhase.Intro,
-                "system"
-            ));
+            CurrentAdSponsor = null;
 
             if (_repository.HasOnHoldCallers)
             {
@@ -597,16 +584,19 @@ namespace KBTV.Dialogue
         private BroadcastLine GetAdBreakLine()
         {
             if (!_adBreakActive)
+            {
+                CurrentAdSponsor = null;
                 return BroadcastLine.None();
+            }
 
             if (_currentAdIndex < _totalAdsInBreak)
             {
-                // Determine ad type and add transcript entry
                 var adManager = ServiceRegistry.Instance.AdManager;
                 var adType = DetermineAdType(adManager?.CurrentListeners ?? 100);
                 var sponsorName = AdData.GetAdTypeDisplayName(adType);
 
-                // Add transcript entry for this ad
+                CurrentAdSponsor = sponsorName;
+
                 _transcriptRepository?.AddEntry(new TranscriptEntry(
                     Speaker.System,
                     $"Ad sponsored by {sponsorName}",
@@ -614,14 +604,13 @@ namespace KBTV.Dialogue
                     "system"
                 ));
 
-                // Play individual ad with number (1-based indexing for display)
                 string adText = _totalAdsInBreak > 1 ? $"AD BREAK ({_currentAdIndex + 1})" : "AD BREAK";
                 return BroadcastLine.Ad(adText);
             }
             else
             {
-                // All ads played - end break
                 _adBreakActive = false;
+                CurrentAdSponsor = null;
                 ServiceRegistry.Instance.AdManager?.EndCurrentBreak();
                 return BroadcastLine.None();
             }
@@ -845,6 +834,12 @@ namespace KBTV.Dialogue
             {
                 _transcriptRepository?.AddEntry(
                     new TranscriptEntry(Speaker.Caller, line.Text, line.Phase, line.ArcId, line.Speaker)
+                );
+            }
+            else if (line.Type == BroadcastLineType.AdBreak || line.Type == BroadcastLineType.Ad)
+            {
+                _transcriptRepository?.AddEntry(
+                    new TranscriptEntry(Speaker.System, line.Text, ConversationPhase.Intro, "system")
                 );
             }
         }

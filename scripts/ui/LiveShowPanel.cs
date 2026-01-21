@@ -77,6 +77,9 @@ namespace KBTV.UI
                 _typewriterIndex = 0;
                 _typewriterAccumulator = 0f;
 
+                // Clear previous text to show only the current line
+                _dialogueLabel?.Clear();
+
                 UpdateLineDisplay(line);
             }
 
@@ -126,6 +129,9 @@ namespace KBTV.UI
                 case BroadcastLineType.ShowClosing:
                     _phaseLabel.Modulate = new Color(0.9f, 0.7f, 0.3f);
                     break;
+                case BroadcastLineType.Ad:
+                    _phaseLabel.Modulate = new Color(1f, 0.8f, 0f); // Gold/yellow for commercials
+                    break;
                 default:
                     _phaseLabel.Modulate = new Color(1, 1, 1);
                     break;
@@ -152,6 +158,7 @@ namespace KBTV.UI
                 BroadcastLineType.ShowClosing => "SHOW CLOSING",
                 BroadcastLineType.VernDialogue => "ON AIR",
                 BroadcastLineType.CallerDialogue => "ON AIR",
+                BroadcastLineType.Ad => "COMMERCIAL",
                 _ => ""
             };
         }

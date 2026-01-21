@@ -85,7 +85,7 @@ namespace KBTV.UI
                 var footer = footerScene.Instantiate<Control>();
                 footer.Name = "LiveShowFooter";
                 footer.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd;
-                footer.CustomMinimumSize = new Vector2(0, 140);
+                footer.CustomMinimumSize = new Vector2(0, 200);
                 mainLayout.AddChild(footer);
             }
             else
