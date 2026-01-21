@@ -50,6 +50,10 @@ namespace KBTV.Dialogue
         private bool _adBreakActive = false;
         public string? CurrentAdSponsor { get; private set; }
 
+        // Return from break sequence tracking
+        private enum ReturnFromBreakStep { Music, Dialogue, Complete }
+        private ReturnFromBreakStep _returnFromBreakStep = ReturnFromBreakStep.Music;
+
         // Events for break coordination
         public event Action? OnBreakTransitionCompleted;
         public event Action? OnTransitionLineAvailable;
@@ -64,6 +68,7 @@ namespace KBTV.Dialogue
             AdBreak,
             BreakGracePeriod,
             BreakTransition,
+            ReturnFromBreak,
             DeadAirFiller,
             OffTopicRemark,
             ShowClosing
@@ -185,6 +190,21 @@ namespace KBTV.Dialogue
             GD.Print("BroadcastCoordinator: Transition line prepared, notifying display");
         }
 
+        private void StartReturnFromBreakSequence()
+        {
+            _state = BroadcastState.ReturnFromBreak;
+            _returnFromBreakStep = ReturnFromBreakStep.Music;
+
+            // First step: Play return bumper music
+            var musicLine = BroadcastLine.ReturnMusic();
+            _pendingTransitionLine = musicLine;
+
+            GD.Print("BroadcastCoordinator: Starting return-from-break sequence with music");
+
+            // Notify display that transition line is available
+            OnTransitionLineAvailable?.Invoke();
+        }
+
         private void StopCurrentLine()
         {
             if (_lineInProgress)
@@ -228,17 +248,11 @@ namespace KBTV.Dialogue
         {
             CurrentAdSponsor = null;
 
-            if (_repository.HasOnHoldCallers)
-            {
-                _state = BroadcastState.BetweenCallers;
-            }
-            else
-            {
-                _state = BroadcastState.DeadAirFiller;
-                _fillerCycleCount = 0;
-            }
+            // Start the return-from-break sequence instead of immediate transition
+            StartReturnFromBreakSequence();
+
             _lineInProgress = false;
-            GD.Print("BroadcastCoordinator: Exiting AdBreak state");
+            GD.Print("BroadcastCoordinator: AdBreak ended, starting return-from-break sequence");
         }
 
         public void OnCallerPutOnAir(Caller caller)
@@ -402,6 +416,7 @@ namespace KBTV.Dialogue
                 BroadcastState.ShowClosing => GetShowClosingLine(),
                 BroadcastState.BreakGracePeriod => BroadcastLine.None(), // Wait for transition
                 BroadcastState.BreakTransition => BroadcastLine.None(),   // Handled by GetNextDisplayLine
+                BroadcastState.ReturnFromBreak => BroadcastLine.None(),   // Handled by GetNextDisplayLine
                 _ => BroadcastLine.None()
             };
         }
@@ -419,6 +434,51 @@ namespace KBTV.Dialogue
                 _lineInProgress = false;
 
                 return; // Break started, don't advance normal flow
+            }
+
+            // Check if return-from-break sequence step completed
+            if (_state == BroadcastState.ReturnFromBreak)
+            {
+                if (_returnFromBreakStep == ReturnFromBreakStep.Music)
+                {
+                    // Music completed, now play Vern's return dialogue
+                    _returnFromBreakStep = ReturnFromBreakStep.Dialogue;
+
+                    var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+                    VernMoodType mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+
+                    var returnTemplate = _vernDialogue.GetReturnFromBreak(mood);
+                    if (returnTemplate == null)
+                    {
+                        GD.PrintErr("BroadcastCoordinator: CRITICAL ERROR - No return from break template found!");
+                        throw new InvalidOperationException("Return from break template is missing from VernDialogueTemplate");
+                    }
+
+                    _pendingTransitionLine = CreateBroadcastLine(returnTemplate, Speaker.Vern);
+                    GD.Print($"BroadcastCoordinator: Return-from-break music completed, queuing dialogue: {_pendingTransitionLine?.Text ?? "null"}");
+
+                    // Notify display that next line is available
+                    OnTransitionLineAvailable?.Invoke();
+                    return; // Don't advance normal flow yet
+                }
+                else if (_returnFromBreakStep == ReturnFromBreakStep.Dialogue)
+                {
+                    // Dialogue completed, now transition to normal flow
+                    _returnFromBreakStep = ReturnFromBreakStep.Complete;
+
+                    if (_repository.HasOnHoldCallers)
+                    {
+                        _state = BroadcastState.BetweenCallers;
+                    }
+                    else
+                    {
+                        _state = BroadcastState.DeadAirFiller;
+                        _fillerCycleCount = 0;
+                    }
+
+                    GD.Print("BroadcastCoordinator: Return-from-break sequence completed, transitioning to normal flow");
+                    return; // Don't advance normal flow
+                }
             }
 
             // Check if ad break line completed - progress to next ad
@@ -879,6 +939,7 @@ namespace KBTV.Dialogue
                 result.SetDeadAirFillerLines(ParseDialogueArray(data, "deadAirFillerLines"));
                 result.SetDroppedCallerLines(ParseDialogueArray(data, "droppedCallerLines"));
                 result.SetBreakTransitionLines(ParseDialogueArray(data, "breakTransitionLines"));
+                result.SetReturnFromBreakLines(ParseDialogueArray(data, "returnFromBreakLines"));
                 result.SetOffTopicRemarkLines(ParseDialogueArray(data, "offTopicRemarkLines"));
 
                 return result;

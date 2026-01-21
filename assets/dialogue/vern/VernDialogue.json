@@ -147,6 +147,43 @@
     { "id": "vern_break_004", "text": "The sponsors are calling. Stay tuned, truth-seekers.", "tone": "Neutral", "weight": 1.0 },
     { "id": "vern_break_005", "text": "Brief pause for our sponsors. Don't touch that dial.", "tone": "Neutral", "weight": 1.0 }
   ],
+  "returnFromBreakLines": [
+    {
+      "id": "vern_return_neutral",
+      "mood": "neutral",
+      "text": "Alright folks, we're back from our sponsors. The lines are still open."
+    },
+    {
+      "id": "vern_return_tired",
+      "mood": "tired",
+      "text": "*yawn* Welcome back, night owls. Coffee's kicking in again."
+    },
+    {
+      "id": "vern_return_energized",
+      "mood": "energized",
+      "text": "And we're back! The board's still lighting up - let's keep this momentum going!"
+    },
+    {
+      "id": "vern_return_irritated",
+      "mood": "irritated",
+      "text": "Back from break. Hopefully with fewer interruptions this time."
+    },
+    {
+      "id": "vern_return_gruff",
+      "mood": "gruff",
+      "text": "We're back. Next caller, you're on the air."
+    },
+    {
+      "id": "vern_return_amused",
+      "mood": "amused",
+      "text": "Ah, the sweet sound of return music. Alright, who's next in line?"
+    },
+    {
+      "id": "vern_return_focused",
+      "mood": "focused",
+      "text": "Commercial break concluded. Resuming broadcast operations."
+    }
+  ],
   "offTopicRemarkLines": [
     { "id": "vern_offtopic_001", "text": "Okay, that was... definitely something. Moving on.", "tone": "Annoyed", "weight": 1.0 },
     { "id": "vern_offtopic_002", "text": "I don't know what that was, but let's pretend it didn't happen.", "tone": "Dismissive", "weight": 1.0 },

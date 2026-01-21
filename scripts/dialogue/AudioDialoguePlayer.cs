@@ -77,6 +77,12 @@ namespace KBTV.Dialogue
                 return CreateSilentAudioStream(4.0f);
             }
 
+            // Special handling for return bumper music - random selection
+            if (line.Type == BroadcastLineType.Music && line.SpeakerId == "RETURN_MUSIC")
+            {
+                return LoadRandomReturnBumper();
+            }
+
             var audioPath = $"res://assets/dialogue/audio/{line.SpeakerId}.wav";
             var audioStream = GD.Load<AudioStream>(audioPath);
             if (audioStream != null)
@@ -93,6 +99,51 @@ namespace KBTV.Dialogue
 
             var duration = CalculateDurationForText(line.Text);
             return CreateSilentAudioStream(duration);
+        }
+
+        private AudioStream? LoadRandomReturnBumper()
+        {
+            // Get list of return bumper files
+            var returnBumperDir = DirAccess.Open("res://assets/audio/bumpers/Return");
+            if (returnBumperDir == null)
+            {
+                GD.PrintErr("AudioDialoguePlayer.LoadRandomReturnBumper: Could not open return bumper directory");
+                throw new InvalidOperationException("Return bumper directory not found");
+            }
+
+            var bumperFiles = new System.Collections.Generic.List<string>();
+            returnBumperDir.ListDirBegin();
+            string fileName = returnBumperDir.GetNext();
+            while (fileName != "")
+            {
+                if (!fileName.StartsWith(".") && (fileName.EndsWith(".ogg") || fileName.EndsWith(".wav") || fileName.EndsWith(".mp3")))
+                {
+                    bumperFiles.Add(fileName);
+                }
+                fileName = returnBumperDir.GetNext();
+            }
+            returnBumperDir.ListDirEnd();
+
+            if (bumperFiles.Count == 0)
+            {
+                GD.PrintErr("AudioDialoguePlayer.LoadRandomReturnBumper: No return bumper files found");
+                throw new InvalidOperationException("No return bumper audio files found");
+            }
+
+            // Randomly select one
+            var random = new Random();
+            var selectedFile = bumperFiles[random.Next(bumperFiles.Count)];
+            var audioPath = $"res://assets/audio/bumpers/Return/{selectedFile}";
+
+            var audioStream = GD.Load<AudioStream>(audioPath);
+            if (audioStream == null)
+            {
+                GD.PrintErr($"AudioDialoguePlayer.LoadRandomReturnBumper: Failed to load {audioPath}");
+                throw new InvalidOperationException($"Failed to load return bumper: {selectedFile}");
+            }
+
+            GD.Print($"AudioDialoguePlayer: Selected return bumper: {selectedFile}");
+            return audioStream;
         }
 
         private AudioStream CreateSilentAudioStream(float duration)

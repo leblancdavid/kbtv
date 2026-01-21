@@ -18,6 +18,7 @@ namespace KBTV.Dialogue
         [Export] private Godot.Collections.Array<DialogueTemplate> _deadAirFillerLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _droppedCallerLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _breakTransitionLines = new Godot.Collections.Array<DialogueTemplate>();
+        [Export] private Godot.Collections.Array<DialogueTemplate> _returnFromBreakLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _offTopicRemarkLines = new Godot.Collections.Array<DialogueTemplate>();
 
         public Godot.Collections.Array<DialogueTemplate> ShowOpeningLines => _showOpeningLines;
@@ -27,6 +28,7 @@ namespace KBTV.Dialogue
         public Godot.Collections.Array<DialogueTemplate> DeadAirFillerLines => _deadAirFillerLines;
         public Godot.Collections.Array<DialogueTemplate> DroppedCallerLines => _droppedCallerLines;
         public Godot.Collections.Array<DialogueTemplate> BreakTransitionLines => _breakTransitionLines;
+        public Godot.Collections.Array<DialogueTemplate> ReturnFromBreakLines => _returnFromBreakLines;
         public Godot.Collections.Array<DialogueTemplate> OffTopicRemarkLines => _offTopicRemarkLines;
 
         public void SetShowOpeningLines(DialogueTemplate[] lines) => _showOpeningLines = new Godot.Collections.Array<DialogueTemplate>(lines);
@@ -36,6 +38,7 @@ namespace KBTV.Dialogue
         public void SetDeadAirFillerLines(DialogueTemplate[] lines) => _deadAirFillerLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetDroppedCallerLines(DialogueTemplate[] lines) => _droppedCallerLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetBreakTransitionLines(DialogueTemplate[] lines) => _breakTransitionLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+        public void SetReturnFromBreakLines(DialogueTemplate[] lines) => _returnFromBreakLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetOffTopicRemarkLines(DialogueTemplate[] lines) => _offTopicRemarkLines = new Godot.Collections.Array<DialogueTemplate>(lines);
 
         /// <summary>
@@ -94,6 +97,33 @@ namespace KBTV.Dialogue
         /// Get a break transition line (when going to ad break).
         /// </summary>
         public DialogueTemplate GetBreakTransition() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_breakTransitionLines));
+
+        /// <summary>
+        /// Get a return from break line (when returning from ad break).
+        /// </summary>
+        public DialogueTemplate GetReturnFromBreak() => GetReturnFromBreak(VernMoodType.Neutral);
+
+        /// <summary>
+        /// Get a return from break line for the specified mood.
+        /// </summary>
+        public DialogueTemplate GetReturnFromBreak(VernMoodType mood)
+        {
+            var moodString = mood.ToString().ToLower();
+
+            var moodLines = System.Linq.Enumerable.Where(_returnFromBreakLines, line => line.Mood == moodString);
+
+            if (!moodLines.Any())
+            {
+                moodLines = System.Linq.Enumerable.Where(_returnFromBreakLines, line => line.Mood == "neutral");
+            }
+
+            if (!moodLines.Any())
+            {
+                moodLines = _returnFromBreakLines;
+            }
+
+            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(moodLines));
+        }
 
         /// <summary>
         /// Get an off-topic remark line.

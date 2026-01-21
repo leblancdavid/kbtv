@@ -27,6 +27,15 @@ namespace KBTV.Dialogue
             Phase = ConversationPhase.Intro
         };
 
+        public static BroadcastLine ReturnMusic() => new()
+        {
+            Type = BroadcastLineType.Music,
+            Text = "Return Bumper Music",
+            Speaker = "Music",
+            SpeakerId = "RETURN_MUSIC",
+            Phase = ConversationPhase.Resolution
+        };
+
         public static BroadcastLine ShowOpening(string text) => new()
         {
             Type = BroadcastLineType.ShowOpening,
