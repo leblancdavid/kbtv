@@ -48,6 +48,7 @@ namespace KBTV.Dialogue
         // Show ending transition tracking
         private bool _closingLineDelivered = false;
         private bool _outroMusicQueued = false;
+        private bool _showEndingPending = false;
 
         // Ad break state tracking
         private int _currentAdIndex = 0;
@@ -82,6 +83,7 @@ namespace KBTV.Dialogue
             OffTopicRemark,
             ShowClosing,
             ShowEndingQueue,
+            ShowEndingPending,
             ShowEndingTransition
         }
 
@@ -250,24 +252,8 @@ namespace KBTV.Dialogue
         {
             // Always trigger closing sequence regardless of current state
             // The closing line will play after the current line completes
-            GD.Print($"BroadcastCoordinator.OnShowEndingWarning: setting up closing line, {secondsRemaining:F1}s remaining");
-
-            var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
-            VernMoodType mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
-
-            var closingTemplate = _vernDialogue.GetShowClosing(mood);
-            if (closingTemplate == null)
-            {
-                GD.PrintErr("BroadcastCoordinator: CRITICAL ERROR - No show closing template found!");
-                throw new InvalidOperationException("Show closing template is missing from VernDialogueTemplate");
-            }
-
-            _pendingTransitionLine = CreateBroadcastLine(closingTemplate, Speaker.Vern);
-            _stateManager.SetState(BroadcastState.ShowEndingTransition);
-
-            GD.Print($"BroadcastCoordinator: Prepared show ending transition line: {_pendingTransitionLine?.Text ?? "null"}");
-            GD.Print("BroadcastCoordinator: Firing OnTransitionLineAvailable");
-            OnTransitionLineAvailable?.Invoke();
+            _showEndingPending = true;
+            _stateManager.SetState(BroadcastState.ShowEndingPending);
         }
 
         private void StartBreakTransition()
@@ -451,12 +437,9 @@ namespace KBTV.Dialogue
 
         public BroadcastLine? GetNextDisplayLine()
         {
-            GD.Print($"BroadcastCoordinator.GetNextDisplayLine: pending={_pendingTransitionLine != null}, state={CurrentState}");
-
             // Allow closing line to display even when broadcast is no longer active
-            if (!_broadcastActive && CurrentState != BroadcastState.ShowClosing && CurrentState != BroadcastState.ShowEndingTransition && CurrentState != BroadcastState.ShowEndingQueue)
+            if (!_broadcastActive && CurrentState != BroadcastState.ShowClosing && CurrentState != BroadcastState.ShowEndingPending && CurrentState != BroadcastState.ShowEndingTransition && CurrentState != BroadcastState.ShowEndingQueue)
             {
-                GD.Print("BroadcastCoordinator.GetNextDisplayLine: returning null (broadcast inactive)");
                 return null;
             }
  
@@ -472,7 +455,6 @@ namespace KBTV.Dialogue
                 // Add to transcript immediately
                 _transcriptManager.AddEntry(transitionLine);
 
-                GD.Print($"BroadcastCoordinator.GetNextDisplayLine: returning transition line: {transitionLine.Text}");
                 return transitionLine;
             }
 
@@ -491,7 +473,6 @@ namespace KBTV.Dialogue
 
             if (currentLine.Type == BroadcastLineType.None)
             {
-                GD.Print("BroadcastCoordinator.GetNextDisplayLine: CalculateNextLine returned None, returning null");
                 return null;
             }
 
@@ -499,7 +480,6 @@ namespace KBTV.Dialogue
 
             _transcriptManager.AddEntry(currentLine, _repository.OnAirCaller);
 
-            GD.Print($"BroadcastCoordinator.GetNextDisplayLine: returning line of type {currentLine.Type}: {currentLine.Text}");
             return currentLine;
         }
 
@@ -525,6 +505,7 @@ namespace KBTV.Dialogue
                 BroadcastState.BreakTransition => BroadcastLine.None(),   // Handled by GetNextDisplayLine
                 BroadcastState.ReturnFromBreak => BroadcastLine.None(),   // Handled by GetNextDisplayLine
                 BroadcastState.ShowEndingQueue => BroadcastLine.None(),   // Wait for transition
+                BroadcastState.ShowEndingPending => BroadcastLine.None(),  // Wait for current line to complete
                 BroadcastState.ShowEndingTransition => BroadcastLine.None(), // Handled by GetNextDisplayLine
                 _ => BroadcastLine.None()
             };
@@ -534,10 +515,30 @@ namespace KBTV.Dialogue
         {
             _timingManager.StopLine();
 
+            // Check if show ending is pending - set up closing transition when current line completes
+            if (CurrentState == BroadcastState.ShowEndingPending)
+            {
+                _showEndingPending = false;
+                _stateManager.SetState(BroadcastState.ShowEndingTransition);
+
+                var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+                VernMoodType mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+
+                var closingTemplate = _vernDialogue.GetShowClosing(mood);
+                if (closingTemplate == null)
+                {
+                    GD.PrintErr("BroadcastCoordinator: CRITICAL ERROR - No show closing template found!");
+                    throw new InvalidOperationException("Show closing template is missing from VernDialogueTemplate");
+                }
+
+                _pendingTransitionLine = CreateBroadcastLine(closingTemplate, Speaker.Vern);
+                OnTransitionLineAvailable?.Invoke();
+                return;
+            }
+
             // Check if break transition just completed - start the break
             if (CurrentState == BroadcastState.BreakTransition)
             {
-                GD.Print("BroadcastCoordinator: Break transition completed, notifying listeners");
                 OnBreakTransitionCompleted?.Invoke();
                 _stateManager.SetState(BroadcastState.AdBreak);
                 _timingManager.StopLine();
@@ -546,11 +547,8 @@ namespace KBTV.Dialogue
             }
 
             // Check if show ending transition line just completed - end the show
-            // Note: We check _pendingTransitionLine to detect if a transition line was just delivered
-            // If _pendingTransitionLine is null and we're in ShowEndingTransition, the line just completed
             if (CurrentState == BroadcastState.ShowEndingTransition)
             {
-                GD.Print("BroadcastCoordinator: ShowEndingTransition line completed (state is still ShowEndingTransition), calling OnLiveShowEnding");
                 _stateManager.SetState(BroadcastState.Idle);
                 OnLiveShowEnding();
                 return; // Show ending, don't advance normal flow
@@ -575,7 +573,6 @@ namespace KBTV.Dialogue
                     }
 
                     _pendingTransitionLine = CreateBroadcastLine(returnTemplate, Speaker.Vern);
-                    GD.Print($"BroadcastCoordinator: Return-from-break music completed, queuing dialogue: {_pendingTransitionLine?.Text ?? "null"}");
 
                     // Notify display that next line is available
                     OnTransitionLineAvailable?.Invoke();
@@ -596,7 +593,6 @@ namespace KBTV.Dialogue
                     this.ResetFillerCycleCount();
                     }
 
-                    GD.Print("BroadcastCoordinator: Return-from-break sequence completed, transitioning to normal flow");
                     return; // Don't advance normal flow
                 }
             }
@@ -605,7 +601,6 @@ namespace KBTV.Dialogue
             if (CurrentState == BroadcastState.AdBreak && _adCoordinator.IsAdBreakActive)
             {
                 _currentAdIndex++;
-                GD.Print($"BroadcastCoordinator: Completed ad {_currentAdIndex - 1}, {_totalAdsInBreak - _currentAdIndex} remaining");
                 return; // Stay in AdBreak state, next call to GetNextDisplayLine will get next ad
             }
 

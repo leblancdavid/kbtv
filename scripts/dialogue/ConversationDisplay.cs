@@ -80,11 +80,6 @@ namespace KBTV.Dialogue
             if (_coordinator != null)
             {
                 _coordinator.OnTransitionLineAvailable += OnTransitionLineAvailable;
-                GD.Print("ConversationDisplay: Subscribed to OnTransitionLineAvailable");
-            }
-            else
-            {
-                GD.PrintErr("ConversationDisplay: _coordinator is null, cannot subscribe to OnTransitionLineAvailable");
             }
         }
 
@@ -105,7 +100,6 @@ namespace KBTV.Dialogue
 
         private void OnTransitionLineAvailable()
         {
-            GD.Print("ConversationDisplay: OnTransitionLineAvailable received");
             TryGetNextLine();
         }
 

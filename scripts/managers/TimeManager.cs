@@ -98,7 +98,6 @@ namespace KBTV.Managers
             // Check for show ending warning (10 seconds remaining)
             if (_elapsedTime >= _showDurationSeconds - 10f && _elapsedTime < _showDurationSeconds - 10f + deltaTime)
             {
-                GD.Print($"TimeManager: Emitting ShowEndingWarning at {_elapsedTime:F1}s");
                 EmitSignal("ShowEndingWarning", 10f);
             }
 
