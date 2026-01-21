@@ -54,6 +54,7 @@ namespace KBTV.Ads
         public event Action OnBreakQueued;                   // Player queued the break
         public event Action OnBreakStarted;                  // Break audio starting
         public event Action<float> OnBreakEnded;             // Revenue generated
+        public event Action OnInitialized;
         public event Action OnShowEnded;                     // All breaks complete
         public event Action LastSegmentStarted;              // After last ad break
 
@@ -115,6 +116,7 @@ namespace KBTV.Ads
             UpdateCountdownValues();
 
             GD.Print($"AdManager: Initialized with {schedule.BreaksPerShow} breaks × {schedule.SlotsPerBreak} slots (event-driven)");
+            OnInitialized?.Invoke();
         }
 
         private void ScheduleBreakTimers()
@@ -123,7 +125,7 @@ namespace KBTV.Ads
 
             if (_schedule == null || _schedule.Breaks.Count == 0)
             {
-                GD.PrintErr($"AdManager: No schedule or breaks available - schedule: {_schedule}, breaks: {_schedule?.Breaks.Count ?? 0}");
+                GD.Print($"AdManager: Initialized with 0 breaks (show will end immediately) - schedule: {_schedule}, breaks: {_schedule?.Breaks.Count ?? 0}");
                 return;
             }
 

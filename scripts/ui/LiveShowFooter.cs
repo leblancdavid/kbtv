@@ -50,12 +50,21 @@ namespace KBTV.UI
 
             if (_adManager != null)
             {
+                if (_adManager.IsInitialized)
+                {
+                    // Handle immediately if already initialized
+                    OnAdManagerInitialized();
+                }
+                else
+                {
+                    // Subscribe for future initialization
+                    _adManager.OnInitialized += OnAdManagerInitialized;
+                }
                 _adManager.OnBreakWindowOpened += OnBreakWindowOpened;
                 _adManager.OnBreakQueued += OnBreakQueued;
                 _adManager.OnBreakStarted += OnBreakStarted;
                 _adManager.OnBreakEnded += OnBreakEnded;
                 _adManager.OnShowEnded += OnShowEnded;
-                _adManager.LastSegmentStarted += OnLastSegmentStarted;
             }
 
             TrackStateForRefresh();
@@ -117,6 +126,13 @@ namespace KBTV.UI
         private void OnBreakEnded(float revenue)
         {
             UpdateAdBreakControls();
+
+            // Check if no more breaks remaining, hide ad break panel and show end show panel
+            if (_adManager != null && _adManager.BreaksRemaining == 0)
+            {
+                if (_adBreakPanel != null) _adBreakPanel.Visible = false;
+                if (_endShowPanel != null) _endShowPanel.Visible = true;
+            }
         }
 
         private void OnShowEnded()
@@ -124,17 +140,7 @@ namespace KBTV.UI
             UpdateAdBreakControls();
         }
 
-        private void OnLastSegmentStarted()
-        {
-            if (_adBreakPanel != null)
-            {
-                _adBreakPanel.Visible = false;
-            }
-            if (_endShowPanel != null)
-            {
-                _endShowPanel.Visible = true;
-            }
-        }
+
 
         private string GetQueueButtonText()
         {
@@ -260,16 +266,25 @@ namespace KBTV.UI
             }
         }
 
+        private void OnAdManagerInitialized()
+        {
+            if (_adManager != null && _adManager.BreaksRemaining == 0)
+            {
+                if (_adBreakPanel != null) _adBreakPanel.Visible = false;
+                if (_endShowPanel != null) _endShowPanel.Visible = true;
+            }
+        }
+
         public override void _ExitTree()
         {
             if (_adManager != null)
             {
+                _adManager.OnInitialized -= OnAdManagerInitialized;
                 _adManager.OnBreakWindowOpened -= OnBreakWindowOpened;
                 _adManager.OnBreakQueued -= OnBreakQueued;
                 _adManager.OnBreakStarted -= OnBreakStarted;
                 _adManager.OnBreakEnded -= OnBreakEnded;
                 _adManager.OnShowEnded -= OnShowEnded;
-                _adManager.LastSegmentStarted -= OnLastSegmentStarted;
             }
 
             if (_queueAdsButton != null)

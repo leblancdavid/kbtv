@@ -38,7 +38,7 @@ namespace KBTV.Dialogue
             Stop();
             _currentLineId = line.SpeakerId;
 
-            var audioStream = await LoadAudioForLine(line);
+            var audioStream = LoadAudioForLine(line);
             if (audioStream != null)
             {
                 _audioPlayer.Stream = audioStream;
@@ -69,7 +69,7 @@ namespace KBTV.Dialogue
             }
         }
 
-        private async Task<AudioStream?> LoadAudioForLine(BroadcastLine line)
+        private AudioStream? LoadAudioForLine(BroadcastLine line)
         {
             // Special handling for ad breaks - always 4 seconds
             if (line.Type == BroadcastLineType.Ad)

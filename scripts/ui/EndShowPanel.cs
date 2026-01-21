@@ -9,7 +9,7 @@ namespace KBTV.UI
 	/// </summary>
 	public partial class EndShowPanel : Control
 	{
-		[Export] private Button EndShowButton = null!;
+		private Button EndShowButton;
 
 		private BroadcastCoordinator _coordinator = null!;
 
@@ -27,42 +27,36 @@ namespace KBTV.UI
 			}
 
 			_coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-
-			// Subscribe to AdManager event
-			ServiceRegistry.Instance.AdManager.LastSegmentStarted += ShowPanel;
-
-			_endShowButton.Pressed += OnEndShowPressed;
+			if (_coordinator == null)
+			{
+				CallDeferred(nameof(InitializeDeferred));
+				return;
+			}
 
 			// Hide initially
 			Visible = false;
+
+			EndShowButton = GetNode<Button>("VBoxContainer/EndShowButton");
+			if (EndShowButton == null)
+			{
+				GD.PrintErr("EndShowPanel: EndShowButton not found");
+				return;
+			}
+
+			EndShowButton.Pressed += OnEndShowPressed;
 		}
 
-		private void ShowPanel()
-		{
-			// Hide ad break panel and show this one
-			var adBreakPanel = GetParent().GetNode<Control>("AdBreakPanel");
-			if (adBreakPanel != null)
-			{
-				adBreakPanel.Visible = false;
-			}
-			Visible = true;
-		}
+
 
 		private void OnEndShowPressed()
 		{
-			_endShowButton.Disabled = true;
-			_endShowButton.Text = "ENDING...";
+			EndShowButton.Disabled = true;
+			EndShowButton.Text = "ENDING...";
 
 			// Queue the show end
 			_coordinator.QueueShowEnd();
 		}
 
-		public override void _ExitTree()
-		{
-			if (ServiceRegistry.IsInitialized && ServiceRegistry.Instance.AdManager != null)
-			{
-				ServiceRegistry.Instance.AdManager.LastSegmentStarted -= ShowPanel;
-			}
-		}
+
 	}
 }

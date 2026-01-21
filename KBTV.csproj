@@ -3,7 +3,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
-    <NoWarn>$(NoWarn);CS0618</NoWarn>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);CS0618;CS8618;CS8625;CS8600;CS8601;CS8602;CS8603;CS8604;CS8714;CS1998</NoWarn>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' != 'ExportRelease' ">
