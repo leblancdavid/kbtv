@@ -78,7 +78,10 @@ namespace KBTV.UI
                 _typewriterAccumulator = 0f;
 
                 // Clear previous text to show only the current line
-                _dialogueLabel?.Clear();
+                if (_dialogueLabel != null)
+                {
+                    _dialogueLabel.Text = "";
+                }
 
                 UpdateLineDisplay(line);
             }
