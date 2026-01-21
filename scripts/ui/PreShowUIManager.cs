@@ -219,11 +219,19 @@ namespace KBTV.UI
 			var breaksRow = CreateAdConfigRow("BREAKS PER SHOW", out _decreaseBreaksButton, out _breaksCountLabel, out _increaseBreaksButton);
 			container.AddChild(breaksRow);
 
+			// Connect breaks buttons
+			_decreaseBreaksButton.Pressed += OnBreaksDecreasePressed;
+			_increaseBreaksButton.Pressed += OnBreaksIncreasePressed;
+
 			container.AddChild(UITheme.CreateSpacer(false, false));
 
 			// Slots per break row
 			var slotsRow = CreateAdConfigRow("SLOTS PER BREAK", out _decreaseSlotsButton, out _slotsCountLabel, out _increaseSlotsButton);
 			container.AddChild(slotsRow);
+
+			// Connect slots buttons
+			_decreaseSlotsButton.Pressed += OnSlotsDecreasePressed;
+			_increaseSlotsButton.Pressed += OnSlotsIncreasePressed;
 
 			container.AddChild(UITheme.CreateSpacer(false, false));
 
@@ -282,7 +290,6 @@ namespace KBTV.UI
 			decreaseButton = new Button();
 			decreaseButton.Text = "<";
 			decreaseButton.CustomMinimumSize = new Vector2(40, 30);
-			decreaseButton.Pressed += OnAdConfigDecreasePressed;
 			UITheme.ApplyButtonStyle(decreaseButton);
 			row.AddChild(decreaseButton);
 
@@ -301,7 +308,6 @@ namespace KBTV.UI
 			increaseButton = new Button();
 			increaseButton.Text = ">";
 			increaseButton.CustomMinimumSize = new Vector2(40, 30);
-			increaseButton.Pressed += OnAdConfigIncreasePressed;
 			UITheme.ApplyButtonStyle(increaseButton);
 			row.AddChild(increaseButton);
 
@@ -313,16 +319,26 @@ namespace KBTV.UI
 			return row;
 		}
 
-		private void OnAdConfigDecreasePressed()
+		private void OnBreaksDecreasePressed()
 		{
 			if (_breaksPerShow > 0) _breaksPerShow--;
+			UpdateAdConfigLabels();
+		}
+
+		private void OnBreaksIncreasePressed()
+		{
+			if (_breaksPerShow < AdConstants.MAX_BREAKS_PER_SHOW) _breaksPerShow++;
+			UpdateAdConfigLabels();
+		}
+
+		private void OnSlotsDecreasePressed()
+		{
 			if (_slotsPerBreak > 1) _slotsPerBreak--;
 			UpdateAdConfigLabels();
 		}
 
-		private void OnAdConfigIncreasePressed()
+		private void OnSlotsIncreasePressed()
 		{
-			if (_breaksPerShow < AdConstants.MAX_BREAKS_PER_SHOW) _breaksPerShow++;
 			if (_slotsPerBreak < AdConstants.MAX_SLOTS_PER_BREAK) _slotsPerBreak++;
 			UpdateAdConfigLabels();
 		}
