@@ -25,12 +25,12 @@ namespace KBTV.Dialogue
             return true;
         }
 
-        public BroadcastLine CreateBroadcastLine()
+        public BroadcastLine CreateBroadcastLine(string? arcId = null, string? callerGender = null, int lineIndex = 0)
         {
             // Convert ArcDialogueLine to BroadcastLine based on speaker
             return DialogueLine.Speaker == Speaker.Vern
-                ? BroadcastLine.VernDialogue(DialogueLine.Text, ConversationPhase.Probe, null)
-                : BroadcastLine.CallerDialogue(DialogueLine.Text, "Caller Name", "caller_id", ConversationPhase.Probe, null);
+                ? BroadcastLine.VernDialogue(DialogueLine.Text, ConversationPhase.Probe, arcId, lineIndex)
+                : BroadcastLine.CallerDialogue(DialogueLine.Text, "Caller", "caller", ConversationPhase.Probe, arcId, callerGender, lineIndex);
         }
     }
 

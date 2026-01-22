@@ -176,8 +176,18 @@ KBTV uses AI-powered voice synthesis to generate realistic dialogue audio for Ve
 
 ### Audio Generation Commands
 
-#### Vern Dialogue Audio
-Generate all Vern voice lines for show openings, conversation arcs, and transitions:
+#### Vern Broadcast Audio
+Generate Vern audio for show openings, closings, between-callers, etc.:
+
+```bash
+cd Tools/AudioGeneration
+python generate_vern_broadcast.py              # Skip existing files
+python generate_vern_broadcast.py --force      # Regenerate all files
+python generate_vern_broadcast.py --verbose    # Detailed progress output
+```
+
+#### Vern Conversation Audio
+Generate Vern dialogue for conversation arcs:
 
 ```bash
 cd Tools/AudioGeneration

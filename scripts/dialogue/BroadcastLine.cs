@@ -8,6 +8,8 @@ namespace KBTV.Dialogue
         public string SpeakerId;
         public ConversationPhase Phase;
         public string? ArcId;
+        public string? CallerGender;
+        public int LineIndex;
 
         public static BroadcastLine None() => new()
         {
@@ -45,85 +47,112 @@ namespace KBTV.Dialogue
             Phase = ConversationPhase.Resolution
         };
 
-        public static BroadcastLine ShowOpening(string text) => new()
+        public static BroadcastLine ShowOpening(string text, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.ShowOpening,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
-            Phase = ConversationPhase.Intro
+            Phase = ConversationPhase.Intro,
+            ArcId = null,
+            CallerGender = null,
+            LineIndex = lineIndex
         };
 
-        public static BroadcastLine VernDialogue(string text, ConversationPhase phase, string? arcId = null) => new()
+        public static BroadcastLine VernDialogue(string text, ConversationPhase phase, string? arcId = null, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.VernDialogue,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
             Phase = phase,
-            ArcId = arcId
+            ArcId = arcId,
+            CallerGender = null,
+            LineIndex = lineIndex
         };
 
-        public static BroadcastLine CallerDialogue(string text, string speaker, string speakerId, ConversationPhase phase, string? arcId = null) => new()
+        public static BroadcastLine CallerDialogue(string text, string speaker, string speakerId, ConversationPhase phase, string? arcId = null, string? callerGender = null, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.CallerDialogue,
             Text = text,
             Speaker = speaker,
             SpeakerId = speakerId,
             Phase = phase,
-            ArcId = arcId
+            ArcId = arcId,
+            CallerGender = callerGender,
+            LineIndex = lineIndex
         };
 
-        public static BroadcastLine BetweenCallers(string text) => new()
+        public static BroadcastLine BetweenCallers(string text, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.BetweenCallers,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
-            Phase = ConversationPhase.Resolution
+            Phase = ConversationPhase.Resolution,
+            ArcId = null,
+            CallerGender = null,
+            LineIndex = lineIndex
         };
 
-        public static BroadcastLine OffTopicRemark(string text) => new()
+        public static BroadcastLine OffTopicRemark(string text, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.OffTopicRemark,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
-            Phase = ConversationPhase.Resolution
+            Phase = ConversationPhase.Resolution,
+            ArcId = null,
+            CallerGender = null,
+            LineIndex = lineIndex
         };
 
-        public static BroadcastLine DeadAirFiller(string text) => new()
+        public static BroadcastLine DeadAirFiller(string text, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.DeadAirFiller,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
-            Phase = ConversationPhase.Intro
+            Phase = ConversationPhase.Intro,
+            ArcId = null,
+            CallerGender = null,
+            LineIndex = lineIndex
         };
 
-        public static BroadcastLine ShowClosing(string text) => new()
+        public static BroadcastLine ShowClosing(string text, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.ShowClosing,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
-            Phase = ConversationPhase.Resolution
+            Phase = ConversationPhase.Resolution,
+            ArcId = null,
+            CallerGender = null,
+            LineIndex = lineIndex
         };
 
-        public static BroadcastLine AdBreakStart(string customText = "AD BREAK") => new()
+        public static BroadcastLine AdBreakStart(string customText = "AD BREAK", int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.AdBreak,
             Text = customText,
             Speaker = "System",
-            SpeakerId = "system"
+            SpeakerId = "system",
+            Phase = ConversationPhase.Resolution,
+            ArcId = null,
+            CallerGender = null,
+            LineIndex = lineIndex
         };
 
-        public static BroadcastLine Ad(string customText = "[Playing Advertisement]") => new()
+        public static BroadcastLine Ad(string customText = "[Playing Advertisement]", int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.Ad,
             Text = customText,
             Speaker = "System",
-            SpeakerId = "system"
+            SpeakerId = "system",
+            Phase = ConversationPhase.Resolution,
+            ArcId = null,
+            CallerGender = null,
+            LineIndex = lineIndex
         };
     }
 }

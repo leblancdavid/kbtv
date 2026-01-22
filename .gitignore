@@ -40,6 +40,9 @@ addons/gdUnit4/
 *.flac
 *.m4a
 
+# Voice reference files (temporary files used for voice cloning)
+assets/audio/voice_references/
+
 # Voice models (large files - downloaded on demand)
 *.onnx
 

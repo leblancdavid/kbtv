@@ -31,6 +31,7 @@ namespace KBTV.Dialogue
                 var arcId = data.GetValueOrDefault("arcId", "").AsString();
                 var topicStr = data.GetValueOrDefault("topic", "").AsString();
                 var legitimacyStr = data.GetValueOrDefault("legitimacy", "Questionable").AsString();
+                var callerGender = data.GetValueOrDefault("callerGender", "male").AsString();
                 var claimedTopicStr = data.GetValueOrDefault("claimedTopic", "").AsString();
                 var screeningSummary = data.GetValueOrDefault("screeningSummary", "").AsString();
                 var callerPersonality = data.GetValueOrDefault("callerPersonality", "").AsString();
@@ -49,6 +50,7 @@ namespace KBTV.Dialogue
                     arcId,
                     topic.Value,
                     legitimacy,
+                    callerGender,
                     claimedTopic
                 );
 

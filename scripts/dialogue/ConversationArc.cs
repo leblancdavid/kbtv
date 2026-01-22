@@ -19,6 +19,7 @@ namespace KBTV.Dialogue
         [Export] private ShowTopic _claimedTopic;
         [Export] private bool _hasClaimedTopic;
         [Export] private CallerLegitimacy _legitimacy;
+        [Export] private string _callerGender;
         [Export] private Godot.Collections.Array<ArcDialogueLine> _dialogue = new Godot.Collections.Array<ArcDialogueLine>();
         [Export] private string _callerPersonality;
         [Export] private string _screeningSummary;
@@ -27,6 +28,7 @@ namespace KBTV.Dialogue
         public ShowTopic Topic => _topic;
         public ShowTopic? ClaimedTopic => _hasClaimedTopic ? _claimedTopic : null;
         public CallerLegitimacy Legitimacy => _legitimacy;
+        public string CallerGender => _callerGender;
         public string CallerPersonality => _callerPersonality;
         public string ScreeningSummary => _screeningSummary;
 
@@ -45,10 +47,11 @@ namespace KBTV.Dialogue
         /// </summary>
         public bool IsTopicSwitcher => _hasClaimedTopic;
 
-        public ConversationArc(string arcId, ShowTopic topic, CallerLegitimacy legitimacy, ShowTopic? claimedTopic = null)
+        public ConversationArc(string arcId, ShowTopic topic, CallerLegitimacy legitimacy, string callerGender = "male", ShowTopic? claimedTopic = null)
         {
             _arcId = arcId;
             _topic = topic;
+            _callerGender = callerGender;
             _claimedTopic = claimedTopic ?? ShowTopic.Ghosts;
             _hasClaimedTopic = claimedTopic.HasValue;
             _legitimacy = legitimacy;

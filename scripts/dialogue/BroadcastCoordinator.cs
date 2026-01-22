@@ -791,7 +791,21 @@ namespace KBTV.Dialogue
 
             if (step is DialogueStep dialogueStep)
             {
-                var broadcastLine = dialogueStep.CreateBroadcastLine();
+                // Calculate line index for audio file mapping (skip non-dialogue steps)
+                int callerLineIndex = 0;
+                for (int i = 0; i < _conversationContext.CurrentStepIndex; i++)
+                {
+                    if (_currentFlow.Steps[i] is DialogueStep)
+                    {
+                        callerLineIndex++;
+                    }
+                }
+
+                var broadcastLine = dialogueStep.CreateBroadcastLine(
+                    caller.Arc?.ArcId,
+                    caller.Arc?.CallerGender,
+                    callerLineIndex
+                );
                 _stateMachine.ProcessEvent(ConversationEvent.LineAvailable(broadcastLine));
                 _conversationContext.CurrentStepIndex++;
                 return broadcastLine;

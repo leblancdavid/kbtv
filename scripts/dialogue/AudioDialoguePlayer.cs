@@ -127,8 +127,126 @@ namespace KBTV.Dialogue
                 return LoadRandomReturnBumper();
             }
 
-            GD.Print($"AudioDialoguePlayer.LoadAudioForLine: Using 4-second silent audio for {line.SpeakerId}");
+            // Try to load voice audio files
+            var voiceAudio = LoadVoiceAudioForLine(line);
+            if (voiceAudio != null)
+            {
+                GD.Print($"AudioDialoguePlayer.LoadAudioForLine: Loaded voice audio for {line.SpeakerId}");
+                return voiceAudio;
+            }
+
+            // Fallback to silent audio
+            GD.Print($"AudioDialoguePlayer.LoadAudioForLine: No voice audio found, using 4-second silent audio for {line.SpeakerId}");
             return GetSilentAudioFile();
+        }
+
+        private AudioStream? LoadVoiceAudioForLine(BroadcastLine line)
+        {
+            string audioPath = "";
+
+            if (line.Type == BroadcastLineType.CallerDialogue)
+            {
+                // Load caller audio: res://assets/audio/voice/Callers/{topic}/{arc_id}_{gender}_{line_index}.mp3
+                if (!string.IsNullOrEmpty(line.ArcId) && !string.IsNullOrEmpty(line.CallerGender))
+                {
+                    // Map topic from arc ID (first part before first underscore)
+                    string topic = line.ArcId.Split('_')[0];
+                    audioPath = $"res://assets/audio/voice/Callers/{topic}/{line.ArcId}_{line.CallerGender}_{line.LineIndex}.mp3";
+                }
+            }
+            else if (line.Type == BroadcastLineType.VernDialogue)
+            {
+                // Load Vern conversation audio: res://assets/audio/voice/Vern/ConversationArcs/{arc_id}/{mood}/vern_{arc_id}_{mood}_{line_index}_{total}.mp3
+                if (!string.IsNullOrEmpty(line.ArcId))
+                {
+                    string mood = GetVernMood();
+                    // Try different total counts (we'll find the right one by checking existence)
+                    for (int total = 1; total <= 10; total++)
+                    {
+                        audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{line.ArcId}/{mood}/vern_{line.ArcId}_{mood}_{line.LineIndex:D3}_{total:D3}.mp3";
+                        var testStream = GD.Load<AudioStream>(audioPath);
+                        if (testStream != null)
+                        {
+                            return testStream;
+                        }
+                    }
+                }
+            }
+            else if (line.Type == BroadcastLineType.ShowOpening || line.Type == BroadcastLineType.BetweenCallers ||
+                     line.Type == BroadcastLineType.DeadAirFiller || line.Type == BroadcastLineType.ShowClosing)
+            {
+                // Load Vern broadcast audio: res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{line_type}_{number}_{mood}.mp3
+                string mood = GetVernMood();
+                string lineType = GetLineTypeForVernAudio(line.Type);
+
+                // Now all files have consistent mood suffixes, so we can predict the exact path
+                if (line.Type == BroadcastLineType.ShowOpening)
+                {
+                    // Opening files are numbered 001-011 across all moods
+                    for (int num = 1; num <= 11; num++)
+                    {
+                        audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_opening_{num:D3}_{mood}.mp3";
+                        var testStream = GD.Load<AudioStream>(audioPath);
+                        if (testStream != null)
+                        {
+                            return testStream;
+                        }
+                    }
+                }
+                else
+                {
+                    // Other types: try the numbered versions first, then fall back to non-numbered
+                    for (int num = 1; num <= 5; num++)
+                    {
+                        audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{lineType}_{num:D3}_{mood}.mp3";
+                        var testStream = GD.Load<AudioStream>(audioPath);
+                        if (testStream != null)
+                        {
+                            return testStream;
+                        }
+                    }
+                    // Fallback to non-numbered version
+                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{lineType}_{mood}.mp3";
+                }
+            }
+
+            if (!string.IsNullOrEmpty(audioPath))
+            {
+                var audioStream = GD.Load<AudioStream>(audioPath);
+                if (audioStream != null)
+                {
+                    return audioStream;
+                }
+                else
+                {
+                    GD.Print($"AudioDialoguePlayer.LoadVoiceAudioForLine: Failed to load {audioPath}");
+                }
+            }
+
+            return null;
+        }
+
+        private string GetLineTypeForVernAudio(BroadcastLineType lineType)
+        {
+            return lineType switch
+            {
+                BroadcastLineType.ShowOpening => "opening",
+                BroadcastLineType.BetweenCallers => "betweencallers",
+                BroadcastLineType.DeadAirFiller => "dead_air_filler", // May not exist
+                BroadcastLineType.ShowClosing => "closing",
+                _ => "unknown"
+            };
+        }
+
+        private string GetVernMood()
+        {
+            // Get Vern's current mood from the game state
+            var vernStats = ServiceRegistry.Instance?.GameStateManager?.VernStats;
+            if (vernStats != null)
+            {
+                return vernStats.CurrentMoodType.ToString().ToLower();
+            }
+            return "neutral"; // Default fallback
         }
 
         private AudioStream? LoadRandomReturnBumper()

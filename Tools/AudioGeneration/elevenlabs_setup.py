@@ -34,7 +34,16 @@ class ElevenLabsVoiceCloner:
             except (FileNotFoundError, json.JSONDecodeError, KeyError):
                 raise ValueError("Could not load API key from config file. Please create elevenlabs_config.json or set ELEVENLABS_API_KEY environment variable")
         self.base_url = "https://api.elevenlabs.io/v1"
-        self.voice_id = None  # Will be set after uploading reference audio
+        self.voice_id = None  # Will be set after uploading reference audio or loaded from file
+
+        # Try to load existing voice ID from file
+        voice_id_path = os.path.join(os.path.dirname(__file__), 'voice_id.txt')
+        try:
+            with open(voice_id_path, 'r') as f:
+                self.voice_id = f.read().strip()
+                print(f"Loaded voice ID from file: {self.voice_id}")
+        except FileNotFoundError:
+            print("No voice_id.txt file found. Voice ID will be set after uploading reference audio.")
 
         if not self.api_key:
             raise ValueError("API key required. Set ELEVENLABS_API_KEY environment variable or pass to constructor")
