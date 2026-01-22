@@ -24,7 +24,7 @@ def load_vern_dialogue():
     return dialogue_data
 
 def extract_broadcast_lines(dialogue_data):
-    """Extract broadcast lines (not conversation arcs)"""
+    """Extract broadcast lines (not conversation arcs) from textVariants structure"""
     broadcast_lines = []
 
     # Categories that are broadcast (not conversation-specific)
@@ -41,23 +41,46 @@ def extract_broadcast_lines(dialogue_data):
 
     for category in broadcast_categories:
         if category in dialogue_data:
-            for line in dialogue_data[category]:
-                # Handle different line formats
-                if isinstance(line, dict) and 'text' in line:
-                    broadcast_lines.append({
-                        'id': line.get('id', f"{category}_{len(broadcast_lines)}"),
-                        'text': line['text'],
-                        'voiceText': line.get('voiceText'),  # May be None
-                        'category': category,
-                        'mood': line.get('mood', 'neutral'),
-                        'weight': line.get('weight', 1.0)
-                    })
+            for item in dialogue_data[category]:
+                # Handle textVariants structure (new format)
+                text_variants = item.get('textVariants', [])
+                if text_variants:
+                    # Grouped variants - create one line per mood
+                    for variant in text_variants:
+                        mood = variant['mood']
+                        text = variant.get('voiceText', variant['text'])
+
+                        broadcast_lines.append({
+                            'id': item['id'],  # Don't add mood suffix here, do it during generation
+                            'text': text,
+                            'category': category,
+                            'mood': mood,
+                            'weight': 1.0
+                        })
+                else:
+                    # Legacy individual entries (fallback)
+                    if isinstance(item, dict) and 'text' in item:
+                        broadcast_lines.append({
+                            'id': item.get('id', f"{category}_{len(broadcast_lines)}"),
+                            'text': item.get('voiceText', item['text']),
+                            'category': category,
+                            'mood': item.get('mood', 'neutral'),
+                            'weight': item.get('weight', 1.0)
+                        })
 
     print(f"Found {len(broadcast_lines)} Vern broadcast lines")
     return broadcast_lines
 
 def generate_broadcast_audio(lines, cloner, output_dir="../../assets/audio/voice/Vern/Broadcast", force_regenerate=False):
     """Generate broadcast audio using ElevenLabs"""
+
+    # Create output directory structure
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Create mood subdirectories
+    moods = ['neutral', 'tired', 'energized', 'irritated', 'amused', 'focused', 'gruff']
+    for mood in moods:
+        os.makedirs(os.path.join(output_dir, mood), exist_ok=True)
 
     generated_count = 0
     failed_count = 0
