@@ -238,7 +238,8 @@ These create race conditions where the same line gets started twice (once via po
 |------|---------|-------|----------------|--------|
 | 2026-01-21 | 1 | Planning | Created this document | Complete |
 | 2026-01-21 | 2 | Phase 1 | Added LineAvailableEvent, LineCompletedEvent, BroadcastStateChangedEvent classes; Updated AudioDialoguePlayer to always use silent audio; Updated ConversationDisplay to publish LineCompletedEvent and subscribe to new events; Updated BroadcastCoordinator to publish LineAvailableEvent and subscribe to LineCompletedEvent; Updated BroadcastStateManager to publish BroadcastStateChangedEvent | Complete |
-| 2026-01-21 | 3 | Phase 1 | Fixed hybrid audio + timer fallback for consistent 4-second pacing | Complete |
+| 2026-01-21 | 3 | Phase 1 | Implemented hybrid audio + timer fallback for consistent 4s pacing | Complete |
+| 2026-01-21 | 4 | Phase 1 | Forced timer fallback - audio file not providing proper timing, need to investigate audio file validity | IN PROGRESS |
 
 ## Implementation Details
 
@@ -250,15 +251,24 @@ To ensure consistent 4-second timing regardless of audio file status, the system
 // PlayLineAsync() flow in AudioDialoguePlayer.cs:
 1. Try to load audio stream from silent_4sec.wav
 2. If loaded successfully:
-   - Play audio via AudioStreamPlayer
-   - Wait for Finished event (should fire after ~4s)
+   - CURRENTLY FORCED TO USE TIMER: Audio file not providing proper timing
+   - Use SceneTreeTimer for 4 seconds (temporary fix)
 3. If load fails:
    - Log error: "Audio failed to load for {SpeakerId}, using 4s timer fallback"
    - Create SceneTreeTimer for 4 seconds
    - On timeout: Fire OnAudioFinished()
+
+// TODO: Fix audio file timing issue
+// The silent_4sec.wav file loads but AudioStreamPlayer.Finished
+// fires immediately instead of after 4 seconds. Need to:
+// - Verify audio file is valid 4-second WAV
+// - Re-import or replace the audio file
+// - Then remove the forced timer fallback
 ```
 
-**Benefits:**
+**Current Status**: Audio path is temporarily disabled - always uses timer fallback
+
+**Benefits (when audio is fixed):**
 - **Audio works**: Uses real audio timing when available
 - **Fallback safe**: 4s timer ensures consistent pacing if audio fails
 - **Debuggable**: Clear logging shows which path is taken
@@ -292,6 +302,24 @@ AudioDialoguePlayer.PlayLineAsync: Audio failed to load for vern_opening_001, us
 AudioDialoguePlayer: Timer fallback completed after 4s
 AudioDialoguePlayer.OnAudioFinished: Audio completed
 ```
+
+## Audio File Issue (To Fix)
+
+**Problem**: The silent audio file (`assets/audio/silence_4sec.wav`) loads successfully but `AudioStreamPlayer.Finished` event fires immediately instead of after 4 seconds. This breaks the audio timing path.
+
+**Impact**: Audio path cannot be used until this is fixed.
+
+**Investigation Steps**:
+1. Check file size: `ls -la assets/audio/silence_4sec.wav` (should be ~344KB for 4s 44.1kHz WAV mono)
+2. Verify import file: `cat assets/audio/silence_4sec.wav.import`
+3. Test in Godot editor - can you play it manually?
+4. Check if AudioStreamPlayer.Playing property is true after Play()
+5. Create new silent WAV file using external audio tool if needed
+
+**Once Fixed**:
+- Remove forced timer fallback in AudioDialoguePlayer.PlayLineAsync()
+- Restore audio playback path
+- Lines will use real audio timing when available
 
 ## Next Steps
 

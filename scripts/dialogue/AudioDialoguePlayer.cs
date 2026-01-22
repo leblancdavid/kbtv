@@ -43,9 +43,10 @@ namespace KBTV.Dialogue
             var audioStream = LoadAudioForLine(line);
             if (audioStream != null)
             {
-                GD.Print($"AudioDialoguePlayer.PlayLineAsync: Playing audio for {line.SpeakerId}");
-                _audioPlayer.Stream = audioStream;
-                _audioPlayer.Play();
+                // TEMPORARILY FORCED TIMEFALLBACK: Audio file not providing proper timing
+                // Use timer to ensure consistent 4-second pacing
+                GD.Print($"AudioDialoguePlayer: Audio loaded but using timer fallback for consistent timing");
+                StartTimerFallback(4.0f);
             }
             else
             {
