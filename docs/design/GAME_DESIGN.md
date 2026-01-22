@@ -87,6 +87,7 @@ The combination of all stats affects VIBE (Vibrancy, Interest, Broadcast Enterta
 
 | Feature | Description |
 |---------|-------------|
+| **Caller Generation** | 90% on-topic callers match show topic, 10% off-topic callers provide variety; each caller has `IsOffTopic` flag |
 | **Caller Screening** | Mini-games/deduction to verify caller legitimacy; rules-based rejection affects show |
 | **Caller Phone Quality** | Each caller has varying audio quality (Terrible to Good) affecting how they sound on air |
 | **VIBE System** | VIBE (Vibrancy, Interest, Broadcast Entertainment) drives show quality and listener count |

@@ -192,6 +192,20 @@ Higher topic level = Vern is more comfortable on familiar topics.
 | 5-6 | +10 starting mood |
 | 7 | +15 starting mood, slower mood decay |
 
+### Off-Topic Callers
+
+The caller generation system creates **10% off-topic callers** to encourage topic variety and prevent meta-gaming:
+
+- **Generation**: `Topic.OffTopicRate` controls probability (default 0.1f = 10%)
+- **XP Impact**: Off-topic callers grant reduced XP (50% of normal) to discourage grinding one topic
+- **Screening**: Off-topic callers are transparent about their actual topic (no deception)
+- **Freshness**: Off-topic callers count as "fresh" for their actual topic, helping recover freshness
+
+**Example**: Show on UFOs, caller discusses Government Conspiracies:
+- XP gained: 50% of normal (if show was on-topic, would get full XP)
+- Government topic freshness increases (helps variety)
+- UFO topic still gets reduced XP for hosting the show
+
 ### Bonus Summary Table
 
 | Level | Discernment | Screening | Callers | Mood |

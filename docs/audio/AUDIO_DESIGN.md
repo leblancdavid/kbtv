@@ -38,13 +38,22 @@ Quick stings (3-5 seconds):
 ### Audio File Locations
 
 ```
-Assets/Audio/Bumpers/
-  Intro/              # Longer show opening bumpers (8-15 sec)
-    intro_bumper_01.ogg
-    intro_bumper_02.ogg
-  Return/             # Shorter ad return bumpers (3-5 sec)
-    return_bumper_01.ogg
-    return_bumper_02.ogg
+Assets/Audio/
+  Bumpers/            # Station branding audio
+    Intro/            # Longer show opening bumpers (8-15 sec)
+      intro_bumper_01.ogg
+      intro_bumper_02.ogg
+    Return/           # Shorter ad return bumpers (3-5 sec)
+      return_bumper_01.ogg
+      return_bumper_02.ogg
+  Music/              # Background and transitional music
+    intro_music.wav   # 4s placeholder intro bumper (44.1kHz mono WAV)
+    break_transition_*.ogg  # Break cue music
+    outro_music.wav   # Future: show ending music
+  Voice/              # Pre-generated voice files
+    Vern/             # Host dialogue lines
+  Ads/                # Commercial jingles
+    {ad_id}/          # Per-ad directories
 ```
 
 ### Configuration
@@ -92,6 +101,17 @@ Ad slots finish playing
 ```
 
 ## Music
+
+### Intro Music Bumper
+
+4-second music bumper that plays at show start before Vern's opening dialogue:
+- Placeholder 44.1kHz, 16-bit mono WAV file
+- Transcript shows "MUSIC" during playback
+- Sets up infrastructure for ad break and outro music
+- Future expansion ready for real audio content
+
+**Location:** `Assets/Audio/Music/intro_music.wav`
+**Integration:** BroadcastCoordinator handles playback timing and state transitions
 
 ### Break Transition Music
 

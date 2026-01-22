@@ -55,9 +55,16 @@ tests/
 │   │   ├── VernStatsTests.cs
 │   │   ├── StatTests.cs
 │   │   └── IncomeCalculatorTests.cs
+│   ├── monitors/
+│   │   ├── ScreeningMonitorTests.cs
+│   │   └── CallerMonitorTests.cs
 │   └── ui/
+│       ├── ServiceAwareComponentTests.cs
+│       ├── ButtonStylerTests.cs
+│       ├── ReactiveListPanelTests.cs
 │       ├── GlobalTransitionManagerTests.cs
-│       └── LoadingScreenTests.cs
+│       ├── LoadingScreenTests.cs
+│       └── AudioDialoguePlayerTests.cs
 ├── integration/
 │   ├── ServiceRegistryIntegrationTests.cs
 │   └── CallerFlowIntegrationTests.cs
@@ -686,6 +693,12 @@ It.IsRegex("[a-z]+")    // Regex
 
 ### Recent Test Improvements
 
+- **Added ServiceAwareComponentTests** - Base class initialization pattern tests
+- **Added ButtonStylerTests** - UI button styling helper tests
+- **Added AudioDialoguePlayerTests** - Audio playback synchronization tests
+- **Added ReactiveListPanelTests** - UI list management tests
+- **Added ScreeningMonitorTests** - Domain monitor pattern tests
+- **Added ConversationManagerTests** - Extended with VernDialogueTemplate tests
 - **Added StatTests** - Comprehensive coverage of Stat class (value, normalize, events)
 - **Added ArcRepositoryTests** - Dialogue arc repository tests
 - **Added SaveDataTests** - Persistence data structure tests

@@ -4,10 +4,12 @@
 
 The broadcast flow system manages Vern's dialogue during transitions in the LiveShow phase using the **pull-based BroadcastCoordinator** pattern:
 
-1. **Show Opening** - Vern's intro line when LiveShow begins
-2. **Dead Air Filler** - Vern's monologue when no caller is on air (8s per cycle)
-3. **Between Callers** - Transition lines when auto-advancing to next caller
-4. **Show Closing** - Vern's outro line when LiveShow ends
+1. **Intro Music** - 4-second music bumper before show opening
+2. **Show Opening** - Vern's intro line when LiveShow begins
+3. **Dead Air Filler** - Vern's monologue when no caller is on air (8s per cycle)
+4. **Between Callers** - Transition lines when auto-advancing to next caller
+5. **Ad Breaks** - Scheduled commercial breaks with sequential ads
+6. **Show Closing** - Event-driven outro line when LiveShow ends (T-10s warning)
 
 These features maintain broadcast atmosphere, prevent awkward silence, and make the show feel alive.
 
@@ -17,9 +19,11 @@ The `BroadcastCoordinator` is a **pull-based** service that manages the entire b
 
 ```csharp
 // Consumer asks "what's next?" - coordinator decides
-BroadcastLine GetNextLine();
+BroadcastLine GetNextDisplayLine();
+ControlAction GetPendingControlAction();
 
-// Consumer calls this when line finishes playing
+// Consumer calls these when actions complete
+void OnControlActionCompleted();
 void OnLineCompleted();
 
 // UI calls these when state changes
@@ -32,15 +36,73 @@ void OnLiveShowEnding();
 ### State Machine
 
 ```
-ShowOpening → Conversation → BetweenCallers → Conversation
-                 ↓                    ↓
-           (no callers)        (no callers)
-                 ↓                    ↓
-           DeadAirFiller      DeadAirFiller
-                 ↓                    ↓
-           (1 cycle)           (1 cycle)
-                 ↓                    ↓
-           Conversation        Conversation
+IntroMusic → ShowOpening → Conversation → BetweenCallers → Conversation
+    ↓            ↓                    ↓                    ↓
+(4s)      (no callers)        (no callers)        (no callers)
+    ↓            ↓                    ↓                    ↓
+ShowOpening  DeadAirFiller      DeadAirFiller      DeadAirFiller
+    ↓            ↓                    ↓                    ↓
+(5s)      (1 cycle)           (1 cycle)           (1 cycle)
+    ↓            ↓                    ↓                    ↓
+Conversation  Conversation        Conversation        Conversation
+```
+
+## Intro Music Bumper
+
+The intro music provides a 4-second musical transition before Vern's show opening dialogue:
+
+### Behavior
+- **Duration**: 4 seconds of placeholder audio (`assets/audio/music/intro_music.wav`)
+- **Transcript**: Shows "MUSIC" during playback
+- **Flow**: IntroMusic state → ShowOpening state → Vern's opening dialogue
+- **Future**: Sets up infrastructure for ad break and outro music
+
+### Implementation
+```csharp
+// In BroadcastCoordinator.OnLiveShowStarted()
+state = BroadcastState.IntroMusic;
+transcriptRepository.StartNewShow();
+return GetMusicLine(); // 4s silent audio + "MUSIC" transcript
+
+// After music completes
+AdvanceFromIntroMusic(); // state = ShowOpening
+```
+
+## Event-Driven Show Ending
+
+Show ending follows the same event-driven pattern as ad breaks for consistency:
+
+### Flow Diagram
+```
+T-10s: TimeManager emits ShowEndingWarning event
+    ↓
+BroadcastCoordinator.OnShowEndingWarning()
+    ↓
+Sets _pendingTransitionLine with closing template
+Fires OnTransitionLineAvailable
+    ↓
+ConversationDisplay.OnTransitionLineAvailable()
+    ↓
+Calls TryGetNextLine() → gets closing line
+    ↓
+Closing line displays
+    ↓
+OnLineCompleted() detects ShowEndingTransition
+    ↓
+OnLiveShowEnding() → state = ShowClosing
+    ↓
+T=0: TimeManager.EndShow() → ProcessEndOfShow()
+```
+
+### Debug Logging Sequence
+```
+TimeManager: Emitting ShowEndingWarning at 590.0s
+BroadcastCoordinator.OnShowEndingWarning: state=Conversation
+BroadcastCoordinator: Setting up closing line, 10.0s remaining
+BroadcastCoordinator: Prepared show ending transition line
+BroadcastCoordinator: Firing OnTransitionLineAvailable
+ConversationDisplay: OnTransitionLineAvailable received
+BroadcastCoordinator.GetNextDisplayLine: returning transition line
 ```
 
 ## Dead Air Filler
@@ -92,11 +154,13 @@ ShowOpening → Conversation → BetweenCallers → Conversation
 
 | Phase | Duration |
 |-------|----------|
+| Intro Music | 4 seconds |
 | Show Opening | 5 seconds |
 | Vern Dialogue | 4 seconds |
 | Caller Dialogue | 4 seconds |
 | Between Callers | 4 seconds |
 | Dead Air Filler | 8 seconds per line |
+| Ad Breaks | 18 seconds per slot |
 | Show Closing | 5 seconds |
 
 ### Auto-Advance Rules
@@ -110,7 +174,8 @@ ShowOpening → Conversation → BetweenCallers → Conversation
 
 | Scenario | Behavior |
 |----------|----------|
-| LiveShow starts | Show opening plays (5s), then check for on-hold callers or start filler |
+| LiveShow starts | Intro music plays (4s), then show opening (5s), then check for on-hold callers or start filler |
+| Intro music ends | Show opening plays automatically |
 | Show opening ends, callers on hold | First caller goes on air automatically |
 | Show opening ends, no callers on hold | Dead air filler starts (8s cycle) |
 | Conversation ends, callers on hold | Between-callers transition (4s), then next caller on air |
@@ -139,8 +204,9 @@ This ensures:
 | File | Purpose |
 |------|---------|
 | `scripts/dialogue/BroadcastCoordinator.cs` | Main pull-based coordinator service |
-| `scripts/dialogue/BroadcastLineType.cs` | Enum: ShowOpening, VernDialogue, CallerDialogue, BetweenCallers, DeadAirFiller, ShowClosing, PutCallerOnAir, None |
+| `scripts/dialogue/BroadcastLineType.cs` | Enum: IntroMusic, ShowOpening, VernDialogue, CallerDialogue, BetweenCallers, DeadAirFiller, ShowClosing, Music, Ad, None |
 | `scripts/dialogue/BroadcastLine.cs` | Struct with Text, Speaker, Type, Phase, ArcId |
+| `scripts/dialogue/ControlAction.cs` | Enum: PutCallerOnAir, None |
 | `scripts/dialogue/ConversationDisplay.cs` | UI display that polls GetNextLine() |
 | `scripts/dialogue/ArcRepository.cs` | Auto-discovers arc files from `assets/dialogue/arcs/` |
 | `scripts/dialogue/ArcJsonParser.cs` | Parses arc JSON files using Godot's JSON class |
@@ -151,27 +217,32 @@ This ensures:
 ```csharp
 public partial class BroadcastCoordinator : Node
 {
-    // Pull-based API
-    public BroadcastLine GetNextLine();
+    // Pull-based API (split for control actions vs display lines)
+    public BroadcastLine GetNextDisplayLine();
+    public ControlAction GetPendingControlAction();
+    public void OnControlActionCompleted();
     public void OnLineCompleted();
-    
+
     // State change callbacks (called by UI)
     public void OnLiveShowStarted();
     public void OnLiveShowEnding();
     public void OnCallerOnAir(Caller caller);
     public void OnCallerOnAirEnded(Caller caller);
-    
+
     // Line duration (seconds)
     private static float GetLineDuration(BroadcastLine line)
     {
         return line.Type switch
         {
+            BroadcastLineType.IntroMusic => 4f,
             BroadcastLineType.ShowOpening => 5f,
             BroadcastLineType.VernDialogue => 4f,
             BroadcastLineType.CallerDialogue => 4f,
             BroadcastLineType.BetweenCallers => 4f,
             BroadcastLineType.DeadAirFiller => 8f,
             BroadcastLineType.ShowClosing => 5f,
+            BroadcastLineType.Music => 4f, // Ad/outro music
+            BroadcastLineType.Ad => 18f,  // Commercial slots
             _ => 0f
         };
     }

@@ -205,10 +205,12 @@ The dialogue system uses **arc-based conversations** - pre-scripted complete dia
 - Legitimacy modifies the threshold (Compelling callers are easier to believe)
 
 #### Broadcast Flow
+- **Intro Music**: 4-second music bumper before show opening
 - **Show Opening**: Vern's intro when LiveShow begins
 - **Between Callers**: Transition lines when moving to next caller
 - **Dead Air Filler**: Lines played when no caller is on air and queue is empty
-- **Show Closing**: Sign-off when show ends
+- **Ad Breaks**: Scheduled commercial breaks with sequential ads
+- **Show Closing**: Event-driven sign-off when show ends (T-10s warning)
 
 #### Template Substitution
 `DialogueSubstitution.Substitute(text, caller)` replaces placeholders:
@@ -217,9 +219,11 @@ The dialogue system uses **arc-based conversations** - pre-scripted complete dia
 - `{topic}` - Current show topic
 
 #### Events
-- `ConversationManager.OnConversationStarted` - New conversation began
-- `ConversationManager.OnLineDisplayed` - Line shown to player
-- `ConversationManager.OnConversationEnded` - Conversation completed
+- `ConversationStartedEvent` - New conversation began (event-driven)
+- `AudioCompletedEvent` - Audio line finished playing
+- `ConversationAdvancedEvent` - Advanced to next conversation line
+- `ShowEndingWarning` - T-10s warning before show end
+- `OnTransitionLineAvailable` - Transition line ready (ad breaks/show ending)
 - `ConversationManager.OnBroadcastStateChanged` - Show open/close/filler state changes
 
 ## Data Assets
@@ -427,6 +431,110 @@ Benefits:
 - Handles late-binding automatically (retries subscription in Update if Start failed)
 - Standardizes subscribe/unsubscribe lifecycle
 - Calls `UpdateDisplay()` after successful subscription
+
+### BroadcastCoordinator Pattern
+
+KBTV uses a **pull-based BroadcastCoordinator** service to manage the radio broadcast flow. This replaces timer-based systems with a predictable, event-driven architecture.
+
+**Key Benefits:**
+- **Pull-based API** - Consumer asks "what's next?" instead of reacting to events
+- **Single source of truth** - Coordinator decides flow, timing, and state transitions
+- **No timing complexity** - Consumer controls pacing via event responses
+- **Auto-advance built-in** - Coordinator returns signals when appropriate
+
+**Core API:**
+```csharp
+// Get the next line to display. Returns same line if current line is still playing.
+BroadcastLine GetNextDisplayLine();
+
+// Get any pending control action (PutCallerOnAir, None)
+ControlAction GetPendingControlAction();
+
+// Call when a control action is completed
+void OnControlActionCompleted();
+
+// Called by UI when a caller goes on air
+void OnCallerOnAir(Caller caller);
+
+// Called by UI when a call ends
+void OnCallerOnAirEnded(Caller caller);
+```
+
+**Line Types:**
+| Type | Description |
+|------|-------------|
+| `ShowOpening` | Vern's show intro |
+| `VernDialogue` | Vern's turn in conversation |
+| `CallerDialogue` | Caller's turn in conversation |
+| `BetweenCallers` | Mood-based transition to next caller |
+| `DeadAirFiller` | Vern monologue when no callers |
+| `ShowClosing` | Vern's outro |
+| `Music` | Intro/ad/outro music |
+| `Ad` | Commercial break slot |
+
+**Control Actions:**
+| Action | Description |
+|--------|-------------|
+| `PutCallerOnAir` | Signal to put next caller on air |
+| `None` | No control action pending |
+
+**Event-Driven Show Ending:**
+The show ending follows the same event-driven pattern as ad breaks:
+```
+T-10s: TimeManager emits ShowEndingWarning event
+    ↓
+BroadcastCoordinator.OnShowEndingWarning()
+    ↓
+Sets _pendingTransitionLine with closing template
+Fires OnTransitionLineAvailable
+    ↓
+ConversationDisplay.OnTransitionLineAvailable()
+    ↓
+Calls TryGetNextLine() → gets closing line
+    ↓
+Closing line displays
+    ↓
+OnLineCompleted() detects ShowEndingTransition
+    ↓
+OnLiveShowEnding() → state = ShowClosing
+    ↓
+T=0: TimeManager.EndShow() → ProcessEndOfShow()
+```
+
+### Event-Driven Conversation System
+
+Conversations progress through event-driven state transitions synchronized with audio playback:
+
+**Event Flow Pattern:**
+```csharp
+// 1. User puts caller on air → OnCallerOnAir()
+// 2. BroadcastCoordinator publishes ConversationStartedEvent
+// 3. ConversationDisplay receives event → requests first line
+// 4. Audio plays → fires AudioCompletedEvent when done
+// 5. ConversationDisplay receives event → calls OnLineCompleted()
+// 6. BroadcastCoordinator advances to next line
+// 7. Loop continues until conversation ends
+```
+
+**Event Types:**
+- `ConversationStartedEvent` - Signals conversation initialization
+- `AudioCompletedEvent` - Fired when audio line finishes playing
+- `ConversationAdvancedEvent` - Signals advancement to next line
+
+**Event Subscription Pattern:**
+```csharp
+// In ConversationDisplay.InitializeWithServices()
+var eventBus = ServiceRegistry.Instance.EventBus;
+eventBus.Subscribe<ConversationStartedEvent>(HandleConversationStarted);
+eventBus.Subscribe<AudioCompletedEvent>(HandleAudioCompleted);
+eventBus.Subscribe<ConversationAdvancedEvent>(HandleConversationAdvanced);
+```
+
+**Benefits:**
+- Loose coupling between conversation logic and UI display
+- Natural audio synchronization through event completion
+- Predictable state transitions without timers
+- Easy to extend with new event types
 
 ### Other Patterns
 

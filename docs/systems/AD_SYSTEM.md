@@ -4,7 +4,7 @@
 
 This document outlines the advertisement system for KBTV. The ad system is the primary source of income, replacing the temporary per-show stipend.
 
-**Last Updated:** January 2026 - Core system with pre-show configuration and live break management implemented.
+**Last Updated:** January 2026 - Added transcript integration, queue button countdown, and revenue calculation improvements.
 
 ## Overview
 
@@ -62,6 +62,40 @@ Example: 150 listeners, 2 breaks x 2 slots (LocalBusiness @ $0.02)
 - Per slot: 150 * $0.02 = $3.00
 - Per break: 2 * $3.00 = $6.00
 - Show total: 2 * $6.00 = $12.00
+
+## Transcript Integration
+
+Ad breaks are fully integrated into the broadcast transcript for player visibility:
+
+### Transcript Entries
+- **"=== AD BREAK ==="** - System message when break starts
+- **"AD BREAK (1)", "AD BREAK (2)", etc.** - Individual ad slots with sequential numbering
+- **"=== END AD BREAK ==="** - System message when break ends
+
+### Speaker System
+- New `Speaker.System` enum for system messages (breaks, transitions)
+- Sponsor names displayed: "Ad sponsored by Local Business", "Ad sponsored by Premium Sponsor"
+- `AdData.GetAdTypeDisplayName()` provides formatted sponsor names
+
+### Queue Button Countdown
+The queue button shows dynamic countdowns based on real-time calculations:
+
+| State | Button Text | Description |
+|-------|-------------|-------------|
+| **Waiting** | "BREAK IN 1:32" | Countdown to break window using `GetNextBreakTime()` - current time |
+| **Ready** | "QUEUE AD-BREAK" | In 20-second break window, button enabled |
+| **Queued** | "QUEUED 0:15" | Player queued, shows time until break starts |
+| **Playing** | "ON BREAK" | Ads playing, shows current break status |
+| **Done** | "NO BREAKS" | All breaks completed |
+
+### Revenue Calculation Details
+Revenue is calculated per-listener with temporary listener dip during breaks:
+
+- **Base Calculation**: `Listeners * AdType.Rate` per slot
+- **Listener Dip**: ~5% temporary listener loss during ads (`LISTENER_DIP_PERCENTAGE = 0.05`)
+- **Break Total**: Sum of all slot revenues in the break
+- **Show Total**: Sum of all break revenues
+- **Mood Penalty**: -15 Patience if player doesn't queue break before window ends
 
 ## Pre-Show Configuration
 

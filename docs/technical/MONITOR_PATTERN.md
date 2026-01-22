@@ -62,13 +62,16 @@ Monitors should NOT handle:
 ### 1. Create the monitor class
 
 ```csharp
-// scripts/monitors/MyMonitor.cs
-public partial class MyMonitor : DomainMonitor
+// scripts/monitors/ScreeningMonitor.cs
+public partial class ScreeningMonitor : DomainMonitor
 {
     protected override void OnUpdate(float deltaTime)
     {
-        // Update domain-specific state
-        // Trigger state-driven side effects
+        var controller = ServiceRegistry.Instance.ScreeningController;
+        if (controller?.IsActive == true)
+        {
+            controller.Update(deltaTime);
+        }
     }
 }
 ```
@@ -93,16 +96,16 @@ script = ExtResource("2")
 ### 3. Add unit tests
 
 ```csharp
-// tests/unit/monitors/MyMonitorTests.cs
-public class MyMonitorTests : KBTVTestClass
+// tests/unit/monitors/ScreeningMonitorTests.cs
+public class ScreeningMonitorTests : KBTVTestClass
 {
     [Test]
-    public void Monitor_UpdatesState_OnEachFrame()
+    public void Monitor_UpdatesScreening_WhenActive()
     {
-        var monitor = new MyMonitor();
+        var monitor = new ScreeningMonitor();
         monitor._Ready();
         monitor._Process(0.016f);
-        // Assert state was updated
+        // Assert screening controller was updated
     }
 }
 ```
@@ -158,6 +161,20 @@ position = Vector2(960, 540)
 **Side Effects:**
 - `VernStats` emits `StatsChanged`, `VibeChanged`, `MoodTypeChanged`
 - Low dependency levels affect other stat multipliers (see VERN_STATS.md)
+
+### ScreeningMonitor
+
+**Domain:** Caller screening
+
+**State Updates:**
+- Active screening caller: Accumulate revelations each frame
+- Property revelations progress toward screening completion
+- Patience drain during active screening
+
+**Side Effects:**
+- `ScreeningController` updates progress and revelation state
+- Triggers screening completion when all properties revealed
+- UI updates screening progress bars and buttons
 
 ## Testing Guidelines
 
