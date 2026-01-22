@@ -131,8 +131,14 @@ namespace KBTV.Persistence
                                 CurrentNight = (int)(long)dict["CurrentNight"],
                                 Money = (int)(long)dict["Money"],
                                 ShowDurationMinutes = dict.ContainsKey("ShowDurationMinutes") ? (int)(long)dict["ShowDurationMinutes"] : 10,
-                                EquipmentLevels = ConvertToSystemDictionary((Godot.Collections.Dictionary)dict["EquipmentLevels"]),
-                                ItemQuantities = ConvertToSystemDictionary((Godot.Collections.Dictionary)dict["ItemQuantities"]),
+                                EquipmentLevels = dict.ContainsKey("EquipmentLevels") && dict["EquipmentLevels"].VariantType == Variant.Type.Dictionary
+                                    ? ConvertToSystemDictionary((Godot.Collections.Dictionary)dict["EquipmentLevels"])
+                                    : new System.Collections.Generic.Dictionary<string, int> { ["PhoneLine"] = 1, ["Broadcast"] = 1 },
+                                ItemQuantities = dict.ContainsKey("ItemQuantities") && dict["ItemQuantities"].VariantType == Variant.Type.Dictionary
+                                    ? ConvertToSystemDictionary((Godot.Collections.Dictionary)dict["ItemQuantities"])
+                                    : new System.Collections.Generic.Dictionary<string, int> {
+                                        ["coffee"] = 3, ["water"] = 3, ["sandwich"] = 3, ["whiskey"] = 3, ["cigarette"] = 3
+                                    },
                                 TotalCallersScreened = (int)(long)dict["TotalCallersScreened"],
                                 TotalShowsCompleted = (int)(long)dict["TotalShowsCompleted"],
                                 PeakListenersAllTime = (int)(long)dict["PeakListenersAllTime"]
