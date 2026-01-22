@@ -25,14 +25,18 @@ namespace KBTV.Dialogue
 
         public BroadcastLine GetAdBreakLine()
         {
+            GD.Print($"AdBreakCoordinator.GetAdBreakLine: Called, _adBreakActive={_adBreakActive}, _currentAdIndex={_currentAdIndex}, _totalAdsInBreak={_totalAdsInBreak}");
+
             if (!_adBreakActive)
             {
+                GD.Print("AdBreakCoordinator.GetAdBreakLine: Ad break not active, returning None");
                 CurrentAdSponsor = null;
                 return BroadcastLine.None();
             }
 
             if (_currentAdIndex < _totalAdsInBreak)
             {
+                GD.Print($"AdBreakCoordinator.GetAdBreakLine: Returning ad {_currentAdIndex + 1} of {_totalAdsInBreak}");
                 var adType = DetermineAdType(_adManager?.CurrentListeners ?? 100);
                 var sponsorName = AdData.GetAdTypeDisplayName(adType);
 
@@ -49,10 +53,12 @@ namespace KBTV.Dialogue
 
                 _currentAdIndex++;
                 string adText = _totalAdsInBreak > 1 ? $"AD BREAK ({_currentAdIndex})" : "AD BREAK";
+                GD.Print($"AdBreakCoordinator.GetAdBreakLine: Returning ad line '{adText}'");
                 return BroadcastLine.Ad(adText);
             }
             else
             {
+                GD.Print("AdBreakCoordinator.GetAdBreakLine: All ads played, ending ad break");
                 _adBreakActive = false;
                 CurrentAdSponsor = null;
                 _adManager?.EndCurrentBreak();
@@ -74,6 +80,7 @@ namespace KBTV.Dialogue
             _adBreakActive = true;
             _currentAdIndex = 0;
             _totalAdsInBreak = _adManager?.CurrentBreakSlots ?? 0;
+            GD.Print($"AdBreakCoordinator.OnAdBreakStarted: Ad break started with {_totalAdsInBreak} ads");
         }
 
         public void OnAdBreakEnded()

@@ -280,21 +280,33 @@ namespace KBTV.Ads
 
         private void StartBreak()
         {
-            if (_breakActive) return;
+            GD.Print($"AdManager.StartBreak: Called, _breakActive={_breakActive}");
+            if (_breakActive)
+            {
+                GD.Print("AdManager.StartBreak: Break already active, returning");
+                return;
+            }
 
+            GD.Print("AdManager.StartBreak: Starting break...");
             // Breaks always start on schedule - transitions are best-effort and can be interrupted
             _breakActive = true;
             _isInBreakWindow = false;  // Break window closes when break starts
             _currentBreakIndex++;
 
+            GD.Print($"AdManager.StartBreak: _currentBreakIndex now {_currentBreakIndex}, _schedule.Breaks.Count = {_schedule.Breaks.Count}");
+
             if (_currentBreakIndex >= _schedule.Breaks.Count)
             {
+                GD.Print("AdManager.StartBreak: No more breaks in schedule, ending");
                 EndAdBreak();
                 return;
             }
 
             var currentBreak = _schedule.Breaks[_currentBreakIndex];
+            int slotsInBreak = currentBreak.SlotsPerBreak;
             currentBreak.HasPlayed = true;
+
+            GD.Print($"AdManager.StartBreak: Current break has {slotsInBreak} slots");
 
             // Apply mood penalty if not queued
             bool wasQueued = (_breakQueueStatus == BreakQueueStatus.Queued);
@@ -310,6 +322,7 @@ namespace KBTV.Ads
             ApplyListenerDip();
 
             // Notify broadcast coordinator
+            GD.Print("AdManager.StartBreak: Notifying broadcast coordinator");
             _coordinator.OnAdBreakStarted();
 
             OnBreakStarted?.Invoke();
