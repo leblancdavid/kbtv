@@ -4,21 +4,19 @@
 
 This document outlines the strategy for producing voice audio for KBTV's dialogue system, including Vern's broadcasts, caller conversations, and filler content.
 
-**Approach**: Pre-generated audio using Piper TTS (offline, free) with runtime effects applied via Godot audio bus system.
+**Approach**: Pre-generated audio using ElevenLabs API (high-quality AI voices) with runtime effects applied via Godot audio bus system.
 
 ## Audio Scope
 
 ### Content Volume
 
-| Category | Description | Estimated Lines |
-|----------|-------------|-----------------|
-| **Conversation Arcs** | 18 arcs × 1 dialogue × 2 belief paths | ~216 lines |
-| **Vern Audio per Arc** | 7 tones × dialogue lines | ~1,500 lines |
-| **Total Vern Audio** | All arcs × 7 tones | ~1,500 lines |
-| **Caller Audio** | 1 version per arc | ~216 lines |
-| **Vern Broadcasts** | Opening, closing, between-callers, dead air filler | ~100 templates |
+| Category | Description | Actual Files Generated |
+|----------|-------------|-------------------------|
+| **Conversation Arcs** | 17 caller arcs × 4-5 dialogue lines each | 83 caller audio files |
+| **Vern Audio** | Main broadcasts and conversation responses | 109 Vern audio files |
+| **Total Audio Files** | Complete voice library | 192 MP3 files |
 
-**Total unique audio files to generate: ~1,800 files**
+**Total unique audio files generated: 192 files**
 
 ### Character Voices Needed
 
@@ -29,38 +27,38 @@ This document outlines the strategy for producing voice audio for KBTV's dialogu
 
 ## Production Approach
 
-### Chosen: Pre-Generated with Piper TTS
+### Chosen: Pre-Generated with ElevenLabs API
 
-All audio is generated offline during development using Piper TTS, then imported into Godot as AudioStream resources.
+All audio is generated using ElevenLabs' professional-grade AI voice synthesis, then imported into Godot as AudioStream resources.
 
-**Why Piper?**
-- Fully offline and free (no API costs)
-- Fast generation (real-time or faster on CPU)
-- Multiple voice models for variety
-- Active development (OHF-Voice/piper1-gpl)
-- Quality is good enough, especially with post-processing effects
+**Why ElevenLabs?**
+- Professional broadcast-quality voices
+- Extensive voice library with personality diversity
+- Emotion and style control
+- Vern voice cloned from Art Bell reference audio
+- Superior quality to offline TTS engines
 
 **Why Pre-Generated?**
 - Simpler Godot integration (just load AudioStream resources)
-- No runtime dependencies
-- Consistent audio quality
-- Can fine-tune individual lines
-- No `{callerName}` substitution needed (use generic greetings)
+- No runtime API dependencies
+- Consistent audio quality across all lines
+- Can fine-tune individual lines for natural delivery
+- Cost-effective (generate once, use forever)
 
 ### Generation Workflow
 
 ```
 1. Dialogue JSON files (arcs, broadcasts)
         ↓
-2. Python script extracts all lines
+2. ElevenLabs voice cloning (Vern) or voice selection (callers)
         ↓
-3. Piper generates WAV for each line
+3. Python script generates MP3 for each line via API
         ↓
-4. Normalize volume only (no effects)
+4. Smart file skipping (regenerate only changed content)
         ↓
-5. Convert to OGG, organize by folder
+5. Organize by topic folders (res://assets/audio/voice/Callers/)
         ↓
-6. Import to Godot project (res://assets/audio/voice/)
+6. Import to Godot project
         ↓
 7. Godot audio bus system applies effects at runtime
 
@@ -72,8 +70,8 @@ All audio is generated offline during development using Piper TTS, then imported
 
 | Attribute | Value |
 |-----------|-------|
-| **Piper Voice** | `en_US-ryan-medium` (deeper, authoritative) |
-| **Fallback** | `en_US-lessac-medium` |
+| **Voice Source** | ElevenLabs voice clone from Art Bell reference audio |
+| **Voice ID** | Custom cloned voice (cD12ZqbaUeADFL4RycQC) |
 | **Style** | Late-night radio host, Art Bell inspired |
 | **Delivery** | Measured, occasionally sardonic, professional |
 
@@ -91,13 +89,18 @@ All audio is generated offline during development using Piper TTS, then imported
 
 ### Caller Voice Archetypes
 
-| Archetype | Piper Voice | Speed | Pitch | Notes |
-|-----------|-------------|-------|-------|-------|
-| **Default Male** | `en_US-lessac-medium` | 1.0x | 0% | Clear, neutral |
-| **Default Female** | `en_US-amy-medium` | 1.0x | 0% | Clear, neutral |
-| **Gruff/Older** | `en_US-ryan-low` | 0.9x | -5% | Deeper, slower |
-| **Nervous/Young** | `en_US-libritts-high` | 1.1x | +5% | Higher, faster |
-| **Enthusiastic** | `en_US-lessac-medium` | 1.2x | +3% | Excited delivery |
+| Archetype | ElevenLabs Voice | Personality Use | Topic Mapping |
+|-----------|------------------|-----------------|---------------|
+| **default_male** | Drew (29vD33N1CtxCmqQRPOHJ) | Neutral, credible witnesses | All topics |
+| **default_female** | Rachel (21m00Tcm4TlvDq8ikWAM) | Neutral, credible witnesses | All topics |
+| **enthusiastic** | Bella (EXAVITQu4vr4xnSDxMaL) | Excited, compelling stories | UFOs, Cryptids |
+| **nervous** | Dani (AZnzlk1XvdvUeBnXmlld) | Hesitant, questionable claims | Ghosts, Conspiracies |
+| **gruff** | Drew (deeper) | Experienced, skeptical | Cryptids, Ghosts |
+| **conspiracy** | Antoni (ErXwobaYiN019PkySvjV) | Intense, conspiratorial | Conspiracies |
+| **elderly_male** | Drew (slower) | Veteran callers | All topics |
+| **elderly_female** | Rachel (slower) | Veteran callers | All topics |
+
+**Voice Selection Logic**: Archetype chosen based on personality (cold_factual, nervous_hesitant, etc.) + legitimacy (Compelling, Credible, Questionable, Fake) + gender + topic preferences.
 | **Conspiracy Theorist** | `en_US-ryan-medium` | 1.15x | 0% | Intense, rapid |
 
 All caller audio receives phone filter via Godot Audio Buses at runtime.

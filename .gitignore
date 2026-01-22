@@ -28,6 +28,10 @@ addons/gdUnit4/
 /tools/audio_generation/voices/
 /tools/audio_generation/temp/
 
+# API keys and sensitive config
+/Tools/AudioGeneration/elevenlabs_config.json
+/Tools/AudioGeneration/voice_id.txt
+
 # Audio files (large assets - not tracked, generated locally)
 *.mp3
 *.wav

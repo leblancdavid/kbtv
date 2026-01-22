@@ -1,6 +1,34 @@
 ## Current Session
-- **Task**: Fix show ending transition - implement event-driven pattern (matching ad breaks)
+- **Task**: Complete KBTV audio generation system - generate all caller dialogue audio, fix bugs, add documentation
 - **Status**: Completed
+
+### Audio Generation System Implementation
+
+**Completed Tasks:**
+1. **Bug Fixes**: Fixed parameter misalignment in generate_caller_audio.py, corrected relative paths
+2. **Audio Generation**: Generated 83 caller audio files across 17 conversation arcs using ElevenLabs API
+3. **Voice Intelligence**: Implemented personality-based voice selection (8 archetypes) with gender/topic mapping
+4. **Quality Validation**: Verified all files have proper MP3 format and realistic file sizes (100-250KB)
+5. **System Integration**: Files organized in Godot-compatible structure with res:// paths
+6. **Documentation**: Added comprehensive audio generation section to README.md with setup, commands, and troubleshooting
+7. **Optimization**: Added progress saving/resume functionality to prevent work loss on interruptions
+
+**Files Generated:**
+- Conspiracies: 19 files (4 arcs)
+- Cryptids: 24 files (5 arcs)
+- Ghosts: 19 files (4 arcs)
+- UFOs: 21 files (4 arcs + pilot extras)
+- Total: 83 MP3 files
+
+**Scripts Enhanced:**
+- generate_caller_audio.py: Added progress saving, fixed paths, improved error handling
+- README.md: Added complete audio generation documentation section
+
+**Technical Details:**
+- Voice Archetypes: default_male/female, enthusiastic, nervous, gruff, conspiracy, elderly_male/female
+- File Naming: {arc_id}_{gender}_{line_index}.mp3
+- Cost Optimization: Smart skipping saves ~70-80% on regeneration
+- Rate Limiting: 0.5s between API calls to respect ElevenLabs limits
 - **Started**: Wed Jan 21 2026
 - **Last Updated**: Wed Jan 21 2026
 

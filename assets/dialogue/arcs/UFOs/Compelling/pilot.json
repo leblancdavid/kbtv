@@ -2,15 +2,17 @@
   "arcId": "ufos_compelling_pilot",
   "topic": "UFOs",
   "legitimacy": "Compelling",
+  "callerGender": "male",
   "screeningSummary": "Air traffic controller with three official incident reports about radar-confirmed object with vertical acceleration",
   "dialogue": [
-    {
-      "speaker": "Vern",
-      "textVariants": [
-        {
-          "mood": "neutral",
-          "text": "You're on the air. You said you have professional experience in aviation?"
-        },
+     {
+       "speaker": "Vern",
+       "textVariants": [
+         {
+           "mood": "neutral",
+           "text": "You're on the air. You said you have professional experience in aviation?",
+           "voiceText": "You're on the air. You said you have professional experience in aviation?"
+         },
         {
           "mood": "tired",
           "text": "Alright, you're on. You said you fly or something?"

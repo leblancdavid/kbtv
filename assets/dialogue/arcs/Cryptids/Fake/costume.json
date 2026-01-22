@@ -154,5 +154,6 @@
     }
   ],
   "callerPersonality": "charismatic_storyteller",
-  "arcNotes": "Prank call, reveals it's a friend in a gorilla suit, self-aware humor"
+  "arcNotes": "Prank call, reveals it's a friend in a gorilla suit, self-aware humor",
+  "callerGender": "male"
 }

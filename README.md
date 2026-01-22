@@ -131,7 +131,143 @@ kbtv/
 │   ├── unit/
 │   └── integration/
 └── project.godot              # Godot configuration
+├── assets/
+│   └── audio/
+│       ├── voice/
+│       │   ├── Vern/           # Vern Tell voice lines (AI-generated)
+│       │   └── Callers/        # Caller dialogue audio (AI-generated)
+│       └── bumpers/            # Show transition audio
+└── Tools/
+    └── AudioGeneration/        # Voice cloning and audio generation scripts
 ```
+
+## 🎵 Audio Generation System
+
+KBTV uses AI-powered voice synthesis to generate realistic dialogue audio for Vern Tell (host) and all callers.
+
+### Prerequisites
+
+- **ElevenLabs API Account**: Sign up at [elevenlabs.io](https://elevenlabs.io)
+- **API Key**: Get your API key from the ElevenLabs dashboard
+- **Python 3.8+**: Required for audio generation scripts
+
+### Setup
+
+1. **Install Dependencies**:
+   ```bash
+   cd Tools/AudioGeneration
+   pip install elevenlabs requests
+   ```
+
+2. **Configure API Key**:
+   Create `elevenlabs_config.json`:
+   ```json
+   {
+     "elevenlabs_api_key": "your_api_key_here"
+   }
+   ```
+   Or set environment variable: `export ELEVENLABS_API_KEY=your_key`
+
+3. **Voice Cloning** (Vern Tell):
+   ```bash
+   cd Tools/AudioGeneration
+   python voice_setup.py  # Upload reference audio and create Vern voice
+   ```
+
+### Audio Generation Commands
+
+#### Vern Dialogue Audio
+Generate all Vern voice lines for show openings, conversation arcs, and transitions:
+
+```bash
+cd Tools/AudioGeneration
+python generate_vern_audio.py              # Skip existing files
+python generate_vern_audio.py --force      # Regenerate all files
+python generate_vern_audio.py --verbose    # Detailed progress output
+```
+
+#### Caller Dialogue Audio
+Generate caller voice lines for conversation arcs:
+
+```bash
+cd Tools/AudioGeneration
+python generate_caller_audio.py              # Skip existing files
+python generate_caller_audio.py --force      # Regenerate all files
+python generate_caller_audio.py --verbose    # Detailed progress output
+python generate_caller_audio.py --arc ufos_compelling_pilot  # Specific arc only
+python generate_caller_audio.py --arc ghosts --force        # Regenerate topic
+```
+
+#### Intelligent Caller Generation
+Generate caller audio with personality-based voice selection:
+
+```bash
+cd Tools/AudioGeneration
+python generate_intelligent_caller.py --arc ufos_compelling_pilot
+```
+
+### Voice System Architecture
+
+#### Voice Archetypes
+Callers use different voice archetypes based on personality and topic:
+
+| Archetype | Description | Use Case |
+|-----------|-------------|----------|
+| `default_male/female` | Neutral, professional voices | Credible witnesses |
+| `enthusiastic` | Excited, animated delivery | Compelling stories |
+| `nervous` | Hesitant, shaky speech | Questionable claims |
+| `gruff` | Rough, experienced tone | Cryptid hunters |
+| `conspiracy` | Intense, conspiratorial | Conspiracy theorists |
+| `elderly_male/female` | Aged, wise voices | Veteran callers |
+
+#### File Organization
+```
+assets/audio/voice/
+├── Vern/
+│   ├── ConversationArcs/     # Vern responses in conversations
+│   ├── MainBroadcast/        # Show openings/closings
+│   └── Transitions/          # Between-caller banter
+└── Callers/
+    ├── UFOs/                 # UFO-related caller audio
+    ├── Ghosts/               # Ghost story caller audio
+    ├── Cryptids/             # Cryptid caller audio
+    └── Conspiracies/         # Conspiracy caller audio
+```
+
+#### Naming Convention
+- **Vern**: `{mood}_{line_type}_{index}.mp3`
+- **Callers**: `{arc_id}_{gender}_{line_index}.mp3`
+
+### Cost Optimization
+
+ElevenLabs charges per character of generated audio. The system includes smart features to minimize costs:
+
+- **Smart Skipping**: `--force` flag to regenerate only changed content
+- **Batch Processing**: Generate by topic/arc to avoid API limits
+- **File Caching**: Skip regeneration of existing valid files
+- **Rate Limiting**: 0.5 second delays between API calls
+
+### Troubleshooting
+
+**API Key Issues**:
+```bash
+# Check API key configuration
+python -c "from elevenlabs_setup import ElevenLabsVoiceCloner; print('API configured:', ElevenLabsVoiceCloner().api_key is not None)"
+```
+
+**Voice Cloning Failed**:
+- Ensure reference audio is high quality (44.1kHz WAV, clean recording)
+- Check ElevenLabs account has voice cloning credits
+
+**Files Not Generated**:
+- Check write permissions in `assets/audio/` directory
+- Verify API key has sufficient credits
+- Use `--verbose` flag for detailed error messages
+
+**Godot Integration**:
+- Audio files load via `res://assets/audio/voice/...` paths
+- Ensure files are committed to version control
+- Check Godot import settings for audio files
 
 ## 🎮 Controls
 

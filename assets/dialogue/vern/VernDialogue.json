@@ -1,82 +1,19 @@
 {
-  "introductionLines": [
-    { "id": "vern_introduction_001", "text": "Alright night owls, we've got {callerName} on the line from {location}. What've you got for us tonight?", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_introduction_002", "text": "{callerName}, you're on the air with Vern Castellano. The board's lighting up tonight, so let's hear it.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_introduction_003", "text": "Next up, {callerName} calling in from {location}. Talk to me, friend.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_introduction_004", "text": "Welcome to the show, {callerName}. You're live on KBTV. What's on your mind tonight?", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_introduction_005", "text": "Truth-seekers, we've got {callerName} joining us from {location}. Go ahead, caller.", "tone": "Neutral", "weight": 1.0 }
-  ],
-  "probingLines": [
-    { "id": "vern_probing_001", "text": "Alright, walk me through this. What exactly did you see out there?", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_probing_002", "text": "And when did this happen? Give me the details, don't leave anything out.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_probing_003", "text": "Hold on, slow down. Start from the beginning for the folks just tuning in.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_probing_004", "text": "Okay, I'm listening. Paint me a picture here.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_probing_005", "text": "Let's get specific. Time, location, what were you doing when this happened?", "tone": "Neutral", "weight": 1.0 }
-  ],
-  "extraProbingLines": [
-    { "id": "vern_extraprobing_001", "text": "Now that's interesting. Tell me more about that last part.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_extraprobing_002", "text": "And what happened after that? Don't stop now.", "tone": "Excited", "weight": 1.0 },
-    { "id": "vern_extraprobing_003", "text": "Wait, back up. You said something there that caught my ear. Explain that again.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_extraprobing_004", "text": "The listeners are gonna want to know - did anyone else see this?", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_extraprobing_005", "text": "Alright, I've got to ask - any physical evidence? Photos, recordings, anything?", "tone": "Neutral", "weight": 1.0 }
-  ],
-  "skepticalLines": [
-    { "id": "vern_skeptical_001", "text": "Now hold on a second there, friend. That could've been anything up there.", "tone": "Skeptical", "weight": 1.0 },
-    { "id": "vern_skeptical_002", "text": "I gotta be honest with you, I'm not buying it. Not yet anyway.", "tone": "Skeptical", "weight": 1.0 },
-    { "id": "vern_skeptical_003", "text": "You sure it wasn't just a plane? A satellite? Weather balloon maybe?", "tone": "Skeptical", "weight": 1.0 },
-    { "id": "vern_skeptical_004", "text": "See, I've been doing this a long time. I've heard a lot of stories. What makes yours different?", "tone": "Skeptical", "weight": 1.0 },
-    { "id": "vern_skeptical_005", "text": "I want to believe you, I really do. But you're gonna have to give me more than that.", "tone": "Skeptical", "weight": 1.0 }
-  ],
-  "dismissiveLines": [
-    { "id": "vern_dismissive_001", "text": "Yeah, okay. Thanks for calling in. Next caller.", "tone": "Dismissive", "weight": 1.0 },
-    { "id": "vern_dismissive_002", "text": "Right. We're gonna move on. The board's lighting up and I've got real callers waiting.", "tone": "Dismissive", "weight": 1.0 },
-    { "id": "vern_dismissive_003", "text": "Uh-huh. Appreciate it. Moving on.", "tone": "Dismissive", "weight": 1.0 },
-    { "id": "vern_dismissive_004", "text": "Look, I've got a show to run here. Thanks for your time.", "tone": "Dismissive", "weight": 1.0 },
-    { "id": "vern_dismissive_005", "text": "Alright, that's... that's enough of that. We'll be right back after these messages.", "tone": "Dismissive", "weight": 1.0 }
-  ],
-  "believingLines": [
-    { "id": "vern_believing_001", "text": "See, THIS is what I'm talking about, folks. This is why I do this show.", "tone": "Excited", "weight": 1.0 },
-    { "id": "vern_believing_002", "text": "Now that's fascinating. I believe you. I really do.", "tone": "Believing", "weight": 1.0 },
-    { "id": "vern_believing_003", "text": "This is exactly the kind of call I live for, night owls. You hearing this?", "tone": "Excited", "weight": 1.0 },
-    { "id": "vern_believing_004", "text": "You know what? Your voice tells me everything I need to know. You're telling the truth.", "tone": "Believing", "weight": 1.0 },
-    { "id": "vern_believing_005", "text": "Folks, write this down. Mark the date. We're witnessing something here tonight.", "tone": "Excited", "weight": 1.0 }
-  ],
-  "tiredLines": [
-    { "id": "vern_tired_001", "text": "Mm-hmm... go on.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_tired_002", "text": "Alright... what else? *yawn* Sorry, long night.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_tired_003", "text": "Yeah... okay... I'm with you.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_tired_004", "text": "Keep going. Just need another coffee here...", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_tired_005", "text": "Right, right... what time is it? Never mind, continue.", "tone": "Neutral", "weight": 1.0 }
-  ],
-  "annoyedLines": [
-    { "id": "vern_annoyed_001", "text": "Get to the point, caller. The clock's ticking.", "tone": "Annoyed", "weight": 1.0 },
-    { "id": "vern_annoyed_002", "text": "We don't have all night here. Well, we do, but I'd like to talk to more than one person.", "tone": "Annoyed", "weight": 1.0 },
-    { "id": "vern_annoyed_003", "text": "Is there a point to this story? Because I'm losing the thread here.", "tone": "Annoyed", "weight": 1.0 },
-    { "id": "vern_annoyed_004", "text": "Look, I've got a board full of callers. You gonna give me something or not?", "tone": "Annoyed", "weight": 1.0 },
-    { "id": "vern_annoyed_005", "text": "I'm gonna stop you right there. Where is this going?", "tone": "Annoyed", "weight": 1.0 }
-  ],
-  "engagingLines": [
-    { "id": "vern_engaging_001", "text": "Oh, is that right? Well, let's hear more about this adventure of yours.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_engaging_002", "text": "Ha! You know what, I appreciate the creativity here. Keep going.", "tone": "Excited", "weight": 1.0 },
-    { "id": "vern_engaging_003", "text": "Sure, sure. And what else happened in this totally real encounter?", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_engaging_004", "text": "Look, the listeners at home are entertained, so let's ride this out.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_engaging_005", "text": "You're pulling my leg, but you know what? It's late, I'll play along.", "tone": "Neutral", "weight": 1.0 }
-  ],
-  "cutOffLines": [
-    { "id": "vern_cutoff_001", "text": "Alright, we're gonna have to cut you off there. Thanks for calling.", "tone": "Dismissive", "weight": 1.0 },
-    { "id": "vern_cutoff_002", "text": "I'm gonna stop you right there. We've got other callers waiting. Appreciate it.", "tone": "Dismissive", "weight": 1.0 },
-    { "id": "vern_cutoff_003", "text": "Yeah, that's all the time we've got for this one, folks. Moving on.", "tone": "Dismissive", "weight": 1.0 },
-    { "id": "vern_cutoff_004", "text": "We need to take a break. Thanks for calling in. *click*", "tone": "Dismissive", "weight": 1.0 },
-    { "id": "vern_cutoff_005", "text": "And on that note, let's go to the next caller. Keep watching the skies.", "tone": "Neutral", "weight": 1.0 }
-  ],
+   "introductionLines": [
+     { "id": "vern_introduction_001", "text": "Alright night owls, we've got {callerName} on the line from {location}. What've you got for us tonight?", "voiceText": "Alright night owls, we've got a caller on the line out there. What've you got for us tonight?", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_introduction_002", "text": "{callerName}, you're on the air with Vern Tell. The board's lighting up tonight, so let's hear it.", "voiceText": "A caller, you're on the air with Vern Tell. The board's lighting up tonight, so let's hear it.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_introduction_003", "text": "Next up, {callerName} calling in from {location}. Talk to me, friend.", "voiceText": "Next up, a caller calling in out there. Talk to me, friend.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_introduction_004", "text": "Welcome to the show, {callerName}. You're live on KBTV. What's on your mind tonight?", "voiceText": "Welcome to the show, caller. You're live on KBTV. What's on your mind tonight?", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_introduction_005", "text": "Truth-seekers, we've got {callerName} joining us from {location}. Go ahead, caller.", "voiceText": "Truth-seekers, we've got a caller joining us out there. Go ahead, caller.", "mood": "neutral", "weight": 1.0 }
+   ],
 
-  "showOpeningLines": [
-    { "id": "vern_opening_001", "text": "Good evening, truth-seekers. You're tuned to KBTV, Beyond the Veil AM. I'm your host, Vern Castellano, and we've got a big show for you tonight.", "tone": "Excited", "weight": 1.0 },
-    { "id": "vern_opening_002", "text": "It's midnight on the dial, and you know what that means. Welcome to KBTV. The phone lines are open, and the truth is out there waiting.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_opening_003", "text": "Welcome back, night owls. This is Vern Castellano coming to you live from the KBTV studios. Tonight, we're going deep.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_opening_004", "text": "You're listening to KBTV, where we pull back the curtain on what they don't want you to know. Let's get started.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_opening_005", "text": "The witching hour approaches, and so do the callers. This is KBTV. I'm Vern. Let's see what's out there tonight.", "tone": "Neutral", "weight": 1.0 }
-  ],
+   "showOpeningLines": [
+     { "id": "vern_opening_001", "text": "Good evening, truth-seekers. You're tuned to KBTV, Beyond the Veil AM. I'm your host, Vern Tell, and we've got a big show for you tonight.", "mood": "energized", "weight": 1.0 },
+     { "id": "vern_opening_002", "text": "It's midnight on the dial, and you know what that means. Welcome to KBTV. The phone lines are open, and the truth is out there waiting.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_opening_003", "text": "Welcome back, night owls. This is Vern Tell coming to you live from the KBTV studios. Tonight, we're going deep.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_opening_004", "text": "You're listening to KBTV, where we pull back the curtain on what they don't want you to know. Let's get started.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_opening_005", "text": "The witching hour approaches, and so do the callers. This is KBTV. I'm Vern. Let's see what's out there tonight.", "mood": "neutral", "weight": 1.0 }
+   ],
   "showClosingLines": [
     {
       "id": "vern_closing_001_neutral",
@@ -141,31 +78,31 @@
     {
       "id": "vern_closing_003_neutral",
       "mood": "neutral",
-      "text": "That's a wrap on tonight's show. This is Vern Castellano saying goodnight, and stay vigilant out there.",
+      "text": "That's a wrap on tonight's show. This is Vern Tell saying goodnight, and stay vigilant out there.",
       "weight": 1.0
     },
     {
       "id": "vern_closing_003_tired",
       "mood": "tired",
-      "text": "That's a wrap on tonight's show. This is Vern Castellano saying... goodnight. Stay vigilant.",
+      "text": "That's a wrap on tonight's show. This is Vern Tell saying... goodnight. Stay vigilant.",
       "weight": 1.0
     },
     {
       "id": "vern_closing_003_energized",
       "mood": "energized",
-      "text": "That's a wrap on tonight's show! This is Vern Castellano saying goodnight, and stay vigilant out there!",
+      "text": "That's a wrap on tonight's show! This is Vern Tell saying goodnight, and stay vigilant out there!",
       "weight": 1.0
     },
     {
       "id": "vern_closing_003_irritated",
       "mood": "irritated",
-      "text": "That's a wrap on tonight's show. This is Vern Castellano saying goodnight, and stay vigilant out there.",
+      "text": "That's a wrap on tonight's show. This is Vern Tell saying goodnight, and stay vigilant out there.",
       "weight": 1.0
     },
     {
       "id": "vern_closing_003_gruff",
       "mood": "gruff",
-      "text": "That's a wrap on tonight's show. Vern Castellano saying goodnight. Stay vigilant.",
+      "text": "That's a wrap on tonight's show. Vern Tell saying goodnight. Stay vigilant.",
       "weight": 1.0
     },
     {
@@ -266,74 +203,74 @@
       "text": "Additional callers are waiting. Proceeding to next interaction."
     }
   ],
-  "deadAirFillerLines": [
-    { "id": "vern_deadairfiller_001", "text": "Phone lines are quiet for the moment. If you've got a story, now's the time to call in.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_deadairfiller_002", "text": "We're waiting on callers, folks. Don't be shy. The number's on your screen.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_deadairfiller_003", "text": "You know, nights like this give me time to think about all the stories we've heard over the years...", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_deadairfiller_004", "text": "Quiet on the lines. That's unusual. Makes you wonder what's keeping people up tonight.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_deadairfiller_005", "text": "While we wait for callers, let me tell you - I've seen some things in my years doing this show.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_deadairfiller_006", "text": "The truth doesn't call itself in, folks. Someone out there has a story. I can feel it.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_deadairfiller_007", "text": "Empty lines. Either everyone's asleep or everyone's seen something and they're too scared to talk.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_deadairfiller_008", "text": "If you're just tuning in, this is KBTV. We're here all night, and we want to hear from you.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_deadairfiller_009", "text": "Come on, night owls. Don't leave me hanging here. What's happening out there?", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_deadairfiller_010", "text": "Slow night on the lines. But that's alright. The best calls always come when you least expect them.", "tone": "Neutral", "weight": 1.0 }
-  ],
-  "droppedCallerLines": [
-    { "id": "vern_droppedcaller_001", "text": "Looks like we lost that caller. Phone lines, am I right?", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_droppedcaller_002", "text": "And... they're gone. Technical difficulties, folks. Let's move on.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_droppedcaller_003", "text": "Hello? You still there? Guess not. Next caller.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_droppedcaller_004", "text": "We lost 'em. Happens sometimes. The truth doesn't always have a good signal.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_droppedcaller_005", "text": "Caller dropped. Either bad reception or... well, let's not speculate.", "tone": "Neutral", "weight": 1.0 }
-  ],
-  "breakTransitionLines": [
-    { "id": "vern_break_001", "text": "Hold that thought - we've got to pay some bills. Don't go anywhere.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_break_002", "text": "Alright folks, time for a quick break. Keep those phone lines warm.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_break_003", "text": "I hear the break music - that's my cue. We'll be right back.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_break_004", "text": "The sponsors are calling. Stay tuned, truth-seekers.", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_break_005", "text": "Brief pause for our sponsors. Don't touch that dial.", "tone": "Neutral", "weight": 1.0 }
-  ],
-  "returnFromBreakLines": [
-    {
-      "id": "vern_return_neutral",
-      "mood": "neutral",
-      "text": "Alright folks, we're back from our sponsors. The lines are still open."
-    },
-    {
-      "id": "vern_return_tired",
-      "mood": "tired",
-      "text": "*yawn* Welcome back, night owls. Coffee's kicking in again."
-    },
-    {
-      "id": "vern_return_energized",
-      "mood": "energized",
-      "text": "And we're back! The board's still lighting up - let's keep this momentum going!"
-    },
-    {
-      "id": "vern_return_irritated",
-      "mood": "irritated",
-      "text": "Back from break. Hopefully with fewer interruptions this time."
-    },
-    {
-      "id": "vern_return_gruff",
-      "mood": "gruff",
-      "text": "We're back. Next caller, you're on the air."
-    },
-    {
-      "id": "vern_return_amused",
-      "mood": "amused",
-      "text": "Ah, the sweet sound of return music. Alright, who's next in line?"
-    },
-    {
-      "id": "vern_return_focused",
-      "mood": "focused",
-      "text": "Commercial break concluded. Resuming broadcast operations."
-    }
-  ],
-  "offTopicRemarkLines": [
-    { "id": "vern_offtopic_001", "text": "Okay, that was... definitely something. Moving on.", "tone": "Annoyed", "weight": 1.0 },
-    { "id": "vern_offtopic_002", "text": "I don't know what that was, but let's pretend it didn't happen.", "tone": "Dismissive", "weight": 1.0 },
-    { "id": "vern_offtopic_003", "text": "Folks, I apologize for that detour. Some people just like to hear their own voice.", "tone": "Annoyed", "weight": 1.0 },
-    { "id": "vern_offtopic_004", "text": "And THAT is why we have a screening process. Anyway...", "tone": "Neutral", "weight": 1.0 },
-    { "id": "vern_offtopic_005", "text": "Okay then. Well. That didn't go where I expected. Who's next?", "tone": "Neutral", "weight": 1.0 }
-  ]
+   "deadAirFillerLines": [
+     { "id": "vern_deadairfiller_001", "text": "Phone lines are quiet for the moment. If you've got a story, now's the time to call in.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_deadairfiller_002", "text": "We're waiting on callers, folks. Don't be shy. The number's on your screen.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_deadairfiller_003", "text": "You know, nights like this give me time to think about all the stories we've heard over the years...", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_deadairfiller_004", "text": "Quiet on the lines. That's unusual. Makes you wonder what's keeping people up tonight.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_deadairfiller_005", "text": "While we wait for callers, let me tell you - I've seen some things in my years doing this show.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_deadairfiller_006", "text": "The truth doesn't call itself in, folks. Someone out there has a story. I can feel it.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_deadairfiller_007", "text": "Empty lines. Either everyone's asleep or everyone's seen something and they're too scared to talk.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_deadairfiller_008", "text": "If you're just tuning in, this is KBTV. We're here all night, and we want to hear from you.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_deadairfiller_009", "text": "Come on, night owls. Don't leave me hanging here. What's happening out there?", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_deadairfiller_010", "text": "Slow night on the lines. But that's alright. The best calls always come when you least expect them.", "mood": "neutral", "weight": 1.0 }
+   ],
+   "droppedCallerLines": [
+     { "id": "vern_droppedcaller_001", "text": "Looks like we lost that caller. Phone lines, am I right?", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_droppedcaller_002", "text": "And... they're gone. Technical difficulties, folks. Let's move on.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_droppedcaller_003", "text": "Hello? You still there? Guess not. Next caller.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_droppedcaller_004", "text": "We lost 'em. Happens sometimes. The truth doesn't always have a good signal.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_droppedcaller_005", "text": "Caller dropped. Either bad reception or... well, let's not speculate.", "mood": "neutral", "weight": 1.0 }
+   ],
+   "breakTransitionLines": [
+     { "id": "vern_break_001", "text": "Hold that thought - we've got to pay some bills. Don't go anywhere.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_break_002", "text": "Alright folks, time for a quick break. Keep those phone lines warm.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_break_003", "text": "I hear the break music - that's my cue. We'll be right back.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_break_004", "text": "The sponsors are calling. Stay tuned, truth-seekers.", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_break_005", "text": "Brief pause for our sponsors. Don't touch that dial.", "mood": "neutral", "weight": 1.0 }
+   ],
+   "returnFromBreakLines": [
+     {
+       "id": "vern_return_neutral",
+       "mood": "neutral",
+       "text": "Alright folks, we're back from our sponsors. The lines are still open."
+     },
+     {
+       "id": "vern_return_tired",
+       "mood": "tired",
+       "text": "Welcome back, night owls. Coffee's kicking in again."
+     },
+     {
+       "id": "vern_return_energized",
+       "mood": "energized",
+       "text": "And we're back! The board's still lighting up - let's keep this momentum going!"
+     },
+     {
+       "id": "vern_return_irritated",
+       "mood": "irritated",
+       "text": "Back from break. Hopefully with fewer interruptions this time."
+     },
+     {
+       "id": "vern_return_gruff",
+       "mood": "gruff",
+       "text": "We're back. Next caller, you're on the air."
+     },
+     {
+       "id": "vern_return_amused",
+       "mood": "amused",
+       "text": "Ah, the sweet sound of return music. Alright, who's next in line?"
+     },
+     {
+       "id": "vern_return_focused",
+       "mood": "focused",
+       "text": "Commercial break concluded. Resuming broadcast operations."
+     }
+   ],
+   "offTopicRemarkLines": [
+     { "id": "vern_offtopic_001", "text": "Okay, that was... definitely something. Moving on.", "mood": "irritated", "weight": 1.0 },
+     { "id": "vern_offtopic_002", "text": "I don't know what that was, but let's pretend it didn't happen.", "mood": "irritated", "weight": 1.0 },
+     { "id": "vern_offtopic_003", "text": "Folks, I apologize for that detour. Some people just like to hear their own voice.", "mood": "irritated", "weight": 1.0 },
+     { "id": "vern_offtopic_004", "text": "And THAT is why we have a screening process. Anyway...", "mood": "neutral", "weight": 1.0 },
+     { "id": "vern_offtopic_005", "text": "Okay then. Well. That didn't go where I expected. Who's next?", "mood": "neutral", "weight": 1.0 }
+   ]
 }

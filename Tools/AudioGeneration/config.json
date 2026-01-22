@@ -65,13 +65,25 @@
         "description": "Intense, rapid delivery",
         "speed": 1.15,
         "pitch": 1.0
+      },
+      "elderly_male": {
+        "model": "en_US-ryan-low",
+        "description": "Very deep, slow, weathered older male voice",
+        "speed": 0.85,
+        "pitch": 0.9
+      },
+      "elderly_female": {
+        "model": "en_US-lessac-low",
+        "description": "Deep, warm, grandmotherly older female voice",
+        "speed": 0.9,
+        "pitch": 0.92
       }
     },
     "caller_archetype_mapping": {
-      "UFOs": ["default_male", "enthusiastic", "nervous"],
-      "Cryptids": ["gruff", "default_male", "nervous"],
-      "Conspiracies": ["conspiracy", "nervous", "default_male"],
-      "Ghosts": ["default_female", "nervous", "gruff"]
+      "UFOs": ["default_male", "enthusiastic", "nervous", "elderly_male"],
+      "Cryptids": ["gruff", "default_male", "nervous", "elderly_male", "elderly_female"],
+      "Conspiracies": ["conspiracy", "nervous", "default_male", "elderly_male"],
+      "Ghosts": ["default_female", "nervous", "gruff", "elderly_female"]
     }
   },
   "text_processing": {

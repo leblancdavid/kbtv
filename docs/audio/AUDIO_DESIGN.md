@@ -38,66 +38,78 @@ Quick stings (3-5 seconds):
 ### Audio File Locations
 
 ```
-Assets/Audio/
-  Bumpers/            # Station branding audio
-    Intro/            # Longer show opening bumpers (8-15 sec)
-      intro_bumper_01.ogg
-      intro_bumper_02.ogg
-    Return/           # Shorter ad return bumpers (3-5 sec)
-      return_bumper_01.ogg
-      return_bumper_02.ogg
-  Music/              # Background and transitional music
-    intro_music.wav   # 4s placeholder intro bumper (44.1kHz mono WAV)
-    break_transition_*.ogg  # Break cue music
-    outro_music.wav   # Future: show ending music
-  Voice/              # Pre-generated voice files
-    Vern/             # Host dialogue lines
-  Ads/                # Commercial jingles
-    {ad_id}/          # Per-ad directories
+res://assets/audio/
+  bumpers/            # Station branding audio
+    Intro/            # Show opening bumpers (8-15 sec)
+      intro_01_v1.ogg
+      intro_02_v1.ogg
+      intro_03_v1.ogg
+    Return/           # Ad return bumpers (3-5 sec)
+      return_*.ogg    # (Not yet implemented)
+  music/              # Background and transitional music
+    intro_music.wav   # 4s intro bumper placeholder
+  voice/              # AI-generated voice files
+    Vern/             # Host dialogue (109 files)
+      ConversationArcs/  # Vern responses in conversations
+      MainBroadcast/     # Show openings/closings
+      Transitions/       # Between-caller banter
+    Callers/         # Caller dialogue (83 files)
+      Conspiracies/  # Conspiracy caller audio
+      Cryptids/      # Cryptid caller audio
+      Ghosts/        # Ghost caller audio
+      UFOs/          # UFO caller audio
+  ads/               # Commercial jingles
+    {ad_id}/         # Per-ad directories (area_51_tours, etc.)
 ```
 
 ### Configuration
 
-Bumper configs are ScriptableObjects that hold clip arrays with enable/disable toggles:
+Audio is managed through Godot's resource system and C# scripts.
 
-```
-Assets/Data/Audio/
-  IntroBumperConfig.asset
-  ReturnBumperConfig.asset
-```
+**AudioManager.cs** handles:
+- Bumper playback with random selection
+- Music transitions
+- Voice line loading via res:// paths
 
-**Editor Setup:**
-1. Run `KBTV > Create Bumper Configs` to create the config assets
-2. Add audio files to `Assets/Audio/Bumpers/Intro/` and `Return/`
-3. Run `KBTV > Assign Bumper Audio` to populate configs with audio clips
-4. Run `KBTV > Setup Game Scene` to assign configs to GameBootstrap
+**Current Implementation:**
+- Intro bumpers: 3 versions in `res://assets/audio/bumpers/Intro/`
+- Ad audio: Multiple sponsors in `res://assets/audio/ads/`
+- Voice audio: AI-generated files loaded dynamically
 
-The configs are automatically wired to `AudioManager` at runtime via `GameBootstrap`.
+**Future Enhancements:**
+- Return bumpers for ad break transitions
+- Dynamic audio quality based on equipment upgrades
+- Music beds for different show segments
 
 ### Technical Implementation
 
-The bumper system uses:
-- `BumperConfig.cs` - ScriptableObject for clip arrays with random selection
-- `AudioManager.PlayIntroBumper(callback)` - Plays intro bumper, invokes callback when done
-- `AudioManager.PlayReturnBumper(callback)` - Plays return bumper, invokes callback when done
+Audio is managed through Godot's AudioStream system:
+
+- **AudioManager.cs**: Handles bumper playback and random selection
+- **AudioDialoguePlayer.cs**: Loads and plays voice audio via `GD.Load<AudioStream>()`
+- **BroadcastCoordinator.cs**: Manages show flow with audio timing
 
 **Show Opening Flow:**
 ```
 LiveShow starts
-  -> Wait 1 frame (UI setup)
-  -> PlayIntroBumper()
-  -> Wait for bumper to finish
+  -> PlayIntroBumper() (4s music)
+  -> Wait for bumper completion
   -> PlayShowOpening() (Vern's intro line)
   -> Check for callers or start dead air filler
 ```
 
-**Ad Break Return Flow:**
+**Ad Break Flow:**
 ```
-Ad slots finish playing
-  -> PlayReturnBumper()
-  -> Wait for bumper to finish
-  -> FinalizeBreak() (fire OnBreakEnded)
-  -> Resume show
+Ad break triggered
+  -> Play ad slots sequentially (4s each)
+  -> Resume show (no return bumper yet)
+```
+
+**Voice Loading:**
+```csharp
+var path = $"res://assets/audio/voice/Callers/{topic}/{filename}.mp3";
+var audioStream = GD.Load<AudioStream>(path);
+```
 ```
 
 ## Music
