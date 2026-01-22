@@ -195,18 +195,35 @@ namespace KBTV.Dialogue
                 }
                 else
                 {
-                    // Other types: try numbered versions first (001-005), then non-numbered fallback
-                    for (int num = 1; num <= 5; num++)
+                    // Special handling for dead air filler (only in neutral, no mood suffix)
+                    if (line.Type == BroadcastLineType.DeadAirFiller)
                     {
-                        audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{lineType}_{num:D3}_{mood}.mp3";
-                        var testStream = GD.Load<AudioStream>(audioPath);
-                        if (testStream != null)
+                        // Dead air fillers are only in neutral and don't have mood suffixes
+                        for (int num = 1; num <= 10; num++) // Up to 10 dead air fillers
                         {
-                            return testStream;
+                            audioPath = $"res://assets/audio/voice/Vern/Broadcast/neutral/vern_{lineType}_{num:D3}.mp3";
+                            var testStream = GD.Load<AudioStream>(audioPath);
+                            if (testStream != null)
+                            {
+                                return testStream;
+                            }
                         }
                     }
-                    // Fallback to non-numbered version (for between-callers, etc.)
-                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{lineType}_{mood}.mp3";
+                    else
+                    {
+                        // Other types: try numbered versions first (001-005), then non-numbered fallback
+                        for (int num = 1; num <= 5; num++)
+                        {
+                            audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{lineType}_{num:D3}_{mood}.mp3";
+                            var testStream = GD.Load<AudioStream>(audioPath);
+                            if (testStream != null)
+                            {
+                                return testStream;
+                            }
+                        }
+                        // Fallback to non-numbered version
+                        audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{lineType}_{mood}.mp3";
+                    }
                 }
             }
 
@@ -232,7 +249,7 @@ namespace KBTV.Dialogue
             {
                 BroadcastLineType.ShowOpening => "opening",
                 BroadcastLineType.BetweenCallers => "betweencallers",
-                BroadcastLineType.DeadAirFiller => "dead_air_filler", // May not exist
+                BroadcastLineType.DeadAirFiller => "deadairfiller", // No underscores, only in neutral
                 BroadcastLineType.ShowClosing => "closing",
                 _ => "unknown"
             };
