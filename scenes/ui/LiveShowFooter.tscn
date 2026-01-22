@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://d4fin5tqcu14t"]
 
 [ext_resource type="Script" path="res://scripts/ui/LiveShowFooter.cs" id="1"]
-[ext_resource type="PackedScene" uid="uid://b4h6q2j8x0p3k" path="res://scenes/ui/LiveShowPanel.tscn" id="2"]
+[ext_resource type="PackedScene" uid="uid://c2ixkdviucdaf" path="res://scenes/ui/LiveShowPanel.tscn" id="2"]
 [ext_resource type="PackedScene" uid="uid://endshowpanel" path="res://scenes/ui/EndShowPanel.tscn" id="3"]
 
 [sub_resource type="StyleBoxFlat" id="PanelBackground"]

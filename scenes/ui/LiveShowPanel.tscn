@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://dr2nmdufkuvu2"]
+[gd_scene load_steps=3 format=3 uid="uid://c2ixkdviucdaf"]
 
-[ext_resource type="Script" uid="uid://liveshowpanelcs" path="res://scripts/ui/LiveShowPanel.cs" id="1"]
+[ext_resource type="Script" uid="uid://bnbn5wgqtq0ed" path="res://scripts/ui/LiveShowPanel.cs" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="PanelStyle"]
 bg_color = Color(0.12, 0.12, 0.15, 1)
