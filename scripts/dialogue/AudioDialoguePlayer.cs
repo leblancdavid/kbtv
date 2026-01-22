@@ -49,9 +49,19 @@ namespace KBTV.Dialogue
             }
             else
             {
-                GD.PrintErr("AudioDialoguePlayer.PlayLineAsync: Audio stream is null, firing completion immediately");
-                OnAudioFinished();
+                GD.PrintErr($"AudioDialoguePlayer.PlayLineAsync: Audio failed to load for {line.SpeakerId}, using 4s timer fallback");
+                StartTimerFallback(4.0f);
             }
+        }
+
+        private void StartTimerFallback(float duration)
+        {
+            var timer = GetTree().CreateTimer(duration);
+            timer.Timeout += () =>
+            {
+                GD.Print($"AudioDialoguePlayer: Timer fallback completed after {duration}s");
+                OnAudioFinished();
+            };
         }
 
         public void Stop()
@@ -65,11 +75,10 @@ namespace KBTV.Dialogue
 
         private void OnAudioFinished()
         {
-            GD.Print($"AudioDialoguePlayer.OnAudioFinished: Called - _currentLineId={_currentLineId}");
+            GD.Print($"AudioDialoguePlayer.OnAudioFinished: Audio completed - _currentLineId={_currentLineId}");
             if (_currentLineId != null)
             {
                 var completedEvent = new AudioCompletedEvent(_currentLineId, Speaker.Caller);
-                GD.Print($"AudioDialoguePlayer.OnAudioFinished: Publishing AudioCompletedEvent for {_currentLineId}");
                 LineCompleted?.Invoke(completedEvent);
                 _currentLineId = null;
             }

@@ -237,10 +237,64 @@ These create race conditions where the same line gets started twice (once via po
 | Date | Session | Phase | Work Completed | Status |
 |------|---------|-------|----------------|--------|
 | 2026-01-21 | 1 | Planning | Created this document | Complete |
-| 2026-01-21 | 2 | Phase 1 | Added LineAvailableEvent, LineCompletedEvent, BroadcastStateChangedEvent classes; Updated AudioDialoguePlayer to always use silent audio; Updated ConversationDisplay to publish LineCompletedEvent and subscribe to new events; Updated BroadcastCoordinator to publish LineAvailableEvent and subscribe to LineCompletedEvent; Updated BroadcastStateManager to publish BroadcastStateChangedEvent | IN PROGRESS |
+| 2026-01-21 | 2 | Phase 1 | Added LineAvailableEvent, LineCompletedEvent, BroadcastStateChangedEvent classes; Updated AudioDialoguePlayer to always use silent audio; Updated ConversationDisplay to publish LineCompletedEvent and subscribe to new events; Updated BroadcastCoordinator to publish LineAvailableEvent and subscribe to LineCompletedEvent; Updated BroadcastStateManager to publish BroadcastStateChangedEvent | Complete |
+| 2026-01-21 | 3 | Phase 1 | Fixed hybrid audio + timer fallback for consistent 4-second pacing | Complete |
+
+## Implementation Details
+
+### Hybrid Audio + Timer Fallback
+
+To ensure consistent 4-second timing regardless of audio file status, the system uses a hybrid approach:
+
+```csharp
+// PlayLineAsync() flow in AudioDialoguePlayer.cs:
+1. Try to load audio stream from silent_4sec.wav
+2. If loaded successfully:
+   - Play audio via AudioStreamPlayer
+   - Wait for Finished event (should fire after ~4s)
+3. If load fails:
+   - Log error: "Audio failed to load for {SpeakerId}, using 4s timer fallback"
+   - Create SceneTreeTimer for 4 seconds
+   - On timeout: Fire OnAudioFinished()
+```
+
+**Benefits:**
+- **Audio works**: Uses real audio timing when available
+- **Fallback safe**: 4s timer ensures consistent pacing if audio fails
+- **Debuggable**: Clear logging shows which path is taken
+- **Future-proof**: When real voice audio is added, system uses it automatically
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `scripts/dialogue/AudioDialoguePlayer.cs` | Added StartTimerFallback() method, hybrid audio + timer approach |
+
+### Expected Console Output
+
+**When audio loads successfully:**
+```
+AudioDialoguePlayer.PlayLineAsync: Starting - SpeakerId=vern_opening_001
+AudioDialoguePlayer.LoadAudioForLine: Using 4-second silent audio
+AudioDialoguePlayer.GetSilentAudioFile: Loaded silent audio successfully
+AudioDialoguePlayer.PlayLineAsync: Playing audio for vern_opening_001
+[4 seconds pass - audio plays silently]
+AudioDialoguePlayer.OnAudioFinished: Audio completed
+```
+
+**When audio fails (uses timer fallback):**
+```
+AudioDialoguePlayer.PlayLineAsync: Starting - SpeakerId=vern_opening_001
+AudioDialoguePlayer.LoadAudioForLine: Using 4-second silent audio
+AudioDialoguePlayer.GetSilentAudioFile: Failed to load - returning null
+AudioDialoguePlayer.PlayLineAsync: Audio failed to load for vern_opening_001, using 4s timer fallback
+[4 seconds pass - timer counts down]
+AudioDialoguePlayer: Timer fallback completed after 4s
+AudioDialoguePlayer.OnAudioFinished: Audio completed
+```
 
 ## Next Steps
 
-1. **Test in Godot**: Verify the event flow works correctly
-2. **Remove Guard Flag**: Once confirmed working, remove the _isProcessingLine guard flag (no longer needed with pure events)
+1. **Test timing**: Verify lines advance at consistent 4-second pace
+2. **Remove Guard Flag**: Once confirmed working, remove the _isProcessingLine guard flag
 3. **Continue Phase 2**: Begin removing polling dependencies from ConversationDisplay
