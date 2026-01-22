@@ -299,6 +299,9 @@ namespace KBTV.Dialogue
 
             GD.Print($"BroadcastCoordinator: Prepared transition line for display: {_pendingTransitionLine?.Text ?? "null"}");
 
+            // Immediately interrupt current line to prevent timing race
+            ServiceRegistry.Instance.AudioPlayer?.Stop();
+
             // Publish event for event-driven display system
             if (_pendingTransitionLine.HasValue)
             {
