@@ -15,6 +15,7 @@ namespace KBTV.Dialogue
     {
         private AudioStreamPlayer _audioPlayer = null!;
         private string? _currentLineId;
+        private SceneTreeTimer? _currentTimer; // Track active timer to prevent multiples
 
         public event System.Action<AudioCompletedEvent>? LineCompleted;
 
@@ -50,19 +51,32 @@ namespace KBTV.Dialogue
             }
             else
             {
-                GD.PrintErr($"AudioDialoguePlayer.PlayLineAsync: Audio failed to load for {line.SpeakerId}, using 4s timer fallback");
-                StartTimerFallback(4.0f);
+                // LoadAudioForLine already started timer for ads, or audio failed to load
+                // Timer fallback already initiated
+                GD.Print($"AudioDialoguePlayer: Timer fallback already initiated for {line.SpeakerId}");
             }
         }
 
         private void StartTimerFallback(float duration)
         {
-            var timer = GetTree().CreateTimer(duration);
-            timer.Timeout += () =>
+            // Cancel any existing timer first
+            if (_currentTimer != null)
             {
-                GD.Print($"AudioDialoguePlayer: Timer fallback completed after {duration}s");
-                OnAudioFinished();
-            };
+                _currentTimer.Disconnect("timeout", Callable.From(OnTimerTimeout));
+                _currentTimer = null;
+                GD.Print($"AudioDialoguePlayer: Cancelled previous timer");
+            }
+
+            _currentTimer = GetTree().CreateTimer(duration);
+            _currentTimer.Timeout += OnTimerTimeout;
+            GD.Print($"AudioDialoguePlayer: Started timer fallback for {duration}s");
+        }
+
+        private void OnTimerTimeout()
+        {
+            _currentTimer = null; // Clear reference
+            GD.Print($"AudioDialoguePlayer: Timer fallback completed");
+            OnAudioFinished();
         }
 
         public void Stop()
@@ -71,6 +85,15 @@ namespace KBTV.Dialogue
             {
                 _audioPlayer.Stop();
             }
+
+            // Cancel any active timer
+            if (_currentTimer != null)
+            {
+                _currentTimer.Disconnect("timeout", Callable.From(OnTimerTimeout));
+                _currentTimer = null;
+                GD.Print($"AudioDialoguePlayer: Cancelled timer in Stop()");
+            }
+
             _currentLineId = null;
         }
 
@@ -93,7 +116,10 @@ namespace KBTV.Dialogue
         {
             if (line.Type == BroadcastLineType.Ad)
             {
-                return GetSilentAudioFile();
+                // Ads also need timer fallback due to audio file timing issues
+                GD.Print($"AudioDialoguePlayer.LoadAudioForLine: Ad line - using timer fallback");
+                StartTimerFallback(4.0f);
+                return null; // Return null to trigger fallback logic
             }
 
             if (line.Type == BroadcastLineType.Music && line.SpeakerId == "RETURN_MUSIC")

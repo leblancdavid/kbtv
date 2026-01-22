@@ -239,7 +239,7 @@ These create race conditions where the same line gets started twice (once via po
 | 2026-01-21 | 1 | Planning | Created this document | Complete |
 | 2026-01-21 | 2 | Phase 1 | Added LineAvailableEvent, LineCompletedEvent, BroadcastStateChangedEvent classes; Updated AudioDialoguePlayer to always use silent audio; Updated ConversationDisplay to publish LineCompletedEvent and subscribe to new events; Updated BroadcastCoordinator to publish LineAvailableEvent and subscribe to LineCompletedEvent; Updated BroadcastStateManager to publish BroadcastStateChangedEvent | Complete |
 | 2026-01-21 | 3 | Phase 1 | Implemented hybrid audio + timer fallback for consistent 4s pacing | Complete |
-| 2026-01-21 | 4 | Phase 1 | Forced timer fallback - audio file not providing proper timing, need to investigate audio file validity | IN PROGRESS |
+| 2026-01-21 | 4 | Phase 1 | Fixed multiple timer issue and ad break timing - all dialogue now uses 4s timer fallback | Complete |
 
 ## Implementation Details
 
@@ -266,7 +266,7 @@ To ensure consistent 4-second timing regardless of audio file status, the system
 // - Then remove the forced timer fallback
 ```
 
-**Current Status**: Audio path is temporarily disabled - always uses timer fallback
+**Current Status**: Audio path is temporarily disabled - always uses timer fallback. Multiple timer issue fixed, ads now use timer fallback too.
 
 **Benefits (when audio is fixed):**
 - **Audio works**: Uses real audio timing when available
@@ -303,13 +303,13 @@ AudioDialoguePlayer: Timer fallback completed after 4s
 AudioDialoguePlayer.OnAudioFinished: Audio completed
 ```
 
-## Audio File Issue (To Fix)
+## Audio File Issue (To Fix Later)
 
 **Problem**: The silent audio file (`assets/audio/silence_4sec.wav`) loads successfully but `AudioStreamPlayer.Finished` event fires immediately instead of after 4 seconds. This breaks the audio timing path.
 
-**Impact**: Audio path cannot be used until this is fixed.
+**Current Status**: Timer fallback implemented as workaround. All dialogue (including ads) uses 4-second SceneTreeTimer for consistent pacing.
 
-**Investigation Steps**:
+**Investigation Steps** (Deferred):
 1. Check file size: `ls -la assets/audio/silence_4sec.wav` (should be ~344KB for 4s 44.1kHz WAV mono)
 2. Verify import file: `cat assets/audio/silence_4sec.wav.import`
 3. Test in Godot editor - can you play it manually?
