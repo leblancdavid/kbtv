@@ -46,6 +46,13 @@ namespace KBTV.Core
 			_vernStats = new VernStats();
 			_adSchedule = new AdSchedule(AdConstants.DEFAULT_BREAKS_PER_SHOW, AdConstants.DEFAULT_SLOTS_PER_BREAK);
 			InitializeGame();
+
+			// Connect to timer expiration for automatic end-of-show
+			var timeManager = ServiceRegistry.Instance.TimeManager;
+			if (timeManager != null)
+			{
+				timeManager.ShowEnded += OnShowTimerExpired;
+			}
 		}
 
 		/// <summary>
@@ -264,6 +271,68 @@ namespace KBTV.Core
 
 			// Emit phase changed signal
 			EmitSignal("PhaseChanged", (int)GamePhase.LiveShow, (int)GamePhase.PostShow);
+		}
+
+		/// <summary>
+		/// Handle automatic show end when timer expires at T=0.
+		/// Interrupts current audio, clears callers, plays outro music, then advances to PostShow.
+		/// </summary>
+		private async void OnShowTimerExpired()
+		{
+			GD.Print("GameStateManager: OnShowTimerExpired - Timer reached 0, ending show");
+
+			// Interrupt current audio playback
+			var audioPlayer = ServiceRegistry.Instance.AudioPlayer;
+			if (audioPlayer != null)
+			{
+				audioPlayer.Stop();
+				GD.Print("GameStateManager: Current audio interrupted");
+			}
+
+			// Clear all callers and stop generation
+			ServiceRegistry.Instance.CallerRepository?.ClearAll();
+			ServiceRegistry.Instance.CallerGenerator?.StopGenerating();
+			GD.Print("GameStateManager: All callers cleared and generation stopped");
+
+			// Play outro bumper music
+			var dialoguePlayer = ServiceRegistry.Instance.EventBus as IDialoguePlayer;
+			if (dialoguePlayer != null)
+			{
+				var outroLine = BroadcastLine.OutroMusic();
+				GD.Print("GameStateManager: Playing outro music");
+
+				// Subscribe to completion event
+				void OnOutroCompleted(AudioCompletedEvent @event)
+				{
+					if (@event.LineId == outroLine.SpeakerId)
+					{
+						GD.Print("GameStateManager: Outro music completed, advancing to PostShow");
+						ServiceRegistry.Instance.EventBus.Unsubscribe<AudioCompletedEvent>(OnOutroCompleted);
+						AdvanceToPostShow();
+					}
+				}
+
+				ServiceRegistry.Instance.EventBus.Subscribe<AudioCompletedEvent>(OnOutroCompleted);
+				dialoguePlayer.PlayLineAsync(outroLine);
+			}
+			else
+			{
+				// Fallback if no dialogue player
+				GD.Print("GameStateManager: No dialogue player available, advancing immediately");
+				await ToSignal(GetTree().CreateTimer(4f), "timeout");
+				AdvanceToPostShow();
+			}
+		}
+
+		/// <summary>
+		/// Advance to PostShow phase after outro music completion.
+		/// </summary>
+		private void AdvanceToPostShow()
+		{
+			GamePhase oldPhase = _currentPhase;
+			_currentPhase = GamePhase.PostShow;
+			ProcessEndOfShow();
+			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
 		}
 	}
 }

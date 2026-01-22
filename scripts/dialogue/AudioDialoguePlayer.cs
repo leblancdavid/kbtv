@@ -122,7 +122,7 @@ namespace KBTV.Dialogue
                 return null; // Return null to trigger fallback logic
             }
 
-            if (line.Type == BroadcastLineType.Music && line.SpeakerId == "RETURN_MUSIC")
+            if (line.Type == BroadcastLineType.Music && (line.SpeakerId == "RETURN_MUSIC" || line.SpeakerId == "OUTRO_MUSIC"))
             {
                 return LoadRandomReturnBumper();
             }

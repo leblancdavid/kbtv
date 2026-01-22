@@ -36,6 +36,15 @@ namespace KBTV.Dialogue
             Phase = ConversationPhase.Resolution
         };
 
+        public static BroadcastLine OutroMusic() => new()
+        {
+            Type = BroadcastLineType.Music,
+            Text = "Outro Bumper Music",
+            Speaker = "Music",
+            SpeakerId = "OUTRO_MUSIC",
+            Phase = ConversationPhase.Resolution
+        };
+
         public static BroadcastLine ShowOpening(string text) => new()
         {
             Type = BroadcastLineType.ShowOpening,
