@@ -282,13 +282,7 @@ namespace KBTV.Ads
         {
             if (_breakActive) return;
 
-            // Check if break transition is still in progress - delay break start
-            if (_coordinator?.CurrentState == BroadcastCoordinator.BroadcastState.BreakTransition)
-            {
-                GD.Print("AdManager: Delaying break start - transition in progress");
-                return;
-            }
-
+            // Breaks always start on schedule - transitions are best-effort and can be interrupted
             _breakActive = true;
             _isInBreakWindow = false;  // Break window closes when break starts
             _currentBreakIndex++;

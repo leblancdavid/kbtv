@@ -650,12 +650,8 @@ namespace KBTV.Dialogue
                 }
             }
 
-            // Check if ad break line completed - progress to next ad
-            if (CurrentState == BroadcastState.AdBreak && _adCoordinator.IsAdBreakActive)
-            {
-                _currentAdIndex++;
-                return; // Stay in AdBreak state, next call to GetNextDisplayLine will get next ad
-            }
+            // Ad progression is handled by AdBreakCoordinator.GetAdBreakLine()
+            // No manual index increment needed here
 
             // Check if we need to start break transition
             if (CurrentState == BroadcastState.BreakGracePeriod && _breakTransitionPending)
