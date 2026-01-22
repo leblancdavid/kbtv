@@ -179,13 +179,13 @@ namespace KBTV.Dialogue
                 string mood = GetVernMood();
                 string lineType = GetLineTypeForVernAudio(line.Type);
 
-                // Now all files have consistent mood suffixes, so we can predict the exact path
+                // Files now have consistent mood suffixes and numbering
                 if (line.Type == BroadcastLineType.ShowOpening)
                 {
-                    // Opening files are numbered 001-011 across all moods
-                    for (int num = 1; num <= 11; num++)
+                    // Opening files are numbered 01, 02, etc. per mood
+                    for (int num = 1; num <= 5; num++) // Most moods have 1-2 files, neutral has more
                     {
-                        audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_opening_{num:D3}_{mood}.mp3";
+                        audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_opening_{num:D2}_{mood}.mp3";
                         var testStream = GD.Load<AudioStream>(audioPath);
                         if (testStream != null)
                         {
@@ -195,7 +195,7 @@ namespace KBTV.Dialogue
                 }
                 else
                 {
-                    // Other types: try the numbered versions first, then fall back to non-numbered
+                    // Other types: try numbered versions first (001-005), then non-numbered fallback
                     for (int num = 1; num <= 5; num++)
                     {
                         audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{lineType}_{num:D3}_{mood}.mp3";
@@ -205,7 +205,7 @@ namespace KBTV.Dialogue
                             return testStream;
                         }
                     }
-                    // Fallback to non-numbered version
+                    // Fallback to non-numbered version (for between-callers, etc.)
                     audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{lineType}_{mood}.mp3";
                 }
             }
