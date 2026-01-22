@@ -97,13 +97,12 @@ namespace KBTV.Tests.Unit.Screening
         }
 
         [Test]
-        public void Approve_NoSession_ReturnsAppropriateResult()
+        public void Approve_NoSession_ReturnsFailure()
         {
-            var caller = CreateTestCaller();
-            _controller.Start(caller);
+            var result = _controller.Approve();
 
-            AssertThat(_controller.Phase == ScreeningPhase.Gathering);
-            AssertThat(_controller.IsActive);
+            AssertThat(result.IsFailure);
+            AssertThat(result.ErrorCode == "NO_SESSION");
         }
 
         [Test]
@@ -176,12 +175,12 @@ namespace KBTV.Tests.Unit.Screening
         }
 
         [Test]
-        public void Reject_NoSession_ReturnsAppropriateResult()
+        public void Reject_NoSession_ReturnsFailure()
         {
-            var caller = CreateTestCaller();
-            _controller.Start(caller);
+            var result = _controller.Reject();
 
-            AssertThat(_controller.Phase == ScreeningPhase.Gathering);
+            AssertThat(result.IsFailure);
+            AssertThat(result.ErrorCode == "NO_SESSION");
         }
 
         [Test]

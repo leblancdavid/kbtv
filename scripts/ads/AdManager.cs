@@ -20,6 +20,11 @@ namespace KBTV.Ads
         private BroadcastCoordinator _coordinator;
         private AudioStreamPlayer _transitionMusicPlayer = null!;
 
+        // Modular components
+        private BreakScheduler _breakScheduler = null!;
+        private BreakLogic _breakLogic = null!;
+        private RevenueCalculator _revenueCalculator = null!;
+
         // State fields
         private float _showDuration = 0f;
         private float _timeUntilNextBreak = 0f;
@@ -92,6 +97,12 @@ namespace KBTV.Ads
             _listenerManager = ServiceRegistry.Instance.ListenerManager;
             _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
 
+            // Initialize modular components
+            _breakScheduler = new BreakScheduler(schedule, _timeManager, _currentBreakIndex);
+            _breakScheduler.SetCallbacks(OnWindowTimerFired, OnGraceTimerFired, OnImminentTimerFired, OnBreakTimerFired);
+            _breakLogic = new BreakLogic();
+            _revenueCalculator = new RevenueCalculator();
+
             // Subscribe to coordinator events for break coordination
             if (_coordinator != null)
             {
@@ -129,44 +140,14 @@ namespace KBTV.Ads
                 return;
             }
 
-            float currentTime = _timeManager?.ElapsedTime ?? 0f;
             int nextBreakIndex = _currentBreakIndex + 1;
-
             if (nextBreakIndex >= _schedule.Breaks.Count)
             {
                 GD.Print($"AdManager: All breaks completed - current: {_currentBreakIndex}, total: {_schedule.Breaks.Count}");
                 return;
             }
 
-            float breakTime = _schedule.Breaks[nextBreakIndex].ScheduledTime;
-
-            // Schedule window opening (with UI countdown update)
-            float windowDelay = breakTime - AdConstants.BREAK_WINDOW_DURATION - currentTime;
-            if (windowDelay > 0)
-            {
-                _windowTimer = CreateBreakTimer(windowDelay, OnWindowTimerFired);
-            }
-
-            // Schedule grace period start (with UI countdown update)
-            float graceDelay = breakTime - AdConstants.BREAK_GRACE_TIME - currentTime;
-            if (graceDelay > 0)
-            {
-                _graceTimer = CreateBreakTimer(graceDelay, OnGraceTimerFired);
-            }
-
-            // Schedule imminent warning (with UI countdown update)
-            float imminentDelay = breakTime - AdConstants.BREAK_IMMINENT_TIME - currentTime;
-            if (imminentDelay > 0)
-            {
-                _imminentTimer = CreateBreakTimer(imminentDelay, OnImminentTimerFired);
-            }
-
-            // Schedule break start (with UI countdown update)
-            float breakDelay = breakTime - currentTime;
-            if (breakDelay > 0)
-            {
-                _breakTimer = CreateBreakTimer(breakDelay, OnBreakTimerFired);
-            }
+            _breakScheduler.ScheduleBreakTimers(this);
         }
 
         private SceneTreeTimer CreateBreakTimer(float delay, Action callback)
@@ -437,71 +418,29 @@ namespace KBTV.Ads
 
         private void ApplyMoodPenalty()
         {
-            var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
-            if (vernStats != null)
-            {
-                vernStats.Patience.Modify(-AdConstants.UNQUEUED_MOOD_PENALTY);
-                GD.Print($"AdManager: Applied {AdConstants.UNQUEUED_MOOD_PENALTY} mood penalty (break not queued)");
-            }
+            _breakLogic.ApplyUnqueuedPenalty();
         }
 
         private void ApplyListenerDip()
         {
-            var listenerMgr = ServiceRegistry.Instance.ListenerManager;
-            if (listenerMgr != null)
-            {
-                int current = listenerMgr.CurrentListeners;
-                int dip = (int)(current * AdConstants.LISTENER_DIP_PERCENTAGE);
-                listenerMgr.ModifyListeners(-dip);
-            }
+            _breakLogic.ApplyListenerDip();
         }
 
         private void RestoreListeners()
         {
-            var listenerMgr = ServiceRegistry.Instance.ListenerManager;
-            if (listenerMgr != null)
-            {
-                int current = listenerMgr.CurrentListeners;
-                int restore = (int)(current * AdConstants.LISTENER_DIP_PERCENTAGE);
-                listenerMgr.ModifyListeners(restore);
-            }
+            _breakLogic.RestoreListeners();
         }
 
         private float CalculateBreakRevenue(int currentListeners)
         {
             if (_currentBreakIndex < 0 || _currentBreakIndex >= _schedule.Breaks.Count) return 0f;
-
             var breakConfig = _schedule.Breaks[_currentBreakIndex];
-            int totalSlots = breakConfig.SlotsPerBreak;
-
-            // For now, use a mix of ad types based on listener count
-            AdType adType = DetermineAdType(currentListeners);
-
-            float totalRevenue = 0f;
-            for (int i = 0; i < totalSlots; i++)
-            {
-                totalRevenue += currentListeners * AdData.GetRevenueRate(adType);
-            }
-
-            return totalRevenue;
-        }
-
-        private AdType DetermineAdType(int listenerCount)
-        {
-            // Simple tiered system based on listener count
-            if (listenerCount >= 1000) return AdType.PremiumSponsor;
-            if (listenerCount >= 500) return AdType.NationalSponsor;
-            if (listenerCount >= 200) return AdType.RegionalBrand;
-            return AdType.LocalBusiness;
+            return _revenueCalculator.CalculateBreakRevenue(currentListeners, breakConfig);
         }
 
         private void AwardRevenue(float revenue)
         {
-            var economy = ServiceRegistry.Instance.EconomyManager;
-            if (economy != null)
-            {
-                economy.AddMoney((int)revenue, "Ad Revenue");
-            }
+            _revenueCalculator.AwardRevenue(revenue);
         }
 
         private void UpdateBreakTimers()
@@ -515,10 +454,7 @@ namespace KBTV.Ads
         /// </summary>
         public float GetNextBreakTime()
         {
-            if (_schedule == null) return -1f;
-            int nextBreakIndex = _currentBreakIndex + 1;
-            if (nextBreakIndex >= _schedule.Breaks.Count) return -1f;
-            return _schedule.Breaks[nextBreakIndex].ScheduledTime;
+            return _breakScheduler?.GetNextBreakTime() ?? -1f;
         }
 
         /// <summary>
@@ -532,8 +468,7 @@ namespace KBTV.Ads
             if (_isInBreakWindow) return "QUEUE AD-BREAK";
             if (_timeUntilBreakWindow > 0)
             {
-                int seconds = (int)_timeUntilBreakWindow;
-                return $"BREAK IN {seconds / 60}:{seconds % 60:D2}";
+                return _breakScheduler?.GetQueueButtonText(_timeUntilBreakWindow, _timeUntilNextBreak, _isQueued) ?? "BREAK SOON";
             }
             return "BREAK SOON";
         }

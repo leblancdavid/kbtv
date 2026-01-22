@@ -218,5 +218,15 @@ namespace KBTV.Core
         public EventBus EventBus => Get<EventBus>();
         public IDialoguePlayer AudioPlayer => Get<IDialoguePlayer>();
         public AdManager AdManager => Get<AdManager>();
+
+        /// <summary>
+        /// Resets the ServiceRegistry to uninitialized state for testing purposes.
+        /// This allows tests to start with a clean slate.
+        /// </summary>
+        public static void ResetForTesting()
+        {
+            _instance = null;
+            IsInitialized = false;
+        }
     }
 }

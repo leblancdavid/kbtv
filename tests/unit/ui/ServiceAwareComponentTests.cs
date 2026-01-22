@@ -42,9 +42,16 @@ namespace KBTV.Tests.Unit.UI
         }
 
         [Test]
-        public void IsServiceRegistryReady_ReturnsFalse_WhenNotInitialized()
+        public void DefersInitialization_WhenServiceRegistryNotReady()
         {
-            AssertThat(ServiceRegistry.IsInitialized == ServiceRegistry.IsInitialized);
+            // Reset ServiceRegistry to test uninitialized behavior
+            ServiceRegistry.ResetForTesting();
+
+            // Create a new component after reset
+            var component = new TestServiceAwareComponent();
+
+            // Component should not have initialized since ServiceRegistry is not ready
+            AssertThat(!component.InitializeWithServicesCalled);
         }
     }
 }
