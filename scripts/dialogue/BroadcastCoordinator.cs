@@ -353,16 +353,15 @@ namespace KBTV.Dialogue
 
         public void OnAdBreakStarted()
         {
-            if (_timingManager.GetCurrentLine() != null)
-            {
-                StopCurrentLine();
-            }
+            GD.Print("BroadcastCoordinator.OnAdBreakStarted: Starting ad break");
+            _adCoordinator.OnAdBreakStarted();
 
             _stateManager.SetState(BroadcastState.AdBreak);
             _timingManager.StopLine();
-            _adCoordinator.OnAdBreakStarted();
 
-            GD.Print($"BroadcastCoordinator: Starting ad break with {_totalAdsInBreak} ads");
+            GD.Print("BroadcastCoordinator: AdBreak started");
+
+            GD.Print("BroadcastCoordinator: AdBreak started");
         }
 
         public void OnAdBreakEnded()
@@ -549,16 +548,20 @@ namespace KBTV.Dialogue
 
         public void OnLineCompleted()
         {
-            GD.Print($"BroadcastCoordinator.OnLineCompleted: Called - CurrentState={CurrentState}");
+            GD.Print($"BroadcastCoordinator.OnLineCompleted: Called - CurrentState={CurrentState}, _isProcessingLine={_isProcessingLine}");
 
             if (_isProcessingLine)
             {
                 GD.Print($"BroadcastCoordinator.OnLineCompleted: Already processing, returning early");
                 return;
             }
-            _isProcessingLine = true;
 
-            _timingManager.StopLine();
+            _isProcessingLine = true;
+            try
+            {
+                GD.Print($"BroadcastCoordinator.OnLineCompleted: Set _isProcessingLine=true, processing completion");
+
+                _timingManager.StopLine();
 
             // Check if show ending is pending - set up closing transition when current line completes
             if (CurrentState == BroadcastState.ShowEndingPending)
@@ -693,11 +696,16 @@ namespace KBTV.Dialogue
                 }
             }
 
-            var advancedEvent = new ConversationAdvancedEvent(null);
-            ServiceRegistry.Instance.EventBus.Publish(advancedEvent);
+                var advancedEvent = new ConversationAdvancedEvent(null);
+                ServiceRegistry.Instance.EventBus.Publish(advancedEvent);
 
-            _isProcessingLine = false;
-            GD.Print($"BroadcastCoordinator.OnLineCompleted: Complete");
+                GD.Print($"BroadcastCoordinator.OnLineCompleted: Complete");
+            }
+            finally
+            {
+                _isProcessingLine = false;
+                GD.Print($"BroadcastCoordinator.OnLineCompleted: Cleared _isProcessingLine flag in finally");
+            }
         }
 
         private void EndConversation()
