@@ -44,16 +44,17 @@ namespace KBTV.Dialogue
             var audioStream = LoadAudioForLine(line);
             if (audioStream != null)
             {
-                // TEMPORARILY FORCED TIMEFALLBACK: Audio file not providing proper timing
-                // Use timer to ensure consistent 4-second pacing
-                GD.Print($"AudioDialoguePlayer: Audio loaded but using timer fallback for consistent timing");
-                StartTimerFallback(4.0f);
+                // Play the actual loaded audio at natural speed and duration
+                GD.Print($"AudioDialoguePlayer: Playing loaded audio for {line.SpeakerId}");
+                _audioPlayer.Stream = audioStream;
+                _audioPlayer.Play();
+                // Audio will naturally trigger OnAudioFinished when it completes
             }
             else
             {
-                // LoadAudioForLine already started timer for ads, or audio failed to load
-                // Timer fallback already initiated
-                GD.Print($"AudioDialoguePlayer: Timer fallback already initiated for {line.SpeakerId}");
+                // No audio file found - use timer fallback with warning
+                GD.Print($"AudioDialoguePlayer: WARNING - No audio file found for {line.SpeakerId}, using timer fallback");
+                StartTimerFallback(4.0f);
             }
         }
 
@@ -116,10 +117,19 @@ namespace KBTV.Dialogue
         {
             if (line.Type == BroadcastLineType.Ad)
             {
-                // Ads also need timer fallback due to audio file timing issues
-                GD.Print($"AudioDialoguePlayer.LoadAudioForLine: Ad line - using timer fallback");
-                StartTimerFallback(4.0f);
-                return null; // Return null to trigger fallback logic
+                // Try to load ad audio, fallback to timer if not found
+                var adAudio = LoadAdAudio(line);
+                if (adAudio != null)
+                {
+                    GD.Print($"AudioDialoguePlayer.LoadAudioForLine: Loaded ad audio");
+                    return adAudio;
+                }
+                else
+                {
+                    GD.Print($"AudioDialoguePlayer.LoadAudioForLine: No ad audio found, using timer fallback");
+                    StartTimerFallback(4.0f);
+                    return null;
+                }
             }
 
             if (line.Type == BroadcastLineType.Music && (line.SpeakerId == "RETURN_MUSIC" || line.SpeakerId == "OUTRO_MUSIC"))
@@ -264,6 +274,30 @@ namespace KBTV.Dialogue
                 return vernStats.CurrentMoodType.ToString().ToLower();
             }
             return "neutral"; // Default fallback
+        }
+
+        private AudioStream? LoadAdAudio(BroadcastLine line)
+        {
+            // Try to load ad audio files
+            // Ads are stored in assets/audio/ads/ with various sponsor folders
+            string[] possibleAdPaths = {
+                "res://assets/audio/ads/area_51_tours_v1.mp3",
+                "res://assets/audio/ads/big_earls_auto_v1.mp3",
+                "res://assets/audio/ads/cryptid_hunters_v1.mp3",
+                "res://assets/audio/ads/ghost_busters_v1.mp3",
+                "res://assets/audio/ads/ufology_today_v1.mp3"
+            };
+
+            foreach (var path in possibleAdPaths)
+            {
+                var testStream = GD.Load<AudioStream>(path);
+                if (testStream != null)
+                {
+                    return testStream;
+                }
+            }
+
+            return null;
         }
 
         private AudioStream? LoadRandomReturnBumper()
