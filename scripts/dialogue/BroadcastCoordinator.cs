@@ -699,7 +699,6 @@ namespace KBTV.Dialogue
                 var advancedEvent = new ConversationAdvancedEvent(null);
                 ServiceRegistry.Instance.EventBus.Publish(advancedEvent);
 
-<<<<<<< HEAD
                 GD.Print($"BroadcastCoordinator.OnLineCompleted: Complete");
             }
             finally
@@ -707,10 +706,6 @@ namespace KBTV.Dialogue
                 _isProcessingLine = false;
                 GD.Print($"BroadcastCoordinator.OnLineCompleted: Cleared _isProcessingLine flag in finally");
             }
-=======
-            _isProcessingLine = false;
-            GD.Print($"BroadcastCoordinator.OnLineCompleted: Complete, cleared _isProcessingLine flag");
->>>>>>> 475e3e8a00328e3ede57373aa563148d5162ea81
         }
 
         private void EndConversation()
