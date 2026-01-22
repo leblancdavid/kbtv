@@ -102,7 +102,25 @@ namespace KBTV.Dialogue
         private void HandleLineAvailable(LineAvailableEvent @event)
         {
             GD.Print($"ConversationDisplay.HandleLineAvailable: Received - Type={@event.Line.Type}, SpeakerId={@event.Line.SpeakerId}");
+
+            // For transition lines, ensure previous line/timers are properly cleaned up
+            if (IsTransitionLine(@event.Line))
+            {
+                GD.Print("ConversationDisplay: Starting transition line - ensuring clean state");
+                // Stop() will cancel any active timers and clear current line state
+                _audioPlayer?.Stop();
+            }
+
             StartLine(@event.Line);
+        }
+
+        private bool IsTransitionLine(BroadcastLine line)
+        {
+            // Transition lines are special broadcast flow lines
+            return line.Type == BroadcastLineType.VernDialogue &&
+                   (_coordinator.CurrentState == BroadcastCoordinator.BroadcastState.BreakTransition ||
+                    _coordinator.CurrentState == BroadcastCoordinator.BroadcastState.ReturnFromBreak ||
+                    _coordinator.CurrentState == BroadcastCoordinator.BroadcastState.ShowEndingTransition);
         }
 
         private void HandleStateChanged(BroadcastStateChangedEvent @event)
@@ -119,7 +137,9 @@ namespace KBTV.Dialogue
 
         private void OnTransitionLineAvailable()
         {
-            TryGetNextLine();
+            // Transition lines now handled by LineAvailableEvent system
+            // This callback kept for backward compatibility but should not use polling
+            GD.Print("ConversationDisplay: OnTransitionLineAvailable called (transition handled by event system)");
         }
 
         private void HandleConversationAdvanced(ConversationAdvancedEvent @event)

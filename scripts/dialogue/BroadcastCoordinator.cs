@@ -203,7 +203,13 @@ namespace KBTV.Dialogue
 
                 GD.Print($"BroadcastCoordinator: Prepared show ending transition line for display: {_pendingTransitionLine?.Text ?? "null"}");
 
-                // Notify display that transition line is available
+                // Publish event for event-driven display system
+                if (_pendingTransitionLine.HasValue)
+                {
+                    ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(_pendingTransitionLine.Value));
+                }
+
+                // Keep callback for backward compatibility
                 OnTransitionLineAvailable?.Invoke();
             }
         }
@@ -227,7 +233,13 @@ namespace KBTV.Dialogue
 
             GD.Print($"BroadcastCoordinator: Prepared show closing line for display: {_pendingTransitionLine?.Text ?? "null"}");
 
-            // Notify display that transition line is available
+            // Publish event for event-driven display system
+            if (_pendingTransitionLine.HasValue)
+            {
+                ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(_pendingTransitionLine.Value));
+            }
+
+            // Keep callback for backward compatibility
             OnTransitionLineAvailable?.Invoke();
         }
 
@@ -287,6 +299,12 @@ namespace KBTV.Dialogue
 
             GD.Print($"BroadcastCoordinator: Prepared transition line for display: {_pendingTransitionLine?.Text ?? "null"}");
 
+            // Publish event for event-driven display system
+            if (_pendingTransitionLine.HasValue)
+            {
+                ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(_pendingTransitionLine.Value));
+            }
+
             // Notify display that transition line is available
             OnTransitionLineAvailable?.Invoke();
             GD.Print("BroadcastCoordinator: Transition line prepared, notifying display");
@@ -303,7 +321,10 @@ namespace KBTV.Dialogue
 
             GD.Print("BroadcastCoordinator: Starting return-from-break sequence with music");
 
-            // Notify display that transition line is available
+            // Publish event for event-driven display system
+            ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(_pendingTransitionLine.Value));
+
+            // Keep callback for backward compatibility
             OnTransitionLineAvailable?.Invoke();
         }
 
@@ -553,6 +574,11 @@ namespace KBTV.Dialogue
                 }
 
                 _pendingTransitionLine = CreateBroadcastLine(closingTemplate, Speaker.Vern);
+
+                // Publish event for event-driven display system
+                ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(_pendingTransitionLine.Value));
+
+                // Keep callback for backward compatibility
                 OnTransitionLineAvailable?.Invoke();
                 return;
             }
@@ -595,7 +621,10 @@ namespace KBTV.Dialogue
 
                     _pendingTransitionLine = CreateBroadcastLine(returnTemplate, Speaker.Vern);
 
-                    // Notify display that next line is available
+                    // Publish event for event-driven display system
+                    ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(_pendingTransitionLine.Value));
+
+                    // Keep callback for backward compatibility
                     OnTransitionLineAvailable?.Invoke();
                     return; // Don't advance normal flow yet
                 }

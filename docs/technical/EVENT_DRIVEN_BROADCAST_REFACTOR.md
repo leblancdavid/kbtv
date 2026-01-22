@@ -239,7 +239,7 @@ These create race conditions where the same line gets started twice (once via po
 | 2026-01-21 | 1 | Planning | Created this document | Complete |
 | 2026-01-21 | 2 | Phase 1 | Added LineAvailableEvent, LineCompletedEvent, BroadcastStateChangedEvent classes; Updated AudioDialoguePlayer to always use silent audio; Updated ConversationDisplay to publish LineCompletedEvent and subscribe to new events; Updated BroadcastCoordinator to publish LineAvailableEvent and subscribe to LineCompletedEvent; Updated BroadcastStateManager to publish BroadcastStateChangedEvent | Complete |
 | 2026-01-21 | 3 | Phase 1 | Implemented hybrid audio + timer fallback for consistent 4s pacing | Complete |
-| 2026-01-21 | 4 | Phase 1 | Fixed multiple timer issue and ad break timing - all dialogue now uses 4s timer fallback | Complete |
+| 2026-01-21 | 5 | Phase 1 | Fixed transition line system - removed polling, made all transitions event-driven with proper timer cleanup | Complete |
 
 ## Implementation Details
 
@@ -262,11 +262,37 @@ To ensure consistent 4-second timing regardless of audio file status, the system
 // The silent_4sec.wav file loads but AudioStreamPlayer.Finished
 // fires immediately instead of after 4 seconds. Need to:
 // - Verify audio file is valid 4-second WAV
-// - Re-import or replace the audio file
-// - Then remove the forced timer fallback
+// - Re-import or replace audio file
+// - Then remove forced timer fallback
 ```
 
 **Current Status**: Audio path is temporarily disabled - always uses timer fallback. Multiple timer issue fixed, ads now use timer fallback too.
+
+### Transition Line System (Event-Driven)
+
+**Problem Fixed**: Transition lines (break transitions, return from break, show endings) were using polling via `TryGetNextLine()`, causing race conditions and timer conflicts.
+
+**Solution Implemented**:
+
+**ConversationDisplay.cs:**
+- Added `IsTransitionLine()` method to identify transition lines
+- Modified `HandleLineAvailable()` to properly clean up timers for transition lines
+- Changed `OnTransitionLineAvailable()` to not use polling (handled by event system)
+
+**BroadcastCoordinator.cs:**
+- Added `LineAvailableEvent` publishing for all transition lines (6 locations)
+- Kept `OnTransitionLineAvailable` callbacks for backward compatibility
+- Transition lines now flow through the same event-driven system as regular lines
+
+**Result**: Transition lines start cleanly, previous timers are cancelled, no null `_currentLineId` issues, proper state advancement.
+
+### Timer Cleanup Improvements
+
+**AudioDialoguePlayer.cs:**
+- Added `_currentTimer` tracking to prevent multiple timers
+- Enhanced `Stop()` method to cancel active timers
+- Proper timer reference cleanup in `OnTimerTimeout()`
+- Ads now use timer fallback for consistent timing
 
 **Benefits (when audio is fixed):**
 - **Audio works**: Uses real audio timing when available
