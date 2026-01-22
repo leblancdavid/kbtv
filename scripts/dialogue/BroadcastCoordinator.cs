@@ -63,6 +63,10 @@ namespace KBTV.Dialogue
         private bool _breakTransitionPending = false;
         private BroadcastLine? _pendingTransitionLine = null;
 
+        // Guard to prevent duplicate OnLineCompleted() calls from event and timing paths
+        private bool _isProcessingLine = false;
+
+
 
         // Events for break coordination
         public event Action? OnBreakTransitionCompleted;
@@ -120,15 +124,17 @@ namespace KBTV.Dialogue
                 timeManager.ShowEndingWarning += OnShowEndingWarning;
             }
 
+            // Event-driven architecture: Subscribe to LineCompletedEvent for state advancement
+            var eventBus = ServiceRegistry.Instance.EventBus;
+            eventBus.Subscribe<LineCompletedEvent>(HandleLineCompleted);
+
             ServiceRegistry.Instance.RegisterSelf<BroadcastCoordinator>(this);
         }
 
-        public override void _Process(double delta)
+        private void HandleLineCompleted(LineCompletedEvent @event)
         {
-            if (_timingManager.UpdateProgress((float)delta))
-            {
-                OnLineCompleted();
-            }
+            GD.Print($"BroadcastCoordinator.HandleLineCompleted: Received - LineId={@event.LineId}");
+            OnLineCompleted();
         }
 
         public void OnLiveShowStarted()
@@ -442,7 +448,7 @@ namespace KBTV.Dialogue
             {
                 return null;
             }
- 
+
             // Priority: Check for pending transition line first
             if (_pendingTransitionLine != null)
             {
@@ -454,6 +460,9 @@ namespace KBTV.Dialogue
 
                 // Add to transcript immediately
                 _transcriptManager.AddEntry(transitionLine);
+
+                // Publish event for event-driven display
+                ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(transitionLine));
 
                 return transitionLine;
             }
@@ -479,6 +488,9 @@ namespace KBTV.Dialogue
             _timingManager.StartLine(currentLine);
 
             _transcriptManager.AddEntry(currentLine, _repository.OnAirCaller);
+
+            // Publish event for event-driven display
+            ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(currentLine));
 
             return currentLine;
         }
@@ -513,6 +525,15 @@ namespace KBTV.Dialogue
 
         public void OnLineCompleted()
         {
+            GD.Print($"BroadcastCoordinator.OnLineCompleted: Called - CurrentState={CurrentState}");
+
+            if (_isProcessingLine)
+            {
+                GD.Print($"BroadcastCoordinator.OnLineCompleted: Already processing, returning early");
+                return;
+            }
+            _isProcessingLine = true;
+
             _timingManager.StopLine();
 
             // Check if show ending is pending - set up closing transition when current line completes
@@ -634,15 +655,21 @@ namespace KBTV.Dialogue
 
             if (!conversationJustEnded)
             {
+                GD.Print($"BroadcastCoordinator.OnLineCompleted: Advancing state from {CurrentState}");
                 _stateManager.AdvanceState();
+                GD.Print($"BroadcastCoordinator.OnLineCompleted: New state after advance = {CurrentState}");
                 if (CurrentState == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
                 {
+                    GD.Print($"BroadcastCoordinator.OnLineCompleted: Putting next caller on air");
                     TryPutNextCallerOnAir();
                 }
             }
 
             var advancedEvent = new ConversationAdvancedEvent(null);
             ServiceRegistry.Instance.EventBus.Publish(advancedEvent);
+
+            _isProcessingLine = false;
+            GD.Print($"BroadcastCoordinator.OnLineCompleted: Complete");
         }
 
         private void EndConversation()

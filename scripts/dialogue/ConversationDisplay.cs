@@ -39,6 +39,8 @@ namespace KBTV.Dialogue
                 eventBus.Unsubscribe<ShowStartedEvent>(HandleShowStarted);
                 eventBus.Unsubscribe<ConversationStartedEvent>(HandleConversationStarted);
                 eventBus.Unsubscribe<AudioCompletedEvent>(HandleAudioCompleted);
+                eventBus.Unsubscribe<LineAvailableEvent>(HandleLineAvailable);
+                eventBus.Unsubscribe<BroadcastStateChangedEvent>(HandleStateChanged);
             }
 
             _repository?.Unsubscribe(this);
@@ -74,6 +76,8 @@ namespace KBTV.Dialogue
             eventBus.Subscribe<ShowStartedEvent>(HandleShowStarted);
             eventBus.Subscribe<ConversationStartedEvent>(HandleConversationStarted);
             eventBus.Subscribe<AudioCompletedEvent>(HandleAudioCompleted);
+            eventBus.Subscribe<LineAvailableEvent>(HandleLineAvailable);
+            eventBus.Subscribe<BroadcastStateChangedEvent>(HandleStateChanged);
             eventBus.Subscribe<ConversationAdvancedEvent>(HandleConversationAdvanced);
 
             // Subscribe to transition line notifications
@@ -85,16 +89,31 @@ namespace KBTV.Dialogue
 
         private void HandleShowStarted(ShowStartedEvent @event)
         {
-            TryGetNextLine();
+            // Event-driven: LineAvailableEvent will trigger line display
+            // No polling call needed
         }
 
         private void HandleConversationStarted(ConversationStartedEvent @event)
         {
-            TryGetNextLine();
+            // Event-driven: LineAvailableEvent will trigger line display
+            // No polling call needed
+        }
+
+        private void HandleLineAvailable(LineAvailableEvent @event)
+        {
+            GD.Print($"ConversationDisplay.HandleLineAvailable: Received - Type={@event.Line.Type}, SpeakerId={@event.Line.SpeakerId}");
+            StartLine(@event.Line);
+        }
+
+        private void HandleStateChanged(BroadcastStateChangedEvent @event)
+        {
+            // State changed - might need to update display state
+            // The actual line fetching will be triggered by the event flow
         }
 
         private void HandleAudioCompleted(AudioCompletedEvent @event)
         {
+            GD.Print($"ConversationDisplay.HandleAudioCompleted: Received - LineId={@event.LineId}");
             _coordinator.OnLineCompleted();
         }
 
@@ -105,7 +124,8 @@ namespace KBTV.Dialogue
 
         private void HandleConversationAdvanced(ConversationAdvancedEvent @event)
         {
-            TryGetNextLine();
+            // Event-driven: LineAvailableEvent will be published after state advances
+            // No polling call needed
         }
 
         public override void OnEvent(GameEvent gameEvent)
@@ -121,6 +141,14 @@ namespace KBTV.Dialogue
             else if (gameEvent is AudioCompletedEvent audioEvent)
             {
                 HandleAudioCompleted(audioEvent);
+            }
+            else if (gameEvent is LineAvailableEvent lineEvent)
+            {
+                HandleLineAvailable(lineEvent);
+            }
+            else if (gameEvent is BroadcastStateChangedEvent stateEvent)
+            {
+                HandleStateChanged(stateEvent);
             }
             else if (gameEvent is ConversationAdvancedEvent advancedEvent)
             {
@@ -191,6 +219,7 @@ namespace KBTV.Dialogue
 
         private void OnAudioLineCompleted(AudioCompletedEvent audioEvent)
         {
+            GD.Print($"ConversationDisplay.OnAudioLineCompleted: Called - LineId={audioEvent.LineId}");
             _displayInfo.Progress = 1f;
             _displayInfo.ElapsedLineTime = 0;
 
@@ -199,14 +228,10 @@ namespace KBTV.Dialogue
             bool wasInterrupted = IsInterruptingLine(_currentLine);
             if (!wasInterrupted)
             {
-                if (_coordinator != null)
-                {
-                    _coordinator.OnLineCompleted();
-                }
-                else
-                {
-                    GD.PrintErr("ConversationDisplay: _coordinator is null, cannot call OnLineCompleted");
-                }
+                GD.Print($"ConversationDisplay.OnAudioLineCompleted: Publishing LineCompletedEvent for {_currentLine.SpeakerId}");
+                // Publish LineCompletedEvent for event-driven state management
+                var lineCompletedEvent = new LineCompletedEvent(_currentLine);
+                ServiceRegistry.Instance.EventBus.Publish(lineCompletedEvent);
             }
             else
             {

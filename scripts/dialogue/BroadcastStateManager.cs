@@ -22,7 +22,16 @@ namespace KBTV.Dialogue
 
         public void SetState(BroadcastCoordinator.BroadcastState newState)
         {
+            if (CurrentState == newState)
+            {
+                return;
+            }
+
+            var oldState = CurrentState;
             CurrentState = newState;
+
+            // Publish event for event-driven architecture
+            ServiceRegistry.Instance.EventBus.Publish(new BroadcastStateChangedEvent(oldState, newState));
         }
 
         public void AdvanceState()

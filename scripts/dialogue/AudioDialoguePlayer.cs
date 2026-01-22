@@ -29,6 +29,8 @@ namespace KBTV.Dialogue
 
         public async void PlayLineAsync(BroadcastLine line)
         {
+            GD.Print($"AudioDialoguePlayer.PlayLineAsync: Starting - SpeakerId={line.SpeakerId}, Type={line.Type}");
+
             if (_audioPlayer == null)
             {
                 GD.PrintErr("AudioDialoguePlayer.PlayLineAsync: AudioStreamPlayer not initialized");
@@ -41,11 +43,13 @@ namespace KBTV.Dialogue
             var audioStream = LoadAudioForLine(line);
             if (audioStream != null)
             {
+                GD.Print($"AudioDialoguePlayer.PlayLineAsync: Playing audio for {line.SpeakerId}");
                 _audioPlayer.Stream = audioStream;
                 _audioPlayer.Play();
             }
             else
             {
+                GD.PrintErr("AudioDialoguePlayer.PlayLineAsync: Audio stream is null, firing completion immediately");
                 OnAudioFinished();
             }
         }
@@ -61,49 +65,38 @@ namespace KBTV.Dialogue
 
         private void OnAudioFinished()
         {
+            GD.Print($"AudioDialoguePlayer.OnAudioFinished: Called - _currentLineId={_currentLineId}");
             if (_currentLineId != null)
             {
                 var completedEvent = new AudioCompletedEvent(_currentLineId, Speaker.Caller);
+                GD.Print($"AudioDialoguePlayer.OnAudioFinished: Publishing AudioCompletedEvent for {_currentLineId}");
                 LineCompleted?.Invoke(completedEvent);
                 _currentLineId = null;
+            }
+            else
+            {
+                GD.PrintErr("AudioDialoguePlayer.OnAudioFinished: _currentLineId is null, not firing event");
             }
         }
 
         private AudioStream? LoadAudioForLine(BroadcastLine line)
         {
-            // Special handling for ad breaks - always 4 seconds
             if (line.Type == BroadcastLineType.Ad)
             {
                 return GetSilentAudioFile();
             }
 
-            // Special handling for return bumper music - random selection
             if (line.Type == BroadcastLineType.Music && line.SpeakerId == "RETURN_MUSIC")
             {
                 return LoadRandomReturnBumper();
             }
 
-            var audioPath = $"res://assets/dialogue/audio/{line.SpeakerId}.wav";
-            var audioStream = GD.Load<AudioStream>(audioPath);
-            if (audioStream != null)
-            {
-                return audioStream;
-            }
-
-            audioPath = $"res://assets/dialogue/audio/{line.SpeakerId}.mp3";
-            audioStream = GD.Load<AudioStream>(audioPath);
-            if (audioStream != null)
-            {
-                return audioStream;
-            }
-
-            var duration = CalculateDurationForText(line.Text);
-            return CreatePlaceholderAudio(duration);
+            GD.Print($"AudioDialoguePlayer.LoadAudioForLine: Using 4-second silent audio for {line.SpeakerId}");
+            return GetSilentAudioFile();
         }
 
         private AudioStream? LoadRandomReturnBumper()
         {
-            // Get list of return bumper files
             var returnBumperDir = DirAccess.Open("res://assets/audio/bumpers/Return");
             if (returnBumperDir == null)
             {
@@ -130,15 +123,14 @@ namespace KBTV.Dialogue
                 return GetSilentAudioFile();
             }
 
-            // Randomly select one
             var random = new Random();
             var selectedFile = bumperFiles[random.Next(bumperFiles.Count)];
-            var audioPath = $"res://assets/audio/bumpers/Return/{selectedFile}";
+            var path = $"res://assets/audio/bumpers/Return/{selectedFile}";
 
-            var audioStream = GD.Load<AudioStream>(audioPath);
+            var audioStream = GD.Load<AudioStream>(path);
             if (audioStream == null)
             {
-                GD.PrintErr($"AudioDialoguePlayer.LoadRandomReturnBumper: Failed to load {audioPath}, using silent fallback");
+                GD.PrintErr($"AudioDialoguePlayer.LoadRandomReturnBumper: Failed to load {path}, using silent fallback");
                 return GetSilentAudioFile();
             }
 
@@ -146,43 +138,16 @@ namespace KBTV.Dialogue
             return audioStream;
         }
 
-        /// <summary>
-        /// Loads the 4-second silent WAV file for timing-critical scenarios.
-        /// </summary>
         private AudioStream? GetSilentAudioFile()
         {
             var audioStream = GD.Load<AudioStream>("res://assets/audio/silence_4sec.wav");
             if (audioStream == null)
             {
-                GD.PrintErr("AudioDialoguePlayer.GetSilentAudioFile: Failed to load silent audio file");
+                GD.PrintErr("AudioDialoguePlayer.GetSilentAudioFile: Failed to load silent audio file - returning null!");
                 return null;
             }
+            GD.Print($"AudioDialoguePlayer.GetSilentAudioFile: Loaded silent audio successfully");
             return audioStream;
-        }
-
-        /// <summary>
-        /// Creates a placeholder audio stream for dialogue with flexible duration.
-        /// </summary>
-        private AudioStream CreatePlaceholderAudio(float duration)
-        {
-            return new AudioStreamGenerator { MixRate = 44100 };
-        }
-
-        private float CalculateDurationForText(string text)
-        {
-            // Average speaking rate: ~150 words per minute = ~2.5 words per second
-            // Average word length: ~5 characters
-            // So roughly 12.5 characters per second
-            // Add some padding for pauses between words
-
-            if (string.IsNullOrEmpty(text))
-            {
-                return 1.0f;
-            }
-
-            var wordCount = text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
-            var duration = Mathf.Max(1.0f, wordCount * 0.4f);
-            return duration;
         }
     }
 }

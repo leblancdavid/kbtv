@@ -67,4 +67,70 @@ namespace KBTV.Dialogue
             Source = "BroadcastCoordinator";
         }
     }
+
+    /// <summary>
+    /// Event fired when a new line becomes available for display/playback.
+    /// This is the primary event for event-driven broadcast flow.
+    /// </summary>
+    public partial class LineAvailableEvent : GameEvent
+    {
+        /// <summary>
+        /// The line that is now available for display.
+        /// </summary>
+        public BroadcastLine Line { get; }
+
+        public LineAvailableEvent(BroadcastLine line)
+        {
+            Line = line;
+            Source = "BroadcastCoordinator";
+        }
+    }
+
+    /// <summary>
+    /// Event fired when a line has completed playback.
+    /// Used to advance the broadcast state machine.
+    /// </summary>
+    public partial class LineCompletedEvent : GameEvent
+    {
+        /// <summary>
+        /// The line that completed.
+        /// </summary>
+        public BroadcastLine CompletedLine { get; }
+
+        /// <summary>
+        /// Unique identifier for the completed line.
+        /// </summary>
+        public string LineId { get; }
+
+        public LineCompletedEvent(BroadcastLine completedLine)
+        {
+            CompletedLine = completedLine;
+            LineId = completedLine.SpeakerId;
+            Source = "ConversationDisplay";
+        }
+    }
+
+    /// <summary>
+    /// Event fired when the broadcast state changes.
+    /// Used by UI and other systems to react to state transitions.
+    /// </summary>
+    public partial class BroadcastStateChangedEvent : GameEvent
+    {
+        /// <summary>
+        /// The previous state before the transition.
+        /// </summary>
+        public BroadcastCoordinator.BroadcastState OldState { get; }
+
+        /// <summary>
+        /// The new state after the transition.
+        /// </summary>
+        public BroadcastCoordinator.BroadcastState NewState { get; }
+
+        public BroadcastStateChangedEvent(BroadcastCoordinator.BroadcastState oldState, BroadcastCoordinator.BroadcastState newState)
+        {
+            OldState = oldState;
+            NewState = newState;
+            Source = "BroadcastStateManager";
+        }
+    }
 }
