@@ -775,7 +775,8 @@ namespace KBTV.Dialogue
             try
             {
                 var line = GetConversationLine();
-                GD.Print($"DEBUG: Generated line - Type: {line.Type}, Text: '{line.Text?.Substring(0, 50) ?? "null"}'");
+                string textPreview = line.Text?.Length > 50 ? line.Text.Substring(0, 50) : line.Text ?? "null";
+                GD.Print($"DEBUG: Generated line - Type: {line.Type}, Text: '{textPreview}'");
 
                 if (line.Type != BroadcastLineType.None)
                 {

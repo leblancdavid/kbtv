@@ -84,7 +84,8 @@ namespace KBTV.UI
         // Event-driven line handling instead of polling
         private void HandleLineAvailable(LineAvailableEvent @event)
         {
-            GD.Print($"DEBUG: LIVE: HandleLineAvailable received - Type={@event.Line.Type}, Speaker={@event.Line.Speaker}, Text='{@event.Line.Text?.Substring(0, 50)}'");
+            string textPreview = @event.Line.Text?.Length > 50 ? @event.Line.Text.Substring(0, 50) : @event.Line.Text ?? "null";
+            GD.Print($"DEBUG: LIVE: HandleLineAvailable received - Type={@event.Line.Type}, Speaker={@event.Line.Speaker}, Text='{textPreview}'");
 
             var line = @event.Line;
             GD.Print($"DEBUG: LIVE: Processing line - Id: {line.Id}, Phase: {line.Phase}");
