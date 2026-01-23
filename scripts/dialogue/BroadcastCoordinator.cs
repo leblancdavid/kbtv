@@ -378,6 +378,10 @@ namespace KBTV.Dialogue
             {
                 _resolvedDialogue = _currentArc.GetDialogueForMood(mood);
                 GD.Print($"DEBUG: Resolved dialogue count: {_resolvedDialogue.Count}");
+                if (_resolvedDialogue.Count == 0)
+                {
+                    GD.Print("DEBUG: WARNING - No dialogue lines found for this mood!");
+                }
             }
             else
             {
@@ -399,6 +403,9 @@ namespace KBTV.Dialogue
             _timingManager.StopLine();
             _pendingControlAction = ControlAction.None;
             GD.Print("DEBUG: OnCallerPutOnAir complete, state set to Conversation");
+
+            // Auto-generate first conversation line
+            GenerateAndPublishNextConversationLine();
 
             var startedEvent = new ConversationStartedEvent();
             ServiceRegistry.Instance.EventBus.Publish(startedEvent);
@@ -668,13 +675,22 @@ namespace KBTV.Dialogue
 
             if (!conversationJustEnded)
             {
-                GD.Print($"BroadcastCoordinator.OnLineCompleted: Advancing state from {CurrentState}");
-                _stateManager.AdvanceState();
-                GD.Print($"BroadcastCoordinator.OnLineCompleted: New state after advance = {CurrentState}");
-                if (CurrentState == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
+                // Handle conversation progression
+                if (CurrentState == BroadcastState.Conversation && _repository.OnAirCaller != null)
                 {
-                    GD.Print($"BroadcastCoordinator.OnLineCompleted: Putting next caller on air");
-                    TryPutNextCallerOnAir();
+                    GD.Print("BroadcastCoordinator.OnLineCompleted: Conversation line completed, generating next line");
+                    GenerateAndPublishNextConversationLine();
+                }
+                else
+                {
+                    GD.Print($"BroadcastCoordinator.OnLineCompleted: Advancing state from {CurrentState}");
+                    _stateManager.AdvanceState();
+                    GD.Print($"BroadcastCoordinator.OnLineCompleted: New state after advance = {CurrentState}");
+                    if (CurrentState == BroadcastState.Conversation && _repository.OnAirCaller == null && _repository.HasOnHoldCallers)
+                    {
+                        GD.Print($"BroadcastCoordinator.OnLineCompleted: Putting next caller on air");
+                        TryPutNextCallerOnAir();
+                    }
                 }
             }
 
@@ -750,6 +766,24 @@ namespace KBTV.Dialogue
             else
             {
                 GD.Print($"DEBUG: PutOnAir failed: {result.ErrorCode} - {result.ErrorMessage}");
+            }
+        }
+
+        private void GenerateAndPublishNextConversationLine()
+        {
+            GD.Print("DEBUG: GenerateAndPublishNextConversationLine called");
+            var line = GetConversationLine();
+            GD.Print($"DEBUG: Generated line - Type: {line.Type}, Text: '{line.Text?.Substring(0, 50) ?? "null"}'");
+
+            if (line.Type != BroadcastLineType.None)
+            {
+                GD.Print("DEBUG: Publishing LineAvailableEvent for conversation line");
+                ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(line));
+            }
+            else
+            {
+                GD.Print("DEBUG: No more conversation lines, transitioning to BetweenCallers");
+                _stateManager.SetState(BroadcastState.BetweenCallers);
             }
         }
 

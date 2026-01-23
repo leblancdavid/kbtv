@@ -107,14 +107,6 @@ namespace KBTV.UI
 
         public override void _Process(double delta)
         {
-            // Debug: Check conversation state and available lines
-            if (_coordinator != null && _coordinator.CurrentState == KBTV.Dialogue.BroadcastCoordinator.BroadcastState.Conversation)
-            {
-                GD.Print("DEBUG: LiveShowPanel in Conversation state");
-                var testLine = _coordinator.GetNextLine();
-                GD.Print($"DEBUG: LiveShowPanel test line - Type: {testLine.Type}, Text: '{testLine.Text?.Substring(0, 50) ?? "null"}'");
-            }
-
             // Only handle typewriter effect, line availability is now event-driven
             if (!string.IsNullOrEmpty(_currentLineText))
             {
