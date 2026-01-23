@@ -61,13 +61,14 @@ namespace KBTV.Dialogue
             LineIndex = lineIndex
         };
 
-        public static BroadcastLine VernDialogue(string text, ConversationPhase phase, string? arcId = null, int lineIndex = 0) => new()
+        public static BroadcastLine VernDialogue(string text, ConversationPhase phase, string? arcId = null, int lineIndex = 0, string? id = null) => new()
         {
             Type = BroadcastLineType.VernDialogue,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
             Phase = phase,
+            Id = id,
             ArcId = arcId,
             CallerGender = null,
             LineIndex = lineIndex

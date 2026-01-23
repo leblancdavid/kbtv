@@ -328,7 +328,7 @@ namespace KBTV.Dialogue
 
         private BroadcastLine CreateBroadcastLine(DialogueTemplate template, Speaker speaker)
         {
-            return BroadcastLine.VernDialogue(template.Text, ConversationPhase.Probe, template.Id);
+            return BroadcastLine.VernDialogue(template.Text, ConversationPhase.Probe, null, 0, template.Id);
         }
 
         public void OnAdBreakStarted()

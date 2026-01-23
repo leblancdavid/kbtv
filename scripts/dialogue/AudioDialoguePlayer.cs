@@ -177,11 +177,11 @@ namespace KBTV.Dialogue
                      line.Type == BroadcastLineType.DeadAirFiller || line.Type == BroadcastLineType.ShowClosing ||
                      line.Type == BroadcastLineType.OffTopicRemark)
             {
-                // Load Vern broadcast audio: res://assets/audio/voice/Vern/Broadcast/{mood}/{id}.mp3
-                string mood = GetVernMood();
+                // Load Vern broadcast audio: res://assets/audio/voice/Vern/Broadcast/{id}.mp3
+                // Note: Broadcast files already have mood encoded in filename (e.g., opening_irritated_3.mp3)
                 if (!string.IsNullOrEmpty(line.Id))
                 {
-                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/{line.Id}.mp3";
+                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{line.Id}.mp3";
                 }
             }
 
