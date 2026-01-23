@@ -30,6 +30,7 @@ namespace KBTV.Dialogue
         public BroadcastLine GetShowOpeningLine(VernDialogueTemplate vernDialogue)
         {
             var line = vernDialogue.GetShowOpening();
+            GD.Print($"DEBUG: GetShowOpeningLine - Line found: {line != null}, Text: '{line?.Text?.Substring(0, 50)}', Id: {line?.Id}");
             return line != null ? BroadcastLine.ShowOpening(line.Text, line.Id) : BroadcastLine.None();
         }
 

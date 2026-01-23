@@ -27,6 +27,16 @@ namespace KBTV.UI
         private float _typewriterAccumulator = 0f;
         private string _currentLineText = "";
 
+        public override void _EnterTree()
+        {
+            // Subscribe to events as early as possible to avoid missing initial line
+            if (ServiceRegistry.Instance?.EventBus != null)
+            {
+                ServiceRegistry.Instance.EventBus.Subscribe<LineAvailableEvent>(HandleLineAvailable);
+                GD.Print("DEBUG: LiveShowPanel early subscription to LineAvailableEvent");
+            }
+        }
+
         public override void _Ready()
         {
             Initialize();
@@ -47,9 +57,6 @@ namespace KBTV.UI
             _phaseLabel = GetNode<Label>("%PhaseLabel");
             _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
             _progressBar = GetNode<ProgressBar>("%ProgressBar");
-
-            // Subscribe to line available events (event-driven instead of polling)
-            ServiceRegistry.Instance.EventBus.Subscribe<LineAvailableEvent>(HandleLineAvailable);
 
             GD.Print("LiveShowPanel: Initialized with event-driven line handling");
         }
@@ -79,7 +86,7 @@ namespace KBTV.UI
         // Event-driven line handling instead of polling
         private void HandleLineAvailable(LineAvailableEvent @event)
         {
-            GD.Print($"LiveShowPanel.HandleLineAvailable: Received line - Type={@event.Line.Type}, Speaker={@event.Line.Speaker}");
+            GD.Print($"DEBUG: LiveShowPanel.HandleLineAvailable: Type={@event.Line.Type}, Speaker={@event.Line.Speaker}, Text='{@event.Line.Text?.Substring(0, 50)}'");
 
             var line = @event.Line;
 

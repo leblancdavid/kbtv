@@ -507,6 +507,7 @@ namespace KBTV.Dialogue
             _transcriptManager.AddEntry(currentLine, _repository.OnAirCaller);
 
             // Publish event for event-driven display
+            GD.Print($"DEBUG: Publishing LineAvailableEvent - Type: {currentLine.Type}, Speaker: {currentLine.Speaker}, Text: '{currentLine.Text?.Substring(0, 50)}'");
             ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(currentLine));
 
             return currentLine;
