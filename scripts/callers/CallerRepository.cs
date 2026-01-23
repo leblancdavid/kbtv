@@ -191,17 +191,22 @@ namespace KBTV.Callers
         
         public Result<Caller> PutOnAir()
         {
+            GD.Print("DEBUG: CallerRepository.PutOnAir called");
             if (IsOnAir)
             {
+                GD.Print("DEBUG: Already have caller on air, failing");
                 return Result<Caller>.Fail("Already have a caller on air", "ON_AIR_BUSY");
             }
 
             var onHold = OnHoldCallers.FirstOrDefault();
+            GD.Print($"DEBUG: OnHold callers count: {OnHoldCallers.Count}, First caller: {onHold?.Name ?? "null"}");
             if (onHold == null)
             {
+                GD.Print("DEBUG: No on-hold callers, failing");
                 return Result<Caller>.Fail("No on-hold callers", "NO_ON_HOLD");
             }
 
+            GD.Print($"DEBUG: Putting {onHold.Name} on air");
             _onAirCallerId = onHold.Id;
             onHold.SetState(CallerState.OnAir);
 

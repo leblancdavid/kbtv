@@ -143,9 +143,15 @@ namespace KBTV.Dialogue
         {
             GD.Print("DEBUG: BroadcastCoordinator.OnLiveShowStarted called");
             _broadcastActive = true;  // Enable broadcast display
-            GD.Print("DEBUG: BroadcastCoordinator setting state to ShowOpening");
             _stateManager.SetState(BroadcastState.ShowOpening);
-            GD.Print("DEBUG: BroadcastCoordinator live show initialization complete");
+            GD.Print("DEBUG: BroadcastCoordinator state set to ShowOpening");
+
+            // If there are approved callers waiting, put the first one on air
+            if (_repository.HasOnHoldCallers)
+            {
+                GD.Print("DEBUG: On-hold callers available, putting first caller on air");
+                TryPutNextCallerOnAir();
+            }
         }
 
         public void OnLiveShowEnding()
@@ -733,10 +739,17 @@ namespace KBTV.Dialogue
 
         private void TryPutNextCallerOnAir()
         {
+            GD.Print("DEBUG: TryPutNextCallerOnAir called");
             var result = _repository.PutOnAir();
+            GD.Print($"DEBUG: PutOnAir result: {result.IsSuccess}, Caller: {result.Value?.Name ?? "null"}");
             if (result.IsSuccess)
             {
+                GD.Print($"DEBUG: Calling OnCallerPutOnAir for {result.Value.Name}");
                 OnCallerPutOnAir(result.Value);
+            }
+            else
+            {
+                GD.Print($"DEBUG: PutOnAir failed: {result.ErrorCode} - {result.ErrorMessage}");
             }
         }
 
