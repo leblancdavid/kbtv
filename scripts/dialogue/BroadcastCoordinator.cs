@@ -92,12 +92,15 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
+            GD.Print("DEBUG: BroadcastCoordinator._Ready called");
             InitializeWithServices();
         }
 
         private void InitializeWithServices()
         {
+            GD.Print("DEBUG: BroadcastCoordinator.InitializeWithServices called");
             _repository = ServiceRegistry.Instance.CallerRepository;
+            GD.Print($"DEBUG: Repository assigned: {_repository != null}");
             _transcriptRepository = ServiceRegistry.Instance.TranscriptRepository;
             _arcRepository = ServiceRegistry.Instance.ArcRepository;
 
@@ -138,8 +141,11 @@ namespace KBTV.Dialogue
 
         public void OnLiveShowStarted()
         {
+            GD.Print("DEBUG: BroadcastCoordinator.OnLiveShowStarted called");
             _broadcastActive = true;  // Enable broadcast display
+            GD.Print("DEBUG: BroadcastCoordinator setting state to ShowOpening");
             _stateManager.SetState(BroadcastState.ShowOpening);
+            GD.Print("DEBUG: BroadcastCoordinator live show initialization complete");
         }
 
         public void OnLiveShowEnding()

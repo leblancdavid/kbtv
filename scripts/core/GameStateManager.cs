@@ -102,6 +102,7 @@ namespace KBTV.Core
 		/// </summary>
 		public void StartLiveShow()
 		{
+			GD.Print("DEBUG: GameStateManager.StartLiveShow called");
 			if (!CanStartLiveShow())
 			{
 				GD.PrintErr("GameStateManager: Cannot start live show - invalid state or no topic selected");
@@ -129,7 +130,17 @@ namespace KBTV.Core
 			}
 
 			// Initialize broadcast flow
-			ServiceRegistry.Instance.BroadcastCoordinator?.OnLiveShowStarted();
+			var coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
+			GD.Print($"DEBUG: GameStateManager checking BroadcastCoordinator: {coordinator != null}");
+			if (coordinator != null)
+			{
+				GD.Print("DEBUG: GameStateManager calling OnLiveShowStarted");
+				coordinator.OnLiveShowStarted();
+			}
+			else
+			{
+				GD.PrintErr("DEBUG: BroadcastCoordinator is null - not registered in ServiceRegistry");
+			}
 		}
 
 		/// <summary>
