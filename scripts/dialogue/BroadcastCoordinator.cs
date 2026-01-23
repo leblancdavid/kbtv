@@ -772,18 +772,37 @@ namespace KBTV.Dialogue
         private void GenerateAndPublishNextConversationLine()
         {
             GD.Print("DEBUG: GenerateAndPublishNextConversationLine called");
-            var line = GetConversationLine();
-            GD.Print($"DEBUG: Generated line - Type: {line.Type}, Text: '{line.Text?.Substring(0, 50) ?? "null"}'");
+            try
+            {
+                var line = GetConversationLine();
+                GD.Print($"DEBUG: Generated line - Type: {line.Type}, Text: '{line.Text?.Substring(0, 50) ?? "null"}'");
 
-            if (line.Type != BroadcastLineType.None)
-            {
-                GD.Print("DEBUG: Publishing LineAvailableEvent for conversation line");
-                ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(line));
+                if (line.Type != BroadcastLineType.None)
+                {
+                    GD.Print("DEBUG: About to publish LineAvailableEvent for conversation line");
+                    var eventBus = ServiceRegistry.Instance.EventBus;
+                    GD.Print($"DEBUG: EventBus available: {eventBus != null}");
+
+                    if (eventBus != null)
+                    {
+                        ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(line));
+                        GD.Print("DEBUG: LineAvailableEvent published successfully");
+                    }
+                    else
+                    {
+                        GD.Print("DEBUG: ERROR - EventBus is null, cannot publish event");
+                    }
+                }
+                else
+                {
+                    GD.Print("DEBUG: No more conversation lines, transitioning to BetweenCallers");
+                    _stateManager.SetState(BroadcastState.BetweenCallers);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                GD.Print("DEBUG: No more conversation lines, transitioning to BetweenCallers");
-                _stateManager.SetState(BroadcastState.BetweenCallers);
+                GD.Print($"DEBUG: ERROR in GenerateAndPublishNextConversationLine: {ex.Message}");
+                GD.Print($"DEBUG: Stack trace: {ex.StackTrace}");
             }
         }
 
