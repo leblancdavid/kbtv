@@ -29,8 +29,32 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            CallDeferred(nameof(InitializeDeferred));
+            Initialize();
         }
+
+        private void Initialize()
+        {
+            if (ServiceRegistry.Instance == null)
+            {
+                CallDeferred(nameof(Initialize));
+                return;
+            }
+
+            _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
+
+            _speakerIcon = GetNode<Label>("%SpeakerIcon");
+            _speakerName = GetNode<Label>("%SpeakerName");
+            _phaseLabel = GetNode<Label>("%PhaseLabel");
+            _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
+            _progressBar = GetNode<ProgressBar>("%ProgressBar");
+
+            // Subscribe to line available events (event-driven instead of polling)
+            ServiceRegistry.Instance.EventBus.Subscribe<LineAvailableEvent>(HandleLineAvailable);
+
+            GD.Print("LiveShowPanel: Initialized with event-driven line handling");
+        }
+
+
 
         private void InitializeDeferred()
         {
@@ -52,14 +76,12 @@ namespace KBTV.UI
             GD.Print("LiveShowPanel: Initialized");
         }
 
-        public override void _Process(double delta)
+        // Event-driven line handling instead of polling
+        private void HandleLineAvailable(LineAvailableEvent @event)
         {
-            if (_coordinator == null)
-            {
-                return;
-            }
+            GD.Print($"LiveShowPanel.HandleLineAvailable: Received line - Type={@event.Line.Type}, Speaker={@event.Line.Speaker}");
 
-            var line = _coordinator.GetNextLine();
+            var line = @event.Line;
 
             if (line.Type == BroadcastLineType.None)
             {
@@ -73,20 +95,14 @@ namespace KBTV.UI
             if (line.Text != _currentLineText)
             {
                 _currentLineText = line.Text;
-                _displayedText = line.Text;
-                _typewriterIndex = 0;
-                _typewriterAccumulator = 0f;
-
-                // Clear previous text to show only the current line
-                if (_dialogueLabel != null)
-                {
-                    _dialogueLabel.Text = "";
-                }
-
                 UpdateLineDisplay(line);
             }
+        }
 
-            if (_typewriterIndex < _displayedText.Length)
+        public override void _Process(double delta)
+        {
+            // Only handle typewriter effect, line availability is now event-driven
+            if (!string.IsNullOrEmpty(_currentLineText))
             {
                 UpdateTypewriter(delta);
             }

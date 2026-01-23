@@ -29,6 +29,8 @@ namespace KBTV.Dialogue
                 }
 
                 var arcId = data.GetValueOrDefault("arcId", "").AsString();
+                GD.Print($"DEBUG: Parsing arc {arcId}");
+
                 var topicStr = data.GetValueOrDefault("topic", "").AsString();
                 var legitimacyStr = data.GetValueOrDefault("legitimacy", "Questionable").AsString();
                 var callerGender = data.GetValueOrDefault("callerGender", "male").AsString();
@@ -54,11 +56,16 @@ namespace KBTV.Dialogue
                     claimedTopic
                 );
 
-                var dialogueVariant = data.GetValueOrDefault("dialogue", new Godot.Collections.Dictionary());
+                var dialogueVariant = data.GetValueOrDefault("lines", new Godot.Collections.Dictionary());
                 if (dialogueVariant.VariantType != Variant.Type.Nil)
                 {
                     var dialogueList = ConvertDialogue(dialogueVariant.As<Godot.Collections.Array>());
+                    GD.Print($"DEBUG: Parsed {dialogueList.Count} dialogue lines for arc {arcId}");
                     arc.SetDialogue(dialogueList);
+                }
+                else
+                {
+                    GD.Print($"DEBUG: No 'lines' array found in JSON for arc {arcId}");
                 }
 
                 arc.SetScreeningSummary(screeningSummary);
