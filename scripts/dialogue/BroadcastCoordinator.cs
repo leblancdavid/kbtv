@@ -138,13 +138,8 @@ namespace KBTV.Dialogue
 
         public void OnLiveShowStarted()
         {
-            GD.Print("DEBUG: BroadcastCoordinator.OnLiveShowStarted called");
             _broadcastActive = true;  // Enable broadcast display
             _stateManager.SetState(BroadcastState.ShowOpening);
-            GD.Print("DEBUG: BroadcastCoordinator state set to ShowOpening, broadcast now active");
-            // _timingManager.StartLiveShow();  // Method doesn't exist
-            // _transcriptManager.StartLiveShow();  // Method doesn't exist
-            GD.Print("DEBUG: BroadcastCoordinator live show initialization complete");
         }
 
         public void OnLiveShowEnding()
@@ -458,12 +453,9 @@ namespace KBTV.Dialogue
 
         public BroadcastLine? GetNextDisplayLine()
         {
-            GD.Print($"DEBUG: BroadcastCoordinator.GetNextDisplayLine called - BroadcastActive: {_broadcastActive}, CurrentState: {CurrentState}");
-
             // Allow closing line to display even when broadcast is no longer active
             if (!_broadcastActive && CurrentState != BroadcastState.ShowClosing && CurrentState != BroadcastState.ShowEndingPending && CurrentState != BroadcastState.ShowEndingTransition && CurrentState != BroadcastState.ShowEndingQueue)
             {
-                GD.Print("DEBUG: Broadcast not active, returning null");
                 return null;
             }
 
@@ -508,7 +500,6 @@ namespace KBTV.Dialogue
             _transcriptManager.AddEntry(currentLine, _repository.OnAirCaller);
 
             // Publish event for event-driven display
-            GD.Print($"DEBUG: Publishing LineAvailableEvent - Type: {currentLine.Type}, Speaker: {currentLine.Speaker}, Text: '{currentLine.Text?.Substring(0, 50)}'");
             ServiceRegistry.Instance.EventBus.Publish(new LineAvailableEvent(currentLine));
 
             return currentLine;

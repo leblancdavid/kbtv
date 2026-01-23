@@ -40,39 +40,27 @@ namespace KBTV.Dialogue
             {
                 if (string.IsNullOrEmpty(filePath)) continue;
 
-                GD.Print($"DEBUG: Loading arc from {filePath}");
-
                 try
                 {
                     var file = FileAccess.Open(filePath, FileAccess.ModeFlags.Read);
                     if (file == null)
                     {
-                        GD.Print($"DEBUG: Failed to open file {filePath}");
                         continue;
                     }
 
                     string json = file.GetAsText();
                     file.Close();
 
-                    GD.Print($"DEBUG: JSON length: {json.Length} characters");
                     var arc = ArcJsonParser.Parse(json);
                     if (arc != null)
                     {
-                        GD.Print($"DEBUG: Successfully parsed arc {arc.ArcId} with {arc.Dialogue?.Count ?? 0} dialogue lines");
                         _arcs.Add(arc);
                     }
-                    else
-                    {
-                        GD.Print($"DEBUG: ArcJsonParser.Parse returned null for {filePath}");
-                    }
                 }
-                catch (System.Exception ex)
+                catch
                 {
-                    GD.Print($"DEBUG: Exception loading arc {filePath}: {ex.Message}");
                 }
             }
-
-            GD.Print($"DEBUG: ArcRepository initialized with {_arcs.Count} arcs total");
 
             _initialized = true;
         }
