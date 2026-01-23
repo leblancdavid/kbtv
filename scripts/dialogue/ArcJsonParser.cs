@@ -104,34 +104,50 @@ namespace KBTV.Dialogue
                 : Speaker.Caller;
 
             var text = data.GetValueOrDefault("text", "").AsString();
+            var mood = data.GetValueOrDefault("mood", "").AsString();
+
+            // Check for flattened JSON format (new format with individual speaker/mood lines)
+            if (!string.IsNullOrEmpty(speakerStr) && !string.IsNullOrEmpty(mood))
+            {
+                // This is the flattened format - create textVariants from the single line
+                var textVariants = new Godot.Collections.Dictionary<string, string>();
+                textVariants[mood.ToLowerInvariant()] = text;
+
+                if (speaker == Speaker.Vern)
+                {
+                    return ArcDialogueLine.CreateVernLine(textVariants, arcLineIndex, section);
+                }
+            }
+
+            // Fallback: check for old nested textVariants format
             var textVariantsVariant = data.GetValueOrDefault("textVariants", new Godot.Collections.Dictionary());
-            
-            Godot.Collections.Dictionary<string, string> textVariants = null;
+
+            Godot.Collections.Dictionary<string, string> legacyTextVariants = null;
             if (textVariantsVariant.VariantType != Variant.Type.Nil)
             {
                 var variants = textVariantsVariant.As<Godot.Collections.Array>();
                 if (variants != null && variants.Count > 0)
                 {
-                    textVariants = new Godot.Collections.Dictionary<string, string>();
+                    legacyTextVariants = new Godot.Collections.Dictionary<string, string>();
                     foreach (var variantItem in variants)
                     {
                         var variantDict = variantItem.As<Godot.Collections.Dictionary>();
                         if (variantDict != null)
                         {
-                            var mood = variantDict.GetValueOrDefault("mood", "").AsString();
+                            var variantMood = variantDict.GetValueOrDefault("mood", "").AsString();
                             var variantText = variantDict.GetValueOrDefault("text", "").AsString();
-                            if (!string.IsNullOrEmpty(mood))
+                            if (!string.IsNullOrEmpty(variantMood))
                             {
-                                textVariants[mood] = variantText;
+                                legacyTextVariants[variantMood] = variantText;
                             }
                         }
                     }
                 }
             }
 
-            if (speaker == Speaker.Vern && textVariants != null && textVariants.Count > 0)
+            if (speaker == Speaker.Vern && legacyTextVariants != null && legacyTextVariants.Count > 0)
             {
-                return ArcDialogueLine.CreateVernLine(textVariants, arcLineIndex, section);
+                return ArcDialogueLine.CreateVernLine(legacyTextVariants, arcLineIndex, section);
             }
 
             return new ArcDialogueLine(speaker, text, arcLineIndex, section);
