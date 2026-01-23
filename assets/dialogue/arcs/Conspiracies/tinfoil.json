@@ -1,0 +1,231 @@
+{
+  "arcId": "conspiracies_fake_tinfoil",
+  "topic": "Conspiracies",
+  "legitimacy": "Fake",
+  "screeningSummary": "Prank caller with debunked moon landing theory - admits to testing the host",
+  "callerPersonality": "charismatic_storyteller",
+  "arcNotes": "Obvious prank, moon landing debunked on air, self-aware humor",
+  "callerGender": "male",
+  "lines": [
+    {
+      "id": "conspiracies_fake_tinfoil_vern_neutral_1",
+      "text": "You're on the air. What's the conspiracy?",
+      "voiceText": "You're on the air. What's the conspiracy?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_tired_1",
+      "text": "Alright, you're on. What's the conspiracy?",
+      "voiceText": "Alright, you're on. What's the conspiracy?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_energized_1",
+      "text": "YOU ARE ON THE AIR! What's the CONSPIRACY?!",
+      "voiceText": "YOU ARE ON THE AIR! What's the CONSPIRACY?!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_irritated_1",
+      "text": "You're on. What's this about?",
+      "voiceText": "You're on. What's this about?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_gruff_1",
+      "text": "You're on. So?",
+      "voiceText": "You're on. So?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_amused_1",
+      "text": "Oh good, a conspiracy theorist! What's the theory?!",
+      "voiceText": "Oh good, a conspiracy theorist! What's the theory?!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_focused_1",
+      "text": "You're on. State your conspiracy hypothesis concisely.",
+      "voiceText": "You're on. State your conspiracy hypothesis concisely.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_caller_1",
+      "text": "Okay, so I have this theory about the moon landing. It was filmed in a warehouse in Nevada, Vern. The flag was waving because there was a fan in the studio!",
+      "voiceText": "Okay, so I have this theory about the moon landing. It was filmed in a warehouse in Nevada, Vern. The flag was waving because there was a fan in the studio!",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_neutral_2",
+      "text": "A fan in the studio. That's been thoroughly debunked. The flag had a horizontal rod to keep it extended. Any other theories?",
+      "voiceText": "A fan in the studio. That's been thoroughly debunked. The flag had a horizontal rod to keep it extended. Any other theories?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_tired_2",
+      "text": "A fan in the studio... that's been debunked. The flag had a rod. Other theories?",
+      "voiceText": "A fan in the studio... that's been debunked. The flag had a rod. Other theories?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_energized_2",
+      "text": "A FAN IN THE STUDIO! This is AMAZING! Wait - it's been DEBUNKED!",
+      "voiceText": "A FAN IN THE STUDIO! This is AMAZING! Wait - it's been DEBUNKED!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_irritated_2",
+      "text": "A fan in the studio. Let me guess - the flag had a rod? Any other theories?",
+      "voiceText": "A fan in the studio. Let me guess - the flag had a rod? Any other theories?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_gruff_2",
+      "text": "Fan in the studio. Debunked. The flag had a rod. What else?",
+      "voiceText": "Fan in the studio. Debunked. The flag had a rod. What else?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_amused_2",
+      "text": "A FAN IN THE STUDIO! This is PERFECT radio! But wait - it's been DEBUNKED!",
+      "voiceText": "A FAN IN THE STUDIO! This is PERFECT radio! But wait - it's been DEBUNKED!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_focused_2",
+      "text": "Horizontal rod mechanism has been extensively documented. What additional hypotheses do you possess?",
+      "voiceText": "Horizontal rod mechanism has been extensively documented. What additional hypotheses do you possess?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_caller_2",
+      "text": "Well, no, but think about it - the astronauts never went back! Why wouldn't they go back if they really landed?!",
+      "voiceText": "Well, no, but think about it - the astronauts never went back! Why wouldn't they go back if they really landed?!",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_neutral_3",
+      "text": "We did go back. Apollo 12, 14, 15, 16, and 17 all landed. Multiple missions over several years.",
+      "voiceText": "We did go back. Apollo 12, 14, 15, 16, and 17 all landed. Multiple missions over several years.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_tired_3",
+      "text": "We did go back... Apollo 12, 14, 15, 16, 17... multiple missions...",
+      "voiceText": "We did go back... Apollo 12, 14, 15, 16, 17... multiple missions...",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_energized_3",
+      "text": "WE DID GO BACK! Apollo 12, 14, 15, 16, and 17! MULTIPLE MISSIONS!",
+      "voiceText": "WE DID GO BACK! Apollo 12, 14, 15, 16, and 17! MULTIPLE MISSIONS!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_irritated_3",
+      "text": "We did go back. Apollo 12, 14, 15, 16, and 17. Multiple landings. Any other theories?",
+      "voiceText": "We did go back. Apollo 12, 14, 15, 16, and 17. Multiple landings. Any other theories?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_gruff_3",
+      "text": "We went back. Multiple missions. What's your next theory?",
+      "voiceText": "We went back. Multiple missions. What's your next theory?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_amused_3",
+      "text": "WE WENT BACK! Five more landings! This is GREAT radio!",
+      "voiceText": "WE WENT BACK! Five more landings! This is GREAT radio!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_focused_3",
+      "text": "Apollo missions 12, 14, 15, 16, and 17 successfully landed. Additional lunar missions occurred. What else?",
+      "voiceText": "Apollo missions 12, 14, 15, 16, and 17 successfully landed. Additional lunar missions occurred. What else?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_caller_3",
+      "text": "Oh. I... I didn't know that part.",
+      "voiceText": "Oh. I... I didn't know that part.",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_neutral_4",
+      "text": "There's a documentary about this. It's widely available. Next caller.",
+      "voiceText": "There's a documentary about this. It's widely available. Next caller.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_tired_4",
+      "text": "There's documentaries about this... widely available. Next.",
+      "voiceText": "There's documentaries about this... widely available. Next.",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_energized_4",
+      "text": "There's DOCUMENTARIES about this! It's all ONLINE! Next caller!",
+      "voiceText": "There's DOCUMENTARIES about this! It's all ONLINE! Next caller!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_irritated_4",
+      "text": "There's a documentary. It's available. Next caller.",
+      "voiceText": "There's a documentary. It's available. Next caller.",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_gruff_4",
+      "text": "Documentary exists. Next caller.",
+      "voiceText": "Documentary exists. Next caller.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_amused_4",
+      "text": "It's all DOCUMENTED! Available everywhere! This is WHY I love this show! NEXT!",
+      "voiceText": "It's all DOCUMENTED! Available everywhere! This is WHY I love this show! NEXT!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_vern_focused_4",
+      "text": "Comprehensive documentation is readily accessible through standard research channels. Next caller.",
+      "voiceText": "Comprehensive documentation is readily accessible through standard research channels. Next caller.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_fake_tinfoil_caller_4",
+      "text": "*laughing* Okay okay, I was just testing you! You passed! Great show, Vern!",
+      "voiceText": "*laughing* Okay okay, I was just testing you! You passed! Great show, Vern!",
+      "speaker": "caller"
+    }
+  ]
+}

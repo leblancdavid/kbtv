@@ -7,6 +7,7 @@ namespace KBTV.Dialogue
         public string Speaker;
         public string SpeakerId;
         public ConversationPhase Phase;
+        public string? Id;
         public string? ArcId;
         public string? CallerGender;
         public int LineIndex;
@@ -47,13 +48,14 @@ namespace KBTV.Dialogue
             Phase = ConversationPhase.Resolution
         };
 
-        public static BroadcastLine ShowOpening(string text, int lineIndex = 0) => new()
+        public static BroadcastLine ShowOpening(string text, string? id = null, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.ShowOpening,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
             Phase = ConversationPhase.Intro,
+            Id = id,
             ArcId = null,
             CallerGender = null,
             LineIndex = lineIndex
@@ -83,49 +85,53 @@ namespace KBTV.Dialogue
             LineIndex = lineIndex
         };
 
-        public static BroadcastLine BetweenCallers(string text, int lineIndex = 0) => new()
+        public static BroadcastLine BetweenCallers(string text, string? id = null, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.BetweenCallers,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
             Phase = ConversationPhase.Resolution,
+            Id = id,
             ArcId = null,
             CallerGender = null,
             LineIndex = lineIndex
         };
 
-        public static BroadcastLine OffTopicRemark(string text, int lineIndex = 0) => new()
+        public static BroadcastLine OffTopicRemark(string text, string? id = null, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.OffTopicRemark,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
             Phase = ConversationPhase.Resolution,
+            Id = id,
             ArcId = null,
             CallerGender = null,
             LineIndex = lineIndex
         };
 
-        public static BroadcastLine DeadAirFiller(string text, int lineIndex = 0) => new()
+        public static BroadcastLine DeadAirFiller(string text, string? id = null, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.DeadAirFiller,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
             Phase = ConversationPhase.Intro,
+            Id = id,
             ArcId = null,
             CallerGender = null,
             LineIndex = lineIndex
         };
 
-        public static BroadcastLine ShowClosing(string text, int lineIndex = 0) => new()
+        public static BroadcastLine ShowClosing(string text, string? id = null, int lineIndex = 0) => new()
         {
             Type = BroadcastLineType.ShowClosing,
             Text = text,
             Speaker = "Vern",
             SpeakerId = "VERN",
             Phase = ConversationPhase.Resolution,
+            Id = id,
             ArcId = null,
             CallerGender = null,
             LineIndex = lineIndex

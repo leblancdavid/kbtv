@@ -1,0 +1,286 @@
+{
+  "arcId": "ghosts_credible_old_house",
+  "topic": "Ghosts",
+  "legitimacy": "Credible",
+  "screeningSummary": "Family in Victorian home where child describes previous owner Margaret in detail matching historical records",
+  "callerPersonality": "emotional_wreck",
+  "arcNotes": "Family with child involved, previous owner connection, child medium-like ability, escalating concern",
+  "callerGender": "male",
+  "lines": [
+    {
+      "id": "ghosts_credible_old_house_vern_neutral_1",
+      "text": "You're on the air. Tell us about your house.",
+      "voiceText": "You're on the air. Tell us about your house.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_tired_1",
+      "text": "Alright, you're on. What's this about your house?",
+      "voiceText": "Alright, you're on. What's this about your house?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_energized_1",
+      "text": "YOU ARE ON THE AIR! Tell us about your house!",
+      "voiceText": "YOU ARE ON THE AIR! Tell us about your house!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_irritated_1",
+      "text": "You're on. Make it quick - what's wrong with your house?",
+      "voiceText": "You're on. Make it quick - what's wrong with your house?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_gruff_1",
+      "text": "You're on. So?",
+      "voiceText": "You're on. So?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_amused_1",
+      "text": "Oh good, a haunted house story! Tell us everything!",
+      "voiceText": "Oh good, a haunted house story! Tell us everything!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_focused_1",
+      "text": "You're on. Describe the residential property and any unusual phenomena.",
+      "voiceText": "You're on. Describe the residential property and any unusual phenomena.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_credible_old_house_caller_1",
+      "text": "Vern, my family moved into an old Victorian six months ago. I don't think we're alone in there, and I've tried to explain it away but I can't anymore.",
+      "voiceText": "Vern, my family moved into an old Victorian six months ago. I don't think we're alone in there, and I've tried to explain it away but I can't anymore.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_neutral_2",
+      "text": "What's been happening? Walk me through it.",
+      "voiceText": "What's been happening? Walk me through it.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_tired_2",
+      "text": "What's been happening... alright, walk me through it.",
+      "voiceText": "What's been happening... alright, walk me through it.",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_energized_2",
+      "text": "This is gonna be GOOD! What's been happening?!",
+      "voiceText": "This is gonna be GOOD! What's been happening?!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_irritated_2",
+      "text": "What's been happening. Let me guess - spooky stuff?",
+      "voiceText": "What's been happening. Let me guess - spooky stuff?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_gruff_2",
+      "text": "What's been happening?",
+      "voiceText": "What's been happening?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_amused_2",
+      "text": "Six months in a VICTORIAN and you DON'T think you're alone?! This is EXCITING!",
+      "voiceText": "Six months in a VICTORIAN and you DON'T think you're alone?! This is EXCITING!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_focused_2",
+      "text": "Duration of occupancy is six months. What specific phenomena have you observed?",
+      "voiceText": "Duration of occupancy is six months. What specific phenomena have you observed?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_credible_old_house_caller_2",
+      "text": "Started small. Footsteps upstairs when everyone's downstairs. Doors that open on their own. Cold spots that seem to move through rooms. Normal haunting stuff, you know?",
+      "voiceText": "Started small. Footsteps upstairs when everyone's downstairs. Doors that open on their own. Cold spots that seem to move through rooms. Normal haunting stuff, you know?",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_neutral_3",
+      "text": "Old houses do strange things. Could be the structure settling, drafts, old wood shifting.",
+      "voiceText": "Old houses do strange things. Could be the structure settling, drafts, old wood shifting.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_tired_3",
+      "text": "Look, old houses settle, drafts happen... you know how it is...",
+      "voiceText": "Look, old houses settle, drafts happen... you know how it is...",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_energized_3",
+      "text": "FOOTSTEPS, DOORS OPENING, COLD SPOTS! This is AMAZING!",
+      "voiceText": "FOOTSTEPS, DOORS OPENING, COLD SPOTS! This is AMAZING!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_irritated_3",
+      "text": "Footsteps, doors, cold spots. Of course it was. Classic haunted house, right?",
+      "voiceText": "Footsteps, doors, cold spots. Of course it was. Classic haunted house, right?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_gruff_3",
+      "text": "Old houses do strange things. Could be settling.",
+      "voiceText": "Old houses do strange things. Could be settling.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_amused_3",
+      "text": "FOOTSTEPS UPSTAIRS when everyone's DOWNSTAIRS! I LOVE this show!",
+      "voiceText": "FOOTSTEPS UPSTAIRS when everyone's DOWNSTAIRS! I LOVE this show!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_focused_3",
+      "text": "Acoustic phenomena, thermal anomalies, and door movement. What structural factors have you considered?",
+      "voiceText": "Acoustic phenomena, thermal anomalies, and door movement. What structural factors have you considered?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_credible_old_house_caller_3",
+      "text": "That's what I told myself. For months. Then my seven-year-old started having conversations with someone named Margaret. At first I thought it was an imaginary friend.",
+      "voiceText": "That's what I told myself. For months. Then my seven-year-old started having conversations with someone named Margaret. At first I thought it was an imaginary friend.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_neutral_4",
+      "text": "Kids invent imaginary friends. It's common and doesn't necessarily mean anything supernatural.",
+      "voiceText": "Kids invent imaginary friends. It's common and doesn't necessarily mean anything supernatural.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_tired_4",
+      "text": "Kids make up imaginary friends... that's normal stuff...",
+      "voiceText": "Kids make up imaginary friends... that's normal stuff...",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_energized_4",
+      "text": "A SEVEN-YEAR-OLD having CONVERSATIONS! This is UNREAL!",
+      "voiceText": "A SEVEN-YEAR-OLD having CONVERSATIONS! This is UNREAL!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_irritated_4",
+      "text": "Kids invent imaginary friends. You know that, right?",
+      "voiceText": "Kids invent imaginary friends. You know that, right?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_gruff_4",
+      "text": "Kids make up imaginary friends. What's your take?",
+      "voiceText": "Kids make up imaginary friends. What's your take?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_amused_4",
+      "text": "A CHILD talking to someone named MARGARET! This is PERFECT!",
+      "voiceText": "A CHILD talking to someone named MARGARET! This is PERFECT!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_focused_4",
+      "text": "Child's imaginary companion. At what age did this begin and what are the interaction patterns?",
+      "voiceText": "Child's imaginary companion. At what age did this begin and what are the interaction patterns?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_credible_old_house_caller_4",
+      "text": "She described an elderly woman in a blue Victorian dress. Specific details - the cameo brooch she always wore, the way her hair was styled. I found an obituary - the previous owner died in that house twenty years ago. Her name was Margaret. Blue was her favorite color.",
+      "voiceText": "She described an elderly woman in a blue Victorian dress. Specific details - the cameo brooch she always wore, the way her hair was styled. I found an obituary - the previous owner died in that house twenty years ago. Her name was Margaret. Blue was her favorite color.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_neutral_5",
+      "text": "Document everything - dates, times, what happens, your daughter's descriptions. Establishing patterns helps understand the nature of what's happening. Thanks for calling in.",
+      "voiceText": "Document everything - dates, times, what happens, your daughter's descriptions. Establishing patterns helps understand the nature of what's happening. Thanks for calling in.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_tired_5",
+      "text": "Yeah, maybe document stuff if you want. Thanks for calling.",
+      "voiceText": "Yeah, maybe document stuff if you want. Thanks for calling.",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_energized_5",
+      "text": "Document EVERYTHING! This is INCREDIBLE! Margaret in BLUE!",
+      "voiceText": "Document EVERYTHING! This is INCREDIBLE! Margaret in BLUE!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_irritated_5",
+      "text": "Right, well... document it if you want. Thanks for calling.",
+      "voiceText": "Right, well... document it if you want. Thanks for calling.",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_gruff_5",
+      "text": "Good report. Document what you can. Thanks.",
+      "voiceText": "Good report. Document what you can. Thanks.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_amused_5",
+      "text": "This is PERFECT! Document everything and SEND IT TO US!",
+      "voiceText": "This is PERFECT! Document everything and SEND IT TO US!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_credible_old_house_vern_focused_5",
+      "text": "Please document specific dates, times, observed behaviors, and your daughter's detailed descriptions. Pattern analysis requires systematic data collection.",
+      "voiceText": "Please document specific dates, times, observed behaviors, and your daughter's detailed descriptions. Pattern analysis requires systematic data collection.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_credible_old_house_caller_5",
+      "text": "Good idea. Thank you for listening, Vern. I just needed to tell someone who wouldn't just laugh it off.",
+      "voiceText": "Good idea. Thank you for listening, Vern. I just needed to tell someone who wouldn't just laugh it off.",
+      "speaker": "caller"
+    }
+  ]
+}

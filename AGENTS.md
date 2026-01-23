@@ -72,6 +72,61 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
 
+## File Structure
+
+```
+scripts/
+├── core/           # Core patterns (ServiceRegistry, EventAggregator, GameStateManager)
+├── managers/       # Game managers (TimeManager, ListenerManager, EconomyManager)
+├── callers/        # Caller domain (Caller, CallerQueue, CallerGenerator, CallerRepository)
+├── screening/      # Screening workflow (ScreeningController, ScreeningSession)
+├── ui/             # UI components and managers (UIManager, panels, components)
+├── economy/        # Money system (EconomyManager, IncomeCalculator)
+├── persistence/    # Save/load (SaveManager, SaveData, ISaveable)
+├── data/           # Data models (VernStats, Stat, StatModifier, StatType)
+├── dialogue/       # Conversation arcs (ConversationManager, ArcRepository, ArcJsonParser)
+├── audio/          # Audio configs (AudioManager, BumperConfig, TransitionMusicConfig)
+├── ads/            # Ad system (AdData, AdType)
+├── upgrades/       # Equipment upgrades (EquipmentConfig, EquipmentUpgrade, EquipmentType)
+└── patterns/       # Result<T> type pattern
+
+scenes/
+├── Main.tscn              # Main game scene
+└── ui/                    # UI panel scenes
+    ├── TabContainerUI.tscn
+    ├── ScreeningPanel.tscn
+    ├── CallerPanel.tscn
+    └── ...
+
+assets/
+├── dialogue/              # JSON conversation arc files (flattened by topic)
+│   ├── UFOs/             # UFO arcs (pilot.json, dashcam_trucker.json, etc.)
+│   ├── Ghosts/           # Ghost arcs
+│   ├── Cryptids/         # Cryptid arcs
+│   └── Conspiracies/     # Conspiracy arcs
+├── audio/                 # Audio assets
+│   ├── voice/            # AI-generated voice files
+│   │   ├── Vern/         # Host dialogue (~200 files)
+│   │   │   ├── Broadcast/# Show openings/closings (149 files, flat)
+│   │   │   │   ├── opening_1.mp3
+│   │   │   │   ├── closing_35.mp3
+│   │   │   │   └── deadair_16.mp3
+│   │   │   └── ConversationArcs/  # Arc conversations (topic-organized)
+│   │   │       ├── UFOs/         # ufos_compelling_vern_neutral_1.mp3
+│   │   │       ├── Ghosts/       # ghosts_credible_vern_focused_1.mp3
+│   │   │       └── ...
+│   │   └── Callers/      # Caller dialogue (83 files, topic-organized)
+│   │       ├── UFOs/     # UFO caller audio
+│   │       ├── Ghosts/   # Ghost caller audio
+│   │       └── ...
+│   ├── bumpers/          # Station branding audio
+│   ├── music/            # Background music
+│   └── ads/              # Commercial jingles
+├── stats/                 # VernStats resource files
+├── topics/                # Topic definition files
+└── items/                 # Item definition files
+```
+
 ## Architecture Patterns
 
 ### Service Registry Pattern
@@ -192,7 +247,7 @@ private void RetryInitialization()
 - `GlobalTransitionManager` - Handles fade-to-black transitions
 - `BroadcastCoordinator` - Manages broadcast flow and dialogue timing
 - `TranscriptRepository` - Stores broadcast transcript entries
-- `ArcRepository` - Stores conversation arcs (auto-discovers from `assets/dialogue/arcs/`)
+- `ArcRepository` - Stores conversation arcs (auto-discovers from `assets/dialogue/arcs/{topic}/`)
 
 ### Observer Pattern
 

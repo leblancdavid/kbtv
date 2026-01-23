@@ -30,7 +30,7 @@ namespace KBTV.Dialogue
         public BroadcastLine GetShowOpeningLine(VernDialogueTemplate vernDialogue)
         {
             var line = vernDialogue.GetShowOpening();
-            return line != null ? BroadcastLine.ShowOpening(line.Text) : BroadcastLine.None();
+            return line != null ? BroadcastLine.ShowOpening(line.Text, line.Id) : BroadcastLine.None();
         }
 
         public BroadcastLine GetBetweenCallersLine(VernDialogueTemplate vernDialogue)
@@ -40,25 +40,25 @@ namespace KBTV.Dialogue
             var mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
 
             var line = vernDialogue.GetBetweenCallers(mood);
-            return line != null ? BroadcastLine.BetweenCallers(line.Text) : BroadcastLine.None();
+            return line != null ? BroadcastLine.BetweenCallers(line.Text, line.Id) : BroadcastLine.None();
         }
 
         public BroadcastLine GetFillerLine(VernDialogueTemplate vernDialogue)
         {
             var line = vernDialogue.GetDeadAirFiller();
-            return line != null ? BroadcastLine.DeadAirFiller(line.Text) : BroadcastLine.None();
+            return line != null ? BroadcastLine.DeadAirFiller(line.Text, line.Id) : BroadcastLine.None();
         }
 
         public BroadcastLine GetOffTopicRemarkLine(VernDialogueTemplate vernDialogue)
         {
             var line = vernDialogue.GetOffTopicRemark();
-            return line != null ? BroadcastLine.OffTopicRemark(line.Text) : BroadcastLine.None();
+            return line != null ? BroadcastLine.OffTopicRemark(line.Text, line.Id) : BroadcastLine.None();
         }
 
         public BroadcastLine GetShowClosingLine(VernDialogueTemplate vernDialogue)
         {
             var line = vernDialogue.GetShowClosing();
-            return line != null ? BroadcastLine.ShowClosing(line.Text) : BroadcastLine.None();
+            return line != null ? BroadcastLine.ShowClosing(line.Text, line.Id) : BroadcastLine.None();
         }
     }
 }

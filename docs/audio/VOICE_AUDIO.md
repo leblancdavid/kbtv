@@ -12,11 +12,12 @@ This document outlines the strategy for producing voice audio for KBTV's dialogu
 
 | Category | Description | Actual Files Generated |
 |----------|-------------|-------------------------|
-| **Conversation Arcs** | 17 caller arcs × 4-5 dialogue lines each | 83 caller audio files |
-| **Vern Audio** | Main broadcasts and conversation responses | 109 Vern audio files |
-| **Total Audio Files** | Complete voice library | 192 MP3 files |
+| **Vern Conversation Arcs** | 15 topic arcs × 35 mood variants each | 525 Vern conversation files |
+| **Caller Conversation Arcs** | 15 topic arcs × 5-6 dialogue lines each | 83 caller audio files |
+| **Vern Broadcast Audio** | Show openings/closings, between-callers, dead air | 40 broadcast files |
+| **Total Audio Files** | Complete voice library | 648 MP3 files |
 
-**Total unique audio files generated: 192 files**
+**Total unique audio files generated: 648 files**
 
 ### Character Voices Needed
 
@@ -29,14 +30,15 @@ This document outlines the strategy for producing voice audio for KBTV's dialogu
 
 ### Chosen: Pre-Generated with ElevenLabs API
 
-All audio is generated using ElevenLabs' professional-grade AI voice synthesis, then imported into Godot as AudioStream resources.
+All audio is generated using ElevenLabs' professional-grade AI voice synthesis with custom voice cloning for Vern, then imported into Godot as AudioStream resources.
 
 **Why ElevenLabs?**
 - Professional broadcast-quality voices
 - Extensive voice library with personality diversity
-- Emotion and style control
-- Vern voice cloned from Art Bell reference audio
+- Emotion and style control via API parameters
+- Vern voice cloned from Art Bell reference audio (authentic gravelly radio host)
 - Superior quality to offline TTS engines
+- Built-in voice archetypes for diverse caller voices
 
 **Why Pre-Generated?**
 - Simpler Godot integration (just load AudioStream resources)
@@ -48,19 +50,24 @@ All audio is generated using ElevenLabs' professional-grade AI voice synthesis, 
 ### Generation Workflow
 
 ```
-1. Dialogue JSON files (arcs, broadcasts)
+1. Dialogue JSON files (conversation arcs + broadcast content)
         ↓
-2. ElevenLabs voice cloning (Vern) or voice selection (callers)
+2. ElevenLabs voice setup (clone Vern from Art Bell audio)
         ↓
-3. Python script generates MP3 for each line via API
+3. Python generation script (generate_arc_audio.py)
+        ├── Speaker filtering (--speaker vern|caller|both)
+        ├── Mood-based voice parameters for Vern
+        └── Voice archetypes for callers
         ↓
-4. Smart file skipping (regenerate only changed content)
+4. Smart file skipping (--force to regenerate existing)
         ↓
-5. Organize by topic folders (res://assets/audio/voice/Callers/)
+5. Automatic organization by speaker type:
+        ├── Vern/ConversationArcs/{topic}/{arc_id}/
+        └── Callers/{topic}/{arc_id}/
         ↓
 6. Import to Godot project
         ↓
-7. Godot audio bus system applies effects at runtime
+7. Godot audio bus system applies runtime effects
 
 **Note**: Audio effects (phone filter, radio compression, static) are applied at runtime in Godot, not baked into the files. This enables the equipment upgrade system to dynamically improve audio quality.
 
@@ -508,8 +515,8 @@ Note: The address does NOT include topic prefix. The arcId from the JSON is used
 **Broadcast clips:**
 ```
 Address: vern_{category}_{index:D3}
-Example: vern_opening_001
-File:    Assets/Audio/Voice/Vern/Broadcast/Opening/vern_opening_001.ogg
+Example: opening_1
+File:    res://assets/audio/voice/Vern/Broadcast/opening_1.mp3
 ```
 
 ### Typewriter Synchronization
@@ -541,32 +548,39 @@ To avoid loading all 950+ clips at once:
 3. **Unload on conversation end**: Release clips when conversation completes
 4. **Broadcast clips**: Load on-demand, cache for session duration
 
-### Addressables Configuration
+### Godot ResourceLoader Configuration
 
-The voice audio system uses Godot ResourceLoader for efficient async loading. Configuration is automated via editor scripts.
+The voice audio system uses Godot's ResourceLoader for efficient async loading and caching.
 
-#### Automated Setup (Recommended)
+#### Audio File Organization
 
-Run the setup script: **Tools/AudioGeneration/setup_voice_audio.py**
+Voice audio is loaded dynamically via `GD.Load<AudioStream>()`:
 
-This will:
-1. Create/find Addressables settings
-2. Create a "VoiceAudio" group
-3. Mark all `.ogg` files in `Assets/Audio/Voice/Vern/Broadcast/` and `Assets/Audio/Voice/Callers/` as Addressable
-4. Set each file's address to its filename (without extension)
+```csharp
+// Broadcast audio
+var broadcastStream = GD.Load<AudioStream>($"res://assets/audio/voice/Vern/Broadcast/{line.Id}.mp3");
 
-#### Manual Verification
+// Arc conversation audio
+var arcStream = GD.Load<AudioStream>($"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{line.Id}.mp3");
 
-After running the setup, verify in **Window > Asset Management > Addressables > Groups**:
-- A "VoiceAudio" group should exist
-- It should contain ~950 audio clip entries
-- Each entry's address should match its filename (e.g., `ufo_credible_dashcam_neutral_001_vern`)
+// Caller audio
+var callerStream = GD.Load<AudioStream>($"res://assets/audio/voice/Callers/{topic}/{arcId}_{gender}_{lineIndex}.mp3");
+```
 
-#### Building for Release
+#### Import Settings
 
-For standalone builds, you must build the Addressables catalog:
-1. Open **Window > Asset Management > Addressables > Groups**
-2. Click **Build > New Build > Default Build Script**
+All voice MP3 files are imported with:
+- **Load Type**: Decompress on Load (for short dialogue clips)
+- **Sample Rate**: 44.1 kHz
+- **Format**: Mono (for dialogue efficiency)
+- **Compression**: OGG Vorbis with quality setting
+
+#### Runtime Loading
+
+- **Broadcast clips**: Load on-demand, cache per session
+- **Arc clips**: Preload conversation audio when entering dialogue
+- **Caller clips**: Load dynamically during calls
+- **Memory management**: Release cached clips when conversations end
 
 Note: In Godot Editor, resources load directly from the project.
 

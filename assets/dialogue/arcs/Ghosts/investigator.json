@@ -1,0 +1,286 @@
+{
+  "arcId": "ghosts_compelling_investigator",
+  "topic": "Ghosts",
+  "legitimacy": "Compelling",
+  "callerGender": "female",
+  "screeningSummary": "Professional paranormal researcher with four-device corroboration of apparition - submitted for peer review",
+  "callerPersonality": "cold_factual",
+  "arcNotes": "Professional paranormal researcher, four-device corroboration, submitted for peer review, rigorous methodology",
+  "lines": [
+    {
+      "id": "ghosts_compelling_investigator_vern_neutral_1",
+      "text": "You're on the air. I understand you're a professional investigator?",
+      "voiceText": "You're on the air. I understand you're a professional investigator?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_tired_1",
+      "text": "Alright, you're on. Professional investigator, huh?",
+      "voiceText": "Alright, you're on. Professional investigator, huh?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_energized_1",
+      "text": "YOU ARE ON THE AIR! A PROFESSIONAL INVESTIGATOR! This is gonna be GOOD!",
+      "voiceText": "YOU ARE ON THE AIR! A PROFESSIONAL INVESTIGATOR! This is gonna be GOOD!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_irritated_1",
+      "text": "You're on. Let me guess - you found definitive proof of ghosts?",
+      "voiceText": "You're on. Let me guess - you found definitive proof of ghosts?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_gruff_1",
+      "text": "You're on. So you're an investigator? What about it?",
+      "voiceText": "You're on. So you're an investigator? What about it?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_amused_1",
+      "text": "Oh, a PROFESSIONAL investigator! This I gotta hear! What's your story?",
+      "voiceText": "Oh, a PROFESSIONAL investigator! This I gotta hear! What's your story?",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_focused_1",
+      "text": "You're on. What is your professional background and investigative methodology?",
+      "voiceText": "You're on. What is your professional background and investigative methodology?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_compelling_investigator_caller_1",
+      "text": "Paranormal researcher with twenty years of experience, Vern. I use scientific methodology - full spectrum cameras, EMF sensors, infrasound detectors. Last month I documented something unprecedented.",
+      "voiceText": "Paranormal researcher with twenty years of experience, Vern. I use scientific methodology - full spectrum cameras, EMF sensors, infrasound detectors. Last month I documented something unprecedented.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_neutral_2",
+      "text": "Scientific methodology in this field is rare. What did you document?",
+      "voiceText": "Scientific methodology in this field is rare. What did you document?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_tired_2",
+      "text": "Scientific methodology... alright, what'd you document?",
+      "voiceText": "Scientific methodology... alright, what'd you document?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_energized_2",
+      "text": "TWENTY YEARS of experience with SCIENTIFIC METHODOLOGY! This is AMAZING!",
+      "voiceText": "TWENTY YEARS of experience with SCIENTIFIC METHODOLOGY! This is AMAZING!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_irritated_2",
+      "text": "Twenty years. Let me guess - you got definitive proof?",
+      "voiceText": "Twenty years. Let me guess - you got definitive proof?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_gruff_2",
+      "text": "Twenty years, scientific methodology. Fine, what'd you find?",
+      "voiceText": "Twenty years, scientific methodology. Fine, what'd you find?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_amused_2",
+      "text": "TWENTY YEARS of paranormal research! I LOVE this! What did you document?!",
+      "voiceText": "TWENTY YEARS of paranormal research! I LOVE this! What did you document?!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_focused_2",
+      "text": "Twenty years of research with scientific instrumentation. What specific phenomenon did you document?",
+      "voiceText": "Twenty years of research with scientific instrumentation. What specific phenomenon did you document?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_compelling_investigator_caller_2",
+      "text": "An apparition captured on four different device types simultaneously. Visual spectrum camera, thermal imaging, EMF sensor, and audio recording. All showing the same phenomenon at the same moment.",
+      "voiceText": "An apparition captured on four different device types simultaneously. Visual spectrum camera, thermal imaging, EMF sensor, and audio recording. All showing the same phenomenon at the same moment.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_neutral_3",
+      "text": "Four devices, same moment. That's significant corroboration.",
+      "voiceText": "Four devices, same moment. That's significant corroboration.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_tired_3",
+      "text": "Four devices, same moment... okay, that's something.",
+      "voiceText": "Four devices, same moment... okay, that's something.",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_energized_3",
+      "text": "FOUR DIFFERENT DEVICES at the SAME MOMENT! This is INCREDIBLE!",
+      "voiceText": "FOUR DIFFERENT DEVICES at the SAME MOMENT! This is INCREDIBLE!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_irritated_3",
+      "text": "Four devices. Let me guess - they all malfunctioned at once?",
+      "voiceText": "Four devices. Let me guess - they all malfunctioned at once?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_gruff_3",
+      "text": "Four devices. That's... actually significant.",
+      "voiceText": "Four devices. That's... actually significant.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_amused_3",
+      "text": "FOUR DEVICES showing the SAME THING! This is PERFECT evidence!",
+      "voiceText": "FOUR DEVICES showing the SAME THING! This is PERFECT evidence!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_focused_3",
+      "text": "Four simultaneous device captures. What was the thermal signature and EMF reading correlation?",
+      "voiceText": "Four simultaneous device captures. What was the thermal signature and EMF reading correlation?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_compelling_investigator_caller_3",
+      "text": "Different manufacturers, different technologies. The statistical probability of synchronized equipment malfunction across all four is effectively zero. I've isolated a thirty-second window where something was present in that room that shouldn't have been.",
+      "voiceText": "Different manufacturers, different technologies. The statistical probability of synchronized equipment malfunction across all four is effectively zero. I've isolated a thirty-second window where something was present in that room that shouldn't have been.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_neutral_4",
+      "text": "Could correlated equipment malfunctions explain this? Electrical interference, environmental factors?",
+      "voiceText": "Could correlated equipment malfunctions explain this? Electrical interference, environmental factors?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_tired_4",
+      "text": "Could it all be equipment issues? You know how it is with sensitive gear...",
+      "voiceText": "Could it all be equipment issues? You know how it is with sensitive gear...",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_energized_4",
+      "text": "SYNC EQUIPMENT MALFUNCTION is STATISTICALLY IMPOSSIBLE! This is HUGE!",
+      "voiceText": "SYNC EQUIPMENT MALFUNCTION is STATISTICALLY IMPOSSIBLE! This is HUGE!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_irritated_4",
+      "text": "Right, because synchronized malfunctions never happen. What's your explanation?",
+      "voiceText": "Right, because synchronized malfunctions never happen. What's your explanation?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_gruff_4",
+      "text": "Could be interference. What's your take on that?",
+      "voiceText": "Could be interference. What's your take on that?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_amused_4",
+      "text": "Statistically ZERO chance of malfunction! This is the BIGGEST story I've heard!",
+      "voiceText": "Statistically ZERO chance of malfunction! This is the BIGGEST story I've heard!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_focused_4",
+      "text": "Regarding equipment malfunction hypothesis - what control measurements ruled out environmental factors?",
+      "voiceText": "Regarding equipment malfunction hypothesis - what control measurements ruled out environmental factors?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_compelling_investigator_caller_4",
+      "text": "I considered that extensively. The devices are battery-powered and isolated. The thermal signature shows a localized temperature anomaly that moved deliberately - not random interference. And the audio includes structured sounds that match no conventional source.",
+      "voiceText": "I considered that extensively. The devices are battery-powered and isolated. The thermal signature shows a localized temperature anomaly that moved deliberately - not random interference. And the audio includes structured sounds that match no conventional source.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_neutral_5",
+      "text": "Send us the findings when they're published or available. If this holds up under independent scrutiny, it's significant. Thank you for applying real scientific methodology to this field.",
+      "voiceText": "Send us the findings when they're published or available. If this holds up under independent scrutiny, it's significant. Thank you for applying real scientific methodology to this field.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_tired_5",
+      "text": "Yeah, send the findings in if you want. Thanks for calling.",
+      "voiceText": "Yeah, send the findings in if you want. Thanks for calling.",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_energized_5",
+      "text": "Send us EVERYTHING! This is REVOLUTIONARY! Thank you for being a REAL scientist!",
+      "voiceText": "Send us EVERYTHING! This is REVOLUTIONARY! Thank you for being a REAL scientist!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_irritated_5",
+      "text": "Alright, that's... actually compelling. Send it in if you want. Thanks.",
+      "voiceText": "Alright, that's... actually compelling. Send it in if you want. Thanks.",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_gruff_5",
+      "text": "Good work. Send your findings in. We need more people doing real science.",
+      "voiceText": "Good work. Send your findings in. We need more people doing real science.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_amused_5",
+      "text": "This is PERFECT! Send us your research! You're AMAZING!",
+      "voiceText": "This is PERFECT! Send us your research! You're AMAZING!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_compelling_investigator_vern_focused_5",
+      "text": "Please submit your full documentation for peer review and independent replication attempts. Rigorous methodology is exactly what this field needs.",
+      "voiceText": "Please submit your full documentation for peer review and independent replication attempts. Rigorous methodology is exactly what this field needs.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_compelling_investigator_caller_5",
+      "text": "Appreciate the support, Vern. The evidence exists whether people want to believe it or not. My job is just to document it properly.",
+      "voiceText": "Appreciate the support, Vern. The evidence exists whether people want to believe it or not. My job is just to document it properly.",
+      "speaker": "caller"
+    }
+  ]
+}

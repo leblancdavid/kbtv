@@ -1,0 +1,286 @@
+{
+  "arcId": "conspiracies_credible_govt_contractor",
+  "topic": "Conspiracies",
+  "legitimacy": "Credible",
+  "screeningSummary": "Former federal contractor describing domestic surveillance infrastructure - predictive behavioral analysis",
+  "callerPersonality": "gruff_experienced",
+  "arcNotes": "Former federal contractor, surveillance infrastructure details, moral objection, personal risk",
+  "callerGender": "male",
+  "lines": [
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_neutral_1",
+      "text": "You're on the air. You've got some inside knowledge?",
+      "voiceText": "You're on the air. You've got some inside knowledge?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_tired_1",
+      "text": "Alright, you're on. Some inside knowledge, huh?",
+      "voiceText": "Alright, you're on. Some inside knowledge, huh?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_energized_1",
+      "text": "YOU ARE ON THE AIR! With INSIDE KNOWLEDGE! This is GONNA be GOOD!",
+      "voiceText": "YOU ARE ON THE AIR! With INSIDE KNOWLEDGE! This is GONNA be GOOD!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_irritated_1",
+      "text": "You're on. Let me guess - you know government secrets?",
+      "voiceText": "You're on. Let me guess - you know government secrets?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_gruff_1",
+      "text": "You're on. So you've got inside knowledge? What about it?",
+      "voiceText": "You're on. So you've got inside knowledge? What about it?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_amused_1",
+      "text": "Oh, you have INSIDE KNOWLEDGE! This I gotta hear!",
+      "voiceText": "Oh, you have INSIDE KNOWLEDGE! This I gotta hear!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_focused_1",
+      "text": "You're on. What specific knowledge do you possess regarding government operations?",
+      "voiceText": "You're on. What specific knowledge do you possess regarding government operations?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_caller_1",
+      "text": "Eight years as a federal contractor, Vern. I can't say which agency, but I've seen how the surveillance apparatus actually works from the inside.",
+      "voiceText": "Eight years as a federal contractor, Vern. I can't say which agency, but I've seen how the surveillance apparatus actually works from the inside.",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_neutral_2",
+      "text": "What can you tell us about the surveillance programs?",
+      "voiceText": "What can you tell us about the surveillance programs?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_tired_2",
+      "text": "Eight years... alright, what can you tell us?",
+      "voiceText": "Eight years... alright, what can you tell us?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_energized_2",
+      "text": "EIGHT YEARS as a FEDERAL CONTRACTOR! This is AMAZING!",
+      "voiceText": "EIGHT YEARS as a FEDERAL CONTRACTOR! This is AMAZING!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_irritated_2",
+      "text": "Eight years. Let me guess - they're watching everything?",
+      "voiceText": "Eight years. Let me guess - they're watching everything?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_gruff_2",
+      "text": "Eight years. Fine, what've you got?",
+      "voiceText": "Eight years. Fine, what've you got?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_amused_2",
+      "text": "EIGHT YEARS of seeing the SURVEILLANCE APPARATUS! This is PERFECT!",
+      "voiceText": "EIGHT YEARS of seeing the SURVEILLANCE APPARATUS! This is PERFECT!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_focused_2",
+      "text": "Federal contracting duration: eight years. What specific surveillance methodologies have you observed?",
+      "voiceText": "Federal contracting duration: eight years. What specific surveillance methodologies have you observed?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_caller_2",
+      "text": "What Snowden revealed was real, but it was also a controlled leak. The scope of domestic monitoring is far beyond what was disclosed. Every smart device, every phone with a microphone, every car with GPS - it's all being collected and processed.",
+      "voiceText": "What Snowden revealed was real, but it was also a controlled leak. The scope of domestic monitoring is far beyond what was disclosed. Every smart device, every phone with a microphone, every car with GPS - it's all being collected and processed.",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_neutral_3",
+      "text": "Processing for what purpose?",
+      "voiceText": "Processing for what purpose?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_tired_3",
+      "text": "Processing... for what purpose?",
+      "voiceText": "Processing... for what purpose?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_energized_3",
+      "text": "EVERY SMART DEVICE! EVERY PHONE! EVERY CAR! This is TERRIFYING!",
+      "voiceText": "EVERY SMART DEVICE! EVERY PHONE! EVERY CAR! This is TERRIFYING!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_irritated_3",
+      "text": "Processing for what purpose? Security? Control?",
+      "voiceText": "Processing for what purpose? Security? Control?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_gruff_3",
+      "text": "Processing for what purpose?",
+      "voiceText": "Processing for what purpose?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_amused_3",
+      "text": "EVERYTHING is being COLLECTED and PROCESSED! This is the BIGGEST story!",
+      "voiceText": "EVERYTHING is being COLLECTED and PROCESSED! This is the BIGGEST story!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_focused_3",
+      "text": "Data collection and processing objectives. What specific purposes drive the surveillance infrastructure?",
+      "voiceText": "Data collection and processing objectives. What specific purposes drive the surveillance infrastructure?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_caller_3",
+      "text": "Predictive analysis. Behavioral prediction. They can identify potential threats before those threats even formulate. The infrastructure is built, the algorithms are running, and the oversight is minimal.",
+      "voiceText": "Predictive analysis. Behavioral prediction. They can identify potential threats before those threats even formulate. The infrastructure is built, the algorithms are running, and the oversight is minimal.",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_neutral_4",
+      "text": "This has all been alleged before. Without documentation, it's just testimony.",
+      "voiceText": "This has all been alleged before. Without documentation, it's just testimony.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_tired_4",
+      "text": "This has all been said before... without docs, it's just words...",
+      "voiceText": "This has all been said before... without docs, it's just words...",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_energized_4",
+      "text": "PREDICTIVE ANALYSIS of BEHAVIOR! This is TERRIFYING but INTRIGUING!",
+      "voiceText": "PREDICTIVE ANALYSIS of BEHAVIOR! This is TERRIFYING but INTRIGUING!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_irritated_4",
+      "text": "This has all been alleged before. What's your proof?",
+      "voiceText": "This has all been alleged before. What's your proof?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_gruff_4",
+      "text": "Allegations without docs... what's your evidence?",
+      "voiceText": "Allegations without docs... what's your evidence?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_amused_4",
+      "text": "This is INCREDIBLE! But we need DOCUMENTATION!",
+      "voiceText": "This is INCREDIBLE! But we need DOCUMENTATION!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_focused_4",
+      "text": "Predictive behavioral analysis. These allegations require documentary evidence for verification.",
+      "voiceText": "Predictive behavioral analysis. These allegations require documentary evidence for verification.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_caller_4",
+      "text": "I understand the skepticism. I was a skeptic too before I saw the systems myself. But I've taken precautions and I'm speaking out because people deserve to know what's being done in their name.",
+      "voiceText": "I understand the skepticism. I was a skeptic too before I saw the systems myself. But I've taken precautions and I'm speaking out because people deserve to know what's being done in their name.",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_neutral_5",
+      "text": "Thank you for coming forward. Be careful out there. Your anonymity matters.",
+      "voiceText": "Thank you for coming forward. Be careful out there. Your anonymity matters.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_tired_5",
+      "text": "Yeah, thanks for calling. Be careful. These people are serious.",
+      "voiceText": "Yeah, thanks for calling. Be careful. These people are serious.",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_energized_5",
+      "text": "THANK YOU for your COURAGE! BE CAREFUL out there!",
+      "voiceText": "THANK YOU for your COURAGE! BE CAREFUL out there!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_irritated_5",
+      "text": "Right, well... be careful. Thanks for calling.",
+      "voiceText": "Right, well... be careful. Thanks for calling.",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_gruff_5",
+      "text": "Good report. Be careful. Thanks.",
+      "voiceText": "Good report. Be careful. Thanks.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_amused_5",
+      "text": "This is HEROIC! Thank you for SPEAKING OUT! BE CAREFUL!",
+      "voiceText": "This is HEROIC! Thank you for SPEAKING OUT! BE CAREFUL!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_vern_focused_5",
+      "text": "Whistleblowing carries significant personal risk. Protective measures are essential. Thank you for your courage.",
+      "voiceText": "Whistleblowing carries significant personal risk. Protective measures are essential. Thank you for your courage.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_credible_govt_contractor_caller_5",
+      "text": "Thank you, Vern. People deserve to know what's happening. That's why I took the risk to call.",
+      "voiceText": "Thank you, Vern. People deserve to know what's happening. That's why I took the risk to call.",
+      "speaker": "caller"
+    }
+  ]
+}

@@ -1,0 +1,286 @@
+{
+  "arcId": "ufos_compelling_pilot",
+  "topic": "UFOs",
+  "legitimacy": "Compelling",
+  "callerGender": "male",
+  "screeningSummary": "Air traffic controller with three official incident reports about radar-confirmed object with vertical acceleration",
+  "lines": [
+    {
+      "id": "ufos_compelling_pilot_vern_neutral_1",
+      "text": "You're on the air. You said you have professional experience in aviation?",
+      "voiceText": "You're on the air. You said you have professional experience in aviation?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_tired_1",
+      "text": "Alright, you're on. You said you fly or something?",
+      "voiceText": "Alright, you're on. You said you fly or something?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_energized_1",
+      "text": "YOU ARE ON THE AIR! Aviation experience, huh?! This is gonna be good!",
+      "voiceText": "YOU ARE ON THE AIR! Aviation experience, huh?! This is gonna be good!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_irritated_1",
+      "text": "You're on. Look, I've heard a lot tonight - what makes yours different?",
+      "voiceText": "You're on. Look, I've heard a lot tonight - what makes yours different?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_gruff_1",
+      "text": "You're on. So you work in aviation? What about it?",
+      "voiceText": "You're on. So you work in aviation? What about it?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_amused_1",
+      "text": "Oh, an aviation person! This I gotta hear. What's your story?",
+      "voiceText": "Oh, an aviation person! This I gotta hear. What's your story?",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_focused_1",
+      "text": "You're on the air. What's your background in aviation?",
+      "voiceText": "You're on the air. What's your background in aviation?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ufos_compelling_pilot_caller_1",
+      "text": "Air traffic controller for fifteen years, Vern. I've tracked something that to this day I cannot explain, and I've filed three official incident reports about it.",
+      "voiceText": "Air traffic controller for fifteen years, Vern. I've tracked something that to this day I cannot explain, and I've filed three official incident reports about it.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_neutral_2",
+      "text": "Three incident reports. That's serious. Tell me what you saw.",
+      "voiceText": "Three incident reports. That's serious. Tell me what you saw.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_tired_2",
+      "text": "Three reports, huh? Alright, I'll listen... what's the gist?",
+      "voiceText": "Three reports, huh? Alright, I'll listen... what's the gist?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_energized_2",
+      "text": "THREE incident reports?! This is HUGE! Every detail, don't leave anything out!",
+      "voiceText": "THREE incident reports?! This is HUGE! Every detail, don't leave anything out!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_irritated_2",
+      "text": "Three reports? You don't say. Let me guess... aliens, right?",
+      "voiceText": "Three reports? You don't say. Let me guess... aliens, right?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_gruff_2",
+      "text": "Three reports. Fine, I'll bite. What'd you see?",
+      "voiceText": "Three reports. Fine, I'll bite. What'd you see?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_amused_2",
+      "text": "Three official reports! This is fantastic - I've been waiting for a case like this!",
+      "voiceText": "Three official reports! This is fantastic - I've been waiting for a case like this!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_focused_2",
+      "text": "Three incident reports with documentation. That's a paper trail I can work with. Walk me through the timeline.",
+      "voiceText": "Three incident reports with documentation. That's a paper trail I can work with. Walk me through the timeline.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ufos_compelling_pilot_caller_2",
+      "text": "November 14th, 2:47 AM. Object appeared on primary radar at 40,000 feet, descending. No transponder, no flight plan, nothing in the system. It descended to 100 feet in four seconds.",
+      "voiceText": "November 14th, 2:47 AM. Object appeared on primary radar at 40,000 feet, descending. No transponder, no flight plan, nothing in the system. It descended to 100 feet in four seconds.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_neutral_3",
+      "text": "Four seconds. That rate of descent would destroy conventional aircraft.",
+      "voiceText": "Four seconds. That rate of descent would destroy conventional aircraft.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_tired_3",
+      "text": "Four seconds... yeah, that'd wreck most planes. So what happened next?",
+      "voiceText": "Four seconds... yeah, that'd wreck most planes. So what happened next?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_energized_3",
+      "text": "FOUR SECONDS from 40,000 feet?! That's impossible for any known aircraft!",
+      "voiceText": "FOUR SECONDS from 40,000 feet?! That's impossible for any known aircraft!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_irritated_3",
+      "text": "Four seconds. Of course it did. Let me guess - it hovered, right?",
+      "voiceText": "Four seconds. Of course it did. Let me guess - it hovered, right?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_gruff_3",
+      "text": "Four seconds. That's fast. Most planes couldn't handle that. Go on.",
+      "voiceText": "Four seconds. That's fast. Most planes couldn't handle that. Go on.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_amused_3",
+      "text": "FOUR SECONDS! The physics don't work for any normal aircraft! This is exactly why I do this show!",
+      "voiceText": "FOUR SECONDS! The physics don't work for any normal aircraft! This is exactly why I do this show!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_focused_3",
+      "text": "40,000 to 100 feet in four seconds. That's a 12,000 foot per minute descent rate. Impossible for conventional aircraft. What happened after the descent?",
+      "voiceText": "40,000 to 100 feet in four seconds. That's a 12,000 foot per minute descent rate. Impossible for conventional aircraft. What happened after the descent?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ufos_compelling_pilot_caller_3",
+      "text": "Correct. Then it hovered over the water for six minutes. Multiple controllers witnessed it. I called Coast Guard dispatch. Their boat was twelve miles out. The crew saw it visually before it accelerated straight up and vanished.",
+      "voiceText": "Correct. Then it hovered over the water for six minutes. Multiple controllers witnessed it. I called Coast Guard dispatch. Their boat was twelve miles out. The crew saw it visually before it accelerated straight up and vanished.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_neutral_4",
+      "text": "Six minutes hovering, multiple witnesses, Coast Guard confirmation. That's multiple independent confirmations.",
+      "voiceText": "Six minutes hovering, multiple witnesses, Coast Guard confirmation. That's multiple independent confirmations.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_tired_4",
+      "text": "Six minutes... Coast Guard saw it too. Alright, that's more than one person.",
+      "voiceText": "Six minutes... Coast Guard saw it too. Alright, that's more than one person.",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_energized_4",
+      "text": "SIX MINUTES of hovering with Coast Guard visual confirmation?! This is TEXTBOOK material right here!",
+      "voiceText": "SIX MINUTES of hovering with Coast Guard visual confirmation?! This is TEXTBOOK material right here!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_irritated_4",
+      "text": "Of course it hovered for six minutes. What'd it do at the end?",
+      "voiceText": "Of course it hovered for six minutes. What'd it do at the end?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_gruff_4",
+      "text": "Six minutes, multiple witnesses, Coast Guard confirmation. That's not nothing.",
+      "voiceText": "Six minutes, multiple witnesses, Coast Guard confirmation. That's not nothing.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_amused_4",
+      "text": "This is EXACTLY why I love this show! Multiple controllers, Coast Guard visual, six minutes of hovering - this is as real as it gets!",
+      "voiceText": "This is EXACTLY why I love this show! Multiple controllers, Coast Guard visual, six minutes of hovering - this is as real as it gets!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_focused_4",
+      "text": "Six minutes stationary over water, multiple radar confirmations, then vertical acceleration. That trajectory data is critical. What was the final heading before it vanished?",
+      "voiceText": "Six minutes stationary over water, multiple radar confirmations, then vertical acceleration. That trajectory data is critical. What was the final heading before it vanished?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ufos_compelling_pilot_caller_4",
+      "text": "We considered every explanation. Multiple independent radar systems, visual confirmation from a Coast Guard vessel - that's not electronic warfare, Vern. That's something else entirely. The official report was classified, but we know what we saw.",
+      "voiceText": "We considered every explanation. Multiple independent radar systems, visual confirmation from a Coast Guard vessel - that's not electronic warfare, Vern. That's something else entirely. The official report was classified, but we know what we saw.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_neutral_5",
+      "text": "Thank you for your testimony. Multiple independent confirmations make this exactly the kind of credible account that needs to be heard. We'll keep asking those questions.",
+      "voiceText": "Thank you for your testimony. Multiple independent confirmations make this exactly the kind of credible account that needs to be heard. We'll keep asking those questions.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_tired_5",
+      "text": "Yeah, someone should look into this. Thanks for calling in. We'll... we'll figure this out.",
+      "voiceText": "Yeah, someone should look into this. Thanks for calling in. We'll... we'll figure this out.",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_energized_5",
+      "text": "We're going to get ANSWERS! This is exactly why this show exists - to give people like you a platform! We're just getting started on this story!",
+      "voiceText": "We're going to get ANSWERS! This is exactly why this show exists - to give people like you a platform! We're just getting started on this story!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_irritated_5",
+      "text": "Right, well... someone should be asking questions. I guess that's us then. Thanks for calling.",
+      "voiceText": "Right, well... someone should be asking questions. I guess that's us then. Thanks for calling.",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_gruff_5",
+      "text": "Someone should be asking questions. That's what we're here for. Thanks for coming forward with this.",
+      "voiceText": "Someone should be asking questions. That's what we're here for. Thanks for coming forward with this.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_amused_5",
+      "text": "This made you question everything you thought you knew? That's exactly why I do this show! Now thousands of people heard your story. Thank you!",
+      "voiceText": "This made you question everything you thought you knew? That's exactly why I do this show! Now thousands of people heard your story. Thank you!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ufos_compelling_pilot_vern_focused_5",
+      "text": "The highest levels need to see this data. Multiple radar returns, visual confirmation, official reports - this creates a pattern that can't be ignored. Your testimony is documented. Thank you.",
+      "voiceText": "The highest levels need to see this data. Multiple radar returns, visual confirmation, official reports - this creates a pattern that can't be ignored. Your testimony is documented. Thank you.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ufos_compelling_pilot_caller_5",
+      "text": "Someone should be asking questions at the highest level. I appreciate you giving me the platform, Vern. This is bigger than any one of us.",
+      "voiceText": "Someone should be asking questions at the highest level. I appreciate you giving me the platform, Vern. This is bigger than any one of us.",
+      "speaker": "caller"
+    }
+  ],
+  "callerPersonality": "cold_factual",
+  "arcNotes": "Air traffic controller, multiple radar confirmations, Coast Guard visual, classified report, extremely credible"
+}

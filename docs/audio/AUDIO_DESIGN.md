@@ -49,10 +49,18 @@ res://assets/audio/
   music/              # Background and transitional music
     intro_music.wav   # 4s intro bumper placeholder
   voice/              # AI-generated voice files
-    Vern/             # Host dialogue (109 files)
-      ConversationArcs/  # Vern responses in conversations
-      MainBroadcast/     # Show openings/closings
-      Transitions/       # Between-caller banter
+    Vern/             # Host dialogue (~200 files)
+      Broadcast/      # Show openings/closings/dead air (149 files, flat)
+        opening_1.mp3
+        closing_35.mp3
+        deadair_16.mp3
+      ConversationArcs/  # Vern responses in conversations (organized by topic)
+        UFOs/         # UFO caller conversations
+          ufos_compelling_vern_neutral_1.mp3
+          ufos_compelling_caller_1.mp3
+        Ghosts/       # Ghost caller conversations
+        Cryptids/     # Cryptid caller conversations
+        Conspiracies/ # Conspiracy caller conversations
     Callers/         # Caller dialogue (83 files)
       Conspiracies/  # Conspiracy caller audio
       Cryptids/      # Cryptid caller audio
@@ -107,7 +115,15 @@ Ad break triggered
 
 **Voice Loading:**
 ```csharp
-var path = $"res://assets/audio/voice/Callers/{topic}/{filename}.mp3";
+// Broadcast audio (flat structure)
+var broadcastPath = $"res://assets/audio/voice/Vern/Broadcast/{line.Id}.mp3";
+
+// Arc conversation audio (topic-organized)
+var arcPath = $"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{line.Id}.mp3";
+
+// Caller audio (topic-organized)
+var callerPath = $"res://assets/audio/voice/Callers/{topic}/{filename}.mp3";
+
 var audioStream = GD.Load<AudioStream>(path);
 ```
 ```

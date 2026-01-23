@@ -12,6 +12,8 @@ public enum BroadcastLineType
     OffTopicRemark,
     Music,
     AdBreak,
-    Ad
+    Ad,
+    BreakTransition,
+    ReturnMusic
 }
 }

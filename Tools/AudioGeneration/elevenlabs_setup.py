@@ -99,7 +99,8 @@ class ElevenLabsVoiceCloner:
             print(f"Response: {response.text}")
             return None
 
-    def generate_audio(self, text, output_path=None, voice_id=None, model="eleven_flash_v2"):
+    def generate_audio(self, text, output_path=None, voice_id=None, model="eleven_flash_v2",
+                      stability=0.5, similarity_boost=0.8, style=0.5):
         """
         Generate audio using the cloned voice or voice archetype
 
@@ -108,23 +109,28 @@ class ElevenLabsVoiceCloner:
             output_path: Where to save the audio file
             voice_id: Voice ID (for cloned voices) or voice archetype name
             model: TTS model to use
+            stability: Voice stability (0-1)
+            similarity_boost: Similarity to reference (0-1)
+            style: Style exaggeration (0-1)
 
         Returns:
             output_path: Path to the generated audio file
         """
         # Handle voice archetypes vs voice IDs
-        if voice_id and not voice_id.startswith('http'):  # Voice archetype
-            # Map archetype to ElevenLabs voice ID
-            archetype_to_voice_id = {
-                "default_male": "29vD33N1CtxCmqQRPOHJ",      # Drew
-                "default_female": "21m00Tcm4TlvDq8ikWAM",    # Rachel
-                "gruff": "29vD33N1CtxCmqQRPOHJ",             # Drew (deeper)
-                "nervous": "AZnzlk1XvdvUeBnXmlld",          # Dani
-                "enthusiastic": "EXAVITQu4vr4xnSDxMaL",      # Bella
-                "conspiracy": "ErXwobaYiN019PkySvjV",        # Antoni
-                "elderly_male": "29vD33N1CtxCmqQRPOHJ",      # Drew (can adjust speed/pitch)
-                "elderly_female": "21m00Tcm4TlvDq8ikWAM"     # Rachel (can adjust for elderly)
-            }
+        archetype_to_voice_id = {
+            "default_male": "29vD33N1CtxCmqQRPOHJ",      # Drew
+            "default_female": "21m00Tcm4TlvDq8ikWAM",    # Rachel
+            "gruff": "29vD33N1CtxCmqQRPOHJ",             # Drew (deeper)
+            "nervous": "AZnzlk1XvdvUeBnXmlld",          # Dani
+            "enthusiastic": "EXAVITQu4vr4xnSDxMaL",      # Bella
+            "conspiracy": "ErXwobaYiN019PkySvjV",        # Antoni
+            "elderly_male": "29vD33N1CtxCmqQRPOHJ",      # Drew (can adjust speed/pitch)
+            "elderly_female": "21m00Tcm4TlvDq8ikWAM"     # Rachel (can adjust for elderly)
+        }
+
+        # Check if voice_id is an archetype (string in our mapping) vs cloned voice ID
+        archetype_names = set(archetype_to_voice_id.keys())
+        if voice_id and voice_id in archetype_names:  # It's an archetype
             voice_id = archetype_to_voice_id.get(voice_id, "21m00Tcm4TlvDq8ikWAM")  # Default to Rachel
 
         # Use stored voice ID if no voice_id provided

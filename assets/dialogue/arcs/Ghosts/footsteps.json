@@ -1,0 +1,286 @@
+{
+  "arcId": "ghosts_questionable_footsteps",
+  "topic": "Ghosts",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Homeowner with cold spots and electronics acting up - three electricians found nothing wrong",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Gradual onset activity, electrical + temperature anomaly, multiple inspections, skeptical but investigating",
+  "callerGender": "male",
+  "lines": [
+    {
+      "id": "ghosts_questionable_footsteps_vern_neutral_1",
+      "text": "You're on the air. What's happening at your place?",
+      "voiceText": "You're on the air. What's happening at your place?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_tired_1",
+      "text": "Alright, you're on. What's happening?",
+      "voiceText": "Alright, you're on. What's happening?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_energized_1",
+      "text": "YOU ARE ON THE AIR! What's happening at your place?!",
+      "voiceText": "YOU ARE ON THE AIR! What's happening at your place?!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_irritated_1",
+      "text": "You're on. What's this about?",
+      "voiceText": "You're on. What's this about?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_gruff_1",
+      "text": "You're on. So?",
+      "voiceText": "You're on. So?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_amused_1",
+      "text": "Oh good, a caller! What's happening?!",
+      "voiceText": "Oh good, a caller! What's happening?!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_focused_1",
+      "text": "You're on. Describe the unusual activity in your residence.",
+      "voiceText": "You're on. Describe the unusual activity in your residence.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_caller_1",
+      "text": "Strange occurrences, Vern. Nothing dramatic, but consistent enough that I can't ignore it anymore.",
+      "voiceText": "Strange occurrences, Vern. Nothing dramatic, but consistent enough that I can't ignore it anymore.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_neutral_2",
+      "text": "Give me specifics. What's been happening?",
+      "voiceText": "Give me specifics. What's been happening?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_tired_2",
+      "text": "Give me specifics... what's been happening?",
+      "voiceText": "Give me specifics... what's been happening?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_energized_2",
+      "text": "NOTHING DRAMATIC but CONSISTENT! This is EXCITING! Details please!",
+      "voiceText": "NOTHING DRAMATIC but CONSISTENT! This is EXCITING! Details please!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_irritated_2",
+      "text": "Alright, alright. Give me specifics.",
+      "voiceText": "Alright, alright. Give me specifics.",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_gruff_2",
+      "text": "Give me specifics.",
+      "voiceText": "Give me specifics.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_amused_2",
+      "text": "This is GREAT! Give us the details!",
+      "voiceText": "This is GREAT! Give us the details!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_focused_2",
+      "text": "Specific phenomena observed. Please describe in detail.",
+      "voiceText": "Specific phenomena observed. Please describe in detail.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_caller_2",
+      "text": "Cold spots in one corner of the living room. Just one spot, maybe six feet across. You can feel it when you walk past. Then the electronics in that area start acting up - the radio turns on by itself, the TV input switches randomly.",
+      "voiceText": "Cold spots in one corner of the living room. Just one spot, maybe six feet across. You can feel it when you walk past. Then the electronics in that area start acting up - the radio turns on by itself, the TV input switches randomly.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_neutral_3",
+      "text": "Electrical interference and cold spots together. How long has this been going on?",
+      "voiceText": "Electrical interference and cold spots together. How long has this been going on?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_tired_3",
+      "text": "Electrical stuff and cold spots... how long?",
+      "voiceText": "Electrical stuff and cold spots... how long?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_energized_3",
+      "text": "COLD SPOTS and ELECTRONICS GOING WILD! This is AMAZING!",
+      "voiceText": "COLD SPOTS and ELECTRONICS GOING WILD! This is AMAZING!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_irritated_3",
+      "text": "Cold spots and electronics. Let me guess - the ghost likes watching TV?",
+      "voiceText": "Cold spots and electronics. Let me guess - the ghost likes watching TV?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_gruff_3",
+      "text": "Electrical and cold spots. How long?",
+      "voiceText": "Electrical and cold spots. How long?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_amused_3",
+      "text": "A COLD SPOT that makes ELECTRONICS GO CRAZY! I love this!",
+      "voiceText": "A COLD SPOT that makes ELECTRONICS GO CRAZY! I love this!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_focused_3",
+      "text": "Localized thermal anomaly and electromagnetic interference. Duration of phenomena?",
+      "voiceText": "Localized thermal anomaly and electromagnetic interference. Duration of phenomena?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_caller_3",
+      "text": "Started about three weeks ago. Nothing before that. I've lived here for ten years with no issues.",
+      "voiceText": "Started about three weeks ago. Nothing before that. I've lived here for ten years with no issues.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_neutral_4",
+      "text": "Electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. Have you had an electrician look at it?",
+      "voiceText": "Electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. Have you had an electrician look at it?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_tired_4",
+      "text": "Look, bad wiring could cause this stuff. Did you call an electrician?",
+      "voiceText": "Look, bad wiring could cause this stuff. Did you call an electrician?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_energized_4",
+      "text": "BAD WIRING could explain this?! Have you called an ELECTRICIAN?!",
+      "voiceText": "BAD WIRING could explain this?! Have you called an ELECTRICIAN?!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_irritated_4",
+      "text": "Electrical issues could explain this. You called an electrician, right?",
+      "voiceText": "Electrical issues could explain this. You called an electrician, right?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_gruff_4",
+      "text": "Could be wiring. Did you get it checked?",
+      "voiceText": "Could be wiring. Did you get it checked?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_amused_4",
+      "text": "Could it be BAD WIRING?! This is the MYSTERY!",
+      "voiceText": "Could it be BAD WIRING?! This is the MYSTERY!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_focused_4",
+      "text": "Electrical infrastructure assessment. Have you consulted qualified personnel to evaluate potential causes?",
+      "voiceText": "Electrical infrastructure assessment. Have you consulted qualified personnel to evaluate potential causes?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_caller_4",
+      "text": "I called three different electricians. They all found nothing wrong with the wiring. The cold spot is real - one of them felt it himself.",
+      "voiceText": "I called three different electricians. They all found nothing wrong with the wiring. The cold spot is real - one of them felt it himself.",
+      "speaker": "caller"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_neutral_5",
+      "text": "Get an EMF detector if you can and track the readings. Document the temperature in that spot. If it's genuinely anomalous, the data will show it. Thanks for calling in.",
+      "voiceText": "Get an EMF detector if you can and track the readings. Document the temperature in that spot. If it's genuinely anomalous, the data will show it. Thanks for calling in.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_tired_5",
+      "text": "Yeah, maybe get an EMF detector or something. Thanks.",
+      "voiceText": "Yeah, maybe get an EMF detector or something. Thanks.",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_energized_5",
+      "text": "Get an EMF DETECTOR! Document EVERYTHING! This is INCREDIBLE!",
+      "voiceText": "Get an EMF DETECTOR! Document EVERYTHING! This is INCREDIBLE!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_irritated_5",
+      "text": "Right, well... get an EMF detector if you want. Thanks.",
+      "voiceText": "Right, well... get an EMF detector if you want. Thanks.",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_gruff_5",
+      "text": "Good report. Get documentation if you can. Thanks.",
+      "voiceText": "Good report. Get documentation if you can. Thanks.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_amused_5",
+      "text": "This is PERFECT! Get an EMF detector and DOCUMENT IT!",
+      "voiceText": "This is PERFECT! Get an EMF detector and DOCUMENT IT!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_vern_focused_5",
+      "text": "Please acquire electromagnetic field measurement equipment and document temperature differentials. Systematic data collection will clarify whether this represents genuine anomaly.",
+      "voiceText": "Please acquire electromagnetic field measurement equipment and document temperature differentials. Systematic data collection will clarify whether this represents genuine anomaly.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "ghosts_questionable_footsteps_caller_5",
+      "text": "Good idea. I'll look into getting a proper detector. Thanks for listening, Vern.",
+      "voiceText": "Good idea. I'll look into getting a proper detector. Thanks for listening, Vern.",
+      "speaker": "caller"
+    }
+  ]
+}

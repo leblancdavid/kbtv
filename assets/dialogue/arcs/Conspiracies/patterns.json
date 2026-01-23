@@ -1,0 +1,286 @@
+{
+  "arcId": "conspiracies_questionable_patterns",
+  "topic": "Conspiracies",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Data analyst mapping corporate board connections - finds policy changes after cross-industry meetings",
+  "callerPersonality": "cold_factual",
+  "arcNotes": "Data analyst, board interconnection mapping, policy timing correlation, legitimate research",
+  "callerGender": "male",
+  "lines": [
+    {
+      "id": "conspiracies_questionable_patterns_vern_neutral_1",
+      "text": "You're on the air. What have you been researching?",
+      "voiceText": "You're on the air. What have you been researching?",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_tired_1",
+      "text": "Alright, you're on. What've you been researching?",
+      "voiceText": "Alright, you're on. What've you been researching?",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_energized_1",
+      "text": "YOU ARE ON THE AIR! What have you been RESEARCHING?!",
+      "voiceText": "YOU ARE ON THE AIR! What have you been RESEARCHING?!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_irritated_1",
+      "text": "You're on. What's this about?",
+      "voiceText": "You're on. What's this about?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_gruff_1",
+      "text": "You're on. So?",
+      "voiceText": "You're on. So?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_amused_1",
+      "text": "Oh good, a researcher! What have you found?!",
+      "voiceText": "Oh good, a researcher! What have you found?!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_focused_1",
+      "text": "You're on. Describe your research methodology and findings.",
+      "voiceText": "You're on. Describe your research methodology and findings.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_caller_1",
+      "text": "Corporate connections, Vern. I've been mapping board memberships across companies, and something strange keeps coming up.",
+      "voiceText": "Corporate connections, Vern. I've been mapping board memberships across companies, and something strange keeps coming up.",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_neutral_2",
+      "text": "Interlocking directorates. That's not unusual in big business.",
+      "voiceText": "Interlocking directorates. That's not unusual in big business.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_tired_2",
+      "text": "Interlocking boards... that's not that unusual...",
+      "voiceText": "Interlocking boards... that's not that unusual...",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_energized_2",
+      "text": "MAPPING CORPORATE CONNECTIONS! This is EXCITING!",
+      "voiceText": "MAPPING CORPORATE CONNECTIONS! This is EXCITING!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_irritated_2",
+      "text": "Interlocking directorates. Let me guess - they're all connected?",
+      "voiceText": "Interlocking directorates. Let me guess - they're all connected?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_gruff_2",
+      "text": "Interlocking boards. What's your take?",
+      "voiceText": "Interlocking boards. What's your take?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_amused_2",
+      "text": "This is GREAT data! Tell us what you found!",
+      "voiceText": "This is GREAT data! Tell us what you found!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_focused_2",
+      "text": "Board membership interconnection analysis. What specific patterns have you identified?",
+      "voiceText": "Board membership interconnection analysis. What specific patterns have you identified?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_caller_2",
+      "text": "Not unusual individually. But the pattern extends beyond one industry. Media companies, defense contractors, pharmaceutical firms - they all share board members at the highest levels.",
+      "voiceText": "Not unusual individually. But the pattern extends beyond one industry. Media companies, defense contractors, pharmaceutical firms - they all share board members at the highest levels.",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_neutral_3",
+      "text": "Wealthy people do tend to run in the same circles. Doesn't necessarily prove coordination.",
+      "voiceText": "Wealthy people do tend to run in the same circles. Doesn't necessarily prove coordination.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_tired_3",
+      "text": "Wealthy people hang out together... doesn't mean coordination...",
+      "voiceText": "Wealthy people hang out together... doesn't mean coordination...",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_energized_3",
+      "text": "MEDIA, DEFENSE, PHARMA all CONNECTED! This is AMAZING!",
+      "voiceText": "MEDIA, DEFENSE, PHARMA all CONNECTED! This is AMAZING!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_irritated_3",
+      "text": "Wealthy people run in the same circles. Doesn't prove anything.",
+      "voiceText": "Wealthy people run in the same circles. Doesn't prove anything.",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_gruff_3",
+      "text": "Wealthy people network. What's your evidence?",
+      "voiceText": "Wealthy people network. What's your evidence?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_amused_3",
+      "text": "This is PERFECT evidence of CONSOLIDATED POWER!",
+      "voiceText": "This is PERFECT evidence of CONSOLIDATED POWER!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_focused_3",
+      "text": "Cross-industry board membership correlation. What quantitative analysis supports coordination hypothesis?",
+      "voiceText": "Cross-industry board membership correlation. What quantitative analysis supports coordination hypothesis?",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_caller_3",
+      "text": "True. But the timing of certain decisions seems too convenient. Major policy changes, regulatory approvals, all happening after specific board meetings. It's hard to dismiss as coincidence.",
+      "voiceText": "True. But the timing of certain decisions seems too convenient. Major policy changes, regulatory approvals, all happening after specific board meetings. It's hard to dismiss as coincidence.",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_neutral_4",
+      "text": "Correlation isn't causation. This could all be explained by shared interests and natural alignment.",
+      "voiceText": "Correlation isn't causation. This could all be explained by shared interests and natural alignment.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_tired_4",
+      "text": "Correlation isn't causation... could just be alignment...",
+      "voiceText": "Correlation isn't causation... could just be alignment...",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_energized_4",
+      "text": "POLICY CHANGES after BOARD MEETINGS! This is SUSPICIOUS!",
+      "voiceText": "POLICY CHANGES after BOARD MEETINGS! This is SUSPICIOUS!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_irritated_4",
+      "text": "Correlation isn't causation. You've got more than this?",
+      "voiceText": "Correlation isn't causation. You've got more than this?",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_gruff_4",
+      "text": "Correlation. Could be explained another way?",
+      "voiceText": "Correlation. Could be explained another way?",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_amused_4",
+      "text": "This is EXACTLY what we've been looking for!",
+      "voiceText": "This is EXACTLY what we've been looking for!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_focused_4",
+      "text": "Temporal correlation between board meetings and policy decisions. Statistical significance requires rigorous analysis.",
+      "voiceText": "Temporal correlation between board meetings and policy decisions. Statistical significance requires rigorous analysis.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_caller_4",
+      "text": "I thought the same thing. But when I mapped it out visually, the connections are too dense. There's definitely something going on at the highest levels of corporate power.",
+      "voiceText": "I thought the same thing. But when I mapped it out visually, the connections are too dense. There's definitely something going on at the highest levels of corporate power.",
+      "speaker": "caller"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_neutral_5",
+      "text": "Keep mapping the connections and gathering data. Let us know what you find as it develops. Thanks for the research.",
+      "voiceText": "Keep mapping the connections and gathering data. Let us know what you find as it develops. Thanks for the research.",
+      "speaker": "vern",
+      "mood": "neutral"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_tired_5",
+      "text": "Yeah, keep at it if you want. Thanks for calling.",
+      "voiceText": "Yeah, keep at it if you want. Thanks for calling.",
+      "speaker": "vern",
+      "mood": "tired"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_energized_5",
+      "text": "Keep MAPPING and DOCUMENTING! This is INCREDIBLE work!",
+      "voiceText": "Keep MAPPING and DOCUMENTING! This is INCREDIBLE work!",
+      "speaker": "vern",
+      "mood": "energized"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_irritated_5",
+      "text": "Right, well... keep researching if you want. Thanks.",
+      "voiceText": "Right, well... keep researching if you want. Thanks.",
+      "speaker": "vern",
+      "mood": "irritated"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_gruff_5",
+      "text": "Good work. Keep gathering data. Thanks.",
+      "voiceText": "Good work. Keep gathering data. Thanks.",
+      "speaker": "vern",
+      "mood": "gruff"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_amused_5",
+      "text": "This is PERFECT! Keep going and SEND US UPDATES!",
+      "voiceText": "This is PERFECT! Keep going and SEND US UPDATES!",
+      "speaker": "vern",
+      "mood": "amused"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_vern_focused_5",
+      "text": "Continued data collection and visualization is valuable. Please share findings as patterns emerge.",
+      "voiceText": "Continued data collection and visualization is valuable. Please share findings as patterns emerge.",
+      "speaker": "vern",
+      "mood": "focused"
+    },
+    {
+      "id": "conspiracies_questionable_patterns_caller_5",
+      "text": "Will do. Appreciate the platform, Vern. This needs more public attention.",
+      "voiceText": "Will do. Appreciate the platform, Vern. This needs more public attention.",
+      "speaker": "caller"
+    }
+  ]
+}

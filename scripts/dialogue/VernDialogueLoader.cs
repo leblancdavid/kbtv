@@ -43,15 +43,15 @@ namespace KBTV.Dialogue
                     return result;
                 }
 
-                result.SetShowOpeningLines(ParseDialogueArray(data, "showOpeningLines"));
+                result.SetShowOpeningLines(ParseDialogueArray(data, "openings"));
                 result.SetIntroductionLines(ParseDialogueArray(data, "introductionLines"));
-                result.SetShowClosingLines(ParseDialogueArray(data, "showClosingLines"));
-                result.SetBetweenCallersLines(ParseDialogueArray(data, "betweenCallersLines"));
-                result.SetDeadAirFillerLines(ParseDialogueArray(data, "deadAirFillerLines"));
-                result.SetDroppedCallerLines(ParseDialogueArray(data, "droppedCallerLines"));
-                result.SetBreakTransitionLines(ParseDialogueArray(data, "breakTransitionLines"));
-                result.SetReturnFromBreakLines(ParseDialogueArray(data, "returnFromBreakLines"));
-                result.SetOffTopicRemarkLines(ParseDialogueArray(data, "offTopicRemarkLines"));
+                result.SetShowClosingLines(ParseDialogueArray(data, "closings"));
+                result.SetBetweenCallersLines(ParseDialogueArray(data, "betweenCallers"));
+                result.SetDeadAirFillerLines(ParseDialogueArray(data, "deadAirFillers"));
+                result.SetDroppedCallerLines(ParseDialogueArray(data, "droppedCallers"));
+                result.SetBreakTransitionLines(ParseDialogueArray(data, "breakTransitions"));
+                result.SetReturnFromBreakLines(ParseDialogueArray(data, "returnFromBreaks"));
+                result.SetOffTopicRemarkLines(ParseDialogueArray(data, "offTopicRemarks"));
 
                 return result;
             }

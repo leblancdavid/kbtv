@@ -166,74 +166,22 @@ namespace KBTV.Dialogue
             }
             else if (line.Type == BroadcastLineType.VernDialogue)
             {
-                // Load Vern conversation audio: res://assets/audio/voice/Vern/ConversationArcs/{arc_id}/{mood}/vern_{arc_id}_{mood}_{line_index}_{total}.mp3
-                if (!string.IsNullOrEmpty(line.ArcId))
+                // Load Vern conversation audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{arc_id}/{id}.mp3
+                if (!string.IsNullOrEmpty(line.ArcId) && !string.IsNullOrEmpty(line.Id))
                 {
-                    string mood = GetVernMood();
-                    // Try different total counts (we'll find the right one by checking existence)
-                    for (int total = 1; total <= 10; total++)
-                    {
-                        audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{line.ArcId}/{mood}/vern_{line.ArcId}_{mood}_{line.LineIndex:D3}_{total:D3}.mp3";
-                        var testStream = GD.Load<AudioStream>(audioPath);
-                        if (testStream != null)
-                        {
-                            return testStream;
-                        }
-                    }
+                    string arcTopic = GetTopicFromArcId(line.ArcId);
+                    audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{line.ArcId}/{line.Id}.mp3";
                 }
             }
             else if (line.Type == BroadcastLineType.ShowOpening || line.Type == BroadcastLineType.BetweenCallers ||
-                     line.Type == BroadcastLineType.DeadAirFiller || line.Type == BroadcastLineType.ShowClosing)
+                     line.Type == BroadcastLineType.DeadAirFiller || line.Type == BroadcastLineType.ShowClosing ||
+                     line.Type == BroadcastLineType.OffTopicRemark)
             {
-                // Load Vern broadcast audio: res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{line_type}_{number}_{mood}.mp3
+                // Load Vern broadcast audio: res://assets/audio/voice/Vern/Broadcast/{mood}/{id}.mp3
                 string mood = GetVernMood();
-                string lineType = GetLineTypeForVernAudio(line.Type);
-
-                // Files now have consistent mood suffixes and numbering
-                if (line.Type == BroadcastLineType.ShowOpening)
+                if (!string.IsNullOrEmpty(line.Id))
                 {
-                    // Opening files are numbered 01, 02, etc. per mood
-                    for (int num = 1; num <= 5; num++) // Most moods have 1-2 files, neutral has more
-                    {
-                        audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_opening_{num:D2}_{mood}.mp3";
-                        var testStream = GD.Load<AudioStream>(audioPath);
-                        if (testStream != null)
-                        {
-                            return testStream;
-                        }
-                    }
-                }
-                else
-                {
-                    // Special handling for dead air filler (only in neutral, no mood suffix)
-                    if (line.Type == BroadcastLineType.DeadAirFiller)
-                    {
-                        // Dead air fillers are only in neutral and don't have mood suffixes
-                        for (int num = 1; num <= 10; num++) // Up to 10 dead air fillers
-                        {
-                            audioPath = $"res://assets/audio/voice/Vern/Broadcast/neutral/vern_{lineType}_{num:D3}.mp3";
-                            var testStream = GD.Load<AudioStream>(audioPath);
-                            if (testStream != null)
-                            {
-                                return testStream;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Other types: try numbered versions first (001-005), then non-numbered fallback
-                        for (int num = 1; num <= 5; num++)
-                        {
-                            audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{lineType}_{num:D3}_{mood}.mp3";
-                            var testStream = GD.Load<AudioStream>(audioPath);
-                            if (testStream != null)
-                            {
-                                return testStream;
-                            }
-                        }
-                        // Fallback to non-numbered version
-                        audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/vern_{lineType}_{mood}.mp3";
-                    }
+                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{mood}/{line.Id}.mp3";
                 }
             }
 
@@ -253,18 +201,6 @@ namespace KBTV.Dialogue
             return null;
         }
 
-        private string GetLineTypeForVernAudio(BroadcastLineType lineType)
-        {
-            return lineType switch
-            {
-                BroadcastLineType.ShowOpening => "opening",
-                BroadcastLineType.BetweenCallers => "betweencallers",
-                BroadcastLineType.DeadAirFiller => "deadairfiller", // No underscores, only in neutral
-                BroadcastLineType.ShowClosing => "closing",
-                _ => "unknown"
-            };
-        }
-
         private string GetVernMood()
         {
             // Get Vern's current mood from the game state
@@ -274,6 +210,36 @@ namespace KBTV.Dialogue
                 return vernStats.CurrentMoodType.ToString().ToLower();
             }
             return "neutral"; // Default fallback
+        }
+
+        private string GetTopicFromArcId(string arcId)
+        {
+            // Extract topic from arc ID (e.g., "conspiracies_credible_govt_contractor" -> "Conspiracies")
+            if (arcId.StartsWith("ufos") || arcId.Contains("ufos_"))
+                return "UFOs";
+            if (arcId.StartsWith("ghosts") || arcId.Contains("ghosts_"))
+                return "Ghosts";
+            if (arcId.StartsWith("cryptids") || arcId.Contains("cryptids_") || arcId.Contains("cryptid_"))
+                return "Cryptids";
+            if (arcId.StartsWith("conspiracies") || arcId.Contains("conspiracies_"))
+                return "Conspiracies";
+
+            // Fallback: first part
+            var parts = arcId.Split('_');
+            if (parts.Length >= 1)
+            {
+                var topicPart = parts[0];
+                return topicPart switch
+                {
+                    "ufos" => "UFOs",
+                    "ghosts" => "Ghosts",
+                    "cryptids" => "Cryptids",
+                    "cryptid" => "Cryptids",
+                    "conspiracies" => "Conspiracies",
+                    _ => "UFOs"
+                };
+            }
+            return "UFOs"; // Default
         }
 
         private AudioStream? LoadAdAudio(BroadcastLine line)
