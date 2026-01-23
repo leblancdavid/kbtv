@@ -160,9 +160,31 @@ namespace KBTV.Callers
             }
 
             caller.SetState(CallerState.OnHold);
-            _currentScreeningId = null;
+            GD.Print($"DEBUG: Caller {caller.Name} moved to OnHold state");
 
+            GD.Print($"DEBUG: Notifying observers of approved caller {caller.Name}");
             NotifyObservers(o => o.OnScreeningEnded(caller, approved: true));
+
+            // Auto-trigger putting caller on air if broadcast is active and no one is on air
+            var broadcastCoordinator = ServiceRegistry.Instance.BroadcastCoordinator;
+            GD.Print($"DEBUG: Checking auto-trigger - Coordinator: {broadcastCoordinator != null}, IsOnAir: {IsOnAir}, HasOnHold: {HasOnHoldCallers}");
+            if (broadcastCoordinator != null && !IsOnAir)
+            {
+                GD.Print($"DEBUG: Auto-triggering caller {caller.Name} on air");
+                var putOnAirResult = PutOnAir();
+                if (putOnAirResult.IsSuccess)
+                {
+                    GD.Print($"DEBUG: Successfully put {caller.Name} on air");
+                }
+                else
+                {
+                    GD.Print($"DEBUG: Failed to put {caller.Name} on air: {putOnAirResult.ErrorMessage}");
+                }
+            }
+            else
+            {
+                GD.Print($"DEBUG: Not auto-triggering - Coordinator null: {broadcastCoordinator == null}, Already on air: {IsOnAir}");
+            }
 
             return Result<Caller>.Ok(caller);
         }
