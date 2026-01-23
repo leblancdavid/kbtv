@@ -357,29 +357,43 @@ namespace KBTV.Dialogue
 
         public void OnCallerPutOnAir(Caller caller)
         {
+            GD.Print($"DEBUG: OnCallerPutOnAir called for {caller.Name}");
             _currentArc = caller.Arc;
+            GD.Print($"DEBUG: CurrentArc set: {_currentArc != null}");
+
             var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
             VernMoodType mood = VernMoodType.Neutral;
             if (vernStats != null)
             {
                 mood = vernStats.CurrentMoodType;
+            }
+            GD.Print($"DEBUG: Using mood: {mood}");
+
+            if (_currentArc != null)
+            {
                 _resolvedDialogue = _currentArc.GetDialogueForMood(mood);
+                GD.Print($"DEBUG: Resolved dialogue count: {_resolvedDialogue.Count}");
             }
             else
             {
-                _resolvedDialogue = new System.Collections.Generic.List<ArcDialogueLine>(_currentArc.Dialogue);
+                GD.Print("DEBUG: ERROR - CurrentArc is null!");
+                _resolvedDialogue = new System.Collections.Generic.List<ArcDialogueLine>();
             }
 
             _currentFlow = ConversationFlow.CreateLinear(_resolvedDialogue);
+            GD.Print($"DEBUG: Created flow with {_currentFlow.Steps.Count} steps");
+
             _stateMachine = new ConversationStateMachine();
             _conversationContext = new ConversationContext(mood);
 
             _stateMachine.ProcessEvent(ConversationEvent.Start());
+            GD.Print($"DEBUG: State machine started, CanProcessLines: {_stateMachine.CanProcessLines}");
 
             _arcLineIndex = 0;
             _stateManager.SetState(BroadcastState.Conversation);
             _timingManager.StopLine();
             _pendingControlAction = ControlAction.None;
+            GD.Print("DEBUG: OnCallerPutOnAir complete, state set to Conversation");
 
             var startedEvent = new ConversationStartedEvent();
             ServiceRegistry.Instance.EventBus.Publish(startedEvent);
@@ -749,7 +763,17 @@ namespace KBTV.Dialogue
 
         private BroadcastLine GetConversationLine()
         {
+            GD.Print("DEBUG: GetConversationLine called");
             var caller = _repository.OnAirCaller;
+            GD.Print($"DEBUG: OnAirCaller: {caller != null}");
+            if (caller != null)
+            {
+                GD.Print($"DEBUG: Caller arc: {caller.Arc != null}");
+                if (caller.Arc != null)
+                {
+                    GD.Print($"DEBUG: Arc dialogue count: {caller.Arc.Dialogue?.Count ?? 0}");
+                }
+            }
 
             if (caller == null)
             {
@@ -765,11 +789,16 @@ namespace KBTV.Dialogue
                 }
             }
 
+            GD.Print($"DEBUG: StateMachine: {_stateMachine != null}, CurrentFlow: {_currentFlow != null}, Context: {_conversationContext != null}");
+
             if (_stateMachine == null || _currentFlow == null || _conversationContext == null)
             {
+                GD.Print("DEBUG: Missing conversation components, switching to dead air");
                 _stateManager.SetState(BroadcastState.DeadAirFiller);
                 return GetFillerLine();
             }
+
+            GD.Print($"DEBUG: Flow steps: {_currentFlow.Steps.Count}, CanProcessLines: {_stateMachine.CanProcessLines}");
 
             if (!_stateMachine.CanProcessLines)
             {
@@ -785,6 +814,7 @@ namespace KBTV.Dialogue
 
             if (!step.CanExecute(_conversationContext))
             {
+                GD.Print("DEBUG: Step cannot execute, advancing to next step");
                 _conversationContext.CurrentStepIndex++;
                 return BroadcastLine.None();
             }
@@ -806,12 +836,14 @@ namespace KBTV.Dialogue
                     caller.Arc?.CallerGender,
                     callerLineIndex
                 );
+                GD.Print($"DEBUG: Created conversation line: {broadcastLine.Speaker} - {broadcastLine.Text?.Substring(0, Math.Min(50, broadcastLine.Text?.Length ?? 0)) ?? "null"}");
                 _stateMachine.ProcessEvent(ConversationEvent.LineAvailable(broadcastLine));
                 _conversationContext.CurrentStepIndex++;
                 return broadcastLine;
             }
             else
             {
+                GD.Print("DEBUG: Non-dialogue step, advancing and recursing");
                 _conversationContext.CurrentStepIndex++;
                 return GetConversationLine();
             }
