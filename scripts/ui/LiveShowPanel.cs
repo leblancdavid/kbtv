@@ -29,11 +29,17 @@ namespace KBTV.UI
 
         public override void _EnterTree()
         {
+            GD.Print($"DEBUG: LiveShowPanel._EnterTree called - ServiceRegistry ready: {ServiceRegistry.Instance != null}");
+
             // Subscribe to events as early as possible to avoid missing initial line
             if (ServiceRegistry.Instance?.EventBus != null)
             {
                 ServiceRegistry.Instance.EventBus.Subscribe<LineAvailableEvent>(HandleLineAvailable);
-                GD.Print("DEBUG: LiveShowPanel early subscription to LineAvailableEvent");
+                GD.Print("DEBUG: LiveShowPanel early subscription to LineAvailableEvent successful");
+            }
+            else
+            {
+                GD.Print("DEBUG: ServiceRegistry or EventBus not ready in _EnterTree - subscription deferred");
             }
         }
 
@@ -51,6 +57,7 @@ namespace KBTV.UI
             }
 
             _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
+            GD.Print($"DEBUG: LiveShowPanel coordinator assigned: {_coordinator != null}");
 
             _speakerIcon = GetNode<Label>("%SpeakerIcon");
             _speakerName = GetNode<Label>("%SpeakerName");
@@ -58,7 +65,14 @@ namespace KBTV.UI
             _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
             _progressBar = GetNode<ProgressBar>("%ProgressBar");
 
-            GD.Print("LiveShowPanel: Initialized with event-driven line handling");
+            GD.Print($"DEBUG: LiveShowPanel UI components initialized - SpeakerIcon: {_speakerIcon != null}, DialogueLabel: {_dialogueLabel != null}");
+
+            // Test coordinator immediately
+            if (_coordinator != null)
+            {
+                var testLine = _coordinator.GetNextLine();
+                GD.Print($"DEBUG: Initial GetNextLine test - Type: {testLine.Type}, Text: '{testLine.Text?.Substring(0, 30)}'");
+            }
         }
 
 

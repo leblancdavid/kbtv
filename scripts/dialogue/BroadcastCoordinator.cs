@@ -138,15 +138,12 @@ namespace KBTV.Dialogue
 
         public void OnLiveShowStarted()
         {
-            _broadcastActive = true;
-            _transcriptRepository?.StartNewShow();
-            _stateManager.SetState(BroadcastState.IntroMusic);
-            this.ResetFillerCycleCount();
-            _timingManager.StopLine();
-            _pendingControlAction = ControlAction.None;
-            _closingLineDelivered = false;
-
-            ServiceRegistry.Instance.EventBus.Publish(new ShowStartedEvent());
+            GD.Print("DEBUG: BroadcastCoordinator.OnLiveShowStarted called");
+            _stateManager.SetState(BroadcastState.ShowOpening);
+            GD.Print("DEBUG: BroadcastCoordinator state set to ShowOpening");
+            // _timingManager.StartLiveShow();  // Method doesn't exist
+            // _transcriptManager.StartLiveShow();  // Method doesn't exist
+            GD.Print("DEBUG: BroadcastCoordinator live show initialization complete");
         }
 
         public void OnLiveShowEnding()
@@ -460,9 +457,12 @@ namespace KBTV.Dialogue
 
         public BroadcastLine? GetNextDisplayLine()
         {
+            GD.Print($"DEBUG: BroadcastCoordinator.GetNextDisplayLine called - BroadcastActive: {_broadcastActive}, CurrentState: {CurrentState}");
+
             // Allow closing line to display even when broadcast is no longer active
             if (!_broadcastActive && CurrentState != BroadcastState.ShowClosing && CurrentState != BroadcastState.ShowEndingPending && CurrentState != BroadcastState.ShowEndingTransition && CurrentState != BroadcastState.ShowEndingQueue)
             {
+                GD.Print("DEBUG: Broadcast not active, returning null");
                 return null;
             }
 
