@@ -139,8 +139,9 @@ namespace KBTV.Dialogue
         public void OnLiveShowStarted()
         {
             GD.Print("DEBUG: BroadcastCoordinator.OnLiveShowStarted called");
+            _broadcastActive = true;  // Enable broadcast display
             _stateManager.SetState(BroadcastState.ShowOpening);
-            GD.Print("DEBUG: BroadcastCoordinator state set to ShowOpening");
+            GD.Print("DEBUG: BroadcastCoordinator state set to ShowOpening, broadcast now active");
             // _timingManager.StartLiveShow();  // Method doesn't exist
             // _transcriptManager.StartLiveShow();  // Method doesn't exist
             GD.Print("DEBUG: BroadcastCoordinator live show initialization complete");
