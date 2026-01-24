@@ -17,7 +17,8 @@ namespace KBTV.Ads
         private AdSchedule _schedule;
         private TimeManager _timeManager;
         private ListenerManager _listenerManager;
-        private BroadcastCoordinator _coordinator;
+        private IBroadcastCoordinator? _coordinator;
+        private IBroadcastCoordinator Coordinator => _coordinator ??= ServiceRegistry.Instance.BroadcastCoordinator;
         private AudioStreamPlayer _transitionMusicPlayer = null!;
 
         // Modular components
@@ -95,7 +96,6 @@ namespace KBTV.Ads
 
             _timeManager = ServiceRegistry.Instance.TimeManager;
             _listenerManager = ServiceRegistry.Instance.ListenerManager;
-            _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
 
             // Initialize modular components
             _breakScheduler = new BreakScheduler(schedule, _timeManager, _currentBreakIndex);
@@ -104,10 +104,7 @@ namespace KBTV.Ads
             _revenueCalculator = new RevenueCalculator();
 
             // Subscribe to coordinator events for break coordination
-            if (_coordinator != null)
-            {
-                _coordinator.OnBreakTransitionCompleted += OnBreakTransitionCompleted;
-            }
+            Coordinator.OnBreakTransitionCompleted += OnBreakTransitionCompleted;
 
             _schedule = schedule;
             _showDuration = showDuration;
@@ -225,8 +222,10 @@ namespace KBTV.Ads
 
         private void OnBreakTimeReached()
         {
-            GD.Print("AdManager: Break timer fired - starting break");
+            GD.Print("AdManager: Break timer fired - starting break and triggering transition");
+            // Start break first to initialize AdBreakCoordinator, then trigger transition
             StartBreak();
+            OnBreakImminent?.Invoke(0f); // Time until break is 0
         }
 
         private void FallbackBreakStart()
@@ -304,7 +303,7 @@ namespace KBTV.Ads
 
             // Notify broadcast coordinator
             GD.Print("AdManager.StartBreak: Notifying broadcast coordinator");
-            _coordinator.OnAdBreakStarted();
+            Coordinator.OnAdBreakStarted();
 
             OnBreakStarted?.Invoke();
             GD.Print($"AdManager: Break #{_currentBreakIndex + 1} started (queued: {wasQueued})");
@@ -312,8 +311,8 @@ namespace KBTV.Ads
 
         private void OnBreakTransitionCompleted()
         {
-            GD.Print("AdManager: Received break transition completed event, starting break");
-            StartBreak();
+            GD.Print("AdManager: Received break transition completed event");
+            // Break already started in OnBreakTimeReached(), transition completion just confirms it
         }
 
 
@@ -349,7 +348,7 @@ namespace KBTV.Ads
             RestoreListeners();
 
             // Notify broadcast coordinator
-            _coordinator.OnAdBreakEnded();
+            Coordinator.OnAdBreakEnded();
 
             // Reset queue state
             _isQueued = false;

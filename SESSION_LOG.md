@@ -1,6 +1,36 @@
  ## Current Session
-- **Task**: Fix live show transcript and dialogue playback with rolling one-at-a-time display and audio-synced typewriter
+- **Task**: Fix ad break timing issue - StartBreak() called before ad_break item execution
 - **Status**: Completed
+
+### Ad Break Timing Fix
+
+#### Problem Identified
+- **Issue**: Ads weren't playing because `AdBreakCoordinator.OnAdBreakStarted()` wasn't called before `AdBreakCoordinator.GetAdBreakLine()`
+- **Root Cause**: `StartBreak()` was called after break transition completed, but ad_break item was created when state became Break (during transition completion)
+- **Sequence**: Timer → Transition → State=Break → Execute ad_break → GetAdBreakLine() (fails because not initialized)
+
+#### Solution Implemented
+- **Fix**: Call `StartBreak()` in `OnBreakTimeReached()` BEFORE triggering the interruption
+- **Modified Files**: `AdManager.cs` - Moved `StartBreak()` call from transition completion to timer firing
+- **Result**: AdBreakCoordinator initialized before ad_break item executes
+
+#### Changes Made
+1. `OnBreakTimeReached()`: Added `StartBreak()` call before `OnBreakImminent?.Invoke(0f)`
+2. `OnBreakTransitionCompleted()`: Removed `StartBreak()` call (now happens earlier)
+3. **Sequence Now**: Timer → StartBreak() → Transition → State=Break → Execute ad_break → GetAdBreakLine() (succeeds)
+
+#### Testing
+- ✅ GoDotTest suite passes - No regressions introduced
+- ✅ AdBreakCoordinator tests pass - Core functionality verified
+- ✅ Build succeeds - No compilation errors
+- **Status**: READY FOR PLAYTEST - Ads should now play during breaks
+
+### Technical Details
+- **Old Flow**: Timer → Interrupt → Transition → Complete → StartBreak() → State=Break → Execute ad_break (fails)
+- **New Flow**: Timer → StartBreak() → Interrupt → Transition → Complete → State=Break → Execute ad_break (succeeds)
+- **Key Change**: Initialize AdBreakCoordinator before transition, not after
+- **Files Modified**: `scripts/ads/AdManager.cs`
+- **Test Status**: SUCCESS - All tests pass, no new failures
 
 ### BroadcastEvent System Refactor
 

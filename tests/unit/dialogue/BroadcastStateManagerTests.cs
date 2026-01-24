@@ -64,6 +64,24 @@ public class BroadcastStateMachineTests : KBTVTestClass
     }
 
     [Test]
+    public void HandleEvent_BreakCompleted_TransitionsToReturnFromBreak()
+    {
+        var repo = new CallerRepository();
+        var registry = new BroadcastItemRegistry();
+        var stateMachine = new BroadcastStateMachine(repo, registry);
+
+        // Manually set state to Break (simulate break transition)
+        stateMachine.GetType().GetProperty("CurrentState")?.SetValue(stateMachine, BroadcastState.Break);
+
+        // Complete the ad_break item
+        var completedEvent = new BroadcastEvent(BroadcastEventType.Completed, "ad_break");
+        var nextItem = stateMachine.HandleEvent(completedEvent);
+
+        AssertAreEqual(BroadcastState.ReturnFromBreak, stateMachine.CurrentState);
+        AssertThat(nextItem != null);
+    }
+
+    [Test]
     public void ArcRepository_LoadsArcsWithCorrectArcIds()
     {
         // This test would require mocking the file system or using actual files

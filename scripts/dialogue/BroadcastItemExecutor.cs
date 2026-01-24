@@ -1,5 +1,3 @@
-#nullable enable
-
 using System;
 using Godot;
 using KBTV.Core;
@@ -17,15 +15,17 @@ namespace KBTV.Dialogue
         private readonly Action<string> _onItemCompleted;
         private readonly Node _sceneTreeNode;
         private readonly ITranscriptRepository _transcriptRepository;
+        private readonly AdBreakCoordinator _adBreakCoordinator;
 
         // Store current completion handlers for disconnection
         private Action? _currentAudioHandler;
         private Action? _currentTimerHandler;
 
-        public BroadcastItemExecutor(Action<string> onItemCompleted, Node sceneTreeNode)
+        public BroadcastItemExecutor(Action<string> onItemCompleted, Node sceneTreeNode, AdBreakCoordinator adBreakCoordinator)
         {
             _onItemCompleted = onItemCompleted ?? throw new ArgumentNullException(nameof(onItemCompleted));
             _sceneTreeNode = sceneTreeNode ?? throw new ArgumentNullException(nameof(sceneTreeNode));
+            _adBreakCoordinator = adBreakCoordinator ?? throw new ArgumentNullException(nameof(adBreakCoordinator));
             
             // Get transcript repository for creating transcript entries
             _transcriptRepository = ServiceRegistry.Instance.TranscriptRepository;
@@ -54,10 +54,34 @@ namespace KBTV.Dialogue
                     break;
 
                 case BroadcastItemType.Ad:
-                    // Ads use timer, publish UI event
-                    var adEvent = new BroadcastItemStartedEvent(item, item.Duration, item.Duration);
-                    ServiceRegistry.Instance.EventBus.Publish(adEvent);
-                    StartTimer(item.Id, item.Duration);
+                    // Use AdBreakCoordinator to get the next ad content
+                    var adLine = _adBreakCoordinator.GetAdBreakLine();
+                    if (adLine.Type == BroadcastLineType.Ad)
+                    {
+                        // Display the ad content
+                        var adEvent = new BroadcastItemStartedEvent(item, 4.0f, 4.0f);
+                        ServiceRegistry.Instance.EventBus.Publish(adEvent);
+                        
+                        // Create a dynamic ad item with the actual ad content
+                        var adItem = new BroadcastItem(
+                            id: $"ad_{Guid.NewGuid()}",
+                            type: BroadcastItemType.Ad,
+                            text: adLine.Text,
+                            duration: 4.0f
+                        );
+                        
+                        // Create transcript entry for the ad
+                        CreateTranscriptEntry(adItem);
+                        
+                        // Start timer for this individual ad
+                        StartTimer(item.Id, 4.0f);
+                    }
+                    else if (adLine.Type == BroadcastLineType.None)
+                    {
+                        // No more ads, end the break
+                        GD.Print("BroadcastItemExecutor: No more ads, ending ad break");
+                        _onItemCompleted(item.Id);
+                    }
                     break;
 
                 case BroadcastItemType.DeadAir:
@@ -65,10 +89,21 @@ namespace KBTV.Dialogue
                     break;
 
                 case BroadcastItemType.Transition:
-                    // Transitions use timer, publish UI event
-                    var transitionEvent = new BroadcastItemStartedEvent(item, item.Duration, item.Duration);
-                    ServiceRegistry.Instance.EventBus.Publish(transitionEvent);
-                    StartTimer(item.Id, item.Duration);
+                    // Display text and play audio if available, otherwise use timer
+                    DisplayText(item);
+                    if (!string.IsNullOrEmpty(item.AudioPath))
+                    {
+                        PlayAudio(item);
+                    }
+                    else if (item.Duration > 0)
+                    {
+                        StartTimer(item.Id, item.Duration);
+                    }
+                    else
+                    {
+                        // No audio and no duration - complete immediately
+                        _onItemCompleted(item.Id);
+                    }
                     break;
 
                 default:

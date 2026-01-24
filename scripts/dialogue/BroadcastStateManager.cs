@@ -25,6 +25,7 @@ namespace KBTV.Dialogue
 
         // Ad break interruption state
         private bool _isInBreakGracePeriod = false;
+    private bool _breakTransitionPending = false;
 
         public BroadcastState CurrentState => _currentState;
 
@@ -45,7 +46,7 @@ namespace KBTV.Dialogue
 
         public BroadcastItem? HandleEvent(BroadcastEvent @event)
         {
-            return HandleItemCompleted(@event.ItemId);
+            return HandleItemCompleted(@event);
         }
 
         public BroadcastItem? HandleInterruption(BroadcastInterruptionEvent @event)
@@ -61,8 +62,15 @@ namespace KBTV.Dialogue
                     return null; // Don't interrupt current item, wait for natural completion
 
                 case BroadcastInterruptionReason.BreakImminent:
+                    // Check if a break transition is already pending (triggered by grace period)
+                    if (_breakTransitionPending)
+                    {
+                        GD.Print("BroadcastStateManager: Break transition already pending, imminent warning will wait silently");
+                        return null; // Don't trigger duplicate transition
+                    }
                     // Immediate hard interrupt - return transition item now
                     _isInBreakGracePeriod = false; // Reset for next break
+                    _breakTransitionPending = true; // Flag that next transition completion should trigger break
                     GD.Print("BroadcastStateManager: Break imminent - immediate transition");
                     return _itemRegistry.GetVernItem("break_transition", GetVernCurrentMood());
 
@@ -281,8 +289,11 @@ namespace KBTV.Dialogue
             return item;
         }
 
-        private BroadcastItem? HandleItemCompleted(string itemId)
+        private BroadcastItem? HandleItemCompleted(BroadcastEvent @event)
         {
+            var itemId = @event.ItemId;
+            var item = @event.Item;
+
             // Update state based on completed item
             switch (_currentState)
             {
@@ -335,6 +346,15 @@ namespace KBTV.Dialogue
                     }
 
                 case BroadcastState.Conversation:
+                    // Check if this is a break transition completing - transition to break state
+                    if (_breakTransitionPending && item?.Type == BroadcastItemType.Transition)
+                    {
+                        GD.Print($"BroadcastStateManager: Break transition completed ({itemId}), transitioning to ad break");
+                        _breakTransitionPending = false; // Reset flag
+                        _currentState = BroadcastState.Break;
+                        return GetNextItem();
+                    }
+
                     // Check whether the current arc finished after the last line.
                     var currentCaller = _repository.OnAirCaller;
                     bool endOfArc = false;
@@ -349,6 +369,7 @@ namespace KBTV.Dialogue
                     {
                         GD.Print("BroadcastStateManager: Grace period active, triggering break transition");
                         _isInBreakGracePeriod = false; // Reset for next break
+                        _breakTransitionPending = true; // Flag that transition is pending
                         return _itemRegistry.GetVernItem("break_transition", GetVernCurrentMood());
                     }
 
@@ -435,6 +456,15 @@ namespace KBTV.Dialogue
                     }
 
                 case BroadcastState.DeadAirFiller:
+                    // Check if we're in break grace period - trigger transition instead of continuing filler
+                    if (_isInBreakGracePeriod)
+                    {
+                        GD.Print("BroadcastStateManager: Dead air filler completed during grace period, triggering break transition");
+                        _isInBreakGracePeriod = false; // Reset for next break
+                        _breakTransitionPending = true; // Flag that transition is pending
+                        return _itemRegistry.GetVernItem("break_transition", GetVernCurrentMood());
+                    }
+
                     // Dead air filler cycle complete, check if callers arrived
                     if (_repository.HasOnHoldCallers)
                     {
@@ -468,9 +498,14 @@ namespace KBTV.Dialogue
                     {
                         // No callers, continue dead air filler cycle
                         return _itemRegistry.GetNextDeadAirFiller();
-                    }
+                     }
+ 
+                 case BroadcastState.Break:
+                     // Ad break completed, return to conversation
+                     _currentState = BroadcastState.ReturnFromBreak;
+                     return GetNextItem();
 
-                case BroadcastState.ReturnFromBreak:
+                 case BroadcastState.ReturnFromBreak:
                     _currentState = BroadcastState.Conversation;
                     return GetNextConversationItem();
             }

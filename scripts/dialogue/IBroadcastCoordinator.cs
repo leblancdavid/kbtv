@@ -7,5 +7,6 @@ namespace KBTV.Dialogue
     {
         void OnAdBreakStarted();
         void OnAdBreakEnded();
+        event System.Action? OnBreakTransitionCompleted;
     }
 }

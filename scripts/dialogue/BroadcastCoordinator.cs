@@ -40,11 +40,13 @@ namespace KBTV.Dialogue
     [GlobalClass]
     public partial class BroadcastCoordinator : Node, IBroadcastCoordinator
     {
-        private ICallerRepository _repository = null!;
-        private BroadcastStateMachine _stateMachine = null!;
-        private BroadcastItemRegistry _itemRegistry = null!;
-        private BroadcastItemExecutor _itemExecutor = null!;
-        private string? _currentItemId = null;
+    private ICallerRepository _repository = null!;
+    private BroadcastStateMachine _stateMachine = null!;
+    private BroadcastItemRegistry _itemRegistry = null!;
+    private BroadcastItemExecutor _itemExecutor = null!;
+    private AdBreakCoordinator _adBreakCoordinator = null!;
+    private string? _currentItemId = null;
+    private BroadcastItem? _currentItem = null;
 
         // Legacy interface compatibility - return Idle for now
         public BroadcastState CurrentState => BroadcastState.Idle;
@@ -64,22 +66,26 @@ namespace KBTV.Dialogue
             vernDialogueLoader.LoadDialogue();
             _itemRegistry.SetVernDialogueTemplate(vernDialogueLoader.VernDialogue);
 
+            // Initialize AdBreakCoordinator
+            var adManager = ServiceRegistry.Instance.AdManager;
+            _adBreakCoordinator = new AdBreakCoordinator(adManager, vernDialogueLoader.VernDialogue);
+
             _stateMachine = new BroadcastStateMachine(_repository, _itemRegistry);
             _itemExecutor = new BroadcastItemExecutor(itemId => {
-                var completedEvent = new BroadcastEvent(BroadcastEventType.Completed, itemId);
+                var completedEvent = new BroadcastEvent(BroadcastEventType.Completed, itemId, _currentItem);
                 ServiceRegistry.Instance.EventBus.Publish(completedEvent);
-            }, this);
+            }, this, _adBreakCoordinator);
 
             var eventBus = ServiceRegistry.Instance.EventBus;
             eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
             eventBus.Subscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
 
             // Subscribe to AdManager events for break interruptions
-            var adManager = ServiceRegistry.Instance.AdManager;
-            if (adManager != null)
+            var adManagerInstance = ServiceRegistry.Instance.AdManager;
+            if (adManagerInstance != null)
             {
-                adManager.OnBreakGracePeriod += OnBreakGracePeriod;
-                adManager.OnBreakImminent += OnBreakImminent;
+                adManagerInstance.OnBreakGracePeriod += OnBreakGracePeriod;
+                adManagerInstance.OnBreakImminent += OnBreakImminent;
             }
 
             ServiceRegistry.Instance.RegisterSelf<BroadcastCoordinator>(this);
@@ -110,6 +116,7 @@ namespace KBTV.Dialogue
 
             // Track the currently executing item
             _currentItemId = item.Id;
+            _currentItem = item;
 
             // Execute the item (play music, display text, etc.)
             _itemExecutor.ExecuteItem(item);
@@ -152,8 +159,17 @@ namespace KBTV.Dialogue
                     GD.Print("BroadcastCoordinator: No next broadcast item, show may be ending");
                 }
 
+                // Check if this was a break transition completion
+                if (@event.Item != null && @event.Item.Type == BroadcastItemType.Transition && 
+                    @event.ItemId.StartsWith("break_transition"))
+                {
+                    GD.Print("BroadcastCoordinator: Break transition completed, notifying AdManager");
+                    OnBreakTransitionCompleted?.Invoke();
+                }
+
                 // Clear current item tracking after processing
                 _currentItemId = null;
+                _currentItem = null;
             }
         }
 
@@ -210,8 +226,14 @@ namespace KBTV.Dialogue
 
         private void OnBreakImminent(float timeUntilBreak)
         {
-            GD.Print($"BroadcastCoordinator: Break imminent ({timeUntilBreak:F1}s until break) - forcing immediate transition");
-            // For imminent, interrupt immediately with transition
+            GD.Print($"BroadcastCoordinator: Break imminent ({timeUntilBreak:F1}s until break)");
+            // Don't trigger interruption if break is actually starting (timeUntilBreak <= 0)
+            if (timeUntilBreak <= 0)
+            {
+                GD.Print("BroadcastCoordinator: Break is starting now, no interruption needed");
+                return;
+            }
+            // For imminent warning, interrupt immediately with transition
             var interruptionEvent = new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakImminent);
             HandleBroadcastInterruption(interruptionEvent);
         }
@@ -220,6 +242,8 @@ namespace KBTV.Dialogue
         public void OnAdBreakStarted()
         {
             GD.Print("BroadcastCoordinator.OnAdBreakStarted: Starting ad break");
+            // Initialize the AdBreakCoordinator for this break
+            _adBreakCoordinator.OnAdBreakStarted();
             // Note: The actual interruption logic is now handled by the event-driven system
             // This method remains for interface compatibility
         }
@@ -227,6 +251,8 @@ namespace KBTV.Dialogue
         public void OnAdBreakEnded()
         {
             GD.Print("BroadcastCoordinator.OnAdBreakEnded: Ending ad break");
+            // Notify the AdBreakCoordinator that the break has ended
+            _adBreakCoordinator.OnAdBreakEnded();
             var interruptionEvent = new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakEnding);
             HandleBroadcastInterruption(interruptionEvent);
         }
