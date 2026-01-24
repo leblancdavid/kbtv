@@ -156,22 +156,20 @@ namespace KBTV.Dialogue
 
             if (line.Type == BroadcastLineType.CallerDialogue)
             {
-                // Load caller audio: res://assets/audio/voice/Callers/{topic}/{arc_id}_{gender}_{line_index}.mp3
-                if (!string.IsNullOrEmpty(line.ArcId) && !string.IsNullOrEmpty(line.CallerGender))
+                // Load caller audio: res://assets/audio/voice/Callers/{topic}/{arcId}/{line.Id}.mp3
+                if (!string.IsNullOrEmpty(line.ArcId) && !string.IsNullOrEmpty(line.Id))
                 {
-                    // Map topic from arc ID (first part before first underscore)
-                    string topic = line.ArcId.Split('_')[0];
-                    audioPath = $"res://assets/audio/voice/Callers/{topic}/{line.ArcId}_{line.CallerGender}_{line.LineIndex}.mp3";
+                    string topic = GetTopicFromArcId(line.ArcId);
+                    audioPath = $"res://assets/audio/voice/Callers/{topic}/{line.ArcId}/{line.Id}.mp3";
                 }
             }
             else if (line.Type == BroadcastLineType.VernDialogue)
             {
-                // Load Vern conversation audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{arc_folder}/{id}.mp3
+                // Load Vern conversation audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{arcId}/{line.Id}.mp3
                 if (!string.IsNullOrEmpty(line.ArcId) && !string.IsNullOrEmpty(line.Id))
                 {
-                    string arcTopic = GetTopicFromArcId(line.ArcId);
-                    string arcFolder = GetArcFolderFromArcId(line.ArcId);
-                    audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{arcFolder}/{line.Id}.mp3";
+                    string topic = GetTopicFromArcId(line.ArcId);
+                    audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{line.ArcId}/{line.Id}.mp3";
                 }
             }
             else if (line.Type == BroadcastLineType.ShowOpening || line.Type == BroadcastLineType.BetweenCallers ||

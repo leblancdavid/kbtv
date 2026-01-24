@@ -190,6 +190,14 @@ Topic-switcher arcs handle callers who lied about their topic during screening.
 }
 ```
 
+## Audio File Organization
+
+Audio files are stored in subdirectories by topic and arcId:
+- **Vern**: `Vern/ConversationArcs/{topic}/{arcId}/{line.Id}.mp3`
+- **Caller**: `Callers/{topic}/{arcId}/{line.Id}.mp3`
+
+The `arcId` in each JSON must exactly match the JSON filename (without `.json`).
+
 ## File Naming Convention
 
 ```
