@@ -94,20 +94,73 @@ namespace KBTV.Dialogue
                 return null;
             }
 
-            // Construct path using arcId as the folder name
-            var topic = arc.Topic.ToString().ToLowerInvariant();
-            var arcFolder = arc.ArcId; // arcId should equal the folder name
-            var audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{arcFolder}/{audioId}.mp3";
+            // Construct path using arcId parsing (same as AudioDialoguePlayer)
+            string arcTopic = GetTopicFromArcId(arc.ArcId);
+            string arcFolder = GetArcFolderFromArcId(arc.ArcId);
+            var audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{arcFolder}/{audioId}.mp3";
 
             if (ResourceLoader.Exists(audioPath))
             {
-                GD.Print($"BroadcastStateMachine: Found audio for {audioId}");
+                GD.Print($"BroadcastStateManager: Found audio for {audioId}");
                 return audioPath;
             }
 
             // No audio found - will use timer fallback
-            GD.PushWarning($"BroadcastStateMachine: No audio found for '{audioId}' in folder '{arcFolder}' - using timer fallback");
+            GD.PushWarning($"BroadcastStateManager: No audio found for '{audioId}' in folder '{arcFolder}' - using timer fallback");
             return null;
+        }
+
+        private string GetTopicFromArcId(string arcId)
+        {
+            // Extract topic from arc ID (e.g., "cryptids_questionable_shadow" -> "Cryptids")
+            if (arcId.StartsWith("ufos") || arcId.Contains("ufos_"))
+                return "UFOs";
+            if (arcId.StartsWith("ghosts") || arcId.Contains("ghosts_"))
+                return "Ghosts";
+            if (arcId.StartsWith("cryptids") || arcId.Contains("cryptids_") || arcId.Contains("cryptid_"))
+                return "Cryptids";
+            if (arcId.StartsWith("conspiracies") || arcId.Contains("conspiracies_"))
+                return "Conspiracies";
+
+            // Fallback: first part
+            var parts = arcId.Split('_');
+            if (parts.Length >= 1)
+            {
+                var topicPart = parts[0];
+                return topicPart switch
+                {
+                    "ufos" => "UFOs",
+                    "ghosts" => "Ghosts",
+                    "cryptids" => "Cryptids",
+                    "cryptid" => "Cryptids",
+                    "conspiracies" => "Conspiracies",
+                    _ => "UFOs"
+                };
+            }
+            return "UFOs"; // Default
+        }
+
+        private string GetArcFolderFromArcId(string arcId)
+        {
+            // Extract folder name from arc ID
+            // Format: {topic}_{legitimacy}_{name} -> {name}
+            // e.g., "ufos_compelling_pilot" -> "pilot"
+            // e.g., "cryptids_questionable_shadow" -> "shadow"
+            var parts = arcId.Split('_');
+            if (parts.Length >= 3)
+            {
+                // Join all parts after the first two (topic + legitimacy)
+                var folderParts = new System.Collections.Generic.List<string>();
+                for (int i = 2; i < parts.Length; i++)
+                {
+                    folderParts.Add(parts[i]);
+                }
+                return string.Join("_", folderParts);
+            }
+
+            // Fallback: use the whole arcId as folder (shouldn't happen with proper data)
+            GD.PrintErr($"BroadcastStateManager.GetArcFolderFromArcId: Unexpected arcId format: {arcId}");
+            return arcId;
         }
 
         private BroadcastItem? GetNextConversationItem()
