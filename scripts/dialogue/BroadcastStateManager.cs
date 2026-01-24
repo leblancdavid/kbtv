@@ -87,37 +87,26 @@ namespace KBTV.Dialogue
             return "neutral"; // Default fallback
         }
 
-        private string? ResolveAudioPath(string audioId, ConversationArc arc, bool isVern)
+        private string? ResolveAudioPath(string audioId, ConversationArc arc)
         {
             if (string.IsNullOrEmpty(audioId))
             {
                 return null;
             }
 
-            string audioPath;
-            string arcTopic = GetTopicFromArcId(arc.ArcId);
+            // Vern audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{folder}/{audioId}.mp3
+            string arcTopic = arc.Topic.ToString();
+            string arcFolder = GetArcFolderFromArcId(arc.ArcId);
+            string audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{arcFolder}/{audioId}.mp3";
 
-            if (isVern)
+            if (GD.Load<AudioStream>(audioPath) != null)
             {
-                // Vern audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{folder}/{audioId}.mp3
-                string arcFolder = GetArcFolderFromArcId(arc.ArcId);
-                audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{arcFolder}/{audioId}.mp3";
-            }
-            else
-            {
-                // Caller audio: res://assets/audio/voice/Callers/{topic}/{audioId}.mp3
-                audioPath = $"res://assets/audio/voice/Callers/{arcTopic}/{audioId}.mp3";
-            }
-
-            if (ResourceLoader.Exists(audioPath))
-            {
-                GD.Print($"BroadcastStateManager: Found audio for {audioId} ({(isVern ? "Vern" : "Caller")})");
+                GD.Print($"BroadcastStateManager: Found Vern audio for {audioId} at {audioPath}");
                 return audioPath;
             }
 
             // No audio found - will use timer fallback
-            string audioType = isVern ? "Vern" : "Caller";
-            GD.PushWarning($"BroadcastStateManager: No {audioType} audio found for '{audioId}' - using timer fallback");
+            GD.PushWarning($"BroadcastStateManager: No Vern audio found for '{audioId}' at {audioPath} - using timer fallback");
             return null;
         }
 
@@ -257,8 +246,27 @@ namespace KBTV.Dialogue
             string? audioPath = null;
             if (!string.IsNullOrEmpty(audioId))
             {
-                bool isVern = arcLine.Speaker == Speaker.Vern;
-                audioPath = ResolveAudioPath(audioId, arc, isVern);
+                if (arcLine.Speaker == Speaker.Vern)
+                {
+                    // Vern audio path
+                    audioPath = ResolveAudioPath(audioId, arc);
+                }
+                else
+                {
+                    // Caller audio path: res://assets/audio/voice/Callers/{topic}/{arcId}_{callerGender}_{lineIndex}.mp3
+                    string callerTopic = arc.Topic.ToString();
+                    string callerPath = $"res://assets/audio/voice/Callers/{callerTopic}/{arc.ArcId}_{arc.CallerGender.ToLower()}_{arcLine.ArcLineIndex}.mp3";
+
+                    if (GD.Load<AudioStream>(callerPath) != null)
+                    {
+                        GD.Print($"BroadcastStateManager: Found Caller audio for {audioId} at {callerPath}");
+                        audioPath = callerPath;
+                    }
+                    else
+                    {
+                        GD.PushWarning($"BroadcastStateManager: No Caller audio found for '{audioId}' at {callerPath} - using timer fallback");
+                    }
+                }
             }
 
             var item = new BroadcastItem(
