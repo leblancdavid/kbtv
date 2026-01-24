@@ -253,9 +253,9 @@ namespace KBTV.Dialogue
                 }
                 else
                 {
-                    // Caller audio path: res://assets/audio/voice/Callers/{topic}/{arcId}_{callerGender}_{lineIndex}.mp3
-                    string callerTopic = arc.Topic.ToString();
-                    string callerPath = $"res://assets/audio/voice/Callers/{callerTopic}/{arc.ArcId}_{arc.CallerGender.ToLower()}_{arcLine.ArcLineIndex}.mp3";
+                    // Caller audio path: res://assets/audio/voice/Callers/{topic}/{audioId}.mp3
+                    // audioId already contains the full filename from JSON id field
+                    string callerPath = $"res://assets/audio/voice/Callers/{arc.Topic.ToString()}/{audioId}.mp3";
 
                     if (GD.Load<AudioStream>(callerPath) != null)
                     {
