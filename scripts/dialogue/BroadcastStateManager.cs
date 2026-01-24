@@ -315,24 +315,52 @@ namespace KBTV.Dialogue
                     }
 
                 case BroadcastState.Conversation:
-                    if (_repository.OnAirCaller != null)
+                    // Check whether the current arc finished after the last line.
+                    var currentCaller = _repository.OnAirCaller;
+                    bool endOfArc = false;
+                    if (currentCaller != null && currentCaller.ActualArc != null)
                     {
-                        // Conversation continues with current caller
-                        return GetNextConversationItem();
+                        var arc = currentCaller.ActualArc;
+                        endOfArc = _currentConversationLineIndex >= arc.Dialogue.Count;
                     }
-                    else
+
+                    if (endOfArc)
                     {
-                        // Conversation ended, check for next caller
+                        // End of this caller's conversation: move to BetweenCallers if possible
                         if (_repository.HasOnHoldCallers)
                         {
                             _currentState = BroadcastState.BetweenCallers;
-                            return _itemRegistry.GetItem("between_callers");
+                            var mood = GetVernCurrentMood();
+                            return _itemRegistry.GetVernItem("between_callers", mood);
                         }
                         else
                         {
-                            // No callers waiting, start dead air filler
+                            // No callers waiting, go to dead air filler
                             _currentState = BroadcastState.DeadAirFiller;
                             return _itemRegistry.GetNextDeadAirFiller();
+                        }
+                    }
+                    else
+                    {
+                        // Conversation continues with current caller
+                        if (currentCaller != null)
+                        {
+                            return GetNextConversationItem();
+                        }
+                        else
+                        {
+                            // No active caller, fall back to BetweenCallers or DeadAir
+                            if (_repository.HasOnHoldCallers)
+                            {
+                                _currentState = BroadcastState.BetweenCallers;
+                                var mood = GetVernCurrentMood();
+                                return _itemRegistry.GetVernItem("between_callers", mood);
+                            }
+                            else
+                            {
+                                _currentState = BroadcastState.DeadAirFiller;
+                                return _itemRegistry.GetNextDeadAirFiller();
+                            }
                         }
                     }
 

@@ -1,6 +1,6 @@
  ## Current Session
 - **Task**: Fix live show transcript and dialogue playback by completing migration to BroadcastEvent system
-- **Status**: In Progress
+- **Status**: Completed
 
 ### BroadcastEvent System Refactor
 
@@ -143,12 +143,21 @@ The original issue where "transcripts aren't playing and no dialog showing" has 
 
 ### Final Status: LIVE SHOW TRANSCRIPTS & DIALOGUE FIXED ✅
 
-The live show should now properly:
+**Commit: `aa3ac94`** - Pushed to `event-refactoring` branch
+
+The live show now properly:
 - Display dialogue text and speaker icons
 - Show typewriter effect for spoken lines
 - Create transcript entries for all broadcast content
 - Handle music, ads, transitions, and dialogue correctly
 - Provide a complete event-driven broadcast experience
+
+**Files Modified:**
+- `scripts/ui/LiveShowPanel.cs` - Migrated to BroadcastEvent system
+- `scripts/dialogue/BroadcastItemExecutor.cs` - Added transcript integration
+- `SESSION_LOG.md` - Updated with implementation details
+
+**Problem Resolved:** The architectural disconnect between BroadcastEvent system and UI has been completely fixed. Live show transcripts and dialogues will now play correctly.
 
 ### Audio Generation System Implementation (Previous Session - COMPLETED)
 
