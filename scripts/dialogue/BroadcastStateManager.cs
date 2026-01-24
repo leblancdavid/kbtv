@@ -94,10 +94,9 @@ namespace KBTV.Dialogue
                 return null;
             }
 
-            // Vern audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{folder}/{audioId}.mp3
+            // Vern audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{arcId}/{audioId}.mp3
             string arcTopic = arc.Topic.ToString();
-            string arcFolder = GetArcFolderFromArcId(arc.ArcId);
-            string audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{arcFolder}/{audioId}.mp3";
+            string audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{arc.ArcId}/{audioId}.mp3";
 
             if (GD.Load<AudioStream>(audioPath) != null)
             {
@@ -140,28 +139,7 @@ namespace KBTV.Dialogue
             return "UFOs"; // Default
         }
 
-        private string GetArcFolderFromArcId(string arcId)
-        {
-            // Extract folder name from arc ID
-            // Format: {topic}_{legitimacy}_{name} -> {name}
-            // e.g., "ufos_compelling_pilot" -> "pilot"
-            // e.g., "cryptids_questionable_shadow" -> "shadow"
-            var parts = arcId.Split('_');
-            if (parts.Length >= 3)
-            {
-                // Join all parts after the first two (topic + legitimacy)
-                var folderParts = new System.Collections.Generic.List<string>();
-                for (int i = 2; i < parts.Length; i++)
-                {
-                    folderParts.Add(parts[i]);
-                }
-                return string.Join("_", folderParts);
-            }
 
-            // Fallback: use the whole arcId as folder (shouldn't happen with proper data)
-            GD.PrintErr($"BroadcastStateManager.GetArcFolderFromArcId: Unexpected arcId format: {arcId}");
-            return arcId;
-        }
 
         private BroadcastItem? GetNextConversationItem()
         {
