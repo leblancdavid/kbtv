@@ -14,7 +14,6 @@ namespace KBTV.Dialogue
         private IDialoguePlayer _audioPlayer = null!;
 
         private ConversationDisplayInfo _displayInfo = new();
-        private BroadcastLine _currentLine;
 
         public ConversationDisplayInfo DisplayInfo => _displayInfo;
 
@@ -29,23 +28,6 @@ namespace KBTV.Dialogue
             }
 
             InitializeWithServices();
-        }
-
-        public override void _ExitTree()
-        {
-            var eventBus = ServiceRegistry.Instance?.EventBus;
-            if (eventBus != null)
-            {
-                eventBus.Unsubscribe<ShowStartedEvent>(HandleShowStarted);
-                eventBus.Unsubscribe<ConversationStartedEvent>(HandleConversationStarted);
-                eventBus.Unsubscribe<AudioCompletedEvent>(HandleAudioCompleted);
-                eventBus.Unsubscribe<LineAvailableEvent>(HandleLineAvailable);
-                eventBus.Unsubscribe<BroadcastStateChangedEvent>(HandleStateChanged);
-            }
-
-            _repository?.Unsubscribe(this);
-
-            base._ExitTree();
         }
 
         private void RetryInitialization()
@@ -73,229 +55,120 @@ namespace KBTV.Dialogue
             }
 
             var eventBus = ServiceRegistry.Instance.EventBus;
-            eventBus.Subscribe<ShowStartedEvent>(HandleShowStarted);
-            eventBus.Subscribe<ConversationStartedEvent>(HandleConversationStarted);
-            eventBus.Subscribe<AudioCompletedEvent>(HandleAudioCompleted);
-            eventBus.Subscribe<LineAvailableEvent>(HandleLineAvailable);
-            eventBus.Subscribe<BroadcastStateChangedEvent>(HandleStateChanged);
-            eventBus.Subscribe<ConversationAdvancedEvent>(HandleConversationAdvanced);
+            eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
 
-            // Subscribe to transition line notifications
-            if (_coordinator != null)
-            {
-                _coordinator.OnTransitionLineAvailable += OnTransitionLineAvailable;
-            }
+            ServiceRegistry.Instance.RegisterSelf<ConversationDisplay>(this);
         }
 
-        private void HandleShowStarted(ShowStartedEvent @event)
-        {
-            // Event-driven: LineAvailableEvent will trigger line display
-            // No polling call needed
-        }
-
-        private void HandleConversationStarted(ConversationStartedEvent @event)
-        {
-            // Event-driven: LineAvailableEvent will trigger line display
-            // No polling call needed
-        }
-
-        private void HandleLineAvailable(LineAvailableEvent @event)
-        {
-            GD.Print($"ConversationDisplay.HandleLineAvailable: Received - Type={@event.Line.Type}, SpeakerId={@event.Line.SpeakerId}");
-
-            // For transition lines, ensure previous line/timers are properly cleaned up
-            if (IsTransitionLine(@event.Line))
-            {
-                GD.Print("ConversationDisplay: Starting transition line - ensuring clean state");
-                // Stop() will cancel any active timers and clear current line state
-                _audioPlayer?.Stop();
-            }
-
-            StartLine(@event.Line);
-        }
-
-        private bool IsTransitionLine(BroadcastLine line)
-        {
-            // Transition lines are special broadcast flow lines
-            return line.Type == BroadcastLineType.VernDialogue &&
-                   (_coordinator.CurrentState == BroadcastCoordinator.BroadcastState.BreakTransition ||
-                    _coordinator.CurrentState == BroadcastCoordinator.BroadcastState.ReturnFromBreak ||
-                    _coordinator.CurrentState == BroadcastCoordinator.BroadcastState.ShowEndingTransition);
-        }
-
-        private void HandleStateChanged(BroadcastStateChangedEvent @event)
-        {
-            // State changed - might need to update display state
-            // The actual line fetching will be triggered by the event flow
-        }
-
-        private void HandleAudioCompleted(AudioCompletedEvent @event)
-        {
-            GD.Print($"ConversationDisplay.HandleAudioCompleted: Received - LineId={@event.LineId}");
-            _coordinator.OnLineCompleted();
-        }
-
-        private void OnTransitionLineAvailable()
-        {
-            // Transition lines now handled by LineAvailableEvent system
-            // This callback kept for backward compatibility but should not use polling
-            GD.Print("ConversationDisplay: OnTransitionLineAvailable called (transition handled by event system)");
-        }
-
-        private void HandleConversationAdvanced(ConversationAdvancedEvent @event)
-        {
-            // Event-driven: LineAvailableEvent will be published after state advances
-            // No polling call needed
-        }
-
-        public override void OnEvent(GameEvent gameEvent)
-        {
-            if (gameEvent is ShowStartedEvent showEvent)
-            {
-                HandleShowStarted(showEvent);
-            }
-            else if (gameEvent is ConversationStartedEvent startedEvent)
-            {
-                HandleConversationStarted(startedEvent);
-            }
-            else if (gameEvent is AudioCompletedEvent audioEvent)
-            {
-                HandleAudioCompleted(audioEvent);
-            }
-            else if (gameEvent is LineAvailableEvent lineEvent)
-            {
-                HandleLineAvailable(lineEvent);
-            }
-            else if (gameEvent is BroadcastStateChangedEvent stateEvent)
-            {
-                HandleStateChanged(stateEvent);
-            }
-            else if (gameEvent is ConversationAdvancedEvent advancedEvent)
-            {
-                HandleConversationAdvanced(advancedEvent);
-            }
-        }
-
-        protected override void OnUpdate(float deltaTime)
-        {
-            // Event-driven conversation system doesn't use timer updates
-            // All progression is handled via events in OnEvent()
-        }
-
-        private void TryGetNextLine()
-        {
-            var line = _coordinator.GetNextDisplayLine();
-
-            if (line == null)
-            {
-                _displayInfo = ConversationDisplayInfo.CreateIdle();
-                return;
-            }
-
-            StartLine(line.Value);
-        }
-
-        private void StartLine(BroadcastLine line)
-        {
-            GD.Print($"ConversationDisplay: Starting line - Type: {line.Type}, Text: {line.Text}");
-
-            // Check if this is an interrupting line that should stop current audio
-            bool shouldInterrupt = IsInterruptingLine(line);
-
-            if (shouldInterrupt && _audioPlayer != null && _audioPlayer.IsPlaying)
-            {
-                GD.Print("ConversationDisplay: Interrupting current audio for new line");
-                _audioPlayer.Stop();
-
-                // Fire completion event for the interrupted line to maintain state consistency
-                OnAudioLineCompleted(new AudioCompletedEvent(_currentLine.SpeakerId,
-                    _currentLine.Speaker == "Vern" ? Speaker.Vern : Speaker.Caller));
-            }
-
-            _currentLine = line;
-            _displayInfo = CreateDisplayInfo(line);
-
-            if (_audioPlayer != null)
-            {
-                GD.Print("ConversationDisplay: Playing line through audio player");
-                _audioPlayer.PlayLineAsync(line);
-            }
-            else
-            {
-                GD.PrintErr("ConversationDisplay: No audio player available, skipping line");
-                OnAudioLineCompleted(new AudioCompletedEvent(line.SpeakerId, line.Speaker == "Vern" ? Speaker.Vern : Speaker.Caller));
-            }
-        }
-
-        private bool IsInterruptingLine(BroadcastLine line)
-        {
-            // For now, transition lines are interrupting
-            // Future: Add more interruption conditions (emergency broadcasts, etc.)
-            if (_coordinator == null) return false;
-
-            return line.Type == BroadcastLineType.VernDialogue &&
-                   _coordinator.CurrentState == BroadcastCoordinator.BroadcastState.BreakTransition;
-        }
-
-        private void OnAudioLineCompleted(AudioCompletedEvent audioEvent)
-        {
-            GD.Print($"ConversationDisplay.OnAudioLineCompleted: Called - LineId={audioEvent.LineId}");
-            _displayInfo.Progress = 1f;
-            _displayInfo.ElapsedLineTime = 0;
-
-            // Only notify coordinator of completion if this wasn't an interruption
-            // Interrupted lines don't advance the conversation state
-            bool wasInterrupted = IsInterruptingLine(_currentLine);
-            if (!wasInterrupted)
-            {
-                GD.Print($"ConversationDisplay.OnAudioLineCompleted: Publishing LineCompletedEvent for {_currentLine.SpeakerId}");
-                // Publish LineCompletedEvent for event-driven state management
-                var lineCompletedEvent = new LineCompletedEvent(_currentLine);
-                ServiceRegistry.Instance.EventBus.Publish(lineCompletedEvent);
-            }
-            else
-            {
-                GD.Print("ConversationDisplay: Line was interrupted, not advancing conversation state");
-            }
-        }
-
-
-
-        private static ConversationDisplayInfo CreateDisplayInfo(BroadcastLine line)
-        {
-            return line.Type switch
-            {
-                BroadcastLineType.Music => ConversationDisplayInfo.CreateMusic(line.Text),
-                BroadcastLineType.ShowOpening => ConversationDisplayInfo.CreateBroadcastLine(
-                    line.Speaker, line.SpeakerId, line.Text, line.Phase, BroadcastFlowState.ShowOpening),
-                BroadcastLineType.BetweenCallers => ConversationDisplayInfo.CreateBroadcastLine(
-                    line.Speaker, line.SpeakerId, line.Text, line.Phase, BroadcastFlowState.BetweenCallers),
-                BroadcastLineType.DeadAirFiller => ConversationDisplayInfo.CreateDeadAir(line.Text),
-                BroadcastLineType.ShowClosing => ConversationDisplayInfo.CreateBroadcastLine(
-                    line.Speaker, line.SpeakerId, line.Text, line.Phase, BroadcastFlowState.ShowClosing),
-                BroadcastLineType.AdBreak => ConversationDisplayInfo.CreateAdBreak(line.Text),
-                BroadcastLineType.Ad => ConversationDisplayInfo.CreateAd(line.Text),
-                _ => ConversationDisplayInfo.CreateBroadcastLine(
-                    line.Speaker, line.SpeakerId, line.Text, line.Phase, BroadcastFlowState.Conversation)
-            };
-        }
-
-
-
-        public void OnCallerOnAir(Caller caller)
-        {
-            _coordinator.OnCallerOnAir(caller);
-        }
-
-        public void OnCallerOnAirEnded(Caller caller)
-        {
-            _coordinator.OnCallerOnAirEnded(caller);
-        }
-
+        // ICallerRepositoryObserver implementation
         public void OnCallerAdded(Caller caller) { }
         public void OnCallerRemoved(Caller caller) { }
         public void OnCallerStateChanged(Caller caller, CallerState oldState, CallerState newState) { }
         public void OnScreeningStarted(Caller caller) { }
         public void OnScreeningEnded(Caller caller, bool approved) { }
+        public void OnCallerOnAir(Caller caller) { }
+        public void OnCallerOnAirEnded(Caller caller) { }
+
+        private void HandleBroadcastEvent(BroadcastEvent @event)
+        {
+            GD.Print($"ConversationDisplay.HandleBroadcastEvent: {@event.Type} - {@event.ItemId}");
+
+            if (@event.Type == BroadcastEventType.Started && @event.Item != null)
+            {
+                // Display the broadcast item
+                DisplayBroadcastItem(@event.Item);
+            }
+            else if (@event.Type == BroadcastEventType.Completed)
+            {
+                // Item completed, coordinator will handle next item
+                GD.Print($"ConversationDisplay: Broadcast item completed - {@event.ItemId}");
+            }
+        }
+
+        private void DisplayBroadcastItem(BroadcastItem item)
+        {
+            GD.Print($"ConversationDisplay: Displaying broadcast item - {item.Id} ({item.Type})");
+
+            // Update UI based on item type
+            switch (item.Type)
+            {
+                case BroadcastItemType.Music:
+                    // Music items might not need UI display, just play audio
+                    if (!string.IsNullOrEmpty(item.AudioPath))
+                    {
+                        PlayAudio(item.AudioPath);
+                    }
+                    break;
+
+                case BroadcastItemType.VernLine:
+                case BroadcastItemType.CallerLine:
+                case BroadcastItemType.DeadAir:
+                    // Display text and play audio
+                    DisplayText(item.Text);
+                    if (!string.IsNullOrEmpty(item.AudioPath))
+                    {
+                        PlayAudio(item.AudioPath);
+                    }
+                    break;
+
+                case BroadcastItemType.Ad:
+                case BroadcastItemType.Transition:
+                    // Display text, may have timer
+                    DisplayText(item.Text);
+                    if (item.Duration > 0)
+                    {
+                        StartTimer(item.Duration, item.Id);
+                    }
+                    break;
+
+                default:
+                    GD.PrintErr($"ConversationDisplay: Unknown broadcast item type {item.Type}");
+                    break;
+            }
+        }
+
+        private void DisplayText(string text)
+        {
+            GD.Print($"ConversationDisplay: Displaying text - {text}");
+            // In real implementation, update UI labels
+            _displayInfo = new ConversationDisplayInfo
+            {
+                Text = text,
+                IsTyping = false,
+                IsConversationActive = true
+            };
+        }
+
+        private void PlayAudio(string audioPath)
+        {
+            GD.Print($"ConversationDisplay: Playing audio - {audioPath}");
+            // In real implementation, load and play audio
+        }
+
+        private void StartTimer(float duration, string itemId)
+        {
+            GD.Print($"ConversationDisplay: Starting timer {duration}s for {itemId}");
+            // In real implementation, create timer and publish completion event when done
+        }
+
+        private void OnAudioLineCompleted(AudioCompletedEvent audioEvent)
+        {
+            GD.Print($"ConversationDisplay.OnAudioLineCompleted: Audio completed for {audioEvent.LineId}");
+
+            // Publish BroadcastEvent.Completed for the completed item
+            var completedEvent = new BroadcastEvent(BroadcastEventType.Completed, audioEvent.LineId);
+            ServiceRegistry.Instance.EventBus.Publish(completedEvent);
+        }
+
+        public override void OnEvent(GameEvent gameEvent)
+        {
+            // Handle any additional game events if needed
+        }
+
+        // DomainMonitor abstract method
+        protected override void OnUpdate(float deltaTime)
+        {
+            // Event-driven system - no polling needed
+        }
     }
 }

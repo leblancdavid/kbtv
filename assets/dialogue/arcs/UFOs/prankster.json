@@ -5,227 +5,235 @@
   "screeningSummary": "Prank caller with classic abduction story - admits to being dared by friends",
   "callerPersonality": "charismatic_storyteller",
   "arcNotes": "Prank call with classic abduction tropes, caller is being playful, breaks the fourth wall at the end",
-  "callerGender": "male",
-  "lines": [
+  "callerGender": "caller",
+  "arcLines": [
     {
-      "id": "ufos_fake_prankster_vern_neutral_1",
-      "text": "You're on the air. What's your story?",
-      "voiceText": "You're on the air. What's your story?",
       "speaker": "vern",
-      "mood": "neutral"
+      "lines": [
+        {
+          "id": "ufos_fake_prankster_vern_neutral_1",
+          "text": "You're on the air. What's your story?",
+          "voiceText": "You're on the air. What's your story?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_tired_1",
+          "text": "Alright, you're on. Make it quick.",
+          "voiceText": "Alright, you're on. Make it quick.",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_energized_1",
+          "text": "YOU ARE ON THE AIR! Tell us your story!",
+          "voiceText": "YOU ARE ON THE AIR! Tell us your story!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_irritated_1",
+          "text": "You're on. What's this about?",
+          "voiceText": "You're on. What's this about?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_gruff_1",
+          "text": "You're on. So?",
+          "voiceText": "You're on. So?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_amused_1",
+          "text": "Oh good, a caller! What's your story?",
+          "voiceText": "Oh good, a caller! What's your story?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_focused_1",
+          "text": "You're on. State your experience concisely.",
+          "voiceText": "You're on. State your experience concisely.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_fake_prankster_vern_tired_1",
-      "text": "Alright, you're on. Make it quick.",
-      "voiceText": "Alright, you're on. Make it quick.",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_fake_prankster_caller_1",
+          "text": "Okay, so this is gonna sound crazy, but I've been rehearsing what to say for three days. Last Tuesday, I was at my buddy's place out past Miller Road, maybe had a few drinks, and then... light. Coming from everywhere.",
+          "voiceText": "Okay, so this is gonna sound crazy, but I've been rehearsing what to say for three days. Last Tuesday, I was at my buddy's place out past Miller Road, maybe had a few drinks, and then... light. Coming from everywhere."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "tired"
+      "lines": [
+        {
+          "id": "ufos_fake_prankster_vern_neutral_2",
+          "text": "Go on.",
+          "voiceText": "Go on.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_tired_2",
+          "text": "...go on.",
+          "voiceText": "...go on.",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_energized_2",
+          "text": "OH WOW! Go on!!",
+          "voiceText": "OH WOW! Go on!!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_irritated_2",
+          "text": "Of course there was. Go on.",
+          "voiceText": "Of course there was. Go on.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_gruff_2",
+          "text": "Fine. Go on.",
+          "voiceText": "Fine. Go on.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_amused_2",
+          "text": "This is great! Go on!",
+          "voiceText": "This is great! Go on!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_focused_2",
+          "text": "Continue describing the phenomenon.",
+          "voiceText": "Continue describing the phenomenon.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_fake_prankster_vern_energized_1",
-      "text": "YOU ARE ON THE AIR! Tell us your story!",
-      "voiceText": "YOU ARE ON THE AIR! Tell us your story!",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_fake_prankster_caller_2",
+          "text": "Next thing I know, I'm in this room. White, no doors I could see. And there's... look, I know how this sounds, okay? But there were three of them. Gray skin, big eyes, the classic look you know from every movie ever.",
+          "voiceText": "Next thing I know, I'm in this room. White, no doors I could see. And there's... look, I know how this sounds, okay? But there were three of them. Gray skin, big eyes, the classic look you know from every movie ever."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "energized"
+      "lines": [
+        {
+          "id": "ufos_fake_prankster_vern_neutral_3",
+          "text": "Three beings. What happened next?",
+          "voiceText": "Three beings. What happened next?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_tired_3",
+          "text": "Three of them... alright. What happened?",
+          "voiceText": "Three of them... alright. What happened?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_energized_3",
+          "text": "THREE of them?! This is UNREAL! What happened next?!",
+          "voiceText": "THREE of them?! This is UNREAL! What happened next?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_irritated_3",
+          "text": "Three gray aliens. Let me guess - they did experiments?",
+          "voiceText": "Three gray aliens. Let me guess - they did experiments?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_gruff_3",
+          "text": "Three of them. Okay, what'd they do?",
+          "voiceText": "Three of them. Okay, what'd they do?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_amused_3",
+          "text": "THREE CLASSIC ALIENS! I love this! What happened?!",
+          "voiceText": "THREE CLASSIC ALIENS! I love this! What happened?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_focused_3",
+          "text": "Three entities. Describe their behavior and any subsequent events.",
+          "voiceText": "Three entities. Describe their behavior and any subsequent events.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_fake_prankster_vern_irritated_1",
-      "text": "You're on. What's this about?",
-      "voiceText": "You're on. What's this about?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_fake_prankster_caller_3",
+          "text": "They did... tests. I woke up in my buddy's backyard with scoop marks on my arm. I've been staring at those marks for three days, trying to figure out if I dreamed the whole thing or...",
+          "voiceText": "They did... tests. I woke up in my buddy's backyard with scoop marks on my arm. I've been staring at those marks for three days, trying to figure out if I dreamed the whole thing or..."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "irritated"
+      "lines": [
+        {
+          "id": "ufos_fake_prankster_vern_neutral_4",
+          "text": "Classic abduction story. Look, you could have gotten this from any UFO book or movie from the last fifty years. Next caller.",
+          "voiceText": "Classic abduction story. Look, you could have gotten this from any UFO book or movie from the last fifty years. Next caller.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_tired_4",
+          "text": "Right... scoop marks, classic. You know how this sounds, right? Next.",
+          "voiceText": "Right... scoop marks, classic. You know how this sounds, right? Next.",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_energized_4",
+          "text": "This is INCREDIBLE! Wait, scoop marks? Let me see if our team can - oh wait. NEXT CALLER!",
+          "voiceText": "This is INCREDIBLE! Wait, scoop marks? Let me see if our team can - oh wait. NEXT CALLER!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_irritated_4",
+          "text": "Scoop marks. Of course. Classic abduction story, word for word. Next caller.",
+          "voiceText": "Scoop marks. Of course. Classic abduction story, word for word. Next caller.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_gruff_4",
+          "text": "Scoop marks. That's the oldest trick in the book. Next caller.",
+          "voiceText": "Scoop marks. That's the oldest trick in the book. Next caller.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_amused_4",
+          "text": "SCOOP MARKS! I can't believe you just said that with a straight face! This is WHY I love this show! NEXT!",
+          "voiceText": "SCOOP MARKS! I can't believe you just said that with a straight face! This is WHY I love this show! NEXT!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_fake_prankster_vern_focused_4",
+          "text": "This narrative contains every conventional abduction trope. The specificity of \"scoop marks\" suggests external influence rather than genuine experience. Next caller.",
+          "voiceText": "This narrative contains every conventional abduction trope. The specificity of \"scoop marks\" suggests external influence rather than genuine experience. Next caller.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_fake_prankster_vern_gruff_1",
-      "text": "You're on. So?",
-      "voiceText": "You're on. So?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_amused_1",
-      "text": "Oh good, a caller! What's your story?",
-      "voiceText": "Oh good, a caller! What's your story?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_focused_1",
-      "text": "You're on. State your experience concisely.",
-      "voiceText": "You're on. State your experience concisely.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_fake_prankster_caller_1",
-      "text": "Okay, so this is gonna sound crazy, but I've been rehearsing what to say for three days. Last Tuesday, I was at my buddy's place out past Miller Road, maybe had a few drinks, and then... light. Coming from everywhere.",
-      "voiceText": "Okay, so this is gonna sound crazy, but I've been rehearsing what to say for three days. Last Tuesday, I was at my buddy's place out past Miller Road, maybe had a few drinks, and then... light. Coming from everywhere.",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_neutral_2",
-      "text": "Go on.",
-      "voiceText": "Go on.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_tired_2",
-      "text": "...go on.",
-      "voiceText": "...go on.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_energized_2",
-      "text": "OH WOW! Go on!!",
-      "voiceText": "OH WOW! Go on!!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_irritated_2",
-      "text": "Of course there was. Go on.",
-      "voiceText": "Of course there was. Go on.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_gruff_2",
-      "text": "Fine. Go on.",
-      "voiceText": "Fine. Go on.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_amused_2",
-      "text": "This is great! Go on!",
-      "voiceText": "This is great! Go on!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_focused_2",
-      "text": "Continue describing the phenomenon.",
-      "voiceText": "Continue describing the phenomenon.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_fake_prankster_caller_2",
-      "text": "Next thing I know, I'm in this room. White, no doors I could see. And there's... look, I know how this sounds, okay? But there were three of them. Gray skin, big eyes, the classic look you know from every movie ever.",
-      "voiceText": "Next thing I know, I'm in this room. White, no doors I could see. And there's... look, I know how this sounds, okay? But there were three of them. Gray skin, big eyes, the classic look you know from every movie ever.",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_neutral_3",
-      "text": "Three beings. What happened next?",
-      "voiceText": "Three beings. What happened next?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_tired_3",
-      "text": "Three of them... alright. What happened?",
-      "voiceText": "Three of them... alright. What happened?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_energized_3",
-      "text": "THREE of them?! This is UNREAL! What happened next?!",
-      "voiceText": "THREE of them?! This is UNREAL! What happened next?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_irritated_3",
-      "text": "Three gray aliens. Let me guess - they did experiments?",
-      "voiceText": "Three gray aliens. Let me guess - they did experiments?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_gruff_3",
-      "text": "Three of them. Okay, what'd they do?",
-      "voiceText": "Three of them. Okay, what'd they do?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_amused_3",
-      "text": "THREE CLASSIC ALIENS! I love this! What happened?!",
-      "voiceText": "THREE CLASSIC ALIENS! I love this! What happened?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_focused_3",
-      "text": "Three entities. Describe their behavior and any subsequent events.",
-      "voiceText": "Three entities. Describe their behavior and any subsequent events.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_fake_prankster_caller_3",
-      "text": "They did... tests. I woke up in my buddy's backyard with scoop marks on my arm. I've been staring at those marks for three days, trying to figure out if I dreamed the whole thing or...",
-      "voiceText": "They did... tests. I woke up in my buddy's backyard with scoop marks on my arm. I've been staring at those marks for three days, trying to figure out if I dreamed the whole thing or...",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_neutral_4",
-      "text": "Classic abduction story. Look, you could have gotten this from any UFO book or movie from the last fifty years. Next caller.",
-      "voiceText": "Classic abduction story. Look, you could have gotten this from any UFO book or movie from the last fifty years. Next caller.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_tired_4",
-      "text": "Right... scoop marks, classic. You know how this sounds, right? Next.",
-      "voiceText": "Right... scoop marks, classic. You know how this sounds, right? Next.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_energized_4",
-      "text": "This is INCREDIBLE! Wait, scoop marks? Let me see if our team can - oh wait. NEXT CALLER!",
-      "voiceText": "This is INCREDIBLE! Wait, scoop marks? Let me see if our team can - oh wait. NEXT CALLER!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_irritated_4",
-      "text": "Scoop marks. Of course. Classic abduction story, word for word. Next caller.",
-      "voiceText": "Scoop marks. Of course. Classic abduction story, word for word. Next caller.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_gruff_4",
-      "text": "Scoop marks. That's the oldest trick in the book. Next caller.",
-      "voiceText": "Scoop marks. That's the oldest trick in the book. Next caller.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_amused_4",
-      "text": "SCOOP MARKS! I can't believe you just said that with a straight face! This is WHY I love this show! NEXT!",
-      "voiceText": "SCOOP MARKS! I can't believe you just said that with a straight face! This is WHY I love this show! NEXT!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_fake_prankster_vern_focused_4",
-      "text": "This narrative contains every conventional abduction trope. The specificity of \"scoop marks\" suggests external influence rather than genuine experience. Next caller.",
-      "voiceText": "This narrative contains every conventional abduction trope. The specificity of \"scoop marks\" suggests external influence rather than genuine experience. Next caller.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_fake_prankster_caller_4",
-      "text": "*bursts out laughing* I'm sorry, Vern! My buddies dared me! I can't believe you bought it for like two seconds! This is why I love this show!",
-      "voiceText": "*bursts out laughing* I'm sorry, Vern! My buddies dared me! I can't believe you bought it for like two seconds! This is why I love this show!",
-      "speaker": "caller"
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_fake_prankster_caller_4",
+          "text": "*bursts out laughing* I'm sorry, Vern! My buddies dared me! I can't believe you bought it for like two seconds! This is why I love this show!",
+          "voiceText": "*bursts out laughing* I'm sorry, Vern! My buddies dared me! I can't believe you bought it for like two seconds! This is why I love this show!"
+        }
+      ]
     }
   ]
 }

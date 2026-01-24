@@ -5,282 +5,292 @@
   "screeningSummary": "Trucker with dashcam footage of triangular object pacing his truck for two miles",
   "callerPersonality": "gruff_experienced",
   "arcNotes": "Trucker with dashcam evidence, skeptical but has specific details, willing to defend his experience",
-  "callerGender": "male",
-  "lines": [
+  "callerGender": "caller",
+  "arcLines": [
     {
-      "id": "ufos_credible_dashcam_vern_neutral_1",
-      "text": "You're on the air. What's your story?",
-      "voiceText": "You're on the air. What's your story?",
       "speaker": "vern",
-      "mood": "neutral"
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_vern_neutral_1",
+          "text": "You're on the air. What's your story?",
+          "voiceText": "You're on the air. What's your story?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_tired_1",
+          "text": "Alright, you're on. What's this about?",
+          "voiceText": "Alright, you're on. What's this about?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_energized_1",
+          "text": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!",
+          "voiceText": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_irritated_1",
+          "text": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?",
+          "voiceText": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_gruff_1",
+          "text": "You're on. So what'd you see?",
+          "voiceText": "You're on. So what'd you see?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_amused_1",
+          "text": "Oh good, a caller! What've you got for us tonight?",
+          "voiceText": "Oh good, a caller! What've you got for us tonight?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_focused_1",
+          "text": "You're on the air. Start with the basic facts.",
+          "voiceText": "You're on the air. Start with the basic facts.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_credible_dashcam_vern_tired_1",
-      "text": "Alright, you're on. What's this about?",
-      "voiceText": "Alright, you're on. What's this about?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_caller_1",
+          "text": "Twenty-two years driving trucks, Vern. Last night, I'm on Route 9 past the county line, maybe two hours into my shift, and I see this light. Not a plane. Not a drone. Just... hovering. Pacing my truck.",
+          "voiceText": "Twenty-two years driving trucks, Vern. Last night, I'm on Route 9 past the county line, maybe two hours into my shift, and I see this light. Not a plane. Not a drone. Just... hovering. Pacing my truck."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "tired"
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_vern_neutral_2",
+          "text": "Pacing your truck. How long did this go on?",
+          "voiceText": "Pacing your truck. How long did this go on?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_tired_2",
+          "text": "Pacing your truck... okay, how long?",
+          "voiceText": "Pacing your truck... okay, how long?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_energized_2",
+          "text": "Pacing your TRUCK?! That's incredible! How long did this go on?!",
+          "voiceText": "Pacing your TRUCK?! That's incredible! How long did this go on?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_irritated_2",
+          "text": "Pacing your truck. Of course it was. How long?",
+          "voiceText": "Pacing your truck. Of course it was. How long?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_gruff_2",
+          "text": "Pacing your truck. Fine, I'll hear you out. How long?",
+          "voiceText": "Pacing your truck. Fine, I'll hear you out. How long?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_amused_2",
+          "text": "Pacing your truck! That's amazing! How long did it keep that up?",
+          "voiceText": "Pacing your truck! That's amazing! How long did it keep that up?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_focused_2",
+          "text": "Pacing your truck at highway speed. What was the duration?",
+          "voiceText": "Pacing your truck at highway speed. What was the duration?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_credible_dashcam_vern_energized_1",
-      "text": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!",
-      "voiceText": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_caller_2",
+          "text": "Two miles, Vern. Two miles at my exact speed. I'm doing fifty-five, this thing is doing fifty-five. Triangular, three lights at each point, dead silent. I know aircraft. I see them every night on these highways. This wasn't anything I've ever seen.",
+          "voiceText": "Two miles, Vern. Two miles at my exact speed. I'm doing fifty-five, this thing is doing fifty-five. Triangular, three lights at each point, dead silent. I know aircraft. I see them every night on these highways. This wasn't anything I've ever seen."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "energized"
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_vern_neutral_3",
+          "text": "Two miles at your speed. What happened after that?",
+          "voiceText": "Two miles at your speed. What happened after that?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_tired_3",
+          "text": "Two miles... alright. And then?",
+          "voiceText": "Two miles... alright. And then?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_energized_3",
+          "text": "TWO MILES?! That's unreal! What happened next?!",
+          "voiceText": "TWO MILES?! That's unreal! What happened next?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_irritated_3",
+          "text": "Two miles at fifty-five miles an hour. Let me guess - it vanished?",
+          "voiceText": "Two miles at fifty-five miles an hour. Let me guess - it vanished?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_gruff_3",
+          "text": "Two miles. That's not nothing. What'd it do?",
+          "voiceText": "Two miles. That's not nothing. What'd it do?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_amused_3",
+          "text": "TWO MILES of pacing! This is incredible! What happened at the end?!",
+          "voiceText": "TWO MILES of pacing! This is incredible! What happened at the end?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_focused_3",
+          "text": "Two miles matching your speed, triangular configuration. What was the behavior at the conclusion of this encounter?",
+          "voiceText": "Two miles matching your speed, triangular configuration. What was the behavior at the conclusion of this encounter?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_credible_dashcam_vern_irritated_1",
-      "text": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?",
-      "voiceText": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_caller_3",
+          "text": "It just... accelerated. Straight up. Gone in two seconds. I watched it on my dash cam when I stopped. Clear as day. I've been staring at that footage for six hours now, trying to figure out what I'm looking at.",
+          "voiceText": "It just... accelerated. Straight up. Gone in two seconds. I watched it on my dash cam when I stopped. Clear as day. I've been staring at that footage for six hours now, trying to figure out what I'm looking at."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "irritated"
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_vern_neutral_4",
+          "text": "I've got to ask - could this be military testing? There's a lot of black projects out there.",
+          "voiceText": "I've got to ask - could this be military testing? There's a lot of black projects out there.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_tired_4",
+          "text": "Look, it could be military stuff, you know how it is out there...",
+          "voiceText": "Look, it could be military stuff, you know how it is out there...",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_energized_4",
+          "text": "STRAIGHT UP?! Gone in TWO SECONDS?! This is AMAZING! Military tech, maybe?",
+          "voiceText": "STRAIGHT UP?! Gone in TWO SECONDS?! This is AMAZING! Military tech, maybe?",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_irritated_4",
+          "text": "Of course it accelerated straight up. You know, there's military training out there...",
+          "voiceText": "Of course it accelerated straight up. You know, there's military training out there...",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_gruff_4",
+          "text": "Could be military tests. That's my guess anyway. What's your take?",
+          "voiceText": "Could be military tests. That's my guess anyway. What's your take?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_amused_4",
+          "text": "Straight up into the sky! Gone in two seconds! This is PERFECT! Military, you think?",
+          "voiceText": "Straight up into the sky! Gone in two seconds! This is PERFECT! Military, you think?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_focused_4",
+          "text": "Vertical acceleration to escape velocity. What are your thoughts on potential origin - military, experimental aircraft, or something else?",
+          "voiceText": "Vertical acceleration to escape velocity. What are your thoughts on potential origin - military, experimental aircraft, or something else?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_credible_dashcam_vern_gruff_1",
-      "text": "You're on. So what'd you see?",
-      "voiceText": "You're on. So what'd you see?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_caller_4",
+          "text": "I thought the same thing, okay? I've been running through every explanation. But Vern, I've been driving these routes for twenty-two years. I know what military aircraft looks like. This broke every expectation I had about what aircraft can do.",
+          "voiceText": "I thought the same thing, okay? I've been running through every explanation. But Vern, I've been driving these routes for twenty-two years. I know what military aircraft looks like. This broke every expectation I had about what aircraft can do."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "gruff"
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_vern_neutral_5",
+          "text": "Send that footage in. Our team will tear it apart and if it's real, you're going to be part of something big. Appreciate you calling in.",
+          "voiceText": "Send that footage in. Our team will tear it apart and if it's real, you're going to be part of something big. Appreciate you calling in.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_tired_5",
+          "text": "Yeah, send the footage in. Someone should look at it. Thanks for calling.",
+          "voiceText": "Yeah, send the footage in. Someone should look at it. Thanks for calling.",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_energized_5",
+          "text": "Send us that footage! Our team is going to FREAK OUT over this! You're part of something HUGE!",
+          "voiceText": "Send us that footage! Our team is going to FREAK OUT over this! You're part of something HUGE!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_irritated_5",
+          "text": "Right, well... send the footage in if you want. We'll take a look. Next caller.",
+          "voiceText": "Right, well... send the footage in if you want. We'll take a look. Next caller.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_gruff_5",
+          "text": "Send the footage in. We'll check it out. Thanks for calling.",
+          "voiceText": "Send the footage in. We'll check it out. Thanks for calling.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_amused_5",
+          "text": "Send us that DASH CAM FOOTAGE! This is exactly why we do this show! You're amazing!",
+          "voiceText": "Send us that DASH CAM FOOTAGE! This is exactly why we do this show! You're amazing!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_focused_5",
+          "text": "Please send that footage to our research team. We will analyze every frame for anomalies, propulsion signatures, and corroborating evidence. Thank you for coming forward.",
+          "voiceText": "Please send that footage to our research team. We will analyze every frame for anomalies, propulsion signatures, and corroborating evidence. Thank you for coming forward.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_credible_dashcam_vern_amused_1",
-      "text": "Oh good, a caller! What've you got for us tonight?",
-      "voiceText": "Oh good, a caller! What've you got for us tonight?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_focused_1",
-      "text": "You're on the air. Start with the basic facts.",
-      "voiceText": "You're on the air. Start with the basic facts.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_credible_dashcam_caller_1",
-      "text": "Twenty-two years driving trucks, Vern. Last night, I'm on Route 9 past the county line, maybe two hours into my shift, and I see this light. Not a plane. Not a drone. Just... hovering. Pacing my truck.",
-      "voiceText": "Twenty-two years driving trucks, Vern. Last night, I'm on Route 9 past the county line, maybe two hours into my shift, and I see this light. Not a plane. Not a drone. Just... hovering. Pacing my truck.",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_neutral_2",
-      "text": "Pacing your truck. How long did this go on?",
-      "voiceText": "Pacing your truck. How long did this go on?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_tired_2",
-      "text": "Pacing your truck... okay, how long?",
-      "voiceText": "Pacing your truck... okay, how long?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_energized_2",
-      "text": "Pacing your TRUCK?! That's incredible! How long did this go on?!",
-      "voiceText": "Pacing your TRUCK?! That's incredible! How long did this go on?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_irritated_2",
-      "text": "Pacing your truck. Of course it was. How long?",
-      "voiceText": "Pacing your truck. Of course it was. How long?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_gruff_2",
-      "text": "Pacing your truck. Fine, I'll hear you out. How long?",
-      "voiceText": "Pacing your truck. Fine, I'll hear you out. How long?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_amused_2",
-      "text": "Pacing your truck! That's amazing! How long did it keep that up?",
-      "voiceText": "Pacing your truck! That's amazing! How long did it keep that up?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_focused_2",
-      "text": "Pacing your truck at highway speed. What was the duration?",
-      "voiceText": "Pacing your truck at highway speed. What was the duration?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_credible_dashcam_caller_2",
-      "text": "Two miles, Vern. Two miles at my exact speed. I'm doing fifty-five, this thing is doing fifty-five. Triangular, three lights at each point, dead silent. I know aircraft. I see them every night on these highways. This wasn't anything I've ever seen.",
-      "voiceText": "Two miles, Vern. Two miles at my exact speed. I'm doing fifty-five, this thing is doing fifty-five. Triangular, three lights at each point, dead silent. I know aircraft. I see them every night on these highways. This wasn't anything I've ever seen.",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_neutral_3",
-      "text": "Two miles at your speed. What happened after that?",
-      "voiceText": "Two miles at your speed. What happened after that?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_tired_3",
-      "text": "Two miles... alright. And then?",
-      "voiceText": "Two miles... alright. And then?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_energized_3",
-      "text": "TWO MILES?! That's unreal! What happened next?!",
-      "voiceText": "TWO MILES?! That's unreal! What happened next?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_irritated_3",
-      "text": "Two miles at fifty-five miles an hour. Let me guess - it vanished?",
-      "voiceText": "Two miles at fifty-five miles an hour. Let me guess - it vanished?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_gruff_3",
-      "text": "Two miles. That's not nothing. What'd it do?",
-      "voiceText": "Two miles. That's not nothing. What'd it do?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_amused_3",
-      "text": "TWO MILES of pacing! This is incredible! What happened at the end?!",
-      "voiceText": "TWO MILES of pacing! This is incredible! What happened at the end?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_focused_3",
-      "text": "Two miles matching your speed, triangular configuration. What was the behavior at the conclusion of this encounter?",
-      "voiceText": "Two miles matching your speed, triangular configuration. What was the behavior at the conclusion of this encounter?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_credible_dashcam_caller_3",
-      "text": "It just... accelerated. Straight up. Gone in two seconds. I watched it on my dash cam when I stopped. Clear as day. I've been staring at that footage for six hours now, trying to figure out what I'm looking at.",
-      "voiceText": "It just... accelerated. Straight up. Gone in two seconds. I watched it on my dash cam when I stopped. Clear as day. I've been staring at that footage for six hours now, trying to figure out what I'm looking at.",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_neutral_4",
-      "text": "I've got to ask - could this be military testing? There's a lot of black projects out there.",
-      "voiceText": "I've got to ask - could this be military testing? There's a lot of black projects out there.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_tired_4",
-      "text": "Look, it could be military stuff, you know how it is out there...",
-      "voiceText": "Look, it could be military stuff, you know how it is out there...",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_energized_4",
-      "text": "STRAIGHT UP?! Gone in TWO SECONDS?! This is AMAZING! Military tech, maybe?",
-      "voiceText": "STRAIGHT UP?! Gone in TWO SECONDS?! This is AMAZING! Military tech, maybe?",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_irritated_4",
-      "text": "Of course it accelerated straight up. You know, there's military training out there...",
-      "voiceText": "Of course it accelerated straight up. You know, there's military training out there...",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_gruff_4",
-      "text": "Could be military tests. That's my guess anyway. What's your take?",
-      "voiceText": "Could be military tests. That's my guess anyway. What's your take?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_amused_4",
-      "text": "Straight up into the sky! Gone in two seconds! This is PERFECT! Military, you think?",
-      "voiceText": "Straight up into the sky! Gone in two seconds! This is PERFECT! Military, you think?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_focused_4",
-      "text": "Vertical acceleration to escape velocity. What are your thoughts on potential origin - military, experimental aircraft, or something else?",
-      "voiceText": "Vertical acceleration to escape velocity. What are your thoughts on potential origin - military, experimental aircraft, or something else?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_credible_dashcam_caller_4",
-      "text": "I thought the same thing, okay? I've been running through every explanation. But Vern, I've been driving these routes for twenty-two years. I know what military aircraft looks like. This broke every expectation I had about what aircraft can do.",
-      "voiceText": "I thought the same thing, okay? I've been running through every explanation. But Vern, I've been driving these routes for twenty-two years. I know what military aircraft looks like. This broke every expectation I had about what aircraft can do.",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_neutral_5",
-      "text": "Send that footage in. Our team will tear it apart and if it's real, you're going to be part of something big. Appreciate you calling in.",
-      "voiceText": "Send that footage in. Our team will tear it apart and if it's real, you're going to be part of something big. Appreciate you calling in.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_tired_5",
-      "text": "Yeah, send the footage in. Someone should look at it. Thanks for calling.",
-      "voiceText": "Yeah, send the footage in. Someone should look at it. Thanks for calling.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_energized_5",
-      "text": "Send us that footage! Our team is going to FREAK OUT over this! You're part of something HUGE!",
-      "voiceText": "Send us that footage! Our team is going to FREAK OUT over this! You're part of something HUGE!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_irritated_5",
-      "text": "Right, well... send the footage in if you want. We'll take a look. Next caller.",
-      "voiceText": "Right, well... send the footage in if you want. We'll take a look. Next caller.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_gruff_5",
-      "text": "Send the footage in. We'll check it out. Thanks for calling.",
-      "voiceText": "Send the footage in. We'll check it out. Thanks for calling.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_amused_5",
-      "text": "Send us that DASH CAM FOOTAGE! This is exactly why we do this show! You're amazing!",
-      "voiceText": "Send us that DASH CAM FOOTAGE! This is exactly why we do this show! You're amazing!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_credible_dashcam_vern_focused_5",
-      "text": "Please send that footage to our research team. We will analyze every frame for anomalies, propulsion signatures, and corroborating evidence. Thank you for coming forward.",
-      "voiceText": "Please send that footage to our research team. We will analyze every frame for anomalies, propulsion signatures, and corroborating evidence. Thank you for coming forward.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_credible_dashcam_caller_5",
-      "text": "Will do, Vern. Thanks for... thanks for not laughing. It means a lot.",
-      "voiceText": "Will do, Vern. Thanks for... thanks for not laughing. It means a lot.",
-      "speaker": "caller"
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_caller_5",
+          "text": "Will do, Vern. Thanks for... thanks for not laughing. It means a lot.",
+          "voiceText": "Will do, Vern. Thanks for... thanks for not laughing. It means a lot."
+        }
+      ]
     }
   ]
 }

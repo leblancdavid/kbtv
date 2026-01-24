@@ -166,11 +166,12 @@ namespace KBTV.Dialogue
             }
             else if (line.Type == BroadcastLineType.VernDialogue)
             {
-                // Load Vern conversation audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{arc_id}/{id}.mp3
+                // Load Vern conversation audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{arc_folder}/{id}.mp3
                 if (!string.IsNullOrEmpty(line.ArcId) && !string.IsNullOrEmpty(line.Id))
                 {
                     string arcTopic = GetTopicFromArcId(line.ArcId);
-                    audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{line.ArcId}/{line.Id}.mp3";
+                    string arcFolder = GetArcFolderFromArcId(line.ArcId);
+                    audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{arcFolder}/{line.Id}.mp3";
                 }
             }
             else if (line.Type == BroadcastLineType.ShowOpening || line.Type == BroadcastLineType.BetweenCallers ||
@@ -240,6 +241,29 @@ namespace KBTV.Dialogue
                 };
             }
             return "UFOs"; // Default
+        }
+
+        private string GetArcFolderFromArcId(string arcId)
+        {
+            // Extract folder name from arc ID
+            // Format: {topic}_{legitimacy}_{name} -> {name}
+            // e.g., "ufos_compelling_pilot" -> "pilot"
+            // e.g., "ufos_credible_dashcam" -> "dashcam_trucker"
+            var parts = arcId.Split('_');
+            if (parts.Length >= 3)
+            {
+                // Join all parts after the first two (topic + legitimacy)
+                var folderParts = new System.Collections.Generic.List<string>();
+                for (int i = 2; i < parts.Length; i++)
+                {
+                    folderParts.Add(parts[i]);
+                }
+                return string.Join("_", folderParts);
+            }
+
+            // Fallback: use the whole arcId as folder (shouldn't happen with proper data)
+            GD.PrintErr($"AudioDialoguePlayer.GetArcFolderFromArcId: Unexpected arcId format: {arcId}");
+            return arcId;
         }
 
         private AudioStream? LoadAdAudio(BroadcastLine line)

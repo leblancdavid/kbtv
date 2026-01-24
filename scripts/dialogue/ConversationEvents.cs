@@ -119,14 +119,14 @@ namespace KBTV.Dialogue
         /// <summary>
         /// The previous state before the transition.
         /// </summary>
-        public BroadcastCoordinator.BroadcastState OldState { get; }
+        public BroadcastState OldState { get; }
 
         /// <summary>
         /// The new state after the transition.
         /// </summary>
-        public BroadcastCoordinator.BroadcastState NewState { get; }
+        public BroadcastState NewState { get; }
 
-        public BroadcastStateChangedEvent(BroadcastCoordinator.BroadcastState oldState, BroadcastCoordinator.BroadcastState newState)
+        public BroadcastStateChangedEvent(BroadcastState oldState, BroadcastState newState)
         {
             OldState = oldState;
             NewState = newState;

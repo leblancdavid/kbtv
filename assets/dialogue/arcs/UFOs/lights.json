@@ -5,282 +5,292 @@
   "screeningSummary": "First-time witness with Ring camera footage of three lights merging and accelerating straight up",
   "callerPersonality": "enthusiastic_convert",
   "arcNotes": "First-time witness, was skeptical before, now believes something is happening, has some footage",
-  "callerGender": "male",
-  "lines": [
+  "callerGender": "caller",
+  "arcLines": [
     {
-      "id": "ufos_questionable_lights_vern_neutral_1",
-      "text": "You're on the air. What did you witness?",
-      "voiceText": "You're on the air. What did you witness?",
       "speaker": "vern",
-      "mood": "neutral"
+      "lines": [
+        {
+          "id": "ufos_questionable_lights_vern_neutral_1",
+          "text": "You're on the air. What did you witness?",
+          "voiceText": "You're on the air. What did you witness?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_tired_1",
+          "text": "Alright, you're on. What'd you see?",
+          "voiceText": "Alright, you're on. What'd you see?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_energized_1",
+          "text": "YOU ARE ON THE AIR! Tell us what you witnessed!",
+          "voiceText": "YOU ARE ON THE AIR! Tell us what you witnessed!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_irritated_1",
+          "text": "You're on. Make it quick - what is it?",
+          "voiceText": "You're on. Make it quick - what is it?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_gruff_1",
+          "text": "You're on. So?",
+          "voiceText": "You're on. So?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_amused_1",
+          "text": "Oh good, a caller! What did you see?",
+          "voiceText": "Oh good, a caller! What did you see?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_focused_1",
+          "text": "You're on. Describe what you observed from the beginning.",
+          "voiceText": "You're on. Describe what you observed from the beginning.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_questionable_lights_vern_tired_1",
-      "text": "Alright, you're on. What'd you see?",
-      "voiceText": "Alright, you're on. What'd you see?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_questionable_lights_caller_1",
+          "text": "Okay so this is gonna sound insane, but last night at about 2 AM I'm letting my dog out and I see these three lights over the lake behind my house. Not planes - they were too deliberate. Just hovering there, completely silent.",
+          "voiceText": "Okay so this is gonna sound insane, but last night at about 2 AM I'm letting my dog out and I see these three lights over the lake behind my house. Not planes - they were too deliberate. Just hovering there, completely silent."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "tired"
+      "lines": [
+        {
+          "id": "ufos_questionable_lights_vern_neutral_2",
+          "text": "Three lights over the lake. How long were they there?",
+          "voiceText": "Three lights over the lake. How long were they there?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_tired_2",
+          "text": "Three lights... okay, how long were they hovering?",
+          "voiceText": "Three lights... okay, how long were they hovering?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_energized_2",
+          "text": "THREE LIGHTS over a lake at 2 AM?! This is AMAZING! How long did they stay?!",
+          "voiceText": "THREE LIGHTS over a lake at 2 AM?! This is AMAZING! How long did they stay?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_irritated_2",
+          "text": "Three lights. Of course it was three lights. How long?",
+          "voiceText": "Three lights. Of course it was three lights. How long?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_gruff_2",
+          "text": "Three lights. Fine, I'll listen. How long?",
+          "voiceText": "Three lights. Fine, I'll listen. How long?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_amused_2",
+          "text": "THREE LIGHTS! This is fantastic! How long were they there?!",
+          "voiceText": "THREE LIGHTS! This is fantastic! How long were they there?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_focused_2",
+          "text": "Three lights in a stationary position. What was the duration of observation?",
+          "voiceText": "Three lights in a stationary position. What was the duration of observation?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_questionable_lights_vern_energized_1",
-      "text": "YOU ARE ON THE AIR! Tell us what you witnessed!",
-      "voiceText": "YOU ARE ON THE AIR! Tell us what you witnessed!",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_questionable_lights_caller_2",
+          "text": "Five minutes, maybe. I just stood there watching. Then they started moving. Not randomly - they were communicating with each other somehow. They formed a triangle, then merged into one light.",
+          "voiceText": "Five minutes, maybe. I just stood there watching. Then they started moving. Not randomly - they were communicating with each other somehow. They formed a triangle, then merged into one light."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "energized"
+      "lines": [
+        {
+          "id": "ufos_questionable_lights_vern_neutral_3",
+          "text": "Merged into one light. That's unusual. What happened after that?",
+          "voiceText": "Merged into one light. That's unusual. What happened after that?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_tired_3",
+          "text": "Merged... alright. And then?",
+          "voiceText": "Merged... alright. And then?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_energized_3",
+          "text": "THEY MERGED INTO ONE LIGHT?! That's INCREDIBLE! What happened next?!",
+          "voiceText": "THEY MERGED INTO ONE LIGHT?! That's INCREDIBLE! What happened next?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_irritated_3",
+          "text": "Merged into one light. Let me guess - it shot straight up?",
+          "voiceText": "Merged into one light. Let me guess - it shot straight up?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_gruff_3",
+          "text": "Merged. Interesting. What happened?",
+          "voiceText": "Merged. Interesting. What happened?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_amused_3",
+          "text": "THEY COMMUNICATED AND MERGED! This is the best story of the night! What happened?!",
+          "voiceText": "THEY COMMUNICATED AND MERGED! This is the best story of the night! What happened?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_focused_3",
+          "text": "Formation change followed by merger. What was the subsequent behavior of the unified light?",
+          "voiceText": "Formation change followed by merger. What was the subsequent behavior of the unified light?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_questionable_lights_vern_irritated_1",
-      "text": "You're on. Make it quick - what is it?",
-      "voiceText": "You're on. Make it quick - what is it?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_questionable_lights_caller_3",
+          "text": "Shot straight up. Gone in less than a second. I have a ring camera that caught the lights, but it didn't catch the departure. Too fast for anything I've ever seen.",
+          "voiceText": "Shot straight up. Gone in less than a second. I have a ring camera that caught the lights, but it didn't catch the departure. Too fast for anything I've ever seen."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "irritated"
+      "lines": [
+        {
+          "id": "ufos_questionable_lights_vern_neutral_4",
+          "text": "There's a military base about forty miles from you. Could be training exercises with flares or drones.",
+          "voiceText": "There's a military base about forty miles from you. Could be training exercises with flares or drones.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_tired_4",
+          "text": "Look, there's a base out there. Could be military stuff. Just saying.",
+          "voiceText": "Look, there's a base out there. Could be military stuff. Just saying.",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_energized_4",
+          "text": "STRAIGHT UP in less than a second?! That's IMPOSSIBLE for normal aircraft! Could be military tech!",
+          "voiceText": "STRAIGHT UP in less than a second?! That's IMPOSSIBLE for normal aircraft! Could be military tech!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_irritated_4",
+          "text": "Of course it shot straight up. You know there's a military base out there, right?",
+          "voiceText": "Of course it shot straight up. You know there's a military base out there, right?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_gruff_4",
+          "text": "There's a base forty miles from you. Could be them testing stuff.",
+          "voiceText": "There's a base forty miles from you. Could be them testing stuff.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_amused_4",
+          "text": "STRAIGHT UP! Gone in a second! This is TEXTBOOK! Military, maybe?",
+          "voiceText": "STRAIGHT UP! Gone in a second! This is TEXTBOOK! Military, maybe?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_focused_4",
+          "text": "Vertical acceleration at supersonic speeds. Given the proximity to the military installation, what are your thoughts on experimental aircraft or drone swarm testing?",
+          "voiceText": "Vertical acceleration at supersonic speeds. Given the proximity to the military installation, what are your thoughts on experimental aircraft or drone swarm testing?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_questionable_lights_vern_gruff_1",
-      "text": "You're on. So?",
-      "voiceText": "You're on. So?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_questionable_lights_caller_4",
+          "text": "I thought about that. But flares don't hover for five minutes and then accelerate straight up. I've seen military exercises, Vern. This was something else. I'm not saying aliens, but... I don't know what else to call it.",
+          "voiceText": "I thought about that. But flares don't hover for five minutes and then accelerate straight up. I've seen military exercises, Vern. This was something else. I'm not saying aliens, but... I don't know what else to call it."
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "gruff"
+      "lines": [
+        {
+          "id": "ufos_questionable_lights_vern_neutral_5",
+          "text": "Send us that Ring camera footage if you can. Set up your phone next time too. We've got researchers who will analyze every frame. Thanks for calling in.",
+          "voiceText": "Send us that Ring camera footage if you can. Set up your phone next time too. We've got researchers who will analyze every frame. Thanks for calling in.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_tired_5",
+          "text": "Yeah, send the footage if you want. Maybe get your phone ready next time. Thanks.",
+          "voiceText": "Yeah, send the footage if you want. Maybe get your phone ready next time. Thanks.",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_energized_5",
+          "text": "Send us that FOOTAGE! Our team is going to FREAK OUT! Get your phone ready next time! This is AMAZING!",
+          "voiceText": "Send us that FOOTAGE! Our team is going to FREAK OUT! Get your phone ready next time! This is AMAZING!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_irritated_5",
+          "text": "Right, well... send the footage if you want. Maybe try to get video of the departure next time. Thanks.",
+          "voiceText": "Right, well... send the footage if you want. Maybe try to get video of the departure next time. Thanks.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_gruff_5",
+          "text": "Send the footage in. Maybe charge your phone next time. Thanks for calling.",
+          "voiceText": "Send the footage in. Maybe charge your phone next time. Thanks for calling.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_amused_5",
+          "text": "Send us that RING CAMERA footage! This is PERFECT! Get your phone ready for next time! We love this!",
+          "voiceText": "Send us that RING CAMERA footage! This is PERFECT! Get your phone ready for next time! We love this!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_focused_5",
+          "text": "Please submit that footage to our research division for frame-by-frame analysis. Additionally, we recommend having a secondary recording device prepared for future observations. Thank you for your report.",
+          "voiceText": "Please submit that footage to our research division for frame-by-frame analysis. Additionally, we recommend having a secondary recording device prepared for future observations. Thank you for your report.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ufos_questionable_lights_vern_amused_1",
-      "text": "Oh good, a caller! What did you see?",
-      "voiceText": "Oh good, a caller! What did you see?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_focused_1",
-      "text": "You're on. Describe what you observed from the beginning.",
-      "voiceText": "You're on. Describe what you observed from the beginning.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_questionable_lights_caller_1",
-      "text": "Okay so this is gonna sound insane, but last night at about 2 AM I'm letting my dog out and I see these three lights over the lake behind my house. Not planes - they were too deliberate. Just hovering there, completely silent.",
-      "voiceText": "Okay so this is gonna sound insane, but last night at about 2 AM I'm letting my dog out and I see these three lights over the lake behind my house. Not planes - they were too deliberate. Just hovering there, completely silent.",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_neutral_2",
-      "text": "Three lights over the lake. How long were they there?",
-      "voiceText": "Three lights over the lake. How long were they there?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_tired_2",
-      "text": "Three lights... okay, how long were they hovering?",
-      "voiceText": "Three lights... okay, how long were they hovering?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_energized_2",
-      "text": "THREE LIGHTS over a lake at 2 AM?! This is AMAZING! How long did they stay?!",
-      "voiceText": "THREE LIGHTS over a lake at 2 AM?! This is AMAZING! How long did they stay?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_irritated_2",
-      "text": "Three lights. Of course it was three lights. How long?",
-      "voiceText": "Three lights. Of course it was three lights. How long?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_gruff_2",
-      "text": "Three lights. Fine, I'll listen. How long?",
-      "voiceText": "Three lights. Fine, I'll listen. How long?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_amused_2",
-      "text": "THREE LIGHTS! This is fantastic! How long were they there?!",
-      "voiceText": "THREE LIGHTS! This is fantastic! How long were they there?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_focused_2",
-      "text": "Three lights in a stationary position. What was the duration of observation?",
-      "voiceText": "Three lights in a stationary position. What was the duration of observation?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_questionable_lights_caller_2",
-      "text": "Five minutes, maybe. I just stood there watching. Then they started moving. Not randomly - they were communicating with each other somehow. They formed a triangle, then merged into one light.",
-      "voiceText": "Five minutes, maybe. I just stood there watching. Then they started moving. Not randomly - they were communicating with each other somehow. They formed a triangle, then merged into one light.",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_neutral_3",
-      "text": "Merged into one light. That's unusual. What happened after that?",
-      "voiceText": "Merged into one light. That's unusual. What happened after that?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_tired_3",
-      "text": "Merged... alright. And then?",
-      "voiceText": "Merged... alright. And then?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_energized_3",
-      "text": "THEY MERGED INTO ONE LIGHT?! That's INCREDIBLE! What happened next?!",
-      "voiceText": "THEY MERGED INTO ONE LIGHT?! That's INCREDIBLE! What happened next?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_irritated_3",
-      "text": "Merged into one light. Let me guess - it shot straight up?",
-      "voiceText": "Merged into one light. Let me guess - it shot straight up?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_gruff_3",
-      "text": "Merged. Interesting. What happened?",
-      "voiceText": "Merged. Interesting. What happened?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_amused_3",
-      "text": "THEY COMMUNICATED AND MERGED! This is the best story of the night! What happened?!",
-      "voiceText": "THEY COMMUNICATED AND MERGED! This is the best story of the night! What happened?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_focused_3",
-      "text": "Formation change followed by merger. What was the subsequent behavior of the unified light?",
-      "voiceText": "Formation change followed by merger. What was the subsequent behavior of the unified light?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_questionable_lights_caller_3",
-      "text": "Shot straight up. Gone in less than a second. I have a ring camera that caught the lights, but it didn't catch the departure. Too fast for anything I've ever seen.",
-      "voiceText": "Shot straight up. Gone in less than a second. I have a ring camera that caught the lights, but it didn't catch the departure. Too fast for anything I've ever seen.",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_neutral_4",
-      "text": "There's a military base about forty miles from you. Could be training exercises with flares or drones.",
-      "voiceText": "There's a military base about forty miles from you. Could be training exercises with flares or drones.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_tired_4",
-      "text": "Look, there's a base out there. Could be military stuff. Just saying.",
-      "voiceText": "Look, there's a base out there. Could be military stuff. Just saying.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_energized_4",
-      "text": "STRAIGHT UP in less than a second?! That's IMPOSSIBLE for normal aircraft! Could be military tech!",
-      "voiceText": "STRAIGHT UP in less than a second?! That's IMPOSSIBLE for normal aircraft! Could be military tech!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_irritated_4",
-      "text": "Of course it shot straight up. You know there's a military base out there, right?",
-      "voiceText": "Of course it shot straight up. You know there's a military base out there, right?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_gruff_4",
-      "text": "There's a base forty miles from you. Could be them testing stuff.",
-      "voiceText": "There's a base forty miles from you. Could be them testing stuff.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_amused_4",
-      "text": "STRAIGHT UP! Gone in a second! This is TEXTBOOK! Military, maybe?",
-      "voiceText": "STRAIGHT UP! Gone in a second! This is TEXTBOOK! Military, maybe?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_focused_4",
-      "text": "Vertical acceleration at supersonic speeds. Given the proximity to the military installation, what are your thoughts on experimental aircraft or drone swarm testing?",
-      "voiceText": "Vertical acceleration at supersonic speeds. Given the proximity to the military installation, what are your thoughts on experimental aircraft or drone swarm testing?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_questionable_lights_caller_4",
-      "text": "I thought about that. But flares don't hover for five minutes and then accelerate straight up. I've seen military exercises, Vern. This was something else. I'm not saying aliens, but... I don't know what else to call it.",
-      "voiceText": "I thought about that. But flares don't hover for five minutes and then accelerate straight up. I've seen military exercises, Vern. This was something else. I'm not saying aliens, but... I don't know what else to call it.",
-      "speaker": "caller"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_neutral_5",
-      "text": "Send us that Ring camera footage if you can. Set up your phone next time too. We've got researchers who will analyze every frame. Thanks for calling in.",
-      "voiceText": "Send us that Ring camera footage if you can. Set up your phone next time too. We've got researchers who will analyze every frame. Thanks for calling in.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_tired_5",
-      "text": "Yeah, send the footage if you want. Maybe get your phone ready next time. Thanks.",
-      "voiceText": "Yeah, send the footage if you want. Maybe get your phone ready next time. Thanks.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_energized_5",
-      "text": "Send us that FOOTAGE! Our team is going to FREAK OUT! Get your phone ready next time! This is AMAZING!",
-      "voiceText": "Send us that FOOTAGE! Our team is going to FREAK OUT! Get your phone ready next time! This is AMAZING!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_irritated_5",
-      "text": "Right, well... send the footage if you want. Maybe try to get video of the departure next time. Thanks.",
-      "voiceText": "Right, well... send the footage if you want. Maybe try to get video of the departure next time. Thanks.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_gruff_5",
-      "text": "Send the footage in. Maybe charge your phone next time. Thanks for calling.",
-      "voiceText": "Send the footage in. Maybe charge your phone next time. Thanks for calling.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_amused_5",
-      "text": "Send us that RING CAMERA footage! This is PERFECT! Get your phone ready for next time! We love this!",
-      "voiceText": "Send us that RING CAMERA footage! This is PERFECT! Get your phone ready for next time! We love this!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ufos_questionable_lights_vern_focused_5",
-      "text": "Please submit that footage to our research division for frame-by-frame analysis. Additionally, we recommend having a secondary recording device prepared for future observations. Thank you for your report.",
-      "voiceText": "Please submit that footage to our research division for frame-by-frame analysis. Additionally, we recommend having a secondary recording device prepared for future observations. Thank you for your report.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ufos_questionable_lights_caller_5",
-      "text": "Will do, Vern. I've already got my camera set up for tonight. Something's happening out there and I want to catch it.",
-      "voiceText": "Will do, Vern. I've already got my camera set up for tonight. Something's happening out there and I want to catch it.",
-      "speaker": "caller"
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_questionable_lights_caller_5",
+          "text": "Will do, Vern. I've already got my camera set up for tonight. Something's happening out there and I want to catch it.",
+          "voiceText": "Will do, Vern. I've already got my camera set up for tonight. Something's happening out there and I want to catch it."
+        }
+      ]
     }
   ]
 }

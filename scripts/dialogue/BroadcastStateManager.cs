@@ -1,139 +1,351 @@
+#nullable enable
+
 using System;
+using System.Collections.Generic;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
 
 namespace KBTV.Dialogue
 {
-    public partial class BroadcastStateManager : Node
+    /// <summary>
+    /// State machine for managing broadcast flow and determining next broadcast items.
+    /// Replaces the complex BroadcastCoordinator + BroadcastStateManager logic.
+    /// </summary>
+    public class BroadcastStateMachine
     {
-        private ICallerRepository _repository;
-        private BroadcastCoordinator _coordinator;
+        private readonly ICallerRepository _repository;
+        private readonly BroadcastItemRegistry _itemRegistry;
+        private BroadcastState _currentState = BroadcastState.Idle;
 
-        public BroadcastCoordinator.BroadcastState CurrentState { get; private set; } = BroadcastCoordinator.BroadcastState.Idle;
+        // Conversation state tracking
+        private int _currentConversationLineIndex = -1; // -1 = no active conversation
+        private string? _currentConversationArcId = null;
 
-        public int FillerCycleCount { get; private set; } = 0;
+        public BroadcastState CurrentState => _currentState;
 
-        public BroadcastStateManager(ICallerRepository repository, BroadcastCoordinator coordinator)
+        public BroadcastStateMachine(ICallerRepository repository, BroadcastItemRegistry itemRegistry)
         {
             _repository = repository;
-            _coordinator = coordinator;
+            _itemRegistry = itemRegistry;
         }
 
-        public void SetState(BroadcastCoordinator.BroadcastState newState)
+        /// <summary>
+        /// Start the broadcast show.
+        /// </summary>
+        public BroadcastItem? StartShow()
         {
-            if (CurrentState == newState)
+            _currentState = BroadcastState.IntroMusic;
+            return GetNextItem();
+        }
+
+        public BroadcastItem? HandleEvent(BroadcastEvent @event)
+        {
+            return HandleItemCompleted(@event.ItemId);
+        }
+
+        public BroadcastItem? HandleInterruption(BroadcastInterruptionEvent @event)
+        {
+            return HandleItemInterrupted(@event.Reason.ToString());
+        }
+
+        private BroadcastItem? GetNextItem()
+        {
+            switch (_currentState)
             {
-                return;
-            }
-
-            var oldState = CurrentState;
-            CurrentState = newState;
-
-            // Publish event for event-driven architecture
-            ServiceRegistry.Instance.EventBus.Publish(new BroadcastStateChangedEvent(oldState, newState));
-        }
-
-        public void AdvanceState()
-        {
-            switch (CurrentState)
-            {
-                case BroadcastCoordinator.BroadcastState.IntroMusic:
-                    AdvanceFromIntroMusic();
-                    break;
-                case BroadcastCoordinator.BroadcastState.ShowOpening:
-                    AdvanceFromShowOpening();
-                    break;
-                case BroadcastCoordinator.BroadcastState.Conversation:
-                    AdvanceFromConversation();
-                    break;
-                case BroadcastCoordinator.BroadcastState.BetweenCallers:
-                    AdvanceFromBetweenCallers();
-                    break;
-                case BroadcastCoordinator.BroadcastState.DeadAirFiller:
-                    AdvanceFromFiller();
-                    break;
-                case BroadcastCoordinator.BroadcastState.OffTopicRemark:
-                    AdvanceFromOffTopicRemark();
-                    break;
-                case BroadcastCoordinator.BroadcastState.ShowClosing:
-                    CurrentState = BroadcastCoordinator.BroadcastState.Idle;
-                    break;
-            }
-        }
-
-        public void ResetFillerCycleCount()
-        {
-            FillerCycleCount = 0;
-        }
-
-        public void IncrementFillerCycle()
-        {
-            FillerCycleCount++;
-        }
-
-        private void AdvanceFromIntroMusic()
-        {
-            CurrentState = BroadcastCoordinator.BroadcastState.ShowOpening;
-        }
-
-        private void AdvanceFromShowOpening()
-        {
-            if (_repository.HasOnHoldCallers)
-            {
-                CurrentState = BroadcastCoordinator.BroadcastState.Conversation;
-            }
-            else
-            {
-                CurrentState = BroadcastCoordinator.BroadcastState.DeadAirFiller;
-                FillerCycleCount = 0;
+                case BroadcastState.Idle:
+                    return null;
+                case BroadcastState.IntroMusic:
+                    return _itemRegistry.GetItem("music_intro");
+                case BroadcastState.ShowOpening:
+                    return _itemRegistry.GetItem("vern_opening_1");
+                case BroadcastState.Conversation:
+                    return GetNextConversationItem();
+                case BroadcastState.BetweenCallers:
+                    return _itemRegistry.GetItem("between_callers");
+                case BroadcastState.DeadAirFiller:
+                    return _itemRegistry.GetNextDeadAirFiller();
+                case BroadcastState.Break:
+                    return _itemRegistry.GetItem("ad_break");
+                case BroadcastState.ReturnFromBreak:
+                    return _itemRegistry.GetItem("break_return_music");
+                case BroadcastState.ShowEnding:
+                    return _itemRegistry.GetItem("music_outro");
+                default:
+                    return null;
             }
         }
 
-        private void AdvanceFromConversation()
+        private string GetVernCurrentMood()
         {
-            if (_repository.OnAirCaller == null)
+            // Get Vern's current mood from game state
+            var vernStats = ServiceRegistry.Instance?.GameStateManager?.VernStats;
+            if (vernStats != null)
             {
-                if (_repository.HasOnHoldCallers)
+                return vernStats.CurrentMoodType.ToString().ToLowerInvariant();
+            }
+            return "neutral"; // Default fallback
+        }
+
+        private string? ResolveAudioPath(string audioId, ConversationArc arc)
+        {
+            if (string.IsNullOrEmpty(audioId))
+            {
+                return null;
+            }
+
+            // Construct path using arcId as the folder name
+            var topic = arc.Topic.ToString().ToLowerInvariant();
+            var arcFolder = arc.ArcId; // arcId should equal the folder name
+            var audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{arcFolder}/{audioId}.mp3";
+
+            if (ResourceLoader.Exists(audioPath))
+            {
+                GD.Print($"BroadcastStateMachine: Found audio for {audioId}");
+                return audioPath;
+            }
+
+            // No audio found - will use timer fallback
+            GD.PushWarning($"BroadcastStateMachine: No audio found for '{audioId}' in folder '{arcFolder}' - using timer fallback");
+            return null;
+        }
+
+        private BroadcastItem? GetNextConversationItem()
+        {
+            var caller = _repository.OnAirCaller;
+            if (caller == null || caller.ActualArc == null)
+            {
+                GD.PrintErr("BroadcastStateMachine.GetNextConversationItem: No on-air caller or arc");
+                return null;
+            }
+
+            var arc = caller.ActualArc;
+
+            // Check if we've reached the end of the conversation
+            if (_currentConversationLineIndex >= arc.Dialogue.Count)
+            {
+                GD.Print($"BroadcastStateMachine: Conversation ended for arc {arc.ArcId}");
+                _currentConversationLineIndex = -1;
+                _currentConversationArcId = null;
+                return null; // Conversation ended, let state machine handle next transition
+            }
+
+            // For the new schema, we need to get the line data from the arc's lines array
+            // The arc.Dialogue contains ArcDialogueLine objects created from the schema
+            var arcLine = arc.Dialogue[_currentConversationLineIndex];
+
+            // Get display text and audio id, selecting mood variant for Vern lines
+            string displayText = arcLine.Text;
+            string? audioId = arcLine.AudioId;
+
+            // For Vern lines with mood variants, select based on current mood
+            if (arcLine.Speaker == Speaker.Vern && arcLine.AudioIds.Count > 0)
+            {
+                var currentMood = GetVernCurrentMood().ToLowerInvariant();
+
+                // Try to get mood-specific text and audio
+                if (arcLine.AudioIds.TryGetValue(currentMood, out var moodAudioId))
                 {
-                    CurrentState = BroadcastCoordinator.BroadcastState.BetweenCallers;
+                    audioId = moodAudioId;
+                    if (arcLine.TextVariants.TryGetValue(currentMood, out var moodText))
+                    {
+                        displayText = moodText;
+                    }
                 }
                 else
                 {
-                    CurrentState = BroadcastCoordinator.BroadcastState.DeadAirFiller;
-                    FillerCycleCount = 0;
+                    // Fallback to neutral or first available
+                    var fallbackMoods = new[] { "neutral", "tired", "energized", "irritated", "gruff", "amused", "focused" };
+                    foreach (var mood in fallbackMoods)
+                    {
+                        if (arcLine.AudioIds.TryGetValue(mood, out var fallbackAudioId))
+                        {
+                            audioId = fallbackAudioId;
+                            if (arcLine.TextVariants.TryGetValue(mood, out var fallbackText))
+                            {
+                                displayText = fallbackText;
+                            }
+                            break;
+                        }
+                    }
                 }
             }
-        }
 
-        private void AdvanceFromBetweenCallers()
-        {
-            if (_repository.HasOnHoldCallers)
+            // Create BroadcastLine from arc data
+            BroadcastLine broadcastLine;
+            if (arcLine.Speaker == Speaker.Vern)
             {
-                CurrentState = BroadcastCoordinator.BroadcastState.Conversation;
+                // Vern line with arc information for audio lookup
+                broadcastLine = BroadcastLine.VernDialogue(displayText, ConversationPhase.Probe,
+                    arc.ArcId, arcLine.ArcLineIndex, audioId ?? $"vern_fallback_{_currentConversationLineIndex}");
             }
             else
             {
-                CurrentState = BroadcastCoordinator.BroadcastState.DeadAirFiller;
-                FillerCycleCount = 0;
+                // Caller line
+                broadcastLine = BroadcastLine.CallerDialogue(displayText, caller.Name, caller.Id.ToString(),
+                    ConversationPhase.Probe, arc.ArcId, arc.CallerGender.ToLower(), arcLine.ArcLineIndex);
             }
+
+            // Create BroadcastItem
+            var itemType = arcLine.Speaker == Speaker.Vern ? BroadcastItemType.VernLine : BroadcastItemType.CallerLine;
+
+            // Resolve audio path using the audioId
+            string? audioPath = null;
+            if (!string.IsNullOrEmpty(audioId))
+            {
+                audioPath = ResolveAudioPath(audioId, arc);
+            }
+
+            var item = new BroadcastItem(
+                id: $"conversation_{arc.ArcId}_{_currentConversationLineIndex}",
+                type: itemType,
+                text: displayText,
+                audioPath: audioPath, // May be null - will use timer fallback
+                duration: 4.0f, // Default duration
+                metadata: broadcastLine // Store the BroadcastLine for AudioDialoguePlayer
+            );
+
+            // Advance to next line
+            _currentConversationLineIndex++;
+
+            GD.Print($"BroadcastStateMachine: Returning conversation item - {item.Id} ({item.Type}) - \"{displayText}\"");
+            return item;
         }
 
-        private void AdvanceFromOffTopicRemark()
+        private BroadcastItem? HandleItemCompleted(string itemId)
         {
-            CurrentState = _coordinator.GetNextStateAfterOffTopic();
+            // Update state based on completed item
+            switch (_currentState)
+            {
+                case BroadcastState.IntroMusic:
+                    if (itemId == "music_intro")
+                    {
+                        _currentState = BroadcastState.ShowOpening;
+                        return GetNextItem();
+                    }
+                    break;
+
+                case BroadcastState.ShowOpening:
+                    // After show opening completes, check for callers
+                    if (_repository.HasOnHoldCallers)
+                    {
+                        // Put next caller on air automatically
+                        var putOnAirResult = _repository.PutOnAir();
+                        if (putOnAirResult.IsSuccess)
+                        {
+                            // Initialize conversation state
+                            _currentConversationLineIndex = 0;
+                            _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
+
+                            _currentState = BroadcastState.Conversation;
+                            return GetNextConversationItem();
+                        }
+                        else
+                        {
+                            GD.PrintErr($"Failed to put caller on air: {putOnAirResult.ErrorMessage}");
+                            // Fallback to dead air filler
+                            _currentState = BroadcastState.DeadAirFiller;
+                            return _itemRegistry.GetNextDeadAirFiller();
+                        }
+                    }
+                    else
+                    {
+                        // No callers waiting, start dead air filler
+                        _currentState = BroadcastState.DeadAirFiller;
+                        return _itemRegistry.GetNextDeadAirFiller();
+                    }
+
+                case BroadcastState.Conversation:
+                    if (_repository.OnAirCaller != null)
+                    {
+                        // Conversation continues with current caller
+                        return GetNextConversationItem();
+                    }
+                    else
+                    {
+                        // Conversation ended, check for next caller
+                        if (_repository.HasOnHoldCallers)
+                        {
+                            _currentState = BroadcastState.BetweenCallers;
+                            return _itemRegistry.GetItem("between_callers");
+                        }
+                        else
+                        {
+                            // No callers waiting, start dead air filler
+                            _currentState = BroadcastState.DeadAirFiller;
+                            return _itemRegistry.GetNextDeadAirFiller();
+                        }
+                    }
+
+                case BroadcastState.BetweenCallers:
+                    // Between-callers transition complete, put next caller on air
+                    if (_repository.HasOnHoldCallers)
+                    {
+                        var putOnAirResult = _repository.PutOnAir();
+                        if (putOnAirResult.IsSuccess)
+                        {
+                            // Initialize conversation state for new caller
+                            _currentConversationLineIndex = 0;
+                            _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
+
+                            _currentState = BroadcastState.Conversation;
+                            return GetNextConversationItem();
+                        }
+                        else
+                        {
+                            GD.PrintErr($"Failed to put caller on air after between-callers: {putOnAirResult.ErrorMessage}");
+                            // Fallback to dead air filler
+                            _currentState = BroadcastState.DeadAirFiller;
+                            return _itemRegistry.GetNextDeadAirFiller();
+                        }
+                    }
+                    else
+                    {
+                        // No callers were available when between-callers started
+                        _currentState = BroadcastState.DeadAirFiller;
+                        return _itemRegistry.GetNextDeadAirFiller();
+                    }
+
+                case BroadcastState.DeadAirFiller:
+                    // Dead air filler cycle complete, check if callers arrived
+                    if (_repository.HasOnHoldCallers)
+                    {
+                        // Callers waiting, put next caller on air
+                        var putOnAirResult = _repository.PutOnAir();
+                        if (putOnAirResult.IsSuccess)
+                        {
+                            // Initialize conversation state for new caller
+                            _currentConversationLineIndex = 0;
+                            _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
+
+                            _currentState = BroadcastState.Conversation;
+                            return GetNextConversationItem();
+                        }
+                        else
+                        {
+                            GD.PrintErr($"Failed to put caller on air from dead air filler: {putOnAirResult.ErrorMessage}");
+                            // Continue with filler if put-on-air failed
+                            return _itemRegistry.GetNextDeadAirFiller();
+                        }
+                    }
+                    else
+                    {
+                        // No callers, continue dead air filler cycle
+                        return _itemRegistry.GetNextDeadAirFiller();
+                    }
+
+                case BroadcastState.ReturnFromBreak:
+                    _currentState = BroadcastState.Conversation;
+                    return GetNextConversationItem();
+            }
+
+            return GetNextItem();
         }
 
-        private void AdvanceFromFiller()
+        private BroadcastItem? HandleItemInterrupted(string itemId)
         {
-            if (_repository.HasOnHoldCallers)
-            {
-                CurrentState = BroadcastCoordinator.BroadcastState.Conversation;
-            }
-            else
-            {
-                FillerCycleCount = 0;
-            }
+            // Handle interruptions (could transition to break, show ending, etc.)
+            return null;
         }
     }
 }

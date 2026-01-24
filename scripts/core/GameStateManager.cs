@@ -254,7 +254,7 @@ namespace KBTV.Core
 
 			// Play outro music if it was queued by user clicking "End Show" button
 			var broadcastCoordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-			if (broadcastCoordinator != null && broadcastCoordinator.IsOutroMusicQueued())
+			if (broadcastCoordinator != null && broadcastCoordinator.IsOutroMusicQueued)
 			{
 				GD.Print("GameStateManager: Playing queued outro music");
 				var audioPlayer = ServiceRegistry.Instance.EventBus as IDialoguePlayer;

@@ -6,282 +6,297 @@
   "screeningSummary": "Topic-switcher - claimed UFO, actually saw seven-foot bipedal creature with green eyes in woods",
   "callerPersonality": "nervous_hesitant",
   "arcNotes": "Topic-switcher (claimed UFO, actual cryptid), green eye shine detail, local resident, researching after",
-  "callerGender": "male",
-  "lines": [
+  "callerGender": "caller",
+  "arcLines": [
     {
-      "id": "cryptid_credible_claims_ufos_vern_neutral_1",
-      "text": "You're on the air. Said you had a UFO sighting?",
-      "voiceText": "You're on the air. Said you had a UFO sighting?",
       "speaker": "vern",
-      "mood": "neutral"
+      "lines": [
+        {
+          "id": "cryptid_credible_claims_ufos_vern_neutral_1",
+          "text": "You're on the air. Said you had a UFO sighting?",
+          "voiceText": "You're on the air. Said you had a UFO sighting?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_tired_1",
+          "text": "Alright, you're on. Said you had a UFO sighting?",
+          "voiceText": "Alright, you're on. Said you had a UFO sighting?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_energized_1",
+          "text": "YOU ARE ON THE AIR! UFO sighting! Tell us everything!",
+          "voiceText": "YOU ARE ON THE AIR! UFO sighting! Tell us everything!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_irritated_1",
+          "text": "You're on. Let me guess - lights in the sky?",
+          "voiceText": "You're on. Let me guess - lights in the sky?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_gruff_1",
+          "text": "You're on. So you had a UFO sighting?",
+          "voiceText": "You're on. So you had a UFO sighting?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_amused_1",
+          "text": "Oh good, a UFO caller! What's your story?",
+          "voiceText": "Oh good, a UFO caller! What's your story?",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_focused_1",
+          "text": "You're on. Describe your UFO observation from the beginning.",
+          "voiceText": "You're on. Describe your UFO observation from the beginning.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptid_credible_claims_ufos_vern_tired_1",
-      "text": "Alright, you're on. Said you had a UFO sighting?",
-      "voiceText": "Alright, you're on. Said you had a UFO sighting?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptid_credible_claims_ufos_caller_1",
+          "text": "I have to be honest, Vern. I said UFOs to get past screening, but that's not what I actually saw.",
+          "voiceText": "I have to be honest, Vern. I said UFOs to get past screening, but that's not what I actually saw.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "tired"
+      "lines": [
+        {
+          "id": "cryptid_credible_claims_ufos_vern_neutral_2",
+          "text": "Alright, I appreciate the honesty. What did you actually see?",
+          "voiceText": "Alright, I appreciate the honesty. What did you actually see?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_tired_2",
+          "text": "Oh... okay. What did you actually see?",
+          "voiceText": "Oh... okay. What did you actually see?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_energized_2",
+          "text": "WAIT - you're being HONEST?! I LOVE this already! What did you actually see?!",
+          "voiceText": "WAIT - you're being HONEST?! I LOVE this already! What did you actually see?!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_irritated_2",
+          "text": "Oh for... you lied to get through. What did you actually see?",
+          "voiceText": "Oh for... you lied to get through. What did you actually see?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_gruff_2",
+          "text": "Lied to get on. Fine. What did you actually see?",
+          "voiceText": "Lied to get on. Fine. What did you actually see?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_amused_2",
+          "text": "You're being HONEST! This is GREAT! What did you actually see?!",
+          "voiceText": "You're being HONEST! This is GREAT! What did you actually see?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_focused_2",
+          "text": "Topic misrepresentation acknowledged. What phenomenon did you actually observe?",
+          "voiceText": "Topic misrepresentation acknowledged. What phenomenon did you actually observe?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptid_credible_claims_ufos_vern_energized_1",
-      "text": "YOU ARE ON THE AIR! UFO sighting! Tell us everything!",
-      "voiceText": "YOU ARE ON THE AIR! UFO sighting! Tell us everything!",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptid_credible_claims_ufos_caller_2",
+          "text": "I was out in the woods last Tuesday, about 3 AM, hoping to catch some unusual lights. Instead, I heard something crashing through the brush.",
+          "voiceText": "I was out in the woods last Tuesday, about 3 AM, hoping to catch some unusual lights. Instead, I heard something crashing through the brush.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "energized"
+      "lines": [
+        {
+          "id": "cryptid_credible_claims_ufos_vern_neutral_3",
+          "text": "In the woods at 3 AM. And you saw something?",
+          "voiceText": "In the woods at 3 AM. And you saw something?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_tired_3",
+          "text": "In the woods at 3 AM... okay, what'd you see?",
+          "voiceText": "In the woods at 3 AM... okay, what'd you see?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_energized_3",
+          "text": "IN THE WOODS at 3 AM! This is getting GOOD! What did you see?!",
+          "voiceText": "IN THE WOODS at 3 AM! This is getting GOOD! What did you see?!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_irritated_3",
+          "text": "In the woods at 3 AM. Let me guess - something scary?",
+          "voiceText": "In the woods at 3 AM. Let me guess - something scary?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_gruff_3",
+          "text": "In the woods at 3 AM. What'd you see?",
+          "voiceText": "In the woods at 3 AM. What'd you see?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_amused_3",
+          "text": "CRASHING through the brush at 3 AM! This is PERFECT! What was it?!",
+          "voiceText": "CRASHING through the brush at 3 AM! This is PERFECT! What was it?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_focused_3",
+          "text": "Woodland environment, 3 AM. Describe the auditory and visual phenomena encountered.",
+          "voiceText": "Woodland environment, 3 AM. Describe the auditory and visual phenomena encountered.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptid_credible_claims_ufos_vern_irritated_1",
-      "text": "You're on. Let me guess - lights in the sky?",
-      "voiceText": "You're on. Let me guess - lights in the sky?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptid_credible_claims_ufos_caller_3",
+          "text": "Bipedal. At least seven feet tall. Covered in dark, matted fur. It broke through the tree line maybe forty feet from me and just... stood there. Looking at me.",
+          "voiceText": "Bipedal. At least seven feet tall. Covered in dark, matted fur. It broke through the tree line maybe forty feet from me and just... stood there. Looking at me.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "irritated"
+      "lines": [
+        {
+          "id": "cryptid_credible_claims_ufos_vern_neutral_4",
+          "text": "Seven feet tall, bipedal, fur. Could've been a bear standing on its hind legs. They do that sometimes.",
+          "voiceText": "Seven feet tall, bipedal, fur. Could've been a bear standing on its hind legs. They do that sometimes.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_tired_4",
+          "text": "Seven feet... alright, could've been a bear standing up. You know how it is...",
+          "voiceText": "Seven feet... alright, could've been a bear standing up. You know how it is...",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_energized_4",
+          "text": "SEVEN FEET TALL, BIPEDAL, FURRY! This is INCREDIBLE! Bear, maybe?!",
+          "voiceText": "SEVEN FEET TALL, BIPEDAL, FURRY! This is INCREDIBLE! Bear, maybe?!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_irritated_4",
+          "text": "Seven feet tall, bipedal. Of course it was. Bear standing up, right?",
+          "voiceText": "Seven feet tall, bipedal. Of course it was. Bear standing up, right?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_gruff_4",
+          "text": "Seven feet. Could be a bear. What's your take?",
+          "voiceText": "Seven feet. Could be a bear. What's your take?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_amused_4",
+          "text": "SEVEN FEET OF TERRIFYING GLORY! Bear, you think?!",
+          "voiceText": "SEVEN FEET OF TERRIFYING GLORY! Bear, you think?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_focused_4",
+          "text": "Seven foot bipedal organism with fur covering. What distinguishing characteristics ruled out Ursus arctos horribilis in upright posture?",
+          "voiceText": "Seven foot bipedal organism with fur covering. What distinguishing characteristics ruled out Ursus arctos horribilis in upright posture?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptid_credible_claims_ufos_vern_gruff_1",
-      "text": "You're on. So you had a UFO sighting?",
-      "voiceText": "You're on. So you had a UFO sighting?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptid_credible_claims_ufos_caller_4",
+          "text": "I've lived here my whole life, Vern. I've seen bears. This had shoulders like a person. And its eyes reflected green in my flashlight. Like a predator.",
+          "voiceText": "I've lived here my whole life, Vern. I've seen bears. This had shoulders like a person. And its eyes reflected green in my flashlight. Like a predator.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "gruff"
+      "lines": [
+        {
+          "id": "cryptid_credible_claims_ufos_vern_neutral_5",
+          "text": "Appreciate you coming clean about the topic. Don't lie to get through next time, but this is legitimate. Set up a trail camera if you can.",
+          "voiceText": "Appreciate you coming clean about the topic. Don't lie to get through next time, but this is legitimate. Set up a trail camera if you can.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_tired_5",
+          "text": "Yeah, don't lie to get through next time. But this is legit. Get a camera. Thanks.",
+          "voiceText": "Yeah, don't lie to get through next time. But this is legit. Get a camera. Thanks.",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_energized_5",
+          "text": "THIS IS AMAZING! Don't lie to get on next time but THIS IS REAL! Get a CAMERA!",
+          "voiceText": "THIS IS AMAZING! Don't lie to get on next time but THIS IS REAL! Get a CAMERA!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_irritated_5",
+          "text": "Right, well... don't lie to get through next time. But this is actually interesting. Camera. Thanks.",
+          "voiceText": "Right, well... don't lie to get through next time. But this is actually interesting. Camera. Thanks.",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_gruff_5",
+          "text": "Good report. Don't lie to get on next time. Get a camera. Thanks.",
+          "voiceText": "Good report. Don't lie to get on next time. Get a camera. Thanks.",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_amused_5",
+          "text": "This is PERFECT! Don't lie to get on but WE BELIEVE YOU! Get a CAMERA!",
+          "voiceText": "This is PERFECT! Don't lie to get on but WE BELIEVE YOU! Get a CAMERA!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_focused_5",
+          "text": "Honesty regarding topic is appreciated. Please document future encounters with trail camera placement. Misrepresentation undermines the research process. Thank you for your report.",
+          "voiceText": "Honesty regarding topic is appreciated. Please document future encounters with trail camera placement. Misrepresentation undermines the research process. Thank you for your report.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptid_credible_claims_ufos_vern_amused_1",
-      "text": "Oh good, a UFO caller! What's your story?",
-      "voiceText": "Oh good, a UFO caller! What's your story?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_focused_1",
-      "text": "You're on. Describe your UFO observation from the beginning.",
-      "voiceText": "You're on. Describe your UFO observation from the beginning.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_caller_1",
-      "text": "I have to be honest, Vern. I said UFOs to get past screening, but that's not what I actually saw.",
-      "voiceText": "I have to be honest, Vern. I said UFOs to get past screening, but that's not what I actually saw.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_neutral_2",
-      "text": "Alright, I appreciate the honesty. What did you actually see?",
-      "voiceText": "Alright, I appreciate the honesty. What did you actually see?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_tired_2",
-      "text": "Oh... okay. What did you actually see?",
-      "voiceText": "Oh... okay. What did you actually see?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_energized_2",
-      "text": "WAIT - you're being HONEST?! I LOVE this already! What did you actually see?!",
-      "voiceText": "WAIT - you're being HONEST?! I LOVE this already! What did you actually see?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_irritated_2",
-      "text": "Oh for... you lied to get through. What did you actually see?",
-      "voiceText": "Oh for... you lied to get through. What did you actually see?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_gruff_2",
-      "text": "Lied to get on. Fine. What did you actually see?",
-      "voiceText": "Lied to get on. Fine. What did you actually see?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_amused_2",
-      "text": "You're being HONEST! This is GREAT! What did you actually see?!",
-      "voiceText": "You're being HONEST! This is GREAT! What did you actually see?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_focused_2",
-      "text": "Topic misrepresentation acknowledged. What phenomenon did you actually observe?",
-      "voiceText": "Topic misrepresentation acknowledged. What phenomenon did you actually observe?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_caller_2",
-      "text": "I was out in the woods last Tuesday, about 3 AM, hoping to catch some unusual lights. Instead, I heard something crashing through the brush.",
-      "voiceText": "I was out in the woods last Tuesday, about 3 AM, hoping to catch some unusual lights. Instead, I heard something crashing through the brush.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_neutral_3",
-      "text": "In the woods at 3 AM. And you saw something?",
-      "voiceText": "In the woods at 3 AM. And you saw something?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_tired_3",
-      "text": "In the woods at 3 AM... okay, what'd you see?",
-      "voiceText": "In the woods at 3 AM... okay, what'd you see?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_energized_3",
-      "text": "IN THE WOODS at 3 AM! This is getting GOOD! What did you see?!",
-      "voiceText": "IN THE WOODS at 3 AM! This is getting GOOD! What did you see?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_irritated_3",
-      "text": "In the woods at 3 AM. Let me guess - something scary?",
-      "voiceText": "In the woods at 3 AM. Let me guess - something scary?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_gruff_3",
-      "text": "In the woods at 3 AM. What'd you see?",
-      "voiceText": "In the woods at 3 AM. What'd you see?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_amused_3",
-      "text": "CRASHING through the brush at 3 AM! This is PERFECT! What was it?!",
-      "voiceText": "CRASHING through the brush at 3 AM! This is PERFECT! What was it?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_focused_3",
-      "text": "Woodland environment, 3 AM. Describe the auditory and visual phenomena encountered.",
-      "voiceText": "Woodland environment, 3 AM. Describe the auditory and visual phenomena encountered.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_caller_3",
-      "text": "Bipedal. At least seven feet tall. Covered in dark, matted fur. It broke through the tree line maybe forty feet from me and just... stood there. Looking at me.",
-      "voiceText": "Bipedal. At least seven feet tall. Covered in dark, matted fur. It broke through the tree line maybe forty feet from me and just... stood there. Looking at me.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_neutral_4",
-      "text": "Seven feet tall, bipedal, fur. Could've been a bear standing on its hind legs. They do that sometimes.",
-      "voiceText": "Seven feet tall, bipedal, fur. Could've been a bear standing on its hind legs. They do that sometimes.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_tired_4",
-      "text": "Seven feet... alright, could've been a bear standing up. You know how it is...",
-      "voiceText": "Seven feet... alright, could've been a bear standing up. You know how it is...",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_energized_4",
-      "text": "SEVEN FEET TALL, BIPEDAL, FURRY! This is INCREDIBLE! Bear, maybe?!",
-      "voiceText": "SEVEN FEET TALL, BIPEDAL, FURRY! This is INCREDIBLE! Bear, maybe?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_irritated_4",
-      "text": "Seven feet tall, bipedal. Of course it was. Bear standing up, right?",
-      "voiceText": "Seven feet tall, bipedal. Of course it was. Bear standing up, right?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_gruff_4",
-      "text": "Seven feet. Could be a bear. What's your take?",
-      "voiceText": "Seven feet. Could be a bear. What's your take?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_amused_4",
-      "text": "SEVEN FEET OF TERRIFYING GLORY! Bear, you think?!",
-      "voiceText": "SEVEN FEET OF TERRIFYING GLORY! Bear, you think?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_focused_4",
-      "text": "Seven foot bipedal organism with fur covering. What distinguishing characteristics ruled out Ursus arctos horribilis in upright posture?",
-      "voiceText": "Seven foot bipedal organism with fur covering. What distinguishing characteristics ruled out Ursus arctos horribilis in upright posture?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_caller_4",
-      "text": "I've lived here my whole life, Vern. I've seen bears. This had shoulders like a person. And its eyes reflected green in my flashlight. Like a predator.",
-      "voiceText": "I've lived here my whole life, Vern. I've seen bears. This had shoulders like a person. And its eyes reflected green in my flashlight. Like a predator.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_neutral_5",
-      "text": "Appreciate you coming clean about the topic. Don't lie to get through next time, but this is legitimate. Set up a trail camera if you can.",
-      "voiceText": "Appreciate you coming clean about the topic. Don't lie to get through next time, but this is legitimate. Set up a trail camera if you can.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_tired_5",
-      "text": "Yeah, don't lie to get through next time. But this is legit. Get a camera. Thanks.",
-      "voiceText": "Yeah, don't lie to get through next time. But this is legit. Get a camera. Thanks.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_energized_5",
-      "text": "THIS IS AMAZING! Don't lie to get on next time but THIS IS REAL! Get a CAMERA!",
-      "voiceText": "THIS IS AMAZING! Don't lie to get on next time but THIS IS REAL! Get a CAMERA!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_irritated_5",
-      "text": "Right, well... don't lie to get through next time. But this is actually interesting. Camera. Thanks.",
-      "voiceText": "Right, well... don't lie to get through next time. But this is actually interesting. Camera. Thanks.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_gruff_5",
-      "text": "Good report. Don't lie to get on next time. Get a camera. Thanks.",
-      "voiceText": "Good report. Don't lie to get on next time. Get a camera. Thanks.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_amused_5",
-      "text": "This is PERFECT! Don't lie to get on but WE BELIEVE YOU! Get a CAMERA!",
-      "voiceText": "This is PERFECT! Don't lie to get on but WE BELIEVE YOU! Get a CAMERA!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_vern_focused_5",
-      "text": "Honesty regarding topic is appreciated. Please document future encounters with trail camera placement. Misrepresentation undermines the research process. Thank you for your report.",
-      "voiceText": "Honesty regarding topic is appreciated. Please document future encounters with trail camera placement. Misrepresentation undermines the research process. Thank you for your report.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptid_credible_claims_ufos_caller_5",
-      "text": "Already ordered one. Thanks for hearing me out, Vern. Sorry about the UFO thing.",
-      "voiceText": "Already ordered one. Thanks for hearing me out, Vern. Sorry about the UFO thing.",
-      "speaker": "caller"
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptid_credible_claims_ufos_caller_5",
+          "text": "Already ordered one. Thanks for hearing me out, Vern. Sorry about the UFO thing.",
+          "voiceText": "Already ordered one. Thanks for hearing me out, Vern. Sorry about the UFO thing.",
+          "mood": "neutral"
+        }
+      ]
     }
   ]
 }

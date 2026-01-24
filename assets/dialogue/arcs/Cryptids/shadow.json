@@ -5,282 +5,297 @@
   "screeningSummary": "Local resident seeing large bipedal creature at dusk - thirty years in area, never seen anything like it",
   "callerPersonality": "nervous_hesitant",
   "arcNotes": "Unsure witness, genuine confusion, thirty years local knowledge, unusual activity pattern",
-  "callerGender": "male",
-  "lines": [
+  "callerGender": "caller",
+  "arcLines": [
     {
-      "id": "cryptids_questionable_shadow_vern_neutral_1",
-      "text": "You're on the air. What's happening in your neck of the woods?",
-      "voiceText": "You're on the air. What's happening in your neck of the woods?",
       "speaker": "vern",
-      "mood": "neutral"
+      "lines": [
+        {
+          "id": "cryptids_questionable_shadow_vern_neutral_1",
+          "text": "You're on the air. What's happening in your neck of the woods?",
+          "voiceText": "You're on the air. What's happening in your neck of the woods?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_tired_1",
+          "text": "Alright, you're on. What's happening?",
+          "voiceText": "Alright, you're on. What's happening?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_energized_1",
+          "text": "YOU ARE ON THE AIR! What's happening in your neck of the woods?!",
+          "voiceText": "YOU ARE ON THE AIR! What's happening in your neck of the woods?!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_irritated_1",
+          "text": "You're on. What's this about?",
+          "voiceText": "You're on. What's this about?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_gruff_1",
+          "text": "You're on. So?",
+          "voiceText": "You're on. So?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_amused_1",
+          "text": "Oh good, a caller! What's happening?!",
+          "voiceText": "Oh good, a caller! What's happening?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_focused_1",
+          "text": "You're on. Describe the unusual activity in your area.",
+          "voiceText": "You're on. Describe the unusual activity in your area.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_questionable_shadow_vern_tired_1",
-      "text": "Alright, you're on. What's happening?",
-      "voiceText": "Alright, you're on. What's happening?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_questionable_shadow_caller_1",
+          "text": "Strange sighting, Vern. Three nights ago, I'm letting my dog out at about 10 PM, and there's something big moving through the trees at the edge of my property. Dark, bulky. Moved smoothly for something that big.",
+          "voiceText": "Strange sighting, Vern. Three nights ago, I'm letting my dog out at about 10 PM, and there's something big moving through the trees at the edge of my property. Dark, bulky. Moved smoothly for something that big.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "tired"
+      "lines": [
+        {
+          "id": "cryptids_questionable_shadow_vern_neutral_2",
+          "text": "Can you describe it in more detail? Size, shape?",
+          "voiceText": "Can you describe it in more detail? Size, shape?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_tired_2",
+          "text": "Can you describe it... size, shape?",
+          "voiceText": "Can you describe it... size, shape?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_energized_2",
+          "text": "SOMETHING BIG moving through trees! This is EXCITING! Details please!",
+          "voiceText": "SOMETHING BIG moving through trees! This is EXCITING! Details please!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_irritated_2",
+          "text": "Something big and bulky. Let me guess - it was blurry and hard to see?",
+          "voiceText": "Something big and bulky. Let me guess - it was blurry and hard to see?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_gruff_2",
+          "text": "Something big. Fine, describe it.",
+          "voiceText": "Something big. Fine, describe it.",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_amused_2",
+          "text": "SOMETHING BIG at dusk! I love this! Describe it for us!",
+          "voiceText": "SOMETHING BIG at dusk! I love this! Describe it for us!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_focused_2",
+          "text": "Estimated size parameters and body shape configuration?",
+          "voiceText": "Estimated size parameters and body shape configuration?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_questionable_shadow_vern_energized_1",
-      "text": "YOU ARE ON THE AIR! What's happening in your neck of the woods?!",
-      "voiceText": "YOU ARE ON THE AIR! What's happening in your neck of the woods?!",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_questionable_shadow_caller_2",
+          "text": "Hard to say. It was dusk, maybe fifty feet away. But it wasn't walking on four legs. It was upright. And it stopped when it noticed me watching.",
+          "voiceText": "Hard to say. It was dusk, maybe fifty feet away. But it wasn't walking on four legs. It was upright. And it stopped when it noticed me watching.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "energized"
+      "lines": [
+        {
+          "id": "cryptids_questionable_shadow_vern_neutral_3",
+          "text": "Stopped. Then what happened?",
+          "voiceText": "Stopped. Then what happened?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_tired_3",
+          "text": "Stopped... and then?",
+          "voiceText": "Stopped... and then?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_energized_3",
+          "text": "IT STOPPED?! This is AMAZING! What happened next?!",
+          "voiceText": "IT STOPPED?! This is AMAZING! What happened next?!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_irritated_3",
+          "text": "Stopped. Of course it did. Then what?",
+          "voiceText": "Stopped. Of course it did. Then what?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_gruff_3",
+          "text": "Stopped. What happened?",
+          "voiceText": "Stopped. What happened?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_amused_3",
+          "text": "IT STOPPED AND NOTICED YOU! This is PERFECT! What happened?!",
+          "voiceText": "IT STOPPED AND NOTICED YOU! This is PERFECT! What happened?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_focused_3",
+          "text": "Stopped upon visual detection. What was the subsequent behavioral response?",
+          "voiceText": "Stopped upon visual detection. What was the subsequent behavioral response?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_questionable_shadow_vern_irritated_1",
-      "text": "You're on. What's this about?",
-      "voiceText": "You're on. What's this about?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_questionable_shadow_caller_3",
+          "text": "Just... stood there. Like it was deciding something. Then it moved deeper into the trees. Gone in seconds. My dog started howling and wouldn't stop for ten minutes.",
+          "voiceText": "Just... stood there. Like it was deciding something. Then it moved deeper into the trees. Gone in seconds. My dog started howling and wouldn't stop for ten minutes.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "irritated"
+      "lines": [
+        {
+          "id": "cryptids_questionable_shadow_vern_neutral_4",
+          "text": "Dusk plays tricks on the eyes. Could've been a large animal - moose, bear standing up.",
+          "voiceText": "Dusk plays tricks on the eyes. Could've been a large animal - moose, bear standing up.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_tired_4",
+          "text": "Look, dusk messes with your vision. Could've been a moose or bear...",
+          "voiceText": "Look, dusk messes with your vision. Could've been a moose or bear...",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_energized_4",
+          "text": "Dusk can be tricky, BUT a DOG howling for ten minutes?! That's SOMETHING!",
+          "voiceText": "Dusk can be tricky, BUT a DOG howling for ten minutes?! That's SOMETHING!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_irritated_4",
+          "text": "Dusk plays tricks on the eyes. You know bears stand up sometimes, right?",
+          "voiceText": "Dusk plays tricks on the eyes. You know bears stand up sometimes, right?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_gruff_4",
+          "text": "Dusk. Could've been a bear. What's your take?",
+          "voiceText": "Dusk. Could've been a bear. What's your take?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_amused_4",
+          "text": "Dusk + mysterious creature + howling dog = PERFECT radio! Bear, maybe?!",
+          "voiceText": "Dusk + mysterious creature + howling dog = PERFECT radio! Bear, maybe?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_focused_4",
+          "text": "Low light conditions. What alternative explanations have you considered? Moose, black bear, or other large fauna?",
+          "voiceText": "Low light conditions. What alternative explanations have you considered? Moose, black bear, or other large fauna?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_questionable_shadow_vern_gruff_1",
-      "text": "You're on. So?",
-      "voiceText": "You're on. So?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_questionable_shadow_caller_4",
+          "text": "I thought the same thing. But I've lived here thirty years, Vern. I've seen every animal that comes through. This was different. The way it moved... deliberate. And it noticed me.",
+          "voiceText": "I thought the same thing. But I've lived here thirty years, Vern. I've seen every animal that comes through. This was different. The way it moved... deliberate. And it noticed me.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "gruff"
+      "lines": [
+        {
+          "id": "cryptids_questionable_shadow_vern_neutral_5",
+          "text": "Document any future sightings. Set up a trail camera if you can. We'll track the pattern. Thanks for calling in.",
+          "voiceText": "Document any future sightings. Set up a trail camera if you can. We'll track the pattern. Thanks for calling in.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_tired_5",
+          "text": "Yeah, maybe get a camera or something. Thanks for calling.",
+          "voiceText": "Yeah, maybe get a camera or something. Thanks for calling.",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_energized_5",
+          "text": "Document EVERYTHING! Get a TRAIL CAMERA! This is EXACTLY what we need!",
+          "voiceText": "Document EVERYTHING! Get a TRAIL CAMERA! This is EXACTLY what we need!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_irritated_5",
+          "text": "Right, well... get a camera if you can. Thanks for calling.",
+          "voiceText": "Right, well... get a camera if you can. Thanks for calling.",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_gruff_5",
+          "text": "Good report. Set up a camera if you can. Thanks.",
+          "voiceText": "Good report. Set up a camera if you can. Thanks.",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_amused_5",
+          "text": "This is GREAT! Get a CAMERA and document it! We believe you!",
+          "voiceText": "This is GREAT! Get a CAMERA and document it! We believe you!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_focused_5",
+          "text": "Please document any future activity with trail camera placement at strategic locations. Pattern analysis requires multiple data points. Thank you for your report.",
+          "voiceText": "Please document any future activity with trail camera placement at strategic locations. Pattern analysis requires multiple data points. Thank you for your report.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_questionable_shadow_vern_amused_1",
-      "text": "Oh good, a caller! What's happening?!",
-      "voiceText": "Oh good, a caller! What's happening?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_focused_1",
-      "text": "You're on. Describe the unusual activity in your area.",
-      "voiceText": "You're on. Describe the unusual activity in your area.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_questionable_shadow_caller_1",
-      "text": "Strange sighting, Vern. Three nights ago, I'm letting my dog out at about 10 PM, and there's something big moving through the trees at the edge of my property. Dark, bulky. Moved smoothly for something that big.",
-      "voiceText": "Strange sighting, Vern. Three nights ago, I'm letting my dog out at about 10 PM, and there's something big moving through the trees at the edge of my property. Dark, bulky. Moved smoothly for something that big.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_neutral_2",
-      "text": "Can you describe it in more detail? Size, shape?",
-      "voiceText": "Can you describe it in more detail? Size, shape?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_tired_2",
-      "text": "Can you describe it... size, shape?",
-      "voiceText": "Can you describe it... size, shape?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_energized_2",
-      "text": "SOMETHING BIG moving through trees! This is EXCITING! Details please!",
-      "voiceText": "SOMETHING BIG moving through trees! This is EXCITING! Details please!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_irritated_2",
-      "text": "Something big and bulky. Let me guess - it was blurry and hard to see?",
-      "voiceText": "Something big and bulky. Let me guess - it was blurry and hard to see?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_gruff_2",
-      "text": "Something big. Fine, describe it.",
-      "voiceText": "Something big. Fine, describe it.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_amused_2",
-      "text": "SOMETHING BIG at dusk! I love this! Describe it for us!",
-      "voiceText": "SOMETHING BIG at dusk! I love this! Describe it for us!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_focused_2",
-      "text": "Estimated size parameters and body shape configuration?",
-      "voiceText": "Estimated size parameters and body shape configuration?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_questionable_shadow_caller_2",
-      "text": "Hard to say. It was dusk, maybe fifty feet away. But it wasn't walking on four legs. It was upright. And it stopped when it noticed me watching.",
-      "voiceText": "Hard to say. It was dusk, maybe fifty feet away. But it wasn't walking on four legs. It was upright. And it stopped when it noticed me watching.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_neutral_3",
-      "text": "Stopped. Then what happened?",
-      "voiceText": "Stopped. Then what happened?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_tired_3",
-      "text": "Stopped... and then?",
-      "voiceText": "Stopped... and then?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_energized_3",
-      "text": "IT STOPPED?! This is AMAZING! What happened next?!",
-      "voiceText": "IT STOPPED?! This is AMAZING! What happened next?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_irritated_3",
-      "text": "Stopped. Of course it did. Then what?",
-      "voiceText": "Stopped. Of course it did. Then what?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_gruff_3",
-      "text": "Stopped. What happened?",
-      "voiceText": "Stopped. What happened?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_amused_3",
-      "text": "IT STOPPED AND NOTICED YOU! This is PERFECT! What happened?!",
-      "voiceText": "IT STOPPED AND NOTICED YOU! This is PERFECT! What happened?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_focused_3",
-      "text": "Stopped upon visual detection. What was the subsequent behavioral response?",
-      "voiceText": "Stopped upon visual detection. What was the subsequent behavioral response?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_questionable_shadow_caller_3",
-      "text": "Just... stood there. Like it was deciding something. Then it moved deeper into the trees. Gone in seconds. My dog started howling and wouldn't stop for ten minutes.",
-      "voiceText": "Just... stood there. Like it was deciding something. Then it moved deeper into the trees. Gone in seconds. My dog started howling and wouldn't stop for ten minutes.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_neutral_4",
-      "text": "Dusk plays tricks on the eyes. Could've been a large animal - moose, bear standing up.",
-      "voiceText": "Dusk plays tricks on the eyes. Could've been a large animal - moose, bear standing up.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_tired_4",
-      "text": "Look, dusk messes with your vision. Could've been a moose or bear...",
-      "voiceText": "Look, dusk messes with your vision. Could've been a moose or bear...",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_energized_4",
-      "text": "Dusk can be tricky, BUT a DOG howling for ten minutes?! That's SOMETHING!",
-      "voiceText": "Dusk can be tricky, BUT a DOG howling for ten minutes?! That's SOMETHING!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_irritated_4",
-      "text": "Dusk plays tricks on the eyes. You know bears stand up sometimes, right?",
-      "voiceText": "Dusk plays tricks on the eyes. You know bears stand up sometimes, right?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_gruff_4",
-      "text": "Dusk. Could've been a bear. What's your take?",
-      "voiceText": "Dusk. Could've been a bear. What's your take?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_amused_4",
-      "text": "Dusk + mysterious creature + howling dog = PERFECT radio! Bear, maybe?!",
-      "voiceText": "Dusk + mysterious creature + howling dog = PERFECT radio! Bear, maybe?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_focused_4",
-      "text": "Low light conditions. What alternative explanations have you considered? Moose, black bear, or other large fauna?",
-      "voiceText": "Low light conditions. What alternative explanations have you considered? Moose, black bear, or other large fauna?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_questionable_shadow_caller_4",
-      "text": "I thought the same thing. But I've lived here thirty years, Vern. I've seen every animal that comes through. This was different. The way it moved... deliberate. And it noticed me.",
-      "voiceText": "I thought the same thing. But I've lived here thirty years, Vern. I've seen every animal that comes through. This was different. The way it moved... deliberate. And it noticed me.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_neutral_5",
-      "text": "Document any future sightings. Set up a trail camera if you can. We'll track the pattern. Thanks for calling in.",
-      "voiceText": "Document any future sightings. Set up a trail camera if you can. We'll track the pattern. Thanks for calling in.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_tired_5",
-      "text": "Yeah, maybe get a camera or something. Thanks for calling.",
-      "voiceText": "Yeah, maybe get a camera or something. Thanks for calling.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_energized_5",
-      "text": "Document EVERYTHING! Get a TRAIL CAMERA! This is EXACTLY what we need!",
-      "voiceText": "Document EVERYTHING! Get a TRAIL CAMERA! This is EXACTLY what we need!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_irritated_5",
-      "text": "Right, well... get a camera if you can. Thanks for calling.",
-      "voiceText": "Right, well... get a camera if you can. Thanks for calling.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_gruff_5",
-      "text": "Good report. Set up a camera if you can. Thanks.",
-      "voiceText": "Good report. Set up a camera if you can. Thanks.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_amused_5",
-      "text": "This is GREAT! Get a CAMERA and document it! We believe you!",
-      "voiceText": "This is GREAT! Get a CAMERA and document it! We believe you!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_questionable_shadow_vern_focused_5",
-      "text": "Please document any future activity with trail camera placement at strategic locations. Pattern analysis requires multiple data points. Thank you for your report.",
-      "voiceText": "Please document any future activity with trail camera placement at strategic locations. Pattern analysis requires multiple data points. Thank you for your report.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_questionable_shadow_caller_5",
-      "text": "Good idea. Already ordered a camera. Thanks for listening, Vern.",
-      "voiceText": "Good idea. Already ordered a camera. Thanks for listening, Vern.",
-      "speaker": "caller"
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_questionable_shadow_caller_5",
+          "text": "Good idea. Already ordered a camera. Thanks for listening, Vern.",
+          "voiceText": "Good idea. Already ordered a camera. Thanks for listening, Vern.",
+          "mood": "neutral"
+        }
+      ]
     }
   ]
 }

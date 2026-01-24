@@ -5,282 +5,297 @@
   "screeningSummary": "Whistleblower with internal pharmaceutical documents showing cost-benefit analysis of hiding side effects",
   "callerPersonality": "cold_factual",
   "arcNotes": "Whistleblower with documents, pharmaceutical industry negligence, forensic authentication in progress",
-  "callerGender": "male",
-  "lines": [
+  "callerGender": "caller",
+  "arcLines": [
     {
-      "id": "conspiracies_compelling_whistleblower_vern_neutral_1",
-      "text": "You're on the air. I understand you have documents?",
-      "voiceText": "You're on the air. I understand you have documents?",
       "speaker": "vern",
-      "mood": "neutral"
+      "lines": [
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_neutral_1",
+          "text": "You're on the air. I understand you have documents?",
+          "voiceText": "You're on the air. I understand you have documents?",
+          "mood": "neutral"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_tired_1",
+          "text": "Alright, you're on. You said you have documents?",
+          "voiceText": "Alright, you're on. You said you have documents?",
+          "mood": "tired"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_energized_1",
+          "text": "YOU ARE ON THE AIR! With DOCUMENTS! This is GONNA be GOOD!",
+          "voiceText": "YOU ARE ON THE AIR! With DOCUMENTS! This is GONNA be GOOD!",
+          "mood": "energized"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_irritated_1",
+          "text": "You're on. Let me guess - you have explosive documents?",
+          "voiceText": "You're on. Let me guess - you have explosive documents?",
+          "mood": "irritated"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_gruff_1",
+          "text": "You're on. So you have documents? What about it?",
+          "voiceText": "You're on. So you have documents? What about it?",
+          "mood": "gruff"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_amused_1",
+          "text": "Oh, you have DOCUMENTS! This I gotta hear! What's the story?",
+          "voiceText": "Oh, you have DOCUMENTS! This I gotta hear! What's the story?",
+          "mood": "amused"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_focused_1",
+          "text": "You're on. What specific documentation have you obtained?",
+          "voiceText": "You're on. What specific documentation have you obtained?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "conspiracies_compelling_whistleblower_vern_tired_1",
-      "text": "Alright, you're on. You said you have documents?",
-      "voiceText": "Alright, you're on. You said you have documents?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "conspiracies_compelling_whistleblower_caller_1",
+          "text": "Internal documents, Vern. From my time at a major pharmaceutical company. They knew about serious side effects of one of their flagship drugs and chose to hide it.",
+          "voiceText": "Internal documents, Vern. From my time at a major pharmaceutical company. They knew about serious side effects of one of their flagship drugs and chose to hide it.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "tired"
+      "lines": [
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_neutral_2",
+          "text": "Knew about the side effects and continued selling it anyway. That's serious.",
+          "voiceText": "Knew about the side effects and continued selling it anyway. That's serious.",
+          "mood": "neutral"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_tired_2",
+          "text": "Knew about side effects and kept selling... alright, go on.",
+          "voiceText": "Knew about side effects and kept selling... alright, go on.",
+          "mood": "tired"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_energized_2",
+          "text": "THEY KNEW and HID IT?! This is HUGE! Tell me everything!",
+          "voiceText": "THEY KNEW and HID IT?! This is HUGE! Tell me everything!",
+          "mood": "energized"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_irritated_2",
+          "text": "Knew about side effects and hid it. Of course they did. What'd you find?",
+          "voiceText": "Knew about side effects and hid it. Of course they did. What'd you find?",
+          "mood": "irritated"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_gruff_2",
+          "text": "Knew and hid it. That's criminal. What'd you find?",
+          "voiceText": "Knew and hid it. That's criminal. What'd you find?",
+          "mood": "gruff"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_amused_2",
+          "text": "THEY KNEW and HID IT! This is INCREDIBLE! Tell me more!",
+          "voiceText": "THEY KNEW and HID IT! This is INCREDIBLE! Tell me more!",
+          "mood": "amused"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_focused_2",
+          "text": "Corporate knowledge of adverse effects with deliberate suppression. What was the scope of the concealment?",
+          "voiceText": "Corporate knowledge of adverse effects with deliberate suppression. What was the scope of the concealment?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "conspiracies_compelling_whistleblower_vern_energized_1",
-      "text": "YOU ARE ON THE AIR! With DOCUMENTS! This is GONNA be GOOD!",
-      "voiceText": "YOU ARE ON THE AIR! With DOCUMENTS! This is GONNA be GOOD!",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "conspiracies_compelling_whistleblower_caller_2",
+          "text": "Cost-benefit analysis. Internal memos showed they calculated settlements would be cheaper than a recall. I have the spreadsheets showing projected lawsuits versus revenue loss. It was a business decision.",
+          "voiceText": "Cost-benefit analysis. Internal memos showed they calculated settlements would be cheaper than a recall. I have the spreadsheets showing projected lawsuits versus revenue loss. It was a business decision.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "energized"
+      "lines": [
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_neutral_3",
+          "text": "That's criminal negligence at best.",
+          "voiceText": "That's criminal negligence at best.",
+          "mood": "neutral"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_tired_3",
+          "text": "That's... yeah, that's bad. Go on.",
+          "voiceText": "That's... yeah, that's bad. Go on.",
+          "mood": "tired"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_energized_3",
+          "text": "THEY DID A COST-BENEFIT ANALYSIS on HURTING PEOPLE! This is SICK!",
+          "voiceText": "THEY DID A COST-BENEFIT ANALYSIS on HURTING PEOPLE! This is SICK!",
+          "mood": "energized"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_irritated_3",
+          "text": "Business decision. Of course it was. How many people got hurt?",
+          "voiceText": "Business decision. Of course it was. How many people got hurt?",
+          "mood": "irritated"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_gruff_3",
+          "text": "That's criminal negligence. What else did you find?",
+          "voiceText": "That's criminal negligence. What else did you find?",
+          "mood": "gruff"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_amused_3",
+          "text": "They made a SPREADSHEET of PROFIT versus HUMAN SUFFERING! This is HORRIFYING!",
+          "voiceText": "They made a SPREADSHEET of PROFIT versus HUMAN SUFFERING! This is HORRIFYING!",
+          "mood": "amused"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_focused_3",
+          "text": "Quantitative analysis of harm versus profit. What were the specific projections?",
+          "voiceText": "Quantitative analysis of harm versus profit. What were the specific projections?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "conspiracies_compelling_whistleblower_vern_irritated_1",
-      "text": "You're on. Let me guess - you have explosive documents?",
-      "voiceText": "You're on. Let me guess - you have explosive documents?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "conspiracies_compelling_whistleblower_caller_3",
+          "text": "It's also standard practice in the industry. I've got documents from three different products. This isn't an anomaly - it's how the system works.",
+          "voiceText": "It's also standard practice in the industry. I've got documents from three different products. This isn't an anomaly - it's how the system works.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "irritated"
+      "lines": [
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_neutral_4",
+          "text": "Documents can be fabricated. How do we know these are authentic?",
+          "voiceText": "Documents can be fabricated. How do we know these are authentic?",
+          "mood": "neutral"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_tired_4",
+          "text": "Documents can be fake... how do we know these are real?",
+          "voiceText": "Documents can be fake... how do we know these are real?",
+          "mood": "tired"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_energized_4",
+          "text": "THREE DIFFERENT PRODUCTS?! This is a PATTERN!",
+          "voiceText": "THREE DIFFERENT PRODUCTS?! This is a PATTERN!",
+          "mood": "energized"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_irritated_4",
+          "text": "Documents can be fabricated. What's your proof they're real?",
+          "voiceText": "Documents can be fabricated. What's your proof they're real?",
+          "mood": "irritated"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_gruff_4",
+          "text": "Documents can be faked. What's your evidence?",
+          "voiceText": "Documents can be faked. What's your evidence?",
+          "mood": "gruff"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_amused_4",
+          "text": "THREE PRODUCTS worth of DOCUMENTS! This is EXACTLY what we need!",
+          "voiceText": "THREE PRODUCTS worth of DOCUMENTS! This is EXACTLY what we need!",
+          "mood": "amused"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_focused_4",
+          "text": "Document authenticity verification. What chain of custody protocols have you established?",
+          "voiceText": "Document authenticity verification. What chain of custody protocols have you established?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "conspiracies_compelling_whistleblower_vern_gruff_1",
-      "text": "You're on. So you have documents? What about it?",
-      "voiceText": "You're on. So you have documents? What about it?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "conspiracies_compelling_whistleblower_caller_4",
+          "text": "I've submitted copies to two independent investigative journalists. They're being authenticated by forensic document analysts. I've also kept chain of custody records from the moment I decided to come forward.",
+          "voiceText": "I've submitted copies to two independent investigative journalists. They're being authenticated by forensic document analysts. I've also kept chain of custody records from the moment I decided to come forward.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "gruff"
+      "lines": [
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_neutral_5",
+          "text": "Be careful. Whistleblowers face significant retaliation. Thank you for having the courage to come forward.",
+          "voiceText": "Be careful. Whistleblowers face significant retaliation. Thank you for having the courage to come forward.",
+          "mood": "neutral"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_tired_5",
+          "text": "Yeah, be careful out there. Whistleblowing is dangerous. Thanks for calling.",
+          "voiceText": "Yeah, be careful out there. Whistleblowing is dangerous. Thanks for calling.",
+          "mood": "tired"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_energized_5",
+          "text": "BE CAREFUL! Whistleblowers get DESTROYED! But THANK YOU for your COURAGE!",
+          "voiceText": "BE CAREFUL! Whistleblowers get DESTROYED! But THANK YOU for your COURAGE!",
+          "mood": "energized"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_irritated_5",
+          "text": "Right, well... be careful. These companies don't play nice. Thanks.",
+          "voiceText": "Right, well... be careful. These companies don't play nice. Thanks.",
+          "mood": "irritated"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_gruff_5",
+          "text": "Good work. Be careful. These people have lawyers. Thanks.",
+          "voiceText": "Good work. Be careful. These people have lawyers. Thanks.",
+          "mood": "gruff"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_amused_5",
+          "text": "This is HEROIC! Thank you for being BRAVE! BE CAREFUL though!",
+          "voiceText": "This is HEROIC! Thank you for being BRAVE! BE CAREFUL though!",
+          "mood": "amused"
+        },
+        {
+          "id": "conspiracies_compelling_whistleblower_vern_focused_5",
+          "text": "Whistleblower retaliation is documented and significant. Protective measures should be prioritized. Thank you for your courage.",
+          "voiceText": "Whistleblower retaliation is documented and significant. Protective measures should be prioritized. Thank you for your courage.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "conspiracies_compelling_whistleblower_vern_amused_1",
-      "text": "Oh, you have DOCUMENTS! This I gotta hear! What's the story?",
-      "voiceText": "Oh, you have DOCUMENTS! This I gotta hear! What's the story?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_focused_1",
-      "text": "You're on. What specific documentation have you obtained?",
-      "voiceText": "You're on. What specific documentation have you obtained?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_caller_1",
-      "text": "Internal documents, Vern. From my time at a major pharmaceutical company. They knew about serious side effects of one of their flagship drugs and chose to hide it.",
-      "voiceText": "Internal documents, Vern. From my time at a major pharmaceutical company. They knew about serious side effects of one of their flagship drugs and chose to hide it.",
-      "speaker": "caller"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_neutral_2",
-      "text": "Knew about the side effects and continued selling it anyway. That's serious.",
-      "voiceText": "Knew about the side effects and continued selling it anyway. That's serious.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_tired_2",
-      "text": "Knew about side effects and kept selling... alright, go on.",
-      "voiceText": "Knew about side effects and kept selling... alright, go on.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_energized_2",
-      "text": "THEY KNEW and HID IT?! This is HUGE! Tell me everything!",
-      "voiceText": "THEY KNEW and HID IT?! This is HUGE! Tell me everything!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_irritated_2",
-      "text": "Knew about side effects and hid it. Of course they did. What'd you find?",
-      "voiceText": "Knew about side effects and hid it. Of course they did. What'd you find?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_gruff_2",
-      "text": "Knew and hid it. That's criminal. What'd you find?",
-      "voiceText": "Knew and hid it. That's criminal. What'd you find?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_amused_2",
-      "text": "THEY KNEW and HID IT! This is INCREDIBLE! Tell me more!",
-      "voiceText": "THEY KNEW and HID IT! This is INCREDIBLE! Tell me more!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_focused_2",
-      "text": "Corporate knowledge of adverse effects with deliberate suppression. What was the scope of the concealment?",
-      "voiceText": "Corporate knowledge of adverse effects with deliberate suppression. What was the scope of the concealment?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_caller_2",
-      "text": "Cost-benefit analysis. Internal memos showed they calculated settlements would be cheaper than a recall. I have the spreadsheets showing projected lawsuits versus revenue loss. It was a business decision.",
-      "voiceText": "Cost-benefit analysis. Internal memos showed they calculated settlements would be cheaper than a recall. I have the spreadsheets showing projected lawsuits versus revenue loss. It was a business decision.",
-      "speaker": "caller"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_neutral_3",
-      "text": "That's criminal negligence at best.",
-      "voiceText": "That's criminal negligence at best.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_tired_3",
-      "text": "That's... yeah, that's bad. Go on.",
-      "voiceText": "That's... yeah, that's bad. Go on.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_energized_3",
-      "text": "THEY DID A COST-BENEFIT ANALYSIS on HURTING PEOPLE! This is SICK!",
-      "voiceText": "THEY DID A COST-BENEFIT ANALYSIS on HURTING PEOPLE! This is SICK!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_irritated_3",
-      "text": "Business decision. Of course it was. How many people got hurt?",
-      "voiceText": "Business decision. Of course it was. How many people got hurt?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_gruff_3",
-      "text": "That's criminal negligence. What else did you find?",
-      "voiceText": "That's criminal negligence. What else did you find?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_amused_3",
-      "text": "They made a SPREADSHEET of PROFIT versus HUMAN SUFFERING! This is HORRIFYING!",
-      "voiceText": "They made a SPREADSHEET of PROFIT versus HUMAN SUFFERING! This is HORRIFYING!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_focused_3",
-      "text": "Quantitative analysis of harm versus profit. What were the specific projections?",
-      "voiceText": "Quantitative analysis of harm versus profit. What were the specific projections?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_caller_3",
-      "text": "It's also standard practice in the industry. I've got documents from three different products. This isn't an anomaly - it's how the system works.",
-      "voiceText": "It's also standard practice in the industry. I've got documents from three different products. This isn't an anomaly - it's how the system works.",
-      "speaker": "caller"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_neutral_4",
-      "text": "Documents can be fabricated. How do we know these are authentic?",
-      "voiceText": "Documents can be fabricated. How do we know these are authentic?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_tired_4",
-      "text": "Documents can be fake... how do we know these are real?",
-      "voiceText": "Documents can be fake... how do we know these are real?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_energized_4",
-      "text": "THREE DIFFERENT PRODUCTS?! This is a PATTERN!",
-      "voiceText": "THREE DIFFERENT PRODUCTS?! This is a PATTERN!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_irritated_4",
-      "text": "Documents can be fabricated. What's your proof they're real?",
-      "voiceText": "Documents can be fabricated. What's your proof they're real?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_gruff_4",
-      "text": "Documents can be faked. What's your evidence?",
-      "voiceText": "Documents can be faked. What's your evidence?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_amused_4",
-      "text": "THREE PRODUCTS worth of DOCUMENTS! This is EXACTLY what we need!",
-      "voiceText": "THREE PRODUCTS worth of DOCUMENTS! This is EXACTLY what we need!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_focused_4",
-      "text": "Document authenticity verification. What chain of custody protocols have you established?",
-      "voiceText": "Document authenticity verification. What chain of custody protocols have you established?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_caller_4",
-      "text": "I've submitted copies to two independent investigative journalists. They're being authenticated by forensic document analysts. I've also kept chain of custody records from the moment I decided to come forward.",
-      "voiceText": "I've submitted copies to two independent investigative journalists. They're being authenticated by forensic document analysts. I've also kept chain of custody records from the moment I decided to come forward.",
-      "speaker": "caller"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_neutral_5",
-      "text": "Be careful. Whistleblowers face significant retaliation. Thank you for having the courage to come forward.",
-      "voiceText": "Be careful. Whistleblowers face significant retaliation. Thank you for having the courage to come forward.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_tired_5",
-      "text": "Yeah, be careful out there. Whistleblowing is dangerous. Thanks for calling.",
-      "voiceText": "Yeah, be careful out there. Whistleblowing is dangerous. Thanks for calling.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_energized_5",
-      "text": "BE CAREFUL! Whistleblowers get DESTROYED! But THANK YOU for your COURAGE!",
-      "voiceText": "BE CAREFUL! Whistleblowers get DESTROYED! But THANK YOU for your COURAGE!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_irritated_5",
-      "text": "Right, well... be careful. These companies don't play nice. Thanks.",
-      "voiceText": "Right, well... be careful. These companies don't play nice. Thanks.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_gruff_5",
-      "text": "Good work. Be careful. These people have lawyers. Thanks.",
-      "voiceText": "Good work. Be careful. These people have lawyers. Thanks.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_amused_5",
-      "text": "This is HEROIC! Thank you for being BRAVE! BE CAREFUL though!",
-      "voiceText": "This is HEROIC! Thank you for being BRAVE! BE CAREFUL though!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_vern_focused_5",
-      "text": "Whistleblower retaliation is documented and significant. Protective measures should be prioritized. Thank you for your courage.",
-      "voiceText": "Whistleblower retaliation is documented and significant. Protective measures should be prioritized. Thank you for your courage.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "conspiracies_compelling_whistleblower_caller_5",
-      "text": "I know the risks. But people deserve to know what's being done in their name. Thank you for listening, Vern.",
-      "voiceText": "I know the risks. But people deserve to know what's being done in their name. Thank you for listening, Vern.",
-      "speaker": "caller"
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "conspiracies_compelling_whistleblower_caller_5",
+          "text": "I know the risks. But people deserve to know what's being done in their name. Thank you for listening, Vern.",
+          "voiceText": "I know the risks. But people deserve to know what's being done in their name. Thank you for listening, Vern.",
+          "mood": "neutral"
+        }
+      ]
     }
   ]
 }

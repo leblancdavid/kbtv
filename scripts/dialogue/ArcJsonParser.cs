@@ -55,7 +55,7 @@ namespace KBTV.Dialogue
                     claimedTopic
                 );
 
-                var dialogueVariant = data.GetValueOrDefault("lines", new Godot.Collections.Dictionary());
+                var dialogueVariant = data.GetValueOrDefault("arcLines", new Godot.Collections.Dictionary());
                 if (dialogueVariant.VariantType != Variant.Type.Nil)
                 {
                     var dialogueList = ConvertDialogue(dialogueVariant.As<Godot.Collections.Array>());
@@ -76,82 +76,87 @@ namespace KBTV.Dialogue
         private static List<ArcDialogueLine> ConvertDialogue(Godot.Collections.Array dialogueArray)
         {
             var dialogue = new List<ArcDialogueLine>();
-            int lineIndex = 0;
-            int totalLines = dialogueArray.Count;
+            int turnIndex = 0;
+            int totalTurns = dialogueArray.Count;
 
             foreach (var item in dialogueArray)
             {
-                var lineDict = item.As<Godot.Collections.Dictionary>();
-                if (lineDict == null)
+                var turnDict = item.As<Godot.Collections.Dictionary>();
+                if (turnDict == null)
                 {
-                    lineIndex++;
+                    turnIndex++;
                     continue;
                 }
 
-                var section = DetermineSection(lineIndex, totalLines);
-                var line = ConvertLine(lineDict, lineIndex, section);
+                var section = DetermineSection(turnIndex, totalTurns);
+                var line = ConvertTurn(turnDict, turnIndex, section);
                 dialogue.Add(line);
-                lineIndex++;
+                turnIndex++;
             }
 
             return dialogue;
         }
 
-        private static ArcDialogueLine ConvertLine(Godot.Collections.Dictionary data, int arcLineIndex, ArcSection section)
+        private static ArcDialogueLine ConvertTurn(Godot.Collections.Dictionary data, int turnIndex, ArcSection section)
         {
             var speakerStr = data.GetValueOrDefault("speaker", "Caller").AsString();
             var speaker = string.Equals(speakerStr, "Vern", StringComparison.OrdinalIgnoreCase)
                 ? Speaker.Vern
                 : Speaker.Caller;
 
-            var text = data.GetValueOrDefault("text", "").AsString();
-            var mood = data.GetValueOrDefault("mood", "").AsString();
+            var linesVariant = data.GetValueOrDefault("lines", new Godot.Collections.Array());
+            var lines = linesVariant.As<Godot.Collections.Array>();
 
-            // Check for flattened JSON format (new format with individual speaker/mood lines)
-            if (!string.IsNullOrEmpty(speakerStr) && !string.IsNullOrEmpty(mood))
+            if (lines == null || lines.Count == 0)
             {
-                // This is the flattened format - create textVariants from the single line
-                var textVariants = new Godot.Collections.Dictionary<string, string>();
-                textVariants[mood.ToLowerInvariant()] = text;
-
-                if (speaker == Speaker.Vern)
-                {
-                    return ArcDialogueLine.CreateVernLine(textVariants, arcLineIndex, section);
-                }
+                // Fallback for empty turn
+                return new ArcDialogueLine(speaker, "", null, null, turnIndex, section);
             }
 
-            // Fallback: check for old nested textVariants format
-            var textVariantsVariant = data.GetValueOrDefault("textVariants", new Godot.Collections.Dictionary());
+            var textVariants = new Godot.Collections.Dictionary<string, string>();
+            var audioIds = new Godot.Collections.Dictionary<string, string>();
+            string defaultText = "";
+            string defaultAudioId = "";
 
-            Godot.Collections.Dictionary<string, string> legacyTextVariants = null;
-            if (textVariantsVariant.VariantType != Variant.Type.Nil)
+            foreach (var lineItem in lines)
             {
-                var variants = textVariantsVariant.As<Godot.Collections.Array>();
-                if (variants != null && variants.Count > 0)
+                var lineDict = lineItem.As<Godot.Collections.Dictionary>();
+                if (lineDict == null) continue;
+
+                var mood = lineDict.GetValueOrDefault("mood", "").AsString();
+                var text = lineDict.GetValueOrDefault("text", "").AsString();
+                var id = lineDict.GetValueOrDefault("id", "").AsString();
+
+                if (speaker == Speaker.Vern && !string.IsNullOrEmpty(mood))
                 {
-                    legacyTextVariants = new Godot.Collections.Dictionary<string, string>();
-                    foreach (var variantItem in variants)
+                    // Vern line with mood variant
+                    textVariants[mood.ToLowerInvariant()] = text;
+                    audioIds[mood.ToLowerInvariant()] = id;
+
+                    // Use neutral as default if available, otherwise first one
+                    if (mood.ToLowerInvariant() == "neutral" || string.IsNullOrEmpty(defaultText))
                     {
-                        var variantDict = variantItem.As<Godot.Collections.Dictionary>();
-                        if (variantDict != null)
-                        {
-                            var variantMood = variantDict.GetValueOrDefault("mood", "").AsString();
-                            var variantText = variantDict.GetValueOrDefault("text", "").AsString();
-                            if (!string.IsNullOrEmpty(variantMood))
-                            {
-                                legacyTextVariants[variantMood] = variantText;
-                            }
-                        }
+                        defaultText = text;
+                        defaultAudioId = id;
                     }
                 }
+                else if (speaker == Speaker.Caller)
+                {
+                    // Caller line - single variant
+                    defaultText = text;
+                    defaultAudioId = id;
+                }
             }
 
-            if (speaker == Speaker.Vern && legacyTextVariants != null && legacyTextVariants.Count > 0)
+            if (speaker == Speaker.Vern && textVariants.Count > 0)
             {
-                return ArcDialogueLine.CreateVernLine(legacyTextVariants, arcLineIndex, section);
+                return ArcDialogueLine.CreateVernLineWithVariants(textVariants, audioIds, defaultText, defaultAudioId, turnIndex, section);
             }
-
-            return new ArcDialogueLine(speaker, text, arcLineIndex, section);
+            else
+            {
+                // Caller line or fallback
+                return ArcDialogueLine.CreateLine(speaker, defaultText, defaultAudioId, turnIndex, section);
+            }
         }
 
         private static ArcSection DetermineSection(int lineIndex, int totalLines)

@@ -5,227 +5,235 @@
   "screeningSummary": "Prank caller claiming blood came from walls - admits friends dared him to call",
   "callerPersonality": "charismatic_storyteller",
   "arcNotes": "Obvious prank, dramatic claims, self-aware humor, cat jumping as 'flying'",
-  "callerGender": "male",
-  "lines": [
+  "callerGender": "caller",
+  "arcLines": [
     {
-      "id": "ghosts_fake_halloween_vern_neutral_1",
-      "text": "You're on the air. What's happening at your place?",
-      "voiceText": "You're on the air. What's happening at your place?",
       "speaker": "vern",
-      "mood": "neutral"
+      "lines": [
+        {
+          "id": "ghosts_fake_halloween_vern_neutral_1",
+          "text": "You're on the air. What's happening at your place?",
+          "voiceText": "You're on the air. What's happening at your place?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_tired_1",
+          "text": "Alright, you're on. What's happening?",
+          "voiceText": "Alright, you're on. What's happening?",
+          "mood": "tired"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_energized_1",
+          "text": "YOU ARE ON THE AIR! What's happening at your place?!",
+          "voiceText": "YOU ARE ON THE AIR! What's happening at your place?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_irritated_1",
+          "text": "You're on. What's this about?",
+          "voiceText": "You're on. What's this about?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_gruff_1",
+          "text": "You're on. So?",
+          "voiceText": "You're on. So?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_amused_1",
+          "text": "Oh good, a caller! What's happening?!",
+          "voiceText": "Oh good, a caller! What's happening?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_focused_1",
+          "text": "You're on. State your experience concisely.",
+          "voiceText": "You're on. State your experience concisely.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ghosts_fake_halloween_vern_tired_1",
-      "text": "Alright, you're on. What's happening?",
-      "voiceText": "Alright, you're on. What's happening?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ghosts_fake_halloween_caller_1",
+          "text": "Okay, so my house is haunted, Vern. Blood coming out of the walls last night! Actual blood! I tasted it to be sure!",
+          "voiceText": "Okay, so my house is haunted, Vern. Blood coming out of the walls last night! Actual blood! I tasted it to be sure!"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "tired"
+      "lines": [
+        {
+          "id": "ghosts_fake_halloween_vern_neutral_2",
+          "text": "Blood from the walls. That's... dramatic. Have you had the plumbing checked?",
+          "voiceText": "Blood from the walls. That's... dramatic. Have you had the plumbing checked?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_tired_2",
+          "text": "Blood from the walls... alright, have you checked the plumbing?",
+          "voiceText": "Blood from the walls... alright, have you checked the plumbing?",
+          "mood": "tired"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_energized_2",
+          "text": "BLOOD FROM THE WALLS?! This is INSANE! Plumbing checked?!",
+          "voiceText": "BLOOD FROM THE WALLS?! This is INSANE! Plumbing checked?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_irritated_2",
+          "text": "Blood from the walls. Of course it was. Plumbing checked?",
+          "voiceText": "Blood from the walls. Of course it was. Plumbing checked?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_gruff_2",
+          "text": "Blood from the walls. Have you checked the plumbing?",
+          "voiceText": "Blood from the walls. Have you checked the plumbing?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_amused_2",
+          "text": "BLOOD FROM THE WALLS! This is AMAZING! Did you check the PLUMBING?!",
+          "voiceText": "BLOOD FROM THE WALLS! This is AMAZING! Did you check the PLUMBING?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_focused_2",
+          "text": "Liquid emergence from wall structures. Have you consulted plumbing professionals to rule out mundane explanations?",
+          "voiceText": "Liquid emergence from wall structures. Have you consulted plumbing professionals to rule out mundane explanations?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ghosts_fake_halloween_vern_energized_1",
-      "text": "YOU ARE ON THE AIR! What's happening at your place?!",
-      "voiceText": "YOU ARE ON THE AIR! What's happening at your place?!",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ghosts_fake_halloween_caller_2",
+          "text": "It's not rust! It's actual blood! Old blood, you know? Like the house is bleeding from old wounds!",
+          "voiceText": "It's not rust! It's actual blood! Old blood, you know? Like the house is bleeding from old wounds!"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "energized"
+      "lines": [
+        {
+          "id": "ghosts_fake_halloween_vern_neutral_3",
+          "text": "Old wounds. The house is bleeding from old wounds.",
+          "voiceText": "Old wounds. The house is bleeding from old wounds.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_tired_3",
+          "text": "Old wounds... the house is bleeding. Right.",
+          "voiceText": "Old wounds... the house is bleeding. Right.",
+          "mood": "tired"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_energized_3",
+          "text": "THE HOUSE IS BLEEDING FROM OLD WOUNDS! This is TERRIFYING!",
+          "voiceText": "THE HOUSE IS BLEEDING FROM OLD WOUNDS! This is TERRIFYING!",
+          "mood": "energized"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_irritated_3",
+          "text": "The house is bleeding from old wounds. Of course it is.",
+          "voiceText": "The house is bleeding from old wounds. Of course it is.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_gruff_3",
+          "text": "The house is bleeding. Okay.",
+          "voiceText": "The house is bleeding. Okay.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_amused_3",
+          "text": "THE HOUSE IS BLEEDING FROM OLD WOUNDS! This is PERFECT radio!",
+          "voiceText": "THE HOUSE IS BLEEDING FROM OLD WOUNDS! This is PERFECT radio!",
+          "mood": "amused"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_focused_3",
+          "text": "Anthropomorphized structural hemorrhage. Fascinating hypothesis.",
+          "voiceText": "Anthropomorphized structural hemorrhage. Fascinating hypothesis.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ghosts_fake_halloween_vern_irritated_1",
-      "text": "You're on. What's this about?",
-      "voiceText": "You're on. What's this about?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ghosts_fake_halloween_caller_3",
+          "text": "I know how it sounds! But wait, there's more! Objects have been flying everywhere! My cat flew across the room!",
+          "voiceText": "I know how it sounds! But wait, there's more! Objects have been flying everywhere! My cat flew across the room!"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "irritated"
+      "lines": [
+        {
+          "id": "ghosts_fake_halloween_vern_neutral_4",
+          "text": "You tasted mystery liquid from your wall and your cat jumped. That's two natural explanations. Next caller.",
+          "voiceText": "You tasted mystery liquid from your wall and your cat jumped. That's two natural explanations. Next caller.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_tired_4",
+          "text": "Tasted the wall and your cat jumped. Next.",
+          "voiceText": "Tasted the wall and your cat jumped. Next.",
+          "mood": "tired"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_energized_4",
+          "text": "TASTED THE WALL and your CAT JUMPED! This is the BEST call of the night!",
+          "voiceText": "TASTED THE WALL and your CAT JUMPED! This is the BEST call of the night!",
+          "mood": "energized"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_irritated_4",
+          "text": "You tasted the wall and your cat jumped. Next caller.",
+          "voiceText": "You tasted the wall and your cat jumped. Next caller.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_gruff_4",
+          "text": "Tasted wall, cat jumped. Next.",
+          "voiceText": "Tasted wall, cat jumped. Next.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_amused_4",
+          "text": "TASTED THE WALL and the CAT FLEW! This is WHY I love this show! NEXT!",
+          "voiceText": "TASTED THE WALL and the CAT FLEW! This is WHY I love this show! NEXT!",
+          "mood": "amused"
+        },
+        {
+          "id": "ghosts_fake_halloween_vern_focused_4",
+          "text": "Wall liquid consumption and feline locomotion. Two mundane explanations identified. Next caller.",
+          "voiceText": "Wall liquid consumption and feline locomotion. Two mundane explanations identified. Next caller.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "ghosts_fake_halloween_vern_gruff_1",
-      "text": "You're on. So?",
-      "voiceText": "You're on. So?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_amused_1",
-      "text": "Oh good, a caller! What's happening?!",
-      "voiceText": "Oh good, a caller! What's happening?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_focused_1",
-      "text": "You're on. State your experience concisely.",
-      "voiceText": "You're on. State your experience concisely.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ghosts_fake_halloween_caller_1",
-      "text": "Okay, so my house is haunted, Vern. Blood coming out of the walls last night! Actual blood! I tasted it to be sure!",
-      "voiceText": "Okay, so my house is haunted, Vern. Blood coming out of the walls last night! Actual blood! I tasted it to be sure!",
-      "speaker": "caller"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_neutral_2",
-      "text": "Blood from the walls. That's... dramatic. Have you had the plumbing checked?",
-      "voiceText": "Blood from the walls. That's... dramatic. Have you had the plumbing checked?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_tired_2",
-      "text": "Blood from the walls... alright, have you checked the plumbing?",
-      "voiceText": "Blood from the walls... alright, have you checked the plumbing?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_energized_2",
-      "text": "BLOOD FROM THE WALLS?! This is INSANE! Plumbing checked?!",
-      "voiceText": "BLOOD FROM THE WALLS?! This is INSANE! Plumbing checked?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_irritated_2",
-      "text": "Blood from the walls. Of course it was. Plumbing checked?",
-      "voiceText": "Blood from the walls. Of course it was. Plumbing checked?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_gruff_2",
-      "text": "Blood from the walls. Have you checked the plumbing?",
-      "voiceText": "Blood from the walls. Have you checked the plumbing?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_amused_2",
-      "text": "BLOOD FROM THE WALLS! This is AMAZING! Did you check the PLUMBING?!",
-      "voiceText": "BLOOD FROM THE WALLS! This is AMAZING! Did you check the PLUMBING?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_focused_2",
-      "text": "Liquid emergence from wall structures. Have you consulted plumbing professionals to rule out mundane explanations?",
-      "voiceText": "Liquid emergence from wall structures. Have you consulted plumbing professionals to rule out mundane explanations?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ghosts_fake_halloween_caller_2",
-      "text": "It's not rust! It's actual blood! Old blood, you know? Like the house is bleeding from old wounds!",
-      "voiceText": "It's not rust! It's actual blood! Old blood, you know? Like the house is bleeding from old wounds!",
-      "speaker": "caller"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_neutral_3",
-      "text": "Old wounds. The house is bleeding from old wounds.",
-      "voiceText": "Old wounds. The house is bleeding from old wounds.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_tired_3",
-      "text": "Old wounds... the house is bleeding. Right.",
-      "voiceText": "Old wounds... the house is bleeding. Right.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_energized_3",
-      "text": "THE HOUSE IS BLEEDING FROM OLD WOUNDS! This is TERRIFYING!",
-      "voiceText": "THE HOUSE IS BLEEDING FROM OLD WOUNDS! This is TERRIFYING!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_irritated_3",
-      "text": "The house is bleeding from old wounds. Of course it is.",
-      "voiceText": "The house is bleeding from old wounds. Of course it is.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_gruff_3",
-      "text": "The house is bleeding. Okay.",
-      "voiceText": "The house is bleeding. Okay.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_amused_3",
-      "text": "THE HOUSE IS BLEEDING FROM OLD WOUNDS! This is PERFECT radio!",
-      "voiceText": "THE HOUSE IS BLEEDING FROM OLD WOUNDS! This is PERFECT radio!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_focused_3",
-      "text": "Anthropomorphized structural hemorrhage. Fascinating hypothesis.",
-      "voiceText": "Anthropomorphized structural hemorrhage. Fascinating hypothesis.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ghosts_fake_halloween_caller_3",
-      "text": "I know how it sounds! But wait, there's more! Objects have been flying everywhere! My cat flew across the room!",
-      "voiceText": "I know how it sounds! But wait, there's more! Objects have been flying everywhere! My cat flew across the room!",
-      "speaker": "caller"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_neutral_4",
-      "text": "You tasted mystery liquid from your wall and your cat jumped. That's two natural explanations. Next caller.",
-      "voiceText": "You tasted mystery liquid from your wall and your cat jumped. That's two natural explanations. Next caller.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_tired_4",
-      "text": "Tasted the wall and your cat jumped. Next.",
-      "voiceText": "Tasted the wall and your cat jumped. Next.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_energized_4",
-      "text": "TASTED THE WALL and your CAT JUMPED! This is the BEST call of the night!",
-      "voiceText": "TASTED THE WALL and your CAT JUMPED! This is the BEST call of the night!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_irritated_4",
-      "text": "You tasted the wall and your cat jumped. Next caller.",
-      "voiceText": "You tasted the wall and your cat jumped. Next caller.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_gruff_4",
-      "text": "Tasted wall, cat jumped. Next.",
-      "voiceText": "Tasted wall, cat jumped. Next.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_amused_4",
-      "text": "TASTED THE WALL and the CAT FLEW! This is WHY I love this show! NEXT!",
-      "voiceText": "TASTED THE WALL and the CAT FLEW! This is WHY I love this show! NEXT!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "ghosts_fake_halloween_vern_focused_4",
-      "text": "Wall liquid consumption and feline locomotion. Two mundane explanations identified. Next caller.",
-      "voiceText": "Wall liquid consumption and feline locomotion. Two mundane explanations identified. Next caller.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "ghosts_fake_halloween_caller_4",
-      "text": "*snickering* Okay yeah, I was just messing around. My friends dared me to call. Great show though, Vern!",
-      "voiceText": "*snickering* Okay yeah, I was just messing around. My friends dared me to call. Great show though, Vern!",
-      "speaker": "caller"
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ghosts_fake_halloween_caller_4",
+          "text": "*snickering* Okay yeah, I was just messing around. My friends dared me to call. Great show though, Vern!",
+          "voiceText": "*snickering* Okay yeah, I was just messing around. My friends dared me to call. Great show though, Vern!"
+        }
+      ]
     }
   ]
 }

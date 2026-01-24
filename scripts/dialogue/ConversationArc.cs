@@ -102,36 +102,18 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Get the dialogue lines for a specific Vern mood type.
-        /// For Vern lines, selects the appropriate text variant based on mood.
-        /// For Caller lines, returns the single text.
+        /// Get the dialogue lines. In the new schema, mood selection happens at playback time.
         /// </summary>
-        /// <param name="mood">The current Vern mood type</param>
-        /// <returns>List of ArcDialogueLine with Vern's text selected for the mood</returns>
+        /// <param name="mood">The current Vern mood type (ignored in new schema)</param>
+        /// <returns>List of ArcDialogueLine</returns>
         public List<ArcDialogueLine> GetDialogueForMood(VernMoodType mood)
         {
             if (_dialogue == null)
                 return new List<ArcDialogueLine>();
 
-            string moodKey = mood.ToString().ToLowerInvariant();
-
-            return _dialogue.Select(line =>
-            {
-                // For Vern lines, select the text variant for this mood
-                if (line.Speaker == Speaker.Vern && line.TextVariants != null && line.TextVariants.Count > 0)
-                {
-                    if (line.TextVariants.TryGetValue(moodKey, out string moodText))
-                    {
-                        return new ArcDialogueLine(line.Speaker, moodText, line.TextVariants, line.ArcLineIndex, line.Section);
-                    }
-                    // Fallback to first available variant if mood not found
-                    var firstVariant = line.TextVariants.First();
-                    return new ArcDialogueLine(line.Speaker, firstVariant.Value, line.TextVariants, line.ArcLineIndex, line.Section);
-                }
-
-                // Caller lines - return as-is
-                return line;
-            }).ToList();
+            // In the new schema, each line already has the appropriate audio id
+            // Mood selection happens in BroadcastStateManager
+            return _dialogue.ToList();
         }
 
         /// <summary>
@@ -187,18 +169,16 @@ namespace KBTV.Dialogue
         [Export] private Speaker _speaker;
         [Export] private string _text;
         [Export] private Godot.Collections.Dictionary<string, string> _textVariants = new Godot.Collections.Dictionary<string, string>();
+        [Export] private Godot.Collections.Dictionary<string, string> _audioIds = new Godot.Collections.Dictionary<string, string>();
         [Export] private int _arcLineIndex = -1;
         [Export] private ArcSection _section = ArcSection.Intro;
+        [Export] private string _audioId = "";
 
         public Speaker Speaker => _speaker;
         public string Text => _text;
-
-        /// <summary>
-        /// Mood-specific text variants for Vern's lines.
-        /// Keys: "neutral", "tired", "energized", "irritated", "gruff", "amused", "focused"
-        /// For Caller lines, this dictionary is empty.
-        /// </summary>
+        public string AudioId => _audioId;
         public Godot.Collections.Dictionary<string, string> TextVariants => _textVariants;
+        public Godot.Collections.Dictionary<string, string> AudioIds => _audioIds;
 
         /// <summary>
         /// The original 0-based index of this line within the arc JSON.
@@ -224,10 +204,11 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Create a caller line (single text, no variants).
         /// </summary>
-        public ArcDialogueLine(Speaker speaker, string text, int arcLineIndex = -1, ArcSection section = ArcSection.Intro)
+        public ArcDialogueLine(Speaker speaker, string text, string audioId = "", int arcLineIndex = -1, ArcSection section = ArcSection.Intro)
         {
             _speaker = speaker;
             _text = text;
+            _audioId = audioId;
             _arcLineIndex = arcLineIndex;
             _section = section;
         }
@@ -237,41 +218,62 @@ namespace KBTV.Dialogue
         /// Preserves the original variants dictionary for reference.
         /// </summary>
         public ArcDialogueLine(Speaker speaker, string text, Godot.Collections.Dictionary<string, string> textVariants,
+            Godot.Collections.Dictionary<string, string> audioIds = null,
             int arcLineIndex = -1, ArcSection section = ArcSection.Intro)
         {
             _speaker = speaker;
             _text = text;
             _textVariants = textVariants ?? new Godot.Collections.Dictionary<string, string>();
+            _audioIds = audioIds ?? new Godot.Collections.Dictionary<string, string>();
             _arcLineIndex = arcLineIndex;
             _section = section;
         }
 
         /// <summary>
-        /// Create a Vern line with mood variants.
+        /// Create a line with specified speaker and audio id.
         /// </summary>
-        public static ArcDialogueLine CreateVernLine(Godot.Collections.Dictionary<string, string> textVariants, int arcLineIndex = -1, ArcSection section = ArcSection.Intro)
+        public static ArcDialogueLine CreateLine(Speaker speaker, string text, string audioId, int arcLineIndex = -1, ArcSection section = ArcSection.Intro)
+        {
+            var line = new ArcDialogueLine
+            {
+                _speaker = speaker,
+                _text = text,
+                _audioId = audioId,
+                _arcLineIndex = arcLineIndex,
+                _section = section
+            };
+            return line;
+        }
+
+        /// <summary>
+        /// Create a Vern line with audio id.
+        /// </summary>
+        public static ArcDialogueLine CreateVernLine(string text, string audioId, int arcLineIndex = -1, ArcSection section = ArcSection.Intro)
+        {
+            return CreateLine(Speaker.Vern, text, audioId, arcLineIndex, section);
+        }
+
+        /// <summary>
+        /// Create a Vern line with mood variants and audio IDs.
+        /// </summary>
+        public static ArcDialogueLine CreateVernLineWithVariants(
+            Godot.Collections.Dictionary<string, string> textVariants,
+            Godot.Collections.Dictionary<string, string> audioIds,
+            string defaultText = "",
+            string defaultAudioId = "",
+            int arcLineIndex = -1,
+            ArcSection section = ArcSection.Intro)
         {
             var line = new ArcDialogueLine
             {
                 _speaker = Speaker.Vern,
-                _textVariants = textVariants,
+                _text = defaultText,
+                _audioId = defaultAudioId,
+                _textVariants = textVariants ?? new Godot.Collections.Dictionary<string, string>(),
+                _audioIds = audioIds ?? new Godot.Collections.Dictionary<string, string>(),
                 _arcLineIndex = arcLineIndex,
                 _section = section
             };
-            // Set Text to the neutral variant as a fallback/default
-            if (textVariants.TryGetValue("neutral", out string neutralText))
-            {
-                line._text = neutralText;
-            }
-            else if (textVariants.Count > 0)
-            {
-                // Get first variant as fallback
-                foreach (var kvp in textVariants)
-                {
-                    line._text = kvp.Value;
-                    break;
-                }
-            }
             return line;
         }
 

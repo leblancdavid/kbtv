@@ -1,0 +1,39 @@
+{
+  "arcId": "dashcam_trucker",
+  "topic": "UFOs",
+  "legitimacy": "Credible",
+  "screeningSummary": "Trucker with dashcam footage of triangular object pacing his truck for two miles",
+  "callerPersonality": "gruff_experienced",
+  "arcNotes": "Trucker with dashcam evidence, skeptical but has specific details, willing to defend his experience",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_vern_neutral_1",
+          "text": "...",
+          "voiceText": "...",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_dashcam_vern_tired_1",
+          "text": "...",
+          "voiceText": "...",
+          "mood": "tired"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_dashcam_caller_1",
+          "text": "...",
+          "voiceText": "...",
+          "mood": "neutral"
+        }
+      ]
+    }
+  ]
+}

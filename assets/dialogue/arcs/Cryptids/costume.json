@@ -5,227 +5,239 @@
   "screeningSummary": "Prank caller claiming Bigfoot behind 7-Eleven - reveals friend in gorilla suit",
   "callerPersonality": "charismatic_storyteller",
   "arcNotes": "Prank call, reveals it's a friend in a gorilla suit, self-aware humor",
-  "callerGender": "male",
-  "lines": [
+  "callerGender": "caller",
+  "arcLines": [
     {
-      "id": "cryptids_fake_costume_vern_neutral_1",
-      "text": "You're on the air. What's your story?",
-      "voiceText": "You're on the air. What's your story?",
       "speaker": "vern",
-      "mood": "neutral"
+      "lines": [
+        {
+          "id": "cryptids_fake_costume_vern_neutral_1",
+          "text": "You're on the air. What's your story?",
+          "voiceText": "You're on the air. What's your story?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_tired_1",
+          "text": "Alright, you're on. What's your story?",
+          "voiceText": "Alright, you're on. What's your story?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_energized_1",
+          "text": "YOU ARE ON THE AIR! Tell us your story!",
+          "voiceText": "YOU ARE ON THE AIR! Tell us your story!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_irritated_1",
+          "text": "You're on. What's this about?",
+          "voiceText": "You're on. What's this about?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_gruff_1",
+          "text": "You're on. So?",
+          "voiceText": "You're on. So?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_amused_1",
+          "text": "Oh good, a caller! What's your story?",
+          "voiceText": "Oh good, a caller! What's your story?",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_focused_1",
+          "text": "You're on. State your experience concisely.",
+          "voiceText": "You're on. State your experience concisely.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_fake_costume_vern_tired_1",
-      "text": "Alright, you're on. What's your story?",
-      "voiceText": "Alright, you're on. What's your story?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_fake_costume_caller_1",
+          "text": "Okay, so this is gonna sound crazy, but my buddy dared me and I've had three beers and... look, I saw Bigfoot behind the 7-Eleven last Tuesday. Right behind the dumpsters.",
+          "voiceText": "Okay, so this is gonna sound crazy, but my buddy dared me and I've had three beers and... look, I saw Bigfoot behind the 7-Eleven last Tuesday. Right behind the dumpsters.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "tired"
+      "lines": [
+        {
+          "id": "cryptids_fake_costume_vern_neutral_2",
+          "text": "Behind the convenience store. Doing what exactly?",
+          "voiceText": "Behind the convenience store. Doing what exactly?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_tired_2",
+          "text": "Behind the 7-Eleven... okay, doing what?",
+          "voiceText": "Behind the 7-Eleven... okay, doing what?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_energized_2",
+          "text": "BEHIND THE 7-ELEVEN?! This is AMAZING! Doing what?!",
+          "voiceText": "BEHIND THE 7-ELEVEN?! This is AMAZING! Doing what?!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_irritated_2",
+          "text": "Behind the convenience store. Let me guess - it was eating a hot dog?",
+          "voiceText": "Behind the convenience store. Let me guess - it was eating a hot dog?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_gruff_2",
+          "text": "Behind the 7-Eleven. Fine, what was it doing?",
+          "voiceText": "Behind the 7-Eleven. Fine, what was it doing?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_amused_2",
+          "text": "BEHIND THE DUMPSTERS! I love this already! What was it DOING?!",
+          "voiceText": "BEHIND THE DUMPSTERS! I love this already! What was it DOING?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_focused_2",
+          "text": "Behind the convenience store. Describe the observed behavior and any distinctive characteristics.",
+          "voiceText": "Behind the convenience store. Describe the observed behavior and any distinctive characteristics.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_fake_costume_vern_energized_1",
-      "text": "YOU ARE ON THE AIR! Tell us your story!",
-      "voiceText": "YOU ARE ON THE AIR! Tell us your story!",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_fake_costume_caller_2",
+          "text": "Just... standing there. Huge, hairy, looking right at me. Made eye contact, Vern. Then it walked into the parking lot.",
+          "voiceText": "Just... standing there. Huge, hairy, looking right at me. Made eye contact, Vern. Then it walked into the parking lot.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "energized"
+      "lines": [
+        {
+          "id": "cryptids_fake_costume_vern_neutral_3",
+          "text": "And?",
+          "voiceText": "And?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_tired_3",
+          "text": "...and?",
+          "voiceText": "...and?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_energized_3",
+          "text": "AND?! This is INCREDIBLE!",
+          "voiceText": "AND?! This is INCREDIBLE!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_irritated_3",
+          "text": "And? Let me guess - it drove away in a Honda?",
+          "voiceText": "And? Let me guess - it drove away in a Honda?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_gruff_3",
+          "text": "And?",
+          "voiceText": "And?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_amused_3",
+          "text": "AND?! What happened next?!",
+          "voiceText": "AND?! What happened next?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_focused_3",
+          "text": "Subsequent actions and trajectory.",
+          "voiceText": "Subsequent actions and trajectory.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_fake_costume_vern_irritated_1",
-      "text": "You're on. What's this about?",
-      "voiceText": "You're on. What's this about?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_fake_costume_caller_3",
+          "text": "Got in a Honda Civic. My buddy Derek. He had this gorilla suit he'd been saving for Halloween. I can't believe I actually called about this.",
+          "voiceText": "Got in a Honda Civic. My buddy Derek. He had this gorilla suit he'd been saving for Halloween. I can't believe I actually called about this.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "irritated"
+      "lines": [
+        {
+          "id": "cryptids_fake_costume_vern_neutral_4",
+          "text": "Probably buying beef jerky. Next caller.",
+          "voiceText": "Probably buying beef jerky. Next caller.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_tired_4",
+          "text": "Right... Derek's gorilla suit. Next.",
+          "voiceText": "Right... Derek's gorilla suit. Next.",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_energized_4",
+          "text": "DEREK in a GORILLA SUIT buying BEEF JERKY! This is the BEST call of the night!",
+          "voiceText": "DEREK in a GORILLA SUIT buying BEEF JERKY! This is the BEST call of the night!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_irritated_4",
+          "text": "Of course it was Derek. Next caller.",
+          "voiceText": "Of course it was Derek. Next caller.",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_gruff_4",
+          "text": "Honda Civic and a gorilla suit. Next.",
+          "voiceText": "Honda Civic and a gorilla suit. Next.",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_amused_4",
+          "text": "DEREK IN A GORILLA SUIT! I can't believe you called about this but I LOVE it! NEXT!",
+          "voiceText": "DEREK IN A GORILLA SUIT! I can't believe you called about this but I LOVE it! NEXT!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_fake_costume_vern_focused_4",
+          "text": "Convenience store procurement of snacks. Classic bigfoot behavior. Next caller.",
+          "voiceText": "Convenience store procurement of snacks. Classic bigfoot behavior. Next caller.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_fake_costume_vern_gruff_1",
-      "text": "You're on. So?",
-      "voiceText": "You're on. So?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_amused_1",
-      "text": "Oh good, a caller! What's your story?",
-      "voiceText": "Oh good, a caller! What's your story?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_focused_1",
-      "text": "You're on. State your experience concisely.",
-      "voiceText": "You're on. State your experience concisely.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_fake_costume_caller_1",
-      "text": "Okay, so this is gonna sound crazy, but my buddy dared me and I've had three beers and... look, I saw Bigfoot behind the 7-Eleven last Tuesday. Right behind the dumpsters.",
-      "voiceText": "Okay, so this is gonna sound crazy, but my buddy dared me and I've had three beers and... look, I saw Bigfoot behind the 7-Eleven last Tuesday. Right behind the dumpsters.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_neutral_2",
-      "text": "Behind the convenience store. Doing what exactly?",
-      "voiceText": "Behind the convenience store. Doing what exactly?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_tired_2",
-      "text": "Behind the 7-Eleven... okay, doing what?",
-      "voiceText": "Behind the 7-Eleven... okay, doing what?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_energized_2",
-      "text": "BEHIND THE 7-ELEVEN?! This is AMAZING! Doing what?!",
-      "voiceText": "BEHIND THE 7-ELEVEN?! This is AMAZING! Doing what?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_irritated_2",
-      "text": "Behind the convenience store. Let me guess - it was eating a hot dog?",
-      "voiceText": "Behind the convenience store. Let me guess - it was eating a hot dog?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_gruff_2",
-      "text": "Behind the 7-Eleven. Fine, what was it doing?",
-      "voiceText": "Behind the 7-Eleven. Fine, what was it doing?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_amused_2",
-      "text": "BEHIND THE DUMPSTERS! I love this already! What was it DOING?!",
-      "voiceText": "BEHIND THE DUMPSTERS! I love this already! What was it DOING?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_focused_2",
-      "text": "Behind the convenience store. Describe the observed behavior and any distinctive characteristics.",
-      "voiceText": "Behind the convenience store. Describe the observed behavior and any distinctive characteristics.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_fake_costume_caller_2",
-      "text": "Just... standing there. Huge, hairy, looking right at me. Made eye contact, Vern. Then it walked into the parking lot.",
-      "voiceText": "Just... standing there. Huge, hairy, looking right at me. Made eye contact, Vern. Then it walked into the parking lot.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_neutral_3",
-      "text": "And?",
-      "voiceText": "And?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_tired_3",
-      "text": "...and?",
-      "voiceText": "...and?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_energized_3",
-      "text": "AND?! This is INCREDIBLE!",
-      "voiceText": "AND?! This is INCREDIBLE!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_irritated_3",
-      "text": "And? Let me guess - it drove away in a Honda?",
-      "voiceText": "And? Let me guess - it drove away in a Honda?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_gruff_3",
-      "text": "And?",
-      "voiceText": "And?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_amused_3",
-      "text": "AND?! What happened next?!",
-      "voiceText": "AND?! What happened next?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_focused_3",
-      "text": "Subsequent actions and trajectory.",
-      "voiceText": "Subsequent actions and trajectory.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_fake_costume_caller_3",
-      "text": "Got in a Honda Civic. My buddy Derek. He had this gorilla suit he'd been saving for Halloween. I can't believe I actually called about this.",
-      "voiceText": "Got in a Honda Civic. My buddy Derek. He had this gorilla suit he'd been saving for Halloween. I can't believe I actually called about this.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_neutral_4",
-      "text": "Probably buying beef jerky. Next caller.",
-      "voiceText": "Probably buying beef jerky. Next caller.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_tired_4",
-      "text": "Right... Derek's gorilla suit. Next.",
-      "voiceText": "Right... Derek's gorilla suit. Next.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_energized_4",
-      "text": "DEREK in a GORILLA SUIT buying BEEF JERKY! This is the BEST call of the night!",
-      "voiceText": "DEREK in a GORILLA SUIT buying BEEF JERKY! This is the BEST call of the night!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_irritated_4",
-      "text": "Of course it was Derek. Next caller.",
-      "voiceText": "Of course it was Derek. Next caller.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_gruff_4",
-      "text": "Honda Civic and a gorilla suit. Next.",
-      "voiceText": "Honda Civic and a gorilla suit. Next.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_amused_4",
-      "text": "DEREK IN A GORILLA SUIT! I can't believe you called about this but I LOVE it! NEXT!",
-      "voiceText": "DEREK IN A GORILLA SUIT! I can't believe you called about this but I LOVE it! NEXT!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_fake_costume_vern_focused_4",
-      "text": "Convenience store procurement of snacks. Classic bigfoot behavior. Next caller.",
-      "voiceText": "Convenience store procurement of snacks. Classic bigfoot behavior. Next caller.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_fake_costume_caller_4",
-      "text": "*snorts* Okay you got me, great show though Vern. I'm never living this down.",
-      "voiceText": "*snorts* Okay you got me, great show though Vern. I'm never living this down.",
-      "speaker": "caller"
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_fake_costume_caller_4",
+          "text": "*snorts* Okay you got me, great show though Vern. I'm never living this down.",
+          "voiceText": "*snorts* Okay you got me, great show though Vern. I'm never living this down.",
+          "mood": "neutral"
+        }
+      ]
     }
   ]
 }

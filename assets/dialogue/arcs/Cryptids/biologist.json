@@ -5,282 +5,297 @@
   "screeningSummary": "Wildlife biologist with dermal ridge evidence - five-toed tracks from eight-foot bipedal creature",
   "callerPersonality": "cold_factual",
   "arcNotes": "Wildlife biologist, dermal ridge evidence, published attempts blocked, collaboration with other researchers",
-  "callerGender": "female",
-  "lines": [
+  "callerGender": "caller",
+  "arcLines": [
     {
-      "id": "cryptids_compelling_biologist_vern_neutral_1",
-      "text": "You're on the air. I understand you have scientific credentials?",
-      "voiceText": "You're on the air. I understand you have scientific credentials?",
       "speaker": "vern",
-      "mood": "neutral"
+      "lines": [
+        {
+          "id": "cryptids_compelling_biologist_vern_neutral_1",
+          "text": "You're on the air. I understand you have scientific credentials?",
+          "voiceText": "You're on the air. I understand you have scientific credentials?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_tired_1",
+          "text": "Alright, you're on. Scientific background, huh?",
+          "voiceText": "Alright, you're on. Scientific background, huh?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_energized_1",
+          "text": "YOU ARE ON THE AIR! A scientist! This is gonna be GOOD!",
+          "voiceText": "YOU ARE ON THE AIR! A scientist! This is gonna be GOOD!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_irritated_1",
+          "text": "You're on. Let me guess - you're gonna tell me you found Bigfoot?",
+          "voiceText": "You're on. Let me guess - you're gonna tell me you found Bigfoot?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_gruff_1",
+          "text": "You're on. So you work in science? What about it?",
+          "voiceText": "You're on. So you work in science? What about it?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_amused_1",
+          "text": "Oh, a SCIENTIST! This I gotta hear! What's your story?",
+          "voiceText": "Oh, a SCIENTIST! This I gotta hear! What's your story?",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_focused_1",
+          "text": "You're on. What's your scientific background and field of expertise?",
+          "voiceText": "You're on. What's your scientific background and field of expertise?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_compelling_biologist_vern_tired_1",
-      "text": "Alright, you're on. Scientific background, huh?",
-      "voiceText": "Alright, you're on. Scientific background, huh?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_compelling_biologist_caller_1",
+          "text": "Wildlife biologist, Vern. Thirty years in the field, PhD from Berkeley. What started as debunking turned into the most significant discovery of my career.",
+          "voiceText": "Wildlife biologist, Vern. Thirty years in the field, PhD from Berkeley. What started as debunking turned into the most significant discovery of my career.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "tired"
+      "lines": [
+        {
+          "id": "cryptids_compelling_biologist_vern_neutral_2",
+          "text": "You tried to debunk and ended up finding evidence instead?",
+          "voiceText": "You tried to debunk and ended up finding evidence instead?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_tired_2",
+          "text": "Tried to debunk... ended up finding something. Alright, go on.",
+          "voiceText": "Tried to debunk... ended up finding something. Alright, go on.",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_energized_2",
+          "text": "You TRIED TO DEBUNK and found EVIDENCE instead?! This is AMAZING!",
+          "voiceText": "You TRIED TO DEBUNK and found EVIDENCE instead?! This is AMAZING!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_irritated_2",
+          "text": "Tried to debunk, huh? Let me guess - you found something you couldn't explain?",
+          "voiceText": "Tried to debunk, huh? Let me guess - you found something you couldn't explain?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_gruff_2",
+          "text": "Tried to debunk. Fine, what'd you find?",
+          "voiceText": "Tried to debunk. Fine, what'd you find?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_amused_2",
+          "text": "TRIED TO DEBUNK and found something INCREDIBLE! I love this story already!",
+          "voiceText": "TRIED TO DEBUNK and found something INCREDIBLE! I love this story already!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_focused_2",
+          "text": "Initial debunking mission transformed into discovery. What specific evidence did you encounter?",
+          "voiceText": "Initial debunking mission transformed into discovery. What specific evidence did you encounter?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_compelling_biologist_vern_energized_1",
-      "text": "YOU ARE ON THE AIR! A scientist! This is gonna be GOOD!",
-      "voiceText": "YOU ARE ON THE AIR! A scientist! This is gonna be GOOD!",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_compelling_biologist_caller_2",
+          "text": "Olympic Peninsula, five years ago. I found track impressions that didn't match any known species. Bipedal, eighteen inches long, five toes with distinct dermal ridges.",
+          "voiceText": "Olympic Peninsula, five years ago. I found track impressions that didn't match any known species. Bipedal, eighteen inches long, five toes with distinct dermal ridges.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "energized"
+      "lines": [
+        {
+          "id": "cryptids_compelling_biologist_vern_neutral_3",
+          "text": "Dermal ridges. That's hard to fake. Tell me more.",
+          "voiceText": "Dermal ridges. That's hard to fake. Tell me more.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_tired_3",
+          "text": "Dermal ridges... alright, that's something. Go on.",
+          "voiceText": "Dermal ridges... alright, that's something. Go on.",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_energized_3",
+          "text": "DERMAL RIDGES?! That's INCREDIBLE! You can't fake that!",
+          "voiceText": "DERMAL RIDGES?! That's INCREDIBLE! You can't fake that!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_irritated_3",
+          "text": "Dermal ridges. Okay, I'll admit - that's hard to fake.",
+          "voiceText": "Dermal ridges. Okay, I'll admit - that's hard to fake.",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_gruff_3",
+          "text": "Dermal ridges. That's... actually interesting. Keep going.",
+          "voiceText": "Dermal ridges. That's... actually interesting. Keep going.",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_amused_3",
+          "text": "DERMAL RIDGES! This is PERFECT scientific evidence! Tell me everything!",
+          "voiceText": "DERMAL RIDGES! This is PERFECT scientific evidence! Tell me everything!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_focused_3",
+          "text": "Dermal ridges indicate biological origin. What was the depth distribution and stride length?",
+          "voiceText": "Dermal ridges indicate biological origin. What was the depth distribution and stride length?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_compelling_biologist_vern_irritated_1",
-      "text": "You're on. Let me guess - you're gonna tell me you found Bigfoot?",
-      "voiceText": "You're on. Let me guess - you're gonna tell me you found Bigfoot?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_compelling_biologist_caller_3",
+          "text": "Exactly. I photographed everything, made plaster casts, analyzed the weight distribution. Something heavy and biological made these. I've studied bear prints, cougar prints, human footprints. This was none of those.",
+          "voiceText": "Exactly. I photographed everything, made plaster casts, analyzed the weight distribution. Something heavy and biological made these. I've studied bear prints, cougar prints, human footprints. This was none of those.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "irritated"
+      "lines": [
+        {
+          "id": "cryptids_compelling_biologist_vern_neutral_4",
+          "text": "Could sophisticated hoaxers have created these? There are people who try to fake this evidence.",
+          "voiceText": "Could sophisticated hoaxers have created these? There are people who try to fake this evidence.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_tired_4",
+          "text": "Look, could hoaxers have done this? People try, you know...",
+          "voiceText": "Look, could hoaxers have done this? People try, you know...",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_energized_4",
+          "text": "Could HOAXERS have created this?! The science doesn't lie though!",
+          "voiceText": "Could HOAXERS have created this?! The science doesn't lie though!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_irritated_4",
+          "text": "Right, because no one has ever faked evidence before. What makes this different?",
+          "voiceText": "Right, because no one has ever faked evidence before. What makes this different?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_gruff_4",
+          "text": "Could be hoaxers. What's your take on that?",
+          "voiceText": "Could be hoaxers. What's your take on that?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_amused_4",
+          "text": "Could this be a HOAX? I mean, the science speaks for itself, right?!",
+          "voiceText": "Could this be a HOAX? I mean, the science speaks for itself, right?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_focused_4",
+          "text": "Regarding potential hoaxing - what evidence suggests authentic biological origin versus manufactured prints?",
+          "voiceText": "Regarding potential hoaxing - what evidence suggests authentic biological origin versus manufactured prints?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_compelling_biologist_vern_gruff_1",
-      "text": "You're on. So you work in science? What about it?",
-      "voiceText": "You're on. So you work in science? What about it?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_compelling_biologist_caller_4",
+          "text": "Dermal ridges require actual skin impression. You can't carve that in a mold. And the weight distribution was inconsistent - something a hoaxer wouldn't replicate. The stride length also suggests an animal eight to nine feet tall.",
+          "voiceText": "Dermal ridges require actual skin impression. You can't carve that in a mold. And the weight distribution was inconsistent - something a hoaxer wouldn't replicate. The stride length also suggests an animal eight to nine feet tall.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "gruff"
+      "lines": [
+        {
+          "id": "cryptids_compelling_biologist_vern_neutral_5",
+          "text": "Thank you for your work. We need more rigorous scientists in this field. Send us your documentation if you're willing.",
+          "voiceText": "Thank you for your work. We need more rigorous scientists in this field. Send us your documentation if you're willing.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_tired_5",
+          "text": "Yeah, thanks for calling. Send stuff in if you want. We need more people like you.",
+          "voiceText": "Yeah, thanks for calling. Send stuff in if you want. We need more people like you.",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_energized_5",
+          "text": "This is INCREDIBLE! Send us EVERYTHING! Your documentation, your research - we need to share this!",
+          "voiceText": "This is INCREDIBLE! Send us EVERYTHING! Your documentation, your research - we need to share this!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_irritated_5",
+          "text": "Alright, that's... actually compelling. Send us your stuff if you want. Thanks.",
+          "voiceText": "Alright, that's... actually compelling. Send us your stuff if you want. Thanks.",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_gruff_5",
+          "text": "Good work. Send your documentation in. We need more people doing real science.",
+          "voiceText": "Good work. Send your documentation in. We need more people doing real science.",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_amused_5",
+          "text": "This is PERFECT! Thank you for being a REAL scientist! Send us your work!",
+          "voiceText": "This is PERFECT! Thank you for being a REAL scientist! Send us your work!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_compelling_biologist_vern_focused_5",
+          "text": "Thank you for applying rigorous methodology. Please submit your full documentation to our research team for peer review and analysis.",
+          "voiceText": "Thank you for applying rigorous methodology. Please submit your full documentation to our research team for peer review and analysis.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_compelling_biologist_vern_amused_1",
-      "text": "Oh, a SCIENTIST! This I gotta hear! What's your story?",
-      "voiceText": "Oh, a SCIENTIST! This I gotta hear! What's your story?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_focused_1",
-      "text": "You're on. What's your scientific background and field of expertise?",
-      "voiceText": "You're on. What's your scientific background and field of expertise?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_compelling_biologist_caller_1",
-      "text": "Wildlife biologist, Vern. Thirty years in the field, PhD from Berkeley. What started as debunking turned into the most significant discovery of my career.",
-      "voiceText": "Wildlife biologist, Vern. Thirty years in the field, PhD from Berkeley. What started as debunking turned into the most significant discovery of my career.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_neutral_2",
-      "text": "You tried to debunk and ended up finding evidence instead?",
-      "voiceText": "You tried to debunk and ended up finding evidence instead?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_tired_2",
-      "text": "Tried to debunk... ended up finding something. Alright, go on.",
-      "voiceText": "Tried to debunk... ended up finding something. Alright, go on.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_energized_2",
-      "text": "You TRIED TO DEBUNK and found EVIDENCE instead?! This is AMAZING!",
-      "voiceText": "You TRIED TO DEBUNK and found EVIDENCE instead?! This is AMAZING!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_irritated_2",
-      "text": "Tried to debunk, huh? Let me guess - you found something you couldn't explain?",
-      "voiceText": "Tried to debunk, huh? Let me guess - you found something you couldn't explain?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_gruff_2",
-      "text": "Tried to debunk. Fine, what'd you find?",
-      "voiceText": "Tried to debunk. Fine, what'd you find?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_amused_2",
-      "text": "TRIED TO DEBUNK and found something INCREDIBLE! I love this story already!",
-      "voiceText": "TRIED TO DEBUNK and found something INCREDIBLE! I love this story already!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_focused_2",
-      "text": "Initial debunking mission transformed into discovery. What specific evidence did you encounter?",
-      "voiceText": "Initial debunking mission transformed into discovery. What specific evidence did you encounter?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_compelling_biologist_caller_2",
-      "text": "Olympic Peninsula, five years ago. I found track impressions that didn't match any known species. Bipedal, eighteen inches long, five toes with distinct dermal ridges.",
-      "voiceText": "Olympic Peninsula, five years ago. I found track impressions that didn't match any known species. Bipedal, eighteen inches long, five toes with distinct dermal ridges.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_neutral_3",
-      "text": "Dermal ridges. That's hard to fake. Tell me more.",
-      "voiceText": "Dermal ridges. That's hard to fake. Tell me more.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_tired_3",
-      "text": "Dermal ridges... alright, that's something. Go on.",
-      "voiceText": "Dermal ridges... alright, that's something. Go on.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_energized_3",
-      "text": "DERMAL RIDGES?! That's INCREDIBLE! You can't fake that!",
-      "voiceText": "DERMAL RIDGES?! That's INCREDIBLE! You can't fake that!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_irritated_3",
-      "text": "Dermal ridges. Okay, I'll admit - that's hard to fake.",
-      "voiceText": "Dermal ridges. Okay, I'll admit - that's hard to fake.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_gruff_3",
-      "text": "Dermal ridges. That's... actually interesting. Keep going.",
-      "voiceText": "Dermal ridges. That's... actually interesting. Keep going.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_amused_3",
-      "text": "DERMAL RIDGES! This is PERFECT scientific evidence! Tell me everything!",
-      "voiceText": "DERMAL RIDGES! This is PERFECT scientific evidence! Tell me everything!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_focused_3",
-      "text": "Dermal ridges indicate biological origin. What was the depth distribution and stride length?",
-      "voiceText": "Dermal ridges indicate biological origin. What was the depth distribution and stride length?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_compelling_biologist_caller_3",
-      "text": "Exactly. I photographed everything, made plaster casts, analyzed the weight distribution. Something heavy and biological made these. I've studied bear prints, cougar prints, human footprints. This was none of those.",
-      "voiceText": "Exactly. I photographed everything, made plaster casts, analyzed the weight distribution. Something heavy and biological made these. I've studied bear prints, cougar prints, human footprints. This was none of those.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_neutral_4",
-      "text": "Could sophisticated hoaxers have created these? There are people who try to fake this evidence.",
-      "voiceText": "Could sophisticated hoaxers have created these? There are people who try to fake this evidence.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_tired_4",
-      "text": "Look, could hoaxers have done this? People try, you know...",
-      "voiceText": "Look, could hoaxers have done this? People try, you know...",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_energized_4",
-      "text": "Could HOAXERS have created this?! The science doesn't lie though!",
-      "voiceText": "Could HOAXERS have created this?! The science doesn't lie though!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_irritated_4",
-      "text": "Right, because no one has ever faked evidence before. What makes this different?",
-      "voiceText": "Right, because no one has ever faked evidence before. What makes this different?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_gruff_4",
-      "text": "Could be hoaxers. What's your take on that?",
-      "voiceText": "Could be hoaxers. What's your take on that?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_amused_4",
-      "text": "Could this be a HOAX? I mean, the science speaks for itself, right?!",
-      "voiceText": "Could this be a HOAX? I mean, the science speaks for itself, right?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_focused_4",
-      "text": "Regarding potential hoaxing - what evidence suggests authentic biological origin versus manufactured prints?",
-      "voiceText": "Regarding potential hoaxing - what evidence suggests authentic biological origin versus manufactured prints?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_compelling_biologist_caller_4",
-      "text": "Dermal ridges require actual skin impression. You can't carve that in a mold. And the weight distribution was inconsistent - something a hoaxer wouldn't replicate. The stride length also suggests an animal eight to nine feet tall.",
-      "voiceText": "Dermal ridges require actual skin impression. You can't carve that in a mold. And the weight distribution was inconsistent - something a hoaxer wouldn't replicate. The stride length also suggests an animal eight to nine feet tall.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_neutral_5",
-      "text": "Thank you for your work. We need more rigorous scientists in this field. Send us your documentation if you're willing.",
-      "voiceText": "Thank you for your work. We need more rigorous scientists in this field. Send us your documentation if you're willing.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_tired_5",
-      "text": "Yeah, thanks for calling. Send stuff in if you want. We need more people like you.",
-      "voiceText": "Yeah, thanks for calling. Send stuff in if you want. We need more people like you.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_energized_5",
-      "text": "This is INCREDIBLE! Send us EVERYTHING! Your documentation, your research - we need to share this!",
-      "voiceText": "This is INCREDIBLE! Send us EVERYTHING! Your documentation, your research - we need to share this!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_irritated_5",
-      "text": "Alright, that's... actually compelling. Send us your stuff if you want. Thanks.",
-      "voiceText": "Alright, that's... actually compelling. Send us your stuff if you want. Thanks.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_gruff_5",
-      "text": "Good work. Send your documentation in. We need more people doing real science.",
-      "voiceText": "Good work. Send your documentation in. We need more people doing real science.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_amused_5",
-      "text": "This is PERFECT! Thank you for being a REAL scientist! Send us your work!",
-      "voiceText": "This is PERFECT! Thank you for being a REAL scientist! Send us your work!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_compelling_biologist_vern_focused_5",
-      "text": "Thank you for applying rigorous methodology. Please submit your full documentation to our research team for peer review and analysis.",
-      "voiceText": "Thank you for applying rigorous methodology. Please submit your full documentation to our research team for peer review and analysis.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_compelling_biologist_caller_5",
-      "text": "I've been quietly working with other researchers. The evidence is accumulating. The scientific community will have to face this eventually. Thanks for giving me a platform, Vern.",
-      "voiceText": "I've been quietly working with other researchers. The evidence is accumulating. The scientific community will have to face this eventually. Thanks for giving me a platform, Vern.",
-      "speaker": "caller"
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_compelling_biologist_caller_5",
+          "text": "I've been quietly working with other researchers. The evidence is accumulating. The scientific community will have to face this eventually. Thanks for giving me a platform, Vern.",
+          "voiceText": "I've been quietly working with other researchers. The evidence is accumulating. The scientific community will have to face this eventually. Thanks for giving me a platform, Vern.",
+          "mood": "neutral"
+        }
+      ]
     }
   ]
 }

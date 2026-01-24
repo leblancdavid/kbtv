@@ -5,282 +5,297 @@
   "screeningSummary": "Experienced hiker with clear daylight sighting of eight-foot creature - made eye contact",
   "callerPersonality": "gruff_experienced",
   "arcNotes": "Experienced hiker, clear daylight sighting, rational attempt to debunk, eye contact, self-researching after",
-  "callerGender": "male",
-  "lines": [
+  "callerGender": "caller",
+  "arcLines": [
     {
-      "id": "cryptids_credible_forest_hiker_vern_neutral_1",
-      "text": "You're on the air. Tell me what happened.",
-      "voiceText": "You're on the air. Tell me what happened.",
       "speaker": "vern",
-      "mood": "neutral"
+      "lines": [
+        {
+          "id": "cryptids_credible_forest_hiker_vern_neutral_1",
+          "text": "You're on the air. Tell me what happened.",
+          "voiceText": "You're on the air. Tell me what happened.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_tired_1",
+          "text": "Alright, you're on. What's this about?",
+          "voiceText": "Alright, you're on. What's this about?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_energized_1",
+          "text": "YOU ARE ON THE AIR! Tell us your story!",
+          "voiceText": "YOU ARE ON THE AIR! Tell us your story!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_irritated_1",
+          "text": "You're on. Make it quick - what did you see?",
+          "voiceText": "You're on. Make it quick - what did you see?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_gruff_1",
+          "text": "You're on. So?",
+          "voiceText": "You're on. So?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_amused_1",
+          "text": "Oh good, a caller! What's your story?",
+          "voiceText": "Oh good, a caller! What's your story?",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_focused_1",
+          "text": "You're on. Describe your experience from the beginning.",
+          "voiceText": "You're on. Describe your experience from the beginning.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_credible_forest_hiker_vern_tired_1",
-      "text": "Alright, you're on. What's this about?",
-      "voiceText": "Alright, you're on. What's this about?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_credible_forest_hiker_caller_1",
+          "text": "Vern, I've been hiking the Pacific Northwest for fifteen years. Last weekend, I had an encounter I can't explain and it's been eating at me since.",
+          "voiceText": "Vern, I've been hiking the Pacific Northwest for fifteen years. Last weekend, I had an encounter I can't explain and it's been eating at me since.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "tired"
+      "lines": [
+        {
+          "id": "cryptids_credible_forest_hiker_vern_neutral_2",
+          "text": "Alright, I'm listening. Give me the details.",
+          "voiceText": "Alright, I'm listening. Give me the details.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_tired_2",
+          "text": "Alright, I'm listening... give me the details.",
+          "voiceText": "Alright, I'm listening... give me the details.",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_energized_2",
+          "text": "FIFTEEN YEARS of hiking experience! This is gonna be GOOD! Details please!",
+          "voiceText": "FIFTEEN YEARS of hiking experience! This is gonna be GOOD! Details please!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_irritated_2",
+          "text": "Alright, alright. Give me the details.",
+          "voiceText": "Alright, alright. Give me the details.",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_gruff_2",
+          "text": "Fifteen years, huh? Fine, I'm listening. Details.",
+          "voiceText": "Fifteen years, huh? Fine, I'm listening. Details.",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_amused_2",
+          "text": "FIFTEEN YEARS and NOW you call?! This is EXCITING! Tell me everything!",
+          "voiceText": "FIFTEEN YEARS and NOW you call?! This is EXCITING! Tell me everything!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_focused_2",
+          "text": "Fifteen years of regional wilderness experience. What specific encounter triggered this response?",
+          "voiceText": "Fifteen years of regional wilderness experience. What specific encounter triggered this response?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_credible_forest_hiker_vern_energized_1",
-      "text": "YOU ARE ON THE AIR! Tell us your story!",
-      "voiceText": "YOU ARE ON THE AIR! Tell us your story!",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_credible_forest_hiker_caller_2",
+          "text": "Mount Rainier area, about ten miles in on a trail I've done dozens of times. Mid-afternoon, clear visibility. Through the trees, maybe fifty yards out, something was standing there. Eight feet tall, dark brown fur, standing completely upright like a person.",
+          "voiceText": "Mount Rainier area, about ten miles in on a trail I've done dozens of times. Mid-afternoon, clear visibility. Through the trees, maybe fifty yards out, something was standing there. Eight feet tall, dark brown fur, standing completely upright like a person.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "energized"
+      "lines": [
+        {
+          "id": "cryptids_credible_forest_hiker_vern_neutral_3",
+          "text": "Fifty yards in clear light. What happened next?",
+          "voiceText": "Fifty yards in clear light. What happened next?",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_tired_3",
+          "text": "Fifty yards in clear light... okay, what happened?",
+          "voiceText": "Fifty yards in clear light... okay, what happened?",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_energized_3",
+          "text": "FIFTY YARDS in CLEAR LIGHT?! EIGHT FEET TALL?! This is INCREDIBLE!",
+          "voiceText": "FIFTY YARDS in CLEAR LIGHT?! EIGHT FEET TALL?! This is INCREDIBLE!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_irritated_3",
+          "text": "Fifty yards, clear light, eight feet tall. Let me guess - it ran away?",
+          "voiceText": "Fifty yards, clear light, eight feet tall. Let me guess - it ran away?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_gruff_3",
+          "text": "Fifty yards. That's not nothing. What happened?",
+          "voiceText": "Fifty yards. That's not nothing. What happened?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_amused_3",
+          "text": "EIGHT FEET TALL in broad daylight! This is AMAZING! What happened?!",
+          "voiceText": "EIGHT FEET TALL in broad daylight! This is AMAZING! What happened?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_focused_3",
+          "text": "Fifty yard observation distance, mid-afternoon, clear visibility. What was the duration of this encounter?",
+          "voiceText": "Fifty yard observation distance, mid-afternoon, clear visibility. What was the duration of this encounter?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_credible_forest_hiker_vern_irritated_1",
-      "text": "You're on. Make it quick - what did you see?",
-      "voiceText": "You're on. Make it quick - what did you see?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_credible_forest_hiker_caller_3",
+          "text": "We made eye contact. I'm certain of it. It just stood there for maybe ten seconds, then turned and walked deeper into the forest. Not running, not hurrying. Like it didn't care that I saw it. Like I was the one intruding.",
+          "voiceText": "We made eye contact. I'm certain of it. It just stood there for maybe ten seconds, then turned and walked deeper into the forest. Not running, not hurrying. Like it didn't care that I saw it. Like I was the one intruding.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "irritated"
+      "lines": [
+        {
+          "id": "cryptids_credible_forest_hiker_vern_neutral_4",
+          "text": "Eye contact. I have to ask - could it have been a bear standing upright? People mistake them all the time.",
+          "voiceText": "Eye contact. I have to ask - could it have been a bear standing upright? People mistake them all the time.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_tired_4",
+          "text": "Eye contact... alright. Could've been a bear, you know how it is...",
+          "voiceText": "Eye contact... alright. Could've been a bear, you know how it is...",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_energized_4",
+          "text": "EYE CONTACT with an EIGHT-FOOT CREATURE! This is TEXTBOOK! Bear? Really?!",
+          "voiceText": "EYE CONTACT with an EIGHT-FOOT CREATURE! This is TEXTBOOK! Bear? Really?!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_irritated_4",
+          "text": "Eye contact. Of course it made eye contact. You know bears stand up sometimes, right?",
+          "voiceText": "Eye contact. Of course it made eye contact. You know bears stand up sometimes, right?",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_gruff_4",
+          "text": "Eye contact. Fine, could've been a bear. What's your take?",
+          "voiceText": "Eye contact. Fine, could've been a bear. What's your take?",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_amused_4",
+          "text": "THEY MADE EYE CONTACT! This is PERFECT! Bear, you think?!",
+          "voiceText": "THEY MADE EYE CONTACT! This is PERFECT! Bear, you think?!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_focused_4",
+          "text": "Sustained eye contact. Regarding the bear hypothesis - what distinguishing characteristics ruled out Ursus species?",
+          "voiceText": "Sustained eye contact. Regarding the bear hypothesis - what distinguishing characteristics ruled out Ursus species?",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_credible_forest_hiker_vern_gruff_1",
-      "text": "You're on. So?",
-      "voiceText": "You're on. So?",
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_credible_forest_hiker_caller_4",
+          "text": "I've photographed black bears and grizzlies for years, Vern. This had human proportions. Shoulders, the way it turned its head. And the size - bears don't stand eight feet tall on their hind legs that comfortably.",
+          "voiceText": "I've photographed black bears and grizzlies for years, Vern. This had human proportions. Shoulders, the way it turned its head. And the size - bears don't stand eight feet tall on their hind legs that comfortably.",
+          "mood": "neutral"
+        }
+      ]
+    },
+    {
       "speaker": "vern",
-      "mood": "gruff"
+      "lines": [
+        {
+          "id": "cryptids_credible_forest_hiker_vern_neutral_5",
+          "text": "Appreciate you sharing this. If you go back, bring documentation - camera, maybe a friend. We need evidence. Stay safe out there.",
+          "voiceText": "Appreciate you sharing this. If you go back, bring documentation - camera, maybe a friend. We need evidence. Stay safe out there.",
+          "mood": "neutral"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_tired_5",
+          "text": "Yeah, thanks for calling. Maybe bring a camera next time. Stay safe.",
+          "voiceText": "Yeah, thanks for calling. Maybe bring a camera next time. Stay safe.",
+          "mood": "tired"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_energized_5",
+          "text": "This is AMAZING! Go BACK with a CAMERA! We need PROOF! Stay safe my friend!",
+          "voiceText": "This is AMAZING! Go BACK with a CAMERA! We need PROOF! Stay safe my friend!",
+          "mood": "energized"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_irritated_5",
+          "text": "Right, well... bring a camera if you go back. Thanks for calling.",
+          "voiceText": "Right, well... bring a camera if you go back. Thanks for calling.",
+          "mood": "irritated"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_gruff_5",
+          "text": "Good report. Bring documentation next time. Stay safe.",
+          "voiceText": "Good report. Bring documentation next time. Stay safe.",
+          "mood": "gruff"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_amused_5",
+          "text": "This is PERFECT! Get a CAMERA and go BACK! We believe you! Stay safe!",
+          "voiceText": "This is PERFECT! Get a CAMERA and go BACK! We believe you! Stay safe!",
+          "mood": "amused"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_focused_5",
+          "text": "Please document any future encounters with photographic or video evidence. Secondary observers also strengthen witness credibility. Recommend approaching with appropriate safety precautions.",
+          "voiceText": "Please document any future encounters with photographic or video evidence. Secondary observers also strengthen witness credibility. Recommend approaching with appropriate safety precautions.",
+          "mood": "focused"
+        }
+      ]
     },
     {
-      "id": "cryptids_credible_forest_hiker_vern_amused_1",
-      "text": "Oh good, a caller! What's your story?",
-      "voiceText": "Oh good, a caller! What's your story?",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_focused_1",
-      "text": "You're on. Describe your experience from the beginning.",
-      "voiceText": "You're on. Describe your experience from the beginning.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_caller_1",
-      "text": "Vern, I've been hiking the Pacific Northwest for fifteen years. Last weekend, I had an encounter I can't explain and it's been eating at me since.",
-      "voiceText": "Vern, I've been hiking the Pacific Northwest for fifteen years. Last weekend, I had an encounter I can't explain and it's been eating at me since.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_neutral_2",
-      "text": "Alright, I'm listening. Give me the details.",
-      "voiceText": "Alright, I'm listening. Give me the details.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_tired_2",
-      "text": "Alright, I'm listening... give me the details.",
-      "voiceText": "Alright, I'm listening... give me the details.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_energized_2",
-      "text": "FIFTEEN YEARS of hiking experience! This is gonna be GOOD! Details please!",
-      "voiceText": "FIFTEEN YEARS of hiking experience! This is gonna be GOOD! Details please!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_irritated_2",
-      "text": "Alright, alright. Give me the details.",
-      "voiceText": "Alright, alright. Give me the details.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_gruff_2",
-      "text": "Fifteen years, huh? Fine, I'm listening. Details.",
-      "voiceText": "Fifteen years, huh? Fine, I'm listening. Details.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_amused_2",
-      "text": "FIFTEEN YEARS and NOW you call?! This is EXCITING! Tell me everything!",
-      "voiceText": "FIFTEEN YEARS and NOW you call?! This is EXCITING! Tell me everything!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_focused_2",
-      "text": "Fifteen years of regional wilderness experience. What specific encounter triggered this response?",
-      "voiceText": "Fifteen years of regional wilderness experience. What specific encounter triggered this response?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_caller_2",
-      "text": "Mount Rainier area, about ten miles in on a trail I've done dozens of times. Mid-afternoon, clear visibility. Through the trees, maybe fifty yards out, something was standing there. Eight feet tall, dark brown fur, standing completely upright like a person.",
-      "voiceText": "Mount Rainier area, about ten miles in on a trail I've done dozens of times. Mid-afternoon, clear visibility. Through the trees, maybe fifty yards out, something was standing there. Eight feet tall, dark brown fur, standing completely upright like a person.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_neutral_3",
-      "text": "Fifty yards in clear light. What happened next?",
-      "voiceText": "Fifty yards in clear light. What happened next?",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_tired_3",
-      "text": "Fifty yards in clear light... okay, what happened?",
-      "voiceText": "Fifty yards in clear light... okay, what happened?",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_energized_3",
-      "text": "FIFTY YARDS in CLEAR LIGHT?! EIGHT FEET TALL?! This is INCREDIBLE!",
-      "voiceText": "FIFTY YARDS in CLEAR LIGHT?! EIGHT FEET TALL?! This is INCREDIBLE!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_irritated_3",
-      "text": "Fifty yards, clear light, eight feet tall. Let me guess - it ran away?",
-      "voiceText": "Fifty yards, clear light, eight feet tall. Let me guess - it ran away?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_gruff_3",
-      "text": "Fifty yards. That's not nothing. What happened?",
-      "voiceText": "Fifty yards. That's not nothing. What happened?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_amused_3",
-      "text": "EIGHT FEET TALL in broad daylight! This is AMAZING! What happened?!",
-      "voiceText": "EIGHT FEET TALL in broad daylight! This is AMAZING! What happened?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_focused_3",
-      "text": "Fifty yard observation distance, mid-afternoon, clear visibility. What was the duration of this encounter?",
-      "voiceText": "Fifty yard observation distance, mid-afternoon, clear visibility. What was the duration of this encounter?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_caller_3",
-      "text": "We made eye contact. I'm certain of it. It just stood there for maybe ten seconds, then turned and walked deeper into the forest. Not running, not hurrying. Like it didn't care that I saw it. Like I was the one intruding.",
-      "voiceText": "We made eye contact. I'm certain of it. It just stood there for maybe ten seconds, then turned and walked deeper into the forest. Not running, not hurrying. Like it didn't care that I saw it. Like I was the one intruding.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_neutral_4",
-      "text": "Eye contact. I have to ask - could it have been a bear standing upright? People mistake them all the time.",
-      "voiceText": "Eye contact. I have to ask - could it have been a bear standing upright? People mistake them all the time.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_tired_4",
-      "text": "Eye contact... alright. Could've been a bear, you know how it is...",
-      "voiceText": "Eye contact... alright. Could've been a bear, you know how it is...",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_energized_4",
-      "text": "EYE CONTACT with an EIGHT-FOOT CREATURE! This is TEXTBOOK! Bear? Really?!",
-      "voiceText": "EYE CONTACT with an EIGHT-FOOT CREATURE! This is TEXTBOOK! Bear? Really?!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_irritated_4",
-      "text": "Eye contact. Of course it made eye contact. You know bears stand up sometimes, right?",
-      "voiceText": "Eye contact. Of course it made eye contact. You know bears stand up sometimes, right?",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_gruff_4",
-      "text": "Eye contact. Fine, could've been a bear. What's your take?",
-      "voiceText": "Eye contact. Fine, could've been a bear. What's your take?",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_amused_4",
-      "text": "THEY MADE EYE CONTACT! This is PERFECT! Bear, you think?!",
-      "voiceText": "THEY MADE EYE CONTACT! This is PERFECT! Bear, you think?!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_focused_4",
-      "text": "Sustained eye contact. Regarding the bear hypothesis - what distinguishing characteristics ruled out Ursus species?",
-      "voiceText": "Sustained eye contact. Regarding the bear hypothesis - what distinguishing characteristics ruled out Ursus species?",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_caller_4",
-      "text": "I've photographed black bears and grizzlies for years, Vern. This had human proportions. Shoulders, the way it turned its head. And the size - bears don't stand eight feet tall on their hind legs that comfortably.",
-      "voiceText": "I've photographed black bears and grizzlies for years, Vern. This had human proportions. Shoulders, the way it turned its head. And the size - bears don't stand eight feet tall on their hind legs that comfortably.",
-      "speaker": "caller"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_neutral_5",
-      "text": "Appreciate you sharing this. If you go back, bring documentation - camera, maybe a friend. We need evidence. Stay safe out there.",
-      "voiceText": "Appreciate you sharing this. If you go back, bring documentation - camera, maybe a friend. We need evidence. Stay safe out there.",
-      "speaker": "vern",
-      "mood": "neutral"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_tired_5",
-      "text": "Yeah, thanks for calling. Maybe bring a camera next time. Stay safe.",
-      "voiceText": "Yeah, thanks for calling. Maybe bring a camera next time. Stay safe.",
-      "speaker": "vern",
-      "mood": "tired"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_energized_5",
-      "text": "This is AMAZING! Go BACK with a CAMERA! We need PROOF! Stay safe my friend!",
-      "voiceText": "This is AMAZING! Go BACK with a CAMERA! We need PROOF! Stay safe my friend!",
-      "speaker": "vern",
-      "mood": "energized"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_irritated_5",
-      "text": "Right, well... bring a camera if you go back. Thanks for calling.",
-      "voiceText": "Right, well... bring a camera if you go back. Thanks for calling.",
-      "speaker": "vern",
-      "mood": "irritated"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_gruff_5",
-      "text": "Good report. Bring documentation next time. Stay safe.",
-      "voiceText": "Good report. Bring documentation next time. Stay safe.",
-      "speaker": "vern",
-      "mood": "gruff"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_amused_5",
-      "text": "This is PERFECT! Get a CAMERA and go BACK! We believe you! Stay safe!",
-      "voiceText": "This is PERFECT! Get a CAMERA and go BACK! We believe you! Stay safe!",
-      "speaker": "vern",
-      "mood": "amused"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_vern_focused_5",
-      "text": "Please document any future encounters with photographic or video evidence. Secondary observers also strengthen witness credibility. Recommend approaching with appropriate safety precautions.",
-      "voiceText": "Please document any future encounters with photographic or video evidence. Secondary observers also strengthen witness credibility. Recommend approaching with appropriate safety precautions.",
-      "speaker": "vern",
-      "mood": "focused"
-    },
-    {
-      "id": "cryptids_credible_forest_hiker_caller_5",
-      "text": "Already ordered a trail camera. I'm going back next weekend. Thanks for taking this seriously, Vern.",
-      "voiceText": "Already ordered a trail camera. I'm going back next weekend. Thanks for taking this seriously, Vern.",
-      "speaker": "caller"
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "cryptids_credible_forest_hiker_caller_5",
+          "text": "Already ordered a trail camera. I'm going back next weekend. Thanks for taking this seriously, Vern.",
+          "voiceText": "Already ordered a trail camera. I'm going back next weekend. Thanks for taking this seriously, Vern.",
+          "mood": "neutral"
+        }
+      ]
     }
   ]
 }

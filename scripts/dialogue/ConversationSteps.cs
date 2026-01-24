@@ -25,11 +25,17 @@ namespace KBTV.Dialogue
             return true;
         }
 
-        public BroadcastLine CreateBroadcastLine(string? arcId = null, string? callerGender = null, int lineIndex = 0)
+        public BroadcastLine CreateBroadcastLine(string? arcId = null, string? callerGender = null, int lineIndex = 0, string? mood = null)
         {
+            // Construct the line ID for audio file lookup
+            // Format: {arcId}_{speaker}_{mood}_{lineIndex}
+            var actualMood = mood ?? "neutral"; // Default to neutral if not provided
+            var speakerStr = DialogueLine.Speaker == Speaker.Vern ? "vern" : "caller";
+            var constructedId = $"{arcId}_{speakerStr}_{actualMood}_{lineIndex + 1}"; // +1 because lineIndex is 0-based
+
             // Convert ArcDialogueLine to BroadcastLine based on speaker
             return DialogueLine.Speaker == Speaker.Vern
-                ? BroadcastLine.VernDialogue(DialogueLine.Text, ConversationPhase.Probe, arcId, lineIndex)
+                ? BroadcastLine.VernDialogue(DialogueLine.Text, ConversationPhase.Probe, arcId, lineIndex, constructedId)
                 : BroadcastLine.CallerDialogue(DialogueLine.Text, "Caller", "caller", ConversationPhase.Probe, arcId, callerGender, lineIndex);
         }
     }

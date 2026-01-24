@@ -167,8 +167,9 @@ namespace KBTV.Callers
 
             // Auto-trigger putting caller on air if broadcast is active and no one is on air
             var broadcastCoordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-            GD.Print($"DEBUG: Checking auto-trigger - Coordinator: {broadcastCoordinator != null}, IsOnAir: {IsOnAir}, HasOnHold: {HasOnHoldCallers}");
-            if (broadcastCoordinator != null && !IsOnAir)
+            var broadcastState = broadcastCoordinator?.CurrentState ?? KBTV.Dialogue.BroadcastState.Idle;
+            GD.Print($"DEBUG: Checking auto-trigger - Coordinator: {broadcastCoordinator != null}, State: {broadcastState}, IsOnAir: {IsOnAir}, HasOnHold: {HasOnHoldCallers}");
+            if (broadcastCoordinator != null && !IsOnAir && broadcastState >= KBTV.Dialogue.BroadcastState.Conversation)
             {
                 GD.Print($"DEBUG: Auto-triggering caller {caller.Name} on air");
                 var putOnAirResult = PutOnAir();
@@ -183,7 +184,7 @@ namespace KBTV.Callers
             }
             else
             {
-                GD.Print($"DEBUG: Not auto-triggering - Coordinator null: {broadcastCoordinator == null}, Already on air: {IsOnAir}");
+                GD.Print($"DEBUG: Not auto-triggering - Coordinator null: {broadcastCoordinator == null}, State: {broadcastState}, Already on air: {IsOnAir}");
             }
 
             return Result<Caller>.Ok(caller);
