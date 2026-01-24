@@ -326,6 +326,9 @@ namespace KBTV.Dialogue
 
                     if (endOfArc)
                     {
+                        // End the previous caller's on-air status BEFORE transitioning
+                        _repository.EndOnAir();
+                        
                         // End of this caller's conversation: move to BetweenCallers if possible
                         if (_repository.HasOnHoldCallers)
                         {
