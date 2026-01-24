@@ -38,8 +38,6 @@ namespace KBTV.Dialogue
 
         public void ExecuteItem(BroadcastItem item)
         {
-            GD.Print($"BroadcastItemExecutor: Executing {item.Type} - {item.Id}");
-
             // Create transcript entry for this item
             CreateTranscriptEntry(item);
 
@@ -52,29 +50,34 @@ namespace KBTV.Dialogue
                 case BroadcastItemType.VernLine:
                 case BroadcastItemType.CallerLine:
                     // For lines, we display text and play audio
-                    DisplayText(item);
                     PlayAudio(item);
                     break;
 
                 case BroadcastItemType.Ad:
-                    // Ads might have their own handling
-                    DisplayText(item);
+                    // Ads use timer, publish UI event
+                    var adEvent = new BroadcastItemStartedEvent(item, item.Duration, item.Duration);
+                    ServiceRegistry.Instance.EventBus.Publish(adEvent);
                     StartTimer(item.Id, item.Duration);
                     break;
 
                 case BroadcastItemType.DeadAir:
-                    DisplayText(item);
                     PlayAudio(item);
                     break;
 
                 case BroadcastItemType.Transition:
-                    DisplayText(item);
+                    // Transitions use timer, publish UI event
+                    var transitionEvent = new BroadcastItemStartedEvent(item, item.Duration, item.Duration);
+                    ServiceRegistry.Instance.EventBus.Publish(transitionEvent);
                     StartTimer(item.Id, item.Duration);
                     break;
 
                 default:
                     GD.PrintErr($"BroadcastItemExecutor: Unknown item type {item.Type}");
-                    // Fallback to timer
+                    // Fallback to timer with UI event
+                    var fallbackEvent = new BroadcastItemStartedEvent(item, 
+                        item.Duration > 0 ? item.Duration : 4.0f, 
+                        item.Duration > 0 ? item.Duration : 4.0f);
+                    ServiceRegistry.Instance.EventBus.Publish(fallbackEvent);
                     StartTimer(item.Id, item.Duration > 0 ? item.Duration : 4.0f);
                     break;
             }
@@ -85,7 +88,8 @@ namespace KBTV.Dialogue
             if (string.IsNullOrEmpty(item.AudioPath))
             {
                 GD.Print($"BroadcastItemExecutor: No audio path for {item.Id}, using timer fallback");
-                StartTimer(item.Id, item.Duration > 0 ? item.Duration : 4.0f);
+                var duration = item.Duration > 0 ? item.Duration : 4.0f;
+                StartAudioTimer(item, duration);
                 return;
             }
 
@@ -93,9 +97,18 @@ namespace KBTV.Dialogue
             if (audioStream == null)
             {
                 GD.PrintErr($"BroadcastItemExecutor: Failed to load audio {item.AudioPath}, using timer fallback");
-                StartTimer(item.Id, item.Duration > 0 ? item.Duration : 4.0f);
+                var duration = item.Duration > 0 ? item.Duration : 4.0f;
+                StartAudioTimer(item, duration);
                 return;
             }
+
+            // Get actual audio duration from the stream
+            float audioDuration = GetAudioDuration(audioStream) ?? item.Duration;
+            float displayDuration = audioDuration > 0 ? audioDuration : item.Duration;
+
+            // Publish UI-specific event with duration information
+            var startedEvent = new BroadcastItemStartedEvent(item, displayDuration, audioDuration);
+            ServiceRegistry.Instance.EventBus.Publish(startedEvent);
 
             if (_audioPlayer != null)
             {
@@ -116,8 +129,40 @@ namespace KBTV.Dialogue
                 _audioPlayer.Finished += _currentAudioHandler;
 
                 _audioPlayer.Play();
-                GD.Print($"BroadcastItemExecutor: Started playing audio for {item.Id}");
             }
+        }
+
+        private float? GetAudioDuration(AudioStream stream)
+        {
+            // For MP3 streams, try to get duration from the stream data
+            // Note: Godot's AudioStreamMP3 doesn't expose Length directly, so we need to use fallback
+            
+            // For WAV streams, same issue - no direct Length property
+            
+            // Fallback to stream's length if available (some formats support this)
+            try
+            {
+                var streamLength = stream.GetLength();
+                if (streamLength > 0)
+                {
+                    return (float)streamLength;
+                }
+            }
+            catch
+            {
+                // Audio duration detection failed, will use item duration
+            }
+            
+            return null;
+        }
+
+        private void StartAudioTimer(BroadcastItem item, float duration)
+        {
+            // Publish UI event for timer-based items
+            var startedEvent = new BroadcastItemStartedEvent(item, duration, duration);
+            ServiceRegistry.Instance.EventBus.Publish(startedEvent);
+            
+            StartTimer(item.Id, duration);
         }
 
         private void DisplayText(BroadcastItem item)
@@ -173,7 +218,7 @@ namespace KBTV.Dialogue
             var entry = new TranscriptEntry(speaker, transcriptText, transcriptPhase);
             _transcriptRepository.AddEntry(entry);
             
-            GD.Print($"BroadcastItemExecutor: Added transcript entry - {speaker}: {transcriptText}");
+            
         }
 
         private void StartTimer(string itemId, float duration)

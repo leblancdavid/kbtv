@@ -44,6 +44,7 @@ namespace KBTV.Dialogue
         private BroadcastStateMachine _stateMachine = null!;
         private BroadcastItemRegistry _itemRegistry = null!;
         private BroadcastItemExecutor _itemExecutor = null!;
+        private string? _currentItemId = null;
 
         // Legacy interface compatibility - return Idle for now
         public BroadcastState CurrentState => BroadcastState.Idle;
@@ -73,6 +74,14 @@ namespace KBTV.Dialogue
             eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
             eventBus.Subscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
 
+            // Subscribe to AdManager events for break interruptions
+            var adManager = ServiceRegistry.Instance.AdManager;
+            if (adManager != null)
+            {
+                adManager.OnBreakGracePeriod += OnBreakGracePeriod;
+                adManager.OnBreakImminent += OnBreakImminent;
+            }
+
             ServiceRegistry.Instance.RegisterSelf<BroadcastCoordinator>(this);
         }
 
@@ -99,6 +108,9 @@ namespace KBTV.Dialogue
             var startedEvent = new BroadcastEvent(BroadcastEventType.Started, item.Id, item);
             ServiceRegistry.Instance.EventBus.Publish(startedEvent);
 
+            // Track the currently executing item
+            _currentItemId = item.Id;
+
             // Execute the item (play music, display text, etc.)
             _itemExecutor.ExecuteItem(item);
         }
@@ -109,6 +121,13 @@ namespace KBTV.Dialogue
 
             if (@event.Type == BroadcastEventType.Completed || @event.Type == BroadcastEventType.Interrupted)
             {
+                // Validate that the completed item ID matches the currently executing item
+                if (_currentItemId != null && @event.ItemId != _currentItemId)
+                {
+                    GD.PrintErr($"BroadcastCoordinator: Ignoring {@event.Type} event for '{@event.ItemId}' - expected '{_currentItemId}'");
+                    return;
+                }
+
                 // Validate that the completed item ID corresponds to a known broadcast item
                 if (string.IsNullOrEmpty(@event.ItemId))
                 {
@@ -132,6 +151,9 @@ namespace KBTV.Dialogue
                 {
                     GD.Print("BroadcastCoordinator: No next broadcast item, show may be ending");
                 }
+
+                // Clear current item tracking after processing
+                _currentItemId = null;
             }
         }
 
@@ -144,6 +166,9 @@ namespace KBTV.Dialogue
             {
                 ExecuteBroadcastItem(nextItem);
             }
+
+            // Clear current item tracking on interruption
+            _currentItemId = null;
         }
 
         // Legacy interface methods for compatibility
@@ -175,12 +200,28 @@ namespace KBTV.Dialogue
         public BroadcastLine GetNextLine() => BroadcastLine.None(); // Legacy compatibility
         public void QueueShowEnd() { } // Legacy compatibility
 
+        // AdManager event handlers
+        private void OnBreakGracePeriod(float timeUntilBreak)
+        {
+            GD.Print($"BroadcastCoordinator: Break grace period started ({timeUntilBreak:F1}s until break)");
+            var interruptionEvent = new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakStarting);
+            HandleBroadcastInterruption(interruptionEvent);
+        }
+
+        private void OnBreakImminent(float timeUntilBreak)
+        {
+            GD.Print($"BroadcastCoordinator: Break imminent ({timeUntilBreak:F1}s until break) - forcing immediate transition");
+            // For imminent, interrupt immediately with transition
+            var interruptionEvent = new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakImminent);
+            HandleBroadcastInterruption(interruptionEvent);
+        }
+
         // IBroadcastCoordinator interface
         public void OnAdBreakStarted()
         {
             GD.Print("BroadcastCoordinator.OnAdBreakStarted: Starting ad break");
-            var interruptionEvent = new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakStarting);
-            HandleBroadcastInterruption(interruptionEvent);
+            // Note: The actual interruption logic is now handled by the event-driven system
+            // This method remains for interface compatibility
         }
 
         public void OnAdBreakEnded()

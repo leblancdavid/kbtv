@@ -23,6 +23,9 @@ namespace KBTV.Dialogue
         private int _currentConversationLineIndex = -1; // -1 = no active conversation
         private string? _currentConversationArcId = null;
 
+        // Ad break interruption state
+        private bool _isInBreakGracePeriod = false;
+
         public BroadcastState CurrentState => _currentState;
 
         public BroadcastStateMachine(ICallerRepository repository, BroadcastItemRegistry itemRegistry)
@@ -47,7 +50,32 @@ namespace KBTV.Dialogue
 
         public BroadcastItem? HandleInterruption(BroadcastInterruptionEvent @event)
         {
-            return HandleItemInterrupted(@event.Reason.ToString());
+            GD.Print($"BroadcastStateManager: Handling interruption - {@event.Reason}");
+
+            switch (@event.Reason)
+            {
+                case BroadcastInterruptionReason.BreakStarting:
+                    // Enter break grace period - next conversation completion will trigger transition
+                    _isInBreakGracePeriod = true;
+                    GD.Print("BroadcastStateManager: Entered break grace period");
+                    return null; // Don't interrupt current item, wait for natural completion
+
+                case BroadcastInterruptionReason.BreakImminent:
+                    // Immediate hard interrupt - return transition item now
+                    _isInBreakGracePeriod = false; // Reset for next break
+                    GD.Print("BroadcastStateManager: Break imminent - immediate transition");
+                    return _itemRegistry.GetVernItem("break_transition", GetVernCurrentMood());
+
+                case BroadcastInterruptionReason.BreakEnding:
+                    // Break is ending, return to normal conversation flow
+                    _isInBreakGracePeriod = false;
+                    GD.Print("BroadcastStateManager: Exited break grace period");
+                    return null;
+
+                default:
+                    GD.Print($"BroadcastStateManager: Unhandled interruption reason {@event.Reason}");
+                    return null;
+            }
         }
 
         private BroadcastItem? GetNextItem()
@@ -117,34 +145,16 @@ namespace KBTV.Dialogue
             return null;
         }
 
-        private string GetTopicFromArcId(string arcId)
+        private bool CanPutCallerOnAir()
         {
-            // Extract topic from arc ID (e.g., "cryptids_questionable_shadow" -> "Cryptids")
-            if (arcId.StartsWith("ufos") || arcId.Contains("ufos_"))
-                return "UFOs";
-            if (arcId.StartsWith("ghosts") || arcId.Contains("ghosts_"))
-                return "Ghosts";
-            if (arcId.StartsWith("cryptids") || arcId.Contains("cryptids_") || arcId.Contains("cryptid_"))
-                return "Cryptids";
-            if (arcId.StartsWith("conspiracies") || arcId.Contains("conspiracies_"))
-                return "Conspiracies";
-
-            // Fallback: first part
-            var parts = arcId.Split('_');
-            if (parts.Length >= 1)
+            // Check if we're in break window - don't put new callers on air during break window
+            var adManager = ServiceRegistry.Instance?.AdManager;
+            if (adManager != null && adManager.IsInBreakWindow)
             {
-                var topicPart = parts[0];
-                return topicPart switch
-                {
-                    "ufos" => "UFOs",
-                    "ghosts" => "Ghosts",
-                    "cryptids" => "Cryptids",
-                    "cryptid" => "Cryptids",
-                    "conspiracies" => "Conspiracies",
-                    _ => "UFOs"
-                };
+                GD.Print("BroadcastStateManager: Cannot put caller on air - in break window");
+                return false;
             }
-            return "UFOs"; // Default
+            return true;
         }
 
 
@@ -288,21 +298,31 @@ namespace KBTV.Dialogue
                     // After show opening completes, check for callers
                     if (_repository.HasOnHoldCallers)
                     {
-                        // Put next caller on air automatically
-                        var putOnAirResult = _repository.PutOnAir();
-                        if (putOnAirResult.IsSuccess)
+                        // Check if we can put caller on air (not in break window)
+                        if (CanPutCallerOnAir())
                         {
-                            // Initialize conversation state
-                            _currentConversationLineIndex = 0;
-                            _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
+                            // Put next caller on air automatically
+                            var putOnAirResult = _repository.PutOnAir();
+                            if (putOnAirResult.IsSuccess)
+                            {
+                                // Initialize conversation state
+                                _currentConversationLineIndex = 0;
+                                _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
 
-                            _currentState = BroadcastState.Conversation;
-                            return GetNextConversationItem();
+                                _currentState = BroadcastState.Conversation;
+                                return GetNextConversationItem();
+                            }
+                            else
+                            {
+                                GD.PrintErr($"Failed to put caller on air: {putOnAirResult.ErrorMessage}");
+                                // Fallback to dead air filler
+                                _currentState = BroadcastState.DeadAirFiller;
+                                return _itemRegistry.GetNextDeadAirFiller();
+                            }
                         }
                         else
                         {
-                            GD.PrintErr($"Failed to put caller on air: {putOnAirResult.ErrorMessage}");
-                            // Fallback to dead air filler
+                            // In break window, go to dead air filler instead
                             _currentState = BroadcastState.DeadAirFiller;
                             return _itemRegistry.GetNextDeadAirFiller();
                         }
@@ -322,6 +342,14 @@ namespace KBTV.Dialogue
                     {
                         var arc = currentCaller.ActualArc;
                         endOfArc = _currentConversationLineIndex >= arc.Dialogue.Count;
+                    }
+
+                    // If we're in break grace period and this is the end of current line, trigger transition
+                    if (_isInBreakGracePeriod && !endOfArc)
+                    {
+                        GD.Print("BroadcastStateManager: Grace period active, triggering break transition");
+                        _isInBreakGracePeriod = false; // Reset for next break
+                        return _itemRegistry.GetVernItem("break_transition", GetVernCurrentMood());
                     }
 
                     if (endOfArc)
@@ -371,20 +399,30 @@ namespace KBTV.Dialogue
                     // Between-callers transition complete, put next caller on air
                     if (_repository.HasOnHoldCallers)
                     {
-                        var putOnAirResult = _repository.PutOnAir();
-                        if (putOnAirResult.IsSuccess)
+                        // Check if we can put caller on air (not in break window)
+                        if (CanPutCallerOnAir())
                         {
-                            // Initialize conversation state for new caller
-                            _currentConversationLineIndex = 0;
-                            _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
+                            var putOnAirResult = _repository.PutOnAir();
+                            if (putOnAirResult.IsSuccess)
+                            {
+                                // Initialize conversation state for new caller
+                                _currentConversationLineIndex = 0;
+                                _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
 
-                            _currentState = BroadcastState.Conversation;
-                            return GetNextConversationItem();
+                                _currentState = BroadcastState.Conversation;
+                                return GetNextConversationItem();
+                            }
+                            else
+                            {
+                                GD.PrintErr($"Failed to put caller on air after between-callers: {putOnAirResult.ErrorMessage}");
+                                // Fallback to dead air filler
+                                _currentState = BroadcastState.DeadAirFiller;
+                                return _itemRegistry.GetNextDeadAirFiller();
+                            }
                         }
                         else
                         {
-                            GD.PrintErr($"Failed to put caller on air after between-callers: {putOnAirResult.ErrorMessage}");
-                            // Fallback to dead air filler
+                            // In break window, continue with dead air filler
                             _currentState = BroadcastState.DeadAirFiller;
                             return _itemRegistry.GetNextDeadAirFiller();
                         }
@@ -400,21 +438,29 @@ namespace KBTV.Dialogue
                     // Dead air filler cycle complete, check if callers arrived
                     if (_repository.HasOnHoldCallers)
                     {
-                        // Callers waiting, put next caller on air
-                        var putOnAirResult = _repository.PutOnAir();
-                        if (putOnAirResult.IsSuccess)
+                        // Check if we can put caller on air (not in break window)
+                        if (CanPutCallerOnAir())
                         {
-                            // Initialize conversation state for new caller
-                            _currentConversationLineIndex = 0;
-                            _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
+                            var putOnAirResult = _repository.PutOnAir();
+                            if (putOnAirResult.IsSuccess)
+                            {
+                                // Initialize conversation state for new caller
+                                _currentConversationLineIndex = 0;
+                                _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
 
-                            _currentState = BroadcastState.Conversation;
-                            return GetNextConversationItem();
+                                _currentState = BroadcastState.Conversation;
+                                return GetNextConversationItem();
+                            }
+                            else
+                            {
+                                GD.PrintErr($"Failed to put caller on air from dead air filler: {putOnAirResult.ErrorMessage}");
+                                // Continue with filler if put-on-air failed
+                                return _itemRegistry.GetNextDeadAirFiller();
+                            }
                         }
                         else
                         {
-                            GD.PrintErr($"Failed to put caller on air from dead air filler: {putOnAirResult.ErrorMessage}");
-                            // Continue with filler if put-on-air failed
+                            // In break window, continue with dead air filler
                             return _itemRegistry.GetNextDeadAirFiller();
                         }
                     }

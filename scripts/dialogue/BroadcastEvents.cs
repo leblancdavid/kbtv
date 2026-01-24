@@ -64,7 +64,38 @@ namespace KBTV.Dialogue
         ShowEnding,
         BreakStarting,
         BreakEnding,
+        BreakImminent,
         UserAction,
         Error
+    }
+
+    /// <summary>
+    /// Event fired when a broadcast item starts playback with duration information.
+    /// Used by UI to sync typewriter effects to actual audio duration.
+    /// </summary>
+    public partial class BroadcastItemStartedEvent : GameEvent
+    {
+        /// <summary>
+        /// The broadcast item that started playing.
+        /// </summary>
+        public BroadcastItem Item { get; }
+
+        /// <summary>
+        /// Duration in seconds for typewriter synchronization.
+        /// </summary>
+        public float Duration { get; }
+
+        /// <summary>
+        /// Actual audio length if available (for precise sync).
+        /// </summary>
+        public float AudioLength { get; }
+
+        public BroadcastItemStartedEvent(BroadcastItem item, float duration, float audioLength = 0f)
+        {
+            Item = item;
+            Duration = duration;
+            AudioLength = audioLength;
+            Source = "BroadcastItemExecutor";
+        }
     }
 }

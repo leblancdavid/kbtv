@@ -21,11 +21,15 @@ namespace KBTV.UI
 
         private BroadcastCoordinator _coordinator = null!;
 
-        private string _displayedText = string.Empty;
+private string _displayedText = string.Empty;
         private float _typewriterSpeed = 50f;
         private int _typewriterIndex = 0;
         private float _typewriterAccumulator = 0f;
         private string _currentLineText = "";
+        
+        // Audio-synced typewriter state
+        private float _currentLineDuration = 0f;
+        private float _elapsedTime = 0f;
 
         public override void _EnterTree()
         {
@@ -33,6 +37,7 @@ namespace KBTV.UI
             if (ServiceRegistry.Instance?.EventBus != null)
             {
                 ServiceRegistry.Instance.EventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
+                ServiceRegistry.Instance.EventBus.Subscribe<BroadcastItemStartedEvent>(HandleBroadcastItemStarted);
             }
         }
 
@@ -78,20 +83,20 @@ namespace KBTV.UI
             _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
             _progressBar = GetNode<ProgressBar>("%ProgressBar");
 
-            GD.Print("LiveShowPanel: Initialized");
+            GD.Print("LiveShowPanel: Initialized with rolling transcript display");
         }
 
         // Event-driven line handling using BroadcastEvent system
         private void HandleBroadcastEvent(BroadcastEvent @event)
         {
-            if (@event.Type != BroadcastEventType.Started || @event.Item == null)
-            {
-                return;
-            }
+            // BroadcastEvent is for system-level coordination, we don't need to handle it directly
+            // BroadcastItemStartedEvent handles the UI display with duration info
+        }
 
+        // Handle new broadcast item with duration information for audio-synced typewriter
+        private void HandleBroadcastItemStarted(BroadcastItemStartedEvent @event)
+        {
             var item = @event.Item;
-            string textPreview = item.Text?.Length > 50 ? item.Text.Substring(0, 50) : item.Text ?? "null";
-            GD.Print($"DEBUG: LIVE: HandleBroadcastEvent received - Type={item.Type}, Text='{textPreview}'");
 
             if (string.IsNullOrEmpty(item.Text))
             {
@@ -99,20 +104,51 @@ namespace KBTV.UI
                 return;
             }
 
-            if (item.Text != _currentLineText)
+            // Start new line with audio-synced typewriter
+            _currentLineText = item.Text;
+            _currentLineDuration = @event.Duration;
+            _elapsedTime = 0f;
+            
+            ResetTypewriterState();
+            UpdateItemDisplay(item);
+        }
+
+public override void _Process(double delta)
+        {
+            // Only handle typewriter effect for active lines
+            if (!string.IsNullOrEmpty(_currentLineText) && _currentLineDuration > 0)
             {
-                _currentLineText = item.Text;
-                UpdateItemDisplay(item);
+                UpdateTypewriter(delta);
+                _elapsedTime += (float)delta;
+                
+                // Update progress bar based on elapsed time
+                UpdateProgressBar();
             }
         }
 
-        public override void _Process(double delta)
+        private void UpdateTypewriter(double delta)
         {
-            // Only handle typewriter effect, line availability is now event-driven
-            if (!string.IsNullOrEmpty(_currentLineText))
+            if (_dialogueLabel == null || string.IsNullOrEmpty(_displayedText))
             {
-                UpdateTypewriter(delta);
+                return;
             }
+
+            // Calculate how much text should be revealed based on elapsed time
+            float progress = Mathf.Min(_elapsedTime / _currentLineDuration, 1.0f);
+            int targetIndex = (int)(progress * _displayedText.Length);
+            
+            // Reveal characters up to target position
+            string revealedText = _displayedText.Substring(0, Mathf.Min(targetIndex, _displayedText.Length));
+            _dialogueLabel.Text = revealedText;
+        }
+
+        private void UpdateProgressBar()
+        {
+            if (_progressBar != null && _currentLineDuration > 0)
+            {
+                float progress = Mathf.Min(_elapsedTime / _currentLineDuration, 1.0f);
+                _progressBar.Value = progress * 100; // Convert to 0-100 range
+}
         }
 
         private void UpdateWaitingDisplay()
@@ -166,17 +202,24 @@ private void UpdateItemDisplay(BroadcastItem item)
                 _speakerIcon.Text = "SYSTEM"; // Fallback for transitions, etc.
             }
 
-            if (_dialogueLabel != null)
-            {
-                _dialogueLabel.Clear();
-                _displayedText = item.Text;
-                _typewriterIndex = 0;
-                _typewriterAccumulator = 0f;
-            }
-
+            // Reset typewriter state for new line
+            ResetTypewriterState();
+            
             if (_progressBar != null)
             {
                 _progressBar.Show();
+            }
+        }
+
+        private void ResetTypewriterState()
+        {
+            _displayedText = _currentLineText;
+            _typewriterIndex = 0;
+            _typewriterAccumulator = 0f;
+            
+            if (_dialogueLabel != null)
+            {
+                _dialogueLabel.Clear();
             }
         }
 
@@ -192,25 +235,7 @@ private static string GetFlowStateDisplayName(BroadcastItemType type)
                 BroadcastItemType.Transition => "TRANSITION",
                 _ => ""
             };
-        }
-
-        private void UpdateTypewriter(double delta)
-        {
-            if (_dialogueLabel == null)
-            {
-                return;
-            }
-
-            _typewriterAccumulator += (float)delta * _typewriterSpeed;
-
-            while (_typewriterAccumulator >= 1f && _typewriterIndex < _displayedText.Length)
-            {
-                var ch = _displayedText[_typewriterIndex];
-                _dialogueLabel.Text += ch;
-                _typewriterAccumulator -= 1f;
-                _typewriterIndex++;
-            }
-        }
+}
 
         public override void _ExitTree()
         {

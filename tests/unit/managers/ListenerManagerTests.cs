@@ -124,7 +124,7 @@ namespace KBTV.Tests.Unit.Managers
             _listenerManager.ModifyListeners(15000);
             string formatted = _listenerManager.GetFormattedListeners();
 
-            AssertThat(formatted.Contains("K"));
+            AssertThat(formatted == "15.0K");
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace KBTV.Tests.Unit.Managers
             _listenerManager.ModifyListeners(1500000);
             string formatted = _listenerManager.GetFormattedListeners();
 
-            AssertThat(formatted.Contains("M"));
+            AssertThat(formatted == "1.5M");
         }
 
         [Test]
@@ -161,6 +161,15 @@ namespace KBTV.Tests.Unit.Managers
             string formatted = _listenerManager.GetFormattedChange();
 
             AssertThat(formatted.StartsWith("-"));
+        }
+
+        [Test]
+        public void GetFormattedListeners_NegativeListeners_FormatsCorrectly()
+        {
+            _listenerManager.ModifyListeners(-1000);
+            string formatted = _listenerManager.GetFormattedListeners();
+
+            AssertThat(formatted == "-1,000");
         }
 
         [Test]

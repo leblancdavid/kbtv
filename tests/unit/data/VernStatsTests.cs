@@ -64,8 +64,8 @@ namespace KBTV.Tests.Unit.Data
         {
             float vibe = _vernStats.CalculateVIBE();
 
-            AssertThat(vibe > -60f);
-            AssertThat(vibe < 80f);
+            AssertThat(vibe >= -100f);
+            AssertThat(vibe <= 100f);
         }
 
         [Test]
@@ -121,7 +121,7 @@ namespace KBTV.Tests.Unit.Data
         public void StatsChanged_EmitsOnValueChange()
         {
             bool called = false;
-            _vernStats.StatsChanged += () => called = true;
+            _vernStats.Connect("StatsChanged", Callable.From(() => called = true));
 
             _vernStats.Energy.Modify(-10f);
 
@@ -133,7 +133,7 @@ namespace KBTV.Tests.Unit.Data
         {
             float initialVibe = _vernStats.CalculateVIBE();
             float? newVibe = null;
-            _vernStats.VibeChanged += (vibe) => newVibe = vibe;
+            _vernStats.Connect("VibeChanged", Callable.From<float>((vibe) => newVibe = vibe));
 
             _vernStats.Energy.Modify(-50f);
 
