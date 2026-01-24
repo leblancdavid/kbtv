@@ -87,26 +87,37 @@ namespace KBTV.Dialogue
             return "neutral"; // Default fallback
         }
 
-        private string? ResolveAudioPath(string audioId, ConversationArc arc)
+        private string? ResolveAudioPath(string audioId, ConversationArc arc, bool isVern)
         {
             if (string.IsNullOrEmpty(audioId))
             {
                 return null;
             }
 
-            // Construct path using arcId parsing (same as AudioDialoguePlayer)
+            string audioPath;
             string arcTopic = GetTopicFromArcId(arc.ArcId);
-            string arcFolder = GetArcFolderFromArcId(arc.ArcId);
-            var audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{arcFolder}/{audioId}.mp3";
+
+            if (isVern)
+            {
+                // Vern audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{folder}/{audioId}.mp3
+                string arcFolder = GetArcFolderFromArcId(arc.ArcId);
+                audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{arcFolder}/{audioId}.mp3";
+            }
+            else
+            {
+                // Caller audio: res://assets/audio/voice/Callers/{topic}/{audioId}.mp3
+                audioPath = $"res://assets/audio/voice/Callers/{arcTopic}/{audioId}.mp3";
+            }
 
             if (ResourceLoader.Exists(audioPath))
             {
-                GD.Print($"BroadcastStateManager: Found audio for {audioId}");
+                GD.Print($"BroadcastStateManager: Found audio for {audioId} ({(isVern ? "Vern" : "Caller")})");
                 return audioPath;
             }
 
             // No audio found - will use timer fallback
-            GD.PushWarning($"BroadcastStateManager: No audio found for '{audioId}' in folder '{arcFolder}' - using timer fallback");
+            string audioType = isVern ? "Vern" : "Caller";
+            GD.PushWarning($"BroadcastStateManager: No {audioType} audio found for '{audioId}' - using timer fallback");
             return null;
         }
 
@@ -246,7 +257,8 @@ namespace KBTV.Dialogue
             string? audioPath = null;
             if (!string.IsNullOrEmpty(audioId))
             {
-                audioPath = ResolveAudioPath(audioId, arc);
+                bool isVern = arcLine.Speaker == Speaker.Vern;
+                audioPath = ResolveAudioPath(audioId, arc, isVern);
             }
 
             var item = new BroadcastItem(
