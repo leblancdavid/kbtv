@@ -3,6 +3,7 @@
 using System;
 using Godot;
 using KBTV.Core;
+using KBTV.Data;
 
 namespace KBTV.Dialogue
 {
@@ -15,6 +16,7 @@ namespace KBTV.Dialogue
         private AudioStreamPlayer? _audioPlayer;
         private readonly Action<string> _onItemCompleted;
         private readonly Node _sceneTreeNode;
+        private readonly ITranscriptRepository _transcriptRepository;
 
         // Store current completion handlers for disconnection
         private Action? _currentAudioHandler;
@@ -24,6 +26,9 @@ namespace KBTV.Dialogue
         {
             _onItemCompleted = onItemCompleted ?? throw new ArgumentNullException(nameof(onItemCompleted));
             _sceneTreeNode = sceneTreeNode ?? throw new ArgumentNullException(nameof(sceneTreeNode));
+            
+            // Get transcript repository for creating transcript entries
+            _transcriptRepository = ServiceRegistry.Instance.TranscriptRepository;
 
             // Create audio player for music/voice playback
             _audioPlayer = new AudioStreamPlayer();
@@ -34,6 +39,9 @@ namespace KBTV.Dialogue
         public void ExecuteItem(BroadcastItem item)
         {
             GD.Print($"BroadcastItemExecutor: Executing {item.Type} - {item.Id}");
+
+            // Create transcript entry for this item
+            CreateTranscriptEntry(item);
 
             switch (item.Type)
             {
@@ -116,6 +124,56 @@ namespace KBTV.Dialogue
         {
             // In real implementation, this would update UI components
             GD.Print($"BroadcastItemExecutor: Displaying text - {item.Text}");
+        }
+
+        private void CreateTranscriptEntry(BroadcastItem item)
+        {
+            if (_transcriptRepository == null)
+            {
+                GD.PrintErr("BroadcastItemExecutor: TranscriptRepository not available");
+                return;
+            }
+
+// Map BroadcastItemType to Speaker
+            Speaker speaker = item.Type switch
+            {
+                BroadcastItemType.VernLine => Speaker.Vern,
+                BroadcastItemType.CallerLine => Speaker.Caller,
+                BroadcastItemType.Music => Speaker.Music,
+                BroadcastItemType.Ad => Speaker.System,
+                BroadcastItemType.DeadAir => Speaker.Vern,
+                BroadcastItemType.Transition => Speaker.System,
+                _ => Speaker.System
+            };
+
+            // Create transcript entry with appropriate phase
+            ConversationPhase transcriptPhase = item.Type switch
+            {
+                BroadcastItemType.Music => ConversationPhase.Intro,
+                BroadcastItemType.VernLine => ConversationPhase.Probe,
+                BroadcastItemType.CallerLine => ConversationPhase.Probe,
+                BroadcastItemType.Ad => ConversationPhase.Resolution,
+                BroadcastItemType.DeadAir => ConversationPhase.Intro,
+                BroadcastItemType.Transition => ConversationPhase.Resolution,
+                _ => ConversationPhase.Intro
+            };
+
+            // Format text for transcript
+            string transcriptText = item.Text;
+            if (item.Type == BroadcastItemType.Music)
+            {
+                transcriptText = "[MUSIC PLAYING]";
+            }
+            else if (item.Type == BroadcastItemType.Ad)
+            {
+                transcriptText = $"[AD BREAK] {item.Text}";
+            }
+
+            // Create and add transcript entry
+            var entry = new TranscriptEntry(speaker, transcriptText, transcriptPhase);
+            _transcriptRepository.AddEntry(entry);
+            
+            GD.Print($"BroadcastItemExecutor: Added transcript entry - {speaker}: {transcriptText}");
         }
 
         private void StartTimer(string itemId, float duration)

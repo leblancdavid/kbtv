@@ -32,7 +32,7 @@ namespace KBTV.UI
             // Subscribe to events as early as possible to avoid missing initial line
             if (ServiceRegistry.Instance?.EventBus != null)
             {
-                ServiceRegistry.Instance.EventBus.Subscribe<LineAvailableEvent>(HandleLineAvailable);
+                ServiceRegistry.Instance.EventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
             }
         }
 
@@ -81,28 +81,28 @@ namespace KBTV.UI
             GD.Print("LiveShowPanel: Initialized");
         }
 
-        // Event-driven line handling instead of polling
-        private void HandleLineAvailable(LineAvailableEvent @event)
+        // Event-driven line handling using BroadcastEvent system
+        private void HandleBroadcastEvent(BroadcastEvent @event)
         {
-            string textPreview = @event.Line.Text?.Length > 50 ? @event.Line.Text.Substring(0, 50) : @event.Line.Text ?? "null";
-            GD.Print($"DEBUG: LIVE: HandleLineAvailable received - Type={@event.Line.Type}, Speaker={@event.Line.Speaker}, Text='{textPreview}'");
-
-            var line = @event.Line;
-            GD.Print($"DEBUG: LIVE: Processing line - Id: {line.Id}, Phase: {line.Phase}");
-
-            if (line.Type == BroadcastLineType.None)
+            if (@event.Type != BroadcastEventType.Started || @event.Item == null)
             {
-                if (string.IsNullOrEmpty(line.Text))
-                {
-                    UpdateWaitingDisplay();
-                }
                 return;
             }
 
-            if (line.Text != _currentLineText)
+            var item = @event.Item;
+            string textPreview = item.Text?.Length > 50 ? item.Text.Substring(0, 50) : item.Text ?? "null";
+            GD.Print($"DEBUG: LIVE: HandleBroadcastEvent received - Type={item.Type}, Text='{textPreview}'");
+
+            if (string.IsNullOrEmpty(item.Text))
             {
-                _currentLineText = line.Text;
-                UpdateLineDisplay(line);
+                UpdateWaitingDisplay();
+                return;
+            }
+
+            if (item.Text != _currentLineText)
+            {
+                _currentLineText = item.Text;
+                UpdateItemDisplay(item);
             }
         }
 
@@ -129,7 +129,7 @@ namespace KBTV.UI
             _progressBar?.Hide();
         }
 
-        private void UpdateLineDisplay(BroadcastLine line)
+private void UpdateItemDisplay(BroadcastItem item)
         {
             if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
             {
@@ -141,30 +141,37 @@ namespace KBTV.UI
             _phaseLabel.Text = "";
 
             // Set speaker icon based on content type
-            if (line.Type == BroadcastLineType.AdBreak || line.Type == BroadcastLineType.Ad)
+            if (item.Type == BroadcastItemType.Ad)
             {
                 _speakerIcon.Text = "AD BREAK";
             }
-            else if (line.Type == BroadcastLineType.Music)
+            else if (item.Type == BroadcastItemType.Music)
             {
                 _speakerIcon.Text = "MUSIC";
             }
-            else if (line.Type == BroadcastLineType.CallerDialogue)
+            else if (item.Type == BroadcastItemType.CallerLine)
             {
                 _speakerIcon.Text = "CALLER";
             }
-            else if (line.SpeakerId == "VERN")
+            else if (item.Type == BroadcastItemType.VernLine)
+            {
+                _speakerIcon.Text = "VERN";
+            }
+            else if (item.Type == BroadcastItemType.DeadAir)
             {
                 _speakerIcon.Text = "VERN";
             }
             else
             {
-                _speakerIcon.Text = line.SpeakerId; // Fallback for system messages, etc.
+                _speakerIcon.Text = "SYSTEM"; // Fallback for transitions, etc.
             }
 
             if (_dialogueLabel != null)
             {
                 _dialogueLabel.Clear();
+                _displayedText = item.Text;
+                _typewriterIndex = 0;
+                _typewriterAccumulator = 0f;
             }
 
             if (_progressBar != null)
@@ -173,17 +180,16 @@ namespace KBTV.UI
             }
         }
 
-        private static string GetFlowStateDisplayName(BroadcastLineType type)
+private static string GetFlowStateDisplayName(BroadcastItemType type)
         {
             return type switch
             {
-                BroadcastLineType.ShowOpening => "SHOW OPENING",
-                BroadcastLineType.DeadAirFiller => "DEAD AIR",
-                BroadcastLineType.BetweenCallers => "BETWEEN CALLERS",
-                BroadcastLineType.ShowClosing => "SHOW CLOSING",
-                BroadcastLineType.VernDialogue => "ON AIR",
-                BroadcastLineType.CallerDialogue => "ON AIR",
-                BroadcastLineType.Ad => "COMMERCIAL",
+                BroadcastItemType.Music => "MUSIC",
+                BroadcastItemType.VernLine => "ON AIR",
+                BroadcastItemType.CallerLine => "ON AIR",
+                BroadcastItemType.Ad => "COMMERCIAL",
+                BroadcastItemType.DeadAir => "DEAD AIR",
+                BroadcastItemType.Transition => "TRANSITION",
                 _ => ""
             };
         }
