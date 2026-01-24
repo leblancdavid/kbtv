@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using KBTV.Data;
 
 namespace KBTV.Dialogue
 {
@@ -13,12 +14,16 @@ namespace KBTV.Dialogue
     public class BroadcastItemRegistry
     {
         private readonly Dictionary<string, BroadcastItem> _items = new();
-        private int _fillerCycleIndex = 0;
-        private readonly string[] _fillerItemIds = { "dead_air_filler", "dead_air_filler_2", "dead_air_filler_3" };
+        private VernDialogueTemplate? _vernDialogue;
 
         public BroadcastItemRegistry()
         {
             LoadDefaultItems();
+        }
+
+        public void SetVernDialogueTemplate(VernDialogueTemplate vernDialogue)
+        {
+            _vernDialogue = vernDialogue;
         }
 
         public BroadcastItem? GetItem(string id)
@@ -28,14 +33,102 @@ namespace KBTV.Dialogue
 
         public BroadcastItem? GetNextDeadAirFiller()
         {
-            var itemId = _fillerItemIds[_fillerCycleIndex % _fillerItemIds.Length];
-            _fillerCycleIndex++;
-            return GetItem(itemId);
+            // Dead air fillers now use dynamic selection from VernDialogueTemplate
+            return GetVernItem("dead_air_filler", VernMoodType.Neutral);
         }
 
         public IEnumerable<BroadcastItem> GetAllItems()
         {
             return _items.Values;
+        }
+
+        public BroadcastItem? GetVernItem(string type, VernMoodType mood)
+        {
+            if (_vernDialogue == null)
+            {
+                GD.PrintErr("BroadcastItemRegistry: VernDialogueTemplate not set");
+                return null;
+            }
+
+            DialogueTemplate dialogueTemplate;
+            string audioPath;
+
+            switch (type)
+            {
+                case "opening":
+                    dialogueTemplate = _vernDialogue.GetShowOpening();
+                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{dialogueTemplate.Id}.mp3";
+                    return new BroadcastItem(
+                        dialogueTemplate.Id,
+                        BroadcastItemType.VernLine,
+                        dialogueTemplate.Text,
+                        audioPath
+                    );
+
+                case "closing":
+                    dialogueTemplate = _vernDialogue.GetShowClosing(mood);
+                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{dialogueTemplate.Id}.mp3";
+                    return new BroadcastItem(
+                        dialogueTemplate.Id,
+                        BroadcastItemType.VernLine,
+                        dialogueTemplate.Text,
+                        audioPath
+                    );
+
+                case "between_callers":
+                    dialogueTemplate = _vernDialogue.GetBetweenCallers(mood);
+                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{dialogueTemplate.Id}.mp3";
+                    return new BroadcastItem(
+                        dialogueTemplate.Id,
+                        BroadcastItemType.Transition,
+                        dialogueTemplate.Text,
+                        audioPath
+                    );
+
+                case "dead_air_filler":
+                    dialogueTemplate = _vernDialogue.GetDeadAirFiller();
+                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{dialogueTemplate.Id}.mp3";
+                    return new BroadcastItem(
+                        dialogueTemplate.Id,
+                        BroadcastItemType.DeadAir,
+                        dialogueTemplate.Text,
+                        audioPath
+                    );
+
+                case "break_transition":
+                    dialogueTemplate = _vernDialogue.GetBreakTransition();
+                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{dialogueTemplate.Id}.mp3";
+                    return new BroadcastItem(
+                        dialogueTemplate.Id,
+                        BroadcastItemType.Transition,
+                        dialogueTemplate.Text,
+                        audioPath
+                    );
+
+                case "return_from_break":
+                    dialogueTemplate = _vernDialogue.GetReturnFromBreak(mood);
+                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{dialogueTemplate.Id}.mp3";
+                    return new BroadcastItem(
+                        dialogueTemplate.Id,
+                        BroadcastItemType.Transition,
+                        dialogueTemplate.Text,
+                        audioPath
+                    );
+
+                case "off_topic_remark":
+                    dialogueTemplate = _vernDialogue.GetOffTopicRemark(mood);
+                    audioPath = $"res://assets/audio/voice/Vern/Broadcast/{dialogueTemplate.Id}.mp3";
+                    return new BroadcastItem(
+                        dialogueTemplate.Id,
+                        BroadcastItemType.VernLine,
+                        dialogueTemplate.Text,
+                        audioPath
+                    );
+
+                default:
+                    GD.PrintErr($"BroadcastItemRegistry: Unknown Vern item type '{type}'");
+                    return null;
+            }
         }
 
         private void LoadDefaultItems()
@@ -62,13 +155,7 @@ namespace KBTV.Dialogue
                 "res://assets/audio/bumpers/return.mp3"
             );
 
-            // Vern opening lines
-            _items["vern_opening_1"] = new BroadcastItem(
-                "vern_opening_1",
-                BroadcastItemType.VernLine,
-                "Welcome back, night owls. This is Vern Tell coming to you live from the KBTV studios.",
-                "res://assets/audio/voice/Vern/Broadcast/opening_neutral_1.mp3"
-            );
+
 
             // Transition items
             _items["between_callers"] = new BroadcastItem(
@@ -78,26 +165,7 @@ namespace KBTV.Dialogue
                 duration: 2.0f
             );
 
-            _items["dead_air_filler"] = new BroadcastItem(
-                "dead_air_filler",
-                BroadcastItemType.DeadAir,
-                "Let me know if you've got a story to share...",
-                "res://assets/audio/voice/Vern/Broadcast/deadair_1.mp3"
-            );
 
-            _items["dead_air_filler_2"] = new BroadcastItem(
-                "dead_air_filler_2",
-                BroadcastItemType.DeadAir,
-                "We're here to listen to your stories...",
-                "res://assets/audio/voice/Vern/Broadcast/deadair_2.mp3"
-            );
-
-            _items["dead_air_filler_3"] = new BroadcastItem(
-                "dead_air_filler_3",
-                BroadcastItemType.DeadAir,
-                "Don't be shy, pick up that phone...",
-                "res://assets/audio/voice/Vern/Broadcast/deadair_3.mp3"
-            );
 
             _items["break_start"] = new BroadcastItem(
                 "break_start",
@@ -113,12 +181,7 @@ namespace KBTV.Dialogue
                 duration: 30.0f  // Placeholder duration
             );
 
-            _items["show_closing"] = new BroadcastItem(
-                "show_closing",
-                BroadcastItemType.VernLine,
-                "That's all the time we have tonight. Keep watching the skies!",
-                "res://assets/audio/voice/Vern/Broadcast/closing_neutral_1.mp3"
-            );
+
 
             // Placeholder for conversation items (will be replaced with dynamic content)
             _items["conversation_placeholder"] = new BroadcastItem(

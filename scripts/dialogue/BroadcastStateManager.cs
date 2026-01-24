@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Data;
 
 namespace KBTV.Dialogue
 {
@@ -51,6 +52,8 @@ namespace KBTV.Dialogue
 
         private BroadcastItem? GetNextItem()
         {
+            var currentMood = GetVernCurrentMood();
+
             switch (_currentState)
             {
                 case BroadcastState.Idle:
@@ -58,17 +61,17 @@ namespace KBTV.Dialogue
                 case BroadcastState.IntroMusic:
                     return _itemRegistry.GetItem("music_intro");
                 case BroadcastState.ShowOpening:
-                    return _itemRegistry.GetItem("vern_opening_1");
+                    return _itemRegistry.GetVernItem("opening", currentMood);
                 case BroadcastState.Conversation:
                     return GetNextConversationItem();
                 case BroadcastState.BetweenCallers:
-                    return _itemRegistry.GetItem("between_callers");
+                    return _itemRegistry.GetVernItem("between_callers", currentMood);
                 case BroadcastState.DeadAirFiller:
-                    return _itemRegistry.GetNextDeadAirFiller();
+                    return _itemRegistry.GetVernItem("dead_air_filler", currentMood);
                 case BroadcastState.Break:
                     return _itemRegistry.GetItem("ad_break");
                 case BroadcastState.ReturnFromBreak:
-                    return _itemRegistry.GetItem("break_return_music");
+                    return _itemRegistry.GetVernItem("return_from_break", currentMood);
                 case BroadcastState.ShowEnding:
                     return _itemRegistry.GetItem("music_outro");
                 default:
@@ -76,15 +79,20 @@ namespace KBTV.Dialogue
             }
         }
 
-        private string GetVernCurrentMood()
+        private VernMoodType GetVernCurrentMood()
         {
             // Get Vern's current mood from game state
             var vernStats = ServiceRegistry.Instance?.GameStateManager?.VernStats;
             if (vernStats != null)
             {
-                return vernStats.CurrentMoodType.ToString().ToLowerInvariant();
+                return vernStats.CurrentMoodType;
             }
-            return "neutral"; // Default fallback
+            return VernMoodType.Neutral; // Default fallback
+        }
+
+        private string GetVernCurrentMoodString()
+        {
+            return GetVernCurrentMood().ToString().ToLowerInvariant();
         }
 
         private string? ResolveAudioPath(string audioId, ConversationArc arc)
@@ -172,7 +180,7 @@ namespace KBTV.Dialogue
             // For Vern lines with mood variants, select based on current mood
             if (arcLine.Speaker == Speaker.Vern && arcLine.AudioIds.Count > 0)
             {
-                var currentMood = GetVernCurrentMood().ToLowerInvariant();
+                var currentMood = GetVernCurrentMoodString();
 
                 // Try to get mood-specific text and audio
                 if (arcLine.AudioIds.TryGetValue(currentMood, out var moodAudioId))

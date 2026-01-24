@@ -49,10 +49,6 @@ namespace KBTV.Dialogue
             _repository.Subscribe(this);
 
             _audioPlayer = ServiceRegistry.Instance.AudioPlayer;
-            if (_audioPlayer != null)
-            {
-                _audioPlayer.LineCompleted += OnAudioLineCompleted;
-            }
 
             var eventBus = ServiceRegistry.Instance.EventBus;
             eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
@@ -151,14 +147,7 @@ namespace KBTV.Dialogue
             // In real implementation, create timer and publish completion event when done
         }
 
-        private void OnAudioLineCompleted(AudioCompletedEvent audioEvent)
-        {
-            GD.Print($"ConversationDisplay.OnAudioLineCompleted: Audio completed for {audioEvent.LineId}");
 
-            // Publish BroadcastEvent.Completed for the completed item
-            var completedEvent = new BroadcastEvent(BroadcastEventType.Completed, audioEvent.LineId);
-            ServiceRegistry.Instance.EventBus.Publish(completedEvent);
-        }
 
         public override void OnEvent(GameEvent gameEvent)
         {

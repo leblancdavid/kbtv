@@ -57,6 +57,12 @@ namespace KBTV.Dialogue
         {
             _repository = ServiceRegistry.Instance.CallerRepository;
             _itemRegistry = new BroadcastItemRegistry();
+
+            // Load Vern dialogue template
+            var vernDialogueLoader = new VernDialogueLoader();
+            vernDialogueLoader.LoadDialogue();
+            _itemRegistry.SetVernDialogueTemplate(vernDialogueLoader.VernDialogue);
+
             _stateMachine = new BroadcastStateMachine(_repository, _itemRegistry);
             _itemExecutor = new BroadcastItemExecutor(itemId => {
                 var completedEvent = new BroadcastEvent(BroadcastEventType.Completed, itemId);
@@ -103,6 +109,20 @@ namespace KBTV.Dialogue
 
             if (@event.Type == BroadcastEventType.Completed || @event.Type == BroadcastEventType.Interrupted)
             {
+                // Validate that the completed item ID corresponds to a known broadcast item
+                if (string.IsNullOrEmpty(@event.ItemId))
+                {
+                    GD.PrintErr("BroadcastCoordinator: Received completion event with null/empty ItemId");
+                    return;
+                }
+
+                // Check if this looks like an audio file path (indicating cross-system contamination)
+                if (@event.ItemId.Contains(".mp3") || @event.ItemId.Contains(".wav") || @event.ItemId.Contains("/") || @event.ItemId.Contains("\\"))
+                {
+                    GD.PrintErr($"BroadcastCoordinator: Ignoring completion event for audio file path '{@event.ItemId}' - likely cross-system contamination");
+                    return;
+                }
+
                 var nextItem = _stateMachine.HandleEvent(@event);
                 if (nextItem != null)
                 {
