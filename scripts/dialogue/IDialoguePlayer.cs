@@ -11,11 +11,19 @@ namespace KBTV.Dialogue
     /// </summary>
     public interface IDialoguePlayer
     {
+/// <summary>
+        /// Play a broadcast item. Returns immediately; playback completion is handled via events.
+        /// The player will fire LineCompleted event when playback finishes.
+        /// </summary>
+        /// <param name="item">The broadcast item to play</param>
+        void PlayBroadcastItemAsync(BroadcastItem item);
+
         /// <summary>
-        /// Play a dialogue line. Returns immediately; playback completion is handled via events.
+        /// Play a dialogue line (legacy method). Returns immediately; playback completion is handled via events.
         /// The player will fire LineCompleted event when playback finishes.
         /// </summary>
         /// <param name="line">The dialogue line to play</param>
+        [System.Obsolete("Use PlayBroadcastItemAsync(BroadcastItem) instead")]
         void PlayLineAsync(BroadcastLine line);
 
         /// <summary>

@@ -202,11 +202,12 @@ namespace KBTV.Core
             return service;
         }
 
-        public ICallerRepository CallerRepository => Get<ICallerRepository>();
+public ICallerRepository CallerRepository => Get<ICallerRepository>();
         public IScreeningController ScreeningController => Get<IScreeningController>();
         public ITranscriptRepository TranscriptRepository => Get<ITranscriptRepository>();
         public IArcRepository ArcRepository => Get<IArcRepository>();
         public BroadcastCoordinator BroadcastCoordinator => Get<BroadcastCoordinator>();
+        public AsyncBroadcastLoop AsyncBroadcastLoop => Get<AsyncBroadcastLoop>();
         public GameStateManager GameStateManager => Get<GameStateManager>();
         public TimeManager TimeManager => Get<TimeManager>();
         public ListenerManager ListenerManager => Get<ListenerManager>();

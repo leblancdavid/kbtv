@@ -365,89 +365,109 @@ public partial class ConversationMonitor : DomainMonitor
 - `scripts/dialogue/AudioDialoguePlayer.cs` - Event-driven audio implementation
 - `docs/technical/MONITOR_PATTERN.md` - Full pattern documentation
 
-### BroadcastCoordinator Pattern
+### AsyncBroadcastLoop Pattern
 
-KBTV uses a **pull-based BroadcastCoordinator** service to manage the radio broadcast flow. This replaces the old event-driven ConversationManager with a simpler, more predictable architecture.
+KBTV uses an **async event-driven AsyncBroadcastLoop** to manage the radio broadcast flow. This replaces the old pull-based BroadcastCoordinator with a more robust, scalable architecture.
 
 **Key Benefits:**
-- **Pull-based API** - Consumer asks "what's next?" instead of reacting to events
-- **Single source of truth** - Coordinator decides flow, timing, and state transitions
-- **No timing complexity** - Consumer controls pacing via `_Process()` loop
-- **Auto-advance built-in** - Coordinator returns `PutCallerOnAir` signal when appropriate
+- **Background async execution** - Broadcast runs in background without blocking the main thread
+- **Event-driven communication** - Components subscribe to events instead of polling
+- **Executable-based architecture** - Each broadcast item is a self-contained executable
+- **Cancellation token support** - Clean interruption handling for breaks and show ending
+- **No polling overhead** - UI components react to events instead of constant polling
 
 **Core API:**
 ```csharp
-// Get the next line to display. Returns same line if current line is still playing.
-BroadcastLine GetNextLine();
+// Start the broadcast loop (async)
+public async Task StartBroadcastAsync(float showDuration = 600.0f);
 
-// Call when a line finishes playing. Advances to next line in the flow.
-void OnLineCompleted();
+// Stop the broadcast loop
+public void StopBroadcast();
 
-// Called by UI when a caller goes on air
-void OnCallerOnAir(Caller caller);
+// Interrupt broadcast for breaks or show ending
+public void InterruptBroadcast(BroadcastInterruptionReason reason);
 
-// Called by UI when a call ends
-void OnCallerOnAirEnded(Caller caller);
+// Schedule a break at a specific time
+public void ScheduleBreak(float breakTimeFromNow);
 
-// Lifecycle
-void OnLiveShowStarted();
-void OnLiveShowEnding();
+// Force start an ad break immediately
+public void StartAdBreak();
+
+// Check if currently in an ad break
+public bool IsInAdBreak();
 ```
 
-**Line Types:**
+**Event System:**
+Components subscribe to these events for updates:
+- `BroadcastItemStartedEvent` - New item begins playback
+- `BroadcastEvent` - Item completed/interrupted/started
+- `BroadcastInterruptionEvent` - Break/show ending interruptions
+- `AudioCompletedEvent` - Audio playback finished
+- `BroadcastTimingEvent` - Show timing (show end, break warnings)
+
+**Executable Types:**
 | Type | Description |
 |------|-------------|
-| `ShowOpening` | Vern's show intro (5s duration) |
-| `VernDialogue` | Vern's turn in conversation (4s) |
-| `CallerDialogue` | Caller's turn in conversation (4s) |
-| `BetweenCallers` | Mood-based transition to next caller (4s) |
-| `DeadAirFiller` | Vern monologue when no callers (8s) |
-| `ShowClosing` | Vern's outro (5s) |
-| `PutCallerOnAir` | Signal to put next caller on air |
-| `None` | No content, wait for event |
+| `MusicExecutable` | Background music, intros, outros |
+| `DialogueExecutable` | Vern/caller dialogue with audio |
+| `TransitionExecutable` | Between-callers, dead air filler |
+| `AdExecutable` | Commercial breaks with sponsor info |
 
-**Flow Example:**
+**Integration Example:**
 ```csharp
-// In ConversationDisplay._Process()
-var line = _coordinator.GetNextLine();
-switch (line.Type)
+// BroadcastCoordinator starts the async loop when show begins
+public void OnLiveShowStarted()
 {
-    case BroadcastLineType.PutCallerOnAir:
-        _repository.PutOnAir();  // Caller goes on air
-        break;
-    case BroadcastLineType.None:
-        // No content, wait
-        break;
-    default:
-        DisplayLine(line);  // Show the line
-        // Wait for duration, then call OnLineCompleted()
-        break;
+    _isBroadcastActive = true;
+    var showDuration = ServiceRegistry.Instance.TimeManager?.ShowDuration ?? 600.0f;
+    
+    // Start async broadcast loop in background
+    _ = Task.Run(async () => {
+        await _asyncLoop.StartBroadcastAsync(showDuration);
+    });
+}
+
+// UI components subscribe to events
+private void HandleBroadcastItemStarted(BroadcastItemStartedEvent @event)
+{
+    DisplayCurrentItem(@event.Item);
 }
 ```
 
-**State Machine:**
+**State Management:**
+The AsyncBroadcastLoop uses `BroadcastStateManager` to track broadcast state:
 ```
-ShowOpening → Conversation → BetweenCallers → Conversation
+ShowStarting → ShowOpening → Conversation → BetweenCallers → Conversation
                  ↓                    ↓
-           (no callers)        (no callers)
+           (break starting)      (show ending)
                  ↓                    ↓
-           DeadAirFiller      DeadAirFiller
+           AdBreak           ShowEnding
                  ↓                    ↓
-           (1 cycle)           (1 cycle)
-                 ↓                    ↓
-           Conversation        Conversation
+           BreakReturn      ShowEnding
 ```
 
 **Files:**
-- `scripts/dialogue/BroadcastCoordinator.cs` - Main coordinator (Autoload)
-- `scripts/dialogue/BroadcastLineType.cs` - Line type enum
-- `scripts/dialogue/BroadcastLine.cs` - Line struct
-- `scripts/dialogue/ConversationDisplay.cs` - UI display using the coordinator
-- `scripts/dialogue/Templates/VernDialogueTemplate.cs` - Vern's dialogue templates including signoff lines
+- `scripts/dialogue/AsyncBroadcastLoop.cs` - Main async loop coordinator (Autoload)
+- `scripts/dialogue/BroadcastStateManager.cs` - State management and executable factory
+- `scripts/dialogue/BroadcastTimer.cs` - Timing and break scheduling
+- `scripts/dialogue/BroadcastItem.cs` - Broadcast item data structure
+- `scripts/dialogue/BroadcastExecutable.cs` - Base class for all executables
+- `scripts/dialogue/BroadcastCoordinator.cs` - Legacy wrapper for AdManager compatibility
 
-**Recent Improvements:**
-- **Conversation Ending Fix**: Fixed timing issue where conversations would hang on caller's last line; now properly ends conversation immediately after last line completes
-- **Mood-Based BetweenCallers**: Between-callers lines now reflect Vern's current mood (neutral, tired, energized, etc.) for more dynamic personality
+**Event-Driven Flow:**
+1. **Live show starts** → BroadcastCoordinator starts AsyncBroadcastLoop
+2. **AsyncBroadcastLoop** requests executable from BroadcastStateManager
+3. **Executable runs** → publishes `BroadcastItemStartedEvent`
+4. **UI components** receive event → update display
+5. **Executable finishes** → publishes `BroadcastEvent` (Completed)
+6. **AsyncBroadcastLoop** requests next executable → repeat
+7. **Break interruption** → `BroadcastInterruptionEvent` → AdBreak executable
+
+**Recent Architecture:**
+- **Complete Async Integration**: All broadcast execution now uses AsyncBroadcastLoop
+- **Legacy Compatibility**: BroadcastCoordinator maintains AdManager interface compatibility
+- **Event-Driven UI**: LiveShowPanel and ConversationDisplay use event subscription
+- **No Polling**: Eliminated all `_Process()` polling for broadcast updates
 
 ### Result Type Pattern
 
@@ -495,79 +515,79 @@ public interface ICallerRepository
 
 ### Event-Driven Conversation System
 
-The conversation system uses a pull-based BroadcastCoordinator with event-driven architecture for synchronized dialogue and audio playback.
+The conversation system uses an **async event-driven AsyncBroadcastLoop** for coordinated dialogue and audio playback.
 
-#### BroadcastCoordinator Pattern
+#### AsyncBroadcastLoop Pattern
 
-KBTV uses a **pull-based BroadcastCoordinator** service to manage the radio broadcast flow. This replaces timer-based systems with a predictable, event-driven architecture.
+KBTV uses an **async background AsyncBroadcastLoop** to manage the radio broadcast flow. This replaces pull-based polling with a more robust, event-driven architecture.
 
 **Key Benefits:**
-- **Pull-based API** - Consumer asks "what's next?" instead of reacting to events
-- **Single source of truth** - Coordinator decides flow, timing, and state transitions
-- **No timing complexity** - Consumer controls pacing via event responses
-- **Auto-advance built-in** - Coordinator returns signals when appropriate
+- **Background async execution** - Broadcast runs without blocking main thread
+- **Event-driven communication** - Components subscribe to events instead of polling
+- **Executable-based architecture** - Each broadcast item is self-contained
+- **Cancellation token support** - Clean interruption handling
+- **No polling overhead** - UI reacts to events instead of constant polling
 
 **Core API:**
 ```csharp
-// Get the next line to display. Returns same line if current line is still playing.
-BroadcastLine GetNextLine();
+// Start the broadcast loop (async)
+public async Task StartBroadcastAsync(float showDuration = 600.0f);
 
-// Call when a line finishes playing. Advances to next line in the flow.
-void OnLineCompleted();
+// Stop the broadcast loop
+public void StopBroadcast();
 
-// Called by UI when a caller goes on air
-void OnCallerOnAir(Caller caller);
-
-// Called by UI when a call ends
-void OnCallerOnAirEnded(Caller caller);
+// Handle interruption from external events
+public void InterruptBroadcast(BroadcastInterruptionReason reason);
 ```
 
-#### Event Flow Pattern
+#### Event-Driven Flow
 
-Conversations progress through event-driven state transitions:
+Conversations progress through async event coordination:
 
 ```csharp
-// 1. User puts caller on air → OnCallerOnAir()
-// 2. BroadcastCoordinator publishes ConversationStartedEvent
-// 3. ConversationDisplay receives event → requests first line
-// 4. Audio plays → fires AudioCompletedEvent when done
-// 5. ConversationDisplay receives event → calls OnLineCompleted()
-// 6. BroadcastCoordinator publishes ConversationAdvancedEvent
-// 7. ConversationDisplay receives event → requests next line
-// 8. Loop continues until conversation ends
+// 1. Live show starts → BroadcastCoordinator starts AsyncBroadcastLoop
+// 2. AsyncBroadcastLoop requests executable from BroadcastStateManager
+// 3. Executable runs → publishes BroadcastItemStartedEvent
+// 4. UI components receive event → update display
+// 5. Executable finishes → publishes BroadcastEvent (Completed)
+// 6. AsyncBroadcastLoop requests next executable → repeat
+// 7. Break interruption → BroadcastInterruptionEvent → AdBreak executable
 ```
 
 **Event Types:**
-- `ConversationStartedEvent` - Signals conversation initialization
-- `AudioCompletedEvent` - Fired when audio line finishes playing
-- `ConversationAdvancedEvent` - Signals advancement to next line
+- `BroadcastItemStartedEvent` - New item begins with duration info
+- `BroadcastEvent` - Item completed/interrupted/started
+- `BroadcastInterruptionEvent` - Breaks, show ending, errors
+- `AudioCompletedEvent` - Audio playback finished
+- `BroadcastTimingEvent` - Show timing (show end, break warnings)
 
 #### Event Subscription Pattern
 
 Components subscribe to relevant events during initialization:
 
 ```csharp
-// In ConversationDisplay.InitializeWithServices()
+// In LiveShowPanel.InitializeWithServices()
 var eventBus = ServiceRegistry.Instance.EventBus;
-eventBus.Subscribe<ConversationStartedEvent>(HandleConversationStarted);
-eventBus.Subscribe<AudioCompletedEvent>(HandleAudioCompleted);
-eventBus.Subscribe<ConversationAdvancedEvent>(HandleConversationAdvanced);
+eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
+eventBus.Subscribe<BroadcastItemStartedEvent>(HandleBroadcastItemStarted);
 ```
 
 **Benefits:**
-- Loose coupling between conversation logic and UI display
+- Single source of truth for broadcast execution
 - Natural audio synchronization through event completion
-- Predictable state transitions without timers
-- Easy to extend with new event types
+- Predictable state transitions without polling conflicts
+- Easy to extend with new executable types
+- Clean interruption handling for breaks and show ending
 
 **Files:**
-- `scripts/dialogue/BroadcastCoordinator.cs` - Main coordinator (Autoload)
-- `scripts/dialogue/ConversationDisplay.cs` - Event-driven UI display
-- `scripts/dialogue/IDialoguePlayer.cs` - Audio player interface
+- `scripts/dialogue/AsyncBroadcastLoop.cs` - Main async loop coordinator (Autoload)
+- `scripts/dialogue/BroadcastStateManager.cs` - State management and executable factory
+- `scripts/dialogue/BroadcastTimer.cs` - Timing and break scheduling
+- `scripts/dialogue/BroadcastExecutable.cs` - Base class for all executables
+- `scripts/dialogue/LiveShowPanel.cs` - Event-driven UI display
 - `scripts/dialogue/AudioDialoguePlayer.cs` - Event-driven audio implementation
 - `scripts/core/EventBus.cs` - Global event bus for inter-system communication
 - `scripts/core/GameEvent.cs` - Base event classes
-- `scripts/dialogue/ConversationEvents.cs` - Conversation-specific events
 
 ### Modularization Pattern
 

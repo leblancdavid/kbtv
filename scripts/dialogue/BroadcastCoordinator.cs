@@ -244,20 +244,7 @@ namespace KBTV.Dialogue
             _isOutroMusicQueued = true;
         }
 
-        /// <summary>
-        /// Get the next broadcast line for display.
-        /// Compatibility method for legacy UI components.
-        /// </summary>
-        public BroadcastLine GetNextLine()
-        {
-            // For now, return a placeholder line
-            // In the future, this should integrate with the async loop
-            if (_repository?.OnAirCaller != null)
-            {
-                return BroadcastLine.VernDialogue("Broadcast in progress...", ConversationPhase.Intro, null, 0, "vern");
-            }
-            return BroadcastLine.None();
-        }
+        
 
         /// <summary>
         /// Set the current ad sponsor for display.
@@ -267,23 +254,7 @@ namespace KBTV.Dialogue
             _currentAdSponsor = sponsor ?? "";
         }
 
-        /// <summary>
-        /// Handle caller going on air.
-        /// </summary>
-        public void OnCallerOnAir(Caller caller)
-        {
-            // This would be handled by the async loop in the future
-            GD.Print($"BroadcastCoordinator: OnCallerOnAir called for {caller?.Name}");
-        }
-
-        /// <summary>
-        /// Handle caller on air ending.
-        /// </summary>
-        public void OnCallerOnAirEnded(Caller caller)
-        {
-            // This would be handled by the async loop in the future  
-            GD.Print($"BroadcastCoordinator: OnCallerOnAirEnded called for {caller?.Name}");
-        }
+        
 
         /// <summary>
         /// Clean up resources.

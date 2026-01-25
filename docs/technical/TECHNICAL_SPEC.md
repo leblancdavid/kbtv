@@ -167,26 +167,30 @@ assets/
   - `MinimumLegitimacy` - Minimum credibility threshold
 
 ### Dialogue System
-**Files**: `Dialogue/ConversationManager.cs`, `Dialogue/ArcRepository.cs`, `Dialogue/ArcConversationGenerator.cs`, `Dialogue/ArcJsonParser.cs`, `Dialogue/Conversation.cs`, `Dialogue/ConversationArc.cs`, `Dialogue/DialogueTypes.cs`, `Dialogue/VernStateCalculator.cs`, `Dialogue/DialogueSubstitution.cs`, `Dialogue/Templates/VernDialogueTemplate.cs`
+**Files**: `Dialogue/AsyncBroadcastLoop.cs`, `Dialogue/BroadcastStateManager.cs`, `Dialogue/BroadcastTimer.cs`, `Dialogue/ArcRepository.cs`, `Dialogue/ArcJsonParser.cs`, `Dialogue/BroadcastItem.cs`, `Dialogue/BroadcastExecutable.cs`, `Dialogue/VernStateCalculator.cs`, `Dialogue/Templates/VernDialogueTemplate.cs`
 
-The dialogue system uses **arc-based conversations** - pre-scripted complete dialogues between Vern and callers that vary based on Vern's mood and discernment.
+The dialogue system uses **async event-driven broadcast architecture** - executable-based broadcast items that run in the background with coordinated state management.
 
 #### Core Concepts
-- **Conversation Arcs**: Pre-written dialogues stored in JSON, organized by topic and legitimacy
-- **Mood Variants**: Each arc has 5 versions (Tired, Grumpy, Neutral, Engaged, Excited) affecting Vern's delivery
-- **Belief Branches**: Each variant splits into Skeptical or Believing paths based on discernment
-- **Broadcast Flow**: Show opening, between-caller filler, dead air handling, show closing
+- **AsyncBroadcastLoop**: Background coordinator that runs async execution loop
+- **Broadcast Executables**: Self-contained items (music, dialogue, ads, transitions)
+- **Event-Driven Communication**: Components subscribe to events instead of polling
+- **State Management**: Coordinated state tracking through BroadcastStateManager
+- **Cancellation Tokens**: Clean interruption handling for breaks and show ending
 
 #### Key Classes
 | Class | Description |
 |-------|-------------|
-| `ConversationManager` | Singleton managing playback, timing, dead air filler, broadcast flow |
-| `ArcRepository` | Resource holding arc JSON files, provides arc selection by topic+legitimacy |
-| `ArcConversationGenerator` | Generates `Conversation` from arcs using mood and belief path |
-| `Conversation` | Runtime playback state with lines list and progress tracking |
-| `ConversationArc` | Arc data with mood variants and belief branches |
-| `ArcMoodVariant` | Contains intro/development/beliefBranch/conclusion phases |
-| `DialogueLine` | Single line with speaker, text, tone, phase |
+| `AsyncBroadcastLoop` | Background coordinator running async execution loop |
+| `BroadcastStateManager` | State management and executable factory |
+| `BroadcastTimer` | Handles timing for breaks, show end, and ad breaks |
+| `BroadcastItem` | Data structure for executable broadcast items |
+| `BroadcastExecutable` | Base class for all broadcast executable types |
+| `MusicExecutable` | Handles background music, intros, outros |
+| `DialogueExecutable` | Manages Vern/caller dialogue with audio |
+| `TransitionExecutable` | Between-callers and dead air filler content |
+| `AdExecutable` | Commercial breaks with sponsor information |
+| `ArcRepository` | Resource holding arc JSON files, provides arc selection |
 | `ArcJsonParser` | Static utility for parsing arc JSON into ConversationArc objects |
 | `VernStateCalculator` | Static utility for mood and discernment calculation |
 | `VernDialogueTemplate` | Resource for Vern's broadcast lines (opening, filler, signoff) |
@@ -202,15 +206,22 @@ The dialogue system uses **arc-based conversations** - pre-scripted complete dia
 #### Discernment Calculation
 `VernStateCalculator.DetermineBeliefPath(discernment, legitimacy)` determines if Vern correctly reads the caller:
 - Higher discernment = more likely to be Skeptical of Fake callers, Believing of Compelling callers
-- Legitimacy modifies the threshold (Compelling callers are easier to believe)
+- Legitimacy modifies threshold (Compelling callers are easier to believe)
 
-#### Broadcast Flow
-- **Intro Music**: 4-second music bumper before show opening
-- **Show Opening**: Vern's intro when LiveShow begins
-- **Between Callers**: Transition lines when moving to next caller
-- **Dead Air Filler**: Lines played when no caller is on air and queue is empty
-- **Ad Breaks**: Scheduled commercial breaks with sequential ads
-- **Show Closing**: Event-driven sign-off when show ends (T-10s warning)
+#### Async Broadcast Flow
+- **Background Execution**: AsyncBroadcastLoop runs in Task without blocking main thread
+- **Event Coordination**: BroadcastStateManager coordinates state and executables
+- **Interrupt Handling**: Clean cancellation for breaks and show ending
+- **Audio Synchronization**: Each executable handles its own audio playback
+- **No Polling**: UI components react to events instead of constant polling
+
+#### Event-Driven Communication
+Components communicate through these events:
+- `BroadcastItemStartedEvent` - New item begins with duration info
+- `BroadcastEvent` - Item completed/interrupted/started
+- `BroadcastInterruptionEvent` - Break/show ending interruptions
+- `AudioCompletedEvent` - Audio playback finished
+- `BroadcastTimingEvent` - Show timing (show end, break warnings)
 
 #### Template Substitution
 `DialogueSubstitution.Substitute(text, caller)` replaces placeholders:
@@ -259,7 +270,8 @@ The Live Show UI uses scene-based panels instantiated at runtime.
 | `OnAirPanel.cs` | On-air caller display + end call button |
 | `CallerQueuePanel.cs` | Incoming and on-hold caller queue lists |
 | `CallerQueueEntry.cs` | Single entry in caller queue list |
-| `ConversationPanel.cs` | Dialogue display with typewriter effect, speaker colors, history, progress bar |
+| `LiveShowPanel.cs` | Event-driven dialogue display with typewriter effect, speaker identification, and progress tracking |
+| `ConversationDisplay.cs` | Event-driven conversation display component for UI panels |
 
 ### UITheme Utilities
 
@@ -432,51 +444,65 @@ Benefits:
 - Standardizes subscribe/unsubscribe lifecycle
 - Calls `UpdateDisplay()` after successful subscription
 
-### BroadcastCoordinator Pattern
+### AsyncBroadcastLoop Architecture
 
-KBTV uses a **pull-based BroadcastCoordinator** service to manage the radio broadcast flow. This replaces timer-based systems with a predictable, event-driven architecture.
+KBTV uses an **async event-driven AsyncBroadcastLoop** to manage the radio broadcast flow. This replaces pull-based polling with a more robust, scalable architecture.
 
 **Key Benefits:**
-- **Pull-based API** - Consumer asks "what's next?" instead of reacting to events
-- **Single source of truth** - Coordinator decides flow, timing, and state transitions
-- **No timing complexity** - Consumer controls pacing via event responses
-- **Auto-advance built-in** - Coordinator returns signals when appropriate
+- **Background async execution** - Broadcast runs without blocking main thread
+- **Event-driven communication** - Components subscribe to events instead of polling
+- **Executable-based architecture** - Each broadcast item is self-contained
+- **Cancellation token support** - Clean interruption handling for breaks and show ending
+- **No polling overhead** - UI components react to events instead of constant polling
 
 **Core API:**
 ```csharp
-// Get the next line to display. Returns same line if current line is still playing.
-BroadcastLine GetNextDisplayLine();
+// Start the broadcast loop (async)
+public async Task StartBroadcastAsync(float showDuration = 600.0f);
 
-// Get any pending control action (PutCallerOnAir, None)
-ControlAction GetPendingControlAction();
+// Stop the broadcast loop
+public void StopBroadcast();
 
-// Call when a control action is completed
-void OnControlActionCompleted();
+// Handle interruption from external events (breaks, show ending, etc.)
+public void InterruptBroadcast(BroadcastInterruptionReason reason);
 
-// Called by UI when a caller goes on air
-void OnCallerOnAir(Caller caller);
+// Schedule a break at a specific time
+public void ScheduleBreak(float breakTimeFromNow);
 
-// Called by UI when a call ends
-void OnCallerOnAirEnded(Caller caller);
+// Force start an ad break immediately
+public void StartAdBreak();
+
+// Check if currently in an ad break
+public bool IsInAdBreak();
 ```
 
-**Line Types:**
+**Broadcast Events:**
+Components subscribe to these events for updates:
+- `BroadcastItemStartedEvent` - New item begins with duration info
+- `BroadcastEvent` - Item completed/interrupted/started
+- `BroadcastInterruptionEvent` - Break/show ending interruptions
+- `AudioCompletedEvent` - Audio playback finished
+- `BroadcastTimingEvent` - Show timing (show end, break warnings)
+
+**Executable Types:**
 | Type | Description |
 |------|-------------|
-| `ShowOpening` | Vern's show intro |
-| `VernDialogue` | Vern's turn in conversation |
-| `CallerDialogue` | Caller's turn in conversation |
-| `BetweenCallers` | Mood-based transition to next caller |
-| `DeadAirFiller` | Vern monologue when no callers |
-| `ShowClosing` | Vern's outro |
-| `Music` | Intro/ad/outro music |
-| `Ad` | Commercial break slot |
+| `MusicExecutable` | Background music, intros, outros |
+| `DialogueExecutable` | Vern/caller dialogue with audio |
+| `TransitionExecutable` | Between-callers, dead air filler |
+| `AdExecutable` | Commercial breaks with sponsor info |
 
-**Control Actions:**
-| Action | Description |
-|--------|-------------|
-| `PutCallerOnAir` | Signal to put next caller on air |
-| `None` | No control action pending |
+**Broadcast States:**
+The AsyncBroadcastLoop uses `BroadcastStateManager` to track broadcast state:
+```
+ShowStarting → ShowOpening → Conversation → BetweenCallers → Conversation
+                 ↓                    ↓
+           (break starting)      (show ending)
+                 ↓                    ↓
+           AdBreak           ShowEnding
+                 ↓                    ↓
+           BreakReturn      ShowEnding
+```
 
 **Event-Driven Show Ending:**
 The show ending follows the same event-driven pattern as ad breaks:

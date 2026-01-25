@@ -176,6 +176,142 @@ position = Vector2(960, 540)
 - Triggers screening completion when all properties revealed
 - UI updates screening progress bars and buttons
 
+## Monitoring Async Systems
+
+### AsyncBroadcastLoop Monitoring
+
+While the Monitor Pattern focuses on domain-specific state updates, async systems like `AsyncBroadcastLoop` require a different approach:
+
+**Key Differences:**
+- **Background execution** - AsyncBroadcastLoop runs in background threads/tasks
+- **Event-driven** - State changes communicated via events, not direct observation
+- **Cancellation tokens** - Monitors need to handle interruption scenarios
+- **Non-deterministic timing** - Frame-based timing doesn't apply to async operations
+
+### Monitoring Guidelines for Async Systems
+
+#### 1. Event Subscription Pattern
+Instead of polling state, subscribe to system events:
+
+```csharp
+// In monitor _Ready()
+public override void _Ready()
+{
+    base._Ready();
+    
+    var eventBus = ServiceRegistry.Instance.EventBus;
+    eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
+    eventBus.Subscribe<BroadcastItemStartedEvent>(HandleItemStarted);
+}
+
+// Handle event-driven state changes
+private void HandleBroadcastEvent(BroadcastEvent @event)
+{
+    // Update monitor state based on event
+    _broadcastActive = @event.Type != BroadcastEventType.ShowEnded;
+}
+```
+
+#### 2. State Tracking via Events
+Track async system state through event aggregation:
+
+```csharp
+public class BroadcastMonitor : DomainMonitor
+{
+    private bool _isBroadcastActive = false;
+    private BroadcastItemType _currentItemType = BroadcastItemType.Music;
+    
+    protected override void OnUpdate(float deltaTime)
+    {
+        // Handle timeout-based monitoring if needed
+        if (_isBroadcastActive)
+        {
+            // Any frame-based logic for broadcast state
+        }
+    }
+    
+    private void HandleBroadcastItemStarted(BroadcastItemStartedEvent @event)
+    {
+        _currentItemType = @event.Item.Type;
+        // React to new item starting
+    }
+    
+    private void HandleBroadcastEnded(BroadcastEvent @event)
+    {
+        _isBroadcastActive = false;
+        // React to broadcast ending
+    }
+}
+```
+
+#### 3. Async Operation Coordination
+Coordinate with async systems for complex scenarios:
+
+```csharp
+// Example: Monitor that tracks broadcast health
+protected override void OnUpdate(float deltaTime)
+{
+    var asyncLoop = ServiceRegistry.Instance.AsyncBroadcastLoop;
+    if (asyncLoop?.IsRunning == true)
+    {
+        // Check broadcast health via event history or state
+        _timeSinceLastEvent += deltaTime;
+        
+        if (_timeSinceLastEvent > HEALTH_CHECK_THRESHOLD)
+        {
+            GD.PrintWarn("BroadcastLoop health check: No events received recently");
+            _timeSinceLastEvent = 0;
+        }
+    }
+}
+```
+
+### Best Practices for Async Monitoring
+
+| Practice | Description | Example |
+|-----------|-------------|---------|
+| **Event over Polling** | Subscribe to events instead of checking state | `Subscribe<BroadcastEvent>()` vs `asyncLoop.IsRunning` |
+| **Thread Safety** | Assume events from background threads | Use proper synchronization if sharing state |
+| **Graceful Degradation** | Handle async system not being available | Check `ServiceRegistry.Instance.AsyncBroadcastLoop` for null |
+| **Event Cleanup** | Unsubscribe from events in `_ExitTree()` | Prevent memory leaks with proper cleanup |
+
+### Integration with Existing Monitors
+
+Async monitoring can complement existing domain monitors:
+
+```csharp
+public class ConversationMonitor : DomainMonitor
+{
+    // Traditional domain monitoring
+    protected override void OnUpdate(float deltaTime)
+    {
+        // Monitor caller patience, Vern stats, etc.
+    }
+    
+    // Async system monitoring via events
+    public override void _Ready()
+    {
+        base._Ready();
+        var eventBus = ServiceRegistry.Instance.EventBus;
+        eventBus.Subscribe<BroadcastEvent>(HandleBroadcastState);
+    }
+    
+    private void HandleBroadcastState(BroadcastEvent @event)
+    {
+        // Coordinate between domain state and broadcast state
+        switch (@event.Type)
+        {
+            case BroadcastItemType.Conversation:
+                // Conversation-specific monitoring logic
+                break;
+            case BroadcastItemType.Ad:
+                // Ad break-specific monitoring
+                break;
+        }
+    }
+}
+```
+
 ## Testing Guidelines
 
 Each monitor should have:
@@ -185,9 +321,12 @@ Each monitor should have:
 3. **Update test:** Verify state is updated with delta time
 4. **Side effect test:** Verify side effects (events, state changes) occur correctly
 5. **Multiple entities test:** Monitor handles multiple entities correctly
+6. **Async integration test:** Verify event subscription and handling works correctly
 
 ## Performance Considerations
 
 - Monitors run every frame - keep update logic minimal
 - Use `ServiceRegistry` for service access, avoid scene tree lookups
 - Consider `ShouldUpdate` property if monitor needs to be enabled/disabled
+- **Async events** - Minimize work in event handlers to avoid blocking background threads
+- **Event subscription overhead** - Only subscribe to necessary events, unsubscribe in cleanup

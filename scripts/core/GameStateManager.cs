@@ -258,10 +258,10 @@ namespace KBTV.Core
 			{
 				GD.Print("GameStateManager: Playing queued outro music");
 				var audioPlayer = ServiceRegistry.Instance.EventBus as IDialoguePlayer;
-				if (audioPlayer != null)
+if (audioPlayer != null)
 				{
-					var bumperLine = BroadcastLine.Music();
-					audioPlayer.PlayLineAsync(bumperLine);
+					var bumperItem = new BroadcastItem("Bumper_Music", BroadcastItemType.Music, "Bumper Music", duration: 4.0f);
+					audioPlayer.PlayBroadcastItemAsync(bumperItem);
 
 					// Wait for bumper to complete (4 seconds for music lines)
 					await ToSignal(GetTree().CreateTimer(4f), "timeout");
@@ -309,13 +309,13 @@ namespace KBTV.Core
 			var dialoguePlayer = ServiceRegistry.Instance.EventBus as IDialoguePlayer;
 			if (dialoguePlayer != null)
 			{
-				var outroLine = BroadcastLine.OutroMusic();
+var outroItem = new BroadcastItem("OUTRO_MUSIC", BroadcastItemType.Music, "Outro Bumper Music", duration: 4.0f);
 				GD.Print("GameStateManager: Playing outro music");
 
 				// Subscribe to completion event
 				void OnOutroCompleted(AudioCompletedEvent @event)
 				{
-					if (@event.LineId == outroLine.SpeakerId)
+					if (@event.LineId == outroItem.Id)
 					{
 						GD.Print("GameStateManager: Outro music completed, advancing to PostShow");
 						ServiceRegistry.Instance.EventBus.Unsubscribe<AudioCompletedEvent>(OnOutroCompleted);
@@ -323,8 +323,8 @@ namespace KBTV.Core
 					}
 				}
 
-				ServiceRegistry.Instance.EventBus.Subscribe<AudioCompletedEvent>(OnOutroCompleted);
-				dialoguePlayer.PlayLineAsync(outroLine);
+ServiceRegistry.Instance.EventBus.Subscribe<AudioCompletedEvent>(OnOutroCompleted);
+				dialoguePlayer.PlayBroadcastItemAsync(outroItem);
 			}
 			else
 			{
