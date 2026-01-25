@@ -214,7 +214,7 @@ namespace KBTV.Dialogue
         {
             if (_timers.TryGetValue(eventType, out var timer))
             {
-                return timer.TimeLeft;
+                return (float)timer.TimeLeft;
             }
             return 0f;
         }

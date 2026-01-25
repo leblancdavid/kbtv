@@ -255,7 +255,7 @@ namespace KBTV.Dialogue
 
         // Executable creation methods
         private BroadcastExecutable CreateShowStartingExecutable() => 
-            new TransitionExecutable("show_start", "Show is starting...", "res://assets/audio/music/intro_music.wav", 3.0f);
+            new TransitionExecutable("show_start", "Show is starting...", 3.0f, "res://assets/audio/music/intro_music.wav");
 
         private BroadcastExecutable CreateShowOpeningExecutable() => 
             new MusicExecutable("show_opening", "Show opening music", "res://assets/audio/music/intro_music.wav", 5.0f);
@@ -268,18 +268,24 @@ namespace KBTV.Dialogue
             var onAirCaller = _callerRepository.OnAirCaller;
             if (onAirCaller != null)
             {
-                var arc = _arcRepository.GetRandomArcForTopic(onAirCaller.Topic, onAirCaller.Legitimacy);
-                if (arc != null)
+                // Convert string topic to ShowTopic enum
+                var topic = ShowTopicExtensions.ParseTopic(onAirCaller.ActualTopic);
+                if (topic.HasValue)
                 {
-                    return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc);
+                    var arc = _arcRepository.GetRandomArcForTopic(topic.Value, onAirCaller.Legitimacy);
+                    if (arc != null)
+                    {
+                        return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc);
+                    }
                 }
             }
 
-            // Fallback to Vern dialogue
-            var vernLines = _vernDialogue.Lines;
-            if (vernLines != null && vernLines.Length > 0)
+            // Fallback to Vern dialogue - use introduction lines as fallback
+            var vernLines = _vernDialogue.IntroductionLines;
+            if (vernLines != null && vernLines.Count > 0)
             {
-                var randomLine = vernLines[GD.RandRange(0, vernLines.Length)];
+                var randomIndex = GD.RandRange(0, vernLines.Count - 1);
+                var randomLine = vernLines[randomIndex];
                 return new DialogueExecutable("vern_fallback", randomLine.Text, "Vern");
             }
 
@@ -288,13 +294,13 @@ namespace KBTV.Dialogue
         }
 
         private BroadcastExecutable CreateBetweenCallersExecutable() => 
-            new TransitionExecutable("between_callers", "Transitioning between callers", "res://assets/audio/bumpers/transition.wav", 4.0f);
+            new TransitionExecutable("between_callers", "Transitioning between callers", 4.0f, "res://assets/audio/bumpers/transition.wav");
 
         private BroadcastExecutable CreateDeadAirExecutable() => 
-            new TransitionExecutable("dead_air", "Dead air filler", "res://assets/audio/bumpers/dead_air.wav", 8.0f);
+            new TransitionExecutable("dead_air", "Dead air filler", 8.0f, "res://assets/audio/bumpers/dead_air.wav");
 
         private BroadcastExecutable CreateReturnFromBreakExecutable() => 
-            new TransitionExecutable("break_return", "Returning from break", "res://assets/audio/bumpers/return.wav", 3.0f);
+            new TransitionExecutable("break_return", "Returning from break", 3.0f, "res://assets/audio/bumpers/return.wav");
 
         private BroadcastExecutable CreateShowClosingExecutable() => 
             new MusicExecutable("show_closing", "Show closing music", "res://assets/audio/music/outro_music.wav", 5.0f);
@@ -302,7 +308,7 @@ namespace KBTV.Dialogue
         private IEnumerable<BroadcastExecutable> CreateAdBreakExecutables()
         {
             var listenerManager = ServiceRegistry.Instance.ListenerManager;
-            var listenerCount = listenerManager != null ? listenerManager.ListenerCount : 100;
+            var listenerCount = listenerManager != null ? listenerManager.CurrentListeners : 100;
             var adCount = Math.Max(1, listenerCount / 50); // 1 ad per 50 listeners
 
             for (int i = 0; i < adCount; i++)

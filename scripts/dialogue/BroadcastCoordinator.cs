@@ -44,9 +44,15 @@ namespace KBTV.Dialogue
     private AsyncBroadcastLoop _asyncLoop = null!;
     private ICallerRepository _repository = null!;
     private bool _isBroadcastActive = false;
+    private bool _isOutroMusicQueued = false;
+    private string _currentAdSponsor = "";
 
     // Legacy interface compatibility
     public BroadcastState CurrentState => GetLegacyState();
+    
+    // Missing properties for compatibility
+    public bool IsOutroMusicQueued => _isOutroMusicQueued;
+    public string CurrentAdSponsor => _currentAdSponsor;
 
     public event Action? OnBreakTransitionCompleted;
 
@@ -227,6 +233,56 @@ namespace KBTV.Dialogue
                 AsyncBroadcastState.ShowEnding => BroadcastState.ShowEnding,
                 _ => BroadcastState.Idle
             };
+        }
+
+        /// <summary>
+        /// Queue the show end for outro music playback.
+        /// </summary>
+        public void QueueShowEnd()
+        {
+            GD.Print("BroadcastCoordinator: QueueShowEnd called - setting outro music queued flag");
+            _isOutroMusicQueued = true;
+        }
+
+        /// <summary>
+        /// Get the next broadcast line for display.
+        /// Compatibility method for legacy UI components.
+        /// </summary>
+        public BroadcastLine GetNextLine()
+        {
+            // For now, return a placeholder line
+            // In the future, this should integrate with the async loop
+            if (_repository?.OnAirCaller != null)
+            {
+                return BroadcastLine.VernDialogue("Broadcast in progress...", ConversationPhase.Intro, null, 0, "vern");
+            }
+            return BroadcastLine.None();
+        }
+
+        /// <summary>
+        /// Set the current ad sponsor for display.
+        /// </summary>
+        public void SetCurrentAdSponsor(string sponsor)
+        {
+            _currentAdSponsor = sponsor ?? "";
+        }
+
+        /// <summary>
+        /// Handle caller going on air.
+        /// </summary>
+        public void OnCallerOnAir(Caller caller)
+        {
+            // This would be handled by the async loop in the future
+            GD.Print($"BroadcastCoordinator: OnCallerOnAir called for {caller?.Name}");
+        }
+
+        /// <summary>
+        /// Handle caller on air ending.
+        /// </summary>
+        public void OnCallerOnAirEnded(Caller caller)
+        {
+            // This would be handled by the async loop in the future  
+            GD.Print($"BroadcastCoordinator: OnCallerOnAirEnded called for {caller?.Name}");
         }
 
         /// <summary>

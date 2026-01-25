@@ -101,8 +101,8 @@ private string GetDisplayText()
             {
                 // This is a simplified version - in practice, we'd track which line index
                 // we're on in conversation
-                var lines = _arc.Lines;
-                if (lines != null && lines.Length > 0)
+                var lines = _arc.Dialogue;
+                if (lines != null && lines.Count > 0)
                 {
                     return lines[0].Text; // Return first line for now
                 }
@@ -111,12 +111,23 @@ private string GetDisplayText()
             return "Dialogue line";
         }
 
+        private string GetSpeakerName()
+        {
+            if (_caller != null && _arc != null)
+            {
+                // For caller dialogue, use caller's name
+                return _caller.Name;
+            }
+            // For Vern dialogue, use the speaker field
+            return _speaker ?? "UNKNOWN";
+        }
+
         private string? GetCallerAudioPath(Caller caller, ConversationArc arc)
         {
             // Generate audio path based on conversation arc and caller
-            var topicName = caller.Topic.ToString();
+            var topicName = ShowTopicExtensions.ParseTopic(caller.ActualTopic)?.ToString() ?? "Ghosts";
             var arcId = arc.ArcId;
-            var gender = caller.Gender.ToString().ToLower();
+            var gender = arc.CallerGender?.ToLower() ?? "male";
             
             // This would need to match actual line index in the conversation
             // For now, we'll use a generic pattern

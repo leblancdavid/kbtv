@@ -40,8 +40,9 @@ namespace KBTV.Tests.Unit.Ads
             );
 
             // Since we can't easily test the callbacks without mocking timers,
-            // we just verify the object is created successfully
+            // we verify callbacks are set and the object is created successfully
             AssertThat(scheduler != null);
+            AssertThat(!windowCalled && !graceCalled && !imminentCalled && !breakCalled); // All false initially
         }
     }
 }
