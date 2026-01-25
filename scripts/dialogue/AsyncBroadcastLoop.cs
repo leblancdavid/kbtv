@@ -17,12 +17,13 @@ namespace KBTV.Dialogue
     [GlobalClass]
     public partial class AsyncBroadcastLoop : Node
     {
-        private BroadcastStateManager _stateManager = null!;
-        private BroadcastTimer _broadcastTimer = null!;
-        private CancellationTokenSource? _cancellationTokenSource;
-        private Task? _broadcastTask;
-        private bool _isRunning = false;
-        private BroadcastExecutable? _currentExecutable;
+    private BroadcastStateManager _stateManager = null!;
+    private BroadcastTimer _broadcastTimer = null!;
+    private CancellationTokenSource? _cancellationTokenSource;
+    private Task? _broadcastTask;
+    private bool _isRunning = false;
+    private BroadcastExecutable? _currentExecutable;
+    private readonly object _lock = new object();
 
         public bool IsRunning => _isRunning;
         public BroadcastExecutable? CurrentExecutable => _currentExecutable;
@@ -37,19 +38,45 @@ namespace KBTV.Dialogue
         /// </summary>
         private void Initialize()
         {
-            var callerRepository = ServiceRegistry.Instance.CallerRepository;
-            var arcRepository = ServiceRegistry.Instance.ArcRepository;
-            
-            // Get VernDialogue from Template repository
-            var vernDialogueLoader = new VernDialogueLoader();
-            vernDialogueLoader.LoadDialogue();
-            var vernDialogue = vernDialogueLoader.VernDialogue;
+            if (!ServiceRegistry.IsInitialized)
+            {
+                GD.PrintErr("AsyncBroadcastLoop: ServiceRegistry not initialized, deferring initialization");
+                CallDeferred(nameof(InitializeWithServices));
+                return;
+            }
 
-            _stateManager = new BroadcastStateManager(callerRepository, arcRepository, vernDialogue);
-            _broadcastTimer = new BroadcastTimer();
-            AddChild(_broadcastTimer);
+            InitializeWithServices();
+        }
 
-            GD.Print("AsyncBroadcastLoop: Initialized successfully");
+        private void InitializeWithServices()
+        {
+            if (!ServiceRegistry.IsInitialized)
+            {
+                GD.PrintErr("AsyncBroadcastLoop: ServiceRegistry still not initialized, retrying...");
+                CallDeferred(nameof(InitializeWithServices));
+                return;
+            }
+
+            try
+            {
+                var callerRepository = ServiceRegistry.Instance.CallerRepository;
+                var arcRepository = ServiceRegistry.Instance.ArcRepository;
+                
+                // Get VernDialogue from Template repository
+                var vernDialogueLoader = new VernDialogueLoader();
+                vernDialogueLoader.LoadDialogue();
+                var vernDialogue = vernDialogueLoader.VernDialogue;
+
+                _stateManager = new BroadcastStateManager(callerRepository, arcRepository, vernDialogue);
+                _broadcastTimer = new BroadcastTimer();
+                AddChild(_broadcastTimer);
+
+                GD.Print("AsyncBroadcastLoop: Initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"AsyncBroadcastLoop: Error during initialization: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -57,14 +84,22 @@ namespace KBTV.Dialogue
         /// </summary>
         public async Task StartBroadcastAsync(float showDuration = 600.0f)
         {
-            if (_isRunning)
+            lock (_lock)
             {
-                GD.PrintErr("AsyncBroadcastLoop: Broadcast is already running");
-                return;
-            }
+                if (_isRunning)
+                {
+                    GD.PrintErr("AsyncBroadcastLoop: Broadcast is already running");
+                    return;
+                }
 
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource = new CancellationTokenSource();
+                // Cancel and dispose old token AFTER creating new one to prevent race conditions
+                var oldToken = _cancellationTokenSource;
+                _cancellationTokenSource = new CancellationTokenSource();
+                
+                // Now safely cancel and dispose the old token
+                oldToken?.Cancel();
+                oldToken?.Dispose();
+            }
 
             try
             {
@@ -81,7 +116,10 @@ namespace KBTV.Dialogue
                 else
                 {
                     GD.PrintErr("AsyncBroadcastLoop: No initial executable available");
-                    _isRunning = false;
+                    lock (_lock)
+                    {
+                        _isRunning = false;
+                    }
                 }
             }
             catch (OperationCanceledException)
@@ -94,7 +132,10 @@ namespace KBTV.Dialogue
             }
             finally
             {
-                StopBroadcast();
+                lock (_lock)
+                {
+                    StopBroadcastUnsafe();
+                }
             }
         }
 
@@ -168,8 +209,8 @@ namespace KBTV.Dialogue
                 }
                 else
                 {
-                    // Fire-and-forget execution
-                    var _ = Task.Run(() => executable.ExecuteAsync(cancellationToken), cancellationToken);
+                    // Await the background task to prevent token disposal issues
+                    await Task.Run(() => executable.ExecuteAsync(cancellationToken), cancellationToken);
                 }
             }
             catch (OperationCanceledException)
@@ -187,9 +228,20 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Stop the broadcast loop.
+        /// Stop the broadcast loop (thread-safe).
         /// </summary>
         public void StopBroadcast()
+        {
+            lock (_lock)
+            {
+                StopBroadcastUnsafe();
+            }
+        }
+
+        /// <summary>
+        /// Internal unsafe broadcast stop method (caller must hold lock).
+        /// </summary>
+        private void StopBroadcastUnsafe()
         {
             if (!_isRunning) return;
 
@@ -232,15 +284,18 @@ namespace KBTV.Dialogue
         /// </summary>
         public void InterruptBroadcast(BroadcastInterruptionReason reason)
         {
-            if (!_isRunning) return;
+            lock (_lock)
+            {
+                if (!_isRunning) return;
 
-            GD.Print($"AsyncBroadcastLoop: Interrupting broadcast - {reason}");
+                GD.Print($"AsyncBroadcastLoop: Interrupting broadcast - {reason}");
 
-            _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource?.Cancel();
 
-            // Publish interruption event
-            var interruptionEvent = new BroadcastInterruptionEvent(reason);
-            ServiceRegistry.Instance.EventBus.Publish(interruptionEvent);
+                // Publish interruption event
+                var interruptionEvent = new BroadcastInterruptionEvent(reason);
+                ServiceRegistry.Instance.EventBus.Publish(interruptionEvent);
+            }
         }
 
         /// <summary>
@@ -269,7 +324,10 @@ namespace KBTV.Dialogue
 
         public override void _ExitTree()
         {
-            StopBroadcast();
+            lock (_lock)
+            {
+                StopBroadcastUnsafe();
+            }
             base._ExitTree();
         }
     }

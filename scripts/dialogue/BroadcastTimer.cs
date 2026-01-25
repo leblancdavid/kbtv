@@ -46,17 +46,41 @@ namespace KBTV.Dialogue
     public partial class BroadcastTimer : Node
     {
         private readonly Dictionary<BroadcastTimingEventType, Timer> _timers = new();
-        private readonly EventBus _eventBus;
+        private EventBus _eventBus = null!;
         private bool _isShowActive = false;
 
         public BroadcastTimer()
         {
-            _eventBus = ServiceRegistry.Instance.EventBus;
+            // ServiceRegistry access moved to _Ready() to avoid initialization order issues
         }
 
         public override void _Ready()
         {
-            CreateTimers();
+            // Initialize EventBus after ServiceRegistry is fully initialized
+            if (ServiceRegistry.IsInitialized)
+            {
+                _eventBus = ServiceRegistry.Instance.EventBus;
+                CreateTimers();
+            }
+            else
+            {
+                GD.PrintErr("BroadcastTimer: ServiceRegistry not initialized, deferring timer creation");
+                CallDeferred(nameof(InitializeWithServices));
+            }
+        }
+
+        private void InitializeWithServices()
+        {
+            if (ServiceRegistry.IsInitialized)
+            {
+                _eventBus = ServiceRegistry.Instance.EventBus;
+                CreateTimers();
+            }
+            else
+            {
+                GD.PrintErr("BroadcastTimer: ServiceRegistry still not initialized, retrying...");
+                CallDeferred(nameof(InitializeWithServices));
+            }
         }
 
         /// <summary>
@@ -68,14 +92,14 @@ namespace KBTV.Dialogue
             CreateTimer(BroadcastTimingEventType.Break20Seconds, 20.0f, false);
             CreateTimer(BroadcastTimingEventType.Break10Seconds, 10.0f, false);
             CreateTimer(BroadcastTimingEventType.Break5Seconds, 5.0f, false);
-            CreateTimer(BroadcastTimingEventType.Break0Seconds, 0.0f, false);
+            CreateTimer(BroadcastTimingEventType.Break0Seconds, 0.0f, false); // Will be set to 0.001f for Godot compatibility
             
             // Show end timer
             CreateTimer(BroadcastTimingEventType.ShowEnd, 600.0f, false); // 10 minutes default
             
             // Ad break timers (configured as needed)
-            CreateTimer(BroadcastTimingEventType.AdBreakStart, 0.0f, false);
-            CreateTimer(BroadcastTimingEventType.AdBreakEnd, 0.0f, false);
+            CreateTimer(BroadcastTimingEventType.AdBreakStart, 0.0f, false); // Will be set to 0.001f for Godot compatibility
+            CreateTimer(BroadcastTimingEventType.AdBreakEnd, 0.0f, false); // Will be set to 0.001f for Godot compatibility
         }
 
         /// <summary>
@@ -83,6 +107,12 @@ namespace KBTV.Dialogue
         /// </summary>
         private void CreateTimer(BroadcastTimingEventType eventType, float waitTime, bool oneShot = true)
         {
+            // Godot Timer requires WaitTime > 0.0f. For zero-wait timers, use minimum positive value.
+            if (waitTime <= 0.0f)
+            {
+                waitTime = 0.001f; // 1ms - smallest practical timer duration
+            }
+
             var timer = new Timer
             {
                 WaitTime = waitTime,

@@ -46,6 +46,7 @@ namespace KBTV.Dialogue
     private bool _isBroadcastActive = false;
     private bool _isOutroMusicQueued = false;
     private string _currentAdSponsor = "";
+    private readonly object _lock = new object();
 
     // Legacy interface compatibility
     public BroadcastState CurrentState => GetLegacyState();
@@ -64,8 +65,7 @@ namespace KBTV.Dialogue
         private void InitializeWithServices()
         {
             _repository = ServiceRegistry.Instance.CallerRepository;
-            _asyncLoop = new AsyncBroadcastLoop();
-            AddChild(_asyncLoop);
+            _asyncLoop = ServiceRegistry.Instance.AsyncBroadcastLoop;
 
             // Subscribe to events
             var eventBus = ServiceRegistry.Instance.EventBus;
@@ -86,26 +86,38 @@ namespace KBTV.Dialogue
 
     public void OnLiveShowStarted()
         {
-            GD.Print("BroadcastCoordinator: Starting live show with async broadcast loop");
-            
-            _isBroadcastActive = true;
-            
-            // Get show duration from TimeManager
-            var timeManager = ServiceRegistry.Instance.TimeManager;
-            var showDuration = timeManager?.ShowDuration ?? 600.0f; // 10 minutes default
-            
-            // Start async broadcast loop
-            _ = Task.Run(async () => {
-                try
+            lock (_lock)
+            {
+                if (_isBroadcastActive)
                 {
-                    await _asyncLoop.StartBroadcastAsync(showDuration);
+                    GD.Print("BroadcastCoordinator: Live show already active, ignoring start request");
+                    return;
                 }
-                catch (Exception ex)
-                {
-                    GD.PrintErr($"BroadcastCoordinator: Error in async broadcast: {ex.Message}");
-                    _isBroadcastActive = false;
-                }
-            });
+
+                GD.Print("BroadcastCoordinator: Starting live show with async broadcast loop");
+                
+                _isBroadcastActive = true;
+                
+                // Get show duration from TimeManager
+                var timeManager = ServiceRegistry.Instance.TimeManager;
+                var showDuration = timeManager?.ShowDuration ?? 600.0f; // 10 minutes default
+                
+                // Start async broadcast loop
+                _ = Task.Run(async () => {
+                    try
+                    {
+                        await _asyncLoop.StartBroadcastAsync(showDuration);
+                    }
+                    catch (Exception ex)
+                    {
+                        GD.PrintErr($"BroadcastCoordinator: Error in async broadcast: {ex.Message}");
+                        lock (_lock)
+                        {
+                            _isBroadcastActive = false;
+                        }
+                    }
+                });
+            }
         }
 
         /// <summary>
