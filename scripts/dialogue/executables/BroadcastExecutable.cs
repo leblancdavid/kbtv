@@ -171,12 +171,30 @@ namespace KBTV.Dialogue
         public void Cleanup()
         {
             _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
             
             if (_audioPlayer != null)
             {
                 _audioPlayer.Finished -= OnAudioFinished;
                 _audioPlayer.Stop();
+            }
+
+            // Delay disposal slightly to allow cancellation to propagate
+            if (_cancellationTokenSource != null)
+            {
+                var tokenToDispose = _cancellationTokenSource;
+                _cancellationTokenSource = null;
+                
+                // Dispose after a brief delay to allow ongoing operations to complete
+                Task.Delay(100).ContinueWith(_ => {
+                    try
+                    {
+                        tokenToDispose.Dispose();
+                    }
+                    catch (Exception ex)
+                    {
+                        GD.PrintErr($"BroadcastExecutable: Error disposing token: {ex.Message}");
+                    }
+                });
             }
         }
 

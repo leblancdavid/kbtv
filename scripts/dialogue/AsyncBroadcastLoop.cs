@@ -18,7 +18,7 @@ namespace KBTV.Dialogue
     public partial class AsyncBroadcastLoop : Node
     {
     private BroadcastStateManager _stateManager = null!;
-    private BroadcastTimer _broadcastTimer = null!;
+    private ThreadSafeBroadcastTimer _broadcastTimer = null!;
     private CancellationTokenSource? _cancellationTokenSource;
     private Task? _broadcastTask;
     private bool _isRunning = false;
@@ -71,7 +71,7 @@ namespace KBTV.Dialogue
                 var vernDialogue = vernDialogueLoader.VernDialogue;
 
                 _stateManager = new BroadcastStateManager(callerRepository, arcRepository, vernDialogue);
-                _broadcastTimer = new BroadcastTimer();
+                _broadcastTimer = new ThreadSafeBroadcastTimer();
                 AddChild(_broadcastTimer);
 
                 GD.Print("AsyncBroadcastLoop: Initialized successfully");
@@ -137,7 +137,7 @@ namespace KBTV.Dialogue
             {
                 lock (_lock)
                 {
-                    StopBroadcastUnsafe();
+                    _ = Task.Run(async () => await StopBroadcastUnsafeAsync());
                 }
             }
         }
@@ -151,6 +151,13 @@ namespace KBTV.Dialogue
 
             while (!cancellationToken.IsCancellationRequested && _stateManager.IsShowActive)
             {
+                // Check if our internal token is still valid
+                if (_cancellationTokenSource?.IsCancellationRequested == true)
+                {
+                    GD.Print("AsyncBroadcastLoop: Internal cancellation token cancelled, ending loop");
+                    break;
+                }
+
                 try
                 {
                     // Get next executable from state manager
@@ -172,8 +179,14 @@ namespace KBTV.Dialogue
                     // Small delay between executables
                     await Task.Delay(100, cancellationToken);
                 }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    GD.Print("AsyncBroadcastLoop: Broadcast loop cancelled by main token");
+                    break;
+                }
                 catch (OperationCanceledException)
                 {
+                    GD.Print("AsyncBroadcastLoop: Broadcast loop cancelled by internal token");
                     break;
                 }
                 catch (Exception ex)
@@ -192,6 +205,16 @@ namespace KBTV.Dialogue
         /// </summary>
         private async Task ExecuteExecutableAsync(BroadcastExecutable executable, CancellationToken cancellationToken)
         {
+            // Capture current token to avoid race conditions
+            var currentToken = _cancellationTokenSource?.Token ?? cancellationToken;
+            
+            // Check if token is already cancelled
+            if (currentToken.IsCancellationRequested)
+            {
+                GD.Print("AsyncBroadcastLoop: Cancellation token already cancelled, skipping execution");
+                return;
+            }
+
             if (_currentExecutable != null)
             {
                 _currentExecutable.Cleanup();
@@ -208,17 +231,22 @@ namespace KBTV.Dialogue
                 // Execute the executable (async/await based on RequiresAwait flag)
                 if (executable.RequiresAwait)
                 {
-                    await executable.ExecuteAsync(cancellationToken);
+                    await executable.ExecuteAsync(currentToken);
                 }
                 else
                 {
                     // Await the background task to prevent token disposal issues
-                    await Task.Run(() => executable.ExecuteAsync(cancellationToken), cancellationToken);
+                    await Task.Run(() => executable.ExecuteAsync(currentToken), currentToken);
                 }
+            }
+            catch (OperationCanceledException) when (currentToken.IsCancellationRequested)
+            {
+                GD.Print($"AsyncBroadcastLoop: Executable {executable.Id} was cancelled by main loop");
+                throw;
             }
             catch (OperationCanceledException)
             {
-                GD.Print($"AsyncBroadcastLoop: Executable {executable.Id} was interrupted");
+                GD.Print($"AsyncBroadcastLoop: Executable {executable.Id} was cancelled by internal token");
                 throw;
             }
             finally
@@ -227,6 +255,17 @@ namespace KBTV.Dialogue
                 executable.Cleanup();
                 RemoveChild(executable);
                 _currentExecutable = null;
+            }
+        }
+
+        /// <summary>
+        /// Stop the broadcast loop (thread-safe).
+        /// </summary>
+        public async Task StopBroadcastAsync()
+        {
+            lock (_lock)
+            {
+                _ = Task.Run(async () => await StopBroadcastUnsafeAsync());
             }
         }
 
@@ -244,7 +283,7 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Internal unsafe broadcast stop method (caller must hold lock).
         /// </summary>
-        private void StopBroadcastUnsafe()
+        private async Task StopBroadcastUnsafeAsync()
         {
             if (!_isRunning) return;
 
@@ -265,14 +304,22 @@ namespace KBTV.Dialogue
                 _currentExecutable = null;
             }
 
-            // Wait for task to complete
-            try
+            // Wait for task to complete properly
+            if (_broadcastTask != null && !_broadcastTask.IsCompleted)
             {
-                _broadcastTask?.Wait(TimeSpan.FromSeconds(5));
-            }
-            catch (Exception ex)
-            {
-                GD.PrintErr($"AsyncBroadcastLoop: Error waiting for task completion: {ex.Message}");
+                try
+                {
+                    // Cancel first, then await with timeout
+                    await _broadcastTask.WaitAsync(TimeSpan.FromSeconds(5));
+                }
+                catch (TimeoutException)
+                {
+                    GD.Print("AsyncBroadcastLoop: Task timeout during shutdown");
+                }
+                catch (Exception ex)
+                {
+                    GD.PrintErr($"AsyncBroadcastLoop: Error waiting for task completion: {ex.Message}");
+                }
             }
 
             _cancellationTokenSource?.Dispose();
@@ -280,6 +327,15 @@ namespace KBTV.Dialogue
             _broadcastTask = null;
 
             GD.Print("AsyncBroadcastLoop: Broadcast stopped");
+        }
+
+        /// <summary>
+        /// Internal unsafe broadcast stop method (caller must hold lock).
+        /// </summary>
+        private void StopBroadcastUnsafe()
+        {
+            // Defer async cleanup to avoid blocking
+            _ = Task.Run(async () => await StopBroadcastUnsafeAsync());
         }
 
         /// <summary>
@@ -329,7 +385,7 @@ namespace KBTV.Dialogue
         {
             lock (_lock)
             {
-                StopBroadcastUnsafe();
+                _ = Task.Run(async () => await StopBroadcastUnsafeAsync());
             }
             base._ExitTree();
         }

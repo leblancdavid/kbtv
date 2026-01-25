@@ -363,7 +363,10 @@ public partial class ConversationMonitor : DomainMonitor
 - `scripts/dialogue/ConversationStateMachine.cs` - Pure functional state machine
 - `scripts/dialogue/IDialoguePlayer.cs` - Audio player interface
 - `scripts/dialogue/AudioDialoguePlayer.cs` - Event-driven audio implementation
+- `scripts/dialogue/ThreadSafeBroadcastTimer.cs` - Thread-safe timer wrapper for background thread operations
+- `scripts/dialogue/TimerOperation.cs` - Operation definitions for thread-safe timer operations
 - `docs/technical/MONITOR_PATTERN.md` - Full pattern documentation
+- `docs/technical/THREAD_SAFE_TIMER_PATTERN.md` - Thread-safety pattern documentation
 
 ### AsyncBroadcastLoop Pattern
 
@@ -433,6 +436,12 @@ private void HandleBroadcastItemStarted(BroadcastItemStartedEvent @event)
     DisplayCurrentItem(@event.Item);
 }
 ```
+
+**Thread Safety:**
+The AsyncBroadcastLoop uses `ThreadSafeBroadcastTimer` to ensure all timer operations are thread-safe:
+- Background threads can safely call timer API methods
+- Operations are queued and executed on main thread via CallDeferred
+- Prevents Godot threading violations while preserving async performance
 
 **State Management:**
 The AsyncBroadcastLoop uses `BroadcastStateManager` to track broadcast state:
