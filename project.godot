@@ -31,6 +31,8 @@ PostShowUIManager="res://scripts/ui/PostShowUIManager.cs"
 CallerGenerator="res://scripts/callers/CallerGenerator.cs"
 TranscriptRepository="res://scripts/dialogue/TranscriptRepository.cs"
 BroadcastCoordinator="res://scripts/dialogue/BroadcastCoordinator.cs"
+# BroadcastTimer="res://scripts/dialogue/BroadcastTimer.cs"
+# AsyncBroadcastLoop="res://scripts/dialogue/AsyncBroadcastLoop.cs"
 
 [display]
 

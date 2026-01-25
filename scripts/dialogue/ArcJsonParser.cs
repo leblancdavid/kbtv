@@ -94,6 +94,15 @@ namespace KBTV.Dialogue
                 turnIndex++;
             }
 
+            GD.Print($"[ArcJsonParser] ConvertDialogue: Created {dialogue.Count} ArcDialogueLine objects from {totalTurns} arcLines entries");
+            
+            // CRITICAL DEBUG: Check for pilot arc issue
+            if (dialogue.Count == 8 && totalTurns == 10)
+            {
+                GD.PrintErr("[ArcJsonParser] CRITICAL: Pilot arc has 10 entries but only 8 were converted!");
+                GD.PrintErr("[ArcJsonParser] This is the bug causing conversation to end early!");
+            }
+            
             return dialogue;
         }
 

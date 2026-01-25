@@ -5,518 +5,310 @@ using System.Collections.Generic;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
-using KBTV.Data;
 
 namespace KBTV.Dialogue
 {
     /// <summary>
-    /// State machine for managing broadcast flow and determining next broadcast items.
-    /// Replaces the complex BroadcastCoordinator + BroadcastStateManager logic.
+    /// Broadcast state for the async broadcast system.
     /// </summary>
-    public class BroadcastStateMachine
+    public enum AsyncBroadcastState
     {
-        private readonly ICallerRepository _repository;
-        private readonly BroadcastItemRegistry _itemRegistry;
-        private BroadcastState _currentState = BroadcastState.Idle;
+        Idle,
+        ShowStarting,
+        IntroMusic,
+        ShowOpening,
+        Conversation,
+        BetweenCallers,
+        AdBreak,
+        BreakReturn,
+        DeadAir,
+        ShowClosing,
+        ShowEnding
+    }
 
-        // Conversation state tracking
-        private int _currentConversationLineIndex = -1; // -1 = no active conversation
-        private string? _currentConversationArcId = null;
+    /// <summary>
+    /// State manager for determining which executable to deliver next.
+    /// Listens to timing events and manages state transitions between show phases.
+    /// Handles interruption logic for breaks, show ending, etc.
+    /// </summary>
+    public class BroadcastStateManager
+    {
+        private readonly ICallerRepository _callerRepository;
+        private readonly EventBus _eventBus;
+        private AsyncBroadcastState _currentState = AsyncBroadcastState.Idle;
+        private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
+        private bool _isShowActive = false;
 
-        // Ad break interruption state
-        private bool _isInBreakGracePeriod = false;
-    private bool _breakTransitionPending = false;
+        // Dependencies for executable creation
+        private readonly IArcRepository _arcRepository;
+        private readonly VernDialogueTemplate _vernDialogue;
 
-        public BroadcastState CurrentState => _currentState;
+        public AsyncBroadcastState CurrentState => _currentState;
+        public bool IsShowActive => _isShowActive;
 
-        public BroadcastStateMachine(ICallerRepository repository, BroadcastItemRegistry itemRegistry)
+        public BroadcastStateManager(
+            ICallerRepository callerRepository,
+            IArcRepository arcRepository,
+            VernDialogueTemplate vernDialogue)
         {
-            _repository = repository;
-            _itemRegistry = itemRegistry;
+            _callerRepository = callerRepository;
+            _arcRepository = arcRepository;
+            _vernDialogue = vernDialogue;
+            _eventBus = ServiceRegistry.Instance.EventBus;
+
+            // Subscribe to timing events
+            _eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
         }
 
         /// <summary>
-        /// Start the broadcast show.
+        /// Start the show and return the first executable.
         /// </summary>
-        public BroadcastItem? StartShow()
+        public BroadcastExecutable? StartShow()
         {
-            _currentState = BroadcastState.IntroMusic;
-            return GetNextItem();
+            _isShowActive = true;
+            _currentState = AsyncBroadcastState.ShowStarting;
+            
+            var firstExecutable = CreateShowStartingExecutable();
+            if (firstExecutable != null)
+            {
+                _pendingExecutables.Enqueue(firstExecutable);
+            }
+
+            GD.Print("BroadcastStateManager: Show started");
+            return firstExecutable;
         }
 
-        public BroadcastItem? HandleEvent(BroadcastEvent @event)
+        /// <summary>
+        /// Get the next executable to execute.
+        /// </summary>
+        public BroadcastExecutable? GetNextExecutable()
         {
-            return HandleItemCompleted(@event);
+            // If there are pending executables, return the first one
+            if (_pendingExecutables.Count > 0)
+            {
+                return _pendingExecutables.Dequeue();
+            }
+
+            // Determine next executable based on current state
+            return CreateNextExecutableForState();
         }
 
-        public BroadcastItem? HandleInterruption(BroadcastInterruptionEvent @event)
+        /// <summary>
+        /// Handle timing events that affect state transitions.
+        /// </summary>
+        private void HandleTimingEvent(BroadcastTimingEvent timingEvent)
         {
-            GD.Print($"BroadcastStateManager: Handling interruption - {@event.Reason}");
-
-            switch (@event.Reason)
+            switch (timingEvent.Type)
             {
-                case BroadcastInterruptionReason.BreakStarting:
-                    // Enter break grace period - next conversation completion will trigger transition
-                    _isInBreakGracePeriod = true;
-                    GD.Print("BroadcastStateManager: Entered break grace period");
-                    return null; // Don't interrupt current item, wait for natural completion
-
-                case BroadcastInterruptionReason.BreakImminent:
-                    // Check if a break transition is already pending (triggered by grace period)
-                    if (_breakTransitionPending)
-                    {
-                        GD.Print("BroadcastStateManager: Break transition already pending, imminent warning will wait silently");
-                        return null; // Don't trigger duplicate transition
-                    }
-                    // Immediate hard interrupt - return transition item now
-                    _isInBreakGracePeriod = false; // Reset for next break
-                    _breakTransitionPending = true; // Flag that next transition completion should trigger break
-                    GD.Print("BroadcastStateManager: Break imminent - immediate transition");
-                    return _itemRegistry.GetVernItem("break_transition", GetVernCurrentMood());
-
-                case BroadcastInterruptionReason.BreakEnding:
-                    // Break is ending, return to normal conversation flow
-                    _isInBreakGracePeriod = false;
-                    GD.Print("BroadcastStateManager: Exited break grace period");
-                    return null;
-
-                default:
-                    GD.Print($"BroadcastStateManager: Unhandled interruption reason {@event.Reason}");
-                    return null;
-            }
-        }
-
-        private BroadcastItem? GetNextItem()
-        {
-            var currentMood = GetVernCurrentMood();
-
-            switch (_currentState)
-            {
-                case BroadcastState.Idle:
-                    return null;
-                case BroadcastState.IntroMusic:
-                    return _itemRegistry.GetItem("music_intro");
-                case BroadcastState.ShowOpening:
-                    return _itemRegistry.GetVernItem("opening", currentMood);
-                case BroadcastState.Conversation:
-                    return GetNextConversationItem();
-                case BroadcastState.BetweenCallers:
-                    return _itemRegistry.GetVernItem("between_callers", currentMood);
-                case BroadcastState.DeadAirFiller:
-                    return _itemRegistry.GetVernItem("dead_air_filler", currentMood);
-                case BroadcastState.Break:
-                    return _itemRegistry.GetItem("ad_break");
-                case BroadcastState.ReturnFromBreak:
-                    return _itemRegistry.GetVernItem("return_from_break", currentMood);
-                case BroadcastState.ShowEnding:
-                    return _itemRegistry.GetItem("music_outro");
-                default:
-                    return null;
-            }
-        }
-
-        private VernMoodType GetVernCurrentMood()
-        {
-            // Get Vern's current mood from game state
-            var vernStats = ServiceRegistry.Instance?.GameStateManager?.VernStats;
-            if (vernStats != null)
-            {
-                return vernStats.CurrentMoodType;
-            }
-            return VernMoodType.Neutral; // Default fallback
-        }
-
-        private string GetVernCurrentMoodString()
-        {
-            return GetVernCurrentMood().ToString().ToLowerInvariant();
-        }
-
-        private string? ResolveAudioPath(string audioId, ConversationArc arc)
-        {
-            if (string.IsNullOrEmpty(audioId))
-            {
-                return null;
-            }
-
-            // Vern audio: res://assets/audio/voice/Vern/ConversationArcs/{topic}/{arcId}/{audioId}.mp3
-            string arcTopic = arc.Topic.ToString();
-            string audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{arcTopic}/{arc.ArcId}/{audioId}.mp3";
-
-            if (GD.Load<AudioStream>(audioPath) != null)
-            {
-                GD.Print($"BroadcastStateManager: Found Vern audio for {audioId} at {audioPath}");
-                return audioPath;
-            }
-
-            // No audio found - will use timer fallback
-            GD.PushWarning($"BroadcastStateManager: No Vern audio found for '{audioId}' at {audioPath} - using timer fallback");
-            return null;
-        }
-
-        private bool CanPutCallerOnAir()
-        {
-            // Check if we're in break window - don't put new callers on air during break window
-            var adManager = ServiceRegistry.Instance?.AdManager;
-            if (adManager != null && adManager.IsInBreakWindow)
-            {
-                GD.Print("BroadcastStateManager: Cannot put caller on air - in break window");
-                return false;
-            }
-            return true;
-        }
-
-
-
-        private BroadcastItem? GetNextConversationItem()
-        {
-            var caller = _repository.OnAirCaller;
-            if (caller == null || caller.ActualArc == null)
-            {
-                GD.PrintErr("BroadcastStateMachine.GetNextConversationItem: No on-air caller or arc");
-                return null;
-            }
-
-            var arc = caller.ActualArc;
-
-            // Check if we've reached the end of the conversation
-            if (_currentConversationLineIndex >= arc.Dialogue.Count)
-            {
-                GD.Print($"BroadcastStateMachine: Conversation ended for arc {arc.ArcId}");
-                _currentConversationLineIndex = -1;
-                _currentConversationArcId = null;
-                return null; // Conversation ended, let state machine handle next transition
-            }
-
-            // For the new schema, we need to get the line data from the arc's lines array
-            // The arc.Dialogue contains ArcDialogueLine objects created from the schema
-            var arcLine = arc.Dialogue[_currentConversationLineIndex];
-
-            // Get display text and audio id, selecting mood variant for Vern lines
-            string displayText = arcLine.Text;
-            string? audioId = arcLine.AudioId;
-
-            // For Vern lines with mood variants, select based on current mood
-            if (arcLine.Speaker == Speaker.Vern && arcLine.AudioIds.Count > 0)
-            {
-                var currentMood = GetVernCurrentMoodString();
-
-                // Try to get mood-specific text and audio
-                if (arcLine.AudioIds.TryGetValue(currentMood, out var moodAudioId))
-                {
-                    audioId = moodAudioId;
-                    if (arcLine.TextVariants.TryGetValue(currentMood, out var moodText))
-                    {
-                        displayText = moodText;
-                    }
-                }
-                else
-                {
-                    // Fallback to neutral or first available
-                    var fallbackMoods = new[] { "neutral", "tired", "energized", "irritated", "gruff", "amused", "focused" };
-                    foreach (var mood in fallbackMoods)
-                    {
-                        if (arcLine.AudioIds.TryGetValue(mood, out var fallbackAudioId))
-                        {
-                            audioId = fallbackAudioId;
-                            if (arcLine.TextVariants.TryGetValue(mood, out var fallbackText))
-                            {
-                                displayText = fallbackText;
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // Create BroadcastLine from arc data
-            BroadcastLine broadcastLine;
-            if (arcLine.Speaker == Speaker.Vern)
-            {
-                // Vern line with arc information for audio lookup
-                broadcastLine = BroadcastLine.VernDialogue(displayText, ConversationPhase.Probe,
-                    arc.ArcId, arcLine.ArcLineIndex, audioId ?? $"vern_fallback_{_currentConversationLineIndex}");
-            }
-            else
-            {
-                // Caller line
-                broadcastLine = BroadcastLine.CallerDialogue(displayText, caller.Name, caller.Id.ToString(),
-                    ConversationPhase.Probe, arc.ArcId, arc.CallerGender.ToLower(), arcLine.ArcLineIndex);
-            }
-
-            // Create BroadcastItem
-            var itemType = arcLine.Speaker == Speaker.Vern ? BroadcastItemType.VernLine : BroadcastItemType.CallerLine;
-
-            // Resolve audio path using the audioId
-            string? audioPath = null;
-            if (!string.IsNullOrEmpty(audioId))
-            {
-                if (arcLine.Speaker == Speaker.Vern)
-                {
-                    // Vern audio path
-                    audioPath = ResolveAudioPath(audioId, arc);
-                }
-                else
-                {
-                    // Caller audio path: res://assets/audio/voice/Callers/{topic}/{arcId}/{line.Id}.mp3
-                    string callerTopic = arc.Topic.ToString();
-                    string callerPath = $"res://assets/audio/voice/Callers/{callerTopic}/{arc.ArcId}/{audioId}.mp3";
-
-                    if (GD.Load<AudioStream>(callerPath) != null)
-                    {
-                        GD.Print($"BroadcastStateManager: Found Caller audio for {audioId} at {callerPath}");
-                        audioPath = callerPath;
-                    }
-                    else
-                    {
-                        GD.PushWarning($"BroadcastStateManager: No Caller audio found for '{audioId}' at {callerPath} - using timer fallback");
-                    }
-                }
-            }
-
-            var item = new BroadcastItem(
-                id: $"conversation_{arc.ArcId}_{_currentConversationLineIndex}",
-                type: itemType,
-                text: displayText,
-                audioPath: audioPath, // May be null - will use timer fallback
-                duration: 4.0f, // Default duration
-                metadata: broadcastLine // Store the BroadcastLine for AudioDialoguePlayer
-            );
-
-            // Advance to next line
-            _currentConversationLineIndex++;
-
-            GD.Print($"BroadcastStateMachine: Returning conversation item - {item.Id} ({item.Type}) - \"{displayText}\"");
-            return item;
-        }
-
-        private BroadcastItem? HandleItemCompleted(BroadcastEvent @event)
-        {
-            var itemId = @event.ItemId;
-            var item = @event.Item;
-
-            // Update state based on completed item
-            switch (_currentState)
-            {
-                case BroadcastState.IntroMusic:
-                    if (itemId == "music_intro")
-                    {
-                        _currentState = BroadcastState.ShowOpening;
-                        return GetNextItem();
-                    }
+                case BroadcastTimingEventType.ShowEnd:
+                    HandleShowEnding();
                     break;
-
-                case BroadcastState.ShowOpening:
-                    // After show opening completes, check for callers
-                    if (_repository.HasOnHoldCallers)
-                    {
-                        // Check if we can put caller on air (not in break window)
-                        if (CanPutCallerOnAir())
-                        {
-                            // Put next caller on air automatically
-                            var putOnAirResult = _repository.PutOnAir();
-                            if (putOnAirResult.IsSuccess)
-                            {
-                                // Initialize conversation state
-                                _currentConversationLineIndex = 0;
-                                _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
-
-                                _currentState = BroadcastState.Conversation;
-                                return GetNextConversationItem();
-                            }
-                            else
-                            {
-                                GD.PrintErr($"Failed to put caller on air: {putOnAirResult.ErrorMessage}");
-                                // Fallback to dead air filler
-                                _currentState = BroadcastState.DeadAirFiller;
-                                return _itemRegistry.GetNextDeadAirFiller();
-                            }
-                        }
-                        else
-                        {
-                            // In break window, go to dead air filler instead
-                            _currentState = BroadcastState.DeadAirFiller;
-                            return _itemRegistry.GetNextDeadAirFiller();
-                        }
-                    }
-                    else
-                    {
-                        // No callers waiting, start dead air filler
-                        _currentState = BroadcastState.DeadAirFiller;
-                        return _itemRegistry.GetNextDeadAirFiller();
-                    }
-
-                case BroadcastState.Conversation:
-                    // Check if this is a break transition completing - transition to break state
-                    if (_breakTransitionPending && item?.Type == BroadcastItemType.Transition)
-                    {
-                        GD.Print($"BroadcastStateManager: Break transition completed ({itemId}), transitioning to ad break");
-                        _breakTransitionPending = false; // Reset flag
-                        _currentState = BroadcastState.Break;
-                        return GetNextItem();
-                    }
-
-                    // Check whether the current arc finished after the last line.
-                    var currentCaller = _repository.OnAirCaller;
-                    bool endOfArc = false;
-                    if (currentCaller != null && currentCaller.ActualArc != null)
-                    {
-                        var arc = currentCaller.ActualArc;
-                        endOfArc = _currentConversationLineIndex >= arc.Dialogue.Count;
-                    }
-
-                    // If we're in break grace period and this is the end of current line, trigger transition
-                    if (_isInBreakGracePeriod && !endOfArc)
-                    {
-                        GD.Print("BroadcastStateManager: Grace period active, triggering break transition");
-                        _isInBreakGracePeriod = false; // Reset for next break
-                        _breakTransitionPending = true; // Flag that transition is pending
-                        return _itemRegistry.GetVernItem("break_transition", GetVernCurrentMood());
-                    }
-
-                    if (endOfArc)
-                    {
-                        // End the previous caller's on-air status BEFORE transitioning
-                        _repository.EndOnAir();
-                        
-                        // End of this caller's conversation: move to BetweenCallers if possible
-                        if (_repository.HasOnHoldCallers)
-                        {
-                            _currentState = BroadcastState.BetweenCallers;
-                            var mood = GetVernCurrentMood();
-                            return _itemRegistry.GetVernItem("between_callers", mood);
-                        }
-                        else
-                        {
-                            // No callers waiting, go to dead air filler
-                            _currentState = BroadcastState.DeadAirFiller;
-                            return _itemRegistry.GetNextDeadAirFiller();
-                        }
-                    }
-                    else
-                    {
-                        // Conversation continues with current caller
-                        if (currentCaller != null)
-                        {
-                            return GetNextConversationItem();
-                        }
-                        else
-                        {
-                            // No active caller, fall back to BetweenCallers or DeadAir
-                            if (_repository.HasOnHoldCallers)
-                            {
-                                _currentState = BroadcastState.BetweenCallers;
-                                var mood = GetVernCurrentMood();
-                                return _itemRegistry.GetVernItem("between_callers", mood);
-                            }
-                            else
-                            {
-                                _currentState = BroadcastState.DeadAirFiller;
-                                return _itemRegistry.GetNextDeadAirFiller();
-                            }
-                        }
-                    }
-
-                case BroadcastState.BetweenCallers:
-                    // Between-callers transition complete, put next caller on air
-                    if (_repository.HasOnHoldCallers)
-                    {
-                        // Check if we can put caller on air (not in break window)
-                        if (CanPutCallerOnAir())
-                        {
-                            var putOnAirResult = _repository.PutOnAir();
-                            if (putOnAirResult.IsSuccess)
-                            {
-                                // Initialize conversation state for new caller
-                                _currentConversationLineIndex = 0;
-                                _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
-
-                                _currentState = BroadcastState.Conversation;
-                                return GetNextConversationItem();
-                            }
-                            else
-                            {
-                                GD.PrintErr($"Failed to put caller on air after between-callers: {putOnAirResult.ErrorMessage}");
-                                // Fallback to dead air filler
-                                _currentState = BroadcastState.DeadAirFiller;
-                                return _itemRegistry.GetNextDeadAirFiller();
-                            }
-                        }
-                        else
-                        {
-                            // In break window, continue with dead air filler
-                            _currentState = BroadcastState.DeadAirFiller;
-                            return _itemRegistry.GetNextDeadAirFiller();
-                        }
-                    }
-                    else
-                    {
-                        // No callers were available when between-callers started
-                        _currentState = BroadcastState.DeadAirFiller;
-                        return _itemRegistry.GetNextDeadAirFiller();
-                    }
-
-                case BroadcastState.DeadAirFiller:
-                    // Check if we're in break grace period - trigger transition instead of continuing filler
-                    if (_isInBreakGracePeriod)
-                    {
-                        GD.Print("BroadcastStateManager: Dead air filler completed during grace period, triggering break transition");
-                        _isInBreakGracePeriod = false; // Reset for next break
-                        _breakTransitionPending = true; // Flag that transition is pending
-                        return _itemRegistry.GetVernItem("break_transition", GetVernCurrentMood());
-                    }
-
-                    // Dead air filler cycle complete, check if callers arrived
-                    if (_repository.HasOnHoldCallers)
-                    {
-                        // Check if we can put caller on air (not in break window)
-                        if (CanPutCallerOnAir())
-                        {
-                            var putOnAirResult = _repository.PutOnAir();
-                            if (putOnAirResult.IsSuccess)
-                            {
-                                // Initialize conversation state for new caller
-                                _currentConversationLineIndex = 0;
-                                _currentConversationArcId = putOnAirResult.Value.ActualArc?.ArcId;
-
-                                _currentState = BroadcastState.Conversation;
-                                return GetNextConversationItem();
-                            }
-                            else
-                            {
-                                GD.PrintErr($"Failed to put caller on air from dead air filler: {putOnAirResult.ErrorMessage}");
-                                // Continue with filler if put-on-air failed
-                                return _itemRegistry.GetNextDeadAirFiller();
-                            }
-                        }
-                        else
-                        {
-                            // In break window, continue with dead air filler
-                            return _itemRegistry.GetNextDeadAirFiller();
-                        }
-                    }
-                    else
-                    {
-                        // No callers, continue dead air filler cycle
-                        return _itemRegistry.GetNextDeadAirFiller();
-                     }
- 
-                 case BroadcastState.Break:
-                     // Ad break completed, return to conversation
-                     _currentState = BroadcastState.ReturnFromBreak;
-                     return GetNextItem();
-
-                 case BroadcastState.ReturnFromBreak:
-                    _currentState = BroadcastState.Conversation;
-                    return GetNextConversationItem();
+                case BroadcastTimingEventType.Break0Seconds:
+                    HandleBreakStarting();
+                    break;
+                case BroadcastTimingEventType.AdBreakEnd:
+                    HandleBreakEnding();
+                    break;
             }
-
-            return GetNextItem();
         }
 
-        private BroadcastItem? HandleItemInterrupted(string itemId)
+        /// <summary>
+        /// Handle show ending.
+        /// </summary>
+        private void HandleShowEnding()
         {
-            // Handle interruptions (could transition to break, show ending, etc.)
-            return null;
+            if (!_isShowActive) return;
+
+            _currentState = AsyncBroadcastState.ShowEnding;
+            
+            // Clear pending executables and add show closing sequence
+            _pendingExecutables.Clear();
+            
+            var closingExecutable = CreateShowClosingExecutable();
+            if (closingExecutable != null)
+            {
+                _pendingExecutables.Enqueue(closingExecutable);
+            }
+
+            GD.Print("BroadcastStateManager: Show ending triggered");
+        }
+
+        /// <summary>
+        /// Handle break starting.
+        /// </summary>
+        private void HandleBreakStarting()
+        {
+            if (!_isShowActive) return;
+
+            _currentState = AsyncBroadcastState.AdBreak;
+            
+            // Clear pending executables and add ad break sequence
+            _pendingExecutables.Clear();
+            
+            var adBreakExecutables = CreateAdBreakExecutables();
+            foreach (var executable in adBreakExecutables)
+            {
+                _pendingExecutables.Enqueue(executable);
+            }
+
+            GD.Print("BroadcastStateManager: Ad break starting");
+        }
+
+        /// <summary>
+        /// Handle break ending.
+        /// </summary>
+        private void HandleBreakEnding()
+        {
+            if (!_isShowActive) return;
+
+            _currentState = AsyncBroadcastState.BreakReturn;
+            
+            // Add return from break executable
+            var returnExecutable = CreateReturnFromBreakExecutable();
+            if (returnExecutable != null)
+            {
+                _pendingExecutables.Enqueue(returnExecutable);
+            }
+
+            GD.Print("BroadcastStateManager: Break ending, transitioning back to show");
+        }
+
+        /// <summary>
+        /// Create the next executable based on current state.
+        /// </summary>
+        private BroadcastExecutable? CreateNextExecutableForState()
+        {
+            return _currentState switch
+            {
+                AsyncBroadcastState.ShowStarting => CreateShowOpeningExecutable(),
+                AsyncBroadcastState.ShowOpening => CreateIntroMusicExecutable(),
+                AsyncBroadcastState.Conversation => CreateConversationExecutable(),
+                AsyncBroadcastState.BetweenCallers => CreateBetweenCallersExecutable(),
+                AsyncBroadcastState.DeadAir => CreateDeadAirExecutable(),
+                AsyncBroadcastState.BreakReturn => CreateConversationExecutable(),
+                AsyncBroadcastState.ShowEnding => null, // Show is ending
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// Update state after an executable completes.
+        /// </summary>
+        public void UpdateStateAfterExecution(BroadcastExecutable executable)
+        {
+            switch (_currentState)
+            {
+                case AsyncBroadcastState.ShowStarting:
+                    _currentState = AsyncBroadcastState.ShowOpening;
+                    break;
+                case AsyncBroadcastState.ShowOpening:
+                    _currentState = AsyncBroadcastState.IntroMusic;
+                    break;
+                case AsyncBroadcastState.IntroMusic:
+                    _currentState = AsyncBroadcastState.Conversation;
+                    break;
+                case AsyncBroadcastState.Conversation:
+                    if (ShouldPlayBetweenCallers())
+                    {
+                        _currentState = AsyncBroadcastState.BetweenCallers;
+                    }
+                    else if (ShouldPlayDeadAir())
+                    {
+                        _currentState = AsyncBroadcastState.DeadAir;
+                    }
+                    // Otherwise stay in Conversation state
+                    break;
+                case AsyncBroadcastState.BetweenCallers:
+                case AsyncBroadcastState.DeadAir:
+                    _currentState = AsyncBroadcastState.Conversation;
+                    break;
+                case AsyncBroadcastState.AdBreak:
+                    _currentState = AsyncBroadcastState.BreakReturn;
+                    break;
+                case AsyncBroadcastState.BreakReturn:
+                    _currentState = AsyncBroadcastState.Conversation;
+                    break;
+                case AsyncBroadcastState.ShowEnding:
+                    _isShowActive = false;
+                    _currentState = AsyncBroadcastState.Idle;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Check if we should play a between-callers transition.
+        /// </summary>
+        private bool ShouldPlayBetweenCallers()
+        {
+            return _callerRepository.OnAirCaller != null && 
+                   _callerRepository.IncomingCallers.Count > 0;
+        }
+
+        /// <summary>
+        /// Check if we should play dead air filler.
+        /// </summary>
+        private bool ShouldPlayDeadAir()
+        {
+            return _callerRepository.OnAirCaller == null && 
+                   _callerRepository.IncomingCallers.Count == 0;
+        }
+
+        // Executable creation methods
+        private BroadcastExecutable CreateShowStartingExecutable() => 
+            new TransitionExecutable("show_start", "Show is starting...", "res://assets/audio/music/intro_music.wav", 3.0f);
+
+        private BroadcastExecutable CreateShowOpeningExecutable() => 
+            new MusicExecutable("show_opening", "Show opening music", "res://assets/audio/music/intro_music.wav", 5.0f);
+
+        private BroadcastExecutable CreateIntroMusicExecutable() => 
+            new MusicExecutable("intro_music", "Intro music", "res://assets/audio/music/intro_music.wav", 4.0f);
+
+        private BroadcastExecutable CreateConversationExecutable()
+        {
+            var onAirCaller = _callerRepository.OnAirCaller;
+            if (onAirCaller != null)
+            {
+                var arc = _arcRepository.GetRandomArcForTopic(onAirCaller.Topic, onAirCaller.Legitimacy);
+                if (arc != null)
+                {
+                    return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc);
+                }
+            }
+
+            // Fallback to Vern dialogue
+            var vernLines = _vernDialogue.Lines;
+            if (vernLines != null && vernLines.Length > 0)
+            {
+                var randomLine = vernLines[GD.RandRange(0, vernLines.Length)];
+                return new DialogueExecutable("vern_fallback", randomLine.Text, "Vern");
+            }
+
+            // Final fallback
+            return new DialogueExecutable("vern_fallback", "Welcome to the show.", "Vern");
+        }
+
+        private BroadcastExecutable CreateBetweenCallersExecutable() => 
+            new TransitionExecutable("between_callers", "Transitioning between callers", "res://assets/audio/bumpers/transition.wav", 4.0f);
+
+        private BroadcastExecutable CreateDeadAirExecutable() => 
+            new TransitionExecutable("dead_air", "Dead air filler", "res://assets/audio/bumpers/dead_air.wav", 8.0f);
+
+        private BroadcastExecutable CreateReturnFromBreakExecutable() => 
+            new TransitionExecutable("break_return", "Returning from break", "res://assets/audio/bumpers/return.wav", 3.0f);
+
+        private BroadcastExecutable CreateShowClosingExecutable() => 
+            new MusicExecutable("show_closing", "Show closing music", "res://assets/audio/music/outro_music.wav", 5.0f);
+
+        private IEnumerable<BroadcastExecutable> CreateAdBreakExecutables()
+        {
+            var listenerManager = ServiceRegistry.Instance.ListenerManager;
+            var listenerCount = listenerManager != null ? listenerManager.ListenerCount : 100;
+            var adCount = Math.Max(1, listenerCount / 50); // 1 ad per 50 listeners
+
+            for (int i = 0; i < adCount; i++)
+            {
+                yield return AdExecutable.CreateForListenerCount($"ad_break_{i + 1}", listenerCount, i + 1);
+            }
         }
     }
 }

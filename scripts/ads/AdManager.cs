@@ -38,6 +38,7 @@ namespace KBTV.Ads
         private int _currentBreakIndex = -1;
         private bool _breakActive = false;
         private bool _isLastSegment = false;
+        private bool _breakTransitionCompleted = false;
 
         // Clean break queue status
         private enum BreakQueueStatus
@@ -63,6 +64,7 @@ namespace KBTV.Ads
         public event Action OnInitialized;
         public event Action OnShowEnded;                     // All breaks complete
         public event Action LastSegmentStarted;              // After last ad break
+        public event Action OnBreakReady;                    // Break started and transition completed
 
         public AdSchedule Schedule => _schedule;
         public int BreaksRemaining => _schedule != null ? _schedule.Breaks.Count - _breaksPlayed : 0;
@@ -222,10 +224,19 @@ namespace KBTV.Ads
 
         private void OnBreakTimeReached()
         {
-            GD.Print("AdManager: Break timer fired - starting break and triggering transition");
-            // Start break first to initialize AdBreakCoordinator, then trigger transition
+            GD.Print("AdManager: Break timer fired - starting break");
+            // Start break first to initialize AdBreakCoordinator
             StartBreak();
-            OnBreakImminent?.Invoke(0f); // Time until break is 0
+            
+            // Check if transition already completed - if so, proceed to ads immediately
+            if (_breakTransitionCompleted)
+            {
+                GD.Print("AdManager: Transition already completed, proceeding to ads");
+                OnBreakReady?.Invoke();
+            }
+            
+            // Trigger imminent interruption (may or may not do anything at T=0)
+            OnBreakImminent?.Invoke(0f);
         }
 
         private void FallbackBreakStart()
@@ -312,7 +323,14 @@ namespace KBTV.Ads
         private void OnBreakTransitionCompleted()
         {
             GD.Print("AdManager: Received break transition completed event");
-            // Break already started in OnBreakTimeReached(), transition completion just confirms it
+            _breakTransitionCompleted = true;
+            
+            // Check if break time has already arrived - if so, proceed to ads
+            if (_breakActive)
+            {
+                GD.Print("AdManager: Break time already arrived, proceeding to ads");
+                OnBreakReady?.Invoke();
+            }
         }
 
 
@@ -338,6 +356,9 @@ namespace KBTV.Ads
 
             _breakActive = false;
             _breaksPlayed++;
+
+            // Reset transition completed flag for next break
+            _breakTransitionCompleted = false;
 
             // Calculate and award revenue
             int currentListeners = _listenerManager?.CurrentListeners ?? 0;

@@ -1,0 +1,276 @@
+#nullable enable
+
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Godot;
+using KBTV.Core;
+
+namespace KBTV.Dialogue
+{
+    /// <summary>
+    /// Main background coordinator running async loop.
+    /// Requests executables → executing → awaiting → repeat.
+    /// Handles cancellation tokens for interruptions.
+    /// Publishes events for UI updates.
+    /// </summary>
+    [GlobalClass]
+    public partial class AsyncBroadcastLoop : Node
+    {
+        private BroadcastStateManager _stateManager = null!;
+        private BroadcastTimer _broadcastTimer = null!;
+        private CancellationTokenSource? _cancellationTokenSource;
+        private Task? _broadcastTask;
+        private bool _isRunning = false;
+        private BroadcastExecutable? _currentExecutable;
+
+        public bool IsRunning => _isRunning;
+        public BroadcastExecutable? CurrentExecutable => _currentExecutable;
+
+        public override void _Ready()
+        {
+            Initialize();
+        }
+
+        /// <summary>
+        /// Initialize the async broadcast loop.
+        /// </summary>
+        private void Initialize()
+        {
+            var callerRepository = ServiceRegistry.Instance.CallerRepository;
+            var arcRepository = ServiceRegistry.Instance.ArcRepository;
+            
+            // Get VernDialogue from Template repository
+            var vernDialogueLoader = new VernDialogueLoader();
+            vernDialogueLoader.LoadDialogue();
+            var vernDialogue = vernDialogueLoader.VernDialogue;
+
+            _stateManager = new BroadcastStateManager(callerRepository, arcRepository, vernDialogue);
+            _broadcastTimer = new BroadcastTimer();
+            AddChild(_broadcastTimer);
+
+            GD.Print("AsyncBroadcastLoop: Initialized successfully");
+        }
+
+        /// <summary>
+        /// Start the broadcast loop.
+        /// </summary>
+        public async Task StartBroadcastAsync(float showDuration = 600.0f)
+        {
+            if (_isRunning)
+            {
+                GD.PrintErr("AsyncBroadcastLoop: Broadcast is already running");
+                return;
+            }
+
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            try
+            {
+                _isRunning = true;
+                _broadcastTimer.StartShow(showDuration);
+
+                // Get the first executable and start the loop
+                var firstExecutable = _stateManager.StartShow();
+                if (firstExecutable != null)
+                {
+                    await ExecuteExecutableAsync(firstExecutable, _cancellationTokenSource.Token);
+                    await RunBroadcastLoopAsync(_cancellationTokenSource.Token);
+                }
+                else
+                {
+                    GD.PrintErr("AsyncBroadcastLoop: No initial executable available");
+                    _isRunning = false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                GD.Print("AsyncBroadcastLoop: Broadcast cancelled");
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"AsyncBroadcastLoop: Error in broadcast: {ex.Message}");
+            }
+            finally
+            {
+                StopBroadcast();
+            }
+        }
+
+        /// <summary>
+        /// Main broadcast execution loop.
+        /// </summary>
+        private async Task RunBroadcastLoopAsync(CancellationToken cancellationToken)
+        {
+            GD.Print("AsyncBroadcastLoop: Starting main broadcast loop");
+
+            while (!cancellationToken.IsCancellationRequested && _stateManager.IsShowActive)
+            {
+                try
+                {
+                    // Get next executable from state manager
+                    var nextExecutable = _stateManager.GetNextExecutable();
+                    
+                    if (nextExecutable == null)
+                    {
+                        // No executable available - wait a bit and try again
+                        await Task.Delay(1000, cancellationToken);
+                        continue;
+                    }
+
+                    // Execute the executable
+                    await ExecuteExecutableAsync(nextExecutable, cancellationToken);
+
+                    // Update state manager after execution
+                    _stateManager.UpdateStateAfterExecution(nextExecutable);
+
+                    // Small delay between executables
+                    await Task.Delay(100, cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    GD.PrintErr($"AsyncBroadcastLoop: Error in broadcast loop: {ex.Message}");
+                    // Continue with next executable even if one fails
+                    await Task.Delay(1000, cancellationToken);
+                }
+            }
+
+            GD.Print("AsyncBroadcastLoop: Broadcast loop ended");
+        }
+
+        /// <summary>
+        /// Execute a single broadcast executable.
+        /// </summary>
+        private async Task ExecuteExecutableAsync(BroadcastExecutable executable, CancellationToken cancellationToken)
+        {
+            if (_currentExecutable != null)
+            {
+                _currentExecutable.Cleanup();
+            }
+
+            _currentExecutable = executable;
+            AddChild(executable);
+            executable.Initialize();
+
+            GD.Print($"AsyncBroadcastLoop: Executing {executable.Type} - {executable.Id}");
+
+            try
+            {
+                // Execute the executable (async/await based on RequiresAwait flag)
+                if (executable.RequiresAwait)
+                {
+                    await executable.ExecuteAsync(cancellationToken);
+                }
+                else
+                {
+                    // Fire-and-forget execution
+                    var _ = Task.Run(() => executable.ExecuteAsync(cancellationToken), cancellationToken);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                GD.Print($"AsyncBroadcastLoop: Executable {executable.Id} was interrupted");
+                throw;
+            }
+            finally
+            {
+                // Cleanup after execution
+                executable.Cleanup();
+                RemoveChild(executable);
+                _currentExecutable = null;
+            }
+        }
+
+        /// <summary>
+        /// Stop the broadcast loop.
+        /// </summary>
+        public void StopBroadcast()
+        {
+            if (!_isRunning) return;
+
+            GD.Print("AsyncBroadcastLoop: Stopping broadcast");
+
+            _isRunning = false;
+            _cancellationTokenSource?.Cancel();
+            _broadcastTimer.StopShow();
+
+            // Cleanup current executable
+            if (_currentExecutable != null)
+            {
+                _currentExecutable.Cleanup();
+                if (IsInstanceValid(_currentExecutable))
+                {
+                    RemoveChild(_currentExecutable);
+                }
+                _currentExecutable = null;
+            }
+
+            // Wait for task to complete
+            try
+            {
+                _broadcastTask?.Wait(TimeSpan.FromSeconds(5));
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"AsyncBroadcastLoop: Error waiting for task completion: {ex.Message}");
+            }
+
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
+            _broadcastTask = null;
+
+            GD.Print("AsyncBroadcastLoop: Broadcast stopped");
+        }
+
+        /// <summary>
+        /// Handle interruption from external events (breaks, show ending, etc.).
+        /// </summary>
+        public void InterruptBroadcast(BroadcastInterruptionReason reason)
+        {
+            if (!_isRunning) return;
+
+            GD.Print($"AsyncBroadcastLoop: Interrupting broadcast - {reason}");
+
+            _cancellationTokenSource?.Cancel();
+
+            // Publish interruption event
+            var interruptionEvent = new BroadcastInterruptionEvent(reason);
+            ServiceRegistry.Instance.EventBus.Publish(interruptionEvent);
+        }
+
+        /// <summary>
+        /// Schedule a break at a specific time.
+        /// </summary>
+        public void ScheduleBreak(float breakTimeFromNow)
+        {
+            _broadcastTimer.ScheduleBreakWarnings(breakTimeFromNow);
+        }
+
+        /// <summary>
+        /// Force start an ad break immediately.
+        /// </summary>
+        public void StartAdBreak()
+        {
+            _broadcastTimer.StartAdBreak();
+        }
+
+        /// <summary>
+        /// Check if the broadcast is currently in an ad break.
+        /// </summary>
+        public bool IsInAdBreak()
+        {
+            return _stateManager.CurrentState == AsyncBroadcastState.AdBreak;
+        }
+
+        public override void _ExitTree()
+        {
+            StopBroadcast();
+            base._ExitTree();
+        }
+    }
+}

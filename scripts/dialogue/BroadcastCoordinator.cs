@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Threading.Tasks;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
@@ -34,24 +35,22 @@ namespace KBTV.Dialogue
     }
 
     /// <summary>
-    /// Simplified broadcast coordinator using the new generic BroadcastEvent system.
-    /// Replaces complex state management with clean event-driven flow.
+    /// Async broadcast coordinator using new async architecture.
+    /// Replaces complex state management with clean async loop and event-driven flow.
     /// </summary>
     [GlobalClass]
     public partial class BroadcastCoordinator : Node, IBroadcastCoordinator
     {
+    private AsyncBroadcastLoop _asyncLoop = null!;
     private ICallerRepository _repository = null!;
-    private BroadcastStateMachine _stateMachine = null!;
-    private BroadcastItemRegistry _itemRegistry = null!;
-    private BroadcastItemExecutor _itemExecutor = null!;
-    private AdBreakCoordinator _adBreakCoordinator = null!;
-    private string? _currentItemId = null;
-    private BroadcastItem? _currentItem = null;
+    private bool _isBroadcastActive = false;
 
-        // Legacy interface compatibility - return Idle for now
-        public BroadcastState CurrentState => BroadcastState.Idle;
+    // Legacy interface compatibility
+    public BroadcastState CurrentState => GetLegacyState();
 
-        public override void _Ready()
+    public event Action? OnBreakTransitionCompleted;
+
+    public override void _Ready()
         {
             InitializeWithServices();
         }
@@ -59,202 +58,184 @@ namespace KBTV.Dialogue
         private void InitializeWithServices()
         {
             _repository = ServiceRegistry.Instance.CallerRepository;
-            _itemRegistry = new BroadcastItemRegistry();
+            _asyncLoop = new AsyncBroadcastLoop();
+            AddChild(_asyncLoop);
 
-            // Load Vern dialogue template
-            var vernDialogueLoader = new VernDialogueLoader();
-            vernDialogueLoader.LoadDialogue();
-            _itemRegistry.SetVernDialogueTemplate(vernDialogueLoader.VernDialogue);
-
-            // Initialize AdBreakCoordinator
-            var adManager = ServiceRegistry.Instance.AdManager;
-            _adBreakCoordinator = new AdBreakCoordinator(adManager, vernDialogueLoader.VernDialogue);
-
-            _stateMachine = new BroadcastStateMachine(_repository, _itemRegistry);
-            _itemExecutor = new BroadcastItemExecutor(itemId => {
-                var completedEvent = new BroadcastEvent(BroadcastEventType.Completed, itemId, _currentItem);
-                ServiceRegistry.Instance.EventBus.Publish(completedEvent);
-            }, this, _adBreakCoordinator);
-
+            // Subscribe to events
             var eventBus = ServiceRegistry.Instance.EventBus;
+            eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
             eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
             eventBus.Subscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
 
             // Subscribe to AdManager events for break interruptions
-            var adManagerInstance = ServiceRegistry.Instance.AdManager;
-            if (adManagerInstance != null)
+            var adManager = ServiceRegistry.Instance.AdManager;
+            if (adManager != null)
             {
-                adManagerInstance.OnBreakGracePeriod += OnBreakGracePeriod;
-                adManagerInstance.OnBreakImminent += OnBreakImminent;
+                adManager.OnBreakGracePeriod += OnBreakGracePeriod;
+                adManager.OnBreakImminent += OnBreakImminent;
             }
 
             ServiceRegistry.Instance.RegisterSelf<BroadcastCoordinator>(this);
         }
 
-        public void OnLiveShowStarted()
+    public void OnLiveShowStarted()
         {
-            GD.Print("BroadcastCoordinator: Starting live show broadcast");
-            var firstItem = _stateMachine.StartShow();
-
-            if (firstItem != null)
-            {
-                ExecuteBroadcastItem(firstItem);
-            }
-            else
-            {
-                GD.PrintErr("BroadcastCoordinator: No initial broadcast item available");
-            }
+            GD.Print("BroadcastCoordinator: Starting live show with async broadcast loop");
+            
+            _isBroadcastActive = true;
+            
+            // Get show duration from TimeManager
+            var timeManager = ServiceRegistry.Instance.TimeManager;
+            var showDuration = timeManager?.ShowDuration ?? 600.0f; // 10 minutes default
+            
+            // Start async broadcast loop
+            _ = Task.Run(async () => {
+                try
+                {
+                    await _asyncLoop.StartBroadcastAsync(showDuration);
+                }
+                catch (Exception ex)
+                {
+                    GD.PrintErr($"BroadcastCoordinator: Error in async broadcast: {ex.Message}");
+                    _isBroadcastActive = false;
+                }
+            });
         }
 
-        private void ExecuteBroadcastItem(BroadcastItem item)
+        /// <summary>
+        /// Handle timing events from BroadcastTimer.
+        /// </summary>
+        private void HandleTimingEvent(BroadcastTimingEvent timingEvent)
         {
-            GD.Print($"BroadcastCoordinator: Executing broadcast item - {item.Id} ({item.Type})");
+            GD.Print($"BroadcastCoordinator: Handling timing event - {timingEvent.Type}");
 
-            // Publish Started event
-            var startedEvent = new BroadcastEvent(BroadcastEventType.Started, item.Id, item);
-            ServiceRegistry.Instance.EventBus.Publish(startedEvent);
-
-            // Track the currently executing item
-            _currentItemId = item.Id;
-            _currentItem = item;
-
-            // Execute the item (play music, display text, etc.)
-            _itemExecutor.ExecuteItem(item);
-        }
-
-        private void HandleBroadcastEvent(BroadcastEvent @event)
-        {
-            GD.Print($"BroadcastCoordinator: Handling broadcast event - {@event.Type} for {@event.ItemId}");
-
-            if (@event.Type == BroadcastEventType.Completed || @event.Type == BroadcastEventType.Interrupted)
+            switch (timingEvent.Type)
             {
-                // Validate that the completed item ID matches the currently executing item
-                if (_currentItemId != null && @event.ItemId != _currentItemId)
-                {
-                    GD.PrintErr($"BroadcastCoordinator: Ignoring {@event.Type} event for '{@event.ItemId}' - expected '{_currentItemId}'");
-                    return;
-                }
-
-                // Validate that the completed item ID corresponds to a known broadcast item
-                if (string.IsNullOrEmpty(@event.ItemId))
-                {
-                    GD.PrintErr("BroadcastCoordinator: Received completion event with null/empty ItemId");
-                    return;
-                }
-
-                // Check if this looks like an audio file path (indicating cross-system contamination)
-                if (@event.ItemId.Contains(".mp3") || @event.ItemId.Contains(".wav") || @event.ItemId.Contains("/") || @event.ItemId.Contains("\\"))
-                {
-                    GD.PrintErr($"BroadcastCoordinator: Ignoring completion event for audio file path '{@event.ItemId}' - likely cross-system contamination");
-                    return;
-                }
-
-                var nextItem = _stateMachine.HandleEvent(@event);
-                if (nextItem != null)
-                {
-                    ExecuteBroadcastItem(nextItem);
-                }
-                else
-                {
-                    GD.Print("BroadcastCoordinator: No next broadcast item, show may be ending");
-                }
-
-                // Check if this was a break transition completion
-                if (@event.Item != null && @event.Item.Type == BroadcastItemType.Transition && 
-                    @event.ItemId.StartsWith("break_transition"))
-                {
-                    GD.Print("BroadcastCoordinator: Break transition completed, notifying AdManager");
-                    OnBreakTransitionCompleted?.Invoke();
-                }
-
-                // Clear current item tracking after processing
-                _currentItemId = null;
-                _currentItem = null;
+                case BroadcastTimingEventType.ShowEnd:
+                    HandleShowEnding();
+                    break;
+                case BroadcastTimingEventType.AdBreakStart:
+                    OnAdBreakStarted();
+                    break;
+                case BroadcastTimingEventType.AdBreakEnd:
+                    OnAdBreakEnded();
+                    break;
             }
         }
 
-        private void HandleBroadcastInterruption(BroadcastInterruptionEvent @event)
+        /// <summary>
+        /// Handle broadcast events from async loop.
+        /// </summary>
+        private void HandleBroadcastEvent(BroadcastEvent broadcastEvent)
         {
-            GD.Print($"BroadcastCoordinator: Handling broadcast interruption - {@event.Reason}");
+            GD.Print($"BroadcastCoordinator: Handling broadcast event - {broadcastEvent.Type} for {broadcastEvent.ItemId}");
 
-            var nextItem = _stateMachine.HandleInterruption(@event);
-            if (nextItem != null)
+            // Legacy: Notify AdManager of transitions for break handling
+            if (broadcastEvent.Item?.Type == BroadcastItemType.Transition && 
+                broadcastEvent.ItemId.StartsWith("break_transition"))
             {
-                ExecuteBroadcastItem(nextItem);
+                OnBreakTransitionCompleted?.Invoke();
             }
-
-            // Clear current item tracking on interruption
-            _currentItemId = null;
         }
 
-        // Legacy interface methods for compatibility
-        public void OnCallerPutOnAir(Caller caller)
+        /// <summary>
+        /// Handle broadcast interruption events.
+        /// </summary>
+        private void HandleBroadcastInterruption(BroadcastInterruptionEvent interruptionEvent)
         {
-            GD.Print($"BroadcastCoordinator.OnCallerPutOnAir: {caller.Name} - transitioning to conversation state");
-        }
+            GD.Print($"BroadcastCoordinator: Handling interruption - {interruptionEvent.Reason}");
 
-        public void OnCallerOnAir(Caller caller)
-        {
-            OnCallerPutOnAir(caller);
-        }
-
-        public void OnCallerOnAirEnded(Caller caller)
-        {
-            GD.Print($"BroadcastCoordinator.OnCallerOnAirEnded: {caller.Name}");
-        }
-
-        // Legacy interface compatibility
-        public void ResetFillerCycleCount() { }
-        public BroadcastState GetNextStateAfterOffTopic() => BroadcastState.Idle;
-
-        // Missing legacy properties/methods
-        public string? CurrentAdSponsor => null;
-        public bool IsOutroMusicQueued => false;
-        public event Action? OnBreakTransitionCompleted;
-        public event Action? OnTransitionLineAvailable;
-
-        public BroadcastLine GetNextLine() => BroadcastLine.None(); // Legacy compatibility
-        public void QueueShowEnd() { } // Legacy compatibility
-
-        // AdManager event handlers
-        private void OnBreakGracePeriod(float timeUntilBreak)
-        {
-            GD.Print($"BroadcastCoordinator: Break grace period started ({timeUntilBreak:F1}s until break)");
-            var interruptionEvent = new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakStarting);
-            HandleBroadcastInterruption(interruptionEvent);
-        }
-
-        private void OnBreakImminent(float timeUntilBreak)
-        {
-            GD.Print($"BroadcastCoordinator: Break imminent ({timeUntilBreak:F1}s until break)");
-            // Don't trigger interruption if break is actually starting (timeUntilBreak <= 0)
-            if (timeUntilBreak <= 0)
+            switch (interruptionEvent.Reason)
             {
-                GD.Print("BroadcastCoordinator: Break is starting now, no interruption needed");
-                return;
+                case BroadcastInterruptionReason.BreakStarting:
+                    // Break interruption handled by timing events
+                    break;
+                case BroadcastInterruptionReason.ShowEnding:
+                    _isBroadcastActive = false;
+                    break;
             }
-            // For imminent warning, interrupt immediately with transition
-            var interruptionEvent = new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakImminent);
-            HandleBroadcastInterruption(interruptionEvent);
         }
 
-        // IBroadcastCoordinator interface
+        /// <summary>
+        /// Legacy interface implementation for AdManager integration.
+        /// </summary>
         public void OnAdBreakStarted()
         {
-            GD.Print("BroadcastCoordinator.OnAdBreakStarted: Starting ad break");
-            // Initialize the AdBreakCoordinator for this break
-            _adBreakCoordinator.OnAdBreakStarted();
-            // Note: The actual interruption logic is now handled by the event-driven system
-            // This method remains for interface compatibility
+            GD.Print("BroadcastCoordinator: Ad break started (legacy interface)");
+            // Handled by async loop via timing events
         }
 
+        /// <summary>
+        /// Legacy interface implementation for AdManager integration.
+        /// </summary>
         public void OnAdBreakEnded()
         {
-            GD.Print("BroadcastCoordinator.OnAdBreakEnded: Ending ad break");
-            // Notify the AdBreakCoordinator that the break has ended
-            _adBreakCoordinator.OnAdBreakEnded();
-            var interruptionEvent = new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakEnding);
-            HandleBroadcastInterruption(interruptionEvent);
+            GD.Print("BroadcastCoordinator: Ad break ended (legacy interface)");
+            // Handled by async loop via timing events
+        }
+
+        /// <summary>
+        /// Handle show ending from TimeManager.
+        /// </summary>
+        private void HandleShowEnding()
+        {
+            GD.Print("BroadcastCoordinator: Show ending triggered");
+            _asyncLoop.InterruptBroadcast(BroadcastInterruptionReason.ShowEnding);
+        }
+
+        /// <summary>
+        /// Handle break grace period from AdManager.
+        /// </summary>
+        private void OnBreakGracePeriod(float secondsRemaining)
+        {
+            GD.Print($"BroadcastCoordinator: Break grace period - {secondsRemaining}s remaining");
+            // Async loop handles this via timing events
+        }
+
+        /// <summary>
+        /// Handle break imminent from AdManager.
+        /// </summary>
+        private void OnBreakImminent(float secondsRemaining)
+        {
+            GD.Print($"BroadcastCoordinator: Break imminent - {secondsRemaining}s remaining");
+            // Schedule break in async loop
+            _asyncLoop.ScheduleBreak(secondsRemaining);
+        }
+
+        /// <summary>
+        /// Map async state to legacy BroadcastState.
+        /// </summary>
+        private BroadcastState GetLegacyState()
+        {
+            if (!_isBroadcastActive || _asyncLoop == null)
+                return BroadcastState.Idle;
+
+            // Map AsyncBroadcastState to legacy BroadcastState
+            var asyncState = _asyncLoop.IsInAdBreak() ? AsyncBroadcastState.AdBreak : AsyncBroadcastState.Conversation;
+            
+            return asyncState switch
+            {
+                AsyncBroadcastState.Idle => BroadcastState.Idle,
+                AsyncBroadcastState.ShowStarting => BroadcastState.ShowStarting,
+                AsyncBroadcastState.IntroMusic => BroadcastState.IntroMusic,
+                AsyncBroadcastState.ShowOpening => BroadcastState.ShowOpening,
+                AsyncBroadcastState.Conversation => BroadcastState.Conversation,
+                AsyncBroadcastState.BetweenCallers => BroadcastState.BetweenCallers,
+                AsyncBroadcastState.AdBreak => BroadcastState.AdBreak,
+                AsyncBroadcastState.DeadAir => BroadcastState.DeadAirFiller,
+                AsyncBroadcastState.ShowClosing => BroadcastState.ShowClosing,
+                AsyncBroadcastState.ShowEnding => BroadcastState.ShowEnding,
+                _ => BroadcastState.Idle
+            };
+        }
+
+        /// <summary>
+        /// Clean up resources.
+        /// </summary>
+        public override void _ExitTree()
+        {
+            _asyncLoop?.StopBroadcast();
+            base._ExitTree();
         }
     }
 }

@@ -90,12 +90,36 @@ namespace KBTV.Dialogue
         /// </summary>
         public float AudioLength { get; }
 
-        public BroadcastItemStartedEvent(BroadcastItem item, float duration, float audioLength = 0f)
+public BroadcastItemStartedEvent(BroadcastItem item, float duration, float audioLength = 0f)
         {
             Item = item;
             Duration = duration;
             AudioLength = audioLength;
             Source = "BroadcastItemExecutor";
+        }
+    }
+
+    /// <summary>
+    /// Event fired when audio playback completes.
+    /// Used for dialogue progression and conversation flow.
+    /// </summary>
+    public class AudioCompletedEvent : GameEvent
+    {
+        /// <summary>
+        /// ID of the dialogue line that completed.
+        /// </summary>
+        public string LineId { get; }
+
+        /// <summary>
+        /// Speaker who completed the line.
+        /// </summary>
+        public Speaker Speaker { get; }
+
+        public AudioCompletedEvent(string lineId, Speaker speaker)
+        {
+            LineId = lineId;
+            Speaker = speaker;
+            Source = "AudioDialoguePlayer";
         }
     }
 }
