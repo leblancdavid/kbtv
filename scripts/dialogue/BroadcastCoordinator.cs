@@ -57,31 +57,62 @@ namespace KBTV.Dialogue
 
     public event Action? OnBreakTransitionCompleted;
 
-    public override void _Ready()
+        public override void _Ready()
         {
+            Initialize();
+        }
+
+        /// <summary>
+        /// Initialize the broadcast coordinator.
+        /// </summary>
+        private void Initialize()
+        {
+            if (!ServiceRegistry.IsInitialized)
+            {
+                GD.PrintErr("BroadcastCoordinator: ServiceRegistry not initialized, deferring initialization");
+                CallDeferred(nameof(InitializeWithServices));
+                return;
+            }
+
             InitializeWithServices();
         }
 
         private void InitializeWithServices()
         {
-            _repository = ServiceRegistry.Instance.CallerRepository;
-            _asyncLoop = ServiceRegistry.Instance.AsyncBroadcastLoop;
-
-            // Subscribe to events
-            var eventBus = ServiceRegistry.Instance.EventBus;
-            eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
-            eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
-            eventBus.Subscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
-
-            // Subscribe to AdManager events for break interruptions
-            var adManager = ServiceRegistry.Instance.AdManager;
-            if (adManager != null)
+            if (!ServiceRegistry.IsInitialized)
             {
-                adManager.OnBreakGracePeriod += OnBreakGracePeriod;
-                adManager.OnBreakImminent += OnBreakImminent;
+                GD.PrintErr("BroadcastCoordinator: ServiceRegistry still not initialized, retrying...");
+                CallDeferred(nameof(InitializeWithServices));
+                return;
             }
 
-            ServiceRegistry.Instance.RegisterSelf<BroadcastCoordinator>(this);
+            try
+            {
+                _repository = ServiceRegistry.Instance.CallerRepository;
+                _asyncLoop = ServiceRegistry.Instance.AsyncBroadcastLoop;
+
+                // Subscribe to events
+                var eventBus = ServiceRegistry.Instance.EventBus;
+                eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
+                eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
+                eventBus.Subscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
+
+                // Subscribe to AdManager events for break interruptions
+                var adManager = ServiceRegistry.Instance.AdManager;
+                if (adManager != null)
+                {
+                    adManager.OnBreakGracePeriod += OnBreakGracePeriod;
+                    adManager.OnBreakImminent += OnBreakImminent;
+                }
+
+                ServiceRegistry.Instance.RegisterSelf<BroadcastCoordinator>(this);
+
+                GD.Print("BroadcastCoordinator: Initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"BroadcastCoordinator: Error during initialization: {ex.Message}");
+            }
         }
 
     public void OnLiveShowStarted()

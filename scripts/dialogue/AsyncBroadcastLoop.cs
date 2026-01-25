@@ -30,6 +30,9 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
+            // Register self as an autoload service
+            ServiceRegistry.Instance.RegisterSelf<AsyncBroadcastLoop>(this);
+            
             Initialize();
         }
 

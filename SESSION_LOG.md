@@ -1,6 +1,6 @@
  ## Current Session
-- **Task**: Complete AsyncBroadcastLoop integration and legacy system removal
-- **Status**: Completed - Full async broadcast system successfully integrated
+- **Task**: Fix AsyncBroadcastLoop ServiceRegistry registration error
+- **Status**: In Progress - Service registration fixed, testing pending
 
 ### AsyncBroadcastLoop Integration - COMPLETED
 
@@ -458,7 +458,92 @@ The live show transcript system now provides:
 - **Started**: Wed Jan 21 2026
 - **Last Updated**: Wed Jan 21 2026
 
-### Problem
+### ServiceRegistry Registration Fix - COMPLETED
+
+#### Problem Identified
+The game was showing an error during initialization:
+```
+ERROR: ServiceRegistry: Service not found for type AsyncBroadcastLoop
+```
+
+#### Root Cause Analysis
+Two timing issues were discovered:
+1. **Missing self-registration**: `AsyncBroadcastLoop` was configured as an autoload but never registered itself in `_Ready()`
+2. **Premature access**: `BroadcastCoordinator.InitializeWithServices()` was trying to access `AsyncBroadcastLoop` during ServiceRegistry initialization, before the async loop had registered itself
+
+#### Solution Applied
+
+**Phase 1: Fix AsyncBroadcastLoop self-registration**
+```csharp
+public override void _Ready()
+{
+    // Register self as an autoload service
+    ServiceRegistry.Instance.RegisterSelf<AsyncBroadcastLoop>(this);
+    
+    Initialize();
+}
+```
+
+**Phase 2: Fix BroadcastCoordinator timing with deferred initialization**
+```csharp
+private void Initialize()
+{
+    if (!ServiceRegistry.IsInitialized)
+    {
+        GD.PrintErr("BroadcastCoordinator: ServiceRegistry not initialized, deferring initialization");
+        CallDeferred(nameof(InitializeWithServices));
+        return;
+    }
+
+    InitializeWithServices();
+}
+
+private void InitializeWithServices()
+{
+    if (!ServiceRegistry.IsInitialized)
+    {
+        GD.PrintErr("BroadcastCoordinator: ServiceRegistry still not initialized, retrying...");
+        CallDeferred(nameof(InitializeWithServices));
+        return;
+    }
+
+    try
+    {
+        _repository = ServiceRegistry.Instance.CallerRepository;
+        _asyncLoop = ServiceRegistry.Instance.AsyncBroadcastLoop;
+        // ... rest of initialization
+    }
+    catch (Exception ex)
+    {
+        GD.PrintErr($"BroadcastCoordinator: Error during initialization: {ex.Message}");
+    }
+}
+```
+
+#### Architecture Pattern Followed
+Both components now follow the established deferred initialization pattern for autoload services:
+- **Service availability checks**: Verify `ServiceRegistry.IsInitialized` before accessing services
+- **Deferred retries**: Use `CallDeferred()` to retry initialization later
+- **Error handling**: Graceful handling of timing mismatches
+
+#### Build Status
+- ✅ **Build: SUCCESS** (0 errors, 0 warnings)
+- ✅ **Proper initialization order**: Services register themselves, then other components can access them safely
+
+#### Expected Behavior
+1. ServiceRegistry initializes first (autoload order #1)
+2. AsyncBroadcastLoop registers itself during its `_Ready()` (autoload order #35)
+3. BroadcastCoordinator can safely access AsyncBroadcastLoop (autoload order #33)
+4. No more "Service not found" errors during startup
+
+**Final Fix Applied:**
+- **Swapped autoload order** in `project.godot`: AsyncBroadcastLoop (line 35) → BroadcastCoordinator (line 36)
+- This ensures AsyncBroadcastLoop registers itself before BroadcastCoordinator tries to access it
+- Combined with deferred initialization, this provides robust service resolution
+
+### Show Ending Event-Driven Refactor - PREVIOUS SESSION
+
+#### Problem
 The show ending flow was polling-based (TimeManager directly calling CheckShowEndCondition in _Process), which broke the event-driven architecture.
 
 ### Solution
