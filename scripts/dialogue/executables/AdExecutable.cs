@@ -32,7 +32,7 @@ namespace KBTV.Dialogue
             GD.Print($"AdExecutable: Playing commercial - {displayText}");
             
             // Calculate and add revenue (placeholder for now)
-            var listenerCount = ServiceRegistry.Instance.ListenerManager?.CurrentListenerCount ?? 100;
+            var listenerCount = ServiceRegistry.Instance.ListenerManager?.CurrentListeners ?? 100;
             var revenue = CalculateRevenue(listenerCount);
             
             // This would integrate with EconomyManager when available
