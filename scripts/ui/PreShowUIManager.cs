@@ -46,7 +46,7 @@ namespace KBTV.UI
 
 		private void LoadTopics()
 		{
-			_availableTopics = KBTV.Data.TopicLoader.LoadAllTopics();
+			_availableTopics = KBTV.Data.TopicLoader.LoadAllTopics() ?? new List<Topic>();
 		}
 
 		private void CreatePreShowUI()
@@ -122,13 +122,12 @@ namespace KBTV.UI
 			contentContainer.AddChild(spacer1);
 
 			var topicSelector = new TopicSelector(_availableTopics);
-			topicSelector.SizeFlagsStretchRatio = 0;
-			contentContainer.AddChild(topicSelector);
-
-			var spacer2 = UITheme.CreateSpacer(false, true);
-			spacer2.SizeFlagsStretchRatio = 2;
-			contentContainer.AddChild(spacer2);
-
+			if (topicSelector != null && topicSelector.SelectorButton != null)
+			{
+				_topicSelector = topicSelector.SelectorButton;
+				_topicDescription = topicSelector.TopicDescription;
+				_topicSelector.ItemSelected += OnTopicSelected;
+			}
 			adConfigPanel = new AdConfigPanel();
 			adConfigPanel.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(adConfigPanel);
@@ -145,7 +144,7 @@ namespace KBTV.UI
 			_errorLabel.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(_errorLabel);
 
-			if (_availableTopics.Count > 0)
+			if (_availableTopics.Count > 0 && _topicSelector != null && _topicSelector.GetItemCount() > 0)
 			{
 				_topicSelector.Select(0);
 				OnTopicSelected(0);
@@ -300,9 +299,18 @@ namespace KBTV.UI
 				{
 					gameStateManager.SetSelectedTopic(selectedTopic);
 				}
-				_topicDescription.Text = selectedTopic.Description;
-				_startShowButton.Disabled = false;
-				_errorLabel.Text = "";
+				if (_topicDescription != null)
+				{
+					_topicDescription.Text = selectedTopic.Description;
+				}
+				if (_startShowButton != null)
+				{
+					_startShowButton.Disabled = false;
+				}
+				if (_errorLabel != null)
+				{
+					_errorLabel.Text = "";
+				}
 			}
 		}
 
