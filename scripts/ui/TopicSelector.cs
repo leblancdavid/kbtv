@@ -29,52 +29,59 @@ namespace KBTV.UI
             CreateUI();
         }
 
-        private void CreateUI()
+    private void CreateUI()
+    {
+        // Set minimum size for visibility
+        CustomMinimumSize = new Vector2(600, 200);
+        SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+
+        // Create vertical layout
+        var vbox = new VBoxContainer();
+        vbox.Name = "TopicSelectorVBox";
+        vbox.AddThemeConstantOverride("separation", 10);
+        AddChild(vbox);
+
+        // Topic selector label
+        var label = new Label();
+        label.Name = "TopicLabel";
+        label.Text = "Select Broadcast Topic";
+        label.HorizontalAlignment = HorizontalAlignment.Center;
+        vbox.AddChild(label);
+
+        // Topic dropdown
+        _topicSelector = new OptionButton();
+        _topicSelector.Name = "TopicOptionButton";
+        _topicSelector.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        _topicSelector.ItemSelected += OnTopicSelected;
+        vbox.AddChild(_topicSelector);
+
+        // Description label
+        _topicDescription = new Label();
+        _topicDescription.Name = "DescriptionLabel";
+        _topicDescription.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        _topicDescription.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        _topicDescription.CustomMinimumSize = new Vector2(0, 60);
+        vbox.AddChild(_topicDescription);
+
+        // Populate topics
+        PopulateTopics();
+
+        GD.Print($"TopicSelector: Created with {_availableTopics.Count} topics, added {_topicSelector.GetItemCount()} items to OptionButton");
+    }
+
+    private void PopulateTopics()
+    {
+        if (_topicSelector == null || _availableTopics == null)
+            return;
+
+        _topicSelector.Clear();
+        foreach (var topic in _availableTopics)
         {
-            var container = new VBoxContainer();
-            container.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            container.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            container.CustomMinimumSize = new Vector2(0, 200);
-            AddChild(container);
-
-            var label = new Label();
-            label.Text = "SELECT TOPIC FOR TONIGHT'S SHOW";
-            label.HorizontalAlignment = HorizontalAlignment.Center;
-            label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            label.AddThemeColorOverride("font_color", UITheme.TEXT_PRIMARY);
-            container.AddChild(label);
-
-            _topicSelector = new OptionButton();
-            _topicSelector.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
-            _topicSelector.CustomMinimumSize = new Vector2(300, 40);
-            _topicSelector.ItemSelected += OnTopicSelected;
-            UITheme.ApplyButtonStyle(_topicSelector);
-            container.AddChild(_topicSelector);
-
-            foreach (var topic in _availableTopics)
-            {
-                _topicSelector.AddItem(topic.DisplayName);
-            }
-
-            // Description area
-            _topicDescription = new Label();
-            _topicDescription.HorizontalAlignment = HorizontalAlignment.Center;
-            _topicDescription.VerticalAlignment = VerticalAlignment.Center;
-            _topicDescription.AutowrapMode = TextServer.AutowrapMode.Word;
-            _topicDescription.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            _topicDescription.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-            _topicDescription.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
-            _topicDescription.CustomMinimumSize = new Vector2(0, 80);
-            container.AddChild(_topicDescription);
-
-            // Initialize with first topic
-            if (_availableTopics.Count > 0)
-            {
-                OnTopicSelected(0);
-            }
+            _topicSelector.AddItem(topic.DisplayName);
         }
+    }
 
-        private void OnTopicSelected(long index)
+    private void OnTopicSelected(long index)
         {
             if (index >= 0 && index < _availableTopics.Count)
             {

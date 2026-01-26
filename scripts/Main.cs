@@ -29,7 +29,9 @@ namespace KBTV
             GD.Print("Main: LoadingScreen instantiated successfully");
             
             // Instantiate UI managers after services are initialized
+            GD.Print("Main: Adding PreShowUIManager");
             _serviceProviderRoot.AddChild(new PreShowUIManager());
+            GD.Print("Main: PreShowUIManager added");
             _serviceProviderRoot.AddChild(new TabContainerManager());
             _serviceProviderRoot.AddChild(new PostShowUIManager());
             

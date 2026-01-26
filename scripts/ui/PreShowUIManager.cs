@@ -6,10 +6,11 @@ using KBTV.Core;
 using KBTV.Data;
 using KBTV.Managers;
 using KBTV.Persistence;
+using KBTV.UI;
 
 namespace KBTV.UI
 {
-	public partial class PreShowUIManager : Node, IDependent
+	public partial class PreShowUIManager : CanvasLayer
 	{
 		private VBoxContainer contentContainer;
 		private OptionButton _topicSelector;
@@ -30,42 +31,49 @@ namespace KBTV.UI
 		private Label _durationLabel;
 		private Button _increaseDurationButton;
 
-		public override void _Notification(int what) => this.Notify(what);
-
 		public override void _Ready()
 		{
-			base._Ready();
-			LoadTopics();
-			GD.Print("PreShowUIManager: Initializing with services...");
-		}
-
-		public void OnResolved()
-		{
-			CreatePreShowUI();
+			try
+			{
+				GD.Print("PreShowUIManager: _Ready called");
+				LoadTopics();
+				
+				// Create main container
+				var container = new MarginContainer();
+				container.AnchorLeft = 0;
+				container.AnchorTop = 0;
+				container.AnchorRight = 1;
+				container.AnchorBottom = 1;
+				container.OffsetLeft = 0;
+				container.OffsetTop = 0;
+				container.OffsetRight = 0;
+				container.OffsetBottom = 0;
+				container.AddThemeConstantOverride("margin_top", 100);
+				container.AddThemeConstantOverride("margin_bottom", 100);
+				container.AddThemeConstantOverride("margin_left", 0);
+				container.AddThemeConstantOverride("margin_right", 0);
+				AddChild(container);
+				
+				SetupPreShowUI(container);
+				
+				// Register with UIManager
+				var uiManager = DependencyInjection.Get<IUIManager>(this);
+				uiManager?.RegisterPreShowLayer(this);
+			}
+			catch (System.Exception e)
+			{
+				GD.PrintErr($"PreShowUIManager: Exception in _Ready: {e}");
+			}
 		}
 
 		private void LoadTopics()
 		{
 			_availableTopics = KBTV.Data.TopicLoader.LoadAllTopics() ?? new List<Topic>();
+			GD.Print($"PreShowUIManager: Loaded {_availableTopics.Count} topics");
 		}
 
 		private void CreatePreShowUI()
 		{
-			var uiManager = DependencyInjection.Get<IUIManager>(this);
-			if (uiManager == null)
-			{
-				GD.PrintErr("PreShowUIManager: UIManager not available");
-				return;
-			}
-
-			var canvasLayer = new CanvasLayer();
-			canvasLayer.Name = "PreShowCanvasLayer";
-			canvasLayer.Layer = 5;
-			canvasLayer.Visible = false;
-			AddChild(canvasLayer);
-
-			uiManager.RegisterPreShowLayer(canvasLayer);
-
 			var container = new MarginContainer();
 			container.AnchorLeft = 0;
 			container.AnchorTop = 0;
@@ -79,7 +87,7 @@ namespace KBTV.UI
 			container.AddThemeConstantOverride("margin_bottom", 100);
 			container.AddThemeConstantOverride("margin_left", 0);
 			container.AddThemeConstantOverride("margin_right", 0);
-			canvasLayer.AddChild(container);
+			AddChild(container);
 
 			SetupPreShowUI(container);
 			CompleteInitialization();
@@ -128,6 +136,8 @@ namespace KBTV.UI
 				_topicDescription = topicSelector.TopicDescription;
 				_topicSelector.ItemSelected += OnTopicSelected;
 			}
+			contentContainer.AddChild(topicSelector);
+			topicSelector.SizeFlagsStretchRatio = 0;
 			adConfigPanel = new AdConfigPanel();
 			adConfigPanel.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(adConfigPanel);
