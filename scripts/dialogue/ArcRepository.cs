@@ -29,6 +29,7 @@ namespace KBTV.Dialogue
 
         public void Initialize()
         {
+            if (_initialized) return;
             var filePathsToLoad = new Godot.Collections.Array<string>(_arcJsonFilePaths);
 
             if (filePathsToLoad.Count == 0)

@@ -1,6 +1,7 @@
 using Godot;
 using KBTV.Core;
 using KBTV.Callers;
+using KBTV.Managers;
 
 namespace KBTV.UI
 {
@@ -8,40 +9,29 @@ namespace KBTV.UI
     /// Debug/testing utilities for the game.
     /// Provides methods to manually trigger game events for testing.
     /// </summary>
-    public partial class DebugHelper : Node
+    public partial class DebugHelper : Node, IDependent
     {
         private GameStateManager _gameState;
         private ICallerRepository _repository;
         private CallerGenerator _callerGenerator;
 
+        public override void _Notification(int what) => this.Notify(what);
+
         public override void _Ready()
         {
-            if (ServiceRegistry.Instance == null)
-            {
-                GD.PrintErr("DebugHelper: ServiceRegistry not available");
-            }
-            else
-            {
-                _repository = ServiceRegistry.Instance.CallerRepository;
-            }
+            // Initialization moved to OnResolved
+        }
+
+        public void OnResolved()
+        {
+            _repository = DependencyInjection.Get<ICallerRepository>(this);
+            _gameState = DependencyInjection.Get<GameStateManager>(this);
+            _callerGenerator = DependencyInjection.Get<CallerGenerator>(this);
 
             if (_repository == null)
             {
                 GD.PrintErr("DebugHelper: ICallerRepository not available");
             }
-
-            _gameState = ServiceRegistry.Instance.GameStateManager;
-            _callerGenerator = ServiceRegistry.Instance.CallerGenerator;
-
-            // Reduced debug output to prevent TextEdit overflow issues
-            // GD.Print("DebugHelper: Ready for testing commands");
-            // GD.Print("Available test commands:");
-            // GD.Print("- start_show: Start live show");
-            // GD.Print("- spawn_caller: Manually spawn a caller");
-            // GD.Print("- approve_caller: Approve current screening caller");
-            // GD.Print("- reject_caller: Reject current screening caller");
-            // GD.Print("- end_call: End current on-air call");
-            // GD.Print("- put_on_air: Put next caller on air");
         }
 
         // Debug methods that can be called from Godot editor or console

@@ -6,18 +6,23 @@ namespace KBTV.UI
 	/// <summary>
 	/// Manages the PostShow UI layer - displays summary after broadcast ends.
 	/// </summary>
-	public partial class PostShowUIManager : Node
+	public partial class PostShowUIManager : Node, IDependent
 	{
+		public override void _Notification(int what) => this.Notify(what);
 		public override void _Ready()
 		{
 			base._Ready();
 			GD.Print("PostShowUIManager: Initializing with services...");
+		}
+
+		public void OnResolved()
+		{
 			CreatePostShowUI();
 		}
 
 		private void CreatePostShowUI()
 		{
-			var uiManager = ServiceRegistry.Instance?.UIManager;
+			var uiManager = DependencyInjection.Get<IUIManager>(this);
 			if (uiManager == null)
 			{
 				GD.PrintErr("PostShowUIManager: UIManager not available");

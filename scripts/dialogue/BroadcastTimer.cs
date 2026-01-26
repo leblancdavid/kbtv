@@ -1,5 +1,3 @@
-#nullable enable
-
 using System;
 using System.Collections.Generic;
 using Godot;
@@ -43,11 +41,13 @@ namespace KBTV.Dialogue
     /// Replaces reliance on AdManager for timing.
     /// </summary>
     [GlobalClass]
-    public partial class BroadcastTimer : Node
+    public partial class BroadcastTimer : Node, IDependent
     {
         private readonly Dictionary<BroadcastTimingEventType, Timer> _timers = new();
         private EventBus _eventBus = null!;
         private bool _isShowActive = false;
+
+        public override void _Notification(int what) => this.Notify(what);
 
         public BroadcastTimer()
         {
@@ -56,10 +56,14 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
-            GD.Print("BroadcastTimer: Initializing with services...");
-            _eventBus = ServiceRegistry.Instance.EventBus;
+            GD.Print("BroadcastTimer: Initializing...");
             CreateTimers();
             GD.Print("BroadcastTimer: Initialization complete");
+        }
+
+        public void OnResolved()
+        {
+            _eventBus = DependencyInjection.Get<EventBus>(this);
         }
 
         /// <summary>

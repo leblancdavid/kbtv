@@ -37,7 +37,7 @@ namespace KBTV.UI
                 GD.PrintErr("[CallerQueueItem] ERROR getting node references: " + ex.Message);
             }
 
-            _repository = Core.ServiceRegistry.Instance.CallerRepository;
+            _repository = DependencyInjection.Get<ICallerRepository>(this);
 
             GuiInput += OnGuiInput;
 

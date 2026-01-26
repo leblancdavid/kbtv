@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using KBTV.Audio;
+using KBTV.Core;
 
 namespace KBTV.Dialogue
 {
@@ -17,8 +18,8 @@ namespace KBTV.Dialogue
         private readonly string _text;
         private readonly string? _audioPath;
 
-        public TransitionExecutable(string id, string text, float duration, string? audioPath = null) 
-            : base(id, BroadcastItemType.Transition, true, duration, new { text, audioPath })
+        public TransitionExecutable(string id, string text, float duration, EventBus eventBus, string? audioPath = null) 
+            : base(id, BroadcastItemType.Transition, true, duration, eventBus, new { text, audioPath })
         {
             _text = text;
             _audioPath = audioPath;

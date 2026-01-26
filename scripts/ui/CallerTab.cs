@@ -26,7 +26,7 @@ namespace KBTV.UI
         private ICallerRepository _repository = null!;
         private IScreeningController _screeningController = null!;
         private CallerTabManager _tabManager = null!;
-        private readonly CallerListAdapter _incomingAdapter = new();
+        private CallerListAdapter _incomingAdapter = null!;
         private ReactiveListPanel<Caller>? _reactiveListPanel;
 
         private string? _previousScreeningCallerId;
@@ -52,8 +52,9 @@ namespace KBTV.UI
 
         private void InitializeServices()
         {
-            _repository = ServiceRegistry.Instance.CallerRepository;
-            _screeningController = ServiceRegistry.Instance.ScreeningController;
+            _repository = DependencyInjection.Get<ICallerRepository>(this);
+            _screeningController = DependencyInjection.Get<IScreeningController>(this);
+            _incomingAdapter = new CallerListAdapter(_repository);
         }
 
         private void CreateTabManager()

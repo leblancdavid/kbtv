@@ -1,5 +1,3 @@
-#nullable enable
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +18,7 @@ namespace KBTV.Dialogue
         protected readonly bool _requiresAwait;
         protected readonly float _duration;
         protected readonly object? _metadata;
+        protected readonly EventBus _eventBus;
         protected AudioStreamPlayer? _audioPlayer;
         protected CancellationTokenSource? _cancellationTokenSource;
 
@@ -28,12 +27,14 @@ namespace KBTV.Dialogue
             BroadcastItemType type,
             bool requiresAwait,
             float duration,
+            EventBus eventBus,
             object? metadata = null)
         {
             _id = id;
             _type = type;
             _requiresAwait = requiresAwait;
             _duration = duration;
+            _eventBus = eventBus;
             _metadata = metadata;
         }
 
@@ -69,7 +70,7 @@ namespace KBTV.Dialogue
                     _duration,
                     await GetAudioDurationAsync()
                 );
-                ServiceRegistry.Instance.EventBus.Publish(startedEvent);
+                _eventBus.Publish(startedEvent);
 
                 // Execute the specific content
                 await ExecuteInternalAsync(_cancellationTokenSource.Token);
@@ -162,7 +163,7 @@ namespace KBTV.Dialogue
                 _id,
                 CreateBroadcastItem()
             );
-            ServiceRegistry.Instance.EventBus.Publish(interruptedEvent);
+            _eventBus.Publish(interruptedEvent);
         }
 
         /// <summary>

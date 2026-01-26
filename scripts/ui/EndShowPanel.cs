@@ -1,40 +1,37 @@
 using Godot;
 using KBTV.Core;
 using KBTV.Dialogue;
+using KBTV.Managers;
 
 namespace KBTV.UI
 {
 	/// <summary>
 	/// Panel that appears after the last ad break, allowing the host to end the show.
 	/// </summary>
-	public partial class EndShowPanel : Control
+	public partial class EndShowPanel : Control, IDependent
 	{
 		private Button EndShowButton;
 		private AudioStreamPlayer _transitionMusicPlayer = null!;
 
 		private BroadcastCoordinator _coordinator = null!;
+		private TimeManager? _timeManager;
+
+		public override void _Notification(int what) => this.Notify(what);
 
 		public override void _Ready()
 		{
 			// Initialize audio player for transition music
 			_transitionMusicPlayer = new AudioStreamPlayer();
 			AddChild(_transitionMusicPlayer);
-
-			CallDeferred(nameof(InitializeDeferred));
 		}
 
-		private void InitializeDeferred()
+		public void OnResolved()
 		{
-			if (!ServiceRegistry.IsInitialized)
-			{
-				CallDeferred(nameof(InitializeDeferred));
-				return;
-			}
-
-			_coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
+			_coordinator = DependencyInjection.Get<BroadcastCoordinator>(this);
+			_timeManager = DependencyInjection.Get<TimeManager>(this);
 			if (_coordinator == null)
 			{
-				CallDeferred(nameof(InitializeDeferred));
+				GD.PrintErr("EndShowPanel: BroadcastCoordinator not available");
 				return;
 			}
 
@@ -58,8 +55,7 @@ namespace KBTV.UI
 			// Enable button when we're in the last 20 seconds
 			if (EndShowButton != null && EndShowButton.Disabled)
 			{
-				var timeManager = ServiceRegistry.Instance.TimeManager;
-				if (timeManager != null && timeManager.RemainingTime <= 20f)
+				if (_timeManager != null && _timeManager.RemainingTime <= 20f)
 				{
 					EndShowButton.Disabled = false;
 				}

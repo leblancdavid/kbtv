@@ -1,6 +1,4 @@
 using System.Threading.Tasks;
-using Chickensoft.AutoInject;
-using Chickensoft.Introspection;
 using Godot;
 using KBTV.Core;
 
@@ -11,25 +9,15 @@ namespace KBTV.UI
     /// Handles the CanvasLayer-based UI architecture for proper draw ordering.
     /// Converted to AutoInject Dependent pattern.
     /// </summary>
-    [Meta(typeof(IAutoNode))]
     public partial class UIManager : Node, IUIManager,
         IProvide<UIManager>,
         IDependent
     {
         public override void _Notification(int what) => this.Notify(what);
 
-        [Dependency]
-        private GameStateManager GameStateManager => DependOn<GameStateManager>();
+        private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
 
-        [Dependency]
-        private GlobalTransitionManager GlobalTransitionManager => DependOn<GlobalTransitionManager>();
-
-        // Temporary workaround for missing DependOn<T> extension method
-        private T DependOn<T>() where T : class
-        {
-            // Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
-            return ServiceRegistry.Instance.Get<T>();
-        }
+        private GlobalTransitionManager GlobalTransitionManager => DependencyInjection.Get<GlobalTransitionManager>(this);
 
         private CanvasLayer _preShowLayer;
         private CanvasLayer _liveShowLayer;

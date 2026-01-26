@@ -24,8 +24,7 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
-            ServiceRegistry.Instance.RegisterSelf<ITranscriptRepository>(this);
-            ServiceRegistry.Instance.RegisterSelf<TranscriptRepository>(this);
+            // Removed RegisterSelf calls - now registered in ServiceProviderRoot
         }
 
         public void StartNewShow()

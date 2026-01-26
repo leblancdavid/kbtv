@@ -8,10 +8,12 @@ using KBTV.Monitors;
 
 namespace KBTV.Dialogue
 {
-    public partial class ConversationDisplay : DomainMonitor, ICallerRepositoryObserver
+    public partial class ConversationDisplay : DomainMonitor, ICallerRepositoryObserver, IDependent
     {
         private BroadcastCoordinator _coordinator = null!;
         private IDialoguePlayer _audioPlayer = null!;
+
+        public override void _Notification(int what) => this.Notify(what);
 
         private ConversationDisplayInfo _displayInfo = new();
 
@@ -19,41 +21,28 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
-            base._Ready();
-            GD.Print("ConversationDisplay: Initializing with services...");
-            InitializeWithServices();
+            GD.Print("ConversationDisplay: Ready, waiting for dependencies...");
+            // Dependencies resolved in OnResolved(), don't call base._Ready()
+        }
+
+        /// <summary>
+        /// Called when all dependencies are resolved.
+        /// </summary>
+        public void OnResolved()
+        {
+            GD.Print("ConversationDisplay: Dependencies resolved, initializing...");
+
+            // Get dependencies via DI
+            _coordinator = DependencyInjection.Get<BroadcastCoordinator>(this);
+            _repository = DependencyInjection.Get<ICallerRepository>(this);
+            _audioPlayer = DependencyInjection.Get<IDialoguePlayer>(this);
+            var eventBus = DependencyInjection.Get<EventBus>(this);
+
+            // Subscribe to events
+            _repository.Subscribe(this);
+            eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
+
             GD.Print("ConversationDisplay: Initialization complete");
-        }
-
-        private void InitializeWithServices()
-        {
-            if (ServiceRegistry.IsInitialized)
-            {
-                _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-                _repository = ServiceRegistry.Instance.CallerRepository;
-                _audioPlayer = ServiceRegistry.Instance.AudioPlayer;
-                var eventBus = ServiceRegistry.Instance.EventBus;
-
-                if (_coordinator != null && _repository != null && _audioPlayer != null && eventBus != null)
-                {
-                    _repository.Subscribe(this);
-                    eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
-                    ServiceRegistry.Instance.RegisterSelf<ConversationDisplay>(this);
-                }
-                else
-                {
-                    CallDeferred(nameof(RetryInitialization));
-                }
-            }
-            else
-            {
-                CallDeferred(nameof(RetryInitialization));
-            }
-        }
-
-        private void RetryInitialization()
-        {
-            InitializeWithServices();
         }
 
         // ICallerRepositoryObserver implementation

@@ -1,5 +1,3 @@
-#nullable enable
-
 using Godot;
 using KBTV.Callers;
 using KBTV.UI.Themes;
@@ -12,9 +10,11 @@ namespace KBTV.UI.Components
     public class CallerListAdapter : IListAdapter<Caller>
     {
         private readonly PackedScene? _itemScene;
+        private readonly ICallerRepository _repository;
 
-        public CallerListAdapter()
+        public CallerListAdapter(ICallerRepository repository)
         {
+            _repository = repository;
             _itemScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerQueueItem.tscn");
         }
 
@@ -79,7 +79,7 @@ namespace KBTV.UI.Components
             styleBox.CornerRadiusBottomRight = 4;
             styleBox.CornerRadiusBottomLeft = 4;
 
-            var repository = Core.ServiceRegistry.Instance?.CallerRepository;
+            var repository = _repository;
             bool isScreening = repository?.CurrentScreening == caller;
             styleBox.BgColor = isScreening ? UIColors.Screening.Selected : UIColors.Screening.Default;
 

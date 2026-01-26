@@ -3,11 +3,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Chickensoft.AutoInject;
-using Chickensoft.Introspection;
 using Godot;
 using KBTV.Core;
 using KBTV.Callers;
+using KBTV.Managers;
 
 namespace KBTV.Dialogue
 {
@@ -18,28 +17,19 @@ namespace KBTV.Dialogue
     /// Publishes events for UI updates.
     /// Converted to AutoInject Provider pattern.
     /// </summary>
-    [Meta(typeof(IAutoNode))]
     public partial class AsyncBroadcastLoop : Node,
         IProvide<AsyncBroadcastLoop>,
         IDependent
     {
         public override void _Notification(int what) => this.Notify(what);
 
-        [Dependency]
-        private ICallerRepository CallerRepository => DependOn<ICallerRepository>();
+        private ICallerRepository CallerRepository => DependencyInjection.Get<ICallerRepository>(this);
 
-        [Dependency]
-        private IArcRepository ArcRepository => DependOn<IArcRepository>();
+        private IArcRepository ArcRepository => DependencyInjection.Get<IArcRepository>(this);
 
-        [Dependency]
-        private EventBus EventBus => DependOn<EventBus>();
+        private EventBus EventBus => DependencyInjection.Get<EventBus>(this);
 
-        // Temporary workaround for missing DependOn<T> extension method
-        private T DependOn<T>() where T : class
-        {
-            // Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
-            return ServiceRegistry.Instance.Get<T>();
-        }
+        private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
 
         private BroadcastStateManager _stateManager = null!;
         private BroadcastTimer _broadcastTimer = null!;
@@ -69,7 +59,7 @@ namespace KBTV.Dialogue
                 vernDialogueLoader.LoadDialogue();
                 var vernDialogue = vernDialogueLoader.VernDialogue;
 
-                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue);
+                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager);
                 _broadcastTimer = new BroadcastTimer();
                 AddChild(_broadcastTimer);
 
@@ -305,7 +295,7 @@ namespace KBTV.Dialogue
 
                 // Publish interruption event
                 var interruptionEvent = new BroadcastInterruptionEvent(reason);
-                ServiceRegistry.Instance.EventBus.Publish(interruptionEvent);
+                EventBus.Publish(interruptionEvent);
             }
         }
 

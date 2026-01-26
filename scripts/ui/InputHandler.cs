@@ -15,8 +15,8 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            _gameState = Core.ServiceRegistry.Instance.GameStateManager;
-            _repository = Core.ServiceRegistry.Instance.CallerRepository;
+            _gameState = DependencyInjection.Get<GameStateManager>(this);
+            _repository = DependencyInjection.Get<ICallerRepository>(this);
 
             if (_repository == null)
             {

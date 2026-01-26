@@ -2,8 +2,6 @@
 
 using System;
 using System.Threading.Tasks;
-using Chickensoft.AutoInject;
-using Chickensoft.Introspection;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
@@ -43,34 +41,21 @@ namespace KBTV.Dialogue
     /// Replaces complex state management with clean async loop and event-driven flow.
     /// Converted to AutoInject Provider pattern.
     /// </summary>
-    [Meta(typeof(IAutoNode))]
     public partial class BroadcastCoordinator : Node, IBroadcastCoordinator,
         IProvide<BroadcastCoordinator>,
         IDependent
     {
         public override void _Notification(int what) => this.Notify(what);
 
-        [Dependency]
-        private AsyncBroadcastLoop AsyncBroadcastLoop => DependOn<AsyncBroadcastLoop>();
+        private AsyncBroadcastLoop AsyncBroadcastLoop => DependencyInjection.Get<AsyncBroadcastLoop>(this);
 
-        [Dependency]
-        private ICallerRepository CallerRepository => DependOn<ICallerRepository>();
+        private ICallerRepository CallerRepository => DependencyInjection.Get<ICallerRepository>(this);
 
-        [Dependency]
-        private AdManager AdManager => DependOn<AdManager>();
+        private AdManager AdManager => DependencyInjection.Get<AdManager>(this);
 
-        [Dependency]
-        private TimeManager TimeManager => DependOn<TimeManager>();
+        private TimeManager TimeManager => DependencyInjection.Get<TimeManager>(this);
 
-        [Dependency]
-        private EventBus EventBus => DependOn<EventBus>();
-
-        // Temporary workaround for missing DependOn<T> extension method
-        private T DependOn<T>() where T : class
-        {
-            // Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
-            return ServiceRegistry.Instance.Get<T>();
-        }
+        private EventBus EventBus => DependencyInjection.Get<EventBus>(this);
 
         private bool _isBroadcastActive = false;
         private bool _isOutroMusicQueued = false;

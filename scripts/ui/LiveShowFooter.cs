@@ -3,10 +3,11 @@ using KBTV.Ads;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Dialogue;
+using KBTV.Managers;
 
 namespace KBTV.UI
 {
-    public partial class LiveShowFooter : Control
+    public partial class LiveShowFooter : Control, IDependent
     {
         private Label _callerNameLabel = null!;
         private Button _queueAdsButton = null!;
@@ -19,6 +20,8 @@ namespace KBTV.UI
         private AdManager _adManager = null!;
         private BroadcastCoordinator _coordinator = null!;
 
+        public override void _Notification(int what) => this.Notify(what);
+
         private string _previousOnAirCallerId = string.Empty;
 
         public override void _Ready()
@@ -30,57 +33,28 @@ namespace KBTV.UI
             _adBreakPanel = GetNode<Control>("HBoxContainer/AdBreakPanel");
             _endShowPanel = GetNode<Control>("HBoxContainer/EndShowPanel");
 
-            InitializeWithServices();
+            GD.Print("LiveShowFooter: Ready, waiting for dependencies...");
+            // Dependencies resolved in OnResolved()
         }
 
-        private void InitializeWithServices()
+        /// <summary>
+        /// Called when all dependencies are resolved.
+        /// </summary>
+        public void OnResolved()
         {
-            if (Core.ServiceRegistry.IsInitialized)
-            {
-                _repository = Core.ServiceRegistry.Instance.CallerRepository;
-                _adManager = Core.ServiceRegistry.Instance.AdManager;
-                _coordinator = Core.ServiceRegistry.Instance.BroadcastCoordinator;
+            GD.Print("LiveShowFooter: Dependencies resolved, initializing...");
 
-                if (_repository != null && _adManager != null && _coordinator != null)
-                {
-            if (_adManager != null)
-            {
-                if (_adManager.IsInitialized)
-                {
-                    // Handle immediately if already initialized
-                    OnAdManagerInitialized();
-                }
-                else
-                {
-                    // Subscribe for future initialization
-                    _adManager.OnInitialized += OnAdManagerInitialized;
-                }
-                _adManager.OnBreakWindowOpened += OnBreakWindowOpened;
-                _adManager.OnBreakQueued += OnBreakQueued;
-                _adManager.OnBreakStarted += OnBreakStarted;
-                _adManager.OnBreakEnded += OnBreakEnded;
-                _adManager.OnShowEnded += OnShowEnded;
-            }
-        }
-                else
-                {
-                    CallDeferred(nameof(RetryInitialization));
-                }
-            }
-            else
-            {
-                CallDeferred(nameof(RetryInitialization));
-            }
-        }
+            // Get dependencies via DI
+            _repository = DependencyInjection.Get<ICallerRepository>(this);
+            _adManager = DependencyInjection.Get<AdManager>(this);
+            _coordinator = DependencyInjection.Get<BroadcastCoordinator>(this);
 
-        private void RetryInitialization()
-        {
-            InitializeWithServices();
+            // Set up AdManager events
+            SetupAdManagerEvents();
         }
 
         private void SetupAdManagerEvents()
         {
-
             if (_adManager != null)
             {
                 if (_adManager.IsInitialized)
@@ -190,7 +164,7 @@ namespace KBTV.UI
                 float nextBreakTime = _adManager.GetNextBreakTime();
                 if (nextBreakTime > 0)
                 {
-                    float currentTime = ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                    float currentTime = DependencyInjection.Get<TimeManager>(this)?.ElapsedTime ?? 0f;
                     float countdown = Mathf.Max(0, nextBreakTime - currentTime);
                     return $"QUEUED {countdown:F1}";
                 }
@@ -265,7 +239,7 @@ namespace KBTV.UI
                     float nextBreakTime = _adManager.GetNextBreakTime();
                     if (nextBreakTime > 0)
                     {
-                        float currentTime = Core.ServiceRegistry.Instance.TimeManager?.ElapsedTime ?? 0f;
+                        float currentTime = DependencyInjection.Get<TimeManager>(this)?.ElapsedTime ?? 0f;
                         float timeUntilWindow = Mathf.Max(0, nextBreakTime - AdConstants.BREAK_WINDOW_DURATION - currentTime);
 
                         int seconds = (int)timeUntilWindow;

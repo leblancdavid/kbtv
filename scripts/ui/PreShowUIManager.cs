@@ -4,10 +4,12 @@ using KBTV.Ads;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Data;
+using KBTV.Managers;
+using KBTV.Persistence;
 
 namespace KBTV.UI
 {
-	public partial class PreShowUIManager : Node
+	public partial class PreShowUIManager : Node, IDependent
 	{
 		private VBoxContainer contentContainer;
 		private OptionButton _topicSelector;
@@ -28,12 +30,17 @@ namespace KBTV.UI
 		private Label _durationLabel;
 		private Button _increaseDurationButton;
 
+		public override void _Notification(int what) => this.Notify(what);
+
 		public override void _Ready()
 		{
 			base._Ready();
-			ServiceRegistry.Instance.RegisterSelf<PreShowUIManager>(this);
 			LoadTopics();
 			GD.Print("PreShowUIManager: Initializing with services...");
+		}
+
+		public void OnResolved()
+		{
 			CreatePreShowUI();
 		}
 
@@ -44,7 +51,7 @@ namespace KBTV.UI
 
 		private void CreatePreShowUI()
 		{
-			var uiManager = ServiceRegistry.Instance?.UIManager;
+			var uiManager = DependencyInjection.Get<IUIManager>(this);
 			if (uiManager == null)
 			{
 				GD.PrintErr("PreShowUIManager: UIManager not available");
@@ -76,9 +83,10 @@ namespace KBTV.UI
 
 		private void LoadFromSave()
 		{
-			if (ServiceRegistry.Instance?.SaveManager != null)
+			var saveManager = DependencyInjection.Get<SaveManager>(this);
+			if (saveManager != null)
 			{
-				var save = ServiceRegistry.Instance.SaveManager.CurrentSave;
+				var save = saveManager.CurrentSave;
 				if (save.ShowDurationMinutes >= 1 && save.ShowDurationMinutes <= 20)
 				{
 					_showDurationMinutes = save.ShowDurationMinutes;
@@ -222,10 +230,11 @@ namespace KBTV.UI
 
 		private void UpdateSave()
 		{
-			if (ServiceRegistry.Instance?.SaveManager != null)
+			var saveManager = DependencyInjection.Get<SaveManager>(this);
+			if (saveManager != null)
 			{
-				ServiceRegistry.Instance.SaveManager.CurrentSave.ShowDurationMinutes = _showDurationMinutes;
-				ServiceRegistry.Instance.SaveManager.MarkDirty();
+				saveManager.CurrentSave.ShowDurationMinutes = _showDurationMinutes;
+				saveManager.MarkDirty();
 			}
 		}
 
@@ -274,7 +283,11 @@ namespace KBTV.UI
 			if (index >= 0 && index < _availableTopics.Count)
 			{
 				var selectedTopic = _availableTopics[(int)index];
-				ServiceRegistry.Instance.GameStateManager.SetSelectedTopic(selectedTopic);
+				var gameStateManager = DependencyInjection.Get<GameStateManager>(this);
+				if (gameStateManager != null)
+				{
+					gameStateManager.SetSelectedTopic(selectedTopic);
+				}
 				_topicDescription.Text = selectedTopic.Description;
 				_startShowButton.Disabled = false;
 				_errorLabel.Text = "";
@@ -283,16 +296,22 @@ namespace KBTV.UI
 
 		private void OnStartShowPressed()
 		{
-			if (ServiceRegistry.Instance.GameStateManager.CanStartLiveShow())
+			var gameStateManager = DependencyInjection.Get<GameStateManager>(this);
+			var timeManager = DependencyInjection.Get<TimeManager>(this);
+			
+			if (gameStateManager != null && gameStateManager.CanStartLiveShow())
 			{
 				// Set the ad schedule
 				var adSchedule = new AdSchedule(_breaksPerShow, _slotsPerBreak);
-				ServiceRegistry.Instance.GameStateManager.SetAdSchedule(adSchedule);
+				gameStateManager.SetAdSchedule(adSchedule);
 
 				// Set the show duration
-				ServiceRegistry.Instance.TimeManager.SetShowDuration(_showDurationMinutes * 60f);
+				if (timeManager != null)
+				{
+					timeManager.SetShowDuration(_showDurationMinutes * 60f);
+				}
 
-				ServiceRegistry.Instance.GameStateManager.StartLiveShow();
+				gameStateManager.StartLiveShow();
 			}
 			else
 			{
@@ -303,7 +322,7 @@ namespace KBTV.UI
 
 		private void UpdateUI()
 		{
-			var gameState = ServiceRegistry.Instance.GameStateManager;
+			var gameState = DependencyInjection.Get<GameStateManager>(this);
 			if (gameState != null && _startShowButton != null)
 			{
 				_startShowButton.Disabled = !gameState.CanStartLiveShow();

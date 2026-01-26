@@ -1,6 +1,4 @@
 using System.Threading.Tasks;
-using Chickensoft.AutoInject;
-using Chickensoft.Introspection;
 using Godot;
 using KBTV.Core;
 
@@ -8,14 +6,12 @@ namespace KBTV.UI
 {
     /// <summary>
     /// Manages screen transitions with fade effects.
-    /// Converted to AutoInject Provider pattern.
+    /// Converted to custom DI Provider pattern.
     /// </summary>
-    [Meta(typeof(IAutoNode))]
     public partial class GlobalTransitionManager : CanvasLayer,
-        IProvide<GlobalTransitionManager>
+        IProvide<GlobalTransitionManager>,
+        IAutoNode
     {
-        public override void _Notification(int what) => this.Notify(what);
-
         private ColorRect _fadeRect;
         private bool _isTransitioning;
         private const float DEFAULT_FADE_DURATION = 0.4f;
@@ -26,13 +22,12 @@ namespace KBTV.UI
         GlobalTransitionManager IProvide<GlobalTransitionManager>.Value() => this;
 
         /// <summary>
-        /// Called when node enters the scene tree and is ready.
+        /// Called when all dependencies are resolved.
         /// </summary>
-        public void OnReady()
+        public void OnResolved()
         {
             CreateFadeOverlay();
             GD.Print("GlobalTransitionManager: Initialized and providing service");
-            this.Provide();
         }
 
         private void CreateFadeOverlay()

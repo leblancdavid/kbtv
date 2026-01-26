@@ -1,5 +1,3 @@
-using Chickensoft.AutoInject;
-using Chickensoft.Introspection;
 using Godot;
 using KBTV.Managers;
 using KBTV.Economy;
@@ -12,12 +10,11 @@ using KBTV.Ads;
 
 namespace KBTV.Core;
 
-/// <summary>
-/// Root service provider that manages all game services as AutoInject providers.
-/// This replaces the ServiceRegistry global singleton approach.
-/// </summary>
-[Meta(typeof(IAutoNode))]
-public partial class ServiceProviderRoot : Node, 
+    /// <summary>
+    /// Root service provider that manages all game services as AutoInject providers.
+    /// This replaces the ServiceRegistry global singleton approach.
+    /// </summary>
+    public partial class ServiceProviderRoot : Node,
     IProvide<GameStateManager>,
     IProvide<TimeManager>,
     IProvide<EconomyManager>,
@@ -32,7 +29,8 @@ public partial class ServiceProviderRoot : Node,
     IProvide<AsyncBroadcastLoop>,
     IProvide<BroadcastCoordinator>,
     IProvide<GlobalTransitionManager>,
-    IProvide<AdManager>
+    IProvide<AdManager>,
+    IProvide<ITranscriptRepository>
 {
     public override void _Notification(int what) => this.Notify(what);
 
@@ -52,6 +50,7 @@ public partial class ServiceProviderRoot : Node,
     public BroadcastCoordinator BroadcastCoordinator { get; private set; } = null!;
     public GlobalTransitionManager GlobalTransitionManager { get; private set; } = null!;
     public AdManager AdManager { get; private set; } = null!;
+    public TranscriptRepository TranscriptRepository { get; private set; } = null!;
 
     // Provider interface implementations
     GameStateManager IProvide<GameStateManager>.Value() => GameStateManager;
@@ -69,6 +68,7 @@ public partial class ServiceProviderRoot : Node,
     BroadcastCoordinator IProvide<BroadcastCoordinator>.Value() => BroadcastCoordinator;
     GlobalTransitionManager IProvide<GlobalTransitionManager>.Value() => GlobalTransitionManager;
     AdManager IProvide<AdManager>.Value() => AdManager;
+    ITranscriptRepository IProvide<ITranscriptRepository>.Value() => TranscriptRepository;
 
     /// <summary>
     /// Initialize all service providers and register them with AutoInject.
@@ -116,11 +116,17 @@ public partial class ServiceProviderRoot : Node,
         ServiceRegistry.Instance.Register<ListenerManager>(ListenerManager);
 
         // Create dialogue player
-        var audioPlayer = new AudioDialoguePlayer();
+        var audioPlayer = new AudioDialoguePlayer(GameStateManager);
         AddChild(audioPlayer);
         DialoguePlayer = audioPlayer;
         ServiceRegistry.Instance.Register<IDialoguePlayer>(DialoguePlayer);
         ServiceRegistry.Instance.Register<AudioDialoguePlayer>(audioPlayer);
+
+        // Create transcript repository
+        TranscriptRepository = new TranscriptRepository();
+        AddChild(TranscriptRepository);
+        ServiceRegistry.Instance.Register<ITranscriptRepository>(TranscriptRepository);
+        ServiceRegistry.Instance.Register<TranscriptRepository>(TranscriptRepository);
 
         // Create caller generator
         CallerGenerator = new CallerGenerator();
@@ -173,6 +179,15 @@ public partial class ServiceProviderRoot : Node,
         
         // Make all services available to descendants
         this.Provide();
+    }
+
+    /// <summary>
+    /// Called when all dependencies are resolved (required by IDependent).
+    /// For the root provider, this just calls OnReady.
+    /// </summary>
+    public void OnResolved()
+    {
+        OnReady();
     }
 
     /// <summary>

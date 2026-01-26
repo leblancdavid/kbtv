@@ -74,7 +74,7 @@ namespace KBTV.Core
             Register<EventBus>(eventBus);
             NotifyRegistered();
 
-            var audioPlayer = new AudioDialoguePlayer();
+            var audioPlayer = new AudioDialoguePlayer(GameStateManager);
             AddChild(audioPlayer);
             Register<IDialoguePlayer>(audioPlayer);
             NotifyRegistered();

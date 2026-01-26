@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Godot;
 using KBTV.Audio;
 using KBTV.Core;
+using KBTV.Managers;
 
 namespace KBTV.Dialogue
 {
@@ -17,13 +18,15 @@ namespace KBTV.Dialogue
         private readonly string _adText;
         private readonly string? _sponsor;
         private readonly string? _audioPath;
+        private readonly ListenerManager _listenerManager;
 
-        public AdExecutable(string id, string adText, float duration, string? sponsor = null, string? audioPath = null) 
-            : base(id, BroadcastItemType.Ad, true, duration, new { adText, sponsor, audioPath })
+        public AdExecutable(string id, string adText, float duration, EventBus eventBus, ListenerManager listenerManager, string? sponsor = null, string? audioPath = null) 
+            : base(id, BroadcastItemType.Ad, true, duration, eventBus, new { adText, sponsor, audioPath })
         {
             _adText = adText;
             _sponsor = sponsor;
             _audioPath = audioPath;
+            _listenerManager = listenerManager;
         }
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
@@ -32,7 +35,7 @@ namespace KBTV.Dialogue
             GD.Print($"AdExecutable: Playing commercial - {displayText}");
             
             // Calculate and add revenue (placeholder for now)
-            var listenerCount = ServiceRegistry.Instance.ListenerManager?.CurrentListeners ?? 100;
+            var listenerCount = _listenerManager?.CurrentListeners ?? 100;
             var revenue = CalculateRevenue(listenerCount);
             
             // This would integrate with EconomyManager when available
@@ -101,14 +104,14 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Create an ad executable based on listener count.
         /// </summary>
-        public static AdExecutable CreateForListenerCount(string id, int listenerCount, int adIndex)
+        public static AdExecutable CreateForListenerCount(string id, int listenerCount, int adIndex, EventBus eventBus, ListenerManager listenerManager)
         {
             var adType = GetAdTypeForListenerCount(listenerCount);
             var sponsor = GetSponsorName(adType);
             var adText = $"Commercial Break {adIndex}";
             var audioPath = $"res://assets/audio/ads/{adType.ToString().ToLower()}_{adIndex}.mp3";
             
-            return new AdExecutable(id, adText, 4.0f, sponsor, audioPath);
+            return new AdExecutable(id, adText, 4.0f, eventBus, listenerManager, sponsor, audioPath);
         }
 
         private static AdType GetAdTypeForListenerCount(int listenerCount)

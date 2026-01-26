@@ -1,5 +1,3 @@
-#nullable enable
-
 using System;
 using System.Collections.Generic;
 using Godot;
@@ -10,7 +8,7 @@ using KBTV.UI.Themes;
 
 namespace KBTV.UI
 {
-	public partial class ScreeningPanel : Control
+	public partial class ScreeningPanel : Control, IDependent
 	{
 		[ExportGroup("Node References")]
 		[Export]
@@ -33,18 +31,20 @@ namespace KBTV.UI
 		private Label? _patienceLabel;
 
 		private IScreeningController _controller = null!;
+		private ICallerRepository? _callerRepository;
 		private Caller? _pendingCaller;
 
 		private bool _nodesInitialized;
 		private Caller? _previousCaller;
 		private float _previousProgressPercent = -1f;
 
+		public override void _Notification(int what) => this.Notify(what);
+
 		public override void _Ready()
 		{
 			EnsureNodesInitialized();
 			_nodesInitialized = _headerRow != null && _propertiesGrid != null &&
 			                   _approveButton != null && _rejectButton != null;
-			InitializeController();
 			if (_approveButton != null && _rejectButton != null)
 			{
 				ConnectSignals();
@@ -56,9 +56,16 @@ namespace KBTV.UI
 			ValidateNodeReferences();
 		}
 
+		public void OnResolved()
+		{
+			_controller = DependencyInjection.Get<IScreeningController>(this);
+			_callerRepository = DependencyInjection.Get<ICallerRepository>(this);
+			_controller.PhaseChanged += OnPhaseChanged;
+		}
+
 		private void InitializeController()
 		{
-			_controller = Core.ServiceRegistry.Instance.ScreeningController;
+			_controller = DependencyInjection.Get<IScreeningController>(this);
 			_controller.PhaseChanged += OnPhaseChanged;
 		}
 
@@ -115,7 +122,7 @@ namespace KBTV.UI
 		public override void _Process(double delta)
 		{
 			var currentCaller = _controller.CurrentCaller;
-			var isScreening = ServiceRegistry.Instance?.CallerRepository.IsScreening == true;
+			var isScreening = _callerRepository?.IsScreening == true;
 			
 			if (currentCaller != _previousCaller || !isScreening)
 			{
@@ -293,8 +300,7 @@ namespace KBTV.UI
 
 		private void UpdateButtons()
 		{
-			var repository = ServiceRegistry.Instance?.CallerRepository;
-			var hasCaller = _controller.CurrentCaller != null && repository?.IsScreening == true;
+			var hasCaller = _controller.CurrentCaller != null && _callerRepository?.IsScreening == true;
 			_approveButton!.Disabled = !hasCaller;
 			_rejectButton!.Disabled = !hasCaller;
 

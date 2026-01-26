@@ -1,6 +1,4 @@
 using System;
-using Chickensoft.AutoInject;
-using Chickensoft.Introspection;
 using Godot;
 using KBTV.Ads;
 using KBTV.Data;
@@ -18,7 +16,6 @@ namespace KBTV.Core
 	/// Manages the game state and phase transitions for nightly broadcasts.
 	/// Uses AutoInject IAutoNode pattern for dependency injection.
 	/// </summary>
-    [Meta(typeof(IAutoNode))]
     public partial class GameStateManager : Node, 
         IProvide<GameStateManager>, IProvide<TimeManager>, IProvide<EconomyManager>,
         IProvide<SaveManager>, IProvide<ICallerRepository>,
@@ -35,23 +32,16 @@ namespace KBTV.Core
 		// DEPENDENCIES
 		// ═══════════════════════════════════════════════════════════════════════════════════════════════
 
-        [Dependency] private TimeManager TimeManager => DependOn<TimeManager>();
-        [Dependency] private EconomyManager EconomyManager => DependOn<EconomyManager>();
-        [Dependency] private SaveManager SaveManager => DependOn<SaveManager>();
-        [Dependency] private ICallerRepository CallerRepository => DependOn<ICallerRepository>();
-        [Dependency] private IUIManager UIManager => DependOn<IUIManager>();
-        [Dependency] private BroadcastCoordinator BroadcastCoordinator => DependOn<BroadcastCoordinator>();
-        [Dependency] private AdManager AdManager => DependOn<AdManager>();
-        [Dependency] private CallerGenerator CallerGenerator => DependOn<CallerGenerator>();
-        [Dependency] private IDialoguePlayer AudioPlayer => DependOn<IDialoguePlayer>();
-        [Dependency] private EventBus EventBus => DependOn<EventBus>();
-
-		// Temporary workaround for missing DependOn<T> extension method
-		private T DependOn<T>() where T : class
-		{
-			// Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
-			return ServiceRegistry.Instance.Get<T>();
-		}
+        private TimeManager TimeManager => DependencyInjection.Get<TimeManager>(this);
+        private EconomyManager EconomyManager => DependencyInjection.Get<EconomyManager>(this);
+        private SaveManager SaveManager => DependencyInjection.Get<SaveManager>(this);
+        private ICallerRepository CallerRepository => DependencyInjection.Get<ICallerRepository>(this);
+        private IUIManager UIManager => DependencyInjection.Get<IUIManager>(this);
+        private BroadcastCoordinator BroadcastCoordinator => DependencyInjection.Get<BroadcastCoordinator>(this);
+        private AdManager AdManager => DependencyInjection.Get<AdManager>(this);
+        private CallerGenerator CallerGenerator => DependencyInjection.Get<CallerGenerator>(this);
+        private IDialoguePlayer AudioPlayer => DependencyInjection.Get<IDialoguePlayer>(this);
+        private EventBus EventBus => DependencyInjection.Get<EventBus>(this);
 
 		private GamePhase _currentPhase = GamePhase.PreShow;
         private VernStats _vernStats;

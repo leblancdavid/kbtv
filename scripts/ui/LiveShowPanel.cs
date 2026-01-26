@@ -11,7 +11,7 @@ namespace KBTV.UI
     /// Displays current dialogue with typewriter effect.
     /// Polls BroadcastCoordinator for the current line to display.
     /// </summary>
-    public partial class LiveShowPanel : Control
+    public partial class LiveShowPanel : Control, IDependent
     {
         [Export] private Label? _speakerIcon;
         [Export] private Label? _speakerName;
@@ -20,6 +20,8 @@ namespace KBTV.UI
         [Export] private ProgressBar? _progressBar;
 
         private BroadcastCoordinator _coordinator = null!;
+
+        public override void _Notification(int what) => this.Notify(what);
 
 private string _displayedText = string.Empty;
         private float _typewriterSpeed = 50f;
@@ -33,49 +35,38 @@ private string _displayedText = string.Empty;
 
         public override void _EnterTree()
         {
-            // Subscribe to events as early as possible to avoid missing initial line
-            if (ServiceRegistry.Instance?.EventBus != null)
-            {
-                ServiceRegistry.Instance.EventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
-                ServiceRegistry.Instance.EventBus.Subscribe<BroadcastItemStartedEvent>(HandleBroadcastItemStarted);
-            }
+            // Dependencies will be resolved in OnResolved()
         }
 
         public override void _Ready()
         {
-            GD.Print("LiveShowPanel: Initializing with services...");
-            InitializeWithServices();
+            GD.Print("LiveShowPanel: Ready, waiting for dependencies...");
+            // Dependencies resolved in OnResolved()
         }
 
-        private void InitializeWithServices()
+        /// <summary>
+        /// Called when all dependencies are resolved.
+        /// </summary>
+        public void OnResolved()
         {
-            if (ServiceRegistry.IsInitialized)
-            {
-                _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-                GD.Print($"DEBUG: LiveShowPanel coordinator assigned: {_coordinator != null}");
+            GD.Print("LiveShowPanel: Dependencies resolved, initializing...");
 
-                if (_coordinator != null)
-                {
-                    _speakerIcon = GetNode<Label>("%SpeakerIcon");
-                    _speakerName = GetNode<Label>("%SpeakerName");
-                    _phaseLabel = GetNode<Label>("%PhaseLabel");
-                    _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
-                    _progressBar = GetNode<ProgressBar>("%ProgressBar");
-                }
-                else
-                {
-                    CallDeferred(nameof(RetryInitialization));
-                }
-            }
-            else
-            {
-                CallDeferred(nameof(RetryInitialization));
-            }
-        }
+            // Get dependencies via DI
+            var eventBus = DependencyInjection.Get<EventBus>(this);
+            _coordinator = DependencyInjection.Get<BroadcastCoordinator>(this);
 
-        private void RetryInitialization()
-        {
-            InitializeWithServices();
+            // Subscribe to events
+            eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
+            eventBus.Subscribe<BroadcastItemStartedEvent>(HandleBroadcastItemStarted);
+
+            GD.Print($"DEBUG: LiveShowPanel coordinator assigned: {_coordinator != null}");
+
+            // Initialize UI nodes
+            _speakerIcon = GetNode<Label>("%SpeakerIcon");
+            _speakerName = GetNode<Label>("%SpeakerName");
+            _phaseLabel = GetNode<Label>("%PhaseLabel");
+            _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
+            _progressBar = GetNode<ProgressBar>("%ProgressBar");
         }
 
         // Event-driven line handling using BroadcastEvent system

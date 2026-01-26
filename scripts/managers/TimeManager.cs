@@ -1,6 +1,4 @@
 using System;
-using Chickensoft.AutoInject;
-using Chickensoft.Introspection;
 using Godot;
 using KBTV.Core;
 using KBTV.Persistence;
@@ -12,7 +10,6 @@ namespace KBTV.Managers;
 /// Handles time progression during live broadcasts.
 /// Converted to AutoInject Provider pattern.
 /// </summary>
-[Meta(typeof(IAutoNode))]
 public partial class TimeManager : Node, ISaveable, 
     IProvide<TimeManager>,
     IDependent
@@ -24,15 +21,7 @@ public partial class TimeManager : Node, ISaveable,
     [Signal] public delegate void ShowEndingWarningEventHandler(float secondsRemaining);
     [Signal] public delegate void RunningChangedEventHandler(bool isRunning);
 
-    [Dependency]
-    private SaveManager SaveManager => DependOn<SaveManager>();
-
-    // Temporary workaround for missing DependOn<T> extension method
-    private T DependOn<T>() where T : class
-    {
-        // Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
-        return ServiceRegistry.Instance.Get<T>();
-    }
+    private SaveManager SaveManager => DependencyInjection.Get<SaveManager>(this);
 
     [Export] private float _showDurationSeconds = 600f; // 10 minutes real-time
     [Export] private float _showDurationHours = 4f;

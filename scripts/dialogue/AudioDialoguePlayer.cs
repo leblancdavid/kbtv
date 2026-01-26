@@ -16,10 +16,16 @@ namespace KBTV.Dialogue
         private AudioStreamPlayer _audioPlayer = null!;
         private string? _currentLineId;
         private SceneTreeTimer? _currentTimer; // Track active timer to prevent multiples
+        private readonly GameStateManager _gameStateManager;
 
         public event System.Action<AudioCompletedEvent>? LineCompleted;
 
         public bool IsPlaying => _audioPlayer?.Playing ?? false;
+
+        public AudioDialoguePlayer(GameStateManager gameStateManager)
+        {
+            _gameStateManager = gameStateManager;
+        }
 
         public override void _Ready()
         {
@@ -252,7 +258,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
         private string GetVernMood()
         {
             // Get Vern's current mood from the game state
-            var vernStats = ServiceRegistry.Instance?.GameStateManager?.VernStats;
+            var vernStats = _gameStateManager?.VernStats;
             if (vernStats != null)
             {
                 return vernStats.CurrentMoodType.ToString().ToLower();

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Managers;
 
 namespace KBTV.Dialogue
 {
@@ -35,6 +36,7 @@ namespace KBTV.Dialogue
     {
         private readonly ICallerRepository _callerRepository;
         private readonly EventBus _eventBus;
+        private readonly ListenerManager _listenerManager;
         private AsyncBroadcastState _currentState = AsyncBroadcastState.Idle;
         private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
         private bool _isShowActive = false;
@@ -49,12 +51,15 @@ namespace KBTV.Dialogue
         public BroadcastStateManager(
             ICallerRepository callerRepository,
             IArcRepository arcRepository,
-            VernDialogueTemplate vernDialogue)
+            VernDialogueTemplate vernDialogue,
+            EventBus eventBus,
+            ListenerManager listenerManager)
         {
             _callerRepository = callerRepository;
             _arcRepository = arcRepository;
             _vernDialogue = vernDialogue;
-            _eventBus = ServiceRegistry.Instance.EventBus;
+            _eventBus = eventBus;
+            _listenerManager = listenerManager;
 
             // Subscribe to timing events
             _eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
@@ -253,15 +258,14 @@ namespace KBTV.Dialogue
                    _callerRepository.IncomingCallers.Count == 0;
         }
 
-        // Executable creation methods
         private BroadcastExecutable CreateShowStartingExecutable() => 
-            new TransitionExecutable("show_start", "Show is starting...", 3.0f, "res://assets/audio/music/intro_music.wav");
+            new TransitionExecutable("show_start", "Show is starting...", 3.0f, _eventBus, "res://assets/audio/music/intro_music.wav");
 
         private BroadcastExecutable CreateShowOpeningExecutable() => 
-            new MusicExecutable("show_opening", "Show opening music", "res://assets/audio/music/intro_music.wav", 5.0f);
+            new MusicExecutable("show_opening", "Show opening music", "res://assets/audio/music/intro_music.wav", 5.0f, _eventBus);
 
         private BroadcastExecutable CreateIntroMusicExecutable() => 
-            new MusicExecutable("intro_music", "Intro music", "res://assets/audio/music/intro_music.wav", 4.0f);
+            new MusicExecutable("intro_music", "Intro music", "res://assets/audio/music/intro_music.wav", 4.0f, _eventBus);
 
         private BroadcastExecutable CreateConversationExecutable()
         {
@@ -275,7 +279,7 @@ namespace KBTV.Dialogue
                     var arc = _arcRepository.GetRandomArcForTopic(topic.Value, onAirCaller.Legitimacy);
                     if (arc != null)
                     {
-                        return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc);
+                        return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus);
                     }
                 }
             }
@@ -286,34 +290,33 @@ namespace KBTV.Dialogue
             {
                 var randomIndex = GD.RandRange(0, vernLines.Count - 1);
                 var randomLine = vernLines[randomIndex];
-                return new DialogueExecutable("vern_fallback", randomLine.Text, "Vern");
+                return new DialogueExecutable("vern_fallback", randomLine.Text, "Vern", _eventBus);
             }
 
             // Final fallback
-            return new DialogueExecutable("vern_fallback", "Welcome to the show.", "Vern");
+            return new DialogueExecutable("vern_fallback", "Welcome to the show.", "Vern", _eventBus);
         }
 
         private BroadcastExecutable CreateBetweenCallersExecutable() => 
-            new TransitionExecutable("between_callers", "Transitioning between callers", 4.0f, "res://assets/audio/bumpers/transition.wav");
+            new TransitionExecutable("between_callers", "Transitioning between callers", 4.0f, _eventBus, "res://assets/audio/bumpers/transition.wav");
 
         private BroadcastExecutable CreateDeadAirExecutable() => 
-            new TransitionExecutable("dead_air", "Dead air filler", 8.0f, "res://assets/audio/bumpers/dead_air.wav");
+            new TransitionExecutable("dead_air", "Dead air filler", 8.0f, _eventBus, "res://assets/audio/bumpers/dead_air.wav");
 
         private BroadcastExecutable CreateReturnFromBreakExecutable() => 
-            new TransitionExecutable("break_return", "Returning from break", 3.0f, "res://assets/audio/bumpers/return.wav");
+            new TransitionExecutable("break_return", "Returning from break", 3.0f, _eventBus, "res://assets/audio/bumpers/return.wav");
 
         private BroadcastExecutable CreateShowClosingExecutable() => 
-            new MusicExecutable("show_closing", "Show closing music", "res://assets/audio/music/outro_music.wav", 5.0f);
+            new MusicExecutable("show_closing", "Show closing music", "res://assets/audio/music/outro_music.wav", 5.0f, _eventBus);
 
         private IEnumerable<BroadcastExecutable> CreateAdBreakExecutables()
         {
-            var listenerManager = ServiceRegistry.Instance.ListenerManager;
-            var listenerCount = listenerManager != null ? listenerManager.CurrentListeners : 100;
+            var listenerCount = _listenerManager != null ? _listenerManager.CurrentListeners : 100;
             var adCount = Math.Max(1, listenerCount / 50); // 1 ad per 50 listeners
 
             for (int i = 0; i < adCount; i++)
             {
-                yield return AdExecutable.CreateForListenerCount($"ad_break_{i + 1}", listenerCount, i + 1);
+                yield return AdExecutable.CreateForListenerCount($"ad_break_{i + 1}", listenerCount, i + 1, _eventBus, _listenerManager);
             }
         }
     }

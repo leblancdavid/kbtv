@@ -10,7 +10,7 @@ namespace KBTV.UI
     /// Header component for the liveshow UI.
     /// Displays on-air status, listener count, and money balance.
     /// </summary>
-    public partial class LiveShowHeader : Control
+    public partial class LiveShowHeader : Control, IDependent
     {
     private Label _onAirLabel = null!;
     private Label _listenersLabel = null!;
@@ -21,6 +21,8 @@ namespace KBTV.UI
     private ListenerManager _listenerManager = null!;
     private EconomyManager _economyManager = null!;
     private TimeManager _timeManager = null!;
+
+    public override void _Notification(int what) => this.Notify(what);
 
     private bool _previousIsOnAir;
     private int _previousListeners;
@@ -34,39 +36,27 @@ namespace KBTV.UI
             _timerLabel = GetNode<Label>("HBoxContainer/TimerLabel");
             _moneyLabel = GetNode<Label>("HBoxContainer/MoneyLabel");
 
-            InitializeWithServices();
+            GD.Print("LiveShowHeader: Ready, waiting for dependencies...");
+            // Dependencies resolved in OnResolved()
         }
 
-        private void InitializeWithServices()
+        /// <summary>
+        /// Called when all dependencies are resolved.
+        /// </summary>
+        public void OnResolved()
         {
-            if (Core.ServiceRegistry.IsInitialized)
-            {
-                _repository = Core.ServiceRegistry.Instance.CallerRepository;
-                _listenerManager = Core.ServiceRegistry.Instance.ListenerManager;
-                _economyManager = Core.ServiceRegistry.Instance.EconomyManager;
-                _timeManager = Core.ServiceRegistry.Instance.TimeManager;
+            GD.Print("LiveShowHeader: Dependencies resolved, initializing...");
 
-                if (_repository != null && _listenerManager != null && _economyManager != null && _timeManager != null)
-                {
-                    TrackStateForRefresh();
-                    UpdateOnAirStatus();
-                    UpdateListeners();
-                    UpdateMoney();
-                }
-                else
-                {
-                    CallDeferred(nameof(RetryInitialization));
-                }
-            }
-            else
-            {
-                CallDeferred(nameof(RetryInitialization));
-            }
-        }
+            // Get dependencies via DI
+            _repository = DependencyInjection.Get<ICallerRepository>(this);
+            _listenerManager = DependencyInjection.Get<ListenerManager>(this);
+            _economyManager = DependencyInjection.Get<EconomyManager>(this);
+            _timeManager = DependencyInjection.Get<TimeManager>(this);
 
-        private void RetryInitialization()
-        {
-            InitializeWithServices();
+            TrackStateForRefresh();
+            UpdateOnAirStatus();
+            UpdateListeners();
+            UpdateMoney();
         }
 
         private void TrackStateForRefresh()

@@ -1,6 +1,4 @@
 using System;
-using Chickensoft.AutoInject;
-using Chickensoft.Introspection;
 using Godot;
 using KBTV.Ads;
 using KBTV.Core;
@@ -14,28 +12,17 @@ namespace KBTV.Ads
     /// Handles timing, player queuing, mood penalties, and revenue calculation.
     /// Converted to AutoInject Provider pattern.
     /// </summary>
-    [Meta(typeof(IAutoNode))]
     public partial class AdManager : Node,
         IProvide<AdManager>,
         IDependent
     {
         public override void _Notification(int what) => this.Notify(what);
 
-        [Dependency]
-        private TimeManager TimeManager => DependOn<TimeManager>();
+        private TimeManager TimeManager => DependencyInjection.Get<TimeManager>(this);
 
-        [Dependency]
-        private ListenerManager ListenerManager => DependOn<ListenerManager>();
+        private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
 
-        [Dependency]
-        private BroadcastCoordinator BroadcastCoordinator => DependOn<BroadcastCoordinator>();
-
-        // Temporary workaround for missing DependOn<T> extension method
-        private T DependOn<T>() where T : class
-        {
-            // Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
-            return ServiceRegistry.Instance.Get<T>();
-        }
+        private BroadcastCoordinator BroadcastCoordinator => DependencyInjection.Get<BroadcastCoordinator>(this);
 
         private AdSchedule _schedule;
         private float _showDuration = 0f;

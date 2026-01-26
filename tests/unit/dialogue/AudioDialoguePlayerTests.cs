@@ -1,6 +1,7 @@
 using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Dialogue;
+using KBTV.Core;
 
 namespace KBTV.Tests.Unit.Dialogue
 {
@@ -13,7 +14,8 @@ namespace KBTV.Tests.Unit.Dialogue
         [Setup]
         public void Setup()
         {
-            _audioPlayer = new AudioDialoguePlayer();
+            var gameStateManager = new GameStateManager();
+            _audioPlayer = new AudioDialoguePlayer(gameStateManager);
         }
 
         [Test]

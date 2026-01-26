@@ -9,15 +9,22 @@ namespace KBTV.UI
     /// Follows Godot's component-based architecture with self-managing tab components.
     /// </summary>
     [GlobalClass]
-    public partial class TabContainerManager : Node
+    public partial class TabContainerManager : Node, IDependent
     {
         private TabContainer _tabContainer;
         private CanvasLayer _canvas;
+
+        public override void _Notification(int what) => this.Notify(what);
 
         public override void _Ready()
         {
             GD.Print("TabContainerManager: Initializing with services...");
             CreateUI();
+        }
+
+        public void OnResolved()
+        {
+            RegisterWithUIManager();
         }
 
         private void CreateUI()
@@ -73,8 +80,7 @@ namespace KBTV.UI
                 GD.PrintErr("TabContainerManager: Failed to load LiveShowFooter.tscn");
             }
 
-            RegisterWithUIManager();
-            GD.Print("TabContainerManager: Initialization complete");
+            GD.Print("TabContainerManager: UI creation complete");
         }
 
 
@@ -112,7 +118,7 @@ namespace KBTV.UI
 
         private void RegisterWithUIManager()
         {
-            var uiManager = ServiceRegistry.Instance?.UIManager;
+            var uiManager = DependencyInjection.Get<IUIManager>(this);
             if (uiManager == null)
             {
                 GD.PrintErr("TabContainerManager: UIManager is null - cannot register LiveShow layer!");
@@ -120,6 +126,7 @@ namespace KBTV.UI
             }
 
             uiManager.RegisterLiveShowLayer(_canvas);
+            GD.Print("TabContainerManager: Registration complete");
         }
 
         public override void _ExitTree()

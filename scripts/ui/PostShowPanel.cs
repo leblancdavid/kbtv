@@ -1,5 +1,7 @@
 using Godot;
 using KBTV.Core;
+using KBTV.Managers;
+using KBTV.Economy;
 
 namespace KBTV.UI
 {
@@ -7,12 +9,14 @@ namespace KBTV.UI
 	/// Post-show summary panel displayed after the broadcast ends.
 	/// Shows placeholder stats and allows player to continue to the next night.
 	/// </summary>
-	public partial class PostShowPanel : Control
+	public partial class PostShowPanel : Control, IDependent
 	{
 		private Label _incomeLabel = null!;
 		private Label _callersLabel = null!;
 		private Label _listenersLabel = null!;
 		private Button _continueButton = null!;
+
+		public override void _Notification(int what) => this.Notify(what);
 
 		public override void _Ready()
 		{
@@ -28,14 +32,17 @@ namespace KBTV.UI
 			}
 
 			_continueButton.Pressed += OnContinuePressed;
+		}
 
+		public void OnResolved()
+		{
 			UpdateStats();
 		}
 
 		private void UpdateStats()
 		{
-			var economyManager = ServiceRegistry.Instance.EconomyManager;
-			var listenerManager = ServiceRegistry.Instance.ListenerManager;
+			var economyManager = DependencyInjection.Get<EconomyManager>(this);
+			var listenerManager = DependencyInjection.Get<ListenerManager>(this);
 
 			int income = economyManager?.CurrentMoney ?? 0;
 			int peakListeners = listenerManager?.PeakListeners ?? 0;
@@ -59,7 +66,8 @@ namespace KBTV.UI
 		private void OnContinuePressed()
 		{
 			// Advance to next night (returns to PreShow)
-			ServiceRegistry.Instance.GameStateManager?.AdvancePhase();
+			var gameStateManager = DependencyInjection.Get<GameStateManager>(this);
+			gameStateManager?.AdvancePhase();
 		}
 	}
 }
