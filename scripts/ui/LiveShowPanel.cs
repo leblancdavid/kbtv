@@ -20,6 +20,7 @@ namespace KBTV.UI
         [Export] private ProgressBar? _progressBar;
 
         private BroadcastCoordinator _coordinator = null!;
+        private BroadcastItemStartedEvent? _pendingBroadcastItemStartedEvent;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -79,11 +80,22 @@ private string _displayedText = string.Empty;
         // Handle new broadcast item with duration information for audio-synced typewriter
         private void HandleBroadcastItemStarted(BroadcastItemStartedEvent @event)
         {
+            _pendingBroadcastItemStartedEvent = @event;
+            CallDeferred("DeferredHandleBroadcastItemStarted");
+        }
+
+        private void DeferredHandleBroadcastItemStarted()
+        {
+            if (_pendingBroadcastItemStartedEvent == null) return;
+            
+            var @event = _pendingBroadcastItemStartedEvent;
+            _pendingBroadcastItemStartedEvent = null;
+            
             var item = @event.Item;
 
             if (string.IsNullOrEmpty(item.Text))
             {
-                UpdateWaitingDisplay();
+                DeferredUpdateWaitingDisplay();
                 return;
             }
 
@@ -92,8 +104,8 @@ private string _displayedText = string.Empty;
             _currentLineDuration = @event.Duration;
             _elapsedTime = 0f;
             
-            ResetTypewriterState();
-            UpdateItemDisplay(item);
+            DeferredResetTypewriterState();
+            DeferredUpdateItemDisplay(item);
         }
 
 public override void _Process(double delta)
@@ -134,7 +146,7 @@ public override void _Process(double delta)
 }
         }
 
-        private void UpdateWaitingDisplay()
+        private void DeferredUpdateWaitingDisplay()
         {
             if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
             {
@@ -148,7 +160,7 @@ public override void _Process(double delta)
             _progressBar?.Hide();
         }
 
-private void UpdateItemDisplay(BroadcastItem item)
+        private void DeferredUpdateItemDisplay(BroadcastItem item)
         {
             if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
             {
@@ -186,7 +198,7 @@ private void UpdateItemDisplay(BroadcastItem item)
             }
 
             // Reset typewriter state for new line
-            ResetTypewriterState();
+            DeferredResetTypewriterState();
             
             if (_progressBar != null)
             {
@@ -194,7 +206,7 @@ private void UpdateItemDisplay(BroadcastItem item)
             }
         }
 
-        private void ResetTypewriterState()
+        private void DeferredResetTypewriterState()
         {
             _displayedText = _currentLineText;
             _typewriterIndex = 0;

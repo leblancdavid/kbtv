@@ -17,8 +17,8 @@ namespace KBTV.Dialogue
         private readonly string _audioPath;
         private readonly string _description;
 
-        public MusicExecutable(string id, string description, string audioPath, float duration, EventBus eventBus) 
-            : base(id, BroadcastItemType.Music, true, duration, eventBus, new { audioPath, description })
+        public MusicExecutable(string id, string description, string audioPath, float duration, EventBus eventBus, IBroadcastAudioService audioService) 
+            : base(id, BroadcastItemType.Music, true, duration, eventBus, audioService, new { audioPath, description })
         {
             _audioPath = audioPath;
             _description = description;

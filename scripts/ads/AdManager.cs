@@ -5,6 +5,7 @@ using KBTV.Core;
 using KBTV.Economy;
 using KBTV.Managers;
 using KBTV.Dialogue;
+using KBTV.Audio;
 
 namespace KBTV.Ads
 {
@@ -28,6 +29,8 @@ namespace KBTV.Ads
         private EconomyManager EconomyManager => DependencyInjection.Get<EconomyManager>(this);
 
         private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
+
+        private IBroadcastAudioService BroadcastAudioService => DependencyInjection.Get<IBroadcastAudioService>(this);
 
         private AdSchedule _schedule;
         private float _showDuration = 0f;
@@ -58,7 +61,6 @@ namespace KBTV.Ads
         private SceneTreeTimer _breakTimer;
 
         // Modular components (restored from refactoring)
-        private AudioStreamPlayer _transitionMusicPlayer;
         private BreakScheduler _breakScheduler;
         private BreakLogic _breakLogic;
         private RevenueCalculator _revenueCalculator;
@@ -98,9 +100,6 @@ namespace KBTV.Ads
         /// </summary>
         public void OnResolved()
         {
-            _transitionMusicPlayer = new AudioStreamPlayer();
-            AddChild(_transitionMusicPlayer);
-            
             // Initialize modular components
             _breakLogic = new BreakLogic(GameStateManager, ListenerManager);
             _revenueCalculator = new RevenueCalculator(EconomyManager);
@@ -420,33 +419,10 @@ namespace KBTV.Ads
             _breakQueueStatus = BreakQueueStatus.Queued;
 
             // Play transition music as audio cue to Vern
-            var silentStream = GetSilentAudioFile();
-            if (silentStream != null)
-            {
-                _transitionMusicPlayer.Stream = silentStream;
-                _transitionMusicPlayer.Play();
-            }
-            else
-            {
-                GD.PrintErr("AdManager: Failed to load silent audio file for transition music");
-            }
+            _ = BroadcastAudioService.PlaySilentAudioAsync();
 
             OnBreakQueued?.Invoke();
             GD.Print($"AdManager: Break queued, {_timeUntilNextBreak:F1}s until break");
-        }
-
-        /// <summary>
-        /// Loads the 4-second silent WAV file for timing-critical scenarios.
-        /// </summary>
-        private AudioStream? GetSilentAudioFile()
-        {
-            var audioStream = GD.Load<AudioStream>("res://assets/audio/silence_4sec.wav");
-            if (audioStream == null)
-            {
-                GD.PrintErr("AdManager.GetSilentAudioFile: Failed to load silent audio file");
-                return null;
-            }
-            return audioStream;
         }
 
         /// <summary>

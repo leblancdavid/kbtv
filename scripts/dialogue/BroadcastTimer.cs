@@ -36,6 +36,34 @@ namespace KBTV.Dialogue
     }
 
     /// <summary>
+    /// Commands sent to BroadcastTimer from async components.
+    /// </summary>
+    public enum BroadcastTimerCommandType
+    {
+        StartShow,
+        StopShow,
+        ScheduleBreakWarnings,
+        StartAdBreak,
+        StopAdBreak
+    }
+
+    /// <summary>
+    /// Command event for timer operations.
+    /// </summary>
+    public class BroadcastTimerCommand : GameEvent
+    {
+        public BroadcastTimerCommandType Type { get; }
+        public object? Data { get; }
+
+        public BroadcastTimerCommand(BroadcastTimerCommandType type, object? data = null)
+        {
+            Type = type;
+            Data = data;
+            Source = "AsyncBroadcastLoop";
+        }
+    }
+
+    /// <summary>
     /// Dedicated timing service for broadcast events.
     /// Fires specific timing events for breaks, show end, and ad breaks.
     /// Replaces reliance on AdManager for timing.
@@ -64,6 +92,7 @@ namespace KBTV.Dialogue
         public void OnResolved()
         {
             _eventBus = DependencyInjection.Get<EventBus>(this);
+            _eventBus.Subscribe<BroadcastTimerCommand>(HandleTimerCommand);
         }
 
         /// <summary>
@@ -122,9 +151,34 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
+        /// Handle broadcast timer commands from async components.
+        /// </summary>
+        private void HandleTimerCommand(BroadcastTimerCommand command)
+        {
+            switch (command.Type)
+            {
+                case BroadcastTimerCommandType.StartShow:
+                    StartShowInternal((float)command.Data!);
+                    break;
+                case BroadcastTimerCommandType.StopShow:
+                    StopShowInternal();
+                    break;
+                case BroadcastTimerCommandType.ScheduleBreakWarnings:
+                    ScheduleBreakWarningsInternal((float)command.Data!);
+                    break;
+                case BroadcastTimerCommandType.StartAdBreak:
+                    StartAdBreakInternal();
+                    break;
+                case BroadcastTimerCommandType.StopAdBreak:
+                    StopAdBreakInternal();
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Start show timing - enables all timing events.
         /// </summary>
-        public void StartShow(float showDuration = 600.0f)
+        private void StartShowInternal(float showDuration = 600.0f)
         {
             _isShowActive = true;
             
@@ -139,7 +193,7 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Stop show timing - disables all timing events.
         /// </summary>
-        public void StopShow()
+        private void StopShowInternal()
         {
             _isShowActive = false;
             
@@ -155,7 +209,7 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Schedule break warning timers.
         /// </summary>
-        public void ScheduleBreakWarnings(float breakTime)
+        private void ScheduleBreakWarningsInternal(float breakTime)
         {
             if (!_isShowActive) return;
 
@@ -193,7 +247,7 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Start ad break timing.
         /// </summary>
-        public void StartAdBreak(float duration = 30.0f)
+        private void StartAdBreakInternal(float duration = 30.0f)
         {
             var startEvent = new BroadcastTimingEvent(BroadcastTimingEventType.AdBreakStart);
             _eventBus.Publish(startEvent);
@@ -209,7 +263,7 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Stop ad break timing.
         /// </summary>
-        public void StopAdBreak()
+        private void StopAdBreakInternal()
         {
             var endTimer = _timers[BroadcastTimingEventType.AdBreakEnd];
             endTimer.Stop();

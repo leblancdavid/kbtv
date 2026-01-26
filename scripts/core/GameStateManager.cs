@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using KBTV.Ads;
+using KBTV.Audio;
 using KBTV.Data;
 using KBTV.Dialogue;
 using KBTV.Economy;
@@ -41,7 +42,7 @@ namespace KBTV.Core
         private BroadcastCoordinator BroadcastCoordinator => DependencyInjection.Get<BroadcastCoordinator>(this);
         private AdManager AdManager => DependencyInjection.Get<AdManager>(this);
         private CallerGenerator CallerGenerator => DependencyInjection.Get<CallerGenerator>(this);
-        private IDialoguePlayer AudioPlayer => DependencyInjection.Get<IDialoguePlayer>(this);
+        private IBroadcastAudioService AudioPlayer => DependencyInjection.Get<IBroadcastAudioService>(this);
         private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
         private EventBus EventBus => DependencyInjection.Get<EventBus>(this);
 
@@ -305,7 +306,7 @@ namespace KBTV.Core
 			{
 				GD.Print("GameStateManager: Playing queued outro music");
 				var bumperItem = new BroadcastItem("Bumper_Music", BroadcastItemType.Music, "Bumper Music", duration: 4.0f);
-				AudioPlayer.PlayBroadcastItemAsync(bumperItem);
+				AudioPlayer.PlayAudioForBroadcastItemAsync(bumperItem);
 
 				// Wait for bumper to complete (4 seconds for music lines)
 				await ToSignal(GetTree().CreateTimer(4f), "timeout");
@@ -351,13 +352,13 @@ namespace KBTV.Core
 				if (@event.LineId == outroItem.Id)
 				{
 					GD.Print("GameStateManager: Outro music completed, advancing to PostShow");
-					EventBus.Unsubscribe<AudioCompletedEvent>(OnOutroCompleted);
+					AudioPlayer.LineCompleted -= OnOutroCompleted;
 					AdvanceToPostShow();
 				}
 			}
 
-			EventBus.Subscribe<AudioCompletedEvent>(OnOutroCompleted);
-			AudioPlayer.PlayBroadcastItemAsync(outroItem);
+			AudioPlayer.LineCompleted += OnOutroCompleted;
+			AudioPlayer.PlayAudioForBroadcastItemAsync(outroItem);
 		}
 
 		/// <summary>

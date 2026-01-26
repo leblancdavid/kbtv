@@ -2,6 +2,7 @@
 
 using System;
 using Godot;
+using KBTV.Audio;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Monitors;
@@ -11,7 +12,7 @@ namespace KBTV.Dialogue
     public partial class ConversationDisplay : DomainMonitor, ICallerRepositoryObserver, IDependent
     {
         private BroadcastCoordinator _coordinator = null!;
-        private IDialoguePlayer _audioPlayer = null!;
+        private IBroadcastAudioService _audioPlayer = null!;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -35,7 +36,7 @@ namespace KBTV.Dialogue
             // Get dependencies via DI
             _coordinator = DependencyInjection.Get<BroadcastCoordinator>(this);
             _repository = DependencyInjection.Get<ICallerRepository>(this);
-            _audioPlayer = DependencyInjection.Get<IDialoguePlayer>(this);
+            _audioPlayer = DependencyInjection.Get<IBroadcastAudioService>(this);
             var eventBus = DependencyInjection.Get<EventBus>(this);
 
             // Subscribe to events

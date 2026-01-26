@@ -7,6 +7,7 @@ using Godot;
 using KBTV.Core;
 using KBTV.Callers;
 using KBTV.Managers;
+using KBTV.Audio;
 
 namespace KBTV.Dialogue
 {
@@ -32,7 +33,6 @@ namespace KBTV.Dialogue
         private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
 
         private BroadcastStateManager _stateManager = null!;
-        private BroadcastTimer _broadcastTimer = null!;
         private CancellationTokenSource? _cancellationTokenSource;
         private Task? _broadcastTask;
         private bool _isRunning = false;
@@ -59,9 +59,7 @@ namespace KBTV.Dialogue
                 vernDialogueLoader.LoadDialogue();
                 var vernDialogue = vernDialogueLoader.VernDialogue;
 
-                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager);
-                _broadcastTimer = new BroadcastTimer();
-                AddChild(_broadcastTimer);
+                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager, DependencyInjection.Get<IBroadcastAudioService>(this));
 
                 GD.Print("AsyncBroadcastLoop: Initialization complete");
             }
@@ -105,7 +103,7 @@ namespace KBTV.Dialogue
             try
             {
                 _isRunning = true;
-                _broadcastTimer.StartShow(showDuration);
+                EventBus.Publish(new BroadcastTimerCommand(BroadcastTimerCommandType.StartShow, showDuration));
 
                 // Get the first executable and start the loop
                 var firstExecutable = _stateManager.StartShow();
@@ -196,8 +194,6 @@ namespace KBTV.Dialogue
             }
 
             _currentExecutable = executable;
-            AddChild(executable);
-            executable.Initialize();
 
             GD.Print($"AsyncBroadcastLoop: Executing {executable.Type} - {executable.Id}");
 
@@ -221,10 +217,8 @@ namespace KBTV.Dialogue
             }
             finally
             {
-                // Cleanup after execution
+                // Cleanup after execution (Cleanup stays on background thread)
                 executable.Cleanup();
-                RemoveChild(executable);
-                _currentExecutable = null;
             }
         }
 
@@ -250,16 +244,12 @@ namespace KBTV.Dialogue
 
             _isRunning = false;
             _cancellationTokenSource?.Cancel();
-            _broadcastTimer.StopShow();
+            EventBus.Publish(new BroadcastTimerCommand(BroadcastTimerCommandType.StopShow));
 
             // Cleanup current executable
             if (_currentExecutable != null)
             {
                 _currentExecutable.Cleanup();
-                if (IsInstanceValid(_currentExecutable))
-                {
-                    RemoveChild(_currentExecutable);
-                }
                 _currentExecutable = null;
             }
 
@@ -304,7 +294,7 @@ namespace KBTV.Dialogue
         /// </summary>
         public void ScheduleBreak(float breakTimeFromNow)
         {
-            _broadcastTimer.ScheduleBreakWarnings(breakTimeFromNow);
+            EventBus.Publish(new BroadcastTimerCommand(BroadcastTimerCommandType.ScheduleBreakWarnings, breakTimeFromNow));
         }
 
         /// <summary>
@@ -312,7 +302,7 @@ namespace KBTV.Dialogue
         /// </summary>
         public void StartAdBreak()
         {
-            _broadcastTimer.StartAdBreak();
+            EventBus.Publish(new BroadcastTimerCommand(BroadcastTimerCommandType.StartAdBreak));
         }
 
         /// <summary>

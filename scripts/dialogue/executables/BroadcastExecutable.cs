@@ -4,23 +4,23 @@ using System.Threading.Tasks;
 using Godot;
 using KBTV.Audio;
 using KBTV.Core;
-
+ 
 namespace KBTV.Dialogue
 {
     /// <summary>
     /// Base class for all broadcast executables with configurable async behavior.
     /// Each executable type controls whether it requires awaiting and handles interruption.
     /// </summary>
-    public abstract partial class BroadcastExecutable : Node
+    public abstract class BroadcastExecutable
     {
-        protected readonly string _id;
-        protected readonly BroadcastItemType _type;
-        protected readonly bool _requiresAwait;
-        protected readonly float _duration;
-        protected readonly object? _metadata;
-        protected readonly EventBus _eventBus;
-        protected AudioStreamPlayer? _audioPlayer;
+        protected string _id;
+        protected BroadcastItemType _type;
+        protected bool _requiresAwait;
+        protected float _duration;
+        protected EventBus _eventBus;
+        protected object? _metadata;
         protected CancellationTokenSource? _cancellationTokenSource;
+        protected IBroadcastAudioService _audioService;
 
         protected BroadcastExecutable(
             string id,
@@ -28,6 +28,7 @@ namespace KBTV.Dialogue
             bool requiresAwait,
             float duration,
             EventBus eventBus,
+            IBroadcastAudioService audioService,
             object? metadata = null)
         {
             _id = id;
@@ -35,6 +36,7 @@ namespace KBTV.Dialogue
             _requiresAwait = requiresAwait;
             _duration = duration;
             _eventBus = eventBus;
+            _audioService = audioService;
             _metadata = metadata;
         }
 
@@ -42,17 +44,6 @@ namespace KBTV.Dialogue
         public BroadcastItemType Type => _type;
         public bool RequiresAwait => _requiresAwait;
         public float Duration => _duration;
-        public object? Metadata => _metadata;
-
-        /// <summary>
-        /// Initialize the executable (called after service registry is available).
-        /// </summary>
-        public virtual void Initialize()
-        {
-            _audioPlayer = new AudioStreamPlayer();
-            AddChild(_audioPlayer);
-            _audioPlayer.Finished += OnAudioFinished;
-        }
 
         /// <summary>
         /// Execute the broadcast content asynchronously.
@@ -102,58 +93,6 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Play audio with async completion handling.
-        /// </summary>
-        protected async Task PlayAudioAsync(string audioPath, CancellationToken cancellationToken)
-        {
-            if (_audioPlayer == null || string.IsNullOrEmpty(audioPath))
-            {
-                // Fallback to duration-based timing
-                await Task.Delay(TimeSpan.FromSeconds(_duration), cancellationToken);
-                return;
-            }
-
-            try
-            {
-                var audioStream = GD.Load<AudioStream>(audioPath);
-                if (audioStream != null)
-                {
-                    _audioPlayer.Stream = audioStream;
-                    _audioPlayer.Play();
-
-                    // Wait for audio to finish or cancellation
-                    var completionTask = Task.Run(async () =>
-                    {
-                        while (_audioPlayer.Playing && !cancellationToken.IsCancellationRequested)
-                        {
-                            await Task.Delay(50, cancellationToken);
-                        }
-                    }, cancellationToken);
-
-                    await completionTask;
-                }
-                else
-                {
-                    // Fallback if audio not found
-                    await Task.Delay(TimeSpan.FromSeconds(_duration), cancellationToken);
-                }
-            }
-            catch (Exception)
-            {
-                // Fallback on any error
-                await Task.Delay(TimeSpan.FromSeconds(_duration), cancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// Handle audio completion event.
-        /// </summary>
-        private void OnAudioFinished()
-        {
-            // Audio finished naturally - this is handled by the PlayAudioAsync method
-        }
-
-        /// <summary>
         /// Publish interruption event.
         /// </summary>
         private void PublishInterruptedEvent()
@@ -167,24 +106,28 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
+        /// Play audio with async completion handling.
+        /// </summary>
+        protected async Task PlayAudioAsync(string audioPath, CancellationToken cancellationToken)
+        {
+            await _audioService.PlayAudioAsync(audioPath);
+        }
+
+        /// <summary>
+        /// Handle audio completion event.
+        /// </summary>
+        internal void OnAudioFinished()
+        {
+            // Audio finished naturally - this is handled by the PlayAudioAsync method
+        }
+
+        /// <summary>
         /// Clean up resources.
         /// </summary>
         public void Cleanup()
         {
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
-            
-            if (_audioPlayer != null)
-            {
-                _audioPlayer.Finished -= OnAudioFinished;
-                _audioPlayer.Stop();
-            }
-        }
-
-        public override void _ExitTree()
-        {
-            Cleanup();
-            base._ExitTree();
         }
     }
 }

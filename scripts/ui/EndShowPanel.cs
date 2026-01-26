@@ -2,6 +2,7 @@ using Godot;
 using KBTV.Core;
 using KBTV.Dialogue;
 using KBTV.Managers;
+using KBTV.Audio;
 
 namespace KBTV.UI
 {
@@ -11,24 +12,18 @@ namespace KBTV.UI
 	public partial class EndShowPanel : Control, IDependent
 	{
 		private Button EndShowButton;
-		private AudioStreamPlayer _transitionMusicPlayer = null!;
-
 		private BroadcastCoordinator _coordinator = null!;
 		private TimeManager? _timeManager;
+		private IBroadcastAudioService _broadcastAudioService = null!;
 
 		public override void _Notification(int what) => this.Notify(what);
 
-		public override void _Ready()
-		{
-			// Initialize audio player for transition music
-			_transitionMusicPlayer = new AudioStreamPlayer();
-			AddChild(_transitionMusicPlayer);
-		}
 
 		public void OnResolved()
 		{
 			_coordinator = DependencyInjection.Get<BroadcastCoordinator>(this);
 			_timeManager = DependencyInjection.Get<TimeManager>(this);
+			_broadcastAudioService = DependencyInjection.Get<IBroadcastAudioService>(this);
 			if (_coordinator == null)
 			{
 				GD.PrintErr("EndShowPanel: BroadcastCoordinator not available");
@@ -66,33 +61,13 @@ namespace KBTV.UI
 		private void OnEndShowPressed()
 		{
 			// Play transition music as audio cue (same as ad breaks)
-			var silentStream = GetSilentAudioFile();
-			if (silentStream != null)
-			{
-				_transitionMusicPlayer.Stream = silentStream;
-				_transitionMusicPlayer.Play();
-			}
-			else
-			{
-				GD.PrintErr("EndShowPanel: Failed to load silent audio file for transition music");
-			}
+			_ = _broadcastAudioService.PlaySilentAudioAsync();
 
 			EndShowButton.Disabled = true;
 			EndShowButton.Text = "ENDING...";
 
 			// Queue the show end
 			_coordinator.QueueShowEnd();
-		}
-
-		private AudioStream? GetSilentAudioFile()
-		{
-			var audioStream = GD.Load<AudioStream>("res://assets/audio/silence_4sec.wav");
-			if (audioStream == null)
-			{
-				GD.PrintErr("EndShowPanel.GetSilentAudioFile: Failed to load silent audio file");
-				return null;
-			}
-			return audioStream;
 		}
 
 

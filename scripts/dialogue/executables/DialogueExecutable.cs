@@ -22,8 +22,8 @@ namespace KBTV.Dialogue
         private readonly ConversationArc? _arc;
 
         // For caller dialogue
-        public DialogueExecutable(string id, Caller caller, ConversationArc arc, EventBus eventBus) 
-            : base(id, BroadcastItemType.CallerLine, true, 4.0f, eventBus, new { caller, arc })
+        public DialogueExecutable(string id, Caller caller, ConversationArc arc, EventBus eventBus, IBroadcastAudioService audioService) 
+            : base(id, BroadcastItemType.CallerLine, true, 4.0f, eventBus, audioService, new { caller, arc })
         {
             _caller = caller;
             _arc = arc;
@@ -32,8 +32,8 @@ namespace KBTV.Dialogue
         }
 
         // For Vern dialogue
-        public DialogueExecutable(string id, string text, string speaker, EventBus eventBus, string? audioPath = null) 
-            : base(id, BroadcastItemType.VernLine, true, 4.0f, eventBus, new { text, speaker, audioPath })
+        public DialogueExecutable(string id, string text, string speaker, EventBus eventBus, IBroadcastAudioService audioService, string? audioPath = null) 
+            : base(id, BroadcastItemType.VernLine, true, 4.0f, eventBus, audioService, new { text, speaker, audioPath })
         {
             _text = text;
             _speaker = speaker;
