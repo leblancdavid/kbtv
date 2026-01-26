@@ -30,6 +30,11 @@ namespace KBTV.UI
         private void LoadGameScene()
         {
             GD.Print("LoadingScreen: Loading game scene");
+            CallDeferred(nameof(LoadGameSceneDeferred));
+        }
+
+        private void LoadGameSceneDeferred()
+        {
             var tree = GetTree();
             if (tree != null)
             {
@@ -37,7 +42,7 @@ namespace KBTV.UI
             }
             else
             {
-                GD.PrintErr("LoadingScreen: GetTree() is null during LoadGameScene!");
+                GD.PrintErr("LoadingScreen: GetTree() is null during LoadGameSceneDeferred!");
             }
         }
 

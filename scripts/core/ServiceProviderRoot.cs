@@ -76,61 +76,81 @@ public partial class ServiceProviderRoot : Node,
     /// </summary>
     public void Initialize()
     {
-        // Create core service providers
-        GD.Print("ServiceProviderRoot: Initializing core services...");
-        
-        GameStateManager = new GameStateManager();
-        AddChild(GameStateManager);
-        
-        TimeManager = new TimeManager();
-        AddChild(TimeManager);
-        
-        EconomyManager = new EconomyManager();
-        AddChild(EconomyManager);
-        
-        ListenerManager = new ListenerManager();
-        AddChild(ListenerManager);
-        
-        SaveManager = new SaveManager();
-        AddChild(SaveManager);
-
-        // Create core services (plain classes)
+        // Create core services (plain classes) - no dependencies
         GD.Print("ServiceProviderRoot: Creating core services...");
         
         EventBus = new EventBus();
+        ServiceRegistry.Instance.Register<EventBus>(EventBus);
         
-        CallerRepository = new CallerRepository();
+        var callerRepo = new CallerRepository();
+        CallerRepository = callerRepo;
+        ServiceRegistry.Instance.Register<ICallerRepository>(callerRepo);
+        ServiceRegistry.Instance.Register<CallerRepository>(callerRepo);
         
-        ArcRepository = new ArcRepository();
-        ArcRepository.Initialize();
+        var arcRepository = new ArcRepository();
+        arcRepository.Initialize();
+        ArcRepository = arcRepository;
+        ServiceRegistry.Instance.Register<IArcRepository>(arcRepository);
+        ServiceRegistry.Instance.Register<ArcRepository>(arcRepository);
+
+        // Create independent providers
+        SaveManager = new SaveManager();
+        AddChild(SaveManager);
+        ServiceRegistry.Instance.Register<SaveManager>(SaveManager);
         
+        EconomyManager = new EconomyManager();
+        AddChild(EconomyManager);
+        ServiceRegistry.Instance.Register<EconomyManager>(EconomyManager);
+
+        // Create providers with dependencies
+        TimeManager = new TimeManager();
+        AddChild(TimeManager);
+        ServiceRegistry.Instance.Register<TimeManager>(TimeManager);
+        
+        GameStateManager = new GameStateManager();
+        AddChild(GameStateManager);
+        ServiceRegistry.Instance.Register<GameStateManager>(GameStateManager);
+        
+        ListenerManager = new ListenerManager();
+        AddChild(ListenerManager);
+        ServiceRegistry.Instance.Register<ListenerManager>(ListenerManager);
+
         // Create dialogue player
         var audioPlayer = new AudioDialoguePlayer();
         AddChild(audioPlayer);
         DialoguePlayer = audioPlayer;
+        ServiceRegistry.Instance.Register<IDialoguePlayer>(DialoguePlayer);
+        ServiceRegistry.Instance.Register<AudioDialoguePlayer>(audioPlayer);
 
         // Create caller generator
         CallerGenerator = new CallerGenerator();
         AddChild(CallerGenerator);
+        ServiceRegistry.Instance.Register<CallerGenerator>(CallerGenerator);
 
         // Create UI manager
         UIManager = new UIManager();
         AddChild(UIManager);
+        ServiceRegistry.Instance.Register<UIManager>(UIManager);
+        ServiceRegistry.Instance.Register<IUIManager>(UIManager);
 
         // Create broadcast services
         AsyncBroadcastLoop = new AsyncBroadcastLoop();
         AddChild(AsyncBroadcastLoop);
+        ServiceRegistry.Instance.Register<AsyncBroadcastLoop>(AsyncBroadcastLoop);
 
         BroadcastCoordinator = new BroadcastCoordinator();
         AddChild(BroadcastCoordinator);
+        ServiceRegistry.Instance.Register<BroadcastCoordinator>(BroadcastCoordinator);
 
         // Create transition manager
         GlobalTransitionManager = new GlobalTransitionManager();
         AddChild(GlobalTransitionManager);
+        ServiceRegistry.Instance.Register<GlobalTransitionManager>(GlobalTransitionManager);
 
         // Create ad manager
         AdManager = new AdManager();
         AddChild(AdManager);
+        ServiceRegistry.Instance.Register<AdManager>(AdManager);
 
         GD.Print("ServiceProviderRoot: All providers created and added to scene tree");
     }

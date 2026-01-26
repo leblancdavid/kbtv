@@ -18,13 +18,13 @@ namespace KBTV.Core
 	/// Manages the game state and phase transitions for nightly broadcasts.
 	/// Uses AutoInject IAutoNode pattern for dependency injection.
 	/// </summary>
-	[Meta(typeof(IAutoNode))]
-	public partial class GameStateManager : Node,
-		IProvide<GameStateManager>, IProvide<TimeManager>, IProvide<EconomyManager>,
-		IProvide<ListenerManager>, IProvide<SaveManager>, IProvide<ICallerRepository>,
-		IProvide<IUIManager>, IProvide<BroadcastCoordinator>, IProvide<AdManager>,
-		IProvide<CallerGenerator>, IProvide<IDialoguePlayer>, IProvide<EventBus>,
-		IDependent
+    [Meta(typeof(IAutoNode))]
+    public partial class GameStateManager : Node, 
+        IProvide<GameStateManager>, IProvide<TimeManager>, IProvide<EconomyManager>,
+        IProvide<SaveManager>, IProvide<ICallerRepository>,
+        IProvide<IUIManager>, IProvide<BroadcastCoordinator>, IProvide<AdManager>,
+        IProvide<CallerGenerator>, IProvide<IDialoguePlayer>, IProvide<EventBus>,
+        IDependent
 	{
 		public override void _Notification(int what) => this.Notify(what);
 
@@ -35,17 +35,16 @@ namespace KBTV.Core
 		// DEPENDENCIES
 		// ═══════════════════════════════════════════════════════════════════════════════════════════════
 
-		[Dependency] private TimeManager TimeManager => DependOn<TimeManager>();
-		[Dependency] private EconomyManager EconomyManager => DependOn<EconomyManager>();
-		[Dependency] private ListenerManager ListenerManager => DependOn<ListenerManager>();
-		[Dependency] private SaveManager SaveManager => DependOn<SaveManager>();
-		[Dependency] private ICallerRepository CallerRepository => DependOn<ICallerRepository>();
-		[Dependency] private IUIManager UIManager => DependOn<IUIManager>();
-		[Dependency] private BroadcastCoordinator BroadcastCoordinator => DependOn<BroadcastCoordinator>();
-		[Dependency] private AdManager AdManager => DependOn<AdManager>();
-		[Dependency] private CallerGenerator CallerGenerator => DependOn<CallerGenerator>();
-		[Dependency] private IDialoguePlayer AudioPlayer => DependOn<IDialoguePlayer>();
-		[Dependency] private EventBus EventBus => DependOn<EventBus>();
+        [Dependency] private TimeManager TimeManager => DependOn<TimeManager>();
+        [Dependency] private EconomyManager EconomyManager => DependOn<EconomyManager>();
+        [Dependency] private SaveManager SaveManager => DependOn<SaveManager>();
+        [Dependency] private ICallerRepository CallerRepository => DependOn<ICallerRepository>();
+        [Dependency] private IUIManager UIManager => DependOn<IUIManager>();
+        [Dependency] private BroadcastCoordinator BroadcastCoordinator => DependOn<BroadcastCoordinator>();
+        [Dependency] private AdManager AdManager => DependOn<AdManager>();
+        [Dependency] private CallerGenerator CallerGenerator => DependOn<CallerGenerator>();
+        [Dependency] private IDialoguePlayer AudioPlayer => DependOn<IDialoguePlayer>();
+        [Dependency] private EventBus EventBus => DependOn<EventBus>();
 
 		// Temporary workaround for missing DependOn<T> extension method
 		private T DependOn<T>() where T : class
@@ -55,12 +54,13 @@ namespace KBTV.Core
 		}
 
 		private GamePhase _currentPhase = GamePhase.PreShow;
-		private VernStats _vernStats;
-		private int _currentNight = 1;
-		private Topic _selectedTopic;
-		private AdSchedule _adSchedule;
-		private static int _instanceCount;
-		private int _instanceId;
+        private VernStats _vernStats;
+        private int _currentNight = 1;
+        private Topic _selectedTopic;
+        private AdSchedule _adSchedule;
+        private static int _instanceCount;
+        private int _instanceId;
+        private bool _gameInitialized;
 
 		public VernStats VernStats => _vernStats;
 		public GamePhase CurrentPhase => _currentPhase;
@@ -72,18 +72,17 @@ namespace KBTV.Core
 		// PROVIDER INTERFACE IMPLEMENTATIONS
 		// ═══════════════════════════════════════════════════════════════════════════════════════════════
 
-		GameStateManager IProvide<GameStateManager>.Value() => this;
-		TimeManager IProvide<TimeManager>.Value() => TimeManager;
-		EconomyManager IProvide<EconomyManager>.Value() => EconomyManager;
-		ListenerManager IProvide<ListenerManager>.Value() => ListenerManager;
-		SaveManager IProvide<SaveManager>.Value() => SaveManager;
-		ICallerRepository IProvide<ICallerRepository>.Value() => CallerRepository;
-		IUIManager IProvide<IUIManager>.Value() => UIManager;
-		BroadcastCoordinator IProvide<BroadcastCoordinator>.Value() => BroadcastCoordinator;
-		AdManager IProvide<AdManager>.Value() => AdManager;
-		CallerGenerator IProvide<CallerGenerator>.Value() => CallerGenerator;
-		IDialoguePlayer IProvide<IDialoguePlayer>.Value() => AudioPlayer;
-		EventBus IProvide<EventBus>.Value() => EventBus;
+        GameStateManager IProvide<GameStateManager>.Value() => this;
+        TimeManager IProvide<TimeManager>.Value() => TimeManager;
+        EconomyManager IProvide<EconomyManager>.Value() => EconomyManager;
+        SaveManager IProvide<SaveManager>.Value() => SaveManager;
+        ICallerRepository IProvide<ICallerRepository>.Value() => CallerRepository;
+        IUIManager IProvide<IUIManager>.Value() => UIManager;
+        BroadcastCoordinator IProvide<BroadcastCoordinator>.Value() => BroadcastCoordinator;
+        AdManager IProvide<AdManager>.Value() => AdManager;
+        CallerGenerator IProvide<CallerGenerator>.Value() => CallerGenerator;
+        IDialoguePlayer IProvide<IDialoguePlayer>.Value() => AudioPlayer;
+        EventBus IProvide<EventBus>.Value() => EventBus;
 
 		/// <summary>
 		/// Called when node enters the scene tree and is ready.
@@ -107,20 +106,24 @@ namespace KBTV.Core
 			TimeManager.ShowEnded += OnShowTimerExpired;
 		}
 
-		/// <summary>
-		/// Initialize the game state. VernStats is created automatically.
-		/// </summary>
-		public void InitializeGame()
-		{
-			if (_vernStats != null)
-			{
-				_vernStats.Initialize();
-			}
-			else
-			{
-				GD.PrintErr("GameStateManager: Failed to create VernStats!");
-			}
-		}
+        /// <summary>
+        /// Initialize the game state. VernStats is created automatically.
+        /// </summary>
+        public void InitializeGame()
+        {
+            if (_gameInitialized) return;
+
+            if (_vernStats != null)
+            {
+                _vernStats.Initialize();
+            }
+            else
+            {
+                GD.PrintErr("GameStateManager: Failed to create VernStats!");
+            }
+
+            _gameInitialized = true;
+        }
 
 		/// <summary>
 		/// Transition to the next phase in the nightly cycle.

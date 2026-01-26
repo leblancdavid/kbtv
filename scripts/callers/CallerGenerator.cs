@@ -41,6 +41,8 @@ namespace KBTV.Callers
             "Springfield", "Riverside", "Oakwood", "Pineville", "Maple Creek", "Elmwood", "Cedar Falls", "Willow Grove"
         };
 
+        private bool _initialized;
+
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<CallerGenerator>(this);
@@ -54,7 +56,11 @@ namespace KBTV.Callers
         public void Initialize()
         {
             // Initialization already handled in _Ready()
-            GD.Print("CallerGenerator: Initialize called (already initialized in _Ready)");
+            if (!_initialized)
+            {
+                GD.Print("CallerGenerator: Initialize called (already initialized in _Ready)");
+                _initialized = true;
+            }
         }
 
         private void CompleteInitialization()
@@ -82,6 +88,7 @@ namespace KBTV.Callers
             }
 
             GD.Print("CallerGenerator: Initialization complete");
+            _initialized = true;
         }
 
         public override void _ExitTree()

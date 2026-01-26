@@ -48,6 +48,8 @@ namespace KBTV.Managers
         private TimeManager _timeManager;
         private ICallerRepository _repository;
 
+        private bool _initialized;
+
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<ListenerManager>(this);
@@ -59,7 +61,10 @@ namespace KBTV.Managers
         /// </summary>
         public void Initialize()
         {
-            CompleteInitialization();
+            if (!_initialized)
+            {
+                CompleteInitialization();
+            }
         }
 
         private void CompleteInitialization()
@@ -77,6 +82,7 @@ namespace KBTV.Managers
             _gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
             _timeManager.Connect("Tick", Callable.From<float>(HandleTick));
             GD.Print("ListenerManager: Initialization complete");
+            _initialized = true;
         }
 
         public override void _ExitTree()

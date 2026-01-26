@@ -16,6 +16,7 @@ namespace KBTV.Economy
         [Export] private int _startingMoney = 500;
 
         private int _currentMoney;
+        private bool _initialized;
 
         // ─────────────────────────────────────────────────────────────
         // Properties
@@ -47,7 +48,11 @@ namespace KBTV.Economy
         /// </summary>
         public void Initialize()
         {
-            _currentMoney = _startingMoney;
+            if (!_initialized)
+            {
+                _currentMoney = _startingMoney;
+                _initialized = true;
+            }
         }
 
         // TODO: Add when SaveManager is ported
