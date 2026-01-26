@@ -47,11 +47,20 @@ namespace KBTV.Core
 			_adSchedule = new AdSchedule(AdConstants.DEFAULT_BREAKS_PER_SHOW, AdConstants.DEFAULT_SLOTS_PER_BREAK);
 			InitializeGame();
 
-			// Connect to timer expiration for automatic end-of-show
+			// Defer connecting to TimeManager until it has registered itself
+			CallDeferred(nameof(ConnectToTimeManager));
+		}
+
+		private void ConnectToTimeManager()
+		{
 			var timeManager = ServiceRegistry.Instance.TimeManager;
 			if (timeManager != null)
 			{
 				timeManager.ShowEnded += OnShowTimerExpired;
+			}
+			else
+			{
+				GD.PrintErr("GameStateManager: TimeManager not available after deferred connection");
 			}
 		}
 
@@ -129,7 +138,12 @@ namespace KBTV.Core
 				GD.PrintErr("GameStateManager: AdManager or TimeManager not available");
 			}
 
-			// Initialize broadcast flow
+			// Initialize broadcast flow - defer until BroadcastCoordinator is registered
+			CallDeferred(nameof(InitializeBroadcastFlow));
+		}
+
+		private void InitializeBroadcastFlow()
+		{
 			var coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
 			GD.Print($"DEBUG: GameStateManager checking BroadcastCoordinator: {coordinator != null}");
 			if (coordinator != null)
