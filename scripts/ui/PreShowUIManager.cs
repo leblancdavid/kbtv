@@ -34,17 +34,11 @@ namespace KBTV.UI
 			ServiceRegistry.Instance.RegisterSelf<PreShowUIManager>(this);
 			LoadTopics();
 
-			if (ServiceRegistry.IsInitialized)
-			{
-				CallDeferred(nameof(DelayedRegister));
-			}
-			else
-			{
-				CallDeferred(nameof(RetryInitialization));
-			}
+			// Defer UI creation until after the loading screen
+			CallDeferred(nameof(CheckServicesAndCreateUI));
 		}
 
-		private void RetryInitialization()
+		private void CheckServicesAndCreateUI()
 		{
 			if (ServiceRegistry.IsInitialized)
 			{
@@ -52,7 +46,7 @@ namespace KBTV.UI
 			}
 			else
 			{
-				CallDeferred(nameof(RetryInitialization));
+				CallDeferred(nameof(CheckServicesAndCreateUI));
 			}
 		}
 

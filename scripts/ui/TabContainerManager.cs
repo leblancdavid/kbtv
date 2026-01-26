@@ -18,17 +18,11 @@ namespace KBTV.UI
         {
             ServiceRegistry.Instance.RegisterSelf<TabContainerManager>(this);
 
-            if (ServiceRegistry.IsInitialized)
-            {
-                CallDeferred(nameof(CreateUI));
-            }
-            else
-            {
-                CallDeferred(nameof(RetryInitialization));
-            }
+            // Defer UI creation until after the loading screen to prevent blocking startup
+            CallDeferred(nameof(CheckServicesAndCreateUI));
         }
 
-        private void RetryInitialization()
+        private void CheckServicesAndCreateUI()
         {
             if (ServiceRegistry.IsInitialized)
             {
@@ -36,7 +30,7 @@ namespace KBTV.UI
             }
             else
             {
-                CallDeferred(nameof(RetryInitialization));
+                CallDeferred(nameof(CheckServicesAndCreateUI));
             }
         }
 

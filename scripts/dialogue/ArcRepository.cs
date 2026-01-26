@@ -65,6 +65,14 @@ namespace KBTV.Dialogue
             _initialized = true;
         }
 
+        /// <summary>
+        /// Initialize asynchronously to prevent blocking the main thread during startup.
+        /// </summary>
+        public void InitializeAsync()
+        {
+            CallDeferred(nameof(Initialize));
+        }
+
         private Godot.Collections.Array<string> DiscoverArcFiles()
         {
             var foundFiles = new Godot.Collections.Array<string>();

@@ -41,12 +41,16 @@ namespace KBTV.Core
 
         public override void _Ready()
         {
+            var startTime = Time.GetTimeDictFromSystem();
             _instance = this;
             IsInitialized = true;
 
             RegisterCoreServices();
 
 
+            var endTime = Time.GetTimeDictFromSystem();
+            var initTime = (double)endTime["elapsed"] - (double)startTime["elapsed"];
+            GD.Print($"ServiceRegistry: Initialization completed in {initTime:F3}s");
         }
 
         private void RegisterCoreServices()
@@ -63,6 +67,9 @@ namespace KBTV.Core
             Register<IArcRepository>(arcRepository);
             NotifyRegistered();
 
+            // Initialize ArcRepository asynchronously to prevent blocking startup
+            CallDeferred(nameof(InitializeArcRepositoryAsync), arcRepository);
+
             var eventBus = new EventBus();
             Register<EventBus>(eventBus);
             NotifyRegistered();
@@ -76,6 +83,11 @@ namespace KBTV.Core
             AddChild(adManager);
             RegisterSelf<AdManager>(adManager);
             NotifyRegistered();
+        }
+
+        private void InitializeArcRepositoryAsync(ArcRepository arcRepository)
+        {
+            arcRepository.InitializeAsync();
         }
 
         public void NotifyRegistered()
