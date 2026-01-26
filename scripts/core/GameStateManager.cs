@@ -18,11 +18,7 @@ namespace KBTV.Core
 	/// </summary>
     public partial class GameStateManager : Node, 
         IGameStateManager,
-        IProvide<GameStateManager>, IProvide<TimeManager>, IProvide<EconomyManager>,
-        IProvide<SaveManager>, IProvide<ICallerRepository>,
-        IProvide<IUIManager>, IProvide<BroadcastCoordinator>, IProvide<AdManager>,
-        IProvide<CallerGenerator>, IProvide<IDialoguePlayer>, IProvide<EventBus>,
-        IProvide<ListenerManager>,
+        IProvide<GameStateManager>,
         IDependent
 	{
 		public override void _Notification(int what) => this.Notify(what);
@@ -68,18 +64,11 @@ namespace KBTV.Core
 		// PROVIDER INTERFACE IMPLEMENTATIONS
 		// ═══════════════════════════════════════════════════════════════════════════════════════════════
 
+		// ═══════════════════════════════════════════════════════════════════════════════════════════════
+		// PROVIDER INTERFACE IMPLEMENTATIONS
+		// ═══════════════════════════════════════════════════════════════════════════════════════════════
+
         GameStateManager IProvide<GameStateManager>.Value() => this;
-        TimeManager IProvide<TimeManager>.Value() => TimeManager;
-        EconomyManager IProvide<EconomyManager>.Value() => EconomyManager;
-        SaveManager IProvide<SaveManager>.Value() => SaveManager;
-        ICallerRepository IProvide<ICallerRepository>.Value() => CallerRepository;
-        IUIManager IProvide<IUIManager>.Value() => UIManager;
-        BroadcastCoordinator IProvide<BroadcastCoordinator>.Value() => BroadcastCoordinator;
-        AdManager IProvide<AdManager>.Value() => AdManager;
-        CallerGenerator IProvide<CallerGenerator>.Value() => CallerGenerator;
-        IDialoguePlayer IProvide<IDialoguePlayer>.Value() => AudioPlayer;
-        EventBus IProvide<EventBus>.Value() => EventBus;
-        ListenerManager IProvide<ListenerManager>.Value() => ListenerManager;
 
 		/// <summary>
 		/// Called when node enters the scene tree and is ready.
