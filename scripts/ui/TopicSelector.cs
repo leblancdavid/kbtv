@@ -23,7 +23,7 @@ namespace KBTV.UI
 
             // Set proper size flags for container layout
             this.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            this.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+            this.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
 
             CreateUI();
         }
@@ -61,7 +61,7 @@ namespace KBTV.UI
             _topicDescription.VerticalAlignment = VerticalAlignment.Center;
             _topicDescription.AutowrapMode = TextServer.AutowrapMode.Word;
             _topicDescription.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            _topicDescription.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+            _topicDescription.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
             _topicDescription.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
             _topicDescription.CustomMinimumSize = new Vector2(0, 80);
             container.AddChild(_topicDescription);

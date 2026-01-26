@@ -66,9 +66,19 @@ namespace KBTV.UI
 
 			uiManager.RegisterPreShowLayer(canvasLayer);
 
-			var container = new CenterContainer();
-			container.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			container.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			var container = new MarginContainer();
+			container.AnchorLeft = 0;
+			container.AnchorTop = 0;
+			container.AnchorRight = 1;
+			container.AnchorBottom = 1;
+			container.OffsetLeft = 0;
+			container.OffsetTop = 0;
+			container.OffsetRight = 0;
+			container.OffsetBottom = 0;
+			container.AddThemeConstantOverride("margin_top", 100);
+			container.AddThemeConstantOverride("margin_bottom", 100);
+			container.AddThemeConstantOverride("margin_left", 0);
+			container.AddThemeConstantOverride("margin_right", 0);
 			canvasLayer.AddChild(container);
 
 			SetupPreShowUI(container);
@@ -94,43 +104,45 @@ namespace KBTV.UI
 			}
 		}
 
-		private void SetupPreShowUI(CenterContainer container)
+		private void SetupPreShowUI(Container container)
 		{
 			contentContainer = new VBoxContainer();
 			contentContainer.Name = "PreShowContent";
-			contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
 			contentContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			contentContainer.CustomMinimumSize = new Vector2(700, 600);
+			contentContainer.AddThemeConstantOverride("separation", 20);
 			container.AddChild(contentContainer);
 
 			var title = CreateTitle();
-			var topicSelector = new TopicSelector(_availableTopics);
-			_topicSelector = topicSelector.SelectorButton;
-			_topicDescription = topicSelector.TopicDescription;
-			adConfigPanel = new AdConfigPanel();
-
-			// Set initial values from PreShowUIManager state
-			adConfigPanel.SetShowDuration(_showDurationMinutes);
-			adConfigPanel.SetBreaksPerShow(_breaksPerShow);
-			adConfigPanel.SetSlotsPerBreak(_slotsPerBreak);
-
-			// Connect ad config button events
-			adConfigPanel.DecreaseBreaksButton.Pressed += OnBreaksDecreasePressed;
-			adConfigPanel.IncreaseBreaksButton.Pressed += OnBreaksIncreasePressed;
-			adConfigPanel.DecreaseSlotsButton.Pressed += OnSlotsDecreasePressed;
-			adConfigPanel.IncreaseSlotsButton.Pressed += OnSlotsIncreasePressed;
-			adConfigPanel.DecreaseDurationButton.Pressed += OnDurationDecreasePressed;
-			adConfigPanel.IncreaseDurationButton.Pressed += OnDurationIncreasePressed;
-			var startButtonContainer = CreateStartButton();
-			_errorLabel = CreateErrorDisplay();
-
+			title.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(title);
-			contentContainer.AddChild(UITheme.CreateSpacer(false, false));
+
+			var spacer1 = UITheme.CreateSpacer(false, true);
+			spacer1.SizeFlagsStretchRatio = 2;
+			contentContainer.AddChild(spacer1);
+
+			var topicSelector = new TopicSelector(_availableTopics);
+			topicSelector.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(topicSelector);
-			contentContainer.AddChild(UITheme.CreateSpacer(false, false));
+
+			var spacer2 = UITheme.CreateSpacer(false, true);
+			spacer2.SizeFlagsStretchRatio = 2;
+			contentContainer.AddChild(spacer2);
+
+			adConfigPanel = new AdConfigPanel();
+			adConfigPanel.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(adConfigPanel);
-			contentContainer.AddChild(UITheme.CreateSpacer(false, false));
+
+			var spacer3 = UITheme.CreateSpacer(false, true);
+			spacer3.SizeFlagsStretchRatio = 2;
+			contentContainer.AddChild(spacer3);
+
+			var startButtonContainer = CreateStartButton();
+			startButtonContainer.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(startButtonContainer);
+
+			_errorLabel = CreateErrorDisplay();
+			_errorLabel.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(_errorLabel);
 
 			if (_availableTopics.Count > 0)

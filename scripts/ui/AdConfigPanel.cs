@@ -31,7 +31,7 @@ namespace KBTV.UI
         {
             // Set proper size flags for container layout
             this.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            this.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+            this.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
 
             CreateUI();
         }
