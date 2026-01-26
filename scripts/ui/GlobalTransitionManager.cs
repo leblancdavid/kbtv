@@ -12,6 +12,8 @@ namespace KBTV.UI
         IProvide<GlobalTransitionManager>,
         IAutoNode
     {
+        public override void _Notification(int what) => this.Notify(what);
+
         private ColorRect _fadeRect;
         private bool _isTransitioning;
         private const float DEFAULT_FADE_DURATION = 0.4f;

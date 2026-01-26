@@ -18,8 +18,8 @@ namespace KBTV.UI
 
         private void ConnectToGameStateManager()
         {
-            // Wait for ServiceRegistry to be initialized
-            CallDeferred(nameof(DeferredConnect));
+            // Services are now initialized before LoadingScreen is added
+            DeferredConnect();
         }
 
         private void DeferredConnect()

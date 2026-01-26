@@ -21,6 +21,13 @@ namespace KBTV
             
             GD.Print("Main: ServiceProviderRoot initialized successfully");
             
+            // Add loading screen after services are initialized
+            var loadingScreenScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LoadingScreen.tscn");
+            var loadingScreen = loadingScreenScene.Instantiate<CanvasLayer>();
+            _serviceProviderRoot.AddChild(loadingScreen);
+            
+            GD.Print("Main: LoadingScreen instantiated successfully");
+            
             // Instantiate UI managers after services are initialized
             _serviceProviderRoot.AddChild(new PreShowUIManager());
             _serviceProviderRoot.AddChild(new TabContainerManager());
