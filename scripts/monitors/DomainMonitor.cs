@@ -17,16 +17,17 @@ namespace KBTV.Monitors
     /// - Trigger events for state-driven side effects (disconnection, depletion)
     /// - Do NOT handle UI updates, persistence, or business logic
     /// </summary>
-    public abstract partial class DomainMonitor : Node
+    public abstract partial class DomainMonitor : Node, IDependent
     {
+        public override void _Notification(int what) => this.Notify(what);
+
         protected ICallerRepository? _repository;
 
-        public override void _Ready()
+        protected ICallerRepository CallerRepository => DependencyInjection.Get<ICallerRepository>(this);
+
+        public virtual void OnResolved()
         {
-            if (ServiceRegistry.IsInitialized)
-            {
-                _repository = ServiceRegistry.Instance.CallerRepository;
-            }
+            _repository = CallerRepository;
         }
 
         public override void _Process(double delta)

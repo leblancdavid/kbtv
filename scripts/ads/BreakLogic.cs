@@ -12,9 +12,17 @@ namespace KBTV.Ads
     /// </summary>
     public class BreakLogic
     {
+        private readonly GameStateManager _gameStateManager;
+        private readonly ListenerManager _listenerManager;
+
+        public BreakLogic(GameStateManager gameStateManager, ListenerManager listenerManager)
+        {
+            _gameStateManager = gameStateManager;
+            _listenerManager = listenerManager;
+        }
         public void ApplyUnqueuedPenalty()
         {
-            var vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
+            var vernStats = _gameStateManager?.VernStats;
             if (vernStats != null)
             {
                 vernStats.Patience.Modify(-AdConstants.UNQUEUED_MOOD_PENALTY);
@@ -24,24 +32,16 @@ namespace KBTV.Ads
 
         public void ApplyListenerDip()
         {
-            var listenerMgr = ServiceRegistry.Instance.ListenerManager;
-            if (listenerMgr != null)
-            {
-                int current = listenerMgr.CurrentListeners;
-                int dip = (int)(current * AdConstants.LISTENER_DIP_PERCENTAGE);
-                listenerMgr.ModifyListeners(-dip);
-            }
+            int current = _listenerManager.CurrentListeners;
+            int dip = (int)(current * AdConstants.LISTENER_DIP_PERCENTAGE);
+            _listenerManager.ModifyListeners(-dip);
         }
 
         public void RestoreListeners()
         {
-            var listenerMgr = ServiceRegistry.Instance.ListenerManager;
-            if (listenerMgr != null)
-            {
-                int current = listenerMgr.CurrentListeners;
-                int restore = (int)(current * AdConstants.LISTENER_DIP_PERCENTAGE);
-                listenerMgr.ModifyListeners(restore);
-            }
+            int current = _listenerManager.CurrentListeners;
+            int restore = (int)(current * AdConstants.LISTENER_DIP_PERCENTAGE);
+            _listenerManager.ModifyListeners(restore);
         }
     }
 }

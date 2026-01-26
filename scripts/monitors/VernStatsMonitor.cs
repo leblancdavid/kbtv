@@ -22,20 +22,19 @@ namespace KBTV.Monitors
     /// - VernStats emits StatsChanged, VibeChanged, MoodTypeChanged when stats change
     /// - Low dependency levels affect other stat multipliers (see VernStats)
     /// </summary>
-    public partial class VernStatsMonitor : DomainMonitor
+    public partial class VernStatsMonitor : DomainMonitor, IDependent
     {
+        public override void _Notification(int what) => this.Notify(what);
+
         private VernStats? _vernStats;
         private GameStateManager? _gameState;
 
-        public override void _Ready()
+        private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
+
+        public override void OnResolved()
         {
-            base._Ready();
-            
-            if (ServiceRegistry.IsInitialized)
-            {
-                _vernStats = ServiceRegistry.Instance.GameStateManager?.VernStats;
-                _gameState = ServiceRegistry.Instance.GameStateManager;
-            }
+            _vernStats = GameStateManager?.VernStats;
+            _gameState = GameStateManager;
         }
 
         protected override void OnUpdate(float deltaTime)

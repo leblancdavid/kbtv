@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Callers;
+using KBTV.Core;
 using KBTV.Screening;
+using System.Collections.Generic;
 
 namespace KBTV.Tests.Unit.Screening
 {
@@ -11,6 +13,7 @@ namespace KBTV.Tests.Unit.Screening
         public ScreeningControllerEventsTests(Node testScene) : base(testScene) { }
 
         private ScreeningController _controller = null!;
+        private MockCallerRepository _mockRepository = null!;
         private List<(ScreeningPhase phase, int callOrder)> _phaseChanges = null!;
         private List<(ScreeningProgress progress, int callOrder)> _progressUpdates = null!;
         private int _callOrder = 0;
@@ -18,7 +21,8 @@ namespace KBTV.Tests.Unit.Screening
         [Setup]
         public void Setup()
         {
-            _controller = new ScreeningController();
+            _mockRepository = new MockCallerRepository();
+            _controller = new ScreeningController(_mockRepository);
             _phaseChanges = new List<(ScreeningPhase, int)>();
             _progressUpdates = new List<(ScreeningProgress, int)>();
 
@@ -178,5 +182,37 @@ namespace KBTV.Tests.Unit.Screening
                 0.8f
             );
         }
+    }
+
+    // Mock implementation for unit tests
+    public class MockCallerRepository : ICallerRepository
+    {
+        public IReadOnlyList<Caller> IncomingCallers => new List<Caller>();
+        public IReadOnlyList<Caller> OnHoldCallers => new List<Caller>();
+        public Caller? CurrentScreening => null;
+        public Caller? OnAirCaller => null;
+
+        public bool HasIncomingCallers => false;
+        public bool HasOnHoldCallers => false;
+        public bool IsScreening => false;
+        public bool IsOnAir => false;
+        public bool CanAcceptMoreCallers => true;
+        public bool CanPutOnHold => true;
+
+        public Result<Caller> AddCaller(Caller caller) => Result<Caller>.Ok(caller);
+        public Result<Caller> StartScreening(Caller caller) => Result<Caller>.Ok(caller);
+        public Result<Caller> StartScreeningNext() => Result<Caller>.Fail("No callers");
+        public Result<Caller> ApproveScreening() => Result<Caller>.Fail("No screening");
+        public Result<Caller> RejectScreening() => Result<Caller>.Fail("No screening");
+        public Result<Caller> PutOnAir() => Result<Caller>.Fail("No caller");
+        public Result<Caller> EndOnAir() => Result<Caller>.Fail("No caller on air");
+
+        public bool SetCallerState(Caller caller, CallerState newState) => true;
+        public bool RemoveCaller(Caller caller) => true;
+        public void ClearAll() { }
+        public Caller? GetCaller(string callerId) => null;
+
+        public void Subscribe(ICallerRepositoryObserver observer) { }
+        public void Unsubscribe(ICallerRepositoryObserver observer) { }
     }
 }

@@ -17,16 +17,21 @@ namespace KBTV.Core
 	/// Uses AutoInject IAutoNode pattern for dependency injection.
 	/// </summary>
     public partial class GameStateManager : Node, 
+        IGameStateManager,
         IProvide<GameStateManager>, IProvide<TimeManager>, IProvide<EconomyManager>,
         IProvide<SaveManager>, IProvide<ICallerRepository>,
         IProvide<IUIManager>, IProvide<BroadcastCoordinator>, IProvide<AdManager>,
         IProvide<CallerGenerator>, IProvide<IDialoguePlayer>, IProvide<EventBus>,
+        IProvide<ListenerManager>,
         IDependent
 	{
 		public override void _Notification(int what) => this.Notify(what);
 
 		[Signal] public delegate void PhaseChangedEventHandler(GamePhase oldPhase, GamePhase newPhase);
 		[Signal] public delegate void NightStartedEventHandler(int nightNumber);
+
+		public event Action<GamePhase, GamePhase> OnPhaseChanged;
+		public event Action<int> OnNightStarted;
 
 		// ═══════════════════════════════════════════════════════════════════════════════════════════════
 		// DEPENDENCIES
@@ -41,6 +46,7 @@ namespace KBTV.Core
         private AdManager AdManager => DependencyInjection.Get<AdManager>(this);
         private CallerGenerator CallerGenerator => DependencyInjection.Get<CallerGenerator>(this);
         private IDialoguePlayer AudioPlayer => DependencyInjection.Get<IDialoguePlayer>(this);
+        private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
         private EventBus EventBus => DependencyInjection.Get<EventBus>(this);
 
 		private GamePhase _currentPhase = GamePhase.PreShow;
@@ -73,6 +79,7 @@ namespace KBTV.Core
         CallerGenerator IProvide<CallerGenerator>.Value() => CallerGenerator;
         IDialoguePlayer IProvide<IDialoguePlayer>.Value() => AudioPlayer;
         EventBus IProvide<EventBus>.Value() => EventBus;
+        ListenerManager IProvide<ListenerManager>.Value() => ListenerManager;
 
 		/// <summary>
 		/// Called when node enters the scene tree and is ready.
@@ -93,7 +100,7 @@ namespace KBTV.Core
 			InitializeGame();
 
 			// Connect to TimeManager event
-			TimeManager.ShowEnded += OnShowTimerExpired;
+            TimeManager.OnShowEnded += OnShowTimerExpired;
 		}
 
         /// <summary>
@@ -140,6 +147,7 @@ namespace KBTV.Core
 			}
 
 			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
+			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
 		}
 
 		/// <summary>
@@ -158,15 +166,16 @@ namespace KBTV.Core
 			GamePhase oldPhase = _currentPhase;
 			_currentPhase = GamePhase.LiveShow;
 			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
+			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
 
 			// Start the show clock
-			ServiceRegistry.Instance.TimeManager.StartClock();
+			TimeManager.StartClock();
 
 			// Initialize ad manager with schedule
-			ServiceRegistry.Instance.AdManager.Initialize(_adSchedule, ServiceRegistry.Instance.TimeManager.ShowDuration);
+			AdManager.Initialize(_adSchedule, TimeManager.ShowDuration);
 
 			// Initialize broadcast flow
-			ServiceRegistry.Instance.BroadcastCoordinator.OnLiveShowStarted();
+			BroadcastCoordinator.OnLiveShowStarted();
 		}
 
 
@@ -225,7 +234,9 @@ namespace KBTV.Core
 			}
 
 			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
+			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
 			EmitSignal("NightStarted", _currentNight);
+			OnNightStarted?.Invoke(_currentNight);
 		}
 
 		/// <summary>
@@ -249,23 +260,23 @@ namespace KBTV.Core
 			// 4. Show PostShow UI
 
 			// Clear all callers (incoming, on-hold, on-air)
-			ServiceRegistry.Instance.CallerRepository.ClearAll();
+			CallerRepository.ClearAll();
 			GD.Print("GameStateManager: All callers cleared");
 
 			// Get show performance data
-			int peakListeners = ServiceRegistry.Instance.ListenerManager.PeakListeners;
+			int peakListeners = ListenerManager.PeakListeners;
 
 			float showQuality = _vernStats?.CalculateVIBE() ?? 50f;
 
 			// Calculate and award income
 			int income = IncomeCalculator.CalculateShowIncome(peakListeners, showQuality);
-			ServiceRegistry.Instance.EconomyManager.AddMoney(income, "Show Income");
+			EconomyManager.AddMoney(income, "Show Income");
 			GD.Print($"GameStateManager: Added income {income} (quality: {showQuality:F1}, peak listeners: {peakListeners})");
 
 			// Update save data
-			if (ServiceRegistry.Instance.SaveManager.CurrentSave != null)
+			if (SaveManager.CurrentSave != null)
 			{
-				var save = ServiceRegistry.Instance.SaveManager.CurrentSave;
+				var save = SaveManager.CurrentSave;
 				save.TotalShowsCompleted++;
 				if (peakListeners > save.PeakListenersAllTime)
 				{
@@ -275,14 +286,14 @@ namespace KBTV.Core
 			}
 
 			// Reset the clock for next show
-			ServiceRegistry.Instance.TimeManager.ResetClock();
+			TimeManager.ResetClock();
 
 			// Play outro music if it was queued by user clicking "End Show" button
-			if (ServiceRegistry.Instance.BroadcastCoordinator.IsOutroMusicQueued)
+			if (BroadcastCoordinator.IsOutroMusicQueued)
 			{
 				GD.Print("GameStateManager: Playing queued outro music");
 				var bumperItem = new BroadcastItem("Bumper_Music", BroadcastItemType.Music, "Bumper Music", duration: 4.0f);
-				ServiceRegistry.Instance.AudioPlayer.PlayBroadcastItemAsync(bumperItem);
+				AudioPlayer.PlayBroadcastItemAsync(bumperItem);
 
 				// Wait for bumper to complete (4 seconds for music lines)
 				await ToSignal(GetTree().CreateTimer(4f), "timeout");
@@ -290,11 +301,11 @@ namespace KBTV.Core
 			}
 
 			// Auto-save at end of show
-			ServiceRegistry.Instance.SaveManager.Save();
+			SaveManager.Save();
 			GD.Print("GameStateManager: Game saved");
 
 			// Show PostShow UI
-			ServiceRegistry.Instance.UIManager.ShowPostShowLayer();
+			UIManager.ShowPostShowLayer();
 			GD.Print("GameStateManager: PostShow UI shown");
 
 			// Emit phase changed signal
@@ -346,6 +357,7 @@ namespace KBTV.Core
 			_currentPhase = GamePhase.PostShow;
 			ProcessEndOfShow();
 			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
+			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
 		}
 	}
 }

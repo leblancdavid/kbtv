@@ -5,6 +5,7 @@ using Godot;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Monitors;
+using KBTV.Dialogue;
 
 namespace KBTV.Tests.Unit.Monitors
 {
@@ -13,12 +14,16 @@ namespace KBTV.Tests.Unit.Monitors
         public CallerMonitorTests(Node testScene) : base(testScene) { }
 
         private CallerRepository _repository = null!;
+        private MockArcRepository _mockArcRepository = null!;
+        private BroadcastCoordinator _broadcastCoordinator = null!;
         private List<string> _eventLog = null!;
 
         [Setup]
         public void Setup()
         {
-            _repository = new CallerRepository();
+            _mockArcRepository = new MockArcRepository();
+            _broadcastCoordinator = new BroadcastCoordinator();
+            _repository = new CallerRepository(_mockArcRepository, _broadcastCoordinator);
             _eventLog = new List<string>();
             _repository.Subscribe(new TestCallerRepositoryObserver(_eventLog));
         }
@@ -187,5 +192,29 @@ namespace KBTV.Tests.Unit.Monitors
             public void OnCallerOnAirEnded(Caller caller) =>
                 _eventLog.Add($"OnAirEnded: {caller.Name}");
         }
+    }
+
+    // Mock implementation for unit tests
+    public class MockArcRepository : IArcRepository
+    {
+        public Godot.Collections.Array<ConversationArc> Arcs => new();
+
+        public void Initialize() { }
+
+        public List<ConversationArc> FindMatchingArcs(ShowTopic topic, CallerLegitimacy legitimacy) => new();
+
+        public ConversationArc? GetRandomArc(CallerLegitimacy legitimacy) => null;
+
+        public ConversationArc? GetRandomArcForTopic(ShowTopic topic, CallerLegitimacy legitimacy) => null;
+
+        public ConversationArc? GetRandomArcForDifferentTopic(ShowTopic excludeTopic, CallerLegitimacy legitimacy) => null;
+
+        public List<ConversationArc> FindTopicSwitcherArcs(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy) => new();
+
+        public ConversationArc? GetRandomTopicSwitcherArc(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy) => null;
+
+        public void AddArc(ConversationArc arc) { }
+
+        public void Clear() { }
     }
 }

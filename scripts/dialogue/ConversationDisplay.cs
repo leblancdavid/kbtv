@@ -28,7 +28,7 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Called when all dependencies are resolved.
         /// </summary>
-        public void OnResolved()
+        public override void OnResolved()
         {
             GD.Print("ConversationDisplay: Dependencies resolved, initializing...");
 

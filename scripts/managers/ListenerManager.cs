@@ -44,15 +44,22 @@ namespace KBTV.Managers
 
 
 
-        private GameStateManager _gameState;
-        private TimeManager _timeManager;
-        private ICallerRepository _repository;
+        private readonly IGameStateManager _gameState;
+        private readonly ITimeManager _timeManager;
+        private readonly ICallerRepository _repository;
 
         private bool _initialized;
 
+        public ListenerManager(IGameStateManager gameState, ITimeManager timeManager, ICallerRepository repository)
+        {
+            _gameState = gameState;
+            _timeManager = timeManager;
+            _repository = repository;
+        }
+
         public override void _Ready()
         {
-            ServiceRegistry.Instance.RegisterSelf<ListenerManager>(this);
+            // RegisterSelf removed - now using dependency injection
             CompleteInitialization();
         }
 
@@ -69,18 +76,14 @@ namespace KBTV.Managers
 
         private void CompleteInitialization()
         {
-            _repository = ServiceRegistry.Instance.CallerRepository;
-            _gameState = ServiceRegistry.Instance.GameStateManager;
-            _timeManager = ServiceRegistry.Instance.TimeManager;
-
             if (_gameState == null || _timeManager == null || _repository == null)
             {
                 GD.PrintErr("ListenerManager: Required services not available - check autoload order");
                 return;
             }
 
-            _gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
-            _timeManager.Connect("Tick", Callable.From<float>(HandleTick));
+            _gameState.OnPhaseChanged += HandlePhaseChanged;
+            _timeManager.OnTick += HandleTick;
             GD.Print("ListenerManager: Initialization complete");
             _initialized = true;
         }
@@ -89,20 +92,17 @@ namespace KBTV.Managers
         {
             if (_gameState != null)
             {
-                _gameState.Disconnect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
+                _gameState.OnPhaseChanged -= HandlePhaseChanged;
             }
 
             if (_timeManager != null)
             {
-                _timeManager.Disconnect("Tick", Callable.From<float>(HandleTick));
+                _timeManager.OnTick -= HandleTick;
             }
         }
 
-        private void HandlePhaseChanged(int oldPhaseInt, int newPhaseInt)
+        private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
         {
-            GamePhase oldPhase = (GamePhase)oldPhaseInt;
-            GamePhase newPhase = (GamePhase)newPhaseInt;
-
             if (newPhase == GamePhase.LiveShow)
             {
                 InitializeListeners();

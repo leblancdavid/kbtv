@@ -17,7 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-ServiceRegistry="res://scripts/core/ServiceRegistry.cs"
+
 
 [display]
 

@@ -5,6 +5,7 @@ using Godot;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Screening;
+using KBTV.Dialogue;
 
 namespace KBTV.Tests.Integration
 {
@@ -15,12 +16,20 @@ namespace KBTV.Tests.Integration
         private CallerRepository _repository = null!;
         private ScreeningController _controller = null!;
         private List<string> _eventLog = null!;
+        private MockArcRepository _mockArcRepository = null!;
+        private BroadcastCoordinator _broadcastCoordinator = null!;
+        private MockCallerRepository _mockCallerRepositoryForController = null!;
 
         [Setup]
         public void Setup()
         {
-            _repository = new CallerRepository();
-            _controller = new ScreeningController();
+            _mockArcRepository = new MockArcRepository();
+            _broadcastCoordinator = new BroadcastCoordinator();
+            _repository = new CallerRepository(_mockArcRepository, _broadcastCoordinator);
+            
+            _mockCallerRepositoryForController = new MockCallerRepository();
+            _controller = new ScreeningController(_mockCallerRepositoryForController);
+            
             _eventLog = new List<string>();
 
             _repository.Subscribe(new TestCallerRepositoryObserver(_eventLog));

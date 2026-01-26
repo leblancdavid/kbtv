@@ -4,10 +4,11 @@ using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Dialogue;
 
 namespace KBTV.Tests.Integration
 {
-    public class CallerQueueObserverPatternIntegrationTests : KBTVTestClass
+    public partial class CallerQueueObserverPatternIntegrationTests : KBTVTestClass
     {
         public CallerQueueObserverPatternIntegrationTests(Node testScene) : base(testScene) { }
 
@@ -17,7 +18,9 @@ namespace KBTV.Tests.Integration
         [Setup]
         public void Setup()
         {
-            _repository = new CallerRepository();
+            var mockArcRepository = new MockArcRepository();
+            var mockBroadcastCoordinator = new MockBroadcastCoordinator();
+            _repository = new CallerRepository(mockArcRepository, mockBroadcastCoordinator);
             _observer = new TestObserver();
             _repository.Subscribe(_observer);
         }
@@ -184,6 +187,35 @@ namespace KBTV.Tests.Integration
             public void OnScreeningEnded(Caller caller, bool approved) => ScreeningEndedCallers.Add((caller, approved));
             public void OnCallerOnAir(Caller caller) => OnAirCallers.Add(caller);
             public void OnCallerOnAirEnded(Caller caller) => OnAirEndedCallers.Add(caller);
+        }
+
+        // Mock implementations
+        private class MockArcRepository : IArcRepository
+        {
+            public Godot.Collections.Array<ConversationArc> Arcs => new();
+
+            public void Initialize() { }
+
+            public List<ConversationArc> FindMatchingArcs(ShowTopic topic, CallerLegitimacy legitimacy) => new();
+
+            public ConversationArc? GetRandomArc(CallerLegitimacy legitimacy) => null;
+
+            public ConversationArc? GetRandomArcForTopic(ShowTopic topic, CallerLegitimacy legitimacy) => null;
+
+            public ConversationArc? GetRandomArcForDifferentTopic(ShowTopic excludeTopic, CallerLegitimacy legitimacy) => null;
+
+            public List<ConversationArc> FindTopicSwitcherArcs(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy) => new();
+
+            public ConversationArc? GetRandomTopicSwitcherArc(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy) => null;
+
+            public void AddArc(ConversationArc arc) { }
+
+            public void Clear() { }
+        }
+
+        private partial class MockBroadcastCoordinator : BroadcastCoordinator
+        {
+            // Inherits from BroadcastCoordinator for compatibility
         }
     }
 }

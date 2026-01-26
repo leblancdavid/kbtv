@@ -2,6 +2,7 @@ using System;
 using Godot;
 using KBTV.Ads;
 using KBTV.Core;
+using KBTV.Economy;
 using KBTV.Managers;
 
 namespace KBTV.Ads
@@ -12,6 +13,12 @@ namespace KBTV.Ads
     /// </summary>
     public class RevenueCalculator
     {
+        private readonly EconomyManager _economyManager;
+
+        public RevenueCalculator(EconomyManager economyManager)
+        {
+            _economyManager = economyManager;
+        }
         public float CalculateBreakRevenue(int currentListeners, AdBreakConfig breakConfig)
         {
             int totalSlots = breakConfig.SlotsPerBreak;
@@ -39,11 +46,7 @@ namespace KBTV.Ads
 
         public void AwardRevenue(float revenue)
         {
-            var economy = ServiceRegistry.Instance.EconomyManager;
-            if (economy != null)
-            {
-                economy.AddMoney((int)revenue, "Ad Revenue");
-            }
+            _economyManager.AddMoney((int)revenue, "Ad Revenue");
         }
     }
 }

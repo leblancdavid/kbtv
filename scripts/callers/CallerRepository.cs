@@ -6,6 +6,7 @@ using System.Linq;
 using Godot;
 using KBTV.Core;
 using KBTV.Dialogue;
+using KBTV.Screening;
 
 namespace KBTV.Callers
 {
@@ -20,7 +21,21 @@ namespace KBTV.Callers
         private string? _onAirCallerId;
         private readonly List<ICallerRepositoryObserver> _observers = new();
         private readonly Dictionary<Caller, Action> _disconnectHandlers = new();
-        private IArcRepository? _arcRepository;
+        private readonly IArcRepository _arcRepository;
+        private IScreeningController? _screeningController;
+        private readonly BroadcastCoordinator _broadcastCoordinator;
+
+        public CallerRepository(IArcRepository arcRepository, BroadcastCoordinator broadcastCoordinator)
+        {
+            _arcRepository = arcRepository;
+            _broadcastCoordinator = broadcastCoordinator;
+        }
+
+        // Property injection for circular dependency
+        public IScreeningController? ScreeningController
+        {
+            set => _screeningController = value;
+        }
 
         private const int MAX_INCOMING = 10;
         private const int MAX_ON_HOLD = 10;
@@ -46,11 +61,7 @@ namespace KBTV.Callers
 
         private IArcRepository GetArcRepository()
         {
-            if (_arcRepository == null && ServiceRegistry.IsInitialized)
-            {
-                _arcRepository = ServiceRegistry.Instance?.ArcRepository;
-            }
-            return _arcRepository!;
+            return _arcRepository;
         }
 
         public Result<Caller> AddCaller(Caller caller)
@@ -111,7 +122,7 @@ namespace KBTV.Callers
                 }
             }
 
-            var screeningController = Core.ServiceRegistry.Instance?.ScreeningController;
+            var screeningController = _screeningController;
             screeningController?.Start(caller);
 
             NotifyObservers(o => o.OnScreeningStarted(caller));
@@ -166,7 +177,7 @@ namespace KBTV.Callers
             NotifyObservers(o => o.OnScreeningEnded(caller, approved: true));
 
             // Auto-trigger putting caller on air if broadcast is active and no one is on air
-            var broadcastCoordinator = ServiceRegistry.Instance.BroadcastCoordinator;
+            var broadcastCoordinator = _broadcastCoordinator;
             var broadcastState = broadcastCoordinator?.CurrentState ?? KBTV.Dialogue.BroadcastState.Idle;
             GD.Print($"DEBUG: Checking auto-trigger - Coordinator: {broadcastCoordinator != null}, State: {broadcastState}, IsOnAir: {IsOnAir}, HasOnHold: {HasOnHoldCallers}");
             if (broadcastCoordinator != null && !IsOnAir && broadcastState >= KBTV.Dialogue.BroadcastState.Conversation)

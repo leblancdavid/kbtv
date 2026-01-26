@@ -17,35 +17,49 @@ namespace KBTV.Callers
         [Export] private float _basePatience = 30f;
         [Export] private float _patienceVariance = 10f;
 
+        private float _nextSpawnTime;
+        private bool _isGenerating;
+        private readonly ICallerRepository _repository;
+        private readonly IGameStateManager _gameState;
+        private readonly IArcRepository _arcRepository;
+
+        private bool _initialized;
+
+        // Name and location data for caller generation
+        private static readonly string[] FirstNames = {
+            "John", "Mike", "Dave", "Steve", "Bob", "Tom", "Jim", "Bill",
+            "Sarah", "Lisa", "Karen", "Mary", "Linda", "Susan", "Betty", "Helen",
+            "Paul", "Mark", "George", "Kevin", "Brian", "Edward", "Ronald", "Timothy",
+            "Sandra", "Donna", "Carol", "Ruth", "Sharon", "Michelle", "Laura", "Kimberly"
+        };
+
+        private static readonly string[] LastNames = {
+            "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis",
+            "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez", "Wilson", "Anderson", "Thomas",
+            "Taylor", "Moore", "Jackson", "Martin", "Lee", "Perez", "Thompson", "White",
+            "Harris", "Sanchez", "Clark", "Ramirez", "Lewis", "Robinson", "Walker", "Young"
+        };
+
+        private static readonly string[] Locations = {
+            "Springfield", "Riverside", "Oakwood", "Maple Valley", "Pinebrook", "Cedar Hills",
+            "Elmwood", "Willow Creek", "Birchwood", "Oakridge", "Pine Grove", "Cedar Valley",
+            "Elm Creek", "Willow Grove", "Birch Creek", "Oak Creek", "Pine Valley", "Cedar Grove"
+        };
+
         [Export] private float _fakeCallerChance = 0.15f;
         [Export] private float _questionableCallerChance = 0.25f;
         [Export] private float _compellingCallerChance = 0.1f;
 
-        private float _nextSpawnTime;
-        private bool _isGenerating;
-        private ICallerRepository _repository;
-
-        private GameStateManager _gameState;
-
-        // Simple name generation data
-        private static readonly string[] FirstNames = {
-            "John", "Mike", "Dave", "Steve", "Bob", "Jim", "Tom", "Bill", "Joe", "Frank",
-            "Mary", "Linda", "Susan", "Karen", "Nancy", "Lisa", "Betty", "Dorothy", "Sandra", "Ashley"
-        };
-
-        private static readonly string[] LastNames = {
-            "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis", "Rodriguez", "Martinez"
-        };
-
-        private static readonly string[] Locations = {
-            "Springfield", "Riverside", "Oakwood", "Pineville", "Maple Creek", "Elmwood", "Cedar Falls", "Willow Grove"
-        };
-
-        private bool _initialized;
+        public CallerGenerator(ICallerRepository repository, IGameStateManager gameState, IArcRepository arcRepository)
+        {
+            _repository = repository;
+            _gameState = gameState;
+            _arcRepository = arcRepository;
+        }
 
         public override void _Ready()
         {
-            ServiceRegistry.Instance.RegisterSelf<CallerGenerator>(this);
+            // RegisterSelf removed - now using dependency injection
             CompleteInitialization();
         }
 
@@ -65,9 +79,6 @@ namespace KBTV.Callers
 
         private void CompleteInitialization()
         {
-            _repository = ServiceRegistry.Instance.CallerRepository;
-            _gameState = ServiceRegistry.Instance.GameStateManager;
-
             if (_repository == null)
             {
                 GD.PrintErr("CallerGenerator: ICallerRepository not available after all services ready");
@@ -80,7 +91,7 @@ namespace KBTV.Callers
                 return;
             }
 
-            _gameState.Connect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
+            _gameState.OnPhaseChanged += HandlePhaseChanged;
 
             if (_gameState.CurrentPhase == GamePhase.LiveShow)
             {
@@ -95,7 +106,7 @@ namespace KBTV.Callers
         {
             if (_gameState != null)
             {
-                _gameState.Disconnect("PhaseChanged", Callable.From<int, int>(HandlePhaseChanged));
+                _gameState.OnPhaseChanged -= HandlePhaseChanged;
             }
         }
 
@@ -198,7 +209,7 @@ namespace KBTV.Callers
             string personality = "Average caller";
 
             // Assign arcs based on show topic (90% on-topic, 10% off-topic)
-            var arcRepo = ServiceRegistry.Instance?.ArcRepository;
+            var arcRepo = _arcRepository;
             ConversationArc? claimedArc = null;
             ConversationArc? actualArc = null;
             string actualTopic;
@@ -338,11 +349,8 @@ namespace KBTV.Callers
             }
         }
 
-        private void HandlePhaseChanged(int oldPhaseInt, int newPhaseInt)
+        private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
         {
-            GamePhase oldPhase = (GamePhase)oldPhaseInt;
-            GamePhase newPhase = (GamePhase)newPhaseInt;
-
             if (newPhase == GamePhase.LiveShow)
             {
                 StartGenerating();

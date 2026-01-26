@@ -1,6 +1,8 @@
 using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Ads;
+using KBTV.Core;
+using KBTV.Managers;
 
 namespace KBTV.Tests.Unit.Ads
 {
@@ -9,11 +11,15 @@ namespace KBTV.Tests.Unit.Ads
         public BreakLogicTests(Node testScene) : base(testScene) { }
 
         private BreakLogic _logic = null!;
+        private GameStateManager _gameStateManager = null!;
+        private ListenerManager _listenerManager = null!;
 
         [Setup]
         public void Setup()
         {
-            _logic = new BreakLogic();
+            _gameStateManager = new GameStateManager();
+            _listenerManager = new ListenerManager(_gameStateManager, null!, null!); // Note: passing null for TimeManager and ICallerRepository for unit test
+            _logic = new BreakLogic(_gameStateManager, _listenerManager);
         }
 
         [Test]

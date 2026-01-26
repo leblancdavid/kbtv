@@ -17,16 +17,17 @@ namespace KBTV.Monitors
     /// Side Effects:
     /// - Triggers ProgressUpdated event for UI polling
     /// </summary>
-    public partial class ScreeningMonitor : Node
+    public partial class ScreeningMonitor : Node, IDependent
     {
+        public override void _Notification(int what) => this.Notify(what);
+
         private IScreeningController? _controller;
 
-        public override void _Ready()
+        private IScreeningController ScreeningController => DependencyInjection.Get<IScreeningController>(this);
+
+        public void OnResolved()
         {
-            if (ServiceRegistry.IsInitialized)
-            {
-                _controller = ServiceRegistry.Instance.ScreeningController;
-            }
+            _controller = ScreeningController;
         }
 
         public override void _Process(double delta)

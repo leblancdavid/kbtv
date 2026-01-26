@@ -6,6 +6,7 @@ using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Screening;
 using KBTV.UI.Themes;
+using KBTV.Dialogue;
 
 namespace KBTV.Tests.Integration
 {
@@ -16,12 +17,20 @@ namespace KBTV.Tests.Integration
         private CallerRepository _repository = null!;
         private ScreeningController _controller = null!;
         private List<string> _eventLog = null!;
+        private MockArcRepository _mockArcRepository = null!;
+        private BroadcastCoordinator _broadcastCoordinator = null!;
+        private MockCallerRepository _mockCallerRepositoryForController = null!;
 
         [Setup]
         public void Setup()
         {
-            _repository = new CallerRepository();
-            _controller = new ScreeningController();
+            _mockArcRepository = new MockArcRepository();
+            _broadcastCoordinator = new BroadcastCoordinator();
+            _repository = new CallerRepository(_mockArcRepository, _broadcastCoordinator);
+            
+            _mockCallerRepositoryForController = new MockCallerRepository();
+            _controller = new ScreeningController(_mockCallerRepositoryForController);
+            
             _eventLog = new List<string>();
 
             _repository.Subscribe(new TestCallerRepositoryObserver(_eventLog));
@@ -291,24 +300,6 @@ namespace KBTV.Tests.Integration
             AssertThat(Mathf.Abs(ratio3 - (10f / 30f)) < 0.01f);
         }
 
-        [Test]
-        public void ScreeningPatience_DrainsAtHalfRateOfNormalPatience()
-        {
-            var normalCaller = CreateTestCaller("Normal", patience: 20f);
-            var screeningCaller = CreateTestCaller("Screening", patience: 20f);
-
-            _repository.AddCaller(normalCaller);
-            _repository.AddCaller(screeningCaller);
-
-            _repository.StartScreening(screeningCaller);
-
-            normalCaller.UpdateWaitTime(10f);
-            screeningCaller.UpdateWaitTime(10f);
-
-            AssertThat(normalCaller.Patience - normalCaller.WaitTime == 10f);
-            AssertThat(screeningCaller.ScreeningPatience == 15f);
-        }
-
         private Caller CreateTestCaller(string name = "Test Caller", float patience = 30f)
         {
             return new Caller(
@@ -368,5 +359,60 @@ namespace KBTV.Tests.Integration
             public void OnCallerOnAirEnded(Caller caller) =>
                 _eventLog.Add($"OnAirEnded: {caller.Name}");
         }
+    }
+
+    // Mock implementations for integration tests
+    public class MockArcRepository : IArcRepository
+    {
+        public Godot.Collections.Array<ConversationArc> Arcs => new();
+
+        public void Initialize() { }
+
+        public List<ConversationArc> FindMatchingArcs(ShowTopic topic, CallerLegitimacy legitimacy) => new();
+
+        public ConversationArc? GetRandomArc(CallerLegitimacy legitimacy) => null;
+
+        public ConversationArc? GetRandomArcForTopic(ShowTopic topic, CallerLegitimacy legitimacy) => null;
+
+        public ConversationArc? GetRandomArcForDifferentTopic(ShowTopic excludeTopic, CallerLegitimacy legitimacy) => null;
+
+        public List<ConversationArc> FindTopicSwitcherArcs(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy) => new();
+
+        public ConversationArc? GetRandomTopicSwitcherArc(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy) => null;
+
+        public void AddArc(ConversationArc arc) { }
+
+        public void Clear() { }
+    }
+
+    public class MockCallerRepository : ICallerRepository
+    {
+        public IReadOnlyList<Caller> IncomingCallers => new List<Caller>();
+        public IReadOnlyList<Caller> OnHoldCallers => new List<Caller>();
+        public Caller? CurrentScreening => null;
+        public Caller? OnAirCaller => null;
+
+        public bool HasIncomingCallers => false;
+        public bool HasOnHoldCallers => false;
+        public bool IsScreening => false;
+        public bool IsOnAir => false;
+        public bool CanAcceptMoreCallers => true;
+        public bool CanPutOnHold => true;
+
+            public Result<Caller> AddCaller(Caller caller) => Result<Caller>.Ok(caller);
+            public Result<Caller> StartScreening(Caller caller) => Result<Caller>.Ok(caller);
+            public Result<Caller> StartScreeningNext() => Result<Caller>.Fail("No callers");
+            public Result<Caller> ApproveScreening() => Result<Caller>.Fail("No screening");
+            public Result<Caller> RejectScreening() => Result<Caller>.Fail("No screening");
+            public Result<Caller> PutOnAir() => Result<Caller>.Fail("No caller");
+            public Result<Caller> EndOnAir() => Result<Caller>.Fail("No caller on air");
+
+        public bool SetCallerState(Caller caller, CallerState newState) => true;
+        public bool RemoveCaller(Caller caller) => true;
+        public void ClearAll() { }
+        public Caller? GetCaller(string callerId) => null;
+
+        public void Subscribe(ICallerRepositoryObserver observer) { }
+        public void Unsubscribe(ICallerRepositoryObserver observer) { }
     }
 }

@@ -5,6 +5,7 @@ using Godot;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Screening;
+using KBTV.Dialogue;
 
 namespace KBTV.Tests.Integration
 {
@@ -15,12 +16,20 @@ namespace KBTV.Tests.Integration
         private CallerRepository _repository = null!;
         private ScreeningController _controller = null!;
         private List<string> _eventLog = null!;
+        private MockArcRepository _mockArcRepository = null!;
+        private BroadcastCoordinator _broadcastCoordinator = null!;
+        private MockCallerRepository _mockCallerRepositoryForController = null!;
 
         [Setup]
         public void Setup()
         {
-            _repository = new CallerRepository();
-            _controller = new ScreeningController();
+            _mockArcRepository = new MockArcRepository();
+            _broadcastCoordinator = new BroadcastCoordinator();
+            _repository = new CallerRepository(_mockArcRepository, _broadcastCoordinator);
+            
+            _mockCallerRepositoryForController = new MockCallerRepository();
+            _controller = new ScreeningController(_mockCallerRepositoryForController);
+            
             _eventLog = new List<string>();
 
             _repository.Subscribe(new TestCallerRepositoryObserver(_eventLog));
@@ -173,7 +182,7 @@ namespace KBTV.Tests.Integration
             AssertThat(_repository.IncomingCallers.Count == 0);
             AssertThat(_repository.OnHoldCallers.Count == 0);
             AssertThat(_repository.CurrentScreening == null);
-            AssertThat(_repository.OnAirCaller == null);
+            AssertThat(!_repository.IsOnAir);
         }
 
         private Caller CreateTestCaller(string name = "Test Caller")
@@ -234,6 +243,61 @@ namespace KBTV.Tests.Integration
 
             public void OnCallerOnAirEnded(Caller caller) =>
                 _eventLog.Add($"OnAirEnded: {caller.Name}");
+        }
+
+        // Mock implementations for integration tests
+        private class MockArcRepository : IArcRepository
+        {
+            public Godot.Collections.Array<ConversationArc> Arcs => new();
+
+            public void Initialize() { }
+
+            public List<ConversationArc> FindMatchingArcs(ShowTopic topic, CallerLegitimacy legitimacy) => new();
+
+            public ConversationArc? GetRandomArc(CallerLegitimacy legitimacy) => null;
+
+            public ConversationArc? GetRandomArcForTopic(ShowTopic topic, CallerLegitimacy legitimacy) => null;
+
+            public ConversationArc? GetRandomArcForDifferentTopic(ShowTopic excludeTopic, CallerLegitimacy legitimacy) => null;
+
+            public List<ConversationArc> FindTopicSwitcherArcs(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy) => new();
+
+            public ConversationArc? GetRandomTopicSwitcherArc(ShowTopic claimedTopic, ShowTopic actualTopic, CallerLegitimacy legitimacy) => null;
+
+            public void AddArc(ConversationArc arc) { }
+
+            public void Clear() { }
+        }
+
+        private class MockCallerRepository : ICallerRepository
+        {
+            public IReadOnlyList<Caller> IncomingCallers => new List<Caller>();
+            public IReadOnlyList<Caller> OnHoldCallers => new List<Caller>();
+            public Caller? CurrentScreening => null;
+            public Caller? OnAirCaller => null;
+
+            public bool HasIncomingCallers => false;
+            public bool HasOnHoldCallers => false;
+            public bool IsScreening => false;
+            public bool IsOnAir => false;
+            public bool CanAcceptMoreCallers => true;
+            public bool CanPutOnHold => true;
+
+            public Result<Caller> AddCaller(Caller caller) => Result<Caller>.Ok(caller);
+            public Result<Caller> StartScreening(Caller caller) => Result<Caller>.Ok(caller);
+            public Result<Caller> StartScreeningNext() => Result<Caller>.Fail("No callers");
+            public Result<Caller> ApproveScreening() => Result<Caller>.Fail("No screening");
+            public Result<Caller> RejectScreening() => Result<Caller>.Fail("No screening");
+            public Result<Caller> PutOnAir() => Result<Caller>.Fail("No caller");
+            public Result<Caller> EndOnAir() => Result<Caller>.Fail("No caller on air");
+
+            public bool SetCallerState(Caller caller, CallerState newState) => true;
+            public bool RemoveCaller(Caller caller) => true;
+            public void ClearAll() { }
+            public Caller? GetCaller(string callerId) => null;
+
+            public void Subscribe(ICallerRepositoryObserver observer) { }
+            public void Unsubscribe(ICallerRepositoryObserver observer) { }
         }
     }
 }

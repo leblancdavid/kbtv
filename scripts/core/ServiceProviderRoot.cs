@@ -7,6 +7,7 @@ using KBTV.Callers;
 using KBTV.Dialogue;
 using KBTV.UI;
 using KBTV.Ads;
+using KBTV.Screening;
 
 namespace KBTV.Core;
 
@@ -30,7 +31,10 @@ namespace KBTV.Core;
     IProvide<BroadcastCoordinator>,
     IProvide<GlobalTransitionManager>,
     IProvide<AdManager>,
-    IProvide<ITranscriptRepository>
+    IProvide<ITranscriptRepository>,
+    IProvide<IScreeningController>,
+    IProvide<IGameStateManager>,
+    IProvide<ITimeManager>
 {
     public override void _Notification(int what) => this.Notify(what);
 
@@ -51,6 +55,7 @@ namespace KBTV.Core;
     public GlobalTransitionManager GlobalTransitionManager { get; private set; } = null!;
     public AdManager AdManager { get; private set; } = null!;
     public TranscriptRepository TranscriptRepository { get; private set; } = null!;
+    public IScreeningController ScreeningController { get; private set; } = null!;
 
     // Provider interface implementations
     GameStateManager IProvide<GameStateManager>.Value() => GameStateManager;
@@ -69,6 +74,9 @@ namespace KBTV.Core;
     GlobalTransitionManager IProvide<GlobalTransitionManager>.Value() => GlobalTransitionManager;
     AdManager IProvide<AdManager>.Value() => AdManager;
     ITranscriptRepository IProvide<ITranscriptRepository>.Value() => TranscriptRepository;
+    IScreeningController IProvide<IScreeningController>.Value() => ScreeningController;
+    IGameStateManager IProvide<IGameStateManager>.Value() => GameStateManager;
+    ITimeManager IProvide<ITimeManager>.Value() => TimeManager;
 
     /// <summary>
     /// Initialize all service providers and register them with AutoInject.
@@ -80,83 +88,71 @@ namespace KBTV.Core;
         GD.Print("ServiceProviderRoot: Creating core services...");
         
         EventBus = new EventBus();
-        ServiceRegistry.Instance.Register<EventBus>(EventBus);
         
-        var callerRepo = new CallerRepository();
-        CallerRepository = callerRepo;
-        ServiceRegistry.Instance.Register<ICallerRepository>(callerRepo);
-        ServiceRegistry.Instance.Register<CallerRepository>(callerRepo);
-        
+        // Create arc repository first (needed by CallerRepository)
         var arcRepository = new ArcRepository();
         arcRepository.Initialize();
         ArcRepository = arcRepository;
-        ServiceRegistry.Instance.Register<IArcRepository>(arcRepository);
-        ServiceRegistry.Instance.Register<ArcRepository>(arcRepository);
 
+        // Create broadcast coordinator (needed by CallerRepository)
+        BroadcastCoordinator = new BroadcastCoordinator();
+        AddChild(BroadcastCoordinator);
+        
+        var callerRepo = new CallerRepository(ArcRepository, BroadcastCoordinator);
+        CallerRepository = callerRepo;
+        
+        // Create screening controller (depends on CallerRepository)
+        var screeningController = new ScreeningController(callerRepo);
+        ScreeningController = screeningController;
+        
+        // Set circular dependency property
+        callerRepo.ScreeningController = screeningController;
+        
         // Create independent providers
         SaveManager = new SaveManager();
         AddChild(SaveManager);
-        ServiceRegistry.Instance.Register<SaveManager>(SaveManager);
         
         EconomyManager = new EconomyManager();
         AddChild(EconomyManager);
-        ServiceRegistry.Instance.Register<EconomyManager>(EconomyManager);
 
         // Create providers with dependencies
         TimeManager = new TimeManager();
         AddChild(TimeManager);
-        ServiceRegistry.Instance.Register<TimeManager>(TimeManager);
         
         GameStateManager = new GameStateManager();
         AddChild(GameStateManager);
-        ServiceRegistry.Instance.Register<GameStateManager>(GameStateManager);
         
-        ListenerManager = new ListenerManager();
+        ListenerManager = new ListenerManager(GameStateManager, TimeManager, CallerRepository);
         AddChild(ListenerManager);
-        ServiceRegistry.Instance.Register<ListenerManager>(ListenerManager);
 
         // Create dialogue player
         var audioPlayer = new AudioDialoguePlayer(GameStateManager);
         AddChild(audioPlayer);
         DialoguePlayer = audioPlayer;
-        ServiceRegistry.Instance.Register<IDialoguePlayer>(DialoguePlayer);
-        ServiceRegistry.Instance.Register<AudioDialoguePlayer>(audioPlayer);
 
         // Create transcript repository
         TranscriptRepository = new TranscriptRepository();
         AddChild(TranscriptRepository);
-        ServiceRegistry.Instance.Register<ITranscriptRepository>(TranscriptRepository);
-        ServiceRegistry.Instance.Register<TranscriptRepository>(TranscriptRepository);
 
         // Create caller generator
-        CallerGenerator = new CallerGenerator();
+        CallerGenerator = new CallerGenerator(CallerRepository, GameStateManager, ArcRepository);
         AddChild(CallerGenerator);
-        ServiceRegistry.Instance.Register<CallerGenerator>(CallerGenerator);
 
         // Create UI manager
         UIManager = new UIManager();
         AddChild(UIManager);
-        ServiceRegistry.Instance.Register<UIManager>(UIManager);
-        ServiceRegistry.Instance.Register<IUIManager>(UIManager);
 
         // Create broadcast services
         AsyncBroadcastLoop = new AsyncBroadcastLoop();
         AddChild(AsyncBroadcastLoop);
-        ServiceRegistry.Instance.Register<AsyncBroadcastLoop>(AsyncBroadcastLoop);
-
-        BroadcastCoordinator = new BroadcastCoordinator();
-        AddChild(BroadcastCoordinator);
-        ServiceRegistry.Instance.Register<BroadcastCoordinator>(BroadcastCoordinator);
 
         // Create transition manager
         GlobalTransitionManager = new GlobalTransitionManager();
         AddChild(GlobalTransitionManager);
-        ServiceRegistry.Instance.Register<GlobalTransitionManager>(GlobalTransitionManager);
 
         // Create ad manager
         AdManager = new AdManager();
         AddChild(AdManager);
-        ServiceRegistry.Instance.Register<AdManager>(AdManager);
 
         GD.Print("ServiceProviderRoot: All providers created and added to scene tree");
     }

@@ -5,6 +5,7 @@ using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Dialogue;
 
 namespace KBTV.Tests.Unit.Callers
 {
@@ -34,11 +35,15 @@ namespace KBTV.Tests.Unit.Callers
 
         private CallerRepository _repository = null!;
         private TestCallerRepositoryObserver _observer = null!;
+        private MockArcRepository _mockArcRepository = null!;
+        private BroadcastCoordinator _broadcastCoordinator = null!;
 
         [Setup]
         public void Setup()
         {
-            _repository = new CallerRepository();
+            _mockArcRepository = new MockArcRepository();
+            _broadcastCoordinator = new BroadcastCoordinator();
+            _repository = new CallerRepository(_mockArcRepository, _broadcastCoordinator);
             _observer = new TestCallerRepositoryObserver();
             _repository.Subscribe(_observer);
         }

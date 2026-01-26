@@ -2,6 +2,7 @@ using System;
 using Godot;
 using KBTV.Ads;
 using KBTV.Core;
+using KBTV.Economy;
 using KBTV.Managers;
 using KBTV.Dialogue;
 
@@ -23,6 +24,10 @@ namespace KBTV.Ads
         private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
 
         private BroadcastCoordinator BroadcastCoordinator => DependencyInjection.Get<BroadcastCoordinator>(this);
+
+        private EconomyManager EconomyManager => DependencyInjection.Get<EconomyManager>(this);
+
+        private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
 
         private AdSchedule _schedule;
         private float _showDuration = 0f;
@@ -97,8 +102,8 @@ namespace KBTV.Ads
             AddChild(_transitionMusicPlayer);
             
             // Initialize modular components
-            _breakLogic = new BreakLogic();
-            _revenueCalculator = new RevenueCalculator();
+            _breakLogic = new BreakLogic(GameStateManager, ListenerManager);
+            _revenueCalculator = new RevenueCalculator(EconomyManager);
         }
 
         /// <summary>

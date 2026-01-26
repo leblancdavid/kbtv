@@ -10,7 +10,7 @@ namespace KBTV.Managers;
 /// Handles time progression during live broadcasts.
 /// Converted to AutoInject Provider pattern.
 /// </summary>
-public partial class TimeManager : Node, ISaveable, 
+public partial class TimeManager : Node, ISaveable, ITimeManager,
     IProvide<TimeManager>,
     IDependent
 {
@@ -20,6 +20,11 @@ public partial class TimeManager : Node, ISaveable,
     [Signal] public delegate void ShowEndedEventHandler();
     [Signal] public delegate void ShowEndingWarningEventHandler(float secondsRemaining);
     [Signal] public delegate void RunningChangedEventHandler(bool isRunning);
+
+    public event Action<float> OnTick;
+    public event Action OnShowEnded;
+    public event Action<float> OnShowEndingWarning;
+    public event Action<bool> OnRunningChanged;
 
     private SaveManager SaveManager => DependencyInjection.Get<SaveManager>(this);
 
@@ -118,11 +123,13 @@ public partial class TimeManager : Node, ISaveable,
         _elapsedTime += deltaTime;
 
         EmitSignal("Tick", deltaTime);
+        OnTick?.Invoke(deltaTime);
 
         // Check for show ending warning (10 seconds remaining)
         if (_elapsedTime >= _showDurationSeconds - 10f && _elapsedTime < _showDurationSeconds - 10f + deltaTime)
         {
             EmitSignal("ShowEndingWarning", 10f);
+            OnShowEndingWarning?.Invoke(10f);
         }
 
         // Check for show end
@@ -131,6 +138,7 @@ public partial class TimeManager : Node, ISaveable,
             _elapsedTime = _showDurationSeconds; // Prevent overflow
             _isRunning = false;
             EmitSignal("ShowEnded");
+            OnShowEnded?.Invoke();
         }
     }
 
@@ -144,6 +152,7 @@ public partial class TimeManager : Node, ISaveable,
         _elapsedTime = 0f;
         _isRunning = true;
         EmitSignal("RunningChanged", true);
+        OnRunningChanged?.Invoke(true);
     }
 
     /// <summary>
@@ -155,6 +164,7 @@ public partial class TimeManager : Node, ISaveable,
 
         _isRunning = false;
         EmitSignal("RunningChanged", false);
+        OnRunningChanged?.Invoke(false);
     }
 
     /// <summary>
@@ -165,6 +175,7 @@ public partial class TimeManager : Node, ISaveable,
         if (!_isRunning) return;
         _isRunning = false;
         EmitSignal("RunningChanged", false);
+        OnRunningChanged?.Invoke(false);
     }
 
     /// <summary>
@@ -175,7 +186,9 @@ public partial class TimeManager : Node, ISaveable,
         _elapsedTime = _showDurationSeconds;
         _isRunning = false;
         EmitSignal("ShowEnded");
+        OnShowEnded?.Invoke();
         EmitSignal("RunningChanged", false);
+        OnRunningChanged?.Invoke(false);
     }
 
     /// <summary>
@@ -186,6 +199,7 @@ public partial class TimeManager : Node, ISaveable,
         _elapsedTime = 0f;
         _isRunning = false;
         EmitSignal("RunningChanged", false);
+        OnRunningChanged?.Invoke(false);
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Ads;
+using KBTV.Economy;
 
 namespace KBTV.Tests.Unit.Ads
 {
@@ -9,11 +10,13 @@ namespace KBTV.Tests.Unit.Ads
         public RevenueCalculatorTests(Node testScene) : base(testScene) { }
 
         private RevenueCalculator _calculator = null!;
+        private EconomyManager _economyManager = null!;
 
         [Setup]
         public void Setup()
         {
-            _calculator = new RevenueCalculator();
+            _economyManager = new EconomyManager();
+            _calculator = new RevenueCalculator(_economyManager);
         }
 
         [Test]

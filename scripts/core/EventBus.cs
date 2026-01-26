@@ -17,7 +17,7 @@ namespace KBTV.Core
 
         public override void _Ready()
         {
-            ServiceRegistry.Instance.RegisterSelf<EventBus>(this);
+            // RegisterSelf removed - now using dependency injection
         }
 
         /// <summary>

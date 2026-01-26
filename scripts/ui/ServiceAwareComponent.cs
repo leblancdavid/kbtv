@@ -6,8 +6,8 @@ using KBTV.Core;
 namespace KBTV.UI
 {
     /// <summary>
-    /// Base class for UI components that depend on ServiceRegistry being initialized.
-    /// Provides a standard pattern for deferred initialization with automatic retry.
+    /// Base class for UI components that need initialization.
+    /// Provides a standard pattern for component initialization.
     /// </summary>
     public partial class ServiceAwareComponent : Control
     {
@@ -15,19 +15,17 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            // With synchronous loading, ServiceRegistry should be ready immediately
+            // Initialize immediately (DI system handles dependencies)
             InitializeWithServices();
         }
 
         /// <summary>
-        /// Override this method to perform initialization after ServiceRegistry is ready.
-        /// Called exactly once when ServiceRegistry becomes available.
+        /// Override this method to perform initialization.
+        /// Called once when the component is ready.
         /// </summary>
         protected virtual void InitializeWithServices()
         {
             _isInitialized = true;
         }
-
-        protected bool IsServiceRegistryReady => ServiceRegistry.IsInitialized;
     }
 }

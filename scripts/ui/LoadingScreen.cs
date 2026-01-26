@@ -15,16 +15,9 @@ namespace KBTV.UI
             GD.Print("LoadingScreen: Initializing loading screen");
             CreateLoadingUI();
 
-            // With synchronous loading, ServiceRegistry should be ready immediately
-            if (ServiceRegistry.IsInitialized)
-            {
-                GD.Print("LoadingScreen: ServiceRegistry ready, transitioning to game scene");
-                LoadGameScene();
-            }
-            else
-            {
-                GD.PrintErr("LoadingScreen: ServiceRegistry not ready - this should not happen with synchronous loading");
-            }
+            // Load game scene directly (DI system handles initialization)
+            GD.Print("LoadingScreen: Loading game scene");
+            LoadGameScene();
         }
 
         private void LoadGameScene()

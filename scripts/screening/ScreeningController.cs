@@ -15,6 +15,7 @@ namespace KBTV.Screening
     {
         private ScreeningSession? _session;
         private ScreeningPhase _phase = ScreeningPhase.Idle;
+        private readonly ICallerRepository _callerRepository;
 
         public Caller? CurrentCaller => _session?.Caller;
         public bool IsActive => _session != null && _phase != ScreeningPhase.Completed;
@@ -23,6 +24,11 @@ namespace KBTV.Screening
 
         public event Action<ScreeningPhase>? PhaseChanged;
         public event Action<ScreeningProgress>? ProgressUpdated;
+
+        public ScreeningController(ICallerRepository callerRepository)
+        {
+            _callerRepository = callerRepository;
+        }
 
         public void Start(Caller caller)
         {
@@ -45,7 +51,7 @@ namespace KBTV.Screening
                 return Result<Caller>.Fail("NO_SESSION", "No active screening session");
             }
 
-            var repository = ServiceRegistry.Instance?.CallerRepository;
+            var repository = _callerRepository;
             if (repository == null)
             {
                 return Result<Caller>.Fail("NO_REPOSITORY", "Repository not available");
@@ -80,7 +86,7 @@ namespace KBTV.Screening
                 return Result<Caller>.Fail("NO_SESSION", "No active screening session");
             }
 
-            var repository = ServiceRegistry.Instance?.CallerRepository;
+            var repository = _callerRepository;
             if (repository == null)
             {
                 return Result<Caller>.Fail("NO_REPOSITORY", "Repository not available");
@@ -135,7 +141,7 @@ namespace KBTV.Screening
 
             GD.Print($"ScreeningController: Patience expired for {_session.Caller.Name}");
 
-            var repository = ServiceRegistry.Instance?.CallerRepository;
+            var repository = _callerRepository;
             repository?.RemoveCaller(_session.Caller);
 
             _session = null;

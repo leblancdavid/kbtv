@@ -13,9 +13,9 @@ namespace KBTV.Callers
     /// <summary>
     /// Legacy wrapper for backward compatibility.
     /// Delegates to ICallerRepository and handles patience updates.
-    /// Use ServiceRegistry.Instance.CallerRepository for new code.
+    /// Use ICallerRepository directly for new code.
     /// </summary>
-    [Obsolete("Use ICallerRepository from ServiceRegistry instead")]
+    [Obsolete("Use ICallerRepository directly instead")]
     [SuppressMessage("csharp", "CS0618")]
     public partial class CallerQueue : Node, ICallerRepositoryObserver
     {
@@ -30,6 +30,11 @@ namespace KBTV.Callers
         private ICallerRepository _repository = null!;
         private static int _instanceCount;
         private int _instanceId;
+
+        public CallerQueue(ICallerRepository repository)
+        {
+            _repository = repository;
+        }
 
         public bool CanAcceptMoreCallers => _repository.CanAcceptMoreCallers;
         public bool CanPutOnHold => _repository.CanPutOnHold;
@@ -46,15 +51,6 @@ namespace KBTV.Callers
         {
             _instanceId = ++_instanceCount;
             GD.Print($"CallerQueue: _Ready called (instance #{_instanceId})");
-            ServiceRegistry.Instance.RegisterSelf<CallerQueue>(this);
-
-            if (ServiceRegistry.Instance == null)
-            {
-                GD.PrintErr("CallerQueue: ServiceRegistry not available");
-                return;
-            }
-
-            _repository = ServiceRegistry.Instance.CallerRepository;
 
             if (_repository == null)
             {

@@ -60,7 +60,7 @@ namespace KBTV.Persistence
 
         public override void _Ready()
         {
-            ServiceRegistry.Instance.RegisterSelf<SaveManager>(this);
+            // Removed RegisterSelf - now registered in ServiceProviderRoot
         }
 
         /// <summary>

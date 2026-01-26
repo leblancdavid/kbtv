@@ -43,19 +43,6 @@ namespace KBTV.Core
                 current = current.GetParent();
             }
 
-            // Fallback to ServiceRegistry for backward compatibility during migration
-            if (ServiceRegistry.IsInitialized)
-            {
-                try
-                {
-                    return ServiceRegistry.Instance.Get<TService>();
-                }
-                catch
-                {
-                    // Fall through to error
-                }
-            }
-
             throw new InvalidOperationException($"No provider found for service {typeof(TService).Name}");
         }
 

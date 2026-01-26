@@ -13,8 +13,8 @@ namespace KBTV.Core
         VernStats VernStats { get; }
         bool IsLive { get; }
 
-        event Action<GamePhase, GamePhase> PhaseChanged;
-        event Action<int> NightStarted;
+        event Action<GamePhase, GamePhase> OnPhaseChanged;
+        event Action<int> OnNightStarted;
 
         void InitializeGame();
         void AdvancePhase();
