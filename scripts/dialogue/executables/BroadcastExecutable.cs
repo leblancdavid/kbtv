@@ -50,7 +50,16 @@ namespace KBTV.Dialogue
         /// </summary>
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _cancellationTokenSource?.Cancel();
+            try
+            {
+                _cancellationTokenSource?.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Source was already disposed, create new one
+                _cancellationTokenSource = null;
+            }
+            
             _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
             try
@@ -126,8 +135,16 @@ namespace KBTV.Dialogue
         /// </summary>
         public void Cleanup()
         {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
+            try
+            {
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource?.Dispose();
+            }
+            catch (ObjectDisposedException)
+            {
+                // Source was already disposed, ignore
+            }
+            _cancellationTokenSource = null;
         }
     }
 }

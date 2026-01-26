@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
@@ -34,6 +35,7 @@ namespace KBTV.Dialogue
 
         private BroadcastStateManager _stateManager = null!;
         private CancellationTokenSource? _cancellationTokenSource;
+        private readonly List<CancellationTokenSource> _oldTokenSources = new();
         private Task? _broadcastTask;
         private bool _isRunning = false;
         private BroadcastExecutable? _currentExecutable;
@@ -91,13 +93,16 @@ namespace KBTV.Dialogue
                     return;
                 }
 
-                // Cancel and dispose old token AFTER creating new one to prevent race conditions
+                // Cancel and store old token for later disposal (don't dispose immediately)
                 var oldToken = _cancellationTokenSource;
                 _cancellationTokenSource = new CancellationTokenSource();
                 
-                // Now safely cancel and dispose the old token
-                oldToken?.Cancel();
-                oldToken?.Dispose();
+                // Store old token for later disposal
+                if (oldToken != null)
+                {
+                    _oldTokenSources.Add(oldToken);
+                    oldToken.Cancel();
+                }
             }
 
             try
@@ -263,7 +268,12 @@ namespace KBTV.Dialogue
                 GD.PrintErr($"AsyncBroadcastLoop: Error waiting for task completion: {ex.Message}");
             }
 
-            _cancellationTokenSource?.Dispose();
+            // Store current source for later disposal (don't dispose now)
+            if (_cancellationTokenSource != null)
+            {
+                _oldTokenSources.Add(_cancellationTokenSource);
+            }
+            
             _cancellationTokenSource = null;
             _broadcastTask = null;
 
@@ -319,6 +329,21 @@ namespace KBTV.Dialogue
             {
                 StopBroadcastUnsafe();
             }
+            
+            // Dispose all stored token sources
+            foreach (var tokenSource in _oldTokenSources)
+            {
+                try
+                {
+                    tokenSource.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    GD.PrintErr($"AsyncBroadcastLoop: Error disposing token source: {ex.Message}");
+                }
+            }
+            _oldTokenSources.Clear();
+            
             base._ExitTree();
         }
     }
