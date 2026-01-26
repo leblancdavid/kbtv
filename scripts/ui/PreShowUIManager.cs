@@ -132,7 +132,7 @@ namespace KBTV.UI
 			}
 
 			// Force layout update to ensure proper positioning
-			CallDeferred(nameof(UpdateLayout));
+			UpdateLayout();
 		}
 
 		private void UpdateLayout()

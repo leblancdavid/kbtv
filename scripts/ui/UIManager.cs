@@ -51,7 +51,7 @@ namespace KBTV.UI
             }
             else
             {
-                GD.PrintErr("UIManager: GameStateManager not available after all services ready");
+                GD.PrintErr("UIManager: GameStateManager not available - check autoload order");
             }
         }
 
@@ -74,14 +74,12 @@ namespace KBTV.UI
 
             if (newPhase == GamePhase.PreShow && _preShowLayer == null)
             {
-                CallDeferred(nameof(TryUpdateVisibility));
-                return;
+                return; // Layer will be registered when available
             }
 
             if (newPhase == GamePhase.LiveShow && _liveShowLayer == null)
             {
                 GD.PrintErr("UIManager: Cannot switch to LiveShow - LiveShow layer not registered");
-                CallDeferred(nameof(TryUpdateVisibility));
                 return;
             }
 

@@ -27,16 +27,33 @@ namespace KBTV.Dialogue
 
         private void InitializeWithServices()
         {
-            _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-            _repository = ServiceRegistry.Instance.CallerRepository;
-            _repository.Subscribe(this);
+            if (ServiceRegistry.IsInitialized)
+            {
+                _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
+                _repository = ServiceRegistry.Instance.CallerRepository;
+                _audioPlayer = ServiceRegistry.Instance.AudioPlayer;
+                var eventBus = ServiceRegistry.Instance.EventBus;
 
-            _audioPlayer = ServiceRegistry.Instance.AudioPlayer;
+                if (_coordinator != null && _repository != null && _audioPlayer != null && eventBus != null)
+                {
+                    _repository.Subscribe(this);
+                    eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
+                    ServiceRegistry.Instance.RegisterSelf<ConversationDisplay>(this);
+                }
+                else
+                {
+                    CallDeferred(nameof(RetryInitialization));
+                }
+            }
+            else
+            {
+                CallDeferred(nameof(RetryInitialization));
+            }
+        }
 
-            var eventBus = ServiceRegistry.Instance.EventBus;
-            eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
-
-            ServiceRegistry.Instance.RegisterSelf<ConversationDisplay>(this);
+        private void RetryInitialization()
+        {
+            InitializeWithServices();
         }
 
         // ICallerRepositoryObserver implementation

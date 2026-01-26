@@ -83,6 +83,9 @@ namespace KBTV.Core
             AddChild(adManager);
             RegisterSelf<AdManager>(adManager);
             NotifyRegistered();
+
+            // EconomyManager and BroadcastCoordinator are Autoload services that register themselves
+            // No factory registration needed - they use RegisterSelf() in their _Ready() methods
         }
 
 

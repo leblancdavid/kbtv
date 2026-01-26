@@ -30,11 +30,56 @@ namespace KBTV.UI
             _adBreakPanel = GetNode<Control>("HBoxContainer/AdBreakPanel");
             _endShowPanel = GetNode<Control>("HBoxContainer/EndShowPanel");
 
-            _repository = Core.ServiceRegistry.Instance.CallerRepository;
-            _adManager = Core.ServiceRegistry.Instance.AdManager;
-            _coordinator = Core.ServiceRegistry.Instance.BroadcastCoordinator;
+            InitializeWithServices();
+        }
 
-            _queueAdsButton.Connect("pressed", Callable.From(OnQueueAdsPressed));
+        private void InitializeWithServices()
+        {
+            if (Core.ServiceRegistry.IsInitialized)
+            {
+                _repository = Core.ServiceRegistry.Instance.CallerRepository;
+                _adManager = Core.ServiceRegistry.Instance.AdManager;
+                _coordinator = Core.ServiceRegistry.Instance.BroadcastCoordinator;
+
+                if (_repository != null && _adManager != null && _coordinator != null)
+                {
+            if (_adManager != null)
+            {
+                if (_adManager.IsInitialized)
+                {
+                    // Handle immediately if already initialized
+                    OnAdManagerInitialized();
+                }
+                else
+                {
+                    // Subscribe for future initialization
+                    _adManager.OnInitialized += OnAdManagerInitialized;
+                }
+                _adManager.OnBreakWindowOpened += OnBreakWindowOpened;
+                _adManager.OnBreakQueued += OnBreakQueued;
+                _adManager.OnBreakStarted += OnBreakStarted;
+                _adManager.OnBreakEnded += OnBreakEnded;
+                _adManager.OnShowEnded += OnShowEnded;
+            }
+        }
+                else
+                {
+                    CallDeferred(nameof(RetryInitialization));
+                }
+            }
+            else
+            {
+                CallDeferred(nameof(RetryInitialization));
+            }
+        }
+
+        private void RetryInitialization()
+        {
+            InitializeWithServices();
+        }
+
+        private void SetupAdManagerEvents()
+        {
 
             if (_adManager != null)
             {

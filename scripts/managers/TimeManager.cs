@@ -71,18 +71,16 @@ namespace KBTV.Managers
             _elapsedTime = 0f;
             _isRunning = false;
             ServiceRegistry.Instance.RegisterSelf<TimeManager>(this);
-            CallDeferred(nameof(TryRegisterSaveable));
-        }
-
-        private void TryRegisterSaveable()
-        {
-            if (ServiceRegistry.Instance?.SaveManager != null)
+            
+            // Direct registration - SaveManager is now loaded before TimeManager
+            var saveManager = ServiceRegistry.Instance.SaveManager;
+            if (saveManager != null)
             {
-                ServiceRegistry.Instance.SaveManager.RegisterSaveable(this);
+                saveManager.RegisterSaveable(this);
             }
             else
             {
-                CallDeferred(nameof(TryRegisterSaveable));
+                GD.PrintErr("TimeManager: SaveManager not available - check autoload order");
             }
         }
 

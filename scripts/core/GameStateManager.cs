@@ -60,7 +60,7 @@ namespace KBTV.Core
 			}
 			else
 			{
-				GD.PrintErr("GameStateManager: TimeManager not available after deferred connection");
+				GD.PrintErr("GameStateManager: TimeManager not available - check autoload order");
 			}
 		}
 

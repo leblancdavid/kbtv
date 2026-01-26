@@ -49,16 +49,33 @@ private string _displayedText = string.Empty;
 
         private void InitializeWithServices()
         {
-            _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-            GD.Print($"DEBUG: LiveShowPanel coordinator assigned: {_coordinator != null}");
+            if (ServiceRegistry.IsInitialized)
+            {
+                _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
+                GD.Print($"DEBUG: LiveShowPanel coordinator assigned: {_coordinator != null}");
 
-            _speakerIcon = GetNode<Label>("%SpeakerIcon");
-            _speakerName = GetNode<Label>("%SpeakerName");
-            _phaseLabel = GetNode<Label>("%PhaseLabel");
-            _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
-            _progressBar = GetNode<ProgressBar>("%ProgressBar");
+                if (_coordinator != null)
+                {
+                    _speakerIcon = GetNode<Label>("%SpeakerIcon");
+                    _speakerName = GetNode<Label>("%SpeakerName");
+                    _phaseLabel = GetNode<Label>("%PhaseLabel");
+                    _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
+                    _progressBar = GetNode<ProgressBar>("%ProgressBar");
+                }
+                else
+                {
+                    CallDeferred(nameof(RetryInitialization));
+                }
+            }
+            else
+            {
+                CallDeferred(nameof(RetryInitialization));
+            }
+        }
 
-            GD.Print("LiveShowPanel: Initialization complete");
+        private void RetryInitialization()
+        {
+            InitializeWithServices();
         }
 
         // Event-driven line handling using BroadcastEvent system

@@ -34,15 +34,39 @@ namespace KBTV.UI
             _timerLabel = GetNode<Label>("HBoxContainer/TimerLabel");
             _moneyLabel = GetNode<Label>("HBoxContainer/MoneyLabel");
 
-            _repository = Core.ServiceRegistry.Instance.CallerRepository;
-            _listenerManager = Core.ServiceRegistry.Instance.ListenerManager;
-            _economyManager = Core.ServiceRegistry.Instance.EconomyManager;
-            _timeManager = Core.ServiceRegistry.Instance.TimeManager;
+            InitializeWithServices();
+        }
 
-            TrackStateForRefresh();
-            UpdateOnAirStatus();
-            UpdateListeners();
-            UpdateMoney();
+        private void InitializeWithServices()
+        {
+            if (Core.ServiceRegistry.IsInitialized)
+            {
+                _repository = Core.ServiceRegistry.Instance.CallerRepository;
+                _listenerManager = Core.ServiceRegistry.Instance.ListenerManager;
+                _economyManager = Core.ServiceRegistry.Instance.EconomyManager;
+                _timeManager = Core.ServiceRegistry.Instance.TimeManager;
+
+                if (_repository != null && _listenerManager != null && _economyManager != null && _timeManager != null)
+                {
+                    TrackStateForRefresh();
+                    UpdateOnAirStatus();
+                    UpdateListeners();
+                    UpdateMoney();
+                }
+                else
+                {
+                    CallDeferred(nameof(RetryInitialization));
+                }
+            }
+            else
+            {
+                CallDeferred(nameof(RetryInitialization));
+            }
+        }
+
+        private void RetryInitialization()
+        {
+            InitializeWithServices();
         }
 
         private void TrackStateForRefresh()
