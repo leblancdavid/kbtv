@@ -56,31 +56,10 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
-            // Initialize EventBus after ServiceRegistry is fully initialized
-            if (ServiceRegistry.IsInitialized)
-            {
-                _eventBus = ServiceRegistry.Instance.EventBus;
-                CreateTimers();
-            }
-            else
-            {
-                GD.PrintErr("BroadcastTimer: ServiceRegistry not initialized, deferring timer creation");
-                CallDeferred(nameof(InitializeWithServices));
-            }
-        }
-
-        private void InitializeWithServices()
-        {
-            if (ServiceRegistry.IsInitialized)
-            {
-                _eventBus = ServiceRegistry.Instance.EventBus;
-                CreateTimers();
-            }
-            else
-            {
-                GD.PrintErr("BroadcastTimer: ServiceRegistry still not initialized, retrying...");
-                CallDeferred(nameof(InitializeWithServices));
-            }
+            GD.Print("BroadcastTimer: Initializing with services...");
+            _eventBus = ServiceRegistry.Instance.EventBus;
+            CreateTimers();
+            GD.Print("BroadcastTimer: Initialization complete");
         }
 
         /// <summary>

@@ -33,26 +33,24 @@ namespace KBTV.UI
 			base._Ready();
 			ServiceRegistry.Instance.RegisterSelf<PreShowUIManager>(this);
 			LoadTopics();
-
-			// Defer UI creation until after the loading screen
-			CallDeferred(nameof(CheckServicesAndCreateUI));
-		}
-
-		private void CheckServicesAndCreateUI()
-		{
-			if (ServiceRegistry.IsInitialized)
-			{
-				DelayedRegister();
-			}
-			else
-			{
-				CallDeferred(nameof(CheckServicesAndCreateUI));
-			}
-		}
-
-		private void DelayedRegister()
-		{
+			GD.Print("PreShowUIManager: Initializing with services...");
 			CreatePreShowUI();
+		}
+
+		private void LoadTopics()
+		{
+			_availableTopics = KBTV.Data.TopicLoader.LoadAllTopics();
+		}
+
+		private void CreatePreShowUI()
+		{
+			var container = new CenterContainer();
+			container.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			container.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			AddChild(container);
+
+			SetupPreShowUI(container);
+			CompleteInitialization();
 		}
 
 		private void CompleteInitialization()
@@ -70,47 +68,6 @@ namespace KBTV.UI
 				{
 					_showDurationMinutes = save.ShowDurationMinutes;
 				}
-			}
-		}
-
-		private void LoadTopics()
-		{
-			_availableTopics = TopicLoader.LoadAllTopics();
-			if (_availableTopics.Count == 0)
-			{
-				GD.PrintErr("PreShowUIManager: No topics available!");
-			}
-		}
-
-		private void CreatePreShowUI()
-		{
-			CallDeferred(nameof(RegisterWithUIManager));
-		}
-
-		private void RegisterWithUIManager()
-		{
-			var uiManager = ServiceRegistry.Instance?.UIManager;
-			if (uiManager != null)
-			{
-				var canvasLayer = new CanvasLayer();
-				canvasLayer.Name = "PreShowCanvasLayer";
-				canvasLayer.Layer = 10;
-				canvasLayer.Visible = true;
-				AddChild(canvasLayer);
-
-				uiManager.RegisterPreShowLayer(canvasLayer);
-
-				var preShowContainer = new CenterContainer();
-				preShowContainer.Name = "PreShowContainer";
-				preShowContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-				canvasLayer.AddChild(preShowContainer);
-
-				SetupPreShowUI(preShowContainer);
-				CompleteInitialization();
-			}
-			else
-			{
-				GD.PrintErr("PreShowUIManager: UIManager not available");
 			}
 		}
 

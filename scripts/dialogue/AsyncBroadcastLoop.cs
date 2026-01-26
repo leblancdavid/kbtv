@@ -30,33 +30,12 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
-            Initialize();
-        }
-
-        /// <summary>
-        /// Initialize the async broadcast loop.
-        /// </summary>
-        private void Initialize()
-        {
-            if (!ServiceRegistry.IsInitialized)
-            {
-                GD.PrintErr("AsyncBroadcastLoop: ServiceRegistry not initialized, deferring initialization");
-                CallDeferred(nameof(InitializeWithServices));
-                return;
-            }
-
+            GD.Print("AsyncBroadcastLoop: Initializing with services...");
             InitializeWithServices();
         }
 
         private void InitializeWithServices()
         {
-            if (!ServiceRegistry.IsInitialized)
-            {
-                GD.PrintErr("AsyncBroadcastLoop: ServiceRegistry still not initialized, retrying...");
-                CallDeferred(nameof(InitializeWithServices));
-                return;
-            }
-
             try
             {
                 var callerRepository = ServiceRegistry.Instance.CallerRepository;
@@ -71,7 +50,7 @@ namespace KBTV.Dialogue
                 _broadcastTimer = new BroadcastTimer();
                 AddChild(_broadcastTimer);
 
-                GD.Print("AsyncBroadcastLoop: Initialized successfully");
+                GD.Print("AsyncBroadcastLoop: Initialization complete");
 
                 // Register self with ServiceRegistry for global access
                 ServiceRegistry.Instance.RegisterSelf<AsyncBroadcastLoop>(this);

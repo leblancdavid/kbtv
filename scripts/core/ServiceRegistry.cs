@@ -67,8 +67,8 @@ namespace KBTV.Core
             Register<IArcRepository>(arcRepository);
             NotifyRegistered();
 
-            // Initialize ArcRepository asynchronously to prevent blocking startup
-            CallDeferred(nameof(InitializeArcRepositoryAsync), arcRepository);
+            // Initialize ArcRepository synchronously
+            arcRepository.Initialize();
 
             var eventBus = new EventBus();
             Register<EventBus>(eventBus);
@@ -85,10 +85,7 @@ namespace KBTV.Core
             NotifyRegistered();
         }
 
-        private void InitializeArcRepositoryAsync(ArcRepository arcRepository)
-        {
-            arcRepository.InitializeAsync();
-        }
+
 
         public void NotifyRegistered()
         {

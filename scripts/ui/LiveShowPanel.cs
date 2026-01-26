@@ -43,17 +43,12 @@ private string _displayedText = string.Empty;
 
         public override void _Ready()
         {
-            Initialize();
+            GD.Print("LiveShowPanel: Initializing with services...");
+            InitializeWithServices();
         }
 
-        private void Initialize()
+        private void InitializeWithServices()
         {
-            if (ServiceRegistry.Instance == null)
-            {
-                CallDeferred(nameof(Initialize));
-                return;
-            }
-
             _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
             GD.Print($"DEBUG: LiveShowPanel coordinator assigned: {_coordinator != null}");
 
@@ -62,28 +57,8 @@ private string _displayedText = string.Empty;
             _phaseLabel = GetNode<Label>("%PhaseLabel");
             _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
             _progressBar = GetNode<ProgressBar>("%ProgressBar");
-        }
 
-
-
-        private void InitializeDeferred()
-        {
-            if (!ServiceRegistry.IsInitialized)
-            {
-                GD.PrintErr("LiveShowPanel: ServiceRegistry not initialized, retrying...");
-                CallDeferred(nameof(InitializeDeferred));
-                return;
-            }
-
-            _coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-
-            _speakerIcon = GetNode<Label>("%SpeakerIcon");
-            _speakerName = GetNode<Label>("%SpeakerName");
-            _phaseLabel = GetNode<Label>("%PhaseLabel");
-            _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
-            _progressBar = GetNode<ProgressBar>("%ProgressBar");
-
-            GD.Print("LiveShowPanel: Initialized with rolling transcript display");
+            GD.Print("LiveShowPanel: Initialization complete");
         }
 
         // Event-driven line handling using BroadcastEvent system

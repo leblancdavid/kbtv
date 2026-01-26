@@ -9,97 +9,24 @@ namespace KBTV.UI
         [Export] public string GameScenePath = "res://scenes/Game.tscn";
 
         private Label _titleLabel;
-        private Label _statusLabel;
-        private ProgressBar _progressBar;
         private Panel _background;
-        private float _animationTimer;
-        private string[] _loadingMessages = {
-            "Initializing broadcast equipment...",
-            "Connecting to caller lines...",
-            "Warming up the microphone...",
-            "Calibrating VIBE meters...",
-            "Syncing with satellite...",
-            "Checking for paranormal activity...",
-            "Tuning frequency...",
-            "Loading conspiracy theories..."
-        };
-        private int _messageIndex;
         private bool _transitionStarted;
-        private float _totalLoadingTime;
-        private const float MIN_LOADING_TIME = 1.5f;
-        private const float MAX_LOADING_TIME = 10.0f;
-        private bool _timeoutTriggered;
 
         public override void _Ready()
         {
-            GD.Print("LoadingScreen: _Ready - starting loading sequence");
-            _totalLoadingTime = 0f;
-            _timeoutTriggered = false;
+            GD.Print("LoadingScreen: Initializing loading screen");
             CreateLoadingUI();
-
-            _messageIndex = 0;
-            _animationTimer = 0f;
             _transitionStarted = false;
 
             var registry = ServiceRegistry.Instance;
             if (registry != null && ServiceRegistry.IsInitialized)
             {
-                GD.Print("LoadingScreen: ServiceRegistry is initialized, proceeding with loading");
-                _totalLoadingTime = MIN_LOADING_TIME;
+                GD.Print("LoadingScreen: ServiceRegistry ready, starting transition");
                 CallDeferred(nameof(StartFadeTransition));
             }
             else
             {
                 GD.PrintErr("LoadingScreen: ServiceRegistry not available!");
-                CallDeferred(nameof(RetryInitialization));
-            }
-        }
-
-        private void RetryInitialization()
-        {
-            var registry = ServiceRegistry.Instance;
-            if (registry != null && ServiceRegistry.IsInitialized)
-            {
-                GD.Print("LoadingScreen: ServiceRegistry now available");
-                _totalLoadingTime = MIN_LOADING_TIME;
-                StartFadeTransition();
-            }
-            else
-            {
-                CallDeferred(nameof(RetryInitialization));
-            }
-        }
-
-        public override void _Process(double delta)
-        {
-            if (!IsInstanceValid(this) || _statusLabel == null || _progressBar == null)
-                return;
-
-            float deltaF = (float)delta;
-            _totalLoadingTime += deltaF;
-
-            if (!_transitionStarted)
-            {
-                if (_totalLoadingTime >= MAX_LOADING_TIME && !_timeoutTriggered)
-                {
-                    _timeoutTriggered = true;
-                    GD.PrintErr($"LoadingScreen: Timeout reached ({MAX_LOADING_TIME}s). Proceeding with loading.");
-                    StartFadeTransition();
-                    return;
-                }
-
-                _animationTimer += deltaF;
-                if (_animationTimer >= 0.6f)
-                {
-                    _animationTimer = 0f;
-                    _messageIndex = (_messageIndex + 1) % _loadingMessages.Length;
-                    _statusLabel.Text = _loadingMessages[_messageIndex];
-                }
-
-                if (_progressBar != null)
-                {
-                    _progressBar.Value = Mathf.Clamp(_totalLoadingTime / MIN_LOADING_TIME * 50f, 0f, 50f);
-                }
             }
         }
 
@@ -140,7 +67,6 @@ namespace KBTV.UI
 
         private void LoadGameScene()
         {
-            _transitionStarted = false;
             GD.Print("LoadingScreen: Loading game scene");
             var tree = GetTree();
             if (tree != null)
@@ -172,7 +98,7 @@ namespace KBTV.UI
 
             var container = new VBoxContainer();
             container.Name = "Container";
-            container.CustomMinimumSize = new Vector2(400, 300);
+            container.CustomMinimumSize = new Vector2(400, 200);
             container.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
             container.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
             container.Alignment = BoxContainer.AlignmentMode.Center;
@@ -195,44 +121,6 @@ namespace KBTV.UI
             loadingLabel.AddThemeColorOverride("font_color", UITheme.TEXT_PRIMARY);
             loadingLabel.AddThemeFontSizeOverride("font_size", 14);
             container.AddChild(loadingLabel);
-
-            _progressBar = new ProgressBar();
-            _progressBar.Name = "ProgressBar";
-            _progressBar.CustomMinimumSize = new Vector2(300, 20);
-            _progressBar.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
-            _progressBar.Value = 0f;
-            _progressBar.ShowPercentage = false;
-
-            var fillStyle = new StyleBoxFlat();
-            fillStyle.BgColor = UITheme.ACCENT_GOLD;
-            fillStyle.CornerRadiusTopLeft = 3;
-            fillStyle.CornerRadiusTopRight = 3;
-            fillStyle.CornerRadiusBottomLeft = 3;
-            fillStyle.CornerRadiusBottomRight = 3;
-            _progressBar.AddThemeStyleboxOverride("fill", fillStyle);
-
-            var bgStyle = new StyleBoxFlat();
-            bgStyle.BgColor = UITheme.BG_PANEL;
-            bgStyle.BorderColor = UITheme.BG_BORDER;
-            bgStyle.BorderWidthBottom = 1;
-            bgStyle.BorderWidthTop = 1;
-            bgStyle.BorderWidthLeft = 1;
-            bgStyle.BorderWidthRight = 1;
-            bgStyle.CornerRadiusTopLeft = 3;
-            bgStyle.CornerRadiusTopRight = 3;
-            bgStyle.CornerRadiusBottomLeft = 3;
-            bgStyle.CornerRadiusBottomRight = 3;
-            _progressBar.AddThemeStyleboxOverride("background", bgStyle);
-
-            container.AddChild(_progressBar);
-
-            _statusLabel = new Label();
-            _statusLabel.Name = "StatusLabel";
-            _statusLabel.Text = _loadingMessages[0];
-            _statusLabel.HorizontalAlignment = HorizontalAlignment.Center;
-            _statusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_PRIMARY);
-            _statusLabel.AddThemeFontSizeOverride("font_size", 12);
-            container.AddChild(_statusLabel);
 
             var versionLabel = new Label();
             versionLabel.Name = "VersionLabel";

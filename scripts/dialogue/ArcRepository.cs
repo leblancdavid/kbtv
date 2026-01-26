@@ -25,6 +25,8 @@ namespace KBTV.Dialogue
             }
         }
 
+        public bool IsInitialized => _initialized;
+
         public void Initialize()
         {
             var filePathsToLoad = new Godot.Collections.Array<string>(_arcJsonFilePaths);
@@ -63,15 +65,10 @@ namespace KBTV.Dialogue
             }
 
             _initialized = true;
+            GD.Print($"ArcRepository: Initialized with {_arcs.Count} arcs loaded");
         }
 
-        /// <summary>
-        /// Initialize asynchronously to prevent blocking the main thread during startup.
-        /// </summary>
-        public void InitializeAsync()
-        {
-            CallDeferred(nameof(Initialize));
-        }
+
 
         private Godot.Collections.Array<string> DiscoverArcFiles()
         {

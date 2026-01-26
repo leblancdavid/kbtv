@@ -57,24 +57,19 @@ namespace KBTV.Dialogue
 
     public event Action? OnBreakTransitionCompleted;
 
-    public override void _Ready()
+        public override void _Ready()
         {
+            GD.Print("BroadcastCoordinator: Initializing with services...");
             InitializeWithServices();
+            GD.Print("BroadcastCoordinator: Initialization complete");
         }
 
         private void InitializeWithServices()
         {
             _repository = ServiceRegistry.Instance.CallerRepository;
 
-            // Check if AsyncBroadcastLoop is available, otherwise defer setup
-            if (ServiceRegistry.Instance.HasService<AsyncBroadcastLoop>())
-            {
-                SetupAsyncLoop();
-            }
-            else
-            {
-                CallDeferred(nameof(DeferredAsyncLoopSetup));
-            }
+            // Setup async loop (should be available now)
+            SetupAsyncLoop();
 
             // Subscribe to AdManager events for break interruptions
             var adManager = ServiceRegistry.Instance.AdManager;
@@ -96,19 +91,6 @@ namespace KBTV.Dialogue
             eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
             eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
             eventBus.Subscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
-        }
-
-        private void DeferredAsyncLoopSetup()
-        {
-            if (ServiceRegistry.Instance.HasService<AsyncBroadcastLoop>())
-            {
-                SetupAsyncLoop();
-            }
-            else
-            {
-                GD.PrintErr("BroadcastCoordinator: AsyncBroadcastLoop still not available after deferral");
-                CallDeferred(nameof(DeferredAsyncLoopSetup));
-            }
         }
 
     public void OnLiveShowStarted()

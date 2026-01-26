@@ -16,22 +16,8 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            ServiceRegistry.Instance.RegisterSelf<TabContainerManager>(this);
-
-            // Defer UI creation until after the loading screen to prevent blocking startup
-            CallDeferred(nameof(CheckServicesAndCreateUI));
-        }
-
-        private void CheckServicesAndCreateUI()
-        {
-            if (ServiceRegistry.IsInitialized)
-            {
-                CreateUI();
-            }
-            else
-            {
-                CallDeferred(nameof(CheckServicesAndCreateUI));
-            }
+            GD.Print("TabContainerManager: Initializing with services...");
+            CreateUI();
         }
 
         private void CreateUI()
@@ -87,8 +73,11 @@ namespace KBTV.UI
                 GD.PrintErr("TabContainerManager: Failed to load LiveShowFooter.tscn");
             }
 
-            CallDeferred(nameof(RegisterWithUIManager));
+            RegisterWithUIManager();
+            GD.Print("TabContainerManager: Initialization complete");
         }
+
+
 
         private void InitializeTabs()
         {

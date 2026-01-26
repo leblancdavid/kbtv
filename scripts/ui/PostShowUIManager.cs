@@ -11,34 +11,11 @@ namespace KBTV.UI
 		public override void _Ready()
 		{
 			base._Ready();
-
-			// Defer UI creation until after the loading screen
-			CallDeferred(nameof(CheckServicesAndCreateUI));
-		}
-
-		private void CheckServicesAndCreateUI()
-		{
-			if (ServiceRegistry.IsInitialized)
-			{
-				DelayedRegister();
-			}
-			else
-			{
-				CallDeferred(nameof(CheckServicesAndCreateUI));
-			}
-		}
-
-		private void DelayedRegister()
-		{
+			GD.Print("PostShowUIManager: Initializing with services...");
 			CreatePostShowUI();
 		}
 
 		private void CreatePostShowUI()
-		{
-			CallDeferred(nameof(RegisterWithUIManager));
-		}
-
-		private void RegisterWithUIManager()
 		{
 			var uiManager = ServiceRegistry.Instance?.UIManager;
 			if (uiManager == null)
@@ -66,6 +43,7 @@ namespace KBTV.UI
 			{
 				GD.PrintErr("PostShowUIManager: Failed to load PostShowPanel.tscn");
 			}
+			GD.Print("PostShowUIManager: Initialization complete");
 		}
 	}
 }

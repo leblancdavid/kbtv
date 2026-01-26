@@ -20,26 +20,9 @@ namespace KBTV.Dialogue
         public override void _Ready()
         {
             base._Ready();
-
-            if (!ServiceRegistry.IsInitialized)
-            {
-                CallDeferred(nameof(RetryInitialization));
-                return;
-            }
-
+            GD.Print("ConversationDisplay: Initializing with services...");
             InitializeWithServices();
-        }
-
-        private void RetryInitialization()
-        {
-            if (ServiceRegistry.IsInitialized)
-            {
-                InitializeWithServices();
-            }
-            else
-            {
-                CallDeferred(nameof(RetryInitialization));
-            }
+            GD.Print("ConversationDisplay: Initialization complete");
         }
 
         private void InitializeWithServices()
