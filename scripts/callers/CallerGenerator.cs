@@ -47,6 +47,16 @@ namespace KBTV.Callers
             CompleteInitialization();
         }
 
+        /// <summary>
+        /// Initialize the CallerGenerator service.
+        /// Called by ServiceProviderRoot after dependencies are resolved.
+        /// </summary>
+        public void Initialize()
+        {
+            // Initialization already handled in _Ready()
+            GD.Print("CallerGenerator: Initialize called (already initialized in _Ready)");
+        }
+
         private void CompleteInitialization()
         {
             _repository = ServiceRegistry.Instance.CallerRepository;

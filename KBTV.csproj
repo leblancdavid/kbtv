@@ -4,7 +4,9 @@
     <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
     <Nullable>enable</Nullable>
-    <NoWarn>$(NoWarn);CS0618;CS8618;CS8625;CS8600;CS8601;CS8602;CS8603;CS8604;CS8714;CS1998;CS9057</NoWarn>
+    <NoWarn>$(NoWarn);CS0618;CS8618;CS8625;CS8600;CS8601;CS8602;CS8603;CS8604;CS8714;CS1998</NoWarn>
+    <WarningsAsErrors>CS9057</WarningsAsErrors>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(Configuration)' != 'ExportRelease' ">
@@ -12,6 +14,12 @@
     <PackageReference Include="LightMock.Generator" Version="1.2.3" />
     <PackageReference Include="Chickensoft.GodotTestDriver" Version="3.0.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <!-- AutoInject packages -->
+    <PackageReference Include="Chickensoft.GodotNodeInterfaces" Version="2.4.59" />
+    <PackageReference Include="Chickensoft.Introspection" Version="3.0.2" />
+    <PackageReference Include="Chickensoft.Introspection.Generator" Version="3.0.2" PrivateAssets="all" OutputItemType="analyzer" />
+    <PackageReference Include="Chickensoft.AutoInject" Version="2.9.17" />
+    <PackageReference Include="Chickensoft.AutoInject.Analyzers" Version="2.9.17" PrivateAssets="all" OutputItemType="analyzer" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'ExportRelease' ">

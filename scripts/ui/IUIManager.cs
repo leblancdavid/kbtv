@@ -7,5 +7,6 @@ namespace KBTV.UI
         void RegisterPreShowLayer(CanvasLayer layer);
         void RegisterLiveShowLayer(CanvasLayer layer);
         void RegisterPostShowLayer(CanvasLayer layer);
+        void ShowPostShowLayer();
     }
 }

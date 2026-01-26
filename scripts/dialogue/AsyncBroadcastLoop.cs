@@ -3,8 +3,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using KBTV.Core;
+using KBTV.Callers;
 
 namespace KBTV.Dialogue
 {
@@ -13,52 +16,78 @@ namespace KBTV.Dialogue
     /// Requests executables → executing → awaiting → repeat.
     /// Handles cancellation tokens for interruptions.
     /// Publishes events for UI updates.
+    /// Converted to AutoInject Provider pattern.
     /// </summary>
-    [GlobalClass]
-    public partial class AsyncBroadcastLoop : Node
+    [Meta(typeof(IAutoNode))]
+    public partial class AsyncBroadcastLoop : Node,
+        IProvide<AsyncBroadcastLoop>,
+        IDependent
     {
-    private BroadcastStateManager _stateManager = null!;
-    private BroadcastTimer _broadcastTimer = null!;
-    private CancellationTokenSource? _cancellationTokenSource;
-    private Task? _broadcastTask;
-    private bool _isRunning = false;
-    private BroadcastExecutable? _currentExecutable;
-    private readonly object _lock = new object();
+        public override void _Notification(int what) => this.Notify(what);
+
+        [Dependency]
+        private ICallerRepository CallerRepository => DependOn<ICallerRepository>();
+
+        [Dependency]
+        private IArcRepository ArcRepository => DependOn<IArcRepository>();
+
+        [Dependency]
+        private EventBus EventBus => DependOn<EventBus>();
+
+        // Temporary workaround for missing DependOn<T> extension method
+        private T DependOn<T>() where T : class
+        {
+            // Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
+            return ServiceRegistry.Instance.Get<T>();
+        }
+
+        private BroadcastStateManager _stateManager = null!;
+        private BroadcastTimer _broadcastTimer = null!;
+        private CancellationTokenSource? _cancellationTokenSource;
+        private Task? _broadcastTask;
+        private bool _isRunning = false;
+        private BroadcastExecutable? _currentExecutable;
+        private readonly object _lock = new object();
 
         public bool IsRunning => _isRunning;
         public BroadcastExecutable? CurrentExecutable => _currentExecutable;
 
-        public override void _Ready()
-        {
-            GD.Print("AsyncBroadcastLoop: Initializing with services...");
-            InitializeWithServices();
-        }
+        // Provider interface implementation
+        AsyncBroadcastLoop IProvide<AsyncBroadcastLoop>.Value() => this;
 
-        private void InitializeWithServices()
+        /// <summary>
+        /// Called when all dependencies are resolved.
+        /// </summary>
+        public void OnResolved()
         {
+            GD.Print("AsyncBroadcastLoop: Dependencies resolved, initializing...");
+
             try
             {
-                var callerRepository = ServiceRegistry.Instance.CallerRepository;
-                var arcRepository = ServiceRegistry.Instance.ArcRepository;
-                
                 // Get VernDialogue from Template repository
                 var vernDialogueLoader = new VernDialogueLoader();
                 vernDialogueLoader.LoadDialogue();
                 var vernDialogue = vernDialogueLoader.VernDialogue;
 
-                _stateManager = new BroadcastStateManager(callerRepository, arcRepository, vernDialogue);
+                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue);
                 _broadcastTimer = new BroadcastTimer();
                 AddChild(_broadcastTimer);
 
                 GD.Print("AsyncBroadcastLoop: Initialization complete");
-
-                // Register self with ServiceRegistry for global access
-                ServiceRegistry.Instance.RegisterSelf<AsyncBroadcastLoop>(this);
             }
             catch (Exception ex)
             {
                 GD.PrintErr($"AsyncBroadcastLoop: Error during initialization: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Called when node enters the scene tree and is ready.
+        /// </summary>
+        public void OnReady()
+        {
+            GD.Print("AsyncBroadcastLoop: Ready, providing service to descendants");
+            this.Provide();
         }
 
         /// <summary>

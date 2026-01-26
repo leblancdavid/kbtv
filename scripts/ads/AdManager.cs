@@ -1,4 +1,6 @@
 using System;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using KBTV.Ads;
 using KBTV.Core;
@@ -10,23 +12,32 @@ namespace KBTV.Ads
     /// <summary>
     /// Manages advertisement breaks during the radio show.
     /// Handles timing, player queuing, mood penalties, and revenue calculation.
+    /// Converted to AutoInject Provider pattern.
     /// </summary>
-    public partial class AdManager : Node
+    [Meta(typeof(IAutoNode))]
+    public partial class AdManager : Node,
+        IProvide<AdManager>,
+        IDependent
     {
-        // Dependencies
+        public override void _Notification(int what) => this.Notify(what);
+
+        [Dependency]
+        private TimeManager TimeManager => DependOn<TimeManager>();
+
+        [Dependency]
+        private ListenerManager ListenerManager => DependOn<ListenerManager>();
+
+        [Dependency]
+        private BroadcastCoordinator BroadcastCoordinator => DependOn<BroadcastCoordinator>();
+
+        // Temporary workaround for missing DependOn<T> extension method
+        private T DependOn<T>() where T : class
+        {
+            // Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
+            return ServiceRegistry.Instance.Get<T>();
+        }
+
         private AdSchedule _schedule;
-        private TimeManager _timeManager;
-        private ListenerManager _listenerManager;
-        private IBroadcastCoordinator? _coordinator;
-        private IBroadcastCoordinator Coordinator => _coordinator ??= ServiceRegistry.Instance.BroadcastCoordinator;
-        private AudioStreamPlayer _transitionMusicPlayer = null!;
-
-        // Modular components
-        private BreakScheduler _breakScheduler = null!;
-        private BreakLogic _breakLogic = null!;
-        private RevenueCalculator _revenueCalculator = null!;
-
-        // State fields
         private float _showDuration = 0f;
         private float _timeUntilNextBreak = 0f;
         private float _timeUntilBreakWindow = 0f;
@@ -54,6 +65,12 @@ namespace KBTV.Ads
         private SceneTreeTimer _imminentTimer;
         private SceneTreeTimer _breakTimer;
 
+        // Modular components (restored from refactoring)
+        private AudioStreamPlayer _transitionMusicPlayer;
+        private BreakScheduler _breakScheduler;
+        private BreakLogic _breakLogic;
+        private RevenueCalculator _revenueCalculator;
+
         // Events
         public event Action<float> OnBreakWindowOpened;      // Time until break
         public event Action<float> OnBreakGracePeriod;       // Time until break
@@ -78,14 +95,32 @@ namespace KBTV.Ads
         public float QueuedCountdown => _queuedCountdown;
         public int CurrentBreakSlots => _schedule != null && _currentBreakIndex >= 0 && _currentBreakIndex < _schedule.Breaks.Count
             ? _schedule.Breaks[_currentBreakIndex].SlotsPerBreak : 0;
-        public int CurrentListeners => _listenerManager?.CurrentListeners ?? 100;
+        public int CurrentListeners => ListenerManager.CurrentListeners;
         public bool IsInitialized => _schedule != null;
 
-        public override void _Ready()
+        // Provider interface implementation
+        AdManager IProvide<AdManager>.Value() => this;
+
+        /// <summary>
+        /// Called when all dependencies are resolved.
+        /// </summary>
+        public void OnResolved()
         {
-            ServiceRegistry.Instance.RegisterSelf<AdManager>(this);
             _transitionMusicPlayer = new AudioStreamPlayer();
             AddChild(_transitionMusicPlayer);
+            
+            // Initialize modular components
+            _breakLogic = new BreakLogic();
+            _revenueCalculator = new RevenueCalculator();
+        }
+
+        /// <summary>
+        /// Called when node enters the scene tree and is ready.
+        /// </summary>
+        public void OnReady()
+        {
+            GD.Print("AdManager: Ready, providing service to descendants");
+            this.Provide();
         }
 
         public void Initialize(AdSchedule schedule, float showDuration)
@@ -96,21 +131,12 @@ namespace KBTV.Ads
                 return;
             }
 
-            _timeManager = ServiceRegistry.Instance.TimeManager;
-            _listenerManager = ServiceRegistry.Instance.ListenerManager;
-
-            // Initialize modular components
-            _breakScheduler = new BreakScheduler(schedule, _timeManager, _currentBreakIndex);
-            _breakScheduler.SetCallbacks(OnWindowTimerFired, OnGraceTimerFired, OnImminentTimerFired, OnBreakTimerFired);
-            _breakLogic = new BreakLogic();
-            _revenueCalculator = new RevenueCalculator();
-
-            // Subscribe to coordinator events for break coordination
-            Coordinator.OnBreakTransitionCompleted += OnBreakTransitionCompleted;
-
             _schedule = schedule;
             _showDuration = showDuration;
             _isActive = true;
+            
+            // Initialize BreakScheduler with required parameters
+            _breakScheduler = new BreakScheduler(schedule, TimeManager, _currentBreakIndex);
 
             // Generate break schedule if not already done
             if (_schedule.Breaks.Count == 0)
@@ -255,7 +281,7 @@ namespace KBTV.Ads
             int nextBreakIndex = Math.Max(0, _currentBreakIndex + 1);
             if (nextBreakIndex >= _schedule.Breaks.Count) return;
 
-            float currentTime = _timeManager?.ElapsedTime ?? 0f;
+            float currentTime = TimeManager?.ElapsedTime ?? 0f;
             float nextBreakTime = _schedule.Breaks[nextBreakIndex].ScheduledTime;
             _timeUntilNextBreak = Math.Max(0, nextBreakTime - currentTime);
             _timeUntilBreakWindow = Math.Max(0, _timeUntilNextBreak - AdConstants.BREAK_WINDOW_DURATION);
@@ -314,7 +340,7 @@ namespace KBTV.Ads
 
             // Notify broadcast coordinator
             GD.Print("AdManager.StartBreak: Notifying broadcast coordinator");
-            Coordinator.OnAdBreakStarted();
+            BroadcastCoordinator.OnAdBreakStarted();
 
             OnBreakStarted?.Invoke();
             GD.Print($"AdManager: Break #{_currentBreakIndex + 1} started (queued: {wasQueued})");
@@ -361,7 +387,7 @@ namespace KBTV.Ads
             _breakTransitionCompleted = false;
 
             // Calculate and award revenue
-            int currentListeners = _listenerManager?.CurrentListeners ?? 0;
+            int currentListeners = ListenerManager?.CurrentListeners ?? 0;
             float revenue = CalculateBreakRevenue(currentListeners);
             AwardRevenue(revenue);
 
@@ -369,7 +395,7 @@ namespace KBTV.Ads
             RestoreListeners();
 
             // Notify broadcast coordinator
-            Coordinator.OnAdBreakEnded();
+            BroadcastCoordinator.OnAdBreakEnded();
 
             // Reset queue state
             _isQueued = false;

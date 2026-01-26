@@ -54,6 +54,14 @@ namespace KBTV.Managers
             CompleteInitialization();
         }
 
+        /// <summary>
+        /// Initialize the ListenerManager with service dependencies.
+        /// </summary>
+        public void Initialize()
+        {
+            CompleteInitialization();
+        }
+
         private void CompleteInitialization()
         {
             _repository = ServiceRegistry.Instance.CallerRepository;

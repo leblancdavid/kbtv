@@ -42,6 +42,14 @@ namespace KBTV.Economy
             ServiceRegistry.Instance.RegisterSelf<EconomyManager>(this);
         }
 
+        /// <summary>
+        /// Initialize the EconomyManager with starting money.
+        /// </summary>
+        public void Initialize()
+        {
+            _currentMoney = _startingMoney;
+        }
+
         // TODO: Add when SaveManager is ported
         // private void Start()
         // {

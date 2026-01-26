@@ -1,4 +1,6 @@
 using System.Threading.Tasks;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using KBTV.Core;
 
@@ -7,15 +9,35 @@ namespace KBTV.UI
     /// <summary>
     /// Manages UI layer visibility based on game phases.
     /// Handles the CanvasLayer-based UI architecture for proper draw ordering.
+    /// Converted to AutoInject Dependent pattern.
     /// </summary>
-    public partial class UIManager : Node, IUIManager
+    [Meta(typeof(IAutoNode))]
+    public partial class UIManager : Node, IUIManager,
+        IProvide<UIManager>,
+        IDependent
     {
+        public override void _Notification(int what) => this.Notify(what);
+
+        [Dependency]
+        private GameStateManager GameStateManager => DependOn<GameStateManager>();
+
+        [Dependency]
+        private GlobalTransitionManager GlobalTransitionManager => DependOn<GlobalTransitionManager>();
+
+        // Temporary workaround for missing DependOn<T> extension method
+        private T DependOn<T>() where T : class
+        {
+            // Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
+            return ServiceRegistry.Instance.Get<T>();
+        }
+
         private CanvasLayer _preShowLayer;
         private CanvasLayer _liveShowLayer;
         private CanvasLayer _postShowLayer;
-        private bool _gameStateConnected;
-        private GameStateManager _gameState;
         private bool _isTransitioning;
+
+        // Provider interface implementation
+        UIManager IProvide<UIManager>.Value() => this;
 
         public void RegisterPreShowLayer(CanvasLayer layer)
         {
@@ -34,25 +56,22 @@ namespace KBTV.UI
             _postShowLayer = layer;
         }
 
-        public override void _Ready()
+        /// <summary>
+        /// Called when all dependencies are resolved.
+        /// </summary>
+        public void OnResolved()
         {
-            ServiceRegistry.Instance.RegisterSelf<UIManager>(this);
-            CompleteInitialization();
+            GD.Print("UIManager: Dependencies resolved, connecting to GameStateManager");
+            GameStateManager.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
         }
 
-        private void CompleteInitialization()
+        /// <summary>
+        /// Called when node enters the scene tree and is ready.
+        /// </summary>
+        public void OnReady()
         {
-            _gameState = ServiceRegistry.Instance.GameStateManager;
-            if (_gameState != null)
-            {
-                _gameState.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
-                _gameStateConnected = true;
-                TryUpdateVisibility();
-            }
-            else
-            {
-                GD.PrintErr("UIManager: GameStateManager not available - check autoload order");
-            }
+            GD.Print("UIManager: Ready, providing service to descendants");
+            this.Provide();
         }
 
         private void TryUpdateVisibility()
@@ -62,10 +81,7 @@ namespace KBTV.UI
                 return;
             }
 
-            if (_gameState != null)
-            {
-                PerformVisibilityUpdate(_gameState.CurrentPhase);
-            }
+            PerformVisibilityUpdate(GameStateManager.CurrentPhase);
         }
 
         private void OnPhaseChanged(int oldPhaseInt, int newPhaseInt)
@@ -96,7 +112,7 @@ namespace KBTV.UI
             var newPhase = (GamePhase)newPhaseInt;
             _isTransitioning = true;
 
-            var transitionManager = ServiceRegistry.Instance?.GlobalTransitionManager;
+            var transitionManager = GlobalTransitionManager;
             if (transitionManager != null)
             {
                 await transitionManager.FadeToBlack(0.3f);
@@ -171,10 +187,7 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            if (_gameStateConnected && _gameState != null)
-            {
-                _gameState.Disconnect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
-            }
+            GameStateManager.Disconnect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
         }
     }
 }

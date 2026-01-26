@@ -1,4 +1,6 @@
 using System;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using KBTV.Ads;
 using KBTV.Data;
@@ -7,21 +9,50 @@ using KBTV.Economy;
 using KBTV.Managers;
 using KBTV.Persistence;
 using KBTV.Callers;
+using KBTV.UI;
 using static KBTV.Dialogue.BroadcastCoordinator;
 
 namespace KBTV.Core
 {
 	/// <summary>
 	/// Manages the game state and phase transitions for nightly broadcasts.
+	/// Uses AutoInject IAutoNode pattern for dependency injection.
 	/// </summary>
-	public partial class GameStateManager : Node
+	[Meta(typeof(IAutoNode))]
+	public partial class GameStateManager : Node,
+		IProvide<GameStateManager>, IProvide<TimeManager>, IProvide<EconomyManager>,
+		IProvide<ListenerManager>, IProvide<SaveManager>, IProvide<ICallerRepository>,
+		IProvide<IUIManager>, IProvide<BroadcastCoordinator>, IProvide<AdManager>,
+		IProvide<CallerGenerator>, IProvide<IDialoguePlayer>, IProvide<EventBus>,
+		IDependent
 	{
-		[Signal] public delegate void PhaseChangedEventHandler(GamePhase oldPhase, GamePhase newPhase);
-	[Signal] public delegate void NightStartedEventHandler(int nightNumber);
+		public override void _Notification(int what) => this.Notify(what);
 
-	// ═══════════════════════════════════════════════════════════════════════════════════════════════
-		// FIELDS
-		// ═══════════════════════════════════════════════════════════════════════════════
+		[Signal] public delegate void PhaseChangedEventHandler(GamePhase oldPhase, GamePhase newPhase);
+		[Signal] public delegate void NightStartedEventHandler(int nightNumber);
+
+		// ═══════════════════════════════════════════════════════════════════════════════════════════════
+		// DEPENDENCIES
+		// ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+		[Dependency] private TimeManager TimeManager => DependOn<TimeManager>();
+		[Dependency] private EconomyManager EconomyManager => DependOn<EconomyManager>();
+		[Dependency] private ListenerManager ListenerManager => DependOn<ListenerManager>();
+		[Dependency] private SaveManager SaveManager => DependOn<SaveManager>();
+		[Dependency] private ICallerRepository CallerRepository => DependOn<ICallerRepository>();
+		[Dependency] private IUIManager UIManager => DependOn<IUIManager>();
+		[Dependency] private BroadcastCoordinator BroadcastCoordinator => DependOn<BroadcastCoordinator>();
+		[Dependency] private AdManager AdManager => DependOn<AdManager>();
+		[Dependency] private CallerGenerator CallerGenerator => DependOn<CallerGenerator>();
+		[Dependency] private IDialoguePlayer AudioPlayer => DependOn<IDialoguePlayer>();
+		[Dependency] private EventBus EventBus => DependOn<EventBus>();
+
+		// Temporary workaround for missing DependOn<T> extension method
+		private T DependOn<T>() where T : class
+		{
+			// Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
+			return ServiceRegistry.Instance.Get<T>();
+		}
 
 		private GamePhase _currentPhase = GamePhase.PreShow;
 		private VernStats _vernStats;
@@ -37,31 +68,43 @@ namespace KBTV.Core
 		public Topic SelectedTopic => _selectedTopic;
 		public AdSchedule AdSchedule => _adSchedule;
 
-		public override void _Ready()
+		// ═══════════════════════════════════════════════════════════════════════════════════════════════
+		// PROVIDER INTERFACE IMPLEMENTATIONS
+		// ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+		GameStateManager IProvide<GameStateManager>.Value() => this;
+		TimeManager IProvide<TimeManager>.Value() => TimeManager;
+		EconomyManager IProvide<EconomyManager>.Value() => EconomyManager;
+		ListenerManager IProvide<ListenerManager>.Value() => ListenerManager;
+		SaveManager IProvide<SaveManager>.Value() => SaveManager;
+		ICallerRepository IProvide<ICallerRepository>.Value() => CallerRepository;
+		IUIManager IProvide<IUIManager>.Value() => UIManager;
+		BroadcastCoordinator IProvide<BroadcastCoordinator>.Value() => BroadcastCoordinator;
+		AdManager IProvide<AdManager>.Value() => AdManager;
+		CallerGenerator IProvide<CallerGenerator>.Value() => CallerGenerator;
+		IDialoguePlayer IProvide<IDialoguePlayer>.Value() => AudioPlayer;
+		EventBus IProvide<EventBus>.Value() => EventBus;
+
+		/// <summary>
+		/// Called when node enters the scene tree and is ready.
+		/// Makes services available to descendants.
+		/// </summary>
+		public void OnReady() => this.Provide();
+
+		/// <summary>
+		/// Called when all dependencies are resolved.
+		/// </summary>
+		public void OnResolved()
 		{
+			GD.Print("GameStateManager: Dependencies resolved, initializing...");
 			_instanceId = ++_instanceCount;
-			GD.Print($"GameStateManager: _Ready called (instance #{_instanceId})");
-			ServiceRegistry.Instance.RegisterSelf<GameStateManager>(this);
 
 			_vernStats = new VernStats();
 			_adSchedule = new AdSchedule(AdConstants.DEFAULT_BREAKS_PER_SHOW, AdConstants.DEFAULT_SLOTS_PER_BREAK);
 			InitializeGame();
 
-			// Connect to TimeManager directly (now that autoload order is fixed)
-			ConnectToTimeManager();
-		}
-
-		private void ConnectToTimeManager()
-		{
-			var timeManager = ServiceRegistry.Instance.TimeManager;
-			if (timeManager != null)
-			{
-				timeManager.ShowEnded += OnShowTimerExpired;
-			}
-			else
-			{
-				GD.PrintErr("GameStateManager: TimeManager not available - check autoload order");
-			}
+			// Connect to TimeManager event
+			TimeManager.ShowEnded += OnShowTimerExpired;
 		}
 
 		/// <summary>
@@ -124,38 +167,16 @@ namespace KBTV.Core
 			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
 
 			// Start the show clock
-			ServiceRegistry.Instance.TimeManager?.StartClock();
+			ServiceRegistry.Instance.TimeManager.StartClock();
 
 			// Initialize ad manager with schedule
-			var adManager = ServiceRegistry.Instance.AdManager;
-			var timeManager = ServiceRegistry.Instance.TimeManager;
-			if (adManager != null && timeManager != null)
-			{
-				adManager.Initialize(_adSchedule, timeManager.ShowDuration);
-			}
-			else
-			{
-				GD.PrintErr("GameStateManager: AdManager or TimeManager not available");
-			}
+			ServiceRegistry.Instance.AdManager.Initialize(_adSchedule, ServiceRegistry.Instance.TimeManager.ShowDuration);
 
-			// Initialize broadcast flow - now that autoload order is fixed
-			InitializeBroadcastFlow();
+			// Initialize broadcast flow
+			ServiceRegistry.Instance.BroadcastCoordinator.OnLiveShowStarted();
 		}
 
-		private void InitializeBroadcastFlow()
-		{
-			var coordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-			GD.Print($"DEBUG: GameStateManager checking BroadcastCoordinator: {coordinator != null}");
-			if (coordinator != null)
-			{
-				GD.Print("DEBUG: GameStateManager calling OnLiveShowStarted");
-				coordinator.OnLiveShowStarted();
-			}
-			else
-			{
-				GD.PrintErr("DEBUG: BroadcastCoordinator is null - not registered in ServiceRegistry");
-			}
-		}
+
 
 		/// <summary>
 		/// Directly set the game phase (useful for testing/debugging).
@@ -235,24 +256,21 @@ namespace KBTV.Core
 			// 4. Show PostShow UI
 
 			// Clear all callers (incoming, on-hold, on-air)
-			ServiceRegistry.Instance.CallerRepository?.ClearAll();
+			ServiceRegistry.Instance.CallerRepository.ClearAll();
 			GD.Print("GameStateManager: All callers cleared");
 
 			// Get show performance data
-			int peakListeners = ServiceRegistry.Instance.ListenerManager?.PeakListeners ?? 0;
+			int peakListeners = ServiceRegistry.Instance.ListenerManager.PeakListeners;
 
 			float showQuality = _vernStats?.CalculateVIBE() ?? 50f;
 
 			// Calculate and award income
 			int income = IncomeCalculator.CalculateShowIncome(peakListeners, showQuality);
-			if (ServiceRegistry.Instance.EconomyManager != null)
-			{
-				ServiceRegistry.Instance.EconomyManager.AddMoney(income, "Show Income");
-				GD.Print($"GameStateManager: Added income {income} (quality: {showQuality:F1}, peak listeners: {peakListeners})");
-			}
+			ServiceRegistry.Instance.EconomyManager.AddMoney(income, "Show Income");
+			GD.Print($"GameStateManager: Added income {income} (quality: {showQuality:F1}, peak listeners: {peakListeners})");
 
 			// Update save data
-			if (ServiceRegistry.Instance.SaveManager?.CurrentSave != null)
+			if (ServiceRegistry.Instance.SaveManager.CurrentSave != null)
 			{
 				var save = ServiceRegistry.Instance.SaveManager.CurrentSave;
 				save.TotalShowsCompleted++;
@@ -264,34 +282,26 @@ namespace KBTV.Core
 			}
 
 			// Reset the clock for next show
-			ServiceRegistry.Instance.TimeManager?.ResetClock();
+			ServiceRegistry.Instance.TimeManager.ResetClock();
 
 			// Play outro music if it was queued by user clicking "End Show" button
-			var broadcastCoordinator = ServiceRegistry.Instance.BroadcastCoordinator;
-			if (broadcastCoordinator != null && broadcastCoordinator.IsOutroMusicQueued)
+			if (ServiceRegistry.Instance.BroadcastCoordinator.IsOutroMusicQueued)
 			{
 				GD.Print("GameStateManager: Playing queued outro music");
-				var audioPlayer = ServiceRegistry.Instance.EventBus as IDialoguePlayer;
-if (audioPlayer != null)
-				{
-					var bumperItem = new BroadcastItem("Bumper_Music", BroadcastItemType.Music, "Bumper Music", duration: 4.0f);
-					audioPlayer.PlayBroadcastItemAsync(bumperItem);
+				var bumperItem = new BroadcastItem("Bumper_Music", BroadcastItemType.Music, "Bumper Music", duration: 4.0f);
+				ServiceRegistry.Instance.AudioPlayer.PlayBroadcastItemAsync(bumperItem);
 
-					// Wait for bumper to complete (4 seconds for music lines)
-					await ToSignal(GetTree().CreateTimer(4f), "timeout");
-					GD.Print("GameStateManager: Outro music completed");
-				}
+				// Wait for bumper to complete (4 seconds for music lines)
+				await ToSignal(GetTree().CreateTimer(4f), "timeout");
+				GD.Print("GameStateManager: Outro music completed");
 			}
 
 			// Auto-save at end of show
-			if (ServiceRegistry.Instance.SaveManager != null)
-			{
-				ServiceRegistry.Instance.SaveManager.Save();
-				GD.Print("GameStateManager: Game saved");
-			}
+			ServiceRegistry.Instance.SaveManager.Save();
+			GD.Print("GameStateManager: Game saved");
 
 			// Show PostShow UI
-			ServiceRegistry.Instance.UIManager?.ShowPostShowLayer();
+			ServiceRegistry.Instance.UIManager.ShowPostShowLayer();
 			GD.Print("GameStateManager: PostShow UI shown");
 
 			// Emit phase changed signal
@@ -307,46 +317,31 @@ if (audioPlayer != null)
 			GD.Print("GameStateManager: OnShowTimerExpired - Timer reached 0, ending show");
 
 			// Interrupt current audio playback
-			var audioPlayer = ServiceRegistry.Instance.AudioPlayer;
-			if (audioPlayer != null)
-			{
-				audioPlayer.Stop();
-				GD.Print("GameStateManager: Current audio interrupted");
-			}
+			AudioPlayer.Stop();
+			GD.Print("GameStateManager: Current audio interrupted");
 
 			// Clear all callers and stop generation
-			ServiceRegistry.Instance.CallerRepository?.ClearAll();
-			ServiceRegistry.Instance.CallerGenerator?.StopGenerating();
+			CallerRepository.ClearAll();
+			CallerGenerator.StopGenerating();
 			GD.Print("GameStateManager: All callers cleared and generation stopped");
 
 			// Play outro bumper music
-			var dialoguePlayer = ServiceRegistry.Instance.EventBus as IDialoguePlayer;
-			if (dialoguePlayer != null)
-			{
-var outroItem = new BroadcastItem("OUTRO_MUSIC", BroadcastItemType.Music, "Outro Bumper Music", duration: 4.0f);
-				GD.Print("GameStateManager: Playing outro music");
+			var outroItem = new BroadcastItem("OUTRO_MUSIC", BroadcastItemType.Music, "Outro Bumper Music", duration: 4.0f);
+			GD.Print("GameStateManager: Playing outro music");
 
-				// Subscribe to completion event
-				void OnOutroCompleted(AudioCompletedEvent @event)
+			// Subscribe to completion event
+			void OnOutroCompleted(AudioCompletedEvent @event)
+			{
+				if (@event.LineId == outroItem.Id)
 				{
-					if (@event.LineId == outroItem.Id)
-					{
-						GD.Print("GameStateManager: Outro music completed, advancing to PostShow");
-						ServiceRegistry.Instance.EventBus.Unsubscribe<AudioCompletedEvent>(OnOutroCompleted);
-						AdvanceToPostShow();
-					}
+					GD.Print("GameStateManager: Outro music completed, advancing to PostShow");
+					EventBus.Unsubscribe<AudioCompletedEvent>(OnOutroCompleted);
+					AdvanceToPostShow();
 				}
+			}
 
-ServiceRegistry.Instance.EventBus.Subscribe<AudioCompletedEvent>(OnOutroCompleted);
-				dialoguePlayer.PlayBroadcastItemAsync(outroItem);
-			}
-			else
-			{
-				// Fallback if no dialogue player
-				GD.Print("GameStateManager: No dialogue player available, advancing immediately");
-				await ToSignal(GetTree().CreateTimer(4f), "timeout");
-				AdvanceToPostShow();
-			}
+			EventBus.Subscribe<AudioCompletedEvent>(OnOutroCompleted);
+			AudioPlayer.PlayBroadcastItemAsync(outroItem);
 		}
 
 		/// <summary>

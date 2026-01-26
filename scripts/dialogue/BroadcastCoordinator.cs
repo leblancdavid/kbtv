@@ -2,9 +2,14 @@
 
 using System;
 using System.Threading.Tasks;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Ads;
+using KBTV.Managers;
+using KBTV.Ads;
 
 namespace KBTV.Dialogue
 {
@@ -37,60 +42,86 @@ namespace KBTV.Dialogue
     /// <summary>
     /// Async broadcast coordinator using new async architecture.
     /// Replaces complex state management with clean async loop and event-driven flow.
+    /// Converted to AutoInject Provider pattern.
     /// </summary>
-    [GlobalClass]
-    public partial class BroadcastCoordinator : Node, IBroadcastCoordinator
+    [Meta(typeof(IAutoNode))]
+    public partial class BroadcastCoordinator : Node, IBroadcastCoordinator,
+        IProvide<BroadcastCoordinator>,
+        IDependent
     {
-    private AsyncBroadcastLoop _asyncLoop = null!;
-    private ICallerRepository _repository = null!;
-    private bool _isBroadcastActive = false;
-    private bool _isOutroMusicQueued = false;
-    private string _currentAdSponsor = "";
-    private readonly object _lock = new object();
+        public override void _Notification(int what) => this.Notify(what);
 
-    // Legacy interface compatibility
-    public BroadcastState CurrentState => GetLegacyState();
-    
-    // Missing properties for compatibility
-    public bool IsOutroMusicQueued => _isOutroMusicQueued;
-    public string CurrentAdSponsor => _currentAdSponsor;
+        [Dependency]
+        private AsyncBroadcastLoop AsyncBroadcastLoop => DependOn<AsyncBroadcastLoop>();
 
-    public event Action? OnBreakTransitionCompleted;
+        [Dependency]
+        private ICallerRepository CallerRepository => DependOn<ICallerRepository>();
 
-        public override void _Ready()
+        [Dependency]
+        private AdManager AdManager => DependOn<AdManager>();
+
+        [Dependency]
+        private TimeManager TimeManager => DependOn<TimeManager>();
+
+        [Dependency]
+        private EventBus EventBus => DependOn<EventBus>();
+
+        // Temporary workaround for missing DependOn<T> extension method
+        private T DependOn<T>() where T : class
         {
-            GD.Print("BroadcastCoordinator: Initializing with services...");
-            InitializeWithServices();
+            // Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
+            return ServiceRegistry.Instance.Get<T>();
+        }
+
+        private bool _isBroadcastActive = false;
+        private bool _isOutroMusicQueued = false;
+        private string _currentAdSponsor = "";
+        private readonly object _lock = new object();
+
+        // Missing field - AsyncBroadcastLoop dependency
+        private AsyncBroadcastLoop _asyncLoop;
+
+        // Legacy interface compatibility
+        public BroadcastState CurrentState => GetLegacyState();
+
+        // Missing properties for compatibility
+        public bool IsOutroMusicQueued => _isOutroMusicQueued;
+        public string CurrentAdSponsor => _currentAdSponsor;
+
+        // Provider interface implementation
+        BroadcastCoordinator IProvide<BroadcastCoordinator>.Value() => this;
+
+        public event Action? OnBreakTransitionCompleted;
+
+        /// <summary>
+        /// Called when all dependencies are resolved.
+        /// </summary>
+        public void OnResolved()
+        {
+            GD.Print("BroadcastCoordinator: Dependencies resolved, initializing...");
+
+            // Initialize field from dependency property
+            _asyncLoop = AsyncBroadcastLoop;
+
+            // Subscribe to AdManager events for break interruptions
+            AdManager.OnBreakGracePeriod += OnBreakGracePeriod;
+            AdManager.OnBreakImminent += OnBreakImminent;
+
+            // Subscribe to events
+            EventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
+            EventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
+            EventBus.Subscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
+
             GD.Print("BroadcastCoordinator: Initialization complete");
         }
 
-        private void InitializeWithServices()
+        /// <summary>
+        /// Called when node enters the scene tree and is ready.
+        /// </summary>
+        public void OnReady()
         {
-            _repository = ServiceRegistry.Instance.CallerRepository;
-
-            // Setup async loop (should be available now)
-            SetupAsyncLoop();
-
-            // Subscribe to AdManager events for break interruptions
-            var adManager = ServiceRegistry.Instance.AdManager;
-            if (adManager != null)
-            {
-                adManager.OnBreakGracePeriod += OnBreakGracePeriod;
-                adManager.OnBreakImminent += OnBreakImminent;
-            }
-
-            ServiceRegistry.Instance.RegisterSelf<BroadcastCoordinator>(this);
-        }
-
-        private void SetupAsyncLoop()
-        {
-            _asyncLoop = ServiceRegistry.Instance.AsyncBroadcastLoop;
-
-            // Subscribe to events
-            var eventBus = ServiceRegistry.Instance.EventBus;
-            eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
-            eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
-            eventBus.Subscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
+            GD.Print("BroadcastCoordinator: Ready, providing service to descendants");
+            this.Provide();
         }
 
     public void OnLiveShowStarted()
@@ -108,8 +139,7 @@ namespace KBTV.Dialogue
                 _isBroadcastActive = true;
                 
                 // Get show duration from TimeManager
-                var timeManager = ServiceRegistry.Instance.TimeManager;
-                var showDuration = timeManager?.ShowDuration ?? 600.0f; // 10 minutes default
+                var showDuration = TimeManager.ShowDuration;
                 
                 // Start async broadcast loop
                 _ = Task.Run(async () => {
@@ -234,12 +264,12 @@ namespace KBTV.Dialogue
         /// </summary>
         private BroadcastState GetLegacyState()
         {
-            if (!_isBroadcastActive || _asyncLoop == null)
+            if (!_isBroadcastActive)
                 return BroadcastState.Idle;
 
             // Map AsyncBroadcastState to legacy BroadcastState
-            var asyncState = _asyncLoop.IsInAdBreak() ? AsyncBroadcastState.AdBreak : AsyncBroadcastState.Conversation;
-            
+            var asyncState = AsyncBroadcastLoop.IsInAdBreak() ? AsyncBroadcastState.AdBreak : AsyncBroadcastState.Conversation;
+
             return asyncState switch
             {
                 AsyncBroadcastState.Idle => BroadcastState.Idle,

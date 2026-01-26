@@ -1,185 +1,238 @@
 using System;
+using Chickensoft.AutoInject;
+using Chickensoft.Introspection;
 using Godot;
 using KBTV.Core;
 using KBTV.Persistence;
 
-namespace KBTV.Managers
+namespace KBTV.Managers;
+
+/// <summary>
+/// Manages the in-game clock for radio show.
+/// Handles time progression during live broadcasts.
+/// Converted to AutoInject Provider pattern.
+/// </summary>
+[Meta(typeof(IAutoNode))]
+public partial class TimeManager : Node, ISaveable, 
+    IProvide<TimeManager>,
+    IDependent
 {
+    public override void _Notification(int what) => this.Notify(what);
+
+    [Signal] public delegate void TickEventHandler(float delta);
+    [Signal] public delegate void ShowEndedEventHandler();
+    [Signal] public delegate void ShowEndingWarningEventHandler(float secondsRemaining);
+    [Signal] public delegate void RunningChangedEventHandler(bool isRunning);
+
+    [Dependency]
+    private SaveManager SaveManager => DependOn<SaveManager>();
+
+    // Temporary workaround for missing DependOn<T> extension method
+    private T DependOn<T>() where T : class
+    {
+        // Temporary workaround: use ServiceRegistry until AutoInject source generator is fixed
+        return ServiceRegistry.Instance.Get<T>();
+    }
+
+    [Export] private float _showDurationSeconds = 600f; // 10 minutes real-time
+    [Export] private float _showDurationHours = 4f;
+    [Export] private int _showStartHour = 22;
+
+    // Runtime state (not serialized - always starts fresh)
+    private float _elapsedTime = 0f;
+    private bool _isRunning = false;
+
+    public float ElapsedTime => _elapsedTime;
+    public float ShowDuration => _showDurationSeconds;
+    public float Progress => Mathf.Clamp(_elapsedTime / _showDurationSeconds, 0f, 1f);
+    public bool IsRunning => _isRunning;
+
     /// <summary>
-    /// Manages the in-game clock for the radio show.
-    /// Handles time progression during live broadcasts.
+    /// Current in-game time as a formatted string (e.g., "10:45 PM").
     /// </summary>
-   	public partial class TimeManager : Node, ISaveable
-      {
-		[Signal] public delegate void TickEventHandler(float delta);
-		[Signal] public delegate void ShowEndedEventHandler();
-		[Signal] public delegate void ShowEndingWarningEventHandler(float secondsRemaining);
-		[Signal] public delegate void RunningChangedEventHandler(bool isRunning);
-        [Export] private float _showDurationSeconds = 600f; // 10 minutes real-time
-        [Export] private float _showDurationHours = 4f;
-        [Export] private int _showStartHour = 22;
+    public string CurrentTimeFormatted => GetFormattedTime();
 
-        // Runtime state (not serialized - always starts fresh)
-        private float _elapsedTime = 0f;
-        private bool _isRunning = false;
+    /// <summary>
+    /// Current in-game hour (0-23).
+    /// </summary>
+    public float CurrentHour => _showStartHour + (_showDurationHours * Progress);
 
-        public float ElapsedTime => _elapsedTime;
-        public float ShowDuration => _showDurationSeconds;
-        public float Progress => Mathf.Clamp(_elapsedTime / _showDurationSeconds, 0f, 1f);
-        public bool IsRunning => _isRunning;
+    TimeManager IProvide<TimeManager>.Value() => this;
 
-        /// <summary>
-        /// Current in-game time as a formatted string (e.g., "10:45 PM").
-        /// </summary>
-        public string CurrentTimeFormatted => GetFormattedTime();
+    /// <summary>
+    /// Set show duration in seconds.
+    /// </summary>
+    public void SetShowDuration(float seconds)
+    {
+        _showDurationSeconds = seconds;
+        _showDurationHours = seconds / 3600f; // Update hours for consistency
+    }
 
-        /// <summary>
-        /// Current in-game hour (0-23).
-        /// </summary>
-        public float CurrentHour => _showStartHour + (_showDurationHours * Progress);
+    /// <summary>
+    /// Initialize the TimeManager provider.
+    /// Called after dependencies are resolved.
+    /// </summary>
+    public void Initialize()
+    {
+        _elapsedTime = 0f;
+        _isRunning = false;
+        
+        // Register with SaveManager now that it's available
+        SaveManager?.RegisterSaveable(this);
+        
+        GD.Print("TimeManager: Initialized successfully");
+    }
 
-        /// <summary>
-        /// Set the show duration in seconds.
-        /// </summary>
-        public void SetShowDuration(float seconds)
+    /// <summary>
+    /// Called when all dependencies are resolved.
+    /// </summary>
+    public void OnResolved()
+    {
+        GD.Print("TimeManager: Dependencies resolved");
+    }
+
+    /// <summary>
+    /// Called when node enters the scene tree and is ready.
+    /// </summary>
+    public void OnReady()
+    {
+        GD.Print("TimeManager: Ready, providing service to descendants");
+        
+        // Provide this service to descendants
+        this.Provide();
+    }
+
+    /// <summary>
+    /// Save current show duration.
+    /// </summary>
+    public void OnBeforeSave(SaveData data)
+    {
+        data.ShowDurationMinutes = (int)(_showDurationSeconds / 60f);
+    }
+
+    /// <summary>
+    /// Load show duration from save.
+    /// </summary>
+    public void OnAfterLoad(SaveData data)
+    {
+        if (data.ShowDurationMinutes > 0 && data.ShowDurationMinutes <= 20)
         {
-            _showDurationSeconds = seconds;
-            _showDurationHours = seconds / 3600f; // Update hours for consistency
+            SetShowDuration(data.ShowDurationMinutes * 60f);
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        if (!_isRunning) return;
+
+        float deltaTime = (float)delta;
+        _elapsedTime += deltaTime;
+
+        EmitSignal("Tick", deltaTime);
+
+        // Check for show ending warning (10 seconds remaining)
+        if (_elapsedTime >= _showDurationSeconds - 10f && _elapsedTime < _showDurationSeconds - 10f + deltaTime)
+        {
+            EmitSignal("ShowEndingWarning", 10f);
         }
 
-        /// <summary>
-        /// Save current show duration.
-        /// </summary>
-        public void OnBeforeSave(SaveData data)
+        // Check for show end
+        if (_elapsedTime >= _showDurationSeconds)
         {
-            data.ShowDurationMinutes = (int)(_showDurationSeconds / 60f);
-        }
-
-        /// <summary>
-        /// Load show duration from save.
-        /// </summary>
-        public void OnAfterLoad(SaveData data)
-        {
-            if (data.ShowDurationMinutes > 0 && data.ShowDurationMinutes <= 20)
-            {
-                SetShowDuration(data.ShowDurationMinutes * 60f);
-            }
-        }
-
-        public override void _Ready()
-        {
-            _elapsedTime = 0f;
-            _isRunning = false;
-            ServiceRegistry.Instance.RegisterSelf<TimeManager>(this);
-            
-            // Direct registration - SaveManager is now loaded before TimeManager
-            var saveManager = ServiceRegistry.Instance.SaveManager;
-            if (saveManager != null)
-            {
-                saveManager.RegisterSaveable(this);
-            }
-            else
-            {
-                GD.PrintErr("TimeManager: SaveManager not available - check autoload order");
-            }
-        }
-
-        public override void _Process(double delta)
-        {
-            if (!_isRunning) return;
-
-            float deltaTime = (float)delta;
-            _elapsedTime += deltaTime;
-
-            EmitSignal("Tick", deltaTime);
-
-            // Check for show ending warning (10 seconds remaining)
-            if (_elapsedTime >= _showDurationSeconds - 10f && _elapsedTime < _showDurationSeconds - 10f + deltaTime)
-            {
-                EmitSignal("ShowEndingWarning", 10f);
-            }
-
-            if (_elapsedTime >= _showDurationSeconds)
-            {
-                EndShow();
-            }
-        }
-
-        /// <summary>
-        /// Start the show clock.
-        /// </summary>
-        public void StartClock()
-        {
-            if (_isRunning) return;
-
-            _isRunning = true;
-            EmitSignal("RunningChanged", true);
-        }
-
-        /// <summary>
-        /// Pause the show clock.
-        /// </summary>
-        public void PauseClock()
-        {
-            if (!_isRunning) return;
-
-            _isRunning = false;
-            EmitSignal("RunningChanged", false);
-        }
-
-        /// <summary>
-        /// Reset the clock for a new show.
-        /// </summary>
-        public void ResetClock()
-        {
-            _elapsedTime = 0f;
-            _isRunning = false;
-        }
-
-        /// <summary>
-        /// End the show (called when time runs out or manually).
-        /// </summary>
-        public void EndShow()
-        {
+            _elapsedTime = _showDurationSeconds; // Prevent overflow
             _isRunning = false;
             EmitSignal("ShowEnded");
         }
+    }
 
-        private string GetFormattedTime()
+    /// <summary>
+    /// Start the in-game clock.
+    /// </summary>
+    public void StartClock()
+    {
+        if (_isRunning) return;
+
+        _elapsedTime = 0f;
+        _isRunning = true;
+        EmitSignal("RunningChanged", true);
+    }
+
+    /// <summary>
+    /// Stop the in-game clock.
+    /// </summary>
+    public void StopClock()
+    {
+        if (!_isRunning) return;
+
+        _isRunning = false;
+        EmitSignal("RunningChanged", false);
+    }
+
+    /// <summary>
+    /// Pause the in-game clock without resetting.
+    /// </summary>
+    public void PauseClock()
+    {
+        if (!_isRunning) return;
+        _isRunning = false;
+        EmitSignal("RunningChanged", false);
+    }
+
+    /// <summary>
+    /// End the show immediately.
+    /// </summary>
+    public void EndShow()
+    {
+        _elapsedTime = _showDurationSeconds;
+        _isRunning = false;
+        EmitSignal("ShowEnded");
+        EmitSignal("RunningChanged", false);
+    }
+
+    /// <summary>
+    /// Reset the clock to initial state.
+    /// </summary>
+    public void ResetClock()
+    {
+        _elapsedTime = 0f;
+        _isRunning = false;
+        EmitSignal("RunningChanged", false);
+    }
+
+    /// <summary>
+    /// Remaining time in seconds until show ends.
+    /// </summary>
+    public float RemainingTime => Mathf.Max(0f, _showDurationSeconds - _elapsedTime);
+
+    /// <summary>
+    /// Remaining time formatted as MM:SS.
+    /// </summary>
+    public string RemainingTimeFormatted
+    {
+        get
         {
-            float hour = CurrentHour;
-
-            // Handle day wrap (e.g., 22 + 4 = 26 -> 2 AM)
-            while (hour >= 24f) hour -= 24f;
-
-            int hourInt = Mathf.FloorToInt(hour);
-            int minutes = Mathf.FloorToInt((hour - hourInt) * 60f);
-
-            bool isPM = hourInt >= 12;
-            int displayHour = hourInt % 12;
-            if (displayHour == 0) displayHour = 12;
-
-            string ampm = isPM ? "PM" : "AM";
-            return $"{displayHour}:{minutes:D2} {ampm}";
+            int minutes = (int)(RemainingTime / 60f);
+            int seconds = (int)(RemainingTime % 60f);
+            return $"{minutes:D2}:{seconds:D2}";
         }
+    }
 
-        /// <summary>
-        /// Get remaining time in seconds.
-        /// </summary>
-        public float RemainingTime => Mathf.Max(0f, _showDurationSeconds - _elapsedTime);
+    /// <summary>
+    /// Get formatted time string from elapsed hours.
+    /// </summary>
+    private string GetFormattedTime()
+    {
+        float currentHour = CurrentHour;
+        int displayHour = (int)currentHour % 24;
+        int displayMinutes = (int)((currentHour % 1) * 60);
 
-        /// <summary>
-        /// Get remaining time as formatted string (MM:SS).
-        /// </summary>
-        public string RemainingTimeFormatted
+        if (displayHour >= 12)
         {
-            get
-            {
-                float remaining = RemainingTime;
-                int minutes = Mathf.FloorToInt(remaining / 60f);
-                int seconds = Mathf.FloorToInt(remaining % 60f);
-                return $"{minutes:D2}:{seconds:D2}";
-            }
+            return $"{displayHour - 12:D2}:{displayMinutes:D2} PM";
+        }
+        else
+        {
+            return $"{displayHour:D2}:{displayMinutes:D2} AM";
         }
     }
 }

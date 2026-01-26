@@ -63,6 +63,14 @@ namespace KBTV.Persistence
             ServiceRegistry.Instance.RegisterSelf<SaveManager>(this);
         }
 
+        /// <summary>
+        /// Initialize the SaveManager.
+        /// </summary>
+        public void Initialize()
+        {
+            // SaveManager doesn't need special initialization
+        }
+
 
 
         // ─────────────────────────────────────────────────────────────

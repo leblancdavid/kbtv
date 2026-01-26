@@ -249,6 +249,83 @@ private void RetryInitialization()
 - `TranscriptRepository` - Stores broadcast transcript entries
 - `ArcRepository` - Stores conversation arcs (auto-discovers from `assets/dialogue/arcs/{topic}/`)
 
+### AutoInject Dependency Injection Pattern
+
+**KBTV now uses Chickensoft AutoInject for dependency injection**, replacing the previous ServiceRegistry approach. This provides better testability, cleaner code, and follows Godot best practices.
+
+**Best Practice Pattern (Based on Chickensoft Documentation):**
+Use the `IAutoNode` mixin which applies all AutoInject mixins at once for services that both provide and consume dependencies.
+
+```csharp
+[Meta(typeof(IAutoNode))]
+public partial class GameStateManager : Node, 
+    IProvide<GameStateManager>, IProvide<TimeManager>, // Services this node provides
+    IDependent  // If this node consumes dependencies
+{
+    public override void _Notification(int what) => this.Notify(what);
+    
+    // Dependencies this node consumes
+    [Dependency] private IService Service => DependOn<IService>();
+    
+    // Services this node provides
+    GameStateManager IProvide<GameStateManager>.Value() => this;
+    TimeManager IProvide<TimeManager>.Value() => _timeManager;
+    
+    public void OnReady() => this.Provide();  // Make services available
+    public void OnResolved() { /* Called when dependencies are ready */ }
+}
+```
+
+**Key Principles:**
+- **Use `IAutoNode` mixin**: Applies IAutoOn, IAutoConnect, IAutoInit, IProvider, IDependent
+- **Providers call `this.Provide()` in `OnReady()`**: Makes services available to descendants  
+- **Dependents use `[Dependency]` + `DependOn<T>()`**: For lazy dependency resolution
+- **ServiceProviderRoot as root provider**: Provides all core services to the scene tree
+- **Dependencies resolved before first frame**: `OnResolved()` called before `_Process()`
+
+**Godot Integration:**
+- All service nodes inherit from `Node` (required by Godot)
+- Use `[Meta(typeof(IAutoNode))]` for full AutoInject functionality
+- Override `_Notification(int what) => this.Notify(what)` (required for mixins)
+- Call `this.Provide()` in `OnReady()` for providers
+
+**Benefits over ServiceRegistry:**
+- ✅ **Tree-scoped dependencies**: Services available to subtree, overridable by descendants
+- ✅ **Automatic resolution**: No manual registration required
+- ✅ **Test-friendly**: Easy to fake dependencies with `FakeDependency()`
+- ✅ **Guaranteed timing**: Dependencies available before frame processing
+- ✅ **Clean separation**: Providers vs consumers clearly defined
+
+**Service Architecture:**
+- **ServiceProviderRoot**: Pure provider, instantiates and provides all core services
+- **Manager nodes (GameStateManager, etc.)**: Both providers and dependents
+- **UI Components**: Dependents that consume services via `[Dependency]`
+
+**Migration Status:**
+- ✅ **Adopted as standard pattern** for all new dependency injection
+- ✅ **ServiceProviderRoot** provides core services (TimeManager, EconomyManager, etc.)
+- ✅ **Manager nodes** both provide and consume dependencies
+- ✅ **UI components** use `[Dependency]` for service access
+
+**When to Use:**
+- **New services**: Always use AutoInject with `IAutoNode` pattern
+- **Existing code**: Migrate to AutoInject when refactoring
+- **Testing**: Use `FakeDependency()` for isolated unit tests
+
+**Required Packages:**
+```xml
+<PackageReference Include="Chickensoft.GodotNodeInterfaces" Version="..." />
+<PackageReference Include="Chickensoft.Introspection" Version="..." />
+<PackageReference Include="Chickensoft.Introspection.Generator" Version="..." PrivateAssets="all" OutputItemType="analyzer" />
+<PackageReference Include="Chickensoft.AutoInject" Version="..." PrivateAssets="all" />
+<PackageReference Include="Chickensoft.AutoInject.Analyzers" Version="..." PrivateAssets="all" OutputItemType="analyzer" />
+```
+
+**Files:**
+- `scripts/core/ServiceProviderRoot.cs` - Root service provider
+- All service nodes use `IAutoNode` pattern with `[Meta(typeof(IAutoNode))]`
+- `scenes/Main.tscn` - ServiceProviderRoot added as child node
+
 ### Observer Pattern
 
 Components can observe state changes through `ICallerRepositoryObserver` interface. However, **prefer direct property access and polling** for simplicity:
