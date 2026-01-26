@@ -15,26 +15,8 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            if (ServiceRegistry.IsInitialized)
-            {
-                InitializeWithServices();
-            }
-            else
-            {
-                CallDeferred(nameof(RetryInitialization));
-            }
-        }
-
-        protected virtual void RetryInitialization()
-        {
-            if (ServiceRegistry.IsInitialized)
-            {
-                InitializeWithServices();
-            }
-            else
-            {
-                CallDeferred(nameof(RetryInitialization));
-            }
+            // With synchronous loading, ServiceRegistry should be ready immediately
+            InitializeWithServices();
         }
 
         /// <summary>

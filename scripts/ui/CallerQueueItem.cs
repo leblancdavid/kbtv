@@ -36,16 +36,6 @@ namespace KBTV.UI
             {
                 GD.PrintErr("[CallerQueueItem] ERROR getting node references: " + ex.Message);
             }
-            CallDeferred(nameof(InitializeDeferred));
-        }
-
-        private void InitializeDeferred()
-        {
-            if (!Core.ServiceRegistry.IsInitialized)
-            {
-                CallDeferred(nameof(InitializeDeferred));
-                return;
-            }
 
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
 

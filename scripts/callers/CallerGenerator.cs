@@ -44,7 +44,7 @@ namespace KBTV.Callers
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<CallerGenerator>(this);
-            CallDeferred(nameof(CompleteInitialization));
+            CompleteInitialization();
         }
 
         private void CompleteInitialization()

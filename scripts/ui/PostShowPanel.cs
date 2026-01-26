@@ -16,17 +16,6 @@ namespace KBTV.UI
 
 		public override void _Ready()
 		{
-			CallDeferred(nameof(InitializeDeferred));
-		}
-
-		private void InitializeDeferred()
-		{
-			if (!ServiceRegistry.IsInitialized)
-			{
-				CallDeferred(nameof(InitializeDeferred));
-				return;
-			}
-
 			_incomeLabel = GetNode<Label>("VBoxContainer/StatsContainer/IncomeLabel");
 			_callersLabel = GetNode<Label>("VBoxContainer/StatsContainer/CallersLabel");
 			_listenersLabel = GetNode<Label>("VBoxContainer/StatsContainer/ListenersLabel");

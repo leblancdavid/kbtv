@@ -15,18 +15,6 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            CallDeferred(nameof(InitializeDeferred));
-        }
-
-        private void InitializeDeferred()
-        {
-            if (!Core.ServiceRegistry.IsInitialized)
-            {
-                GD.PrintErr("InputHandler: ServiceRegistry not initialized, retrying...");
-                CallDeferred(nameof(InitializeDeferred));
-                return;
-            }
-
             _gameState = Core.ServiceRegistry.Instance.GameStateManager;
             _repository = Core.ServiceRegistry.Instance.CallerRepository;
 

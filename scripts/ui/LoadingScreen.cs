@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Godot;
 using KBTV.Core;
 
@@ -10,59 +9,22 @@ namespace KBTV.UI
 
         private Label _titleLabel;
         private Panel _background;
-        private bool _transitionStarted;
 
         public override void _Ready()
         {
             GD.Print("LoadingScreen: Initializing loading screen");
             CreateLoadingUI();
-            _transitionStarted = false;
 
-            var registry = ServiceRegistry.Instance;
-            if (registry != null && ServiceRegistry.IsInitialized)
+            // With synchronous loading, ServiceRegistry should be ready immediately
+            if (ServiceRegistry.IsInitialized)
             {
-                GD.Print("LoadingScreen: ServiceRegistry ready, starting transition");
-                CallDeferred(nameof(StartFadeTransition));
+                GD.Print("LoadingScreen: ServiceRegistry ready, transitioning to game scene");
+                LoadGameScene();
             }
             else
             {
-                GD.PrintErr("LoadingScreen: ServiceRegistry not available!");
+                GD.PrintErr("LoadingScreen: ServiceRegistry not ready - this should not happen with synchronous loading");
             }
-        }
-
-        private void StartFadeTransition()
-        {
-            if (_transitionStarted) return;
-            _transitionStarted = true;
-            GD.Print("LoadingScreen: Starting fade transition");
-
-            CallDeferred(nameof(PerformTransition));
-        }
-
-        private async void PerformTransition()
-        {
-            if (!IsInstanceValid(this) || GetParent() == null)
-            {
-                GD.PrintErr("LoadingScreen: Node already disposed, aborting transition");
-                return;
-            }
-
-            var transitionManager = ServiceRegistry.Instance?.GlobalTransitionManager;
-            if (transitionManager == null)
-            {
-                GD.PrintErr("LoadingScreen: GlobalTransitionManager not available, using fallback");
-                var tree = GetTree();
-                if (tree != null)
-                {
-                    await ToSignal(tree.CreateTimer(0.5f), "timeout");
-                }
-                LoadGameScene();
-                return;
-            }
-
-            await transitionManager.FadeToBlack(0.4f);
-            LoadGameScene();
-            return;
         }
 
         private void LoadGameScene()

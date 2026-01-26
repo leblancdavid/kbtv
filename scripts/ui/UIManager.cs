@@ -37,7 +37,7 @@ namespace KBTV.UI
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<UIManager>(this);
-            CallDeferred(nameof(CompleteInitialization));
+            CompleteInitialization();
         }
 
         private void CompleteInitialization()

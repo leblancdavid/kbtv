@@ -51,7 +51,7 @@ namespace KBTV.Managers
         public override void _Ready()
         {
             ServiceRegistry.Instance.RegisterSelf<ListenerManager>(this);
-            CallDeferred(nameof(CompleteInitialization));
+            CompleteInitialization();
         }
 
         private void CompleteInitialization()

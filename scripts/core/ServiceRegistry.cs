@@ -41,15 +41,15 @@ namespace KBTV.Core
 
         public override void _Ready()
         {
-            var startTime = Time.GetTimeDictFromSystem();
+            var startTime = Time.GetTicksMsec();
             _instance = this;
             IsInitialized = true;
 
             RegisterCoreServices();
 
 
-            var endTime = Time.GetTimeDictFromSystem();
-            var initTime = (double)endTime["elapsed"] - (double)startTime["elapsed"];
+            var endTime = Time.GetTicksMsec();
+            var initTime = (endTime - startTime) / 1000.0;
             GD.Print($"ServiceRegistry: Initialization completed in {initTime:F3}s");
         }
 

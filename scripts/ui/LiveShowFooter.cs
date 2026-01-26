@@ -23,18 +23,6 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            CallDeferred(nameof(InitializeDeferred));
-        }
-
-        private void InitializeDeferred()
-        {
-            if (!Core.ServiceRegistry.IsInitialized)
-            {
-                GD.PrintErr("LiveShowFooter: ServiceRegistry not initialized, retrying...");
-                CallDeferred(nameof(InitializeDeferred));
-                return;
-            }
-
             _callerNameLabel = GetNode<Label>("HBoxContainer/OnAirPanel/OnAirVBox/CallerNameLabel");
             _queueAdsButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/QueueAdsButton");
             _adBreakStatusLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakStatusLabel");

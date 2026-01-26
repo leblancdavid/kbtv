@@ -35,17 +35,6 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            CallDeferred(nameof(InitializeDeferred));
-        }
-
-        private void InitializeDeferred()
-        {
-            if (!ServiceRegistry.IsInitialized)
-            {
-                CallDeferred(nameof(InitializeDeferred));
-                return;
-            }
-
             InitializeServices();
             InitializeNodeReferences();
             CreateTabManager();

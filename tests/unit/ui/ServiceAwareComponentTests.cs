@@ -14,18 +14,11 @@ namespace KBTV.Tests.Unit.UI
         private partial class TestServiceAwareComponent : ServiceAwareComponent
         {
             public bool InitializeWithServicesCalled { get; private set; } = false;
-            public bool RetryInitializationCalled { get; private set; } = false;
 
             protected override void InitializeWithServices()
             {
                 InitializeWithServicesCalled = true;
                 _isInitialized = true;
-            }
-
-            protected override void RetryInitialization()
-            {
-                RetryInitializationCalled = true;
-                base.RetryInitialization();
             }
         }
 
@@ -42,16 +35,13 @@ namespace KBTV.Tests.Unit.UI
         }
 
         [Test]
-        public void DefersInitialization_WhenServiceRegistryNotReady()
+        public void InitializesImmediately_WhenServiceRegistryReady()
         {
-            // Reset ServiceRegistry to test uninitialized behavior
-            ServiceRegistry.ResetForTesting();
-
-            // Create a new component after reset
+            // Ensure ServiceRegistry is initialized (it should be by default in tests)
             var component = new TestServiceAwareComponent();
 
-            // Component should not have initialized since ServiceRegistry is not ready
-            AssertThat(!component.InitializeWithServicesCalled);
+            // Component should have initialized immediately since ServiceRegistry is ready
+            AssertThat(component.InitializeWithServicesCalled);
         }
     }
 }

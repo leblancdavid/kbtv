@@ -44,10 +44,25 @@ namespace KBTV.UI
 
 		private void CreatePreShowUI()
 		{
+			var uiManager = ServiceRegistry.Instance?.UIManager;
+			if (uiManager == null)
+			{
+				GD.PrintErr("PreShowUIManager: UIManager not available");
+				return;
+			}
+
+			var canvasLayer = new CanvasLayer();
+			canvasLayer.Name = "PreShowCanvasLayer";
+			canvasLayer.Layer = 5;
+			canvasLayer.Visible = false;
+			AddChild(canvasLayer);
+
+			uiManager.RegisterPreShowLayer(canvasLayer);
+
 			var container = new CenterContainer();
 			container.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			container.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			AddChild(container);
+			canvasLayer.AddChild(container);
 
 			SetupPreShowUI(container);
 			CompleteInitialization();

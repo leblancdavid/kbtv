@@ -47,8 +47,8 @@ namespace KBTV.Core
 			_adSchedule = new AdSchedule(AdConstants.DEFAULT_BREAKS_PER_SHOW, AdConstants.DEFAULT_SLOTS_PER_BREAK);
 			InitializeGame();
 
-			// Defer connecting to TimeManager until it has registered itself
-			CallDeferred(nameof(ConnectToTimeManager));
+			// Connect to TimeManager directly (now that autoload order is fixed)
+			ConnectToTimeManager();
 		}
 
 		private void ConnectToTimeManager()
@@ -138,8 +138,8 @@ namespace KBTV.Core
 				GD.PrintErr("GameStateManager: AdManager or TimeManager not available");
 			}
 
-			// Initialize broadcast flow - defer until BroadcastCoordinator is registered
-			CallDeferred(nameof(InitializeBroadcastFlow));
+			// Initialize broadcast flow - now that autoload order is fixed
+			InitializeBroadcastFlow();
 		}
 
 		private void InitializeBroadcastFlow()
