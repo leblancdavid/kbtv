@@ -72,6 +72,9 @@ namespace KBTV.Dialogue
                 AddChild(_broadcastTimer);
 
                 GD.Print("AsyncBroadcastLoop: Initialized successfully");
+
+                // Register self with ServiceRegistry for global access
+                ServiceRegistry.Instance.RegisterSelf<AsyncBroadcastLoop>(this);
             }
             catch (Exception ex)
             {
