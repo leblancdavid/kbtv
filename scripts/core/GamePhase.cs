@@ -1,10 +1,15 @@
 namespace KBTV.Core
 {
     /// <summary>
-    /// The three phases of a nightly broadcast.
+    /// The phases of a nightly broadcast.
     /// </summary>
     public enum GamePhase
     {
+        /// <summary>
+        /// Loading/initialization phase: services and UI setup.
+        /// </summary>
+        Loading,
+
         /// <summary>
         /// Pre-show preparation: choose topics, set caller rules, purchase supplies.
         /// </summary>

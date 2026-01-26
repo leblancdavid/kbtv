@@ -18,12 +18,13 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            GD.Print("TabContainerManager: Initializing with services...");
-            CreateUI();
+            GD.Print("TabContainerManager: Ready, waiting for dependencies...");
         }
 
         public void OnResolved()
         {
+            GD.Print("TabContainerManager: Dependencies resolved, creating UI...");
+            CreateUI();
             RegisterWithUIManager();
         }
 

@@ -2,6 +2,8 @@ using System.Reflection;
 using Godot;
 using KBTV.Core;
 using KBTV.UI;
+using KBTV.Monitors;
+using KBTV.Dialogue;
 
 namespace KBTV
 {
@@ -20,11 +22,23 @@ namespace KBTV
             GD.Print("Main: ServiceProviderRoot initialized successfully");
             
             // Instantiate UI managers after services are initialized
-            AddChild(new PreShowUIManager());
-            AddChild(new TabContainerManager());
-            AddChild(new PostShowUIManager());
+            _serviceProviderRoot.AddChild(new PreShowUIManager());
+            _serviceProviderRoot.AddChild(new TabContainerManager());
+            _serviceProviderRoot.AddChild(new PostShowUIManager());
             
             GD.Print("Main: UI managers instantiated successfully");
+
+            // Add monitors after services are initialized to avoid dependency injection timing issues
+            _serviceProviderRoot.AddChild(new CallerMonitor());
+            _serviceProviderRoot.AddChild(new VernStatsMonitor());
+            _serviceProviderRoot.AddChild(new ScreeningMonitor());
+            _serviceProviderRoot.AddChild(new ConversationDisplay());
+            _serviceProviderRoot.AddChild(new InputHandler());
+            
+            GD.Print("Main: Monitors instantiated successfully");
+
+            // Finish loading phase and transition to PreShow
+            _serviceProviderRoot.GameStateManager.FinishLoading();
         }
     }
 }

@@ -11,14 +11,13 @@ config_version=5
 [application]
 
 config/name="KBTV"
-run/main_scene="res://scenes/ui/LoadingScreen.tscn"
+run/main_scene="res://scenes/Game.tscn"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
-
-
+LoadingScreen="*res://scenes/ui/LoadingScreen.tscn"
 [display]
 
 window/size/viewport_width=1920

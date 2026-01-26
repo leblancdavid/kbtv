@@ -120,21 +120,28 @@ namespace KBTV.UI
         {
             switch (newPhase)
             {
+                case GamePhase.Loading:
+                    // Hide all UI layers during loading
+                    _preShowLayer?.Hide();
+                    _liveShowLayer?.Hide();
+                    if (_postShowLayer != null) _postShowLayer.Hide();
+                    break;
+
                 case GamePhase.PreShow:
-                    _preShowLayer.Show();
-                    _liveShowLayer.Hide();
+                    _preShowLayer?.Show();
+                    _liveShowLayer?.Hide();
                     if (_postShowLayer != null) _postShowLayer.Hide();
                     break;
 
                 case GamePhase.LiveShow:
-                    _preShowLayer.Hide();
-                    _liveShowLayer.Show();
+                    _preShowLayer?.Hide();
+                    _liveShowLayer?.Show();
                     if (_postShowLayer != null) _postShowLayer.Hide();
                     break;
 
                 case GamePhase.PostShow:
-                    _preShowLayer.Hide();
-                    _liveShowLayer.Hide();
+                    _preShowLayer?.Hide();
+                    _liveShowLayer?.Hide();
                     if (_postShowLayer != null) _postShowLayer.Show();
                     break;
 

@@ -27,6 +27,7 @@ namespace KBTV.Core;
     IProvide<IDialoguePlayer>,
     IProvide<CallerGenerator>,
     IProvide<UIManager>,
+    IProvide<IUIManager>,
     IProvide<AsyncBroadcastLoop>,
     IProvide<BroadcastCoordinator>,
     IProvide<GlobalTransitionManager>,
@@ -69,6 +70,7 @@ namespace KBTV.Core;
     IDialoguePlayer IProvide<IDialoguePlayer>.Value() => DialoguePlayer;
     CallerGenerator IProvide<CallerGenerator>.Value() => CallerGenerator;
     UIManager IProvide<UIManager>.Value() => UIManager;
+    IUIManager IProvide<IUIManager>.Value() => UIManager;
     AsyncBroadcastLoop IProvide<AsyncBroadcastLoop>.Value() => AsyncBroadcastLoop;
     BroadcastCoordinator IProvide<BroadcastCoordinator>.Value() => BroadcastCoordinator;
     GlobalTransitionManager IProvide<GlobalTransitionManager>.Value() => GlobalTransitionManager;

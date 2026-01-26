@@ -5,8 +5,6 @@ namespace KBTV.UI
 {
     public partial class LoadingScreen : CanvasLayer
     {
-        [Export] public string GameScenePath = "res://scenes/Game.tscn";
-
         private Label _titleLabel;
         private Panel _background;
 
@@ -14,29 +12,41 @@ namespace KBTV.UI
         {
             GD.Print("LoadingScreen: Initializing loading screen");
             CreateLoadingUI();
-
-            // Load game scene directly (DI system handles initialization)
-            GD.Print("LoadingScreen: Loading game scene");
-            LoadGameScene();
+            ConnectToGameStateManager();
+            GD.Print("LoadingScreen: UI created");
         }
 
-        private void LoadGameScene()
+        private void ConnectToGameStateManager()
         {
-            GD.Print("LoadingScreen: Loading game scene");
-            CallDeferred(nameof(LoadGameSceneDeferred));
+            // Wait for ServiceRegistry to be initialized
+            CallDeferred(nameof(DeferredConnect));
         }
 
-        private void LoadGameSceneDeferred()
+        private void DeferredConnect()
         {
-            var tree = GetTree();
-            if (tree != null)
+            var gameStateManager = DependencyInjection.Get<GameStateManager>(this);
+            if (gameStateManager != null)
             {
-                tree.ChangeSceneToFile(GameScenePath);
+                gameStateManager.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
+                UpdateVisibility(gameStateManager.CurrentPhase);
+                GD.Print("LoadingScreen: Connected to GameStateManager");
             }
             else
             {
-                GD.PrintErr("LoadingScreen: GetTree() is null during LoadGameSceneDeferred!");
+                GD.PrintErr("LoadingScreen: GameStateManager not available");
             }
+        }
+
+        private void OnPhaseChanged(int oldPhaseInt, int newPhaseInt)
+        {
+            var newPhase = (GamePhase)newPhaseInt;
+            UpdateVisibility(newPhase);
+        }
+
+        private void UpdateVisibility(GamePhase phase)
+        {
+            Visible = phase == GamePhase.Loading;
+            GD.Print($"LoadingScreen: Visibility set to {Visible} for phase {phase}");
         }
 
         private void CreateLoadingUI()

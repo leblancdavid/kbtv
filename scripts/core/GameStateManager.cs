@@ -45,7 +45,7 @@ namespace KBTV.Core
         private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
         private EventBus EventBus => DependencyInjection.Get<EventBus>(this);
 
-		private GamePhase _currentPhase = GamePhase.PreShow;
+		private GamePhase _currentPhase = GamePhase.Loading;
         private VernStats _vernStats;
         private int _currentNight = 1;
         private Topic _selectedTopic;
@@ -111,6 +111,24 @@ namespace KBTV.Core
             _gameInitialized = true;
         }
 
+        /// <summary>
+        /// Transition from Loading phase to PreShow phase after initialization is complete.
+        /// </summary>
+        public void FinishLoading()
+        {
+            if (_currentPhase != GamePhase.Loading)
+            {
+                GD.PrintErr("GameStateManager: Cannot finish loading - not in Loading phase");
+                return;
+            }
+
+            GD.Print("GameStateManager: Loading complete, transitioning to PreShow");
+            GamePhase oldPhase = _currentPhase;
+            _currentPhase = GamePhase.PreShow;
+            EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
+            OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
+        }
+
 		/// <summary>
 		/// Transition to the next phase in the nightly cycle.
 		/// </summary>
@@ -120,6 +138,11 @@ namespace KBTV.Core
 
 			switch (_currentPhase)
 			{
+				case GamePhase.Loading:
+					// Cannot advance from Loading - use FinishLoading() instead
+					GD.PrintErr("GameStateManager: Cannot advance from Loading phase - use FinishLoading()");
+					return;
+
 				case GamePhase.PreShow:
 					_currentPhase = GamePhase.LiveShow;
 					break;
