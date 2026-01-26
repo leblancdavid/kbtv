@@ -1,6 +1,7 @@
 using System.Reflection;
 using Godot;
 using KBTV.Core;
+using KBTV.UI;
 
 namespace KBTV
 {
@@ -17,6 +18,13 @@ namespace KBTV
             _serviceProviderRoot.Initialize();
             
             GD.Print("Main: ServiceProviderRoot initialized successfully");
+            
+            // Instantiate UI managers after services are initialized
+            AddChild(new PreShowUIManager());
+            AddChild(new TabContainerManager());
+            AddChild(new PostShowUIManager());
+            
+            GD.Print("Main: UI managers instantiated successfully");
         }
     }
 }

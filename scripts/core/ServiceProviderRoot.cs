@@ -81,78 +81,108 @@ namespace KBTV.Core;
     /// <summary>
     /// Initialize all service providers and register them with AutoInject.
     /// This should be called from _Ready() after all providers are created.
+    /// Uses two-phase initialization: create all services first, then add to scene tree.
     /// </summary>
     public void Initialize()
     {
+        GD.Print("ServiceProviderRoot: Starting two-phase service initialization...");
+
+        // Phase 1: Create all service instances (without adding to scene tree)
+        GD.Print("ServiceProviderRoot: Phase 1 - Creating all service instances...");
+
         // Create core services (plain classes) - no dependencies
-        GD.Print("ServiceProviderRoot: Creating core services...");
-        
-        EventBus = new EventBus();
-        
+        var eventBus = new EventBus();
+
         // Create arc repository first (needed by CallerRepository)
         var arcRepository = new ArcRepository();
         arcRepository.Initialize();
-        ArcRepository = arcRepository;
 
         // Create broadcast coordinator (needed by CallerRepository)
-        BroadcastCoordinator = new BroadcastCoordinator();
-        AddChild(BroadcastCoordinator);
-        
-        var callerRepo = new CallerRepository(ArcRepository, BroadcastCoordinator);
-        CallerRepository = callerRepo;
-        
+        var broadcastCoordinator = new BroadcastCoordinator();
+
+        // Create caller repository with dependencies
+        var callerRepo = new CallerRepository(arcRepository, broadcastCoordinator);
+
         // Create screening controller (depends on CallerRepository)
         var screeningController = new ScreeningController(callerRepo);
-        ScreeningController = screeningController;
-        
-        // Set circular dependency property
+
+        // Resolve circular dependency
         callerRepo.ScreeningController = screeningController;
-        
+
         // Create independent providers
-        SaveManager = new SaveManager();
-        AddChild(SaveManager);
-        
-        EconomyManager = new EconomyManager();
-        AddChild(EconomyManager);
+        var saveManager = new SaveManager();
+        var economyManager = new EconomyManager();
 
         // Create providers with dependencies
-        TimeManager = new TimeManager();
-        AddChild(TimeManager);
-        
-        GameStateManager = new GameStateManager();
-        AddChild(GameStateManager);
-        
-        ListenerManager = new ListenerManager(GameStateManager, TimeManager, CallerRepository);
-        AddChild(ListenerManager);
+        var timeManager = new TimeManager();
+        var gameStateManager = new GameStateManager();
+
+        // Create listener manager with dependencies
+        var listenerManager = new ListenerManager(gameStateManager, timeManager, callerRepo);
 
         // Create dialogue player
-        var audioPlayer = new AudioDialoguePlayer(GameStateManager);
-        AddChild(audioPlayer);
-        DialoguePlayer = audioPlayer;
+        var audioPlayer = new AudioDialoguePlayer(gameStateManager);
 
         // Create transcript repository
-        TranscriptRepository = new TranscriptRepository();
-        AddChild(TranscriptRepository);
+        var transcriptRepository = new TranscriptRepository();
 
         // Create caller generator
-        CallerGenerator = new CallerGenerator(CallerRepository, GameStateManager, ArcRepository);
-        AddChild(CallerGenerator);
+        var callerGenerator = new CallerGenerator(callerRepo, gameStateManager, arcRepository);
 
         // Create UI manager
-        UIManager = new UIManager();
-        AddChild(UIManager);
+        var uiManager = new UIManager();
 
         // Create broadcast services
-        AsyncBroadcastLoop = new AsyncBroadcastLoop();
-        AddChild(AsyncBroadcastLoop);
+        var asyncBroadcastLoop = new AsyncBroadcastLoop();
 
         // Create transition manager
-        GlobalTransitionManager = new GlobalTransitionManager();
-        AddChild(GlobalTransitionManager);
+        var globalTransitionManager = new GlobalTransitionManager();
 
         // Create ad manager
-        AdManager = new AdManager();
-        AddChild(AdManager);
+        var adManager = new AdManager();
+
+        // Phase 2: Set all provider properties (now dependency injection will work)
+        GD.Print("ServiceProviderRoot: Phase 2 - Setting provider properties...");
+
+        EventBus = eventBus;
+        ArcRepository = arcRepository;
+        BroadcastCoordinator = broadcastCoordinator;
+        CallerRepository = callerRepo;
+        ScreeningController = screeningController;
+        SaveManager = saveManager;
+        EconomyManager = economyManager;
+        TimeManager = timeManager;
+        GameStateManager = gameStateManager;
+        ListenerManager = listenerManager;
+        DialoguePlayer = audioPlayer;
+        TranscriptRepository = transcriptRepository;
+        CallerGenerator = callerGenerator;
+        UIManager = uiManager;
+        AsyncBroadcastLoop = asyncBroadcastLoop;
+        GlobalTransitionManager = globalTransitionManager;
+        AdManager = adManager;
+
+        // Make all services available BEFORE adding children to the scene tree
+        GD.Print("ServiceProviderRoot: Making services available for dependency injection...");
+        this.Provide();
+
+        // Phase 3: Add Node-inheriting services to scene tree (triggers _Ready() and OnResolved())
+        GD.Print("ServiceProviderRoot: Phase 3 - Adding Node services to scene tree...");
+
+        // Only add services that inherit from Node
+        AddChild(broadcastCoordinator);
+        AddChild(saveManager);
+        AddChild(economyManager);
+        AddChild(timeManager);
+        AddChild(gameStateManager);
+        AddChild(listenerManager);
+        AddChild(audioPlayer);
+        AddChild(transcriptRepository);
+        AddChild(callerGenerator);
+        AddChild(uiManager);
+        AddChild(asyncBroadcastLoop);
+        AddChild(globalTransitionManager);
+        AddChild(adManager);
 
         GD.Print("ServiceProviderRoot: All providers created and added to scene tree");
     }
@@ -173,8 +203,7 @@ namespace KBTV.Core;
         SaveManager.Initialize();
         CallerGenerator.Initialize();
         
-        // Make all services available to descendants
-        this.Provide();
+        // Services are already provided in Initialize() - don't call this.Provide() again
     }
 
     /// <summary>
