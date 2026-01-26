@@ -9,7 +9,6 @@ using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Ads;
 using KBTV.Managers;
-using KBTV.Ads;
 
 namespace KBTV.Dialogue
 {
