@@ -28,7 +28,7 @@ namespace KBTV.Dialogue
             _caller = caller;
             _arc = arc;
             _speaker = caller.Name;
-            _audioPath = GetCallerAudioPath(caller, arc);
+            _audioPath = null; // Audio handled per line in ExecuteInternalAsync
         }
 
         // For Vern dialogue
@@ -42,17 +42,64 @@ namespace KBTV.Dialogue
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
         {
-            var displayText = GetDisplayText();
-            GD.Print($"DialogueExecutable: {GetSpeakerName()}: {displayText}");
-            
-            if (!string.IsNullOrEmpty(_audioPath))
+            if (_arc != null && _caller != null)
             {
-                await PlayAudioAsync(_audioPath, cancellationToken);
+                // Play full conversation line by line
+                var topic = _arc.TopicName;
+                foreach (var line in _arc.Dialogue)
+                {
+                    string audioPath;
+                    BroadcastItemType itemType;
+                    string speakerName;
+                    if (line.Speaker == Speaker.Vern)
+                    {
+                        audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{_arc.ArcId}/{line.AudioId}.mp3";
+                        itemType = BroadcastItemType.VernLine;
+                        speakerName = "Vern";
+                    }
+                    else
+                    {
+                        audioPath = $"res://assets/audio/voice/Callers/{topic}/{_arc.ArcId}/{line.AudioId}.mp3";
+                        itemType = BroadcastItemType.CallerLine;
+                        speakerName = _caller.Name;
+                    }
+
+                    var item = new BroadcastItem(
+                        id: line.AudioId,
+                        type: itemType,
+                        text: line.Text,
+                        audioPath: audioPath,
+                        duration: 4.0f,
+                        metadata: new { ArcId = _arc.ArcId, SpeakerId = speakerName, CallerGender = _arc.CallerGender }
+                    );
+
+                    // Publish started event for UI
+                    var startedEvent = new BroadcastItemStartedEvent(item, 4.0f, 4.0f);
+                    _eventBus.Publish(startedEvent);
+
+                    GD.Print($"DialogueExecutable: {speakerName}: {line.Text}");
+
+                    // Play audio for this line
+                    if (!string.IsNullOrEmpty(audioPath))
+                    {
+                        await PlayAudioAsync(audioPath, cancellationToken);
+                    }
+                    else
+                    {
+                        await Task.Delay(4000, cancellationToken);
+                    }
+                }
             }
             else
             {
-                // Fallback to duration-based timing if no audio
-                await Task.Delay(TimeSpan.FromSeconds(_duration), cancellationToken);
+                // Single Vern line (opening/fallback)
+                var displayText = GetDisplayText();
+                GD.Print($"DialogueExecutable: {GetSpeakerName()}: {displayText}");
+                
+                if (!string.IsNullOrEmpty(_audioPath))
+                {
+                    await PlayAudioAsync(_audioPath, cancellationToken);
+                }
             }
         }
 
@@ -91,7 +138,7 @@ namespace KBTV.Dialogue
             }
         }
 
-private string GetDisplayText()
+        private string GetDisplayText()
         {
             if (!string.IsNullOrEmpty(_text))
                 return _text;
@@ -120,18 +167,6 @@ private string GetDisplayText()
             }
             // For Vern dialogue, use the speaker field
             return _speaker ?? "UNKNOWN";
-        }
-
-        private string? GetCallerAudioPath(Caller caller, ConversationArc arc)
-        {
-            // Generate audio path based on conversation arc and caller
-            var topicName = ShowTopicExtensions.ParseTopic(caller.ActualTopic)?.ToString() ?? "Ghosts";
-            var arcId = arc.ArcId;
-            var gender = arc.CallerGender?.ToLower() ?? "male";
-            
-            // This would need to match actual line index in the conversation
-            // For now, we'll use a generic pattern
-            return $"res://assets/audio/voice/Callers/{topicName}/{arcId}_{gender}_0.mp3";
         }
     }
 }
