@@ -355,12 +355,25 @@ namespace KBTV.Callers
         /// </summary>
         public bool UpdateWaitTime(float deltaTime)
         {
+            // Early return for states with no impatience
             if (_state == CallerState.Completed ||
                 _state == CallerState.Rejected ||
                 _state == CallerState.Disconnected ||
-                _state == CallerState.OnAir ||
-                _state == CallerState.OnHold)
+                _state == CallerState.OnAir)
             {
+                return false;
+            }
+
+            // Special handling for OnHold: slow impatience rate
+            if (_state == CallerState.OnHold)
+            {
+                WaitTime += deltaTime * 0.5f;  // Half speed impatience for queued callers
+                if (WaitTime > _patience)
+                {
+                    SetState(CallerState.Disconnected);
+                    OnDisconnected?.Invoke();
+                    return true;
+                }
                 return false;
             }
 

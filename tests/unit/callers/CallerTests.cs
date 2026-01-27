@@ -331,14 +331,30 @@ namespace KBTV.Tests.Unit.Callers
         }
 
         [Test]
-        public void UpdateWaitTime_OnHoldState_DoesNotUpdate()
+        public void UpdateWaitTime_OnHoldState_UpdatesSlowly()
         {
             var caller = CreateTestCaller(patience: 30f);
             caller.SetState(CallerState.OnHold);
 
-            var disconnected = caller.UpdateWaitTime(100f);
+            var initialWaitTime = caller.WaitTime;
+            var disconnected = caller.UpdateWaitTime(10f);
 
+            // Should accumulate wait time at half speed (5 seconds instead of 10)
+            AssertThat(caller.WaitTime == initialWaitTime + 5f);
             AssertThat(!disconnected);
+        }
+
+        [Test]
+        public void UpdateWaitTime_OnHoldState_CanDisconnect()
+        {
+            var caller = CreateTestCaller(patience: 10f);  // Low patience for quick test
+            caller.SetState(CallerState.OnHold);
+
+            // With half speed, need to pass more than double the patience time
+            var disconnected = caller.UpdateWaitTime(25f);  // 25 * 0.5 = 12.5 > 10
+
+            AssertThat(disconnected);
+            AssertThat(caller.State == CallerState.Disconnected);
         }
 
         [Test]
