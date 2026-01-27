@@ -73,8 +73,11 @@ namespace KBTV.Dialogue
                         metadata: new { ArcId = _arc.ArcId, SpeakerId = speakerName, CallerGender = _arc.CallerGender }
                     );
 
+                    // Get actual audio duration
+                    var audioDuration = await GetAudioDurationAsync(audioPath);
+
                     // Publish started event for UI
-                    var startedEvent = new BroadcastItemStartedEvent(item, 4.0f, 4.0f);
+                    var startedEvent = new BroadcastItemStartedEvent(item, 4.0f, audioDuration);
                     _eventBus.Publish(startedEvent);
 
                     GD.Print($"DialogueExecutable: {speakerName}: {line.Text}");
@@ -167,6 +170,32 @@ namespace KBTV.Dialogue
             }
             // For Vern dialogue, use the speaker field
             return _speaker ?? "UNKNOWN";
+        }
+
+        private async Task<float> GetAudioDurationAsync(string audioPath)
+        {
+            if (string.IsNullOrEmpty(audioPath))
+                return 0f;
+
+            try
+            {
+                var audioStream = GD.Load<AudioStream>(audioPath);
+                if (audioStream is AudioStreamMP3 mp3Stream)
+                {
+                    return (float)mp3Stream.GetLength();
+                }
+                else if (audioStream is AudioStreamOggVorbis vorbisStream)
+                {
+                    return (float)vorbisStream.GetLength();
+                }
+                
+                var length = audioStream?.GetLength() ?? 0.0;
+                return length > 0 ? (float)length : 4.0f;
+            }
+            catch
+            {
+                return 4.0f;
+            }
         }
     }
 }

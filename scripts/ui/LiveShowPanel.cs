@@ -102,7 +102,7 @@ private string _displayedText = string.Empty;
 
             // Start new line with audio-synced typewriter
             _currentLineText = item.Text;
-            _currentLineDuration = @event.Duration;
+            _currentLineDuration = @event.AudioLength > 0 ? @event.AudioLength : @event.Duration;
             _elapsedTime = 0f;
             
             DeferredResetTypewriterState();
