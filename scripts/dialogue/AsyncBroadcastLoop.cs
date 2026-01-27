@@ -115,6 +115,8 @@ namespace KBTV.Dialogue
                 if (firstExecutable != null)
                 {
                     await ExecuteExecutableAsync(firstExecutable, _cancellationTokenSource.Token);
+                    // Update state after first executable
+                    _stateManager.UpdateStateAfterExecution(firstExecutable);
                     await RunBroadcastLoopAsync(_cancellationTokenSource.Token);
                 }
                 else

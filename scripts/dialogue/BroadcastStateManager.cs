@@ -77,14 +77,8 @@ namespace KBTV.Dialogue
             _isShowActive = true;
             _currentState = AsyncBroadcastState.ShowStarting;
             
-            var firstExecutable = CreateShowStartingExecutable();
-            if (firstExecutable != null)
-            {
-                _pendingExecutables.Enqueue(firstExecutable);
-            }
-
             GD.Print("BroadcastStateManager: Show started");
-            return firstExecutable;
+            return CreateShowStartingExecutable();
         }
 
         /// <summary>
@@ -190,7 +184,8 @@ namespace KBTV.Dialogue
             return _currentState switch
             {
                 AsyncBroadcastState.ShowStarting => CreateShowOpeningExecutable(),
-                AsyncBroadcastState.ShowOpening => CreateIntroMusicExecutable(),
+                AsyncBroadcastState.ShowOpening => CreateShowOpeningExecutable(),
+                AsyncBroadcastState.IntroMusic => CreateIntroMusicExecutable(),
                 AsyncBroadcastState.Conversation => CreateConversationExecutable(),
                 AsyncBroadcastState.BetweenCallers => CreateBetweenCallersExecutable(),
                 AsyncBroadcastState.DeadAir => CreateDeadAirExecutable(),
@@ -221,7 +216,7 @@ namespace KBTV.Dialogue
                     {
                         _currentState = AsyncBroadcastState.BetweenCallers;
                     }
-                    else if (ShouldPlayDeadAir())
+                    else if (ShouldPlayDeadAir() || executable.Id == "vern_fallback")
                     {
                         _currentState = AsyncBroadcastState.DeadAir;
                     }
@@ -294,7 +289,8 @@ namespace KBTV.Dialogue
             {
                 var randomIndex = GD.RandRange(0, vernLines.Count - 1);
                 var randomLine = vernLines[randomIndex];
-                return new DialogueExecutable("vern_fallback", randomLine.Text, "Vern", _eventBus, _audioService);
+                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{randomLine.Id}.mp3";
+                return new DialogueExecutable("vern_fallback", randomLine.Text, "Vern", _eventBus, _audioService, audioPath);
             }
 
             // Final fallback
@@ -304,8 +300,13 @@ namespace KBTV.Dialogue
         private BroadcastExecutable CreateBetweenCallersExecutable() => 
             new TransitionExecutable("between_callers", "Transitioning between callers", 4.0f, _eventBus, _audioService, "res://assets/audio/bumpers/transition.wav");
 
-        private BroadcastExecutable CreateDeadAirExecutable() => 
-            new TransitionExecutable("dead_air", "Dead air filler", 8.0f, _eventBus, _audioService, "res://assets/audio/bumpers/dead_air.wav");
+        private BroadcastExecutable CreateDeadAirExecutable()
+        {
+            var filler = _vernDialogue.GetDeadAirFiller();
+            var text = filler?.Text ?? "Dead air filler";
+            var audioPath = filler != null ? $"res://assets/audio/voice/Vern/Broadcast/{filler.Id}.mp3" : null;
+            return new TransitionExecutable("dead_air", text, 8.0f, _eventBus, _audioService, audioPath);
+        }
 
         private BroadcastExecutable CreateReturnFromBreakExecutable() => 
             new TransitionExecutable("break_return", "Returning from break", 3.0f, _eventBus, _audioService, "res://assets/audio/bumpers/return.wav");

@@ -80,6 +80,7 @@ private string _displayedText = string.Empty;
         // Handle new broadcast item with duration information for audio-synced typewriter
         private void HandleBroadcastItemStarted(BroadcastItemStartedEvent @event)
         {
+            GD.Print($"LiveShowPanel: Received BroadcastItemStartedEvent - Type: {@event.Item.Type}, Text: '{@event.Item.Text}', Duration: {@event.Duration}");
             _pendingBroadcastItemStartedEvent = @event;
             CallDeferred("DeferredHandleBroadcastItemStarted");
         }
