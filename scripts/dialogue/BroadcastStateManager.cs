@@ -296,7 +296,7 @@ namespace KBTV.Dialogue
         private bool ShouldPlayDeadAir()
         {
             return _callerRepository.OnAirCaller == null && 
-                   _callerRepository.IncomingCallers.Count == 0;
+                   _callerRepository.OnHoldCallers.Count == 0;
         }
 
         private BroadcastExecutable CreateShowStartingExecutable() => 

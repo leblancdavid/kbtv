@@ -176,28 +176,6 @@ namespace KBTV.Callers
             GD.Print($"DEBUG: Notifying observers of approved caller {caller.Name}");
             NotifyObservers(o => o.OnScreeningEnded(caller, approved: true));
 
-            // Auto-trigger putting caller on air if broadcast is active and no one is on air
-            var broadcastCoordinator = _broadcastCoordinator;
-            var broadcastState = broadcastCoordinator?.CurrentState ?? KBTV.Dialogue.BroadcastState.Idle;
-            GD.Print($"DEBUG: Checking auto-trigger - Coordinator: {broadcastCoordinator != null}, State: {broadcastState}, IsOnAir: {IsOnAir}, HasOnHold: {HasOnHoldCallers}");
-            if (broadcastCoordinator != null && !IsOnAir && broadcastState >= KBTV.Dialogue.BroadcastState.Conversation)
-            {
-                GD.Print($"DEBUG: Auto-triggering caller {caller.Name} on air");
-                var putOnAirResult = PutOnAir();
-                if (putOnAirResult.IsSuccess)
-                {
-                    GD.Print($"DEBUG: Successfully put {caller.Name} on air");
-                }
-                else
-                {
-                    GD.Print($"DEBUG: Failed to put {caller.Name} on air: {putOnAirResult.ErrorMessage}");
-                }
-            }
-            else
-            {
-                GD.Print($"DEBUG: Not auto-triggering - Coordinator null: {broadcastCoordinator == null}, State: {broadcastState}, Already on air: {IsOnAir}");
-            }
-
             return Result<Caller>.Ok(caller);
         }
         
