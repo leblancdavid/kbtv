@@ -259,7 +259,6 @@ namespace KBTV.Dialogue
                 AsyncBroadcastState.Idle => BroadcastState.Idle,
                 AsyncBroadcastState.ShowStarting => BroadcastState.ShowStarting,
                 AsyncBroadcastState.IntroMusic => BroadcastState.IntroMusic,
-                AsyncBroadcastState.ShowOpening => BroadcastState.ShowOpening,
                 AsyncBroadcastState.Conversation => BroadcastState.Conversation,
                 AsyncBroadcastState.BetweenCallers => BroadcastState.BetweenCallers,
                 AsyncBroadcastState.AdBreak => BroadcastState.AdBreak,

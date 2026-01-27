@@ -18,7 +18,6 @@ namespace KBTV.Dialogue
         Idle,
         ShowStarting,
         IntroMusic,
-        ShowOpening,
         Conversation,
         BetweenCallers,
         AdBreak,
@@ -183,8 +182,7 @@ namespace KBTV.Dialogue
         {
             return _currentState switch
             {
-                AsyncBroadcastState.ShowStarting => CreateShowOpeningExecutable(),
-                AsyncBroadcastState.ShowOpening => CreateShowOpeningExecutable(),
+                AsyncBroadcastState.ShowStarting => CreateIntroMusicExecutable(),
                 AsyncBroadcastState.IntroMusic => CreateIntroMusicExecutable(),
                 AsyncBroadcastState.Conversation => CreateConversationExecutable(),
                 AsyncBroadcastState.BetweenCallers => CreateBetweenCallersExecutable(),
@@ -203,9 +201,6 @@ namespace KBTV.Dialogue
             switch (_currentState)
             {
                 case AsyncBroadcastState.ShowStarting:
-                    _currentState = AsyncBroadcastState.ShowOpening;
-                    break;
-                case AsyncBroadcastState.ShowOpening:
                     _currentState = AsyncBroadcastState.IntroMusic;
                     break;
                 case AsyncBroadcastState.IntroMusic:
@@ -258,10 +253,7 @@ namespace KBTV.Dialogue
         }
 
         private BroadcastExecutable CreateShowStartingExecutable() => 
-            new TransitionExecutable("show_start", "Show is starting...", 3.0f, _eventBus, _audioService, "res://assets/audio/music/intro_music.wav");
-
-        private BroadcastExecutable CreateShowOpeningExecutable() => 
-            new MusicExecutable("show_opening", "Show opening music", "res://assets/audio/music/intro_music.wav", 5.0f, _eventBus, _audioService);
+            new TransitionExecutable("show_start", "Show is starting...", 3.0f, _eventBus, _audioService, null);
 
         private BroadcastExecutable CreateIntroMusicExecutable() => 
             new MusicExecutable("intro_music", "Intro music", "res://assets/audio/music/intro_music.wav", 4.0f, _eventBus, _audioService);
