@@ -40,6 +40,7 @@ namespace KBTV.Dialogue
         private AsyncBroadcastState _currentState = AsyncBroadcastState.Idle;
         private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
         private bool _isShowActive = false;
+        private bool _hasPlayedVernOpening = false;
 
         // Dependencies for executable creation
         private readonly IArcRepository _arcRepository;
@@ -74,6 +75,7 @@ namespace KBTV.Dialogue
         public BroadcastExecutable? StartShow()
         {
             _isShowActive = true;
+            _hasPlayedVernOpening = false;
             _currentState = AsyncBroadcastState.ShowStarting;
             
             GD.Print("BroadcastStateManager: Show started");
@@ -207,6 +209,12 @@ namespace KBTV.Dialogue
                     _currentState = AsyncBroadcastState.Conversation;
                     break;
                 case AsyncBroadcastState.Conversation:
+                    if (executable.Id == "vern_fallback")
+                    {
+                        _hasPlayedVernOpening = true;
+                        _currentState = AsyncBroadcastState.DeadAir;
+                        break;
+                    }
                     if (ShouldPlayBetweenCallers())
                     {
                         _currentState = AsyncBroadcastState.BetweenCallers;
@@ -275,18 +283,21 @@ namespace KBTV.Dialogue
                 }
             }
 
+            // Play Vern opening once at startup
+            if (!_hasPlayedVernOpening)
+            {
+                var opening = _vernDialogue.GetShowOpening();
+                if (opening != null)
+                {
+                    var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
+                    return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath);
+                }
+            }
+
             // If no on-air caller but there are incoming callers, wait for screening to complete
             if (_callerRepository.IncomingCallers.Count > 0)
             {
                 return null;
-            }
-
-            // Fallback to Vern dialogue - use show opening lines as fallback
-            var opening = _vernDialogue.GetShowOpening();
-            if (opening != null)
-            {
-                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
-                return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath);
             }
 
             // Final fallback
