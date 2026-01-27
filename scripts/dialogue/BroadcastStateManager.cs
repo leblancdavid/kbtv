@@ -97,6 +97,13 @@ namespace KBTV.Dialogue
                         break;
                     }
                     
+                    // Handle PutOnAir completion - caller just put on air, start conversation
+                    if (executable.Type == BroadcastItemType.PutOnAir)
+                    {
+                        // Stay in Conversation state to begin the caller's dialogue
+                        break;
+                    }
+                    
                     // Handle caller conversation completion
                     if (executable.Type == BroadcastItemType.Conversation)
                     {
@@ -112,13 +119,17 @@ namespace KBTV.Dialogue
                         }
                         
                         // Check if more callers are queued
-                        if (_callerRepository.OnHoldCallers.Count > 0)
+                        if (ShouldPlayBetweenCallers())
                         {
-                            _currentState = AsyncBroadcastState.Conversation;
+                            _currentState = AsyncBroadcastState.BetweenCallers;
                         }
                         else if (ShouldPlayDeadAir())
                         {
                             _currentState = AsyncBroadcastState.DeadAir;
+                        }
+                        else
+                        {
+                            _currentState = AsyncBroadcastState.Conversation;
                         }
                         // Otherwise stay in Conversation state (will auto-advance next time)
                         break;
