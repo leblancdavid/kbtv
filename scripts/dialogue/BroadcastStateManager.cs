@@ -7,6 +7,7 @@ using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Managers;
 using KBTV.Audio;
+using KBTV.Data;
 
 namespace KBTV.Dialogue
 {
@@ -209,12 +210,43 @@ namespace KBTV.Dialogue
                     _currentState = AsyncBroadcastState.Conversation;
                     break;
                 case AsyncBroadcastState.Conversation:
-                    if (executable.Id == "vern_fallback")
+                    if (executable.Type == BroadcastItemType.VernLine && 
+                        executable is DialogueExecutable vernExecutable &&
+                        vernExecutable.LineType == VernLineType.ShowOpening)
                     {
                         _hasPlayedVernOpening = true;
                         _currentState = AsyncBroadcastState.DeadAir;
                         break;
                     }
+                    
+                    // Handle caller conversation completion
+                    if (executable.Type == BroadcastItemType.CallerLine)
+                    {
+                        // End the current caller's session
+                        var endResult = _callerRepository.EndOnAir();
+                        if (endResult.IsSuccess)
+                        {
+                            GD.Print($"BroadcastStateManager: Ended on-air caller {endResult.Value.Name}");
+                        }
+                        else
+                        {
+                            GD.PrintErr($"BroadcastStateManager: Failed to end on-air caller: {endResult.ErrorMessage}");
+                        }
+                        
+                        // Check if more callers are queued
+                        if (_callerRepository.OnHoldCallers.Count > 0)
+                        {
+                            _currentState = AsyncBroadcastState.BetweenCallers;
+                        }
+                        else if (ShouldPlayDeadAir())
+                        {
+                            _currentState = AsyncBroadcastState.DeadAir;
+                        }
+                        // Otherwise stay in Conversation state (will auto-advance next time)
+                        break;
+                    }
+                    
+                    // Fallback for other conversation types
                     if (ShouldPlayBetweenCallers())
                     {
                         _currentState = AsyncBroadcastState.BetweenCallers;
@@ -247,8 +279,7 @@ namespace KBTV.Dialogue
         /// </summary>
         private bool ShouldPlayBetweenCallers()
         {
-            return _callerRepository.OnAirCaller != null && 
-                   _callerRepository.IncomingCallers.Count > 0;
+            return _callerRepository.OnHoldCallers.Count > 0;
         }
 
         /// <summary>
@@ -269,6 +300,24 @@ namespace KBTV.Dialogue
         private BroadcastExecutable CreateConversationExecutable()
         {
             var onAirCaller = _callerRepository.OnAirCaller;
+            if (onAirCaller == null)
+            {
+                // Auto-advance from on-hold queue if available
+                if (_callerRepository.OnHoldCallers.Count > 0)
+                {
+                    var putOnAirResult = _callerRepository.PutOnAir();
+                    if (putOnAirResult.IsSuccess)
+                    {
+                        onAirCaller = putOnAirResult.Value;
+                        GD.Print($"BroadcastStateManager: Auto-advanced caller {onAirCaller.Name} to on-air");
+                    }
+                    else
+                    {
+                        GD.PrintErr($"BroadcastStateManager: Failed to put caller on air: {putOnAirResult.ErrorMessage}");
+                    }
+                }
+            }
+
             if (onAirCaller != null)
             {
                 // Convert string topic to ShowTopic enum
@@ -290,7 +339,7 @@ namespace KBTV.Dialogue
                 if (opening != null)
                 {
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
-                    return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath);
+                    return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowOpening);
                 }
             }
 
@@ -301,18 +350,28 @@ namespace KBTV.Dialogue
             }
 
             // Final fallback
-            return new DialogueExecutable("vern_fallback", "Welcome to the show.", "Vern", _eventBus, _audioService);
+            return new DialogueExecutable("vern_fallback", "Welcome to the show.", "Vern", _eventBus, _audioService, lineType: VernLineType.Fallback);
         }
 
-        private BroadcastExecutable CreateBetweenCallersExecutable() => 
-            new TransitionExecutable("between_callers", "Transitioning between callers", 4.0f, _eventBus, _audioService, "res://assets/audio/bumpers/transition.wav");
+        private BroadcastExecutable CreateBetweenCallersExecutable()
+        {
+            var betweenCallers = _vernDialogue.GetBetweenCallers();
+            if (betweenCallers != null)
+            {
+                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{betweenCallers.Id}.mp3";
+                return new DialogueExecutable("between_callers", betweenCallers.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BetweenCallers);
+            }
+            
+            // Fallback
+            return new DialogueExecutable("between_callers", "Moving to our next caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.BetweenCallers);
+        }
 
         private BroadcastExecutable CreateDeadAirExecutable()
         {
             var filler = _vernDialogue.GetDeadAirFiller();
             var text = filler?.Text ?? "Dead air filler";
             var audioPath = filler != null ? $"res://assets/audio/voice/Vern/Broadcast/{filler.Id}.mp3" : null;
-            return new TransitionExecutable("dead_air", text, 8.0f, _eventBus, _audioService, audioPath);
+            return new DialogueExecutable("dead_air", text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DeadAirFiller);
         }
 
         private BroadcastExecutable CreateReturnFromBreakExecutable() => 

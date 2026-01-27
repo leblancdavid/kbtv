@@ -7,6 +7,7 @@ using Godot;
 using KBTV.Callers;
 using KBTV.Audio;
 using KBTV.Core;
+using KBTV.Data;
 
 namespace KBTV.Dialogue
 {
@@ -20,6 +21,12 @@ namespace KBTV.Dialogue
         private readonly string? _audioPath;
         private readonly Caller? _caller;
         private readonly ConversationArc? _arc;
+        private readonly VernLineType? _lineType;
+
+        /// <summary>
+        /// The specific type of Vern line (null for caller lines).
+        /// </summary>
+        public VernLineType? LineType => _lineType;
 
         // For caller dialogue
         public DialogueExecutable(string id, Caller caller, ConversationArc arc, EventBus eventBus, IBroadcastAudioService audioService) 
@@ -29,15 +36,17 @@ namespace KBTV.Dialogue
             _arc = arc;
             _speaker = caller.Name;
             _audioPath = null; // Audio handled per line in ExecuteInternalAsync
+            _lineType = null; // Not applicable for caller lines
         }
 
         // For Vern dialogue
-        public DialogueExecutable(string id, string text, string speaker, EventBus eventBus, IBroadcastAudioService audioService, string? audioPath = null) 
-            : base(id, BroadcastItemType.VernLine, true, 4.0f, eventBus, audioService, new { text, speaker, audioPath })
+        public DialogueExecutable(string id, string text, string speaker, EventBus eventBus, IBroadcastAudioService audioService, string? audioPath = null, VernLineType? lineType = null) 
+            : base(id, BroadcastItemType.VernLine, true, 4.0f, eventBus, audioService, new { text, speaker, audioPath, lineType })
         {
             _text = text;
             _speaker = speaker;
             _audioPath = audioPath;
+            _lineType = lineType;
         }
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
