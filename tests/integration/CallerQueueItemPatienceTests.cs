@@ -134,7 +134,7 @@ namespace KBTV.Tests.Integration
         }
 
         [Test]
-        public void OnHoldCaller_WaitTime_DoesNotAccumulate()
+        public void OnHoldCaller_WaitTime_AccumulatesSlowly()
         {
             var caller = CreateTestCaller("Frank", patience: 30f);
             _repository.AddCaller(caller);
@@ -143,9 +143,10 @@ namespace KBTV.Tests.Integration
 
             AssertThat(caller.State == CallerState.OnHold);
             var initialWaitTime = caller.WaitTime;
+            AssertThat(initialWaitTime == 0f);  // Should start fresh after approval
 
-            caller.UpdateWaitTime(10f);
-            AssertThat(caller.WaitTime == initialWaitTime);
+            caller.UpdateWaitTime(10f);  // Half speed accumulation
+            AssertThat(caller.WaitTime == initialWaitTime + 5f);  // 10 * 0.5 = 5
         }
 
         [Test]

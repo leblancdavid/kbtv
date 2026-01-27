@@ -138,7 +138,7 @@ namespace KBTV.Callers
         /// <summary>
         /// Time this caller has been waiting (in seconds).
         /// </summary>
-        public float WaitTime { get; private set; }
+        public float WaitTime { get; internal set; }
 
         /// <summary>
         /// Properties being revealed during screening.
@@ -361,6 +361,11 @@ namespace KBTV.Callers
                 _state == CallerState.Disconnected ||
                 _state == CallerState.OnAir)
             {
+                // Debug: Log if OnAir caller is somehow being updated (shouldn't happen)
+                if (_state == CallerState.OnAir)
+                {
+                    GD.Print($"WARNING: OnAir caller '{Name}' attempted patience update - this should not happen!");
+                }
                 return false;
             }
 

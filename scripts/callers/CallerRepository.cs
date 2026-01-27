@@ -171,10 +171,12 @@ namespace KBTV.Callers
             }
 
             caller.SetState(CallerState.OnHold);
-            GD.Print($"DEBUG: Caller {caller.Name} moved to OnHold state");
+            caller.WaitTime = 0f;  // Reset patience for fresh start in queue
 
             GD.Print($"DEBUG: Notifying observers of approved caller {caller.Name}");
             NotifyObservers(o => o.OnScreeningEnded(caller, approved: true));
+
+            _currentScreeningId = null;  // Clear screening state after approval
 
             return Result<Caller>.Ok(caller);
         }
@@ -218,7 +220,16 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("No on-hold callers", "NO_ON_HOLD");
             }
 
-            GD.Print($"DEBUG: Putting {onHold.Name} on air");
+            // Check if caller has sufficient remaining patience (> 3 seconds)
+            const float MIN_REMAINING_PATIENCE = 3.0f;
+            float remainingPatience = onHold.Patience - onHold.WaitTime;
+            if (remainingPatience <= MIN_REMAINING_PATIENCE)
+            {
+                GD.Print($"DEBUG: Caller {onHold.Name} has insufficient patience ({remainingPatience:F1}s remaining), skipping");
+                return Result<Caller>.Fail("No callers with sufficient remaining patience", "INSUFFICIENT_PATIENCE");
+            }
+
+            GD.Print($"DEBUG: Putting {onHold.Name} on air (remaining patience: {remainingPatience:F1}s)");
             _onAirCallerId = onHold.Id;
             onHold.SetState(CallerState.OnAir);
 
@@ -335,6 +346,8 @@ namespace KBTV.Callers
 
         private void HandleCallerDisconnected(Caller caller)
         {
+            CallerState stateAtDisconnect = caller.State;  // Capture state before changing it
+            GD.Print($"DEBUG: Caller '{caller.Name}' disconnected from {stateAtDisconnect} state (WaitTime: {caller.WaitTime:F1}s, Patience: {caller.Patience:F1}s)");
             caller.SetState(CallerState.Disconnected);
             RemoveCaller(caller);
         }

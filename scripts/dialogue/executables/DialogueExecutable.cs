@@ -28,9 +28,9 @@ namespace KBTV.Dialogue
         /// </summary>
         public VernLineType? LineType => _lineType;
 
-        // For caller dialogue
+        // For caller dialogue (full conversation arcs)
         public DialogueExecutable(string id, Caller caller, ConversationArc arc, EventBus eventBus, IBroadcastAudioService audioService) 
-            : base(id, BroadcastItemType.CallerLine, true, 4.0f, eventBus, audioService, new { caller, arc })
+            : base(id, BroadcastItemType.Conversation, true, 4.0f, eventBus, audioService, new { caller, arc })
         {
             _caller = caller;
             _arc = arc;

@@ -181,9 +181,9 @@ public override void _Process(double delta)
             {
                 _speakerIcon.Text = "MUSIC";
             }
-            else if (item.Type == BroadcastItemType.CallerLine)
+            else if (item.Type == BroadcastItemType.Conversation)
             {
-                _speakerIcon.Text = "CALLER";
+                _speakerIcon.Text = "ON AIR";
             }
             else if (item.Type == BroadcastItemType.VernLine)
             {
@@ -219,19 +219,20 @@ public override void _Process(double delta)
             }
         }
 
-private static string GetFlowStateDisplayName(BroadcastItemType type)
+        private static string GetFlowStateDisplayName(BroadcastItemType type)
         {
             return type switch
             {
                 BroadcastItemType.Music => "MUSIC",
                 BroadcastItemType.VernLine => "ON AIR",
                 BroadcastItemType.CallerLine => "ON AIR",
+                BroadcastItemType.Conversation => "ON AIR",
                 BroadcastItemType.Ad => "COMMERCIAL",
                 BroadcastItemType.DeadAir => "DEAD AIR",
                 BroadcastItemType.Transition => "TRANSITION",
                 _ => ""
             };
-}
+        }
 
         public override void _ExitTree()
         {

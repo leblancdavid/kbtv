@@ -207,7 +207,7 @@ namespace KBTV.Audio
         }
 
         /// <summary>
-        /// Determines the speaker from a broadcast item type.
+        /// Gets the speaker type from broadcast item type.
         /// </summary>
         private Speaker GetSpeakerFromBroadcastItemType(BroadcastItemType type)
         {
@@ -215,6 +215,7 @@ namespace KBTV.Audio
             {
                 BroadcastItemType.VernLine => Speaker.Vern,
                 BroadcastItemType.CallerLine => Speaker.Caller,
+                BroadcastItemType.Conversation => Speaker.Vern, // Default to Vern for conversation containers
                 _ => Speaker.Vern // Default to Vern for other types
             };
         }

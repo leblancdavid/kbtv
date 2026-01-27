@@ -88,6 +88,7 @@ namespace KBTV.Dialogue
 
                 case BroadcastItemType.VernLine:
                 case BroadcastItemType.CallerLine:
+                case BroadcastItemType.Conversation:
                 case BroadcastItemType.DeadAir:
                     // Display text and play audio
                     DisplayText(item.Text);

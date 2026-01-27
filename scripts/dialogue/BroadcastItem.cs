@@ -36,8 +36,10 @@ namespace KBTV.Dialogue
         Music,          // Background music, transitions
         VernLine,        // Vern's dialogue lines
         CallerLine,      // Caller dialogue lines
+        Conversation,   // Full conversation arcs (Vern + Caller dialogue)
         Ad,             // Commercial advertisements
         DeadAir,        // Filler content when nothing else to play
-        Transition      // State transition indicators
+        Transition,     // State transition indicators
+        PutOnAir        // Putting a caller on air
     }
 }

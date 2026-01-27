@@ -15,27 +15,37 @@ namespace KBTV.Monitors
     /// State Updates:
     /// - Incoming callers: Accumulate wait time
     /// - Screening caller: Drain screening patience at 50% rate
-    /// - OnHold/OnAir callers: No wait time accumulation
+    /// - OnHold callers: Accumulate wait time at 50% rate
+    /// - OnAir callers: No wait time accumulation
     ///
     /// Side Effects:
     /// - Triggers OnDisconnected event when patience runs out
     /// </summary>
     public partial class CallerMonitor : DomainMonitor
     {
-        protected override void OnUpdate(float deltaTime)
+    protected override void OnUpdate(float deltaTime)
+    {
+        var incoming = _repository!.IncomingCallers;
+        var onHold = _repository.OnHoldCallers;
+        var screening = _repository.CurrentScreening;
+
+        if (incoming.Count > 0)
         {
-            var incoming = _repository!.IncomingCallers;
-            var screening = _repository.CurrentScreening;
-
-            if (incoming.Count > 0)
+            foreach (var caller in incoming.ToList())
             {
-                foreach (var caller in incoming.ToList())
-                {
-                    caller.UpdateWaitTime(deltaTime);
-                }
+                caller.UpdateWaitTime(deltaTime);
             }
-
-            screening?.UpdateWaitTime(deltaTime);
         }
+
+        if (onHold.Count > 0)
+        {
+            foreach (var caller in onHold.ToList())
+            {
+                caller.UpdateWaitTime(deltaTime);
+            }
+        }
+
+        screening?.UpdateWaitTime(deltaTime);
+    }
     }
 }

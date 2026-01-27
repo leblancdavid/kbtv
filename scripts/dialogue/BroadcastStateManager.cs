@@ -24,6 +24,7 @@ namespace KBTV.Dialogue
         AdBreak,
         BreakReturn,
         DeadAir,
+        DroppedCaller,
         ShowClosing,
         ShowEnding
     }
@@ -36,17 +37,15 @@ namespace KBTV.Dialogue
     public class BroadcastStateManager
     {
         private readonly ICallerRepository _callerRepository;
+        private readonly IArcRepository _arcRepository;
+        private readonly VernDialogueTemplate _vernDialogue;
         private readonly EventBus _eventBus;
         private readonly ListenerManager _listenerManager;
+        private readonly IBroadcastAudioService _audioService;
         private AsyncBroadcastState _currentState = AsyncBroadcastState.Idle;
         private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
         private bool _isShowActive = false;
         private bool _hasPlayedVernOpening = false;
-
-        // Dependencies for executable creation
-        private readonly IArcRepository _arcRepository;
-        private readonly VernDialogueTemplate _vernDialogue;
-        private readonly IBroadcastAudioService _audioService;
 
         public AsyncBroadcastState CurrentState => _currentState;
         public bool IsShowActive => _isShowActive;
@@ -70,135 +69,6 @@ namespace KBTV.Dialogue
             _eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
         }
 
-        /// <summary>
-        /// Start the show and return the first executable.
-        /// </summary>
-        public BroadcastExecutable? StartShow()
-        {
-            _isShowActive = true;
-            _hasPlayedVernOpening = false;
-            _currentState = AsyncBroadcastState.ShowStarting;
-            
-            GD.Print("BroadcastStateManager: Show started");
-            return CreateShowStartingExecutable();
-        }
-
-        /// <summary>
-        /// Get the next executable to execute.
-        /// </summary>
-        public BroadcastExecutable? GetNextExecutable()
-        {
-            // If there are pending executables, return the first one
-            if (_pendingExecutables.Count > 0)
-            {
-                return _pendingExecutables.Dequeue();
-            }
-
-            // Determine next executable based on current state
-            return CreateNextExecutableForState();
-        }
-
-        /// <summary>
-        /// Handle timing events that affect state transitions.
-        /// </summary>
-        private void HandleTimingEvent(BroadcastTimingEvent timingEvent)
-        {
-            switch (timingEvent.Type)
-            {
-                case BroadcastTimingEventType.ShowEnd:
-                    HandleShowEnding();
-                    break;
-                case BroadcastTimingEventType.Break0Seconds:
-                    HandleBreakStarting();
-                    break;
-                case BroadcastTimingEventType.AdBreakEnd:
-                    HandleBreakEnding();
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Handle show ending.
-        /// </summary>
-        private void HandleShowEnding()
-        {
-            if (!_isShowActive) return;
-
-            _currentState = AsyncBroadcastState.ShowEnding;
-            
-            // Clear pending executables and add show closing sequence
-            _pendingExecutables.Clear();
-            
-            var closingExecutable = CreateShowClosingExecutable();
-            if (closingExecutable != null)
-            {
-                _pendingExecutables.Enqueue(closingExecutable);
-            }
-
-            GD.Print("BroadcastStateManager: Show ending triggered");
-        }
-
-        /// <summary>
-        /// Handle break starting.
-        /// </summary>
-        private void HandleBreakStarting()
-        {
-            if (!_isShowActive) return;
-
-            _currentState = AsyncBroadcastState.AdBreak;
-            
-            // Clear pending executables and add ad break sequence
-            _pendingExecutables.Clear();
-            
-            var adBreakExecutables = CreateAdBreakExecutables();
-            foreach (var executable in adBreakExecutables)
-            {
-                _pendingExecutables.Enqueue(executable);
-            }
-
-            GD.Print("BroadcastStateManager: Ad break starting");
-        }
-
-        /// <summary>
-        /// Handle break ending.
-        /// </summary>
-        private void HandleBreakEnding()
-        {
-            if (!_isShowActive) return;
-
-            _currentState = AsyncBroadcastState.BreakReturn;
-            
-            // Add return from break executable
-            var returnExecutable = CreateReturnFromBreakExecutable();
-            if (returnExecutable != null)
-            {
-                _pendingExecutables.Enqueue(returnExecutable);
-            }
-
-            GD.Print("BroadcastStateManager: Break ending, transitioning back to show");
-        }
-
-        /// <summary>
-        /// Create the next executable based on current state.
-        /// </summary>
-        private BroadcastExecutable? CreateNextExecutableForState()
-        {
-            return _currentState switch
-            {
-                AsyncBroadcastState.ShowStarting => CreateIntroMusicExecutable(),
-                AsyncBroadcastState.IntroMusic => CreateIntroMusicExecutable(),
-                AsyncBroadcastState.Conversation => CreateConversationExecutable(),
-                AsyncBroadcastState.BetweenCallers => CreateBetweenCallersExecutable(),
-                AsyncBroadcastState.DeadAir => CreateDeadAirExecutable(),
-                AsyncBroadcastState.BreakReturn => CreateConversationExecutable(),
-                AsyncBroadcastState.ShowEnding => null, // Show is ending
-                _ => null
-            };
-        }
-
-        /// <summary>
-        /// Update state after an executable completes.
-        /// </summary>
         public void UpdateStateAfterExecution(BroadcastExecutable executable)
         {
             switch (_currentState)
@@ -228,9 +98,9 @@ namespace KBTV.Dialogue
                     }
                     
                     // Handle caller conversation completion
-                    if (executable.Type == BroadcastItemType.CallerLine)
+                    if (executable.Type == BroadcastItemType.Conversation)
                     {
-                        // End the current caller's session
+                        // End the current caller's session ONLY after entire conversation
                         var endResult = _callerRepository.EndOnAir();
                         if (endResult.IsSuccess)
                         {
@@ -244,7 +114,7 @@ namespace KBTV.Dialogue
                         // Check if more callers are queued
                         if (_callerRepository.OnHoldCallers.Count > 0)
                         {
-                            _currentState = AsyncBroadcastState.BetweenCallers;
+                            _currentState = AsyncBroadcastState.Conversation;
                         }
                         else if (ShouldPlayDeadAir())
                         {
@@ -322,19 +192,11 @@ namespace KBTV.Dialogue
             var onAirCaller = _callerRepository.OnAirCaller;
             if (onAirCaller == null)
             {
-                // Auto-advance from on-hold queue if available
-                if (_callerRepository.OnHoldCallers.Count > 0)
+                // Check if we should put a caller on air
+                if (_callerRepository.OnHoldCallers.Count > 0 && !_callerRepository.IsOnAir)
                 {
-                    var putOnAirResult = _callerRepository.PutOnAir();
-                    if (putOnAirResult.IsSuccess)
-                    {
-                        onAirCaller = putOnAirResult.Value;
-                        GD.Print($"BroadcastStateManager: Auto-advanced caller {onAirCaller.Name} to on-air");
-                    }
-                    else
-                    {
-                        GD.PrintErr($"BroadcastStateManager: Failed to put caller on air: {putOnAirResult.ErrorMessage}");
-                    }
+                    // Return PutOnAirExecutable to handle the logic
+                    return new PutOnAirExecutable(_eventBus, _callerRepository, this);
                 }
             }
 
@@ -389,14 +251,99 @@ namespace KBTV.Dialogue
         private BroadcastExecutable CreateShowClosingExecutable() => 
             new MusicExecutable("show_closing", "Show closing music", "res://assets/audio/music/outro_music.wav", 5.0f, _eventBus, _audioService);
 
-        private IEnumerable<BroadcastExecutable> CreateAdBreakExecutables()
+        private BroadcastExecutable CreateDroppedCallerExecutable()
         {
-            var listenerCount = _listenerManager != null ? _listenerManager.CurrentListeners : 100;
-            var adCount = Math.Max(1, listenerCount / 50); // 1 ad per 50 listeners
-
-            for (int i = 0; i < adCount; i++)
+            var droppedCaller = _vernDialogue.GetDroppedCaller();
+            if (droppedCaller != null)
             {
-                yield return AdExecutable.CreateForListenerCount($"ad_break_{i + 1}", listenerCount, i + 1, _eventBus, _listenerManager, _audioService);
+                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{droppedCaller.Id}.mp3";
+                var executable = new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller);
+                // Reset state to Conversation after creating executable
+                _currentState = AsyncBroadcastState.Conversation;
+                return executable;
+            }
+            
+            // Fallback
+            var fallbackExecutable = new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller);
+            _currentState = AsyncBroadcastState.Conversation;
+            return fallbackExecutable;
+        }
+
+        /// <summary>
+        /// Start the show and return the initial executable.
+        /// </summary>
+        public BroadcastExecutable? StartShow()
+        {
+            _isShowActive = true;
+            _currentState = AsyncBroadcastState.ShowStarting;
+            _hasPlayedVernOpening = false;
+            return GetNextExecutable();
+        }
+
+        /// <summary>
+        /// Get the next executable based on current state.
+        /// </summary>
+        public BroadcastExecutable? GetNextExecutable()
+        {
+            switch (_currentState)
+            {
+                case AsyncBroadcastState.Idle:
+                    return null;
+                case AsyncBroadcastState.ShowStarting:
+                    return CreateShowStartingExecutable();
+                case AsyncBroadcastState.IntroMusic:
+                    return CreateIntroMusicExecutable();
+                case AsyncBroadcastState.Conversation:
+                    return CreateConversationExecutable();
+                case AsyncBroadcastState.BetweenCallers:
+                    return CreateBetweenCallersExecutable();
+                case AsyncBroadcastState.DeadAir:
+                    return CreateDeadAirExecutable();
+                case AsyncBroadcastState.AdBreak:
+                    return null; // Handled by external logic
+                case AsyncBroadcastState.BreakReturn:
+                    return CreateReturnFromBreakExecutable();
+                case AsyncBroadcastState.DroppedCaller:
+                    return CreateDroppedCallerExecutable();
+                case AsyncBroadcastState.ShowClosing:
+                    return CreateShowClosingExecutable();
+                case AsyncBroadcastState.ShowEnding:
+                    return null; // Show is ending
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>
+        /// Set the current broadcast state (used by executables).
+        /// </summary>
+        public void SetState(AsyncBroadcastState state)
+        {
+            _currentState = state;
+        }
+
+        /// <summary>
+        /// Handle timing events from the broadcast timer.
+        /// </summary>
+        private void HandleTimingEvent(BroadcastTimingEvent timingEvent)
+        {
+            switch (timingEvent.Type)
+            {
+                case BroadcastTimingEventType.ShowEnd:
+                    _currentState = AsyncBroadcastState.ShowEnding;
+                    break;
+                case BroadcastTimingEventType.Break20Seconds:
+                case BroadcastTimingEventType.Break10Seconds:
+                case BroadcastTimingEventType.Break5Seconds:
+                case BroadcastTimingEventType.Break0Seconds:
+                    // Break warnings - could add logic here if needed
+                    break;
+                case BroadcastTimingEventType.AdBreakStart:
+                    _currentState = AsyncBroadcastState.AdBreak;
+                    break;
+                case BroadcastTimingEventType.AdBreakEnd:
+                    _currentState = AsyncBroadcastState.BreakReturn;
+                    break;
             }
         }
     }
