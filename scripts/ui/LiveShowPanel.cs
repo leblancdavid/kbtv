@@ -94,6 +94,12 @@ private string _displayedText = string.Empty;
             
             var item = @event.Item;
 
+            // Skip displaying internal state transition operations
+            if (item.Type == BroadcastItemType.PutOnAir)
+            {
+                return;
+            }
+
             if (string.IsNullOrEmpty(item.Text))
             {
                 DeferredUpdateWaitingDisplay();
