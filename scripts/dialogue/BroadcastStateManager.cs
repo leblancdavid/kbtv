@@ -299,6 +299,18 @@ namespace KBTV.Dialogue
 
         private BroadcastExecutable CreateConversationExecutable()
         {
+            // Play Vern opening once at startup (PRIORITY: Always check first)
+            if (!_hasPlayedVernOpening)
+            {
+                var opening = _vernDialogue.GetShowOpening();
+                if (opening != null)
+                {
+                    var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
+                    return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowOpening);
+                }
+            }
+
+            // THEN handle caller advancement
             var onAirCaller = _callerRepository.OnAirCaller;
             if (onAirCaller == null)
             {
@@ -329,17 +341,6 @@ namespace KBTV.Dialogue
                     {
                         return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus, _audioService);
                     }
-                }
-            }
-
-            // Play Vern opening once at startup
-            if (!_hasPlayedVernOpening)
-            {
-                var opening = _vernDialogue.GetShowOpening();
-                if (opening != null)
-                {
-                    var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
-                    return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowOpening);
                 }
             }
 
