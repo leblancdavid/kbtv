@@ -215,7 +215,15 @@ namespace KBTV.Dialogue
                         vernExecutable.LineType == VernLineType.ShowOpening)
                     {
                         _hasPlayedVernOpening = true;
-                        _currentState = AsyncBroadcastState.DeadAir;
+                        // Transition based on caller availability
+                        if (_callerRepository.OnHoldCallers.Count > 0)
+                        {
+                            _currentState = AsyncBroadcastState.Conversation;  // Advance to next caller
+                        }
+                        else
+                        {
+                            _currentState = AsyncBroadcastState.DeadAir;  // No callers ready, play filler
+                        }
                         break;
                     }
                     
