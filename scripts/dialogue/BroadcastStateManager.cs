@@ -211,7 +211,7 @@ namespace KBTV.Dialogue
                     {
                         _currentState = AsyncBroadcastState.BetweenCallers;
                     }
-                    else if (ShouldPlayDeadAir() || executable.Id == "vern_fallback")
+                    else if (ShouldPlayDeadAir())
                     {
                         _currentState = AsyncBroadcastState.DeadAir;
                     }
@@ -273,6 +273,12 @@ namespace KBTV.Dialogue
                         return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus, _audioService);
                     }
                 }
+            }
+
+            // If no on-air caller but there are incoming callers, wait for screening to complete
+            if (_callerRepository.IncomingCallers.Count > 0)
+            {
+                return null;
             }
 
             // Fallback to Vern dialogue - use show opening lines as fallback
