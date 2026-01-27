@@ -275,14 +275,12 @@ namespace KBTV.Dialogue
                 }
             }
 
-            // Fallback to Vern dialogue - use introduction lines as fallback
-            var vernLines = _vernDialogue.IntroductionLines;
-            if (vernLines != null && vernLines.Count > 0)
+            // Fallback to Vern dialogue - use show opening lines as fallback
+            var opening = _vernDialogue.GetShowOpening();
+            if (opening != null)
             {
-                var randomIndex = GD.RandRange(0, vernLines.Count - 1);
-                var randomLine = vernLines[randomIndex];
-                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{randomLine.Id}.mp3";
-                return new DialogueExecutable("vern_fallback", randomLine.Text, "Vern", _eventBus, _audioService, audioPath);
+                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
+                return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath);
             }
 
             // Final fallback
