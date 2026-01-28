@@ -8,6 +8,7 @@ using KBTV.Callers;
 using KBTV.Audio;
 using KBTV.Core;
 using KBTV.Data;
+using KBTV.Managers;
 
 namespace KBTV.Dialogue
 {
@@ -22,6 +23,7 @@ namespace KBTV.Dialogue
         private readonly Caller? _caller;
         private readonly ConversationArc? _arc;
         private readonly VernLineType? _lineType;
+        private readonly BroadcastStateManager? _stateManager;
 
         /// <summary>
         /// The specific type of Vern line (null for caller lines).
@@ -29,7 +31,7 @@ namespace KBTV.Dialogue
         public VernLineType? LineType => _lineType;
 
         // For caller dialogue (full conversation arcs)
-        public DialogueExecutable(string id, Caller caller, ConversationArc arc, EventBus eventBus, IBroadcastAudioService audioService) 
+        public DialogueExecutable(string id, Caller caller, ConversationArc arc, EventBus eventBus, IBroadcastAudioService audioService, BroadcastStateManager stateManager) 
             : base(id, BroadcastItemType.Conversation, true, 4.0f, eventBus, audioService, new { caller, arc })
         {
             _caller = caller;
@@ -37,16 +39,18 @@ namespace KBTV.Dialogue
             _speaker = caller.Name;
             _audioPath = null; // Audio handled per line in ExecuteInternalAsync
             _lineType = null; // Not applicable for caller lines
+            _stateManager = stateManager;
         }
 
         // For Vern dialogue
-        public DialogueExecutable(string id, string text, string speaker, EventBus eventBus, IBroadcastAudioService audioService, string? audioPath = null, VernLineType? lineType = null) 
+        public DialogueExecutable(string id, string text, string speaker, EventBus eventBus, IBroadcastAudioService audioService, string? audioPath = null, VernLineType? lineType = null, BroadcastStateManager? stateManager = null) 
             : base(id, BroadcastItemType.VernLine, true, 4.0f, eventBus, audioService, new { text, speaker, audioPath, lineType })
         {
             _text = text;
             _speaker = speaker;
             _audioPath = audioPath;
             _lineType = lineType;
+            _stateManager = stateManager;
         }
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
@@ -99,6 +103,13 @@ namespace KBTV.Dialogue
                     else
                     {
                         await Task.Delay(4000, cancellationToken);
+                    }
+
+                    // Check for pending break transition (graceful interruption between lines)
+                    if (_stateManager?.PendingBreakTransition == true)
+                    {
+                        GD.Print("DialogueExecutable: Graceful interruption - ending conversation early for break transition");
+                        break;
                     }
                 }
             }

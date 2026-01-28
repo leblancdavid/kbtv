@@ -46,9 +46,11 @@ namespace KBTV.Dialogue
         private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
         private bool _isShowActive = false;
         private bool _hasPlayedVernOpening = false;
+        private bool _pendingBreakTransition = false;
 
         public AsyncBroadcastState CurrentState => _currentState;
         public bool IsShowActive => _isShowActive;
+        public bool PendingBreakTransition => _pendingBreakTransition;
 
         public BroadcastStateManager(
             ICallerRepository callerRepository,
@@ -195,7 +197,7 @@ namespace KBTV.Dialogue
                 if (opening != null)
                 {
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
-                    return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowOpening);
+                    return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowOpening, this);
                 }
             }
 
@@ -220,7 +222,7 @@ namespace KBTV.Dialogue
                     var arc = _arcRepository.GetRandomArcForTopic(topic.Value, onAirCaller.Legitimacy);
                     if (arc != null)
                     {
-                        return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus, _audioService);
+                        return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus, _audioService, this);
                     }
                 }
             }
@@ -232,7 +234,7 @@ namespace KBTV.Dialogue
             }
 
             // Final fallback
-            return new DialogueExecutable("vern_fallback", "Welcome to the show.", "Vern", _eventBus, _audioService, lineType: VernLineType.Fallback);
+            return new DialogueExecutable("vern_fallback", "Welcome to the show.", "Vern", _eventBus, _audioService, lineType: VernLineType.Fallback, stateManager: this);
         }
 
         private BroadcastExecutable CreateBetweenCallersExecutable()
@@ -241,11 +243,11 @@ namespace KBTV.Dialogue
             if (betweenCallers != null)
             {
                 var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{betweenCallers.Id}.mp3";
-                return new DialogueExecutable("between_callers", betweenCallers.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BetweenCallers);
+                return new DialogueExecutable("between_callers", betweenCallers.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BetweenCallers, this);
             }
             
             // Fallback
-            return new DialogueExecutable("between_callers", "Moving to our next caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.BetweenCallers);
+            return new DialogueExecutable("between_callers", "Moving to our next caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.BetweenCallers, stateManager: this);
         }
 
         private BroadcastExecutable CreateDeadAirExecutable()
@@ -253,14 +255,32 @@ namespace KBTV.Dialogue
             var filler = _vernDialogue.GetDeadAirFiller();
             var text = filler?.Text ?? "Dead air filler";
             var audioPath = filler != null ? $"res://assets/audio/voice/Vern/Broadcast/{filler.Id}.mp3" : null;
-            return new DialogueExecutable("dead_air", text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DeadAirFiller);
+            return new DialogueExecutable("dead_air", text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DeadAirFiller, this);
+        }
+
+        private BroadcastExecutable CreateAdBreakExecutable()
+        {
+            // Placeholder: Create a single commercial break with timeout
+            // TODO: Replace with actual ad selection logic from AdManager
+            var listenerCount = _listenerManager?.CurrentListeners ?? 100;
+            return AdExecutable.CreateForListenerCount("placeholder_ad", listenerCount, 1, _eventBus, _listenerManager, _audioService);
         }
 
         private BroadcastExecutable CreateReturnFromBreakExecutable() => 
             new TransitionExecutable("break_return", "Returning from break", 3.0f, _eventBus, _audioService, "res://assets/audio/bumpers/return.wav");
 
-        private BroadcastExecutable CreateShowClosingExecutable() => 
-            new MusicExecutable("show_closing", "Show closing music", "res://assets/audio/music/outro_music.wav", 5.0f, _eventBus, _audioService);
+        private BroadcastExecutable CreateBreakTransitionExecutable()
+        {
+            var breakTransition = _vernDialogue.GetBreakTransition();
+            if (breakTransition != null)
+            {
+                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{breakTransition.Id}.mp3";
+                return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, this);
+            }
+            
+            // Fallback
+            return new DialogueExecutable("break_transition", "Alright folks, time for a quick break...", "Vern", _eventBus, _audioService, lineType: VernLineType.BreakTransition, stateManager: this);
+        }
 
         private BroadcastExecutable CreateDroppedCallerExecutable()
         {
@@ -268,16 +288,29 @@ namespace KBTV.Dialogue
             if (droppedCaller != null)
             {
                 var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{droppedCaller.Id}.mp3";
-                var executable = new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller);
+                var executable = new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller, this);
                 // Reset state to Conversation after creating executable
                 _currentState = AsyncBroadcastState.Conversation;
                 return executable;
             }
             
             // Fallback
-            var fallbackExecutable = new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller);
+            var fallbackExecutable = new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: this);
             _currentState = AsyncBroadcastState.Conversation;
             return fallbackExecutable;
+        }
+
+        private BroadcastExecutable CreateShowClosingExecutable()
+        {
+            var closing = _vernDialogue.GetShowClosing();
+            if (closing != null)
+            {
+                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{closing.Id}.mp3";
+                return new DialogueExecutable("show_closing", closing.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowClosing, this);
+            }
+            
+            // Fallback
+            return new DialogueExecutable("show_closing", "That's all the time we have for tonight...", "Vern", _eventBus, _audioService, lineType: VernLineType.ShowClosing, stateManager: this);
         }
 
         /// <summary>
@@ -296,6 +329,13 @@ namespace KBTV.Dialogue
         /// </summary>
         public BroadcastExecutable? GetNextExecutable()
         {
+            // Priority: Check for pending break transition first
+            if (_pendingBreakTransition)
+            {
+                _pendingBreakTransition = false;
+                return CreateBreakTransitionExecutable();
+            }
+
             switch (_currentState)
             {
                 case AsyncBroadcastState.Idle:
@@ -311,7 +351,7 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.DeadAir:
                     return CreateDeadAirExecutable();
                 case AsyncBroadcastState.AdBreak:
-                    return null; // Handled by external logic
+                    return CreateAdBreakExecutable();
                 case AsyncBroadcastState.BreakReturn:
                     return CreateReturnFromBreakExecutable();
                 case AsyncBroadcastState.DroppedCaller:
@@ -344,10 +384,21 @@ namespace KBTV.Dialogue
                     _currentState = AsyncBroadcastState.ShowEnding;
                     break;
                 case BroadcastTimingEventType.Break20Seconds:
+                    // Just opens break window - no broadcast action needed
+                    break;
                 case BroadcastTimingEventType.Break10Seconds:
+                    // Set pending break transition for grace period - will be handled in GetNextExecutable
+                    _pendingBreakTransition = true;
+                    break;
                 case BroadcastTimingEventType.Break5Seconds:
+                    // Hard interrupt at T5 if still in conversation (fallback for graceful interruption)
+                    if (_currentState == AsyncBroadcastState.Conversation)
+                    {
+                        _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakImminent));
+                    }
+                    break;
                 case BroadcastTimingEventType.Break0Seconds:
-                    // Break warnings - could add logic here if needed
+                    _currentState = AsyncBroadcastState.AdBreak;
                     break;
                 case BroadcastTimingEventType.AdBreakStart:
                     _currentState = AsyncBroadcastState.AdBreak;

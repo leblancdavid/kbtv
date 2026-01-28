@@ -10,11 +10,11 @@
   </PropertyGroup>
 
    <ItemGroup Condition=" '$(Configuration)' != 'ExportRelease' ">
-     <PackageReference Include="Chickensoft.GoDotTest" Version="2.0.28" />
-     <PackageReference Include="LightMock.Generator" Version="1.2.3" />
-     <PackageReference Include="Chickensoft.GodotTestDriver" Version="3.0.0" />
-     <PackageReference Include="coverlet.collector" Version="6.0.2" />
-   </ItemGroup>
+      <PackageReference Include="Chickensoft.GoDotTest" Version="2.0.28" />
+      <PackageReference Include="LightMock.Generator" Version="1.2.3" />
+      <PackageReference Include="Chickensoft.GodotTestDriver" Version="3.0.0" />
+      <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    </ItemGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'ExportRelease' ">
     <DefaultItemExcludes>$(DefaultItemExcludes);test/**/*;tests/**/*</DefaultItemExcludes>

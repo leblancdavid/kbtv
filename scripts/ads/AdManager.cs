@@ -54,12 +54,6 @@ namespace KBTV.Ads
         }
         private BreakQueueStatus _breakQueueStatus = BreakQueueStatus.NotQueued;
 
-        // Event-driven timers (replaces polling)
-        private SceneTreeTimer _windowTimer;
-        private SceneTreeTimer _graceTimer;
-        private SceneTreeTimer _imminentTimer;
-        private SceneTreeTimer _breakTimer;
-
         // Modular components (restored from refactoring)
         private BreakScheduler _breakScheduler;
         private BreakLogic _breakLogic;
@@ -92,6 +86,8 @@ namespace KBTV.Ads
         public int CurrentListeners => ListenerManager.CurrentListeners;
         public bool IsInitialized => _schedule != null;
 
+        private EventBus _eventBus = null!;
+
         // Provider interface implementation
         AdManager IProvide<AdManager>.Value() => this;
 
@@ -103,6 +99,10 @@ namespace KBTV.Ads
             // Initialize modular components
             _breakLogic = new BreakLogic(GameStateManager, ListenerManager);
             _revenueCalculator = new RevenueCalculator(EconomyManager);
+
+            // Subscribe to broadcast timing events
+            _eventBus = DependencyInjection.Get<EventBus>(this);
+            _eventBus.Subscribe<BroadcastTimingEvent>(HandleBroadcastTimingEvent);
         }
 
         /// <summary>
@@ -148,8 +148,6 @@ namespace KBTV.Ads
 
         private void ScheduleBreakTimers()
         {
-            CancelTimers();
-
             if (_schedule == null || _schedule.Breaks.Count == 0)
             {
                 GD.Print($"AdManager: Initialized with 0 breaks (show will end immediately) - schedule: {_schedule}, breaks: {_schedule?.Breaks.Count ?? 0}");
@@ -163,127 +161,43 @@ namespace KBTV.Ads
                 return;
             }
 
-            _breakScheduler.ScheduleBreakTimers(this);
-        }
+            // Calculate time until next break using game time
+            float nextBreakTime = _schedule.Breaks[nextBreakIndex].ScheduledTime;
+            float currentTime = TimeManager?.ElapsedTime ?? 0f;
+            float timeUntilBreak = nextBreakTime - currentTime;
 
-        private SceneTreeTimer CreateBreakTimer(float delay, Action callback)
-        {
-            var tree = GetTree();
-            if (tree == null)
+            if (timeUntilBreak > 0)
             {
-                GD.PrintErr($"AdManager: Cannot create timer - node not in scene tree (delay: {delay})");
-                return null;
+                // Schedule timing events directly with BroadcastTimer to avoid EventBus timing issues
+                var broadcastTimer = DependencyInjection.Get<BroadcastTimer>(this);
+                broadcastTimer.ScheduleBreakWarnings(timeUntilBreak);
+                GD.Print($"AdManager: Scheduled break timing events for {timeUntilBreak:F1}s from now");
             }
-
-            try
+            else
             {
-                var timer = tree.CreateTimer(delay);
-                timer.Timeout += () =>
-                {
-                    try
-                    {
-                        callback();
-                    }
-                    catch (Exception ex)
-                    {
-                        GD.PrintErr($"AdManager: Timer callback failed: {ex.Message}");
-                        FallbackBreakStart();
-                    }
-                };
-                GD.Print($"AdManager: Created timer with {delay:F1}s delay");
-                return timer;
+                GD.Print($"AdManager: Warning - next break time {nextBreakTime:F1} is in the past (current: {currentTime:F1})");
             }
-            catch (Exception ex)
-            {
-                GD.PrintErr($"AdManager: Failed to create timer (delay: {delay}): {ex.Message}");
-                FallbackBreakStart();
-                return null;
-            }
-        }
-
-        private void CancelTimers()
-        {
-            // SceneTreeTimer doesn't have Dispose method, just set to null
-            _windowTimer = null;
-            _graceTimer = null;
-            _imminentTimer = null;
-            _breakTimer = null;
-        }
-
-        private void OnWindowTimerFired()
-        {
-            _isInBreakWindow = true;
-            UpdateCountdownValues();
-            GD.Print($"AdManager: Break window opened");
-            OnBreakWindowOpened?.Invoke(_timeUntilNextBreak);
-        }
-
-        private void OnGraceTimerFired()
-        {
-            UpdateCountdownValues();
-            GD.Print($"AdManager: Grace period started");
-            OnBreakGracePeriod?.Invoke(_timeUntilNextBreak);
-        }
-
-        private void OnImminentTimerFired()
-        {
-            UpdateCountdownValues();
-            GD.Print($"AdManager: Imminent warning");
-            OnBreakImminent?.Invoke(_timeUntilNextBreak);
-        }
-
-        private void OnBreakTimerFired()
-        {
-            UpdateCountdownValues();
-            GD.Print($"AdManager: Break starting now");
-            OnBreakTimeReached();
-        }
-
-        private void OnBreakTimeReached()
-        {
-            GD.Print("AdManager: Break timer fired - starting break");
-            // Start break first to initialize AdBreakCoordinator
-            StartBreak();
-            
-            // Check if transition already completed - if so, proceed to ads immediately
-            if (_breakTransitionCompleted)
-            {
-                GD.Print("AdManager: Transition already completed, proceeding to ads");
-                OnBreakReady?.Invoke();
-            }
-            
-            // Trigger imminent interruption (may or may not do anything at T=0)
-            OnBreakImminent?.Invoke(0f);
-        }
-
-        private void FallbackBreakStart()
-        {
-            GD.PrintErr("AdManager: Using fallback break start mechanism");
-            CallDeferred(nameof(StartBreak));
         }
 
         /// <summary>
-        /// Updates countdown values for UI display (called by timer events)
+        /// Handle broadcast timing events to integrate with AsyncBroadcastLoop.
         /// </summary>
-        private void UpdateCountdownValues()
+        private void HandleBroadcastTimingEvent(BroadcastTimingEvent timingEvent)
         {
-            if (_schedule == null || _schedule.Breaks.Count == 0) return;
-
-            int nextBreakIndex = Math.Max(0, _currentBreakIndex + 1);
-            if (nextBreakIndex >= _schedule.Breaks.Count) return;
-
-            float currentTime = TimeManager?.ElapsedTime ?? 0f;
-            float nextBreakTime = _schedule.Breaks[nextBreakIndex].ScheduledTime;
-            _timeUntilNextBreak = Math.Max(0, nextBreakTime - currentTime);
-            _timeUntilBreakWindow = Math.Max(0, _timeUntilNextBreak - AdConstants.BREAK_WINDOW_DURATION);
-
-            // Update queued countdown for UI display
-            if (_isQueued && _breakQueueStatus == BreakQueueStatus.Queued)
+            switch (timingEvent.Type)
             {
-                _queuedCountdown = _timeUntilNextBreak;
+                case BroadcastTimingEventType.Break20Seconds:
+                    // Open break window for queue button
+                    _isInBreakWindow = true;
+                    UpdateCountdownValues();
+                    GD.Print($"AdManager: Break window opened via timing event");
+                    OnBreakWindowOpened?.Invoke(_timeUntilNextBreak);
+                    break;
+                case BroadcastTimingEventType.Break0Seconds:
+                    // Break starts now
+                    StartBreak();
+                    break;
             }
-
-            GD.Print($"AdManager: Countdown updated - Break in {_timeUntilNextBreak:F1}s, Window in {_timeUntilBreakWindow:F1}s");
         }
 
         private void StartBreak()
@@ -426,9 +340,18 @@ namespace KBTV.Ads
         }
 
         /// <summary>
-        /// Creates a placeholder audio stream for transition music with flexible duration.
+        /// Update countdown values for UI display.
         /// </summary>
-
+        private void UpdateCountdownValues()
+        {
+            if (_breakScheduler != null)
+            {
+                float currentTime = TimeManager?.ElapsedTime ?? 0f;
+                float nextBreakTime = _breakScheduler.GetNextBreakTime();
+                _timeUntilNextBreak = nextBreakTime > 0 ? nextBreakTime - currentTime : 0f;
+                _timeUntilBreakWindow = nextBreakTime > 0 ? (nextBreakTime - AdConstants.BREAK_WINDOW_DURATION) - currentTime : 0f;
+            }
+        }
 
         private void ApplyMoodPenalty()
         {

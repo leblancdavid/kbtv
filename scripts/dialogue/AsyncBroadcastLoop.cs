@@ -63,6 +63,9 @@ namespace KBTV.Dialogue
 
                 _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager, DependencyInjection.Get<IBroadcastAudioService>(this));
 
+                // Subscribe to broadcast timing events for break warnings
+                EventBus.Subscribe<BroadcastTimingEvent>(HandleBroadcastTimingEvent);
+
                 GD.Print("AsyncBroadcastLoop: Initialization complete");
             }
             catch (Exception ex)
@@ -230,13 +233,21 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Stop the broadcast loop (thread-safe).
+        /// Handle interruption from external events (breaks, show ending, etc.).
         /// </summary>
-        public void StopBroadcast()
+        public void InterruptBroadcast(BroadcastInterruptionReason reason)
         {
             lock (_lock)
             {
-                StopBroadcastUnsafe();
+                if (!_isRunning) return;
+
+                GD.Print($"AsyncBroadcastLoop: Interrupting broadcast - {reason}");
+
+                _cancellationTokenSource?.Cancel();
+
+                // Publish interruption event
+                var interruptionEvent = new BroadcastInterruptionEvent(reason);
+                EventBus.Publish(interruptionEvent);
             }
         }
 
@@ -283,21 +294,30 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Handle interruption from external events (breaks, show ending, etc.).
+        /// Handle broadcast timing events - now primarily handled by BroadcastStateManager.
+        /// AsyncBroadcastLoop may still need to respond to some events.
         /// </summary>
-        public void InterruptBroadcast(BroadcastInterruptionReason reason)
+        private void HandleBroadcastTimingEvent(BroadcastTimingEvent timingEvent)
+        {
+            // Most timing event handling moved to BroadcastStateManager
+            // This method kept for future extensibility if needed
+            switch (timingEvent.Type)
+            {
+                case BroadcastTimingEventType.Break10Seconds:
+                case BroadcastTimingEventType.Break5Seconds:
+                    // Handled by BroadcastStateManager via pending transition or interruption
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Stop the broadcast loop.
+        /// </summary>
+        public void StopBroadcast()
         {
             lock (_lock)
             {
-                if (!_isRunning) return;
-
-                GD.Print($"AsyncBroadcastLoop: Interrupting broadcast - {reason}");
-
-                _cancellationTokenSource?.Cancel();
-
-                // Publish interruption event
-                var interruptionEvent = new BroadcastInterruptionEvent(reason);
-                EventBus.Publish(interruptionEvent);
+                StopBroadcastUnsafe();
             }
         }
 

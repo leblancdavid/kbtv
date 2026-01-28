@@ -65,6 +65,7 @@ namespace KBTV.Dialogue
         BreakStarting,
         BreakEnding,
         BreakImminent,
+        BreakGracePeriod,
         UserAction,
         Error
     }

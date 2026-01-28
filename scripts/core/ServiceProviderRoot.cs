@@ -30,6 +30,7 @@ namespace KBTV.Core;
     IProvide<IUIManager>,
     IProvide<AsyncBroadcastLoop>,
     IProvide<BroadcastCoordinator>,
+    IProvide<BroadcastTimer>,
     IProvide<GlobalTransitionManager>,
     IProvide<AdManager>,
     IProvide<ITranscriptRepository>,
@@ -53,6 +54,7 @@ namespace KBTV.Core;
     public UIManager UIManager { get; private set; } = null!;
     public AsyncBroadcastLoop AsyncBroadcastLoop { get; private set; } = null!;
     public BroadcastCoordinator BroadcastCoordinator { get; private set; } = null!;
+    public BroadcastTimer BroadcastTimer { get; private set; } = null!;
     public GlobalTransitionManager GlobalTransitionManager { get; private set; } = null!;
     public AdManager AdManager { get; private set; } = null!;
     public TranscriptRepository TranscriptRepository { get; private set; } = null!;
@@ -73,6 +75,7 @@ namespace KBTV.Core;
     IUIManager IProvide<IUIManager>.Value() => UIManager;
     AsyncBroadcastLoop IProvide<AsyncBroadcastLoop>.Value() => AsyncBroadcastLoop;
     BroadcastCoordinator IProvide<BroadcastCoordinator>.Value() => BroadcastCoordinator;
+    BroadcastTimer IProvide<BroadcastTimer>.Value() => BroadcastTimer;
     GlobalTransitionManager IProvide<GlobalTransitionManager>.Value() => GlobalTransitionManager;
     AdManager IProvide<AdManager>.Value() => AdManager;
     ITranscriptRepository IProvide<ITranscriptRepository>.Value() => TranscriptRepository;
@@ -135,6 +138,9 @@ namespace KBTV.Core;
         // Create broadcast services
         var asyncBroadcastLoop = new AsyncBroadcastLoop();
 
+        // Create broadcast timer
+        var broadcastTimer = new BroadcastTimer();
+
         // Create transition manager
         var globalTransitionManager = new GlobalTransitionManager();
 
@@ -161,6 +167,7 @@ namespace KBTV.Core;
         CallerGenerator = callerGenerator;
         UIManager = uiManager;
         AsyncBroadcastLoop = asyncBroadcastLoop;
+        BroadcastTimer = broadcastTimer;
         GlobalTransitionManager = globalTransitionManager;
         AdManager = adManager;
         BroadcastAudioService = broadcastAudioService;
@@ -183,6 +190,7 @@ namespace KBTV.Core;
         AddChild(callerGenerator);
         AddChild(uiManager);
         AddChild(asyncBroadcastLoop);
+        AddChild(broadcastTimer);
         AddChild(globalTransitionManager);
         AddChild(adManager);
         AddChild(broadcastAudioService);

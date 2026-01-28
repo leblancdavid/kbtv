@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using KBTV.Core;
+using KBTV.Managers;
 
 namespace KBTV.Dialogue
 {
@@ -68,14 +69,20 @@ namespace KBTV.Dialogue
     /// Fires specific timing events for breaks, show end, and ad breaks.
     /// Replaces reliance on AdManager for timing.
     /// </summary>
-    [GlobalClass]
-    public partial class BroadcastTimer : Node, IDependent
-    {
-        private readonly Dictionary<BroadcastTimingEventType, Timer> _timers = new();
-        private EventBus _eventBus = null!;
-        private bool _isShowActive = false;
+[GlobalClass]
+public partial class BroadcastTimer : Node, 
+    IProvide<BroadcastTimer>,
+    IDependent
+{
+    public override void _Notification(int what) => this.Notify(what);
 
-        public override void _Notification(int what) => this.Notify(what);
+    private readonly Dictionary<BroadcastTimingEventType, Timer> _timers = new();
+    private EventBus _eventBus = null!;
+    private TimeManager _timeManager = null!;
+    private bool _isShowActive = false;
+
+    // Provider interface implementation
+    BroadcastTimer IProvide<BroadcastTimer>.Value() => this;
 
         public BroadcastTimer()
         {
@@ -92,6 +99,7 @@ namespace KBTV.Dialogue
         public void OnResolved()
         {
             _eventBus = DependencyInjection.Get<EventBus>(this);
+            _timeManager = DependencyInjection.Get<TimeManager>(this);
             _eventBus.Subscribe<BroadcastTimerCommand>(HandleTimerCommand);
         }
 
@@ -181,7 +189,14 @@ namespace KBTV.Dialogue
         private void StartShowInternal(float showDuration = 600.0f)
         {
             _isShowActive = true;
-            
+            CallDeferred(nameof(DeferredStartShow), showDuration);
+        }
+
+        /// <summary>
+        /// Deferred timer operations for show start (main thread only).
+        /// </summary>
+        private void DeferredStartShow(float showDuration)
+        {
             // Configure show end timer
             var showEndTimer = _timers[BroadcastTimingEventType.ShowEnd];
             showEndTimer.WaitTime = showDuration;
@@ -196,7 +211,14 @@ namespace KBTV.Dialogue
         private void StopShowInternal()
         {
             _isShowActive = false;
-            
+            CallDeferred(nameof(DeferredStopShow));
+        }
+
+        /// <summary>
+        /// Deferred timer operations for show stop (main thread only).
+        /// </summary>
+        private void DeferredStopShow()
+        {
             // Stop all timers
             foreach (var timer in _timers.Values)
             {
@@ -211,20 +233,25 @@ namespace KBTV.Dialogue
         /// </summary>
         private void ScheduleBreakWarningsInternal(float breakTime)
         {
-            if (!_isShowActive) return;
+            CallDeferred(nameof(DeferredScheduleBreakWarnings), breakTime);
+        }
 
-            var time = Time.GetDatetimeDictFromSystem();
-            var currentSeconds = (float)time["second"] + (float)time["minute"] * 60 + (float)time["hour"] * 3600;
+        /// <summary>
+        /// Deferred timer operations for break scheduling (main thread only).
+        /// </summary>
+        private void DeferredScheduleBreakWarnings(float breakTime)
+        {
+            float currentTime = _timeManager?.ElapsedTime ?? 0f;
             
-            // Calculate relative times for break warnings
-            var breakTimeSeconds = currentSeconds + breakTime;
+            // Calculate absolute times for break warnings using game time
+            float breakTimeAbsolute = currentTime + breakTime;
             
-            ScheduleBreakWarning(BroadcastTimingEventType.Break20Seconds, breakTimeSeconds - 20);
-            ScheduleBreakWarning(BroadcastTimingEventType.Break10Seconds, breakTimeSeconds - 10);
-            ScheduleBreakWarning(BroadcastTimingEventType.Break5Seconds, breakTimeSeconds - 5);
-            ScheduleBreakWarning(BroadcastTimingEventType.Break0Seconds, breakTimeSeconds);
+            ScheduleBreakWarning(BroadcastTimingEventType.Break20Seconds, breakTimeAbsolute - 20);
+            ScheduleBreakWarning(BroadcastTimingEventType.Break10Seconds, breakTimeAbsolute - 10);
+            ScheduleBreakWarning(BroadcastTimingEventType.Break5Seconds, breakTimeAbsolute - 5);
+            ScheduleBreakWarning(BroadcastTimingEventType.Break0Seconds, breakTimeAbsolute);
             
-            GD.Print($"BroadcastTimer: Scheduled break warnings for {breakTime}s from now");
+            GD.Print($"BroadcastTimer: Scheduled break warnings for {breakTime}s from now (game time: {currentTime:F1})");
         }
 
         /// <summary>
@@ -232,15 +259,19 @@ namespace KBTV.Dialogue
         /// </summary>
         private void ScheduleBreakWarning(BroadcastTimingEventType eventType, float targetTime)
         {
-            var time = Time.GetDatetimeDictFromSystem();
-            var currentSeconds = (float)time["second"] + (float)time["minute"] * 60 + (float)time["hour"] * 3600;
+            float currentTime = _timeManager?.ElapsedTime ?? 0f;
             
-            var waitTime = targetTime - currentSeconds;
+            float waitTime = targetTime - currentTime;
             if (waitTime > 0)
             {
                 var timer = _timers[eventType];
                 timer.WaitTime = waitTime;
                 timer.Start();
+                GD.Print($"BroadcastTimer: Scheduled {eventType} in {waitTime:F1}s (at game time {targetTime:F1})");
+            }
+            else
+            {
+                GD.Print($"BroadcastTimer: Warning - {eventType} target time {targetTime:F1} is in the past (current: {currentTime:F1})");
             }
         }
 
@@ -249,9 +280,19 @@ namespace KBTV.Dialogue
         /// </summary>
         private void StartAdBreakInternal(float duration = 30.0f)
         {
+            // Publish start event immediately (no timer operations)
             var startEvent = new BroadcastTimingEvent(BroadcastTimingEventType.AdBreakStart);
             _eventBus.Publish(startEvent);
             
+            // Defer timer operations
+            CallDeferred(nameof(DeferredStartAdBreak), duration);
+        }
+
+        /// <summary>
+        /// Deferred timer operations for ad break start (main thread only).
+        /// </summary>
+        private void DeferredStartAdBreak(float duration)
+        {
             // Schedule ad break end
             var endTimer = _timers[BroadcastTimingEventType.AdBreakEnd];
             endTimer.WaitTime = duration;
@@ -265,11 +306,21 @@ namespace KBTV.Dialogue
         /// </summary>
         private void StopAdBreakInternal()
         {
-            var endTimer = _timers[BroadcastTimingEventType.AdBreakEnd];
-            endTimer.Stop();
-            
+            // Publish end event immediately
             var endEvent = new BroadcastTimingEvent(BroadcastTimingEventType.AdBreakEnd);
             _eventBus.Publish(endEvent);
+            
+            // Defer timer operations
+            CallDeferred(nameof(DeferredStopAdBreak));
+        }
+
+        /// <summary>
+        /// Deferred timer operations for ad break stop (main thread only).
+        /// </summary>
+        private void DeferredStopAdBreak()
+        {
+            var endTimer = _timers[BroadcastTimingEventType.AdBreakEnd];
+            endTimer.Stop();
             
             GD.Print("BroadcastTimer: Stopped ad break timing");
         }
@@ -284,6 +335,15 @@ namespace KBTV.Dialogue
                 return (float)timer.TimeLeft;
             }
             return 0f;
+        }
+
+        /// <summary>
+        /// Public interface for scheduling break warnings.
+        /// Called directly by AdManager to avoid EventBus timing issues.
+        /// </summary>
+        public void ScheduleBreakWarnings(float breakTime)
+        {
+            ScheduleBreakWarningsInternal(breakTime);
         }
 
         /// <summary>

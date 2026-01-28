@@ -51,6 +51,12 @@ namespace KBTV.UI
 
             // Set up AdManager events
             SetupAdManagerEvents();
+
+            // Connect button signal
+            if (_queueAdsButton != null)
+            {
+                _queueAdsButton.Connect("pressed", Callable.From(OnQueueAdsPressed));
+            }
         }
 
         private void SetupAdManagerEvents()
@@ -170,7 +176,17 @@ namespace KBTV.UI
                 }
             }
 
-            if (_adManager.IsInBreakWindow) return "QUEUE AD-BREAK";
+            if (_adManager.IsInBreakWindow)
+            {
+                float nextBreakTime = _adManager.GetNextBreakTime();
+                if (nextBreakTime > 0)
+                {
+                    float currentTime = DependencyInjection.Get<TimeManager>(this)?.ElapsedTime ?? 0f;
+                    float countdown = Mathf.Max(0, nextBreakTime - currentTime);
+                    return $"BREAK IN {countdown:F1}s";
+                }
+                return "BREAK NOW";
+            }
 
             float timeUntilWindow = _adManager.TimeUntilBreakWindow;
             if (timeUntilWindow > 0)
