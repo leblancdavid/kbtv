@@ -2,6 +2,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
@@ -34,7 +36,7 @@ namespace KBTV.Dialogue
     /// Listens to timing events and manages state transitions between show phases.
     /// Handles interruption logic for breaks, show ending, etc.
     /// </summary>
-    public class BroadcastStateManager
+    public partial class BroadcastStateManager : GodotObject
     {
         private readonly ICallerRepository _callerRepository;
         private readonly IArcRepository _arcRepository;
@@ -51,6 +53,9 @@ namespace KBTV.Dialogue
         public AsyncBroadcastState CurrentState => _currentState;
         public bool IsShowActive => _isShowActive;
         public bool PendingBreakTransition => _pendingBreakTransition;
+        public SceneTree SceneTree => _sceneTree;
+
+        private readonly SceneTree _sceneTree;
 
         public BroadcastStateManager(
             ICallerRepository callerRepository,
@@ -58,7 +63,8 @@ namespace KBTV.Dialogue
             VernDialogueTemplate vernDialogue,
             EventBus eventBus,
             ListenerManager listenerManager,
-            IBroadcastAudioService audioService)
+            IBroadcastAudioService audioService,
+            SceneTree sceneTree)
         {
             _callerRepository = callerRepository;
             _arcRepository = arcRepository;
@@ -66,9 +72,25 @@ namespace KBTV.Dialogue
             _eventBus = eventBus;
             _listenerManager = listenerManager;
             _audioService = audioService;
+            _sceneTree = sceneTree;
 
             // Subscribe to timing events
             _eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
+        }
+
+        /// <summary>
+        /// Non-blocking delay using Godot timers with cancellation support.
+        /// </summary>
+        public async Task DelayAsync(float seconds, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                throw new OperationCanceledException(cancellationToken);
+
+            var timer = _sceneTree.CreateTimer(seconds);
+            await ToSignal(timer, SceneTreeTimer.SignalName.Timeout);
+
+            if (cancellationToken.IsCancellationRequested)
+                throw new OperationCanceledException(cancellationToken);
         }
 
         public void UpdateStateAfterExecution(BroadcastExecutable executable)
@@ -82,6 +104,15 @@ namespace KBTV.Dialogue
                     _currentState = AsyncBroadcastState.Conversation;
                     break;
                 case AsyncBroadcastState.Conversation:
+                    // Handle break transition completion
+                    if (executable.Type == BroadcastItemType.VernLine && 
+                        executable is DialogueExecutable breakTransitionExecutable &&
+                        breakTransitionExecutable.LineType == VernLineType.BreakTransition)
+                    {
+                        _currentState = AsyncBroadcastState.AdBreak;
+                        break;
+                    }
+
                     if (executable.Type == BroadcastItemType.VernLine && 
                         executable is DialogueExecutable vernExecutable &&
                         vernExecutable.LineType == VernLineType.ShowOpening)
@@ -183,10 +214,10 @@ namespace KBTV.Dialogue
         }
 
         private BroadcastExecutable CreateShowStartingExecutable() => 
-            new TransitionExecutable("show_start", "Show is starting...", 3.0f, _eventBus, _audioService, null);
+            new TransitionExecutable("show_start", "Show is starting...", 3.0f, _eventBus, _audioService, _sceneTree, null);
 
         private BroadcastExecutable CreateIntroMusicExecutable() => 
-            new MusicExecutable("intro_music", "Intro music", "res://assets/audio/music/intro_music.wav", 4.0f, _eventBus, _audioService);
+            new MusicExecutable("intro_music", "Intro music", "res://assets/audio/music/intro_music.wav", 4.0f, _eventBus, _audioService, _sceneTree);
 
         private BroadcastExecutable CreateConversationExecutable()
         {
@@ -263,11 +294,11 @@ namespace KBTV.Dialogue
             // Placeholder: Create a single commercial break with timeout
             // TODO: Replace with actual ad selection logic from AdManager
             var listenerCount = _listenerManager?.CurrentListeners ?? 100;
-            return AdExecutable.CreateForListenerCount("placeholder_ad", listenerCount, 1, _eventBus, _listenerManager, _audioService);
+            return AdExecutable.CreateForListenerCount("placeholder_ad", listenerCount, 1, _eventBus, _listenerManager, _audioService, _sceneTree);
         }
 
         private BroadcastExecutable CreateReturnFromBreakExecutable() => 
-            new TransitionExecutable("break_return", "Returning from break", 3.0f, _eventBus, _audioService, "res://assets/audio/bumpers/return.wav");
+            new TransitionExecutable("break_return", "Returning from break", 3.0f, _eventBus, _audioService, _sceneTree, "res://assets/audio/bumpers/return.wav");
 
         private BroadcastExecutable CreateBreakTransitionExecutable()
         {
@@ -390,13 +421,20 @@ namespace KBTV.Dialogue
                     // Set pending break transition for grace period - will be handled in GetNextExecutable
                     _pendingBreakTransition = true;
                     break;
-                case BroadcastTimingEventType.Break5Seconds:
-                    // Hard interrupt at T5 if still in conversation (fallback for graceful interruption)
-                    if (_currentState == AsyncBroadcastState.Conversation)
-                    {
-                        _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakImminent));
-                    }
-                    break;
+                 case BroadcastTimingEventType.Break5Seconds:
+                     // Hard interrupt at T5 if still in conversation (fallback for graceful interruption)
+                     GD.Print($"BroadcastStateManager: T5 event received, current state: {_currentState}");
+                     if (_currentState == AsyncBroadcastState.Conversation)
+                     {
+                         GD.Print("BroadcastStateManager: T5 hard interrupt - setting AdBreak state");
+                         _currentState = AsyncBroadcastState.AdBreak;  // Force immediate transition to ad break
+                         GD.Print("BroadcastStateManager: State changed to AdBreak");
+                     }
+                     else
+                     {
+                         GD.Print($"BroadcastStateManager: T5 event ignored - not in Conversation state (current: {_currentState})");
+                     }
+                     break;
                 case BroadcastTimingEventType.Break0Seconds:
                     _currentState = AsyncBroadcastState.AdBreak;
                     break;

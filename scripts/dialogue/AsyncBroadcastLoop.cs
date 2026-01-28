@@ -40,6 +40,7 @@ namespace KBTV.Dialogue
         private bool _isRunning = false;
         private BroadcastExecutable? _currentExecutable;
         private readonly object _lock = new object();
+        private BroadcastInterruptionReason _lastInterruptionReason;
 
         public bool IsRunning => _isRunning;
         public BroadcastExecutable? CurrentExecutable => _currentExecutable;
@@ -61,7 +62,7 @@ namespace KBTV.Dialogue
                 vernDialogueLoader.LoadDialogue();
                 var vernDialogue = vernDialogueLoader.VernDialogue;
 
-                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager, DependencyInjection.Get<IBroadcastAudioService>(this));
+                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager, DependencyInjection.Get<IBroadcastAudioService>(this), GetTree());
 
                 // Subscribe to broadcast timing events for break warnings
                 EventBus.Subscribe<BroadcastTimingEvent>(HandleBroadcastTimingEvent);
@@ -164,8 +165,8 @@ namespace KBTV.Dialogue
                     
                     if (nextExecutable == null)
                     {
-                        // No executable available - wait a bit and try again
-                        await Task.Delay(1000, cancellationToken);
+                    // No executable available - wait a bit and try again
+                    await _stateManager.DelayAsync(1.0f, cancellationToken);
                         continue;
                     }
 
@@ -176,17 +177,41 @@ namespace KBTV.Dialogue
                     _stateManager.UpdateStateAfterExecution(nextExecutable);
 
                     // Small delay between executables
-                    await Task.Delay(100, cancellationToken);
+                    await _stateManager.DelayAsync(0.1f, cancellationToken);
                 }
                 catch (OperationCanceledException)
                 {
-                    break;
+                    // Check if this is a break interruption - continue the loop with fresh token
+                    if (_lastInterruptionReason == BroadcastInterruptionReason.BreakImminent || 
+                        _lastInterruptionReason == BroadcastInterruptionReason.BreakStarting)
+                    {
+                        GD.Print($"AsyncBroadcastLoop: Break interruption detected ({_lastInterruptionReason}) - resetting token and continuing");
+                        
+                        // Clean up old token
+                        if (_cancellationTokenSource != null)
+                        {
+                            _oldTokenSources.Add(_cancellationTokenSource);
+                            _cancellationTokenSource.Dispose();
+                        }
+                        
+                        // Create fresh token for continued execution
+                        _cancellationTokenSource = new CancellationTokenSource();
+                        
+                        GD.Print("AsyncBroadcastLoop: Fresh token created, continuing loop");
+                        continue;
+                    }
+                    else
+                    {
+                        // Show ending or other interruption - stop the loop
+                        GD.Print($"AsyncBroadcastLoop: Non-break interruption ({_lastInterruptionReason}) - stopping loop");
+                        break;
+                    }
                 }
                 catch (Exception ex)
                 {
                     GD.PrintErr($"AsyncBroadcastLoop: Error in broadcast loop: {ex.Message}");
                     // Continue with next executable even if one fails
-                    await Task.Delay(1000, cancellationToken);
+                    await _stateManager.DelayAsync(1.0f, cancellationToken);
                 }
             }
 
@@ -205,24 +230,28 @@ namespace KBTV.Dialogue
 
             _currentExecutable = executable;
 
-            GD.Print($"AsyncBroadcastLoop: Executing {executable.Type} - {executable.Id}");
+            GD.Print($"AsyncBroadcastLoop: Executing {executable.Type} - {executable.Id} (requires await: {executable.RequiresAwait})");
 
             try
             {
                 // Execute the executable (async/await based on RequiresAwait flag)
                 if (executable.RequiresAwait)
                 {
+                    GD.Print($"AsyncBroadcastLoop: Awaiting executable {executable.Id}");
                     await executable.ExecuteAsync(cancellationToken);
+                    GD.Print($"AsyncBroadcastLoop: Executable {executable.Id} completed normally");
                 }
                 else
                 {
                     // Await the background task to prevent token disposal issues
+                    GD.Print($"AsyncBroadcastLoop: Running executable {executable.Id} in background");
                     await Task.Run(() => executable.ExecuteAsync(cancellationToken), cancellationToken);
+                    GD.Print($"AsyncBroadcastLoop: Background executable {executable.Id} completed");
                 }
             }
             catch (OperationCanceledException)
             {
-                GD.Print($"AsyncBroadcastLoop: Executable {executable.Id} was interrupted");
+                GD.Print($"AsyncBroadcastLoop: Executable {executable.Id} was interrupted - rethrowing");
                 throw;
             }
             finally
@@ -239,15 +268,16 @@ namespace KBTV.Dialogue
         {
             lock (_lock)
             {
-                if (!_isRunning) return;
+                if (!_isRunning) 
+                {
+                    GD.Print($"AsyncBroadcastLoop: InterruptBroadcast called but not running - ignoring {reason}");
+                    return;
+                }
 
-                GD.Print($"AsyncBroadcastLoop: Interrupting broadcast - {reason}");
+                GD.Print($"AsyncBroadcastLoop: Interrupting broadcast - {reason} (current executable: {_currentExecutable?.Id ?? "none"})");
 
+                _lastInterruptionReason = reason;
                 _cancellationTokenSource?.Cancel();
-
-                // Publish interruption event
-                var interruptionEvent = new BroadcastInterruptionEvent(reason);
-                EventBus.Publish(interruptionEvent);
             }
         }
 

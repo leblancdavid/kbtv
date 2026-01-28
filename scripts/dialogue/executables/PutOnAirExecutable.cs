@@ -22,7 +22,7 @@ namespace KBTV.Dialogue
         private readonly BroadcastStateManager _stateManager;
 
         public PutOnAirExecutable(EventBus eventBus, ICallerRepository callerRepository, BroadcastStateManager stateManager)
-            : base("put_on_air", BroadcastItemType.PutOnAir, false, 0f, eventBus, null)
+            : base("put_on_air", BroadcastItemType.PutOnAir, false, 0f, eventBus, null, stateManager.SceneTree)
         {
             _callerRepository = callerRepository;
             _stateManager = stateManager;

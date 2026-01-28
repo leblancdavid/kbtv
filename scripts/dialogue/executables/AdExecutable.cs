@@ -20,8 +20,8 @@ namespace KBTV.Dialogue
         private readonly string? _audioPath;
         private readonly ListenerManager _listenerManager;
 
-        public AdExecutable(string id, string adText, float duration, EventBus eventBus, ListenerManager listenerManager, IBroadcastAudioService audioService, string? sponsor = null, string? audioPath = null) 
-            : base(id, BroadcastItemType.Ad, true, duration, eventBus, audioService, new { adText, sponsor, audioPath })
+        public AdExecutable(string id, string adText, float duration, EventBus eventBus, ListenerManager listenerManager, IBroadcastAudioService audioService, SceneTree sceneTree, string? sponsor = null, string? audioPath = null) 
+            : base(id, BroadcastItemType.Ad, true, duration, eventBus, audioService, sceneTree, new { adText, sponsor, audioPath })
         {
             _adText = adText;
             _sponsor = sponsor;
@@ -48,7 +48,7 @@ namespace KBTV.Dialogue
             else
             {
                 // Default ad audio (silent placeholder)
-                await Task.Delay(TimeSpan.FromSeconds(_duration), cancellationToken);
+                await DelayAsync(_duration, cancellationToken);
             }
         }
 
@@ -104,14 +104,14 @@ namespace KBTV.Dialogue
         /// <summary>
         /// Create an ad executable based on listener count.
         /// </summary>
-        public static AdExecutable CreateForListenerCount(string id, int listenerCount, int adIndex, EventBus eventBus, ListenerManager listenerManager, IBroadcastAudioService audioService)
+        public static AdExecutable CreateForListenerCount(string id, int listenerCount, int adIndex, EventBus eventBus, ListenerManager listenerManager, IBroadcastAudioService audioService, SceneTree sceneTree)
         {
             var adType = GetAdTypeForListenerCount(listenerCount);
             var sponsor = GetSponsorName(adType);
             var adText = $"Commercial Break {adIndex}";
             var audioPath = $"res://assets/audio/ads/{adType.ToString().ToLower()}_{adIndex}.mp3";
             
-            return new AdExecutable(id, adText, 4.0f, eventBus, listenerManager, audioService, sponsor, audioPath);
+            return new AdExecutable(id, adText, 4.0f, eventBus, listenerManager, audioService, sceneTree, sponsor, audioPath);
         }
 
         private static AdType GetAdTypeForListenerCount(int listenerCount)

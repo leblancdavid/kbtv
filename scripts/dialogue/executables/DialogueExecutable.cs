@@ -32,7 +32,7 @@ namespace KBTV.Dialogue
 
         // For caller dialogue (full conversation arcs)
         public DialogueExecutable(string id, Caller caller, ConversationArc arc, EventBus eventBus, IBroadcastAudioService audioService, BroadcastStateManager stateManager) 
-            : base(id, BroadcastItemType.Conversation, true, 4.0f, eventBus, audioService, new { caller, arc })
+            : base(id, BroadcastItemType.Conversation, true, 4.0f, eventBus, audioService, stateManager.SceneTree, new { caller, arc })
         {
             _caller = caller;
             _arc = arc;
@@ -44,7 +44,7 @@ namespace KBTV.Dialogue
 
         // For Vern dialogue
         public DialogueExecutable(string id, string text, string speaker, EventBus eventBus, IBroadcastAudioService audioService, string? audioPath = null, VernLineType? lineType = null, BroadcastStateManager? stateManager = null) 
-            : base(id, BroadcastItemType.VernLine, true, 4.0f, eventBus, audioService, new { text, speaker, audioPath, lineType })
+            : base(id, BroadcastItemType.VernLine, true, 4.0f, eventBus, audioService, stateManager?.SceneTree ?? throw new ArgumentNullException(nameof(stateManager)), new { text, speaker, audioPath, lineType })
         {
             _text = text;
             _speaker = speaker;
@@ -55,74 +55,116 @@ namespace KBTV.Dialogue
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
         {
-            if (_arc != null && _caller != null)
+            // Create local cancellation token for interruption handling
+            using var localCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            var localToken = localCts.Token;
+
+            // Subscribe to interruption events for mid-execution cancellation
+            void OnInterruption(BroadcastInterruptionEvent interruptionEvent)
             {
-                // Play full conversation line by line
-                var topic = _arc.TopicName;
-                foreach (var line in _arc.Dialogue)
+                GD.Print($"DialogueExecutable: Received interruption event: {interruptionEvent.Reason}");
+                if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakImminent)
                 {
-                    string audioPath;
-                    BroadcastItemType itemType;
-                    string speakerName;
-                    if (line.Speaker == Speaker.Vern)
+                    GD.Print("DialogueExecutable: Received break interruption - cancelling execution");
+                    localCts.Cancel();
+                }
+            }
+            _eventBus.Subscribe<BroadcastInterruptionEvent>(OnInterruption);
+
+            try
+            {
+                if (_arc != null && _caller != null)
+                {
+                    // Play full conversation line by line
+                    var topic = _arc.TopicName;
+                    GD.Print($"DialogueExecutable: Starting conversation with {_arc.Dialogue.Count} lines");
+                    foreach (var line in _arc.Dialogue)
                     {
-                        audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{_arc.ArcId}/{line.AudioId}.mp3";
-                        itemType = BroadcastItemType.VernLine;
-                        speakerName = "Vern";
+                        if (localToken.IsCancellationRequested)
+                        {
+                            GD.Print("DialogueExecutable: Cancellation requested - breaking out of dialogue loop");
+                            break;
+                        }
+
+                        GD.Print($"DialogueExecutable: Processing line {line.AudioId} for {line.Speaker}");
+                        string audioPath;
+                        BroadcastItemType itemType;
+                        string speakerName;
+                        if (line.Speaker == Speaker.Vern)
+                        {
+                            audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{_arc.ArcId}/{line.AudioId}.mp3";
+                            itemType = BroadcastItemType.VernLine;
+                            speakerName = "Vern";
+                        }
+                        else
+                        {
+                            audioPath = $"res://assets/audio/voice/Callers/{topic}/{_arc.ArcId}/{line.AudioId}.mp3";
+                            itemType = BroadcastItemType.CallerLine;
+                            speakerName = _caller.Name;
+                        }
+
+                        var item = new BroadcastItem(
+                            id: line.AudioId,
+                            type: itemType,
+                            text: line.Text,
+                            audioPath: audioPath,
+                            duration: 4.0f,
+                            metadata: new { ArcId = _arc.ArcId, SpeakerId = speakerName, CallerGender = _arc.CallerGender }
+                        );
+
+                        // Get actual audio duration
+                        var audioDuration = await GetAudioDurationAsync(audioPath);
+
+                        // Publish started event for UI
+                        var startedEvent = new BroadcastItemStartedEvent(item, 4.0f, audioDuration);
+                        _eventBus.Publish(startedEvent);
+
+                        GD.Print($"DialogueExecutable: {speakerName}: {line.Text}");
+
+                        // Play audio for this line
+                        if (!string.IsNullOrEmpty(audioPath))
+                        {
+                            GD.Print($"DialogueExecutable: Playing audio for line {line.AudioId}: {audioPath}");
+                            await PlayAudioAsync(audioPath, localToken);
+                            GD.Print($"DialogueExecutable: Finished playing audio for line {line.AudioId}");
+                        }
+                        else
+                        {
+                            GD.Print($"DialogueExecutable: No audio path for line {line.AudioId}, delaying 4 seconds");
+                            if (_stateManager != null)
+                            {
+                                await _stateManager.DelayAsync(4.0f, localToken);
+                            }
+                            else
+                            {
+                                await Task.Delay(4000, localToken);
+                            }
+                        }
+
+                        // Check for pending break transition (graceful interruption between lines)
+                        if (_stateManager?.PendingBreakTransition == true)
+                        {
+                            GD.Print("DialogueExecutable: Graceful interruption - ending conversation early for break transition");
+                            break;
+                        }
                     }
-                    else
+                }
+                else
+                {
+                    // Single Vern line (opening/fallback)
+                    var displayText = GetDisplayText();
+                    GD.Print($"DialogueExecutable: {GetSpeakerName()}: {displayText}");
+                    
+                    if (!string.IsNullOrEmpty(_audioPath))
                     {
-                        audioPath = $"res://assets/audio/voice/Callers/{topic}/{_arc.ArcId}/{line.AudioId}.mp3";
-                        itemType = BroadcastItemType.CallerLine;
-                        speakerName = _caller.Name;
-                    }
-
-                    var item = new BroadcastItem(
-                        id: line.AudioId,
-                        type: itemType,
-                        text: line.Text,
-                        audioPath: audioPath,
-                        duration: 4.0f,
-                        metadata: new { ArcId = _arc.ArcId, SpeakerId = speakerName, CallerGender = _arc.CallerGender }
-                    );
-
-                    // Get actual audio duration
-                    var audioDuration = await GetAudioDurationAsync(audioPath);
-
-                    // Publish started event for UI
-                    var startedEvent = new BroadcastItemStartedEvent(item, 4.0f, audioDuration);
-                    _eventBus.Publish(startedEvent);
-
-                    GD.Print($"DialogueExecutable: {speakerName}: {line.Text}");
-
-                    // Play audio for this line
-                    if (!string.IsNullOrEmpty(audioPath))
-                    {
-                        await PlayAudioAsync(audioPath, cancellationToken);
-                    }
-                    else
-                    {
-                        await Task.Delay(4000, cancellationToken);
-                    }
-
-                    // Check for pending break transition (graceful interruption between lines)
-                    if (_stateManager?.PendingBreakTransition == true)
-                    {
-                        GD.Print("DialogueExecutable: Graceful interruption - ending conversation early for break transition");
-                        break;
+                        await PlayAudioAsync(_audioPath, localToken);
                     }
                 }
             }
-            else
+            finally
             {
-                // Single Vern line (opening/fallback)
-                var displayText = GetDisplayText();
-                GD.Print($"DialogueExecutable: {GetSpeakerName()}: {displayText}");
-                
-                if (!string.IsNullOrEmpty(_audioPath))
-                {
-                    await PlayAudioAsync(_audioPath, cancellationToken);
-                }
+                // Unsubscribe from interruption events
+                _eventBus.Unsubscribe<BroadcastInterruptionEvent>(OnInterruption);
             }
         }
 

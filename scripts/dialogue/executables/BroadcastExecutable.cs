@@ -21,6 +21,7 @@ namespace KBTV.Dialogue
         protected object? _metadata;
         protected CancellationTokenSource? _cancellationTokenSource;
         protected IBroadcastAudioService _audioService;
+        protected SceneTree _sceneTree;
 
         protected BroadcastExecutable(
             string id,
@@ -29,6 +30,7 @@ namespace KBTV.Dialogue
             float duration,
             EventBus eventBus,
             IBroadcastAudioService audioService,
+            SceneTree sceneTree,
             object? metadata = null)
         {
             _id = id;
@@ -37,6 +39,7 @@ namespace KBTV.Dialogue
             _duration = duration;
             _eventBus = eventBus;
             _audioService = audioService;
+            _sceneTree = sceneTree;
             _metadata = metadata;
         }
 
@@ -119,7 +122,37 @@ namespace KBTV.Dialogue
         /// </summary>
         protected async Task PlayAudioAsync(string audioPath, CancellationToken cancellationToken)
         {
-            await _audioService.PlayAudioAsync(audioPath);
+            await _audioService.PlayAudioAsync(audioPath, cancellationToken);
+        }
+
+        /// <summary>
+        /// Non-blocking delay using Godot timers with cancellation support.
+        /// </summary>
+        protected async Task DelayAsync(float seconds, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                throw new OperationCanceledException(cancellationToken);
+
+            var timer = _sceneTree.CreateTimer(seconds);
+            var tcs = new TaskCompletionSource<bool>();
+
+            void OnTimeout()
+            {
+                tcs.TrySetResult(true);
+            }
+
+            timer.Timeout += OnTimeout;
+
+            using var registration = cancellationToken.Register(() => tcs.TrySetCanceled());
+
+            try
+            {
+                await tcs.Task;
+            }
+            finally
+            {
+                timer.Timeout -= OnTimeout;
+            }
         }
 
         /// <summary>

@@ -94,7 +94,6 @@ namespace KBTV.Dialogue
             // Subscribe to events
             EventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
             EventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
-            EventBus.Subscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
 
             GD.Print("BroadcastCoordinator: Initialization complete");
         }
@@ -155,6 +154,11 @@ namespace KBTV.Dialogue
                 case BroadcastTimingEventType.ShowEnd:
                     HandleShowEnding();
                     break;
+                case BroadcastTimingEventType.Break5Seconds:
+                    // T5 hard interruption - interrupt current broadcast
+                    GD.Print("BroadcastCoordinator: T5 event - triggering hard interruption");
+                    _asyncLoop.InterruptBroadcast(BroadcastInterruptionReason.BreakImminent);
+                    break;
                 case BroadcastTimingEventType.AdBreakStart:
                     OnAdBreakStarted();
                     break;
@@ -176,24 +180,6 @@ namespace KBTV.Dialogue
                 broadcastEvent.ItemId.StartsWith("break_transition"))
             {
                 OnBreakTransitionCompleted?.Invoke();
-            }
-        }
-
-        /// <summary>
-        /// Handle broadcast interruption events.
-        /// </summary>
-        private void HandleBroadcastInterruption(BroadcastInterruptionEvent interruptionEvent)
-        {
-            GD.Print($"BroadcastCoordinator: Handling interruption - {interruptionEvent.Reason}");
-
-            switch (interruptionEvent.Reason)
-            {
-                case BroadcastInterruptionReason.BreakStarting:
-                    // Break interruption handled by timing events
-                    break;
-                case BroadcastInterruptionReason.ShowEnding:
-                    _isBroadcastActive = false;
-                    break;
             }
         }
 

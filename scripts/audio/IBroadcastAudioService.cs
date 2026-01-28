@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using KBTV.Dialogue;
@@ -14,13 +15,13 @@ namespace KBTV.Audio
         /// Plays audio from the specified path asynchronously.
         /// Completes when audio playback finishes.
         /// </summary>
-        Task PlayAudioAsync(string audioPath);
+        Task PlayAudioAsync(string audioPath, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Plays the specified audio stream asynchronously.
         /// Completes when audio playback finishes.
         /// </summary>
-        Task PlayAudioStreamAsync(AudioStream audioStream);
+        Task PlayAudioStreamAsync(AudioStream audioStream, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Plays silent audio for the specified duration asynchronously.

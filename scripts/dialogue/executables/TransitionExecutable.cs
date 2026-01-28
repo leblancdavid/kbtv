@@ -18,8 +18,8 @@ namespace KBTV.Dialogue
         private readonly string _text;
         private readonly string? _audioPath;
 
-        public TransitionExecutable(string id, string text, float duration, EventBus eventBus, IBroadcastAudioService audioService, string? audioPath = null) 
-            : base(id, BroadcastItemType.Transition, true, duration, eventBus, audioService, new { text, audioPath })
+        public TransitionExecutable(string id, string text, float duration, EventBus eventBus, IBroadcastAudioService audioService, SceneTree sceneTree, string? audioPath = null) 
+            : base(id, BroadcastItemType.Transition, true, duration, eventBus, audioService, sceneTree, new { text, audioPath })
         {
             _text = text;
             _audioPath = audioPath;
@@ -36,7 +36,7 @@ namespace KBTV.Dialogue
             else
             {
                 // Duration-based timing when no audio available
-                await Task.Delay(TimeSpan.FromSeconds(_duration), cancellationToken);
+                await DelayAsync(_duration, cancellationToken);
             }
         }
 
