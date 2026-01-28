@@ -31,7 +31,8 @@ namespace KBTV.UI
         {
             // Set proper size flags for container layout
             this.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            this.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            this.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+            this.CustomMinimumSize = new Vector2(0, 150);
 
             CreateUI();
         }
@@ -41,7 +42,7 @@ namespace KBTV.UI
             var container = new VBoxContainer();
             container.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             container.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            container.CustomMinimumSize = new Vector2(0, 180);
+            container.CustomMinimumSize = new Vector2(0, 150);
             AddChild(container);
 
             // Header
@@ -110,6 +111,8 @@ namespace KBTV.UI
         {
             var row = new HBoxContainer();
             row.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            row.CustomMinimumSize = new Vector2(0, UITheme.BUTTON_HEIGHT + 4);
+            row.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
 
             // Left spacer
             var leftSpacer = new Control();
@@ -127,8 +130,9 @@ namespace KBTV.UI
             // Decrease button
             decreaseButton = new Button();
             decreaseButton.Text = "<";
-            decreaseButton.CustomMinimumSize = new Vector2(40, 0);
-            decreaseButton.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            decreaseButton.CustomMinimumSize = new Vector2(40, 28);
+            decreaseButton.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+            UITheme.ApplyButtonStyle(decreaseButton);
             row.AddChild(decreaseButton);
 
             row.AddChild(UITheme.CreateSpacer(true, false));
@@ -145,8 +149,9 @@ namespace KBTV.UI
             // Increase button
             increaseButton = new Button();
             increaseButton.Text = ">";
-            increaseButton.CustomMinimumSize = new Vector2(40, 0);
-            increaseButton.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            increaseButton.CustomMinimumSize = new Vector2(40, 28);
+            increaseButton.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+            UITheme.ApplyButtonStyle(increaseButton);
             row.AddChild(increaseButton);
 
             // Right spacer
