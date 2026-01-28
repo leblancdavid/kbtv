@@ -59,6 +59,22 @@ namespace KBTV.Dialogue
         }
     }
 
+    /// <summary>
+    /// Event fired when broadcast state changes (conversation, ad break, etc.).
+    /// Used by UI to update display based on broadcast phase.
+    /// </summary>
+    public class BroadcastStateChangedEvent : GameEvent
+    {
+        public AsyncBroadcastState NewState { get; }
+        public AsyncBroadcastState PreviousState { get; }
+
+        public BroadcastStateChangedEvent(AsyncBroadcastState newState, AsyncBroadcastState previousState)
+        {
+            NewState = newState;
+            PreviousState = previousState;
+        }
+    }
+
     public enum BroadcastInterruptionReason
     {
         ShowEnding,

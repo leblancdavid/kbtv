@@ -76,6 +76,8 @@ namespace KBTV.Dialogue
 
             // Subscribe to timing events
             _eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
+            // Subscribe to interruption events for break handling
+            _eventBus.Subscribe<BroadcastInterruptionEvent>(HandleInterruptionEvent);
         }
 
         /// <summary>
@@ -95,6 +97,8 @@ namespace KBTV.Dialogue
 
         public void UpdateStateAfterExecution(BroadcastExecutable executable)
         {
+            var previousState = _currentState;
+            
             switch (_currentState)
             {
                 case AsyncBroadcastState.ShowStarting:
@@ -110,6 +114,7 @@ namespace KBTV.Dialogue
                         breakTransitionExecutable.LineType == VernLineType.BreakTransition)
                     {
                         _currentState = AsyncBroadcastState.AdBreak;
+                        GD.Print("BroadcastStateManager: Break transition completed, moving to AdBreak");
                         break;
                     }
 
@@ -137,9 +142,17 @@ namespace KBTV.Dialogue
                         break;
                     }
                     
-                    // Handle caller conversation completion
+                    // Handle caller conversation completion (including interrupted conversations)
                     if (executable.Type == BroadcastItemType.Conversation)
                     {
+                        // Check if this was an interrupted conversation (we have pending break transition)
+                        if (_pendingBreakTransition)
+                        {
+                            GD.Print("BroadcastStateManager: Conversation interrupted with pending break transition - staying in Conversation state");
+                            // Stay in Conversation state so break transition can play next
+                            break;
+                        }
+                        
                         // End the current caller's session ONLY after entire conversation
                         var endResult = _callerRepository.EndOnAir();
                         if (endResult.IsSuccess)
@@ -193,6 +206,11 @@ namespace KBTV.Dialogue
                     _isShowActive = false;
                     _currentState = AsyncBroadcastState.Idle;
                     break;
+            }
+            
+            if (_currentState != previousState)
+            {
+                PublishStateChangedEvent(previousState);
             }
         }
 
@@ -360,9 +378,10 @@ namespace KBTV.Dialogue
         /// </summary>
         public BroadcastExecutable? GetNextExecutable()
         {
-            // Priority: Check for pending break transition first
+            // ABSOLUTE PRIORITY: Pending break transition takes precedence over everything
             if (_pendingBreakTransition)
             {
+                GD.Print($"BroadcastStateManager: PENDING BREAK TRANSITION - overriding state {_currentState}");
                 _pendingBreakTransition = false;
                 return CreateBreakTransitionExecutable();
             }
@@ -401,7 +420,13 @@ namespace KBTV.Dialogue
         /// </summary>
         public void SetState(AsyncBroadcastState state)
         {
+            var previousState = _currentState;
             _currentState = state;
+            
+            if (_currentState != previousState)
+            {
+                PublishStateChangedEvent(previousState);
+            }
         }
 
         /// <summary>
@@ -409,6 +434,8 @@ namespace KBTV.Dialogue
         /// </summary>
         private void HandleTimingEvent(BroadcastTimingEvent timingEvent)
         {
+            var previousState = _currentState;
+            
             switch (timingEvent.Type)
             {
                 case BroadcastTimingEventType.ShowEnd:
@@ -422,18 +449,8 @@ namespace KBTV.Dialogue
                     _pendingBreakTransition = true;
                     break;
                  case BroadcastTimingEventType.Break5Seconds:
-                     // Hard interrupt at T5 if still in conversation (fallback for graceful interruption)
-                     GD.Print($"BroadcastStateManager: T5 event received, current state: {_currentState}");
-                     if (_currentState == AsyncBroadcastState.Conversation)
-                     {
-                         GD.Print("BroadcastStateManager: T5 hard interrupt - setting AdBreak state");
-                         _currentState = AsyncBroadcastState.AdBreak;  // Force immediate transition to ad break
-                         GD.Print("BroadcastStateManager: State changed to AdBreak");
-                     }
-                     else
-                     {
-                         GD.Print($"BroadcastStateManager: T5 event ignored - not in Conversation state (current: {_currentState})");
-                     }
+                     // T5 timing handled by interruption events now - no direct state change
+                     GD.Print($"BroadcastStateManager: T5 timing event received, current state: {_currentState}");
                      break;
                 case BroadcastTimingEventType.Break0Seconds:
                     _currentState = AsyncBroadcastState.AdBreak;
@@ -445,6 +462,45 @@ namespace KBTV.Dialogue
                     _currentState = AsyncBroadcastState.BreakReturn;
                     break;
             }
+            
+            if (_currentState != previousState)
+            {
+                PublishStateChangedEvent(previousState);
+            }
+        }
+
+        /// <summary>
+        /// Handle interruption events for break transitions.
+        /// </summary>
+        private void HandleInterruptionEvent(BroadcastInterruptionEvent interruptionEvent)
+        {
+            GD.Print($"BroadcastStateManager: Received interruption event: {interruptionEvent.Reason}");
+            
+            var previousState = _currentState;
+            
+            if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakImminent)
+            {
+                GD.Print("BroadcastStateManager: Break imminent - setting pending break transition");
+                _pendingBreakTransition = true;  // Ensure Vern transition plays before ads
+                // IMPORTANT: Do NOT change state during BreakImminent - preserve current state
+                // This allows break transition to have priority over any other executable
+                GD.Print($"BroadcastStateManager: Pending break transition set, preserving state {_currentState}");
+            }
+            
+            if (_currentState != previousState)
+            {
+                PublishStateChangedEvent(previousState);
+            }
+        }
+
+        /// <summary>
+        /// Publish state change event for UI updates.
+        /// </summary>
+        private void PublishStateChangedEvent(AsyncBroadcastState previousState)
+        {
+            var stateChangedEvent = new BroadcastStateChangedEvent(_currentState, previousState);
+            _eventBus.Publish(stateChangedEvent);
+            GD.Print($"BroadcastStateManager: Published state change from {previousState} to {_currentState}");
         }
     }
 }

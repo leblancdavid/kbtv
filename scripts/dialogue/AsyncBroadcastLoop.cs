@@ -48,6 +48,8 @@ namespace KBTV.Dialogue
         // Provider interface implementation
         AsyncBroadcastLoop IProvide<AsyncBroadcastLoop>.Value() => this;
 
+        public BroadcastStateManager StateManager => _stateManager;
+
         /// <summary>
         /// Called when all dependencies are resolved.
         /// </summary>
@@ -156,28 +158,30 @@ namespace KBTV.Dialogue
         {
             GD.Print("AsyncBroadcastLoop: Starting main broadcast loop");
 
-            while (!cancellationToken.IsCancellationRequested && _stateManager.IsShowActive)
+            while (!_cancellationTokenSource.Token.IsCancellationRequested && _stateManager.IsShowActive)
             {
                 try
                 {
+                    GD.Print($"AsyncBroadcastLoop: Loop check - token cancelled: {_cancellationTokenSource.Token.IsCancellationRequested}, show active: {_stateManager.IsShowActive}");
+                    
                     // Get next executable from state manager
                     var nextExecutable = _stateManager.GetNextExecutable();
                     
                     if (nextExecutable == null)
                     {
-                    // No executable available - wait a bit and try again
-                    await _stateManager.DelayAsync(1.0f, cancellationToken);
+                        // No executable available - wait a bit and try again
+                        await _stateManager.DelayAsync(1.0f, _cancellationTokenSource.Token);
                         continue;
                     }
 
                     // Execute the executable
-                    await ExecuteExecutableAsync(nextExecutable, cancellationToken);
+                    await ExecuteExecutableAsync(nextExecutable, _cancellationTokenSource.Token);
 
                     // Update state manager after execution
                     _stateManager.UpdateStateAfterExecution(nextExecutable);
 
                     // Small delay between executables
-                    await _stateManager.DelayAsync(0.1f, cancellationToken);
+                    await _stateManager.DelayAsync(0.1f, _cancellationTokenSource.Token);
                 }
                 catch (OperationCanceledException)
                 {
@@ -200,9 +204,25 @@ namespace KBTV.Dialogue
                         GD.Print("AsyncBroadcastLoop: Fresh token created, continuing loop");
                         continue;
                     }
+                    else if (_lastInterruptionReason == BroadcastInterruptionReason.ShowEnding)
+                    {
+                        // Check if we're in a break transition state - allow transition to complete
+                        if (_stateManager.CurrentState == AsyncBroadcastState.AdBreak && 
+                            _stateManager.PendingBreakTransition)
+                        {
+                            GD.Print("AsyncBroadcastLoop: Show ending during break transition - allowing transition to complete");
+                            continue;
+                        }
+                        else
+                        {
+                            // Normal show ending
+                            GD.Print($"AsyncBroadcastLoop: Non-break interruption ({_lastInterruptionReason}) - stopping loop");
+                            break;
+                        }
+                    }
                     else
                     {
-                        // Show ending or other interruption - stop the loop
+                        // Other interruption types - stop the loop
                         GD.Print($"AsyncBroadcastLoop: Non-break interruption ({_lastInterruptionReason}) - stopping loop");
                         break;
                     }
@@ -211,11 +231,11 @@ namespace KBTV.Dialogue
                 {
                     GD.PrintErr($"AsyncBroadcastLoop: Error in broadcast loop: {ex.Message}");
                     // Continue with next executable even if one fails
-                    await _stateManager.DelayAsync(1.0f, cancellationToken);
+                    await _stateManager.DelayAsync(1.0f, _cancellationTokenSource.Token);
                 }
             }
 
-            GD.Print("AsyncBroadcastLoop: Broadcast loop ended");
+            GD.Print($"AsyncBroadcastLoop: Broadcast loop ended - token cancelled: {_cancellationTokenSource?.Token.IsCancellationRequested}, show active: {_stateManager.IsShowActive}");
         }
 
         /// <summary>
@@ -277,6 +297,10 @@ namespace KBTV.Dialogue
                 GD.Print($"AsyncBroadcastLoop: Interrupting broadcast - {reason} (current executable: {_currentExecutable?.Id ?? "none"})");
 
                 _lastInterruptionReason = reason;
+                
+                // Publish interruption event for UI and other components
+                EventBus.Publish(new BroadcastInterruptionEvent(reason));
+                
                 _cancellationTokenSource?.Cancel();
             }
         }

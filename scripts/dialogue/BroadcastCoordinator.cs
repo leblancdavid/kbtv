@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Callers;
 using KBTV.Ads;
 using KBTV.Managers;
+using KBTV.Audio;
 
 namespace KBTV.Dialogue
 {
@@ -57,6 +59,10 @@ namespace KBTV.Dialogue
 
         private EventBus EventBus => DependencyInjection.Get<EventBus>(this);
 
+        private BroadcastStateManager BroadcastStateManager => _asyncLoop.StateManager;
+
+        private IBroadcastAudioService AudioService => DependencyInjection.Get<IBroadcastAudioService>(this);
+
         private bool _isBroadcastActive = false;
         private bool _isOutroMusicQueued = false;
         private string _currentAdSponsor = "";
@@ -64,6 +70,7 @@ namespace KBTV.Dialogue
 
         // Missing field - AsyncBroadcastLoop dependency
         private AsyncBroadcastLoop _asyncLoop;
+        private BroadcastItem? _currentBroadcastItem;
 
         // Legacy interface compatibility
         public BroadcastState CurrentState => GetLegacyState();
@@ -94,6 +101,7 @@ namespace KBTV.Dialogue
             // Subscribe to events
             EventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
             EventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
+            EventBus.Subscribe<BroadcastItemStartedEvent>(HandleBroadcastItemStarted);
 
             GD.Print("BroadcastCoordinator: Initialization complete");
         }
@@ -155,9 +163,18 @@ namespace KBTV.Dialogue
                     HandleShowEnding();
                     break;
                 case BroadcastTimingEventType.Break5Seconds:
-                    // T5 hard interruption - interrupt current broadcast
-                    GD.Print("BroadcastCoordinator: T5 event - triggering hard interruption");
-                    _asyncLoop.InterruptBroadcast(BroadcastInterruptionReason.BreakImminent);
+                    // T5 hard interruption - only when caller is currently speaking
+                    if (_currentBroadcastItem?.Type == BroadcastItemType.CallerLine)
+                    {
+                        GD.Print("BroadcastCoordinator: T5 event - triggering hard interruption (caller speaking)");
+                        // Stop all audio immediately
+                        AudioService.Stop();
+                        _asyncLoop.InterruptBroadcast(BroadcastInterruptionReason.BreakImminent);
+                    }
+                    else
+                    {
+                        GD.Print($"BroadcastCoordinator: T5 event ignored - current speaker is {_currentBroadcastItem?.Type.ToString() ?? "unknown"}");
+                    }
                     break;
                 case BroadcastTimingEventType.AdBreakStart:
                     OnAdBreakStarted();
@@ -181,6 +198,15 @@ namespace KBTV.Dialogue
             {
                 OnBreakTransitionCompleted?.Invoke();
             }
+        }
+
+        /// <summary>
+        /// Handle broadcast item started events to track current speaker.
+        /// </summary>
+        private void HandleBroadcastItemStarted(BroadcastItemStartedEvent @event)
+        {
+            _currentBroadcastItem = @event.Item;
+            GD.Print($"BroadcastCoordinator: Current broadcast item updated to {@event.Item.Type}");
         }
 
         /// <summary>

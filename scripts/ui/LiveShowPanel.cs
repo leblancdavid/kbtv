@@ -59,6 +59,7 @@ private string _displayedText = string.Empty;
             // Subscribe to events
             eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
             eventBus.Subscribe<BroadcastItemStartedEvent>(HandleBroadcastItemStarted);
+            eventBus.Subscribe<BroadcastStateChangedEvent>(HandleBroadcastStateChanged);
 
             GD.Print($"DEBUG: LiveShowPanel coordinator assigned: {_coordinator != null}");
 
@@ -116,6 +117,42 @@ private string _displayedText = string.Empty;
             DeferredUpdateItemDisplay(item);
         }
 
+        // Handle broadcast interruptions (breaks, show ending)
+        private void HandleBroadcastInterruption(BroadcastInterruptionEvent @event)
+        {
+            GD.Print($"LiveShowPanel: Received BroadcastInterruptionEvent - Reason: {@event.Reason}");
+            CallDeferred("DeferredHandleBroadcastInterruption");
+        }
+
+        private void DeferredHandleBroadcastInterruption()
+        {
+            // Reset typewriter state for clean interruption
+            DeferredResetTypewriterState();
+            
+            // Update display to show interruption state
+            DeferredUpdateInterruptedDisplay();
+        }
+
+        // Handle broadcast state changes for UI updates
+        private void HandleBroadcastStateChanged(BroadcastStateChangedEvent @event)
+        {
+            GD.Print($"LiveShowPanel: Received BroadcastStateChangedEvent - {@event.PreviousState} -> {@event.NewState}");
+            
+            if (@event.NewState == AsyncBroadcastState.AdBreak)
+            {
+                CallDeferred("DeferredHandleStateChangedToAdBreak");
+            }
+        }
+
+        private void DeferredHandleStateChangedToAdBreak()
+        {
+            // Reset typewriter state for clean transition
+            DeferredResetTypewriterState();
+            
+            // Update display to show break state
+            DeferredUpdateInterruptedDisplay();
+        }
+
 public override void _Process(double delta)
         {
             // Only handle typewriter effect for active lines
@@ -163,6 +200,20 @@ public override void _Process(double delta)
 
             _speakerIcon.Text = string.Empty;
             _speakerName.Text = "Waiting for broadcast...";
+            _phaseLabel.Text = string.Empty;
+            _dialogueLabel?.Clear();
+            _progressBar?.Hide();
+        }
+
+        private void DeferredUpdateInterruptedDisplay()
+        {
+            if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
+            {
+                return;
+            }
+
+            _speakerIcon.Text = "INTERRUPTED";
+            _speakerName.Text = "Broadcast interrupted...";
             _phaseLabel.Text = string.Empty;
             _dialogueLabel?.Clear();
             _progressBar?.Hide();
