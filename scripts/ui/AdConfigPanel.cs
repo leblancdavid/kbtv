@@ -105,6 +105,9 @@ namespace KBTV.UI
 
             // Initialize labels
             UpdateLabels();
+            
+            // Force layout update
+            QueueRedraw();
         }
 
         private HBoxContainer CreateAdConfigRow(string labelText, out Button decreaseButton, out Label countLabel, out Button increaseButton)
@@ -132,6 +135,8 @@ namespace KBTV.UI
             decreaseButton.Text = "<";
             decreaseButton.CustomMinimumSize = new Vector2(40, 28);
             decreaseButton.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+            decreaseButton.MouseFilter = Control.MouseFilterEnum.Pass;
+            decreaseButton.FocusMode = Control.FocusModeEnum.All;
             UITheme.ApplyButtonStyle(decreaseButton);
             row.AddChild(decreaseButton);
 
@@ -151,6 +156,8 @@ namespace KBTV.UI
             increaseButton.Text = ">";
             increaseButton.CustomMinimumSize = new Vector2(40, 28);
             increaseButton.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+            increaseButton.MouseFilter = Control.MouseFilterEnum.Pass;
+            increaseButton.FocusMode = Control.FocusModeEnum.All;
             UITheme.ApplyButtonStyle(increaseButton);
             row.AddChild(increaseButton);
 

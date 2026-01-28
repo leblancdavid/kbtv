@@ -59,6 +59,15 @@ namespace KBTV.UI
 				// Register with UIManager
 				var uiManager = DependencyInjection.Get<IUIManager>(this);
 				uiManager?.RegisterPreShowLayer(this);
+
+				// Load saved values and sync with panel
+				LoadFromSave();
+				if (adConfigPanel != null)
+				{
+					adConfigPanel.SetShowDuration(_showDurationMinutes);
+					adConfigPanel.SetBreaksPerShow(_breaksPerShow);
+					adConfigPanel.SetSlotsPerBreak(_slotsPerBreak);
+				}
 			}
 			catch (System.Exception e)
 			{
@@ -142,6 +151,14 @@ namespace KBTV.UI
 			adConfigPanel.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(adConfigPanel);
 
+			// Connect incrementor/decrement button events
+			adConfigPanel.DecreaseDurationButton.Pressed += OnDurationDecreasePressed;
+			adConfigPanel.IncreaseDurationButton.Pressed += OnDurationIncreasePressed;
+			adConfigPanel.DecreaseBreaksButton.Pressed += OnBreaksDecreasePressed;
+			adConfigPanel.IncreaseBreaksButton.Pressed += OnBreaksIncreasePressed;
+			adConfigPanel.DecreaseSlotsButton.Pressed += OnSlotsDecreasePressed;
+			adConfigPanel.IncreaseSlotsButton.Pressed += OnSlotsIncreasePressed;
+
 			var spacer3 = UITheme.CreateSpacer(false, true);
 			spacer3.SizeFlagsStretchRatio = 2;
 			contentContainer.AddChild(spacer3);
@@ -192,58 +209,100 @@ namespace KBTV.UI
 
 		private void OnBreaksDecreasePressed()
 		{
-			if (_breaksPerShow > 0)
+			try
 			{
-				_breaksPerShow--;
-				adConfigPanel.SetBreaksPerShow(_breaksPerShow);
-				UpdateSave();
+				if (_breaksPerShow > 0)
+				{
+					_breaksPerShow--;
+					adConfigPanel.SetBreaksPerShow(_breaksPerShow);
+					UpdateSave();
+				}
+			}
+			catch (System.Exception e)
+			{
+				GD.PrintErr($"Error in OnBreaksDecreasePressed: {e}");
 			}
 		}
 
 		private void OnBreaksIncreasePressed()
 		{
-			if (_breaksPerShow < AdConstants.MAX_BREAKS_PER_SHOW)
+			try
 			{
-				_breaksPerShow++;
-				adConfigPanel.SetBreaksPerShow(_breaksPerShow);
+				if (_breaksPerShow < AdConstants.MAX_BREAKS_PER_SHOW)
+				{
+					_breaksPerShow++;
+					adConfigPanel.SetBreaksPerShow(_breaksPerShow);
+				}
+			}
+			catch (System.Exception e)
+			{
+				GD.PrintErr($"Error in OnBreaksIncreasePressed: {e}");
 			}
 		}
 
 		private void OnSlotsDecreasePressed()
 		{
-			if (_slotsPerBreak > 1)
+			try
 			{
-				_slotsPerBreak--;
-				adConfigPanel.SetSlotsPerBreak(_slotsPerBreak);
+				if (_slotsPerBreak > 1)
+				{
+					_slotsPerBreak--;
+					adConfigPanel.SetSlotsPerBreak(_slotsPerBreak);
+				}
+			}
+			catch (System.Exception e)
+			{
+				GD.PrintErr($"Error in OnSlotsDecreasePressed: {e}");
 			}
 		}
 
 		private void OnSlotsIncreasePressed()
 		{
-			if (_slotsPerBreak < AdConstants.MAX_SLOTS_PER_BREAK)
+			try
 			{
-				_slotsPerBreak++;
-				adConfigPanel.SetSlotsPerBreak(_slotsPerBreak);
+				if (_slotsPerBreak < AdConstants.MAX_SLOTS_PER_BREAK)
+				{
+					_slotsPerBreak++;
+					adConfigPanel.SetSlotsPerBreak(_slotsPerBreak);
+				}
+			}
+			catch (System.Exception e)
+			{
+				GD.PrintErr($"Error in OnSlotsIncreasePressed: {e}");
 			}
 		}
 
 		private void OnDurationDecreasePressed()
 		{
-			if (_showDurationMinutes > 5)
+			try
 			{
-				_showDurationMinutes--;
-				adConfigPanel.SetShowDuration(_showDurationMinutes);
-				UpdateSave();
+				if (_showDurationMinutes > 5)
+				{
+					_showDurationMinutes--;
+					adConfigPanel.SetShowDuration(_showDurationMinutes);
+					UpdateSave();
+				}
+			}
+			catch (System.Exception e)
+			{
+				GD.PrintErr($"Error in OnDurationDecreasePressed: {e}");
 			}
 		}
 
 		private void OnDurationIncreasePressed()
 		{
-			if (_showDurationMinutes < 30)
+			try
 			{
-				_showDurationMinutes++;
-				adConfigPanel.SetShowDuration(_showDurationMinutes);
-				UpdateSave();
+				if (_showDurationMinutes < 30)
+				{
+					_showDurationMinutes++;
+					adConfigPanel.SetShowDuration(_showDurationMinutes);
+					UpdateSave();
+				}
+			}
+			catch (System.Exception e)
+			{
+				GD.PrintErr($"Error in OnDurationIncreasePressed: {e}");
 			}
 		}
 
@@ -251,11 +310,18 @@ namespace KBTV.UI
 
 		private void UpdateSave()
 		{
-			var saveManager = DependencyInjection.Get<SaveManager>(this);
-			if (saveManager != null)
+			try
 			{
-				saveManager.CurrentSave.ShowDurationMinutes = _showDurationMinutes;
-				saveManager.MarkDirty();
+				var saveManager = DependencyInjection.Get<SaveManager>(this);
+				if (saveManager != null)
+				{
+					saveManager.CurrentSave.ShowDurationMinutes = _showDurationMinutes;
+					saveManager.MarkDirty();
+				}
+			}
+			catch (System.Exception e)
+			{
+				GD.PrintErr($"Error in UpdateSave: {e}");
 			}
 		}
 
