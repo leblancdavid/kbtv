@@ -164,11 +164,20 @@ namespace KBTV.UI
 
         private void DeferredHandleStateChangedToAdBreak()
         {
+            if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
+            {
+                return;
+            }
+
             // Reset typewriter state for clean transition
             DeferredResetTypewriterState();
             
-            // Update display to show break state
-            DeferredUpdateInterruptedDisplay();
+            // Update display to show ad break state (not interrupted)
+            _speakerIcon.Text = "AD BREAK";
+            _speakerName.Text = "Commercial Break";
+            _phaseLabel.Text = string.Empty;
+            _dialogueLabel?.Clear();
+            _progressBar?.Hide();
         }
 
         private void DeferredHandleAdStarted()
