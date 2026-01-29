@@ -25,7 +25,7 @@ namespace KBTV.UI
 
         public override void _Notification(int what) => this.Notify(what);
 
-private string _displayedText = string.Empty;
+        private string _displayedText = string.Empty;
         private float _typewriterSpeed = 50f;
         private int _typewriterIndex = 0;
         private float _typewriterAccumulator = 0f;
@@ -105,9 +105,12 @@ private string _displayedText = string.Empty;
 
             if (string.IsNullOrEmpty(item.Text))
             {
+                GD.Print($"LiveShowPanel: Skipping empty text for item type {item.Type}");
                 DeferredUpdateWaitingDisplay();
                 return;
             }
+
+            GD.Print($"LiveShowPanel: Starting new line - Text: '{item.Text}', Duration: {@event.Duration}s, AudioLength: {@event.AudioLength}s");
 
             // Start new line with audio-synced typewriter
             _currentLineText = item.Text;
@@ -115,6 +118,8 @@ private string _displayedText = string.Empty;
             _currentLineDuration = Mathf.Max(rawDuration - 1.5f, 0.5f);
             _elapsedTime = 0f;
             
+            GD.Print($"LiveShowPanel: Set _currentLineDuration to {_currentLineDuration}s, _currentLineText length: {_currentLineText.Length}");
+
             DeferredResetTypewriterState();
             DeferredUpdateItemDisplay(item);
         }
@@ -144,10 +149,6 @@ private string _displayedText = string.Empty;
             {
                 CallDeferred("DeferredHandleStateChangedToAdBreak");
             }
-            else if (@event.NewState == AsyncBroadcastState.WaitingForT0)
-            {
-                CallDeferred("DeferredHandleStateChangedToWaitingForT0");
-            }
         }
 
         // Handle individual ad events during ad break sequence
@@ -168,81 +169,6 @@ private string _displayedText = string.Empty;
             
             // Update display to show break state
             DeferredUpdateInterruptedDisplay();
-        }
-
-        private void DeferredHandleStateChangedToWaitingForT0()
-        {
-            // Reset typewriter state for clean transition
-            DeferredResetTypewriterState();
-            
-            // Update display to show waiting for T0 state
-            DeferredUpdateWaitingForT0Display();
-        }
-
-public override void _Process(double delta)
-        {
-            // Only handle typewriter effect for active lines
-            if (!string.IsNullOrEmpty(_currentLineText) && _currentLineDuration > 0)
-            {
-                UpdateTypewriter(delta);
-                _elapsedTime += (float)delta;
-                
-                // Update progress bar based on elapsed time
-                UpdateProgressBar();
-            }
-        }
-
-        private void UpdateTypewriter(double delta)
-        {
-            if (_dialogueLabel == null || string.IsNullOrEmpty(_displayedText))
-            {
-                return;
-            }
-
-            // Calculate how much text should be revealed based on elapsed time
-            float progress = Mathf.Min(_elapsedTime / _currentLineDuration, 1.0f);
-            int targetIndex = (int)(progress * _displayedText.Length);
-            
-            // Reveal characters up to target position
-            string revealedText = _displayedText.Substring(0, Mathf.Min(targetIndex, _displayedText.Length));
-            _dialogueLabel.Text = revealedText;
-        }
-
-        private void UpdateProgressBar()
-        {
-            if (_progressBar != null && _currentLineDuration > 0)
-            {
-                float progress = Mathf.Min(_elapsedTime / _currentLineDuration, 1.0f);
-                _progressBar.Value = progress * 100; // Convert to 0-100 range
-}
-        }
-
-        private void DeferredUpdateWaitingDisplay()
-        {
-            if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
-            {
-                return;
-            }
-
-            _speakerIcon.Text = string.Empty;
-            _speakerName.Text = "Waiting for broadcast...";
-            _phaseLabel.Text = string.Empty;
-            _dialogueLabel?.Clear();
-            _progressBar?.Hide();
-        }
-
-        private void DeferredUpdateInterruptedDisplay()
-        {
-            if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
-            {
-                return;
-            }
-
-            _speakerIcon.Text = "INTERRUPTED";
-            _speakerName.Text = "Broadcast interrupted...";
-            _phaseLabel.Text = string.Empty;
-            _dialogueLabel?.Clear();
-            _progressBar?.Hide();
         }
 
         private void DeferredHandleAdStarted()
@@ -274,29 +200,31 @@ public override void _Process(double delta)
             return 1; // fallback
         }
 
-        private void DeferredUpdateWaitingForT0Display()
+        private void DeferredUpdateWaitingDisplay()
         {
             if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
             {
                 return;
             }
 
-            _speakerIcon.Text = "BREAK";
-            _speakerName.Text = "Waiting for break...";
+            _speakerIcon.Text = string.Empty;
+            _speakerName.Text = "Waiting for broadcast...";
             _phaseLabel.Text = string.Empty;
             _dialogueLabel?.Clear();
-            
-            // Show countdown to T0 if available
-            float timeUntilT0 = DependencyInjection.Get<BroadcastStateManager>(this).GetTimeUntilT0();
-            if (timeUntilT0 > 0f)
+            _progressBar?.Hide();
+        }
+
+        private void DeferredUpdateInterruptedDisplay()
+        {
+            if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
             {
-                _phaseLabel.Text = $"{timeUntilT0:F1}s remaining";
+                return;
             }
-            else
-            {
-                _phaseLabel.Text = "Starting soon...";
-            }
-            
+
+            _speakerIcon.Text = "INTERRUPTED";
+            _speakerName.Text = "Broadcast interrupted...";
+            _phaseLabel.Text = string.Empty;
+            _dialogueLabel?.Clear();
             _progressBar?.Hide();
         }
 
@@ -306,6 +234,8 @@ public override void _Process(double delta)
             {
                 return;
             }
+
+            GD.Print($"LiveShowPanel: Updating display for item type {item.Type}, text length: {item.Text?.Length ?? 0}");
 
             // Hide speaker name and phase label for minimal display
             _speakerName.Text = "";
@@ -328,14 +258,21 @@ public override void _Process(double delta)
             {
                 _speakerIcon.Text = "VERN";
             }
+            else if (item.Type == BroadcastItemType.CallerLine)
+            {
+                _speakerIcon.Text = "CALLER";
+            }
             else if (item.Type == BroadcastItemType.DeadAir)
             {
                 _speakerIcon.Text = "VERN";
             }
             else
             {
+                GD.Print($"LiveShowPanel: Unknown item type {item.Type}, defaulting to SYSTEM");
                 _speakerIcon.Text = "SYSTEM"; // Fallback for transitions, etc.
             }
+
+            GD.Print($"LiveShowPanel: Set speaker icon to '{_speakerIcon.Text}'");
 
             // Reset typewriter state for new line
             DeferredResetTypewriterState();
@@ -343,6 +280,7 @@ public override void _Process(double delta)
             if (_progressBar != null)
             {
                 _progressBar.Show();
+                GD.Print("LiveShowPanel: Showed progress bar");
             }
         }
 
@@ -355,6 +293,43 @@ public override void _Process(double delta)
             if (_dialogueLabel != null)
             {
                 _dialogueLabel.Clear();
+                GD.Print($"LiveShowPanel: Cleared dialogue label for new text: '{_currentLineText}'");
+            }
+        }
+
+        public override void _Process(double delta)
+        {
+            // Update typewriter effect for active lines
+            if (!string.IsNullOrEmpty(_currentLineText) && _currentLineDuration > 0)
+            {
+                UpdateTypewriter(delta);
+                UpdateProgressBar();
+                _elapsedTime += (float)delta;
+            }
+        }
+
+        private void UpdateTypewriter(double delta)
+        {
+            if (_dialogueLabel == null || string.IsNullOrEmpty(_displayedText))
+            {
+                return;
+            }
+
+            // Calculate how much text should be revealed based on elapsed time
+            float progress = Mathf.Min(_elapsedTime / _currentLineDuration, 1.0f);
+            int targetIndex = (int)(progress * _displayedText.Length);
+            
+            // Reveal characters up to target position
+            string revealedText = _displayedText.Substring(0, Mathf.Min(targetIndex, _displayedText.Length));
+            _dialogueLabel.Text = revealedText;
+        }
+
+        private void UpdateProgressBar()
+        {
+            if (_progressBar != null && _currentLineDuration > 0)
+            {
+                float progress = Mathf.Min(_elapsedTime / _currentLineDuration, 1.0f);
+                _progressBar.Value = progress * 100; // Convert to 0-100 range
             }
         }
 
