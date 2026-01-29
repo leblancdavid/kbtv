@@ -49,10 +49,12 @@ namespace KBTV.Dialogue
                 _currentAdIndex = i + 1;
                 var adExecutable = AdExecutable.CreateForListenerCount($"ad_{_currentAdIndex}", _listenerManager?.CurrentListeners ?? 100, _currentAdIndex, _eventBus, _listenerManager, _audioService, _sceneTree);
                 
-                GD.Print($"AdBreakSequenceExecutable: Playing ad {_currentAdIndex}/{_totalAds}");
+                GD.Print($"AdBreakSequenceExecutable: Created and executing ad {_currentAdIndex}/{_totalAds}");
                 
                 // Execute the ad and wait for it to complete
                 await adExecutable.ExecuteAsync(cancellationToken);
+                
+                GD.Print($"AdBreakSequenceExecutable: Completed ad {_currentAdIndex}/{_totalAds}");
             }
         
             GD.Print($"AdBreakSequenceExecutable: All {_totalAds} ads completed, moving to next state");

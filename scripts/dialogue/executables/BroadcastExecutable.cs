@@ -126,33 +126,15 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Non-blocking delay using Godot timers with cancellation support.
+        /// Non-blocking delay using Task.Delay for background thread compatibility.
         /// </summary>
         protected async Task DelayAsync(float seconds, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
                 throw new OperationCanceledException(cancellationToken);
 
-            var timer = _sceneTree.CreateTimer(seconds);
-            var tcs = new TaskCompletionSource<bool>();
-
-            void OnTimeout()
-            {
-                tcs.TrySetResult(true);
-            }
-
-            timer.Timeout += OnTimeout;
-
-            using var registration = cancellationToken.Register(() => tcs.TrySetCanceled());
-
-            try
-            {
-                await tcs.Task;
-            }
-            finally
-            {
-                timer.Timeout -= OnTimeout;
-            }
+            // Use Task.Delay instead of SceneTree.CreateTimer for background thread compatibility
+            await Task.Delay((int)(seconds * 1000), cancellationToken);
         }
 
         /// <summary>

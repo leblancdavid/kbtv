@@ -43,13 +43,15 @@ namespace KBTV.Dialogue
             
             if (!string.IsNullOrEmpty(_audioPath) && FileExists(_audioPath))
             {
+                GD.Print($"AdExecutable: Playing audio file: {_audioPath}");
                 await PlayAudioAsync(_audioPath, cancellationToken);
             }
             else
             {
-                GD.Print($"AdExecutable: Audio file not found ({_audioPath}), using delay fallback");
+                GD.Print($"AdExecutable: Audio file not found ({_audioPath}), using delay fallback for {_duration}s");
                 // Default ad audio (silent placeholder with proper duration)
                 await DelayAsync(_duration, cancellationToken);
+                GD.Print($"AdExecutable: Delay fallback completed");
             }
         }
 
