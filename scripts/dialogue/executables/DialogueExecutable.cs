@@ -148,9 +148,20 @@ namespace KBTV.Dialogue
                     var displayText = GetDisplayText();
                     GD.Print($"DialogueExecutable: {GetSpeakerName()}: {displayText}");
                     
+                    // Create and publish broadcast item for UI
+                    var item = CreateBroadcastItem();
+                    var audioDuration = await GetAudioDurationAsync();
+                    var startedEvent = new BroadcastItemStartedEvent(item, _duration, audioDuration);
+                    _eventBus.Publish(startedEvent);
+                    
                     if (!string.IsNullOrEmpty(_audioPath))
                     {
                         await PlayAudioAsync(_audioPath, localToken);
+                    }
+                    else
+                    {
+                        GD.Print("DialogueExecutable: No audio path, delaying 4 seconds");
+                        await DelayAsync(4.0f, localToken);
                     }
                 }
             }
