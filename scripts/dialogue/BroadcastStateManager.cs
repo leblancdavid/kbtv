@@ -303,6 +303,7 @@ namespace KBTV.Dialogue
                 if (opening != null)
                 {
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
+                    audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_ShowOpening");
                     return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowOpening, this);
                 }
             }
@@ -314,6 +315,7 @@ namespace KBTV.Dialogue
                 if (breakTransition != null)
                 {
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{breakTransition.Id}.mp3";
+                    audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_BreakTransition");
                     return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, this);
                 }
             }
@@ -360,6 +362,7 @@ namespace KBTV.Dialogue
             if (betweenCallers != null)
             {
                 var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{betweenCallers.Id}.mp3";
+                audioPath = ValidateAudioPath(audioPath, "CreateBetweenCallersExecutable");
                 return new DialogueExecutable("between_callers", betweenCallers.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BetweenCallers, this);
             }
             
@@ -372,6 +375,7 @@ namespace KBTV.Dialogue
             var filler = _vernDialogue.GetDeadAirFiller();
             var text = filler?.Text ?? "Dead air filler";
             var audioPath = filler != null ? $"res://assets/audio/voice/Vern/Broadcast/{filler.Id}.mp3" : null;
+            audioPath = ValidateAudioPath(audioPath, "CreateDeadAirExecutable");
             return new DialogueExecutable("dead_air", text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DeadAirFiller, this);
         }
 
@@ -428,6 +432,7 @@ namespace KBTV.Dialogue
             if (returnLine != null)
             {
                 var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{returnLine.Id}.mp3";
+                audioPath = ValidateAudioPath(audioPath, "CreateReturnFromBreakExecutable");
                 return new DialogueExecutable("break_return", returnLine.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.Fallback, this);
             }
             
@@ -437,6 +442,22 @@ namespace KBTV.Dialogue
 
         private BroadcastExecutable CreateReturnFromBreakMusicExecutable() => 
             new TransitionExecutable("break_return_music", "Return bumper music", 4.0f, _eventBus, _audioService, _sceneTree, GetRandomReturnBumperPath());
+
+        /// <summary>
+        /// Validates audio file exists, returns null if missing (fallback to timeout)
+        /// </summary>
+        private string? ValidateAudioPath(string? audioPath, string context)
+        {
+            if (audioPath == null) return null;
+            
+            if (!FileAccess.FileExists(audioPath))
+            {
+                GD.PrintErr($"BroadcastStateManager.{context}: Audio file not found, falling back to timeout: {audioPath}");
+                return null;
+            }
+            
+            return audioPath;
+        }
 
         private BroadcastExecutable CreateAdBreakSequenceExecutable()
         {
