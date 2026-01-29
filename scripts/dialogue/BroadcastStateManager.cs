@@ -377,8 +377,47 @@ namespace KBTV.Dialogue
             return AdExecutable.CreateForListenerCount("placeholder_ad", listenerCount, 1, _eventBus, _listenerManager, _audioService, _sceneTree);
         }
 
+        /// <summary>
+        /// Gets a random return bumper audio file path.
+        /// </summary>
+        private string? GetRandomReturnBumperPath()
+        {
+            var returnBumperDir = DirAccess.Open("res://assets/audio/bumpers/Return");
+            if (returnBumperDir == null)
+            {
+                GD.PrintErr("BroadcastStateManager.GetRandomReturnBumperPath: Return bumper directory not found");
+                return null;
+            }
+
+            var bumperFiles = new System.Collections.Generic.List<string>();
+            returnBumperDir.ListDirBegin();
+            string fileName = returnBumperDir.GetNext();
+            while (fileName != "")
+            {
+                if (!fileName.StartsWith(".") && (fileName.EndsWith(".ogg") || fileName.EndsWith(".wav") || fileName.EndsWith(".mp3")))
+                {
+                    bumperFiles.Add(fileName);
+                }
+                fileName = returnBumperDir.GetNext();
+            }
+            returnBumperDir.ListDirEnd();
+
+            if (bumperFiles.Count == 0)
+            {
+                GD.PrintErr("BroadcastStateManager.GetRandomReturnBumperPath: No return bumper files found");
+                return null;
+            }
+
+            var random = new Random();
+            var selectedFile = bumperFiles[random.Next(bumperFiles.Count)];
+            var path = $"res://assets/audio/bumpers/Return/{selectedFile}";
+
+            GD.Print($"BroadcastStateManager: Selected return bumper: {selectedFile}");
+            return path;
+        }
+
         private BroadcastExecutable CreateReturnFromBreakExecutable() => 
-            new TransitionExecutable("break_return", "Returning from break", 3.0f, _eventBus, _audioService, _sceneTree, "res://assets/audio/bumpers/return.wav");
+            new TransitionExecutable("break_return", "Returning from break", 4.0f, _eventBus, _audioService, _sceneTree, GetRandomReturnBumperPath());
 
         private BroadcastExecutable CreateAdBreakSequenceExecutable()
         {
