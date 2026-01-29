@@ -26,13 +26,13 @@ namespace KBTV.Dialogue
         IntroMusic,
         Conversation,
         BetweenCallers,
-        WaitingForT0,
         AdBreak,
         BreakReturn,
         DeadAir,
         DroppedCaller,
         ShowClosing,
-        ShowEnding
+        ShowEnding,
+        WaitingForBreak  // New state: waiting for T0 after break transition
     }
 
     /// <summary>
@@ -63,7 +63,6 @@ namespace KBTV.Dialogue
         private bool _isShowActive = false;
         private bool _hasPlayedVernOpening = false;
         private bool _pendingBreakTransition = false;
-        private float _t0AbsoluteTime = 0f; // When T0 should occur
 
         public AsyncBroadcastState CurrentState => _currentState;
         public bool IsShowActive => _isShowActive;
@@ -87,12 +86,12 @@ namespace KBTV.Dialogue
                     return CreateConversationExecutable();
                 case AsyncBroadcastState.BetweenCallers:
                     return CreateBetweenCallersExecutable();
-                case AsyncBroadcastState.DeadAir:
-                    return CreateDeadAirExecutable();
-                case AsyncBroadcastState.WaitingForT0:
-                    return CreateT0WaitExecutable();
-                case AsyncBroadcastState.AdBreak:
-                    return CreateAdBreakSequenceExecutable(); // Use sequence executable for all 6 ads
+                 case AsyncBroadcastState.DeadAir:
+                     return CreateDeadAirExecutable();
+                  case AsyncBroadcastState.AdBreak:
+                     return CreateAdBreakSequenceExecutable(); // Use sequence executable for all 6 ads
+                 case AsyncBroadcastState.WaitingForBreak:
+                     return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree);
                 case AsyncBroadcastState.BreakReturn:
                     return CreateReturnFromBreakExecutable();
                 case AsyncBroadcastState.DroppedCaller:
@@ -128,17 +127,16 @@ namespace KBTV.Dialogue
                     break;
                 case AsyncBroadcastState.Conversation:
                     // Handle break transition completion
-                    if (executable.Type == BroadcastItemType.VernLine && 
-                        executable is DialogueExecutable breakTransitionExecutable &&
-                        breakTransitionExecutable.LineType == VernLineType.BreakTransition)
-                    {
-                        // Calculate and store T0 absolute time (current elapsed + 5 seconds)
-                        _t0AbsoluteTime = _timeManager.ElapsedTime + 5f;
-                        _currentState = AsyncBroadcastState.WaitingForT0;
-                        _pendingBreakTransition = false;  // Reset the flag
-                        GD.Print($"BroadcastStateManager: Break transition completed, T0 will occur at {_t0AbsoluteTime:F1}s (in 5s)");
-                        break;
-                    }
+                     if (executable.Type == BroadcastItemType.VernLine && 
+                         executable is DialogueExecutable breakTransitionExecutable &&
+                         breakTransitionExecutable.LineType == VernLineType.BreakTransition)
+                     {
+                         // Transition to waiting state - WaitForBreakExecutable will handle T0
+                         _currentState = AsyncBroadcastState.WaitingForBreak;
+                         _pendingBreakTransition = false;  // Reset the flag
+                         GD.Print($"BroadcastStateManager: Break transition completed, now waiting for T0");
+                         break;
+                     }
 
                     if (executable.Type == BroadcastItemType.VernLine && 
                         executable is DialogueExecutable vernExecutable &&
@@ -218,18 +216,18 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.DeadAir:
                     _currentState = AsyncBroadcastState.Conversation;
                     break;
-                case AsyncBroadcastState.WaitingForT0:
-                    // Stay in WaitingForT0 state until T0 event fires
-                    // This creates the timing gap between break transition and ads
-                    break;
-                 case AsyncBroadcastState.AdBreak:
-                     // Only transition to BreakReturn after AdBreakSequenceExecutable completes
-                     if (executable.Type == BroadcastItemType.Ad && executable.Id == "ad_break_sequence")
-                     {
-                         _currentState = AsyncBroadcastState.BreakReturn;
-                     }
+                  case AsyncBroadcastState.AdBreak:
+                       // Only transition to BreakReturn after AdBreakSequenceExecutable completes
+                       if (executable.Type == BroadcastItemType.Ad && executable.Id == "ad_break_sequence")
+                       {
+                           _currentState = AsyncBroadcastState.BreakReturn;
+                       }
+                       break;
+                 case AsyncBroadcastState.WaitingForBreak:
+                     // WaitForBreakExecutable completed - state should already be AdBreak from T0 handler
+                     // No additional transition needed
                      break;
-                case AsyncBroadcastState.BreakReturn:
+                 case AsyncBroadcastState.BreakReturn:
                     _currentState = AsyncBroadcastState.Conversation;
                     break;
                 case AsyncBroadcastState.DroppedCaller:
@@ -382,16 +380,13 @@ namespace KBTV.Dialogue
         private BroadcastExecutable CreateReturnFromBreakExecutable() => 
             new TransitionExecutable("break_return", "Returning from break", 3.0f, _eventBus, _audioService, _sceneTree, "res://assets/audio/bumpers/return.wav");
 
-        private BroadcastExecutable CreateT0WaitExecutable()
+        private BroadcastExecutable CreateAdBreakSequenceExecutable()
         {
-            // Calculate remaining time until T0
-            float currentTime = _timeManager.ElapsedTime;
-            float timeUntilT0 = Math.Max(0f, _t0AbsoluteTime - currentTime);
+            // Get current break slots from AdManager
+            var adCount = _adManager?.CurrentBreakSlots ?? 6; // Fallback to 6 if AdManager not available
             
-            GD.Print($"BroadcastStateManager: Creating T0 wait executable - current time: {currentTime:F1}s, T0 at: {_t0AbsoluteTime:F1}s, waiting: {timeUntilT0:F1}s");
-            
-            // Create a dynamic wait executable that waits exactly until T0
-            return new TransitionExecutable("t0_wait", "Waiting for break...", timeUntilT0, _eventBus, _audioService, _sceneTree, null);
+            GD.Print($"BroadcastStateManager: Creating AdBreakSequence executable - will play {adCount} ads sequentially");
+            return new AdBreakSequenceExecutable("ad_break_sequence", _eventBus, _listenerManager, _audioService, _sceneTree, adCount);
         }
 
         /// <summary>
@@ -424,15 +419,6 @@ namespace KBTV.Dialogue
             }
         }
 
-        private BroadcastExecutable CreateAdBreakSequenceExecutable()
-        {
-            // Get current break slots from AdManager
-            var adCount = _adManager?.CurrentBreakSlots ?? 6; // Fallback to 6 if AdManager not available
-            
-            GD.Print($"BroadcastStateManager: Creating AdBreakSequence executable - will play {adCount} ads sequentially");
-            return new AdBreakSequenceExecutable("ad_break_sequence", _eventBus, _listenerManager, _audioService, _sceneTree, adCount);
-        }
-
         /// <summary>
         /// Handle timing events from the broadcast timer.
         /// </summary>
@@ -456,18 +442,11 @@ namespace KBTV.Dialogue
                     // T5 timing handled by interruption events now - no direct state change
                     GD.Print($"BroadcastStateManager: T5 timing event received, current state: {_currentState}");
                     break;
-                case BroadcastTimingEventType.Break0Seconds:
-                    // Move from WaitingForT0 to AdBreak state when T0 occurs
-                    if (_currentState == AsyncBroadcastState.WaitingForT0)
-                    {
-                        _currentState = AsyncBroadcastState.AdBreak;
-                        GD.Print($"BroadcastStateManager: T0 reached at {_timeManager.ElapsedTime:F1}s, moving from WaitingForT0 to AdBreak");
-                    }
-                    else
-                    {
-                        _currentState = AsyncBroadcastState.AdBreak;
-                    }
-                    break;
+                 case BroadcastTimingEventType.Break0Seconds:
+                     // T0 reached - fire interruption to complete WaitForBreakExecutable, then transition to AdBreak
+                     _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakStarting));
+                     _currentState = AsyncBroadcastState.AdBreak;
+                     break;
                 case BroadcastTimingEventType.AdBreakStart:
                     _currentState = AsyncBroadcastState.AdBreak;
                     break;
@@ -560,21 +539,6 @@ namespace KBTV.Dialogue
             _eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
             // Subscribe to interruption events for break handling
             _eventBus.Subscribe<BroadcastInterruptionEvent>(HandleInterruptionEvent);
-        }
-
-        /// <summary>
-        /// Get the time remaining until T0 (for countdown display during break waiting).
-        /// Returns 0 if not in WaitingForT0 state.
-        /// </summary>
-        public float GetTimeUntilT0()
-        {
-            if (_currentState != AsyncBroadcastState.WaitingForT0)
-            {
-                return 0f;
-            }
-
-            float currentTime = _timeManager.ElapsedTime;
-            return Math.Max(0f, _t0AbsoluteTime - currentTime);
         }
     }
 }
