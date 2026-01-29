@@ -34,7 +34,7 @@ namespace KBTV.Dialogue
 
         private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
 
-        private BroadcastStateManager _stateManager = null!;
+        private BroadcastStateManager _stateManager => DependencyInjection.Get<BroadcastStateManager>(this);
         private CancellationTokenSource? _cancellationTokenSource;
         private readonly List<CancellationTokenSource> _oldTokenSources = new();
         private Task? _broadcastTask;
@@ -60,13 +60,6 @@ namespace KBTV.Dialogue
 
             try
             {
-                // Get VernDialogue from Template repository
-                var vernDialogueLoader = new VernDialogueLoader();
-                vernDialogueLoader.LoadDialogue();
-                var vernDialogue = vernDialogueLoader.VernDialogue;
-
-                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager, DependencyInjection.Get<IBroadcastAudioService>(this), DependencyInjection.Get<TimeManager>(this), GetTree(), DependencyInjection.Get<AdManager>(this));
-
                 // Subscribe to broadcast timing events for break warnings
                 EventBus.Subscribe<BroadcastTimingEvent>(HandleBroadcastTimingEvent);
 

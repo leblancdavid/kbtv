@@ -40,17 +40,24 @@ namespace KBTV.Dialogue
     /// Listens to timing events and manages state transitions between show phases.
     /// Handles interruption logic for breaks, show ending, etc.
     /// </summary>
-    public partial class BroadcastStateManager : GodotObject
+    public partial class BroadcastStateManager : Node, 
+        IProvide<BroadcastStateManager>,
+        IDependent
     {
-        private readonly ICallerRepository _callerRepository;
-        private readonly IArcRepository _arcRepository;
-        private readonly VernDialogueTemplate _vernDialogue;
-        private readonly EventBus _eventBus;
-        private readonly ListenerManager _listenerManager;
-        private readonly IBroadcastAudioService _audioService;
-        private readonly TimeManager _timeManager;
-        private readonly SceneTree _sceneTree;
-        private readonly AdManager _adManager;
+        public override void _Notification(int what) => this.Notify(what);
+        // ═══════════════════════════════════════════════════════════════════════════════════════════════
+        // DEPENDENCIES
+        // ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+        private ICallerRepository _callerRepository => DependencyInjection.Get<ICallerRepository>(this);
+        private IArcRepository _arcRepository => DependencyInjection.Get<IArcRepository>(this);
+        private VernDialogueTemplate _vernDialogue = null!;
+        private EventBus _eventBus => DependencyInjection.Get<EventBus>(this);
+        private ListenerManager _listenerManager => DependencyInjection.Get<ListenerManager>(this);
+        private IBroadcastAudioService _audioService => DependencyInjection.Get<IBroadcastAudioService>(this);
+        private TimeManager _timeManager => DependencyInjection.Get<TimeManager>(this);
+        private SceneTree _sceneTree => GetTree();
+        private AdManager _adManager => DependencyInjection.Get<AdManager>(this);
         private AsyncBroadcastState _currentState = AsyncBroadcastState.Idle;
         private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
         private bool _isShowActive = false;
@@ -62,33 +69,6 @@ namespace KBTV.Dialogue
         public bool IsShowActive => _isShowActive;
         public bool PendingBreakTransition => _pendingBreakTransition;
         public SceneTree SceneTree => _sceneTree;
-
-        public BroadcastStateManager(
-            ICallerRepository callerRepository,
-            IArcRepository arcRepository,
-            VernDialogueTemplate vernDialogue,
-            EventBus eventBus,
-            ListenerManager listenerManager,
-            IBroadcastAudioService audioService,
-            TimeManager timeManager,
-            SceneTree sceneTree,
-            AdManager adManager)
-        {
-            _callerRepository = callerRepository;
-            _arcRepository = arcRepository;
-            _vernDialogue = vernDialogue;
-            _eventBus = eventBus;
-            _listenerManager = listenerManager;
-            _audioService = audioService;
-            _timeManager = timeManager;
-            _sceneTree = sceneTree;
-            _adManager = adManager;
-
-            // Subscribe to timing events
-            _eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
-            // Subscribe to interruption events for break handling
-            _eventBus.Subscribe<BroadcastInterruptionEvent>(HandleInterruptionEvent);
-        }
 
         /// <summary>
         /// Get the next executable for the current broadcast state.
@@ -551,6 +531,35 @@ namespace KBTV.Dialogue
         {
             return _callerRepository.OnAirCaller == null && 
                    _callerRepository.OnHoldCallers.Count == 0;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════════════════════════════
+        // PROVIDER INTERFACE IMPLEMENTATIONS
+        // ═══════════════════════════════════════════════════════════════════════════════════════════════
+
+        BroadcastStateManager IProvide<BroadcastStateManager>.Value() => this;
+
+        /// <summary>
+        /// Called when node enters the scene tree and is ready.
+        /// Makes services available to descendants.
+        /// </summary>
+        public void OnReady() => this.Provide();
+
+        /// <summary>
+        /// Called when all dependencies are resolved.
+        /// Subscribe to events now that dependencies are available.
+        /// </summary>
+        public void OnResolved()
+        {
+            // Load VernDialogueTemplate
+            var vernDialogueLoader = new VernDialogueLoader();
+            vernDialogueLoader.LoadDialogue();
+            _vernDialogue = vernDialogueLoader.VernDialogue;
+
+            // Subscribe to timing events
+            _eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
+            // Subscribe to interruption events for break handling
+            _eventBus.Subscribe<BroadcastInterruptionEvent>(HandleInterruptionEvent);
         }
 
         /// <summary>
