@@ -23,6 +23,7 @@ namespace KBTV.Dialogue
         IntroMusic,
         Conversation,
         BetweenCallers,
+        WaitingForT0,
         AdBreak,
         BreakReturn,
         DeadAir,
@@ -113,8 +114,8 @@ namespace KBTV.Dialogue
                         executable is DialogueExecutable breakTransitionExecutable &&
                         breakTransitionExecutable.LineType == VernLineType.BreakTransition)
                     {
-                        _currentState = AsyncBroadcastState.AdBreak;
-                        GD.Print("BroadcastStateManager: Break transition completed, moving to AdBreak");
+                        _currentState = AsyncBroadcastState.WaitingForT0;
+                        GD.Print("BroadcastStateManager: Break transition completed, waiting for T0");
                         break;
                     }
 
@@ -195,6 +196,10 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.BetweenCallers:
                 case AsyncBroadcastState.DeadAir:
                     _currentState = AsyncBroadcastState.Conversation;
+                    break;
+                case AsyncBroadcastState.WaitingForT0:
+                    // Stay in WaitingForT0 state until T0 event fires
+                    // This creates the timing gap between break transition and ads
                     break;
                 case AsyncBroadcastState.AdBreak:
                     _currentState = AsyncBroadcastState.BreakReturn;
@@ -318,6 +323,13 @@ namespace KBTV.Dialogue
         private BroadcastExecutable CreateReturnFromBreakExecutable() => 
             new TransitionExecutable("break_return", "Returning from break", 3.0f, _eventBus, _audioService, _sceneTree, "res://assets/audio/bumpers/return.wav");
 
+        private BroadcastExecutable CreateT0WaitExecutable()
+        {
+            // Create a silence executable that waits for T0 timing event
+            // Duration is handled by T0 event, not fixed length
+            return new TransitionExecutable("t0_wait", "Waiting for break...", 0.1f, _eventBus, _audioService, _sceneTree, null);
+        }
+
         private BroadcastExecutable CreateBreakTransitionExecutable()
         {
             var breakTransition = _vernDialogue.GetBreakTransition();
@@ -400,6 +412,8 @@ namespace KBTV.Dialogue
                     return CreateBetweenCallersExecutable();
                 case AsyncBroadcastState.DeadAir:
                     return CreateDeadAirExecutable();
+                case AsyncBroadcastState.WaitingForT0:
+                    return CreateT0WaitExecutable();
                 case AsyncBroadcastState.AdBreak:
                     return CreateAdBreakExecutable();
                 case AsyncBroadcastState.BreakReturn:
@@ -452,8 +466,17 @@ namespace KBTV.Dialogue
                      // T5 timing handled by interruption events now - no direct state change
                      GD.Print($"BroadcastStateManager: T5 timing event received, current state: {_currentState}");
                      break;
-                case BroadcastTimingEventType.Break0Seconds:
-                    _currentState = AsyncBroadcastState.AdBreak;
+                 case BroadcastTimingEventType.Break0Seconds:
+                    // Move from WaitingForT0 to AdBreak state when T0 occurs
+                    if (_currentState == AsyncBroadcastState.WaitingForT0)
+                    {
+                        _currentState = AsyncBroadcastState.AdBreak;
+                        GD.Print("BroadcastStateManager: T0 reached, moving from WaitingForT0 to AdBreak");
+                    }
+                    else
+                    {
+                        _currentState = AsyncBroadcastState.AdBreak;
+                    }
                     break;
                 case BroadcastTimingEventType.AdBreakStart:
                     _currentState = AsyncBroadcastState.AdBreak;

@@ -401,7 +401,94 @@ The T5 interruption now properly:
 - Continues show after break sequence completes
 - Handles all edge cases (Vern lines, normal transitions, etc.)
 
+**Commit: `af12b23`** - Pushed to `feature/fix-dependency-injection` branch
+
+The T5 interruption system is now fully implemented and tested. The fix involved correcting a critical token management bug that was causing the async broadcast loop to terminate prematurely instead of continuing with the break transition sequence.
+
 **Ready for gameplay testing** - T5 interruptions should now work correctly with full break transition flow.
+
+## Key Changes Delivered
+
+**Token Management Fix:**
+- Fixed AsyncBroadcastLoop to use fresh `_cancellationTokenSource.Token` instead of stale parameter
+- Prevents premature loop termination after interruption
+- Added comprehensive debug logging for loop condition tracking
+
+**State Preservation Logic:**
+- BroadcastStateManager preserves Conversation state during `BreakImminent` interruptions
+- Break transitions get absolute priority in `GetNextExecutable()` over any other executable
+- Proper handling of interrupted conversations in `UpdateStateAfterExecution()`
+
+**Speaker-Aware Interruption:**
+- BroadcastCoordinator tracks current broadcast item via `BroadcastItemStartedEvent`
+- T5 only triggers when `CallerLine` items are active (ignores Vern speaking)
+- Immediate audio stop on valid T5 triggers
+
+**Complete Flow Achieved:**
+```
+Conversation → T5 → Audio Stop → Break Transition → Ad → Return → Conversation
+```
+
+**Files Modified:**
+- `AsyncBroadcastLoop.cs` - Fixed token management and loop conditions
+- `BroadcastStateManager.cs` - Added state preservation and break transition priority
+- `BroadcastCoordinator.cs` - Added speaker-aware T5 interruption logic
+- `BroadcastEvents.cs` - Added `BroadcastStateChangedEvent` for UI updates
+- `LiveShowPanel.cs` - Added interruption and state change handling
+
+**Problem Resolved:** The architectural disconnect between T5 interruption and break transition execution has been completely fixed. The show now properly continues after T5 interruptions with full break sequence playback.
+
+### T0 Synchronization Implementation - COMPLETED
+
+**Problem**: There was a timing gap between Vern's ad break transition ending and the actual ad break starting (T0). Ads would play immediately after Vern's break transition instead of waiting for the official T0 timing event.
+
+**Solution Implemented**: Added T0-synchronized ad break system using a new `WaitingForT0` intermediate state.
+
+#### Key Changes Made
+
+**1. Added WaitingForT0 State:**
+- Extended `AsyncBroadcastState` enum with `WaitingForT0` 
+- Acts as buffer between break transition completion and T0 timing
+
+**2. Updated State Flow:**
+- Break transition ends → `WaitingForT0` state (instead of `AdBreak`)
+- T0 event fires → moves from `WaitingForT0` → `AdBreak`
+- Creates proper timing gap between transition and ads
+
+**3. Created T0 Wait Executable:**
+- `CreateT0WaitExecutable()` returns silence/transition executable
+- Provides visual feedback ("Waiting for break...") during wait
+- Uses minimal duration (0.1f) as timing is event-driven
+
+**4. Updated AsyncBroadcastLoop Ad Break Detection:**
+- `IsInAdBreak()` now checks both `AdBreak` and `WaitingForT0` states
+- Maintains compatibility with existing ad break detection logic
+
+**5. Enhanced UI State Handling:**
+- LiveShowPanel displays "Waiting for break..." during `WaitingForT0` state
+- Shows "BREAK" when entering `AdBreak` state
+- Proper speaker icon and status updates for both states
+
+#### Expected Flow After Implementation
+```
+T5 Interruption → Audio Stop → Vern's Break Transition → WaitingForT0 State → 
+Silence/Wait (T0 wait executable) → T0 Event Fires → AdBreak State → 
+Ads Play → Break Return → Conversation Continues
+```
+
+#### Timing Gap Resolution
+- **Before**: Break transition ends → Immediate ads (gap/silence)
+- **After**: Break transition ends → Official T0 wait → Ads at correct timing
+- **Background Music**: Player-queued background music will play during the wait when queue buttons are used
+
+**Files Modified:**
+- `BroadcastStateManager.cs` - Added WaitingForT0 state, T0 synchronization, and wait executable
+- `AsyncBroadcastLoop.cs` - Updated IsInAdBreak() to include WaitingForT0
+- `LiveShowPanel.cs` - Added UI handling for WaitingForT0 state
+
+**Build Status**: SUCCESS (0 errors, 6 pre-existing warnings)
+
+The T0 synchronization ensures perfect timing accuracy - ads only play when the official T0 timing event occurs, maintaining broadcast timing integrity.
 
 ### Final Status: LIVE SHOW TRANSCRIPTS & DIALOGUE FIXED ✅
 

@@ -142,6 +142,10 @@ private string _displayedText = string.Empty;
             {
                 CallDeferred("DeferredHandleStateChangedToAdBreak");
             }
+            else if (@event.NewState == AsyncBroadcastState.WaitingForT0)
+            {
+                CallDeferred("DeferredHandleStateChangedToWaitingForT0");
+            }
         }
 
         private void DeferredHandleStateChangedToAdBreak()
@@ -151,6 +155,15 @@ private string _displayedText = string.Empty;
             
             // Update display to show break state
             DeferredUpdateInterruptedDisplay();
+        }
+
+        private void DeferredHandleStateChangedToWaitingForT0()
+        {
+            // Reset typewriter state for clean transition
+            DeferredResetTypewriterState();
+            
+            // Update display to show waiting for T0 state
+            DeferredUpdateWaitingForT0Display();
         }
 
 public override void _Process(double delta)
@@ -214,6 +227,20 @@ public override void _Process(double delta)
 
             _speakerIcon.Text = "INTERRUPTED";
             _speakerName.Text = "Broadcast interrupted...";
+            _phaseLabel.Text = string.Empty;
+            _dialogueLabel?.Clear();
+            _progressBar?.Hide();
+        }
+
+        private void DeferredUpdateWaitingForT0Display()
+        {
+            if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
+            {
+                return;
+            }
+
+            _speakerIcon.Text = "BREAK";
+            _speakerName.Text = "Waiting for break...";
             _phaseLabel.Text = string.Empty;
             _dialogueLabel?.Clear();
             _progressBar?.Hide();

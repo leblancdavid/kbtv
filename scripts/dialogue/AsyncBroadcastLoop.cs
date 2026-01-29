@@ -396,7 +396,8 @@ namespace KBTV.Dialogue
         /// </summary>
         public bool IsInAdBreak()
         {
-            return _stateManager.CurrentState == AsyncBroadcastState.AdBreak;
+            return _stateManager.CurrentState == AsyncBroadcastState.AdBreak || 
+                   _stateManager.CurrentState == AsyncBroadcastState.WaitingForT0;
         }
 
         public override void _ExitTree()
