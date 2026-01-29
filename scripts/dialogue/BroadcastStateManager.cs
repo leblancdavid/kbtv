@@ -45,11 +45,13 @@ namespace KBTV.Dialogue
         private readonly EventBus _eventBus;
         private readonly ListenerManager _listenerManager;
         private readonly IBroadcastAudioService _audioService;
+        private readonly TimeManager _timeManager;
         private AsyncBroadcastState _currentState = AsyncBroadcastState.Idle;
         private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
         private bool _isShowActive = false;
         private bool _hasPlayedVernOpening = false;
         private bool _pendingBreakTransition = false;
+        private float _t0AbsoluteTime = 0f; // When T0 should occur
 
         public AsyncBroadcastState CurrentState => _currentState;
         public bool IsShowActive => _isShowActive;
@@ -65,6 +67,7 @@ namespace KBTV.Dialogue
             EventBus eventBus,
             ListenerManager listenerManager,
             IBroadcastAudioService audioService,
+            TimeManager timeManager,
             SceneTree sceneTree)
         {
             _callerRepository = callerRepository;
@@ -73,6 +76,7 @@ namespace KBTV.Dialogue
             _eventBus = eventBus;
             _listenerManager = listenerManager;
             _audioService = audioService;
+            _timeManager = timeManager;
             _sceneTree = sceneTree;
 
             // Subscribe to timing events
@@ -114,8 +118,10 @@ namespace KBTV.Dialogue
                         executable is DialogueExecutable breakTransitionExecutable &&
                         breakTransitionExecutable.LineType == VernLineType.BreakTransition)
                     {
+                        // Calculate and store T0 absolute time (current elapsed + 5 seconds)
+                        _t0AbsoluteTime = _timeManager.ElapsedTime + 5f;
                         _currentState = AsyncBroadcastState.WaitingForT0;
-                        GD.Print("BroadcastStateManager: Break transition completed, waiting for T0");
+                        GD.Print($"BroadcastStateManager: Break transition completed, T0 will occur at {_t0AbsoluteTime:F1}s (in 5s)");
                         break;
                     }
 
@@ -325,9 +331,26 @@ namespace KBTV.Dialogue
 
         private BroadcastExecutable CreateT0WaitExecutable()
         {
-            // Create a silence executable that waits for T0 timing event
-            // Duration is handled by T0 event, not fixed length
-            return new TransitionExecutable("t0_wait", "Waiting for break...", 0.1f, _eventBus, _audioService, _sceneTree, null);
+            // Calculate remaining time until T0
+            float currentTime = _timeManager.ElapsedTime;
+            float timeUntilT0 = Math.Max(0f, _t0AbsoluteTime - currentTime);
+            
+            GD.Print($"BroadcastStateManager: Creating T0 wait executable - current time: {currentTime:F1}s, T0 at: {_t0AbsoluteTime:F1}s, waiting: {timeUntilT0:F1}s");
+            
+            // Create a dynamic wait executable that waits exactly until T0
+            return new TransitionExecutable("t0_wait", "Waiting for break...", timeUntilT0, _eventBus, _audioService, _sceneTree, null);
+        }
+
+        /// <summary>
+        /// Get remaining time until T0 for UI countdown display.
+        /// </summary>
+        public float GetTimeUntilT0()
+        {
+            if (_currentState != AsyncBroadcastState.WaitingForT0)
+                return 0f;
+                
+            float currentTime = _timeManager.ElapsedTime;
+            return Math.Max(0f, _t0AbsoluteTime - currentTime);
         }
 
         private BroadcastExecutable CreateBreakTransitionExecutable()
@@ -471,7 +494,7 @@ namespace KBTV.Dialogue
                     if (_currentState == AsyncBroadcastState.WaitingForT0)
                     {
                         _currentState = AsyncBroadcastState.AdBreak;
-                        GD.Print("BroadcastStateManager: T0 reached, moving from WaitingForT0 to AdBreak");
+                        GD.Print($"BroadcastStateManager: T0 reached at {_timeManager.ElapsedTime:F1}s, moving from WaitingForT0 to AdBreak");
                     }
                     else
                     {

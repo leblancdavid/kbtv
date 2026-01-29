@@ -243,6 +243,18 @@ public override void _Process(double delta)
             _speakerName.Text = "Waiting for break...";
             _phaseLabel.Text = string.Empty;
             _dialogueLabel?.Clear();
+            
+            // Show countdown to T0 if available
+            float timeUntilT0 = DependencyInjection.Get<BroadcastStateManager>(this).GetTimeUntilT0();
+            if (timeUntilT0 > 0f)
+            {
+                _phaseLabel.Text = $"{timeUntilT0:F1}s remaining";
+            }
+            else
+            {
+                _phaseLabel.Text = "Starting soon...";
+            }
+            
             _progressBar?.Hide();
         }
 

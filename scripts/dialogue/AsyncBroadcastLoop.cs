@@ -64,7 +64,7 @@ namespace KBTV.Dialogue
                 vernDialogueLoader.LoadDialogue();
                 var vernDialogue = vernDialogueLoader.VernDialogue;
 
-                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager, DependencyInjection.Get<IBroadcastAudioService>(this), GetTree());
+                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager, DependencyInjection.Get<IBroadcastAudioService>(this), DependencyInjection.Get<TimeManager>(this), GetTree());
 
                 // Subscribe to broadcast timing events for break warnings
                 EventBus.Subscribe<BroadcastTimingEvent>(HandleBroadcastTimingEvent);
