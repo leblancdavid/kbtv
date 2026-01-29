@@ -151,6 +151,7 @@ namespace KBTV.Dialogue
                         // Calculate and store T0 absolute time (current elapsed + 5 seconds)
                         _t0AbsoluteTime = _timeManager.ElapsedTime + 5f;
                         _currentState = AsyncBroadcastState.WaitingForT0;
+                        _pendingBreakTransition = false;  // Reset the flag
                         GD.Print($"BroadcastStateManager: Break transition completed, T0 will occur at {_t0AbsoluteTime:F1}s (in 5s)");
                         break;
                     }
@@ -312,6 +313,17 @@ namespace KBTV.Dialogue
                 {
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
                     return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowOpening, this);
+                }
+            }
+
+            // Check for pending break transition (HIGHEST PRIORITY after opening)
+            if (_pendingBreakTransition)
+            {
+                var breakTransition = _vernDialogue.GetBreakTransition();
+                if (breakTransition != null)
+                {
+                    var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{breakTransition.Id}.mp3";
+                    return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, this);
                 }
             }
 
