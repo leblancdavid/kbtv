@@ -27,6 +27,7 @@ namespace KBTV.Dialogue
         Conversation,
         BetweenCallers,
         AdBreak,
+        BreakReturnMusic,
         BreakReturn,
         DeadAir,
         DroppedCaller,
@@ -90,10 +91,12 @@ namespace KBTV.Dialogue
                      return CreateDeadAirExecutable();
                   case AsyncBroadcastState.AdBreak:
                      return CreateAdBreakSequenceExecutable(); // Use sequence executable for all 6 ads
-                 case AsyncBroadcastState.WaitingForBreak:
-                     return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree);
-                case AsyncBroadcastState.BreakReturn:
-                    return CreateReturnFromBreakExecutable();
+                  case AsyncBroadcastState.WaitingForBreak:
+                      return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree);
+                 case AsyncBroadcastState.BreakReturnMusic:
+                      return CreateReturnFromBreakMusicExecutable();
+                  case AsyncBroadcastState.BreakReturn:
+                     return CreateReturnFromBreakExecutable();
                 case AsyncBroadcastState.DroppedCaller:
                     var droppedCaller = _vernDialogue.GetDroppedCaller();
                     if (droppedCaller != null)
@@ -224,12 +227,15 @@ namespace KBTV.Dialogue
                        }
                        break;
                  case AsyncBroadcastState.WaitingForBreak:
-                     // WaitForBreakExecutable completed - state should already be AdBreak from T0 handler
-                     // No additional transition needed
+                      // WaitForBreakExecutable completed - state should already be AdBreak from T0 handler
+                      // No additional transition needed
+                      break;
+                  case AsyncBroadcastState.BreakReturnMusic:
+                      _currentState = AsyncBroadcastState.BreakReturn;
+                      break;
+                  case AsyncBroadcastState.BreakReturn:
+                     _currentState = AsyncBroadcastState.Conversation;
                      break;
-                 case AsyncBroadcastState.BreakReturn:
-                    _currentState = AsyncBroadcastState.Conversation;
-                    break;
                 case AsyncBroadcastState.DroppedCaller:
                     // DroppedCaller executable completed - return to conversation
                     _currentState = AsyncBroadcastState.Conversation;
@@ -416,8 +422,21 @@ namespace KBTV.Dialogue
             return path;
         }
 
-        private BroadcastExecutable CreateReturnFromBreakExecutable() => 
-            new TransitionExecutable("break_return", "Returning from break", 4.0f, _eventBus, _audioService, _sceneTree, GetRandomReturnBumperPath());
+        private BroadcastExecutable CreateReturnFromBreakExecutable()
+        {
+            var returnLine = _vernDialogue.GetReturnFromBreak();
+            if (returnLine != null)
+            {
+                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{returnLine.Id}.mp3";
+                return new DialogueExecutable("break_return", returnLine.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.Fallback, this);
+            }
+            
+            // Fallback
+            return new DialogueExecutable("break_return", "We're back!", "Vern", _eventBus, _audioService, lineType: VernLineType.Fallback, stateManager: this);
+        }
+
+        private BroadcastExecutable CreateReturnFromBreakMusicExecutable() => 
+            new TransitionExecutable("break_return_music", "Return bumper music", 4.0f, _eventBus, _audioService, _sceneTree, GetRandomReturnBumperPath());
 
         private BroadcastExecutable CreateAdBreakSequenceExecutable()
         {
@@ -489,9 +508,9 @@ namespace KBTV.Dialogue
                 case BroadcastTimingEventType.AdBreakStart:
                     _currentState = AsyncBroadcastState.AdBreak;
                     break;
-                case BroadcastTimingEventType.AdBreakEnd:
-                    _currentState = AsyncBroadcastState.BreakReturn;
-                    break;
+                 case BroadcastTimingEventType.AdBreakEnd:
+                     _currentState = AsyncBroadcastState.BreakReturnMusic;
+                     break;
             }
             
             if (_currentState != previousState)
