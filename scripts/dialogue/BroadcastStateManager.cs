@@ -219,13 +219,13 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.DeadAir:
                     _currentState = AsyncBroadcastState.Conversation;
                     break;
-                  case AsyncBroadcastState.AdBreak:
-                       // Only transition to BreakReturn after AdBreakSequenceExecutable completes
-                       if (executable.Type == BroadcastItemType.Ad && executable.Id == "ad_break_sequence")
-                       {
-                           _currentState = AsyncBroadcastState.BreakReturn;
-                       }
-                       break;
+                   case AsyncBroadcastState.AdBreak:
+                        // Only transition to BreakReturnMusic after AdBreakSequenceExecutable completes
+                        if (executable.Type == BroadcastItemType.Ad && executable.Id == "ad_break_sequence")
+                        {
+                            _currentState = AsyncBroadcastState.BreakReturnMusic;
+                        }
+                        break;
                  case AsyncBroadcastState.WaitingForBreak:
                       // WaitForBreakExecutable completed - state should already be AdBreak from T0 handler
                       // No additional transition needed
