@@ -25,7 +25,7 @@ namespace KBTV.Dialogue
         private int _currentAdIndex = 0;
         private int _totalAds;
         
-        public AdBreakSequenceExecutable(string id, EventBus eventBus, ListenerManager listenerManager, IBroadcastAudioService audioService, SceneTree sceneTree)
+        public AdBreakSequenceExecutable(string id, EventBus eventBus, ListenerManager listenerManager, IBroadcastAudioService audioService, SceneTree sceneTree, int adCount)
             : base(id, BroadcastItemType.Ad, true, 0f, eventBus, audioService, sceneTree)
         {
             _eventBus = eventBus;
@@ -33,8 +33,8 @@ namespace KBTV.Dialogue
             _audioService = audioService;
             _sceneTree = sceneTree;
             
-            // Calculate total ads from break configuration
-            _totalAds = 6; // TODO: Get from AdManager configuration
+            // Get ad count from parameter instead of hardcoding
+            _totalAds = adCount;
             
             GD.Print($"AdBreakSequenceExecutable: Initialized to play {_totalAds} ads");
         }

@@ -9,6 +9,7 @@ using KBTV.Core;
 using KBTV.Callers;
 using KBTV.Managers;
 using KBTV.Audio;
+using KBTV.Ads;
 
 namespace KBTV.Dialogue
 {
@@ -64,7 +65,7 @@ namespace KBTV.Dialogue
                 vernDialogueLoader.LoadDialogue();
                 var vernDialogue = vernDialogueLoader.VernDialogue;
 
-                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager, DependencyInjection.Get<IBroadcastAudioService>(this), DependencyInjection.Get<TimeManager>(this), GetTree());
+                _stateManager = new BroadcastStateManager(CallerRepository, ArcRepository, vernDialogue, EventBus, ListenerManager, DependencyInjection.Get<IBroadcastAudioService>(this), DependencyInjection.Get<TimeManager>(this), GetTree(), DependencyInjection.Get<AdManager>(this));
 
                 // Subscribe to broadcast timing events for break warnings
                 EventBus.Subscribe<BroadcastTimingEvent>(HandleBroadcastTimingEvent);

@@ -12,6 +12,7 @@ using KBTV.Managers;
 using KBTV.Audio;
 using KBTV.Data;
 using KBTV.Dialogue;
+using KBTV.Ads;
 
 namespace KBTV.Dialogue
 {
@@ -49,6 +50,7 @@ namespace KBTV.Dialogue
         private readonly IBroadcastAudioService _audioService;
         private readonly TimeManager _timeManager;
         private readonly SceneTree _sceneTree;
+        private readonly AdManager _adManager;
         private AsyncBroadcastState _currentState = AsyncBroadcastState.Idle;
         private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
         private bool _isShowActive = false;
@@ -69,7 +71,8 @@ namespace KBTV.Dialogue
             ListenerManager listenerManager,
             IBroadcastAudioService audioService,
             TimeManager timeManager,
-            SceneTree sceneTree)
+            SceneTree sceneTree,
+            AdManager adManager)
         {
             _callerRepository = callerRepository;
             _arcRepository = arcRepository;
@@ -79,6 +82,7 @@ namespace KBTV.Dialogue
             _audioService = audioService;
             _timeManager = timeManager;
             _sceneTree = sceneTree;
+            _adManager = adManager;
 
             // Subscribe to timing events
             _eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
@@ -439,9 +443,11 @@ namespace KBTV.Dialogue
 
         private BroadcastExecutable CreateAdBreakSequenceExecutable()
         {
-            // This executable will coordinate playing all 6 ads sequentially
-            GD.Print("BroadcastStateManager: Creating AdBreakSequence executable - will play 6 ads sequentially");
-            return new AdBreakSequenceExecutable("ad_break_sequence", _eventBus, _listenerManager, _audioService, _sceneTree);
+            // Get current break slots from AdManager
+            var adCount = _adManager?.CurrentBreakSlots ?? 6; // Fallback to 6 if AdManager not available
+            
+            GD.Print($"BroadcastStateManager: Creating AdBreakSequence executable - will play {adCount} ads sequentially");
+            return new AdBreakSequenceExecutable("ad_break_sequence", _eventBus, _listenerManager, _audioService, _sceneTree, adCount);
         }
 
         /// <summary>

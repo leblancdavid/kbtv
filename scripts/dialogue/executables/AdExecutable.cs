@@ -41,13 +41,14 @@ namespace KBTV.Dialogue
             // This would integrate with EconomyManager when available
             // ServiceRegistry.Instance.EconomyManager?.AddRevenue(revenue);
             
-            if (!string.IsNullOrEmpty(_audioPath))
+            if (!string.IsNullOrEmpty(_audioPath) && FileExists(_audioPath))
             {
                 await PlayAudioAsync(_audioPath, cancellationToken);
             }
             else
             {
-                // Default ad audio (silent placeholder)
+                GD.Print($"AdExecutable: Audio file not found ({_audioPath}), using delay fallback");
+                // Default ad audio (silent placeholder with proper duration)
                 await DelayAsync(_duration, cancellationToken);
             }
         }
@@ -109,9 +110,11 @@ namespace KBTV.Dialogue
             var adType = GetAdTypeForListenerCount(listenerCount);
             var sponsor = GetSponsorName(adType);
             var adText = $"Commercial Break {adIndex}";
-            var audioPath = $"res://assets/audio/ads/{adType.ToString().ToLower()}_{adIndex}.mp3";
             
-            GD.Print($"AdExecutable: Creating ad {adIndex} - Type: {adType}, Text: '{adText}', Audio: {audioPath}");
+            // Try to find an existing ad file, fallback to null if none exist
+            var audioPath = GetExistingAdAudioPath(adType, adIndex);
+            
+            GD.Print($"AdExecutable: Creating ad {adIndex} - Type: {adType}, Text: '{adText}', Audio: {audioPath ?? "none (delay fallback)"}");
             
             return new AdExecutable(id, adText, 4.0f, eventBus, listenerManager, audioService, sceneTree, sponsor, audioPath);
         }
@@ -127,6 +130,27 @@ namespace KBTV.Dialogue
             };
         }
 
+        private static string? GetExistingAdAudioPath(AdType adType, int adIndex)
+        {
+            // Check for various possible audio file locations/patterns
+            var possiblePaths = new[]
+            {
+                $"res://assets/audio/ads/{adType.ToString().ToLower()}_{adIndex}.mp3",
+                $"res://assets/audio/ads/ad_{adIndex}.mp3",
+                $"res://assets/audio/ads/commercial_{adIndex}.mp3"
+            };
+            
+            foreach (var path in possiblePaths)
+            {
+                if (FileExists(path))
+                {
+                    return path;
+                }
+            }
+            
+            return null; // Use delay fallback
+        }
+        
         private static string GetSponsorName(AdType adType)
         {
             return adType switch
@@ -137,6 +161,11 @@ namespace KBTV.Dialogue
                 AdType.PremiumSponsor => "Premium Sponsor",
                 _ => "Unknown Sponsor"
             };
+        }
+        
+        private static bool FileExists(string path)
+        {
+            return FileAccess.FileExists(path);
         }
     }
 
