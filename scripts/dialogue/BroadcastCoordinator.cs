@@ -102,6 +102,7 @@ namespace KBTV.Dialogue
             EventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
             EventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
             EventBus.Subscribe<BroadcastItemStartedEvent>(HandleBroadcastItemStarted);
+            EventBus.Subscribe<BroadcastStateChangedEvent>(HandleStateChangedEvent);
 
             GD.Print("BroadcastCoordinator: Initialization complete");
         }
@@ -207,6 +208,21 @@ namespace KBTV.Dialogue
         {
             _currentBroadcastItem = @event.Item;
             GD.Print($"BroadcastCoordinator: Current broadcast item updated to {@event.Item.Type}");
+        }
+
+        /// <summary>
+        /// Handle state changed events to synchronize break ending.
+        /// </summary>
+        private void HandleStateChangedEvent(BroadcastStateChangedEvent @event)
+        {
+            GD.Print($"BroadcastCoordinator: State changed from {@event.PreviousState} to {@event.NewState}");
+
+            // End the break when transitioning to BreakReturn
+            if (@event.NewState == AsyncBroadcastState.BreakReturn)
+            {
+                AdManager.EndCurrentBreak();
+                GD.Print("BroadcastCoordinator: Break ended via state transition to BreakReturn");
+            }
         }
 
         /// <summary>

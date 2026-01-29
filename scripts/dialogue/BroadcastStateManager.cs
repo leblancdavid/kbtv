@@ -242,10 +242,13 @@ namespace KBTV.Dialogue
                     // Stay in WaitingForT0 state until T0 event fires
                     // This creates the timing gap between break transition and ads
                     break;
-                case AsyncBroadcastState.AdBreak:
-                    // AdBreakSequenceExecutable completed - move to break return
-                    _currentState = AsyncBroadcastState.BreakReturn;
-                    break;
+                 case AsyncBroadcastState.AdBreak:
+                     // Only transition to BreakReturn after AdBreakSequenceExecutable completes
+                     if (executable.Type == BroadcastItemType.Ad && executable.Id == "ad_break_sequence")
+                     {
+                         _currentState = AsyncBroadcastState.BreakReturn;
+                     }
+                     break;
                 case AsyncBroadcastState.BreakReturn:
                     _currentState = AsyncBroadcastState.Conversation;
                     break;
