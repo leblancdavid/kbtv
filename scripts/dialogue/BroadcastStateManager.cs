@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
@@ -10,6 +11,7 @@ using KBTV.Core;
 using KBTV.Managers;
 using KBTV.Audio;
 using KBTV.Data;
+using KBTV.Dialogue;
 
 namespace KBTV.Dialogue
 {
@@ -46,6 +48,7 @@ namespace KBTV.Dialogue
         private readonly ListenerManager _listenerManager;
         private readonly IBroadcastAudioService _audioService;
         private readonly TimeManager _timeManager;
+        private readonly SceneTree _sceneTree;
         private AsyncBroadcastState _currentState = AsyncBroadcastState.Idle;
         private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
         private bool _isShowActive = false;
@@ -57,8 +60,6 @@ namespace KBTV.Dialogue
         public bool IsShowActive => _isShowActive;
         public bool PendingBreakTransition => _pendingBreakTransition;
         public SceneTree SceneTree => _sceneTree;
-
-        private readonly SceneTree _sceneTree;
 
         public BroadcastStateManager(
             ICallerRepository callerRepository,
@@ -86,18 +87,47 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Non-blocking delay using Godot timers with cancellation support.
+        /// Get the next executable for the current broadcast state.
         /// </summary>
-        public async Task DelayAsync(float seconds, CancellationToken cancellationToken)
+        public BroadcastExecutable? GetNextExecutable()
         {
-            if (cancellationToken.IsCancellationRequested)
-                throw new OperationCanceledException(cancellationToken);
-
-            var timer = _sceneTree.CreateTimer(seconds);
-            await ToSignal(timer, SceneTreeTimer.SignalName.Timeout);
-
-            if (cancellationToken.IsCancellationRequested)
-                throw new OperationCanceledException(cancellationToken);
+            switch (_currentState)
+            {
+                case AsyncBroadcastState.Idle:
+                    return null;
+                case AsyncBroadcastState.ShowStarting:
+                    return CreateShowStartingExecutable();
+                case AsyncBroadcastState.IntroMusic:
+                    return CreateIntroMusicExecutable();
+                case AsyncBroadcastState.Conversation:
+                    return CreateConversationExecutable();
+                case AsyncBroadcastState.BetweenCallers:
+                    return CreateBetweenCallersExecutable();
+                case AsyncBroadcastState.DeadAir:
+                    return CreateDeadAirExecutable();
+                case AsyncBroadcastState.WaitingForT0:
+                    return CreateT0WaitExecutable();
+                case AsyncBroadcastState.AdBreak:
+                    return CreateAdBreakSequenceExecutable(); // Use sequence executable for all 6 ads
+                case AsyncBroadcastState.BreakReturn:
+                    return CreateReturnFromBreakExecutable();
+                case AsyncBroadcastState.DroppedCaller:
+                    var droppedCaller = _vernDialogue.GetDroppedCaller();
+                    if (droppedCaller != null)
+                    {
+                        var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{droppedCaller.Id}.mp3";
+                        return new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller, this);
+                    }
+                    
+                    // Fallback
+                    return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: this);
+                case AsyncBroadcastState.ShowClosing:
+                case AsyncBroadcastState.ShowEnding:
+                    // Handled in UpdateStateAfterExecution
+                    return null;
+                default:
+                    return null;
+            }
         }
 
         public void UpdateStateAfterExecution(BroadcastExecutable executable)
@@ -208,10 +238,19 @@ namespace KBTV.Dialogue
                     // This creates the timing gap between break transition and ads
                     break;
                 case AsyncBroadcastState.AdBreak:
+                    // AdBreakSequenceExecutable completed - move to break return
                     _currentState = AsyncBroadcastState.BreakReturn;
                     break;
                 case AsyncBroadcastState.BreakReturn:
                     _currentState = AsyncBroadcastState.Conversation;
+                    break;
+                case AsyncBroadcastState.DroppedCaller:
+                    // DroppedCaller executable completed - return to conversation
+                    _currentState = AsyncBroadcastState.Conversation;
+                    break;
+                case AsyncBroadcastState.ShowClosing:
+                    _isShowActive = false;
+                    _currentState = AsyncBroadcastState.Idle;
                     break;
                 case AsyncBroadcastState.ShowEnding:
                     _isShowActive = false;
@@ -226,20 +265,35 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Check if we should play a between-callers transition.
+        /// Start the broadcast show and return the first executable.
         /// </summary>
-        private bool ShouldPlayBetweenCallers()
+        public BroadcastExecutable? StartShow()
         {
-            return _callerRepository.OnHoldCallers.Count > 0;
+            if (_currentState != AsyncBroadcastState.Idle)
+            {
+                GD.PrintErr($"BroadcastStateManager: Cannot start show - current state is {_currentState}, expected Idle");
+                return null;
+            }
+
+            _isShowActive = true;
+            _currentState = AsyncBroadcastState.ShowStarting;
+            
+            GD.Print("BroadcastStateManager: Show started, returning first executable");
+            return GetNextExecutable();
         }
 
         /// <summary>
-        /// Check if we should play dead air filler.
+        /// Set the broadcast state directly (for special cases).
         /// </summary>
-        private bool ShouldPlayDeadAir()
+        public void SetState(AsyncBroadcastState newState)
         {
-            return _callerRepository.OnAirCaller == null && 
-                   _callerRepository.OnHoldCallers.Count == 0;
+            var previousState = _currentState;
+            _currentState = newState;
+            
+            if (_currentState != previousState)
+            {
+                PublishStateChangedEvent(previousState);
+            }
         }
 
         private BroadcastExecutable CreateShowStartingExecutable() => 
@@ -342,128 +396,40 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Get remaining time until T0 for UI countdown display.
+        /// Non-blocking delay using Godot timers with cancellation support.
         /// </summary>
-        public float GetTimeUntilT0()
+        public async Task DelayAsync(float seconds, CancellationToken cancellationToken)
         {
-            if (_currentState != AsyncBroadcastState.WaitingForT0)
-                return 0f;
-                
-            float currentTime = _timeManager.ElapsedTime;
-            return Math.Max(0f, _t0AbsoluteTime - currentTime);
-        }
+            if (cancellationToken.IsCancellationRequested)
+                throw new OperationCanceledException(cancellationToken);
 
-        private BroadcastExecutable CreateBreakTransitionExecutable()
-        {
-            var breakTransition = _vernDialogue.GetBreakTransition();
-            if (breakTransition != null)
+            var timer = _sceneTree.CreateTimer(seconds);
+            var tcs = new TaskCompletionSource<bool>();
+
+            void OnTimeout()
             {
-                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{breakTransition.Id}.mp3";
-                return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, this);
-            }
-            
-            // Fallback
-            return new DialogueExecutable("break_transition", "Alright folks, time for a quick break...", "Vern", _eventBus, _audioService, lineType: VernLineType.BreakTransition, stateManager: this);
-        }
-
-        private BroadcastExecutable CreateDroppedCallerExecutable()
-        {
-            var droppedCaller = _vernDialogue.GetDroppedCaller();
-            if (droppedCaller != null)
-            {
-                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{droppedCaller.Id}.mp3";
-                var executable = new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller, this);
-                // Reset state to Conversation after creating executable
-                _currentState = AsyncBroadcastState.Conversation;
-                return executable;
-            }
-            
-            // Fallback
-            var fallbackExecutable = new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: this);
-            _currentState = AsyncBroadcastState.Conversation;
-            return fallbackExecutable;
-        }
-
-        private BroadcastExecutable CreateShowClosingExecutable()
-        {
-            var closing = _vernDialogue.GetShowClosing();
-            if (closing != null)
-            {
-                var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{closing.Id}.mp3";
-                return new DialogueExecutable("show_closing", closing.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowClosing, this);
-            }
-            
-            // Fallback
-            return new DialogueExecutable("show_closing", "That's all the time we have for tonight...", "Vern", _eventBus, _audioService, lineType: VernLineType.ShowClosing, stateManager: this);
-        }
-
-        /// <summary>
-        /// Start the show and return the initial executable.
-        /// </summary>
-        public BroadcastExecutable? StartShow()
-        {
-            _isShowActive = true;
-            _currentState = AsyncBroadcastState.ShowStarting;
-            _hasPlayedVernOpening = false;
-            return GetNextExecutable();
-        }
-
-        /// <summary>
-        /// Get the next executable based on current state.
-        /// </summary>
-        public BroadcastExecutable? GetNextExecutable()
-        {
-            // ABSOLUTE PRIORITY: Pending break transition takes precedence over everything
-            if (_pendingBreakTransition)
-            {
-                GD.Print($"BroadcastStateManager: PENDING BREAK TRANSITION - overriding state {_currentState}");
-                _pendingBreakTransition = false;
-                return CreateBreakTransitionExecutable();
+                tcs.TrySetResult(true);
             }
 
-            switch (_currentState)
+            timer.Timeout += OnTimeout;
+
+            using var registration = cancellationToken.Register(() => tcs.TrySetCanceled());
+
+            try
             {
-                case AsyncBroadcastState.Idle:
-                    return null;
-                case AsyncBroadcastState.ShowStarting:
-                    return CreateShowStartingExecutable();
-                case AsyncBroadcastState.IntroMusic:
-                    return CreateIntroMusicExecutable();
-                case AsyncBroadcastState.Conversation:
-                    return CreateConversationExecutable();
-                case AsyncBroadcastState.BetweenCallers:
-                    return CreateBetweenCallersExecutable();
-                case AsyncBroadcastState.DeadAir:
-                    return CreateDeadAirExecutable();
-                case AsyncBroadcastState.WaitingForT0:
-                    return CreateT0WaitExecutable();
-                case AsyncBroadcastState.AdBreak:
-                    return CreateAdBreakExecutable();
-                case AsyncBroadcastState.BreakReturn:
-                    return CreateReturnFromBreakExecutable();
-                case AsyncBroadcastState.DroppedCaller:
-                    return CreateDroppedCallerExecutable();
-                case AsyncBroadcastState.ShowClosing:
-                    return CreateShowClosingExecutable();
-                case AsyncBroadcastState.ShowEnding:
-                    return null; // Show is ending
-                default:
-                    return null;
+                await tcs.Task;
+            }
+            finally
+            {
+                timer.Timeout -= OnTimeout;
             }
         }
 
-        /// <summary>
-        /// Set the current broadcast state (used by executables).
-        /// </summary>
-        public void SetState(AsyncBroadcastState state)
+        private BroadcastExecutable CreateAdBreakSequenceExecutable()
         {
-            var previousState = _currentState;
-            _currentState = state;
-            
-            if (_currentState != previousState)
-            {
-                PublishStateChangedEvent(previousState);
-            }
+            // This executable will coordinate playing all 6 ads sequentially
+            GD.Print("BroadcastStateManager: Creating AdBreakSequence executable - will play 6 ads sequentially");
+            return new AdBreakSequenceExecutable("ad_break_sequence", _eventBus, _listenerManager, _audioService, _sceneTree);
         }
 
         /// <summary>
@@ -485,11 +451,11 @@ namespace KBTV.Dialogue
                     // Set pending break transition for grace period - will be handled in GetNextExecutable
                     _pendingBreakTransition = true;
                     break;
-                 case BroadcastTimingEventType.Break5Seconds:
-                     // T5 timing handled by interruption events now - no direct state change
-                     GD.Print($"BroadcastStateManager: T5 timing event received, current state: {_currentState}");
-                     break;
-                 case BroadcastTimingEventType.Break0Seconds:
+                case BroadcastTimingEventType.Break5Seconds:
+                    // T5 timing handled by interruption events now - no direct state change
+                    GD.Print($"BroadcastStateManager: T5 timing event received, current state: {_currentState}");
+                    break;
+                case BroadcastTimingEventType.Break0Seconds:
                     // Move from WaitingForT0 to AdBreak state when T0 occurs
                     if (_currentState == AsyncBroadcastState.WaitingForT0)
                     {
@@ -547,6 +513,38 @@ namespace KBTV.Dialogue
             var stateChangedEvent = new BroadcastStateChangedEvent(_currentState, previousState);
             _eventBus.Publish(stateChangedEvent);
             GD.Print($"BroadcastStateManager: Published state change from {previousState} to {_currentState}");
+        }
+
+        /// <summary>
+        /// Check if we should play a between-callers transition.
+        /// </summary>
+        private bool ShouldPlayBetweenCallers()
+        {
+            return _callerRepository.OnHoldCallers.Count > 0;
+        }
+
+        /// <summary>
+        /// Check if we should play dead air filler.
+        /// </summary>
+        private bool ShouldPlayDeadAir()
+        {
+            return _callerRepository.OnAirCaller == null && 
+                   _callerRepository.OnHoldCallers.Count == 0;
+        }
+
+        /// <summary>
+        /// Get the time remaining until T0 (for countdown display during break waiting).
+        /// Returns 0 if not in WaitingForT0 state.
+        /// </summary>
+        public float GetTimeUntilT0()
+        {
+            if (_currentState != AsyncBroadcastState.WaitingForT0)
+            {
+                return 0f;
+            }
+
+            float currentTime = _timeManager.ElapsedTime;
+            return Math.Max(0f, _t0AbsoluteTime - currentTime);
         }
     }
 }

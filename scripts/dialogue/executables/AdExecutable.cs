@@ -111,6 +111,8 @@ namespace KBTV.Dialogue
             var adText = $"Commercial Break {adIndex}";
             var audioPath = $"res://assets/audio/ads/{adType.ToString().ToLower()}_{adIndex}.mp3";
             
+            GD.Print($"AdExecutable: Creating ad {adIndex} - Type: {adType}, Text: '{adText}', Audio: {audioPath}");
+            
             return new AdExecutable(id, adText, 4.0f, eventBus, listenerManager, audioService, sceneTree, sponsor, audioPath);
         }
 

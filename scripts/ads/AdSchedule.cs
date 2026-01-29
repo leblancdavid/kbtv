@@ -67,6 +67,7 @@ namespace KBTV.Ads
 
             for (int i = 0; i < BreaksPerShow; i++)
             {
+                // Evenly space breaks throughout the show duration
                 float scheduledTime = showDuration * (i + 1) / (BreaksPerShow + 1);
                 Breaks.Add(new AdBreakConfig(i, scheduledTime, SlotsPerBreak));
             }

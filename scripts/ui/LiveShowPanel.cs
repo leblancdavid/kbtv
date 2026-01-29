@@ -21,6 +21,7 @@ namespace KBTV.UI
 
         private BroadcastCoordinator _coordinator = null!;
         private BroadcastItemStartedEvent? _pendingBroadcastItemStartedEvent;
+        private BroadcastItem? _currentBroadcastItem;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -82,6 +83,7 @@ private string _displayedText = string.Empty;
         private void HandleBroadcastItemStarted(BroadcastItemStartedEvent @event)
         {
             GD.Print($"LiveShowPanel: Received BroadcastItemStartedEvent - Type: {@event.Item.Type}, Text: '{@event.Item.Text}', Duration: {@event.Duration}");
+            _currentBroadcastItem = @event.Item;
             _pendingBroadcastItemStartedEvent = @event;
             CallDeferred("DeferredHandleBroadcastItemStarted");
         }
@@ -145,6 +147,17 @@ private string _displayedText = string.Empty;
             else if (@event.NewState == AsyncBroadcastState.WaitingForT0)
             {
                 CallDeferred("DeferredHandleStateChangedToWaitingForT0");
+            }
+        }
+
+        // Handle individual ad events during ad break sequence
+        private void HandleAdItemStarted(BroadcastItemStartedEvent @event)
+        {
+            GD.Print($"LiveShowPanel: Received BroadcastItemStartedEvent - Type: {@event.Item.Type}, Text: '{@event.Item.Text}'");
+            
+            if (@event.Item.Type == BroadcastItemType.Ad)
+            {
+                CallDeferred("DeferredHandleAdStarted");
             }
         }
 
@@ -230,6 +243,35 @@ public override void _Process(double delta)
             _phaseLabel.Text = string.Empty;
             _dialogueLabel?.Clear();
             _progressBar?.Hide();
+        }
+
+        private void DeferredHandleAdStarted()
+        {
+            if (_speakerIcon == null || _speakerName == null || _phaseLabel == null || _dialogueLabel == null)
+            {
+                return;
+            }
+
+            // Parse ad text to extract ad number
+            string adText = _currentBroadcastItem?.Text ?? string.Empty;
+            int adNumber = ExtractAdNumber(adText);
+
+            _speakerIcon.Text = "AD";
+            _speakerName.Text = $"Commercial Break {adNumber}";
+            _phaseLabel.Text = string.Empty;
+            _dialogueLabel?.Clear();
+            _progressBar?.Hide();
+        }
+
+        private int ExtractAdNumber(string adText)
+        {
+            // Extract number from formats like "Commercial Break 1", "Commercial Break 2", etc.
+            char lastChar = adText.Length > 0 ? adText[adText.Length - 1] : '\0';
+            if (int.TryParse(lastChar.ToString(), out int number))
+            {
+                return number;
+            }
+            return 1; // fallback
         }
 
         private void DeferredUpdateWaitingForT0Display()

@@ -131,14 +131,7 @@ namespace KBTV.Dialogue
                         else
                         {
                             GD.Print($"DialogueExecutable: No audio path for line {line.AudioId}, delaying 4 seconds");
-                            if (_stateManager != null)
-                            {
-                                await _stateManager.DelayAsync(4.0f, localToken);
-                            }
-                            else
-                            {
-                                await Task.Delay(4000, localToken);
-                            }
+                            await DelayAsync(4.0f, localToken);
                         }
 
                         // Check for pending break transition (graceful interruption between lines)
