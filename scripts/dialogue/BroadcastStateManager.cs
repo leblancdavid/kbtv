@@ -234,8 +234,9 @@ namespace KBTV.Dialogue
                       _currentState = AsyncBroadcastState.BreakReturn;
                       break;
                   case AsyncBroadcastState.BreakReturn:
-                     _currentState = AsyncBroadcastState.Conversation;
-                     break;
+                      _currentState = AsyncBroadcastState.Conversation;
+                      _pendingBreakTransition = false;  // Reset flag after returning from ads to prevent immediate break transition
+                      break;
                 case AsyncBroadcastState.DroppedCaller:
                     // DroppedCaller executable completed - return to conversation
                     _currentState = AsyncBroadcastState.Conversation;
