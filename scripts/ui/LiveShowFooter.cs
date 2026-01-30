@@ -11,7 +11,6 @@ namespace KBTV.UI
     {
         private Label _callerNameLabel = null!;
         private Button _queueAdsButton = null!;
-        private Label _adBreakStatusLabel = null!;
         private Label _breaksRemainingLabel = null!;
         private Control _adBreakPanel = null!;
         private Control _endShowPanel = null!;
@@ -28,7 +27,6 @@ namespace KBTV.UI
         {
             _callerNameLabel = GetNode<Label>("HBoxContainer/OnAirPanel/OnAirVBox/CallerNameLabel");
             _queueAdsButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/QueueAdsButton");
-            _adBreakStatusLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakStatusLabel");
             _breaksRemainingLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/BreaksRemainingLabel");
             _adBreakPanel = GetNode<Control>("HBoxContainer/AdBreakPanel");
             _endShowPanel = GetNode<Control>("HBoxContainer/EndShowPanel");
@@ -207,11 +205,6 @@ namespace KBTV.UI
                     _queueAdsButton.Disabled = true;
                     _queueAdsButton.Text = "N/A";
                 }
-                if (_adBreakStatusLabel != null)
-                {
-                    _adBreakStatusLabel.Text = "NOT READY";
-                    _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
-                }
                 if (_breaksRemainingLabel != null)
                 {
                     _breaksRemainingLabel.Text = "Breaks: 0";
@@ -227,59 +220,6 @@ namespace KBTV.UI
                 _queueAdsButton.Text = buttonText;
                 _queueAdsButton.Disabled = !buttonEnabled;
                 _queueAdsButton.Visible = _adManager.IsInBreakWindow || _adManager.IsAdBreakActive;
-            }
-
-            if (_adBreakStatusLabel != null)
-            {
-                if (_adManager.IsAdBreakActive)
-                {
-                    var sponsor = _coordinator?.CurrentAdSponsor;
-                    if (!string.IsNullOrEmpty(sponsor))
-                    {
-                        _adBreakStatusLabel.Text = $"ON BREAK: {sponsor}";
-                    }
-                    else
-                    {
-                        _adBreakStatusLabel.Text = "ON BREAK";
-                    }
-                    _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_RED);
-                }
-                 else if (_adManager.IsInBreakWindow)
-                 {
-                     _adBreakStatusLabel.Text = "";
-                     _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_GREEN);
-                 }
-                else if (_adManager.IsActive)
-                {
-                    // Calculate time until break window opens (UI concern, not system state)
-                    float nextBreakTime = _adManager.GetNextBreakTime();
-                    if (nextBreakTime > 0)
-                    {
-                        float currentTime = DependencyInjection.Get<TimeManager>(this)?.ElapsedTime ?? 0f;
-                        float timeUntilWindow = Mathf.Max(0, nextBreakTime - AdConstants.BREAK_WINDOW_DURATION - currentTime);
-
-                        int seconds = (int)timeUntilWindow;
-                        if (seconds > 0)
-                        {
-                            _adBreakStatusLabel.Text = $"IN {seconds / 60}:{seconds % 60:D2}";
-                        }
-                         else
-                         {
-                             _adBreakStatusLabel.Text = "";
-                         }
-                        _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
-                    }
-                    else
-                    {
-                        _adBreakStatusLabel.Text = "BREAK SOON";
-                        _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
-                    }
-                }
-                else
-                {
-                    _adBreakStatusLabel.Text = "NO MORE";
-                    _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
-                }
             }
 
             if (_breaksRemainingLabel != null)
