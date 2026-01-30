@@ -231,42 +231,62 @@ namespace KBTV.UI
                 _queueAdsButton.Visible = true;
 
                 // Apply dynamic styling based on ad break state
-                var styleBox = new StyleBoxFlat();
+                var styleBoxNormal = new StyleBoxFlat();
+                var styleBoxDisabled = new StyleBoxFlat();
+                var styleBoxPressed = new StyleBoxFlat();
+
+                Color bgColor, borderColor;
                 if (_adManager.IsAdBreakActive)
                 {
-                    styleBox.BgColor = UIColors.Accent.Red;
-                    styleBox.BorderColor = UIColors.Accent.Red;
-                    styleBox.BorderWidthTop = 2;
-                    styleBox.BorderWidthBottom = 2;
-                    styleBox.BorderWidthLeft = 2;
-                    styleBox.BorderWidthRight = 2;
+                    bgColor = UIColors.Accent.Red;
+                    borderColor = UIColors.Accent.Red;
                 }
                 else if (_adManager.IsQueued)
                 {
-                    styleBox.BgColor = UIColors.Accent.Gold;
-                    styleBox.BorderColor = UIColors.Accent.Gold;
-                    styleBox.BorderWidthTop = 2;
-                    styleBox.BorderWidthBottom = 2;
-                    styleBox.BorderWidthLeft = 2;
-                    styleBox.BorderWidthRight = 2;
+                    bgColor = UIColors.Accent.Gold;
+                    borderColor = UIColors.Accent.Gold;
                 }
                 else if (_adManager.IsInBreakWindow)
                 {
-                    styleBox.BgColor = UIColors.Accent.Green;
-                    styleBox.BorderColor = UIColors.Accent.Green;
-                    styleBox.BorderWidthTop = 2;
-                    styleBox.BorderWidthBottom = 2;
-                    styleBox.BorderWidthLeft = 2;
-                    styleBox.BorderWidthRight = 2;
+                    bgColor = UIColors.Accent.Green;
+                    borderColor = UIColors.Accent.Green;
                 }
                 else
                 {
                     // Reset to default style
                     _queueAdsButton.RemoveThemeStyleboxOverride("normal");
+                    _queueAdsButton.RemoveThemeStyleboxOverride("disabled");
+                    _queueAdsButton.RemoveThemeStyleboxOverride("pressed");
                     return;
                 }
 
-                _queueAdsButton.AddThemeStyleboxOverride("normal", styleBox);
+                // Normal state: full brightness
+                styleBoxNormal.BgColor = bgColor;
+                styleBoxNormal.BorderColor = borderColor;
+                styleBoxNormal.BorderWidthTop = 2;
+                styleBoxNormal.BorderWidthBottom = 2;
+                styleBoxNormal.BorderWidthLeft = 2;
+                styleBoxNormal.BorderWidthRight = 2;
+
+                // Disabled state: dimmed
+                styleBoxDisabled.BgColor = new Color(bgColor.R, bgColor.G, bgColor.B, 0.6f);
+                styleBoxDisabled.BorderColor = new Color(borderColor.R, borderColor.G, borderColor.B, 0.6f);
+                styleBoxDisabled.BorderWidthTop = 2;
+                styleBoxDisabled.BorderWidthBottom = 2;
+                styleBoxDisabled.BorderWidthLeft = 2;
+                styleBoxDisabled.BorderWidthRight = 2;
+
+                // Pressed state: full brightness
+                styleBoxPressed.BgColor = bgColor;
+                styleBoxPressed.BorderColor = borderColor;
+                styleBoxPressed.BorderWidthTop = 2;
+                styleBoxPressed.BorderWidthBottom = 2;
+                styleBoxPressed.BorderWidthLeft = 2;
+                styleBoxPressed.BorderWidthRight = 2;
+
+                _queueAdsButton.AddThemeStyleboxOverride("normal", styleBoxNormal);
+                _queueAdsButton.AddThemeStyleboxOverride("disabled", styleBoxDisabled);
+                _queueAdsButton.AddThemeStyleboxOverride("pressed", styleBoxPressed);
             }
 
             if (_breaksRemainingLabel != null)
