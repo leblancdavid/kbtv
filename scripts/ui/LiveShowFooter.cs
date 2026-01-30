@@ -165,32 +165,40 @@ namespace KBTV.UI
 
             if (_adManager.IsQueued)
             {
-                float nextBreakTime = _adManager.GetNextBreakTime();
-                if (nextBreakTime > 0)
+                float nextBreakTimeQueued = _adManager.GetNextBreakTime();
+                if (nextBreakTimeQueued > 0)
                 {
                     float currentTime = DependencyInjection.Get<TimeManager>(this)?.ElapsedTime ?? 0f;
-                    float countdown = Mathf.Max(0, nextBreakTime - currentTime);
-                    return $"QUEUED {countdown:F1}";
+                    float countdown = Mathf.Max(0, nextBreakTimeQueued - currentTime);
+                    int minutes = Mathf.FloorToInt(countdown / 60);
+                    int seconds = Mathf.FloorToInt(countdown % 60);
+                    return $"QUEUED {minutes}:{seconds:D2}";
                 }
             }
 
             if (_adManager.IsInBreakWindow)
             {
-                float nextBreakTime = _adManager.GetNextBreakTime();
-                if (nextBreakTime > 0)
+                float nextBreakTimeWindow = _adManager.GetNextBreakTime();
+                if (nextBreakTimeWindow > 0)
                 {
                     float currentTime = DependencyInjection.Get<TimeManager>(this)?.ElapsedTime ?? 0f;
-                    float countdown = Mathf.Max(0, nextBreakTime - currentTime);
-                    return $"BREAK IN {countdown:F1}s";
+                    float countdown = Mathf.Max(0, nextBreakTimeWindow - currentTime);
+                    int minutes = Mathf.FloorToInt(countdown / 60);
+                    int seconds = Mathf.FloorToInt(countdown % 60);
+                    return $"BREAK IN {minutes}:{seconds:D2}";
                 }
                 return "BREAK NOW";
             }
 
-            float timeUntilWindow = _adManager.TimeUntilBreakWindow;
-            if (timeUntilWindow > 0)
+            // Outside window: show countdown to next break
+            float nextBreakTimeOutside = _adManager.GetNextBreakTime();
+            if (nextBreakTimeOutside > 0)
             {
-                int seconds = (int)timeUntilWindow;
-                return $"BREAK IN {seconds / 60}:{seconds % 60:D2}";
+                float currentTime = DependencyInjection.Get<TimeManager>(this)?.ElapsedTime ?? 0f;
+                float countdown = Mathf.Max(0, nextBreakTimeOutside - currentTime);
+                int minutes = Mathf.FloorToInt(countdown / 60);
+                int seconds = Mathf.FloorToInt(countdown % 60);
+                return $"BREAK IN {minutes}:{seconds:D2}";
             }
 
             return "BREAK SOON";
