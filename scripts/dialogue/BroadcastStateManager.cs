@@ -64,6 +64,7 @@ namespace KBTV.Dialogue
         private bool _isShowActive = false;
         private bool _hasPlayedVernOpening = false;
         private bool _pendingBreakTransition = false;
+        private AsyncBroadcastState _previousState = AsyncBroadcastState.Idle;
 
         public AsyncBroadcastState CurrentState => _currentState;
         public bool IsShowActive => _isShowActive;
@@ -286,6 +287,7 @@ namespace KBTV.Dialogue
             if (_currentState != previousState)
             {
                 PublishStateChangedEvent(previousState);
+                _previousState = previousState;
             }
         }
 
@@ -533,15 +535,16 @@ namespace KBTV.Dialogue
                  case BroadcastTimingEventType.AdBreakEnd:
                      _currentState = AsyncBroadcastState.BreakReturnMusic;
                      break;
-            }
-            
-            if (_currentState != previousState)
-            {
-                PublishStateChangedEvent(previousState);
-            }
-        }
-
-        /// <summary>
+             }
+             
+             if (_currentState != previousState)
+             {
+                 PublishStateChangedEvent(previousState);
+                 _previousState = previousState;
+             }
+          }
+ 
+         /// <summary>
         /// Handle interruption events for break transitions.
         /// </summary>
         private void HandleInterruptionEvent(BroadcastInterruptionEvent interruptionEvent)
@@ -599,8 +602,14 @@ namespace KBTV.Dialogue
         /// </summary>
         private bool ShouldPlayDeadAir()
         {
-            return _callerRepository.OnAirCaller == null && 
-                   _callerRepository.OnHoldCallers.Count == 0;
+            if (_callerRepository.OnAirCaller != null || _callerRepository.OnHoldCallers.Count > 0)
+                return false;
+
+            return _previousState == AsyncBroadcastState.ShowStarting ||
+                   _previousState == AsyncBroadcastState.BetweenCallers ||
+                   _previousState == AsyncBroadcastState.BreakReturn ||
+                   _previousState == AsyncBroadcastState.DeadAir ||
+                   _previousState == AsyncBroadcastState.Conversation;
         }
 
         // ═══════════════════════════════════════════════════════════════════════════════════════════════
