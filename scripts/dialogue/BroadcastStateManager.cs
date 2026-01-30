@@ -557,6 +557,17 @@ namespace KBTV.Dialogue
                 // This allows break transition to have priority over any other executable
                 GD.Print($"BroadcastStateManager: Pending break transition set, preserving state {_currentState}");
             }
+            else if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakStarting)
+            {
+                // Drop the on-air caller when break starts
+                var onAirCaller = _callerRepository.OnAirCaller;
+                if (onAirCaller != null)
+                {
+                    GD.Print($"BroadcastStateManager: Dropping on-air caller '{onAirCaller.Name}' due to ad break");
+                    _callerRepository.SetCallerState(onAirCaller, CallerState.Disconnected);
+                    _callerRepository.RemoveCaller(onAirCaller);
+                }
+            }
             
             if (_currentState != previousState)
             {
