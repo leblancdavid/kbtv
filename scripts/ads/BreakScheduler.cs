@@ -119,6 +119,11 @@ namespace KBTV.Ads
             return _schedule.Breaks[nextBreakIndex].ScheduledTime;
         }
 
+        public void UpdateCurrentBreakIndex(int currentBreakIndex)
+        {
+            _currentBreakIndex = currentBreakIndex;
+        }
+
         public string GetQueueButtonText(float timeUntilBreakWindow, float timeUntilNextBreak, bool isQueued)
         {
             if (isQueued)

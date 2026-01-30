@@ -215,6 +215,9 @@ namespace KBTV.Ads
             _isInBreakWindow = false;  // Break window closes when break starts
             _currentBreakIndex++;
 
+            // Update break scheduler with new index
+            _breakScheduler.UpdateCurrentBreakIndex(_currentBreakIndex);
+
             GD.Print($"AdManager.StartBreak: _currentBreakIndex now {_currentBreakIndex}, _schedule.Breaks.Count = {_schedule.Breaks.Count}");
 
             if (_currentBreakIndex >= _schedule.Breaks.Count)
