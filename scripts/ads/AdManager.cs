@@ -171,7 +171,6 @@ namespace KBTV.Ads
                 // Schedule timing events directly with BroadcastTimer to avoid EventBus timing issues
                 var broadcastTimer = DependencyInjection.Get<BroadcastTimer>(this);
                 broadcastTimer.ScheduleBreakWarnings(timeUntilBreak);
-                GD.Print($"AdManager: Scheduled break timing events for {timeUntilBreak:F1}s from now");
             }
             else
             {
@@ -190,7 +189,6 @@ namespace KBTV.Ads
                     // Open break window for queue button
                     _isInBreakWindow = true;
                     UpdateCountdownValues();
-                    GD.Print($"AdManager: Break window opened via timing event");
                     OnBreakWindowOpened?.Invoke(_timeUntilNextBreak);
                     break;
                 case BroadcastTimingEventType.Break0Seconds:
@@ -202,14 +200,11 @@ namespace KBTV.Ads
 
         private void StartBreak()
         {
-            GD.Print($"AdManager.StartBreak: Called, _breakActive={_breakActive}");
             if (_breakActive)
             {
-                GD.Print("AdManager.StartBreak: Break already active, returning");
                 return;
             }
 
-            GD.Print("AdManager.StartBreak: Starting break...");
             // Breaks always start on schedule - transitions are best-effort and can be interrupted
             _breakActive = true;
             _isInBreakWindow = false;  // Break window closes when break starts
@@ -217,8 +212,6 @@ namespace KBTV.Ads
 
             // Update break scheduler with new index
             _breakScheduler.UpdateCurrentBreakIndex(_currentBreakIndex);
-
-            GD.Print($"AdManager.StartBreak: _currentBreakIndex now {_currentBreakIndex}, _schedule.Breaks.Count = {_schedule.Breaks.Count}");
 
             if (_currentBreakIndex >= _schedule.Breaks.Count)
             {
@@ -247,22 +240,16 @@ namespace KBTV.Ads
             ApplyListenerDip();
 
             // Notify broadcast coordinator
-            GD.Print("AdManager.StartBreak: Notifying broadcast coordinator");
             BroadcastCoordinator.OnAdBreakStarted();
 
             OnBreakStarted?.Invoke();
-            GD.Print($"AdManager: Break #{_currentBreakIndex + 1} started (queued: {wasQueued})");
         }
 
         private void OnBreakTransitionCompleted()
         {
-            GD.Print("AdManager: Received break transition completed event");
-            _breakTransitionCompleted = true;
-            
             // Check if break time has already arrived - if so, proceed to ads
             if (_breakActive)
             {
-                GD.Print("AdManager: Break time already arrived, proceeding to ads");
                 OnBreakReady?.Invoke();
             }
         }
@@ -276,7 +263,6 @@ namespace KBTV.Ads
         {
             if (_breakActive)
             {
-                GD.Print("AdManager: Ending current break via coordinator signal");
                 EndAdBreak();
             }
         }
@@ -293,7 +279,7 @@ namespace KBTV.Ads
 
             // Reset transition completed flag for next break
             _breakTransitionCompleted = false;
-
+ 
             // Calculate and award revenue
             int currentListeners = ListenerManager?.CurrentListeners ?? 0;
             float revenue = CalculateBreakRevenue(currentListeners);
@@ -304,10 +290,13 @@ namespace KBTV.Ads
 
             // Notify broadcast coordinator
             BroadcastCoordinator.OnAdBreakEnded();
-
+ 
             // Reset queue state
             _isQueued = false;
             _queuedCountdown = 0f;
+
+            // Reset break window for next break
+            _isInBreakWindow = false;
 
             // Update timers for next break
             UpdateBreakTimers();
@@ -318,7 +307,6 @@ namespace KBTV.Ads
                 LastSegmentStarted?.Invoke();
                 _isActive = false;
                 OnShowEnded?.Invoke();
-                GD.Print("AdManager: All breaks completed - last segment started");
             }
 
             OnBreakEnded?.Invoke(revenue);
@@ -339,7 +327,6 @@ namespace KBTV.Ads
             _ = BroadcastAudioService.PlaySilentAudioAsync();
 
             OnBreakQueued?.Invoke();
-            GD.Print($"AdManager: Break queued, {_timeUntilNextBreak:F1}s until break");
         }
 
         /// <summary>

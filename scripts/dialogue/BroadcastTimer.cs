@@ -91,9 +91,7 @@ public partial class BroadcastTimer : Node,
 
         public override void _Ready()
         {
-            GD.Print("BroadcastTimer: Initializing...");
             CreateTimers();
-            GD.Print("BroadcastTimer: Initialization complete");
         }
 
         public void OnResolved()
@@ -201,8 +199,6 @@ public partial class BroadcastTimer : Node,
             var showEndTimer = _timers[BroadcastTimingEventType.ShowEnd];
             showEndTimer.WaitTime = showDuration;
             showEndTimer.Start();
-            
-            GD.Print($"BroadcastTimer: Started show with {showDuration}s duration");
         }
 
         /// <summary>
@@ -224,8 +220,6 @@ public partial class BroadcastTimer : Node,
             {
                 timer.Stop();
             }
-            
-            GD.Print("BroadcastTimer: Stopped show timing");
         }
 
         /// <summary>
@@ -250,8 +244,6 @@ public partial class BroadcastTimer : Node,
             ScheduleBreakWarning(BroadcastTimingEventType.Break10Seconds, breakTimeAbsolute - 10);
             ScheduleBreakWarning(BroadcastTimingEventType.Break5Seconds, breakTimeAbsolute - 5);
             ScheduleBreakWarning(BroadcastTimingEventType.Break0Seconds, breakTimeAbsolute);
-            
-            GD.Print($"BroadcastTimer: Scheduled break warnings for {breakTime}s from now (game time: {currentTime:F1})");
         }
 
         /// <summary>
@@ -267,11 +259,6 @@ public partial class BroadcastTimer : Node,
                 var timer = _timers[eventType];
                 timer.WaitTime = waitTime;
                 timer.Start();
-                GD.Print($"BroadcastTimer: Scheduled {eventType} in {waitTime:F1}s (at game time {targetTime:F1})");
-            }
-            else
-            {
-                GD.Print($"BroadcastTimer: Warning - {eventType} target time {targetTime:F1} is in the past (current: {currentTime:F1})");
             }
         }
 
@@ -297,8 +284,6 @@ public partial class BroadcastTimer : Node,
             var endTimer = _timers[BroadcastTimingEventType.AdBreakEnd];
             endTimer.WaitTime = duration;
             endTimer.Start();
-            
-            GD.Print($"BroadcastTimer: Started ad break with {duration}s duration");
         }
 
         /// <summary>
@@ -321,8 +306,6 @@ public partial class BroadcastTimer : Node,
         {
             var endTimer = _timers[BroadcastTimingEventType.AdBreakEnd];
             endTimer.Stop();
-            
-            GD.Print("BroadcastTimer: Stopped ad break timing");
         }
 
         /// <summary>

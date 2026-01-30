@@ -23,6 +23,7 @@ namespace KBTV.UI
         public override void _Notification(int what) => this.Notify(what);
 
         private string _previousOnAirCallerId = string.Empty;
+        private bool _lastButtonEnabled = false;
 
         public override void _Ready()
         {
@@ -223,6 +224,11 @@ namespace KBTV.UI
 
             string buttonText = GetQueueButtonText();
             bool buttonEnabled = _adManager.IsQueueButtonEnabled();
+
+            if (buttonEnabled != _lastButtonEnabled)
+            {
+                _lastButtonEnabled = buttonEnabled;
+            }
 
             if (_queueAdsButton != null)
             {
