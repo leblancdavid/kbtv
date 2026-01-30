@@ -244,11 +244,11 @@ namespace KBTV.UI
                     }
                     _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_RED);
                 }
-                else if (_adManager.IsInBreakWindow)
-                {
-                    _adBreakStatusLabel.Text = "WINDOW OPEN";
-                    _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_GREEN);
-                }
+                 else if (_adManager.IsInBreakWindow)
+                 {
+                     _adBreakStatusLabel.Text = "";
+                     _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_GREEN);
+                 }
                 else if (_adManager.IsActive)
                 {
                     // Calculate time until break window opens (UI concern, not system state)
@@ -263,10 +263,10 @@ namespace KBTV.UI
                         {
                             _adBreakStatusLabel.Text = $"IN {seconds / 60}:{seconds % 60:D2}";
                         }
-                        else
-                        {
-                            _adBreakStatusLabel.Text = "WINDOW OPEN";
-                        }
+                         else
+                         {
+                             _adBreakStatusLabel.Text = "";
+                         }
                         _adBreakStatusLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
                     }
                     else
