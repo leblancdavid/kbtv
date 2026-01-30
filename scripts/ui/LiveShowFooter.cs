@@ -4,6 +4,7 @@ using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Dialogue;
 using KBTV.Managers;
+using KBTV.UI.Themes;
 
 namespace KBTV.UI
 {
@@ -228,6 +229,44 @@ namespace KBTV.UI
                 _queueAdsButton.Text = buttonText;
                 _queueAdsButton.Disabled = !buttonEnabled;
                 _queueAdsButton.Visible = true;
+
+                // Apply dynamic styling based on ad break state
+                var styleBox = new StyleBoxFlat();
+                if (_adManager.IsAdBreakActive)
+                {
+                    styleBox.BgColor = UIColors.Accent.Red;
+                    styleBox.BorderColor = UIColors.Accent.Red;
+                    styleBox.BorderWidthTop = 2;
+                    styleBox.BorderWidthBottom = 2;
+                    styleBox.BorderWidthLeft = 2;
+                    styleBox.BorderWidthRight = 2;
+                }
+                else if (_adManager.IsQueued)
+                {
+                    styleBox.BgColor = UIColors.Accent.Gold;
+                    styleBox.BorderColor = UIColors.Accent.Gold;
+                    styleBox.BorderWidthTop = 2;
+                    styleBox.BorderWidthBottom = 2;
+                    styleBox.BorderWidthLeft = 2;
+                    styleBox.BorderWidthRight = 2;
+                }
+                else if (_adManager.IsInBreakWindow)
+                {
+                    styleBox.BgColor = UIColors.Accent.Green;
+                    styleBox.BorderColor = UIColors.Accent.Green;
+                    styleBox.BorderWidthTop = 2;
+                    styleBox.BorderWidthBottom = 2;
+                    styleBox.BorderWidthLeft = 2;
+                    styleBox.BorderWidthRight = 2;
+                }
+                else
+                {
+                    // Reset to default style
+                    _queueAdsButton.RemoveThemeStyleboxOverride("normal");
+                    return;
+                }
+
+                _queueAdsButton.AddThemeStyleboxOverride("normal", styleBox);
             }
 
             if (_breaksRemainingLabel != null)

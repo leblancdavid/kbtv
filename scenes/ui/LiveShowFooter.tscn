@@ -49,6 +49,7 @@ size_flags_vertical = 3
 
 [node name="QueueAdsButton" type="Button" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
 layout_mode = 2
+size_flags_horizontal = 4
 custom_minimum_size = Vector2(120, 120)
 text = "QUEUE AD-BREAK"
 
