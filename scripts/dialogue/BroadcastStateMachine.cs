@@ -145,9 +145,15 @@ namespace KBTV.Dialogue
                  case AsyncBroadcastState.BreakReturnMusic:
                      newState = AsyncBroadcastState.BreakReturn;
                      break;
-                 case AsyncBroadcastState.BreakReturn:
-                     newState = AsyncBroadcastState.Conversation;
-                     break;
+                  case AsyncBroadcastState.BreakReturn:
+                      newState = AsyncBroadcastState.Conversation;
+                      break;
+                  case AsyncBroadcastState.WaitingForBreak:
+                      newState = AsyncBroadcastState.AdBreak;
+                      break;
+                  case AsyncBroadcastState.WaitingForShowEnd:
+                      newState = AsyncBroadcastState.ShowEnding;
+                      break;
             }
 
             return newState;
