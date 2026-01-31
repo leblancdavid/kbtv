@@ -95,15 +95,16 @@ namespace KBTV.Dialogue
                     return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: _stateManager);
                 case AsyncBroadcastState.ShowClosing:
                 case AsyncBroadcastState.ShowEnding:
-                    // Return intro music as bumper (like return-from-break), otherwise 4s delay
-                    var introMusicPath = "res://assets/audio/music/intro_music.wav";
-                    if (FileAccess.FileExists(introMusicPath) && !_audioService.IsAudioDisabled)
+                    if (_audioService.IsAudioDisabled)
                     {
-                        return new TransitionExecutable("outro_bumper", "Outro bumper", 4.0f, _eventBus, _audioService, _sceneTree, introMusicPath);
+                        // Audio disabled: skip loading music file, go straight to 4s delay
+                        return new TransitionExecutable("outro_delay", "Show ending...", 4.0f, _eventBus, _audioService, _sceneTree, null);
                     }
                     else
                     {
-                        return new TransitionExecutable("outro_delay", "Show ending...", 4.0f, _eventBus, _audioService, _sceneTree, null);
+                        // Audio enabled: attempt to play intro music as bumper, fallback to 4s delay if file issues
+                        var introMusicPath = "res://assets/audio/music/intro_music.wav";
+                        return new TransitionExecutable("outro_bumper", "Outro bumper", 4.0f, _eventBus, _audioService, _sceneTree, introMusicPath);
                     }
                 default:
                     return null;
