@@ -95,11 +95,11 @@ namespace KBTV.Dialogue
                     return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: _stateManager);
                 case AsyncBroadcastState.ShowClosing:
                 case AsyncBroadcastState.ShowEnding:
-                    // Return outro music if available, otherwise 4s delay
-                    var outroMusicPath = GetOutroMusicPath();
-                    if (outroMusicPath != null)
+                    // Return intro music as bumper (like return-from-break), otherwise 4s delay
+                    var introMusicPath = "res://assets/audio/music/intro_music.wav";
+                    if (FileAccess.FileExists(introMusicPath) && !_audioService.IsAudioDisabled)
                     {
-                        return new MusicExecutable("outro_music", "Outro music", outroMusicPath, 4.0f, _eventBus, _audioService, _sceneTree);
+                        return new TransitionExecutable("outro_bumper", "Outro bumper", 4.0f, _eventBus, _audioService, _sceneTree, introMusicPath);
                     }
                     else
                     {
@@ -496,15 +496,6 @@ namespace KBTV.Dialogue
             return timeUntilShowEnd;
         }
 
-        private string? GetOutroMusicPath()
-        {
-            // Look for outro music file (similar to intro music logic)
-            var outroPath = "res://assets/audio/music/outro_music.wav";  // Or .mp3/.ogg
-            if (FileAccess.FileExists(outroPath) && !_audioService.IsAudioDisabled)
-            {
-                return outroPath;
-            }
-            return null;
-        }
+
     }
 }
