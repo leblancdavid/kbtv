@@ -123,10 +123,16 @@ namespace KBTV.Dialogue
                     }
                     // Else stay in DeadAir
                     break;
-                case AsyncBroadcastState.AdBreak:
-                    _stateManager._adBreakSequenceRunning = false;
-                    newState = AsyncBroadcastState.BreakReturnMusic;
-                    break;
+                 case AsyncBroadcastState.AdBreak:
+                     _stateManager._adBreakSequenceRunning = false;
+                     newState = AsyncBroadcastState.BreakReturnMusic;
+                     break;
+                 case AsyncBroadcastState.BreakReturnMusic:
+                     newState = AsyncBroadcastState.BreakReturn;
+                     break;
+                 case AsyncBroadcastState.BreakReturn:
+                     newState = AsyncBroadcastState.Conversation;
+                     break;
             }
 
             return newState;
@@ -148,6 +154,20 @@ namespace KBTV.Dialogue
                 vernExecutable.LineType == VernLineType.ShowOpening)
             {
                 _stateManager._hasPlayedVernOpening = true;
+                if (_callerRepository.OnHoldCallers.Count > 0)
+                {
+                    return AsyncBroadcastState.Conversation;
+                }
+                else
+                {
+                    return AsyncBroadcastState.DeadAir;
+                }
+            }
+
+            if (executable.Type == BroadcastItemType.VernLine &&
+                executable is DialogueExecutable returnExecutable &&
+                returnExecutable.LineType == VernLineType.ReturnFromBreak)
+            {
                 if (_callerRepository.OnHoldCallers.Count > 0)
                 {
                     return AsyncBroadcastState.Conversation;
@@ -326,9 +346,9 @@ namespace KBTV.Dialogue
             {
                 var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{returnLine.Id}.mp3";
                 audioPath = ValidateAudioPath(audioPath, "CreateReturnFromBreakExecutable");
-                return new DialogueExecutable("break_return", returnLine.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.Fallback, _stateManager);
+                return new DialogueExecutable("break_return", returnLine.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ReturnFromBreak, _stateManager);
             }
-            return new DialogueExecutable("break_return", "We're back!", "Vern", _eventBus, _audioService, lineType: VernLineType.Fallback, stateManager: _stateManager);
+            return new DialogueExecutable("break_return", "We're back!", "Vern", _eventBus, _audioService, lineType: VernLineType.ReturnFromBreak, stateManager: _stateManager);
         }
 
         private string? GetRandomReturnBumperPath()
