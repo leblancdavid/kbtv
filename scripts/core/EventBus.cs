@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Godot;
 using KBTV.Core;
 
@@ -10,18 +11,27 @@ namespace KBTV.Core
     /// <summary>
     /// Global event bus for decoupled inter-system communication.
     /// Allows systems to publish and subscribe to game events without direct dependencies.
+    /// Automatically defers event publishing to main thread when called from background threads.
     /// </summary>
     public partial class EventBus : Node
     {
         private readonly Dictionary<Type, List<Delegate>> _subscribers = new();
 
+        // Temporary storage for events that need to be published on main thread
+        private GameEvent? _deferredEvent;
+
+        // Main thread ID for thread checking
+        private int _mainThreadId;
+
         public override void _Ready()
         {
-            // RegisterSelf removed - now using dependency injection
+            // Store main thread ID for thread checking
+            _mainThreadId = Thread.CurrentThread.ManagedThreadId;
         }
 
         /// <summary>
         /// Publish an event to all subscribers.
+        /// If called from background thread, defers publishing to main thread.
         /// </summary>
         /// <param name="gameEvent">The event to publish</param>
         public void Publish(GameEvent gameEvent)
@@ -32,6 +42,35 @@ namespace KBTV.Core
                 return;
             }
 
+            // If we're on a background thread, defer to main thread
+            if (Thread.CurrentThread.ManagedThreadId != _mainThreadId)
+            {
+                _deferredEvent = gameEvent;
+                CallDeferred(nameof(PublishDeferred));
+                return;
+            }
+
+            // On main thread - publish immediately
+            PublishImmediate(gameEvent);
+        }
+
+        /// <summary>
+        /// Deferred method called on main thread to publish stored event.
+        /// </summary>
+        private void PublishDeferred()
+        {
+            if (_deferredEvent != null)
+            {
+                PublishImmediate(_deferredEvent);
+                _deferredEvent = null;
+            }
+        }
+
+        /// <summary>
+        /// Internal method to publish event immediately (assumes main thread).
+        /// </summary>
+        private void PublishImmediate(GameEvent gameEvent)
+        {
             var eventType = gameEvent.GetType();
 
             if (_subscribers.TryGetValue(eventType, out var subscribers))

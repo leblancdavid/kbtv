@@ -42,7 +42,7 @@ namespace KBTV.Persistence
         /// <summary>
         /// Whether broadcast audio is disabled (uses 4-second timeouts instead).
         /// </summary>
-        public bool DisableBroadcastAudio = false;
+        public bool DisableBroadcastAudio = true;
 
         // ─────────────────────────────────────────────────────────────
         // Equipment
@@ -98,7 +98,7 @@ namespace KBTV.Persistence
                 CurrentNight = 1,
                 Money = 500,
                 ShowDurationMinutes = 10,
-                DisableBroadcastAudio = false,
+                DisableBroadcastAudio = true,
                 EquipmentLevels = new System.Collections.Generic.Dictionary<string, int>(),
                 ItemQuantities = new System.Collections.Generic.Dictionary<string, int>(),
                 TotalCallersScreened = 0,

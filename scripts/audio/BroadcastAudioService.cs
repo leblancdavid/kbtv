@@ -24,13 +24,15 @@ namespace KBTV.Audio
         private readonly List<AudioStreamPlayer> _activePlayers = new();
         private readonly Dictionary<AudioStreamPlayer, TaskCompletionSource> _completionSources = new();
 
-        private GameStateManager? _gameStateManager;
         private BroadcastItem? _currentBroadcastItem;
+
+        // Dependency injection
+        private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
 
         /// <summary>
         /// Check if broadcast audio is disabled (uses 4-second timeouts).
         /// </summary>
-        public bool IsAudioDisabled => _gameStateManager?.DisableBroadcastAudio ?? false;
+        public bool IsAudioDisabled => GameStateManager?.DisableBroadcastAudio ?? false;
 
         /// <summary>
         /// Event fired when a broadcast item audio completes playback.
@@ -38,16 +40,26 @@ namespace KBTV.Audio
         /// </summary>
         public event System.Action<AudioCompletedEvent>? LineCompleted;
 
+    /// <summary>
+    /// Called when node enters the scene tree and is ready.
+    /// Makes services available to descendants.
+    /// </summary>
+    public void OnReady() => this.Provide();
+
+    /// <summary>
+    /// Called when dependencies are resolved.
+    /// </summary>
+    public void OnResolved()
+    {
+        // No longer needed - using dependency injection instead of GetNode
+    }
+
         /// <summary>
         /// Stop current playback if any.
         /// </summary>
         public void Stop()
         {
-            foreach (var player in _activePlayers.ToList())
-            {
-                player.Stop();
-                OnPlayerFinished(player); // This will return the player to the pool
-            }
+            StopAllPlayback();
         }
 
         /// <summary>
@@ -80,14 +92,6 @@ namespace KBTV.Audio
             }
         }
 
-    /// <summary>
-    /// Called when dependencies are resolved.
-    /// </summary>
-    public void OnResolved()
-    {
-        _gameStateManager = GetNode<GameStateManager>("/root/ServiceProviderRoot/GameStateManager");
-    }
-
         /// <summary>
         /// Plays audio from the specified path asynchronously.
         /// Returns a task that completes when playback finishes.
@@ -96,13 +100,6 @@ namespace KBTV.Audio
         {
             if (IsAudioDisabled)
             {
-                GD.Print($"BroadcastAudioService: Audio disabled, using 4-second timeout for {audioPath}");
-                await Task.Delay(4000, cancellationToken);
-                return;
-            }
-            if (IsAudioDisabled)
-            {
-                GD.Print($"BroadcastAudioService: Audio disabled, using 4-second timeout for {audioPath}");
                 await Task.Delay(4000, cancellationToken);
                 return;
             }
@@ -229,7 +226,6 @@ namespace KBTV.Audio
             
             if (IsAudioDisabled)
             {
-                GD.Print($"BroadcastAudioService: Audio disabled, using 4-second timeout for {item.Id}");
                 await Task.Delay(4000);
                 // Publish AudioCompletedEvent if we have a current broadcast item
                 if (_currentBroadcastItem != null)
@@ -645,6 +641,12 @@ namespace KBTV.Audio
         /// </summary>
         public bool IsAudioStreamValid(string audioPath)
         {
+            // Skip validation when audio is disabled
+            if (IsAudioDisabled)
+            {
+                return false;
+            }
+
             var audioStream = GD.Load<AudioStream>(audioPath);
             if (audioStream == null)
             {

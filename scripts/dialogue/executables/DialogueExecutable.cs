@@ -107,8 +107,12 @@ namespace KBTV.Dialogue
                             metadata: new { ArcId = _arc.ArcId, SpeakerId = speakerName, CallerGender = _arc.CallerGender }
                         );
 
-                        // Get actual audio duration
-                        var audioDuration = await GetAudioDurationAsync(audioPath);
+                         // Get actual audio duration - skip loading if audio is disabled
+                         float audioDuration = 4.0f; // Default fallback
+                         if (!_audioService.IsAudioDisabled)
+                         {
+                             audioDuration = await GetAudioDurationAsync(audioPath);
+                         }
 
                          // Publish started event for UI
                          var startedEvent = new BroadcastItemStartedEvent(item, 4.0f, audioDuration);
@@ -139,7 +143,14 @@ namespace KBTV.Dialogue
                     
                     // Create and publish broadcast item for UI
                     var item = CreateBroadcastItem();
-                    var audioDuration = await GetAudioDurationAsync();
+                    
+                    // Get actual audio duration - skip loading if audio is disabled
+                    float audioDuration = _duration; // Default fallback
+                    if (!_audioService.IsAudioDisabled)
+                    {
+                        audioDuration = await GetAudioDurationAsync();
+                    }
+                    
                     var startedEvent = new BroadcastItemStartedEvent(item, _duration, audioDuration);
                     GD.Print($"DialogueExecutable: Publishing started event for single Vern line '{item.Text}' (audioDuration: {audioDuration})");
                     _eventBus.Publish(startedEvent);
@@ -175,8 +186,8 @@ namespace KBTV.Dialogue
             if (string.IsNullOrEmpty(_audioPath))
                 return 0f;
 
-            // If audio is disabled, don't attempt to load files
-            if (_audioService.IsAudioDisabled)
+            // If audio service is null or audio is disabled, don't attempt to load files
+            if (_audioService == null || _audioService.IsAudioDisabled)
                 return 0f;
 
             try
@@ -236,8 +247,8 @@ namespace KBTV.Dialogue
             if (string.IsNullOrEmpty(audioPath))
                 return 0f;
 
-            // If audio is disabled, don't attempt to load files
-            if (_audioService.IsAudioDisabled)
+            // If audio service is null or audio is disabled, don't attempt to load files
+            if (_audioService == null || _audioService.IsAudioDisabled)
                 return 0f;
 
             try
