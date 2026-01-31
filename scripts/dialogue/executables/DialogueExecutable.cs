@@ -110,9 +110,10 @@ namespace KBTV.Dialogue
                         // Get actual audio duration
                         var audioDuration = await GetAudioDurationAsync(audioPath);
 
-                        // Publish started event for UI
-                        var startedEvent = new BroadcastItemStartedEvent(item, 4.0f, audioDuration);
-                        _eventBus.Publish(startedEvent);
+                         // Publish started event for UI
+                         var startedEvent = new BroadcastItemStartedEvent(item, 4.0f, audioDuration);
+                         GD.Print($"DialogueExecutable: Publishing started event for line '{line.Text}' (audioDuration: {audioDuration})");
+                         _eventBus.Publish(startedEvent);
 
                         // Play audio for this line
                         if (!string.IsNullOrEmpty(audioPath))
@@ -140,6 +141,7 @@ namespace KBTV.Dialogue
                     var item = CreateBroadcastItem();
                     var audioDuration = await GetAudioDurationAsync();
                     var startedEvent = new BroadcastItemStartedEvent(item, _duration, audioDuration);
+                    GD.Print($"DialogueExecutable: Publishing started event for single Vern line '{item.Text}' (audioDuration: {audioDuration})");
                     _eventBus.Publish(startedEvent);
                     
                     if (!string.IsNullOrEmpty(_audioPath))
@@ -171,6 +173,10 @@ namespace KBTV.Dialogue
         protected override async Task<float> GetAudioDurationAsync()
         {
             if (string.IsNullOrEmpty(_audioPath))
+                return 0f;
+
+            // If audio is disabled, don't attempt to load files
+            if (_audioService.IsAudioDisabled)
                 return 0f;
 
             try
@@ -228,6 +234,10 @@ namespace KBTV.Dialogue
         private async Task<float> GetAudioDurationAsync(string audioPath)
         {
             if (string.IsNullOrEmpty(audioPath))
+                return 0f;
+
+            // If audio is disabled, don't attempt to load files
+            if (_audioService.IsAudioDisabled)
                 return 0f;
 
             try

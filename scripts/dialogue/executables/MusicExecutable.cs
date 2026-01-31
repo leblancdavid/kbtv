@@ -41,6 +41,10 @@ namespace KBTV.Dialogue
             if (string.IsNullOrEmpty(_audioPath))
                 return 0f;
 
+            // If audio is disabled, don't attempt to load files
+            if (_audioService.IsAudioDisabled)
+                return 0f;
+
             try
             {
                 var audioStream = GD.Load<AudioStream>(_audioPath);

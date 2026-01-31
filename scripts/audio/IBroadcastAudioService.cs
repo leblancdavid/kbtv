@@ -45,6 +45,11 @@ namespace KBTV.Audio
         bool IsPlaying { get; }
 
         /// <summary>
+        /// Check if broadcast audio is disabled.
+        /// </summary>
+        bool IsAudioDisabled { get; }
+
+        /// <summary>
         /// Event fired when a broadcast item audio completes playback.
         /// Subscribers should advance the conversation or broadcast flow.
         /// </summary>

@@ -30,7 +30,7 @@ namespace KBTV.Audio
         /// <summary>
         /// Check if broadcast audio is disabled (uses 4-second timeouts).
         /// </summary>
-        private bool IsAudioDisabled => _gameStateManager?.DisableBroadcastAudio ?? false;
+        public bool IsAudioDisabled => _gameStateManager?.DisableBroadcastAudio ?? false;
 
         /// <summary>
         /// Event fired when a broadcast item audio completes playback.
@@ -106,7 +106,8 @@ namespace KBTV.Audio
                 var testStream = GD.Load<AudioStream>(audioPath);
                 if (testStream == null)
                 {
-                    GD.PrintErr($"CORRUPTION_CHECK: Failed to load AudioStream for {audioPath}");
+                    GD.PrintErr($"CORRUPTION_CHECK: Failed to load AudioStream for {audioPath}, using 4-second delay");
+                    await Task.Delay(4000, cancellationToken);
                     return;
                 }
                 
@@ -125,20 +126,23 @@ namespace KBTV.Audio
                 }
                 else
                 {
-                    GD.PrintErr($"CORRUPTION_CHECK: Unknown AudioStream type for {audioPath}");
+                    GD.PrintErr($"CORRUPTION_CHECK: Unknown AudioStream type for {audioPath}, using 4-second delay");
+                    await Task.Delay(4000, cancellationToken);
                     return;
                 }
                 
                 if (testLength <= 0f)
                 {
-                    GD.PrintErr($"CORRUPTION_CHECK: Invalid length {testLength}, skipping playback");
+                    GD.PrintErr($"CORRUPTION_CHECK: Invalid length {testLength}, skipping playback with 4-second delay");
+                    await Task.Delay(4000, cancellationToken);
                     return;
                 }
             }
 
             if (!IsAudioStreamValid(audioPath))
             {
-                GD.PrintErr($"BroadcastAudioService: Skipping invalid audio file: {audioPath}");
+                GD.PrintErr($"BroadcastAudioService: Skipping invalid audio file: {audioPath}, using 4-second delay");
+                await Task.Delay(4000, cancellationToken);
                 return;
             }
 
@@ -154,6 +158,7 @@ namespace KBTV.Audio
             {
                 GD.PrintErr($"BroadcastAudioService: Failed to load audio stream: {audioPath}");
                 ReturnPlayer(player);
+                await Task.Delay(4000, cancellationToken);
                 return;
             }
 

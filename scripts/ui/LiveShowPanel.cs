@@ -19,8 +19,7 @@ namespace KBTV.UI
         [Export] private RichTextLabel? _dialogueLabel;
         [Export] private ProgressBar? _progressBar;
 
-        private BroadcastItemStartedEvent? _pendingBroadcastItemStartedEvent;
-        private BroadcastItem? _currentBroadcastItem;
+    private BroadcastItem? _currentBroadcastItem;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -75,18 +74,9 @@ namespace KBTV.UI
         // Handle new broadcast item with duration information for audio-synced typewriter
         private void HandleBroadcastItemStarted(BroadcastItemStartedEvent @event)
         {
-            _currentBroadcastItem = @event.Item;
-            _pendingBroadcastItemStartedEvent = @event;
-            CallDeferred("DeferredHandleBroadcastItemStarted");
-        }
+            GD.Print($"LiveShowPanel: Received BroadcastItemStartedEvent - {@event.Item.Id} ({@event.Item.Type}) - Text: {@event.Item.Text}");
 
-        private void DeferredHandleBroadcastItemStarted()
-        {
-            if (_pendingBroadcastItemStartedEvent == null) return;
-            
-            var @event = _pendingBroadcastItemStartedEvent;
-            _pendingBroadcastItemStartedEvent = null;
-            
+            _currentBroadcastItem = @event.Item;
             var item = @event.Item;
 
             // Skip displaying internal state transition operations
@@ -107,9 +97,13 @@ namespace KBTV.UI
             _currentLineDuration = Mathf.Max(rawDuration - 1.5f, 0.5f);
             _elapsedTime = 0f;
 
+            GD.Print($"LiveShowPanel: Starting typewriter for '{item.Text}' with duration {_currentLineDuration}s");
+
             DeferredResetTypewriterState();
             DeferredUpdateItemDisplay(item);
         }
+
+
 
         // Handle broadcast interruptions (breaks, show ending)
         private void HandleBroadcastInterruption(BroadcastInterruptionEvent @event)

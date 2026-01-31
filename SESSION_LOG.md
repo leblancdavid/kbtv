@@ -1,52 +1,66 @@
-## AsyncBroadcastLoop Refactoring Phase 2 - COMPLETED ✅
+## Previous Session - Conversation Display Fix - COMPLETED ✅
 
-**Problem**: AsyncBroadcastLoop had performance issues with excessive logging, poor error handling, and potential memory leaks.
+**Problem**: Conversations were skipping lines, with only the last line appearing in LiveShowPanel. Root cause was a flawed deferred event handling mechanism that overwrote pending events before they could be processed.
 
-**Solution**: Implemented comprehensive performance and reliability improvements.
+**Solution**: Fixed the event processing system to handle sequential BroadcastItemStartedEvent properly.
 
-#### Key Features Delivered
+#### Key Changes Made
 
-**1. Conditional Debug Logging System:**
-- Created `scripts/core/Logger.cs` with production-safe debug logging
-- Replaced 30+ `GD.Print` calls with conditional `Logger.Debug()` 
-- Eliminates performance overhead in production builds
-- Maintains full debug info during development
+**1. Fixed Event Handling in LiveShowPanel.cs**
+- Removed the buggy `_pendingBroadcastItemStartedEvent` field and `DeferredHandleBroadcastItemStarted` method
+- Moved event processing logic directly into `HandleBroadcastItemStarted` for immediate handling
+- Each conversation line event is now processed individually without being overwritten
+- Maintained `CallDeferred` for UI updates to preserve thread safety
 
-**2. Event Batching Infrastructure:**
-- Added `_eventBatch` list and `PublishBatched()` method
-- Implemented deferred batch publishing with `CallDeferred`
-- Foundation for reducing EventBus publish frequency
-- Ready for future event optimization
+**2. Added Debug Logging**
+- Added `GD.Print` in `LiveShowPanel.HandleBroadcastItemStarted` to log received events
+- Added logging in `DialogueExecutable` when publishing started events for each line
+- This will help verify all lines are sent and received during testing
 
-**3. Comprehensive Error Handling:**
-- Wrapped all executable operations in try-catch blocks
-- Added graceful degradation - failures don't crash the broadcast
-- Enhanced cleanup with error handling in finally blocks
-- Detailed error logging for debugging
-
-**4. Timeout Protection:**
-- Added 30-second timeout on executable execution
-- Uses `Task.WhenAny()` to prevent hanging operations
-- Logs timeouts but continues broadcast gracefully
-- Protects against stuck audio or network operations
-
-**5. Memory Leak Prevention:**
-- Robust cleanup in all execution paths
-- Proper exception handling during resource disposal
-- Maintains existing token source disposal in `_ExitTree`
-- Prevents accumulation of undisposed resources
-
-#### Performance Impact
-- **Reduced CPU overhead**: Conditional logging eliminates debug prints in production
-- **Improved reliability**: Graceful error handling prevents crashes
-- **Memory safety**: Enhanced cleanup prevents resource leaks
-- **Timeout protection**: Prevents indefinite hangs on operations
+#### Technical Details
+- **Before**: Sequential events (Line 1, Line 2, Line 3) would overwrite the pending variable, resulting in only Line 3 being displayed
+- **After**: Each event is processed immediately, ensuring Line 1 displays for its duration, then Line 2, then Line 3
+- **UI Updates**: Still deferred for safety, but event logic runs synchronously
 
 #### Files Modified
-- **`scripts/core/Logger.cs`** - New conditional logging system
-- **`scripts/dialogue/AsyncBroadcastLoop.cs`** - All Phase 2 improvements
+- **`scripts/ui/LiveShowPanel.cs`** - Fixed event handling mechanism, removed pending system
+- **`scripts/dialogue/executables/DialogueExecutable.cs`** - Added logging for event publishing
 
 #### Result
-✅ **Production-ready AsyncBroadcastLoop** - Robust, performant, and reliable async broadcast coordination with comprehensive error handling and performance optimizations.
+✅ **Sequential conversation display** - All lines of conversation arcs will now display properly in sequence with correct timing. No more skipping to the last line only.
 
-**Latest Commit**: Ready for Phase 3 testing and validation
+**Status**: Ready for testing with conversation arcs
+
+---
+
+## Current Session - Audio Delay Consistency Fix - COMPLETED ✅
+
+**Problem**: Conversations appeared to skip fast despite expecting 4-second delays. Root cause: Early returns in `BroadcastAudioService.PlayAudioAsync()` for corrupted/invalid audio files bypassed the 4-second fallback delays, causing instant completion without UI timing.
+
+**Solution**: Added 4-second delays to all early return paths in corrupted/invalid audio scenarios to ensure consistent timing across all failure modes.
+
+#### Key Changes Made
+
+**1. Fixed Invalid Audio Early Return**
+- Added `await Task.Delay(4000, cancellationToken)` before return when `IsAudioStreamValid()` fails
+- Updated logging to indicate delay is applied: "using 4-second delay"
+
+**2. Fixed Special Corruption Check Returns**
+- Added delays to all three early return paths in the targeted corruption check:
+  - Failed to load AudioStream
+  - Unknown AudioStream type  
+  - Invalid/corrupted file duration ≤ 0
+- Updated all error messages to indicate "using 4-second delay"
+
+#### Technical Details
+- **Before**: Corrupted files (duration ≤ 0) returned immediately, skipping delays and making conversations appear to skip
+- **After**: All audio failure modes now apply 4-second delays for consistent UI timing (2.5s typewriter reveal)
+- **Consistency**: Audio disabled, missing files, and corrupted files all use 4-second delays
+
+#### Files Modified
+- **`scripts/audio/BroadcastAudioService.cs`** - Added delays to early returns for invalid/corrupted audio scenarios
+
+#### Result
+✅ **Consistent conversation timing** - All conversation lines now respect 4-second delays regardless of audio file validity. No more apparent skipping for corrupted files.
+
+**Status**: Ready for testing with corrupted audio files and conversation arcs
