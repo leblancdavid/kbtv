@@ -15,15 +15,13 @@ namespace KBTV.Tests.Unit.Monitors
 
         private CallerRepository _repository = null!;
         private MockArcRepository _mockArcRepository = null!;
-        private BroadcastCoordinator _broadcastCoordinator = null!;
         private List<string> _eventLog = null!;
 
         [Setup]
         public void Setup()
         {
             _mockArcRepository = new MockArcRepository();
-            _broadcastCoordinator = new BroadcastCoordinator();
-            _repository = new CallerRepository(_mockArcRepository, _broadcastCoordinator);
+            _repository = new CallerRepository(_mockArcRepository);
             _eventLog = new List<string>();
             _repository.Subscribe(new TestCallerRepositoryObserver(_eventLog));
         }

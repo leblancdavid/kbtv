@@ -24,8 +24,6 @@ namespace KBTV.Ads
 
         private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
 
-        private BroadcastCoordinator BroadcastCoordinator => DependencyInjection.Get<BroadcastCoordinator>(this);
-
         private EconomyManager EconomyManager => DependencyInjection.Get<EconomyManager>(this);
 
         private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
@@ -239,9 +237,6 @@ namespace KBTV.Ads
             // Apply listener dip
             ApplyListenerDip();
 
-            // Notify broadcast coordinator
-            BroadcastCoordinator.OnAdBreakStarted();
-
             OnBreakStarted?.Invoke();
         }
 
@@ -288,9 +283,6 @@ namespace KBTV.Ads
             // Restore listeners
             RestoreListeners();
 
-            // Notify broadcast coordinator
-            BroadcastCoordinator.OnAdBreakEnded();
- 
             // Reset queue state
             _isQueued = false;
             _queuedCountdown = 0f;

@@ -18,7 +18,6 @@ namespace KBTV.UI
 
         private ICallerRepository _repository = null!;
         private AdManager _adManager = null!;
-        private BroadcastCoordinator _coordinator = null!;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -47,7 +46,6 @@ namespace KBTV.UI
             // Get dependencies via DI
             _repository = DependencyInjection.Get<ICallerRepository>(this);
             _adManager = DependencyInjection.Get<AdManager>(this);
-            _coordinator = DependencyInjection.Get<BroadcastCoordinator>(this);
 
             // Set up AdManager events
             SetupAdManagerEvents();

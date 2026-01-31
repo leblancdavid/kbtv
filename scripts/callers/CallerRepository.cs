@@ -23,12 +23,10 @@ namespace KBTV.Callers
         private readonly Dictionary<Caller, Action> _disconnectHandlers = new();
         private readonly IArcRepository _arcRepository;
         private IScreeningController? _screeningController;
-        private readonly BroadcastCoordinator _broadcastCoordinator;
 
-        public CallerRepository(IArcRepository arcRepository, BroadcastCoordinator broadcastCoordinator)
+        public CallerRepository(IArcRepository arcRepository)
         {
             _arcRepository = arcRepository;
-            _broadcastCoordinator = broadcastCoordinator;
         }
 
         // Property injection for circular dependency

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Godot;
 using KBTV.Ads;
 using KBTV.Audio;
@@ -9,7 +10,6 @@ using KBTV.Managers;
 using KBTV.Persistence;
 using KBTV.Callers;
 using KBTV.UI;
-using static KBTV.Dialogue.BroadcastCoordinator;
 
 namespace KBTV.Core
 {
@@ -39,7 +39,7 @@ namespace KBTV.Core
         private SaveManager SaveManager => DependencyInjection.Get<SaveManager>(this);
         private ICallerRepository CallerRepository => DependencyInjection.Get<ICallerRepository>(this);
         private IUIManager UIManager => DependencyInjection.Get<IUIManager>(this);
-        private BroadcastCoordinator BroadcastCoordinator => DependencyInjection.Get<BroadcastCoordinator>(this);
+        private AsyncBroadcastLoop AsyncBroadcastLoop => DependencyInjection.Get<AsyncBroadcastLoop>(this);
         private AdManager AdManager => DependencyInjection.Get<AdManager>(this);
         private CallerGenerator CallerGenerator => DependencyInjection.Get<CallerGenerator>(this);
         private IBroadcastAudioService AudioPlayer => DependencyInjection.Get<IBroadcastAudioService>(this);
@@ -188,7 +188,16 @@ namespace KBTV.Core
 			AdManager.Initialize(_adSchedule, TimeManager.ShowDuration);
 
 			// Initialize broadcast flow
-			BroadcastCoordinator.OnLiveShowStarted();
+			_ = Task.Run(async () => {
+				try
+				{
+					await AsyncBroadcastLoop.StartBroadcastAsync(TimeManager.ShowDuration);
+				}
+				catch (Exception ex)
+				{
+					GD.PrintErr($"GameStateManager: Error in async broadcast: {ex.Message}");
+				}
+			});
 		}
 
 
@@ -302,7 +311,7 @@ namespace KBTV.Core
 			TimeManager.ResetClock();
 
 			// Play outro music if it was queued by user clicking "End Show" button
-			if (BroadcastCoordinator.IsOutroMusicQueued)
+			if (AsyncBroadcastLoop.IsOutroMusicQueued)
 			{
 				GD.Print("GameStateManager: Playing queued outro music");
 				var bumperItem = new BroadcastItem("Bumper_Music", BroadcastItemType.Music, "Bumper Music", duration: 4.0f);

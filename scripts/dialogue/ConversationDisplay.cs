@@ -11,7 +11,6 @@ namespace KBTV.Dialogue
 {
     public partial class ConversationDisplay : DomainMonitor, ICallerRepositoryObserver, IDependent
     {
-        private BroadcastCoordinator _coordinator = null!;
         private IBroadcastAudioService _audioPlayer = null!;
 
         public override void _Notification(int what) => this.Notify(what);
@@ -34,7 +33,6 @@ namespace KBTV.Dialogue
             GD.Print("ConversationDisplay: Dependencies resolved, initializing...");
 
             // Get dependencies via DI
-            _coordinator = DependencyInjection.Get<BroadcastCoordinator>(this);
             _repository = DependencyInjection.Get<ICallerRepository>(this);
             _audioPlayer = DependencyInjection.Get<IBroadcastAudioService>(this);
             var eventBus = DependencyInjection.Get<EventBus>(this);

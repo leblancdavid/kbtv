@@ -19,7 +19,6 @@ namespace KBTV.UI
         [Export] private RichTextLabel? _dialogueLabel;
         [Export] private ProgressBar? _progressBar;
 
-        private BroadcastCoordinator _coordinator = null!;
         private BroadcastItemStartedEvent? _pendingBroadcastItemStartedEvent;
         private BroadcastItem? _currentBroadcastItem;
 
@@ -55,14 +54,11 @@ namespace KBTV.UI
 
             // Get dependencies via DI
             var eventBus = DependencyInjection.Get<EventBus>(this);
-            _coordinator = DependencyInjection.Get<BroadcastCoordinator>(this);
 
             // Subscribe to events
             eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
             eventBus.Subscribe<BroadcastItemStartedEvent>(HandleBroadcastItemStarted);
             eventBus.Subscribe<BroadcastStateChangedEvent>(HandleBroadcastStateChanged);
-
-            GD.Print($"DEBUG: LiveShowPanel coordinator assigned: {_coordinator != null}");
 
             // Initialize UI nodes
             _speakerIcon = GetNode<Label>("%SpeakerIcon");

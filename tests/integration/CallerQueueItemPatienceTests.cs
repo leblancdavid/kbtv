@@ -18,15 +18,13 @@ namespace KBTV.Tests.Integration
         private ScreeningController _controller = null!;
         private List<string> _eventLog = null!;
         private MockArcRepository _mockArcRepository = null!;
-        private BroadcastCoordinator _broadcastCoordinator = null!;
         private MockCallerRepository _mockCallerRepositoryForController = null!;
 
         [Setup]
         public void Setup()
         {
             _mockArcRepository = new MockArcRepository();
-            _broadcastCoordinator = new BroadcastCoordinator();
-            _repository = new CallerRepository(_mockArcRepository, _broadcastCoordinator);
+            _repository = new CallerRepository(_mockArcRepository);
             
             _mockCallerRepositoryForController = new MockCallerRepository();
             _controller = new ScreeningController(_mockCallerRepositoryForController);

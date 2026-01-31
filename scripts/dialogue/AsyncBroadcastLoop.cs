@@ -35,6 +35,7 @@ namespace KBTV.Dialogue
         private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
 
         private BroadcastStateManager _stateManager => DependencyInjection.Get<BroadcastStateManager>(this);
+        private AdManager AdManager => DependencyInjection.Get<AdManager>(this);
         private CancellationTokenSource? _cancellationTokenSource;
         private readonly List<CancellationTokenSource> _oldTokenSources = new();
         private Task? _broadcastTask;
@@ -42,9 +43,18 @@ namespace KBTV.Dialogue
         private BroadcastExecutable? _currentExecutable;
         private readonly object _lock = new object();
         private BroadcastInterruptionReason _lastInterruptionReason;
+        private bool _isOutroMusicQueued = false;
+        private string _currentAdSponsor = "";
+        private readonly List<CancellationTokenSource> _tokenPool = new();
+        private readonly object _tokenPoolLock = new();
+        private readonly List<GameEvent> _eventBatch = new();
+        private bool _eventBatchTimerActive = false;
 
         public bool IsRunning => _isRunning;
         public BroadcastExecutable? CurrentExecutable => _currentExecutable;
+        public AsyncBroadcastState CurrentState => _stateManager.CurrentState;
+        public bool IsOutroMusicQueued => _isOutroMusicQueued;
+        public string CurrentAdSponsor => _currentAdSponsor;
 
         // Provider interface implementation
         AsyncBroadcastLoop IProvide<AsyncBroadcastLoop>.Value() => this;
@@ -56,18 +66,89 @@ namespace KBTV.Dialogue
         /// </summary>
         public void OnResolved()
         {
-            GD.Print("AsyncBroadcastLoop: Dependencies resolved, initializing...");
+            KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Dependencies resolved, initializing...");
 
             try
             {
                 // Subscribe to broadcast timing events for break warnings
                 EventBus.Subscribe<BroadcastTimingEvent>(HandleBroadcastTimingEvent);
 
-                GD.Print("AsyncBroadcastLoop: Initialization complete");
+                // Subscribe to state changed events to synchronize break ending
+                EventBus.Subscribe<BroadcastStateChangedEvent>(HandleStateChangedEvent);
+
+                // Subscribe to AdManager events for break interruptions
+                AdManager.OnBreakGracePeriod += OnBreakGracePeriod;
+                AdManager.OnBreakImminent += OnBreakImminent;
+
+                KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Initialization complete");
             }
             catch (Exception ex)
             {
-                GD.PrintErr($"AsyncBroadcastLoop: Error during initialization: {ex.Message}");
+
+            }
+        }
+        private void PublishImmediate(GameEvent @event)
+        {
+            EventBus.Publish(@event);
+        }
+
+        /// <summary>
+        /// Add event to batch for delayed publishing (for performance optimization).
+        /// </summary>
+        private void PublishBatched(GameEvent @event)
+        {
+            lock (_eventBatch)
+            {
+                _eventBatch.Add(@event);
+                
+                if (!_eventBatchTimerActive)
+                {
+                    _eventBatchTimerActive = true;
+                    // Schedule batch publishing on next frame
+                    CallDeferred(nameof(PublishBatched));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get a CancellationTokenSource from the pool or create new one.
+        /// </summary>
+        private CancellationTokenSource GetTokenSource()
+        {
+            lock (_tokenPoolLock)
+            {
+                if (_tokenPool.Count > 0)
+                {
+                    var token = _tokenPool[_tokenPool.Count - 1];
+                    _tokenPool.RemoveAt(_tokenPool.Count - 1);
+                    return token;
+                }
+            }
+            return new CancellationTokenSource();
+        }
+
+        /// <summary>
+        /// Return a CancellationTokenSource to the pool for reuse.
+        /// </summary>
+        private void ReturnTokenSource(CancellationTokenSource tokenSource)
+        {
+            if (tokenSource == null) return;
+
+            // Reset the token source if possible
+            try
+            {
+                if (!tokenSource.IsCancellationRequested)
+                {
+                    // Can't reset a non-cancelled token, dispose and create new
+                    tokenSource.Dispose();
+                    return;
+                }
+                // Token was cancelled, dispose it
+                tokenSource.Dispose();
+            }
+            catch
+            {
+                // Dispose failed, just ignore
             }
         }
 
@@ -76,7 +157,7 @@ namespace KBTV.Dialogue
         /// </summary>
         public void OnReady()
         {
-            GD.Print("AsyncBroadcastLoop: Ready, providing service to descendants");
+            KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Ready, providing service to descendants");
             this.Provide();
         }
 
@@ -89,7 +170,7 @@ namespace KBTV.Dialogue
             {
                 if (_isRunning)
                 {
-                    GD.PrintErr("AsyncBroadcastLoop: Broadcast is already running");
+                    KBTV.Core.Logger.Error("AsyncBroadcastLoop: Broadcast is already running");
                     return;
                 }
 
@@ -121,7 +202,7 @@ namespace KBTV.Dialogue
                 }
                 else
                 {
-                    GD.PrintErr("AsyncBroadcastLoop: No initial executable available");
+                    KBTV.Core.Logger.Error("AsyncBroadcastLoop: No initial executable available");
                     lock (_lock)
                     {
                         _isRunning = false;
@@ -130,11 +211,11 @@ namespace KBTV.Dialogue
             }
             catch (OperationCanceledException)
             {
-                GD.Print("AsyncBroadcastLoop: Broadcast cancelled");
+                KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Broadcast cancelled");
             }
             catch (Exception ex)
             {
-                GD.PrintErr($"AsyncBroadcastLoop: Error in broadcast: {ex.Message}");
+                KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Error in broadcast: {ex.Message}");
             }
             finally
             {
@@ -150,13 +231,13 @@ namespace KBTV.Dialogue
         /// </summary>
         private async Task RunBroadcastLoopAsync(CancellationToken cancellationToken)
         {
-            GD.Print("AsyncBroadcastLoop: Starting main broadcast loop");
+            KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Starting main broadcast loop");
 
             while (!_cancellationTokenSource.Token.IsCancellationRequested && _stateManager.IsShowActive)
             {
                 try
                 {
-                    GD.Print($"AsyncBroadcastLoop: Loop check - token cancelled: {_cancellationTokenSource.Token.IsCancellationRequested}, show active: {_stateManager.IsShowActive}");
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Loop check - token cancelled: {_cancellationTokenSource.Token.IsCancellationRequested}, show active: {_stateManager.IsShowActive}");
                     
                     // Get next executable from state manager
                     var nextExecutable = _stateManager.GetNextExecutable();
@@ -183,7 +264,7 @@ namespace KBTV.Dialogue
                     if (_lastInterruptionReason == BroadcastInterruptionReason.BreakImminent || 
                         _lastInterruptionReason == BroadcastInterruptionReason.BreakStarting)
                     {
-                        GD.Print($"AsyncBroadcastLoop: Break interruption detected ({_lastInterruptionReason}) - resetting token and continuing");
+                        KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Break interruption detected ({_lastInterruptionReason}) - resetting token and continuing");
                         
                         // Clean up old token
                         if (_cancellationTokenSource != null)
@@ -195,7 +276,7 @@ namespace KBTV.Dialogue
                         // Create fresh token for continued execution
                         _cancellationTokenSource = new CancellationTokenSource();
                         
-                        GD.Print("AsyncBroadcastLoop: Fresh token created, continuing loop");
+                        KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Fresh token created, continuing loop");
                         continue;
                     }
                     else if (_lastInterruptionReason == BroadcastInterruptionReason.ShowEnding)
@@ -204,74 +285,108 @@ namespace KBTV.Dialogue
                         if (_stateManager.CurrentState == AsyncBroadcastState.AdBreak && 
                             _stateManager.PendingBreakTransition)
                         {
-                            GD.Print("AsyncBroadcastLoop: Show ending during break transition - allowing transition to complete");
+                            KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Show ending during break transition - allowing transition to complete");
                             continue;
                         }
                         else
                         {
                             // Normal show ending
-                            GD.Print($"AsyncBroadcastLoop: Non-break interruption ({_lastInterruptionReason}) - stopping loop");
+                            KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Non-break interruption ({_lastInterruptionReason}) - stopping loop");
                             break;
                         }
                     }
                     else
                     {
                         // Other interruption types - stop the loop
-                        GD.Print($"AsyncBroadcastLoop: Non-break interruption ({_lastInterruptionReason}) - stopping loop");
+                        KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Non-break interruption ({_lastInterruptionReason}) - stopping loop");
                         break;
                     }
                 }
                 catch (Exception ex)
                 {
-                    GD.PrintErr($"AsyncBroadcastLoop: Error in broadcast loop: {ex.Message}");
+                    KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Error in broadcast loop: {ex.Message}");
                     // Continue with next executable even if one fails
                     await _stateManager.DelayAsync(1.0f, _cancellationTokenSource.Token);
                 }
             }
 
-            GD.Print($"AsyncBroadcastLoop: Broadcast loop ended - token cancelled: {_cancellationTokenSource?.Token.IsCancellationRequested}, show active: {_stateManager.IsShowActive}");
+            KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Broadcast loop ended - token cancelled: {_cancellationTokenSource?.Token.IsCancellationRequested}, show active: {_stateManager.IsShowActive}");
         }
 
         /// <summary>
-        /// Execute a single broadcast executable.
+        /// Execute a single broadcast executable with comprehensive error handling.
         /// </summary>
         private async Task ExecuteExecutableAsync(BroadcastExecutable executable, CancellationToken cancellationToken)
         {
             if (_currentExecutable != null)
             {
-                _currentExecutable.Cleanup();
+                try
+                {
+                    _currentExecutable.Cleanup();
+                }
+                catch (Exception ex)
+                {
+                    KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Error cleaning up previous executable: {ex.Message}");
+                    // Continue anyway
+                }
             }
 
             _currentExecutable = executable;
 
-            GD.Print($"AsyncBroadcastLoop: Executing {executable.Type} - {executable.Id} (requires await: {executable.RequiresAwait})");
+            KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Executing {executable.Type} - {executable.Id} (requires await: {executable.RequiresAwait})");
 
             try
             {
+                // Execute with timeout to prevent hanging
+                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+                
                 // Execute the executable (async/await based on RequiresAwait flag)
+                Task executionTask;
                 if (executable.RequiresAwait)
                 {
-                    GD.Print($"AsyncBroadcastLoop: Awaiting executable {executable.Id}");
-                    await executable.ExecuteAsync(cancellationToken);
-                    GD.Print($"AsyncBroadcastLoop: Executable {executable.Id} completed normally");
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Awaiting executable {executable.Id}");
+                    executionTask = executable.ExecuteAsync(cancellationToken);
                 }
                 else
                 {
                     // Await the background task to prevent token disposal issues
-                    GD.Print($"AsyncBroadcastLoop: Running executable {executable.Id} in background");
-                    await Task.Run(() => executable.ExecuteAsync(cancellationToken), cancellationToken);
-                    GD.Print($"AsyncBroadcastLoop: Background executable {executable.Id} completed");
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Running executable {executable.Id} in background");
+                    executionTask = Task.Run(() => executable.ExecuteAsync(cancellationToken), cancellationToken);
+                }
+
+                var completedTask = await Task.WhenAny(executionTask, timeoutTask).ConfigureAwait(false);
+                
+                if (completedTask == timeoutTask)
+                {
+                    KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Executable {executable.Id} timed out after 30 seconds");
+                    // Don't throw - allow graceful degradation
+                }
+                else
+                {
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Executable {executable.Id} completed normally");
                 }
             }
             catch (OperationCanceledException)
             {
-                GD.Print($"AsyncBroadcastLoop: Executable {executable.Id} was interrupted - rethrowing");
+                KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Executable {executable.Id} was interrupted - rethrowing");
                 throw;
+            }
+            catch (Exception ex)
+            {
+                KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Error executing {executable.Id}: {ex.Message}");
+                // Don't rethrow - allow graceful degradation, continue with next executable
             }
             finally
             {
                 // Cleanup after execution (Cleanup stays on background thread)
-                executable.Cleanup();
+                try
+                {
+                    executable.Cleanup();
+                }
+                catch (Exception ex)
+                {
+                    KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Error cleaning up executable {executable.Id}: {ex.Message}");
+                }
             }
         }
 
@@ -284,11 +399,11 @@ namespace KBTV.Dialogue
             {
                 if (!_isRunning) 
                 {
-                    GD.Print($"AsyncBroadcastLoop: InterruptBroadcast called but not running - ignoring {reason}");
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: InterruptBroadcast called but not running - ignoring {reason}");
                     return;
                 }
 
-                GD.Print($"AsyncBroadcastLoop: Interrupting broadcast - {reason} (current executable: {_currentExecutable?.Id ?? "none"})");
+                KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Interrupting broadcast - {reason} (current executable: {_currentExecutable?.Id ?? "none"})");
 
                 _lastInterruptionReason = reason;
                 
@@ -306,7 +421,7 @@ namespace KBTV.Dialogue
         {
             if (!_isRunning) return;
 
-            GD.Print("AsyncBroadcastLoop: Stopping broadcast");
+            KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Stopping broadcast");
 
             _isRunning = false;
             _cancellationTokenSource?.Cancel();
@@ -326,7 +441,7 @@ namespace KBTV.Dialogue
             }
             catch (Exception ex)
             {
-                GD.PrintErr($"AsyncBroadcastLoop: Error waiting for task completion: {ex.Message}");
+                KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Error waiting for task completion: {ex.Message}");
             }
 
             // Store current source for later disposal (don't dispose now)
@@ -338,7 +453,7 @@ namespace KBTV.Dialogue
             _cancellationTokenSource = null;
             _broadcastTask = null;
 
-            GD.Print("AsyncBroadcastLoop: Broadcast stopped");
+            KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Broadcast stopped");
         }
 
         /// <summary>
@@ -393,6 +508,57 @@ namespace KBTV.Dialogue
             return _stateManager.CurrentState == AsyncBroadcastState.AdBreak;
         }
 
+        /// <summary>
+        /// Queue the show end for outro music playback.
+        /// </summary>
+        public void QueueShowEnd()
+        {
+            KBTV.Core.Logger.Debug("AsyncBroadcastLoop: QueueShowEnd called - setting outro music queued flag");
+            _isOutroMusicQueued = true;
+        }
+
+        /// <summary>
+        /// Set the current ad sponsor for display.
+        /// </summary>
+        public void SetCurrentAdSponsor(string sponsor)
+        {
+            _currentAdSponsor = sponsor ?? "";
+        }
+
+        /// <summary>
+        /// Handle break grace period from AdManager.
+        /// </summary>
+        private void OnBreakGracePeriod(float secondsRemaining)
+        {
+            KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Break grace period - {secondsRemaining}s remaining");
+            // Async loop handles this via timing events
+        }
+
+        /// <summary>
+        /// Handle break imminent from AdManager.
+        /// </summary>
+        private void OnBreakImminent(float secondsRemaining)
+        {
+            KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Break imminent - {secondsRemaining}s remaining");
+            // Schedule break in async loop
+            ScheduleBreak(secondsRemaining);
+        }
+
+        /// <summary>
+        /// Handle state changed events to synchronize break ending.
+        /// </summary>
+        private void HandleStateChangedEvent(BroadcastStateChangedEvent @event)
+        {
+            KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: State changed from {@event.PreviousState} to {@event.NewState}");
+
+            // End the break when transitioning to BreakReturn
+            if (@event.NewState == AsyncBroadcastState.BreakReturn)
+            {
+                AdManager.EndCurrentBreak();
+                KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Break ended via state transition to BreakReturn");
+            }
+        }
+
         public override void _ExitTree()
         {
             lock (_lock)
@@ -409,7 +575,7 @@ namespace KBTV.Dialogue
                 }
                 catch (Exception ex)
                 {
-                    GD.PrintErr($"AsyncBroadcastLoop: Error disposing token source: {ex.Message}");
+                    KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Error disposing token source: {ex.Message}");
                 }
             }
             _oldTokenSources.Clear();

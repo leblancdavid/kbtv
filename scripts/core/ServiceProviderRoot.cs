@@ -29,7 +29,6 @@ namespace KBTV.Core;
     IProvide<UIManager>,
     IProvide<IUIManager>,
     IProvide<AsyncBroadcastLoop>,
-    IProvide<BroadcastCoordinator>,
     IProvide<BroadcastTimer>,
     IProvide<BroadcastStateManager>,
     IProvide<GlobalTransitionManager>,
@@ -54,7 +53,6 @@ namespace KBTV.Core;
     public CallerGenerator CallerGenerator { get; private set; } = null!;
     public UIManager UIManager { get; private set; } = null!;
     public AsyncBroadcastLoop AsyncBroadcastLoop { get; private set; } = null!;
-    public BroadcastCoordinator BroadcastCoordinator { get; private set; } = null!;
     public BroadcastTimer BroadcastTimer { get; private set; } = null!;
     public BroadcastStateManager BroadcastStateManager { get; private set; } = null!;
     public GlobalTransitionManager GlobalTransitionManager { get; private set; } = null!;
@@ -76,7 +74,6 @@ namespace KBTV.Core;
     UIManager IProvide<UIManager>.Value() => UIManager;
     IUIManager IProvide<IUIManager>.Value() => UIManager;
     AsyncBroadcastLoop IProvide<AsyncBroadcastLoop>.Value() => AsyncBroadcastLoop;
-    BroadcastCoordinator IProvide<BroadcastCoordinator>.Value() => BroadcastCoordinator;
     BroadcastTimer IProvide<BroadcastTimer>.Value() => BroadcastTimer;
     BroadcastStateManager IProvide<BroadcastStateManager>.Value() => BroadcastStateManager;
     GlobalTransitionManager IProvide<GlobalTransitionManager>.Value() => GlobalTransitionManager;
@@ -106,11 +103,8 @@ namespace KBTV.Core;
         var arcRepository = new ArcRepository();
         arcRepository.Initialize();
 
-        // Create broadcast coordinator (needed by CallerRepository)
-        var broadcastCoordinator = new BroadcastCoordinator();
-
         // Create caller repository with dependencies
-        var callerRepo = new CallerRepository(arcRepository, broadcastCoordinator);
+        var callerRepo = new CallerRepository(arcRepository);
 
         // Create screening controller (depends on CallerRepository)
         var screeningController = new ScreeningController(callerRepo);
@@ -161,7 +155,6 @@ namespace KBTV.Core;
 
         EventBus = eventBus;
         ArcRepository = arcRepository;
-        BroadcastCoordinator = broadcastCoordinator;
         CallerRepository = callerRepo;
         ScreeningController = screeningController;
         SaveManager = saveManager;
@@ -187,7 +180,6 @@ namespace KBTV.Core;
         GD.Print("ServiceProviderRoot: Phase 3 - Adding Node services to scene tree...");
 
         // Only add services that inherit from Node
-        AddChild(broadcastCoordinator);
         AddChild(saveManager);
         AddChild(economyManager);
         AddChild(timeManager);

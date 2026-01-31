@@ -19,8 +19,7 @@ namespace KBTV.Tests.Integration
         public void Setup()
         {
             var mockArcRepository = new MockArcRepository();
-            var mockBroadcastCoordinator = new MockBroadcastCoordinator();
-            _repository = new CallerRepository(mockArcRepository, mockBroadcastCoordinator);
+            _repository = new CallerRepository(mockArcRepository);
             _observer = new TestObserver();
             _repository.Subscribe(_observer);
         }
@@ -211,11 +210,6 @@ namespace KBTV.Tests.Integration
             public void AddArc(ConversationArc arc) { }
 
             public void Clear() { }
-        }
-
-        private partial class MockBroadcastCoordinator : BroadcastCoordinator
-        {
-            // Inherits from BroadcastCoordinator for compatibility
         }
     }
 }

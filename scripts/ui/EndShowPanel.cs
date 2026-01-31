@@ -12,7 +12,7 @@ namespace KBTV.UI
 	public partial class EndShowPanel : Control, IDependent
 	{
 		private Button EndShowButton;
-		private BroadcastCoordinator _coordinator = null!;
+		private AsyncBroadcastLoop _asyncLoop = null!;
 		private TimeManager? _timeManager;
 		private IBroadcastAudioService _broadcastAudioService = null!;
 
@@ -21,12 +21,12 @@ namespace KBTV.UI
 
 		public void OnResolved()
 		{
-			_coordinator = DependencyInjection.Get<BroadcastCoordinator>(this);
+			_asyncLoop = DependencyInjection.Get<AsyncBroadcastLoop>(this);
 			_timeManager = DependencyInjection.Get<TimeManager>(this);
 			_broadcastAudioService = DependencyInjection.Get<IBroadcastAudioService>(this);
-			if (_coordinator == null)
+			if (_asyncLoop == null)
 			{
-				GD.PrintErr("EndShowPanel: BroadcastCoordinator not available");
+				GD.PrintErr("EndShowPanel: AsyncBroadcastLoop not available");
 				return;
 			}
 
@@ -67,7 +67,7 @@ namespace KBTV.UI
 			EndShowButton.Text = "ENDING...";
 
 			// Queue the show end
-			_coordinator.QueueShowEnd();
+			_asyncLoop.QueueShowEnd();
 		}
 
 
