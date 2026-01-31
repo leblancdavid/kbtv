@@ -22,9 +22,13 @@ namespace KBTV.UI
 		private Label _revenueEstimateLabel;
 		private Label _adTimeEstimateLabel;
 
+		private CheckBox _disableAudioCheckBox;
+
 		private int _breaksPerShow = AdConstants.DEFAULT_BREAKS_PER_SHOW;
 		private int _slotsPerBreak = AdConstants.DEFAULT_SLOTS_PER_BREAK;
 		private int _showDurationMinutes = 10;
+
+		private bool _disableBroadcastAudio = false;
 
 		// Show duration controls
 		private Button _decreaseDurationButton;
@@ -67,6 +71,10 @@ namespace KBTV.UI
 					adConfigPanel.SetShowDuration(_showDurationMinutes);
 					adConfigPanel.SetBreaksPerShow(_breaksPerShow);
 					adConfigPanel.SetSlotsPerBreak(_slotsPerBreak);
+				}
+				if (_disableAudioCheckBox != null)
+				{
+					_disableAudioCheckBox.ButtonPressed = _disableBroadcastAudio;
 				}
 			}
 			catch (System.Exception e)
@@ -118,6 +126,7 @@ namespace KBTV.UI
 				{
 					_showDurationMinutes = save.ShowDurationMinutes;
 				}
+				_disableBroadcastAudio = save.DisableBroadcastAudio;
 			}
 		}
 
@@ -150,6 +159,11 @@ namespace KBTV.UI
 			adConfigPanel = new AdConfigPanel();
 			adConfigPanel.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(adConfigPanel);
+
+			// Add audio disable toggle
+			var audioToggleContainer = CreateAudioToggle();
+			audioToggleContainer.SizeFlagsStretchRatio = 0;
+			contentContainer.AddChild(audioToggleContainer);
 
 			// Connect incrementor/decrement button events
 			adConfigPanel.DecreaseDurationButton.Pressed += OnDurationDecreasePressed;
@@ -308,6 +322,14 @@ namespace KBTV.UI
 
 
 
+		private void OnDisableAudioToggled(bool pressed)
+		{
+			_disableBroadcastAudio = pressed;
+			UpdateSave();
+		}
+
+
+
 		private void UpdateSave()
 		{
 			try
@@ -316,6 +338,7 @@ namespace KBTV.UI
 				if (saveManager != null)
 				{
 					saveManager.CurrentSave.ShowDurationMinutes = _showDurationMinutes;
+					saveManager.CurrentSave.DisableBroadcastAudio = _disableBroadcastAudio;
 					saveManager.MarkDirty();
 				}
 			}
@@ -352,6 +375,29 @@ namespace KBTV.UI
 			buttonContainer.AddChild(rightSpacer);
 
 			return buttonContainer;
+		}
+
+		private Control CreateAudioToggle()
+		{
+			var container = new HBoxContainer();
+			container.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			container.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+			container.CustomMinimumSize = new Vector2(0, 50);
+			container.AddThemeConstantOverride("separation", 10);
+
+			var label = new Label();
+			label.Text = "Disable Broadcast Audio";
+			label.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+			label.VerticalAlignment = VerticalAlignment.Center;
+			container.AddChild(label);
+
+			_disableAudioCheckBox = new CheckBox();
+			_disableAudioCheckBox.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+			_disableAudioCheckBox.ButtonPressed = _disableBroadcastAudio;
+			_disableAudioCheckBox.Toggled += OnDisableAudioToggled;
+			container.AddChild(_disableAudioCheckBox);
+
+			return container;
 		}
 
 		private Label CreateErrorDisplay()

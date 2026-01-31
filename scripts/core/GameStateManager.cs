@@ -61,6 +61,11 @@ namespace KBTV.Core
 		public Topic SelectedTopic => _selectedTopic;
 		public AdSchedule AdSchedule => _adSchedule;
 
+		/// <summary>
+		/// Whether broadcast audio is disabled (uses 4-second timeouts instead).
+		/// </summary>
+		public bool DisableBroadcastAudio => DependencyInjection.Get<SaveManager>(this)?.CurrentSave?.DisableBroadcastAudio ?? false;
+
 		// ═══════════════════════════════════════════════════════════════════════════════════════════════
 		// PROVIDER INTERFACE IMPLEMENTATIONS
 		// ═══════════════════════════════════════════════════════════════════════════════════════════════

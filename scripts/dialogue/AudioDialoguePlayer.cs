@@ -59,8 +59,8 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             else
             {
                 // No audio file found - use timer fallback with warning
-                GD.Print($"AudioDialoguePlayer: WARNING - No audio file found for {item.Id}, using timer fallback");
-                StartTimerFallback(item.Duration > 0 ? item.Duration : 4.0f);
+                GD.Print($"AudioDialoguePlayer: WARNING - No audio file found for {item.Id}, using 4-second timer fallback");
+                StartTimerFallback(4.0f);
             }
         }
 
@@ -239,10 +239,12 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
                 {
                     return audioStream;
                 }
-                else
-                {
-                    GD.Print($"AudioDialoguePlayer.LoadVoiceAudioForItem: Failed to load {audioPath}");
-                }
+            else
+            {
+                // Fallback to timer for missing audio
+                GD.Print($"AudioDialoguePlayer.LoadAudioForBroadcastItem: No voice audio found, using timer fallback");
+                return null;
+            }
             }
 
             return null;

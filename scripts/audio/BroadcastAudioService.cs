@@ -28,6 +28,11 @@ namespace KBTV.Audio
         private BroadcastItem? _currentBroadcastItem;
 
         /// <summary>
+        /// Check if broadcast audio is disabled (uses 4-second timeouts).
+        /// </summary>
+        private bool IsAudioDisabled => _gameStateManager?.DisableBroadcastAudio ?? false;
+
+        /// <summary>
         /// Event fired when a broadcast item audio completes playback.
         /// Subscribers should advance the conversation or broadcast flow.
         /// </summary>
@@ -91,6 +96,12 @@ namespace KBTV.Audio
         /// </summary>
         public async Task PlayAudioAsync(string audioPath, CancellationToken cancellationToken = default)
         {
+            if (IsAudioDisabled)
+            {
+                GD.Print($"BroadcastAudioService: Audio disabled, using 4-second timeout for {audioPath}");
+                await Task.Delay(4000, cancellationToken);
+                return;
+            }
             // Special corruption check for the problematic file
             if (audioPath == "res://assets/audio/voice/Callers/UFOs/lights/ufos_questionable_lights_caller_2.mp3")
             {
@@ -218,6 +229,22 @@ namespace KBTV.Audio
         public async Task PlayAudioForBroadcastItemAsync(BroadcastItem item)
         {
             _currentBroadcastItem = item;
+            
+            if (IsAudioDisabled)
+            {
+                GD.Print($"BroadcastAudioService: Audio disabled, using 4-second timeout for {item.Id}");
+                await Task.Delay(4000);
+                // Publish AudioCompletedEvent if we have a current broadcast item
+                if (_currentBroadcastItem != null)
+                {
+                    var speaker = GetSpeakerFromBroadcastItemType(_currentBroadcastItem.Type);
+                    var completedEvent = new AudioCompletedEvent(_currentBroadcastItem.Id, speaker);
+                    LineCompleted?.Invoke(completedEvent);
+                }
+                _currentBroadcastItem = null;
+                return;
+            }
+            
             var audioStream = LoadAudioForBroadcastItem(item);
 
             // Validate loaded audio stream to prevent hangs on corrupted files
