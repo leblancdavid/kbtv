@@ -163,27 +163,17 @@ namespace KBTV.UI
                 return;
             }
 
-            // Parse ad text to extract ad number
-            string adText = _currentBroadcastItem?.Text ?? string.Empty;
-            int adNumber = ExtractAdNumber(adText);
+            // Use the broadcast item text directly - it now contains sponsor information
+            string adText = _currentBroadcastItem?.Text ?? "Commercial Break";
 
             _speakerIcon.Text = "AD";
-            _speakerName.Text = $"Commercial Break {adNumber}";
+            _speakerName.Text = adText;
             _phaseLabel.Text = string.Empty;
             _dialogueLabel?.Clear();
             _progressBar?.Hide();
         }
 
-        private int ExtractAdNumber(string adText)
-        {
-            // Extract number from formats like "Commercial Break 1", "Commercial Break 2", etc.
-            char lastChar = adText.Length > 0 ? adText[adText.Length - 1] : '\0';
-            if (int.TryParse(lastChar.ToString(), out int number))
-            {
-                return number;
-            }
-            return 1; // fallback
-        }
+
 
         private void DeferredUpdateWaitingDisplay()
         {

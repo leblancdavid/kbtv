@@ -15,10 +15,10 @@ namespace KBTV.Dialogue
     /// </summary>
     public partial class WaitForBreakExecutable : BroadcastExecutable
     {
-        private const float TIMEOUT_SECONDS = 30.0f; // Prevent infinite waiting
+        private const float MAX_TIMEOUT_SECONDS = 20.0f; // Maximum wait time (break can't be more than 10s away)
 
-        public WaitForBreakExecutable(EventBus eventBus, IBroadcastAudioService audioService, SceneTree sceneTree)
-            : base("wait_for_break", BroadcastItemType.Transition, true, TIMEOUT_SECONDS, eventBus, audioService, sceneTree, null)
+        public WaitForBreakExecutable(EventBus eventBus, IBroadcastAudioService audioService, SceneTree sceneTree, float duration = MAX_TIMEOUT_SECONDS)
+            : base("wait_for_break", BroadcastItemType.Transition, true, duration, eventBus, audioService, sceneTree, null)
         {
         }
 
@@ -42,12 +42,12 @@ namespace KBTV.Dialogue
             try
             {
                 // Wait for either the break starting event or timeout
-                var timeoutTask = Task.Delay((int)(TIMEOUT_SECONDS * 1000), cancellationToken);
+                var timeoutTask = Task.Delay((int)(_duration * 1000), cancellationToken);
                 var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
 
                 if (completedTask == timeoutTask)
                 {
-                    GD.PrintErr($"WaitForBreakExecutable: Timeout waiting for break to start after {TIMEOUT_SECONDS}s");
+                    GD.PrintErr($"WaitForBreakExecutable: Timeout waiting for break to start after {_duration}s");
                     throw new TimeoutException("WaitForBreakExecutable timed out waiting for break to start");
                 }
             }

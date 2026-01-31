@@ -40,20 +40,27 @@ namespace KBTV.Dialogue
             // This would integrate with EconomyManager when available
             // ServiceRegistry.Instance.EconomyManager?.AddRevenue(revenue);
             
-            if (!string.IsNullOrEmpty(_audioPath) && FileExists(_audioPath))
+            // Respect audio disabled flag like DialogueExecutable
+            if (_audioService.IsAudioDisabled || string.IsNullOrEmpty(_audioPath) || !FileExists(_audioPath))
             {
-                await PlayAudioAsync(_audioPath, cancellationToken);
+                // Audio disabled or no audio file - use delay
+                await DelayAsync(_duration, cancellationToken);
             }
             else
             {
-                // Default ad audio (silent placeholder with proper duration)
-                await DelayAsync(_duration, cancellationToken);
+                // Audio enabled and file exists - play audio
+                await PlayAudioAsync(_audioPath, cancellationToken);
             }
         }
 
         protected override BroadcastItem CreateBroadcastItem()
         {
-            return new BroadcastItem(_id, _type, GetDisplayText(), _audioPath ?? "res://assets/audio/ads/silent_ad.wav", _duration, new { Speaker = "AD" });
+            return new BroadcastItem(_id, _type, GetDisplayText(), _audioPath ?? "res://assets/audio/silence_4sec.wav", _duration, new { Speaker = "AD" });
+        }
+
+        public BroadcastItem CreateBroadcastItemPublic()
+        {
+            return CreateBroadcastItem();
         }
 
         protected override async Task<float> GetAudioDurationAsync()
@@ -84,6 +91,11 @@ namespace KBTV.Dialogue
             {
                 return _duration;
             }
+        }
+
+        public async Task<float> GetAudioDurationAsyncPublic()
+        {
+            return await GetAudioDurationAsync();
         }
 
         private string GetDisplayText()
@@ -121,13 +133,10 @@ namespace KBTV.Dialogue
 
         private static AdType GetAdTypeForListenerCount(int listenerCount)
         {
-            return listenerCount switch
-            {
-                < 50 => AdType.LocalBusiness,
-                < 100 => AdType.RegionalBrand,
-                < 200 => AdType.NationalSponsor,
-                _ => AdType.PremiumSponsor
-            };
+            // Return random AdType instead of listener-based selection
+            var adTypes = Enum.GetValues<AdType>();
+            var random = new Random();
+            return adTypes[random.Next(adTypes.Length)];
         }
 
         private static string? GetExistingAdAudioPath(AdType adType, int adIndex)

@@ -49,7 +49,17 @@ namespace KBTV.Dialogue
                 _currentAdIndex = i + 1;
                 var adExecutable = AdExecutable.CreateForListenerCount($"ad_{_currentAdIndex}", _listenerManager?.CurrentListeners ?? 100, _currentAdIndex, _eventBus, _listenerManager, _audioService, _sceneTree);
                 
-                GD.Print($"AdBreakSequenceExecutable: Created and executing ad {_currentAdIndex}/{_totalAds}");
+                // Create broadcast item for this individual ad
+                var adBroadcastItem = adExecutable.CreateBroadcastItemPublic();
+                
+                // Get audio duration for the started event
+                float audioDuration = _audioService.IsAudioDisabled ? 0f : await adExecutable.GetAudioDurationAsyncPublic();
+                
+                // Publish individual ad started event for UI
+                var startedEvent = new BroadcastItemStartedEvent(adBroadcastItem, adExecutable.Duration, audioDuration);
+                _eventBus.Publish(startedEvent);
+                
+                GD.Print($"AdBreakSequenceExecutable: Published started event for ad {_currentAdIndex}/{_totalAds} - '{adBroadcastItem.Text}'");
                 
                 // Execute the ad and wait for it to complete
                 await adExecutable.ExecuteAsync(cancellationToken);

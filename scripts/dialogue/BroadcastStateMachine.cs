@@ -73,7 +73,8 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.AdBreak:
                     return _stateManager._adBreakSequenceRunning ? null : CreateAdBreakSequenceExecutable();
                 case AsyncBroadcastState.WaitingForBreak:
-                    return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree);
+                    float timeUntilBreak = CalculateTimeUntilBreak();
+                    return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree, timeUntilBreak);
                 case AsyncBroadcastState.BreakReturnMusic:
                     return CreateReturnFromBreakMusicExecutable();
                 case AsyncBroadcastState.BreakReturn:
@@ -378,6 +379,35 @@ namespace KBTV.Dialogue
                 return null;
             }
             return audioPath;
+        }
+
+        /// <summary>
+        /// Calculate the time until the next break starts, with safety validation.
+        /// </summary>
+        private float CalculateTimeUntilBreak()
+        {
+            float nextBreakTime = _adManager.GetNextBreakTime();
+            float currentTime = _stateManager.ElapsedTime;
+            float timeUntilBreak = nextBreakTime - currentTime;
+
+            // Validate the calculation
+            const float MAX_WAIT_TIME = 20.0f; // Should never wait more than 20s for a break
+            const float MIN_WAIT_TIME = 0.1f;  // Must wait at least a tiny bit
+
+            if (timeUntilBreak <= 0)
+            {
+                GD.Print($"BroadcastStateMachine.CalculateTimeUntilBreak: Warning - calculated negative/zero time until break ({timeUntilBreak:F1}s). Break may have already started. Using minimum wait time.");
+                return MIN_WAIT_TIME;
+            }
+
+            if (timeUntilBreak > MAX_WAIT_TIME)
+            {
+                GD.Print($"BroadcastStateMachine.CalculateTimeUntilBreak: Warning - calculated time until break ({timeUntilBreak:F1}s) exceeds maximum ({MAX_WAIT_TIME}s). Using maximum wait time.");
+                return MAX_WAIT_TIME;
+            }
+
+            GD.Print($"BroadcastStateMachine.CalculateTimeUntilBreak: Calculated {timeUntilBreak:F1}s until next break (nextBreakTime: {nextBreakTime:F1}s, currentTime: {currentTime:F1}s)");
+            return timeUntilBreak;
         }
     }
 }

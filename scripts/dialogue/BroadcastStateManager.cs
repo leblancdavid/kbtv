@@ -69,6 +69,7 @@ namespace KBTV.Dialogue
         public AsyncBroadcastState _previousState = AsyncBroadcastState.Idle;
 
         public AsyncBroadcastState CurrentState => _currentState;
+        public float ElapsedTime => _timeManager?.ElapsedTime ?? 0f;
         public bool IsShowActive => _isShowActive;
         public bool PendingBreakTransition => _pendingBreakTransition;
         public SceneTree SceneTree => _sceneTree;
