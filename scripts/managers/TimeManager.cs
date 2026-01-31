@@ -120,13 +120,6 @@ public partial class TimeManager : Node, ISaveable, ITimeManager,
         EmitSignal("Tick", deltaTime);
         OnTick?.Invoke(deltaTime);
 
-        // Check for show ending warning (10 seconds remaining)
-        if (_elapsedTime >= _showDurationSeconds - 10f && _elapsedTime < _showDurationSeconds - 10f + deltaTime)
-        {
-            EmitSignal("ShowEndingWarning", 10f);
-            OnShowEndingWarning?.Invoke(10f);
-        }
-
         // Check for show end
         if (_elapsedTime >= _showDurationSeconds)
         {

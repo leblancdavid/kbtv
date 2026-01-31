@@ -16,6 +16,8 @@ namespace KBTV.Dialogue
         Break5Seconds,
         Break0Seconds,
         ShowEnd,
+        ShowEnd20Seconds,
+        ShowEnd10Seconds,
         AdBreakStart,
         AdBreakEnd
     }
@@ -114,6 +116,8 @@ public partial class BroadcastTimer : Node,
             
             // Show end timer
             CreateTimer(BroadcastTimingEventType.ShowEnd, 600.0f, false); // 10 minutes default
+            CreateTimer(BroadcastTimingEventType.ShowEnd20Seconds, 20.0f, false);
+            CreateTimer(BroadcastTimingEventType.ShowEnd10Seconds, 10.0f, false);
             
             // Ad break timers (configured as needed)
             CreateTimer(BroadcastTimingEventType.AdBreakStart, 0.0f, false); // Will be set to 0.001f for Godot compatibility
@@ -199,6 +203,16 @@ public partial class BroadcastTimer : Node,
             var showEndTimer = _timers[BroadcastTimingEventType.ShowEnd];
             showEndTimer.WaitTime = showDuration;
             showEndTimer.Start();
+            
+            // Schedule show ending warnings if show is long enough
+            if (showDuration > 20f)
+            {
+                ScheduleShowEndWarning(BroadcastTimingEventType.ShowEnd20Seconds, showDuration - 20f);
+            }
+            if (showDuration > 10f)
+            {
+                ScheduleShowEndWarning(BroadcastTimingEventType.ShowEnd10Seconds, showDuration - 10f);
+            }
         }
 
         /// <summary>
@@ -254,6 +268,19 @@ public partial class BroadcastTimer : Node,
             float currentTime = _timeManager?.ElapsedTime ?? 0f;
             
             float waitTime = targetTime - currentTime;
+            if (waitTime > 0)
+            {
+                var timer = _timers[eventType];
+                timer.WaitTime = waitTime;
+                timer.Start();
+            }
+        }
+
+        /// <summary>
+        /// Schedule an individual show end warning timer.
+        /// </summary>
+        private void ScheduleShowEndWarning(BroadcastTimingEventType eventType, float waitTime)
+        {
             if (waitTime > 0)
             {
                 var timer = _timers[eventType];

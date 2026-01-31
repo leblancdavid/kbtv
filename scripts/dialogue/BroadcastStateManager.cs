@@ -33,7 +33,8 @@ namespace KBTV.Dialogue
         DroppedCaller,
         ShowClosing,
         ShowEnding,
-        WaitingForBreak  // New state: waiting for T0 after break transition
+        WaitingForBreak,  // New state: waiting for T0 after break transition
+        WaitingForShowEnd  // New state: waiting for show end after closing dialogue
     }
 
     /// <summary>
@@ -65,6 +66,8 @@ namespace KBTV.Dialogue
         private bool _isShowActive = false;
         public bool _hasPlayedVernOpening = false;
         public bool _pendingBreakTransition = false;
+        public bool _pendingShowEndingTransition = false;
+        public bool _showClosingStarted = false;
         public bool _adBreakSequenceRunning = false;
         public AsyncBroadcastState _previousState = AsyncBroadcastState.Idle;
 
@@ -72,6 +75,7 @@ namespace KBTV.Dialogue
         public float ElapsedTime => _timeManager?.ElapsedTime ?? 0f;
         public bool IsShowActive => _isShowActive;
         public bool PendingBreakTransition => _pendingBreakTransition;
+        public bool PendingShowEndingTransition => _pendingShowEndingTransition;
         public SceneTree SceneTree => _sceneTree;
 
         public BroadcastExecutable? GetNextExecutable()
@@ -90,23 +94,6 @@ namespace KBTV.Dialogue
                 _previousState = previousState;
             }
         }
-        /// Start the broadcast show and return the first executable.
-        /// </summary>
-        public BroadcastExecutable? StartShow()
-        {
-            if (_currentState != AsyncBroadcastState.Idle)
-            {
-                GD.PrintErr($"BroadcastStateManager: Cannot start show - current state is {_currentState}, expected Idle");
-                return null;
-            }
-
-            _isShowActive = true;
-            _currentState = AsyncBroadcastState.ShowStarting;
-            
-            GD.Print("BroadcastStateManager: Show started, returning first executable");
-            return GetNextExecutable();
-        }
-
         /// <summary>
         /// Set the broadcast state directly (for special cases).
         /// </summary>
@@ -162,7 +149,17 @@ namespace KBTV.Dialogue
             switch (timingEvent.Type)
             {
                 case BroadcastTimingEventType.ShowEnd:
+                    _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.ShowEnding));
                     _currentState = AsyncBroadcastState.ShowEnding;
+                    break;
+                case BroadcastTimingEventType.ShowEnd20Seconds:
+                    _pendingShowEndingTransition = true;
+                    break;
+                case BroadcastTimingEventType.ShowEnd10Seconds:
+                    if (!_showClosingStarted)
+                    {
+                        _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.ShowEnding));
+                    }
                     break;
                 case BroadcastTimingEventType.Break20Seconds:
                     // Just opens break window - no broadcast action needed
@@ -186,7 +183,7 @@ namespace KBTV.Dialogue
                  case BroadcastTimingEventType.AdBreakEnd:
                      _currentState = AsyncBroadcastState.BreakReturnMusic;
                      break;
-             }
+            }
              
              if (_currentState != previousState)
              {
@@ -228,6 +225,31 @@ namespace KBTV.Dialogue
             {
                 PublishStateChangedEvent(previousState);
             }
+        }
+
+        /// <summary>
+        /// Start the broadcast show and return the first executable.
+        /// </summary>
+        public BroadcastExecutable? StartShow()
+        {
+            if (_currentState != AsyncBroadcastState.Idle)
+            {
+                GD.PrintErr($"BroadcastStateManager: Cannot start show - current state is {_currentState}, expected Idle");
+                return null;
+            }
+
+            // Reset flags for new show
+            _pendingBreakTransition = false;
+            _pendingShowEndingTransition = false;
+            _showClosingStarted = false;
+            _hasPlayedVernOpening = false;
+            _adBreakSequenceRunning = false;
+
+            _isShowActive = true;
+            _currentState = AsyncBroadcastState.ShowStarting;
+            
+            GD.Print("BroadcastStateManager: Show started, returning first executable");
+            return GetNextExecutable();
         }
 
         /// <summary>
@@ -273,7 +295,8 @@ namespace KBTV.Dialogue
                 _audioService,
                 _sceneTree,
                 _adManager,
-                this
+                this,
+                _timeManager
             );
 
             // Subscribe to timing events

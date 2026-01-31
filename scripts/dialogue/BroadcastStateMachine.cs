@@ -28,6 +28,7 @@ namespace KBTV.Dialogue
         private readonly SceneTree _sceneTree;
         private readonly AdManager _adManager;
         private readonly BroadcastStateManager _stateManager; // Reference to parent for state access
+        private readonly TimeManager _timeManager;
 
         public BroadcastStateMachine(
             ICallerRepository callerRepository,
@@ -38,7 +39,8 @@ namespace KBTV.Dialogue
             IBroadcastAudioService audioService,
             SceneTree sceneTree,
             AdManager adManager,
-            BroadcastStateManager stateManager)
+            BroadcastStateManager stateManager,
+            TimeManager timeManager)
         {
             _callerRepository = callerRepository;
             _arcRepository = arcRepository;
@@ -49,6 +51,7 @@ namespace KBTV.Dialogue
             _sceneTree = sceneTree;
             _adManager = adManager;
             _stateManager = stateManager;
+            _timeManager = timeManager;
         }
 
         /// <summary>
@@ -75,6 +78,9 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.WaitingForBreak:
                     float timeUntilBreak = CalculateTimeUntilBreak();
                     return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree, timeUntilBreak);
+                case AsyncBroadcastState.WaitingForShowEnd:
+                    float timeUntilShowEnd = CalculateTimeUntilShowEnd();
+                    return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree, timeUntilShowEnd, "Show ending...");
                 case AsyncBroadcastState.BreakReturnMusic:
                     return CreateReturnFromBreakMusicExecutable();
                 case AsyncBroadcastState.BreakReturn:
@@ -89,7 +95,16 @@ namespace KBTV.Dialogue
                     return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: _stateManager);
                 case AsyncBroadcastState.ShowClosing:
                 case AsyncBroadcastState.ShowEnding:
-                    return null;
+                    // Return outro music if available, otherwise 4s delay
+                    var outroMusicPath = GetOutroMusicPath();
+                    if (outroMusicPath != null)
+                    {
+                        return new MusicExecutable("outro_music", "Outro music", outroMusicPath, 4.0f, _eventBus, _audioService, _sceneTree);
+                    }
+                    else
+                    {
+                        return new TransitionExecutable("outro_delay", "Show ending...", 4.0f, _eventBus, _audioService, _sceneTree, null);
+                    }
                 default:
                     return null;
             }
@@ -147,6 +162,16 @@ namespace KBTV.Dialogue
             {
                 _stateManager._pendingBreakTransition = false;
                 return AsyncBroadcastState.WaitingForBreak;
+            }
+
+            // Handle show closing completion
+            if (executable.Type == BroadcastItemType.VernLine &&
+                executable is DialogueExecutable showClosingExecutable &&
+                showClosingExecutable.LineType == VernLineType.ShowClosing)
+            {
+                _stateManager._pendingShowEndingTransition = false;
+                _stateManager._showClosingStarted = false;
+                return AsyncBroadcastState.WaitingForShowEnd;
             }
 
             if (executable.Type == BroadcastItemType.VernLine &&
@@ -267,6 +292,18 @@ namespace KBTV.Dialogue
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{breakTransition.Id}.mp3";
                     audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_BreakTransition");
                     return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, _stateManager);
+                }
+            }
+
+            if (_stateManager._pendingShowEndingTransition)
+            {
+                var closing = _vernDialogue.GetShowClosing();
+                if (closing != null)
+                {
+                    _stateManager._showClosingStarted = true;  // Track that closing has started
+                    var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{closing.Id}.mp3";
+                    audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_ShowClosing");
+                    return new DialogueExecutable("show_closing", closing.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowClosing, _stateManager);
                 }
             }
 
@@ -428,6 +465,46 @@ namespace KBTV.Dialogue
 
             GD.Print($"BroadcastStateMachine.CalculateTimeUntilBreak: Calculated {timeUntilBreak:F1}s until next break (nextBreakTime: {nextBreakTime:F1}s, currentTime: {currentTime:F1}s)");
             return timeUntilBreak;
+        }
+
+        /// <summary>
+        /// Calculate the time until show ends, with safety validation.
+        /// </summary>
+        private float CalculateTimeUntilShowEnd()
+        {
+            float showDuration = _timeManager?.ShowDuration ?? 600.0f;
+            float currentTime = _stateManager.ElapsedTime;
+            float timeUntilShowEnd = showDuration - currentTime;
+
+            // Validate the calculation
+            const float MAX_WAIT_TIME = 30.0f; // Should never wait more than 30s for show end
+            const float MIN_WAIT_TIME = 0.1f;  // Must wait at least a tiny bit
+
+            if (timeUntilShowEnd <= 0)
+            {
+                GD.Print($"BroadcastStateMachine.CalculateTimeUntilShowEnd: Warning - calculated negative/zero time until show end ({timeUntilShowEnd:F1}s). Show may have already ended. Using minimum wait time.");
+                return MIN_WAIT_TIME;
+            }
+
+            if (timeUntilShowEnd > MAX_WAIT_TIME)
+            {
+                GD.Print($"BroadcastStateMachine.CalculateTimeUntilShowEnd: Warning - calculated time until show end ({timeUntilShowEnd:F1}s) exceeds maximum ({MAX_WAIT_TIME}s). Using maximum wait time.");
+                return MAX_WAIT_TIME;
+            }
+
+            GD.Print($"BroadcastStateMachine.CalculateTimeUntilShowEnd: Calculated {timeUntilShowEnd:F1}s until show end (showDuration: {showDuration:F1}s, currentTime: {currentTime:F1}s)");
+            return timeUntilShowEnd;
+        }
+
+        private string? GetOutroMusicPath()
+        {
+            // Look for outro music file (similar to intro music logic)
+            var outroPath = "res://assets/audio/music/outro_music.wav";  // Or .mp3/.ogg
+            if (FileAccess.FileExists(outroPath) && !_audioService.IsAudioDisabled)
+            {
+                return outroPath;
+            }
+            return null;
         }
     }
 }

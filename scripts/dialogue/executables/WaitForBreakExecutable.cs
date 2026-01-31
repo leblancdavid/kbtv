@@ -16,10 +16,12 @@ namespace KBTV.Dialogue
     public partial class WaitForBreakExecutable : BroadcastExecutable
     {
         private const float MAX_TIMEOUT_SECONDS = 20.0f; // Maximum wait time (break can't be more than 10s away)
+        private readonly string _customMessage;
 
-        public WaitForBreakExecutable(EventBus eventBus, IBroadcastAudioService audioService, SceneTree sceneTree, float duration = MAX_TIMEOUT_SECONDS)
+        public WaitForBreakExecutable(EventBus eventBus, IBroadcastAudioService audioService, SceneTree sceneTree, float duration = MAX_TIMEOUT_SECONDS, string? message = null)
             : base("wait_for_break", BroadcastItemType.Transition, true, duration, eventBus, audioService, sceneTree, null)
         {
+            _customMessage = message ?? "Waiting for break to begin...";
         }
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
@@ -30,9 +32,10 @@ namespace KBTV.Dialogue
             void OnInterruption(BroadcastInterruptionEvent interruptionEvent)
             {
                 GD.Print($"WaitForBreakExecutable: Received interruption: {interruptionEvent.Reason}");
-                if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakStarting)
+                if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakStarting ||
+                    interruptionEvent.Reason == BroadcastInterruptionReason.ShowEnding)
                 {
-                    GD.Print("WaitForBreakExecutable: Break starting detected, completing wait");
+                    GD.Print($"WaitForBreakExecutable: {interruptionEvent.Reason} detected, completing wait");
                     tcs.TrySetResult(true);
                 }
             }
@@ -67,7 +70,7 @@ namespace KBTV.Dialogue
             return new BroadcastItem(
                 _id,
                 _type,
-                "Waiting for break to begin...",
+                _customMessage,
                 null, // No audio
                 _duration,
                 new { Purpose = "BreakTransitionWait" }
