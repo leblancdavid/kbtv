@@ -68,19 +68,17 @@ namespace KBTV.Audio
         /// </summary>
         public bool IsPlaying => _activePlayers.Count > 0;
 
-    public override void _Ready()
-    {
-        // Initialize player pool
-        for (int i = 0; i < PLAYER_POOL_SIZE; i++)
+        public override void _Ready()
         {
-            var player = new AudioStreamPlayer();
-            AddChild(player);
-            _availablePlayers.Add(player);
-            player.Finished += () => OnPlayerFinished(player);
+            // Initialize player pool
+            for (int i = 0; i < PLAYER_POOL_SIZE; i++)
+            {
+                var player = new AudioStreamPlayer();
+                AddChild(player);
+                _availablePlayers.Add(player);
+                player.Finished += () => OnPlayerFinished(player);
+            }
         }
-        
-        GD.Print($"BroadcastAudioService: Initialized with {PLAYER_POOL_SIZE} audio players");
-    }
 
     /// <summary>
     /// Called when dependencies are resolved.
@@ -105,7 +103,6 @@ namespace KBTV.Audio
             // Special corruption check for the problematic file
             if (audioPath == "res://assets/audio/voice/Callers/UFOs/lights/ufos_questionable_lights_caller_2.mp3")
             {
-                GD.Print($"CORRUPTION_CHECK: Loading suspected corrupted file: {audioPath}");
                 var testStream = GD.Load<AudioStream>(audioPath);
                 if (testStream == null)
                 {
@@ -113,23 +110,18 @@ namespace KBTV.Audio
                     return;
                 }
                 
-                GD.Print($"CORRUPTION_CHECK: AudioStream loaded successfully, type: {testStream.GetType()}");
-                
                 float testLength = 0f;
                 if (testStream is AudioStreamMP3 mp3)
                 {
                     testLength = (float)mp3.GetLength();
-                    GD.Print($"CORRUPTION_CHECK: MP3 length: {testLength} seconds");
                 }
                 else if (testStream is Godot.AudioStreamWav wav)
                 {
                     testLength = (float)wav.GetLength();
-                    GD.Print($"CORRUPTION_CHECK: WAV length: {testLength} seconds");
                 }
                 else if (testStream is AudioStreamOggVorbis ogg)
                 {
                     testLength = (float)ogg.GetLength();
-                    GD.Print($"CORRUPTION_CHECK: OGG length: {testLength} seconds");
                 }
                 else
                 {
@@ -142,8 +134,6 @@ namespace KBTV.Audio
                     GD.PrintErr($"CORRUPTION_CHECK: Invalid length {testLength}, skipping playback");
                     return;
                 }
-                
-                GD.Print($"CORRUPTION_CHECK: File appears valid, proceeding with playback test");
             }
 
             if (!IsAudioStreamValid(audioPath))
@@ -190,12 +180,9 @@ namespace KBTV.Audio
             player.Stream = audioStream;
             player.Play();
 
-            GD.Print($"BroadcastAudioService: Playing AudioStream on player {player.GetInstanceId()}");
-
             // Register cancellation to cancel the TCS
             using var registration = cancellationToken.Register(() => 
             {
-                GD.Print($"BroadcastAudioService: Cancelling AudioStream playback");
                 tcs.TrySetCanceled(cancellationToken);
             });
 
@@ -205,7 +192,6 @@ namespace KBTV.Audio
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                GD.Print($"BroadcastAudioService: AudioStream playback was cancelled");
                 // Stop the player if still playing
                 player.Stop();
                 throw;
@@ -283,19 +269,14 @@ namespace KBTV.Audio
             player.Stream = audioStream;
             player.Play();
 
-            GD.Print($"BroadcastAudioService: Playing {debugName} on player {player.GetInstanceId()}");
-
             // Calculate duration-based timeout with 2-second buffer
             float audioDuration = GetAudioDuration(audioStream);
             var timeoutMs = (int)((audioDuration + 2.0f) * 1000);
             var timeoutTask = Task.Delay(timeoutMs);
 
-            GD.Print($"BroadcastAudioService: Set timeout for {debugName}: {timeoutMs}ms (duration: {audioDuration}s + 2s buffer)");
-
             // Register cancellation to cancel the TCS
             using var registration = cancellationToken.Register(() => 
             {
-                GD.Print($"BroadcastAudioService: Cancellation requested for {debugName} - stopping player immediately");
                 player.Stop();
                 tcs.TrySetCanceled(cancellationToken);
             });
@@ -310,16 +291,10 @@ namespace KBTV.Audio
                     GD.PrintErr($"BroadcastAudioService: AUDIO TIMEOUT - Playback of {debugName} did not complete within {timeoutMs}ms, forcing completion");
                     player.Stop();
                     tcs.TrySetResult(); // Force completion to prevent hang
-                    GD.Print($"BroadcastAudioService: Forced completion for timed out audio: {debugName}");
-                }
-                else
-                {
-                    GD.Print($"BroadcastAudioService: Normal completion for {debugName}");
                 }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                GD.Print($"BroadcastAudioService: Playback of {debugName} was cancelled");
                 // Stop the player if still playing
                 player.Stop();
                 throw;
@@ -347,11 +322,8 @@ namespace KBTV.Audio
 
         private void OnPlayerFinished(AudioStreamPlayer player)
         {
-            GD.Print($"BroadcastAudioService: Player {player.GetInstanceId()} finished playback - cleaning up");
-            
             if (_completionSources.TryGetValue(player, out var tcs))
             {
-                GD.Print($"BroadcastAudioService: Setting TCS result for player {player.GetInstanceId()}");
                 tcs.SetResult();
                 _completionSources.Remove(player);
             }
@@ -362,11 +334,9 @@ namespace KBTV.Audio
                 var speaker = GetSpeakerFromBroadcastItemType(_currentBroadcastItem.Type);
                 var completedEvent = new AudioCompletedEvent(_currentBroadcastItem.Id, speaker);
                 LineCompleted?.Invoke(completedEvent);
-                GD.Print($"BroadcastAudioService: Published AudioCompletedEvent for {_currentBroadcastItem.Id} ({speaker})");
             }
             
             ReturnPlayer(player);
-            GD.Print($"BroadcastAudioService: Player {player.GetInstanceId()} returned to pool");
         }
 
         /// <summary>
@@ -430,12 +400,7 @@ namespace KBTV.Audio
                 var audioStream = GD.Load<AudioStream>(item.AudioPath);
                 if (audioStream != null)
                 {
-                    GD.Print($"BroadcastAudioService.LoadAudioForBroadcastItem: Loaded specified audio from {item.AudioPath}");
                     return audioStream;
-                }
-                else
-                {
-                    GD.Print($"BroadcastAudioService.LoadAudioForBroadcastItem: Failed to load specified audio {item.AudioPath}");
                 }
             }
 
@@ -447,14 +412,9 @@ namespace KBTV.Audio
                     var adAudio = LoadAdAudio(item);
                     if (adAudio != null)
                     {
-                        GD.Print($"BroadcastAudioService.LoadAudioForBroadcastItem: Loaded ad audio");
                         return adAudio;
                     }
-                    else
-                    {
-                        GD.Print($"BroadcastAudioService.LoadAudioForBroadcastItem: No ad audio found, using timer fallback");
-                        return null;
-                    }
+                    return null;
 
                 case BroadcastItemType.Music:
                     // Handle special music cases
@@ -470,12 +430,10 @@ namespace KBTV.Audio
             var voiceAudio = LoadVoiceAudioForItem(item);
             if (voiceAudio != null)
             {
-                GD.Print($"BroadcastAudioService.LoadAudioForBroadcastItem: Loaded voice audio for {item.Id}");
                 return voiceAudio;
             }
 
             // Fallback to silent audio
-            GD.Print($"BroadcastAudioService.LoadAudioForBroadcastItem: No voice audio found, using 4-second silent audio for {item.Id}");
             return GetSilentAudioFile();
         }
 
@@ -526,10 +484,6 @@ namespace KBTV.Audio
                 if (audioStream != null)
                 {
                     return audioStream;
-                }
-                else
-                {
-                    GD.Print($"BroadcastAudioService.LoadVoiceAudioForItem: Failed to load {audioPath}");
                 }
             }
 
@@ -651,7 +605,6 @@ namespace KBTV.Audio
                 return GetSilentAudioFile();
             }
 
-            GD.Print($"BroadcastAudioService: Selected return bumper: {selectedFile}");
             return audioStream;
         }
 
@@ -666,7 +619,6 @@ namespace KBTV.Audio
                 GD.PrintErr("BroadcastAudioService.GetSilentAudioFile: Failed to load silent audio file - returning null!");
                 return null;
             }
-            GD.Print($"BroadcastAudioService.GetSilentAudioFile: Loaded silent audio successfully");
             return audioStream;
         }
 
@@ -676,7 +628,6 @@ namespace KBTV.Audio
         /// </summary>
         public bool IsAudioStreamValid(string audioPath)
         {
-            GD.Print($"CORRUPTION_CHECK: Validating audio file: {audioPath}");
             var audioStream = GD.Load<AudioStream>(audioPath);
             if (audioStream == null)
             {
@@ -684,23 +635,18 @@ namespace KBTV.Audio
                 return false;
             }
 
-            GD.Print($"CORRUPTION_CHECK: Loaded {audioStream.GetType()} successfully");
-
             float duration = 0f;
             if (audioStream is AudioStreamMP3 mp3Stream)
             {
                 duration = (float)mp3Stream.GetLength();
-                GD.Print($"CORRUPTION_CHECK: MP3 duration: {duration}s");
             }
             else if (audioStream is Godot.AudioStreamWav wavStream)
             {
                 duration = (float)wavStream.GetLength();
-                GD.Print($"CORRUPTION_CHECK: WAV duration: {duration}s");
             }
             else if (audioStream is AudioStreamOggVorbis oggStream)
             {
                 duration = (float)oggStream.GetLength();
-                GD.Print($"CORRUPTION_CHECK: OGG duration: {duration}s");
             }
             else
             {
@@ -714,7 +660,6 @@ namespace KBTV.Audio
                 return false;
             }
 
-            GD.Print($"CORRUPTION_CHECK: File is valid: {audioPath}");
             return true;
         }
     }

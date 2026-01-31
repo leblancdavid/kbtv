@@ -41,7 +41,6 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            GD.Print("LiveShowPanel: Ready, waiting for dependencies...");
             // Dependencies resolved in OnResolved()
         }
 
@@ -50,8 +49,6 @@ namespace KBTV.UI
         /// </summary>
         public void OnResolved()
         {
-            GD.Print("LiveShowPanel: Dependencies resolved, initializing...");
-
             // Get dependencies via DI
             var eventBus = DependencyInjection.Get<EventBus>(this);
 
@@ -78,7 +75,6 @@ namespace KBTV.UI
         // Handle new broadcast item with duration information for audio-synced typewriter
         private void HandleBroadcastItemStarted(BroadcastItemStartedEvent @event)
         {
-            GD.Print($"LiveShowPanel: Received BroadcastItemStartedEvent - Type: {@event.Item.Type}, Text: '{@event.Item.Text}', Duration: {@event.Duration}");
             _currentBroadcastItem = @event.Item;
             _pendingBroadcastItemStartedEvent = @event;
             CallDeferred("DeferredHandleBroadcastItemStarted");
@@ -101,20 +97,15 @@ namespace KBTV.UI
 
             if (string.IsNullOrEmpty(item.Text))
             {
-                GD.Print($"LiveShowPanel: Skipping empty text for item type {item.Type}");
                 DeferredUpdateWaitingDisplay();
                 return;
             }
-
-            GD.Print($"LiveShowPanel: Starting new line - Text: '{item.Text}', Duration: {@event.Duration}s, AudioLength: {@event.AudioLength}s");
 
             // Start new line with audio-synced typewriter
             _currentLineText = item.Text;
             float rawDuration = @event.AudioLength > 0 ? @event.AudioLength : @event.Duration;
             _currentLineDuration = Mathf.Max(rawDuration - 1.5f, 0.5f);
             _elapsedTime = 0f;
-            
-            GD.Print($"LiveShowPanel: Set _currentLineDuration to {_currentLineDuration}s, _currentLineText length: {_currentLineText.Length}");
 
             DeferredResetTypewriterState();
             DeferredUpdateItemDisplay(item);
@@ -123,7 +114,6 @@ namespace KBTV.UI
         // Handle broadcast interruptions (breaks, show ending)
         private void HandleBroadcastInterruption(BroadcastInterruptionEvent @event)
         {
-            GD.Print($"LiveShowPanel: Received BroadcastInterruptionEvent - Reason: {@event.Reason}");
             CallDeferred("DeferredHandleBroadcastInterruption");
         }
 
@@ -139,8 +129,6 @@ namespace KBTV.UI
         // Handle broadcast state changes for UI updates
         private void HandleBroadcastStateChanged(BroadcastStateChangedEvent @event)
         {
-            GD.Print($"LiveShowPanel: Received BroadcastStateChangedEvent - {@event.PreviousState} -> {@event.NewState}");
-            
             if (@event.NewState == AsyncBroadcastState.AdBreak)
             {
                 CallDeferred("DeferredHandleStateChangedToAdBreak");
@@ -150,8 +138,6 @@ namespace KBTV.UI
         // Handle individual ad events during ad break sequence
         private void HandleAdItemStarted(BroadcastItemStartedEvent @event)
         {
-            GD.Print($"LiveShowPanel: Received BroadcastItemStartedEvent - Type: {@event.Item.Type}, Text: '{@event.Item.Text}'");
-            
             if (@event.Item.Type == BroadcastItemType.Ad)
             {
                 CallDeferred("DeferredHandleAdStarted");
@@ -240,8 +226,6 @@ namespace KBTV.UI
                 return;
             }
 
-            GD.Print($"LiveShowPanel: Updating display for item type {item.Type}, text length: {item.Text?.Length ?? 0}");
-
             // Hide speaker name and phase label for minimal display
             _speakerName.Text = "";
             _phaseLabel.Text = "";
@@ -273,11 +257,8 @@ namespace KBTV.UI
             }
             else
             {
-                GD.Print($"LiveShowPanel: Unknown item type {item.Type}, defaulting to SYSTEM");
                 _speakerIcon.Text = "SYSTEM"; // Fallback for transitions, etc.
             }
-
-            GD.Print($"LiveShowPanel: Set speaker icon to '{_speakerIcon.Text}'");
 
             // Reset typewriter state for new line
             DeferredResetTypewriterState();
@@ -285,7 +266,6 @@ namespace KBTV.UI
             if (_progressBar != null)
             {
                 _progressBar.Show();
-                GD.Print("LiveShowPanel: Showed progress bar");
             }
         }
 
@@ -298,7 +278,6 @@ namespace KBTV.UI
             if (_dialogueLabel != null)
             {
                 _dialogueLabel.Clear();
-                GD.Print($"LiveShowPanel: Cleared dialogue label for new text: '{_currentLineText}'");
             }
         }
 
@@ -355,7 +334,6 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            GD.Print("LiveShowPanel: Cleanup complete");
         }
     }
 }

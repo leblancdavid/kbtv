@@ -62,10 +62,8 @@ namespace KBTV.Dialogue
             // Subscribe to interruption events for mid-execution cancellation
             void OnInterruption(BroadcastInterruptionEvent interruptionEvent)
             {
-                GD.Print($"DialogueExecutable: Received interruption event: {interruptionEvent.Reason}");
                 if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakImminent)
                 {
-                    GD.Print("DialogueExecutable: Received break interruption - cancelling execution");
                     localCts.Cancel();
                 }
             }
@@ -77,16 +75,13 @@ namespace KBTV.Dialogue
                 {
                     // Play full conversation line by line
                     var topic = _arc.TopicName;
-                    GD.Print($"DialogueExecutable: Starting conversation with {_arc.Dialogue.Count} lines");
                     foreach (var line in _arc.Dialogue)
                     {
                         if (localToken.IsCancellationRequested)
                         {
-                            GD.Print("DialogueExecutable: Cancellation requested - breaking out of dialogue loop");
                             break;
                         }
 
-                        GD.Print($"DialogueExecutable: Processing line {line.AudioId} for {line.Speaker}");
                         string audioPath;
                         BroadcastItemType itemType;
                         string speakerName;
@@ -119,25 +114,19 @@ namespace KBTV.Dialogue
                         var startedEvent = new BroadcastItemStartedEvent(item, 4.0f, audioDuration);
                         _eventBus.Publish(startedEvent);
 
-                        GD.Print($"DialogueExecutable: {speakerName}: {line.Text}");
-
                         // Play audio for this line
                         if (!string.IsNullOrEmpty(audioPath))
                         {
-                            GD.Print($"DialogueExecutable: Playing audio for line {line.AudioId}: {audioPath}");
                             await PlayAudioAsync(audioPath, localToken);
-                            GD.Print($"DialogueExecutable: Finished playing audio for line {line.AudioId}");
                         }
                         else
                         {
-                            GD.Print($"DialogueExecutable: No audio path for line {line.AudioId}, delaying 4 seconds");
                             await DelayAsync(4.0f, localToken);
                         }
 
                         // Check for pending break transition (graceful interruption between lines)
                         if (_stateManager?.PendingBreakTransition == true)
                         {
-                            GD.Print("DialogueExecutable: Graceful interruption - ending conversation early for break transition");
                             break;
                         }
                     }
@@ -146,7 +135,6 @@ namespace KBTV.Dialogue
                 {
                     // Single Vern line (opening/fallback)
                     var displayText = GetDisplayText();
-                    GD.Print($"DialogueExecutable: {GetSpeakerName()}: {displayText}");
                     
                     // Create and publish broadcast item for UI
                     var item = CreateBroadcastItem();
@@ -160,7 +148,6 @@ namespace KBTV.Dialogue
                     }
                     else
                     {
-                        GD.Print("DialogueExecutable: No audio path, delaying 4 seconds");
                         await DelayAsync(4.0f, localToken);
                     }
                 }

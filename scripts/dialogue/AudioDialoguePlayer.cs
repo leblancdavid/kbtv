@@ -35,8 +35,6 @@ namespace KBTV.Dialogue
 
 public async void PlayBroadcastItemAsync(BroadcastItem item)
         {
-            GD.Print($"AudioDialoguePlayer.PlayBroadcastItemAsync: Starting - Id={item.Id}, Type={item.Type}");
-
             if (_audioPlayer == null)
             {
                 GD.PrintErr("AudioDialoguePlayer.PlayBroadcastItemAsync: AudioStreamPlayer not initialized");
@@ -50,7 +48,6 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             if (audioStream != null)
             {
                 // Play actual loaded audio at natural speed and duration
-                GD.Print($"AudioDialoguePlayer: Playing loaded audio for {item.Id}");
                 _audioPlayer.Stream = audioStream;
                 _audioPlayer.Play();
                 // Audio will naturally trigger OnAudioFinished when it completes
@@ -58,7 +55,6 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             else
             {
                 // No audio file found - use timer fallback with warning
-                GD.Print($"AudioDialoguePlayer: WARNING - No audio file found for {item.Id}, using 4-second timer fallback");
                 await StartTimerFallbackAsync(4.0f);
             }
         }
@@ -67,8 +63,6 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
         [System.Obsolete("Use PlayBroadcastItemAsync(BroadcastItem) instead")]
         public async void PlayLineAsync(BroadcastLine line)
         {
-            GD.Print($"AudioDialoguePlayer.PlayLineAsync: Legacy method called - converting BroadcastLine to BroadcastItem");
-            
             // Convert legacy BroadcastLine to BroadcastItem
             var item = ConvertBroadcastLineToItem(line);
             PlayBroadcastItemAsync(item);
@@ -76,9 +70,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
 
         private async Task StartTimerFallbackAsync(float duration)
         {
-            GD.Print($"AudioDialoguePlayer: Starting async timer fallback for {duration}s");
             await Task.Delay((int)(duration * 1000));
-            GD.Print($"AudioDialoguePlayer: Async timer fallback completed");
             OnAudioFinished();
         }
 
@@ -97,7 +89,6 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
 
         private void OnAudioFinished()
         {
-            GD.Print($"AudioDialoguePlayer.OnAudioFinished: Audio completed - _currentLineId={_currentLineId}");
             if (_currentLineId != null)
             {
                 var completedEvent = new AudioCompletedEvent(_currentLineId, Speaker.Caller);
@@ -118,12 +109,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
                 var audioStream = GD.Load<AudioStream>(item.AudioPath);
                 if (audioStream != null)
                 {
-                    GD.Print($"AudioDialoguePlayer.LoadAudioForBroadcastItem: Loaded specified audio from {item.AudioPath}");
                     return audioStream;
-                }
-                else
-                {
-                    GD.Print($"AudioDialoguePlayer.LoadAudioForBroadcastItem: Failed to load specified audio {item.AudioPath}");
                 }
             }
 
@@ -135,14 +121,9 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
                     var adAudio = LoadAdAudio(item);
                     if (adAudio != null)
                     {
-                        GD.Print($"AudioDialoguePlayer.LoadAudioForBroadcastItem: Loaded ad audio");
                         return adAudio;
                     }
-                    else
-                    {
-                        GD.Print($"AudioDialoguePlayer.LoadAudioForBroadcastItem: No ad audio found, using timer fallback");
-                        return null;
-                    }
+                    return null;
 
                 case BroadcastItemType.Music:
                     // Handle special music cases
@@ -158,18 +139,15 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             var voiceAudio = LoadVoiceAudioForItem(item);
             if (voiceAudio != null)
             {
-                GD.Print($"AudioDialoguePlayer.LoadAudioForBroadcastItem: Loaded voice audio for {item.Id}");
                 return voiceAudio;
             }
 
             // Fallback to silent audio
-            GD.Print($"AudioDialoguePlayer.LoadAudioForBroadcastItem: No voice audio found, using 4-second silent audio for {item.Id}");
             return GetSilentAudioFile();
         }
 
         private AudioStream? LoadAudioForLine(BroadcastLine line)
         {
-            GD.Print($"AudioDialoguePlayer.LoadAudioForLine: Legacy method called - converting BroadcastLine to BroadcastItem");
             var item = ConvertBroadcastLineToItem(line);
             return LoadAudioForBroadcastItem(item);
         }
@@ -219,10 +197,6 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
                 {
                     return audioStream;
                 }
-                else
-                {
-                    GD.Print($"AudioDialoguePlayer.LoadVoiceAudioForItem: Failed to load {audioPath}");
-                }
             }
 
             return null;
@@ -230,7 +204,6 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
 
         private AudioStream? LoadVoiceAudioForLine(BroadcastLine line)
         {
-            GD.Print($"AudioDialoguePlayer.LoadVoiceAudioForLine: Legacy method called - converting BroadcastLine to BroadcastItem");
             var item = ConvertBroadcastLineToItem(line);
             return LoadVoiceAudioForItem(item);
         }
@@ -431,7 +404,6 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
                 return GetSilentAudioFile();
             }
 
-            GD.Print($"AudioDialoguePlayer: Selected return bumper: {selectedFile}");
             return audioStream;
         }
 
@@ -443,7 +415,6 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
                 GD.PrintErr("AudioDialoguePlayer.GetSilentAudioFile: Failed to load silent audio file - returning null!");
                 return null;
             }
-            GD.Print($"AudioDialoguePlayer.GetSilentAudioFile: Loaded silent audio successfully");
             return audioStream;
         }
     }

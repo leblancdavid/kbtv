@@ -32,7 +32,6 @@ namespace KBTV.Dialogue
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
         {
             var displayText = GetDisplayText();
-            GD.Print($"AdExecutable: Playing commercial - {displayText}");
             
             // Calculate and add revenue (placeholder for now)
             var listenerCount = _listenerManager?.CurrentListeners ?? 100;
@@ -43,15 +42,12 @@ namespace KBTV.Dialogue
             
             if (!string.IsNullOrEmpty(_audioPath) && FileExists(_audioPath))
             {
-                GD.Print($"AdExecutable: Playing audio file: {_audioPath}");
                 await PlayAudioAsync(_audioPath, cancellationToken);
             }
             else
             {
-                GD.Print($"AdExecutable: Audio file not found ({_audioPath}), using delay fallback for {_duration}s");
                 // Default ad audio (silent placeholder with proper duration)
                 await DelayAsync(_duration, cancellationToken);
-                GD.Print($"AdExecutable: Delay fallback completed");
             }
         }
 
@@ -115,8 +111,6 @@ namespace KBTV.Dialogue
             
             // Try to find an existing ad file, fallback to null if none exist
             var audioPath = GetExistingAdAudioPath(adType, adIndex);
-            
-            GD.Print($"AdExecutable: Creating ad {adIndex} - Type: {adType}, Text: '{adText}', Audio: {audioPath ?? "none (delay fallback)"}");
             
             return new AdExecutable(id, adText, 4.0f, eventBus, listenerManager, audioService, sceneTree, sponsor, audioPath);
         }
