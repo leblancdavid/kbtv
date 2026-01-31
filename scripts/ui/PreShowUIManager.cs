@@ -10,8 +10,9 @@ using KBTV.UI;
 
 namespace KBTV.UI
 {
-	public partial class PreShowUIManager : CanvasLayer
+	public partial class PreShowUIManager : CanvasLayer, IDependent
 	{
+		public override void _Notification(int what) => this.Notify(what);
 		private VBoxContainer contentContainer;
 		private OptionButton _topicSelector;
 		private Label _topicDescription;
@@ -28,31 +29,60 @@ namespace KBTV.UI
 		private int _slotsPerBreak = AdConstants.DEFAULT_SLOTS_PER_BREAK;
 		private int _showDurationMinutes = 10;
 
-		private bool _disableBroadcastAudio = false;
+		private bool _disableBroadcastAudio = true;
 
 		// Show duration controls
 		private Button _decreaseDurationButton;
 		private Label _durationLabel;
 		private Button _increaseDurationButton;
 
-        public override void _Ready()
-        {
-            CreatePreShowUI();
-            ConnectToGameStateManager();
-        }
+		public override void _Ready()
+		{
+			CreatePreShowUI();
+			ConnectToGameStateManager();
+		}
 
-        private void ConnectToGameStateManager()
-        {
-            // PreShowUIManager doesn't need to connect to game state changes
-            // It handles its own initialization through OnResolved
-        }
+		public void OnResolved()
+		{
+			RegisterWithUIManager();
+		}
 
-        private void LoadTopics()
-        {
-            _availableTopics = KBTV.Data.TopicLoader.LoadAllTopics() ?? new List<Topic>();
-        }
+		private void CompleteInitialization()
+		{
+			LoadFromSave();
+			UpdateUI();
+		}
 
-        private void CreatePreShowUI()
+		private void ConnectToGameStateManager()
+		{
+			DeferredConnect();
+		}
+
+		private void DeferredConnect()
+		{
+			var gameStateManager = DependencyInjection.Get<GameStateManager>(this);
+			if (gameStateManager != null)
+			{
+				gameStateManager.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
+				UpdateUI();
+			}
+			else
+			{
+				GD.PrintErr("PreShowUIManager: GameStateManager not available");
+			}
+		}
+
+		private void OnPhaseChanged(int oldPhaseInt, int newPhaseInt)
+		{
+			UpdateUI();
+		}
+
+		private void LoadTopics()
+		{
+			_availableTopics = KBTV.Data.TopicLoader.LoadAllTopics() ?? new List<Topic>();
+		}
+
+		private void CreatePreShowUI()
 		{
 			var container = new MarginContainer();
 			container.AnchorLeft = 0;
@@ -69,14 +99,22 @@ namespace KBTV.UI
 			container.AddThemeConstantOverride("margin_right", 0);
 			AddChild(container);
 
+			LoadTopics();
 			SetupPreShowUI(container);
 			CompleteInitialization();
 		}
 
-		private void CompleteInitialization()
+		private void RegisterWithUIManager()
 		{
-			LoadFromSave();
-			UpdateUI();
+			var uiManager = DependencyInjection.Get<IUIManager>(this);
+			if (uiManager == null)
+			{
+				GD.PrintErr("PreShowUIManager: UIManager not available - cannot register PreShow layer!");
+				return;
+			}
+
+			uiManager.RegisterPreShowLayer(this);
+			GD.Print("PreShowUIManager: Registered with UIManager as PreShow layer");
 		}
 
 		private void LoadFromSave()
@@ -404,7 +442,35 @@ namespace KBTV.UI
 			var gameStateManager = DependencyInjection.Get<GameStateManager>(this);
 			var timeManager = DependencyInjection.Get<TimeManager>(this);
 			
-			if (gameStateManager != null && gameStateManager.CanStartLiveShow())
+			if (gameStateManager == null || timeManager == null)
+			{
+				// Defer execution until services are available
+				CallDeferred(nameof(DeferredStartShow));
+				return;
+			}
+			
+			ExecuteStartShow(gameStateManager, timeManager);
+		}
+
+		private void DeferredStartShow()
+		{
+			var gameStateManager = DependencyInjection.Get<GameStateManager>(this);
+			var timeManager = DependencyInjection.Get<TimeManager>(this);
+			
+			if (gameStateManager != null && timeManager != null)
+			{
+				ExecuteStartShow(gameStateManager, timeManager);
+			}
+			else
+			{
+				_errorLabel.Text = "SYSTEM INITIALIZING... PLEASE WAIT";
+				GD.PrintErr("PreShowUIManager: Services still not available after deferral");
+			}
+		}
+
+		private void ExecuteStartShow(GameStateManager gameStateManager, TimeManager timeManager)
+		{
+			if (gameStateManager.CanStartLiveShow())
 			{
 				// Set the ad schedule
 				var adSchedule = new AdSchedule(_breaksPerShow, _slotsPerBreak);
