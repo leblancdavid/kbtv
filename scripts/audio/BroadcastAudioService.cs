@@ -100,13 +100,19 @@ namespace KBTV.Audio
                 await Task.Delay(4000, cancellationToken);
                 return;
             }
-            // Special corruption check for the problematic file
-            if (audioPath == "res://assets/audio/voice/Callers/UFOs/lights/ufos_questionable_lights_caller_2.mp3")
+            if (IsAudioDisabled)
+            {
+                GD.Print($"BroadcastAudioService: Audio disabled, using 4-second timeout for {audioPath}");
+                await Task.Delay(4000, cancellationToken);
+                return;
+            }
+            // Special corruption check for the problematic file - skip when audio disabled to avoid unnecessary loading
+            if (!IsAudioDisabled && audioPath == "res://assets/audio/voice/Callers/UFOs/lights/ufos_questionable_lights_caller_2.mp3")
             {
                 var testStream = GD.Load<AudioStream>(audioPath);
                 if (testStream == null)
                 {
-                    GD.PrintErr($"CORRUPTION_CHECK: Failed to load AudioStream for {audioPath}, using 4-second delay");
+                    GD.Print($"CORRUPTION_CHECK: Failed to load AudioStream for {audioPath}, using 4-second delay");
                     await Task.Delay(4000, cancellationToken);
                     return;
                 }
@@ -126,14 +132,14 @@ namespace KBTV.Audio
                 }
                 else
                 {
-                    GD.PrintErr($"CORRUPTION_CHECK: Unknown AudioStream type for {audioPath}, using 4-second delay");
+                    GD.Print($"CORRUPTION_CHECK: Unknown AudioStream type for {audioPath}, using 4-second delay");
                     await Task.Delay(4000, cancellationToken);
                     return;
                 }
                 
                 if (testLength <= 0f)
                 {
-                    GD.PrintErr($"CORRUPTION_CHECK: Invalid length {testLength}, skipping playback with 4-second delay");
+                    GD.Print($"CORRUPTION_CHECK: Invalid length {testLength}, skipping playback with 4-second delay");
                     await Task.Delay(4000, cancellationToken);
                     return;
                 }
@@ -141,7 +147,7 @@ namespace KBTV.Audio
 
             if (!IsAudioStreamValid(audioPath))
             {
-                GD.PrintErr($"BroadcastAudioService: Skipping invalid audio file: {audioPath}, using 4-second delay");
+                GD.Print($"BroadcastAudioService: Skipping invalid audio file: {audioPath}, using 4-second delay");
                 await Task.Delay(4000, cancellationToken);
                 return;
             }
@@ -156,7 +162,7 @@ namespace KBTV.Audio
             var audioStream = GD.Load<AudioStream>(audioPath);
             if (audioStream == null)
             {
-                GD.PrintErr($"BroadcastAudioService: Failed to load audio stream: {audioPath}");
+                GD.Print($"BroadcastAudioService: Failed to load audio stream: {audioPath}");
                 ReturnPlayer(player);
                 await Task.Delay(4000, cancellationToken);
                 return;
@@ -245,7 +251,7 @@ namespace KBTV.Audio
                 string? validationPath = item.AudioPath;
                 if (validationPath != null && !IsAudioStreamValid(validationPath))
                 {
-                    GD.PrintErr($"BroadcastAudioService: Loaded audio stream is invalid for broadcast item {item.Id}, using silent fallback");
+                    GD.Print($"BroadcastAudioService: Loaded audio stream is invalid for broadcast item {item.Id}, using silent fallback");
                     audioStream = null;
                 }
             }
@@ -293,7 +299,7 @@ namespace KBTV.Audio
 
                 if (completedTask == timeoutTask)
                 {
-                    GD.PrintErr($"BroadcastAudioService: AUDIO TIMEOUT - Playback of {debugName} did not complete within {timeoutMs}ms, forcing completion");
+                    GD.Print($"BroadcastAudioService: AUDIO TIMEOUT - Playback of {debugName} did not complete within {timeoutMs}ms, forcing completion");
                     player.Stop();
                     tcs.TrySetResult(); // Force completion to prevent hang
                 }
@@ -363,7 +369,7 @@ namespace KBTV.Audio
             }
             else
             {
-                GD.PrintErr($"BroadcastAudioService.GetAudioDuration: Unsupported AudioStream type: {audioStream.GetType()}");
+                GD.Print($"BroadcastAudioService.GetAudioDuration: Unsupported AudioStream type: {audioStream.GetType()}");
                 return 0f;
             }
         }
@@ -399,6 +405,12 @@ namespace KBTV.Audio
         /// </summary>
         public AudioStream? LoadAudioForBroadcastItem(BroadcastItem item)
         {
+            // Skip loading entirely when audio is disabled
+            if (IsAudioDisabled)
+            {
+                return null;
+            }
+
             // If BroadcastItem has a specific audio path, use it
             if (!string.IsNullOrEmpty(item.AudioPath))
             {
@@ -576,7 +588,7 @@ namespace KBTV.Audio
             var returnBumperDir = DirAccess.Open("res://assets/audio/bumpers/Return");
             if (returnBumperDir == null)
             {
-                GD.PrintErr("BroadcastAudioService.LoadRandomReturnBumper: Return bumper directory not found, using silent fallback");
+                GD.Print("BroadcastAudioService.LoadRandomReturnBumper: Return bumper directory not found, using silent fallback");
                 return GetSilentAudioFile();
             }
 
@@ -595,7 +607,7 @@ namespace KBTV.Audio
 
             if (bumperFiles.Count == 0)
             {
-                GD.PrintErr("BroadcastAudioService.LoadRandomReturnBumper: No return bumper files found, using silent fallback");
+                GD.Print("BroadcastAudioService.LoadRandomReturnBumper: No return bumper files found, using silent fallback");
                 return GetSilentAudioFile();
             }
 
@@ -606,7 +618,7 @@ namespace KBTV.Audio
             var audioStream = GD.Load<AudioStream>(path);
             if (audioStream == null)
             {
-                GD.PrintErr($"BroadcastAudioService.LoadRandomReturnBumper: Failed to load {path}, using silent fallback");
+                GD.Print($"BroadcastAudioService.LoadRandomReturnBumper: Failed to load {path}, using silent fallback");
                 return GetSilentAudioFile();
             }
 
@@ -621,7 +633,7 @@ namespace KBTV.Audio
             var audioStream = GD.Load<AudioStream>("res://assets/audio/silence_4sec.wav");
             if (audioStream == null)
             {
-                GD.PrintErr("BroadcastAudioService.GetSilentAudioFile: Failed to load silent audio file - returning null!");
+                GD.Print("BroadcastAudioService.GetSilentAudioFile: Failed to load silent audio file - returning null!");
                 return null;
             }
             return audioStream;

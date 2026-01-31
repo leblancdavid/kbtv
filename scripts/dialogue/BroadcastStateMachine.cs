@@ -335,7 +335,7 @@ namespace KBTV.Dialogue
             var returnBumperDir = DirAccess.Open("res://assets/audio/bumpers/Return");
             if (returnBumperDir == null)
             {
-                GD.PrintErr("BroadcastStateMachine.GetRandomReturnBumperPath: Return bumper directory not found");
+                GD.Print("BroadcastStateMachine.GetRandomReturnBumperPath: Return bumper directory not found");
                 return null;
             }
 
@@ -354,7 +354,7 @@ namespace KBTV.Dialogue
 
             if (bumperFiles.Count == 0)
             {
-                GD.PrintErr("BroadcastStateMachine.GetRandomReturnBumperPath: No return bumper files found");
+                GD.Print("BroadcastStateMachine.GetRandomReturnBumperPath: No return bumper files found");
                 return null;
             }
 
@@ -371,7 +371,10 @@ namespace KBTV.Dialogue
             if (audioPath == null) return null;
             if (!FileAccess.FileExists(audioPath))
             {
-                GD.PrintErr($"BroadcastStateMachine.{context}: Audio file not found, falling back to timeout: {audioPath}");
+                if (!_audioService.IsAudioDisabled)
+                {
+                    GD.Print($"BroadcastStateMachine.{context}: Audio file not found, falling back to timeout: {audioPath}");
+                }
                 return null;
             }
             return audioPath;
