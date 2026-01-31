@@ -176,7 +176,6 @@ namespace KBTV.Persistence
             }
             else
             {
-                GD.Print("[SaveManager] No save file found, creating new save");
                 _currentSave = CreateNewSave();
             }
 
@@ -212,7 +211,6 @@ namespace KBTV.Persistence
         {
             if (_currentSave == null)
             {
-                GD.Print("[SaveManager] No save data to save");
                 return;
             }
 

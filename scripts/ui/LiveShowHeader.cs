@@ -36,7 +36,6 @@ namespace KBTV.UI
             _timerLabel = GetNode<Label>("HBoxContainer/TimerLabel");
             _moneyLabel = GetNode<Label>("HBoxContainer/MoneyLabel");
 
-            GD.Print("LiveShowHeader: Ready, waiting for dependencies...");
             // Dependencies resolved in OnResolved()
         }
 
@@ -45,8 +44,6 @@ namespace KBTV.UI
         /// </summary>
         public void OnResolved()
         {
-            GD.Print("LiveShowHeader: Dependencies resolved, initializing...");
-
             // Get dependencies via DI
             _repository = DependencyInjection.Get<ICallerRepository>(this);
             _listenerManager = DependencyInjection.Get<ListenerManager>(this);
@@ -145,7 +142,6 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
-            GD.Print("LiveShowHeader: Cleanup complete");
         }
     }
 }

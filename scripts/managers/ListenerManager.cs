@@ -84,7 +84,6 @@ namespace KBTV.Managers
 
             _gameState.OnPhaseChanged += HandlePhaseChanged;
             _timeManager.OnTick += HandleTick;
-            GD.Print("ListenerManager: Initialization complete");
             _initialized = true;
         }
 
@@ -270,10 +269,6 @@ namespace KBTV.Managers
             if (caller.State == CallerState.Incoming || caller.State == CallerState.Screening)
             {
                 ModifyListeners(-_disconnectPenalty);
-            }
-            else
-            {
-                GD.Print($"ListenerManager: Unexpected disconnect - Caller '{caller.Name}' state was {caller.State}");
             }
         }
     }

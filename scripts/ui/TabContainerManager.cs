@@ -18,12 +18,10 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            GD.Print("TabContainerManager: Ready, waiting for dependencies...");
         }
 
         public void OnResolved()
         {
-            GD.Print("TabContainerManager: Dependencies resolved, creating UI...");
             CreateUI();
             RegisterWithUIManager();
         }
@@ -80,8 +78,6 @@ namespace KBTV.UI
             {
                 GD.PrintErr("TabContainerManager: Failed to load LiveShowFooter.tscn");
             }
-
-            GD.Print("TabContainerManager: UI creation complete");
         }
 
 
@@ -127,7 +123,6 @@ namespace KBTV.UI
             }
 
             uiManager.RegisterLiveShowLayer(_canvas);
-            GD.Print("TabContainerManager: Registration complete");
         }
 
         public override void _ExitTree()

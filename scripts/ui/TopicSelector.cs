@@ -65,8 +65,6 @@ namespace KBTV.UI
 
         // Populate topics
         PopulateTopics();
-
-        GD.Print($"TopicSelector: Created with {_availableTopics.Count} topics, added {_topicSelector.GetItemCount()} items to OptionButton");
     }
 
     private void PopulateTopics()

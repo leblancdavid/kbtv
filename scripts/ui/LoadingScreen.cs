@@ -10,10 +10,8 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            GD.Print("LoadingScreen: Initializing loading screen");
             CreateLoadingUI();
             ConnectToGameStateManager();
-            GD.Print("LoadingScreen: UI created");
         }
 
         private void ConnectToGameStateManager()
@@ -29,7 +27,6 @@ namespace KBTV.UI
             {
                 gameStateManager.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
                 UpdateVisibility(gameStateManager.CurrentPhase);
-                GD.Print("LoadingScreen: Connected to GameStateManager");
             }
             else
             {
@@ -46,7 +43,6 @@ namespace KBTV.UI
         private void UpdateVisibility(GamePhase phase)
         {
             Visible = phase == GamePhase.Loading;
-            GD.Print($"LoadingScreen: Visibility set to {Visible} for phase {phase}");
         }
 
         private void CreateLoadingUI()
@@ -99,8 +95,6 @@ namespace KBTV.UI
             versionLabel.AddThemeColorOverride("font_color", new Color(0.4f, 0.4f, 0.4f));
             versionLabel.AddThemeFontSizeOverride("font_size", 10);
             container.AddChild(versionLabel);
-
-            GD.Print("LoadingScreen: UI created");
         }
     }
 }

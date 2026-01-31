@@ -24,9 +24,6 @@ namespace KBTV.Dialogue
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
         {
-            GD.Print("WaitForBreakExecutable: Starting wait for break to begin");
-
-            // Create a task completion source to wait for the break starting event
             var tcs = new TaskCompletionSource<bool>();
 
             // Subscribe to interruption events
@@ -53,12 +50,9 @@ namespace KBTV.Dialogue
                     GD.PrintErr($"WaitForBreakExecutable: Timeout waiting for break to start after {TIMEOUT_SECONDS}s");
                     throw new TimeoutException("WaitForBreakExecutable timed out waiting for break to start");
                 }
-
-                GD.Print("WaitForBreakExecutable: Break wait completed successfully");
             }
             catch (OperationCanceledException)
             {
-                GD.Print("WaitForBreakExecutable: Wait cancelled");
                 throw;
             }
             finally

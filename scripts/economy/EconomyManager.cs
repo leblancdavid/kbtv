@@ -94,7 +94,6 @@ namespace KBTV.Economy
         {
             if (amount <= 0)
             {
-                GD.Print($"[EconomyManager] Attempted to add non-positive amount: {amount}");
                 return;
             }
 
@@ -102,12 +101,6 @@ namespace KBTV.Economy
             _currentMoney += amount;
 
             EmitSignal("MoneyChanged", oldMoney, _currentMoney);
-
-            // TODO: Add when SaveManager is ported
-            // if (SaveManager.Instance != null)
-            // {
-            //     SaveManager.Instance.MarkDirty();
-            // }
         }
 
         /// <summary>
@@ -120,24 +113,17 @@ namespace KBTV.Economy
         {
             if (amount <= 0)
             {
-                GD.Print($"[EconomyManager] Attempted to spend non-positive amount: {amount}");
                 return false;
             }
 
             if (!CanAfford(amount))
             {
-                GD.Print($"[EconomyManager] Cannot afford ${amount}. Balance: ${_currentMoney}");
                 EmitSignal("PurchaseFailed", amount);
                 return false;
             }
 
             int oldMoney = _currentMoney;
             _currentMoney -= amount;
-
-            if (!string.IsNullOrEmpty(reason))
-            {
-                GD.Print($"[EconomyManager] -${amount} ({reason}). Balance: ${_currentMoney}");
-            }
 
             EmitSignal("MoneyChanged", oldMoney, _currentMoney);
             EmitSignal("Purchase", amount, reason);

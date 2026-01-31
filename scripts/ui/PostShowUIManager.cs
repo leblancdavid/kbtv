@@ -12,7 +12,6 @@ namespace KBTV.UI
 		public override void _Ready()
 		{
 			base._Ready();
-			GD.Print("PostShowUIManager: Initializing with services...");
 		}
 
 		public void OnResolved()
@@ -42,13 +41,11 @@ namespace KBTV.UI
 			{
 				var panel = panelScene.Instantiate();
 				canvasLayer.AddChild(panel);
-				GD.Print("PostShowUIManager: PostShowPanel loaded successfully");
 			}
 			else
 			{
 				GD.PrintErr("PostShowUIManager: Failed to load PostShowPanel.tscn");
 			}
-			GD.Print("PostShowUIManager: Initialization complete");
 		}
 	}
 }

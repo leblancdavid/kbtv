@@ -35,61 +35,24 @@ namespace KBTV.UI
 		private Label _durationLabel;
 		private Button _increaseDurationButton;
 
-		public override void _Ready()
-		{
-			try
-			{
-				GD.Print("PreShowUIManager: _Ready called");
-				LoadTopics();
-				
-				// Create main container
-				var container = new MarginContainer();
-				container.AnchorLeft = 0;
-				container.AnchorTop = 0;
-				container.AnchorRight = 1;
-				container.AnchorBottom = 1;
-				container.OffsetLeft = 0;
-				container.OffsetTop = 0;
-				container.OffsetRight = 0;
-				container.OffsetBottom = 0;
-				container.AddThemeConstantOverride("margin_top", 100);
-				container.AddThemeConstantOverride("margin_bottom", 100);
-				container.AddThemeConstantOverride("margin_left", 0);
-				container.AddThemeConstantOverride("margin_right", 0);
-				AddChild(container);
-				
-				SetupPreShowUI(container);
-				
-				// Register with UIManager
-				var uiManager = DependencyInjection.Get<IUIManager>(this);
-				uiManager?.RegisterPreShowLayer(this);
+        public override void _Ready()
+        {
+            CreatePreShowUI();
+            ConnectToGameStateManager();
+        }
 
-				// Load saved values and sync with panel
-				LoadFromSave();
-				if (adConfigPanel != null)
-				{
-					adConfigPanel.SetShowDuration(_showDurationMinutes);
-					adConfigPanel.SetBreaksPerShow(_breaksPerShow);
-					adConfigPanel.SetSlotsPerBreak(_slotsPerBreak);
-				}
-				if (_disableAudioCheckBox != null)
-				{
-					_disableAudioCheckBox.ButtonPressed = _disableBroadcastAudio;
-				}
-			}
-			catch (System.Exception e)
-			{
-				GD.PrintErr($"PreShowUIManager: Exception in _Ready: {e}");
-			}
-		}
+        private void ConnectToGameStateManager()
+        {
+            // PreShowUIManager doesn't need to connect to game state changes
+            // It handles its own initialization through OnResolved
+        }
 
-		private void LoadTopics()
-		{
-			_availableTopics = KBTV.Data.TopicLoader.LoadAllTopics() ?? new List<Topic>();
-			GD.Print($"PreShowUIManager: Loaded {_availableTopics.Count} topics");
-		}
+        private void LoadTopics()
+        {
+            _availableTopics = KBTV.Data.TopicLoader.LoadAllTopics() ?? new List<Topic>();
+        }
 
-		private void CreatePreShowUI()
+        private void CreatePreShowUI()
 		{
 			var container = new MarginContainer();
 			container.AnchorLeft = 0;

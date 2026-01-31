@@ -49,7 +49,6 @@ namespace KBTV.UI
         /// </summary>
         public void OnResolved()
         {
-            GD.Print("UIManager: Dependencies resolved, connecting to GameStateManager");
             GameStateManager.Connect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
         }
 
@@ -58,7 +57,6 @@ namespace KBTV.UI
         /// </summary>
         public void OnReady()
         {
-            GD.Print("UIManager: Ready, providing service to descendants");
             this.Provide();
         }
 

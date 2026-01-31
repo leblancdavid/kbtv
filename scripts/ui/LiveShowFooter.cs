@@ -32,7 +32,6 @@ namespace KBTV.UI
             _adBreakPanel = GetNode<Control>("HBoxContainer/AdBreakPanel");
             _endShowPanel = GetNode<Control>("HBoxContainer/EndShowPanel");
 
-            GD.Print("LiveShowFooter: Ready, waiting for dependencies...");
             // Dependencies resolved in OnResolved()
         }
 
@@ -41,8 +40,6 @@ namespace KBTV.UI
         /// </summary>
         public void OnResolved()
         {
-            GD.Print("LiveShowFooter: Dependencies resolved, initializing...");
-
             // Get dependencies via DI
             _repository = DependencyInjection.Get<ICallerRepository>(this);
             _adManager = DependencyInjection.Get<AdManager>(this);

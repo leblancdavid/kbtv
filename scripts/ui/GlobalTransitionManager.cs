@@ -29,7 +29,6 @@ namespace KBTV.UI
         public void OnResolved()
         {
             CreateFadeOverlay();
-            GD.Print("GlobalTransitionManager: Initialized and providing service");
         }
 
         private void CreateFadeOverlay()
@@ -48,7 +47,6 @@ namespace KBTV.UI
         {
             if (_isTransitioning)
             {
-                GD.Print("GlobalTransitionManager: Already transitioning, skipping");
                 return;
             }
 
@@ -69,7 +67,6 @@ namespace KBTV.UI
         {
             if (_isTransitioning)
             {
-                GD.Print("GlobalTransitionManager: Already transitioning, skipping");
                 return;
             }
 

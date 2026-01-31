@@ -73,8 +73,6 @@ public partial class TimeManager : Node, ISaveable, ITimeManager,
         
         // Register with SaveManager now that it's available
         SaveManager?.RegisterSaveable(this);
-        
-        GD.Print("TimeManager: Initialized successfully");
     }
 
     /// <summary>
@@ -82,7 +80,6 @@ public partial class TimeManager : Node, ISaveable, ITimeManager,
     /// </summary>
     public void OnResolved()
     {
-        GD.Print("TimeManager: Dependencies resolved");
     }
 
     /// <summary>
@@ -90,8 +87,6 @@ public partial class TimeManager : Node, ISaveable, ITimeManager,
     /// </summary>
     public void OnReady()
     {
-        GD.Print("TimeManager: Ready, providing service to descendants");
-        
         // Provide this service to descendants
         this.Provide();
     }

@@ -272,7 +272,6 @@ namespace KBTV.UI
 		{
 			if (_controller.CurrentCaller == null)
 			{
-				GD.Print("ScreeningPanel: Approve pressed but no caller is being screened - ignoring");
 				return;
 			}
 
@@ -287,7 +286,6 @@ namespace KBTV.UI
 		{
 			if (_controller.CurrentCaller == null)
 			{
-				GD.Print("ScreeningPanel: Reject pressed but no caller is being screened - ignoring");
 				return;
 			}
 
@@ -341,7 +339,6 @@ namespace KBTV.UI
 			{
 				_controller.PhaseChanged -= OnPhaseChanged;
 			}
-			GD.Print("ScreeningPanel: Cleanup complete");
 		}
 
 		private void EnsureNodesInitialized()
