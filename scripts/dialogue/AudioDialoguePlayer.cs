@@ -15,7 +15,6 @@ namespace KBTV.Dialogue
     {
         private AudioStreamPlayer _audioPlayer = null!;
         private string? _currentLineId;
-        private SceneTreeTimer? _currentTimer; // Track active timer to prevent multiples
         private readonly GameStateManager _gameStateManager;
 
         public event System.Action<AudioCompletedEvent>? LineCompleted;
@@ -60,7 +59,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             {
                 // No audio file found - use timer fallback with warning
                 GD.Print($"AudioDialoguePlayer: WARNING - No audio file found for {item.Id}, using 4-second timer fallback");
-                StartTimerFallback(4.0f);
+                await StartTimerFallbackAsync(4.0f);
             }
         }
 
@@ -75,27 +74,15 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             PlayBroadcastItemAsync(item);
         }
 
-        private void StartTimerFallback(float duration)
+        private async Task StartTimerFallbackAsync(float duration)
         {
-            // Cancel any existing timer first
-            if (_currentTimer != null)
-            {
-                _currentTimer.Disconnect("timeout", Callable.From(OnTimerTimeout));
-                _currentTimer = null;
-                GD.Print($"AudioDialoguePlayer: Cancelled previous timer");
-            }
-
-            _currentTimer = GetTree().CreateTimer(duration);
-            _currentTimer.Timeout += OnTimerTimeout;
-            GD.Print($"AudioDialoguePlayer: Started timer fallback for {duration}s");
-        }
-
-        private void OnTimerTimeout()
-        {
-            _currentTimer = null; // Clear reference
-            GD.Print($"AudioDialoguePlayer: Timer fallback completed");
+            GD.Print($"AudioDialoguePlayer: Starting async timer fallback for {duration}s");
+            await Task.Delay((int)(duration * 1000));
+            GD.Print($"AudioDialoguePlayer: Async timer fallback completed");
             OnAudioFinished();
         }
+
+
 
         public void Stop()
         {
@@ -104,14 +91,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
                 _audioPlayer.Stop();
             }
 
-            // Cancel any active timer
-            if (_currentTimer != null)
-            {
-                _currentTimer.Disconnect("timeout", Callable.From(OnTimerTimeout));
-                _currentTimer = null;
-                GD.Print($"AudioDialoguePlayer: Cancelled timer in Stop()");
-            }
-
+            // Note: Async timer fallback cannot be cancelled once started
             _currentLineId = null;
         }
 
@@ -239,12 +219,10 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
                 {
                     return audioStream;
                 }
-            else
-            {
-                // Fallback to timer for missing audio
-                GD.Print($"AudioDialoguePlayer.LoadAudioForBroadcastItem: No voice audio found, using timer fallback");
-                return null;
-            }
+                else
+                {
+                    GD.Print($"AudioDialoguePlayer.LoadVoiceAudioForItem: Failed to load {audioPath}");
+                }
             }
 
             return null;
