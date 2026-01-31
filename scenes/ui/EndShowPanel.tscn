@@ -27,4 +27,8 @@ horizontal_alignment = 1
 
 [node name="EndShowButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(120, 120)
 text = "END SHOW"
+alignment = 1
+vertical_icon_alignment = 1

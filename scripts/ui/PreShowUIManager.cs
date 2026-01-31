@@ -291,7 +291,7 @@ namespace KBTV.UI
 		{
 			try
 			{
-				if (_showDurationMinutes > 5)
+				if (_showDurationMinutes > 1)
 				{
 					_showDurationMinutes--;
 					adConfigPanel.SetShowDuration(_showDurationMinutes);

@@ -203,7 +203,7 @@ namespace KBTV.UI
         // Configuration methods
         public void SetShowDuration(int minutes)
         {
-            _showDurationMinutes = Mathf.Clamp(minutes, 5, 30);
+            _showDurationMinutes = Mathf.Clamp(minutes, 1, 30);
             UpdateLabels();
         }
 
