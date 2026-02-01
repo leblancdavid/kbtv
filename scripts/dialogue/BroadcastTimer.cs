@@ -100,7 +100,6 @@ public partial class BroadcastTimer : Node,
         {
             _eventBus = DependencyInjection.Get<EventBus>(this);
             _timeManager = DependencyInjection.Get<TimeManager>(this);
-            _eventBus.Subscribe<BroadcastTimerCommand>(HandleTimerCommand);
         }
 
         /// <summary>
@@ -155,6 +154,8 @@ public partial class BroadcastTimer : Node,
         {
             if (!_isShowActive && eventType != BroadcastTimingEventType.ShowEnd)
                 return;
+
+            GD.Print($"BroadcastTimer: Timer fired - {eventType} at game time {_timeManager?.ElapsedTime ?? 0f:F1}s");
 
             var timingEvent = new BroadcastTimingEvent(eventType);
             _eventBus.Publish(timingEvent);
@@ -367,5 +368,20 @@ public partial class BroadcastTimer : Node,
             }
             return false;
         }
+
+        /// <summary>
+        /// Public interface for starting show timing.
+        /// </summary>
+        public void StartShow(float showDuration = 600.0f) => StartShowInternal(showDuration);
+
+        /// <summary>
+        /// Public interface for stopping show timing.
+        /// </summary>
+        public void StopShow() => StopShowInternal();
+
+        /// <summary>
+        /// Public interface for starting ad break timing.
+        /// </summary>
+        public void StartAdBreak(float duration = 30.0f) => StartAdBreakInternal(duration);
     }
 }

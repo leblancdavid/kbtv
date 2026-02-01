@@ -102,6 +102,9 @@ namespace KBTV.Dialogue
             var previousState = _currentState;
             _currentState = newState;
             
+            // Reset ad break sequence flag if transitioning out of AdBreak
+            ResetAdBreakSequenceFlag();
+            
             if (_currentState != previousState)
             {
                 PublishStateChangedEvent(previousState);
@@ -180,10 +183,24 @@ namespace KBTV.Dialogue
                     GD.Print($"BroadcastStateManager: T5 timing event received, current state: {_currentState}");
                     break;
                  case BroadcastTimingEventType.Break0Seconds:
-                     // T0 reached - fire interruption to complete WaitForBreakExecutable, then transition to AdBreak
-                     _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakStarting));
-                     _currentState = AsyncBroadcastState.AdBreak;
-                     break;
+                      // Drop the on-air caller immediately when break starts
+                      var onAirCallerImmediate = _callerRepository.OnAirCaller;
+                      if (onAirCallerImmediate != null)
+                      {
+                          GD.Print($"BroadcastStateManager: IMMEDIATE caller drop for '{onAirCallerImmediate.Name}' at Break0Seconds");
+                          _callerRepository.SetCallerState(onAirCallerImmediate, CallerState.Disconnected);
+                          _callerRepository.RemoveCaller(onAirCallerImmediate);
+                      }
+                      else
+                      {
+                          GD.Print("BroadcastStateManager: No on-air caller to drop at Break0Seconds");
+                      }
+
+                      // Publish interruption and transition to AdBreak state
+                      _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakStarting));
+                      _currentState = AsyncBroadcastState.AdBreak;
+                      GD.Print($"BroadcastStateManager: Transitioned to AdBreak state at Break0Seconds");
+                      break;
                 case BroadcastTimingEventType.AdBreakStart:
                     _currentState = AsyncBroadcastState.AdBreak;
                     break;
@@ -191,12 +208,15 @@ namespace KBTV.Dialogue
                      _currentState = AsyncBroadcastState.BreakReturnMusic;
                      break;
             }
-             
-             if (_currentState != previousState)
-             {
-                 PublishStateChangedEvent(previousState);
-                 _previousState = previousState;
-             }
+              
+              // Reset ad break sequence flag if transitioning out of AdBreak
+              ResetAdBreakSequenceFlag();
+              
+              if (_currentState != previousState)
+              {
+                  PublishStateChangedEvent(previousState);
+                  _previousState = previousState;
+              }
           }
  
          /// <summary>
@@ -218,13 +238,17 @@ namespace KBTV.Dialogue
             }
             else if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakStarting)
             {
-                // Drop the on-air caller when break starts
-                var onAirCaller = _callerRepository.OnAirCaller;
-                if (onAirCaller != null)
+                // Additional safety fallback - drop caller if not already done
+                var onAirCallerFallback = _callerRepository.OnAirCaller;
+                if (onAirCallerFallback != null)
                 {
-                    GD.Print($"BroadcastStateManager: Dropping on-air caller '{onAirCaller.Name}' due to ad break");
-                    _callerRepository.SetCallerState(onAirCaller, CallerState.Disconnected);
-                    _callerRepository.RemoveCaller(onAirCaller);
+                    GD.Print($"BroadcastStateManager: FALLBACK caller drop for '{onAirCallerFallback.Name}' via BreakStarting interruption");
+                    _callerRepository.SetCallerState(onAirCallerFallback, CallerState.Disconnected);
+                    _callerRepository.RemoveCaller(onAirCallerFallback);
+                }
+                else
+                {
+                    GD.Print("BroadcastStateManager: No on-air caller to drop via BreakStarting interruption (already handled)");
                 }
             }
             else if (interruptionEvent.Reason == BroadcastInterruptionReason.ShowEnding)
@@ -272,6 +296,19 @@ namespace KBTV.Dialogue
             var stateChangedEvent = new BroadcastStateChangedEvent(_currentState, previousState);
             _eventBus.Publish(stateChangedEvent);
             GD.Print($"BroadcastStateManager: Published state change from {previousState} to {_currentState}");
+        }
+
+        /// <summary>
+        /// Reset the ad break sequence running flag when transitioning out of AdBreak state.
+        /// This ensures the sequence can run again for the next break.
+        /// </summary>
+        private void ResetAdBreakSequenceFlag()
+        {
+            if (_currentState != AsyncBroadcastState.AdBreak && _adBreakSequenceRunning)
+            {
+                GD.Print("BroadcastStateManager: Resetting _adBreakSequenceRunning flag (transitioned out of AdBreak state)");
+                _adBreakSequenceRunning = false;
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════════════════════════════════════

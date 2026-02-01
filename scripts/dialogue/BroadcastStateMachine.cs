@@ -88,6 +88,7 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.DeadAir:
                     return CreateDeadAirExecutable();
                 case AsyncBroadcastState.AdBreak:
+                    GD.Print($"BroadcastStateMachine: AdBreak state - _adBreakSequenceRunning: {_stateManager._adBreakSequenceRunning}");
                     return _stateManager._adBreakSequenceRunning ? null : CreateAdBreakSequenceExecutable();
                 case AsyncBroadcastState.WaitingForBreak:
                     float timeUntilBreak = CalculateTimeUntilBreak();

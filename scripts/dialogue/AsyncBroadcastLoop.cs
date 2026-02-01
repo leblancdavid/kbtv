@@ -36,6 +36,7 @@ namespace KBTV.Dialogue
 
         private BroadcastStateManager _stateManager => DependencyInjection.Get<BroadcastStateManager>(this);
         private AdManager AdManager => DependencyInjection.Get<AdManager>(this);
+        private BroadcastTimer BroadcastTimer => DependencyInjection.Get<BroadcastTimer>(this);
         private CancellationTokenSource? _cancellationTokenSource;
         private readonly List<CancellationTokenSource> _oldTokenSources = new();
         private Task? _broadcastTask;
@@ -189,7 +190,7 @@ namespace KBTV.Dialogue
             try
             {
                 _isRunning = true;
-                EventBus.Publish(new BroadcastTimerCommand(BroadcastTimerCommandType.StartShow, showDuration));
+                BroadcastTimer.StartShow(showDuration);
 
                 // Get the first executable and start the loop
                 var firstExecutable = _stateManager.StartShow();
@@ -410,7 +411,31 @@ namespace KBTV.Dialogue
                 // Publish interruption event for UI and other components
                 EventBus.Publish(new BroadcastInterruptionEvent(reason));
                 
-                _cancellationTokenSource?.Cancel();
+                // Safety fallback: drop caller if BreakStarting and we have an on-air caller
+                if (reason == BroadcastInterruptionReason.BreakStarting)
+                {
+                    var callerRepository = DependencyInjection.Get<ICallerRepository>(this);
+                    var onAirCaller = callerRepository?.OnAirCaller;
+                    if (onAirCaller != null)
+                    {
+                        KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: SAFETY FALLBACK - Dropping on-air caller '{onAirCaller.Name}' via InterruptBroadcast");
+                        callerRepository.SetCallerState(onAirCaller, CallerState.Disconnected);
+                        callerRepository.RemoveCaller(onAirCaller);
+                    }
+                }
+                
+                // Safety fallback: drop caller if BreakStarting and we have an on-air caller
+                if (reason == BroadcastInterruptionReason.BreakStarting)
+                {
+                    var callerRepository = DependencyInjection.Get<ICallerRepository>(this);
+                    var onAirCaller = callerRepository?.OnAirCaller;
+                    if (onAirCaller != null)
+                    {
+                        KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: SAFETY FALLBACK - Dropping on-air caller '{onAirCaller.Name}' via InterruptBroadcast");
+                        callerRepository.SetCallerState(onAirCaller, CallerState.Disconnected);
+                        callerRepository.RemoveCaller(onAirCaller);
+                    }
+                }
             }
         }
 
@@ -425,7 +450,7 @@ namespace KBTV.Dialogue
 
             _isRunning = false;
             _cancellationTokenSource?.Cancel();
-            EventBus.Publish(new BroadcastTimerCommand(BroadcastTimerCommandType.StopShow));
+            BroadcastTimer.StopShow();
 
             // Cleanup current executable
             if (_currentExecutable != null)
@@ -489,7 +514,7 @@ namespace KBTV.Dialogue
         /// </summary>
         public void ScheduleBreak(float breakTimeFromNow)
         {
-            EventBus.Publish(new BroadcastTimerCommand(BroadcastTimerCommandType.ScheduleBreakWarnings, breakTimeFromNow));
+            BroadcastTimer.ScheduleBreakWarnings(breakTimeFromNow);
         }
 
         /// <summary>
@@ -497,7 +522,7 @@ namespace KBTV.Dialogue
         /// </summary>
         public void StartAdBreak()
         {
-            EventBus.Publish(new BroadcastTimerCommand(BroadcastTimerCommandType.StartAdBreak));
+            BroadcastTimer.StartAdBreak();
         }
 
         /// <summary>
