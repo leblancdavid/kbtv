@@ -85,6 +85,12 @@ namespace KBTV.UI
                 return;
             }
 
+            // Skip displaying ad sequence container items (only show individual ads)
+            if (item.Type == BroadcastItemType.Ad && item.Text?.StartsWith("Playing") == true)
+            {
+                return;
+            }
+
             if (string.IsNullOrEmpty(item.Text))
             {
                 DeferredUpdateWaitingDisplay();
@@ -210,7 +216,7 @@ namespace KBTV.UI
                 return;
             }
 
-            // Hide speaker name and phase label for minimal display
+            // Hide speaker name and phase label for minimal display (except for ads which need sponsor info)
             _speakerName.Text = "";
             _phaseLabel.Text = "";
 
@@ -218,6 +224,8 @@ namespace KBTV.UI
             if (item.Type == BroadcastItemType.Ad)
             {
                 _speakerIcon.Text = "AD BREAK";
+                // For ads, show the sponsor information in speaker name
+                _speakerName.Text = item.Text;
             }
             else if (item.Type == BroadcastItemType.Music)
             {

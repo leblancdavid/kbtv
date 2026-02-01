@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
@@ -87,15 +88,36 @@ namespace KBTV.Dialogue
                     return CreateBetweenCallersExecutable();
                 case AsyncBroadcastState.DeadAir:
                     return CreateDeadAirExecutable();
-                case AsyncBroadcastState.AdBreak:
-                    GD.Print($"BroadcastStateMachine: AdBreak state - _adBreakSequenceRunning: {_stateManager._adBreakSequenceRunning}");
-                    return _stateManager._adBreakSequenceRunning ? null : CreateAdBreakSequenceExecutable();
+                 case AsyncBroadcastState.AdBreak:
+                       if (_stateManager.TotalAdsForBreak == 0)
+                       {
+                           int adCount = _adManager?.CurrentBreakSlots ?? 1;
+                           int totalAds = Math.Max(adCount, 1);
+                           var order = new List<int>();
+                           for (int i = 0; i < totalAds; i++) order.Add(i);
+                           order = order.OrderBy(x => GD.Randi()).ToList();
+                           _stateManager.SetAdBreakState(totalAds, order);
+                           // Start the break when entering AdBreak state
+                           _adManager?.StartBreak();
+                           GD.Print($"BroadcastStateMachine: Initialized ad break with {totalAds} ads");
+                       }
+                      if (_stateManager.CurrentAdIndex >= _stateManager.TotalAdsForBreak)
+                      {
+                          // All ads complete, transition to break return music
+                          _stateManager.SetState(AsyncBroadcastState.BreakReturnMusic);
+                          return CreateReturnFromBreakMusicExecutable();
+                      }
+                      else
+                      {
+                          int adSlot = _stateManager.AdOrder[_stateManager.CurrentAdIndex];
+                          return CreateAdExecutable(adSlot);
+                      }
                 case AsyncBroadcastState.WaitingForBreak:
                     float timeUntilBreak = CalculateTimeUntilBreak();
-                    return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree, timeUntilBreak);
+                    return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree, _callerRepository, timeUntilBreak);
                 case AsyncBroadcastState.WaitingForShowEnd:
                     float timeUntilShowEnd = CalculateTimeUntilShowEnd();
-                    return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree, timeUntilShowEnd, "Show ending...");
+                    return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree, _callerRepository, timeUntilShowEnd, "Show ending...");
                 case AsyncBroadcastState.BreakReturnMusic:
                     return CreateReturnFromBreakMusicExecutable();
                 case AsyncBroadcastState.BreakReturn:
@@ -145,8 +167,13 @@ namespace KBTV.Dialogue
                     // Else stay in DeadAir
                     break;
                  case AsyncBroadcastState.AdBreak:
-                     _stateManager._adBreakSequenceRunning = false;
-                     newState = AsyncBroadcastState.BreakReturnMusic;
+                     _stateManager.IncrementAdIndex();
+                     if (_stateManager.CurrentAdIndex >= _stateManager.TotalAdsForBreak)
+                     {
+                         // All ads complete, transition to break return music
+                         newState = AsyncBroadcastState.BreakReturnMusic;
+                     }
+                     // Else stay in AdBreak for next ad
                      break;
                  case AsyncBroadcastState.BreakReturnMusic:
                      newState = AsyncBroadcastState.BreakReturn;
@@ -408,13 +435,12 @@ namespace KBTV.Dialogue
             return new DialogueExecutable("dead_air", text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DeadAirFiller, _stateManager);
         }
 
-        private BroadcastExecutable CreateAdBreakSequenceExecutable()
+        private BroadcastExecutable CreateAdExecutable(int adSlot)
         {
-            var adCount = _adManager?.CurrentBreakSlots ?? 6;
-            GD.Print($"BroadcastStateMachine: Creating AdBreakSequence executable - will play {adCount} ads sequentially");
-            _stateManager._adBreakSequenceRunning = true;
-            return new AdBreakSequenceExecutable("ad_break_sequence", _eventBus, _listenerManager, _audioService, _sceneTree, adCount);
+            var listenerCount = _listenerManager?.CurrentListeners ?? 100;
+            return AdExecutable.CreateForListenerCount($"ad_{adSlot}", listenerCount, adSlot, _eventBus, _listenerManager, _audioService, _sceneTree);
         }
+
 
         private BroadcastExecutable CreateReturnFromBreakMusicExecutable() =>
             new TransitionExecutable("break_return_music", "Return bumper music", 4.0f, _eventBus, _audioService, _sceneTree, GetRandomReturnBumperPath());

@@ -70,6 +70,31 @@ namespace KBTV.Dialogue
         public bool _showClosingStarted = false;
         public bool _adBreakSequenceRunning = false;
         public AsyncBroadcastState _previousState = AsyncBroadcastState.Idle;
+        
+        // Ad break tracking for sequential execution
+        private int _currentAdIndex = 0;
+        private int _totalAdsForBreak = 0;
+        private List<int> _adOrder = new();
+
+        // Public accessors for BroadcastStateMachine
+        public int CurrentAdIndex => _currentAdIndex;
+        public int TotalAdsForBreak => _totalAdsForBreak;
+        public List<int> AdOrder => _adOrder;
+
+        // Methods for BroadcastStateMachine to modify ad state
+        public void IncrementAdIndex() => _currentAdIndex++;
+        public void ResetAdBreakState()
+        {
+            _currentAdIndex = 0;
+            _totalAdsForBreak = 0;
+            _adOrder.Clear();
+        }
+        public void SetAdBreakState(int totalAds, List<int> order)
+        {
+            _totalAdsForBreak = totalAds;
+            _adOrder = order;
+            _currentAdIndex = 0;
+        }
 
         public AsyncBroadcastState CurrentState => _currentState;
         public float ElapsedTime => _timeManager?.ElapsedTime ?? 0f;
@@ -183,24 +208,9 @@ namespace KBTV.Dialogue
                     GD.Print($"BroadcastStateManager: T5 timing event received, current state: {_currentState}");
                     break;
                  case BroadcastTimingEventType.Break0Seconds:
-                      // Drop the on-air caller immediately when break starts
-                      var onAirCallerImmediate = _callerRepository.OnAirCaller;
-                      if (onAirCallerImmediate != null)
-                      {
-                          GD.Print($"BroadcastStateManager: IMMEDIATE caller drop for '{onAirCallerImmediate.Name}' at Break0Seconds");
-                          _callerRepository.SetCallerState(onAirCallerImmediate, CallerState.Disconnected);
-                          _callerRepository.RemoveCaller(onAirCallerImmediate);
-                      }
-                      else
-                      {
-                          GD.Print("BroadcastStateManager: No on-air caller to drop at Break0Seconds");
-                      }
-
-                      // Publish interruption and transition to AdBreak state
-                      _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakStarting));
-                      _currentState = AsyncBroadcastState.AdBreak;
-                      GD.Print($"BroadcastStateManager: Transitioned to AdBreak state at Break0Seconds");
-                      break;
+                     // T0 event removed - caller dropping now handled by WaitForBreakExecutable completion
+                     // AdManager.StartBreak() moved to AdBreak state initialization
+                     break;
                 case BroadcastTimingEventType.AdBreakStart:
                     _currentState = AsyncBroadcastState.AdBreak;
                     break;
@@ -280,6 +290,9 @@ namespace KBTV.Dialogue
             _showClosingStarted = false;
             _hasPlayedVernOpening = false;
             _adBreakSequenceRunning = false;
+            _currentAdIndex = 0;
+            _totalAdsForBreak = 0;
+            _adOrder.Clear();
 
             _isShowActive = true;
             _currentState = AsyncBroadcastState.ShowStarting;

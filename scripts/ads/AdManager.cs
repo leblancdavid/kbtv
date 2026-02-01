@@ -79,8 +79,14 @@ namespace KBTV.Ads
         public float TimeUntilNextBreak => _timeUntilNextBreak;
         public float TimeUntilBreakWindow => _timeUntilBreakWindow;
         public float QueuedCountdown => _queuedCountdown;
-        public int CurrentBreakSlots => _schedule != null && _currentBreakIndex >= 0 && _currentBreakIndex < _schedule.Breaks.Count
-            ? _schedule.Breaks[_currentBreakIndex].SlotsPerBreak : 0;
+        public int CurrentBreakSlots
+        {
+            get
+            {
+                return _schedule != null && _currentBreakIndex >= 0 && _currentBreakIndex < _schedule.Breaks.Count
+                    ? _schedule.Breaks[_currentBreakIndex].SlotsPerBreak : 0;
+            }
+        }
         public int CurrentListeners => ListenerManager.CurrentListeners;
         public bool IsInitialized => _schedule != null;
 
@@ -190,13 +196,14 @@ namespace KBTV.Ads
                     OnBreakWindowOpened?.Invoke(_timeUntilNextBreak);
                     break;
                 case BroadcastTimingEventType.Break0Seconds:
-                    // Break starts now
-                    StartBreak();
+                    // Break starts now - StartBreak() moved to AdBreak state initialization
+                    // _currentBreakIndex++ moved to HandleBroadcastTimingEvent for immediate update
+                    _currentBreakIndex++;
                     break;
             }
         }
 
-        private void StartBreak()
+        public void StartBreak()
         {
             if (_breakActive)
             {
@@ -206,7 +213,7 @@ namespace KBTV.Ads
             // Breaks always start on schedule - transitions are best-effort and can be interrupted
             _breakActive = true;
             _isInBreakWindow = false;  // Break window closes when break starts
-            _currentBreakIndex++;
+            // _currentBreakIndex++ moved to HandleBroadcastTimingEvent for immediate update
 
             // Update break scheduler with new index
             _breakScheduler.UpdateCurrentBreakIndex(_currentBreakIndex);
