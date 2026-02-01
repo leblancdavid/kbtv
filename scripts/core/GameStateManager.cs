@@ -315,17 +315,11 @@ namespace KBTV.Core
 			// Reset the clock for next show
 			TimeManager.ResetClock();
 
-			// Play outro music if it was queued by user clicking "End Show" button
-			if (AsyncBroadcastLoop.IsOutroMusicQueued)
-			{
-				GD.Print("GameStateManager: Playing queued outro music");
-				var bumperItem = new BroadcastItem("Bumper_Music", BroadcastItemType.Music, "Bumper Music", duration: 4.0f);
-				AudioPlayer.PlayAudioForBroadcastItemAsync(bumperItem);
-
-				// Wait for bumper to complete (4 seconds for music lines)
-				await ToSignal(GetTree().CreateTimer(4f), "timeout");
-				GD.Print("GameStateManager: Outro music completed");
-			}
+			// Always play outro music at show end
+			GD.Print("GameStateManager: Playing outro music");
+			var outroItem = new BroadcastItem("outro_music", BroadcastItemType.Music, "Outro music", "res://assets/audio/music/intro_music.wav", 4.0f);
+			await AudioPlayer.PlayAudioForBroadcastItemAsync(outroItem);
+			GD.Print("GameStateManager: Outro music completed");
 
 			// Auto-save at end of show
 			SaveManager.Save();

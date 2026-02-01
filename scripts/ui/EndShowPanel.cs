@@ -104,8 +104,7 @@ namespace KBTV.UI
 			// Update styling immediately for pressed state
 			UpdateButtonStyling();
 
-			// Queue the show end
-			_asyncLoop.QueueShowEnd();
+
 		}
 
 		private void UpdateButtonStyling()

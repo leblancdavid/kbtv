@@ -43,7 +43,7 @@ namespace KBTV.Dialogue
         private BroadcastExecutable? _currentExecutable;
         private readonly object _lock = new object();
         private BroadcastInterruptionReason _lastInterruptionReason;
-        private bool _isOutroMusicQueued = false;
+
         private string _currentAdSponsor = "";
         private readonly List<CancellationTokenSource> _tokenPool = new();
         private readonly object _tokenPoolLock = new();
@@ -53,7 +53,7 @@ namespace KBTV.Dialogue
         public bool IsRunning => _isRunning;
         public BroadcastExecutable? CurrentExecutable => _currentExecutable;
         public AsyncBroadcastState CurrentState => _stateManager.CurrentState;
-        public bool IsOutroMusicQueued => _isOutroMusicQueued;
+
         public string CurrentAdSponsor => _currentAdSponsor;
 
         // Provider interface implementation
@@ -508,14 +508,7 @@ namespace KBTV.Dialogue
             return _stateManager.CurrentState == AsyncBroadcastState.AdBreak;
         }
 
-        /// <summary>
-        /// Queue the show end for outro music playback.
-        /// </summary>
-        public void QueueShowEnd()
-        {
-            KBTV.Core.Logger.Debug("AsyncBroadcastLoop: QueueShowEnd called - setting outro music queued flag");
-            _isOutroMusicQueued = true;
-        }
+
 
         /// <summary>
         /// Set the current ad sponsor for display.

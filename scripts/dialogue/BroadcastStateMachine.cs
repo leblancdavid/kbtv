@@ -107,9 +107,9 @@ namespace KBTV.Dialogue
                         return new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller, _stateManager);
                     }
                     return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: _stateManager);
-                 case AsyncBroadcastState.ShowClosing:
-                 case AsyncBroadcastState.ShowEnding:
-                     return CreateOutroMusicExecutable();
+                  case AsyncBroadcastState.ShowClosing:
+                  case AsyncBroadcastState.ShowEnding:
+                      return null;
                 default:
                     return null;
             }
@@ -307,8 +307,6 @@ namespace KBTV.Dialogue
         private BroadcastExecutable CreateIntroMusicExecutable() =>
             new MusicExecutable("intro_music", "Intro music", "res://assets/audio/music/intro_music.wav", 4.0f, _eventBus, _audioService, _sceneTree);
 
-        private BroadcastExecutable CreateOutroMusicExecutable() =>
-            new MusicExecutable("outro_music", "Outro music", "res://assets/audio/music/intro_music.wav", 4.0f, _eventBus, _audioService, _sceneTree);
 
         private BroadcastExecutable CreateConversationExecutable(AsyncBroadcastState currentState)
         {
