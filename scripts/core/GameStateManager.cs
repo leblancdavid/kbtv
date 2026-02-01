@@ -321,6 +321,10 @@ namespace KBTV.Core
 			await AudioPlayer.PlayAudioForBroadcastItemAsync(outroItem);
 			GD.Print("GameStateManager: Outro music completed");
 
+			// End the broadcast loop
+			AsyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.ShowEnding);
+			GD.Print("GameStateManager: Broadcast loop interrupted");
+
 			// Auto-save at end of show
 			SaveManager.Save();
 			GD.Print("GameStateManager: Game saved");
