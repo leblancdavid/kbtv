@@ -23,9 +23,9 @@ The main scene (`scenes/Main.tscn`) contains:
 
 ## Architecture Overview
 
-- **Pattern**: Service Registry with event-driven communication
+- **Pattern**: AutoInject dependency injection with event-driven communication
 - **Namespaces**: `KBTV.Core`, `KBTV.Data`, `KBTV.Managers`, `KBTV.Callers`, `KBTV.Dialogue`, `KBTV.UI`, `KBTV.Audio`
-- **Bootstrap**: Main scene (`scenes/Main.tscn`) creates all managers at startup
+- **Bootstrap**: Main scene (`scenes/Main.tscn`) creates ServiceProviderRoot with all managers at startup
 - **Data**: Godot Resources for configuration (Topics, Items, VernStats)
 
 ### File Structure
@@ -68,16 +68,21 @@ assets/
 ### Stats System
 **Files**: `scripts/data/Stat.cs`, `scripts/data/VernStats.cs`, `scripts/data/StatModifier.cs`
 
-- `VernStats` (Resource) contains 7 stats (0-100 range):
-  - **Mood** - Affected by events, interactions, items
-  - **Energy** - Drops over time, restored by caffeine/items
-  - **Hunger/Thirst** - Basic needs, increase over time
-  - **Patience** - Tolerance for waiting/bad callers
-  - **Susceptibility** - How much evidence impacts Vern's beliefs
-  - **Belief** - Core meter, correlates to show quality
-  - `StatModifier` Resources apply stat changes (items/events call `Apply(VernStats)`)
-- `CalculateShowQuality()` returns 0-1: Belief (40%) + Mood (25%) + Energy (20%) + Patience (15%), penalized by high Hunger/Thirst
-- `ApplyDecay(deltaTime, multiplier)` degrades stats during live shows
+Vern's stats system tracks his physical, emotional, and cognitive state during broadcasts. These stats drive the VIBE metric, which determines listener growth and show quality. The system uses sigmoid curves for smooth, natural-feeling transitions.
+
+- **Dependencies (Decay-Only)**: Caffeine, Nicotine (0-100) - must be maintained, cause withdrawal
+- **Physical Capacity**: Energy, Satiety (0-100) - capacity to perform
+- **Emotional State**: Spirit (-50 to +50) - universal mood modifier
+- **Cognitive Performance**: Alertness, Discernment, Focus (0-100) - performance quality
+- **Long-Term**: Skepticism (0-100), Topic Affinity (-50 to +50 per topic)
+
+The combination of all stats affects VIBE (Vibrancy, Interest, Broadcast Entertainment), which drives listener growth.
+
+- `VernStats` (Resource) contains all stat tracking with decay rules and VIBE calculations
+- `Stat` (individual stat with clamping and events)
+- `StatModifier` Resources apply stat changes (items/events call `Apply(VernStats)`)
+- `CalculateVibe()` returns composite metric using sigmoid functions for smooth transitions
+- `ApplyDecay(deltaTime, multiplier)` degrades stats during live shows using configurable decay rates
 
 ### Phase/Time System
 **Files**: `Core/GamePhase.cs`, `Core/GameStateManager.cs`, `Managers/TimeManager.cs`, `Managers/LiveShowManager.cs`
@@ -196,12 +201,14 @@ The dialogue system uses **async event-driven broadcast architecture** - executa
 | `VernDialogueTemplate` | Resource for Vern's broadcast lines (opening, filler, signoff) |
 
 #### Mood Calculation
-`VernStateCalculator.CalculateMood(VernStats)` returns `VernMood` based on:
-- **Tired**: Energy < 25
-- **Grumpy**: Mood < 30 or Patience < 20
-- **Excited**: Mood > 80 and Energy > 60
-- **Engaged**: Mood > 50 and Energy > 40
-- **Neutral**: Default fallback
+`VernStateCalculator.CalculateMood(VernStats)` returns `VernMood` based on priority order:
+- **Tired**: Energy < 30
+- **Energized**: Caffeine > 60 AND Energy > 60
+- **Irritated**: Spirit < -10 OR Patience < 40
+- **Amused**: Spirit > 20 AND LastCallerPositive
+- **Gruff**: RecentBadCaller OR Spirit < 0
+- **Focused**: Alertness > 60 AND Discernment > 50
+- **Neutral**: Default state
 
 #### Discernment Calculation
 `VernStateCalculator.DetermineBeliefPath(discernment, legitimacy)` determines if Vern correctly reads the caller:
@@ -394,22 +401,35 @@ See [VOICE_AUDIO.md](VOICE_AUDIO.md) for detailed integration architecture.
 
 ## Key Patterns
 
-### Service Registry
+### AutoInject Dependency Injection
 
-Access all core services through the Service Registry:
+KBTV uses Chickensoft AutoInject for dependency injection. Services register themselves using the `IAutoNode` mixin and dependencies are resolved automatically.
 
 ```csharp
-// Access services through ServiceRegistry
-var repository = ServiceRegistry.Instance.CallerRepository;
-var screeningController = ServiceRegistry.Instance.ScreeningController;
-var events = ServiceRegistry.Instance.EventAggregator;
-var gameState = ServiceRegistry.Instance.GameStateManager;
+// Services register themselves
+[Meta(typeof(IAutoNode))]
+public partial class GameStateManager : Node, IProvide<GameStateManager>
+{
+    public override void _Notification(int what) => this.Notify(what);
+    
+    GameStateManager IProvide<GameStateManager>.Value() => this;
+    
+    public void OnReady() => this.Provide();  // Make services available
+}
+
+// Components consume dependencies
+[Meta(typeof(IAutoNode))]
+public partial class MyComponent : Node, IDependent
+{
+    [Dependency] private GameStateManager GameState => DependOn<GameStateManager>();
+}
 ```
 
-Services are registered in `scripts/core/ServiceRegistry.cs` and accessed via:
-- `ServiceRegistry.Instance.Get<T>()` - Get any registered service
-- `ServiceRegistry.Instance.HasService<T>()` - Check if service exists
-- Shortcut properties for commonly used services
+**Key Classes:**
+- `ServiceProviderRoot` - Root service provider for the scene tree
+- All services implement `IAutoNode` with `IProvide<T>` interfaces
+
+See [AUTOINJECT_PATTERN.md](AUTOINJECT_PATTERN.md) for complete documentation.
 
 ### BasePanel
 

@@ -304,5 +304,5 @@ user://kbtv_save.json
 ## References
 
 - [ECONOMY_SYSTEM.md](ECONOMY_SYSTEM.md) - Money and income
-- [EQUIPMENT_SYSTEM.md](EQUIPMENT_SYSTEM.md) - Equipment upgrades
+- [STATION_EQUIPMENT.md](../systems/STATION_EQUIPMENT.md) - Equipment upgrades
 - [GAME_DESIGN.md](GAME_DESIGN.md) - Overall game design

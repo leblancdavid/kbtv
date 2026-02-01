@@ -4,8 +4,11 @@
 **Goal**: Playable live show - screen callers, manage Vern's needs, see show quality impact
 
 ### Completed
-- [x] Stats system (VernStats with 7 stats, decay, show quality calculation)
-  - **Note**: System being redesigned - see VERN_STATS.md for new architecture
+- [x] Stats system (VernStats redesigned with new categories: Dependencies, Physical, Emotional, Cognitive, Long-Term)
+  - VIBE system (Vibrancy, Interest, Broadcast Entertainment) with sigmoid curves
+  - 7 mood types with Spirit modifier
+  - Sigmoid functions for listener growth, decay acceleration, item effectiveness
+  - See [VERN_STATS.md](../systems/VERN_STATS.md)
 - [x] Phase/Time system (PreShow → LiveShow → PostShow cycle)
 - [x] Caller screening system (generation, queues, legitimacy, patience)
 - [x] Topics with screening rules
@@ -48,47 +51,48 @@ _Milestone 1 complete! Proceed to Milestone 2._
   - Start Show button (disabled until topic selected)
   - Night counter display
 - [x] Arc-based dialogue system
-  - ConversationArc, ArcRepository, ArcConversationGenerator
+  - ConversationArc, ArcRepository, ArcJsonParser
   - MoodCalculator, DiscernmentCalculator, DialogueSubstitution
-  - 17 sample arcs (4 topics x 4 legitimacy tiers, + 1 topic-switcher)
-  - 5 mood variants per arc with belief branches
+  - JSON conversation arcs with mood variants and belief branches
 - [x] Voice audio system
-  - VoiceAudioService with Addressables for async loading
-  - ~950 pre-generated voice lines (Piper TTS)
-  - Audio Mixer with VernGroup and CallerGroup routing
-- [x] Broadcast flow
-  - Show opening/closing
-  - Between-caller transitions
+  - VoiceAudioService for async loading of pre-generated audio
+  - Audio dialogue player with event-driven playback
+  - Broadcast audio service for show elements
+- [x] Broadcast flow with AsyncBroadcastLoop
+  - Event-driven broadcast coordination
+  - Show opening/closing, between-caller transitions
   - Dead air filler system
-
-### In Progress
-- [ ] Audio processing system
-  - Phone line effects (band-pass filter, distortion, static)
-  - Broadcast effects (EQ, compression, distortion)
-   - Equipment-based quality progression (Levels 1-4)
-   - Static noise layer for caller audio
-   - See [STATION_EQUIPMENT.md](../systems/STATION_EQUIPMENT.md)
-
-### TODO
-- [ ] PreShow enhancements
-  - Caller rule configuration
-  - Item purchasing (pre-show supplies)
-- [ ] PostShow phase UI
-  - Income calculation display
+  - Executable-based architecture (Music, Dialogue, Ad, Transition executables)
+- [x] PostShow phase UI
+  - Income calculation and display
   - Night summary (callers taken, show quality, listeners)
   - Equipment upgrade interface
-- [ ] Economy system (Phase 1)
-  - Money tracking
-  - Starting money ($500) + grace period (first 5 shows no overhead)
-  - Per-show expenses (power, rent)
-  - Item costs
-  - Income/expense breakdown screen
-   - See [ECONOMY_SYSTEM.md](../systems/ECONOMY_SYSTEM.md) and [ECONOMY_PLAN.md](../systems/ECONOMY_PLAN.md)
-- [ ] Basic scene structure (Control Room as primary location)
-- [ ] Expand arc content (target: 80 arcs total - 4 topics x 4 legitimacy x 5 arcs each)
-- [ ] Audio polish
-  - Assign mixer groups to AudioManager in scene
-  - Dynamic typewriter speed synced to audio duration
+- [x] Economy system (Phase 1)
+  - Money tracking and transactions
+  - Starting money and per-show expenses
+  - Item purchasing and costs
+  - Income/expense breakdown
+- [x] Save/Load system
+  - JSON persistence with version migration
+  - Auto-save triggers
+  - SaveData structure with ISaveable interface
+- [x] Ad system (primary income source)
+  - Ad break scheduling and revenue
+  - Sponsor contracts and ad breaks
+  - AdManager with break logic and timing
+- [x] Equipment upgrades system
+  - Phone Line and Broadcast equipment upgrades
+  - Audio quality progression through upgrade tiers
+  - PostShow upgrade UI integration
+
+### In Progress
+- [x] Audio processing system (completed)
+  - Phone line effects (band-pass filter, distortion, static)
+  - Broadcast effects (EQ, compression, distortion)
+  - Equipment-based quality progression (Levels 1-4)
+  - Static noise layer for caller audio
+
+_Milestone 2 complete! Core game loop fully functional. Proceed to Milestone 3._
 
 ---
 
@@ -96,28 +100,23 @@ _Milestone 1 complete! Proceed to Milestone 2._
 **Goal**: Multi-night play with save/load, upgrades, difficulty scaling
 
 ### In Progress
-- [ ] Save/Load system
-  - JSON file persistence to Application.persistentDataPath
+- [x] Save/Load system (completed)
+  - JSON file persistence with version migration
   - Auto-save on night end and equipment purchase
-   - See [SAVE_SYSTEM.md](../technical/SAVE_SYSTEM.md)
-- [ ] Equipment upgrades system
+- [x] Equipment upgrades system (completed)
   - Phone Line equipment (caller audio quality)
   - Broadcast equipment (Vern audio quality)
   - PostShow upgrade UI
-   - See [STATION_EQUIPMENT.md](../systems/STATION_EQUIPMENT.md)
 
 ### TODO
-- [ ] Ad system (primary income source) ✅ Phase 1 Complete
-  - Schedule ad breaks during shows
-  - Ad revenue based on listeners and timing
-  - Sponsor contracts
-   - See [AD_SYSTEM.md](../systems/AD_SYSTEM.md)
-- [ ] Vern stats redesign
-  - New stat categories (Dependencies, Physical, Emotional, Cognitive, Long-Term)
-  - VIBE system (Vibrancy, Interest, Broadcast Entertainment) with sigmoid curves
-  - 7 mood types with Spirit modifier
-  - Sigmoid functions for listener growth, decay acceleration, item effectiveness
-   - See [VERN_STATS.md](../systems/VERN_STATS.md)
+- [x] Ad system (primary income source) ✅ Phase 1 Complete
+- [x] Vern stats redesign ✅ Complete - see VERN_STATS.md
+- [ ] Economy system (Phase 2-3)
+  - Equipment maintenance/degradation system
+  - Broadcast delay system (dump button for FCC compliance)
+  - Sponsorship system (fixed payments, relationship meters)
+  - Affiliate system (passive income from listener milestones)
+   - License renewal (every 30 shows)
 - [ ] Economy system (Phase 2-3)
   - Equipment maintenance/degradation system
   - Broadcast delay system (dump button for FCC compliance)

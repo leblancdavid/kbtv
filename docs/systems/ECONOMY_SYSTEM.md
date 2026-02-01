@@ -62,42 +62,44 @@ event Action<int> OnPurchaseFailed;     // (attemptedAmount)
 
 ## Income System
 
-### Current Implementation (Stub)
+### Current Implementation (With Ads)
 
-Until the ad system is implemented, income is a simple per-show stipend:
+Income is calculated based on ad revenue during shows:
+
+| Factor | Description |
+|--------|-------------|
+| **Ad Revenue** | Number of ads played × ad value × listener bonus |
+| **Listener Bonus** | Higher peak listeners = more valuable ads |
+| **Show Quality** | Quality multiplier on ad effectiveness |
+| **Sponsor Deals** | Fixed payments from recurring sponsors |
 
 ```csharp
 public class IncomeCalculator
 {
-    private const int BASE_STIPEND = 100;
-    
-    public int CalculateShowIncome(int peakListeners, float showQuality)
+    public int CalculateShowIncome(int peakListeners, float showQuality, int adsPlayed, float adRevenue)
     {
-        // Stub: flat stipend until ads are implemented
-        return BASE_STIPEND;
+        // Ad revenue based on listeners and quality
+        float listenerMultiplier = Mathf.Clamp(peakListeners / 1000f, 0.5f, 2.0f);
+        float qualityMultiplier = Mathf.Clamp(showQuality, 0.3f, 1.5f);
+        
+        int adIncome = Mathf.RoundToInt(adsPlayed * adRevenue * listenerMultiplier * qualityMultiplier);
+        
+        // Add sponsor payments if applicable
+        int sponsorIncome = CalculateSponsorIncome();
+        
+        return adIncome + sponsorIncome;
     }
 }
 ```
 
-### Future Implementation (With Ads)
-
-When the ad system is complete, income will be based on:
-
-| Factor | Description |
-|--------|-------------|
-| **Ad Revenue** | Number of ads played * ad value |
-| **Listener Bonus** | Higher listeners = more valuable ads |
-| **Show Quality** | Quality multiplier on ad effectiveness |
-| **Sponsor Deals** | Fixed payments from recurring sponsors |
-
-See [AD_SYSTEM.md](AD_SYSTEM.md) for planned ad mechanics.
+See [AD_SYSTEM.md](AD_SYSTEM.md) for ad mechanics and [ECONOMY_PLAN.md](ECONOMY_PLAN.md) for expansion plans.
 
 ## Starting Values
 
 | Value | Amount | Notes |
 |-------|--------|-------|
-| Starting Money | $500 | Enough for a few upgrades or items |
-| Per-Show Stipend | $100 | Temporary until ads |
+| Starting Money | $500 | Enough for initial upgrades or items |
+| Per-Show Income | Variable | Based on ads played, listeners, and show quality |
 | New Game Items | 3 each | Coffee, Water, Sandwich, Whiskey, Cigarette |
 
 ## Spending Categories
@@ -109,7 +111,7 @@ See [AD_SYSTEM.md](AD_SYSTEM.md) for planned ad mechanics.
 | Phone Line (L1→L4) | $300 → $800 → $2000 |
 | Broadcast (L1→L4) | $300 → $800 → $2000 |
 
-See [EQUIPMENT_SYSTEM.md](EQUIPMENT_SYSTEM.md) for details.
+See [STATION_EQUIPMENT.md](../systems/STATION_EQUIPMENT.md) for details.
 
 ### Items (PreShow Shop - Future)
 
@@ -161,7 +163,7 @@ See [EQUIPMENT_SYSTEM.md](EQUIPMENT_SYSTEM.md) for details.
 - Format: `$1,250` with thousands separator
 - Flash green on income, red on purchase
 
-### PostShow Income Screen (Future)
+### PostShow Income Screen (Current)
 
 ```
 +----------------------------------+
@@ -172,12 +174,15 @@ See [EQUIPMENT_SYSTEM.md](EQUIPMENT_SYSTEM.md) for details.
 |  Show Quality: 72%               |
 |                                  |
 |  ─────────────────────────────   |
-|  Base Stipend:        $100       |
-|  (Ad revenue coming soon!)       |
+|  Ads Played: 3                   |
+|  Ad Revenue: $180                |
+|  Listener Bonus: 1.2x            |
+|  Quality Bonus: 0.9x             |
+|  Sponsor Income: $50             |
 |  ─────────────────────────────   |
-|  TOTAL INCOME:        $100       |
+|  TOTAL INCOME:        $326       |
 |                                  |
-|  Balance: $600 → $700            |
+|  Balance: $600 → $926            |
 |                                  |
 |  [Continue to Upgrades]          |
 +----------------------------------+
@@ -228,14 +233,14 @@ public void OnAfterLoad(SaveData data)
 
 ### Early Game (Nights 1-5)
 
-- Stipend: $100/show
-- After 5 shows: $500 earned + $500 starting = $1000
-- Can afford: 1-2 equipment upgrades OR stock up on items
+- Income: Variable based on ad performance ($100-300/show)
+- After 5 shows: $500 starting + variable earnings = $750-2000
+- Can afford: Basic equipment upgrades and item restocking
 
 ### Mid Game (Nights 6-15)
 
-- With ads (future): ~$200-400/show depending on performance
-- Should unlock most L2-L3 upgrades
+- With equipment upgrades: $200-500/show depending on performance
+- Should unlock most L2-L3 upgrades and maintain item supplies
 
 ### Late Game (Nights 15+)
 
@@ -252,6 +257,6 @@ public void OnAfterLoad(SaveData data)
 ## References
 
 - [AD_SYSTEM.md](AD_SYSTEM.md) - Ad-based income (planned)
-- [EQUIPMENT_SYSTEM.md](EQUIPMENT_SYSTEM.md) - Equipment purchases
+- [STATION_EQUIPMENT.md](../systems/STATION_EQUIPMENT.md) - Equipment purchases
 - [SAVE_SYSTEM.md](SAVE_SYSTEM.md) - Persistence
 - [GAME_DESIGN.md](GAME_DESIGN.md) - Overall design

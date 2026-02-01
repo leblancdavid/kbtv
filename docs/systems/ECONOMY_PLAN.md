@@ -415,5 +415,5 @@ Equipment has a **condition meter** (100% → 0%) that decays each show.
 
 - [ECONOMY_SYSTEM.md](ECONOMY_SYSTEM.md) - Current implementation
 - [AD_SYSTEM.md](AD_SYSTEM.md) - Ad revenue (implemented)
-- [EQUIPMENT_SYSTEM.md](EQUIPMENT_SYSTEM.md) - Equipment upgrades
+- [STATION_EQUIPMENT.md](STATION_EQUIPMENT.md) - Equipment upgrades
 - [GAME_DESIGN.md](GAME_DESIGN.md) - Overall design
