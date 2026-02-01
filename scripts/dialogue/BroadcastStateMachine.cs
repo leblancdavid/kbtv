@@ -69,9 +69,20 @@ namespace KBTV.Dialogue
             }
             if (_stateManager._pendingBreakTransition)
             {
-                GD.Print($"BroadcastStateMachine: Global queuing - break transition pending, forcing state from {currentState} to Conversation");
-                _stateManager.SetState(AsyncBroadcastState.Conversation);
-                return CreateConversationExecutable(AsyncBroadcastState.Conversation);
+                if (currentState == AsyncBroadcastState.AdBreak || 
+                    currentState == AsyncBroadcastState.WaitingForBreak ||
+                    currentState == AsyncBroadcastState.BreakReturnMusic ||
+                    currentState == AsyncBroadcastState.BreakReturn)
+                {
+                    // Queue the transition for after current break completes
+                    GD.Print($"BroadcastStateMachine: Break transition pending but currently in {currentState} - queuing for later");
+                }
+                else
+                {
+                    GD.Print($"BroadcastStateMachine: Global queuing - break transition pending, forcing state from {currentState} to Conversation");
+                    _stateManager.SetState(AsyncBroadcastState.Conversation);
+                    return CreateConversationExecutable(AsyncBroadcastState.Conversation);
+                }
             }
 
             switch (currentState)
