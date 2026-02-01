@@ -37,27 +37,26 @@ namespace KBTV.Tests.Unit.Dialogue
         }
 
         [Test]
-        public void BreakStartingInterruption_NoOnAirCaller_DoesNothing()
+        public void SetState_AdBreak_ResetsAdBreakState()
         {
-            // Arrange
-            var mockRepository = new MockCallerRepository();
-            mockRepository.SetupOnAirCaller(null);
-            var interruptionEvent = new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakStarting);
-
-            // Act - Simulate interruption handling
-            if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakStarting)
-            {
-                var onAirCaller = mockRepository.OnAirCaller;
-                if (onAirCaller != null)
-                {
-                    mockRepository.SetCallerState(onAirCaller, CallerState.Disconnected);
-                    mockRepository.RemoveCaller(onAirCaller);
-                }
-            }
-
-            // Assert
-            AssertThat(mockRepository.DisconnectedCallers.Count == 0);
-            AssertThat(mockRepository.RemovedCallers.Count == 0);
+            // Arrange - Create a state manager and simulate being in AdBreak with some state
+            var stateManager = new BroadcastStateManager();
+            stateManager.SetAdBreakState(3, new List<int> { 0, 1, 2 });
+            stateManager.IncrementAdIndex(); // Simulate having played one ad
+            stateManager.IncrementAdIndex(); // Simulate having played second ad
+            
+            // Verify initial state
+            AssertThat(stateManager.CurrentAdIndex == 2);
+            AssertThat(stateManager.TotalAdsForBreak == 3);
+            AssertThat(stateManager.AdOrder.Count == 3);
+            
+            // Act - Transition to AdBreak again (like for a second break)
+            stateManager.SetState(AsyncBroadcastState.AdBreak);
+            
+            // Assert - Ad break state should be reset
+            AssertThat(stateManager.CurrentAdIndex == 0);
+            AssertThat(stateManager.TotalAdsForBreak == 0);
+            AssertThat(stateManager.AdOrder.Count == 0);
         }
 
         private Caller CreateTestCaller(string name = "Test Caller")

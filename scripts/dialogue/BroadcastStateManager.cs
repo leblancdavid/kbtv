@@ -75,11 +75,13 @@ namespace KBTV.Dialogue
         private int _currentAdIndex = 0;
         private int _totalAdsForBreak = 0;
         private List<int> _adOrder = new();
+        private bool _adBreakInitialized = false;
 
         // Public accessors for BroadcastStateMachine
         public int CurrentAdIndex => _currentAdIndex;
         public int TotalAdsForBreak => _totalAdsForBreak;
         public List<int> AdOrder => _adOrder;
+        public bool AdBreakInitialized => _adBreakInitialized;
 
         // Methods for BroadcastStateMachine to modify ad state
         public void IncrementAdIndex() => _currentAdIndex++;
@@ -88,6 +90,7 @@ namespace KBTV.Dialogue
             _currentAdIndex = 0;
             _totalAdsForBreak = 0;
             _adOrder.Clear();
+            _adBreakInitialized = false;
         }
         public void SetAdBreakState(int totalAds, List<int> order)
         {
@@ -95,6 +98,7 @@ namespace KBTV.Dialogue
             _adOrder = order;
             _currentAdIndex = 0;
         }
+        public void SetAdBreakInitialized(bool value) => _adBreakInitialized = value;
 
         public AsyncBroadcastState CurrentState => _currentState;
         public float ElapsedTime => _timeManager?.ElapsedTime ?? 0f;
@@ -110,14 +114,8 @@ namespace KBTV.Dialogue
 
         public void UpdateStateAfterExecution(BroadcastExecutable executable)
         {
-            var previousState = _currentState;
-            _currentState = _stateMachine.UpdateStateAfterExecution(_currentState, executable);
-            
-            if (_currentState != previousState)
-            {
-                PublishStateChangedEvent(previousState);
-                _previousState = previousState;
-            }
+            var newState = _stateMachine.UpdateStateAfterExecution(_currentState, executable);
+            SetState(newState);
         }
         /// <summary>
         /// Set the broadcast state directly (for special cases).
@@ -126,6 +124,13 @@ namespace KBTV.Dialogue
         {
             var previousState = _currentState;
             _currentState = newState;
+            
+            // Reset ad break state when transitioning TO AdBreak
+            if (newState == AsyncBroadcastState.AdBreak && previousState != AsyncBroadcastState.AdBreak)
+            {
+                ResetAdBreakState();
+                GD.Print("BroadcastStateManager: Reset ad break state for new break");
+            }
             
             // Reset ad break sequence flag if transitioning out of AdBreak
             ResetAdBreakSequenceFlag();
@@ -172,13 +177,11 @@ namespace KBTV.Dialogue
         /// </summary>
         private void HandleTimingEvent(BroadcastTimingEvent timingEvent)
         {
-            var previousState = _currentState;
-            
             switch (timingEvent.Type)
             {
                 case BroadcastTimingEventType.ShowEnd:
                     _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.ShowEnding));
-                    _currentState = AsyncBroadcastState.ShowEnding;
+                    SetState(AsyncBroadcastState.ShowEnding);
                     break;
                 case BroadcastTimingEventType.ShowEnd20Seconds:
                     GD.Print($"BroadcastStateManager: T-20s fired - setting pending show ending transition (current state: {_currentState})");
@@ -211,23 +214,14 @@ namespace KBTV.Dialogue
                      // T0 event removed - caller dropping now handled by WaitForBreakExecutable completion
                      // AdManager.StartBreak() moved to AdBreak state initialization
                      break;
-                case BroadcastTimingEventType.AdBreakStart:
-                    _currentState = AsyncBroadcastState.AdBreak;
-                    break;
+                 case BroadcastTimingEventType.AdBreakStart:
+                     // AdBreakStart event removed - state transitions handled by BroadcastStateMachine after WaitForBreak
+                     break;
                  case BroadcastTimingEventType.AdBreakEnd:
-                     _currentState = AsyncBroadcastState.BreakReturnMusic;
+                     SetState(AsyncBroadcastState.BreakReturnMusic);
                      break;
             }
-              
-              // Reset ad break sequence flag if transitioning out of AdBreak
-              ResetAdBreakSequenceFlag();
-              
-              if (_currentState != previousState)
-              {
-                  PublishStateChangedEvent(previousState);
-                  _previousState = previousState;
-              }
-          }
+        }
  
          /// <summary>
         /// Handle interruption events for break transitions.

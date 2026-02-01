@@ -89,29 +89,30 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.DeadAir:
                     return CreateDeadAirExecutable();
                  case AsyncBroadcastState.AdBreak:
-                       if (_stateManager.TotalAdsForBreak == 0)
+                        if (!_stateManager.AdBreakInitialized)
+                        {
+                            int adCount = _adManager?.CurrentBreakSlots ?? 1;
+                            int totalAds = Math.Max(adCount, 1);
+                            var order = new List<int>();
+                            for (int i = 0; i < totalAds; i++) order.Add(i);
+                            order = order.OrderBy(x => GD.Randi()).ToList();
+                            _stateManager.SetAdBreakState(totalAds, order);
+                            _stateManager.SetAdBreakInitialized(true);
+                            // Start the break when entering AdBreak state
+                            _adManager?.StartBreak();
+                            GD.Print($"BroadcastStateMachine: Initialized ad break with {totalAds} ads");
+                        }
+                       if (_stateManager.CurrentAdIndex >= _stateManager.TotalAdsForBreak)
                        {
-                           int adCount = _adManager?.CurrentBreakSlots ?? 1;
-                           int totalAds = Math.Max(adCount, 1);
-                           var order = new List<int>();
-                           for (int i = 0; i < totalAds; i++) order.Add(i);
-                           order = order.OrderBy(x => GD.Randi()).ToList();
-                           _stateManager.SetAdBreakState(totalAds, order);
-                           // Start the break when entering AdBreak state
-                           _adManager?.StartBreak();
-                           GD.Print($"BroadcastStateMachine: Initialized ad break with {totalAds} ads");
+                           // All ads complete, transition to break return music
+                           _stateManager.SetState(AsyncBroadcastState.BreakReturnMusic);
+                           return CreateReturnFromBreakMusicExecutable();
                        }
-                      if (_stateManager.CurrentAdIndex >= _stateManager.TotalAdsForBreak)
-                      {
-                          // All ads complete, transition to break return music
-                          _stateManager.SetState(AsyncBroadcastState.BreakReturnMusic);
-                          return CreateReturnFromBreakMusicExecutable();
-                      }
-                      else
-                      {
-                          int adSlot = _stateManager.AdOrder[_stateManager.CurrentAdIndex];
-                          return CreateAdExecutable(adSlot);
-                      }
+                       else
+                       {
+                           int adSlot = _stateManager.AdOrder[_stateManager.CurrentAdIndex];
+                           return CreateAdExecutable(adSlot);
+                       }
                 case AsyncBroadcastState.WaitingForBreak:
                     float timeUntilBreak = CalculateTimeUntilBreak();
                     return new WaitForBreakExecutable(_eventBus, _audioService, _sceneTree, _callerRepository, timeUntilBreak);
