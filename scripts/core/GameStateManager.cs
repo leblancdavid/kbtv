@@ -17,12 +17,9 @@ namespace KBTV.Core
 	/// Manages the game state and phase transitions for nightly broadcasts.
 	/// Uses AutoInject IAutoNode pattern for dependency injection.
 	/// </summary>
-    public partial class GameStateManager : Node, 
-        IGameStateManager,
-        IProvide<GameStateManager>,
-        IDependent
-	{
-		public override void _Notification(int what) => this.Notify(what);
+public partial class GameStateManager : Node, IGameStateManager, IProvide<GameStateManager>, IDependent
+{
+	public override void _Notification(int what) => this.Notify(what);
 
 		[Signal] public delegate void PhaseChangedEventHandler(GamePhase oldPhase, GamePhase newPhase);
 		[Signal] public delegate void NightStartedEventHandler(int nightNumber);
@@ -30,9 +27,7 @@ namespace KBTV.Core
 		public event Action<GamePhase, GamePhase> OnPhaseChanged;
 		public event Action<int> OnNightStarted;
 
-		// ═══════════════════════════════════════════════════════════════════════════════════════════════
-		// DEPENDENCIES
-		// ═══════════════════════════════════════════════════════════════════════════════════════════════
+		// Dependencies
 
         private TimeManager TimeManager => DependencyInjection.Get<TimeManager>(this);
         private EconomyManager EconomyManager => DependencyInjection.Get<EconomyManager>(this);
@@ -66,13 +61,7 @@ namespace KBTV.Core
 		/// </summary>
 		public bool DisableBroadcastAudio => DependencyInjection.Get<SaveManager>(this)?.CurrentSave?.DisableBroadcastAudio ?? false;
 
-		// ═══════════════════════════════════════════════════════════════════════════════════════════════
-		// PROVIDER INTERFACE IMPLEMENTATIONS
-		// ═══════════════════════════════════════════════════════════════════════════════════════════════
-
-		// ═══════════════════════════════════════════════════════════════════════════════════════════════
-		// PROVIDER INTERFACE IMPLEMENTATIONS
-		// ═══════════════════════════════════════════════════════════════════════════════════════════════
+		// Provider interface implementations
 
         GameStateManager IProvide<GameStateManager>.Value() => this;
 
@@ -193,14 +182,11 @@ namespace KBTV.Core
 			AdManager.Initialize(_adSchedule, TimeManager.ShowDuration);
 
 			// Initialize broadcast flow
-			_ = Task.Run(async () => {
-				try
+			_ = AsyncBroadcastLoop.StartBroadcastAsync(TimeManager.ShowDuration).ContinueWith(task =>
+			{
+				if (task.IsFaulted)
 				{
-					await AsyncBroadcastLoop.StartBroadcastAsync(TimeManager.ShowDuration);
-				}
-				catch (Exception ex)
-				{
-					GD.PrintErr($"GameStateManager: Error in async broadcast: {ex.Message}");
+					GD.PrintErr($"GameStateManager: Error in async broadcast: {task.Exception?.Message}");
 				}
 			});
 		}

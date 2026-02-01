@@ -50,6 +50,11 @@ namespace KBTV.Audio
         bool IsAudioDisabled { get; }
 
         /// <summary>
+        /// Gets the duration of an audio stream in seconds.
+        /// </summary>
+        float GetAudioDuration(AudioStream audioStream);
+
+        /// <summary>
         /// Event fired when a broadcast item audio completes playback.
         /// Subscribers should advance the conversation or broadcast flow.
         /// </summary>

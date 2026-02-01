@@ -187,29 +187,7 @@ namespace KBTV.Dialogue
             if (string.IsNullOrEmpty(_audioPath))
                 return 0f;
 
-            // If audio service is null or audio is disabled, don't attempt to load files
-            if (_audioService == null || _audioService.IsAudioDisabled)
-                return 0f;
-
-            try
-            {
-                var audioStream = GD.Load<AudioStream>(_audioPath);
-                if (audioStream is AudioStreamMP3 mp3Stream)
-                {
-                    return (float)mp3Stream.GetLength();
-                }
-                else if (audioStream is AudioStreamOggVorbis vorbisStream)
-                {
-                    return (float)vorbisStream.GetLength();
-                }
-                
-                var length = audioStream?.GetLength() ?? 0.0;
-                return length > 0 ? (float)length : _duration;
-            }
-            catch
-            {
-                return _duration;
-            }
+            return await GetAudioDurationAsync(_audioPath, _duration);
         }
 
         private string GetDisplayText()
@@ -243,34 +221,6 @@ namespace KBTV.Dialogue
             return _speaker ?? "UNKNOWN";
         }
 
-        private async Task<float> GetAudioDurationAsync(string audioPath)
-        {
-            if (string.IsNullOrEmpty(audioPath))
-                return 0f;
 
-            // If audio service is null or audio is disabled, don't attempt to load files
-            if (_audioService == null || _audioService.IsAudioDisabled)
-                return 0f;
-
-            try
-            {
-                var audioStream = GD.Load<AudioStream>(audioPath);
-                if (audioStream is AudioStreamMP3 mp3Stream)
-                {
-                    return (float)mp3Stream.GetLength();
-                }
-                else if (audioStream is AudioStreamOggVorbis vorbisStream)
-                {
-                    return (float)vorbisStream.GetLength();
-                }
-                
-                var length = audioStream?.GetLength() ?? 0.0;
-                return length > 0 ? (float)length : 4.0f;
-            }
-            catch
-            {
-                return 4.0f;
-            }
-        }
     }
 }

@@ -45,32 +45,7 @@ namespace KBTV.Dialogue
 
         protected override async Task<float> GetAudioDurationAsync()
         {
-            if (string.IsNullOrEmpty(_audioPath))
-                return _duration;
-
-            // If audio is disabled, don't attempt to load files
-            if (_audioService.IsAudioDisabled)
-                return 0f;
-
-            try
-            {
-                var audioStream = GD.Load<AudioStream>(_audioPath);
-                if (audioStream is AudioStreamMP3 mp3Stream)
-                {
-                    return (float)mp3Stream.GetLength();
-                }
-                else if (audioStream is AudioStreamOggVorbis vorbisStream)
-                {
-                    return (float)vorbisStream.GetLength();
-                }
-                
-                var length = audioStream?.GetLength() ?? 0.0;
-                return length > 0 ? (float)length : _duration;
-            }
-            catch
-            {
-                return _duration;
-            }
+            return await GetAudioDurationAsync(_audioPath, _duration);
         }
     }
 }

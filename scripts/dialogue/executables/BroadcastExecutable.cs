@@ -105,6 +105,33 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
+        /// Get the duration of an audio file at the specified path.
+        /// </summary>
+        protected async Task<float> GetAudioDurationAsync(string audioPath, float fallbackDuration = 4.0f)
+        {
+            if (string.IsNullOrEmpty(audioPath))
+                return fallbackDuration;
+
+            // If audio service is null or audio is disabled, don't attempt to load files
+            if (_audioService == null || _audioService.IsAudioDisabled)
+                return 0f;
+
+            try
+            {
+                var audioStream = GD.Load<AudioStream>(audioPath);
+                if (audioStream != null)
+                {
+                    return _audioService.GetAudioDuration(audioStream);
+                }
+                return fallbackDuration;
+            }
+            catch
+            {
+                return fallbackDuration;
+            }
+        }
+
+        /// <summary>
         /// Publish interruption event.
         /// </summary>
         private void PublishInterruptedEvent()

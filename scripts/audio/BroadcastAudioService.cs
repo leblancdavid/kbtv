@@ -349,7 +349,7 @@ namespace KBTV.Audio
         /// <summary>
         /// Gets the duration of an audio stream in seconds.
         /// </summary>
-        private float GetAudioDuration(AudioStream audioStream)
+        public float GetAudioDuration(AudioStream audioStream)
         {
             if (audioStream is AudioStreamMP3 mp3Stream)
             {
