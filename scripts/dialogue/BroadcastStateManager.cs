@@ -153,12 +153,19 @@ namespace KBTV.Dialogue
                     _currentState = AsyncBroadcastState.ShowEnding;
                     break;
                 case BroadcastTimingEventType.ShowEnd20Seconds:
+                    GD.Print($"BroadcastStateManager: T-20s fired - setting pending show ending transition (current state: {_currentState})");
                     _pendingShowEndingTransition = true;
                     break;
                 case BroadcastTimingEventType.ShowEnd10Seconds:
+                    GD.Print($"BroadcastStateManager: T-10s fired - checking if closing started (current state: {_currentState}, closing started: {_showClosingStarted})");
                     if (!_showClosingStarted)
                     {
+                        GD.Print("BroadcastStateManager: T-10s - closing not started, publishing interruption to force it");
                         _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.ShowEnding));
+                    }
+                    else
+                    {
+                        GD.Print("BroadcastStateManager: T-10s - closing already started, no interruption needed");
                     }
                     break;
                 case BroadcastTimingEventType.Break20Seconds:
@@ -219,6 +226,11 @@ namespace KBTV.Dialogue
                     _callerRepository.SetCallerState(onAirCaller, CallerState.Disconnected);
                     _callerRepository.RemoveCaller(onAirCaller);
                 }
+            }
+            else if (interruptionEvent.Reason == BroadcastInterruptionReason.ShowEnding)
+            {
+                GD.Print($"BroadcastStateManager: Show ending interruption received (current state: {_currentState}) - global queuing will handle transition");
+                // Global queuing in BroadcastStateMachine.GetNextExecutable() will handle state transition
             }
             
             if (_currentState != previousState)

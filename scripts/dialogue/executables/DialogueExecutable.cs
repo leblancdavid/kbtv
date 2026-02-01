@@ -62,7 +62,8 @@ namespace KBTV.Dialogue
             // Subscribe to interruption events for mid-execution cancellation
             void OnInterruption(BroadcastInterruptionEvent interruptionEvent)
             {
-                if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakImminent)
+                if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakImminent ||
+                    interruptionEvent.Reason == BroadcastInterruptionReason.ShowEnding)
                 {
                     localCts.Cancel();
                 }

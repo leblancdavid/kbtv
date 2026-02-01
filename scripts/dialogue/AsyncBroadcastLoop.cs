@@ -233,7 +233,7 @@ namespace KBTV.Dialogue
         {
             KBTV.Core.Logger.Debug("AsyncBroadcastLoop: Starting main broadcast loop");
 
-            while (!_cancellationTokenSource.Token.IsCancellationRequested && _stateManager.IsShowActive)
+            while (!_cancellationTokenSource.Token.IsCancellationRequested && _stateManager.IsShowActive && _stateManager.CurrentState != AsyncBroadcastState.Idle)
             {
                 try
                 {

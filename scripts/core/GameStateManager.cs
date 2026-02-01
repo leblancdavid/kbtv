@@ -341,9 +341,9 @@ namespace KBTV.Core
 
 		/// <summary>
 		/// Handle automatic show end when timer expires at T=0.
-		/// Interrupts current audio, clears callers, plays outro music, then advances to PostShow.
+		/// Interrupts current audio, clears callers, then advances to PostShow.
 		/// </summary>
-		private async void OnShowTimerExpired()
+		private void OnShowTimerExpired()
 		{
 			GD.Print("GameStateManager: OnShowTimerExpired - Timer reached 0, ending show");
 
@@ -356,23 +356,8 @@ namespace KBTV.Core
 			CallerGenerator.StopGenerating();
 			GD.Print("GameStateManager: All callers cleared and generation stopped");
 
-			// Play outro bumper music
-			var outroItem = new BroadcastItem("OUTRO_MUSIC", BroadcastItemType.Music, "Outro Bumper Music", duration: 4.0f);
-			GD.Print("GameStateManager: Playing outro music");
-
-			// Subscribe to completion event
-			void OnOutroCompleted(AudioCompletedEvent @event)
-			{
-				if (@event.LineId == outroItem.Id)
-				{
-					GD.Print("GameStateManager: Outro music completed, advancing to PostShow");
-					AudioPlayer.LineCompleted -= OnOutroCompleted;
-					AdvanceToPostShow();
-				}
-			}
-
-			AudioPlayer.LineCompleted += OnOutroCompleted;
-			AudioPlayer.PlayAudioForBroadcastItemAsync(outroItem);
+			// Advance to PostShow phase immediately
+			AdvanceToPostShow();
 		}
 
 		/// <summary>

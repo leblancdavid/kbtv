@@ -59,6 +59,20 @@ namespace KBTV.Dialogue
         /// </summary>
         public BroadcastExecutable? GetNextExecutable(AsyncBroadcastState currentState)
         {
+            // Global pending transition checks - these take priority over current state
+            if (_stateManager._pendingShowEndingTransition)
+            {
+                GD.Print($"BroadcastStateMachine: Global queuing - show ending pending, forcing state from {currentState} to Conversation");
+                _stateManager.SetState(AsyncBroadcastState.Conversation);
+                return CreateConversationExecutable(AsyncBroadcastState.Conversation);
+            }
+            if (_stateManager._pendingBreakTransition)
+            {
+                GD.Print($"BroadcastStateMachine: Global queuing - break transition pending, forcing state from {currentState} to Conversation");
+                _stateManager.SetState(AsyncBroadcastState.Conversation);
+                return CreateConversationExecutable(AsyncBroadcastState.Conversation);
+            }
+
             switch (currentState)
             {
                 case AsyncBroadcastState.Idle:
@@ -93,19 +107,9 @@ namespace KBTV.Dialogue
                         return new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller, _stateManager);
                     }
                     return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: _stateManager);
-                case AsyncBroadcastState.ShowClosing:
-                case AsyncBroadcastState.ShowEnding:
-                    if (_audioService.IsAudioDisabled)
-                    {
-                        // Audio disabled: skip loading music file, go straight to 4s delay
-                        return new TransitionExecutable("outro_delay", "Show ending...", 4.0f, _eventBus, _audioService, _sceneTree, null);
-                    }
-                    else
-                    {
-                        // Audio enabled: attempt to play intro music as bumper, fallback to 4s delay if file issues
-                        var introMusicPath = "res://assets/audio/music/intro_music.wav";
-                        return new TransitionExecutable("outro_bumper", "Outro bumper", 4.0f, _eventBus, _audioService, _sceneTree, introMusicPath);
-                    }
+                 case AsyncBroadcastState.ShowClosing:
+                 case AsyncBroadcastState.ShowEnding:
+                     return CreateOutroMusicExecutable();
                 default:
                     return null;
             }
@@ -146,15 +150,36 @@ namespace KBTV.Dialogue
                  case AsyncBroadcastState.BreakReturnMusic:
                      newState = AsyncBroadcastState.BreakReturn;
                      break;
-                  case AsyncBroadcastState.BreakReturn:
-                      newState = AsyncBroadcastState.Conversation;
-                      break;
+                   case AsyncBroadcastState.BreakReturn:
+                       // Check if return dialogue completed and determine next state based on callers
+                       if (executable.Type == BroadcastItemType.VernLine &&
+                           executable is DialogueExecutable returnExecutable &&
+                           returnExecutable.LineType == VernLineType.ReturnFromBreak)
+                       {
+                           if (_callerRepository.OnHoldCallers.Count > 0)
+                           {
+                               newState = AsyncBroadcastState.Conversation;
+                           }
+                           else
+                           {
+                               newState = AsyncBroadcastState.DeadAir;
+                           }
+                           GD.Print($"BroadcastStateMachine: Return from break completed - {(_callerRepository.OnHoldCallers.Count > 0 ? "callers waiting, staying in conversation" : "no callers, going to dead air")}");
+                       }
+                       else
+                       {
+                           newState = AsyncBroadcastState.Conversation;  // Fallback for other executables
+                       }
+                       break;
                   case AsyncBroadcastState.WaitingForBreak:
                       newState = AsyncBroadcastState.AdBreak;
                       break;
-                  case AsyncBroadcastState.WaitingForShowEnd:
-                      newState = AsyncBroadcastState.ShowEnding;
-                      break;
+                   case AsyncBroadcastState.WaitingForShowEnd:
+                       newState = AsyncBroadcastState.ShowEnding;
+                       break;
+                   case AsyncBroadcastState.ShowEnding:
+                       newState = AsyncBroadcastState.Idle;
+                       break;
             }
 
             return newState;
@@ -264,6 +289,10 @@ namespace KBTV.Dialogue
             if (_callerRepository.OnAirCaller != null || _callerRepository.OnHoldCallers.Count > 0)
                 return false;
 
+            // Don't play dead air if show ending is pending - prioritize closing dialogue
+            if (_stateManager._pendingShowEndingTransition)
+                return false;
+
             return _stateManager._previousState == AsyncBroadcastState.ShowStarting ||
                    _stateManager._previousState == AsyncBroadcastState.BetweenCallers ||
                    _stateManager._previousState == AsyncBroadcastState.BreakReturn ||
@@ -278,6 +307,9 @@ namespace KBTV.Dialogue
         private BroadcastExecutable CreateIntroMusicExecutable() =>
             new MusicExecutable("intro_music", "Intro music", "res://assets/audio/music/intro_music.wav", 4.0f, _eventBus, _audioService, _sceneTree);
 
+        private BroadcastExecutable CreateOutroMusicExecutable() =>
+            new MusicExecutable("outro_music", "Outro music", "res://assets/audio/music/intro_music.wav", 4.0f, _eventBus, _audioService, _sceneTree);
+
         private BroadcastExecutable CreateConversationExecutable(AsyncBroadcastState currentState)
         {
             if (!_stateManager._hasPlayedVernOpening)
@@ -291,26 +323,31 @@ namespace KBTV.Dialogue
                 }
             }
 
-            if (_stateManager._pendingBreakTransition)
-            {
-                var breakTransition = _vernDialogue.GetBreakTransition();
-                if (breakTransition != null)
-                {
-                    var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{breakTransition.Id}.mp3";
-                    audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_BreakTransition");
-                    return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, _stateManager);
-                }
-            }
+             if (_stateManager._pendingBreakTransition && !_stateManager._pendingShowEndingTransition)
+             {
+                 var breakTransition = _vernDialogue.GetBreakTransition();
+                 if (breakTransition != null)
+                 {
+                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{breakTransition.Id}.mp3";
+                     audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_BreakTransition");
+                     return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, _stateManager);
+                 }
+             }
 
             if (_stateManager._pendingShowEndingTransition)
             {
                 var closing = _vernDialogue.GetShowClosing();
                 if (closing != null)
                 {
+                    GD.Print($"BroadcastStateMachine: Pending show ending transition found - queuing closing dialogue '{closing.Id}'");
                     _stateManager._showClosingStarted = true;  // Track that closing has started
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{closing.Id}.mp3";
                     audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_ShowClosing");
                     return new DialogueExecutable("show_closing", closing.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowClosing, _stateManager);
+                }
+                else
+                {
+                    GD.Print("BroadcastStateMachine: Pending show ending transition found but no closing dialogue available");
                 }
             }
 
