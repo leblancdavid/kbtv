@@ -275,7 +275,7 @@ namespace KBTV.Core
 		/// Process end-of-show logic: calculate income, update stats, save game.
 		/// Called at T=0 when show time expires.
 		/// </summary>
-		private async void ProcessEndOfShow()
+		private async Task ProcessEndOfShow()
 		{
 			GD.Print("GameStateManager: ProcessEndOfShow started (T=0)");
 
@@ -324,20 +324,13 @@ namespace KBTV.Core
 			// Auto-save at end of show
 			SaveManager.Save();
 			GD.Print("GameStateManager: Game saved");
-
-			// Show PostShow UI
-			UIManager.ShowPostShowLayer();
-			GD.Print("GameStateManager: PostShow UI shown");
-
-			// Emit phase changed signal
-			EmitSignal("PhaseChanged", (int)GamePhase.LiveShow, (int)GamePhase.PostShow);
 		}
 
 		/// <summary>
 		/// Handle automatic show end when timer expires at T=0.
 		/// Interrupts current audio, clears callers, then advances to PostShow.
 		/// </summary>
-		private void OnShowTimerExpired()
+		private async void OnShowTimerExpired()
 		{
 			GD.Print("GameStateManager: OnShowTimerExpired - Timer reached 0, ending show");
 
@@ -350,18 +343,19 @@ namespace KBTV.Core
 			CallerGenerator.StopGenerating();
 			GD.Print("GameStateManager: All callers cleared and generation stopped");
 
-			// Advance to PostShow phase immediately
-			AdvanceToPostShow();
+			// Advance to PostShow phase after outro music
+			await AdvanceToPostShow();
 		}
 
 		/// <summary>
 		/// Advance to PostShow phase after outro music completion.
 		/// </summary>
-		private void AdvanceToPostShow()
+		private async Task AdvanceToPostShow()
 		{
+			await ProcessEndOfShow();
+
 			GamePhase oldPhase = _currentPhase;
 			_currentPhase = GamePhase.PostShow;
-			ProcessEndOfShow();
 			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
 			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
 		}
