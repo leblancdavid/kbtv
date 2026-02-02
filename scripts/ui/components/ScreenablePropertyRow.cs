@@ -14,9 +14,8 @@ namespace KBTV.UI.Components
     /// </summary>
     public partial class ScreenablePropertyRow : HBoxContainer
     {
-        // Placeholder character for unrevealed text (block character for "censored" feel)
-        private const char PlaceholderChar = '█';
-        private const int PlaceholderLength = 10;
+        // Placeholder text for unrevealed values
+        private const string PlaceholderText = "...";
 
         // Child nodes
         private Label _nameLabel = null!;
@@ -41,7 +40,8 @@ namespace KBTV.UI.Components
 
             _valueLabel = new Label
             {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                AutowrapMode = TextServer.AutowrapMode.Word
             };
             AddChild(_valueLabel);
 
@@ -125,8 +125,8 @@ namespace KBTV.UI.Components
             switch (_property.State)
             {
                 case RevelationState.Hidden:
-                    // Show fixed-length placeholder blocks
-                    _valueLabel.Text = new string(PlaceholderChar, PlaceholderLength);
+                    // Show placeholder for unrevealed properties
+                    _valueLabel.Text = PlaceholderText;
                     break;
 
                 case RevelationState.Revealing:
@@ -153,18 +153,15 @@ namespace KBTV.UI.Components
             int revealedChars = (int)(progress * totalLength);
             revealedChars = Math.Clamp(revealedChars, 0, totalLength);
 
-            // Build the display: revealed portion + placeholder remainder
+            // Build the display: revealed portion + "..." if not complete
             string revealed = actualValue.Substring(0, revealedChars);
-            int placeholderCount = PlaceholderLength - revealedChars;
             
-            if (placeholderCount > 0)
+            if (revealedChars < totalLength)
             {
-                string placeholder = new string(PlaceholderChar, placeholderCount);
-                _valueLabel.Text = revealed + placeholder;
+                _valueLabel.Text = revealed + PlaceholderText;
             }
             else
             {
-                // All characters revealed (or value is longer than placeholder length)
                 _valueLabel.Text = revealed;
             }
         }

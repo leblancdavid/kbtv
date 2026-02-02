@@ -44,6 +44,14 @@ size_flags_horizontal = 3
 text = ""
 vertical_alignment = 1
 
+[node name="ProgressLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+custom_minimum_size = Vector2(40, 0)
+text = ""
+horizontal_alignment = 2
+vertical_alignment = 1
+
 [node name="StatusIndicator" type="ProgressBar" parent="HBoxContainer"]
 layout_mode = 2
 anchors_preset = 15

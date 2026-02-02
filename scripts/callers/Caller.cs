@@ -312,6 +312,24 @@ namespace KBTV.Callers
         }
 
         /// <summary>
+        /// Get the screening progress as a percentage (0.0 to 1.0).
+        /// Returns the ratio of revealed properties to total properties.
+        /// </summary>
+        public float GetScreeningProgress()
+        {
+            if (ScreenableProperties == null || ScreenableProperties.Length == 0)
+                return 0f;
+            
+            int revealed = 0;
+            foreach (var prop in ScreenableProperties)
+            {
+                if (prop.IsRevealed)
+                    revealed++;
+            }
+            return (float)revealed / ScreenableProperties.Length;
+        }
+
+        /// <summary>
         /// Get the next property that will be revealed (the first hidden one in order).
         /// </summary>
         public ScreenableProperty GetNextPropertyToReveal()

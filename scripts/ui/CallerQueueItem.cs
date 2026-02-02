@@ -13,6 +13,7 @@ namespace KBTV.UI
     public partial class CallerQueueItem : Panel, ICallerListItem
     {
         private Label _nameLabel = null!;
+        private Label? _progressLabel;
         private ProgressBar _statusIndicator = null!;
 
         private string? _callerId;
@@ -24,12 +25,14 @@ namespace KBTV.UI
         private CallerState _previousState;
         private float _previousWaitTime;
         private float _previousScreeningPatience;
+        private float _previousScreeningProgress;
 
         public override void _Ready()
         {
             try
             {
                 _nameLabel = GetNode<Label>("HBoxContainer/NameLabel");
+                _progressLabel = GetNodeOrNull<Label>("HBoxContainer/ProgressLabel");
                 _statusIndicator = GetNode<ProgressBar>("HBoxContainer/StatusIndicator");
             }
             catch (Exception ex)
@@ -45,6 +48,7 @@ namespace KBTV.UI
             TrackStateForRefresh();
             UpdateVisualSelection();
             UpdateStatusIndicator();
+            UpdateProgressLabel();
         }
 
         private void ApplyPendingCallerData()
@@ -124,6 +128,14 @@ namespace KBTV.UI
                 _previousWaitTime = currentCaller.WaitTime;
                 _previousScreeningPatience = currentCaller.ScreeningPatience;
                 UpdateStatusIndicator();
+            }
+
+            // Update screening progress display
+            float currentProgress = currentCaller.GetScreeningProgress();
+            if (currentProgress != _previousScreeningProgress || currentCaller.State != _previousState)
+            {
+                _previousScreeningProgress = currentProgress;
+                UpdateProgressLabel();
             }
 
             bool needsFullRefresh = currentCaller.Id != _previousCallerId ||
@@ -242,6 +254,34 @@ namespace KBTV.UI
 
             _statusIndicator.QueueRedraw();
             QueueRedraw();
+        }
+
+        private void UpdateProgressLabel()
+        {
+            if (_progressLabel == null || _callerId == null)
+            {
+                return;
+            }
+
+            var caller = _repository?.GetCaller(_callerId);
+            if (caller == null)
+            {
+                _progressLabel.Visible = false;
+                return;
+            }
+
+            // Only show progress for callers that have started screening
+            float progress = caller.GetScreeningProgress();
+            if (progress > 0f || caller.State == CallerState.Screening)
+            {
+                int percent = (int)(progress * 100f);
+                _progressLabel.Text = $"{percent}%";
+                _progressLabel.Visible = true;
+            }
+            else
+            {
+                _progressLabel.Visible = false;
+            }
         }
 
         public override void _ExitTree()

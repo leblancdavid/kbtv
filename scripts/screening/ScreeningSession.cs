@@ -24,8 +24,9 @@ namespace KBTV.Screening
             ScreeningPatience = caller.Patience;
             MaxPatience = caller.Patience;
             ElapsedTime = 0f;
-
-            Caller.ResetScreenableProperties();
+            // Note: We intentionally do NOT reset screenable properties here.
+            // This allows reveal progress to persist when switching between callers.
+            // Properties are only reset when a caller is removed (rejected/disconnected).
         }
 
         public void Update(float deltaTime)
