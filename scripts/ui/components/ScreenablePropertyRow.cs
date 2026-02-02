@@ -55,6 +55,14 @@ namespace KBTV.UI.Components
             _statEffectsContainer.AddThemeConstantOverride("separation", 4);
             AddChild(_statEffectsContainer);
 
+            // Create a monospace system font for console-like appearance
+            var monoFont = new SystemFont();
+            monoFont.FontNames = new string[] { "Consolas", "Courier New", "Liberation Mono", "monospace" };
+
+            // Apply to both labels for consistent terminal look
+            _nameLabel.AddThemeFontOverride("font", monoFont);
+            _valueLabel.AddThemeFontOverride("font", monoFont);
+
             // Try to get audio service for reveal sounds
             try
             {

@@ -378,15 +378,61 @@ namespace KBTV.Tests.Unit.Callers
         }
 
         [Test]
-        public void UpdateScreenableProperties_UpdatesAllProperties()
+        public void UpdateScreenableProperties_UpdatesOnePropertyAtATime()
         {
             var caller = CreateTestCaller();
-            var audioProperty = caller.GetScreenableProperty("AudioQuality");
-            AssertThat(audioProperty != null);
+            
+            // Initially all properties should be hidden
+            foreach (var prop in caller.ScreenableProperties)
+            {
+                AssertThat(prop.State == RevelationState.Hidden);
+            }
+            
+            // After update, exactly one property should be revealing
+            caller.UpdateScreenableProperties(0.5f);
+            
+            int revealingCount = 0;
+            int hiddenCount = 0;
+            foreach (var prop in caller.ScreenableProperties)
+            {
+                if (prop.State == RevelationState.Revealing)
+                    revealingCount++;
+                else if (prop.State == RevelationState.Hidden)
+                    hiddenCount++;
+            }
+            
+            AssertThat(revealingCount == 1);
+            AssertThat(hiddenCount == 10); // 11 total - 1 revealing = 10 hidden
+        }
 
-            caller.UpdateScreenableProperties(1f);
-
-            AssertThat(audioProperty!.ElapsedTime == 1f);
+        [Test]
+        public void UpdateScreenableProperties_MovesToNextPropertyWhenCurrentRevealed()
+        {
+            var caller = CreateTestCaller();
+            
+            // Update enough to reveal the first property (max reveal duration is 5f)
+            for (int i = 0; i < 10; i++)
+            {
+                caller.UpdateScreenableProperties(1f);
+            }
+            
+            // After 10 seconds, at least one property should be fully revealed
+            // and another should be revealing
+            int revealedCount = 0;
+            int revealingCount = 0;
+            foreach (var prop in caller.ScreenableProperties)
+            {
+                if (prop.State == RevelationState.Revealed)
+                    revealedCount++;
+                else if (prop.State == RevelationState.Revealing)
+                    revealingCount++;
+            }
+            
+            // Should have at least 1 revealed (since 10s elapsed, shortest duration is 2f)
+            AssertThat(revealedCount >= 1);
+            // If not all revealed, there should be exactly one revealing
+            if (revealedCount < 11)
+                AssertThat(revealingCount == 1);
         }
 
         [Test]

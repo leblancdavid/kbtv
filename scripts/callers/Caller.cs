@@ -44,6 +44,10 @@ namespace KBTV.Callers
         private float _patience;
         private float _quality;
 
+        // Reveal order tracking (random sequence for property revelation)
+        private int[] _revealOrder;
+        private int _currentRevealIndex;
+
         // Properties
         public string Name => _name;
         public string PhoneNumber => _phoneNumber;
@@ -157,28 +161,32 @@ namespace KBTV.Callers
 
         /// <summary>
         /// Initialize screenable properties for all caller attributes.
-        /// Properties are assigned reveal durations and stat effects based on their values.
-        /// The order is fully randomized.
+        /// Properties are in a fixed display order, but reveal in random sequence.
         /// </summary>
         private void InitializeScreenableProperties()
         {
             var properties = new List<ScreenableProperty>
             {
+                // Priority properties (shown first in display order)
+                CreateScreenableProperty("Topic", "Topic", _claimedTopic, 5f),
+                CreateScreenableProperty("Summary", "Summary", _screeningSummary, 4f),
                 CreateScreenableProperty("AudioQuality", "Audio Quality", _phoneQuality, 2f),
+                CreateScreenableProperty("Legitimacy", "Legitimacy", _legitimacy, 5f),
+                CreateScreenableProperty("Personality", "Personality", _personality, 4f),
+                // Remaining properties
                 CreateScreenableProperty("EmotionalState", "Emotional State", _emotionalState, 3f),
                 CreateScreenableProperty("CurseRisk", "Curse Risk", _curseRisk, 3f),
                 CreateScreenableProperty("BeliefLevel", "Belief Level", _beliefLevel, 4f),
                 CreateScreenableProperty("Evidence", "Evidence", _evidenceLevel, 4f),
                 CreateScreenableProperty("Coherence", "Coherence", _coherence, 5f),
-                CreateScreenableProperty("Urgency", "Urgency", _urgency, 4f),
-                CreateScreenableProperty("Summary", "Summary", _screeningSummary, 4f),
-                CreateScreenableProperty("Topic", "Topic", _claimedTopic, 5f),
-                CreateScreenableProperty("Legitimacy", "Legitimacy", _legitimacy, 5f),
-                CreateScreenableProperty("Personality", "Personality", _personality, 4f)
+                CreateScreenableProperty("Urgency", "Urgency", _urgency, 4f)
             };
 
-            ShuffleProperties(properties);
+            // No shuffle - properties stay in fixed display order
             ScreenableProperties = properties.ToArray();
+            
+            // Initialize random reveal order
+            InitializeRevealOrder();
         }
 
         /// <summary>
@@ -231,20 +239,31 @@ namespace KBTV.Callers
         }
 
         /// <summary>
-        /// Fully random shuffle of properties (no tier system).
+        /// Initialize the random reveal order.
+        /// Creates a shuffled array of indices determining which property reveals next.
         /// </summary>
-        private void ShuffleProperties(List<ScreenableProperty> list)
+        private void InitializeRevealOrder()
         {
-            var rng = new Random();
-            int n = list.Count;
-            while (n > 1)
+            int count = ScreenableProperties.Length;
+            _revealOrder = new int[count];
+            
+            // Initialize with sequential indices
+            for (int i = 0; i < count; i++)
             {
-                n--;
-                int k = rng.Next(n + 1);
-                var value = list[k];
-                list[k] = list[n];
-                list[n] = value;
+                _revealOrder[i] = i;
             }
+            
+            // Fisher-Yates shuffle
+            var rng = new Random();
+            for (int i = count - 1; i > 0; i--)
+            {
+                int j = rng.Next(i + 1);
+                int temp = _revealOrder[i];
+                _revealOrder[i] = _revealOrder[j];
+                _revealOrder[j] = temp;
+            }
+            
+            _currentRevealIndex = 0;
         }
 
         /// <summary>
@@ -315,6 +334,9 @@ namespace KBTV.Callers
             {
                 prop.Reset();
             }
+            
+            // Re-shuffle reveal order for next screening
+            InitializeRevealOrder();
         }
 
         /// <summary>
@@ -400,13 +422,26 @@ namespace KBTV.Callers
         }
 
         /// <summary>
-        /// Update all screenable property revelations.
+        /// Update screenable property revelations.
+        /// Only updates one property at a time based on random reveal order.
         /// </summary>
         public void UpdateScreenableProperties(float deltaTime)
         {
-            foreach (var prop in ScreenableProperties)
+            // All properties revealed
+            if (_revealOrder == null || _currentRevealIndex >= _revealOrder.Length)
+                return;
+            
+            // Get the property at current reveal position
+            int propertyIndex = _revealOrder[_currentRevealIndex];
+            var currentProperty = ScreenableProperties[propertyIndex];
+            
+            // Update only this property
+            currentProperty.Update(deltaTime);
+            
+            // If it just finished revealing, move to next in sequence
+            if (currentProperty.IsRevealed)
             {
-                prop.Update(deltaTime);
+                _currentRevealIndex++;
             }
         }
 
