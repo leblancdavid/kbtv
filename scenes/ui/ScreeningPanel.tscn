@@ -60,13 +60,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "────────────────────────────────────────────────────────────────────────────────────────"
 
-[node name="PropertiesGrid" type="GridContainer" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
+[node name="PropertiesContainer" type="VBoxContainer" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/h_separation = 24
-theme_override_constants/v_separation = 4
-columns = 2
+theme_override_constants/separation = 2
 
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2

@@ -68,6 +68,22 @@ namespace KBTV.UI.Themes
             public static readonly Color Blue = new(0.2f, 0.4f, 0.8f);
         }
 
+        // Stat effect indicator colors (for screening property reveals)
+        public static class StatEffect
+        {
+            public static readonly Color Positive = new(0.2f, 0.9f, 0.2f);  // Green for buffs
+            public static readonly Color Negative = new(0.9f, 0.2f, 0.2f);  // Red for debuffs
+            public static readonly Color Neutral = new(0.7f, 0.7f, 0.7f);   // Gray for no effect
+        }
+
+        // Scrambled text colors (Matrix-style for unrevealed properties)
+        public static class Scramble
+        {
+            public static readonly Color Text = new(0.3f, 0.7f, 0.3f);       // Matrix green
+            public static readonly Color TextDim = new(0.2f, 0.5f, 0.2f);    // Dimmer variant
+            public static readonly Color Revealing = new(0.5f, 0.9f, 0.5f);  // Brighter when revealing
+        }
+
         // Legend colors for reference
         public static Color GetQueueStateColor(CallerState state)
         {
