@@ -30,6 +30,11 @@ namespace KBTV.Dialogue
         /// </summary>
         public VernLineType? LineType => _lineType;
 
+        /// <summary>
+        /// Number of lines in this dialogue (1 for single lines, arc count for conversations).
+        /// </summary>
+        public int LineCount => _arc?.Dialogue.Count ?? 1;
+
         // For caller dialogue (full conversation arcs)
         public DialogueExecutable(string id, Caller caller, ConversationArc arc, EventBus eventBus, IBroadcastAudioService audioService, BroadcastStateManager stateManager) 
             : base(id, BroadcastItemType.Conversation, true, 4.0f, eventBus, audioService, stateManager.SceneTree, new { caller, arc })

@@ -100,7 +100,7 @@ namespace KBTV.Audio
         {
             if (IsAudioDisabled)
             {
-                await Task.Delay(4000, cancellationToken);
+                await Task.Delay(4000, CancellationToken.None);
                 return;
             }
             // Special corruption check for the problematic file - skip when audio disabled to avoid unnecessary loading

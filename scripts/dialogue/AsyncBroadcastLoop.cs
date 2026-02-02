@@ -338,8 +338,16 @@ namespace KBTV.Dialogue
 
             try
             {
+                // Calculate timeout based on executable type
+                float timeoutSeconds = 30.0f;
+                if (executable is KBTV.Dialogue.DialogueExecutable dialogueExec)
+                {
+                    // Dialogue arcs: lines × 4s + 10s buffer, single lines: 10s
+                    timeoutSeconds = dialogueExec.LineCount * 4.0f + 10.0f;
+                }
+                
                 // Execute with timeout to prevent hanging
-                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(timeoutSeconds), cancellationToken);
                 
                 // Execute the executable (async/await based on RequiresAwait flag)
                 Task executionTask;
@@ -359,7 +367,7 @@ namespace KBTV.Dialogue
                 
                 if (completedTask == timeoutTask)
                 {
-                    KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Executable {executable.Id} timed out after 30 seconds");
+                    KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Executable {executable.Id} timed out after {timeoutSeconds} seconds");
                     // Don't throw - allow graceful degradation
                 }
                 else
