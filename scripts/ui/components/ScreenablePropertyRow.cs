@@ -10,14 +10,14 @@ namespace KBTV.UI.Components
 {
     /// <summary>
     /// UI component that displays a single screenable property with reveal animation.
-    /// Shows scrambled Matrix-style text for hidden properties, typewriter reveal effect,
+    /// Shows placeholder blocks for hidden properties, typewriter reveal effect,
     /// and colored stat effect indicators when fully revealed.
     /// </summary>
     public partial class ScreenablePropertyRow : HBoxContainer
     {
-        // Characters used for Matrix-style scramble effect
-        private static readonly string ScrambleChars = 
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*<>[]{}|";
+        // Placeholder character for unrevealed text (block character for "censored" feel)
+        private const char PlaceholderChar = '█';
+        private const int PlaceholderLength = 10;
 
         // Child nodes
         private Label _nameLabel = null!;
@@ -26,7 +26,6 @@ namespace KBTV.UI.Components
 
         // State
         private ScreenableProperty? _property;
-        private Random _rng = new();
         private RevelationState _lastState = RevelationState.Hidden;
         private bool _statEffectsBuilt = false;
 
@@ -75,11 +74,17 @@ namespace KBTV.UI.Components
         /// </summary>
         public void SetProperty(ScreenableProperty property)
         {
+            if (_nameLabel == null || _valueLabel == null)
+            {
+                GD.PrintErr("ScreenablePropertyRow.SetProperty called before _Ready() - nodes not initialized");
+                return;
+            }
+
             _property = property;
             _lastState = property.State;
             _statEffectsBuilt = false;
 
-            // Set the property name (never scrambled)
+            // Set the property name (never hidden)
             _nameLabel.Text = $"{property.DisplayName}:";
 
             // Initial value display based on state
@@ -126,8 +131,8 @@ namespace KBTV.UI.Components
             switch (_property.State)
             {
                 case RevelationState.Hidden:
-                    // Show scrambled text (updates every frame for animation)
-                    _valueLabel.Text = GenerateScrambledText(_property.DisplayValue.Length);
+                    // Show fixed-length placeholder blocks
+                    _valueLabel.Text = new string(PlaceholderChar, PlaceholderLength);
                     break;
 
                 case RevelationState.Revealing:
@@ -147,37 +152,27 @@ namespace KBTV.UI.Components
             if (_property == null) return;
 
             float progress = _property.Progress;
-            int totalLength = _property.DisplayValue.Length;
+            string actualValue = _property.DisplayValue;
+            int totalLength = actualValue.Length;
+            
+            // Calculate how many actual characters to reveal
             int revealedChars = (int)(progress * totalLength);
-
-            // Clamp to valid range
             revealedChars = Math.Clamp(revealedChars, 0, totalLength);
 
-            // Build the display: revealed portion + scrambled remainder
-            string revealed = _property.DisplayValue.Substring(0, revealedChars);
-            int remainingLength = totalLength - revealedChars;
-
-            if (remainingLength > 0)
+            // Build the display: revealed portion + placeholder remainder
+            string revealed = actualValue.Substring(0, revealedChars);
+            int placeholderCount = PlaceholderLength - revealedChars;
+            
+            if (placeholderCount > 0)
             {
-                string scrambled = GenerateScrambledText(remainingLength);
-                _valueLabel.Text = revealed + scrambled;
+                string placeholder = new string(PlaceholderChar, placeholderCount);
+                _valueLabel.Text = revealed + placeholder;
             }
             else
             {
+                // All characters revealed (or value is longer than placeholder length)
                 _valueLabel.Text = revealed;
             }
-        }
-
-        private string GenerateScrambledText(int length)
-        {
-            if (length <= 0) return "";
-
-            var chars = new char[length];
-            for (int i = 0; i < length; i++)
-            {
-                chars[i] = ScrambleChars[_rng.Next(ScrambleChars.Length)];
-            }
-            return new string(chars);
         }
 
         private void UpdateValueLabelColor()
@@ -186,8 +181,8 @@ namespace KBTV.UI.Components
 
             Color color = _property.State switch
             {
-                RevelationState.Hidden => UIColors.Scramble.Text,
-                RevelationState.Revealing => UIColors.Scramble.Revealing,
+                RevelationState.Hidden => UIColors.Placeholder.Text,
+                RevelationState.Revealing => UIColors.Placeholder.Revealing,
                 RevelationState.Revealed => UIColors.TEXT_PRIMARY,
                 _ => UIColors.TEXT_PRIMARY
             };

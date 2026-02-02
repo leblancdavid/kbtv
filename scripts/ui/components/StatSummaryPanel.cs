@@ -72,7 +72,7 @@ namespace KBTV.UI.Components
                 Text = "Screening...",
                 HorizontalAlignment = HorizontalAlignment.Center
             };
-            _noDataLabel.AddThemeColorOverride("font_color", UIColors.Scramble.Text);
+            _noDataLabel.AddThemeColorOverride("font_color", UIColors.Placeholder.Text);
             _statsContainer.AddChild(_noDataLabel);
         }
 
@@ -230,7 +230,7 @@ namespace KBTV.UI.Components
                 Text = message,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
-            _noDataLabel.AddThemeColorOverride("font_color", UIColors.Scramble.Text);
+            _noDataLabel.AddThemeColorOverride("font_color", UIColors.Placeholder.Text);
             _statsContainer.AddChild(_noDataLabel);
         }
 

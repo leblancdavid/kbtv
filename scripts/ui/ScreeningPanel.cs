@@ -260,9 +260,8 @@ namespace KBTV.UI
 			var row = new ScreenablePropertyRow();
 			row.SizeFlagsHorizontal = SizeFlags.ExpandFill;
 
-			// We need to add to scene tree first so _Ready is called
-			// Then set the property
-			row.TreeEntered += () => row.SetProperty(property);
+			// Use Ready signal to ensure _Ready() has run before setting property
+			row.Ready += () => row.SetProperty(property);
 
 			return row;
 		}

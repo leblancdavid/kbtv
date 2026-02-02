@@ -76,12 +76,11 @@ namespace KBTV.UI.Themes
             public static readonly Color Neutral = new(0.7f, 0.7f, 0.7f);   // Gray for no effect
         }
 
-        // Scrambled text colors (Matrix-style for unrevealed properties)
-        public static class Scramble
+        // Placeholder text colors (for unrevealed/hidden properties)
+        public static class Placeholder
         {
-            public static readonly Color Text = new(0.3f, 0.7f, 0.3f);       // Matrix green
-            public static readonly Color TextDim = new(0.2f, 0.5f, 0.2f);    // Dimmer variant
-            public static readonly Color Revealing = new(0.5f, 0.9f, 0.5f);  // Brighter when revealing
+            public static readonly Color Text = new(0.4f, 0.4f, 0.4f);       // Muted gray for hidden
+            public static readonly Color Revealing = new(0.6f, 0.6f, 0.6f);  // Lighter when revealing
         }
 
         // Legend colors for reference

@@ -109,13 +109,19 @@ namespace KBTV.Audio
         {
             foreach (var (sfx, path) in SfxPaths)
             {
+                // Check if file exists before trying to load to avoid errors
+                if (!ResourceLoader.Exists(path))
+                {
+                    // Silently skip missing files - they can be added later
+                    continue;
+                }
+
                 var stream = GD.Load<AudioStream>(path);
                 if (stream != null)
                 {
                     _sfxCache[path] = stream;
                     GD.Print($"UIAudioService: Loaded {sfx} from {path}");
                 }
-                // Silently skip missing files - they can be added later
             }
 
             GD.Print($"UIAudioService: Preloaded {_sfxCache.Count}/{SfxPaths.Count} sound effects");
@@ -162,6 +168,13 @@ namespace KBTV.Audio
             // Try to get from cache
             if (!_sfxCache.TryGetValue(path, out var stream))
             {
+                // Check if file exists before trying to load
+                if (!ResourceLoader.Exists(path))
+                {
+                    // Sound not available - silently return
+                    return;
+                }
+
                 // Try to load it
                 stream = GD.Load<AudioStream>(path);
                 if (stream == null)

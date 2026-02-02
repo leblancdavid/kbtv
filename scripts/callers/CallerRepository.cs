@@ -120,6 +120,9 @@ namespace KBTV.Callers
                 }
             }
 
+            // Set caller state to Screening BEFORE starting the controller
+            caller.SetState(CallerState.Screening);
+
             var screeningController = _screeningController;
             screeningController?.Start(caller);
 
