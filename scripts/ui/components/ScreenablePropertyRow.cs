@@ -10,8 +10,7 @@ namespace KBTV.UI.Components
 {
     /// <summary>
     /// UI component that displays a single screenable property with reveal animation.
-    /// Shows placeholder blocks for hidden properties, typewriter reveal effect,
-    /// and colored stat effect indicators when fully revealed.
+    /// Shows placeholder blocks for hidden properties and typewriter reveal effect.
     /// </summary>
     public partial class ScreenablePropertyRow : HBoxContainer
     {
@@ -22,12 +21,10 @@ namespace KBTV.UI.Components
         // Child nodes
         private Label _nameLabel = null!;
         private Label _valueLabel = null!;
-        private HBoxContainer _statEffectsContainer = null!;
 
         // State
         private ScreenableProperty? _property;
         private RevelationState _lastState = RevelationState.Hidden;
-        private bool _statEffectsBuilt = false;
 
         // Audio service for reveal sound
         private IUIAudioService? _audioService;
@@ -47,13 +44,6 @@ namespace KBTV.UI.Components
                 SizeFlagsHorizontal = SizeFlags.ExpandFill
             };
             AddChild(_valueLabel);
-
-            _statEffectsContainer = new HBoxContainer
-            {
-                SizeFlagsHorizontal = SizeFlags.ShrinkEnd
-            };
-            _statEffectsContainer.AddThemeConstantOverride("separation", 4);
-            AddChild(_statEffectsContainer);
 
             // Create a monospace system font for console-like appearance
             var monoFont = new SystemFont();
@@ -90,7 +80,6 @@ namespace KBTV.UI.Components
 
             _property = property;
             _lastState = property.State;
-            _statEffectsBuilt = false;
 
             // Set the property name (never hidden)
             _nameLabel.Text = $"{property.DisplayName}:";
@@ -120,13 +109,10 @@ namespace KBTV.UI.Components
 
         private void OnStateChanged(RevelationState oldState, RevelationState newState)
         {
-            if (newState == RevelationState.Revealed && !_statEffectsBuilt)
+            if (newState == RevelationState.Revealed)
             {
                 // Play reveal sound with slight pitch variation for variety
                 _audioService?.PlaySfx(UISfx.PropertyReveal, 0.1f);
-
-                BuildStatEffectIndicators();
-                _statEffectsBuilt = true;
             }
 
             UpdateValueLabelColor();
@@ -196,36 +182,6 @@ namespace KBTV.UI.Components
             };
 
             _valueLabel.AddThemeColorOverride("font_color", color);
-        }
-
-        private void BuildStatEffectIndicators()
-        {
-            if (_property == null) return;
-
-            // Clear existing indicators
-            foreach (var child in _statEffectsContainer.GetChildren())
-            {
-                child.QueueFree();
-            }
-
-            // Get stat effect displays from the property
-            var displays = _property.GetStatEffectDisplays();
-
-            foreach (var display in displays)
-            {
-                var label = new Label
-                {
-                    Text = display.Text
-                };
-
-                // Apply color based on positive/negative
-                Color effectColor = display.IsPositive 
-                    ? UIColors.StatEffect.Positive 
-                    : UIColors.StatEffect.Negative;
-                label.AddThemeColorOverride("font_color", effectColor);
-
-                _statEffectsContainer.AddChild(label);
-            }
         }
 
         /// <summary>
