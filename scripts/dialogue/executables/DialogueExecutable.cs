@@ -60,6 +60,8 @@ namespace KBTV.Dialogue
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
         {
+            GD.Print($"DialogueExecutable: ExecuteInternalAsync started - Id: {_id}, Type: {_type}, HasArc: {_arc != null}, HasCaller: {_caller != null}");
+            
             // Create local cancellation token for interruption handling
             using var localCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             var localToken = localCts.Token;
@@ -138,9 +140,11 @@ namespace KBTV.Dialogue
                         // Check for pending break transition (graceful interruption between lines)
                         if (_stateManager?.PendingBreakTransition == true)
                         {
+                            GD.Print($"DialogueExecutable: Break transition pending, exiting conversation loop early");
                             break;
                         }
                     }
+                    GD.Print($"DialogueExecutable: Conversation arc loop completed - all {_arc.Dialogue.Count} lines processed");
                 }
                 else
                 {
@@ -175,6 +179,7 @@ namespace KBTV.Dialogue
             {
                 // Unsubscribe from interruption events
                 _eventBus.Unsubscribe<BroadcastInterruptionEvent>(OnInterruption);
+                GD.Print($"DialogueExecutable: ExecuteInternalAsync completed - Id: {_id}");
             }
         }
 

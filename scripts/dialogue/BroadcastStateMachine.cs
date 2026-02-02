@@ -60,6 +60,8 @@ namespace KBTV.Dialogue
         /// </summary>
         public BroadcastExecutable? GetNextExecutable(AsyncBroadcastState currentState)
         {
+            GD.Print($"BroadcastStateMachine.GetNextExecutable: Called with state {currentState}");
+            
             // Global pending transition checks - these take priority over current state
             if (_stateManager._pendingShowEndingTransition)
             {
@@ -96,6 +98,7 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.Conversation:
                     return CreateConversationExecutable(currentState);
                 case AsyncBroadcastState.BetweenCallers:
+                    GD.Print("BroadcastStateMachine: Creating BetweenCallers executable");
                     return CreateBetweenCallersExecutable();
                 case AsyncBroadcastState.DeadAir:
                     return CreateDeadAirExecutable();
@@ -177,6 +180,19 @@ namespace KBTV.Dialogue
                         newState = AsyncBroadcastState.BetweenCallers;
                     }
                     // Else stay in DeadAir
+                    break;
+                case AsyncBroadcastState.DroppedCaller:
+                    // After dropped caller line plays, check if there are more callers
+                    if (ShouldPlayBetweenCallers())
+                    {
+                        GD.Print("BroadcastStateMachine: DroppedCaller completed - callers on hold, transitioning to BetweenCallers");
+                        newState = AsyncBroadcastState.BetweenCallers;
+                    }
+                    else
+                    {
+                        GD.Print("BroadcastStateMachine: DroppedCaller completed - no callers on hold, transitioning to DeadAir");
+                        newState = AsyncBroadcastState.DeadAir;
+                    }
                     break;
                  case AsyncBroadcastState.AdBreak:
                      _stateManager.IncrementAdIndex();
@@ -284,27 +300,38 @@ namespace KBTV.Dialogue
             // Handle caller conversation completion
             if (executable.Type == BroadcastItemType.Conversation)
             {
+                GD.Print($"BroadcastStateMachine: HandleConversationStateTransition - Conversation completed, executable.Id: {executable.Id}");
+                
                 if (_stateManager._pendingBreakTransition)
                 {
+                    GD.Print("BroadcastStateMachine: Pending break transition, staying in Conversation state");
                     return AsyncBroadcastState.Conversation; // Stay for break transition
                 }
 
                 var endResult = _callerRepository.EndOnAir();
+                GD.Print($"BroadcastStateMachine: EndOnAir result - Success: {endResult.IsSuccess}, OnHoldCount: {_callerRepository.OnHoldCallers.Count}");
                 if (endResult.IsSuccess)
                 {
                     GD.Print($"BroadcastStateMachine: Ended on-air caller {endResult.Value.Name}");
                 }
 
-                if (ShouldPlayBetweenCallers())
+                var shouldPlayBetween = ShouldPlayBetweenCallers();
+                var shouldPlayDead = ShouldPlayDeadAir();
+                GD.Print($"BroadcastStateMachine: ShouldPlayBetweenCallers: {shouldPlayBetween}, ShouldPlayDeadAir: {shouldPlayDead}");
+                
+                if (shouldPlayBetween)
                 {
+                    GD.Print("BroadcastStateMachine: Transitioning to BetweenCallers state");
                     return AsyncBroadcastState.BetweenCallers;
                 }
-                else if (ShouldPlayDeadAir())
+                else if (shouldPlayDead)
                 {
+                    GD.Print("BroadcastStateMachine: Transitioning to DeadAir state");
                     return AsyncBroadcastState.DeadAir;
                 }
                 else
                 {
+                    GD.Print("BroadcastStateMachine: Staying in Conversation state (fallback)");
                     return AsyncBroadcastState.Conversation;
                 }
             }
@@ -326,6 +353,7 @@ namespace KBTV.Dialogue
 
         private bool ShouldPlayDeadAir()
         {
+            // Don't play dead air if we have an active caller or callers waiting
             if (_callerRepository.OnAirCaller != null || _callerRepository.OnHoldCallers.Count > 0)
                 return false;
 
@@ -333,11 +361,8 @@ namespace KBTV.Dialogue
             if (_stateManager._pendingShowEndingTransition)
                 return false;
 
-            return _stateManager._previousState == AsyncBroadcastState.ShowStarting ||
-                   _stateManager._previousState == AsyncBroadcastState.BetweenCallers ||
-                   _stateManager._previousState == AsyncBroadcastState.BreakReturn ||
-                   _stateManager._previousState == AsyncBroadcastState.DeadAir ||
-                   _stateManager._previousState == AsyncBroadcastState.Conversation;
+            // If no callers and no pending transitions, we should play dead air filler
+            return true;
         }
 
         // Executable creation methods (simplified versions)
@@ -350,6 +375,8 @@ namespace KBTV.Dialogue
 
         private BroadcastExecutable CreateConversationExecutable(AsyncBroadcastState currentState)
         {
+            GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Starting - OnAirCaller: {_callerRepository.OnAirCaller?.Name ?? "null"}, OnHold: {_callerRepository.OnHoldCallers.Count}, Incoming: {_callerRepository.IncomingCallers.Count}, IsOnAir: {_callerRepository.IsOnAir}");
+            
             if (!_stateManager._hasPlayedVernOpening)
             {
                 var opening = _vernDialogue.GetShowOpening();
@@ -392,29 +419,44 @@ namespace KBTV.Dialogue
             var onAirCaller = _callerRepository.OnAirCaller;
             if (onAirCaller == null)
             {
+                GD.Print($"BroadcastStateMachine.CreateConversationExecutable: No on-air caller, checking for on-hold callers");
                 if (_callerRepository.OnHoldCallers.Count > 0 && !_callerRepository.IsOnAir)
                 {
+                    GD.Print("BroadcastStateMachine.CreateConversationExecutable: Returning PutOnAirExecutable");
                     return new PutOnAirExecutable(_eventBus, _callerRepository, _stateManager);
                 }
             }
 
             if (onAirCaller != null)
             {
+                GD.Print($"BroadcastStateMachine.CreateConversationExecutable: On-air caller found: {onAirCaller.Name}, topic: {onAirCaller.ActualTopic}");
                 var topic = ShowTopicExtensions.ParseTopic(onAirCaller.ActualTopic);
                 if (topic.HasValue)
                 {
                     var arc = _arcRepository.GetRandomArcForTopic(topic.Value, onAirCaller.Legitimacy);
                     if (arc != null)
                     {
+                        GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Got arc {arc.ArcId} with {arc.Dialogue.Count} lines");
                         return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus, _audioService, _stateManager);
                     }
+                    else
+                    {
+                        GD.Print($"BroadcastStateMachine.CreateConversationExecutable: No arc found for topic {topic.Value}");
+                    }
+                }
+                else
+                {
+                    GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Could not parse topic '{onAirCaller.ActualTopic}'");
                 }
             }
 
             if (_callerRepository.IncomingCallers.Count > 0)
             {
+                GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Returning null - waiting for {_callerRepository.IncomingCallers.Count} incoming callers");
                 return null;
             }
+
+            GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Fallback - ShouldPlayDeadAir: {ShouldPlayDeadAir()}");
 
             if (ShouldPlayDeadAir())
             {

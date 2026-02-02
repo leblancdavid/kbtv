@@ -251,10 +251,14 @@ namespace KBTV.Dialogue
                     }
 
                     // Execute the executable
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: About to execute {nextExecutable.Type} - {nextExecutable.Id}");
                     await ExecuteExecutableAsync(nextExecutable, _cancellationTokenSource.Token);
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Execution completed for {nextExecutable.Type} - {nextExecutable.Id}");
 
                     // Update state manager after execution
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Calling UpdateStateAfterExecution for {nextExecutable.Type} - {nextExecutable.Id}");
                     _stateManager.UpdateStateAfterExecution(nextExecutable);
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: State after update: {_stateManager.CurrentState}");
 
                     // Small delay between executables
                     await _stateManager.DelayAsync(0.1f, _cancellationTokenSource.Token);
@@ -370,9 +374,17 @@ namespace KBTV.Dialogue
                     KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Executable {executable.Id} timed out after {timeoutSeconds} seconds");
                     // Don't throw - allow graceful degradation
                 }
+                else if (executionTask.IsFaulted)
+                {
+                    KBTV.Core.Logger.Error($"AsyncBroadcastLoop: Executable {executable.Id} faulted: {executionTask.Exception?.InnerException?.Message}");
+                }
+                else if (executionTask.IsCanceled)
+                {
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Executable {executable.Id} was canceled");
+                }
                 else
                 {
-                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Executable {executable.Id} completed normally");
+                    KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Executable {executable.Id} completed successfully");
                 }
             }
             catch (OperationCanceledException)
