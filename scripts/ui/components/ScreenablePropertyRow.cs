@@ -1,6 +1,8 @@
 using System;
 using Godot;
+using KBTV.Audio;
 using KBTV.Callers;
+using KBTV.Core;
 using KBTV.Screening;
 using KBTV.UI.Themes;
 
@@ -28,6 +30,9 @@ namespace KBTV.UI.Components
         private RevelationState _lastState = RevelationState.Hidden;
         private bool _statEffectsBuilt = false;
 
+        // Audio service for reveal sound
+        private IUIAudioService? _audioService;
+
         public override void _Ready()
         {
             // Create child nodes programmatically
@@ -50,6 +55,16 @@ namespace KBTV.UI.Components
             };
             _statEffectsContainer.AddThemeConstantOverride("separation", 4);
             AddChild(_statEffectsContainer);
+
+            // Try to get audio service for reveal sounds
+            try
+            {
+                _audioService = DependencyInjection.Get<IUIAudioService>(this);
+            }
+            catch
+            {
+                // Audio service not available - sounds will be silently skipped
+            }
 
             // Apply initial styling
             UpdateValueLabelColor();
@@ -94,6 +109,9 @@ namespace KBTV.UI.Components
         {
             if (newState == RevelationState.Revealed && !_statEffectsBuilt)
             {
+                // Play reveal sound with slight pitch variation for variety
+                _audioService?.PlaySfx(UISfx.PropertyReveal, 0.1f);
+
                 BuildStatEffectIndicators();
                 _statEffectsBuilt = true;
             }

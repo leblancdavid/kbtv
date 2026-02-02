@@ -42,6 +42,9 @@ namespace KBTV.UI
 		// Property rows for animated reveal
 		private List<ScreenablePropertyRow> _propertyRows = new();
 
+		// Stat summary panel for aggregated effects
+		private StatSummaryPanel? _statSummaryPanel;
+
 		public override void _Notification(int what) => this.Notify(what);
 
 		public override void _Ready()
@@ -163,6 +166,9 @@ namespace KBTV.UI
 			{
 				row.UpdateAnimation(delta);
 			}
+
+			// Update the stat summary with revealed properties
+			_statSummaryPanel?.UpdateDisplay();
 		}
 
 		public void SetCaller(Caller? caller)
@@ -218,6 +224,9 @@ namespace KBTV.UI
 				var child = _propertiesContainer.GetChild(i);
 				child.QueueFree();
 			}
+
+			// Clear stat summary reference (it will be recreated when new caller is set)
+			_statSummaryPanel = null;
 		}
 
 		/// <summary>
@@ -237,6 +246,10 @@ namespace KBTV.UI
 				_propertiesContainer.AddChild(row);
 				_propertyRows.Add(row);
 			}
+
+			// Add stat summary panel at the bottom
+			EnsureStatSummaryPanel();
+			_statSummaryPanel!.SetProperties(caller.ScreenableProperties);
 		}
 
 		/// <summary>
@@ -252,6 +265,28 @@ namespace KBTV.UI
 			row.TreeEntered += () => row.SetProperty(property);
 
 			return row;
+		}
+
+		/// <summary>
+		/// Ensure the stat summary panel exists at the bottom of the properties container.
+		/// </summary>
+		private void EnsureStatSummaryPanel()
+		{
+			if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel))
+			{
+				// Move to bottom if it already exists
+				_propertiesContainer.MoveChild(_statSummaryPanel, _propertiesContainer.GetChildCount() - 1);
+				return;
+			}
+
+			// Create new stat summary panel
+			_statSummaryPanel = new StatSummaryPanel
+			{
+				SizeFlagsHorizontal = SizeFlags.ExpandFill,
+				CustomMinimumSize = new Vector2(0, 40)
+			};
+
+			_propertiesContainer.AddChild(_statSummaryPanel);
 		}
 
 		private void OnApprovePressed()
