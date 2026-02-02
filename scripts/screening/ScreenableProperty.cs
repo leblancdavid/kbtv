@@ -185,7 +185,7 @@ namespace KBTV.Screening
                 StatType.Energy => "E",
                 StatType.Focus => "F",
                 StatType.Discernment => "D",
-                StatType.Skepticism => "Sk",
+                StatType.Belief => "B",
                 StatType.Alertness => "A",
                 StatType.Caffeine => "Ca",
                 StatType.Nicotine => "N",

@@ -26,7 +26,7 @@ namespace KBTV.Data
         Patience,
 
         // Long-Term
-        Skepticism
+        Belief
     }
 
 

@@ -181,13 +181,13 @@ namespace KBTV.Tests.Unit.Screening
         #region EvidenceLevel Tests
 
         [Test]
-        public void GetStatEffects_Evidence_None_ReturnsSkepticismPlus()
+        public void GetStatEffects_Evidence_None_ReturnsBeliefMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("Evidence", CallerEvidenceLevel.None);
 
             AssertThat(effects.Count == 1);
-            AssertThat(effects[0].StatType == StatType.Skepticism);
-            AssertThat(effects[0].Amount == 2f);
+            AssertThat(effects[0].StatType == StatType.Belief);
+            AssertThat(effects[0].Amount == -2f);
         }
 
         [Test]

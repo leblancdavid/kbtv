@@ -48,7 +48,7 @@ namespace KBTV.Data
 		// ═══════════════════════════════════════════════════════════════════════════════
 		// LONG-TERM - Persistent across nights
 		// ═══════════════════════════════════════════════════════════════════════════════
-		[Export] private float _initialSkepticism = 50f;
+		[Export] private float _initialBelief = 50f;
 
 		// ═══════════════════════════════════════════════════════════════════════════════
 		// DECAY MULTIPLIERS
@@ -78,7 +78,7 @@ namespace KBTV.Data
 		private Stat _patience;
 
 		// Runtime stat instances - Long-Term
-		private Stat _skepticism;
+		private Stat _belief;
 
 		// Public accessors - Dependencies
 		public Stat Caffeine => _caffeine;
@@ -98,7 +98,7 @@ namespace KBTV.Data
 		public Stat Patience => _patience;
 
 		// Public accessors - Long-Term
-		public Stat Skepticism => _skepticism;
+		public Stat Belief => _belief;
 
 		// Public decay rate accessors for monitors
 		public float CaffeineDecayRate => _caffeineDecayRate;
@@ -141,7 +141,7 @@ namespace KBTV.Data
 			_patience = new Stat("Patience", _initialPatience);
 
 			// Long-Term
-			_skepticism = new Stat("Skepticism", _initialSkepticism);
+			_belief = new Stat("Belief", _initialBelief);
 
 			// Subscribe to individual stat changes
 			SubscribeToStatChanges();
@@ -163,7 +163,7 @@ namespace KBTV.Data
 			_discernment.OnValueChanged += NotifyStatsChanged;
 			_focus.OnValueChanged += NotifyStatsChanged;
 			_patience.OnValueChanged += NotifyStatsChanged;
-			_skepticism.OnValueChanged += NotifyStatsChanged;
+			_belief.OnValueChanged += NotifyStatsChanged;
 		}
 
 		private void NotifyStatsChanged(float oldVal, float newVal)
@@ -227,10 +227,10 @@ namespace KBTV.Data
 		public float CalculateCredibility()
 		{
 			float discernmentFactor = _discernment.Normalized;
-			float skepticismFactor = _skepticism.Normalized;
+			float beliefFactor = _belief.Normalized;
 			float evidenceBonus = 0f;  // TODO: Add evidence bonuses when implemented
 
-			float credibility = (discernmentFactor * 50f) + (skepticismFactor * 30f) + (evidenceBonus * 20f);
+			float credibility = (discernmentFactor * 50f) + (beliefFactor * 30f) + (evidenceBonus * 20f);
 
 			return Mathf.Clamp(credibility, 0f, 100f);
 		}

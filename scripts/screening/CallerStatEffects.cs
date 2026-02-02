@@ -154,7 +154,7 @@ namespace KBTV.Screening
         }
 
         /// <summary>
-        /// Belief level affects Vern's spirit, discernment, and skepticism.
+        /// Belief level affects Vern's spirit, discernment, and belief.
         /// Curious callers are easy, zealots are exhausting.
         /// </summary>
         private static List<StatModification> GetBeliefLevelEffects(CallerBeliefLevel belief)
@@ -173,7 +173,7 @@ namespace KBTV.Screening
                 CallerBeliefLevel.Certain => new List<StatModification>
                 {
                     new StatModification(StatType.Spirit, 2f),
-                    new StatModification(StatType.Skepticism, 1f)
+                    new StatModification(StatType.Belief, 1f)
                 },
                 CallerBeliefLevel.Zealot => new List<StatModification>
                 {
@@ -185,8 +185,8 @@ namespace KBTV.Screening
         }
 
         /// <summary>
-        /// Evidence level affects Vern's spirit, discernment, and skepticism.
-        /// Good evidence boosts the show, no evidence increases skepticism.
+        /// Evidence level affects Vern's spirit, discernment, and belief.
+        /// Good evidence boosts the show, no evidence decreases belief.
         /// </summary>
         private static List<StatModification> GetEvidenceLevelEffects(CallerEvidenceLevel evidence)
         {
@@ -194,11 +194,11 @@ namespace KBTV.Screening
             {
                 CallerEvidenceLevel.None => new List<StatModification>
                 {
-                    new StatModification(StatType.Skepticism, 2f)
+                    new StatModification(StatType.Belief, -2f)
                 },
                 CallerEvidenceLevel.Low => new List<StatModification>
                 {
-                    new StatModification(StatType.Skepticism, 1f)
+                    new StatModification(StatType.Belief, -1f)
                 },
                 CallerEvidenceLevel.Medium => new List<StatModification>(),
                 CallerEvidenceLevel.High => new List<StatModification>
@@ -216,7 +216,7 @@ namespace KBTV.Screening
         }
 
         /// <summary>
-        /// Legitimacy affects Vern's spirit, patience, and skepticism.
+        /// Legitimacy affects Vern's spirit, patience, and belief.
         /// Fake callers are demoralizing, compelling callers boost the show.
         /// </summary>
         private static List<StatModification> GetLegitimacyEffects(CallerLegitimacy legitimacy)
@@ -230,7 +230,7 @@ namespace KBTV.Screening
                 },
                 CallerLegitimacy.Questionable => new List<StatModification>
                 {
-                    new StatModification(StatType.Skepticism, 2f)
+                    new StatModification(StatType.Belief, -2f)
                 },
                 CallerLegitimacy.Credible => new List<StatModification>(),
                 CallerLegitimacy.Compelling => new List<StatModification>

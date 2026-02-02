@@ -77,7 +77,7 @@ namespace KBTV.Data
                 StatType.Patience => stats.Patience,
 
                 // Long-Term
-                StatType.Skepticism => stats.Skepticism,
+                StatType.Belief => stats.Belief,
 
                 _ => null
             };
