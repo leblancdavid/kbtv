@@ -1,6 +1,7 @@
 using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Callers;
+using KBTV.Screening;
 
 namespace KBTV.Tests.Unit.Callers
 {
@@ -80,11 +81,11 @@ namespace KBTV.Tests.Unit.Callers
         }
 
         [Test]
-        public void Constructor_InitializesRevelations()
+        public void Constructor_InitializesScreenableProperties()
         {
             var caller = CreateTestCaller();
-            AssertThat(caller.Revelations != null);
-            AssertThat(caller.Revelations.Length == 11);
+            AssertThat(caller.ScreenableProperties != null);
+            AssertThat(caller.ScreenableProperties.Length == 11);
         }
 
         [Test]
@@ -151,22 +152,22 @@ namespace KBTV.Tests.Unit.Callers
         }
 
         [Test]
-        public void GetRevelation_ExistingProperty_ReturnsRevelation()
+        public void GetScreenableProperty_ExistingProperty_ReturnsProperty()
         {
             var caller = CreateTestCaller();
-            var revelation = caller.GetRevelation("AudioQuality");
+            var property = caller.GetScreenableProperty("AudioQuality");
 
-            AssertThat(revelation != null);
-            AssertThat(revelation!.PropertyKey == "AudioQuality");
+            AssertThat(property != null);
+            AssertThat(property!.PropertyKey == "AudioQuality");
         }
 
         [Test]
-        public void GetRevelation_NonExistentProperty_ReturnsNull()
+        public void GetScreenableProperty_NonExistentProperty_ReturnsNull()
         {
             var caller = CreateTestCaller();
-            var revelation = caller.GetRevelation("NonExistent");
+            var property = caller.GetScreenableProperty("NonExistent");
 
-            AssertThat(revelation == null);
+            AssertThat(property == null);
         }
 
         [Test]
@@ -179,41 +180,45 @@ namespace KBTV.Tests.Unit.Callers
         }
 
         [Test]
-        public void GetNextRevelation_InitiallyReturnsFirstRevelation()
+        public void GetNextPropertyToReveal_InitiallyReturnsFirstProperty()
         {
             var caller = CreateTestCaller();
-            var next = caller.GetNextRevelation();
+            var next = caller.GetNextPropertyToReveal();
 
             AssertThat(next != null);
-            AssertThat(next!.PropertyKey == caller.Revelations[0].PropertyKey);
+            AssertThat(next!.PropertyKey == caller.ScreenableProperties[0].PropertyKey);
         }
 
         [Test]
-        public void GetNextRevelation_AllRevealed_ReturnsNull()
+        public void GetNextPropertyToReveal_AllRevealed_ReturnsNull()
         {
             var caller = CreateTestCaller();
-            foreach (var rev in caller.Revelations)
+            // Reveal all properties by updating past their duration
+            foreach (var prop in caller.ScreenableProperties)
             {
-                rev.State = RevelationState.Revealed;
+                prop.Update(prop.RevealDuration + 1f);
             }
 
-            var next = caller.GetNextRevelation();
+            var next = caller.GetNextPropertyToReveal();
             AssertThat(next == null);
         }
 
         [Test]
-        public void ResetRevelations_AllHidden()
+        public void ResetScreenableProperties_AllHidden()
         {
             var caller = CreateTestCaller();
-            caller.GetRevelation("AudioQuality")!.State = RevelationState.Revealed;
-            caller.GetRevelation("EmotionalState")!.State = RevelationState.Revealed;
+            // Reveal some properties
+            var audio = caller.GetScreenableProperty("AudioQuality");
+            var emotional = caller.GetScreenableProperty("EmotionalState");
+            audio?.Update(audio.RevealDuration + 1f);
+            emotional?.Update(emotional.RevealDuration + 1f);
 
-            caller.ResetRevelations();
+            caller.ResetScreenableProperties();
 
-            foreach (var rev in caller.Revelations)
+            foreach (var prop in caller.ScreenableProperties)
             {
-                AssertThat(rev.State == RevelationState.Hidden);
-                AssertThat(rev.ElapsedTime == 0f);
+                AssertThat(prop.State == RevelationState.Hidden);
+                AssertThat(prop.ElapsedTime == 0f);
             }
         }
 
@@ -373,15 +378,15 @@ namespace KBTV.Tests.Unit.Callers
         }
 
         [Test]
-        public void UpdateRevelations_UpdatesAllRevelations()
+        public void UpdateScreenableProperties_UpdatesAllProperties()
         {
             var caller = CreateTestCaller();
-            var audioRev = caller.GetRevelation("AudioQuality");
-            AssertThat(audioRev != null);
+            var audioProperty = caller.GetScreenableProperty("AudioQuality");
+            AssertThat(audioProperty != null);
 
-            caller.UpdateRevelations(1f);
+            caller.UpdateScreenableProperties(1f);
 
-            AssertThat(audioRev!.ElapsedTime == 1f);
+            AssertThat(audioProperty!.ElapsedTime == 1f);
         }
 
         [Test]
@@ -441,6 +446,55 @@ namespace KBTV.Tests.Unit.Callers
             var impact = caller.CalculateShowImpact("Ghosts");
 
             AssertThat(impact > 1f);
+        }
+
+        [Test]
+        public void ScreenableProperties_HaveStatEffects()
+        {
+            var caller = CreateTestCaller();
+            var emotionalState = caller.GetScreenableProperty("EmotionalState");
+
+            AssertThat(emotionalState != null);
+            // Calm emotional state should have stat effects
+            AssertThat(emotionalState!.StatEffects.Count > 0);
+        }
+
+        [Test]
+        public void GetRevealedStatEffects_NoRevealedProperties_ReturnsEmpty()
+        {
+            var caller = CreateTestCaller();
+            var effects = caller.GetRevealedStatEffects();
+
+            AssertThat(effects.Count == 0);
+        }
+
+        [Test]
+        public void GetRevealedStatEffects_WithRevealedProperties_ReturnsAggregatedEffects()
+        {
+            var caller = CreateTestCaller();
+            // Reveal all properties
+            foreach (var prop in caller.ScreenableProperties)
+            {
+                prop.Update(prop.RevealDuration + 1f);
+            }
+
+            var effects = caller.GetRevealedStatEffects();
+
+            // Should have some effects aggregated
+            AssertThat(effects.Count > 0);
+        }
+
+        [Test]
+        public void GetTotalStatEffects_ReturnsAllEffects()
+        {
+            var caller = CreateTestCaller();
+            var totalEffects = caller.GetTotalStatEffects();
+            var revealedEffects = caller.GetRevealedStatEffects();
+
+            // Total should include effects even when nothing is revealed
+            AssertThat(totalEffects.Count > 0);
+            // Revealed should be empty initially
+            AssertThat(revealedEffects.Count == 0);
         }
     }
 }

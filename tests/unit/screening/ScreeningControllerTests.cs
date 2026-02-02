@@ -173,7 +173,7 @@ namespace KBTV.Tests.Unit.Screening
             var progress = _controller.Progress;
 
             AssertThat(progress.PropertiesRevealed >= 0);
-            AssertThat(progress.TotalProperties == caller.Revelations.Length);
+            AssertThat(progress.TotalProperties == caller.ScreenableProperties.Length);
             AssertThat(progress.MaxPatience == 30f);
         }
 
