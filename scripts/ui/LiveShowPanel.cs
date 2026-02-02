@@ -20,6 +20,7 @@ namespace KBTV.UI
         [Export] private ProgressBar? _progressBar;
 
     private BroadcastItem? _currentBroadcastItem;
+    private GameStateManager? _gameStateManager;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -50,6 +51,7 @@ namespace KBTV.UI
         {
             // Get dependencies via DI
             var eventBus = DependencyInjection.Get<EventBus>(this);
+            _gameStateManager = DependencyInjection.Get<GameStateManager>(this);
 
             // Subscribe to events
             eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
@@ -209,6 +211,13 @@ namespace KBTV.UI
             _progressBar?.Hide();
         }
 
+        private string GetVernDisplayName()
+        {
+            var vernStats = _gameStateManager?.VernStats;
+            string mood = vernStats?.CurrentMoodType.ToString().ToUpper() ?? "NEUTRAL";
+            return $"VERN ({mood})";
+        }
+
         private void DeferredUpdateItemDisplay(BroadcastItem item)
         {
             if (_speakerIcon == null || _speakerName == null || _phaseLabel == null)
@@ -237,7 +246,7 @@ namespace KBTV.UI
             }
             else if (item.Type == BroadcastItemType.VernLine)
             {
-                _speakerIcon.Text = "VERN";
+                _speakerIcon.Text = GetVernDisplayName();
             }
             else if (item.Type == BroadcastItemType.CallerLine)
             {
@@ -245,7 +254,7 @@ namespace KBTV.UI
             }
             else if (item.Type == BroadcastItemType.DeadAir)
             {
-                _speakerIcon.Text = "VERN";
+                _speakerIcon.Text = GetVernDisplayName();
             }
             else
             {
