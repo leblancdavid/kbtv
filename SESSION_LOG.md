@@ -1,4 +1,44 @@
-## Current Session - VernStats Initialization Timing Fix ✅
+## Current Session - Dead Air Consecutive Penalty Fix ✅
+
+**Branch**: `feature/vern-stats-display`
+
+**Task**: Fix dead air stat penalties to apply for each consecutive filler line instead of only once per dead air session.
+
+### Problem
+Dead air filler lines were not updating Vern stats because penalties were only applied when entering the DeadAir state, not for each individual filler executable. This meant multiple consecutive dead air lines only applied one penalty.
+
+### Root Cause
+DeadAirManager.OnDeadAirStarted() was called only on state transitions (entering DeadAir), not for individual broadcast items. When dead air consisted of multiple filler lines, only the first triggered a penalty.
+
+### Solution
+Modified DeadAirManager to subscribe to BroadcastItemStartedEvent and apply penalties for each dead air filler VernLine individually, maintaining consecutive counting and linear penalty scaling.
+
+### Files Modified
+
+**1. `scripts/monitors/DeadAirManager.cs`**
+- Added using KBTV.Dialogue for broadcast events
+- Modified OnResolved() to subscribe to BroadcastItemStartedEvent
+- Added OnBroadcastItemStarted() event handler for per-line penalties
+- Added IsDeadAirFiller() helper to identify dead air filler items via metadata
+- Preserved existing state-based OnDeadAirStarted()/OnDeadAirEnded() for counter reset
+
+### Behavior Changes
+- **Before**: Penalty applied once when entering DeadAir state
+- **After**: Penalty applied for each individual dead air filler line with increasing severity
+- **Reset**: Counter resets when leaving DeadAir state (unchanged)
+
+### Result
+✅ **Build succeeds** with 0 errors (same 5 pre-existing warnings)  
+✅ **Per-line penalties** applied for each consecutive dead air filler  
+✅ **Linear scaling** (1.5x, 2x, 2.5x penalties) maintained  
+✅ **State reset** preserved when leaving DeadAir  
+✅ **Event-driven architecture** complements existing state-based logic  
+
+**Status**: Dead air consecutive penalty fix complete. Each filler line now applies progressive stat penalties.
+
+---
+
+## Previous Session - VernStats Initialization Timing Fix ✅
 
 **Branch**: `feature/vern-stats-display`
 
