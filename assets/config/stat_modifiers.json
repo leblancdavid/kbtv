@@ -1,0 +1,91 @@
+{
+  "properties": {
+    "EmotionalState": {
+      "Calm": {"physical": 5, "emotional": 7, "mental": 5},
+      "Anxious": {"physical": -4, "emotional": -6, "mental": -2},
+      "Excited": {"physical": 6, "emotional": 8, "mental": -4},
+      "Scared": {"physical": -6, "emotional": -6, "mental": 4},
+      "Angry": {"physical": -7, "emotional": -10, "mental": -7}
+    },
+    "CurseRisk": {
+      "Low": {"physical": 2, "emotional": 4, "mental": 2},
+      "Medium": {"emotional": -2, "mental": -4},
+      "High": {"physical": -4, "emotional": -6, "mental": -6}
+    },
+    "Coherence": {
+      "Coherent": {"physical": 4, "emotional": 4, "mental": 8},
+      "Questionable": {"emotional": -2, "mental": -4},
+      "Incoherent": {"physical": -4, "emotional": -6, "mental": -10}
+    },
+    "Urgency": {
+      "Low": {"physical": 4, "emotional": -2, "mental": 2},
+      "Medium": {"emotional": 2},
+      "High": {"physical": -4, "emotional": 6, "mental": 4},
+      "Critical": {"physical": -6, "emotional": 4, "mental": -4}
+    },
+    "BeliefLevel": {
+      "Curious": {"physical": 4, "emotional": 4, "mental": 4},
+      "Partial": {},
+      "Committed": {"emotional": 4},
+      "Certain": {"physical": -2, "emotional": 6, "mental": -4},
+      "Zealot": {"physical": -6, "emotional": -8, "mental": -8}
+    },
+    "Evidence": {
+      "None": {"physical": -4, "emotional": -6, "mental": -2},
+      "Low": {"physical": -2, "emotional": -4},
+      "Medium": {},
+      "High": {"physical": 4, "emotional": 6, "mental": 4},
+      "Irrefutable": {"physical": 6, "emotional": 10, "mental": 6}
+    },
+    "Legitimacy": {
+      "Fake": {"physical": -4, "emotional": -10, "mental": -8},
+      "Questionable": {"physical": -2, "emotional": -4, "mental": -4},
+      "Credible": {"emotional": 2, "mental": 2},
+      "Compelling": {"physical": 4, "emotional": 8, "mental": 6}
+    },
+    "AudioQuality": {
+      "Terrible": {"physical": -4, "emotional": -6, "mental": -6},
+      "Poor": {"physical": -2, "emotional": -4, "mental": -2},
+      "Average": {},
+      "Good": {"physical": 4, "emotional": 4, "mental": 4}
+    }
+  },
+  "personalities": {
+    "Matter-of-fact reporter": {"physical": 5, "emotional": 2, "mental": 7},
+    "Academic researcher": {"emotional": 4, "mental": 6},
+    "Local history buff": {"physical": 4, "emotional": 6, "mental": 2},
+    "Frequent listener": {"physical": 4, "emotional": 6},
+    "Genuinely frightened": {"emotional": 6, "mental": 4},
+    "True believer": {"physical": 2, "emotional": 6, "mental": 4},
+    "Retired professional": {"physical": 4, "emotional": 2, "mental": 6},
+    "Careful observer": {"physical": 4, "emotional": 2, "mental": 6},
+    "Soft-spoken witness": {"physical": 4, "emotional": 6},
+    "Articulate storyteller": {"physical": 4, "emotional": 6, "mental": 2},
+    "Patient explainer": {"physical": 6, "emotional": 2, "mental": 4},
+    "Earnest truth-seeker": {"emotional": 6, "mental": 6},
+    "Attention seeker": {"physical": -5, "emotional": -7, "mental": -2},
+    "Conspiracy theorist": {"physical": -2, "emotional": -4, "mental": -6},
+    "Rambling storyteller": {"physical": -6, "emotional": -2, "mental": -4},
+    "Joker type": {"physical": -2, "emotional": -6, "mental": -4},
+    "Monotone delivery": {"physical": -6, "emotional": -4, "mental": -2},
+    "Skeptical witness": {"physical": -2, "emotional": -6, "mental": -4},
+    "Know-it-all": {"physical": -2, "emotional": -6, "mental": -4},
+    "Chronic interrupter": {"physical": -4, "emotional": -6, "mental": -6},
+    "Drama queen": {"physical": -6, "emotional": -6},
+    "Mumbling caller": {"physical": -4, "emotional": -2, "mental": -6},
+    "Easily distracted": {"physical": -4, "emotional": -2, "mental": -6},
+    "Defensive storyteller": {"physical": -2, "emotional": -6, "mental": -4},
+    "Nervous but sincere": {"physical": -2, "emotional": 4, "mental": 2},
+    "Overly enthusiastic": {"physical": 4, "emotional": 4, "mental": -4},
+    "First-time caller": {"physical": -4, "emotional": 4},
+    "Desperate for answers": {"physical": -4, "emotional": 4, "mental": 2},
+    "Reluctant witness": {"physical": 4, "emotional": -2, "mental": 4},
+    "Excitable narrator": {"physical": 4, "emotional": 4, "mental": -4},
+    "Quiet observer": {"physical": 4, "mental": 4},
+    "Chatty neighbor": {"physical": -4, "emotional": 4, "mental": -4},
+    "Late-night insomniac": {"physical": -4, "mental": 4},
+    "Curious skeptic": {"emotional": -4, "mental": 6},
+    "Nostalgic elder": {"physical": -4, "emotional": 6},
+    "Breathless reporter": {"physical": 4, "emotional": 4, "mental": -4}
+  }
+}

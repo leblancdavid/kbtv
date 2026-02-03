@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using KBTV.Callers;
 using KBTV.Data;
+using Godot;
 
 namespace KBTV.Screening
 {
@@ -10,18 +11,69 @@ namespace KBTV.Screening
     /// These effects are previewed during screening and applied when the caller goes on-air.
     /// 
     /// Stats Mapping (v2 - Three-Stat System):
-    /// - Physical: Energy, stamina, reaction time (range: -5 to +5)
-    /// - Emotional: Mood, morale, patience, passion (range: -5 to +5)
-    /// - Mental: Discernment, focus, patience (cognitive) (range: -5 to +5)
+    /// - Physical: Energy, stamina, reaction time (range: -10 to +10)
+    /// - Emotional: Mood, morale, patience, passion (range: -10 to +10)
+    /// - Mental: Discernment, focus, patience (cognitive) (range: -10 to +10)
     /// 
     /// Design Principles:
     /// - Balanced risk/reward: Most properties have both positive and negative extremes
     /// - Full Physical involvement: Callers physically drain/energize Vern
-    /// - Extreme values reach ±5, typical values ±1 to ±3
+    /// - Extreme values reach ±10, typical values ±2 to ±7
     /// - Neutral/baseline values have no effect
     /// </summary>
     public static class CallerStatEffects
     {
+        private static Godot.Collections.Dictionary _configData;
+        private static bool _isLoaded = false;
+
+        /// <summary>
+        /// Load stat modifier configuration from JSON file.
+        /// Should be called once during game initialization.
+        /// </summary>
+        public static void LoadConfig()
+        {
+            if (_isLoaded) return;
+
+            var jsonPath = "res://assets/config/stat_modifiers.json";
+            var file = Godot.FileAccess.FileExists(jsonPath) ? Godot.FileAccess.Open(jsonPath, Godot.FileAccess.ModeFlags.Read) : null;
+            if (file == null)
+            {
+                GD.PrintErr($"Failed to load stat modifiers config from {jsonPath}");
+                _configData = new Godot.Collections.Dictionary();
+                _isLoaded = true;
+                return;
+            }
+
+            try
+            {
+                var jsonText = file.GetAsText();
+                file.Close();
+
+                var json = new Json();
+                var error = json.Parse(jsonText);
+                if (error != Error.Ok)
+                {
+                    GD.PrintErr($"Failed to parse stat modifiers JSON: {json.GetErrorMessage()}");
+                    _configData = new Godot.Collections.Dictionary();
+                    _isLoaded = true;
+                    return;
+                }
+
+                _configData = json.Data.As<Godot.Collections.Dictionary>();
+                if (_configData == null)
+                {
+                    GD.PrintErr("Stat modifiers JSON root is not a dictionary");
+                    _configData = new Godot.Collections.Dictionary();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                GD.PrintErr($"Exception loading stat modifiers config: {ex.Message}");
+                _configData = new Godot.Collections.Dictionary();
+            }
+
+            _isLoaded = true;
+        }
         /// <summary>
         /// Calculate stat effects for a given property and value.
         /// </summary>
@@ -30,74 +82,92 @@ namespace KBTV.Screening
         /// <returns>List of stat modifications, empty if no effects.</returns>
         public static List<StatModification> GetStatEffects(string propertyKey, object value)
         {
-            if (value == null)
+            if (!_isLoaded) LoadConfig();
+            if (value == null) return new List<StatModification>();
+
+            // Handle personality separately as it's looked up by name
+            if (propertyKey == "Personality")
             {
-                return new List<StatModification>();
+                return GetPersonalityEffects((string)value);
             }
 
-            return propertyKey switch
+            // Get property effects from config
+            if (_configData.ContainsKey("properties"))
             {
-                "EmotionalState" => GetEmotionalStateEffects((CallerEmotionalState)value),
-                "CurseRisk" => GetCurseRiskEffects((CallerCurseRisk)value),
-                "Coherence" => GetCoherenceEffects((CallerCoherence)value),
-                "Urgency" => GetUrgencyEffects((CallerUrgency)value),
-                "BeliefLevel" => GetBeliefLevelEffects((CallerBeliefLevel)value),
-                "Evidence" => GetEvidenceLevelEffects((CallerEvidenceLevel)value),
-                "Legitimacy" => GetLegitimacyEffects((CallerLegitimacy)value),
-                "AudioQuality" => GetPhoneQualityEffects((CallerPhoneQuality)value),
-                "Personality" => GetPersonalityEffects((string)value),
-                // Properties with no stat effects
-                "Summary" => new List<StatModification>(),
-                "Topic" => new List<StatModification>(),
-                _ => new List<StatModification>()
-            };
+                var properties = _configData["properties"].As<Godot.Collections.Dictionary>();
+                if (properties != null && properties.ContainsKey(propertyKey))
+                {
+                    var propertyConfig = properties[propertyKey].As<Godot.Collections.Dictionary>();
+                    if (propertyConfig != null)
+                    {
+                        var valueKey = value.ToString();
+                        if (propertyConfig.ContainsKey(valueKey))
+                        {
+                            var statEffects = propertyConfig[valueKey].As<Godot.Collections.Dictionary>();
+                            if (statEffects != null)
+                            {
+                                return ParseStatEffects(statEffects);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return new List<StatModification>();
         }
 
         /// <summary>
-        /// Emotional state affects all three stats.
-        /// Calm callers are easy to deal with, angry callers are exhausting confrontations.
+        /// Parse stat effects from a dictionary containing physical/emotional/mental values.
         /// </summary>
-        private static List<StatModification> GetEmotionalStateEffects(CallerEmotionalState state)
+        private static List<StatModification> ParseStatEffects(Godot.Collections.Dictionary effects)
         {
-            return state switch
+            var result = new List<StatModification>();
+
+            if (effects.ContainsKey("physical"))
             {
-                // Calm: Easy, relaxing conversation (+7 total)
-                CallerEmotionalState.Calm => new List<StatModification>
+                var physical = effects["physical"].AsSingle();
+                if (physical != 0) result.Add(new StatModification(StatType.Physical, physical));
+            }
+
+            if (effects.ContainsKey("emotional"))
+            {
+                var emotional = effects["emotional"].AsSingle();
+                if (emotional != 0) result.Add(new StatModification(StatType.Emotional, emotional));
+            }
+
+            if (effects.ContainsKey("mental"))
+            {
+                var mental = effects["mental"].AsSingle();
+                if (mental != 0) result.Add(new StatModification(StatType.Mental, mental));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Personality effects are looked up from the PersonalityStatEffects class.
+        /// Each of the 36 personalities has a distinct combination of Physical, Emotional, and Mental effects.
+        /// </summary>
+        private static List<StatModification> GetPersonalityEffects(string personalityName)
+        {
+            if (!_isLoaded) LoadConfig();
+            if (string.IsNullOrEmpty(personalityName)) return new List<StatModification>();
+
+            // Get personality effects from config
+            if (_configData.ContainsKey("personalities"))
+            {
+                var personalities = _configData["personalities"].As<Godot.Collections.Dictionary>();
+                if (personalities != null && personalities.ContainsKey(personalityName))
                 {
-                    new StatModification(StatType.Physical, 2f),
-                    new StatModification(StatType.Emotional, 3f),
-                    new StatModification(StatType.Mental, 2f)
-                },
-                // Anxious: Exhausting to manage their nerves (-6 total)
-                CallerEmotionalState.Anxious => new List<StatModification>
-                {
-                    new StatModification(StatType.Physical, -2f),
-                    new StatModification(StatType.Emotional, -3f),
-                    new StatModification(StatType.Mental, -1f)
-                },
-                // Excited: Energizing but chaotic (+5 total)
-                CallerEmotionalState.Excited => new List<StatModification>
-                {
-                    new StatModification(StatType.Physical, 3f),
-                    new StatModification(StatType.Emotional, 4f),
-                    new StatModification(StatType.Mental, -2f)
-                },
-                // Scared: Draining to comfort, but sharpens focus (-4 total)
-                CallerEmotionalState.Scared => new List<StatModification>
-                {
-                    new StatModification(StatType.Physical, -3f),
-                    new StatModification(StatType.Emotional, -3f),
-                    new StatModification(StatType.Mental, 2f)
-                },
-                // Angry: Exhausting confrontation (-11 total)
-                CallerEmotionalState.Angry => new List<StatModification>
-                {
-                    new StatModification(StatType.Physical, -3f),
-                    new StatModification(StatType.Emotional, -5f),
-                    new StatModification(StatType.Mental, -3f)
-                },
-                _ => new List<StatModification>()
-            };
+                    var statEffects = personalities[personalityName].As<Godot.Collections.Dictionary>();
+                    if (statEffects != null)
+                    {
+                        return ParseStatEffects(statEffects);
+                    }
+                }
+            }
+
+            return new List<StatModification>();
         }
 
         /// <summary>
@@ -355,15 +425,6 @@ namespace KBTV.Screening
                 },
                 _ => new List<StatModification>()
             };
-        }
-
-        /// <summary>
-        /// Personality effects are looked up from the PersonalityStatEffects class.
-        /// Each of the 36 personalities has unique stat combinations.
-        /// </summary>
-        private static List<StatModification> GetPersonalityEffects(string personalityName)
-        {
-            return PersonalityStatEffects.GetEffects(personalityName);
         }
 
         /// <summary>

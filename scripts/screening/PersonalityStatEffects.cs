@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using KBTV.Data;
+using Godot;
 
 namespace KBTV.Screening
 {
@@ -8,270 +9,98 @@ namespace KBTV.Screening
     /// Each of the 36 personalities has a distinct combination of Physical, Emotional, and Mental effects.
     /// 
     /// Personality Categories:
-    /// - Positive (12): Total effect +5 to +6, generally boost all stats
-    /// - Negative (12): Total effect -6 to -8, generally drain all stats
+    /// - Positive (12): Total effect +5 to +6, generally boost stats
+    /// - Negative (12): Total effect -6 to -8, generally drain stats
     /// - Neutral (12): Total effect -2 to +4, mixed effects with trade-offs
     /// </summary>
     public static class PersonalityStatEffects
     {
+        private static Godot.Collections.Dictionary _personalitiesData;
+        private static bool _isLoaded = false;
+
         /// <summary>
-        /// Dictionary mapping personality names to their stat effects.
+        /// Load personality configuration from JSON file.
+        /// Should be called once during game initialization.
         /// </summary>
-        private static readonly Dictionary<string, List<StatModification>> PersonalityEffects = new()
+        private static void LoadConfig()
         {
-            // ═══════════════════════════════════════════════════════════════════════════════
-            // POSITIVE PERSONALITIES (12) - Generally boost stats, total +5 to +6
-            // ═══════════════════════════════════════════════════════════════════════════════
-            
-            ["Matter-of-fact reporter"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, 1f),
-                new StatModification(StatType.Mental, 3f)
-            },
-            
-            ["Academic researcher"] = new()
-            {
-                new StatModification(StatType.Emotional, 2f),
-                new StatModification(StatType.Mental, 3f)
-            },
-            
-            ["Local history buff"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, 3f),
-                new StatModification(StatType.Mental, 1f)
-            },
-            
-            ["Frequent listener"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, 3f)
-            },
-            
-            ["Genuinely frightened"] = new()
-            {
-                new StatModification(StatType.Emotional, 3f),
-                new StatModification(StatType.Mental, 2f)
-            },
-            
-            ["True believer"] = new()
-            {
-                new StatModification(StatType.Physical, 1f),
-                new StatModification(StatType.Emotional, 3f),
-                new StatModification(StatType.Mental, 2f)
-            },
-            
-            ["Retired professional"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, 1f),
-                new StatModification(StatType.Mental, 3f)
-            },
-            
-            ["Careful observer"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, 1f),
-                new StatModification(StatType.Mental, 3f)
-            },
-            
-            ["Soft-spoken witness"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, 3f)
-            },
-            
-            ["Articulate storyteller"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, 3f),
-                new StatModification(StatType.Mental, 1f)
-            },
-            
-            ["Patient explainer"] = new()
-            {
-                new StatModification(StatType.Physical, 3f),
-                new StatModification(StatType.Emotional, 1f),
-                new StatModification(StatType.Mental, 2f)
-            },
-            
-            ["Earnest truth-seeker"] = new()
-            {
-                new StatModification(StatType.Emotional, 3f),
-                new StatModification(StatType.Mental, 3f)
-            },
+            if (_isLoaded) return;
 
-            // ═══════════════════════════════════════════════════════════════════════════════
-            // NEGATIVE PERSONALITIES (12) - Generally drain stats, total -6 to -8
-            // ═══════════════════════════════════════════════════════════════════════════════
-            
-            ["Attention seeker"] = new()
+            var jsonPath = "res://assets/config/stat_modifiers.json";
+            var file = Godot.FileAccess.FileExists(jsonPath) ? Godot.FileAccess.Open(jsonPath, Godot.FileAccess.ModeFlags.Read) : null;
+            if (file == null)
             {
-                new StatModification(StatType.Physical, -2f),
-                new StatModification(StatType.Emotional, -3f),
-                new StatModification(StatType.Mental, -1f)
-            },
-            
-            ["Conspiracy theorist"] = new()
-            {
-                new StatModification(StatType.Physical, -1f),
-                new StatModification(StatType.Emotional, -2f),
-                new StatModification(StatType.Mental, -3f)
-            },
-            
-            ["Rambling storyteller"] = new()
-            {
-                new StatModification(StatType.Physical, -3f),
-                new StatModification(StatType.Emotional, -1f),
-                new StatModification(StatType.Mental, -2f)
-            },
-            
-            ["Joker type"] = new()
-            {
-                new StatModification(StatType.Physical, -1f),
-                new StatModification(StatType.Emotional, -3f),
-                new StatModification(StatType.Mental, -2f)
-            },
-            
-            ["Monotone delivery"] = new()
-            {
-                new StatModification(StatType.Physical, -3f),
-                new StatModification(StatType.Emotional, -2f),
-                new StatModification(StatType.Mental, -1f)
-            },
-            
-            ["Skeptical witness"] = new()
-            {
-                new StatModification(StatType.Physical, -1f),
-                new StatModification(StatType.Emotional, -3f),
-                new StatModification(StatType.Mental, -2f)
-            },
-            
-            ["Know-it-all"] = new()
-            {
-                new StatModification(StatType.Physical, -1f),
-                new StatModification(StatType.Emotional, -3f),
-                new StatModification(StatType.Mental, -2f)
-            },
-            
-            ["Chronic interrupter"] = new()
-            {
-                new StatModification(StatType.Physical, -2f),
-                new StatModification(StatType.Emotional, -3f),
-                new StatModification(StatType.Mental, -3f)
-            },
-            
-            ["Drama queen"] = new()
-            {
-                new StatModification(StatType.Physical, -3f),
-                new StatModification(StatType.Emotional, -3f)
-            },
-            
-            ["Mumbling caller"] = new()
-            {
-                new StatModification(StatType.Physical, -2f),
-                new StatModification(StatType.Emotional, -1f),
-                new StatModification(StatType.Mental, -3f)
-            },
-            
-            ["Easily distracted"] = new()
-            {
-                new StatModification(StatType.Physical, -2f),
-                new StatModification(StatType.Emotional, -1f),
-                new StatModification(StatType.Mental, -3f)
-            },
-            
-            ["Defensive storyteller"] = new()
-            {
-                new StatModification(StatType.Physical, -1f),
-                new StatModification(StatType.Emotional, -3f),
-                new StatModification(StatType.Mental, -2f)
-            },
-
-            // ═══════════════════════════════════════════════════════════════════════════════
-            // NEUTRAL PERSONALITIES (12) - Mixed effects, total -2 to +4
-            // ═══════════════════════════════════════════════════════════════════════════════
-            
-            ["Nervous but sincere"] = new()
-            {
-                new StatModification(StatType.Physical, -1f),
-                new StatModification(StatType.Emotional, 2f),
-                new StatModification(StatType.Mental, 1f)
-            },
-            
-            ["Overly enthusiastic"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, 2f),
-                new StatModification(StatType.Mental, -2f)
-            },
-            
-            ["First-time caller"] = new()
-            {
-                new StatModification(StatType.Physical, -2f),
-                new StatModification(StatType.Emotional, 2f)
-            },
-            
-            ["Desperate for answers"] = new()
-            {
-                new StatModification(StatType.Physical, -2f),
-                new StatModification(StatType.Emotional, 2f),
-                new StatModification(StatType.Mental, 1f)
-            },
-            
-            ["Reluctant witness"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, -1f),
-                new StatModification(StatType.Mental, 2f)
-            },
-            
-            ["Excitable narrator"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, 2f),
-                new StatModification(StatType.Mental, -2f)
-            },
-            
-            ["Quiet observer"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Mental, 2f)
-            },
-            
-            ["Chatty neighbor"] = new()
-            {
-                new StatModification(StatType.Physical, -2f),
-                new StatModification(StatType.Emotional, 2f),
-                new StatModification(StatType.Mental, -2f)
-            },
-            
-            ["Late-night insomniac"] = new()
-            {
-                new StatModification(StatType.Physical, -2f),
-                new StatModification(StatType.Mental, 2f)
-            },
-            
-            ["Curious skeptic"] = new()
-            {
-                new StatModification(StatType.Emotional, -2f),
-                new StatModification(StatType.Mental, 3f)
-            },
-            
-            ["Nostalgic elder"] = new()
-            {
-                new StatModification(StatType.Physical, -2f),
-                new StatModification(StatType.Emotional, 3f)
-            },
-            
-            ["Breathless reporter"] = new()
-            {
-                new StatModification(StatType.Physical, 2f),
-                new StatModification(StatType.Emotional, 2f),
-                new StatModification(StatType.Mental, -2f)
+                GD.PrintErr($"Failed to load stat modifiers config from {jsonPath}");
+                _personalitiesData = new Godot.Collections.Dictionary();
+                _isLoaded = true;
+                return;
             }
-        };
+
+            try
+            {
+                var jsonText = file.GetAsText();
+                file.Close();
+
+                var json = new Json();
+                var error = json.Parse(jsonText);
+                if (error != Error.Ok)
+                {
+                    GD.PrintErr($"Failed to parse stat modifiers JSON: {json.GetErrorMessage()}");
+                    _personalitiesData = new Godot.Collections.Dictionary();
+                    _isLoaded = true;
+                    return;
+                }
+
+                var configData = json.Data.As<Godot.Collections.Dictionary>();
+                if (configData != null && configData.ContainsKey("personalities"))
+                {
+                    _personalitiesData = configData["personalities"].As<Godot.Collections.Dictionary>();
+                    if (_personalitiesData == null)
+                    {
+                        _personalitiesData = new Godot.Collections.Dictionary();
+                    }
+                }
+                else
+                {
+                    _personalitiesData = new Godot.Collections.Dictionary();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                GD.PrintErr($"Exception loading personality config: {ex.Message}");
+                _personalitiesData = new Godot.Collections.Dictionary();
+            }
+
+            _isLoaded = true;
+        }
+
+        /// <summary>
+        /// Parse stat effects from a dictionary containing physical/emotional/mental values.
+        /// </summary>
+        private static List<StatModification> ParseStatEffects(Godot.Collections.Dictionary effects)
+        {
+            var result = new List<StatModification>();
+
+            if (effects.ContainsKey("physical"))
+            {
+                var physical = effects["physical"].AsSingle();
+                if (physical != 0) result.Add(new StatModification(StatType.Physical, physical));
+            }
+
+            if (effects.ContainsKey("emotional"))
+            {
+                var emotional = effects["emotional"].AsSingle();
+                if (emotional != 0) result.Add(new StatModification(StatType.Emotional, emotional));
+            }
+
+            if (effects.ContainsKey("mental"))
+            {
+                var mental = effects["mental"].AsSingle();
+                if (mental != 0) result.Add(new StatModification(StatType.Mental, mental));
+            }
+
+            return result;
+        }
 
         /// <summary>
         /// Get stat effects for a given personality name.
@@ -280,15 +109,16 @@ namespace KBTV.Screening
         /// <returns>List of stat modifications, empty if personality not found.</returns>
         public static List<StatModification> GetEffects(string personalityName)
         {
-            if (string.IsNullOrEmpty(personalityName))
-            {
-                return new List<StatModification>();
-            }
+            if (!_isLoaded) LoadConfig();
+            if (string.IsNullOrEmpty(personalityName)) return new List<StatModification>();
 
-            if (PersonalityEffects.TryGetValue(personalityName, out var effects))
+            if (_personalitiesData.ContainsKey(personalityName))
             {
-                // Return a copy to prevent external modification
-                return new List<StatModification>(effects);
+                var statEffects = _personalitiesData[personalityName].As<Godot.Collections.Dictionary>();
+                if (statEffects != null)
+                {
+                    return ParseStatEffects(statEffects);
+                }
             }
 
             return new List<StatModification>();
@@ -301,7 +131,8 @@ namespace KBTV.Screening
         /// <returns>True if the personality has defined effects.</returns>
         public static bool HasEffects(string personalityName)
         {
-            return !string.IsNullOrEmpty(personalityName) && PersonalityEffects.ContainsKey(personalityName);
+            if (!_isLoaded) LoadConfig();
+            return !string.IsNullOrEmpty(personalityName) && _personalitiesData.ContainsKey(personalityName);
         }
 
         /// <summary>
@@ -310,7 +141,13 @@ namespace KBTV.Screening
         /// <returns>Collection of personality names.</returns>
         public static IEnumerable<string> GetAllPersonalityNames()
         {
-            return PersonalityEffects.Keys;
+            if (!_isLoaded) LoadConfig();
+            var keys = new List<string>();
+            foreach (var key in _personalitiesData.Keys)
+            {
+                keys.Add(key.AsString());
+            }
+            return keys;
         }
     }
 }
