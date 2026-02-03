@@ -202,7 +202,8 @@ namespace KBTV.Dialogue
             return new BroadcastItem(_id, _type, GetDisplayText(), _audioPath, _duration, new { 
                 Speaker = GetSpeakerName(),
                 CallerId = _caller?.Id,
-                ArcId = _arc?.ArcId
+                ArcId = _arc?.ArcId,
+                lineType = _lineType
             });
         }
 
