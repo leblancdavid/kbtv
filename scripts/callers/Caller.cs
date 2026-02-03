@@ -195,22 +195,15 @@ namespace KBTV.Callers
 
         /// <summary>
         /// Create a screenable property with appropriate display value and stat effects.
-        /// For Personality, uses the pre-computed effect; for others, calculates from CallerStatEffects.
+        /// All properties (including Personality) use CallerStatEffects for deterministic effects.
         /// </summary>
         private ScreenableProperty CreateScreenableProperty(string key, string displayName, object value, float revealDuration)
         {
             var displayValue = GetDisplayValue(key, value);
             
-            // For Personality, use the pre-computed effect; for others, calculate from CallerStatEffects
-            List<StatModification> statEffects;
-            if (key == "Personality" && _personalityEffect != null)
-            {
-                statEffects = new List<StatModification> { _personalityEffect };
-            }
-            else
-            {
-                statEffects = CallerStatEffects.GetStatEffects(key, value);
-            }
+            // All properties use CallerStatEffects for stat effects lookup
+            // Personality effects are now deterministic per-personality via PersonalityStatEffects
+            List<StatModification> statEffects = CallerStatEffects.GetStatEffects(key, value);
 
             return new ScreenableProperty(key, displayName, value, displayValue, revealDuration, statEffects);
         }

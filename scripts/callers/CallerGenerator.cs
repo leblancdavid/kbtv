@@ -121,15 +121,8 @@ namespace KBTV.Callers
             new("Breathless reporter", PersonalityType.Neutral)
         };
 
-        /// <summary>
-        /// Stats that can be affected by personality.
-        /// These are the core stats that personality logically influences.
-        /// </summary>
-        private static readonly StatType[] PersonalityAffectedStats = {
-            StatType.Physical,
-            StatType.Emotional,
-            StatType.Mental
-        };
+        // PersonalityAffectedStats removed - personality effects are now deterministic
+        // per-personality via PersonalityStatEffects class
 
         [Export] private float _fakeCallerChance = 0.15f;
         [Export] private float _questionableCallerChance = 0.25f;
@@ -290,7 +283,8 @@ namespace KBTV.Callers
             CallerCoherence coherence = GenerateCoherence(legitimacy);
             CallerUrgency urgency = GenerateUrgency(legitimacy);
             var personality = GeneratePersonality();
-            var personalityEffect = GeneratePersonalityEffect(personality.Type);
+            // Personality effects are now deterministic per-personality via PersonalityStatEffects
+            // No need for random generation - CallerStatEffects.GetStatEffects("Personality", name) handles it
 
             // Assign arcs based on show topic (90% on-topic, 10% off-topic)
             var arcRepo = _arcRepository;
@@ -392,7 +386,7 @@ namespace KBTV.Callers
                 claimedTopic, actualTopic, reason,
                 legitimacy, phoneQuality, emotionalState, curseRisk,
                 beliefLevel, evidenceLevel, coherence, urgency,
-                personality.Name, personalityEffect, claimedArc, actualArc, screeningSummary, patience, quality);
+                personality.Name, null, claimedArc, actualArc, screeningSummary, patience, quality);
 
             if (isOffTopic)
             {
@@ -663,32 +657,8 @@ namespace KBTV.Callers
             return Personalities[(int)(GD.Randi() % Personalities.Length)];
         }
 
-        /// <summary>
-        /// Generate a random stat effect based on personality type.
-        /// Picks a random mental stat and applies +1 or +2 (positive) or -1 or -2 (negative).
-        /// Neutral personalities have a 50/50 chance of being positive or negative.
-        /// </summary>
-        private StatModification GeneratePersonalityEffect(PersonalityType type)
-        {
-            // Pick a random stat from the personality-affected stats
-            var stat = PersonalityAffectedStats[(int)(GD.Randi() % PersonalityAffectedStats.Length)];
-
-            // Pick magnitude: 1 or 2
-            float magnitude = GD.Randi() % 2 == 0 ? 1f : 2f;
-
-            // Determine sign based on personality type
-            bool isPositive = type switch
-            {
-                PersonalityType.Positive => true,
-                PersonalityType.Negative => false,
-                PersonalityType.Neutral => GD.Randi() % 2 == 0,  // 50/50
-                _ => true
-            };
-
-            float amount = isPositive ? magnitude : -magnitude;
-
-            return new StatModification(stat, amount);
-        }
+        // GeneratePersonalityEffect removed - personality effects are now deterministic
+        // per-personality via PersonalityStatEffects class in CallerStatEffects.GetStatEffects()
 
         #endregion
 

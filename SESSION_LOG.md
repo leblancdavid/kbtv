@@ -1,97 +1,128 @@
-## Current Session - VernTab Two-Column Layout with Status Display ✅
+## Current Session - Caller Stat Effects Rebalance ✅
 
 **Branch**: `feature/vern-stats-display`
 
-**Task**: Add a two-column layout to VernTab with a status panel showing real-time decay rates, withdrawal effects, stat interactions, and warnings.
+**Task**: Rebalance how caller properties affect Vern's three core stats (Physical, Emotional, Mental) with:
+- Balanced risk/reward for all properties
+- Full Physical stat involvement (previously underutilized)
+- Effect range of -5 to +5 for extreme values
+- Per-personality unique stat effects (36 personalities, each with deterministic effects)
 
-### Layout Implemented
+### Design Decisions
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  VIBE  [░░░░░░░████████████░░░░]  +25   FOCUSED     (full width header)     │
-├─────────────────────────────────┬───────────────────────────────────────────┤
-│  LEFT COLUMN (50%)              │  RIGHT COLUMN (50%)                       │
-│                                 │                                           │
-│  ─── DEPENDENCIES ───           │  ─── STATUS ───                           │
-│  CAFFEINE  [████████░░░░] 80    │  DECAY RATES                              │
-│  NICOTINE  [████░░░░░░░░] 40    │  ├─ Caffeine: -3.75/min (0.75x)           │
-│                                 │  └─ Nicotine: -4.00/min (1.00x)           │
-│  ─── CORE STATS ───             │                                           │
-│  PHYSICAL  [░░░░░|██░░░] +30    │  WITHDRAWAL                               │
-│  EMOTIONAL [░░░██|░░░░░] -20    │  └─ None (dependencies OK)                │
-│  MENTAL    [░░░░░|█░░░░] +15    │                                           │
-│                                 │  STAT INTERACTIONS                        │
-│                                 │  └─ None active                           │
-│                                 │                                           │
-│                                 │  ⚠ CAFFEINE CRASH                         │
-│                                 │  ⚠ LISTENERS LEAVING                      │
-└─────────────────────────────────┴───────────────────────────────────────────┘
-```
+1. **Most properties have both positive and negative extremes** - Low curse risk is good (+4), high is bad (-8)
+2. **Neutral/baseline values have no effect** - Medium, Partial, Credible, Average = 0 impact
+3. **Trade-offs exist for some values** - High Urgency is exciting (+3 Em) but tiring (-2 Ph)
+4. **Each of 36 personalities has unique stat combinations** - No more random effects
 
 ### Files Created
 
-**1. `scripts/ui/components/StatusSection.cs`**
-- Reusable component for status panel sections
-- Header label with section title
-- VBoxContainer for items with tree-style prefixes (├─, └─)
-- Methods: `SetTitle()`, `ClearItems()`, `AddItem()`, `AddTreeItem()`
-- Optional `hideWhenEmpty` mode for conditional visibility
+**1. `scripts/screening/PersonalityStatEffects.cs`**
+- Static class mapping 36 personality names to unique `List<StatModification>`
+- Positive personalities (12): +5 to +6 total effect (e.g., "Matter-of-fact reporter", "Academic researcher")
+- Negative personalities (12): -6 to -8 total effect (e.g., "Attention seeker", "Chronic interrupter")
+- Neutral personalities (12): -2 to +4 total effect with trade-offs (e.g., "Nervous but sincere", "Overly enthusiastic")
 
-**2. `scripts/ui/components/VernStatusPanel.cs`**
-- Right column panel with real-time status updates
-- Four sections:
-  - **DECAY RATES**: Caffeine/Nicotine decay with modifiers (color-coded)
-  - **WITHDRAWAL**: Shows effects when dependencies depleted
-  - **STAT INTERACTIONS**: Shows cascade effects when stats < -25
-  - **WARNINGS**: Only visible when active (⚠ icons)
-- Updates in `_Process()` for real-time display
-- Reads from VernStats to calculate effective rates
+**2. `tests/unit/screening/PersonalityStatEffectsTests.cs`**
+- Tests for positive, negative, and neutral personality effects
+- Edge case tests (null, empty, unknown personalities)
+- Validation tests ensuring effect totals are within expected ranges
 
 ### Files Modified
 
-**1. `scripts/ui/themes/UIColors.cs`**
-- Added `Warning` class: Critical (red), Caution (orange), Info (blue), Good (green)
-- Added `Status` class: SectionHeader, ItemText, ValueText, ModifierBuff/Debuff/Neutral
+**1. `scripts/screening/CallerStatEffects.cs`** - REWRITTEN
+All 8 property methods updated with new balanced values:
 
-**2. `scripts/ui/VernTab.cs`**
-- Restructured to two-column layout (50/50 split)
-- VIBE display spans full width at top
-- Left column: Dependencies + Core Stats (existing components)
-- Right column: New VernStatusPanel
-- Uses HBoxContainer with equal stretch ratios
+| Property | Best Value | Worst Value | Range |
+|----------|------------|-------------|-------|
+| EmotionalState | Calm (+7) | Angry (-11) | Ph, Em, Me |
+| CurseRisk | Low (+4) | High (-8) | Ph, Em, Me |
+| Coherence | Coherent (+8) | Incoherent (-10) | Ph, Em, Me |
+| Urgency | High (+3) | Critical (-3) | Trade-offs |
+| BeliefLevel | Curious (+6) | Zealot (-11) | Ph, Em, Me |
+| Evidence | Irrefutable (+11) | None (-6) | Ph, Em, Me |
+| Legitimacy | Compelling (+9) | Fake (-11) | Ph, Em, Me |
+| AudioQuality | Good (+6) | Terrible (-8) | Ph, Em, Me |
 
-### Status Panel Sections
+Added `"Personality"` case that calls `PersonalityStatEffects.GetEffects()`
 
-| Section | Content | Color Logic |
-|---------|---------|-------------|
-| **DECAY RATES** | Effective decay rates with modifiers | Green (<0.75x), Gray (1.0x), Orange (>1.0x) |
-| **WITHDRAWAL** | Core stat decay when dependencies = 0 | Red for active, Green for "None" |
-| **STAT INTERACTIONS** | Cascade effects when stats < -25 | Orange for active debuffs |
-| **WARNINGS** | Critical alerts (only when active) | Red for critical, Yellow for caution |
+**2. `scripts/callers/CallerGenerator.cs`**
+- Removed `GeneratePersonalityEffect()` method (was random, now deterministic)
+- Removed `PersonalityAffectedStats` array (no longer needed)
+- Changed caller creation to pass `null` for `personalityEffect` parameter
 
-### Warning Conditions
+**3. `scripts/callers/Caller.cs`**
+- Updated `CreateScreenableProperty()` to use `CallerStatEffects.GetStatEffects()` for ALL properties including Personality
+- Removed special-case handling that used pre-computed `_personalityEffect`
 
-| Condition | Warning Text | Color |
-|-----------|--------------|-------|
-| Caffeine = 0 | ⚠ CAFFEINE CRASH | Red |
-| Nicotine = 0 | ⚠ NICOTINE WITHDRAWAL | Red |
-| Physical < -50 | ⚠ EXHAUSTED | Red |
-| Emotional < -50 | ⚠ DEMORALIZED | Red |
-| Mental < -50 | ⚠ UNFOCUSED | Red |
-| VIBE < -25 | ⚠ LISTENERS LEAVING | Yellow |
+**4. `tests/unit/screening/CallerStatEffectsTests.cs`** - UPDATED
+- All tests updated to match new stat effect values
+- Tests now verify all three stats (Physical, Emotional, Mental) where applicable
+- Aggregation tests updated with new expected totals
+
+### New Stat Effect Values
+
+**EmotionalState:**
+- Calm: Ph +2, Em +3, Me +2 (total +7)
+- Anxious: Ph -2, Em -3, Me -1 (total -6)
+- Excited: Ph +3, Em +4, Me -2 (total +5)
+- Scared: Ph -3, Em -3, Me +2 (total -4)
+- Angry: Ph -3, Em -5, Me -3 (total -11)
+
+**CurseRisk:**
+- Low: Ph +1, Em +2, Me +1 (total +4)
+- Medium: Em -1, Me -2 (total -3)
+- High: Ph -2, Em -3, Me -3 (total -8)
+
+**Coherence:**
+- Coherent: Ph +2, Em +2, Me +4 (total +8)
+- Questionable: Em -1, Me -2 (total -3)
+- Incoherent: Ph -2, Em -3, Me -5 (total -10)
+
+**Urgency:**
+- Low: Ph +2, Em -1, Me +1 (total +2)
+- Medium: Em +1 (total +1)
+- High: Ph -2, Em +3, Me +2 (total +3)
+- Critical: Ph -3, Em +2, Me -2 (total -3)
+
+**BeliefLevel:**
+- Curious: Ph +2, Em +2, Me +2 (total +6)
+- Partial: (none)
+- Committed: Em +2 (total +2)
+- Certain: Ph -1, Em +3, Me -2 (total 0)
+- Zealot: Ph -3, Em -4, Me -4 (total -11)
+
+**Evidence:**
+- None: Ph -2, Em -3, Me -1 (total -6)
+- Low: Ph -1, Em -2 (total -3)
+- Medium: (none)
+- High: Ph +2, Em +3, Me +2 (total +7)
+- Irrefutable: Ph +3, Em +5, Me +3 (total +11)
+
+**Legitimacy:**
+- Fake: Ph -2, Em -5, Me -4 (total -11)
+- Questionable: Ph -1, Em -2, Me -2 (total -5)
+- Credible: Em +1, Me +1 (total +2)
+- Compelling: Ph +2, Em +4, Me +3 (total +9)
+
+**AudioQuality:**
+- Terrible: Ph -2, Em -3, Me -3 (total -8)
+- Poor: Ph -1, Em -2, Me -1 (total -4)
+- Average: (none)
+- Good: Ph +2, Em +2, Me +2 (total +6)
 
 ### Result
 ✅ **Build succeeds** with 0 errors (5 pre-existing warnings)
-✅ **Two-column layout** implemented with 50/50 split
-✅ **Real-time updates** via `_Process()` polling
-✅ **Warnings only visible** when active (hideWhenEmpty mode)
-✅ **Color-coded status** for quick visual feedback
+✅ **All property effects rebalanced** with full three-stat involvement
+✅ **36 personalities** with unique deterministic effects
+✅ **Tests updated** to match new expected values
+✅ **New PersonalityStatEffectsTests** for personality validation
 
-**Status**: Implementation complete. Ready for visual testing in Godot editor.
+**Status**: Ready for commit.
 
 ---
 
-## Previous Session - Vern Stats System v2 Refactor - Build Fix Complete ✅
+## Previous Session - VernTab Two-Column Layout with Status Display ✅
 
 **Branch**: `feature/vern-stats-display`
 
