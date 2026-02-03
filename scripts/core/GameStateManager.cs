@@ -79,10 +79,6 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 			GD.Print("GameStateManager: Dependencies resolved, initializing...");
 			_instanceId = ++_instanceCount;
 
-			_vernStats = new VernStats();
-			_adSchedule = new AdSchedule(AdConstants.DEFAULT_BREAKS_PER_SHOW, AdConstants.DEFAULT_SLOTS_PER_BREAK);
-			InitializeGame();
-
 			// Connect to TimeManager event
             TimeManager.OnShowEnded += OnShowTimerExpired;
 		}
@@ -93,6 +89,10 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
         public void InitializeGame()
         {
             if (_gameInitialized) return;
+
+            // Create VernStats and AdSchedule here instead of OnResolved()
+            _vernStats = new VernStats();
+            _adSchedule = new AdSchedule(AdConstants.DEFAULT_BREAKS_PER_SHOW, AdConstants.DEFAULT_SLOTS_PER_BREAK);
 
             if (_vernStats != null)
             {

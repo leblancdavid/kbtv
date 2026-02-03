@@ -12,6 +12,7 @@ using KBTV.Data;
 using KBTV.Dialogue;
 using KBTV.Ads;
 using KBTV.Monitors;
+using KBTV.Broadcast;
 
 namespace KBTV.Dialogue
 {
@@ -33,6 +34,7 @@ namespace KBTV.Dialogue
         private readonly TimeManager _timeManager;
         private readonly IGameStateManager _gameStateManager;
         private readonly DeadAirManager _deadAirManager;
+        private readonly ConversationStatTracker _statTracker;
 
         public BroadcastStateMachine(
             ICallerRepository callerRepository,
@@ -46,7 +48,8 @@ namespace KBTV.Dialogue
             BroadcastStateManager stateManager,
             TimeManager timeManager,
             IGameStateManager gameStateManager,
-            DeadAirManager deadAirManager)
+            DeadAirManager deadAirManager,
+            ConversationStatTracker statTracker)
         {
             _callerRepository = callerRepository;
             _arcRepository = arcRepository;
@@ -60,6 +63,7 @@ namespace KBTV.Dialogue
             _timeManager = timeManager;
             _gameStateManager = gameStateManager;
             _deadAirManager = deadAirManager;
+            _statTracker = statTracker;
         }
 
         /// <summary>
@@ -149,9 +153,9 @@ namespace KBTV.Dialogue
                     if (droppedCaller != null)
                     {
                         var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{droppedCaller.Id}.mp3";
-                        return new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller, _stateManager);
+                         return new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller, _stateManager, _statTracker);
                     }
-                    return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: _stateManager);
+                     return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: _stateManager, statTracker: _statTracker);
                   case AsyncBroadcastState.ShowClosing:
                   case AsyncBroadcastState.ShowEnding:
                       return null;
@@ -335,23 +339,20 @@ namespace KBTV.Dialogue
                 {
                     GD.Print($"BroadcastStateMachine: Ended on-air caller {endResult.Value.Name}");
                     
-                    // Apply stat effects from the completed call
-                    var vernStats = _gameStateManager?.VernStats;
-                    if (vernStats != null)
-                    {
-                        var caller = endResult.Value;
-                        
-                        // Apply caller's total stat effects
-                        var effects = caller.GetTotalStatEffects();
-                        vernStats.ApplyCallerEffects(effects);
-                        
-                        // Apply penalties
-                        if (caller.IsOffTopic)
-                            vernStats.ApplyOffTopicPenalty();
-                            
-                        if (caller.Legitimacy == CallerLegitimacy.Fake)
-                            vernStats.ApplyHoaxerFooledPenalty();
-                    }
+                     // NOTE: Stat effects are now applied gradually during conversation via ConversationStatTracker
+                     // Only apply penalties here (they still apply at conversation end)
+                     var vernStats = _gameStateManager?.VernStats;
+                     if (vernStats != null)
+                     {
+                         var caller = endResult.Value;
+                         
+                         // Apply penalties only (stat effects already applied gradually)
+                         if (caller.IsOffTopic)
+                             vernStats.ApplyOffTopicPenalty();
+                             
+                         if (caller.Legitimacy == CallerLegitimacy.Fake)
+                             vernStats.ApplyHoaxerFooledPenalty();
+                     }
                 }
 
                 var shouldPlayBetween = ShouldPlayBetweenCallers();
@@ -423,7 +424,7 @@ namespace KBTV.Dialogue
                 {
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
                     audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_ShowOpening");
-                    return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowOpening, _stateManager);
+                    return new DialogueExecutable("vern_fallback", opening.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowOpening, _stateManager, _statTracker);
                 }
             }
 
@@ -434,7 +435,7 @@ namespace KBTV.Dialogue
                  {
                      var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{breakTransition.Id}.mp3";
                      audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_BreakTransition");
-                     return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, _stateManager);
+                      return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, _stateManager, _statTracker);
                  }
              }
 
@@ -447,7 +448,7 @@ namespace KBTV.Dialogue
                     _stateManager._showClosingStarted = true;  // Track that closing has started
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{closing.Id}.mp3";
                     audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_ShowClosing");
-                    return new DialogueExecutable("show_closing", closing.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowClosing, _stateManager);
+                     return new DialogueExecutable("show_closing", closing.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ShowClosing, _stateManager, _statTracker);
                 }
                 else
                 {
@@ -476,7 +477,7 @@ namespace KBTV.Dialogue
                     if (arc != null)
                     {
                         GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Got arc {arc.ArcId} with {arc.Dialogue.Count} lines");
-                        return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus, _audioService, _stateManager);
+                        return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus, _audioService, _stateManager, _statTracker);
                     }
                     else
                     {
@@ -503,7 +504,7 @@ namespace KBTV.Dialogue
             }
             else
             {
-                return new DialogueExecutable("vern_fallback", "Welcome to the show.", "Vern", _eventBus, _audioService, lineType: VernLineType.Fallback, stateManager: _stateManager);
+                 return new DialogueExecutable("vern_fallback", "Welcome to the show.", "Vern", _eventBus, _audioService, lineType: VernLineType.Fallback, stateManager: _stateManager, statTracker: _statTracker);
             }
         }
 
@@ -514,9 +515,9 @@ namespace KBTV.Dialogue
             {
                 var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{betweenCallers.Id}.mp3";
                 audioPath = ValidateAudioPath(audioPath, "CreateBetweenCallersExecutable");
-                return new DialogueExecutable("between_callers", betweenCallers.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BetweenCallers, _stateManager);
+                 return new DialogueExecutable("between_callers", betweenCallers.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BetweenCallers, _stateManager, _statTracker);
             }
-            return new DialogueExecutable("between_callers", "Moving to our next caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.BetweenCallers, stateManager: _stateManager);
+             return new DialogueExecutable("between_callers", "Moving to our next caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.BetweenCallers, stateManager: _stateManager, statTracker: _statTracker);
         }
 
         private BroadcastExecutable CreateDeadAirExecutable()
@@ -525,7 +526,7 @@ namespace KBTV.Dialogue
             var text = filler?.Text ?? "Dead air filler";
             var audioPath = filler != null ? $"res://assets/audio/voice/Vern/Broadcast/{filler.Id}.mp3" : null;
             audioPath = ValidateAudioPath(audioPath, "CreateDeadAirExecutable");
-            return new DialogueExecutable("dead_air", text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DeadAirFiller, _stateManager);
+             return new DialogueExecutable("dead_air", text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DeadAirFiller, _stateManager, _statTracker);
         }
 
         private BroadcastExecutable CreateAdExecutable(int adSlot)
@@ -545,9 +546,9 @@ namespace KBTV.Dialogue
             {
                 var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{returnLine.Id}.mp3";
                 audioPath = ValidateAudioPath(audioPath, "CreateReturnFromBreakExecutable");
-                return new DialogueExecutable("break_return", returnLine.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ReturnFromBreak, _stateManager);
+                 return new DialogueExecutable("break_return", returnLine.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.ReturnFromBreak, _stateManager, _statTracker);
             }
-            return new DialogueExecutable("break_return", "We're back!", "Vern", _eventBus, _audioService, lineType: VernLineType.ReturnFromBreak, stateManager: _stateManager);
+             return new DialogueExecutable("break_return", "We're back!", "Vern", _eventBus, _audioService, lineType: VernLineType.ReturnFromBreak, stateManager: _stateManager, statTracker: _statTracker);
         }
 
         private string? GetRandomReturnBumperPath()

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using KBTV.Core;
+using KBTV.Broadcast;
 using KBTV.Callers;
 using KBTV.Managers;
 using KBTV.Audio;
@@ -347,7 +348,7 @@ namespace KBTV.Dialogue
                 if (executable is KBTV.Dialogue.DialogueExecutable dialogueExec)
                 {
                     // Dialogue arcs: lines × 4s + 10s buffer, single lines: 10s
-                    timeoutSeconds = dialogueExec.LineCount * 4.0f + 10.0f;
+                    timeoutSeconds = dialogueExec.LineCount * BroadcastConstants.DEFAULT_LINE_DURATION + 10.0f;
                 }
                 
                 // Execute with timeout to prevent hanging

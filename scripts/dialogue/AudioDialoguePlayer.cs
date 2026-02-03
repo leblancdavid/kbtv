@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Godot;
 using KBTV.Core;
+using KBTV.Broadcast;
 
 namespace KBTV.Dialogue
 {
@@ -55,7 +56,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             else
             {
                 // No audio file found - use timer fallback with warning
-                await StartTimerFallbackAsync(4.0f);
+                await StartTimerFallbackAsync(BroadcastConstants.DEFAULT_LINE_DURATION);
             }
         }
 
@@ -302,7 +303,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
                 type: itemType,
                 text: line.Text,
                 audioPath: null, // Will be determined by loading logic
-                duration: 4.0f, // Default duration for legacy lines
+                duration: BroadcastConstants.DEFAULT_LINE_DURATION, // Default duration for legacy lines
                 metadata: metadata
             );
         }

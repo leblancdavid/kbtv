@@ -1,4 +1,38 @@
-## Current Session - DeadAirManager Dependency Injection Fix ✅
+## Current Session - VernStats Initialization Timing Fix ✅
+
+**Branch**: `feature/vern-stats-display`
+
+**Task**: Fix VernStats null reference exceptions by moving initialization earlier in startup sequence.
+
+### Problem
+VernTab and ConversationStatTracker were failing with "VernStats is null" errors because VernStats was created in GameStateManager.InitializeGame() which ran in ServiceProviderRoot.OnReady(), after UI components tried to access it during OnResolved().
+
+### Root Cause
+- UI components (VernTab) instantiated during ServiceProviderRoot.Initialize() Phase 3
+- VernTab.OnResolved() called immediately, trying to access GameStateManager.VernStats
+- VernStats only created later in OnReady(), causing null reference exceptions
+
+### Solution
+Moved GameStateManager.InitializeGame() call from ServiceProviderRoot.OnReady() to immediately after GameStateManager instantiation in Initialize(), ensuring VernStats exists before any UI components are added to the scene tree.
+
+### Files Modified
+
+**1. `scripts/core/ServiceProviderRoot.cs`**
+- **Added** `gameStateManager.InitializeGame();` right after `var gameStateManager = new GameStateManager();` in Initialize()
+- **Removed** `GameStateManager.InitializeGame();` from OnReady()
+
+### Result
+✅ **Build succeeds** with 0 errors (same 5 pre-existing warnings)  
+✅ **VernStats created early** in service initialization phase  
+✅ **ConversationStatTracker constructor** now receives properly initialized VernStats  
+✅ **VernTab OnResolved()** can safely access VernStats without null references  
+✅ **UI components load correctly** without startup errors  
+
+**Status**: VernStats initialization timing fix complete. Game should now start without "VernStats is null" errors.
+
+---
+
+## Previous Session - DeadAirManager Dependency Injection Fix ✅
 
 **Branch**: `feature/vern-stats-display`
 

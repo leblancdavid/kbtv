@@ -10,6 +10,7 @@ using KBTV.Ads;
 using KBTV.Screening;
 using KBTV.Audio;
 using KBTV.Monitors;
+using KBTV.Broadcast;
 
 namespace KBTV.Core;
 
@@ -40,7 +41,8 @@ namespace KBTV.Core;
     IProvide<ITimeManager>,
     IProvide<IBroadcastAudioService>,
     IProvide<IUIAudioService>,
-    IProvide<DeadAirManager>
+    IProvide<DeadAirManager>,
+    IProvide<ConversationStatTracker>
 {
     public override void _Notification(int what) => this.Notify(what);
 
@@ -65,6 +67,7 @@ namespace KBTV.Core;
     public IBroadcastAudioService BroadcastAudioService { get; private set; } = null!;
     public IUIAudioService UIAudioService { get; private set; } = null!;
     public DeadAirManager DeadAirManager { get; private set; } = null!;
+    public ConversationStatTracker ConversationStatTracker { get; private set; } = null!;
 
     // Provider interface implementations
     GameStateManager IProvide<GameStateManager>.Value() => GameStateManager;
@@ -90,6 +93,7 @@ namespace KBTV.Core;
     IBroadcastAudioService IProvide<IBroadcastAudioService>.Value() => BroadcastAudioService;
     IUIAudioService IProvide<IUIAudioService>.Value() => UIAudioService;
     DeadAirManager IProvide<DeadAirManager>.Value() => DeadAirManager;
+    ConversationStatTracker IProvide<ConversationStatTracker>.Value() => ConversationStatTracker;
 
     /// <summary>
     /// Initialize all service providers and register them with AutoInject.
@@ -126,6 +130,7 @@ namespace KBTV.Core;
         // Create providers with dependencies
         var timeManager = new TimeManager();
         var gameStateManager = new GameStateManager();
+        gameStateManager.InitializeGame();
 
         // Create listener manager with dependencies
         var listenerManager = new ListenerManager(gameStateManager, timeManager, callerRepo);
@@ -163,6 +168,9 @@ namespace KBTV.Core;
         // Create dead air manager
         var deadAirManager = new DeadAirManager();
 
+        // Create conversation stat tracker (depends on GameStateManager.VernStats)
+        var conversationStatTracker = new ConversationStatTracker(gameStateManager);
+
         // Phase 2: Set all provider properties (now dependency injection will work)
         GD.Print("ServiceProviderRoot: Phase 2 - Setting provider properties...");
 
@@ -186,6 +194,7 @@ namespace KBTV.Core;
         BroadcastAudioService = broadcastAudioService;
         UIAudioService = uiAudioService;
         DeadAirManager = deadAirManager;
+        ConversationStatTracker = conversationStatTracker;
 
         // Make all services available BEFORE adding children to the scene tree
         GD.Print("ServiceProviderRoot: Making services available for dependency injection...");
@@ -225,7 +234,6 @@ namespace KBTV.Core;
         
         // Initialize any providers that need initialization
         TimeManager.Initialize();
-        GameStateManager.InitializeGame();
         EconomyManager.Initialize();
         ListenerManager.Initialize();
         SaveManager.Initialize();

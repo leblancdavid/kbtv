@@ -8,7 +8,7 @@ using KBTV.Callers;
 using KBTV.Audio;
 using KBTV.Core;
 using KBTV.Data;
-using KBTV.Managers;
+using KBTV.Broadcast;
 
 namespace KBTV.Dialogue
 {
@@ -20,10 +20,11 @@ namespace KBTV.Dialogue
         private readonly string? _speaker;
         private readonly string? _text;
         private readonly string? _audioPath;
-        private readonly Caller? _caller;
-        private readonly ConversationArc? _arc;
-        private readonly VernLineType? _lineType;
-        private readonly BroadcastStateManager? _stateManager;
+    private readonly Caller? _caller;
+    private readonly ConversationArc? _arc;
+    private readonly VernLineType? _lineType;
+    private readonly BroadcastStateManager? _stateManager;
+    private readonly ConversationStatTracker? _statTracker;
 
         /// <summary>
         /// The specific type of Vern line (null for caller lines).
@@ -36,8 +37,8 @@ namespace KBTV.Dialogue
         public int LineCount => _arc?.Dialogue.Count ?? 1;
 
         // For caller dialogue (full conversation arcs)
-        public DialogueExecutable(string id, Caller caller, ConversationArc arc, EventBus eventBus, IBroadcastAudioService audioService, BroadcastStateManager stateManager) 
-            : base(id, BroadcastItemType.Conversation, true, 4.0f, eventBus, audioService, stateManager.SceneTree, new { caller, arc })
+        public DialogueExecutable(string id, Caller caller, ConversationArc arc, EventBus eventBus, IBroadcastAudioService audioService, BroadcastStateManager stateManager, ConversationStatTracker statTracker) 
+            : base(id, BroadcastItemType.Conversation, true, BroadcastConstants.DEFAULT_LINE_DURATION, eventBus, audioService, stateManager.SceneTree, new { caller, arc })
         {
             _caller = caller;
             _arc = arc;
@@ -45,17 +46,19 @@ namespace KBTV.Dialogue
             _audioPath = null; // Audio handled per line in ExecuteInternalAsync
             _lineType = null; // Not applicable for caller lines
             _stateManager = stateManager;
+            _statTracker = statTracker;
         }
 
         // For Vern dialogue
-        public DialogueExecutable(string id, string text, string speaker, EventBus eventBus, IBroadcastAudioService audioService, string? audioPath = null, VernLineType? lineType = null, BroadcastStateManager? stateManager = null) 
-            : base(id, BroadcastItemType.VernLine, true, 4.0f, eventBus, audioService, stateManager?.SceneTree ?? throw new ArgumentNullException(nameof(stateManager)), new { text, speaker, audioPath, lineType })
+        public DialogueExecutable(string id, string text, string speaker, EventBus eventBus, IBroadcastAudioService audioService, string? audioPath = null, VernLineType? lineType = null, BroadcastStateManager? stateManager = null, ConversationStatTracker? statTracker = null) 
+            : base(id, BroadcastItemType.VernLine, true, BroadcastConstants.DEFAULT_LINE_DURATION, eventBus, audioService, stateManager?.SceneTree ?? throw new ArgumentNullException(nameof(stateManager)), new { text, speaker, audioPath, lineType })
         {
             _text = text;
             _speaker = speaker;
             _audioPath = audioPath;
             _lineType = lineType;
             _stateManager = stateManager;
+            _statTracker = statTracker;
         }
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
@@ -72,6 +75,8 @@ namespace KBTV.Dialogue
                 if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakImminent ||
                     interruptionEvent.Reason == BroadcastInterruptionReason.ShowEnding)
                 {
+                    // Handle interruption - effects up to current line are preserved
+                    _statTracker?.InterruptConversation();
                     localCts.Cancel();
                 }
             }
@@ -81,6 +86,9 @@ namespace KBTV.Dialogue
             {
                 if (_arc != null && _caller != null)
                 {
+                    // Initialize stat tracking for this conversation
+                    _statTracker?.StartConversation(_caller, _arc);
+
                     // Play full conversation line by line
                     var topic = _arc.TopicName;
                     foreach (var line in _arc.Dialogue)
@@ -111,19 +119,19 @@ namespace KBTV.Dialogue
                             type: itemType,
                             text: line.Text,
                             audioPath: audioPath,
-                            duration: 4.0f,
+                            duration: BroadcastConstants.DEFAULT_LINE_DURATION,
                             metadata: new { ArcId = _arc.ArcId, SpeakerId = speakerName, CallerGender = _arc.CallerGender }
                         );
 
                          // Get actual audio duration - skip loading if audio is disabled
-                         float audioDuration = 4.0f; // Default fallback
+                         float audioDuration = BroadcastConstants.DEFAULT_LINE_DURATION; // Default fallback
                          if (!_audioService.IsAudioDisabled)
                          {
                              audioDuration = await GetAudioDurationAsync(audioPath);
                          }
 
                          // Publish started event for UI
-                         var startedEvent = new BroadcastItemStartedEvent(item, 4.0f, audioDuration);
+                         var startedEvent = new BroadcastItemStartedEvent(item, BroadcastConstants.DEFAULT_LINE_DURATION, audioDuration);
                          GD.Print($"DialogueExecutable: Publishing started event for line '{line.Text}' (audioDuration: {audioDuration})");
                          _eventBus.Publish(startedEvent);
 
@@ -134,8 +142,11 @@ namespace KBTV.Dialogue
                         }
                         else
                         {
-                            await DelayAsync(4.0f, localToken);
+                            await DelayAsync(BroadcastConstants.DEFAULT_LINE_DURATION, localToken);
                         }
+
+                        // Apply stat effects for this completed line
+                        _statTracker?.OnLineCompleted();
 
                         // Check for pending break transition (graceful interruption between lines)
                         if (_stateManager?.PendingBreakTransition == true)
@@ -145,6 +156,9 @@ namespace KBTV.Dialogue
                         }
                     }
                     GD.Print($"DialogueExecutable: Conversation arc loop completed - all {_arc.Dialogue.Count} lines processed");
+                    
+                    // Conversation completed naturally - apply any remaining effects
+                    _statTracker?.CompleteConversation();
                 }
                 else
                 {
@@ -171,7 +185,7 @@ namespace KBTV.Dialogue
                     }
                     else
                     {
-                        await DelayAsync(4.0f, localToken);
+                        await DelayAsync(BroadcastConstants.DEFAULT_LINE_DURATION, localToken);
                     }
                 }
             }
