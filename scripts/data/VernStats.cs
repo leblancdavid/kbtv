@@ -21,8 +21,8 @@ namespace KBTV.Data
 		[Export] private float _initialCaffeine = 100f;
 		[Export] private float _initialNicotine = 100f;
 
-		[Export] private float _caffeineDecayRate = 5f;  // per minute
-		[Export] private float _nicotineDecayRate = 4f;  // per minute
+		[Export] private float _caffeineDecayRate = 30f;  // per minute (was 5f - increased for active dependency management)
+		[Export] private float _nicotineDecayRate = 35f;  // per minute (was 4f - increased for active dependency management)
 
 		// ═══════════════════════════════════════════════════════════════════════════════
 		// CORE STATS - Range -100 to +100, start at 0
