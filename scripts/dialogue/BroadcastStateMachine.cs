@@ -177,7 +177,9 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.DeadAir:
                     if (ShouldPlayBetweenCallers())
                     {
-                        newState = AsyncBroadcastState.BetweenCallers;
+                        // Go directly to Conversation - no "between callers" transition needed
+                        // since we're coming from dead air, not from a previous caller
+                        newState = AsyncBroadcastState.Conversation;
                     }
                     // Else stay in DeadAir
                     break;

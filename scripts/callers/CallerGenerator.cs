@@ -46,6 +46,15 @@ namespace KBTV.Callers
             "Elm Creek", "Willow Grove", "Birch Creek", "Oak Creek", "Pine Valley", "Cedar Grove"
         };
 
+        private static readonly string[] Personalities = {
+            "Nervous but sincere", "Overly enthusiastic", "Skeptical witness",
+            "Rambling storyteller", "Matter-of-fact reporter", "Conspiracy theorist",
+            "First-time caller", "Frequent listener", "Desperate for answers",
+            "Attention seeker", "Genuinely frightened", "Academic researcher",
+            "Local history buff", "Reluctant witness", "True believer",
+            "Joker type", "Monotone delivery", "Excitable narrator"
+        };
+
         [Export] private float _fakeCallerChance = 0.15f;
         [Export] private float _questionableCallerChance = 0.25f;
         [Export] private float _compellingCallerChance = 0.1f;
@@ -196,17 +205,15 @@ namespace KBTV.Callers
 
             string reason = GenerateCallReason(legitimacy);
 
-            // Simplified attributes
-            CallerEmotionalState emotionalState = CallerEmotionalState.Calm;
-            CallerCurseRisk curseRisk = CallerCurseRisk.Low;
-            CallerBeliefLevel beliefLevel = CallerBeliefLevel.Curious;
-            CallerEvidenceLevel evidenceLevel = CallerEvidenceLevel.None;
-            CallerCoherence coherence = CallerCoherence.Coherent;
-            CallerUrgency urgency = CallerUrgency.Low;
-
-            CallerPhoneQuality phoneQuality = CallerPhoneQuality.Average;
-
-            string personality = "Average caller";
+            // Generate attributes based on legitimacy
+            CallerPhoneQuality phoneQuality = GeneratePhoneQuality(legitimacy);
+            CallerEmotionalState emotionalState = GenerateEmotionalState(legitimacy);
+            CallerCurseRisk curseRisk = GenerateCurseRisk(legitimacy);
+            CallerBeliefLevel beliefLevel = GenerateBeliefLevel(legitimacy);
+            CallerEvidenceLevel evidenceLevel = GenerateEvidenceLevel(legitimacy);
+            CallerCoherence coherence = GenerateCoherence(legitimacy);
+            CallerUrgency urgency = GenerateUrgency(legitimacy);
+            string personality = GeneratePersonality();
 
             // Assign arcs based on show topic (90% on-topic, 10% off-topic)
             var arcRepo = _arcRepository;
@@ -348,6 +355,235 @@ namespace KBTV.Callers
                     return "Calling about paranormal activity";
             }
         }
+
+        #region Attribute Generation Methods
+
+        /// <summary>
+        /// Select a random value from weighted options.
+        /// </summary>
+        private T WeightedSelect<T>(params (T value, float weight)[] options)
+        {
+            float total = 0f;
+            foreach (var option in options)
+                total += option.weight;
+
+            float rand = (float)GD.Randf() * total;
+            float cumulative = 0f;
+
+            foreach (var (value, weight) in options)
+            {
+                cumulative += weight;
+                if (rand < cumulative)
+                    return value;
+            }
+
+            return options[options.Length - 1].value;
+        }
+
+        private CallerPhoneQuality GeneratePhoneQuality(CallerLegitimacy legitimacy)
+        {
+            return legitimacy switch
+            {
+                CallerLegitimacy.Fake => WeightedSelect(
+                    (CallerPhoneQuality.Terrible, 30f),
+                    (CallerPhoneQuality.Poor, 40f),
+                    (CallerPhoneQuality.Average, 25f),
+                    (CallerPhoneQuality.Good, 5f)),
+                CallerLegitimacy.Questionable => WeightedSelect(
+                    (CallerPhoneQuality.Terrible, 15f),
+                    (CallerPhoneQuality.Poor, 35f),
+                    (CallerPhoneQuality.Average, 40f),
+                    (CallerPhoneQuality.Good, 10f)),
+                CallerLegitimacy.Credible => WeightedSelect(
+                    (CallerPhoneQuality.Terrible, 5f),
+                    (CallerPhoneQuality.Poor, 20f),
+                    (CallerPhoneQuality.Average, 50f),
+                    (CallerPhoneQuality.Good, 25f)),
+                CallerLegitimacy.Compelling => WeightedSelect(
+                    (CallerPhoneQuality.Terrible, 5f),
+                    (CallerPhoneQuality.Poor, 15f),
+                    (CallerPhoneQuality.Average, 45f),
+                    (CallerPhoneQuality.Good, 35f)),
+                _ => CallerPhoneQuality.Average
+            };
+        }
+
+        private CallerEmotionalState GenerateEmotionalState(CallerLegitimacy legitimacy)
+        {
+            return legitimacy switch
+            {
+                CallerLegitimacy.Fake => WeightedSelect(
+                    (CallerEmotionalState.Calm, 10f),
+                    (CallerEmotionalState.Anxious, 10f),
+                    (CallerEmotionalState.Excited, 40f),
+                    (CallerEmotionalState.Scared, 10f),
+                    (CallerEmotionalState.Angry, 30f)),
+                CallerLegitimacy.Questionable => WeightedSelect(
+                    (CallerEmotionalState.Calm, 25f),
+                    (CallerEmotionalState.Anxious, 30f),
+                    (CallerEmotionalState.Excited, 20f),
+                    (CallerEmotionalState.Scared, 15f),
+                    (CallerEmotionalState.Angry, 10f)),
+                CallerLegitimacy.Credible => WeightedSelect(
+                    (CallerEmotionalState.Calm, 40f),
+                    (CallerEmotionalState.Anxious, 30f),
+                    (CallerEmotionalState.Excited, 15f),
+                    (CallerEmotionalState.Scared, 10f),
+                    (CallerEmotionalState.Angry, 5f)),
+                CallerLegitimacy.Compelling => WeightedSelect(
+                    (CallerEmotionalState.Calm, 30f),
+                    (CallerEmotionalState.Anxious, 25f),
+                    (CallerEmotionalState.Excited, 10f),
+                    (CallerEmotionalState.Scared, 30f),
+                    (CallerEmotionalState.Angry, 5f)),
+                _ => CallerEmotionalState.Calm
+            };
+        }
+
+        private CallerCurseRisk GenerateCurseRisk(CallerLegitimacy legitimacy)
+        {
+            return legitimacy switch
+            {
+                CallerLegitimacy.Fake => WeightedSelect(
+                    (CallerCurseRisk.Low, 20f),
+                    (CallerCurseRisk.Medium, 30f),
+                    (CallerCurseRisk.High, 50f)),
+                CallerLegitimacy.Questionable => WeightedSelect(
+                    (CallerCurseRisk.Low, 40f),
+                    (CallerCurseRisk.Medium, 40f),
+                    (CallerCurseRisk.High, 20f)),
+                CallerLegitimacy.Credible => WeightedSelect(
+                    (CallerCurseRisk.Low, 60f),
+                    (CallerCurseRisk.Medium, 30f),
+                    (CallerCurseRisk.High, 10f)),
+                CallerLegitimacy.Compelling => WeightedSelect(
+                    (CallerCurseRisk.Low, 80f),
+                    (CallerCurseRisk.Medium, 15f),
+                    (CallerCurseRisk.High, 5f)),
+                _ => CallerCurseRisk.Low
+            };
+        }
+
+        private CallerBeliefLevel GenerateBeliefLevel(CallerLegitimacy legitimacy)
+        {
+            return legitimacy switch
+            {
+                CallerLegitimacy.Fake => WeightedSelect(
+                    (CallerBeliefLevel.Curious, 30f),
+                    (CallerBeliefLevel.Partial, 10f),
+                    (CallerBeliefLevel.Committed, 10f),
+                    (CallerBeliefLevel.Certain, 10f),
+                    (CallerBeliefLevel.Zealot, 40f)),
+                CallerLegitimacy.Questionable => WeightedSelect(
+                    (CallerBeliefLevel.Curious, 25f),
+                    (CallerBeliefLevel.Partial, 35f),
+                    (CallerBeliefLevel.Committed, 25f),
+                    (CallerBeliefLevel.Certain, 10f),
+                    (CallerBeliefLevel.Zealot, 5f)),
+                CallerLegitimacy.Credible => WeightedSelect(
+                    (CallerBeliefLevel.Curious, 30f),
+                    (CallerBeliefLevel.Partial, 30f),
+                    (CallerBeliefLevel.Committed, 25f),
+                    (CallerBeliefLevel.Certain, 10f),
+                    (CallerBeliefLevel.Zealot, 5f)),
+                CallerLegitimacy.Compelling => WeightedSelect(
+                    (CallerBeliefLevel.Curious, 10f),
+                    (CallerBeliefLevel.Partial, 15f),
+                    (CallerBeliefLevel.Committed, 35f),
+                    (CallerBeliefLevel.Certain, 35f),
+                    (CallerBeliefLevel.Zealot, 5f)),
+                _ => CallerBeliefLevel.Curious
+            };
+        }
+
+        private CallerEvidenceLevel GenerateEvidenceLevel(CallerLegitimacy legitimacy)
+        {
+            return legitimacy switch
+            {
+                // Fake callers never have real evidence
+                CallerLegitimacy.Fake => CallerEvidenceLevel.None,
+                CallerLegitimacy.Questionable => WeightedSelect(
+                    (CallerEvidenceLevel.None, 50f),
+                    (CallerEvidenceLevel.Low, 35f),
+                    (CallerEvidenceLevel.Medium, 15f),
+                    (CallerEvidenceLevel.High, 0f),
+                    (CallerEvidenceLevel.Irrefutable, 0f)),
+                CallerLegitimacy.Credible => WeightedSelect(
+                    (CallerEvidenceLevel.None, 20f),
+                    (CallerEvidenceLevel.Low, 40f),
+                    (CallerEvidenceLevel.Medium, 30f),
+                    (CallerEvidenceLevel.High, 10f),
+                    (CallerEvidenceLevel.Irrefutable, 0f)),
+                // Only Compelling callers can have Irrefutable evidence (~5%)
+                CallerLegitimacy.Compelling => WeightedSelect(
+                    (CallerEvidenceLevel.None, 5f),
+                    (CallerEvidenceLevel.Low, 15f),
+                    (CallerEvidenceLevel.Medium, 35f),
+                    (CallerEvidenceLevel.High, 40f),
+                    (CallerEvidenceLevel.Irrefutable, 5f)),
+                _ => CallerEvidenceLevel.None
+            };
+        }
+
+        private CallerCoherence GenerateCoherence(CallerLegitimacy legitimacy)
+        {
+            return legitimacy switch
+            {
+                CallerLegitimacy.Fake => WeightedSelect(
+                    (CallerCoherence.Coherent, 20f),
+                    (CallerCoherence.Questionable, 40f),
+                    (CallerCoherence.Incoherent, 40f)),
+                CallerLegitimacy.Questionable => WeightedSelect(
+                    (CallerCoherence.Coherent, 50f),
+                    (CallerCoherence.Questionable, 40f),
+                    (CallerCoherence.Incoherent, 10f)),
+                CallerLegitimacy.Credible => WeightedSelect(
+                    (CallerCoherence.Coherent, 70f),
+                    (CallerCoherence.Questionable, 25f),
+                    (CallerCoherence.Incoherent, 5f)),
+                // Compelling callers are always coherent
+                CallerLegitimacy.Compelling => WeightedSelect(
+                    (CallerCoherence.Coherent, 90f),
+                    (CallerCoherence.Questionable, 10f),
+                    (CallerCoherence.Incoherent, 0f)),
+                _ => CallerCoherence.Coherent
+            };
+        }
+
+        private CallerUrgency GenerateUrgency(CallerLegitimacy legitimacy)
+        {
+            return legitimacy switch
+            {
+                CallerLegitimacy.Fake => WeightedSelect(
+                    (CallerUrgency.Low, 40f),
+                    (CallerUrgency.Medium, 20f),
+                    (CallerUrgency.High, 30f),
+                    (CallerUrgency.Critical, 10f)),
+                CallerLegitimacy.Questionable => WeightedSelect(
+                    (CallerUrgency.Low, 40f),
+                    (CallerUrgency.Medium, 35f),
+                    (CallerUrgency.High, 20f),
+                    (CallerUrgency.Critical, 5f)),
+                CallerLegitimacy.Credible => WeightedSelect(
+                    (CallerUrgency.Low, 35f),
+                    (CallerUrgency.Medium, 40f),
+                    (CallerUrgency.High, 20f),
+                    (CallerUrgency.Critical, 5f)),
+                CallerLegitimacy.Compelling => WeightedSelect(
+                    (CallerUrgency.Low, 20f),
+                    (CallerUrgency.Medium, 35f),
+                    (CallerUrgency.High, 30f),
+                    (CallerUrgency.Critical, 15f)),
+                _ => CallerUrgency.Low
+            };
+        }
+
+        private string GeneratePersonality()
+        {
+            return Personalities[(int)(GD.Randi() % Personalities.Length)];
+        }
+
+        #endregion
 
         private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
         {
