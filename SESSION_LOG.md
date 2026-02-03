@@ -8,19 +8,23 @@
 Dead air filler lines were not updating Vern stats because penalties were only applied when entering the DeadAir state, not for each individual filler executable. This meant multiple consecutive dead air lines only applied one penalty.
 
 ### Root Cause
-DeadAirManager.OnDeadAirStarted() was called only on state transitions (entering DeadAir), not for individual broadcast items. When dead air consisted of multiple filler lines, only the first triggered a penalty.
+DeadAirManager.OnDeadAirStarted() was called only on state transitions (entering DeadAir), not for individual broadcast items. When dead air consisted of multiple filler lines, only the first triggered a penalty. Additionally, BroadcastItem.Metadata did not include lineType, preventing event-based penalty detection.
 
 ### Solution
-Modified DeadAirManager to subscribe to BroadcastItemStartedEvent and apply penalties for each dead air filler VernLine individually, maintaining consecutive counting and linear penalty scaling.
+Modified DeadAirManager to subscribe to BroadcastItemStartedEvent and apply penalties for each dead air filler VernLine individually, maintaining consecutive counting and linear penalty scaling. Fixed metadata to include lineType for proper dead air filler identification.
 
 ### Files Modified
 
-**1. `scripts/monitors/DeadAirManager.cs`**
+**1. `scripts/monitors/DeadAirManager.cs`** (previous session)
 - Added using KBTV.Dialogue for broadcast events
 - Modified OnResolved() to subscribe to BroadcastItemStartedEvent
 - Added OnBroadcastItemStarted() event handler for per-line penalties
 - Added IsDeadAirFiller() helper to identify dead air filler items via metadata
 - Preserved existing state-based OnDeadAirStarted()/OnDeadAirEnded() for counter reset
+
+**2. `scripts/dialogue/executables/DialogueExecutable.cs`**
+- Modified CreateBroadcastItem() to include lineType in BroadcastItem.Metadata
+- Enables DeadAirManager to access VernLineType.DeadAirFiller for penalty detection
 
 ### Behavior Changes
 - **Before**: Penalty applied once when entering DeadAir state
@@ -33,6 +37,7 @@ Modified DeadAirManager to subscribe to BroadcastItemStartedEvent and apply pena
 ✅ **Linear scaling** (1.5x, 2x, 2.5x penalties) maintained  
 ✅ **State reset** preserved when leaving DeadAir  
 ✅ **Event-driven architecture** complements existing state-based logic  
+✅ **Metadata fix** enables proper dead air filler detection
 
 **Status**: Dead air consecutive penalty fix complete. Each filler line now applies progressive stat penalties.
 
