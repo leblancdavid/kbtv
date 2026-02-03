@@ -51,6 +51,17 @@ namespace KBTV.Monitors
             }
         }
 
+        public override void _Process(double delta)
+        {
+            // Override base class check - VernStatsMonitor uses _vernStats/_gameState, not _repository
+            if (_vernStats == null || _gameState == null)
+            {
+                return;
+            }
+            
+            OnUpdate((float)delta);
+        }
+
         protected override void OnUpdate(float deltaTime)
         {
             GD.Print($"[DEBUG] VernStatsMonitor.OnUpdate: dt={deltaTime:F3}");
