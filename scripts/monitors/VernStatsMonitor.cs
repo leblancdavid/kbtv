@@ -40,12 +40,35 @@ namespace KBTV.Monitors
         {
             _vernStats = GameStateManager?.VernStats;
             _gameState = GameStateManager;
+            
+            GD.Print($"[DEBUG] VernStatsMonitor.OnResolved:");
+            GD.Print($"  - GameStateManager: {GameStateManager != null}");
+            GD.Print($"  - _vernStats: {_vernStats != null}");
+            GD.Print($"  - _gameState: {_gameState != null}");
+            if (_vernStats != null) {
+                GD.Print($"  - Initial Caffeine: {_vernStats.Caffeine.Value}");
+                GD.Print($"  - Initial Nicotine: {_vernStats.Nicotine.Value}");
+            }
         }
 
         protected override void OnUpdate(float deltaTime)
         {
-            if (_vernStats == null || _gameState == null || !_gameState.IsLive)
-            {
+            GD.Print($"[DEBUG] VernStatsMonitor.OnUpdate: dt={deltaTime:F3}");
+            
+            if (_vernStats == null) {
+                GD.Print($"[DEBUG] VernStatsMonitor: _vernStats is null!");
+                return;
+            }
+            if (_gameState == null) {
+                GD.Print($"[DEBUG] VernStatsMonitor: _gameState is null!");
+                return;
+            }
+            
+            bool isLive = _gameState.IsLive;
+            GD.Print($"[DEBUG] VernStatsMonitor: IsLive = {isLive}, Phase = {_gameState.CurrentPhase}");
+            
+            if (!isLive) {
+                GD.Print($"[DEBUG] VernStatsMonitor: Skipping decay - not live show");
                 return;
             }
 
@@ -69,8 +92,30 @@ namespace KBTV.Monitors
                 nicotineDecay *= stats.LowMentalDependencyMultiplier;
             }
 
+            // Log current values and modifiers
+            float caffeineMod = stats.GetCaffeineDecayModifier();
+            float nicotineMod = stats.GetNicotineDecayModifier();
+            float mental = stats.Mental.Value;
+            float emotional = stats.Emotional.Value;
+            
+            GD.Print($"[DEBUG] VernStatsMonitor: Mental={mental:F1}, Emotional={emotional:F1}");
+            GD.Print($"[DEBUG] VernStatsMonitor: CaffeineMod={caffeineMod:F2}, NicotineMod={nicotineMod:F2}");
+            
+            // Log before decay
+            float oldCaffeine = stats.Caffeine.Value;
+            float oldNicotine = stats.Nicotine.Value;
+            
+            GD.Print($"[DEBUG] VernStatsMonitor: Before decay - Caff:{oldCaffeine:F1}, Nico:{oldNicotine:F1}");
+
             stats.Caffeine.Modify(-caffeineDecay * dtMinutes);
             stats.Nicotine.Modify(-nicotineDecay * dtMinutes);
+
+            // Log after decay
+            float newCaffeine = stats.Caffeine.Value;  
+            float newNicotine = stats.Nicotine.Value;
+            
+            GD.Print($"[DEBUG] VernStatsMonitor: After decay - Caff:{newCaffeine:F1}, Nico:{newNicotine:F1}");
+            GD.Print($"[DEBUG] VernStatsMonitor: Change - Caff:{newCaffeine-oldCaffeine:F3}, Nico:{newNicotine-oldNicotine:F3}");
 
             // ═══════════════════════════════════════════════════════════════════════════════
             // CORE STAT DECAY (only when dependencies depleted)
