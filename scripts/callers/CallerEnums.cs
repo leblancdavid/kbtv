@@ -107,17 +107,6 @@ namespace KBTV.Callers
     }
 
     /// <summary>
-    /// Weight tiers for property revelation order.
-    /// Lower tiers reveal earlier, higher tiers reveal later.
-    /// </summary>
-    public enum RevelationTier
-    {
-        Tier1_Early,
-        Tier2_Mid,
-        Tier3_Late
-    }
-
-    /// <summary>
     /// The current state of a caller in the system.
     /// </summary>
     public enum CallerState

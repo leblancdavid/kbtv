@@ -136,8 +136,8 @@ namespace KBTV.Data
 				case StatType.Patience:
 					_patience.Modify(amount);
 					break;
-				case StatType.Skepticism:
-					_skepticism.Modify(amount);
+				case StatType.Belief:
+					_belief.Modify(amount);
 					break;
 			}
 		}
@@ -176,8 +176,8 @@ namespace KBTV.Data
 		/// </summary>
 		public void ApplyBeliefChange(float amount)
 		{
-			// Belief change affects skepticism over time
-			_skepticism.Modify(amount);
+			// Directly modify belief stat
+			_belief.Modify(amount);
 		}
 	}
 }

@@ -4,6 +4,7 @@ using Godot;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Screening;
+using KBTV.UI.Components;
 using KBTV.UI.Themes;
 
 namespace KBTV.UI
@@ -15,7 +16,7 @@ namespace KBTV.UI
 		private Label _headerRow = null!;
 
 		[Export]
-		private GridContainer _propertiesGrid = null!;
+		private Control _propertiesContainer = null!;
 
 		[Export]
 		private Button _approveButton = null!;
@@ -38,12 +39,18 @@ namespace KBTV.UI
 		private Caller? _previousCaller;
 		private float _previousProgressPercent = -1f;
 
+		// Property rows for animated reveal
+		private List<ScreenablePropertyRow> _propertyRows = new();
+
+		// Stat summary panel for aggregated effects
+		private StatSummaryPanel? _statSummaryPanel;
+
 		public override void _Notification(int what) => this.Notify(what);
 
 		public override void _Ready()
 		{
 			EnsureNodesInitialized();
-			_nodesInitialized = _headerRow != null && _propertiesGrid != null &&
+			_nodesInitialized = _headerRow != null && _propertiesContainer != null &&
 			                   _approveButton != null && _rejectButton != null;
 			if (_approveButton != null && _rejectButton != null)
 			{
@@ -107,12 +114,12 @@ namespace KBTV.UI
 			}
 		}
 
-		private System.Collections.Generic.List<string> GetMissingNodeReferences()
+		private List<string> GetMissingNodeReferences()
 		{
-			var missing = new System.Collections.Generic.List<string>();
+			var missing = new List<string>();
 
 			if (_headerRow == null) missing.Add("VBoxContainer/CallerInfoScroll/InfoVBox/HeaderRow");
-			if (_propertiesGrid == null) missing.Add("VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesGrid");
+			if (_propertiesContainer == null) missing.Add("VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesContainer");
 			if (_approveButton == null) missing.Add("VBoxContainer/HBoxContainer/ApproveButton");
 			if (_rejectButton == null) missing.Add("VBoxContainer/HBoxContainer/RejectButton");
 
@@ -138,12 +145,30 @@ namespace KBTV.UI
 				_previousCaller = currentCaller;
 			}
 			
+			// Update patience display
 			var currentProgress = _controller.Progress;
 			if (currentProgress.ProgressPercent != _previousProgressPercent)
 			{
 				UpdatePatienceDisplay(currentProgress);
 				_previousProgressPercent = currentProgress.ProgressPercent;
 			}
+
+			// Update property row animations (Matrix scramble + typewriter reveal)
+			UpdatePropertyAnimations((float)delta);
+		}
+
+		/// <summary>
+		/// Update all property row animations each frame.
+		/// </summary>
+		private void UpdatePropertyAnimations(float delta)
+		{
+			foreach (var row in _propertyRows)
+			{
+				row.UpdateAnimation(delta);
+			}
+
+			// Update the stat summary with revealed properties
+			_statSummaryPanel?.UpdateDisplay();
 		}
 
 		public void SetCaller(Caller? caller)
@@ -170,102 +195,97 @@ namespace KBTV.UI
 			if (caller != null)
 			{
 				_headerRow.Text = $"Name: {caller.Name}  |  Phone: {caller.PhoneNumber}  |  Location: {caller.Location}  |  Topic: {caller.ClaimedTopic}";
-				BuildPropertyGrid(caller);
+				BuildPropertyRows(caller);
 				UpdateButtons();
 			}
 			else
 			{
 				_headerRow.Text = "Name: --  |  Phone: --  |  Location: --  |  Topic: --";
-				ClearPropertyGrid();
+				ClearPropertyRows();
 			}
 		}
 
 		public void SetDisconnected(string callerName)
 		{
 			_headerRow.Text = $"CALLER DISCONNECTED: {callerName}";
-			ClearPropertyGrid();
+			ClearPropertyRows();
 			UpdateButtons();
 		}
 
-		private void ClearPropertyGrid()
+		/// <summary>
+		/// Clear all property rows from the container.
+		/// </summary>
+		private void ClearPropertyRows()
 		{
-			// Clear all children in the properties grid
-			for (int i = _propertiesGrid.GetChildCount() - 1; i >= 0; i--)
+			_propertyRows.Clear();
+
+			for (int i = _propertiesContainer.GetChildCount() - 1; i >= 0; i--)
 			{
-				var child = _propertiesGrid.GetChild(i);
+				var child = _propertiesContainer.GetChild(i);
 				child.QueueFree();
 			}
+
+			// Clear stat summary reference (it will be recreated when new caller is set)
+			_statSummaryPanel = null;
 		}
 
-		private void BuildPropertyGrid(Caller caller)
+		/// <summary>
+		/// Build property rows for all screenable properties.
+		/// Properties are displayed in the random order determined by the caller.
+		/// </summary>
+		private void BuildPropertyRows(Caller caller)
 		{
-			ClearPropertyGrid();
+			ClearPropertyRows();
 
-			// Build property pairs for 2-column layout
-			var propertyPairs = new List<(string Label, string Value)>
+			if (caller.ScreenableProperties == null) return;
+
+			// Create a row for each screenable property in the caller's random order
+			foreach (var property in caller.ScreenableProperties)
 			{
-				("Quality", caller.PhoneQuality.ToString()),
-				("Belief Level", caller.BeliefLevel.ToString()),
-				("Emotional State", caller.EmotionalState.ToString()),
-				("Evidence", caller.EvidenceLevel.ToString()),
-				("Curse Risk", caller.CurseRisk.ToString()),
-				("Coherence", caller.Coherence.ToString()),
-				("Urgency", caller.Urgency.ToString()),
-				("Legitimacy", caller.Legitimacy.ToString()),
+				var row = CreatePropertyRow(property);
+				_propertiesContainer.AddChild(row);
+				_propertyRows.Add(row);
+			}
+
+			// Add stat summary panel at the bottom
+			EnsureStatSummaryPanel();
+			_statSummaryPanel!.SetProperties(caller.ScreenableProperties);
+		}
+
+		/// <summary>
+		/// Create a single property row for a screenable property.
+		/// </summary>
+		private ScreenablePropertyRow CreatePropertyRow(ScreenableProperty property)
+		{
+			var row = new ScreenablePropertyRow();
+			row.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+
+			// Use Ready signal to ensure _Ready() has run before setting property
+			row.Ready += () => row.SetProperty(property);
+
+			return row;
+		}
+
+		/// <summary>
+		/// Ensure the stat summary panel exists at the bottom of the properties container.
+		/// </summary>
+		private void EnsureStatSummaryPanel()
+		{
+			if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel))
+			{
+				// Move to bottom if it already exists
+				_propertiesContainer.MoveChild(_statSummaryPanel, _propertiesContainer.GetChildCount() - 1);
+				return;
+			}
+
+			// Create new stat summary panel
+			_statSummaryPanel = new StatSummaryPanel
+			{
+				SizeFlagsHorizontal = SizeFlags.ExpandFill,
+				CustomMinimumSize = new Vector2(0, 40)
 			};
 
-			// Create label-value pairs in 2 columns
-			for (int i = 0; i < propertyPairs.Count; i++)
-			{
-				var (labelText, valueText) = propertyPairs[i];
-
-				// Create left column (property name: value)
-				var leftLabel = new Label();
-				leftLabel.Text = $"{labelText}: {valueText}";
-				leftLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-				leftLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-				_propertiesGrid.AddChild(leftLabel);
-
-				// Create right column (next property, or empty if odd count)
-				int nextIndex = i + 1;
-				if (nextIndex < propertyPairs.Count)
-				{
-					var (nextLabel, nextValue) = propertyPairs[nextIndex];
-					var rightLabel = new Label();
-					rightLabel.Text = $"{nextLabel}: {nextValue}";
-					rightLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-					rightLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-					_propertiesGrid.AddChild(rightLabel);
-				}
-				else
-				{
-					// Odd number - add empty spacer
-					var spacer = new Label();
-					spacer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-					_propertiesGrid.AddChild(spacer);
-				}
-
-				i++; // Skip the one we just paired
-			}
-
-			// Add personality as full-width row at the bottom
-			var personalityLabel = new Label();
-			personalityLabel.Text = $"Personality: {caller.Personality}";
-			personalityLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-			personalityLabel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			personalityLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-			_propertiesGrid.AddChild(personalityLabel);
-
-			// Add screening summary if present
-			if (!string.IsNullOrEmpty(caller.ScreeningSummary))
-			{
-				var summaryLabel = new Label();
-				summaryLabel.Text = caller.ScreeningSummary;
-				summaryLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-				summaryLabel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-				summaryLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-				_propertiesGrid.AddChild(summaryLabel);
-			}
+			_propertiesContainer.AddChild(_statSummaryPanel);
 		}
 
 		private void OnApprovePressed()
@@ -354,15 +374,20 @@ namespace KBTV.UI
 					GD.PrintErr($"ScreeningPanel: Failed to find HeaderRow at VBoxContainer/CallerInfoScroll/InfoVBox/HeaderRow: {ex.Message}");
 				}
 			}
-			if (_propertiesGrid == null)
+			if (_propertiesContainer == null)
 			{
 				try
 				{
-					_propertiesGrid = GetNode<GridContainer>("VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesGrid");
+					// Try the new VBoxContainer first, fall back to GridContainer for backwards compatibility
+					_propertiesContainer = GetNodeOrNull<VBoxContainer>("VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesContainer");
+					if (_propertiesContainer == null)
+					{
+						_propertiesContainer = GetNodeOrNull<GridContainer>("VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesGrid");
+					}
 				}
 				catch (Exception ex)
 				{
-					GD.PrintErr($"ScreeningPanel: Failed to find PropertiesGrid at VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesGrid: {ex.Message}");
+					GD.PrintErr($"ScreeningPanel: Failed to find PropertiesContainer: {ex.Message}");
 				}
 			}
 			if (_approveButton == null)

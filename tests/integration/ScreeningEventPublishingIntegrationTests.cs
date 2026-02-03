@@ -99,7 +99,7 @@ namespace KBTV.Tests.Integration
                 caller.Legitimacy, caller.PhoneQuality, caller.EmotionalState,
                 caller.CurseRisk, caller.BeliefLevel, caller.EvidenceLevel,
                 caller.Coherence, caller.Urgency, caller.Personality,
-                null, null, caller.ScreeningSummary, 1f, 0.8f
+                null, null, null, caller.ScreeningSummary, 1f, 0.8f
             );
             _repository.AddCaller(caller);
             _repository.StartScreening(caller);
@@ -128,6 +128,7 @@ namespace KBTV.Tests.Integration
                 CallerCoherence.Coherent,
                 CallerUrgency.Low,
                 "personality",
+                null,
                 null,
                 null,
                 "summary",

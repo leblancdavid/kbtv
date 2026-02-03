@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using KBTV.Data;
 using KBTV.Dialogue;
+using KBTV.Screening;
 
 namespace KBTV.Callers
 {
@@ -13,51 +15,6 @@ namespace KBTV.Callers
     [Serializable]
     public partial class Caller : Resource
     {
-        /// <summary>
-        /// Tracks the revelation progress of a single property.
-        /// </summary>
-        [Serializable]
-        public partial class PropertyRevelation : Resource
-        {
-            [Export] public string PropertyKey;
-            [Export] public RevelationState State;
-            [Export] public float ElapsedTime;
-            [Export] public float RevealDuration;
-            [Export] public int IntValue;
-            [Export] public string StringValue;
-
-            public PropertyRevelation(string propertyName, float revealDuration)
-            {
-                PropertyKey = propertyName;
-                State = RevelationState.Hidden;
-                ElapsedTime = 0f;
-                RevealDuration = revealDuration;
-                IntValue = 0;
-                StringValue = null;
-            }
-
-            public bool IsRevealed => State == RevelationState.Revealed;
-
-            public void Update(float deltaTime)
-            {
-                if (State == RevelationState.Hidden)
-                {
-                    State = RevelationState.Revealing;
-                }
-
-                if (State == RevelationState.Revealing)
-                {
-                    ElapsedTime += deltaTime;
-                    if (ElapsedTime >= RevealDuration)
-                    {
-                        State = RevelationState.Revealed;
-                    }
-                }
-            }
-
-            public float Progress => Mathf.Clamp(ElapsedTime / RevealDuration, 0f, 1f);
-        }
-
         // Identity
         private string _name;
         private string _phoneNumber;
@@ -78,6 +35,7 @@ namespace KBTV.Callers
         private CallerCoherence _coherence;
         private CallerUrgency _urgency;
         private string _personality;
+        private StatModification? _personalityEffect;
         private string _arcId;
         private ConversationArc? _arc;
         private ConversationArc? _claimedArc;
@@ -86,6 +44,10 @@ namespace KBTV.Callers
         private CallerState _state;
         private float _patience;
         private float _quality;
+
+        // Reveal order tracking (random sequence for property revelation)
+        private int[] _revealOrder;
+        private int _currentRevealIndex;
 
         // Properties
         public string Name => _name;
@@ -103,6 +65,7 @@ namespace KBTV.Callers
         public CallerCoherence Coherence => _coherence;
         public CallerUrgency Urgency => _urgency;
         public string Personality => _personality;
+        public StatModification? PersonalityEffect => _personalityEffect;
         public string ArcId => _arcId;
         public ConversationArc? Arc => _arc;
         public ConversationArc? ClaimedArc => _claimedArc;
@@ -141,9 +104,10 @@ namespace KBTV.Callers
         public float WaitTime { get; internal set; }
 
         /// <summary>
-        /// Properties being revealed during screening.
+        /// Properties that can be revealed during screening.
+        /// Each property has a value, revelation state, and stat effects preview.
         /// </summary>
-        public PropertyRevelation[] Revelations { get; private set; }
+        public ScreenableProperty[] ScreenableProperties { get; private set; }
 
         /// <summary>
         /// Whether the caller is off-topic (actual topic differs from show topic).
@@ -164,7 +128,8 @@ namespace KBTV.Callers
             CallerEmotionalState emotionalState, CallerCurseRisk curseRisk,
             CallerBeliefLevel beliefLevel, CallerEvidenceLevel evidenceLevel,
             CallerCoherence coherence, CallerUrgency urgency,
-            string personality, ConversationArc? claimedArc, ConversationArc? actualArc,
+            string personality, StatModification? personalityEffect,
+            ConversationArc? claimedArc, ConversationArc? actualArc,
             string screeningSummary, float patience, float quality)
         {
             Id = Guid.NewGuid().ToString();
@@ -183,6 +148,7 @@ namespace KBTV.Callers
             _coherence = coherence;
             _urgency = urgency;
             _personality = personality;
+            _personalityEffect = personalityEffect;
             _claimedArc = claimedArc;
             _actualArc = actualArc;
             _arc = actualArc;  // Default to actual arc
@@ -194,89 +160,125 @@ namespace KBTV.Callers
             _state = CallerState.Incoming;
             WaitTime = 0f;
             IsOffTopic = false;
-            InitializeRevelations();
+            InitializeScreenableProperties();
         }
 
         /// <summary>
-        /// Initialize revelation tracking for all screening properties.
-        /// Properties are assigned to tiers for weighted random ordering.
+        /// Initialize screenable properties for all caller attributes.
+        /// Properties are in a fixed display order, but reveal in random sequence.
         /// </summary>
-        private void InitializeRevelations()
+        private void InitializeScreenableProperties()
         {
-            Revelations = new PropertyRevelation[]
+            var properties = new List<ScreenableProperty>
             {
-                new PropertyRevelation("AudioQuality", 2f),
-                new PropertyRevelation("EmotionalState", 3f),
-                new PropertyRevelation("CurseRisk", 3f),
-                new PropertyRevelation("BeliefLevel", 4f),
-                new PropertyRevelation("Evidence", 4f),
-                new PropertyRevelation("Coherence", 5f),
-                new PropertyRevelation("Urgency", 4f),
-                new PropertyRevelation("Summary", 4f),
-                new PropertyRevelation("Topic", 5f),
-                new PropertyRevelation("Legitimacy", 5f),
-                new PropertyRevelation("Personality", 4f)
+                // Priority properties (shown first in display order)
+                CreateScreenableProperty("Topic", "Topic", _claimedTopic, 5f),
+                CreateScreenableProperty("Summary", "Summary", _screeningSummary, 4f),
+                CreateScreenableProperty("AudioQuality", "Audio Quality", _phoneQuality, 2f),
+                CreateScreenableProperty("Legitimacy", "Legitimacy", _legitimacy, 5f),
+                CreateScreenableProperty("Personality", "Personality", _personality, 4f),
+                // Remaining properties
+                CreateScreenableProperty("EmotionalState", "Emotional State", _emotionalState, 3f),
+                CreateScreenableProperty("CurseRisk", "Curse Risk", _curseRisk, 3f),
+                CreateScreenableProperty("BeliefLevel", "Belief Level", _beliefLevel, 4f),
+                CreateScreenableProperty("Evidence", "Evidence", _evidenceLevel, 4f),
+                CreateScreenableProperty("Coherence", "Coherence", _coherence, 5f),
+                CreateScreenableProperty("Urgency", "Urgency", _urgency, 4f)
             };
 
-            ShuffleRevelations();
+            // No shuffle - properties stay in fixed display order
+            ScreenableProperties = properties.ToArray();
+            
+            // Initialize random reveal order
+            InitializeRevealOrder();
         }
 
         /// <summary>
-        /// Shuffle revelations within weight tiers for random but weighted ordering.
+        /// Create a screenable property with appropriate display value and stat effects.
+        /// For Personality, uses the pre-computed effect; for others, calculates from CallerStatEffects.
         /// </summary>
-        private void ShuffleRevelations()
+        private ScreenableProperty CreateScreenableProperty(string key, string displayName, object value, float revealDuration)
         {
-            var tier1 = new List<PropertyRevelation>();
-            var tier2 = new List<PropertyRevelation>();
-            var tier3 = new List<PropertyRevelation>();
-
-            foreach (var rev in Revelations)
+            var displayValue = GetDisplayValue(key, value);
+            
+            // For Personality, use the pre-computed effect; for others, calculate from CallerStatEffects
+            List<StatModification> statEffects;
+            if (key == "Personality" && _personalityEffect != null)
             {
-                switch (rev.PropertyKey)
-                {
-                    case "AudioQuality":
-                    case "EmotionalState":
-                    case "CurseRisk":
-                        tier1.Add(rev);
-                        break;
-                    case "BeliefLevel":
-                    case "Evidence":
-                    case "Coherence":
-                    case "Urgency":
-                        tier2.Add(rev);
-                        break;
-                    case "Summary":
-                    case "Topic":
-                    case "Legitimacy":
-                    case "Personality":
-                        tier3.Add(rev);
-                        break;
-                }
+                statEffects = new List<StatModification> { _personalityEffect };
+            }
+            else
+            {
+                statEffects = CallerStatEffects.GetStatEffects(key, value);
             }
 
-            var rng = new Random();
-            ShuffleList(tier1, rng);
-            ShuffleList(tier2, rng);
-            ShuffleList(tier3, rng);
-
-            var shuffled = new List<PropertyRevelation>();
-            shuffled.AddRange(tier1);
-            shuffled.AddRange(tier2);
-            shuffled.AddRange(tier3);
-            Revelations = shuffled.ToArray();
+            return new ScreenableProperty(key, displayName, value, displayValue, revealDuration, statEffects);
         }
 
-        private void ShuffleList<T>(List<T> list, Random rng)
+        /// <summary>
+        /// Get a human-readable display value for a property.
+        /// </summary>
+        private string GetDisplayValue(string key, object value)
         {
-            int n = list.Count;
-            while (n > 1)
+            if (value == null)
             {
-                n--;
-                int k = rng.Next(n + 1);
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
+                return "Unknown";
             }
+
+            // For enums, convert to readable format
+            if (value is Enum enumValue)
+            {
+                return FormatEnumValue(enumValue.ToString());
+            }
+
+            // For strings, return as-is
+            return value.ToString();
+        }
+
+        /// <summary>
+        /// Format an enum value for display (e.g., "VeryHigh" -> "Very High").
+        /// </summary>
+        private string FormatEnumValue(string enumValue)
+        {
+            // Insert spaces before capital letters (except the first)
+            var result = new System.Text.StringBuilder();
+            foreach (char c in enumValue)
+            {
+                if (char.IsUpper(c) && result.Length > 0)
+                {
+                    result.Append(' ');
+                }
+                result.Append(c);
+            }
+            return result.ToString();
+        }
+
+        /// <summary>
+        /// Initialize the random reveal order.
+        /// Creates a shuffled array of indices determining which property reveals next.
+        /// </summary>
+        private void InitializeRevealOrder()
+        {
+            int count = ScreenableProperties.Length;
+            _revealOrder = new int[count];
+            
+            // Initialize with sequential indices
+            for (int i = 0; i < count; i++)
+            {
+                _revealOrder[i] = i;
+            }
+            
+            // Fisher-Yates shuffle
+            var rng = new Random();
+            for (int i = count - 1; i > 0; i--)
+            {
+                int j = rng.Next(i + 1);
+                int temp = _revealOrder[i];
+                _revealOrder[i] = _revealOrder[j];
+                _revealOrder[j] = temp;
+            }
+            
+            _currentRevealIndex = 0;
         }
 
         /// <summary>
@@ -298,14 +300,14 @@ namespace KBTV.Callers
         }
 
         /// <summary>
-        /// Get a revelation by property name.
+        /// Get a screenable property by property key.
         /// </summary>
-        public PropertyRevelation GetRevelation(string propertyName)
+        public ScreenableProperty GetScreenableProperty(string propertyKey)
         {
-            foreach (var rev in Revelations)
+            foreach (var prop in ScreenableProperties)
             {
-                if (rev.PropertyKey == propertyName)
-                    return rev;
+                if (prop.PropertyKey == propertyKey)
+                    return prop;
             }
             return null;
         }
@@ -313,41 +315,81 @@ namespace KBTV.Callers
         /// <summary>
         /// Get all currently revealed properties.
         /// </summary>
-        public List<PropertyRevelation> GetRevealedProperties()
+        public List<ScreenableProperty> GetRevealedProperties()
         {
-            var revealed = new List<PropertyRevelation>();
-            foreach (var rev in Revelations)
+            var revealed = new List<ScreenableProperty>();
+            foreach (var prop in ScreenableProperties)
             {
-                if (rev.IsRevealed)
-                    revealed.Add(rev);
+                if (prop.IsRevealed)
+                    revealed.Add(prop);
             }
             return revealed;
         }
 
         /// <summary>
-        /// Get the next property that will reveal (the first hidden one).
+        /// Get the screening progress as a percentage (0.0 to 1.0).
+        /// Returns the ratio of revealed properties to total properties.
         /// </summary>
-        public PropertyRevelation GetNextRevelation()
+        public float GetScreeningProgress()
         {
-            foreach (var rev in Revelations)
+            if (ScreenableProperties == null || ScreenableProperties.Length == 0)
+                return 0f;
+            
+            int revealed = 0;
+            foreach (var prop in ScreenableProperties)
             {
-                if (!rev.IsRevealed)
-                    return rev;
+                if (prop.IsRevealed)
+                    revealed++;
+            }
+            return (float)revealed / ScreenableProperties.Length;
+        }
+
+        /// <summary>
+        /// Get the next property that will be revealed (the first hidden one in order).
+        /// </summary>
+        public ScreenableProperty GetNextPropertyToReveal()
+        {
+            foreach (var prop in ScreenableProperties)
+            {
+                if (!prop.IsRevealed)
+                    return prop;
             }
             return null;
         }
 
         /// <summary>
-        /// Reset all revelations to hidden state.
+        /// Reset all screenable properties to hidden state.
         /// Used when starting a new screening session.
         /// </summary>
-        public void ResetRevelations()
+        public void ResetScreenableProperties()
         {
-            foreach (var rev in Revelations)
+            foreach (var prop in ScreenableProperties)
             {
-                rev.State = RevelationState.Hidden;
-                rev.ElapsedTime = 0f;
+                prop.Reset();
             }
+            
+            // Re-shuffle reveal order for next screening
+            InitializeRevealOrder();
+        }
+
+        /// <summary>
+        /// Get the aggregated stat effects from all revealed properties.
+        /// Effects for the same stat are added together.
+        /// </summary>
+        /// <returns>Dictionary of stat type to total effect amount.</returns>
+        public Dictionary<StatType, float> GetRevealedStatEffects()
+        {
+            return CallerStatEffects.AggregateStatEffects(ScreenableProperties, revealedOnly: true);
+        }
+
+        /// <summary>
+        /// Get the total stat effects from ALL properties (revealed and hidden).
+        /// This represents the full impact when the caller goes on-air.
+        /// </summary>
+        /// <returns>Dictionary of stat type to total effect amount.</returns>
+        public Dictionary<StatType, float> GetTotalStatEffects()
+        {
+            return CallerStatEffects.AggregateStatEffects(ScreenableProperties, revealedOnly: false);
         }
 
         /// <summary>
@@ -390,7 +432,7 @@ namespace KBTV.Callers
                 patienceCheck = ScreeningPatience;
                 ScreeningPatience -= deltaTime * 0.5f;
 
-                UpdateRevelations(deltaTime);
+                UpdateScreenableProperties(deltaTime);
 
                 if (ScreeningPatience <= 0f)
                 {
@@ -413,13 +455,26 @@ namespace KBTV.Callers
         }
 
         /// <summary>
-        /// Update all property revelations.
+        /// Update screenable property revelations.
+        /// Only updates one property at a time based on random reveal order.
         /// </summary>
-        public void UpdateRevelations(float deltaTime)
+        public void UpdateScreenableProperties(float deltaTime)
         {
-            foreach (var rev in Revelations)
+            // All properties revealed
+            if (_revealOrder == null || _currentRevealIndex >= _revealOrder.Length)
+                return;
+            
+            // Get the property at current reveal position
+            int propertyIndex = _revealOrder[_currentRevealIndex];
+            var currentProperty = ScreenableProperties[propertyIndex];
+            
+            // Update only this property
+            currentProperty.Update(deltaTime);
+            
+            // If it just finished revealing, move to next in sequence
+            if (currentProperty.IsRevealed)
             {
-                rev.Update(deltaTime);
+                _currentRevealIndex++;
             }
         }
 
@@ -474,5 +529,43 @@ namespace KBTV.Callers
 
             return impact;
         }
+
+        #region Backwards Compatibility
+
+        // These properties and methods provide backwards compatibility
+        // with code that uses the old PropertyRevelation naming.
+        // They delegate to the new ScreenableProperty system.
+
+        /// <summary>
+        /// Backwards compatibility: alias for ScreenableProperties.
+        /// </summary>
+        [Obsolete("Use ScreenableProperties instead")]
+        public ScreenableProperty[] Revelations => ScreenableProperties;
+
+        /// <summary>
+        /// Backwards compatibility: alias for GetScreenableProperty.
+        /// </summary>
+        [Obsolete("Use GetScreenableProperty instead")]
+        public ScreenableProperty GetRevelation(string propertyName) => GetScreenableProperty(propertyName);
+
+        /// <summary>
+        /// Backwards compatibility: alias for GetNextPropertyToReveal.
+        /// </summary>
+        [Obsolete("Use GetNextPropertyToReveal instead")]
+        public ScreenableProperty GetNextRevelation() => GetNextPropertyToReveal();
+
+        /// <summary>
+        /// Backwards compatibility: alias for ResetScreenableProperties.
+        /// </summary>
+        [Obsolete("Use ResetScreenableProperties instead")]
+        public void ResetRevelations() => ResetScreenableProperties();
+
+        /// <summary>
+        /// Backwards compatibility: alias for UpdateScreenableProperties.
+        /// </summary>
+        [Obsolete("Use UpdateScreenableProperties instead")]
+        public void UpdateRevelations(float deltaTime) => UpdateScreenableProperties(deltaTime);
+
+        #endregion
     }
 }

@@ -29,7 +29,7 @@ namespace KBTV.Tests.Unit.Data
             AssertThat(_vernStats.Discernment != null);
             AssertThat(_vernStats.Focus != null);
             AssertThat(_vernStats.Patience != null);
-            AssertThat(_vernStats.Skepticism != null);
+            AssertThat(_vernStats.Belief != null);
         }
 
         [Test]

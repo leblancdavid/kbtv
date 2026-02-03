@@ -39,7 +39,7 @@ namespace KBTV.Callers
         private const int MAX_ON_HOLD = 10;
 
         public IReadOnlyList<Caller> IncomingCallers => 
-            _callers.Values.Where(c => c.State == CallerState.Incoming).ToList();
+            _callers.Values.Where(c => c.State == CallerState.Incoming || c.State == CallerState.Screening).ToList();
         
         public IReadOnlyList<Caller> OnHoldCallers => 
             _callers.Values.Where(c => c.State == CallerState.OnHold).ToList();
@@ -93,6 +93,8 @@ namespace KBTV.Callers
 
             NotifyObservers(o => o.OnCallerAdded(caller));
 
+            AutoStartNextScreening();
+
             return Result<Caller>.Ok(caller);
         }
         
@@ -119,6 +121,9 @@ namespace KBTV.Callers
                     prev.SetState(CallerState.Incoming);
                 }
             }
+
+            // Set caller state to Screening BEFORE starting the controller
+            caller.SetState(CallerState.Screening);
 
             var screeningController = _screeningController;
             screeningController?.Start(caller);
@@ -176,6 +181,8 @@ namespace KBTV.Callers
 
             _currentScreeningId = null;  // Clear screening state after approval
 
+            AutoStartNextScreening();
+
             return Result<Caller>.Ok(caller);
         }
         
@@ -197,6 +204,8 @@ namespace KBTV.Callers
             _currentScreeningId = null;
 
             NotifyObservers(o => o.OnScreeningEnded(caller, approved: false));
+
+            AutoStartNextScreening();
 
             return Result<Caller>.Ok(caller);
         }
@@ -355,6 +364,18 @@ namespace KBTV.Callers
             foreach (var observer in _observers.ToList())
             {
                 action(observer);
+            }
+        }
+
+        private void AutoStartNextScreening()
+        {
+            if (!IsScreening)
+            {
+                var nextCaller = _callers.Values.FirstOrDefault(c => c.State == CallerState.Incoming);
+                if (nextCaller != null)
+                {
+                    StartScreening(nextCaller);
+                }
             }
         }
 

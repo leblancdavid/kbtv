@@ -70,10 +70,8 @@ namespace KBTV.UI
 
                         panel.AddChild(_screeningPanel);
 
-                        _screeningPanel.ConnectButtons(
-                            Callable.From(() => _callerActions.OnApproveCaller()),
-                            Callable.From(() => _callerActions.OnRejectCaller())
-                        );
+                        // Note: ScreeningPanel connects its own button signals in _Ready()
+                        // Do NOT call ConnectButtons() here - it would create duplicate handlers
 
                         var currentScreening = _repository.CurrentScreening;
                         _screeningPanel.SetCaller(currentScreening);

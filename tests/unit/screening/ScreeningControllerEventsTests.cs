@@ -4,7 +4,6 @@ using Godot;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Screening;
-using System.Collections.Generic;
 
 namespace KBTV.Tests.Unit.Screening
 {
@@ -153,7 +152,7 @@ namespace KBTV.Tests.Unit.Screening
             var progress = _controller.Progress;
 
             AssertThat(progress.PropertiesRevealed >= 0);
-            AssertThat(progress.TotalProperties == caller.Revelations.Length);
+            AssertThat(progress.TotalProperties == caller.ScreenableProperties.Length);
             AssertThat(progress.MaxPatience == 30f);
         }
 
@@ -175,6 +174,7 @@ namespace KBTV.Tests.Unit.Screening
                 CallerCoherence.Coherent,
                 CallerUrgency.Low,
                 "personality",
+                null,
                 null,
                 null,
                 "summary",

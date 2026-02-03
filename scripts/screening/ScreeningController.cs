@@ -64,14 +64,16 @@ namespace KBTV.Screening
                 return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
             }
 
+            // Save caller reference and clear session BEFORE calling repository
+            // This allows AutoStartNextScreening() to create a new session without it being overwritten
+            var caller = _session.Caller;
+            _session = null;
+            SetPhase(ScreeningPhase.Completed);
+            GD.Print($"ScreeningController: Approved {caller.Name}");
+
             var result = repository.ApproveScreening();
             if (result.IsSuccess)
             {
-                SetPhase(ScreeningPhase.Completed);
-                var caller = _session.Caller;
-
-                GD.Print($"ScreeningController: Approved {caller.Name}");
-                _session = null;
                 return Result<Caller>.Ok(caller);
             }
 
@@ -99,14 +101,16 @@ namespace KBTV.Screening
                 return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
             }
 
+            // Save caller reference and clear session BEFORE calling repository
+            // This allows AutoStartNextScreening() to create a new session without it being overwritten
+            var caller = _session.Caller;
+            _session = null;
+            SetPhase(ScreeningPhase.Completed);
+            GD.Print($"ScreeningController: Rejected {caller.Name}");
+
             var result = repository.RejectScreening();
             if (result.IsSuccess)
             {
-                SetPhase(ScreeningPhase.Completed);
-                var caller = _session.Caller;
-
-                GD.Print($"ScreeningController: Rejected {caller.Name}");
-                _session = null;
                 return Result<Caller>.Ok(caller);
             }
 

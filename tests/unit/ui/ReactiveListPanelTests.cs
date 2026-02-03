@@ -110,6 +110,7 @@ namespace KBTV.Tests.Unit.UI
                 coherence: CallerCoherence.Coherent,
                 urgency: CallerUrgency.Medium,
                 personality: "Test",
+                personalityEffect: null,
                 claimedArc: null,
                 actualArc: null,
                 screeningSummary: "Test",

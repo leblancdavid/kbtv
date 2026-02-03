@@ -68,6 +68,28 @@ namespace KBTV.UI.Themes
             public static readonly Color Blue = new(0.2f, 0.4f, 0.8f);
         }
 
+        // Stat effect indicator colors (for screening property reveals)
+        public static class StatEffect
+        {
+            public static readonly Color Positive = new(0.2f, 0.9f, 0.2f);  // Green for buffs
+            public static readonly Color Negative = new(0.9f, 0.2f, 0.2f);  // Red for debuffs
+            public static readonly Color Neutral = new(0.7f, 0.7f, 0.7f);   // Gray for no effect
+        }
+
+        // Placeholder text colors (for unrevealed/hidden properties)
+        public static class Placeholder
+        {
+            public static readonly Color Text = new(0.4f, 0.4f, 0.4f);       // Muted gray for hidden
+            public static readonly Color Revealing = new(0.6f, 0.6f, 0.6f);  // Lighter when revealing
+        }
+
+        // Property display colors (for screening property rows)
+        public static class Property
+        {
+            public static readonly Color Name = new(0f, 0.7f, 1f);           // Cyan for property names
+            public static readonly Color Value = TEXT_PRIMARY;                // White for values
+        }
+
         // Legend colors for reference
         public static Color GetQueueStateColor(CallerState state)
         {

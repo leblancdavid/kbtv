@@ -37,7 +37,8 @@ namespace KBTV.Core;
     IProvide<IScreeningController>,
     IProvide<IGameStateManager>,
     IProvide<ITimeManager>,
-    IProvide<IBroadcastAudioService>
+    IProvide<IBroadcastAudioService>,
+    IProvide<IUIAudioService>
 {
     public override void _Notification(int what) => this.Notify(what);
 
@@ -60,6 +61,7 @@ namespace KBTV.Core;
     public TranscriptRepository TranscriptRepository { get; private set; } = null!;
     public IScreeningController ScreeningController { get; private set; } = null!;
     public IBroadcastAudioService BroadcastAudioService { get; private set; } = null!;
+    public IUIAudioService UIAudioService { get; private set; } = null!;
 
     // Provider interface implementations
     GameStateManager IProvide<GameStateManager>.Value() => GameStateManager;
@@ -83,6 +85,7 @@ namespace KBTV.Core;
     IGameStateManager IProvide<IGameStateManager>.Value() => GameStateManager;
     ITimeManager IProvide<ITimeManager>.Value() => TimeManager;
     IBroadcastAudioService IProvide<IBroadcastAudioService>.Value() => BroadcastAudioService;
+    IUIAudioService IProvide<IUIAudioService>.Value() => UIAudioService;
 
     /// <summary>
     /// Initialize all service providers and register them with AutoInject.
@@ -150,6 +153,9 @@ namespace KBTV.Core;
         // Create broadcast audio service
         var broadcastAudioService = new BroadcastAudioService();
 
+        // Create UI audio service
+        var uiAudioService = new UIAudioService();
+
         // Phase 2: Set all provider properties (now dependency injection will work)
         GD.Print("ServiceProviderRoot: Phase 2 - Setting provider properties...");
 
@@ -171,6 +177,7 @@ namespace KBTV.Core;
         GlobalTransitionManager = globalTransitionManager;
         AdManager = adManager;
         BroadcastAudioService = broadcastAudioService;
+        UIAudioService = uiAudioService;
 
         // Make all services available BEFORE adding children to the scene tree
         GD.Print("ServiceProviderRoot: Making services available for dependency injection...");
@@ -194,6 +201,7 @@ namespace KBTV.Core;
         AddChild(globalTransitionManager);
         AddChild(adManager);
         AddChild(broadcastAudioService);
+        AddChild(uiAudioService);
 
         GD.Print("ServiceProviderRoot: All providers created and added to scene tree");
     }

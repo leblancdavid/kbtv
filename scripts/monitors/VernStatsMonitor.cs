@@ -16,7 +16,7 @@ namespace KBTV.Monitors
     /// - Physical: Energy and satiety decay
     /// - Cognitive: Alertness, focus, and patience decay
     /// - Spirit: Not decayed directly (fluctuates based on other stats)
-    /// - Skepticism: Not decayed (long-term persistent stat)
+    /// - Belief: Not decayed (long-term persistent stat)
     ///
     /// Side Effects:
     /// - VernStats emits StatsChanged, VibeChanged, MoodTypeChanged when stats change
