@@ -17,19 +17,19 @@ The screening system transforms the caller approval process from a binary approv
 
 Each caller has 11 properties revealed during screening:
 
-| Tier | Property | Values | Reveal Time | Scramble Effect |
-|------|----------|--------|-------------|-----------------|
-| 1 | Audio Quality | Excellent/Good/Average/Poor/Terrible | 2s | Static/clarity indicator |
-| 1 | Emotional State | Calm/Anxious/Excited/Scared/Angry | 3s | Emoji cycling |
-| 1 | Curse Risk | Low/Medium/High | 3s | Text cycling (LOW→MED→HIGH) |
-| 2 | Belief Level | Curious/Partial/Committed/Certain/Zealot | 4s | Text cycling |
-| 2 | Evidence | None/Low/Medium/High/Irrefutable | 4s | Tier progression |
-| 2 | Coherence | Coherent/Questionable/Incoherent | 5s | Text cycling |
-| 2 | Urgency | Low/Medium/High/Critical | 4s | Tier progression |
-| 3 | Summary | (arcNotes) | 4s | Line-by-line reveal |
-| 3 | Topic | [Topic Name] | 5s | Topic name reveal |
-| 3 | Legitimacy | Credible/Questionable/Fake | 5s | CREDIBLE→QUESTIONABLE→FAKE |
-| 3 | Personality | (from arc) | 4s | Text reveal |
+| Tier | Property | Values | Base Time | Scramble Effect |
+|------|----------|--------|-----------|-----------------|
+| 1 | Audio Quality | Excellent/Good/Average/Poor/Terrible | 3s | Static/clarity indicator |
+| 1 | Emotional State | Calm/Anxious/Excited/Scared/Angry | 4s | Emoji cycling |
+| 1 | Curse Risk | Low/Medium/High | 4s | Text cycling (LOW→MED→HIGH) |
+| 2 | Summary | (arcNotes) | 5s | Line-by-line reveal |
+| 2 | Personality | (from arc) | 5s | Text reveal |
+| 2 | Belief Level | Curious/Partial/Committed/Certain/Zealot | 6s | Text cycling |
+| 2 | Evidence | None/Low/Medium/High/Irrefutable | 6s | Tier progression |
+| 2 | Urgency | Low/Medium/High/Critical | 5s | Tier progression |
+| 3 | Topic | [Topic Name] | 6s | Topic name reveal |
+| 3 | Legitimacy | Credible/Questionable/Fake | 8s | CREDIBLE→QUESTIONABLE→FAKE |
+| 3 | Coherence | Coherent/Questionable/Incoherent | 8s | Text cycling |
 
 ### Property Descriptions
 
@@ -59,11 +59,46 @@ Each caller has 11 properties revealed during screening:
 
 Properties are assigned to weight tiers that determine their position in the reveal order:
 
-- **Tier 1 (Low Weight)**: Revealed early - Audio Quality, Emotional State, Curse Risk
-- **Tier 2 (Medium Weight)**: Revealed mid - Belief Level, Evidence, Coherence, Urgency
-- **Tier 3 (High Weight)**: Revealed late - Summary, Topic, Legitimacy, Personality
+- **Tier 1 (Easy - 11s total)**: Revealed early - Audio Quality (3s), Emotional State (4s), Curse Risk (4s)
+- **Tier 2 (Medium - 27s total)**: Revealed mid - Summary (5s), Personality (5s), Belief Level (6s), Evidence (6s), Urgency (5s)
+- **Tier 3 (Hard - 22s total)**: Revealed late - Topic (6s), Legitimacy (8s), Coherence (8s)
+
+**Total baseline screening time: 60 seconds**
 
 **Within each tier**, properties appear in random order. This creates variation between callers while maintaining the weighted tendency for important information to appear later.
+
+## Screening Speed Configuration
+
+Screening timing is centralized in `ScreeningConfig.cs` for easy tuning and equipment integration.
+
+### Speed Multiplier
+
+The `SpeedMultiplier` affects all property reveal times:
+- **1.0** = Baseline (60s total)
+- **>1.0** = Faster (e.g., 1.5 = 40s total)
+- **<1.0** = Slower (e.g., 0.5 = 120s total)
+
+Equipment upgrades increase the multiplier to speed up screening.
+
+### Multiplier Examples
+
+| Scenario | Multiplier | Total Time | Notes |
+|----------|------------|------------|-------|
+| Baseline (no upgrades) | 1.0 | 60s | Default starting point |
+| Basic Phone Upgrade | 1.25 | 48s | 25% faster |
+| Advanced Equipment | 1.5 | 40s | 50% faster |
+| Max Upgrades | 2.0 | 30s | Double speed |
+| Debuff (e.g., tired Vern) | 0.75 | 80s | 25% slower |
+
+### Usage
+
+```csharp
+// Get effective reveal duration for a property
+float duration = ScreeningConfig.GetRevealDuration("Legitimacy");
+
+// Modify speed globally (e.g., from equipment system)
+ScreeningConfig.SpeedMultiplier = 1.5f; // 50% faster
+```
 
 ## Scramble Effect
 
@@ -216,7 +251,7 @@ The arc ID is stored on the caller for later conversation lookup.
 ### Future Extensions
 
 **Equipment Modifiers**:
-- `ScreeningSpeedMultiplier`: Reveal properties faster
+- `ScreeningConfig.SpeedMultiplier`: Reveal properties faster (already implemented)
 - `PropertiesPerCycle`: Reveal multiple properties simultaneously
 - `PatienceMultiplier`: Slower patience drain during screening
 

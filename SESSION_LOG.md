@@ -1,32 +1,74 @@
-## Current Session - Caller Stat Effects Rebalance ✅
+## Current Session - Screening Speed Configuration ✅
 
 **Branch**: `feature/vern-stats-display`
 
-**Task**: Rebalance how caller properties affect Vern's three core stats (Physical, Emotional, Mental) with:
-- Balanced risk/reward for all properties
-- Full Physical stat involvement (previously underutilized)
-- Effect range of -5 to +5 for extreme values
-- Per-personality unique stat effects (36 personalities, each with deterministic effects)
+**Task**: Slow down the screening process from ~43 seconds to 60 seconds baseline, with a centralized configuration system for equipment upgrades.
 
 ### Design Decisions
 
-1. **Most properties have both positive and negative extremes** - Low curse risk is good (+4), high is bad (-8)
-2. **Neutral/baseline values have no effect** - Medium, Partial, Credible, Average = 0 impact
-3. **Trade-offs exist for some values** - High Urgency is exciting (+3 Em) but tiring (-2 Ph)
-4. **Each of 36 personalities has unique stat combinations** - No more random effects
+1. **60 second baseline** - Total time to reveal all 11 properties at default speed
+2. **Tiered durations** - Harder-to-assess properties (Legitimacy, Coherence) take longer
+3. **Centralized config** - `ScreeningConfig.cs` holds all timing values for easy tuning
+4. **Speed multiplier** - Equipment/items can modify `SpeedMultiplier` (>1.0 = faster, <1.0 = slower)
 
 ### Files Created
 
-**1. `scripts/screening/PersonalityStatEffects.cs`**
-- Static class mapping 36 personality names to unique `List<StatModification>`
-- Positive personalities (12): +5 to +6 total effect (e.g., "Matter-of-fact reporter", "Academic researcher")
-- Negative personalities (12): -6 to -8 total effect (e.g., "Attention seeker", "Chronic interrupter")
-- Neutral personalities (12): -2 to +4 total effect with trade-offs (e.g., "Nervous but sincere", "Overly enthusiastic")
+**1. `scripts/screening/ScreeningConfig.cs`**
+- Static configuration class for screening timing
+- `SpeedMultiplier` property (default 1.0) for equipment modifiers
+- `BaseDurations` nested class with per-property base times
+- `GetRevealDuration(propertyKey)` method returns effective duration
 
-**2. `tests/unit/screening/PersonalityStatEffectsTests.cs`**
-- Tests for positive, negative, and neutral personality effects
-- Edge case tests (null, empty, unknown personalities)
-- Validation tests ensuring effect totals are within expected ranges
+### Files Modified
+
+**1. `scripts/callers/Caller.cs`**
+- `InitializeScreenableProperties()` now uses `ScreeningConfig.GetRevealDuration()` 
+- `CreateScreenableProperty()` signature changed - no longer takes duration parameter
+- Removed hardcoded duration values
+
+**2. `docs/ui/SCREENING_DESIGN.md`**
+- Updated property table with new base times
+- Added "Screening Speed Configuration" section documenting the multiplier system
+- Updated tier descriptions with actual durations
+
+### New Duration Values
+
+| Tier | Property | Old Duration | New Duration |
+|------|----------|--------------|--------------|
+| 1 (Easy) | Audio Quality | 2s | 3s |
+| 1 (Easy) | Emotional State | 3s | 4s |
+| 1 (Easy) | Curse Risk | 3s | 4s |
+| 2 (Medium) | Summary | 4s | 5s |
+| 2 (Medium) | Personality | 4s | 5s |
+| 2 (Medium) | Belief Level | 4s | 6s |
+| 2 (Medium) | Evidence | 4s | 6s |
+| 2 (Medium) | Urgency | 4s | 5s |
+| 3 (Hard) | Topic | 5s | 6s |
+| 3 (Hard) | Legitimacy | 5s | 8s |
+| 3 (Hard) | Coherence | 5s | 8s |
+| | **TOTAL** | **43s** | **60s** |
+
+### Speed Multiplier Examples
+
+| Scenario | Multiplier | Total Time |
+|----------|------------|------------|
+| Baseline (no upgrades) | 1.0 | 60s |
+| Basic Phone Upgrade | 1.25 | 48s |
+| Advanced Equipment | 1.5 | 40s |
+| Max Upgrades | 2.0 | 30s |
+| Debuff (tired Vern) | 0.75 | 80s |
+
+### Result
+✅ **Build succeeds** with 0 errors (5 pre-existing warnings)
+✅ **60 second baseline** for complete property revelation
+✅ **Tiered difficulty** - harder properties take longer
+✅ **Centralized config** ready for equipment integration
+
+**Status**: Ready for commit.
+
+---
+
+## Previous Session - Caller Stat Effects Rebalance ✅
 
 ### Files Modified
 

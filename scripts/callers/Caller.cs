@@ -172,18 +172,19 @@ namespace KBTV.Callers
             var properties = new List<ScreenableProperty>
             {
                 // Priority properties (shown first in display order)
-                CreateScreenableProperty("Topic", "Topic", _claimedTopic, 5f),
-                CreateScreenableProperty("Summary", "Summary", _screeningSummary, 4f),
-                CreateScreenableProperty("AudioQuality", "Audio Quality", _phoneQuality, 2f),
-                CreateScreenableProperty("Legitimacy", "Legitimacy", _legitimacy, 5f),
-                CreateScreenableProperty("Personality", "Personality", _personality, 4f),
+                // Reveal durations come from ScreeningConfig (60s baseline total)
+                CreateScreenableProperty("Topic", "Topic", _claimedTopic),
+                CreateScreenableProperty("Summary", "Summary", _screeningSummary),
+                CreateScreenableProperty("AudioQuality", "Audio Quality", _phoneQuality),
+                CreateScreenableProperty("Legitimacy", "Legitimacy", _legitimacy),
+                CreateScreenableProperty("Personality", "Personality", _personality),
                 // Remaining properties
-                CreateScreenableProperty("EmotionalState", "Emotional State", _emotionalState, 3f),
-                CreateScreenableProperty("CurseRisk", "Curse Risk", _curseRisk, 3f),
-                CreateScreenableProperty("BeliefLevel", "Belief Level", _beliefLevel, 4f),
-                CreateScreenableProperty("Evidence", "Evidence", _evidenceLevel, 4f),
-                CreateScreenableProperty("Coherence", "Coherence", _coherence, 5f),
-                CreateScreenableProperty("Urgency", "Urgency", _urgency, 4f)
+                CreateScreenableProperty("EmotionalState", "Emotional State", _emotionalState),
+                CreateScreenableProperty("CurseRisk", "Curse Risk", _curseRisk),
+                CreateScreenableProperty("BeliefLevel", "Belief Level", _beliefLevel),
+                CreateScreenableProperty("Evidence", "Evidence", _evidenceLevel),
+                CreateScreenableProperty("Coherence", "Coherence", _coherence),
+                CreateScreenableProperty("Urgency", "Urgency", _urgency)
             };
 
             // No shuffle - properties stay in fixed display order
@@ -196,10 +197,14 @@ namespace KBTV.Callers
         /// <summary>
         /// Create a screenable property with appropriate display value and stat effects.
         /// All properties (including Personality) use CallerStatEffects for deterministic effects.
+        /// Reveal duration is fetched from ScreeningConfig for centralized timing control.
         /// </summary>
-        private ScreenableProperty CreateScreenableProperty(string key, string displayName, object value, float revealDuration)
+        private ScreenableProperty CreateScreenableProperty(string key, string displayName, object value)
         {
             var displayValue = GetDisplayValue(key, value);
+            
+            // Get reveal duration from centralized config (60s baseline, affected by equipment)
+            float revealDuration = ScreeningConfig.GetRevealDuration(key);
             
             // All properties use CallerStatEffects for stat effects lookup
             // Personality effects are now deterministic per-personality via PersonalityStatEffects
