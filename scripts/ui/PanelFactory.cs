@@ -45,8 +45,8 @@ namespace KBTV.UI
                         panel.SetCaller(null);
                     }
 
-                    // Connect buttons
-                    panel.ConnectButtons(Callable.From(() => _callerActions.OnApproveCaller()), Callable.From(() => _callerActions.OnRejectCaller()));
+                    // Note: ScreeningPanel connects its own button signals in _Ready()
+                    // Do NOT call ConnectButtons() here - it would create duplicate handlers
 
                     return panel;
                 }
