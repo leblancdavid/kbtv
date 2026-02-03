@@ -9,12 +9,28 @@ using KBTV.UI.Themes;
 namespace KBTV.UI
 {
     /// <summary>
-    /// Main VERN tab controller displaying all of Vern's stats.
+    /// Main VERN tab controller displaying all of Vern's stats in a two-column layout.
+    /// 
     /// Layout:
-    /// - VIBE/Mood at top
-    /// - DEPENDENCIES: Caffeine, Nicotine (0-100 bars)
-    /// - CORE STATS: Physical, Emotional, Mental (centered -100 to +100 bars)
-    /// - TOPIC BELIEF: Current topic belief display (future)
+    /// ┌─────────────────────────────────────────────────────────────────────────────┐
+    /// │  VIBE  [░░░░░░░████████████░░░░]  +25   FOCUSED     (full width header)     │
+    /// ├─────────────────────────────────┬───────────────────────────────────────────┤
+    /// │  LEFT COLUMN (50%)              │  RIGHT COLUMN (50%)                       │
+    /// │                                 │                                           │
+    /// │  ─── DEPENDENCIES ───           │  ─── STATUS ───                           │
+    /// │  CAFFEINE  [████████░░░░] 80    │  DECAY RATES                              │
+    /// │  NICOTINE  [████░░░░░░░░] 40    │  ├─ Caffeine: -3.75/min (0.75x)           │
+    /// │                                 │  └─ Nicotine: -4.00/min (1.00x)           │
+    /// │  ─── CORE STATS ───             │                                           │
+    /// │  PHYSICAL  [░░░░░|██░░░] +30    │  WITHDRAWAL                               │
+    /// │  EMOTIONAL [░░░██|░░░░░] -20    │  └─ None (dependencies OK)                │
+    /// │  MENTAL    [░░░░░|█░░░░] +15    │                                           │
+    /// │                                 │  STAT INTERACTIONS                        │
+    /// │                                 │  └─ None active                           │
+    /// │                                 │                                           │
+    /// │                                 │  ⚠ CAFFEINE CRASH                         │
+    /// │                                 │  ⚠ LISTENERS LEAVING                      │
+    /// └─────────────────────────────────┴───────────────────────────────────────────┘
     /// 
     /// Implements IDependent to get VernStats from GameStateManager via DI.
     /// </summary>
@@ -28,6 +44,7 @@ namespace KBTV.UI
         private VibeDisplay? _vibeDisplay;
         private StatGroup? _dependenciesGroup;
         private StatGroup? _coreStatsGroup;
+        private VernStatusPanel? _statusPanel;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -90,15 +107,13 @@ namespace KBTV.UI
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill
             };
-            innerContainer.AddThemeConstantOverride("separation", 20);
+            innerContainer.AddThemeConstantOverride("separation", 16);
             paddingContainer.AddChild(innerContainer);
             _contentContainer.AddChild(paddingContainer);
 
             // Build sections
             CreateVibeDisplay(innerContainer);
-            CreateDependenciesGroup(innerContainer);
-            CreateCoreStatsGroup(innerContainer);
-            // TODO: CreateTopicBeliefDisplay(innerContainer);
+            CreateTwoColumnLayout(innerContainer);
         }
 
         private void CreateVibeDisplay(VBoxContainer parent)
@@ -108,6 +123,43 @@ namespace KBTV.UI
             _vibeDisplay = new VibeDisplay();
             parent.AddChild(_vibeDisplay);
             _vibeDisplay.SetVernStats(_vernStats);
+        }
+
+        private void CreateTwoColumnLayout(VBoxContainer parent)
+        {
+            if (_vernStats == null) return;
+
+            // Create horizontal container for two columns (50/50 split)
+            var columnsContainer = new HBoxContainer
+            {
+                SizeFlagsHorizontal = SizeFlags.ExpandFill
+            };
+            columnsContainer.AddThemeConstantOverride("separation", 24);
+            parent.AddChild(columnsContainer);
+
+            // Left column - Stats
+            var leftColumn = new VBoxContainer
+            {
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                SizeFlagsStretchRatio = 1.0f
+            };
+            leftColumn.AddThemeConstantOverride("separation", 20);
+            columnsContainer.AddChild(leftColumn);
+
+            // Right column - Status panel
+            var rightColumn = new VBoxContainer
+            {
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                SizeFlagsStretchRatio = 1.0f
+            };
+            columnsContainer.AddChild(rightColumn);
+
+            // Build left column content
+            CreateDependenciesGroup(leftColumn);
+            CreateCoreStatsGroup(leftColumn);
+
+            // Build right column content
+            CreateStatusPanel(rightColumn);
         }
 
         private void CreateDependenciesGroup(VBoxContainer parent)
@@ -149,6 +201,15 @@ namespace KBTV.UI
             var mentalBar = new CenteredStatBar();
             _coreStatsGroup.AddCenteredStatBar(mentalBar);
             mentalBar.SetStat(_vernStats.Mental);
+        }
+
+        private void CreateStatusPanel(VBoxContainer parent)
+        {
+            if (_vernStats == null) return;
+
+            _statusPanel = new VernStatusPanel();
+            parent.AddChild(_statusPanel);
+            _statusPanel.SetVernStats(_vernStats);
         }
     }
 }

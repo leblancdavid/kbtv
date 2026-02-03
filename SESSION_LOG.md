@@ -1,4 +1,97 @@
-## Current Session - Vern Stats System v2 Refactor - Build Fix Complete ✅
+## Current Session - VernTab Two-Column Layout with Status Display ✅
+
+**Branch**: `feature/vern-stats-display`
+
+**Task**: Add a two-column layout to VernTab with a status panel showing real-time decay rates, withdrawal effects, stat interactions, and warnings.
+
+### Layout Implemented
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  VIBE  [░░░░░░░████████████░░░░]  +25   FOCUSED     (full width header)     │
+├─────────────────────────────────┬───────────────────────────────────────────┤
+│  LEFT COLUMN (50%)              │  RIGHT COLUMN (50%)                       │
+│                                 │                                           │
+│  ─── DEPENDENCIES ───           │  ─── STATUS ───                           │
+│  CAFFEINE  [████████░░░░] 80    │  DECAY RATES                              │
+│  NICOTINE  [████░░░░░░░░] 40    │  ├─ Caffeine: -3.75/min (0.75x)           │
+│                                 │  └─ Nicotine: -4.00/min (1.00x)           │
+│  ─── CORE STATS ───             │                                           │
+│  PHYSICAL  [░░░░░|██░░░] +30    │  WITHDRAWAL                               │
+│  EMOTIONAL [░░░██|░░░░░] -20    │  └─ None (dependencies OK)                │
+│  MENTAL    [░░░░░|█░░░░] +15    │                                           │
+│                                 │  STAT INTERACTIONS                        │
+│                                 │  └─ None active                           │
+│                                 │                                           │
+│                                 │  ⚠ CAFFEINE CRASH                         │
+│                                 │  ⚠ LISTENERS LEAVING                      │
+└─────────────────────────────────┴───────────────────────────────────────────┘
+```
+
+### Files Created
+
+**1. `scripts/ui/components/StatusSection.cs`**
+- Reusable component for status panel sections
+- Header label with section title
+- VBoxContainer for items with tree-style prefixes (├─, └─)
+- Methods: `SetTitle()`, `ClearItems()`, `AddItem()`, `AddTreeItem()`
+- Optional `hideWhenEmpty` mode for conditional visibility
+
+**2. `scripts/ui/components/VernStatusPanel.cs`**
+- Right column panel with real-time status updates
+- Four sections:
+  - **DECAY RATES**: Caffeine/Nicotine decay with modifiers (color-coded)
+  - **WITHDRAWAL**: Shows effects when dependencies depleted
+  - **STAT INTERACTIONS**: Shows cascade effects when stats < -25
+  - **WARNINGS**: Only visible when active (⚠ icons)
+- Updates in `_Process()` for real-time display
+- Reads from VernStats to calculate effective rates
+
+### Files Modified
+
+**1. `scripts/ui/themes/UIColors.cs`**
+- Added `Warning` class: Critical (red), Caution (orange), Info (blue), Good (green)
+- Added `Status` class: SectionHeader, ItemText, ValueText, ModifierBuff/Debuff/Neutral
+
+**2. `scripts/ui/VernTab.cs`**
+- Restructured to two-column layout (50/50 split)
+- VIBE display spans full width at top
+- Left column: Dependencies + Core Stats (existing components)
+- Right column: New VernStatusPanel
+- Uses HBoxContainer with equal stretch ratios
+
+### Status Panel Sections
+
+| Section | Content | Color Logic |
+|---------|---------|-------------|
+| **DECAY RATES** | Effective decay rates with modifiers | Green (<0.75x), Gray (1.0x), Orange (>1.0x) |
+| **WITHDRAWAL** | Core stat decay when dependencies = 0 | Red for active, Green for "None" |
+| **STAT INTERACTIONS** | Cascade effects when stats < -25 | Orange for active debuffs |
+| **WARNINGS** | Critical alerts (only when active) | Red for critical, Yellow for caution |
+
+### Warning Conditions
+
+| Condition | Warning Text | Color |
+|-----------|--------------|-------|
+| Caffeine = 0 | ⚠ CAFFEINE CRASH | Red |
+| Nicotine = 0 | ⚠ NICOTINE WITHDRAWAL | Red |
+| Physical < -50 | ⚠ EXHAUSTED | Red |
+| Emotional < -50 | ⚠ DEMORALIZED | Red |
+| Mental < -50 | ⚠ UNFOCUSED | Red |
+| VIBE < -25 | ⚠ LISTENERS LEAVING | Yellow |
+
+### Result
+✅ **Build succeeds** with 0 errors (5 pre-existing warnings)
+✅ **Two-column layout** implemented with 50/50 split
+✅ **Real-time updates** via `_Process()` polling
+✅ **Warnings only visible** when active (hideWhenEmpty mode)
+✅ **Color-coded status** for quick visual feedback
+
+**Status**: Implementation complete. Ready for visual testing in Godot editor.
+
+---
+
+## Previous Session - Vern Stats System v2 Refactor - Build Fix Complete ✅
 
 **Branch**: `feature/vern-stats-display`
 
@@ -26,15 +119,7 @@
 
 **5. CallerStatEffectsTests.cs** - Complete rewrite to match CallerStatEffects.cs mappings
 - All tests now use Physical, Emotional, Mental stats
-- Test expectations match the v2 stat effect mappings:
-  - EmotionalState → Emotional stat
-  - CurseRisk → Emotional stat
-  - Coherence → Mental stat
-  - Urgency → Emotional/Physical stats
-  - BeliefLevel → Mental/Emotional stats
-  - Evidence → Emotional/Mental stats
-  - Legitimacy → Emotional/Mental stats
-  - AudioQuality → Emotional stat
+- Test expectations match the v2 stat effect mappings
 
 ### New Stats System Summary
 
@@ -46,104 +131,9 @@
 | **Caffeine** | 0 to 100 | Dependency that affects Physical/Mental decay |
 | **Nicotine** | 0 to 100 | Dependency that affects Emotional/Mental decay |
 
-### Files Modified
-- `scripts/screening/ScreenableProperty.cs`
-- `scripts/ui/components/StatSummaryPanel.cs`
-- `scripts/callers/CallerGenerator.cs`
-- `tests/unit/screening/ScreenablePropertyTests.cs`
-- `tests/unit/screening/CallerStatEffectsTests.cs`
-
 ### Result
 ✅ **Build succeeds with 0 errors** (5 pre-existing warnings remain)
 ✅ **All StatType references updated** to use new enum values
 ✅ **Tests rewritten** to match v2 stat effect mappings
 
-**Status**: Vern Stats v2 refactor build fix complete. Ready for testing.
-
----
-
-## Previous Session - Fix Ad Delays Not Working on Background Thread - COMPLETED ✅
-
-**Problem**: Ads were still skipping during commercial breaks despite the sequential execution fix. The DelayAsync method used SceneTree.CreateTimer, which doesn't work from the background thread where AsyncBroadcastLoop runs, causing immediate completion.
-
-**Solution**: Changed DelayAsync back to use Task.Delay, which works correctly on background threads for simple async operations.
-
-#### Key Changes Made
-
-**1. Fixed DelayAsync for Background Thread**
-- Changed `DelayAsync` in `BroadcastExecutable.cs` from `SceneTree.CreateTimer` to `Task.Delay`
-- Removed complex timer setup that failed on background threads
-- Simplified to `await Task.Delay((int)(seconds * 1000), cancellationToken)`
-
-#### Technical Details
-- **Before**: `SceneTree.CreateTimer` created timers on main thread from background thread, causing immediate completion
-- **After**: `Task.Delay` works reliably on background threads for simple delays
-- **Compatibility**: The original threading issue was with complex nested async in AdBreakSequenceExecutable, which was removed
-- **Performance**: Task.Delay provides accurate timing without main thread dependency
-
-#### Files Modified
-- **`scripts/dialogue/executables/BroadcastExecutable.cs`** - Changed DelayAsync to use Task.Delay instead of SceneTree.CreateTimer
-
-#### Result
-✅ **Proper ad delays** - Ads now wait 4 seconds (or audio length) instead of completing immediately
-✅ **Background thread compatibility** - Task.Delay works correctly in AsyncBroadcastLoop's thread context
-✅ **No main thread blocking** - Async operations remain non-blocking
-✅ **Clean execution flow** - Ads execute sequentially with proper timing
-
-**Status**: Fix implemented and compiled successfully. Ads should now execute with proper delays during commercial breaks.
-
----
-
-## Previous Session - Fix Ads Not Executing During Commercial Breaks - COMPLETED ✅
-
-**Problem**: Ads weren't playing during commercial breaks. The system would transition to AdBreak but immediately jump to BreakReturnMusic without executing ads due to threading issues with Task.Delay in AsyncBroadcastLoop.
-
-**Solution**: Refactored ad execution from complex nested AdBreakSequenceExecutable to sequential execution in the state machine, eliminating threading conflicts.
-
-#### Key Changes Made
-
-**1. Simplified Ad Execution Architecture**
-- Removed `AdBreakSequenceExecutable.cs` - eliminated nested async operations that caused threading issues
-- Changed from complex sequence execution to sequential state machine transitions
-- Ads now execute one-by-one in `AsyncBroadcastState.AdBreak`, staying in the state until all ads complete
-
-**2. Updated BroadcastStateManager.cs**
-- Added ad tracking fields: `_currentAdIndex`, `_totalAdsForBreak`, `_adOrder`
-- Added public accessors: `CurrentAdIndex`, `TotalAdsForBreak`, `AdOrder`
-- Added methods: `IncrementAdIndex()`, `ResetAdBreakState()`
-- Modified `HandleTimingEvent(Break0Seconds)` to initialize ad break state with random order
-- Modified `StartShow()` to reset ad state between breaks
-
-**3. Updated BroadcastStateMachine.cs**
-- Modified `GetNextExecutable(AdBreak)` to return individual ads or transition to `BreakReturnMusic` when done
-- Modified `UpdateStateAfterExecution(AdBreak)` to increment ad index and stay in AdBreak until complete
-- Added `CreateAdExecutable(int adSlot)` using `AdExecutable.CreateForListenerCount()`
-- Removed `CreateAdBreakSequenceExecutable()` method
-
-**4. Verified AdManager Integration**
-- Confirmed `CurrentBreakSlots` property properly tracks slots per break
-- No additional `UpdateCurrentBreakSlots()` method needed - property calculates dynamically
-
-#### Technical Details
-- **Before**: Complex nested `AdBreakSequenceExecutable` with async delays caused immediate completion due to background thread + Task.Delay conflicts
-- **After**: Sequential execution in main broadcast loop - each ad completes before next begins
-- **Random Order**: Ads shuffled per break using `GD.Randi()` for Godot-compatible randomization
-- **State Management**: Clean transitions between individual ads, staying in `AdBreak` until all complete
-- **Threading**: Eliminated background thread issues by using state machine instead of nested executables
-
-#### Files Modified
-- **`scripts/dialogue/BroadcastStateManager.cs`** - Added ad tracking, initialization, and reset logic
-- **`scripts/dialogue/BroadcastStateMachine.cs`** - Refactored AdBreak handling to sequential execution
-- **`scripts/dialogue/executables/AdBreakSequenceExecutable.cs`** - **DELETED**
-
-#### Files Verified Unchanged
-- **`scripts/dialogue/executables/AdExecutable.cs`** - Logging already appropriate, no changes needed
-- **`scripts/ads/AdManager.cs`** - `CurrentBreakSlots` property works correctly, no changes needed
-
-#### Result
-✅ **Sequential ad execution** - Ads now play one-by-one with proper 4-second delays and random order
-✅ **Clean transitions** - No more immediate jumps to break return, all ads execute before transition
-✅ **Threading stability** - Eliminated nested async operations that caused Task.Delay failures
-✅ **Maintains sponsor display** - "This commercial break sponsored by X" text preserved
-
-**Status**: Implementation complete and compiled successfully. Ready for testing with live commercial breaks.
+**Status**: Vern Stats v2 refactor build fix complete.

@@ -106,6 +106,26 @@ namespace KBTV.UI.Themes
             public static readonly Color BarBackground = new(0.2f, 0.2f, 0.2f);   // Dark background for bars
         }
 
+        // Warning/alert colors for status panel
+        public static class Warning
+        {
+            public static readonly Color Critical = new(0.9f, 0.2f, 0.2f);    // Red for critical warnings
+            public static readonly Color Caution = new(0.9f, 0.7f, 0.2f);     // Orange/yellow for caution
+            public static readonly Color Info = new(0.5f, 0.7f, 0.9f);        // Light blue for info
+            public static readonly Color Good = new(0.2f, 0.9f, 0.2f);        // Green for positive status
+        }
+
+        // Status panel colors
+        public static class Status
+        {
+            public static readonly Color SectionHeader = new(0.7f, 0.7f, 0.7f);   // Section titles
+            public static readonly Color ItemText = new(0.8f, 0.8f, 0.8f);        // Normal item text
+            public static readonly Color ValueText = new(0.6f, 0.8f, 0.6f);       // Values/numbers
+            public static readonly Color ModifierBuff = new(0.2f, 0.9f, 0.2f);    // Positive modifiers
+            public static readonly Color ModifierDebuff = new(0.9f, 0.5f, 0.2f);  // Negative modifiers
+            public static readonly Color ModifierNeutral = new(0.7f, 0.7f, 0.7f); // Neutral modifiers
+        }
+
         /// <summary>
         /// Get color for a Vern stat based on its normalized value (0-1 range).
         /// </summary>
