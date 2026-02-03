@@ -83,6 +83,13 @@ namespace KBTV.UI.Themes
             public static readonly Color Revealing = new(0.6f, 0.6f, 0.6f);  // Lighter when revealing
         }
 
+        // Property display colors (for screening property rows)
+        public static class Property
+        {
+            public static readonly Color Name = new(0f, 0.7f, 1f);           // Cyan for property names
+            public static readonly Color Value = TEXT_PRIMARY;                // White for values
+        }
+
         // Legend colors for reference
         public static Color GetQueueStateColor(CallerState state)
         {

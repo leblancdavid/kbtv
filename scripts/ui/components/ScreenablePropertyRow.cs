@@ -10,48 +10,48 @@ namespace KBTV.UI.Components
 {
     /// <summary>
     /// UI component that displays a single screenable property with reveal animation.
-    /// Shows placeholder blocks for hidden properties and typewriter reveal effect.
+    /// Shows placeholder for hidden properties and typewriter reveal effect.
+    /// Format: "PROPERTY_NAME: value" with name in cyan and value in white.
     /// </summary>
     public partial class ScreenablePropertyRow : HBoxContainer
     {
         // Placeholder text for unrevealed values
         private const string PlaceholderText = "...";
 
-        // Child nodes
-        private Label _nameLabel = null!;
-        private Label _valueLabel = null!;
+        // Child node
+        private RichTextLabel _contentLabel = null!;
 
         // State
         private ScreenableProperty? _property;
         private RevelationState _lastState = RevelationState.Hidden;
+
+        // Cached full text for typewriter effect
+        private string _fullText = "";
+        private string _nameText = "";  // e.g., "SUMMARY: "
+        private string _valueText = ""; // e.g., "Some value here"
 
         // Audio service for reveal sound
         private IUIAudioService? _audioService;
 
         public override void _Ready()
         {
-            // Create child nodes programmatically
-            _nameLabel = new Label
+            // Create RichTextLabel for multi-color text support
+            _contentLabel = new RichTextLabel
             {
-                SizeFlagsHorizontal = SizeFlags.Fill,
-                CustomMinimumSize = new Vector2(120, 0)
-            };
-            AddChild(_nameLabel);
-
-            _valueLabel = new Label
-            {
+                BbcodeEnabled = true,
+                FitContent = true,
+                ScrollActive = false,
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 AutowrapMode = TextServer.AutowrapMode.Word
             };
-            AddChild(_valueLabel);
+            AddChild(_contentLabel);
 
             // Create a monospace system font for console-like appearance
             var monoFont = new SystemFont();
             monoFont.FontNames = new string[] { "Consolas", "Courier New", "Liberation Mono", "monospace" };
 
-            // Apply to both labels for consistent terminal look
-            _nameLabel.AddThemeFontOverride("font", monoFont);
-            _valueLabel.AddThemeFontOverride("font", monoFont);
+            // Apply font
+            _contentLabel.AddThemeFontOverride("normal_font", monoFont);
 
             // Try to get audio service for reveal sounds
             try
@@ -64,7 +64,7 @@ namespace KBTV.UI.Components
             }
 
             // Apply initial styling
-            UpdateValueLabelColor();
+            UpdateDisplay();
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace KBTV.UI.Components
         /// </summary>
         public void SetProperty(ScreenableProperty property)
         {
-            if (_nameLabel == null || _valueLabel == null)
+            if (_contentLabel == null)
             {
                 GD.PrintErr("ScreenablePropertyRow.SetProperty called before _Ready() - nodes not initialized");
                 return;
@@ -81,10 +81,12 @@ namespace KBTV.UI.Components
             _property = property;
             _lastState = property.State;
 
-            // Set the property name (never hidden)
-            _nameLabel.Text = $"{property.DisplayName}:";
+            // Cache the full text components
+            _nameText = $"{property.DisplayName.ToUpper()}: ";
+            _valueText = property.DisplayValue;
+            _fullText = _nameText + _valueText;
 
-            // Initial value display based on state
+            // Initial display based on state
             UpdateDisplay();
         }
 
@@ -114,19 +116,18 @@ namespace KBTV.UI.Components
                 // Play reveal sound with slight pitch variation for variety
                 _audioService?.PlaySfx(UISfx.PropertyReveal, 0.1f);
             }
-
-            UpdateValueLabelColor();
         }
 
         private void UpdateDisplay()
         {
-            if (_property == null) return;
+            if (_property == null || _contentLabel == null) return;
 
             switch (_property.State)
             {
                 case RevelationState.Hidden:
                     // Show placeholder for unrevealed properties
-                    _valueLabel.Text = PlaceholderText;
+                    _contentLabel.Text = PlaceholderText;
+                    SetPlaceholderColor(UIColors.Placeholder.Text);
                     break;
 
                 case RevelationState.Revealing:
@@ -135,8 +136,8 @@ namespace KBTV.UI.Components
                     break;
 
                 case RevelationState.Revealed:
-                    // Show full value
-                    _valueLabel.Text = _property.DisplayValue;
+                    // Show full value with colors
+                    _contentLabel.Text = FormatFullText();
                     break;
             }
         }
@@ -146,39 +147,102 @@ namespace KBTV.UI.Components
             if (_property == null) return;
 
             float progress = _property.Progress;
-            string actualValue = _property.DisplayValue;
-            int totalLength = actualValue.Length;
+            int totalLength = _fullText.Length;
             
-            // Calculate how many actual characters to reveal
+            // Calculate how many characters to reveal
             int revealedChars = (int)(progress * totalLength);
             revealedChars = Math.Clamp(revealedChars, 0, totalLength);
 
-            // Build the display: revealed portion + "..." if not complete
-            string revealed = actualValue.Substring(0, revealedChars);
-            
-            if (revealedChars < totalLength)
+            if (revealedChars == 0)
             {
-                _valueLabel.Text = revealed + PlaceholderText;
+                // Nothing revealed yet, show placeholder
+                _contentLabel.Text = PlaceholderText;
+                SetPlaceholderColor(UIColors.Placeholder.Revealing);
+                return;
+            }
+
+            // Build the display with partial reveal
+            string revealed = _fullText.Substring(0, revealedChars);
+            
+            // Determine how much of the name vs value is revealed
+            int nameLength = _nameText.Length;
+            
+            string bbcode;
+            if (revealedChars <= nameLength)
+            {
+                // Still revealing the name portion
+                string partialName = revealed;
+                bbcode = FormatName(partialName) + FormatPlaceholder(PlaceholderText);
             }
             else
             {
-                _valueLabel.Text = revealed;
+                // Name fully revealed, now revealing value
+                string partialValue = revealed.Substring(nameLength);
+                bool valueComplete = revealedChars >= totalLength;
+                
+                if (valueComplete)
+                {
+                    bbcode = FormatName(_nameText) + FormatValue(partialValue);
+                }
+                else
+                {
+                    bbcode = FormatName(_nameText) + FormatValue(partialValue) + FormatPlaceholder(PlaceholderText);
+                }
             }
+
+            _contentLabel.Text = bbcode;
         }
 
-        private void UpdateValueLabelColor()
+        /// <summary>
+        /// Format the full revealed text with BBCode colors.
+        /// </summary>
+        private string FormatFullText()
         {
-            if (_property == null) return;
+            return FormatName(_nameText) + FormatValue(_valueText);
+        }
 
-            Color color = _property.State switch
-            {
-                RevelationState.Hidden => UIColors.Placeholder.Text,
-                RevelationState.Revealing => UIColors.Placeholder.Revealing,
-                RevelationState.Revealed => UIColors.TEXT_PRIMARY,
-                _ => UIColors.TEXT_PRIMARY
-            };
+        /// <summary>
+        /// Format name portion with cyan color.
+        /// </summary>
+        private string FormatName(string text)
+        {
+            string colorHex = UIColors.Property.Name.ToHtml(false);
+            return $"[color=#{colorHex}]{EscapeBBCode(text)}[/color]";
+        }
 
-            _valueLabel.AddThemeColorOverride("font_color", color);
+        /// <summary>
+        /// Format value portion with primary text color.
+        /// </summary>
+        private string FormatValue(string text)
+        {
+            string colorHex = UIColors.Property.Value.ToHtml(false);
+            return $"[color=#{colorHex}]{EscapeBBCode(text)}[/color]";
+        }
+
+        /// <summary>
+        /// Format placeholder text with muted color.
+        /// </summary>
+        private string FormatPlaceholder(string text)
+        {
+            string colorHex = UIColors.Placeholder.Revealing.ToHtml(false);
+            return $"[color=#{colorHex}]{text}[/color]";
+        }
+
+        /// <summary>
+        /// Set the content label to show plain text in placeholder color.
+        /// Used for hidden state where we don't need BBCode.
+        /// </summary>
+        private void SetPlaceholderColor(Color color)
+        {
+            _contentLabel.AddThemeColorOverride("default_color", color);
+        }
+
+        /// <summary>
+        /// Escape special BBCode characters in text.
+        /// </summary>
+        private string EscapeBBCode(string text)
+        {
+            return text.Replace("[", "[lb]").Replace("]", "[rb]");
         }
 
         /// <summary>
