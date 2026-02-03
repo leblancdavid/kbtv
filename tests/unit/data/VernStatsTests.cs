@@ -185,7 +185,7 @@ namespace KBTV.Tests.Unit.Data
 
             float modifier = _vernStats.GetCaffeineDecayModifier();
 
-            // At Mental +100: modifier = 1 - (100/200) = 0.5
+            // At Mental +100: modifier = 1 - (100/100) = 0 (capped to 0.5)
             AssertThat(Mathf.IsEqualApprox(modifier, 0.5f), $"Expected 0.5, got {modifier}");
         }
 
@@ -196,8 +196,30 @@ namespace KBTV.Tests.Unit.Data
 
             float modifier = _vernStats.GetNicotineDecayModifier();
 
-            // At Emotional +100: modifier = 1 - (100/200) = 0.5
+            // At Emotional +100: modifier = 1 - (100/100) = 0 (capped to 0.5)
             AssertThat(Mathf.IsEqualApprox(modifier, 0.5f), $"Expected 0.5, got {modifier}");
+        }
+
+        [Test]
+        public void GetCaffeineDecayModifier_LowMental_AcceleratesDecay()
+        {
+            _vernStats.Mental.SetValue(-100f);
+
+            float modifier = _vernStats.GetCaffeineDecayModifier();
+
+            // At Mental -100: modifier = 1 - (-100/100) = 2.0
+            AssertThat(Mathf.IsEqualApprox(modifier, 2.0f), $"Expected 2.0, got {modifier}");
+        }
+
+        [Test]
+        public void GetNicotineDecayModifier_LowEmotional_AcceleratesDecay()
+        {
+            _vernStats.Emotional.SetValue(-100f);
+
+            float modifier = _vernStats.GetNicotineDecayModifier();
+
+            // At Emotional -100: modifier = 1 - (-100/100) = 2.0
+            AssertThat(Mathf.IsEqualApprox(modifier, 2.0f), $"Expected 2.0, got {modifier}");
         }
 
         [Test]

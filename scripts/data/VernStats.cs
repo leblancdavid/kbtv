@@ -197,28 +197,28 @@ namespace KBTV.Data
 		/// <summary>
 		/// Get caffeine decay rate modifier based on Mental stat.
 		/// Higher Mental → slower caffeine decay.
-		/// Formula: BaseRate × (1 - (Mental / 200))
+		/// Formula: BaseRate × (1 - (Mental / 100))
 		/// </summary>
 		public float GetCaffeineDecayModifier()
 		{
-			// Mental at +100 → 0.5x decay (50%)
+			// Mental at +100 → 0.5x decay (50%, minimum cap)
 			// Mental at 0 → 1.0x decay (100%)
-			// Mental at -100 → 1.5x decay (150%)
-			float modifier = 1f - (_mental.Value / 200f);
+			// Mental at -100 → 2.0x decay (200%, double speed)
+			float modifier = 1f - (_mental.Value / 100f);
 			return Mathf.Max(0.5f, modifier);  // Cap at minimum 50% decay
 		}
 
 		/// <summary>
 		/// Get nicotine decay rate modifier based on Emotional stat.
 		/// Higher Emotional → slower nicotine decay.
-		/// Formula: BaseRate × (1 - (Emotional / 200))
+		/// Formula: BaseRate × (1 - (Emotional / 100))
 		/// </summary>
 		public float GetNicotineDecayModifier()
 		{
-			// Emotional at +100 → 0.5x decay (50%)
+			// Emotional at +100 → 0.5x decay (50%, minimum cap)
 			// Emotional at 0 → 1.0x decay (100%)
-			// Emotional at -100 → 1.5x decay (150%)
-			float modifier = 1f - (_emotional.Value / 200f);
+			// Emotional at -100 → 2.0x decay (200%, double speed)
+			float modifier = 1f - (_emotional.Value / 100f);
 			return Mathf.Max(0.5f, modifier);  // Cap at minimum 50% decay
 		}
 
