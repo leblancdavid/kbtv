@@ -301,14 +301,16 @@ namespace KBTV.Tests.Unit.Callers
         }
 
         [Test]
-        public void RejectScreening_RemovedFromIncomingCallers()
+        public void RejectScreening_ScreeningCallerRemainsInIncomingList_ThenRemovedOnReject()
         {
             var caller = CreateTestCaller();
             _repository.AddCaller(caller);
+            // Auto-start kicks in, caller is now being screened but still in IncomingCallers
             AssertThat(_repository.IncomingCallers.Contains(caller));
+            AssertThat(_repository.IsScreening);
 
-            _repository.StartScreening(caller);
-            AssertThat(!_repository.IncomingCallers.Contains(caller));
+            // Screening caller should remain in IncomingCallers list (just highlighted in UI)
+            AssertThat(_repository.IncomingCallers.Contains(caller));
 
             _repository.RejectScreening();
 
