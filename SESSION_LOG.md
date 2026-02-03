@@ -1,4 +1,48 @@
-## Current Session - Dead Air Consecutive Penalty Fix ✅
+## Current Session - Double Stat Effects on Dependency Decay ✅
+
+**Branch**: `feature/vern-stats-display`
+
+**Task**: Double the effect that Mental and Emotional stats have on caffeine and nicotine decay rates.
+
+### Problem
+Dependency decay rates were not sensitive enough to Vern's Mental and Emotional stat condition. Low stats should cause dependencies to decay much faster to create more tension and resource management.
+
+### Root Cause
+Decay modifiers used divisor of 200, giving range 0.5x to 1.5x decay. This was too narrow for meaningful gameplay impact.
+
+### Solution
+Halved the divisor to 100, doubling the sensitivity of stats on decay rates. New range: 0.5x to 2.0x decay, making low Mental/Emotional cause dependencies to decay twice as fast.
+
+### Files Modified
+
+**1. `scripts/data/VernStats.cs`**
+- Modified `GetCaffeineDecayModifier()`: Changed divisor from 200f to 100f
+- Modified `GetNicotineDecayModifier()`: Changed divisor from 200f to 100f
+- Updated comments and formulas to reflect new 0.5x-2.0x range
+
+**2. `tests/unit/data/VernStatsTests.cs`**
+- Updated existing test comments for +100 stat expectations
+- Added `GetCaffeineDecayModifier_LowMental_AcceleratesDecay()` test (expects 2.0x)
+- Added `GetNicotineDecayModifier_LowEmotional_AcceleratesDecay()` test (expects 2.0x)
+
+### New Decay Behavior
+| Stat Level | Mental (Caffeine) | Emotional (Nicotine) |
+|------------|-------------------|----------------------|
+| +100 | 0.5x decay (50%) | 0.5x decay (50%) |
+| 0 | 1.0x decay (100%) | 1.0x decay (100%) |
+| -100 | 2.0x decay (200%) | 2.0x decay (200%) |
+
+### Result
+✅ **Build succeeds** with 0 errors (same 5 pre-existing warnings)  
+✅ **Decay sensitivity doubled** - low stats cause 2x faster dependency decay  
+✅ **Tests updated** to verify new modifier ranges  
+✅ **Balance improved** - stat management now more critical for dependency maintenance  
+
+**Status**: Dependency decay doubling complete. Vern's Mental/Emotional stats now have much stronger impact on caffeine/nicotine depletion rates.
+
+---
+
+## Previous Session - Dead Air Consecutive Penalty Fix ✅
 
 **Branch**: `feature/vern-stats-display`
 
