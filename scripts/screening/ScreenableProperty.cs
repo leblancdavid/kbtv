@@ -180,16 +180,11 @@ namespace KBTV.Screening
         {
             return statType switch
             {
-                StatType.Patience => "P",
-                StatType.Spirit => "S",
-                StatType.Energy => "E",
-                StatType.Focus => "F",
-                StatType.Discernment => "D",
-                StatType.Belief => "B",
-                StatType.Alertness => "A",
+                StatType.Physical => "Ph",
+                StatType.Emotional => "Em",
+                StatType.Mental => "Me",
                 StatType.Caffeine => "Ca",
-                StatType.Nicotine => "N",
-                StatType.Satiety => "Sa",
+                StatType.Nicotine => "Ni",
                 _ => "?"
             };
         }

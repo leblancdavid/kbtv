@@ -4,30 +4,17 @@ namespace KBTV.Data
 {
     /// <summary>
     /// Defines which stat to target with a modifier.
-    /// See docs/VERN_STATS.md for complete stat documentation.
+    /// See docs/systems/VERN_STATS.md for complete stat documentation.
     /// </summary>
     public enum StatType
     {
-        // Dependencies
+        // Dependencies (0-100)
         Caffeine,
         Nicotine,
 
-        // Physical
-        Energy,
-        Satiety,
-
-        // Emotional
-        Spirit,
-
-        // Cognitive
-        Alertness,
-        Discernment,
-        Focus,
-        Patience,
-
-        // Long-Term
-        Belief
+        // Core Stats (-100 to +100)
+        Physical,
+        Emotional,
+        Mental
     }
-
-
 }

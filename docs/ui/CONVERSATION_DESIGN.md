@@ -45,18 +45,21 @@ Arc selection is based on caller legitimacy and topic matching. Vern's current *
 | Engaged | Interested, good follow-ups |
 | Excited | High energy, enthusiastic |
 
-### Discernment
+### Mental & Hoaxer Detection
 
-Determines if Vern correctly reads the caller:
+Determines if Vern correctly identifies a hoaxer during screening. Mental stat (boosted by Topic Belief tier bonuses) affects the player's ability to detect low-legitimacy callers:
 
 ```
-correctReadChance = Discernment + LegitimacyModifier
+Detection is screening-based (Option A):
+- Player rejects low-legitimacy caller = "caught hoaxer"
+- Player approves low-legitimacy caller = "fooled by hoaxer"
 
-Modifiers:
-  Compelling:   +20%
-  Credible:     +10%
-  Questionable:  +0%
-  Fake:         +15%
+Higher Mental provides screening hints to help identify fakes.
+Topic Belief Tier bonuses:
+  Tier 2 (Curious):      +5% Mental
+  Tier 3 (Interested):  +10% Mental, screening hints visible
+  Tier 4 (Believer):    +15% Mental
+  Tier 5 (True Believer): +20% Mental
 ```
 
 ## Arc Structure

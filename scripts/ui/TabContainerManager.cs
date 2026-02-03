@@ -84,6 +84,9 @@ namespace KBTV.UI
 
         private void InitializeTabs()
         {
+            // Tab order: CALLERS, VERN, ITEMS
+
+            // CALLERS tab
             var callerTabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerTab.tscn");
             if (callerTabScene != null)
             {
@@ -97,8 +100,22 @@ namespace KBTV.UI
                 AddPlaceholderTab("CALLERS");
             }
 
+            // VERN tab (Vern's stats display)
+            var vernTabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/VernTab.tscn");
+            if (vernTabScene != null)
+            {
+                var vernTab = vernTabScene.Instantiate<Control>();
+                _tabContainer.AddChild(vernTab);
+                _tabContainer.SetTabTitle(vernTab.GetIndex(), "VERN");
+            }
+            else
+            {
+                GD.PrintErr("TabContainerManager: Failed to load VernTab.tscn");
+                AddPlaceholderTab("VERN");
+            }
+
+            // ITEMS tab (placeholder)
             AddPlaceholderTab("ITEMS");
-            AddPlaceholderTab("STATS");
         }
 
         private void AddPlaceholderTab(string title)

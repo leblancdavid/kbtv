@@ -8,19 +8,24 @@ namespace KBTV.Monitors
 {
     /// <summary>
     /// Monitors Vern's stats and applies decay over time.
-    /// Handles dependency decay (caffeine, nicotine), physical decay (energy, satiety),
-    /// and cognitive decay (alertness, focus, patience).
-    ///
-    /// State Updates:
-    /// - Dependencies: Caffeine and nicotine decay continuously
-    /// - Physical: Energy and satiety decay
-    /// - Cognitive: Alertness, focus, and patience decay
-    /// - Spirit: Not decayed directly (fluctuates based on other stats)
-    /// - Belief: Not decayed (long-term persistent stat)
-    ///
-    /// Side Effects:
-    /// - VernStats emits StatsChanged, VibeChanged, MoodTypeChanged when stats change
-    /// - Low dependency levels affect other stat multipliers (see VernStats)
+    /// 
+    /// Decay Logic (v2):
+    /// - Dependencies (Caffeine, Nicotine) decay continuously with stat modifiers
+    /// - Core stats (Physical, Emotional, Mental) only decay when dependencies are depleted
+    /// - Stat interactions: low stats accelerate other decays
+    /// 
+    /// Decay Modifiers:
+    /// - Caffeine decay: Higher Mental → slower decay
+    /// - Nicotine decay: Higher Emotional → slower decay
+    /// - Mental < -25: +25% dependency decay
+    /// 
+    /// Withdrawal Effects (when dependency = 0):
+    /// - Caffeine depleted: Physical -6/min, Mental -3/min
+    /// - Nicotine depleted: Emotional -6/min, Mental -3/min
+    /// 
+    /// Stat Interactions:
+    /// - Physical < -25: Mental decay +50%
+    /// - Emotional < -25: Physical decay +50%
     /// </summary>
     public partial class VernStatsMonitor : DomainMonitor, IDependent
     {
@@ -45,15 +50,81 @@ namespace KBTV.Monitors
             }
 
             var stats = _vernStats;
-            var dt = deltaTime;
+            float dtMinutes = deltaTime / 60f;  // Convert to minutes for decay rates
 
-            stats.Caffeine.Modify(-stats.CaffeineDecayRate * dt);
-            stats.Nicotine.Modify(-stats.NicotineDecayRate * dt);
-            stats.Energy.Modify(-stats.EnergyDecayRate * dt);
-            stats.Satiety.Modify(-stats.SatietyDecayRate * dt);
-            stats.Alertness.Modify(-stats.EnergyDecayRate * 0.5f * dt);
-            stats.Focus.Modify(-stats.EnergyDecayRate * 0.3f * dt);
-            stats.Patience.Modify(-stats.PatienceDecayRate * dt);
+            // ═══════════════════════════════════════════════════════════════════════════════
+            // DEPENDENCY DECAY
+            // ═══════════════════════════════════════════════════════════════════════════════
+
+            // Caffeine decay: Base rate modified by Mental stat
+            float caffeineDecay = stats.CaffeineDecayRate * stats.GetCaffeineDecayModifier();
+            
+            // Nicotine decay: Base rate modified by Emotional stat  
+            float nicotineDecay = stats.NicotineDecayRate * stats.GetNicotineDecayModifier();
+
+            // Mental < -25 accelerates dependency decay by 25%
+            if (stats.IsMentalCritical)
+            {
+                caffeineDecay *= stats.LowMentalDependencyMultiplier;
+                nicotineDecay *= stats.LowMentalDependencyMultiplier;
+            }
+
+            stats.Caffeine.Modify(-caffeineDecay * dtMinutes);
+            stats.Nicotine.Modify(-nicotineDecay * dtMinutes);
+
+            // ═══════════════════════════════════════════════════════════════════════════════
+            // CORE STAT DECAY (only when dependencies depleted)
+            // ═══════════════════════════════════════════════════════════════════════════════
+
+            float physicalDecay = 0f;
+            float emotionalDecay = 0f;
+            float mentalDecay = 0f;
+
+            // Caffeine depleted: Physical and Mental decay
+            if (stats.IsCaffeineDepleted)
+            {
+                physicalDecay += stats.PhysicalDecayRate;  // -6/min
+                mentalDecay += stats.MentalDecayRate;       // -3/min
+            }
+
+            // Nicotine depleted: Emotional and Mental decay
+            if (stats.IsNicotineDepleted)
+            {
+                emotionalDecay += stats.EmotionalDecayRate;  // -6/min
+                mentalDecay += stats.MentalDecayRate;        // -3/min (stacks if both depleted)
+            }
+
+            // ═══════════════════════════════════════════════════════════════════════════════
+            // STAT INTERACTION ACCELERATORS
+            // ═══════════════════════════════════════════════════════════════════════════════
+
+            // Physical < -25: Mental decay +50%
+            if (stats.IsPhysicalCritical && mentalDecay > 0)
+            {
+                mentalDecay *= stats.LowStatDecayMultiplier;
+            }
+
+            // Emotional < -25: Physical decay +50%
+            if (stats.IsEmotionalCritical && physicalDecay > 0)
+            {
+                physicalDecay *= stats.LowStatDecayMultiplier;
+            }
+
+            // Apply core stat decays
+            if (physicalDecay > 0)
+            {
+                stats.Physical.Modify(-physicalDecay * dtMinutes);
+            }
+
+            if (emotionalDecay > 0)
+            {
+                stats.Emotional.Modify(-emotionalDecay * dtMinutes);
+            }
+
+            if (mentalDecay > 0)
+            {
+                stats.Mental.Modify(-mentalDecay * dtMinutes);
+            }
         }
     }
 }

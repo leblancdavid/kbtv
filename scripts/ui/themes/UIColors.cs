@@ -90,6 +90,71 @@ namespace KBTV.UI.Themes
             public static readonly Color Value = TEXT_PRIMARY;                // White for values
         }
 
+        // Vern stat display colors
+        public static class VernStat
+        {
+            public static readonly Color High = new(0.2f, 0.9f, 0.2f);        // Green > 66%
+            public static readonly Color Medium = new(0.9f, 0.9f, 0.2f);      // Yellow 33-66%
+            public static readonly Color Low = new(0.9f, 0.2f, 0.2f);         // Red < 33%
+            public static readonly Color SpiritPositive = new(0.2f, 0.9f, 0.2f);  // Green for positive Spirit
+            public static readonly Color SpiritNegative = new(0.9f, 0.2f, 0.2f);  // Red for negative Spirit
+            public static readonly Color SpiritNeutral = new(0.5f, 0.5f, 0.5f);   // Gray for zero Spirit
+            public static readonly Color CategoryHeader = new(0.6f, 0.6f, 0.6f);  // Muted for group headers
+            public static readonly Color VibePositive = new(0.2f, 0.9f, 0.2f);    // Green for positive VIBE
+            public static readonly Color VibeNegative = new(0.9f, 0.2f, 0.2f);    // Red for negative VIBE
+            public static readonly Color VibeNeutral = new(0.9f, 0.9f, 0.2f);     // Yellow for neutral VIBE
+            public static readonly Color BarBackground = new(0.2f, 0.2f, 0.2f);   // Dark background for bars
+        }
+
+        /// <summary>
+        /// Get color for a Vern stat based on its normalized value (0-1 range).
+        /// </summary>
+        public static Color GetVernStatColor(float normalizedValue)
+        {
+            if (normalizedValue > 0.66f)
+                return VernStat.High;
+            if (normalizedValue > 0.33f)
+                return VernStat.Medium;
+            return VernStat.Low;
+        }
+
+        /// <summary>
+        /// Get color for VIBE score based on value (-100 to +100 range).
+        /// </summary>
+        public static Color GetVibeColor(float vibeValue)
+        {
+            if (vibeValue > 25f)
+                return VernStat.VibePositive;
+            if (vibeValue > -25f)
+                return VernStat.VibeNeutral;
+            return VernStat.VibeNegative;
+        }
+
+        /// <summary>
+        /// Get color for Spirit stat based on value (-50 to +50 range).
+        /// </summary>
+        public static Color GetSpiritColor(float spiritValue)
+        {
+            if (spiritValue > 10f)
+                return VernStat.SpiritPositive;
+            if (spiritValue > -10f)
+                return VernStat.SpiritNeutral;
+            return VernStat.SpiritNegative;
+        }
+
+        /// <summary>
+        /// Get color for centered stats based on value (-100 to +100 range).
+        /// Used for Physical, Emotional, Mental stats.
+        /// </summary>
+        public static Color GetCenteredStatColor(float value)
+        {
+            if (value > 25f)
+                return VernStat.SpiritPositive;   // Green for positive
+            if (value > -25f)
+                return VernStat.SpiritNeutral;    // Gray for neutral
+            return VernStat.SpiritNegative;       // Red for negative
+        }
+
         // Legend colors for reference
         public static Color GetQueueStateColor(CallerState state)
         {

@@ -1,232 +1,264 @@
-# KBTV - Vern's Stats System
+# KBTV - Vern's Stats System v2
 
 ## Overview
 
-Vern's stats system tracks his physical, emotional, and cognitive state during broadcasts. These stats drive the VIBE metric, which determines listener growth and show quality. The system uses sigmoid curves for smooth, natural-feeling transitions.
+Vern's stats system tracks his physical, emotional, and mental state during broadcasts. The system consists of:
 
-## Stat Categories
+- **Three Core Stats**: Physical, Emotional, Mental (range: -100 to +100)
+- **Two Dependencies**: Caffeine, Nicotine (range: 0-100, decay over time)
+- **Topic Belief**: Per-topic tiered XP system with level floors
 
-### Dependencies (Decay-Only)
-Things Vern is addicted to that cause immediate withdrawal symptoms when low.
-
-| Stat | Range | Purpose | Critical Effect |
-|------|-------|---------|-----------------|
-| **Caffeine** | 0-100 | Hours since last coffee | Below 20: Headache, irritability, slower reactions |
-| **Nicotine** | 0-100 | Hours since last cigarette | Below 20: Anxiety, restlessness, shaky hands |
-
-### Physical Capacity (Decay + Recovery)
-How long/how well Vern can perform.
-
-| Stat | Range | Purpose | Low State Effect |
-|------|-------|---------|------------------|
-| **Energy** | 0-100 | Mental stamina for hosting | Slurred speech, slow responses, lower quality |
-| **Satiety** | 0-100 | Hunger + Thirst combined | Irritability, faster fatigue |
-
-### Emotional State (Bidirectional)
-How Vern is currently feeling.
-
-| Stat | Range | Purpose | Effect on Show |
-|------|-------|---------|----------------|
-| **Spirit** | -50 to +50 | Baseline emotional state | Modulates all mood expressions |
-
-#### Spirit Tiers and Effects
-
-| Spirit Range | Vern's Behavior | VIBE Modifier |
-|--------------|-----------------|---------------|
-| +30 to +50 | Enthusiastic, fighting spirit | 1.4-1.6x boost |
-| +10 to +29 | Balanced, natural expression | 1.0-1.2x mild boost |
-| -9 to +9 | Flat, muted | 1.0x neutral |
-| -25 to -10 | Pessimistic, draining | 0.6-0.8x penalty |
-| -50 to -26 | Crisis state, checked out | 0.3-0.5x severe penalty |
-
-### Cognitive Performance (Derived + Direct)
-How well Vern processes information.
-
-| Stat | Range | Purpose | Low State Effect |
-|------|-------|---------|------------------|
-| **Alertness** | 0-100 | Wakefulness, reaction time | Misses conversation cues |
-| **Discernment** | 0-100 | Ability to spot fakes/liars | Gets fooled by compelling fakes |
-| **Focus** | 0-100 | Ability to stay on topic | Rabbitholes, loses callers |
-
-### Long-Term (Persistent Across Nights)
-Vern's trajectory and worldview.
-
-| Stat | Range | Purpose | What Moves It |
-|------|-------|---------|---------------|
-| **Skepticism** | 0-100 | How easily Vern accepts claims | Cumulative caller credibility |
-| **Topic Affinity** | -50 to +50 per topic | Relative interest in topic | Repeated topic choice |
+These stats combine to form **VIBE**, which determines listener growth and show quality.
 
 ---
 
-## Mood Types (7 Total)
+## Core Stats
 
-Mood types determine which dialog variant plays during conversations. Priority order:
+### Three-Stat System
+
+All core stats range from **-100 to +100**, starting at **0**.
+
+| Stat | Purpose | High State (+50 to +100) | Low State (-100 to -50) |
+|------|---------|--------------------------|-------------------------|
+| **Physical** | Energy, stamina, reaction time | Fast reactions, engaged, can handle long shows | Sluggish, slow reactions, misses conversation cues, yawning |
+| **Emotional** | Mood, morale, passion | Enthusiastic, invested, engaging dialogue | Defeated, bitter, snarky/dismissive, checked out |
+| **Mental** | Discernment, patience, focus | Spots hoaxers, patient with callers, draws out good content | Fooled by fakes, cuts callers off, snaps at them, goes on tangents |
+
+### Stat Ranges and States
+
+| Range | State | Description |
+|-------|-------|-------------|
+| +50 to +100 | **Excellent** | Peak performance |
+| +25 to +49 | **Good** | Above average |
+| -24 to +24 | **Neutral** | Functional, standard |
+| -49 to -25 | **Poor** | Noticeable decline |
+| -100 to -50 | **Critical** | Severe impairment |
+
+---
+
+## Dependencies
+
+Dependencies are consumables that decay over time. When depleted, core stats begin to decay.
+
+| Dependency | Range | Start | Base Decay | Decay Modifier |
+|------------|-------|-------|------------|----------------|
+| **Caffeine** | 0-100 | 100 | -5/min | Higher Mental → slower decay |
+| **Nicotine** | 0-100 | 100 | -4/min | Higher Emotional → slower decay |
+
+### Decay Modifier Formula
+
+Dependencies decay slower when their associated stat is high:
 
 ```
-Tired → Energetized → Irritated → Amused → Gruff → Focused → Neutral
+Caffeine decay rate = BaseRate × (1 - (Mental / 200))
+Nicotine decay rate = BaseRate × (1 - (Emotional / 200))
 ```
+
+**Examples:**
+- Mental at +100 → Caffeine decays at 50% rate (-2.5/min)
+- Mental at 0 → Caffeine decays at 100% rate (-5/min)
+- Mental at -100 → Caffeine decays at 150% rate (-7.5/min)
+
+### Withdrawal Effects
+
+When a dependency is depleted (reaches 0), core stats begin to decay:
+
+| Dependency Depleted | Stats Affected | Decay Rates |
+|---------------------|----------------|-------------|
+| **Caffeine = 0** | Physical, Mental | Physical: -6/min, Mental: -3/min |
+| **Nicotine = 0** | Emotional, Mental | Emotional: -6/min, Mental: -3/min |
+| **Both = 0** | All three | Physical: -6/min, Emotional: -6/min, Mental: -6/min |
+
+**Note:** Core stats do NOT decay while dependencies are above 0.
+
+---
+
+## Stat Interactions
+
+Stats affect each other's decay rates when in critical states:
+
+| Condition | Effect | Rationale |
+|-----------|--------|-----------|
+| Physical < -25 | Mental decay rate +50% | Exhaustion impairs thinking |
+| Emotional < -25 | Physical decay rate +50% | Demoralization is draining |
+| Mental < -25 | Caffeine & Nicotine decay +25% | Poor self-regulation |
+
+These accelerators stack with withdrawal effects.
+
+---
+
+## VIBE Calculation
+
+VIBE (Vibrancy, Interest, Broadcast Entertainment) is the composite metric that drives listener behavior.
+
+### Formula
+
+```
+VIBE = (Physical × 0.25) + (Emotional × 0.40) + (Mental × 0.35)
+```
+
+**Range:** -100 to +100
+
+**Weighting rationale:** Emotional is weighted highest because listeners respond most to Vern's engagement and passion.
+
+### VIBE Effects on Listeners
+
+| VIBE Range | Effect | Listeners/Min |
+|------------|--------|---------------|
+| +50 to +100 | Viral growth | +30 to +50 |
+| +25 to +49 | Steady growth | +10 to +25 |
+| -24 to +24 | Stable | -5 to +5 |
+| -49 to -25 | Steady decline | -10 to -25 |
+| -100 to -50 | Rapid decline | -30 to -50 |
+
+---
+
+## Mood Types
+
+Mood types determine which dialogue variant plays during conversations. They are derived from core stats.
+
+### Priority Order (First Match Wins)
+
+```
+Tired → Irritated → Energized → Amused → Focused → Gruff → Neutral
+```
+
+Negative states take priority over positive states.
+
+### Mood Triggers
 
 | Mood Type | Trigger Conditions | Vern Sounds Like |
 |-----------|-------------------|------------------|
-| **Tired** | Energy < 30 | Slow, flat, misses cues |
-| **Energized** | Caffeine > 60 AND Energy > 60 | Enthusiastic, quick-witted |
-| **Irritated** | Spirit < -10 OR Patience < 40 | Snarky, dismissive |
-| **Amused** | Spirit > 20 AND LastCallerPositive | Laughing, playful |
-| **Gruff** | RecentBadCaller OR Spirit < 0 | Grumpy, reluctant |
-| **Focused** | Alertness > 60 AND Discernment > 50 | Analytical, digging into claims |
-| **Neutral** | Default state | Professional, balanced |
-
-### Spirit Modulation Example
-
-Same mood type, different Spirit:
-
-**Mood Type: TIRED (Energy < 30)**
-
-| Spirit | Vern Sounds Like | VIBE Impact |
-|--------|------------------|-------------|
-| +40 | "Alright folks, I'm running on fumes but we're doing this!" | -5 |
-| +10 | "Okay... next caller... I'm listening..." | -10 |
-| -20 | "I can't... I physically cannot do this anymore..." | -20 |
-| -40 | "Why am I here... what's the point..." | -30 |
+| **Tired** | Physical < -25 | Slow, flat, yawning, misses cues |
+| **Irritated** | Emotional < -25 | Snarky, dismissive, short |
+| **Energized** | Physical > +50 | Quick, enthusiastic, energetic |
+| **Amused** | Emotional > +50 | Laughing, playful, engaged |
+| **Focused** | Mental > +50 | Analytical, probing, sharp |
+| **Gruff** | Emotional < 0 AND Mental > 0 | Grumpy but competent |
+| **Neutral** | Default (none of above) | Professional, balanced |
 
 ---
 
-## VIBE (Vibrancy, Interest, Broadcast Entertainment)
+## Caller Effects
 
-VIBE is the composite metric that drives listener behavior.
+Callers affect Vern's stats based on their quality:
 
-### Component Calculations
+| Caller Quality | Physical | Emotional | Mental |
+|----------------|----------|-----------|--------|
+| **Good caller** | +5 | +15 | +5 |
+| **Bad caller** | -3 | -15 | -10 |
+| **Catching hoaxer** | 0 | +5 | +10 |
+| **Fooled by hoaxer** | 0 | -10 | -15 |
 
-```
-Entertainment = Spirit×0.4 + Energy×0.3 + Alertness×0.2 + TopicAffinity×0.1
-Credibility   = Discernment×0.5 + Skepticism×0.3 + EvidenceBonus×0.2
-Engagement    = Focus×0.4 + Patience×0.3 + Spirit×0.2 + CallerQuality×0.1
-```
+### Hoaxer Detection
 
-### VIBE Formula
+Hoaxers are detected during **screening** (Option A):
+- **Caught:** Player rejects a low-legitimacy caller during screening
+- **Fooled:** Player approves a low-legitimacy caller who goes on-air
 
-```
-VIBE = (Entertainment × 0.4) + (Credibility × 0.3) + (Engagement × 0.3)
-```
-
-**Range**: -100 to +100
-
-### Listener Growth (Sigmoid)
-
-```csharp
-float listenerRate = BaseRate × Sigmoid(VIBE / 100f);
-```
-
-| VIBE Range | Listeners/Min | Effect |
-|------------|---------------|--------|
-| -75 to -50 | -50 | Rapid decline |
-| -49 to -25 | -15 | Steady decline |
-| -24 to +24 | 0 | Stable |
-| +25 to +50 | +10 | Steady growth |
-| +51 to +75 | +25 | Good growth |
-| +76 to +100 | +50 | Viral growth |
+Higher Mental (via Topic Belief bonuses) provides screening hints to help identify low-legitimacy callers.
 
 ---
 
-## Stat Decay Rules
+## Items
 
-| Stat | Base Decay | Accelerators |
-|------|------------|--------------|
-| Caffeine | -5/min | Low Energy (-2x), Stress (-1.5x) |
-| Nicotine | -4/min | High Stress (-2x) |
-| Energy | -2/min | Low Caffeine (-2x), Low Satiety (-1.5x), Low Spirit (-1.3x) |
-| Satiety | -3/min | Talking (-1.5x) |
-| Spirit | 0/min baseline | Bad caller (-8), Good caller (+8), Momentum (+1/min) |
-| Patience | -3/min | Bad caller (-10), Time pressure (-2x) |
+| Item | Primary Effect | Secondary Effect | Cooldown |
+|------|----------------|------------------|----------|
+| **Coffee** | Caffeine → 100 | Physical +10 | 30s |
+| **Cigarette** | Nicotine → 100 | Emotional +5 | 30s |
 
 ---
 
-## Sigmoid Functions
+## Topic Belief System
 
-### Spirit Modifier (For VIBE)
+Belief is a **per-topic tiered XP system** that tracks Vern's growing conviction in each topic over time.
 
-```csharp
-float normalizedSpirit = spirit / 100f;  // -0.5 to +0.5
-float modifier = 1.0f + (normalizedSpirit * 0.8f) + (normalizedSpirit * normalizedSpirit * 0.4f);
+### Key Mechanics
 
-// Results:
-// Spirit +50 → modifier = 1.58
-// Spirit 0    → modifier = 1.0
-// Spirit -50  → modifier = 0.58
+- Belief can go up and down based on caller quality
+- Once you reach a tier, you cannot drop below that tier's floor
+- Higher tiers provide Mental bonuses for that topic
+
+### Tier Structure
+
+| Tier | Name | Belief Required | Mental Bonus | Other Bonuses |
+|------|------|-----------------|--------------|---------------|
+| 1 | Skeptic | 0 | +0% | None |
+| 2 | Curious | 100 | +5% | - |
+| 3 | Interested | 300 | +10% | Screening hints |
+| 4 | Believer | 600 | +15% | Better caller pool |
+| 5 | True Believer | 1000 | +20% | Expert guests available |
+
+### Belief Changes
+
+| Event | Belief Change |
+|-------|---------------|
+| Good caller (on-topic) | +10 to +20 |
+| Bad/hoax caller (on-topic) | -5 to -15 (cannot drop below tier floor) |
+| Show completed (on-topic) | +25 |
+
+### Tier Floor Example
+
 ```
+Current: Tier 3 (Interested), Belief = 350
 
-### Other Sigmoid Applications
+Bad caller: -15 belief → Belief = 335 (still Tier 3)
+Bad caller: -15 belief → Belief = 320 (still Tier 3)
+Bad caller: -15 belief → Belief = 305 (still Tier 3)
+Bad caller: -15 belief → Belief = 300 (floor reached, stays at 300)
 
-| Use | Purpose |
-|-----|---------|
-| Listener Growth | Smooth listener rate, no sharp cliffs |
-| Decay Acceleration | Gradual degradation when stats approach 0 |
-| Item Effectiveness | Diminishing returns on repeated use |
-| Discernment | Sweet spot curve, low = worse than linear |
-
----
-
-## Items and Effects
-
-| Item | Primary | Secondary | Cooldown |
-|------|---------|-----------|----------|
-| **Coffee** | +Caffeine (+40) | +Energy (+15), +Alertness (+10) | 30s |
-| **Cigarette** | +Nicotine (+35) | +Spirit (+10), -Energy (-5) | 30s |
-| **Water** | +Satiety (+30) | +Spirit (+5) | 30s |
-| **Sandwich** | +Satiety (+60) | +Energy (+20), -Spirit (-5) | 30s |
-| **Whiskey** | +Spirit (+35) | +Energy (+10), -Discernment (-20), -Alertness (-15) | 60s |
-
-### Item Diminishing Returns (Sigmoid)
-
-```csharp
-float effectiveness = Sigmoid(consecutiveUses * -0.5f);
-
-// 1st use → 1.0 (100%)
-// 2nd use → 0.73 (27% less)
-// 3rd use → 0.45 (55% less)
-// 4th use → 0.26 (74% less)
+Cannot drop to Tier 2 once Tier 3 is reached.
 ```
 
 ---
 
 ## Starting Values
 
-| Stat | Starting Value |
-|------|----------------|
-| Caffeine | 50 |
-| Nicotine | 50 |
-| Energy | 100 |
-| Satiety | 50 |
-| Spirit | 0 |
-| Patience | 50 |
-| Alertness | 75 |
-| Discernment | 50 |
-| Focus | 50 |
-| Skepticism | 50 |
-| Topic Affinity | 0 (all topics) |
+| Stat/Dependency | Starting Value |
+|-----------------|----------------|
+| Physical | 0 |
+| Emotional | 0 |
+| Mental | 0 |
+| Caffeine | 100 (fresh cup of coffee) |
+| Nicotine | 100 (new pack of smokes) |
+| Topic Belief | 0 (Tier 1: Skeptic) |
 
 ---
 
 ## UI Layout
 
+### VERN Tab
+
 ```
-[ VIBE: ████████░░ ] +25/min  (gradient: green to red)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[CAFFEINE] ████████░░  [NICOTINE] ████░░░░░
-[ENERGY]   ████████░░  [SATIETY]  ████░░░░░
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[SPIRIT]   ████░░░░░  [-50   -25   0   +25   +50]
-[PATIENCE] ██████░░░░
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-[ALERTNESS]███████░░░ [DISCERNMENT]█████░░░░
-[FOCUS]    ██████░░░░
+┌─────────────────────────────────────────────────────────────┐
+│  VIBE  [░░░░░░░████████████░░░░]  +25   FOCUSED             │
+│                                                             │
+│  ─── DEPENDENCIES ──────────────────────────────────────    │
+│  CAFFEINE   [████████░░░░░░░░░░]  80/100                    │
+│  NICOTINE   [████░░░░░░░░░░░░░░]  40/100                    │
+│                                                             │
+│  ─── CORE STATS ────────────────────────────────────────    │
+│  PHYSICAL   [░░░░░░░░░░|██████░░]  +30                      │
+│  EMOTIONAL  [░░░░░░████|░░░░░░░░]  -20                      │
+│  MENTAL     [░░░░░░░░░░|████░░░░]  +15                      │
+│                                                             │
+│  ─── TOPIC BELIEF ──────────────────────────────────────    │
+│  UFOs & Aliens                                              │
+│  Tier 3: INTERESTED       [████████░░]  245/300             │
+│  Bonus: +10% Mental                                         │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Crisis Warnings
 
-- Stat < 25: Bar turns red, icon pulses
-- VIBE < -25: Warning indicator, "LISTENERS LEAVING"
-- Caffeine < 20: "VERN HAS HEADACHE"
+| Condition | Warning |
+|-----------|---------|
+| Caffeine = 0 | "CAFFEINE CRASH" |
+| Nicotine = 0 | "NICOTINE WITHDRAWAL" |
+| Physical < -50 | "EXHAUSTED" |
+| Emotional < -50 | "DEMORALIZED" |
+| Mental < -50 | "UNFOCUSED" |
+| VIBE < -25 | "LISTENERS LEAVING" |
 
 ---
 
@@ -234,17 +266,41 @@ float effectiveness = Sigmoid(consecutiveUses * -0.5f);
 
 | Class | Purpose |
 |-------|---------|
-| `VernStats` | Main stat container, initialization, decay logic |
-| `Stat` | Individual stat with clamping and events |
-| `VernStateCalculator` | VIBE calculation, mood categorization, sigmoid functions |
-| `VernMoodType` | Enum of mood types (7 values) |
-| `ItemEffect` | Handles item application with diminishing returns |
+| `Stat` | Individual stat with min/max, clamping, and change events |
+| `VernStats` | Main stat container, initialization, VIBE/mood calculation |
+| `VernStatsMonitor` | Handles decay logic in game loop |
+| `VernMoodType` | Enum of 7 mood types |
+| `TopicBelief` | Per-topic belief tracking with tiers |
+
+---
+
+## Design Rationale
+
+### Why Three Stats?
+
+Consolidating from 9+ stats to 3 provides:
+- **Clarity:** Each stat has a clear, distinct purpose
+- **Readability:** Easy to understand at a glance
+- **Balance:** Easier to tune interactions
+- **UI simplicity:** Clean display without clutter
+
+### Why Dependencies Separate?
+
+Caffeine and Nicotine are:
+- **Consumables** (can be replenished with items)
+- **Decay buffers** (protect core stats from decay)
+- **Strategic choices** (when to use coffee/cigarettes)
+
+### Why Tiered Belief?
+
+- **Progression feel:** Clear milestones and level-ups
+- **Safety net:** Can't lose all progress from a bad night
+- **Meaningful bonuses:** Each tier unlocks tangible benefits
 
 ---
 
 ## References
 
-- [CONVERSATION_DESIGN.md](CONVERSATION_DESIGN.md) - Dialog mood variants
-- [TOPIC_EXPERIENCE.md](TOPIC_EXPERIENCE.md) - Topic affinity system
-- [EVIDENCE_SYSTEM.md](EVIDENCE_SYSTEM.md) - Evidence bonuses to credibility
+- [CONVERSATION_DESIGN.md](../ui/CONVERSATION_DESIGN.md) - Dialogue mood variants
+- [TOPIC_EXPERIENCE.md](../design/TOPIC_EXPERIENCE.md) - Topic system overview
 - [ECONOMY_SYSTEM.md](ECONOMY_SYSTEM.md) - VIBE affects ad revenue

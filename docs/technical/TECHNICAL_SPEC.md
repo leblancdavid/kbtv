@@ -66,23 +66,26 @@ assets/
 ## Core Systems
 
 ### Stats System
-**Files**: `scripts/data/Stat.cs`, `scripts/data/VernStats.cs`, `scripts/data/StatModifier.cs`
+**Files**: `scripts/data/Stat.cs`, `scripts/data/VernStats.cs`, `scripts/data/TopicBelief.cs`
 
-Vern's stats system tracks his physical, emotional, and cognitive state during broadcasts. These stats drive the VIBE metric, which determines listener growth and show quality. The system uses sigmoid curves for smooth, natural-feeling transitions.
+Vern's stats system uses three core stats plus dependencies. See [VERN_STATS.md](../systems/VERN_STATS.md) for complete documentation.
 
-- **Dependencies (Decay-Only)**: Caffeine, Nicotine (0-100) - must be maintained, cause withdrawal
-- **Physical Capacity**: Energy, Satiety (0-100) - capacity to perform
-- **Emotional State**: Spirit (-50 to +50) - universal mood modifier
-- **Cognitive Performance**: Alertness, Discernment, Focus (0-100) - performance quality
-- **Long-Term**: Skepticism (0-100), Topic Affinity (-50 to +50 per topic)
+- **Core Stats** (-100 to +100, start at 0): Physical, Emotional, Mental
+- **Dependencies** (0-100, start at 100): Caffeine, Nicotine - decay over time
+- **Topic Belief**: Per-topic tiered XP system with level floors and bonuses
+
+**Key mechanics:**
+- Dependencies decay based on time (modified by stats)
+- Core stats only decay when dependencies are depleted
+- Stat interactions: Low Physical affects Mental, Low Emotional affects Physical, etc.
 
 The combination of all stats affects VIBE (Vibrancy, Interest, Broadcast Entertainment), which drives listener growth.
 
-- `VernStats` (Resource) contains all stat tracking with decay rules and VIBE calculations
-- `Stat` (individual stat with clamping and events)
-- `StatModifier` Resources apply stat changes (items/events call `Apply(VernStats)`)
-- `CalculateVibe()` returns composite metric using sigmoid functions for smooth transitions
-- `ApplyDecay(deltaTime, multiplier)` degrades stats during live shows using configurable decay rates
+- `VernStats` (Resource) contains all stat tracking with VIBE/mood calculations
+- `Stat` (individual stat with min/max clamping and change events)
+- `TopicBelief` tracks per-topic belief with tiered XP and level floors
+- `CalculateVIBE()` returns weighted composite: `Physical×0.25 + Emotional×0.40 + Mental×0.35`
+- `VernStatsMonitor` handles decay logic in game loop
 
 ### Phase/Time System
 **Files**: `Core/GamePhase.cs`, `Core/GameStateManager.cs`, `Managers/TimeManager.cs`, `Managers/LiveShowManager.cs`
@@ -201,19 +204,21 @@ The dialogue system uses **async event-driven broadcast architecture** - executa
 | `VernDialogueTemplate` | Resource for Vern's broadcast lines (opening, filler, signoff) |
 
 #### Mood Calculation
-`VernStateCalculator.CalculateMood(VernStats)` returns `VernMood` based on priority order:
-- **Tired**: Energy < 30
-- **Energized**: Caffeine > 60 AND Energy > 60
-- **Irritated**: Spirit < -10 OR Patience < 40
-- **Amused**: Spirit > 20 AND LastCallerPositive
-- **Gruff**: RecentBadCaller OR Spirit < 0
-- **Focused**: Alertness > 60 AND Discernment > 50
+`VernStats.CalculateMoodType()` returns `VernMoodType` based on priority order (first match wins):
+- **Tired**: Physical < -25
+- **Irritated**: Emotional < -25
+- **Energized**: Physical > +50
+- **Amused**: Emotional > +50
+- **Focused**: Mental > +50
+- **Gruff**: Emotional < 0 AND Mental > 0
 - **Neutral**: Default state
 
-#### Discernment Calculation
-`VernStateCalculator.DetermineBeliefPath(discernment, legitimacy)` determines if Vern correctly reads the caller:
-- Higher discernment = more likely to be Skeptical of Fake callers, Believing of Compelling callers
-- Legitimacy modifies threshold (Compelling callers are easier to believe)
+#### Mental Bonuses (from Topic Belief)
+Higher Topic Belief tiers provide Mental bonuses during shows on that topic:
+- Tier 2 (Curious): +5% Mental
+- Tier 3 (Interested): +10% Mental, screening hints
+- Tier 4 (Believer): +15% Mental, better caller pool
+- Tier 5 (True Believer): +20% Mental, expert guests
 
 #### Async Broadcast Flow
 - **Background Execution**: AsyncBroadcastLoop runs in Task without blocking main thread

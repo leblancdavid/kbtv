@@ -20,12 +20,18 @@ namespace KBTV.Ads
             _gameStateManager = gameStateManager;
             _listenerManager = listenerManager;
         }
+
+        /// <summary>
+        /// Apply penalty when break is not queued properly.
+        /// Affects Emotional stat (replacing old Patience reference).
+        /// </summary>
         public void ApplyUnqueuedPenalty()
         {
             var vernStats = _gameStateManager?.VernStats;
             if (vernStats != null)
             {
-                vernStats.Patience.Modify(-AdConstants.UNQUEUED_MOOD_PENALTY);
+                // Apply to Emotional stat (mood penalty)
+                vernStats.Emotional.Modify(-AdConstants.UNQUEUED_MOOD_PENALTY);
                 GD.Print($"AdManager: Applied {AdConstants.UNQUEUED_MOOD_PENALTY} mood penalty (break not queued)");
             }
         }

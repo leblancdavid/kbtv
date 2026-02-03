@@ -1,4 +1,68 @@
-## Current Session - Fix Ad Delays Not Working on Background Thread - COMPLETED ✅
+## Current Session - Vern Stats System v2 Refactor - Build Fix Complete ✅
+
+**Branch**: `feature/vern-stats-display`
+
+**Problem**: The Vern Stats System refactor from 9+ stats to 3 core stats (Physical, Emotional, Mental) plus dependencies (Caffeine, Nicotine) left 79 build errors due to old StatType enum references in various files.
+
+**Solution**: Updated all remaining files to use the new StatType enum values.
+
+### Key Changes Made
+
+**1. ScreenableProperty.cs** - Updated `GetStatCode()` method
+- Changed from old stats (Patience, Spirit, Energy, Focus, Discernment, Belief, Alertness, Satiety) to new stats
+- New codes: `Ph` (Physical), `Em` (Emotional), `Me` (Mental), `Ca` (Caffeine), `Ni` (Nicotine)
+
+**2. StatSummaryPanel.cs** - Updated both `GetStatCode()` and `GetStatFullName()` methods
+- Same mapping as ScreenableProperty
+- Full names: Physical, Emotional, Mental, Caffeine, Nicotine
+
+**3. CallerGenerator.cs** - Updated `PersonalityAffectedStats` array
+- Changed from 6 old stats to 3 new core stats: Physical, Emotional, Mental
+- Personalities now affect these three stats randomly
+
+**4. ScreenablePropertyTests.cs** - Rewrote tests for new stat system
+- Updated all StatType references from old to new
+- Changed stat codes in assertions (e.g., "Em" instead of "P" for emotional effects)
+
+**5. CallerStatEffectsTests.cs** - Complete rewrite to match CallerStatEffects.cs mappings
+- All tests now use Physical, Emotional, Mental stats
+- Test expectations match the v2 stat effect mappings:
+  - EmotionalState → Emotional stat
+  - CurseRisk → Emotional stat
+  - Coherence → Mental stat
+  - Urgency → Emotional/Physical stats
+  - BeliefLevel → Mental/Emotional stats
+  - Evidence → Emotional/Mental stats
+  - Legitimacy → Emotional/Mental stats
+  - AudioQuality → Emotional stat
+
+### New Stats System Summary
+
+| Stat | Range | Purpose |
+|------|-------|---------|
+| **Physical** | -100 to +100 | Energy, stamina, reaction time |
+| **Emotional** | -100 to +100 | Mood, morale, patience, passion |
+| **Mental** | -100 to +100 | Discernment, focus, cognitive patience |
+| **Caffeine** | 0 to 100 | Dependency that affects Physical/Mental decay |
+| **Nicotine** | 0 to 100 | Dependency that affects Emotional/Mental decay |
+
+### Files Modified
+- `scripts/screening/ScreenableProperty.cs`
+- `scripts/ui/components/StatSummaryPanel.cs`
+- `scripts/callers/CallerGenerator.cs`
+- `tests/unit/screening/ScreenablePropertyTests.cs`
+- `tests/unit/screening/CallerStatEffectsTests.cs`
+
+### Result
+✅ **Build succeeds with 0 errors** (5 pre-existing warnings remain)
+✅ **All StatType references updated** to use new enum values
+✅ **Tests rewritten** to match v2 stat effect mappings
+
+**Status**: Vern Stats v2 refactor build fix complete. Ready for testing.
+
+---
+
+## Previous Session - Fix Ad Delays Not Working on Background Thread - COMPLETED ✅
 
 **Problem**: Ads were still skipping during commercial breaks despite the sequential execution fix. The DelayAsync method used SceneTree.CreateTimer, which doesn't work from the background thread where AsyncBroadcastLoop runs, causing immediate completion.
 
@@ -83,79 +147,3 @@
 ✅ **Maintains sponsor display** - "This commercial break sponsored by X" text preserved
 
 **Status**: Implementation complete and compiled successfully. Ready for testing with live commercial breaks.
-
-## Current Session - Audio Loading Optimization - COMPLETED ✅
-
-**Problem**: Audio file loading errors were logged as errors instead of warnings, and unnecessary file loading occurred even when audio was disabled.
-
-**Solution**: Converted recoverable loading errors to warnings and added early returns to prevent loading when audio is disabled.
-
-#### Key Changes Made
-
-**1. Convert Loading Errors to Warnings**
-- Changed `GD.PrintErr()` to `GD.Print()` for 6 recoverable audio loading failures:
-  - Invalid audio file skipping (with delay fallback)
-  - Failed audio stream loading (with delay fallback)  
-  - Missing return bumper directory (with silent fallback)
-  - No return bumper files found (with silent fallback)
-  - Failed bumper file loading (with silent fallback)
-  - Failed silent audio file loading (fallback to null)
-
-**2. Prevent Loading When Audio Disabled**
-- Added early return in `LoadAudioForBroadcastItem()`: `if (IsAudioDisabled) return null;`
-- Skipped special corruption check when audio disabled to avoid unnecessary loading
-- Verified executable classes already had proper disabled checks
-
-#### Technical Details
-- **Before**: Missing audio files caused error noise, and disabled audio still triggered file I/O operations
-- **After**: Recoverable failures are logged as warnings, disabled audio prevents all loading attempts
-- **Performance**: Eliminates unnecessary file system access when audio is disabled
-- **UX**: Reduces error log spam during normal operation
-
-#### Files Modified
-- **`scripts/audio/BroadcastAudioService.cs`** - Converted errors to warnings, added early returns for disabled audio
-
-#### Result
-✅ **Cleaner logging** - Audio loading failures now use warnings instead of errors for recoverable cases
-✅ **Performance optimization** - Audio files are never loaded when disabled, reducing I/O overhead
-
----
-
-## Current Session - Complete Audio Error Logging Cleanup - COMPLETED ✅
-
-**Problem**: Additional audio loading errors during dead air, show opening, and other broadcast states were still logged as errors instead of warnings.
-
-**Solution**: Converted all remaining recoverable audio loading errors to warnings and added audio disabled checks to prevent unnecessary logging.
-
-#### Key Changes Made
-
-**1. BroadcastStateMachine.cs (3 changes)**
-- `ValidateAudioPath()`: Skip logging when `IsAudioDisabled` is true, convert error to warning
-- `GetRandomReturnBumperPath()`: Convert directory/file not found errors to warnings
-
-**2. BroadcastAudioService.cs (6 additional changes)**
-- Corruption check failures: Convert to warnings (failed load, unknown type, invalid length)
-- Invalid loaded audio stream: Convert to warning with silent fallback
-- Audio timeout: Convert to warning (recoverable completion)
-- Unsupported audio type: Convert to warning (returns 0f duration)
-
-**3. AudioDialoguePlayer.cs (3 changes)**
-- Return bumper loading failures: Convert to warnings (directory not found, no files, failed load)
-
-#### Technical Details
-- **Before**: 12 additional recoverable audio failures logged as errors, causing log noise
-- **After**: All audio loading failures now consistently use warnings for recoverable scenarios
-- **Disabled Audio**: ValidateAudioPath skips file existence checks when audio disabled, preventing warnings
-- **Consistency**: All fallback mechanisms (timeouts, silent audio, null returns) now use warning-level logging
-
-#### Files Modified
-- **`scripts/dialogue/BroadcastStateMachine.cs`** - Skip logging when disabled, convert errors to warnings
-- **`scripts/audio/BroadcastAudioService.cs`** - Convert remaining corruption/invalid/timeout errors to warnings
-- **`scripts/dialogue/AudioDialoguePlayer.cs`** - Convert return bumper loading errors to warnings
-
-#### Result
-✅ **Zero error noise** - All recoverable audio loading scenarios now use warning-level logging
-✅ **Disabled audio optimization** - No file existence checks or logging when audio is disabled
-✅ **Complete consistency** - All 18+ audio loading failure cases now follow the same warning pattern
-
-**Status**: Audio loading behavior optimized for both performance and user experience

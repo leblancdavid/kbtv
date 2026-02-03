@@ -8,6 +8,11 @@ namespace KBTV.Screening
     /// Static utility class that calculates stat effects for caller properties.
     /// Both the property type AND value determine the effect on Vern's stats.
     /// These effects are previewed during screening and applied when the caller goes on-air.
+    /// 
+    /// Stats Mapping (v2 - Three-Stat System):
+    /// - Physical: Energy, stamina, reaction time
+    /// - Emotional: Mood, morale, patience, passion
+    /// - Mental: Discernment, focus, patience (cognitive)
     /// </summary>
     public static class CallerStatEffects
     {
@@ -43,8 +48,8 @@ namespace KBTV.Screening
         }
 
         /// <summary>
-        /// Emotional state affects Vern's patience and spirit.
-        /// Calm callers are easy to deal with, angry callers drain patience.
+        /// Emotional state affects Vern's Emotional stat.
+        /// Calm callers are easy to deal with, angry callers drain patience/mood.
         /// </summary>
         private static List<StatModification> GetEmotionalStateEffects(CallerEmotionalState state)
         {
@@ -52,34 +57,31 @@ namespace KBTV.Screening
             {
                 CallerEmotionalState.Calm => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, 3f)
+                    new StatModification(StatType.Emotional, 3f)
                 },
                 CallerEmotionalState.Anxious => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, -2f),
-                    new StatModification(StatType.Spirit, -1f)
+                    new StatModification(StatType.Emotional, -3f)
                 },
                 CallerEmotionalState.Excited => new List<StatModification>
                 {
-                    new StatModification(StatType.Spirit, 3f),
-                    new StatModification(StatType.Energy, 2f)
+                    new StatModification(StatType.Emotional, 3f),
+                    new StatModification(StatType.Physical, 2f)
                 },
                 CallerEmotionalState.Scared => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, -3f),
-                    new StatModification(StatType.Spirit, -2f)
+                    new StatModification(StatType.Emotional, -5f)
                 },
                 CallerEmotionalState.Angry => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, -5f),
-                    new StatModification(StatType.Spirit, -3f)
+                    new StatModification(StatType.Emotional, -8f)
                 },
                 _ => new List<StatModification>()
             };
         }
 
         /// <summary>
-        /// Curse risk affects Vern's patience.
+        /// Curse risk affects Vern's Emotional stat.
         /// High curse risk means Vern has to be on edge, ready for the dump button.
         /// </summary>
         private static List<StatModification> GetCurseRiskEffects(CallerCurseRisk risk)
@@ -89,19 +91,18 @@ namespace KBTV.Screening
                 CallerCurseRisk.Low => new List<StatModification>(),
                 CallerCurseRisk.Medium => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, -2f)
+                    new StatModification(StatType.Emotional, -2f)
                 },
                 CallerCurseRisk.High => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, -4f),
-                    new StatModification(StatType.Spirit, -2f)
+                    new StatModification(StatType.Emotional, -6f)
                 },
                 _ => new List<StatModification>()
             };
         }
 
         /// <summary>
-        /// Coherence affects Vern's patience and focus.
+        /// Coherence affects Vern's Mental stat.
         /// Incoherent callers are frustrating and hard to follow.
         /// </summary>
         private static List<StatModification> GetCoherenceEffects(CallerCoherence coherence)
@@ -110,24 +111,22 @@ namespace KBTV.Screening
             {
                 CallerCoherence.Coherent => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, 2f),
-                    new StatModification(StatType.Focus, 1f)
+                    new StatModification(StatType.Mental, 3f)
                 },
                 CallerCoherence.Questionable => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, -2f)
+                    new StatModification(StatType.Mental, -2f)
                 },
                 CallerCoherence.Incoherent => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, -4f),
-                    new StatModification(StatType.Focus, -3f)
+                    new StatModification(StatType.Mental, -7f)
                 },
                 _ => new List<StatModification>()
             };
         }
 
         /// <summary>
-        /// Urgency affects Vern's spirit and energy.
+        /// Urgency affects Vern's Emotional and Physical stats.
         /// Urgent calls are more engaging but critical urgency can be stressful.
         /// </summary>
         private static List<StatModification> GetUrgencyEffects(CallerUrgency urgency)
@@ -137,24 +136,24 @@ namespace KBTV.Screening
                 CallerUrgency.Low => new List<StatModification>(),
                 CallerUrgency.Medium => new List<StatModification>
                 {
-                    new StatModification(StatType.Spirit, 1f)
+                    new StatModification(StatType.Emotional, 1f)
                 },
                 CallerUrgency.High => new List<StatModification>
                 {
-                    new StatModification(StatType.Spirit, 2f),
-                    new StatModification(StatType.Energy, 1f)
+                    new StatModification(StatType.Emotional, 2f),
+                    new StatModification(StatType.Physical, 1f)
                 },
                 CallerUrgency.Critical => new List<StatModification>
                 {
-                    new StatModification(StatType.Spirit, 3f),
-                    new StatModification(StatType.Patience, -2f)
+                    new StatModification(StatType.Emotional, 3f),
+                    new StatModification(StatType.Emotional, -2f)  // Net +1, but exciting with stress
                 },
                 _ => new List<StatModification>()
             };
         }
 
         /// <summary>
-        /// Belief level affects Vern's spirit, discernment, and belief.
+        /// Belief level affects Vern's Emotional and Mental stats.
         /// Curious callers are easy, zealots are exhausting.
         /// </summary>
         private static List<StatModification> GetBeliefLevelEffects(CallerBeliefLevel belief)
@@ -163,30 +162,28 @@ namespace KBTV.Screening
             {
                 CallerBeliefLevel.Curious => new List<StatModification>
                 {
-                    new StatModification(StatType.Discernment, 1f)
+                    new StatModification(StatType.Mental, 1f)
                 },
                 CallerBeliefLevel.Partial => new List<StatModification>(),
                 CallerBeliefLevel.Committed => new List<StatModification>
                 {
-                    new StatModification(StatType.Spirit, 1f)
+                    new StatModification(StatType.Emotional, 1f)
                 },
                 CallerBeliefLevel.Certain => new List<StatModification>
                 {
-                    new StatModification(StatType.Spirit, 2f),
-                    new StatModification(StatType.Belief, 1f)
+                    new StatModification(StatType.Emotional, 2f)
                 },
                 CallerBeliefLevel.Zealot => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, -3f),
-                    new StatModification(StatType.Spirit, -1f)
+                    new StatModification(StatType.Emotional, -4f)
                 },
                 _ => new List<StatModification>()
             };
         }
 
         /// <summary>
-        /// Evidence level affects Vern's spirit, discernment, and belief.
-        /// Good evidence boosts the show, no evidence decreases belief.
+        /// Evidence level affects Vern's Emotional and Mental stats.
+        /// Good evidence boosts the show, no evidence is demoralizing.
         /// </summary>
         private static List<StatModification> GetEvidenceLevelEffects(CallerEvidenceLevel evidence)
         {
@@ -194,29 +191,29 @@ namespace KBTV.Screening
             {
                 CallerEvidenceLevel.None => new List<StatModification>
                 {
-                    new StatModification(StatType.Belief, -2f)
+                    new StatModification(StatType.Emotional, -2f)
                 },
                 CallerEvidenceLevel.Low => new List<StatModification>
                 {
-                    new StatModification(StatType.Belief, -1f)
+                    new StatModification(StatType.Emotional, -1f)
                 },
                 CallerEvidenceLevel.Medium => new List<StatModification>(),
                 CallerEvidenceLevel.High => new List<StatModification>
                 {
-                    new StatModification(StatType.Spirit, 2f),
-                    new StatModification(StatType.Discernment, 1f)
+                    new StatModification(StatType.Emotional, 2f),
+                    new StatModification(StatType.Mental, 1f)
                 },
                 CallerEvidenceLevel.Irrefutable => new List<StatModification>
                 {
-                    new StatModification(StatType.Spirit, 5f),
-                    new StatModification(StatType.Discernment, 2f)
+                    new StatModification(StatType.Emotional, 5f),
+                    new StatModification(StatType.Mental, 2f)
                 },
                 _ => new List<StatModification>()
             };
         }
 
         /// <summary>
-        /// Legitimacy affects Vern's spirit, patience, and belief.
+        /// Legitimacy affects Vern's Emotional and Mental stats.
         /// Fake callers are demoralizing, compelling callers boost the show.
         /// </summary>
         private static List<StatModification> GetLegitimacyEffects(CallerLegitimacy legitimacy)
@@ -225,25 +222,24 @@ namespace KBTV.Screening
             {
                 CallerLegitimacy.Fake => new List<StatModification>
                 {
-                    new StatModification(StatType.Spirit, -5f),
-                    new StatModification(StatType.Patience, -3f)
+                    new StatModification(StatType.Emotional, -8f)
                 },
                 CallerLegitimacy.Questionable => new List<StatModification>
                 {
-                    new StatModification(StatType.Belief, -2f)
+                    new StatModification(StatType.Mental, -2f)
                 },
                 CallerLegitimacy.Credible => new List<StatModification>(),
                 CallerLegitimacy.Compelling => new List<StatModification>
                 {
-                    new StatModification(StatType.Spirit, 3f),
-                    new StatModification(StatType.Discernment, 2f)
+                    new StatModification(StatType.Emotional, 3f),
+                    new StatModification(StatType.Mental, 2f)
                 },
                 _ => new List<StatModification>()
             };
         }
 
         /// <summary>
-        /// Phone/audio quality affects Vern's patience.
+        /// Phone/audio quality affects Vern's Emotional stat.
         /// Bad connections are frustrating to deal with.
         /// </summary>
         private static List<StatModification> GetPhoneQualityEffects(CallerPhoneQuality quality)
@@ -252,16 +248,16 @@ namespace KBTV.Screening
             {
                 CallerPhoneQuality.Terrible => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, -3f)
+                    new StatModification(StatType.Emotional, -3f)
                 },
                 CallerPhoneQuality.Poor => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, -1f)
+                    new StatModification(StatType.Emotional, -1f)
                 },
                 CallerPhoneQuality.Average => new List<StatModification>(),
                 CallerPhoneQuality.Good => new List<StatModification>
                 {
-                    new StatModification(StatType.Patience, 1f)
+                    new StatModification(StatType.Emotional, 1f)
                 },
                 _ => new List<StatModification>()
             };

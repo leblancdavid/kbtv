@@ -22,7 +22,7 @@ namespace KBTV.Data
 
     /// <summary>
     /// Defines an item or event that can modify Vern's stats.
-    /// Examples: Coffee (+Energy, -Thirst), Bad Caller (-Belief, -Mood)
+    /// Examples: Coffee (+Physical, Caffeine → 100), Bad Caller (-Emotional, -Mental)
     /// </summary>
     public partial class StatModifier : Resource
     {
@@ -47,7 +47,7 @@ namespace KBTV.Data
 
             foreach (var mod in _modifications)
             {
-                Stat targetStat = GetStat(stats, mod.StatType);
+                Stat? targetStat = GetStat(stats, mod.StatType);
                 if (targetStat != null)
                 {
                     targetStat.Modify(mod.Amount);
@@ -55,7 +55,7 @@ namespace KBTV.Data
             }
         }
 
-        private Stat GetStat(VernStats stats, StatType type)
+        private Stat? GetStat(VernStats stats, StatType type)
         {
             return type switch
             {
@@ -63,21 +63,10 @@ namespace KBTV.Data
                 StatType.Caffeine => stats.Caffeine,
                 StatType.Nicotine => stats.Nicotine,
 
-                // Physical
-                StatType.Energy => stats.Energy,
-                StatType.Satiety => stats.Satiety,
-
-                // Emotional
-                StatType.Spirit => stats.Spirit,
-
-                // Cognitive
-                StatType.Alertness => stats.Alertness,
-                StatType.Discernment => stats.Discernment,
-                StatType.Focus => stats.Focus,
-                StatType.Patience => stats.Patience,
-
-                // Long-Term
-                StatType.Belief => stats.Belief,
+                // Core Stats
+                StatType.Physical => stats.Physical,
+                StatType.Emotional => stats.Emotional,
+                StatType.Mental => stats.Mental,
 
                 _ => null
             };

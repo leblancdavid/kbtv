@@ -8,6 +8,12 @@ using System.Linq;
 
 namespace KBTV.Tests.Unit.Screening
 {
+    /// <summary>
+    /// Tests for CallerStatEffects using the v2 Three-Stat System:
+    /// - Physical: Energy, stamina, reaction time
+    /// - Emotional: Mood, morale, patience, passion
+    /// - Mental: Discernment, focus, patience (cognitive)
+    /// </summary>
     public class CallerStatEffectsTests : KBTVTestClass
     {
         public CallerStatEffectsTests(Node testScene) : base(testScene) { }
@@ -15,53 +21,50 @@ namespace KBTV.Tests.Unit.Screening
         #region EmotionalState Tests
 
         [Test]
-        public void GetStatEffects_EmotionalState_Calm_ReturnsPatiencePlus()
+        public void GetStatEffects_EmotionalState_Calm_ReturnsEmotionalPlus()
         {
             var effects = CallerStatEffects.GetStatEffects("EmotionalState", CallerEmotionalState.Calm);
 
             AssertThat(effects.Count == 1);
-            AssertThat(effects[0].StatType == StatType.Patience);
+            AssertThat(effects[0].StatType == StatType.Emotional);
             AssertThat(effects[0].Amount == 3f);
         }
 
         [Test]
-        public void GetStatEffects_EmotionalState_Anxious_ReturnsPatienceAndSpiritMinus()
+        public void GetStatEffects_EmotionalState_Anxious_ReturnsEmotionalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("EmotionalState", CallerEmotionalState.Anxious);
 
-            AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Patience && e.Amount == -2f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Spirit && e.Amount == -1f));
+            AssertThat(effects.Count == 1);
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == -3f));
         }
 
         [Test]
-        public void GetStatEffects_EmotionalState_Excited_ReturnsSpiritAndEnergyPlus()
+        public void GetStatEffects_EmotionalState_Excited_ReturnsEmotionalAndPhysicalPlus()
         {
             var effects = CallerStatEffects.GetStatEffects("EmotionalState", CallerEmotionalState.Excited);
 
             AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Spirit && e.Amount == 3f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Energy && e.Amount == 2f));
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == 3f));
+            AssertThat(effects.Any(e => e.StatType == StatType.Physical && e.Amount == 2f));
         }
 
         [Test]
-        public void GetStatEffects_EmotionalState_Scared_ReturnsPatienceAndSpiritMinus()
+        public void GetStatEffects_EmotionalState_Scared_ReturnsEmotionalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("EmotionalState", CallerEmotionalState.Scared);
 
-            AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Patience && e.Amount == -3f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Spirit && e.Amount == -2f));
+            AssertThat(effects.Count == 1);
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == -5f));
         }
 
         [Test]
-        public void GetStatEffects_EmotionalState_Angry_ReturnsHighPatienceAndSpiritMinus()
+        public void GetStatEffects_EmotionalState_Angry_ReturnsHighEmotionalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("EmotionalState", CallerEmotionalState.Angry);
 
-            AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Patience && e.Amount == -5f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Spirit && e.Amount == -3f));
+            AssertThat(effects.Count == 1);
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == -8f));
         }
 
         #endregion
@@ -77,23 +80,22 @@ namespace KBTV.Tests.Unit.Screening
         }
 
         [Test]
-        public void GetStatEffects_CurseRisk_Medium_ReturnsPatienceMinus()
+        public void GetStatEffects_CurseRisk_Medium_ReturnsEmotionalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("CurseRisk", CallerCurseRisk.Medium);
 
             AssertThat(effects.Count == 1);
-            AssertThat(effects[0].StatType == StatType.Patience);
+            AssertThat(effects[0].StatType == StatType.Emotional);
             AssertThat(effects[0].Amount == -2f);
         }
 
         [Test]
-        public void GetStatEffects_CurseRisk_High_ReturnsPatienceAndSpiritMinus()
+        public void GetStatEffects_CurseRisk_High_ReturnsEmotionalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("CurseRisk", CallerCurseRisk.High);
 
-            AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Patience && e.Amount == -4f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Spirit && e.Amount == -2f));
+            AssertThat(effects.Count == 1);
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == -6f));
         }
 
         #endregion
@@ -101,33 +103,31 @@ namespace KBTV.Tests.Unit.Screening
         #region Coherence Tests
 
         [Test]
-        public void GetStatEffects_Coherence_Coherent_ReturnsPatienceAndFocusPlus()
+        public void GetStatEffects_Coherence_Coherent_ReturnsMentalPlus()
         {
             var effects = CallerStatEffects.GetStatEffects("Coherence", CallerCoherence.Coherent);
 
-            AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Patience && e.Amount == 2f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Focus && e.Amount == 1f));
+            AssertThat(effects.Count == 1);
+            AssertThat(effects.Any(e => e.StatType == StatType.Mental && e.Amount == 3f));
         }
 
         [Test]
-        public void GetStatEffects_Coherence_Questionable_ReturnsPatienceMinus()
+        public void GetStatEffects_Coherence_Questionable_ReturnsMentalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("Coherence", CallerCoherence.Questionable);
 
             AssertThat(effects.Count == 1);
-            AssertThat(effects[0].StatType == StatType.Patience);
+            AssertThat(effects[0].StatType == StatType.Mental);
             AssertThat(effects[0].Amount == -2f);
         }
 
         [Test]
-        public void GetStatEffects_Coherence_Incoherent_ReturnsPatienceAndFocusMinus()
+        public void GetStatEffects_Coherence_Incoherent_ReturnsMentalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("Coherence", CallerCoherence.Incoherent);
 
-            AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Patience && e.Amount == -4f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Focus && e.Amount == -3f));
+            AssertThat(effects.Count == 1);
+            AssertThat(effects.Any(e => e.StatType == StatType.Mental && e.Amount == -7f));
         }
 
         #endregion
@@ -143,13 +143,14 @@ namespace KBTV.Tests.Unit.Screening
         }
 
         [Test]
-        public void GetStatEffects_Urgency_Critical_ReturnsSpiritPlusAndPatienceMinus()
+        public void GetStatEffects_Urgency_Critical_ReturnsEmotionalEffects()
         {
             var effects = CallerStatEffects.GetStatEffects("Urgency", CallerUrgency.Critical);
 
+            // Critical has two Emotional effects (+3 and -2 = net +1)
             AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Spirit && e.Amount == 3f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Patience && e.Amount == -2f));
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == 3f));
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == -2f));
         }
 
         #endregion
@@ -157,23 +158,22 @@ namespace KBTV.Tests.Unit.Screening
         #region BeliefLevel Tests
 
         [Test]
-        public void GetStatEffects_BeliefLevel_Curious_ReturnsDiscernmentPlus()
+        public void GetStatEffects_BeliefLevel_Curious_ReturnsMentalPlus()
         {
             var effects = CallerStatEffects.GetStatEffects("BeliefLevel", CallerBeliefLevel.Curious);
 
             AssertThat(effects.Count == 1);
-            AssertThat(effects[0].StatType == StatType.Discernment);
+            AssertThat(effects[0].StatType == StatType.Mental);
             AssertThat(effects[0].Amount == 1f);
         }
 
         [Test]
-        public void GetStatEffects_BeliefLevel_Zealot_ReturnsPatienceAndSpiritMinus()
+        public void GetStatEffects_BeliefLevel_Zealot_ReturnsEmotionalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("BeliefLevel", CallerBeliefLevel.Zealot);
 
-            AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Patience && e.Amount == -3f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Spirit && e.Amount == -1f));
+            AssertThat(effects.Count == 1);
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == -4f));
         }
 
         #endregion
@@ -181,23 +181,23 @@ namespace KBTV.Tests.Unit.Screening
         #region EvidenceLevel Tests
 
         [Test]
-        public void GetStatEffects_Evidence_None_ReturnsBeliefMinus()
+        public void GetStatEffects_Evidence_None_ReturnsEmotionalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("Evidence", CallerEvidenceLevel.None);
 
             AssertThat(effects.Count == 1);
-            AssertThat(effects[0].StatType == StatType.Belief);
+            AssertThat(effects[0].StatType == StatType.Emotional);
             AssertThat(effects[0].Amount == -2f);
         }
 
         [Test]
-        public void GetStatEffects_Evidence_Irrefutable_ReturnsSpiritAndDiscernmentPlus()
+        public void GetStatEffects_Evidence_Irrefutable_ReturnsEmotionalAndMentalPlus()
         {
             var effects = CallerStatEffects.GetStatEffects("Evidence", CallerEvidenceLevel.Irrefutable);
 
             AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Spirit && e.Amount == 5f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Discernment && e.Amount == 2f));
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == 5f));
+            AssertThat(effects.Any(e => e.StatType == StatType.Mental && e.Amount == 2f));
         }
 
         #endregion
@@ -205,13 +205,12 @@ namespace KBTV.Tests.Unit.Screening
         #region Legitimacy Tests
 
         [Test]
-        public void GetStatEffects_Legitimacy_Fake_ReturnsSpiritAndPatienceMinus()
+        public void GetStatEffects_Legitimacy_Fake_ReturnsEmotionalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("Legitimacy", CallerLegitimacy.Fake);
 
-            AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Spirit && e.Amount == -5f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Patience && e.Amount == -3f));
+            AssertThat(effects.Count == 1);
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == -8f));
         }
 
         [Test]
@@ -223,13 +222,13 @@ namespace KBTV.Tests.Unit.Screening
         }
 
         [Test]
-        public void GetStatEffects_Legitimacy_Compelling_ReturnsSpiritAndDiscernmentPlus()
+        public void GetStatEffects_Legitimacy_Compelling_ReturnsEmotionalAndMentalPlus()
         {
             var effects = CallerStatEffects.GetStatEffects("Legitimacy", CallerLegitimacy.Compelling);
 
             AssertThat(effects.Count == 2);
-            AssertThat(effects.Any(e => e.StatType == StatType.Spirit && e.Amount == 3f));
-            AssertThat(effects.Any(e => e.StatType == StatType.Discernment && e.Amount == 2f));
+            AssertThat(effects.Any(e => e.StatType == StatType.Emotional && e.Amount == 3f));
+            AssertThat(effects.Any(e => e.StatType == StatType.Mental && e.Amount == 2f));
         }
 
         #endregion
@@ -237,22 +236,22 @@ namespace KBTV.Tests.Unit.Screening
         #region AudioQuality (PhoneQuality) Tests
 
         [Test]
-        public void GetStatEffects_AudioQuality_Terrible_ReturnsPatienceMinus()
+        public void GetStatEffects_AudioQuality_Terrible_ReturnsEmotionalMinus()
         {
             var effects = CallerStatEffects.GetStatEffects("AudioQuality", CallerPhoneQuality.Terrible);
 
             AssertThat(effects.Count == 1);
-            AssertThat(effects[0].StatType == StatType.Patience);
+            AssertThat(effects[0].StatType == StatType.Emotional);
             AssertThat(effects[0].Amount == -3f);
         }
 
         [Test]
-        public void GetStatEffects_AudioQuality_Good_ReturnsPatiencePlus()
+        public void GetStatEffects_AudioQuality_Good_ReturnsEmotionalPlus()
         {
             var effects = CallerStatEffects.GetStatEffects("AudioQuality", CallerPhoneQuality.Good);
 
             AssertThat(effects.Count == 1);
-            AssertThat(effects[0].StatType == StatType.Patience);
+            AssertThat(effects[0].StatType == StatType.Emotional);
             AssertThat(effects[0].Amount == 1f);
         }
 
@@ -333,9 +332,9 @@ namespace KBTV.Tests.Unit.Screening
             var properties = new List<ScreenableProperty>
             {
                 new ScreenableProperty("EmotionalState", "Emotional State", CallerEmotionalState.Calm, "Calm", 3f,
-                    new List<StatModification> { new StatModification(StatType.Patience, 3f) }),
+                    new List<StatModification> { new StatModification(StatType.Emotional, 3f) }),
                 new ScreenableProperty("CurseRisk", "Curse Risk", CallerCurseRisk.High, "High", 3f,
-                    new List<StatModification> { new StatModification(StatType.Patience, -4f) })
+                    new List<StatModification> { new StatModification(StatType.Emotional, -6f) })
             };
 
             // Reveal only the first property
@@ -344,7 +343,7 @@ namespace KBTV.Tests.Unit.Screening
             var totals = CallerStatEffects.AggregateStatEffects(properties, revealedOnly: true);
 
             AssertThat(totals.Count == 1);
-            AssertThat(totals[StatType.Patience] == 3f);
+            AssertThat(totals[StatType.Emotional] == 3f);
         }
 
         [Test]
@@ -353,15 +352,15 @@ namespace KBTV.Tests.Unit.Screening
             var properties = new List<ScreenableProperty>
             {
                 new ScreenableProperty("EmotionalState", "Emotional State", CallerEmotionalState.Calm, "Calm", 3f,
-                    new List<StatModification> { new StatModification(StatType.Patience, 3f) }),
+                    new List<StatModification> { new StatModification(StatType.Emotional, 3f) }),
                 new ScreenableProperty("CurseRisk", "Curse Risk", CallerCurseRisk.High, "High", 3f,
-                    new List<StatModification> { new StatModification(StatType.Patience, -4f) })
+                    new List<StatModification> { new StatModification(StatType.Emotional, -6f) })
             };
 
             var totals = CallerStatEffects.AggregateStatEffects(properties, revealedOnly: false);
 
             AssertThat(totals.Count == 1);
-            AssertThat(totals[StatType.Patience] == -1f);  // 3 + (-4) = -1
+            AssertThat(totals[StatType.Emotional] == -3f);  // 3 + (-6) = -3
         }
 
         [Test]
@@ -372,14 +371,12 @@ namespace KBTV.Tests.Unit.Screening
                 new ScreenableProperty("EmotionalState", "Emotional State", CallerEmotionalState.Angry, "Angry", 3f,
                     new List<StatModification>
                     {
-                        new StatModification(StatType.Patience, -5f),
-                        new StatModification(StatType.Spirit, -3f)
+                        new StatModification(StatType.Emotional, -8f)
                     }),
                 new ScreenableProperty("Coherence", "Coherence", CallerCoherence.Coherent, "Coherent", 4f,
                     new List<StatModification>
                     {
-                        new StatModification(StatType.Patience, 2f),
-                        new StatModification(StatType.Focus, 1f)
+                        new StatModification(StatType.Mental, 3f)
                     })
             };
 
@@ -391,10 +388,9 @@ namespace KBTV.Tests.Unit.Screening
 
             var totals = CallerStatEffects.AggregateStatEffects(properties);
 
-            AssertThat(totals.Count == 3);
-            AssertThat(totals[StatType.Patience] == -3f);  // -5 + 2
-            AssertThat(totals[StatType.Spirit] == -3f);
-            AssertThat(totals[StatType.Focus] == 1f);
+            AssertThat(totals.Count == 2);
+            AssertThat(totals[StatType.Emotional] == -8f);
+            AssertThat(totals[StatType.Mental] == 3f);
         }
 
         #endregion

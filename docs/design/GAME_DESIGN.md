@@ -13,12 +13,10 @@ Player acts as the managing producer of KBTV, a paranormal/conspiracy talk radio
 ### Vern Tell
 - **Role**: Skeptical radio host, voice of KBTV
 - **Player Interaction**: Via control room during broadcasts, door drop-offs during live shows
-- **Stats** (see [VERN_STATS.md](VERN_STATS.md) for complete system):
-  - **Dependencies**: Caffeine, Nicotine (0-100) - must be maintained, cause withdrawal
-  - **Physical**: Energy, Satiety (0-100) - capacity to perform
-  - **Spirit**: (-50 to +50) - universal mood modifier, affects all mood expressions
-  - **Cognitive**: Alertness, Discernment, Focus (0-100) - performance quality
-  - **Long-Term**: Skepticism (0-100), Topic Affinity (-50 to +50 per topic)
+- **Stats** (see [VERN_STATS.md](../systems/VERN_STATS.md) for complete system):
+  - **Core Stats** (-100 to +100): Physical, Emotional, Mental
+  - **Dependencies** (0-100): Caffeine, Nicotine - decay over time, cause stat decay when depleted
+  - **Topic Belief**: Per-topic tiered XP system with level floors
 
 The combination of all stats affects VIBE (Vibrancy, Interest, Broadcast Entertainment), which drives listener growth.
 
@@ -91,9 +89,9 @@ The combination of all stats affects VIBE (Vibrancy, Interest, Broadcast Enterta
 | **Caller Screening** | Mini-games/deduction to verify caller legitimacy; rules-based rejection affects show |
 | **Caller Phone Quality** | Each caller has varying audio quality (Terrible to Good) affecting how they sound on air |
 | **VIBE System** | VIBE (Vibrancy, Interest, Broadcast Entertainment) drives show quality and listener count |
-| **Needs Management** | Fulfill Vern's needs (caffeine, nicotine, food) to maintain VIBE |
-| **Mood Types** | 7 mood types (Tired, Energetized, Irritated, Amused, Gruff, Focused, Neutral) affect dialog |
-| **Spirit Modifier** | Spirit (-50 to +50) modulates all mood expressions using sigmoid curves |
+| **Needs Management** | Fulfill Vern's needs (caffeine, nicotine) to prevent stat decay |
+| **Mood Types** | 7 mood types (Tired, Energized, Irritated, Amused, Gruff, Focused, Neutral) affect dialog |
+| **Three-Stat System** | Physical, Emotional, Mental (-100 to +100) combine to form VIBE |
 | **Show Formatting** | Balance callers, ads, guests per topic |
 | **Listener Count** | Dynamic, based on VIBE using sigmoid growth curves |
 | **Economy** | Earn income → buy upgrades → hire staff → grow station |

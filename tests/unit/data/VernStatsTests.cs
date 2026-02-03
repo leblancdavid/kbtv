@@ -20,34 +20,49 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void Initialize_CreatesAllStats()
         {
+            // Dependencies
             AssertThat(_vernStats.Caffeine != null);
             AssertThat(_vernStats.Nicotine != null);
-            AssertThat(_vernStats.Energy != null);
-            AssertThat(_vernStats.Satiety != null);
-            AssertThat(_vernStats.Spirit != null);
-            AssertThat(_vernStats.Alertness != null);
-            AssertThat(_vernStats.Discernment != null);
-            AssertThat(_vernStats.Focus != null);
-            AssertThat(_vernStats.Patience != null);
-            AssertThat(_vernStats.Belief != null);
+
+            // Core Stats
+            AssertThat(_vernStats.Physical != null);
+            AssertThat(_vernStats.Emotional != null);
+            AssertThat(_vernStats.Mental != null);
         }
 
         [Test]
         public void Initialize_SetsCorrectInitialCaffeine()
         {
-            AssertThat(_vernStats.Caffeine.Value == 50f);
+            // Dependencies start at 100 (full)
+            AssertThat(_vernStats.Caffeine.Value == 100f);
         }
 
         [Test]
-        public void Initialize_SetsCorrectInitialEnergy()
+        public void Initialize_SetsCorrectInitialNicotine()
         {
-            AssertThat(_vernStats.Energy.Value == 100f);
+            // Dependencies start at 100 (full)
+            AssertThat(_vernStats.Nicotine.Value == 100f);
         }
 
         [Test]
-        public void Initialize_SetsCorrectInitialSpirit()
+        public void Initialize_CoreStatsStartAtZero()
         {
-            AssertThat(_vernStats.Spirit.Value == 0f);
+            // Core stats start at 0 (neutral)
+            AssertThat(_vernStats.Physical.Value == 0f);
+            AssertThat(_vernStats.Emotional.Value == 0f);
+            AssertThat(_vernStats.Mental.Value == 0f);
+        }
+
+        [Test]
+        public void Initialize_CoreStatsHaveCorrectRange()
+        {
+            // Core stats range from -100 to +100
+            AssertThat(_vernStats.Physical.MinValue == -100f);
+            AssertThat(_vernStats.Physical.MaxValue == 100f);
+            AssertThat(_vernStats.Emotional.MinValue == -100f);
+            AssertThat(_vernStats.Emotional.MaxValue == 100f);
+            AssertThat(_vernStats.Mental.MinValue == -100f);
+            AssertThat(_vernStats.Mental.MaxValue == 100f);
         }
 
         [Test]
@@ -60,61 +75,84 @@ namespace KBTV.Tests.Unit.Data
         }
 
         [Test]
-        public void CalculateVIBE_ReturnsReasonableValue()
+        public void CalculateVIBE_AtZeroStats_ReturnsZero()
         {
+            // All stats at 0 should give VIBE of 0
             float vibe = _vernStats.CalculateVIBE();
 
-            AssertThat(vibe >= -100f);
-            AssertThat(vibe <= 100f);
+            AssertThat(Mathf.IsEqualApprox(vibe, 0f), $"Expected VIBE near 0, got {vibe}");
         }
 
         [Test]
-        public void CalculateEntertainment_ReturnsValueBetween0And100()
+        public void CalculateVIBE_UsesCorrectWeights()
         {
-            float entertainment = _vernStats.CalculateEntertainment();
+            // Set known values to verify weights
+            _vernStats.Physical.SetValue(100f);
+            _vernStats.Emotional.SetValue(100f);
+            _vernStats.Mental.SetValue(100f);
 
-            AssertThat(entertainment >= 0f);
-            AssertThat(entertainment <= 100f);
-        }
+            float vibe = _vernStats.CalculateVIBE();
 
-        [Test]
-        public void CalculateCredibility_ReturnsValueBetween0And100()
-        {
-            float credibility = _vernStats.CalculateCredibility();
-
-            AssertThat(credibility >= 0f);
-            AssertThat(credibility <= 100f);
-        }
-
-        [Test]
-        public void CalculateEngagement_ReturnsValueBetween0And100()
-        {
-            float engagement = _vernStats.CalculateEngagement();
-
-            AssertThat(engagement >= 0f);
-            AssertThat(engagement <= 100f);
-        }
-
-        [Test]
-        public void CalculateSpiritModifier_ReturnsPositiveMultiplier()
-        {
-            float modifier = _vernStats.CalculateSpiritModifier();
-
-            AssertThat(modifier > 0f);
+            // VIBE = (Physical × 0.25) + (Emotional × 0.40) + (Mental × 0.35)
+            // = 25 + 40 + 35 = 100
+            AssertThat(Mathf.IsEqualApprox(vibe, 100f), $"Expected VIBE = 100, got {vibe}");
         }
 
         [Test]
         public void CalculateMoodType_DefaultIsNeutral()
         {
-            _vernStats.Initialize();
-
+            // All stats at 0 should give Neutral mood
             AssertThat(_vernStats.CurrentMoodType == VernMoodType.Neutral);
         }
 
         [Test]
-        public void CurrentMoodType_Initialized()
+        public void CalculateMoodType_LowPhysical_ReturnsTired()
         {
-            AssertThat(_vernStats.CurrentMoodType >= 0);
+            _vernStats.Physical.SetValue(-30f);  // Below -25 threshold
+
+            var mood = _vernStats.CalculateMoodType();
+
+            AssertThat(mood == VernMoodType.Tired);
+        }
+
+        [Test]
+        public void CalculateMoodType_LowEmotional_ReturnsIrritated()
+        {
+            _vernStats.Emotional.SetValue(-30f);  // Below -25 threshold
+
+            var mood = _vernStats.CalculateMoodType();
+
+            AssertThat(mood == VernMoodType.Irritated);
+        }
+
+        [Test]
+        public void CalculateMoodType_HighPhysical_ReturnsEnergized()
+        {
+            _vernStats.Physical.SetValue(60f);  // Above +50 threshold
+
+            var mood = _vernStats.CalculateMoodType();
+
+            AssertThat(mood == VernMoodType.Energized);
+        }
+
+        [Test]
+        public void CalculateMoodType_HighEmotional_ReturnsAmused()
+        {
+            _vernStats.Emotional.SetValue(60f);  // Above +50 threshold
+
+            var mood = _vernStats.CalculateMoodType();
+
+            AssertThat(mood == VernMoodType.Amused);
+        }
+
+        [Test]
+        public void CalculateMoodType_HighMental_ReturnsFocused()
+        {
+            _vernStats.Mental.SetValue(60f);  // Above +50 threshold
+
+            var mood = _vernStats.CalculateMoodType();
+
+            AssertThat(mood == VernMoodType.Focused);
         }
 
         [Test]
@@ -123,7 +161,7 @@ namespace KBTV.Tests.Unit.Data
             bool called = false;
             _vernStats.Connect("StatsChanged", Callable.From(() => called = true));
 
-            _vernStats.Energy.Modify(-10f);
+            _vernStats.Physical.Modify(-10f);
 
             AssertThat(called);
         }
@@ -135,9 +173,81 @@ namespace KBTV.Tests.Unit.Data
             float? newVibe = null;
             _vernStats.Connect("VibeChanged", Callable.From<float>((vibe) => newVibe = vibe));
 
-            _vernStats.Energy.Modify(-50f);
+            _vernStats.Emotional.Modify(50f);  // Emotional has highest weight (0.40)
 
             AssertThat(newVibe != null, $"VibeChanged did not fire. Initial vibe: {initialVibe}");
+        }
+
+        [Test]
+        public void GetCaffeineDecayModifier_HighMental_SlowsDecay()
+        {
+            _vernStats.Mental.SetValue(100f);
+
+            float modifier = _vernStats.GetCaffeineDecayModifier();
+
+            // At Mental +100: modifier = 1 - (100/200) = 0.5
+            AssertThat(Mathf.IsEqualApprox(modifier, 0.5f), $"Expected 0.5, got {modifier}");
+        }
+
+        [Test]
+        public void GetNicotineDecayModifier_HighEmotional_SlowsDecay()
+        {
+            _vernStats.Emotional.SetValue(100f);
+
+            float modifier = _vernStats.GetNicotineDecayModifier();
+
+            // At Emotional +100: modifier = 1 - (100/200) = 0.5
+            AssertThat(Mathf.IsEqualApprox(modifier, 0.5f), $"Expected 0.5, got {modifier}");
+        }
+
+        [Test]
+        public void ApplyGoodCallerEffects_IncreasesStats()
+        {
+            float initialPhysical = _vernStats.Physical.Value;
+            float initialEmotional = _vernStats.Emotional.Value;
+            float initialMental = _vernStats.Mental.Value;
+
+            _vernStats.ApplyGoodCallerEffects();
+
+            AssertThat(_vernStats.Physical.Value > initialPhysical);
+            AssertThat(_vernStats.Emotional.Value > initialEmotional);
+            AssertThat(_vernStats.Mental.Value > initialMental);
+        }
+
+        [Test]
+        public void ApplyBadCallerEffects_DecreasesStats()
+        {
+            float initialEmotional = _vernStats.Emotional.Value;
+            float initialMental = _vernStats.Mental.Value;
+
+            _vernStats.ApplyBadCallerEffects();
+
+            AssertThat(_vernStats.Emotional.Value < initialEmotional);
+            AssertThat(_vernStats.Mental.Value < initialMental);
+        }
+
+        [Test]
+        public void UseCoffee_RestoresCaffeineAndBoostsPhysical()
+        {
+            _vernStats.Caffeine.SetValue(50f);  // Partial caffeine
+            float initialPhysical = _vernStats.Physical.Value;
+
+            _vernStats.UseCoffee();
+
+            AssertThat(_vernStats.Caffeine.Value == 100f);
+            AssertThat(_vernStats.Physical.Value > initialPhysical);
+        }
+
+        [Test]
+        public void UseCigarette_RestoresNicotineAndBoostsEmotional()
+        {
+            _vernStats.Nicotine.SetValue(50f);  // Partial nicotine
+            float initialEmotional = _vernStats.Emotional.Value;
+
+            _vernStats.UseCigarette();
+
+            AssertThat(_vernStats.Nicotine.Value == 100f);
+            AssertThat(_vernStats.Emotional.Value > initialEmotional);
         }
     }
 }

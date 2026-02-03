@@ -241,16 +241,11 @@ namespace KBTV.UI.Components
         {
             return statType switch
             {
-                StatType.Patience => "P",
-                StatType.Spirit => "S",
-                StatType.Energy => "E",
-                StatType.Focus => "F",
-                StatType.Discernment => "D",
-                StatType.Belief => "B",
-                StatType.Alertness => "A",
+                StatType.Physical => "Ph",
+                StatType.Emotional => "Em",
+                StatType.Mental => "Me",
                 StatType.Caffeine => "Ca",
-                StatType.Nicotine => "N",
-                StatType.Satiety => "Sa",
+                StatType.Nicotine => "Ni",
                 _ => "?"
             };
         }
@@ -262,16 +257,11 @@ namespace KBTV.UI.Components
         {
             return statType switch
             {
-                StatType.Patience => "Patience",
-                StatType.Spirit => "Spirit",
-                StatType.Energy => "Energy",
-                StatType.Focus => "Focus",
-                StatType.Discernment => "Discernment",
-                StatType.Belief => "Belief",
-                StatType.Alertness => "Alertness",
+                StatType.Physical => "Physical",
+                StatType.Emotional => "Emotional",
+                StatType.Mental => "Mental",
                 StatType.Caffeine => "Caffeine",
                 StatType.Nicotine => "Nicotine",
-                StatType.Satiety => "Satiety",
                 _ => "Unknown"
             };
         }

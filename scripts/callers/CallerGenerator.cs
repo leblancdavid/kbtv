@@ -123,15 +123,12 @@ namespace KBTV.Callers
 
         /// <summary>
         /// Stats that can be affected by personality.
-        /// These are the mental/cognitive stats that personality logically influences.
+        /// These are the core stats that personality logically influences.
         /// </summary>
         private static readonly StatType[] PersonalityAffectedStats = {
-            StatType.Spirit,
-            StatType.Alertness,
-            StatType.Discernment,
-            StatType.Focus,
-            StatType.Patience,
-            StatType.Belief
+            StatType.Physical,
+            StatType.Emotional,
+            StatType.Mental
         };
 
         [Export] private float _fakeCallerChance = 0.15f;

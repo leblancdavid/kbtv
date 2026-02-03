@@ -140,12 +140,12 @@ Night 4 - Cover Supernatural:
 
 ## Level Bonuses
 
-### Vern's Discernment
+### Vern's Mental Bonus
 
-Higher topic level = Vern is better at detecting fake callers.
+Higher topic level = Vern is better at detecting fake callers (Mental stat boost).
 
-| Level | Discernment Bonus |
-|-------|-------------------|
+| Level | Mental Bonus |
+|-------|--------------|
 | 1 | +0% |
 | 2 | +5% |
 | 3 | +10% |
@@ -154,7 +154,9 @@ Higher topic level = Vern is better at detecting fake callers.
 | 6 | +25% |
 | 7 | +30% |
 
-**Effect**: When a low-legitimacy caller is on air, Vern's belief meter is less affected. He's "seen it all before."
+**Effect**: Higher Mental helps detect hoaxers during screening. See [VERN_STATS.md](../systems/VERN_STATS.md) for how Mental interacts with the three-stat system.
+
+**Note**: This is separate from Topic Belief (see VERN_STATS.md), which tracks Vern's conviction in each topic and provides its own tier-based Mental bonuses. Topic Experience (XP/levels) tracks player skill progression, while Topic Belief tracks Vern's in-world belief.
 
 ### Screening Information
 
@@ -208,8 +210,8 @@ The caller generation system creates **10% off-topic callers** to encourage topi
 
 ### Bonus Summary Table
 
-| Level | Discernment | Screening | Callers | Mood |
-|-------|-------------|-----------|---------|------|
+| Level | Mental | Screening | Callers | Mood |
+|-------|--------|-----------|---------|------|
 | 1 | +0% | Base | Normal | +0 |
 | 2 | +5% | +Mood | Normal | +0 |
 | 3 | +10% | +Hint | +5% good | +5 |
@@ -315,12 +317,12 @@ Guests are special segments, separate from the caller queue.
 |  [UFOs & ALIENS]        Level 4 ████░░░  |
 |  "Experienced"          1250/2000 XP     |
 |  Freshness: ●●●●○ (80%)                  |
-|  Bonuses: +15% Discernment, Mood +5      |
+|  Bonuses: +15% Mental, Mood +5           |
 |                                          |
 |  [GOVERNMENT]           Level 2 ██░░░░░  |
 |  "Amateur"              350/500 XP       |
 |  Freshness: ●●●●● (100%)                 |
-|  Bonuses: +5% Discernment                |
+|  Bonuses: +5% Mental                     |
 |                                          |
 |  [SUPERNATURAL]         Level 1 █░░░░░░  |
 |  "Novice"               75/200 XP        |
@@ -330,7 +332,7 @@ Guests are special segments, separate from the caller queue.
 |  [CRYPTIDS]             Level 3 ███░░░░  |
 |  "Familiar"             780/1000 XP      |
 |  Freshness: ●●●○○ (60%)                  |
-|  Bonuses: +10% Discernment, +5 Mood      |
+|  Bonuses: +10% Mental, +5 Mood           |
 |                                          |
 +------------------------------------------+
 ```
@@ -369,7 +371,7 @@ Guests are special segments, separate from the caller queue.
 |  "Experienced" → "Expert"                |
 |                                          |
 |  New Bonuses:                            |
-|  • Discernment: +15% → +20%              |
+|  • Mental: +15% → +20%                   |
 |  • Screening: Now shows Legitimacy Tier  |
 |  • Caller Quality: +10% good callers     |
 |  • Starting Mood: +5 → +10               |
@@ -421,7 +423,7 @@ public List<TopicProgressData> TopicProgress;
 - [ ] UI indicator for freshness
 
 ### Phase 3: Level Bonuses
-- [ ] Discernment bonus integration with belief system
+- [ ] Mental bonus integration with three-stat system
 - [ ] Screening info visibility by level
 - [ ] Caller quality pool adjustment
 - [ ] Starting mood bonus

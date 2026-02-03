@@ -16,7 +16,7 @@ namespace KBTV.Tests.Unit.Screening
         {
             var statEffects = new List<StatModification>
             {
-                new StatModification(StatType.Patience, 3f)
+                new StatModification(StatType.Emotional, 3f)
             };
 
             var property = new ScreenableProperty(
@@ -204,8 +204,8 @@ namespace KBTV.Tests.Unit.Screening
         {
             var statEffects = new List<StatModification>
             {
-                new StatModification(StatType.Patience, 3f),
-                new StatModification(StatType.Spirit, -2f)
+                new StatModification(StatType.Emotional, 3f),
+                new StatModification(StatType.Physical, -2f)
             };
 
             var property = new ScreenableProperty(
@@ -221,17 +221,17 @@ namespace KBTV.Tests.Unit.Screening
 
             AssertThat(displays.Count == 2);
 
-            // First effect: Patience +3 (positive)
-            AssertThat(displays[0].StatType == StatType.Patience);
+            // First effect: Emotional +3 (positive)
+            AssertThat(displays[0].StatType == StatType.Emotional);
             AssertThat(displays[0].IsPositive);
             AssertThat(displays[0].Amount == 3f);
-            AssertThat(displays[0].Text.Contains("P"));
+            AssertThat(displays[0].Text.Contains("Em"));
 
-            // Second effect: Spirit -2 (negative)
-            AssertThat(displays[1].StatType == StatType.Spirit);
+            // Second effect: Physical -2 (negative)
+            AssertThat(displays[1].StatType == StatType.Physical);
             AssertThat(!displays[1].IsPositive);
             AssertThat(displays[1].Amount == -2f);
-            AssertThat(displays[1].Text.Contains("S"));
+            AssertThat(displays[1].Text.Contains("Ph"));
         }
 
         [Test]
