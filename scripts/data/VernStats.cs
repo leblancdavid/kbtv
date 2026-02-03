@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 
 namespace KBTV.Data
@@ -254,25 +255,27 @@ namespace KBTV.Data
 		// CALLER EFFECTS
 		// ═══════════════════════════════════════════════════════════════════════════════
 
-		/// <summary>
-		/// Apply effects from a good caller.
-		/// </summary>
-		public void ApplyGoodCallerEffects()
-		{
-			_physical.Modify(5f);
-			_emotional.Modify(15f);
-			_mental.Modify(5f);
-		}
+ 		/// <summary>
+ 		/// Apply effects from a good caller.
+ 		/// </summary>
+ 		[Obsolete("Use ApplyCallerEffects() for per-property effects")]
+ 		public void ApplyGoodCallerEffects()
+ 		{
+ 			_physical.Modify(5f);
+ 			_emotional.Modify(15f);
+ 			_mental.Modify(5f);
+ 		}
 
-		/// <summary>
-		/// Apply effects from a bad caller.
-		/// </summary>
-		public void ApplyBadCallerEffects()
-		{
-			_physical.Modify(-3f);
-			_emotional.Modify(-15f);
-			_mental.Modify(-10f);
-		}
+ 		/// <summary>
+ 		/// Apply effects from a bad caller.
+ 		/// </summary>
+ 		[Obsolete("Use ApplyCallerEffects() for per-property effects")]
+ 		public void ApplyBadCallerEffects()
+ 		{
+ 			_physical.Modify(-3f);
+ 			_emotional.Modify(-15f);
+ 			_mental.Modify(-10f);
+ 		}
 
 		/// <summary>
 		/// Apply effects from catching a hoaxer during screening.
@@ -283,18 +286,61 @@ namespace KBTV.Data
 			_mental.Modify(10f);
 		}
 
-		/// <summary>
-		/// Apply effects from being fooled by a hoaxer on-air.
-		/// </summary>
-		public void ApplyHoaxerFooledEffects()
-		{
-			_emotional.Modify(-10f);
-			_mental.Modify(-15f);
-		}
+ 		/// <summary>
+ 		/// Apply effects from being fooled by a hoaxer on-air.
+ 		/// </summary>
+ 		public void ApplyHoaxerFooledPenalty()
+ 		{
+ 			_emotional.Modify(-10f);
+ 			_mental.Modify(-15f);
+ 		}
 
-		// ═══════════════════════════════════════════════════════════════════════════════
-		// ITEM EFFECTS
-		// ═══════════════════════════════════════════════════════════════════════════════
+ 		/// <summary>
+ 		/// Apply per-property caller effects from aggregated stat dictionary.
+ 		/// </summary>
+ 		public void ApplyCallerEffects(Dictionary<StatType, float> effects)
+ 		{
+ 			foreach (var (statType, amount) in effects)
+ 			{
+ 				switch (statType)
+ 				{
+ 					case StatType.Physical: _physical.Modify(amount); break;
+ 					case StatType.Emotional: _emotional.Modify(amount); break;
+ 					case StatType.Mental: _mental.Modify(amount); break;
+ 					case StatType.Caffeine: _caffeine.Modify(amount); break;
+ 					case StatType.Nicotine: _nicotine.Modify(amount); break;
+ 				}
+ 			}
+ 		}
+
+ 		/// <summary>
+ 		/// Apply penalty for off-topic callers (hurts VIBE/listener engagement).
+ 		/// </summary>
+ 		public void ApplyOffTopicPenalty()
+ 		{
+ 			// VIBE penalty: -5 base + proportional to current Emotional/Mental
+ 			float vibePenalty = -5f;
+ 			_emotional.Modify(vibePenalty * 0.6f);  // -3 Emotional
+ 			_mental.Modify(vibePenalty * 0.4f);     // -2 Mental
+ 		}
+
+ 		/// <summary>
+ 		/// Apply dead air penalty with consecutive multiplier.
+ 		/// </summary>
+ 		public void ApplyDeadAirPenalty(int consecutiveCount)
+ 		{
+ 			// Base penalty: -5 VIBE, scales with consecutive dead air
+ 			float basePenalty = -5f;
+ 			float multiplier = 1f + (consecutiveCount - 1) * 0.5f; // Linear increase
+ 			float totalPenalty = basePenalty * multiplier;
+
+ 			_emotional.Modify(totalPenalty * 0.7f);  // 70% to Emotional
+ 			_mental.Modify(totalPenalty * 0.3f);     // 30% to Mental
+ 		}
+
+ 		// ═══════════════════════════════════════════════════════════════════════════════
+ 		// ITEM EFFECTS
+ 		// ═══════════════════════════════════════════════════════════════════════════════
 
 		/// <summary>
 		/// Use coffee: Caffeine → 100, Physical +10

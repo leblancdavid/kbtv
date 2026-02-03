@@ -9,6 +9,7 @@ using KBTV.UI;
 using KBTV.Ads;
 using KBTV.Screening;
 using KBTV.Audio;
+using KBTV.Monitors;
 
 namespace KBTV.Core;
 
@@ -38,7 +39,8 @@ namespace KBTV.Core;
     IProvide<IGameStateManager>,
     IProvide<ITimeManager>,
     IProvide<IBroadcastAudioService>,
-    IProvide<IUIAudioService>
+    IProvide<IUIAudioService>,
+    IProvide<DeadAirManager>
 {
     public override void _Notification(int what) => this.Notify(what);
 
@@ -62,6 +64,7 @@ namespace KBTV.Core;
     public IScreeningController ScreeningController { get; private set; } = null!;
     public IBroadcastAudioService BroadcastAudioService { get; private set; } = null!;
     public IUIAudioService UIAudioService { get; private set; } = null!;
+    public DeadAirManager DeadAirManager { get; private set; } = null!;
 
     // Provider interface implementations
     GameStateManager IProvide<GameStateManager>.Value() => GameStateManager;
@@ -86,6 +89,7 @@ namespace KBTV.Core;
     ITimeManager IProvide<ITimeManager>.Value() => TimeManager;
     IBroadcastAudioService IProvide<IBroadcastAudioService>.Value() => BroadcastAudioService;
     IUIAudioService IProvide<IUIAudioService>.Value() => UIAudioService;
+    DeadAirManager IProvide<DeadAirManager>.Value() => DeadAirManager;
 
     /// <summary>
     /// Initialize all service providers and register them with AutoInject.
@@ -156,6 +160,9 @@ namespace KBTV.Core;
         // Create UI audio service
         var uiAudioService = new UIAudioService();
 
+        // Create dead air manager
+        var deadAirManager = new DeadAirManager();
+
         // Phase 2: Set all provider properties (now dependency injection will work)
         GD.Print("ServiceProviderRoot: Phase 2 - Setting provider properties...");
 
@@ -178,6 +185,7 @@ namespace KBTV.Core;
         AdManager = adManager;
         BroadcastAudioService = broadcastAudioService;
         UIAudioService = uiAudioService;
+        DeadAirManager = deadAirManager;
 
         // Make all services available BEFORE adding children to the scene tree
         GD.Print("ServiceProviderRoot: Making services available for dependency injection...");
@@ -202,6 +210,7 @@ namespace KBTV.Core;
         AddChild(adManager);
         AddChild(broadcastAudioService);
         AddChild(uiAudioService);
+        AddChild(deadAirManager);
 
         GD.Print("ServiceProviderRoot: All providers created and added to scene tree");
     }

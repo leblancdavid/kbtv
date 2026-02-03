@@ -11,6 +11,7 @@ using KBTV.Audio;
 using KBTV.Data;
 using KBTV.Dialogue;
 using KBTV.Ads;
+using KBTV.Monitors;
 
 namespace KBTV.Dialogue
 {
@@ -30,6 +31,8 @@ namespace KBTV.Dialogue
         private readonly AdManager _adManager;
         private readonly BroadcastStateManager _stateManager; // Reference to parent for state access
         private readonly TimeManager _timeManager;
+        private readonly IGameStateManager _gameStateManager;
+        private readonly DeadAirManager _deadAirManager;
 
         public BroadcastStateMachine(
             ICallerRepository callerRepository,
@@ -41,7 +44,9 @@ namespace KBTV.Dialogue
             SceneTree sceneTree,
             AdManager adManager,
             BroadcastStateManager stateManager,
-            TimeManager timeManager)
+            TimeManager timeManager,
+            IGameStateManager gameStateManager,
+            DeadAirManager deadAirManager)
         {
             _callerRepository = callerRepository;
             _arcRepository = arcRepository;
@@ -53,6 +58,8 @@ namespace KBTV.Dialogue
             _adManager = adManager;
             _stateManager = stateManager;
             _timeManager = timeManager;
+            _gameStateManager = gameStateManager;
+            _deadAirManager = deadAirManager;
         }
 
         /// <summary>
@@ -240,6 +247,18 @@ namespace KBTV.Dialogue
                        break;
             }
 
+            // Handle dead air manager notifications
+            if (currentState == AsyncBroadcastState.DeadAir && newState != AsyncBroadcastState.DeadAir)
+            {
+                // Transitioning FROM DeadAir to another state
+                _deadAirManager?.OnDeadAirEnded();
+            }
+            else if (currentState != AsyncBroadcastState.DeadAir && newState == AsyncBroadcastState.DeadAir)
+            {
+                // Transitioning TO DeadAir from another state
+                _deadAirManager?.OnDeadAirStarted();
+            }
+
             return newState;
         }
 
@@ -315,6 +334,24 @@ namespace KBTV.Dialogue
                 if (endResult.IsSuccess)
                 {
                     GD.Print($"BroadcastStateMachine: Ended on-air caller {endResult.Value.Name}");
+                    
+                    // Apply stat effects from the completed call
+                    var vernStats = _gameStateManager?.VernStats;
+                    if (vernStats != null)
+                    {
+                        var caller = endResult.Value;
+                        
+                        // Apply caller's total stat effects
+                        var effects = caller.GetTotalStatEffects();
+                        vernStats.ApplyCallerEffects(effects);
+                        
+                        // Apply penalties
+                        if (caller.IsOffTopic)
+                            vernStats.ApplyOffTopicPenalty();
+                            
+                        if (caller.Legitimacy == CallerLegitimacy.Fake)
+                            vernStats.ApplyHoaxerFooledPenalty();
+                    }
                 }
 
                 var shouldPlayBetween = ShouldPlayBetweenCallers();

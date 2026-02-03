@@ -13,6 +13,7 @@ using KBTV.Audio;
 using KBTV.Data;
 using KBTV.Dialogue;
 using KBTV.Ads;
+using KBTV.Monitors;
 
 namespace KBTV.Dialogue
 {
@@ -60,6 +61,8 @@ namespace KBTV.Dialogue
         private TimeManager _timeManager => DependencyInjection.Get<TimeManager>(this);
         private SceneTree _sceneTree => GetTree();
         private AdManager _adManager => DependencyInjection.Get<AdManager>(this);
+        private IGameStateManager _gameStateManager => DependencyInjection.Get<IGameStateManager>(this);
+        private DeadAirManager _deadAirManager => DependencyInjection.Get<DeadAirManager>(this);
         private VernDialogueTemplate _vernDialogue;
         private AsyncBroadcastState _currentState = AsyncBroadcastState.Idle;
         private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
@@ -352,7 +355,9 @@ namespace KBTV.Dialogue
                 _sceneTree,
                 _adManager,
                 this,
-                _timeManager
+                _timeManager,
+                _gameStateManager,
+                _deadAirManager
             );
 
             // Subscribe to timing events

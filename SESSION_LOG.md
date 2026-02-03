@@ -1,6 +1,36 @@
-## Current Session - Screening Speed Configuration ✅
+## Current Session - DeadAirManager Dependency Injection Fix ✅
 
 **Branch**: `feature/vern-stats-display`
+
+**Task**: Fix DeadAirManager startup error by converting from direct GetNode() calls to dependency injection pattern.
+
+### Problem
+DeadAirManager was causing "Node not found: /root/GameStateManager" startup error because it used `GetNode<IGameStateManager>("/root/GameStateManager")` in `_Ready()`, but the service registry wasn't initialized yet.
+
+### Solution
+Refactored DeadAirManager to use the established AutoInject dependency injection pattern like all other services.
+
+### Files Modified
+
+**1. `scripts/monitors/DeadAirManager.cs`** - COMPLETE REFACTOR
+- Implemented `IDependent` interface
+- Added `_Notification` override: `public override void _Notification(int what) => this.Notify(what);`
+- Replaced direct field with lazy dependency: `private IGameStateManager _gameStateManager => DependencyInjection.Get<IGameStateManager>(this);`
+- Removed `_Ready()` method that used `GetNode()`
+- Added `OnResolved()` method for IDependent interface
+- Removed unused `[Export] private float _consecutivePenaltyMultiplier = 0.5f;` field
+
+### Result
+✅ **Build succeeds** with 0 errors (same 5 pre-existing warnings)  
+✅ **Dependency injection pattern** now matches BroadcastStateManager and other services  
+✅ **DeadAirManager remains accessible** as a service provider in ServiceProviderRoot  
+✅ **Consecutive dead air penalties** still work with linear scaling  
+
+**Status**: Dependency injection fix complete. Game should now start without errors. Dead air penalty system ready for testing.
+
+---
+
+## Previous Session - Screening Speed Configuration ✅
 
 **Task**: Slow down the screening process from ~43 seconds to 60 seconds baseline, with a centralized configuration system for equipment upgrades.
 
