@@ -35,6 +35,7 @@ namespace KBTV.Callers
         private CallerCoherence _coherence;
         private CallerUrgency _urgency;
         private string _personality;
+        private StatModification? _personalityEffect;
         private string _arcId;
         private ConversationArc? _arc;
         private ConversationArc? _claimedArc;
@@ -64,6 +65,7 @@ namespace KBTV.Callers
         public CallerCoherence Coherence => _coherence;
         public CallerUrgency Urgency => _urgency;
         public string Personality => _personality;
+        public StatModification? PersonalityEffect => _personalityEffect;
         public string ArcId => _arcId;
         public ConversationArc? Arc => _arc;
         public ConversationArc? ClaimedArc => _claimedArc;
@@ -126,7 +128,8 @@ namespace KBTV.Callers
             CallerEmotionalState emotionalState, CallerCurseRisk curseRisk,
             CallerBeliefLevel beliefLevel, CallerEvidenceLevel evidenceLevel,
             CallerCoherence coherence, CallerUrgency urgency,
-            string personality, ConversationArc? claimedArc, ConversationArc? actualArc,
+            string personality, StatModification? personalityEffect,
+            ConversationArc? claimedArc, ConversationArc? actualArc,
             string screeningSummary, float patience, float quality)
         {
             Id = Guid.NewGuid().ToString();
@@ -145,6 +148,7 @@ namespace KBTV.Callers
             _coherence = coherence;
             _urgency = urgency;
             _personality = personality;
+            _personalityEffect = personalityEffect;
             _claimedArc = claimedArc;
             _actualArc = actualArc;
             _arc = actualArc;  // Default to actual arc
@@ -191,11 +195,22 @@ namespace KBTV.Callers
 
         /// <summary>
         /// Create a screenable property with appropriate display value and stat effects.
+        /// For Personality, uses the pre-computed effect; for others, calculates from CallerStatEffects.
         /// </summary>
         private ScreenableProperty CreateScreenableProperty(string key, string displayName, object value, float revealDuration)
         {
             var displayValue = GetDisplayValue(key, value);
-            var statEffects = CallerStatEffects.GetStatEffects(key, value);
+            
+            // For Personality, use the pre-computed effect; for others, calculate from CallerStatEffects
+            List<StatModification> statEffects;
+            if (key == "Personality" && _personalityEffect != null)
+            {
+                statEffects = new List<StatModification> { _personalityEffect };
+            }
+            else
+            {
+                statEffects = CallerStatEffects.GetStatEffects(key, value);
+            }
 
             return new ScreenableProperty(key, displayName, value, displayValue, revealDuration, statEffects);
         }

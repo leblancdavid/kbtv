@@ -66,6 +66,7 @@ namespace KBTV.Tests.Unit.Callers
                 "personality",
                 null,
                 null,
+                null,
                 "summary",
                 30f,
                 0.8f

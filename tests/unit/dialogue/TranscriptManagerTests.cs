@@ -47,6 +47,7 @@ public class TranscriptManagerTests : KBTVTestClass
             "nervous_hiker",
             null,
             null,
+            null,
             "Test summary",
             30f,
             0.8f

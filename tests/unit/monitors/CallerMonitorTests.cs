@@ -151,6 +151,7 @@ namespace KBTV.Tests.Unit.Monitors
                 "personality",
                 null,
                 null,
+                null,
                 "summary",
                 patience,
                 0.8f

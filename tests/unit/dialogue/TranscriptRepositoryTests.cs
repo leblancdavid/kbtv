@@ -182,6 +182,7 @@ namespace KBTV.Tests.Unit.Dialogue
                 "nervous_hesitant",
                 null,
                 null,
+                null,
                 "",
                 60f,
                 0.5f

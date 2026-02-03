@@ -34,6 +34,7 @@ namespace KBTV.Tests.Unit.Callers
                 "nervous_hiker",
                 null,
                 null,
+                null,
                 "Test summary",
                 patience,
                 quality
@@ -133,7 +134,7 @@ namespace KBTV.Tests.Unit.Callers
                 CallerEmotionalState.Calm, CallerCurseRisk.Low,
                 CallerBeliefLevel.Curious, CallerEvidenceLevel.None,
                 CallerCoherence.Coherent, CallerUrgency.Low,
-                "personality", null, null, "summary", 30f, 0.8f
+                "personality", null, null, null, "summary", 30f, 0.8f
             );
             AssertThat(caller.IsLyingAboutTopic);
         }

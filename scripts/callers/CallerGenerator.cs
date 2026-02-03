@@ -1,11 +1,38 @@
 using System;
+using System.Collections.Generic;
 using Godot;
 using KBTV.Core;
 using KBTV.Callers;
+using KBTV.Data;
 using KBTV.Dialogue;
 
 namespace KBTV.Callers
 {
+    /// <summary>
+    /// Personality type determines whether the random stat effect is positive or negative.
+    /// </summary>
+    public enum PersonalityType
+    {
+        Positive,   // Boosts a random stat by 1-2
+        Negative,   // Penalizes a random stat by 1-2
+        Neutral     // 50/50 chance of positive or negative
+    }
+
+    /// <summary>
+    /// Personality definition with display name and type.
+    /// </summary>
+    public readonly struct PersonalityDefinition
+    {
+        public string Name { get; }
+        public PersonalityType Type { get; }
+
+        public PersonalityDefinition(string name, PersonalityType type)
+        {
+            Name = name;
+            Type = type;
+        }
+    }
+
     /// <summary>
     /// Generates random callers during the live show.
     /// Spawns a mix of legitimate, questionable, and fake callers.
@@ -46,13 +73,65 @@ namespace KBTV.Callers
             "Elm Creek", "Willow Grove", "Birch Creek", "Oak Creek", "Pine Valley", "Cedar Grove"
         };
 
-        private static readonly string[] Personalities = {
-            "Nervous but sincere", "Overly enthusiastic", "Skeptical witness",
-            "Rambling storyteller", "Matter-of-fact reporter", "Conspiracy theorist",
-            "First-time caller", "Frequent listener", "Desperate for answers",
-            "Attention seeker", "Genuinely frightened", "Academic researcher",
-            "Local history buff", "Reluctant witness", "True believer",
-            "Joker type", "Monotone delivery", "Excitable narrator"
+        /// <summary>
+        /// Personality definitions with type classification.
+        /// Positive personalities boost a stat, negative penalize, neutral is 50/50.
+        /// </summary>
+        private static readonly PersonalityDefinition[] Personalities = {
+            // Positive personalities (12) - boost a random stat
+            new("Matter-of-fact reporter", PersonalityType.Positive),
+            new("Academic researcher", PersonalityType.Positive),
+            new("Local history buff", PersonalityType.Positive),
+            new("Frequent listener", PersonalityType.Positive),
+            new("Genuinely frightened", PersonalityType.Positive),
+            new("True believer", PersonalityType.Positive),
+            new("Retired professional", PersonalityType.Positive),
+            new("Careful observer", PersonalityType.Positive),
+            new("Soft-spoken witness", PersonalityType.Positive),
+            new("Articulate storyteller", PersonalityType.Positive),
+            new("Patient explainer", PersonalityType.Positive),
+            new("Earnest truth-seeker", PersonalityType.Positive),
+
+            // Negative personalities (12) - penalize a random stat
+            new("Attention seeker", PersonalityType.Negative),
+            new("Conspiracy theorist", PersonalityType.Negative),
+            new("Rambling storyteller", PersonalityType.Negative),
+            new("Joker type", PersonalityType.Negative),
+            new("Monotone delivery", PersonalityType.Negative),
+            new("Skeptical witness", PersonalityType.Negative),
+            new("Know-it-all", PersonalityType.Negative),
+            new("Chronic interrupter", PersonalityType.Negative),
+            new("Drama queen", PersonalityType.Negative),
+            new("Mumbling caller", PersonalityType.Negative),
+            new("Easily distracted", PersonalityType.Negative),
+            new("Defensive storyteller", PersonalityType.Negative),
+
+            // Neutral personalities (12) - 50/50 positive or negative
+            new("Nervous but sincere", PersonalityType.Neutral),
+            new("Overly enthusiastic", PersonalityType.Neutral),
+            new("First-time caller", PersonalityType.Neutral),
+            new("Desperate for answers", PersonalityType.Neutral),
+            new("Reluctant witness", PersonalityType.Neutral),
+            new("Excitable narrator", PersonalityType.Neutral),
+            new("Quiet observer", PersonalityType.Neutral),
+            new("Chatty neighbor", PersonalityType.Neutral),
+            new("Late-night insomniac", PersonalityType.Neutral),
+            new("Curious skeptic", PersonalityType.Neutral),
+            new("Nostalgic elder", PersonalityType.Neutral),
+            new("Breathless reporter", PersonalityType.Neutral)
+        };
+
+        /// <summary>
+        /// Stats that can be affected by personality.
+        /// These are the mental/cognitive stats that personality logically influences.
+        /// </summary>
+        private static readonly StatType[] PersonalityAffectedStats = {
+            StatType.Spirit,
+            StatType.Alertness,
+            StatType.Discernment,
+            StatType.Focus,
+            StatType.Patience,
+            StatType.Belief
         };
 
         [Export] private float _fakeCallerChance = 0.15f;
@@ -213,7 +292,8 @@ namespace KBTV.Callers
             CallerEvidenceLevel evidenceLevel = GenerateEvidenceLevel(legitimacy);
             CallerCoherence coherence = GenerateCoherence(legitimacy);
             CallerUrgency urgency = GenerateUrgency(legitimacy);
-            string personality = GeneratePersonality();
+            var personality = GeneratePersonality();
+            var personalityEffect = GeneratePersonalityEffect(personality.Type);
 
             // Assign arcs based on show topic (90% on-topic, 10% off-topic)
             var arcRepo = _arcRepository;
@@ -315,7 +395,7 @@ namespace KBTV.Callers
                 claimedTopic, actualTopic, reason,
                 legitimacy, phoneQuality, emotionalState, curseRisk,
                 beliefLevel, evidenceLevel, coherence, urgency,
-                personality, claimedArc, actualArc, screeningSummary, patience, quality);
+                personality.Name, personalityEffect, claimedArc, actualArc, screeningSummary, patience, quality);
 
             if (isOffTopic)
             {
@@ -578,9 +658,39 @@ namespace KBTV.Callers
             };
         }
 
-        private string GeneratePersonality()
+        /// <summary>
+        /// Generate a random personality with its type.
+        /// </summary>
+        private PersonalityDefinition GeneratePersonality()
         {
             return Personalities[(int)(GD.Randi() % Personalities.Length)];
+        }
+
+        /// <summary>
+        /// Generate a random stat effect based on personality type.
+        /// Picks a random mental stat and applies +1 or +2 (positive) or -1 or -2 (negative).
+        /// Neutral personalities have a 50/50 chance of being positive or negative.
+        /// </summary>
+        private StatModification GeneratePersonalityEffect(PersonalityType type)
+        {
+            // Pick a random stat from the personality-affected stats
+            var stat = PersonalityAffectedStats[(int)(GD.Randi() % PersonalityAffectedStats.Length)];
+
+            // Pick magnitude: 1 or 2
+            float magnitude = GD.Randi() % 2 == 0 ? 1f : 2f;
+
+            // Determine sign based on personality type
+            bool isPositive = type switch
+            {
+                PersonalityType.Positive => true,
+                PersonalityType.Negative => false,
+                PersonalityType.Neutral => GD.Randi() % 2 == 0,  // 50/50
+                _ => true
+            };
+
+            float amount = isPositive ? magnitude : -magnitude;
+
+            return new StatModification(stat, amount);
         }
 
         #endregion

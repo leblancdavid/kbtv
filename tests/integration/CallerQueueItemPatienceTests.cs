@@ -319,6 +319,7 @@ namespace KBTV.Tests.Integration
                 "personality",
                 null,
                 null,
+                null,
                 "summary",
                 patience,
                 0.8f

@@ -41,6 +41,7 @@ namespace KBTV.Tests.Unit.Screening
                 "personality",
                 null,
                 null,
+                null,
                 "summary",
                 patience,
                 0.8f
