@@ -67,20 +67,25 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "────────────────────────────────────────────────────────────────────────────────────────"
 
-[node name="PatienceBar" type="ProgressBar" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
+[node name="PatienceHBox" type="HBoxContainer" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-custom_minimum_size = Vector2(0, 20)
+theme_override_constants/separation = 8
+
+[node name="PatienceLabel" type="Label" parent="VBoxContainer/CallerInfoScroll/InfoVBox/PatienceHBox"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Patience:"
+horizontal_alignment = 2
+
+[node name="PatienceProgressBar" type="ProgressBar" parent="VBoxContainer/CallerInfoScroll/InfoVBox/PatienceHBox"]
+layout_mode = 2
+size_flags_horizontal = 0
+custom_minimum_size = Vector2(100, 20)
 max_value = 100.0
 value = 100.0
 show_percentage = false
 theme_override_styles/background = SubResource("PatienceBarBackground")
-
-[node name="PatienceLabel" type="Label" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "Patience: 25.0s / 25.0s"
-horizontal_alignment = 1
 
 [node name="PropertiesContainer" type="VBoxContainer" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
 layout_mode = 2

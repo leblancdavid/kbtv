@@ -26,10 +26,7 @@ namespace KBTV.UI
 
 		[ExportGroup("Optional UI")]
 		[Export]
-		private ProgressBar? _patienceBar;
-
-		[Export]
-		private Label? _patienceLabel;
+		private ProgressBar? _patienceProgressBar;
 
 		private IScreeningController _controller = null!;
 		private ICallerRepository? _callerRepository;
@@ -122,6 +119,7 @@ namespace KBTV.UI
 			if (_propertiesContainer == null) missing.Add("VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesContainer");
 			if (_approveButton == null) missing.Add("VBoxContainer/HBoxContainer/ApproveButton");
 			if (_rejectButton == null) missing.Add("VBoxContainer/HBoxContainer/RejectButton");
+			if (_patienceProgressBar == null) missing.Add("VBoxContainer/CallerInfoScroll/InfoVBox/PatienceHBox/PatienceProgressBar");
 
 			return missing;
 		}
@@ -328,16 +326,11 @@ namespace KBTV.UI
 
 		private void UpdatePatienceDisplay(ScreeningProgress progress)
 		{
-			if (_patienceBar != null)
+			if (_patienceProgressBar != null)
 			{
-				_patienceBar.Value = progress.ProgressPercent;
+				_patienceProgressBar.Value = progress.ProgressPercent;
 				var fillStyle = new StyleBoxFlat { BgColor = UIColors.GetPatienceColor(progress.ProgressPercent) };
-				_patienceBar.AddThemeStyleboxOverride("fill", fillStyle);
-			}
-
-			if (_patienceLabel != null)
-			{
-				_patienceLabel.Text = $"Patience: {progress.PatienceRemaining:F1}s / {progress.MaxPatience:F1}s";
+				_patienceProgressBar.AddThemeStyleboxOverride("fill", fillStyle);
 			}
 		}
 
@@ -414,26 +407,15 @@ namespace KBTV.UI
 			}
 
 			// Optional patience UI nodes
-			if (_patienceBar == null)
+			if (_patienceProgressBar == null)
 			{
 				try
 				{
-					_patienceBar = GetNodeOrNull<ProgressBar>("VBoxContainer/CallerInfoScroll/InfoVBox/PatienceBar");
+					_patienceProgressBar = GetNodeOrNull<ProgressBar>("VBoxContainer/CallerInfoScroll/InfoVBox/PatienceHBox/PatienceProgressBar");
 				}
 				catch (Exception ex)
 				{
-					GD.PrintErr($"ScreeningPanel: Failed to find PatienceBar: {ex.Message}");
-				}
-			}
-			if (_patienceLabel == null)
-			{
-				try
-				{
-					_patienceLabel = GetNodeOrNull<Label>("VBoxContainer/CallerInfoScroll/InfoVBox/PatienceLabel");
-				}
-				catch (Exception ex)
-				{
-					GD.PrintErr($"ScreeningPanel: Failed to find PatienceLabel: {ex.Message}");
+					GD.PrintErr($"ScreeningPanel: Failed to find PatienceProgressBar: {ex.Message}");
 				}
 			}
 		}
