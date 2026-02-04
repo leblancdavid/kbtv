@@ -50,14 +50,14 @@ Dependencies are consumables that decay over time. When depleted, core stats beg
 Dependencies decay slower when their associated stat is high:
 
 ```
-Caffeine decay rate = BaseRate × (1 - (Mental / 200))
-Nicotine decay rate = BaseRate × (1 - (Emotional / 200))
+Caffeine decay rate = BaseRate × (1 - (Mental / 100))
+Nicotine decay rate = BaseRate × (1 - (Emotional / 100))
 ```
 
 **Examples:**
 - Mental at +100 → Caffeine decays at 50% rate (-2.5/min)
 - Mental at 0 → Caffeine decays at 100% rate (-5/min)
-- Mental at -100 → Caffeine decays at 150% rate (-7.5/min)
+- Mental at -100 → Caffeine decays at 200% rate (-10/min)
 
 ### Withdrawal Effects
 
