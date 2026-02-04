@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Godot;
 using Godot.Collections;
 using KBTV.Core;
+using KBTV.Data;
 
 namespace KBTV.Persistence
 {
@@ -149,7 +150,10 @@ namespace KBTV.Persistence
                                     },
                                 TotalCallersScreened = (int)(long)dict["TotalCallersScreened"],
                                 TotalShowsCompleted = (int)(long)dict["TotalShowsCompleted"],
-                                PeakListenersAllTime = (int)(long)dict["PeakListenersAllTime"]
+                                PeakListenersAllTime = (int)(long)dict["PeakListenersAllTime"],
+                                TopicXPs = dict.ContainsKey("TopicXPs") && dict["TopicXPs"].VariantType == Variant.Type.Array
+                                    ? ConvertToTopicXPList((Godot.Collections.Array)dict["TopicXPs"])
+                                    : new List<SaveData.TopicXPData>()
                             };
                         }
 
@@ -243,7 +247,8 @@ namespace KBTV.Persistence
                     ["ItemQuantities"] = ConvertToGodotDictionary(_currentSave.ItemQuantities),
                     ["TotalCallersScreened"] = _currentSave.TotalCallersScreened,
                     ["TotalShowsCompleted"] = _currentSave.TotalShowsCompleted,
-                    ["PeakListenersAllTime"] = _currentSave.PeakListenersAllTime
+                    ["PeakListenersAllTime"] = _currentSave.PeakListenersAllTime,
+                    ["TopicXPs"] = ConvertToGodotArray(_currentSave.TopicXPs)
                 };
 
                 string json = Json.Stringify(dict);
@@ -320,6 +325,45 @@ namespace KBTV.Persistence
                 godotDict[kv.Key] = kv.Value;
             }
             return godotDict;
+        }
+
+        /// <summary>
+        /// Converts Godot.Collections.Array of TopicXP dictionaries to List<SaveData.TopicXPData>
+        /// </summary>
+        private List<SaveData.TopicXPData> ConvertToTopicXPList(Godot.Collections.Array godotArray)
+        {
+            var topicXPList = new List<SaveData.TopicXPData>();
+            foreach (var item in godotArray)
+            {
+                var dict = (Godot.Collections.Dictionary)item;
+                var topicXP = new SaveData.TopicXPData
+                {
+                    TopicId = (string)dict["TopicId"],
+                    XP = (float)(double)dict["XP"],  // Godot stores floats as double
+                    HighestTierReached = (XPTier)(int)(long)dict["HighestTierReached"]
+                };
+                topicXPList.Add(topicXP);
+            }
+            return topicXPList;
+        }
+
+        /// <summary>
+        /// Converts List<SaveData.TopicXPData> to Godot.Collections.Array of dictionaries
+        /// </summary>
+        private Godot.Collections.Array ConvertToGodotArray(List<SaveData.TopicXPData> topicXPList)
+        {
+            var godotArray = new Godot.Collections.Array();
+            foreach (var topicXP in topicXPList)
+            {
+                var dict = new Godot.Collections.Dictionary
+                {
+                    ["TopicId"] = topicXP.TopicId,
+                    ["XP"] = topicXP.XP,
+                    ["HighestTierReached"] = (int)topicXP.HighestTierReached
+                };
+                godotArray.Add(dict);
+            }
+            return godotArray;
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using KBTV.Data;
 
 namespace KBTV.Persistence
 {
@@ -83,8 +84,25 @@ namespace KBTV.Persistence
         public int PeakListenersAllTime = 0;
 
         // ─────────────────────────────────────────────────────────────
-        // Factory
+        // Topic XP
         // ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Topic experience data for persistence.
+        /// </summary>
+        [Serializable]
+        public class TopicXPData
+        {
+            public string TopicId;
+            public float XP;
+            public XPTier HighestTierReached;
+        }
+
+        /// <summary>
+        /// XP progression data for all topics.
+        /// Empty for new games (topics start at 0 XP).
+        /// </summary>
+        public List<TopicXPData> TopicXPs;
 
         /// <summary>
         /// Creates a new save with default starting values.
@@ -103,7 +121,8 @@ namespace KBTV.Persistence
                 ItemQuantities = new System.Collections.Generic.Dictionary<string, int>(),
                 TotalCallersScreened = 0,
                 TotalShowsCompleted = 0,
-                PeakListenersAllTime = 0
+                PeakListenersAllTime = 0,
+                TopicXPs = new List<TopicXPData>()
             };
 
             // Initialize default equipment levels

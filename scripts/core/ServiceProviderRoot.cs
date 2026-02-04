@@ -257,6 +257,9 @@ namespace KBTV.Core;
         SaveManager.Initialize();
         CallerGenerator.Initialize();
         
+        // Register saveables with SaveManager
+        SaveManager.RegisterSaveable(TopicManager);
+        
         // Services are already provided in Initialize() - don't call this.Provide() again
     }
 

@@ -2,6 +2,7 @@ using Godot;
 using KBTV.UI.Themes;
 using KBTV.Managers;
 using KBTV.Core;
+using KBTV.Data;
 
 namespace KBTV.UI.Components
 {
@@ -13,29 +14,84 @@ namespace KBTV.UI.Components
     {
         private string _topicName = "";
         private Label _topicLabel = null!;
-        private ProgressBar _xpBar = null!;
         private Label _xpLabel = null!;
+        private ProgressBar _xpBar = null!;
+        private Label _levelUpLabel = null!;
         private Label _tierLabel = null!;
         private ProgressBar _freshnessBar = null!;
         private Label _freshnessLabel = null!;
         private bool _uiCreated = false;
 
-        public override void _Notification(int what) => this.Notify(what);
-
         private TopicManager _topicManager = null!;
+        private TopicXP _topicXP = null!;
 
-        public override void _Ready()
-        {
-            if (!_uiCreated)
-            {
-                CreateUI();
-                _uiCreated = true;
-            }
-        }
+        public override void _Notification(int what) => this.Notify(what);
 
         public void OnResolved()
         {
             _topicManager = DependencyInjection.Get<TopicManager>(this);
+            
+            // Subscribe to TopicXP events for real-time updates
+            _topicXP = _topicManager.GetTopicXP(_topicName.ToLower());
+            _topicXP.OnXPChanged += OnXPChanged;
+            _topicXP.OnTierChanged += OnTierChanged;
+            
+            UpdateDisplay(); // Initial display
+        }
+
+        public override void _ExitTree()
+        {
+            // Clean up event subscriptions
+            if (_topicXP != null)
+            {
+                _topicXP.OnXPChanged -= OnXPChanged;
+                _topicXP.OnTierChanged -= OnTierChanged;
+            }
+        }
+
+        private void OnXPChanged(float oldXP, float newXP)
+        {
+            GD.Print($"TopicProgressPanel: {_topicName} XP changed from {oldXP} to {newXP}");
+            UpdateXPBar(newXP);
+            UpdateLevelUpIndicator(newXP);
+        }
+
+        private void OnTierChanged(XPTier oldTier, XPTier newTier)
+        {
+            GD.Print($"TopicProgressPanel: {_topicName} tier changed from {oldTier} to {newTier}");
+            UpdateTierText(newTier);
+            UpdateXPBar(_topicXP.XP); // Update with new tier thresholds
+        }
+
+        private void UpdateXPBar(float currentXP)
+        {
+            var currentTier = _topicXP.CurrentTier;
+            var nextTierThreshold = TopicXP.GetTierThreshold(currentTier + 1);
+            
+            // Update XP display: current/next format (even if over threshold)
+            _xpLabel.Text = $"{currentXP:F0}/{nextTierThreshold:F0} XP";
+            _xpBar.MaxValue = nextTierThreshold;
+            _xpBar.Value = Mathf.Min(currentXP, nextTierThreshold); // Cap at threshold for visual
+        }
+
+        private void UpdateLevelUpIndicator(float currentXP)
+        {
+            var currentTier = _topicXP.CurrentTier;
+            var nextTierThreshold = TopicXP.GetTierThreshold(currentTier + 1);
+            var canLevelUp = currentXP >= nextTierThreshold && currentTier < XPTier.TrueBeliever;
+            
+            // Set progress bar color based on level-up readiness
+            _xpBar.Modulate = canLevelUp ? Colors.Green : UIColors.Accent.Blue;
+            
+            // Show/hide level-up indicator
+            _levelUpLabel.Visible = canLevelUp;
+        }
+
+        private void UpdateTierText(XPTier tier)
+        {
+            var tierName = TopicXP.GetTierName(tier);
+            var mentalBonus = _topicXP.MentalBonus;
+            SetTier(tierName, (int)(mentalBonus * 100f));
         }
 
         private void CreateUI()
@@ -90,6 +146,17 @@ namespace KBTV.UI.Components
             _xpBar.ShowPercentage = false;
             vbox.AddChild(_xpBar);
 
+            // Level up ready indicator (initially hidden)
+            _levelUpLabel = new Label();
+            _levelUpLabel.Text = "READY TO LEVEL UP!";
+            _levelUpLabel.HorizontalAlignment = HorizontalAlignment.Center;
+            _levelUpLabel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            _levelUpLabel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+            _levelUpLabel.AddThemeColorOverride("font_color", Colors.Green);
+            _levelUpLabel.AddThemeFontSizeOverride("font_size", 12);
+            _levelUpLabel.Visible = false;
+            vbox.AddChild(_levelUpLabel);
+
             // XP tier
             _tierLabel = new Label();
             _tierLabel.Text = "Tier: SKEPTIC (+0%)";
@@ -129,48 +196,21 @@ namespace KBTV.UI.Components
             GD.Print($"UpdateDisplay called for {_topicName}");
             
             // Get real topic XP data
-            var topicBelief = _topicManager.GetTopicXP(_topicName.ToLower());
-            var xp = topicBelief.XP;
-            var tier = topicBelief.CurrentTier;
-            var mentalBonus = topicBelief.MentalBonus;
-
-            // For now, use placeholder freshness (could be added to TopicBelief later)
-            var freshness = GetPlaceholderFreshness(_topicName);
-
-            // Calculate level and XP progress (simplified - no real TopicExperience yet)
-            var level = GetLevelForXP(xp);
-            var currentXp = xp - GetXpThresholdForLevel(level - 1);
-            var maxXp = GetXpThresholdForLevel(level) - GetXpThresholdForLevel(level - 1);
-
-            GD.Print($"Topic {_topicName}: level {level}, xp {currentXp}/{maxXp}, XP {xp}");
+            var topicXP = _topicXP; // Use cached instance
+            var currentXP = topicXP.XP;
+            var currentTier = topicXP.CurrentTier;
+            var mentalBonus = topicXP.MentalBonus;
             
-            SetXP(level, (int)currentXp, (int)maxXp);
-            GD.Print($"XP label set for {_topicName}: {_xpLabel.Text}");
-            SetTier(topicBelief.CurrentTierName, (int)(mentalBonus * 100f));
+            // Update all display elements
+            UpdateXPBar(currentXP);
+            UpdateLevelUpIndicator(currentXP);
+            UpdateTierText(currentTier);
+            
+            // Update freshness (placeholder for now)
+            var freshness = GetPlaceholderFreshness(_topicName);
             SetFreshness(freshness);
-        }
-
-        private int GetLevelForXP(float xp)
-        {
-            // Simplified level calculation (could be based on TopicExperience)
-            if (xp >= 1000) return 5;
-            if (xp >= 600) return 4;
-            if (xp >= 300) return 3;
-            if (xp >= 100) return 2;
-            return 1;
-        }
-
-        private float GetXpThresholdForLevel(int level)
-        {
-            return level switch
-            {
-                0 => 0,
-                1 => 100,
-                2 => 300,
-                3 => 600,
-                4 => 1000,
-                _ => 1000
-            };
+            
+            GD.Print($"Topic {_topicName}: Tier {currentTier}, XP {currentXP}/{TopicXP.GetTierThreshold(currentTier + 1)}");
         }
 
         private int GetPlaceholderFreshness(string topicName)
@@ -186,13 +226,6 @@ namespace KBTV.UI.Components
                 "Time Travel" => 90,
                 _ => 100
             };
-        }
-
-        private void SetXP(int level, int current, int max)
-        {
-            _xpLabel.Text = $"Level {level}: {current}/{max} XP";
-            _xpBar.MaxValue = max;
-            _xpBar.Value = current;
         }
 
         private void SetTier(string tier, int bonusPercent)

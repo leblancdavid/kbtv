@@ -184,7 +184,7 @@ namespace KBTV.UI.Components
 
             // Add XP impact prediction
             var xpImpact = CalculateXPImpact();
-            if (xpImpact > 0)
+            if (!Mathf.IsZeroApprox(xpImpact))
             {
                 var xpLabel = CreateXPLabel(xpImpact);
                 _statsContainer.AddChild(xpLabel);

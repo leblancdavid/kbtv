@@ -29,7 +29,7 @@ namespace KBTV.UI
         public void OnResolved()
         {
             CreateTopicPanels();
-            UpdateDisplay();
+            // Removed UpdateDisplay() call - panels now update themselves via TopicXP events
         }
 
         private void InitializeComponents()
@@ -101,16 +101,6 @@ namespace KBTV.UI
                 panel.SetTopic(topicNames[i]);
                 _topicsGrid.AddChild(panel);
                 _topicPanels[i] = panel;
-            }
-        }
-
-        private void UpdateDisplay()
-        {
-            // TODO: Connect to actual topic experience/XP data
-            // For now, show placeholder data
-            foreach (var panel in _topicPanels)
-            {
-                panel.UpdateDisplay();
             }
         }
     }
