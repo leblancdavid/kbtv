@@ -328,8 +328,8 @@ namespace KBTV.UI
 		{
 			if (_patienceProgressBar != null)
 			{
-				_patienceProgressBar.Value = progress.ProgressPercent;
-				var fillStyle = new StyleBoxFlat { BgColor = UIColors.GetPatienceColor(progress.ProgressPercent) };
+				_patienceProgressBar.Value = progress.ProgressPercent * 100f;
+				var fillStyle = new StyleBoxFlat { BgColor = UIColors.GetPatienceColor(progress.ProgressPercent * 100f) };
 				_patienceProgressBar.AddThemeStyleboxOverride("fill", fillStyle);
 			}
 		}

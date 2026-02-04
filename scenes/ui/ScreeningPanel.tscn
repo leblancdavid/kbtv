@@ -81,7 +81,7 @@ horizontal_alignment = 2
 [node name="PatienceProgressBar" type="ProgressBar" parent="VBoxContainer/CallerInfoScroll/InfoVBox/PatienceHBox"]
 layout_mode = 2
 size_flags_horizontal = 0
-custom_minimum_size = Vector2(100, 20)
+custom_minimum_size = Vector2(50, 20)
 max_value = 100.0
 value = 100.0
 show_percentage = false
