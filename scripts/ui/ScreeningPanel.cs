@@ -412,6 +412,30 @@ namespace KBTV.UI
 					GD.PrintErr($"ScreeningPanel: Failed to find RejectButton at VBoxContainer/HBoxContainer/RejectButton: {ex.Message}");
 				}
 			}
+
+			// Optional patience UI nodes
+			if (_patienceBar == null)
+			{
+				try
+				{
+					_patienceBar = GetNodeOrNull<ProgressBar>("VBoxContainer/CallerInfoScroll/InfoVBox/PatienceBar");
+				}
+				catch (Exception ex)
+				{
+					GD.PrintErr($"ScreeningPanel: Failed to find PatienceBar: {ex.Message}");
+				}
+			}
+			if (_patienceLabel == null)
+			{
+				try
+				{
+					_patienceLabel = GetNodeOrNull<Label>("VBoxContainer/CallerInfoScroll/InfoVBox/PatienceLabel");
+				}
+				catch (Exception ex)
+				{
+					GD.PrintErr($"ScreeningPanel: Failed to find PatienceLabel: {ex.Message}");
+				}
+			}
 		}
 	}
 }

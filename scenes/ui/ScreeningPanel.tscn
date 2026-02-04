@@ -5,6 +5,13 @@
 [sub_resource type="StyleBoxFlat" id="ControlBackground"]
 bg_color = Color(0.15, 0.15, 0.15, 1)
 
+[sub_resource type="StyleBoxFlat" id="PatienceBarBackground"]
+bg_color = Color(0.1, 0.1, 0.1, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_left = 2
+corner_radius_bottom_right = 2
+
 [node name="ScreeningPanel" type="Control"]
 layout_mode = 1
 anchors_preset = 15
@@ -59,6 +66,21 @@ autowrap_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
 text = "────────────────────────────────────────────────────────────────────────────────────────"
+
+[node name="PatienceBar" type="ProgressBar" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 20)
+max_value = 100.0
+value = 100.0
+show_percentage = false
+theme_override_styles/background = SubResource("PatienceBarBackground")
+
+[node name="PatienceLabel" type="Label" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Patience: 25.0s / 25.0s"
+horizontal_alignment = 1
 
 [node name="PropertiesContainer" type="VBoxContainer" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
 layout_mode = 2
