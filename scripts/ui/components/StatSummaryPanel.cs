@@ -182,6 +182,14 @@ namespace KBTV.UI.Components
                 _statsContainer.AddChild(label);
             }
 
+            // Add XP impact prediction
+            var xpImpact = CalculateXPImpact();
+            if (xpImpact > 0)
+            {
+                var xpLabel = CreateXPLabel(xpImpact);
+                _statsContainer.AddChild(xpLabel);
+            }
+
             // If all effects are zero, show neutral message
             if (_statsContainer.GetChildCount() == 0)
             {
@@ -264,6 +272,38 @@ namespace KBTV.UI.Components
                 StatType.Nicotine => "Nicotine",
                 _ => "Unknown"
             };
+        }
+        private float CalculateXPImpact()
+        {
+            float xp = 0f;
+
+            foreach (var property in _properties!)
+            {
+                if (!property.IsRevealed) continue;
+
+                foreach (var effect in property.StatEffects)
+                {
+                    xp += effect.Amount;  // Sum ALL effects, including negatives
+                }
+            }
+
+            return xp;
+        }
+
+        private Label CreateXPLabel(float xpAmount)
+        {
+            var signText = xpAmount >= 0 ? "+" : "";
+            var text = $"XP: {signText}{xpAmount:F0}";
+            var label = new Label { Text = text };
+
+            // Color based on positive/negative XP impact
+            var color = xpAmount >= 0 ? UIColors.StatEffect.Positive : UIColors.StatEffect.Negative;
+            label.AddThemeColorOverride("font_color", color);
+
+            // Tooltip explaining XP system
+            label.TooltipText = $"XP: {signText}{xpAmount:F1} (net impact, can be negative)";
+
+            return label;
         }
     }
 }

@@ -186,7 +186,7 @@ namespace KBTV.Core;
         var deadAirManager = new DeadAirManager();
 
         // Create conversation stat tracker (depends on GameStateManager.VernStats)
-        var conversationStatTracker = new ConversationStatTracker(gameStateManager);
+        var conversationStatTracker = new ConversationStatTracker(gameStateManager, topicManager);
 
         // Phase 2: Set all provider properties (now dependency injection will work)
         GD.Print("ServiceProviderRoot: Phase 2 - Setting provider properties...");

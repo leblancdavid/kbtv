@@ -114,7 +114,7 @@ namespace KBTV.UI
                 AddPlaceholderTab("VERN");
             }
 
-            // TOPIC tab (Topic experience and belief display)
+            // TOPIC tab (Topic experience and XP display)
             var topicTabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/TopicTab.tscn");
             if (topicTabScene != null)
             {

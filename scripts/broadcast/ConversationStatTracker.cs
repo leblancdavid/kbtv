@@ -3,6 +3,7 @@ using KBTV.Callers;
 using KBTV.Data;
 using KBTV.Dialogue;
 using KBTV.Core;
+using KBTV.Managers;
 using Godot;
 
 namespace KBTV.Broadcast
@@ -18,10 +19,14 @@ namespace KBTV.Broadcast
         private int _completedLines;
         private Caller _currentCaller;
         private VernStats? _vernStats;
+        private TopicManager _topicManager;
+        private float _totalXP;
+        private float _appliedXP;
 
-        public ConversationStatTracker(GameStateManager gameStateManager)
+        public ConversationStatTracker(GameStateManager gameStateManager, TopicManager topicManager)
         {
             _vernStats = gameStateManager?.VernStats;
+            _topicManager = topicManager;
         }
 
         /// <summary>
@@ -33,6 +38,14 @@ namespace KBTV.Broadcast
             _totalEffects = caller.GetTotalStatEffects();
             _totalLines = arc.Dialogue.Count;
             _completedLines = 0;
+            
+            // Calculate total XP from sum of ALL stat modifier amounts (including negatives)
+            _totalXP = 0f;
+            foreach (var amount in _totalEffects.Values)
+            {
+                _totalXP += amount;
+            }
+            _appliedXP = 0f;
         }
 
         /// <summary>
@@ -54,6 +67,20 @@ namespace KBTV.Broadcast
                 {
                     ApplyStatEffect(statType, incrementalAmount);
                 }
+            }
+            
+            // Award XP equal to sum of ALL stat effects applied this line (including negatives)
+            float xpAward = 0f;
+            foreach (var (statType, totalAmount) in _totalEffects)
+            {
+                float incrementalAmount = totalAmount * (progress - previousProgress);
+                xpAward += incrementalAmount;
+            }
+            
+            if (xpAward != 0)  // Award even negative XP
+            {
+                _appliedXP += xpAward;
+                _topicManager.AwardXP(_currentCaller.ClaimedTopic, (int)Mathf.Round(xpAward));
             }
         }
 

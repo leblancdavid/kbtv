@@ -6,7 +6,7 @@ using KBTV.Core;
 namespace KBTV.UI.Components
 {
     /// <summary>
-    /// Displays progress for a single topic: experience level, belief tier, and freshness.
+    /// Displays progress for a single topic: experience level, XP tier, and freshness.
     /// </summary>
     [GlobalClass]
     public partial class TopicProgressPanel : PanelContainer, IDependent
@@ -15,7 +15,7 @@ namespace KBTV.UI.Components
         private Label _topicLabel = null!;
         private ProgressBar _xpBar = null!;
         private Label _xpLabel = null!;
-        private Label _beliefLabel = null!;
+        private Label _tierLabel = null!;
         private ProgressBar _freshnessBar = null!;
         private Label _freshnessLabel = null!;
         private bool _uiCreated = false;
@@ -90,14 +90,14 @@ namespace KBTV.UI.Components
             _xpBar.ShowPercentage = false;
             vbox.AddChild(_xpBar);
 
-            // Belief tier
-            _beliefLabel = new Label();
-            _beliefLabel.Text = "Belief: SKEPTIC (+0%)";
-            _beliefLabel.HorizontalAlignment = HorizontalAlignment.Left;
-            _beliefLabel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            _beliefLabel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
-            _beliefLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            vbox.AddChild(_beliefLabel);
+            // XP tier
+            _tierLabel = new Label();
+            _tierLabel.Text = "Tier: SKEPTIC (+0%)";
+            _tierLabel.HorizontalAlignment = HorizontalAlignment.Left;
+            _tierLabel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            _tierLabel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+            _tierLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            vbox.AddChild(_tierLabel);
 
             // Freshness percentage (text only)
             _freshnessLabel = new Label();
@@ -128,9 +128,9 @@ namespace KBTV.UI.Components
         {
             GD.Print($"UpdateDisplay called for {_topicName}");
             
-            // Get real topic belief data
-            var topicBelief = _topicManager.GetTopicBelief(_topicName.ToLower());
-            var belief = topicBelief.Belief;
+            // Get real topic XP data
+            var topicBelief = _topicManager.GetTopicXP(_topicName.ToLower());
+            var xp = topicBelief.XP;
             var tier = topicBelief.CurrentTier;
             var mentalBonus = topicBelief.MentalBonus;
 
@@ -138,25 +138,25 @@ namespace KBTV.UI.Components
             var freshness = GetPlaceholderFreshness(_topicName);
 
             // Calculate level and XP progress (simplified - no real TopicExperience yet)
-            var level = GetLevelForBelief(belief);
-            var currentXp = belief - GetXpThresholdForLevel(level - 1);
+            var level = GetLevelForXP(xp);
+            var currentXp = xp - GetXpThresholdForLevel(level - 1);
             var maxXp = GetXpThresholdForLevel(level) - GetXpThresholdForLevel(level - 1);
 
-            GD.Print($"Topic {_topicName}: level {level}, xp {currentXp}/{maxXp}, belief {belief}");
+            GD.Print($"Topic {_topicName}: level {level}, xp {currentXp}/{maxXp}, XP {xp}");
             
             SetXP(level, (int)currentXp, (int)maxXp);
             GD.Print($"XP label set for {_topicName}: {_xpLabel.Text}");
-            SetBelief(topicBelief.CurrentTierName, (int)(mentalBonus * 100f));
+            SetTier(topicBelief.CurrentTierName, (int)(mentalBonus * 100f));
             SetFreshness(freshness);
         }
 
-        private int GetLevelForBelief(float belief)
+        private int GetLevelForXP(float xp)
         {
             // Simplified level calculation (could be based on TopicExperience)
-            if (belief >= 1000) return 5;
-            if (belief >= 600) return 4;
-            if (belief >= 300) return 3;
-            if (belief >= 100) return 2;
+            if (xp >= 1000) return 5;
+            if (xp >= 600) return 4;
+            if (xp >= 300) return 3;
+            if (xp >= 100) return 2;
             return 1;
         }
 
@@ -195,9 +195,9 @@ namespace KBTV.UI.Components
             _xpBar.Value = current;
         }
 
-        private void SetBelief(string tier, int bonusPercent)
+        private void SetTier(string tier, int bonusPercent)
         {
-            _beliefLabel.Text = $"Belief: {tier} (+{bonusPercent}%)";
+            _tierLabel.Text = $"Tier: {tier} (+{bonusPercent}%)";
         }
 
         private void SetFreshness(int percentage)

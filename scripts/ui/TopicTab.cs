@@ -7,7 +7,7 @@ using KBTV.UI.Components;
 namespace KBTV.UI
 {
     /// <summary>
-    /// TOPIC tab displaying topic experience, belief progress, and freshness meters.
+    /// TOPIC tab displaying topic experience, XP progress, and freshness meters.
     /// Shows progression for all four topics: UFOs, Ghosts, Cryptids, Conspiracies.
     /// </summary>
     [GlobalClass]
@@ -42,7 +42,7 @@ namespace KBTV.UI
             // Header
             var header = new Label();
             header.Name = "HeaderLabel";
-            header.Text = "TOPIC EXPERIENCE & BELIEF";
+            header.Text = "TOPIC EXPERIENCE & XP";
             header.HorizontalAlignment = HorizontalAlignment.Center;
             header.AddThemeFontSizeOverride("font_size", 16);
             mainVBox.AddChild(header);
@@ -106,7 +106,7 @@ namespace KBTV.UI
 
         private void UpdateDisplay()
         {
-            // TODO: Connect to actual topic experience/belief data
+            // TODO: Connect to actual topic experience/XP data
             // For now, show placeholder data
             foreach (var panel in _topicPanels)
             {

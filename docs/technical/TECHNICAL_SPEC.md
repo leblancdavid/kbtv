@@ -66,7 +66,7 @@ assets/
 ## Core Systems
 
 ### Stats System
-**Files**: `scripts/data/Stat.cs`, `scripts/data/VernStats.cs`, `scripts/data/TopicBelief.cs`
+**Files**: `scripts/data/Stat.cs`, `scripts/data/VernStats.cs`, `scripts/data/TopicXP.cs`
 
 Vern's stats system uses three core stats plus dependencies. See [VERN_STATS.md](../systems/VERN_STATS.md) for complete documentation.
 
@@ -83,7 +83,7 @@ The combination of all stats affects VIBE (Vibrancy, Interest, Broadcast Enterta
 
 - `VernStats` (Resource) contains all stat tracking with VIBE/mood calculations
 - `Stat` (individual stat with min/max clamping and change events)
-- `TopicBelief` tracks per-topic belief with tiered XP and level floors
+- `TopicXP` tracks per-topic belief with tiered XP and level floors
 - `CalculateVIBE()` returns weighted composite: `Physical×0.25 + Emotional×0.40 + Mental×0.35`
 - `VernStatsMonitor` handles decay logic in game loop
 

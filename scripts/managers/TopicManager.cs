@@ -5,12 +5,12 @@ using KBTV.Data;
 namespace KBTV.Managers
 {
     /// <summary>
-    /// Manages topic progression data (experience and belief levels).
-    /// Provides access to TopicBelief instances for each topic.
+    /// Manages topic progression data (experience and XP levels).
+    /// Provides access to TopicXP instances for each topic.
     /// </summary>
     public class TopicManager
     {
-        private readonly Dictionary<string, TopicBelief> _topicBeliefs = new();
+        private readonly Dictionary<string, TopicXP> _topicXPs = new();
 
         public TopicManager()
         {
@@ -19,20 +19,20 @@ namespace KBTV.Managers
 
         private void InitializeTopics()
         {
-            // Initialize belief data for each topic
+            // Initialize XP data for each topic
             var topics = new[] { "UFOs", "Ghosts", "Cryptids", "Conspiracies", "Aliens", "Time Travel" };
 
             foreach (var topicName in topics)
             {
                 var topicId = topicName.ToLower().Replace(" ", "_");
-                var belief = new TopicBelief(topicId, topicName, GetInitialBelief(topicName));
-                _topicBeliefs[topicId] = belief;
+                var belief = new TopicXP(topicId, topicName, GetInitialXP(topicName));
+                _topicXPs[topicId] = belief;
             }
         }
 
-        private float GetInitialBelief(string topicName)
+        private float GetInitialXP(string topicName)
         {
-            // Placeholder initial belief values (could be loaded from save data)
+            // Placeholder initial XP values (could be loaded from save data)
             return topicName switch
             {
                 "UFOs" => 245f,         // Level 3 (Interested)
@@ -45,31 +45,31 @@ namespace KBTV.Managers
             };
         }
 
-        public TopicBelief GetTopicBelief(string topicId)
+        public TopicXP GetTopicXP(string topicId)
         {
-            if (_topicBeliefs.TryGetValue(topicId.ToLower(), out var belief))
+            if (_topicXPs.TryGetValue(topicId.ToLower(), out var belief))
             {
                 return belief;
             }
 
             // Fallback for unknown topics
-            var fallback = new TopicBelief(topicId.ToLower(), topicId, 0f);
-            _topicBeliefs[topicId.ToLower()] = fallback;
+            var fallback = new TopicXP(topicId.ToLower(), topicId, 0f);
+            _topicXPs[topicId.ToLower()] = fallback;
             return fallback;
         }
 
-        public IEnumerable<TopicBelief> GetAllTopicBeliefs()
+        public IEnumerable<TopicXP> GetAllTopicXPs()
         {
-            return _topicBeliefs.Values;
+            return _topicXPs.Values;
         }
 
         /// <summary>
-        /// Award belief points for a topic after screening a caller.
+        /// Award XP for a topic after screening a caller.
         /// </summary>
-        public void AwardBeliefPoints(string topicName, int points)
+        public void AwardXP(string topicName, int points)
         {
             var topicId = topicName.ToLower();
-            var belief = GetTopicBelief(topicId);
+            var belief = GetTopicXP(topicId);
 
             if (points > 0)
             {
@@ -80,7 +80,7 @@ namespace KBTV.Managers
                 belief.ApplyBadCaller(points);
             }
 
-            Godot.GD.Print($"TopicManager: Awarded {points} belief points to {topicName} (now {belief.Belief:F0})");
+            Godot.GD.Print($"TopicManager: Awarded {points} XP to {topicName} (now {belief.XP:F0})");
         }
     }
 }

@@ -51,6 +51,5 @@ namespace KBTV.Screening
 
         event Action<ScreeningPhase> PhaseChanged;
         event Action<ScreeningProgress> ProgressUpdated;
-        event Action<string, int, bool> BeliefRewardEarned;
     }
 }

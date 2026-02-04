@@ -270,7 +270,7 @@ Cannot drop to Tier 2 once Tier 3 is reached.
 | `VernStats` | Main stat container, initialization, VIBE/mood calculation |
 | `VernStatsMonitor` | Handles decay logic in game loop |
 | `VernMoodType` | Enum of 7 mood types |
-| `TopicBelief` | Per-topic belief tracking with tiers |
+| `TopicXP` | Per-topic belief tracking with tiers |
 
 ---
 

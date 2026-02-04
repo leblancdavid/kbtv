@@ -4,64 +4,64 @@ using Godot;
 namespace KBTV.Data
 {
 	/// <summary>
-	/// Tier levels for Topic Belief progression.
+	/// Tier levels for Topic XP progression.
 	/// </summary>
-	public enum BeliefTier
+	public enum XPTier
 	{
-		Skeptic = 1,      // 0 belief
-		Curious = 2,      // 100 belief
-		Interested = 3,   // 300 belief
-		Believer = 4,     // 600 belief
-		TrueBeliever = 5  // 1000 belief
+		Skeptic = 1,      // 0 xp
+		Curious = 2,      // 100 xp
+		Interested = 3,   // 300 xp
+		Believer = 4,     // 600 xp
+		TrueBeliever = 5  // 1000 xp
 	}
 
 	/// <summary>
-	/// Tracks Vern's belief in a specific topic.
-	/// Belief is a tiered XP system where:
-	/// - Belief can go up and down based on caller quality
-	/// - Once a tier is reached, belief cannot drop below that tier's floor
+	/// Tracks Vern's experience in a specific topic.
+	/// XP is a tiered experience system where:
+	/// - XP can go up and down based on caller quality
+	/// - Once a tier is reached, XP cannot drop below that tier's floor
 	/// - Higher tiers provide Mental bonuses for that topic
 	/// </summary>
 	[Serializable]
-	public class TopicBelief
+	public class TopicXP
 	{
 		private string _topicId;
 		private string _topicName;
-		private float _belief;
-		private BeliefTier _highestTierReached;
+		private float _xp;
+		private XPTier _highestTierReached;
 
 		public string TopicId => _topicId;
 		public string TopicName => _topicName;
-		public float Belief => _belief;
-		public BeliefTier CurrentTier => GetTierForBelief(_belief);
-		public BeliefTier HighestTierReached => _highestTierReached;
+		public float XP => _xp;
+		public XPTier CurrentTier => GetTierForXP(_xp);
+		public XPTier HighestTierReached => _highestTierReached;
 
-		public event Action<float, float>? OnBeliefChanged; // oldValue, newValue
-		public event Action<BeliefTier, BeliefTier>? OnTierChanged; // oldTier, newTier
+		public event Action<float, float>? OnXPChanged; // oldValue, newValue
+		public event Action<XPTier, XPTier>? OnTierChanged; // oldTier, newTier
 
 		// ═══════════════════════════════════════════════════════════════════════════════
 		// TIER THRESHOLDS
 		// ═══════════════════════════════════════════════════════════════════════════════
 
-		public static float GetTierThreshold(BeliefTier tier) => tier switch
+		public static float GetTierThreshold(XPTier tier) => tier switch
 		{
-			BeliefTier.Skeptic => 0f,
-			BeliefTier.Curious => 100f,
-			BeliefTier.Interested => 300f,
-			BeliefTier.Believer => 600f,
-			BeliefTier.TrueBeliever => 1000f,
+			XPTier.Skeptic => 0f,
+			XPTier.Curious => 100f,
+			XPTier.Interested => 300f,
+			XPTier.Believer => 600f,
+			XPTier.TrueBeliever => 1000f,
 			_ => 0f
 		};
 
-		public static float GetTierFloor(BeliefTier tier) => GetTierThreshold(tier);
+		public static float GetTierFloor(XPTier tier) => GetTierThreshold(tier);
 
-		public static BeliefTier GetTierForBelief(float belief)
+		public static XPTier GetTierForXP(float xp)
 		{
-			if (belief >= 1000f) return BeliefTier.TrueBeliever;
-			if (belief >= 600f) return BeliefTier.Believer;
-			if (belief >= 300f) return BeliefTier.Interested;
-			if (belief >= 100f) return BeliefTier.Curious;
-			return BeliefTier.Skeptic;
+			if (xp >= 1000f) return XPTier.TrueBeliever;
+			if (xp >= 600f) return XPTier.Believer;
+			if (xp >= 300f) return XPTier.Interested;
+			if (xp >= 100f) return XPTier.Curious;
+			return XPTier.Skeptic;
 		}
 
 		// ═══════════════════════════════════════════════════════════════════════════════
@@ -73,72 +73,72 @@ namespace KBTV.Data
 		/// </summary>
 		public float MentalBonus => GetMentalBonusForTier(CurrentTier);
 
-		public static float GetMentalBonusForTier(BeliefTier tier) => tier switch
+		public static float GetMentalBonusForTier(XPTier tier) => tier switch
 		{
-			BeliefTier.Skeptic => 0f,
-			BeliefTier.Curious => 0.05f,      // +5%
-			BeliefTier.Interested => 0.10f,   // +10%
-			BeliefTier.Believer => 0.15f,     // +15%
-			BeliefTier.TrueBeliever => 0.20f, // +20%
+			XPTier.Skeptic => 0f,
+			XPTier.Curious => 0.05f,      // +5%
+			XPTier.Interested => 0.10f,   // +10%
+			XPTier.Believer => 0.15f,     // +15%
+			XPTier.TrueBeliever => 0.20f, // +20%
 			_ => 0f
 		};
 
 		/// <summary>
 		/// Returns true if screening hints are available (Tier 3+).
 		/// </summary>
-		public bool HasScreeningHints => CurrentTier >= BeliefTier.Interested;
+		public bool HasScreeningHints => CurrentTier >= XPTier.Interested;
 
 		/// <summary>
 		/// Returns true if better caller pool is available (Tier 4+).
 		/// </summary>
-		public bool HasBetterCallerPool => CurrentTier >= BeliefTier.Believer;
+		public bool HasBetterCallerPool => CurrentTier >= XPTier.Believer;
 
 		/// <summary>
 		/// Returns true if expert guests are available (Tier 5).
 		/// </summary>
-		public bool HasExpertGuests => CurrentTier >= BeliefTier.TrueBeliever;
+		public bool HasExpertGuests => CurrentTier >= XPTier.TrueBeliever;
 
 		// ═══════════════════════════════════════════════════════════════════════════════
 		// CONSTRUCTION
 		// ═══════════════════════════════════════════════════════════════════════════════
 
-		public TopicBelief(string topicId, string topicName, float initialBelief = 0f)
+		public TopicXP(string topicId, string topicName, float initialXP = 0f)
 		{
 			_topicId = topicId;
 			_topicName = topicName;
-			_belief = Mathf.Max(0f, initialBelief);
-			_highestTierReached = GetTierForBelief(_belief);
+			_xp = Mathf.Max(0f, initialXP);
+			_highestTierReached = GetTierForXP(_xp);
 		}
 
 		// ═══════════════════════════════════════════════════════════════════════════════
-		// BELIEF MODIFICATION
+		// XP MODIFICATION
 		// ═══════════════════════════════════════════════════════════════════════════════
 
 		/// <summary>
-		/// Add or remove belief. Cannot drop below the floor of the highest tier reached.
+		/// Add or remove XP. Cannot drop below the floor of the highest tier reached.
 		/// </summary>
-		public void ModifyBelief(float delta)
+		public void ModifyXP(float delta)
 		{
-			float oldBelief = _belief;
-			BeliefTier oldTier = CurrentTier;
+			float oldXP = _xp;
+			XPTier oldTier = CurrentTier;
 
-			_belief += delta;
+			_xp += delta;
 
 			// Enforce floor: cannot drop below highest tier reached
 			float floor = GetTierFloor(_highestTierReached);
-			_belief = Mathf.Max(floor, _belief);
+			_xp = Mathf.Max(floor, _xp);
 
 			// Check if we reached a new highest tier
-			BeliefTier newTier = CurrentTier;
+			XPTier newTier = CurrentTier;
 			if (newTier > _highestTierReached)
 			{
 				_highestTierReached = newTier;
 			}
 
 			// Fire events
-			if (!Mathf.IsEqualApprox(oldBelief, _belief))
+			if (!Mathf.IsEqualApprox(oldXP, _xp))
 			{
-				OnBeliefChanged?.Invoke(oldBelief, _belief);
+				OnXPChanged?.Invoke(oldXP, _xp);
 			}
 
 			if (oldTier != newTier)
@@ -148,28 +148,28 @@ namespace KBTV.Data
 		}
 
 		/// <summary>
-		/// Set belief to a specific value. Respects tier floor.
+		/// Set XP to a specific value. Respects tier floor.
 		/// </summary>
-		public void SetBelief(float value)
+		public void SetXP(float value)
 		{
-			float oldBelief = _belief;
-			BeliefTier oldTier = CurrentTier;
+			float oldXP = _xp;
+			XPTier oldTier = CurrentTier;
 
 			// Enforce floor
 			float floor = GetTierFloor(_highestTierReached);
-			_belief = Mathf.Max(floor, value);
+			_xp = Mathf.Max(floor, value);
 
 			// Check if we reached a new highest tier
-			BeliefTier newTier = CurrentTier;
+			XPTier newTier = CurrentTier;
 			if (newTier > _highestTierReached)
 			{
 				_highestTierReached = newTier;
 			}
 
 			// Fire events
-			if (!Mathf.IsEqualApprox(oldBelief, _belief))
+			if (!Mathf.IsEqualApprox(oldXP, _xp))
 			{
-				OnBeliefChanged?.Invoke(oldBelief, _belief);
+				OnXPChanged?.Invoke(oldXP, _xp);
 			}
 
 			if (oldTier != newTier)
@@ -183,27 +183,27 @@ namespace KBTV.Data
 		// ═══════════════════════════════════════════════════════════════════════════════
 
 		/// <summary>
-		/// Apply belief change from a good on-topic caller.
+		/// Apply XP change from a good on-topic caller.
 		/// </summary>
-		public void ApplyGoodCaller(float beliefGain = 15f)
+		public void ApplyGoodCaller(float xpGain = 15f)
 		{
-			ModifyBelief(beliefGain);
+			ModifyXP(xpGain);
 		}
 
 		/// <summary>
-		/// Apply belief change from a bad/hoax on-topic caller.
+		/// Apply XP change from a bad/hoax on-topic caller.
 		/// </summary>
-		public void ApplyBadCaller(float beliefLoss = -10f)
+		public void ApplyBadCaller(float xpLoss = -10f)
 		{
-			ModifyBelief(beliefLoss);
+			ModifyXP(xpLoss);
 		}
 
 		/// <summary>
-		/// Apply belief bonus for completing a show on this topic.
+		/// Apply XP bonus for completing a show on this topic.
 		/// </summary>
-		public void ApplyShowCompleted(float beliefGain = 25f)
+		public void ApplyShowCompleted(float xpGain = 25f)
 		{
-			ModifyBelief(beliefGain);
+			ModifyXP(xpGain);
 		}
 
 		// ═══════════════════════════════════════════════════════════════════════════════
@@ -218,30 +218,30 @@ namespace KBTV.Data
 		{
 			get
 			{
-				if (CurrentTier == BeliefTier.TrueBeliever)
+				if (CurrentTier == XPTier.TrueBeliever)
 					return 1f;
 
 				float currentFloor = GetTierFloor(CurrentTier);
 				float nextFloor = GetTierFloor(CurrentTier + 1);
 				float range = nextFloor - currentFloor;
 
-				return (_belief - currentFloor) / range;
+				return (_xp - currentFloor) / range;
 			}
 		}
 
 		/// <summary>
-		/// Get belief required to reach the next tier.
+		/// Get XP required to reach the next tier.
 		/// Returns 0 if at max tier.
 		/// </summary>
-		public float BeliefToNextTier
+		public float XPToNextTier
 		{
 			get
 			{
-				if (CurrentTier == BeliefTier.TrueBeliever)
+				if (CurrentTier == XPTier.TrueBeliever)
 					return 0f;
 
 				float nextFloor = GetTierFloor(CurrentTier + 1);
-				return nextFloor - _belief;
+				return nextFloor - _xp;
 			}
 		}
 
@@ -249,13 +249,13 @@ namespace KBTV.Data
 		// DISPLAY
 		// ═══════════════════════════════════════════════════════════════════════════════
 
-		public static string GetTierName(BeliefTier tier) => tier switch
+		public static string GetTierName(XPTier tier) => tier switch
 		{
-			BeliefTier.Skeptic => "Skeptic",
-			BeliefTier.Curious => "Curious",
-			BeliefTier.Interested => "Interested",
-			BeliefTier.Believer => "Believer",
-			BeliefTier.TrueBeliever => "True Believer",
+			XPTier.Skeptic => "Skeptic",
+			XPTier.Curious => "Curious",
+			XPTier.Interested => "Interested",
+			XPTier.Believer => "Believer",
+			XPTier.TrueBeliever => "True Believer",
 			_ => "Unknown"
 		};
 
@@ -263,7 +263,7 @@ namespace KBTV.Data
 
 		public override string ToString()
 		{
-			return $"{_topicName}: Tier {(int)CurrentTier} ({CurrentTierName}) - {_belief:F0} belief";
+			return $"{_topicName}: Tier {(int)CurrentTier} ({CurrentTierName}) - {_xp:F0} XP";
 		}
 	}
 }

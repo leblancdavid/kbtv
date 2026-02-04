@@ -27,7 +27,6 @@ namespace KBTV.Screening
 
         public event Action<ScreeningPhase>? PhaseChanged;
         public event Action<ScreeningProgress>? ProgressUpdated;
-        public event Action<string, int, bool>? BeliefRewardEarned;
 
         public ScreeningController(ICallerRepository callerRepository, TopicManager topicManager)
         {
@@ -79,10 +78,6 @@ namespace KBTV.Screening
             var result = repository.ApproveScreening();
             if (result.IsSuccess)
             {
-                // Calculate and award belief points
-                var beliefReward = CalculateBeliefReward(caller, true);
-                AwardBeliefPoints(caller.ClaimedTopic, beliefReward);
-                ShowBeliefRewardNotification(caller, beliefReward, true);
                 return Result<Caller>.Ok(caller);
             }
 
@@ -120,10 +115,6 @@ namespace KBTV.Screening
             var result = repository.RejectScreening();
             if (result.IsSuccess)
             {
-                // Calculate and award belief points (negative for rejection)
-                var beliefReward = CalculateBeliefReward(caller, false);
-                AwardBeliefPoints(caller.ClaimedTopic, beliefReward);
-                ShowBeliefRewardNotification(caller, beliefReward, false);
                 return Result<Caller>.Ok(caller);
             }
 
@@ -203,37 +194,10 @@ namespace KBTV.Screening
             );
         }
 
-        private int CalculateBeliefReward(Caller caller, bool approved)
-        {
-            // Base belief rewards based on caller quality and approval
-            if (approved)
-            {
-                // Approved callers: +10 to +20 belief points based on quality
-                return caller.Quality > 0.5f ? 20 : 10;
-            }
-            else
-            {
-                // Rejected callers: -5 to -15 belief points based on quality
-                return caller.Quality > 0.5f ? -5 : -15;
-            }
-        }
 
-        private void AwardBeliefPoints(string topic, int points)
-        {
-            _topicManager.AwardBeliefPoints(topic, points);
-        }
 
-        private void ShowBeliefRewardNotification(Caller caller, int beliefPoints, bool approved)
-        {
-            var action = approved ? "APPROVED" : "REJECTED";
-            var topic = caller.ClaimedTopic;
-            var sign = beliefPoints >= 0 ? "+" : "";
-            var message = $"{action}: {sign}{beliefPoints} Belief Points\nTopic: {topic}";
 
-            GD.Print($"ScreeningController: {message}");
 
-            // Emit event for UI notification
-            BeliefRewardEarned?.Invoke(topic, beliefPoints, approved);
-        }
+
     }
 }
