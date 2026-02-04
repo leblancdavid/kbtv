@@ -84,7 +84,7 @@ namespace KBTV.UI
 
         private void InitializeTabs()
         {
-            // Tab order: CALLERS, VERN, ITEMS
+            // Tab order: CALLERS, VERN, TOPIC, ITEMS
 
             // CALLERS tab
             var callerTabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerTab.tscn");
@@ -112,6 +112,20 @@ namespace KBTV.UI
             {
                 GD.PrintErr("TabContainerManager: Failed to load VernTab.tscn");
                 AddPlaceholderTab("VERN");
+            }
+
+            // TOPIC tab (Topic experience and belief display)
+            var topicTabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/TopicTab.tscn");
+            if (topicTabScene != null)
+            {
+                var topicTab = topicTabScene.Instantiate<Control>();
+                _tabContainer.AddChild(topicTab);
+                _tabContainer.SetTabTitle(topicTab.GetIndex(), "TOPIC");
+            }
+            else
+            {
+                GD.PrintErr("TabContainerManager: Failed to load TopicTab.tscn");
+                AddPlaceholderTab("TOPIC");
             }
 
             // ITEMS tab (placeholder)
