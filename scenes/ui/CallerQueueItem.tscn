@@ -51,17 +51,3 @@ custom_minimum_size = Vector2(40, 0)
 text = ""
 horizontal_alignment = 2
 vertical_alignment = 1
-
-[node name="StatusIndicator" type="ProgressBar" parent="HBoxContainer"]
-layout_mode = 2
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-custom_minimum_size = Vector2(50, 20)
-max_value = 1.0
-value = 1.0
-show_percentage = false

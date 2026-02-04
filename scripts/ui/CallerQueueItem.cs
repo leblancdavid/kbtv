@@ -14,7 +14,6 @@ namespace KBTV.UI
     {
         private Label _nameLabel = null!;
         private Label? _progressLabel;
-        private ProgressBar _statusIndicator = null!;
 
         private string? _callerId;
         private Caller? _cachedCaller;
@@ -33,7 +32,6 @@ namespace KBTV.UI
             {
                 _nameLabel = GetNode<Label>("HBoxContainer/NameLabel");
                 _progressLabel = GetNodeOrNull<Label>("HBoxContainer/ProgressLabel");
-                _statusIndicator = GetNode<ProgressBar>("HBoxContainer/StatusIndicator");
             }
             catch (Exception ex)
             {
@@ -47,7 +45,6 @@ namespace KBTV.UI
             ApplyPendingCallerData();
             TrackStateForRefresh();
             UpdateVisualSelection();
-            UpdateStatusIndicator();
             UpdateProgressLabel();
         }
 
@@ -83,7 +80,6 @@ namespace KBTV.UI
                 _nameLabel.Text = caller?.Name ?? "";
                 _nameLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.7f));
             }
-            UpdateStatusIndicator();
             UpdateVisualSelection();
         }
 
@@ -120,14 +116,13 @@ namespace KBTV.UI
             _cachedCaller = currentCaller;
 
             bool needsStatusUpdate = currentCaller.WaitTime != _previousWaitTime ||
-                                     (currentCaller.State == CallerState.Screening &&
-                                      currentCaller.ScreeningPatience != _previousScreeningPatience);
+                                      (currentCaller.State == CallerState.Screening &&
+                                       currentCaller.ScreeningPatience != _previousScreeningPatience);
 
             if (needsStatusUpdate)
             {
                 _previousWaitTime = currentCaller.WaitTime;
                 _previousScreeningPatience = currentCaller.ScreeningPatience;
-                UpdateStatusIndicator();
             }
 
             // Update screening progress display
@@ -189,7 +184,7 @@ namespace KBTV.UI
 
         private void UpdateVisualSelection()
         {
-            if (_cachedCaller == null || _statusIndicator == null || _callerId == null)
+            if (_cachedCaller == null || _callerId == null)
             {
                 return;
             }
@@ -220,40 +215,6 @@ namespace KBTV.UI
                 _nameLabel.AddThemeColorOverride("font_color",
                     isScreening ? UIColors.Screening.SelectedText : UIColors.Screening.DefaultText);
             }
-        }
-
-        private void UpdateStatusIndicator()
-        {
-            if (_callerId == null)
-            {
-                return;
-            }
-
-            var caller = _repository?.GetCaller(_callerId);
-            if (caller == null || _statusIndicator == null)
-            {
-                return;
-            }
-
-            float remainingPatience;
-            if (caller.State == CallerState.Screening)
-            {
-                remainingPatience = caller.ScreeningPatience;
-            }
-            else
-            {
-                remainingPatience = caller.Patience - caller.WaitTime;
-            }
-
-            float patienceRatio = Mathf.Clamp(remainingPatience / caller.Patience, 0f, 1f);
-
-            _statusIndicator.Value = patienceRatio;
-
-            var fillStyle = new StyleBoxFlat { BgColor = UIColors.GetPatienceColor(patienceRatio) };
-            _statusIndicator.AddThemeStyleboxOverride("fill", fillStyle);
-
-            _statusIndicator.QueueRedraw();
-            QueueRedraw();
         }
 
         private void UpdateProgressLabel()
