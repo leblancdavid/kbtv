@@ -11,6 +11,16 @@ using KBTV.Screening;
 using KBTV.Audio;
 using KBTV.Monitors;
 using KBTV.Broadcast;
+using KBTV.Persistence;
+using KBTV.Core;
+using KBTV.Callers;
+using KBTV.Dialogue;
+using KBTV.UI;
+using KBTV.Ads;
+using KBTV.Screening;
+using KBTV.Audio;
+using KBTV.Monitors;
+using KBTV.Broadcast;
 
 namespace KBTV.Core;
 
@@ -42,7 +52,8 @@ namespace KBTV.Core;
     IProvide<IBroadcastAudioService>,
     IProvide<IUIAudioService>,
     IProvide<DeadAirManager>,
-    IProvide<ConversationStatTracker>
+    IProvide<ConversationStatTracker>,
+    IProvide<TopicManager>
 {
     public override void _Notification(int what) => this.Notify(what);
 
@@ -68,6 +79,7 @@ namespace KBTV.Core;
     public IUIAudioService UIAudioService { get; private set; } = null!;
     public DeadAirManager DeadAirManager { get; private set; } = null!;
     public ConversationStatTracker ConversationStatTracker { get; private set; } = null!;
+    public TopicManager TopicManager { get; private set; } = null!;
 
     // Provider interface implementations
     GameStateManager IProvide<GameStateManager>.Value() => GameStateManager;
@@ -94,6 +106,7 @@ namespace KBTV.Core;
     IUIAudioService IProvide<IUIAudioService>.Value() => UIAudioService;
     DeadAirManager IProvide<DeadAirManager>.Value() => DeadAirManager;
     ConversationStatTracker IProvide<ConversationStatTracker>.Value() => ConversationStatTracker;
+    TopicManager IProvide<TopicManager>.Value() => TopicManager;
 
     /// <summary>
     /// Initialize all service providers and register them with AutoInject.
@@ -118,7 +131,11 @@ namespace KBTV.Core;
         var callerRepo = new CallerRepository(arcRepository);
 
         // Create screening controller (depends on CallerRepository)
-        var screeningController = new ScreeningController(callerRepo);
+        // Create topic manager
+        var topicManager = new TopicManager();
+
+        // Create screening controller (depends on CallerRepository and TopicManager)
+        var screeningController = new ScreeningController(callerRepo, topicManager);
 
         // Resolve circular dependency
         callerRepo.ScreeningController = screeningController;
@@ -195,6 +212,7 @@ namespace KBTV.Core;
         UIAudioService = uiAudioService;
         DeadAirManager = deadAirManager;
         ConversationStatTracker = conversationStatTracker;
+        TopicManager = topicManager;
 
         // Make all services available BEFORE adding children to the scene tree
         GD.Print("ServiceProviderRoot: Making services available for dependency injection...");

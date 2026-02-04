@@ -4,6 +4,7 @@ using System;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Managers;
 using KBTV.Data;
 
 namespace KBTV.Screening
@@ -17,6 +18,7 @@ namespace KBTV.Screening
         private ScreeningSession? _session;
         private ScreeningPhase _phase = ScreeningPhase.Idle;
         private readonly ICallerRepository _callerRepository;
+        private readonly TopicManager _topicManager;
 
         public Caller? CurrentCaller => _session?.Caller;
         public bool IsActive => _session != null && _phase != ScreeningPhase.Completed;
@@ -25,10 +27,12 @@ namespace KBTV.Screening
 
         public event Action<ScreeningPhase>? PhaseChanged;
         public event Action<ScreeningProgress>? ProgressUpdated;
+        public event Action<string, int, bool>? BeliefRewardEarned;
 
-        public ScreeningController(ICallerRepository callerRepository)
+        public ScreeningController(ICallerRepository callerRepository, TopicManager topicManager)
         {
             _callerRepository = callerRepository;
+            _topicManager = topicManager;
         }
 
         public void Start(Caller caller)
@@ -216,11 +220,7 @@ namespace KBTV.Screening
 
         private void AwardBeliefPoints(string topic, int points)
         {
-            // TODO: Connect to actual TopicBelief system
-            GD.Print($"ScreeningController: Awarded {points} belief points for topic '{topic}'");
-
-            // Placeholder: In a real implementation, this would update TopicBelief.ApplyGoodCaller/ApplyBadCaller
-            // based on whether points are positive or negative
+            _topicManager.AwardBeliefPoints(topic, points);
         }
 
         private void ShowBeliefRewardNotification(Caller caller, int beliefPoints, bool approved)
@@ -232,8 +232,8 @@ namespace KBTV.Screening
 
             GD.Print($"ScreeningController: {message}");
 
-            // TODO: Display notification in UI
-            // For now, just log. In real implementation, show popup in ScreeningPanel
+            // Emit event for UI notification
+            BeliefRewardEarned?.Invoke(topic, beliefPoints, approved);
         }
     }
 }

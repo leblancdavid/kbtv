@@ -3,6 +3,7 @@ using Godot;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Screening;
+using KBTV.Managers;
 using System.Collections.Generic;
 
 namespace KBTV.Tests.Unit.Screening
@@ -18,7 +19,7 @@ namespace KBTV.Tests.Unit.Screening
         public void Setup()
         {
             _mockRepository = new MockCallerRepository();
-            _controller = new ScreeningController(_mockRepository);
+            _controller = new ScreeningController(_mockRepository, new TopicManager());
         }
 
         private Caller CreateTestCaller(float patience = 30f)

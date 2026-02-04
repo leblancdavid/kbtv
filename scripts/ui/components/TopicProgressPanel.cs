@@ -1,5 +1,7 @@
 using Godot;
 using KBTV.UI.Themes;
+using KBTV.Managers;
+using KBTV.Core;
 
 namespace KBTV.UI.Components
 {
@@ -7,7 +9,7 @@ namespace KBTV.UI.Components
     /// Displays progress for a single topic: experience level, belief tier, and freshness.
     /// </summary>
     [GlobalClass]
-    public partial class TopicProgressPanel : PanelContainer
+    public partial class TopicProgressPanel : PanelContainer, IDependent
     {
         private string _topicName = "";
         private Label _topicLabel = null!;
@@ -16,14 +18,30 @@ namespace KBTV.UI.Components
         private Label _beliefLabel = null!;
         private ProgressBar _freshnessBar = null!;
         private Label _freshnessLabel = null!;
+        private bool _uiCreated = false;
+
+        public override void _Notification(int what) => this.Notify(what);
+
+        private TopicManager _topicManager = null!;
 
         public override void _Ready()
         {
-            CreateUI();
+            if (!_uiCreated)
+            {
+                CreateUI();
+                _uiCreated = true;
+            }
+        }
+
+        public void OnResolved()
+        {
+            _topicManager = DependencyInjection.Get<TopicManager>(this);
         }
 
         private void CreateUI()
         {
+            GD.Print($"CreateUI called for {_topicName}");
+            
             var panel = new Panel();
             var styleBox = new StyleBoxFlat();
             styleBox.BgColor = UIColors.VernStat.BarBackground;
@@ -35,13 +53,15 @@ namespace KBTV.UI.Components
             AddThemeStyleboxOverride("panel", styleBox);
 
             var marginContainer = new MarginContainer();
-            marginContainer.AddThemeConstantOverride("margin_left", 8);
-            marginContainer.AddThemeConstantOverride("margin_right", 8);
-            marginContainer.AddThemeConstantOverride("margin_top", 6);
-            marginContainer.AddThemeConstantOverride("margin_bottom", 6);
+            marginContainer.AddThemeConstantOverride("margin_left", 16);
+            marginContainer.AddThemeConstantOverride("margin_right", 16);
+            marginContainer.AddThemeConstantOverride("margin_top", 12);
+            marginContainer.AddThemeConstantOverride("margin_bottom", 12);
             AddChild(marginContainer);
 
             var vbox = new VBoxContainer();
+            vbox.SizeFlagsVertical = SizeFlags.ExpandFill;
+            vbox.AddThemeConstantOverride("separation", 8);
             marginContainer.AddChild(vbox);
 
             // Topic header
@@ -51,81 +71,121 @@ namespace KBTV.UI.Components
             _topicLabel.AddThemeColorOverride("font_color", UIColors.TEXT_PRIMARY);
             vbox.AddChild(_topicLabel);
 
-            // XP progress
-            var xpHBox = new HBoxContainer();
-            xpHBox.AddThemeConstantOverride("separation", 4);
-            vbox.AddChild(xpHBox);
-
+            // XP progress (emphasized section)
             _xpLabel = new Label();
             _xpLabel.Text = "Level 1: 0/100 XP";
-            _xpLabel.CustomMinimumSize = new Vector2(120, 0);
-            xpHBox.AddChild(_xpLabel);
+            _xpLabel.HorizontalAlignment = HorizontalAlignment.Left;
+            _xpLabel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            _xpLabel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+            _xpLabel.AutowrapMode = TextServer.AutowrapMode.Off;
+            _xpLabel.CustomMinimumSize = new Vector2(200, 0);
+            _xpLabel.AddThemeColorOverride("font_color", UIColors.TEXT_PRIMARY);
+            vbox.AddChild(_xpLabel);
 
             _xpBar = new ProgressBar();
-            _xpBar.CustomMinimumSize = new Vector2(80, 16);
+            _xpBar.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            _xpBar.CustomMinimumSize = new Vector2(0, 24); // Taller XP bar
             _xpBar.MaxValue = 100;
             _xpBar.Value = 0;
             _xpBar.ShowPercentage = false;
-            xpHBox.AddChild(_xpBar);
+            vbox.AddChild(_xpBar);
 
             // Belief tier
             _beliefLabel = new Label();
             _beliefLabel.Text = "Belief: SKEPTIC (+0%)";
+            _beliefLabel.HorizontalAlignment = HorizontalAlignment.Left;
+            _beliefLabel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            _beliefLabel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
             _beliefLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
             vbox.AddChild(_beliefLabel);
 
-            // Freshness meter
-            var freshHBox = new HBoxContainer();
-            freshHBox.AddThemeConstantOverride("separation", 4);
-            vbox.AddChild(freshHBox);
-
+            // Freshness percentage (text only)
             _freshnessLabel = new Label();
             _freshnessLabel.Text = "Freshness: 100%";
-            _freshnessLabel.CustomMinimumSize = new Vector2(100, 0);
-            freshHBox.AddChild(_freshnessLabel);
-
-            _freshnessBar = new ProgressBar();
-            _freshnessBar.CustomMinimumSize = new Vector2(60, 12);
-            _freshnessBar.MaxValue = 100;
-            _freshnessBar.Value = 100;
-            _freshnessBar.ShowPercentage = false;
-            freshHBox.AddChild(_freshnessBar);
+            _freshnessLabel.HorizontalAlignment = HorizontalAlignment.Left;
+            _freshnessLabel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            _freshnessLabel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+            _freshnessLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            vbox.AddChild(_freshnessLabel);
         }
 
         public void SetTopic(string topicName)
         {
+            GD.Print($"SetTopic called for {topicName}");
+            
+            // Ensure UI is created before setting data
+            if (_topicLabel == null && !_uiCreated)
+            {
+                CreateUI();
+                _uiCreated = true;
+            }
+
             _topicName = topicName;
             _topicLabel.Text = $"─ {_topicName} ─";
         }
 
         public void UpdateDisplay()
         {
-            // TODO: Connect to actual topic data
-            // For now, show placeholder data based on topic name
+            GD.Print($"UpdateDisplay called for {_topicName}");
+            
+            // Get real topic belief data
+            var topicBelief = _topicManager.GetTopicBelief(_topicName.ToLower());
+            var belief = topicBelief.Belief;
+            var tier = topicBelief.CurrentTier;
+            var mentalBonus = topicBelief.MentalBonus;
 
-            switch (_topicName)
+            // For now, use placeholder freshness (could be added to TopicBelief later)
+            var freshness = GetPlaceholderFreshness(_topicName);
+
+            // Calculate level and XP progress (simplified - no real TopicExperience yet)
+            var level = GetLevelForBelief(belief);
+            var currentXp = belief - GetXpThresholdForLevel(level - 1);
+            var maxXp = GetXpThresholdForLevel(level) - GetXpThresholdForLevel(level - 1);
+
+            GD.Print($"Topic {_topicName}: level {level}, xp {currentXp}/{maxXp}, belief {belief}");
+            
+            SetXP(level, (int)currentXp, (int)maxXp);
+            GD.Print($"XP label set for {_topicName}: {_xpLabel.Text}");
+            SetBelief(topicBelief.CurrentTierName, (int)(mentalBonus * 100f));
+            SetFreshness(freshness);
+        }
+
+        private int GetLevelForBelief(float belief)
+        {
+            // Simplified level calculation (could be based on TopicExperience)
+            if (belief >= 1000) return 5;
+            if (belief >= 600) return 4;
+            if (belief >= 300) return 3;
+            if (belief >= 100) return 2;
+            return 1;
+        }
+
+        private float GetXpThresholdForLevel(int level)
+        {
+            return level switch
             {
-                case "UFOs":
-                    SetXP(3, 245, 300);
-                    SetBelief("INTERESTED", 10);
-                    SetFreshness(85);
-                    break;
-                case "Ghosts":
-                    SetXP(1, 0, 100);
-                    SetBelief("SKEPTIC", 0);
-                    SetFreshness(100);
-                    break;
-                case "Cryptids":
-                    SetXP(4, 600, 600);
-                    SetBelief("BELIEVER", 15);
-                    SetFreshness(60);
-                    break;
-                case "Conspiracies":
-                    SetXP(2, 120, 300);
-                    SetBelief("CURIOUS", 5);
-                    SetFreshness(95);
-                    break;
-            }
+                0 => 0,
+                1 => 100,
+                2 => 300,
+                3 => 600,
+                4 => 1000,
+                _ => 1000
+            };
+        }
+
+        private int GetPlaceholderFreshness(string topicName)
+        {
+            // Placeholder freshness values
+            return topicName switch
+            {
+                "UFOs" => 85,
+                "Ghosts" => 100,
+                "Cryptids" => 60,
+                "Conspiracies" => 95,
+                "Aliens" => 75,
+                "Time Travel" => 90,
+                _ => 100
+            };
         }
 
         private void SetXP(int level, int current, int max)
@@ -143,7 +203,6 @@ namespace KBTV.UI.Components
         private void SetFreshness(int percentage)
         {
             _freshnessLabel.Text = $"Freshness: {percentage}%";
-            _freshnessBar.Value = percentage;
         }
     }
 }

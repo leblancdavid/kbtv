@@ -4,6 +4,7 @@ using Godot;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Screening;
+using KBTV.Managers;
 
 namespace KBTV.Tests.Unit.Screening
 {
@@ -21,7 +22,7 @@ namespace KBTV.Tests.Unit.Screening
         public void Setup()
         {
             _mockRepository = new MockCallerRepository();
-            _controller = new ScreeningController(_mockRepository);
+            _controller = new ScreeningController(_mockRepository, new TopicManager());
             _phaseChanges = new List<(ScreeningPhase, int)>();
             _progressUpdates = new List<(ScreeningProgress, int)>();
 

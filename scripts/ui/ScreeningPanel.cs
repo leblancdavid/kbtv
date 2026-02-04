@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
@@ -28,6 +29,9 @@ namespace KBTV.UI
 		[Export]
 		private ProgressBar? _patienceProgressBar;
 
+		[Export]
+		private Control? _notificationContainer;
+
 		private IScreeningController _controller = null!;
 		private ICallerRepository? _callerRepository;
 		private Caller? _pendingCaller;
@@ -41,6 +45,9 @@ namespace KBTV.UI
 
 		// Stat summary panel for aggregated effects
 		private StatSummaryPanel? _statSummaryPanel;
+
+		// Notification system
+		private Label? _notificationLabel;
 
 		public override void _Notification(int what) => this.Notify(what);
 
@@ -65,6 +72,7 @@ namespace KBTV.UI
 			_controller = DependencyInjection.Get<IScreeningController>(this);
 			_callerRepository = DependencyInjection.Get<ICallerRepository>(this);
 			_controller.PhaseChanged += OnPhaseChanged;
+			_controller.BeliefRewardEarned += OnBeliefRewardEarned;
 		}
 
 		private void InitializeController()
@@ -83,6 +91,11 @@ namespace KBTV.UI
 			{
 				UpdateButtons();
 			}
+		}
+
+		private void OnBeliefRewardEarned(string topic, int points, bool approved)
+		{
+			ShowBeliefNotification(topic, points, approved);
 		}
 
 		private void ConnectSignals()
@@ -334,6 +347,35 @@ namespace KBTV.UI
 			}
 		}
 
+		private async void ShowBeliefNotification(string topic, int points, bool approved)
+		{
+			if (_notificationLabel == null || _notificationContainer == null)
+			{
+				return;
+			}
+
+			var action = approved ? "APPROVED" : "REJECTED";
+			var sign = points >= 0 ? "+" : "";
+			var color = points >= 0 ? Colors.Green : Colors.Red;
+			_notificationLabel.Text = $"{action}\n{sign}{points} Belief Points\n{topic}";
+			_notificationLabel.AddThemeColorOverride("font_color", color);
+
+			// Show notification
+			_notificationContainer.Show();
+			_notificationLabel.Modulate = new Color(1, 1, 1, 0);
+			var tween = CreateTween();
+			tween.TweenProperty(_notificationLabel, "modulate:a", 1.0f, 0.3f);
+
+			// Wait 2 seconds then fade out
+			await Task.Delay(2000);
+			if (IsInstanceValid(tween))
+			{
+				tween = CreateTween();
+				tween.TweenProperty(_notificationLabel, "modulate:a", 0.0f, 0.5f);
+				tween.TweenCallback(Callable.From(() => _notificationContainer.Hide()));
+			}
+		}
+
 		public void ConnectButtons(Callable approveCallable, Callable rejectCallable)
 		{
 			if (_approveButton != null)
@@ -351,6 +393,7 @@ namespace KBTV.UI
 			if (_controller != null)
 			{
 				_controller.PhaseChanged -= OnPhaseChanged;
+				_controller.BeliefRewardEarned -= OnBeliefRewardEarned;
 			}
 		}
 
@@ -416,6 +459,32 @@ namespace KBTV.UI
 				catch (Exception ex)
 				{
 					GD.PrintErr($"ScreeningPanel: Failed to find PatienceProgressBar: {ex.Message}");
+				}
+			}
+
+			// Initialize notification container and label
+			if (_notificationContainer == null)
+			{
+				try
+				{
+					_notificationContainer = GetNodeOrNull<Control>("VBoxContainer/NotificationContainer");
+					if (_notificationContainer != null)
+					{
+						_notificationLabel = new Label
+						{
+							Name = "BeliefNotification",
+							HorizontalAlignment = HorizontalAlignment.Center,
+							VerticalAlignment = VerticalAlignment.Center,
+							SizeFlagsHorizontal = SizeFlags.ExpandFill,
+							SizeFlagsVertical = SizeFlags.ExpandFill
+						};
+						_notificationContainer.AddChild(_notificationLabel);
+						_notificationContainer.Hide();
+					}
+				}
+				catch (Exception ex)
+				{
+					GD.PrintErr($"ScreeningPanel: Failed to initialize notification system: {ex.Message}");
 				}
 			}
 		}

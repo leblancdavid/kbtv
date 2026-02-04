@@ -17,7 +17,7 @@ namespace KBTV.UI
         private VBoxContainer _recentGains = null!;
 
         // Topic progress panels
-        private TopicProgressPanel[] _topicPanels = new TopicProgressPanel[4];
+        private TopicProgressPanel[] _topicPanels = new TopicProgressPanel[6];
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -54,13 +54,22 @@ namespace KBTV.UI
             divider.HorizontalAlignment = HorizontalAlignment.Center;
             mainVBox.AddChild(divider);
 
-            // Topics grid (2x2 layout)
+            // Scroll container for topics grid
+            var scrollContainer = new ScrollContainer();
+            scrollContainer.Name = "TopicsScroll";
+            scrollContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            scrollContainer.SizeFlagsVertical = SizeFlags.ExpandFill;
+            mainVBox.AddChild(scrollContainer);
+
+            // Topics grid (2x2 layout, expands to fill scroll container)
             _topicsGrid = new GridContainer();
             _topicsGrid.Name = "TopicsGrid";
             _topicsGrid.Columns = 2;
+            _topicsGrid.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            _topicsGrid.SizeFlagsVertical = SizeFlags.ExpandFill;
             _topicsGrid.Set("theme_override_constants/h_separation", 20);
             _topicsGrid.Set("theme_override_constants/v_separation", 10);
-            mainVBox.AddChild(_topicsGrid);
+            scrollContainer.AddChild(_topicsGrid);
 
             // Recent gains section
             var recentHeader = new Label();
@@ -81,12 +90,14 @@ namespace KBTV.UI
 
         private void CreateTopicPanels()
         {
-            string[] topicNames = { "UFOs", "Ghosts", "Cryptids", "Conspiracies" };
+            string[] topicNames = { "UFOs", "Ghosts", "Cryptids", "Conspiracies", "Aliens", "Time Travel" };
 
             for (int i = 0; i < topicNames.Length; i++)
             {
                 var panel = new TopicProgressPanel();
                 panel.Name = $"{topicNames[i]}Panel";
+                panel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+                panel.SizeFlagsVertical = SizeFlags.ExpandFill;
                 panel.SetTopic(topicNames[i]);
                 _topicsGrid.AddChild(panel);
                 _topicPanels[i] = panel;
