@@ -419,7 +419,8 @@ namespace KBTV.Dialogue
             
             if (!_stateManager._hasPlayedVernOpening)
             {
-                var opening = _vernDialogue.GetShowOpening();
+                var topic = _gameStateManager?.SelectedTopic?.TopicValue ?? ShowTopic.Ghosts; // Fallback to Ghosts if no topic
+                var opening = _vernDialogue.GetShowOpening(topic);
                 if (opening != null)
                 {
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{opening.Id}.mp3";
@@ -441,7 +442,8 @@ namespace KBTV.Dialogue
 
             if (_stateManager._pendingShowEndingTransition)
             {
-                var closing = _vernDialogue.GetShowClosing();
+                var topic = _gameStateManager?.SelectedTopic?.TopicValue ?? ShowTopic.Ghosts; // Fallback to Ghosts if no topic
+                var closing = _vernDialogue.GetShowClosing(topic);
                 if (closing != null)
                 {
                     GD.Print($"BroadcastStateMachine: Pending show ending transition found - queuing closing dialogue '{closing.Id}'");
@@ -522,7 +524,8 @@ namespace KBTV.Dialogue
 
         private BroadcastExecutable CreateDeadAirExecutable()
         {
-            var filler = _vernDialogue.GetDeadAirFiller();
+            var topic = _gameStateManager?.SelectedTopic?.TopicValue ?? ShowTopic.Ghosts; // Fallback to Ghosts if no topic
+            var filler = _vernDialogue.GetDeadAirFiller(topic);
             var text = filler?.Text ?? "Dead air filler";
             var audioPath = filler != null ? $"res://assets/audio/voice/Vern/Broadcast/{filler.Id}.mp3" : null;
             audioPath = ValidateAudioPath(audioPath, "CreateDeadAirExecutable");
@@ -541,7 +544,8 @@ namespace KBTV.Dialogue
 
         private BroadcastExecutable CreateReturnFromBreakExecutable()
         {
-            var returnLine = _vernDialogue.GetReturnFromBreak();
+            var topic = _gameStateManager?.SelectedTopic?.TopicValue ?? ShowTopic.Ghosts; // Fallback to Ghosts if no topic
+            var returnLine = _vernDialogue.GetReturnFromBreak(topic);
             if (returnLine != null)
             {
                 var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{returnLine.Id}.mp3";

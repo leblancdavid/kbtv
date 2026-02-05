@@ -82,6 +82,9 @@ namespace KBTV.Dialogue
     /// <summary>Vern's mood when this line should be used (optional - for mood-based selection).</summary>
     [Export] public string Mood;
 
+    /// <summary>The show topic when this line should be used (optional - for topic-based selection).</summary>
+    [Export] public string Topic;
+
         public DialogueTemplate() { }
 
         public DialogueTemplate(string text, float weight = 1f)
@@ -90,12 +93,13 @@ namespace KBTV.Dialogue
             Weight = weight;
         }
 
-        public DialogueTemplate(string id, string text, float weight = 1f, string mood = "")
+        public DialogueTemplate(string id, string text, float weight = 1f, string mood = "", string topic = "")
         {
             Id = id;
             Text = text;
             Weight = weight;
             Mood = mood;
+            Topic = topic;
         }
     }
 

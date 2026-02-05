@@ -66,14 +66,23 @@ namespace KBTV.UI.Components
         private void UpdateXPBar(float currentXP)
         {
             var currentTier = _topicXP.CurrentTier;
-            var currentThreshold = TopicXP.GetTierThreshold(currentTier);
-            var nextThreshold = TopicXP.GetTierThreshold(currentTier + 1);
+            var nextTier = currentTier + 1;
+            var nextThreshold = TopicXP.GetTierThreshold(nextTier);
             
-            // Show actual XP / current tier threshold (even if over)
-            _xpLabel.Text = $"{currentXP:F0}/{currentThreshold:F0} XP";
+            // Show XP progress toward next tier
+            if (currentTier >= XPTier.TrueBeliever)
+            {
+                // At max tier, show current XP / max threshold
+                _xpLabel.Text = $"{currentXP:F0}/{nextThreshold:F0} XP (Max Level)";
+            }
+            else
+            {
+                // Show progress toward next tier
+                _xpLabel.Text = $"{currentXP:F0}/{nextThreshold:F0} XP";
+            }
             
-            // Progress bar: fill to 100% when XP exceeds current threshold
-            float progress = Mathf.Min(1.0f, currentXP / currentThreshold);
+            // Progress bar: fill based on progress to next tier
+            float progress = currentTier >= XPTier.TrueBeliever ? 1.0f : Mathf.Min(1.0f, currentXP / nextThreshold);
             _xpBar.Value = progress * 100f;
             
             // Update level display
@@ -83,10 +92,13 @@ namespace KBTV.UI.Components
         private void UpdateLevelUpIndicator(float currentXP)
         {
             var currentTier = _topicXP.CurrentTier;
-            var currentThreshold = TopicXP.GetTierThreshold(currentTier);
-            var canLevelUp = currentXP >= currentThreshold && currentTier < XPTier.TrueBeliever;
+            var nextTier = currentTier + 1;
+            var nextThreshold = TopicXP.GetTierThreshold(nextTier);
             
-            // Set progress bar color based on overflow XP (ready to level up)
+            // Check if ready to level up (XP >= next tier threshold)
+            bool canLevelUp = currentXP >= nextThreshold && currentTier < XPTier.TrueBeliever;
+            
+            // Set progress bar color based on level-up readiness
             _xpBar.Modulate = canLevelUp ? Colors.Green : UIColors.Accent.Blue;
             
             // Show/hide level-up indicator

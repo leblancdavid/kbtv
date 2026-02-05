@@ -3,243 +3,354 @@
   "description": "Filler content when no callers are available",
   "lines": [
     {
-      "id": "deadair_neutral_1",
-      "text": "While we're waiting for the next caller, let me tell you about something interesting I read recently...",
-      "voiceText": "While we're waiting for the next caller, let me tell you about something interesting I read recently...",
-      "mood": "neutral"
+      "id": "deadair_ufos_1",
+      "text": "While we're waiting for the next caller, let me tell you about the Roswell incident. In 1947, the government claimed it was a weather balloon, but eyewitnesses saw strange metallic debris and bodies that weren't human. The military confiscated everything, and the real story was buried. But truth seekers never gave up. Declassified documents suggest it was extraterrestrial. Your UFO story could be the one that blows this wide open.",
+      "voiceText": "While we're waiting for the next caller, let me tell you about the Roswell incident. In 1947, the government claimed it was a weather balloon, but eyewitnesses saw strange metallic debris and bodies that weren't human. The military confiscated everything, and the real story was buried. But truth seekers never gave up. Declassified documents suggest it was extraterrestrial. Your UFO story could be the one that blows this wide open.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "deadair_neutral_2",
-      "text": "You know, I've been thinking about the nature of reality lately. What is real, and what isn't?",
-      "voiceText": "You know, I've been thinking about the nature of reality lately. What is real, and what isn't?",
-      "mood": "neutral"
+      "id": "deadair_ufos_2",
+      "text": "The skies above us hide more than we know. Ancient civilizations drew UFO-like craft in their art, and modern pilots report encounters daily. The government has programs like Project Blue Book that supposedly investigated, but many cases remain unexplained. While we wait for calls, consider this: if aliens are visiting, what do they want? Are they observing us, or intervening? Keep those lines open - your sighting might hold the key to understanding our place in the cosmos.",
+      "voiceText": "The skies above us hide more than we know. Ancient civilizations drew UFO-like craft in their art, and modern pilots report encounters daily. The government has programs like Project Blue Book that supposedly investigated, but many cases remain unexplained. While we wait for calls, consider this: if aliens are visiting, what do they want? Are they observing us, or intervening? Keep those lines open - your sighting might hold the key to understanding our place in the cosmos.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "deadair_neutral_3",
-      "text": "Keep those calls coming in, folks. The lines should be lighting up any moment now.",
-      "voiceText": "Keep those calls coming in, folks. The lines should be lighting up any moment now.",
-      "mood": "neutral"
+      "id": "deadair_ufos_3",
+      "text": "*grunt* You know what gets me about UFOs? The way the media dismisses every credible witness as a crackpot. Commercial pilots, military personnel, astronauts - they've all seen things they can't explain. And the government? They release grainy videos and call it transparency. But the real footage, the clear evidence, that's locked away. While we wait for the next caller, remember: the truth is out there, and it's probably being hidden from us right now.",
+      "voiceText": "*grunt* You know what gets me about UFOs? The way the media dismisses every credible witness as a crackpot. Commercial pilots, military personnel, astronauts - they've all seen things they can't explain. And the government? They release grainy videos and call it transparency. But the real footage, the clear evidence, that's locked away. While we wait for the next caller, remember: the truth is out there, and it's probably being hidden from us right now.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "deadair_neutral_4",
-      "text": "In the meantime, let's talk about government cover-ups. You know they exist.",
-      "voiceText": "In the meantime, let's talk about government cover-ups. You know they exist.",
-      "mood": "neutral"
+      "id": "deadair_ufos_4",
+      "text": "Area 51 has been in the news again, but that's just the tip of the iceberg. Underground bases, reverse-engineered technology, alien bodies in freezers - the rumors are endless. But here's what I know: the government has spent billions on black budget programs they won't admit to. While we wait for calls, think about this - if UFOs are real, and they're here, what does that mean for humanity? Are we ready to face the truth, or are we still too scared?",
+      "voiceText": "Area 51 has been in the news again, but that's just the tip of the iceberg. Underground bases, reverse-engineered technology, alien bodies in freezers - the rumors are endless. But here's what I know: the government has spent billions on black budget programs they won't admit to. While we wait for calls, think about this - if UFOs are real, and they're here, what does that mean for humanity? Are we ready to face the truth, or are we still too scared?",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "deadair_neutral_5",
-      "text": "The phone lines are quiet right now, but that doesn't mean the truth is silent.",
-      "voiceText": "The phone lines are quiet right now, but that doesn't mean the truth is silent.",
-      "mood": "neutral"
+      "id": "deadair_ufos_5",
+      "text": "*chuckle* Remember when everyone thought flying saucers were just mass hysteria? Well, the Pentagon admits they're real now. UAPs, they call them - Unidentified Aerial Phenomena. But we know what they really are. While the lines are quiet, let me tell you about the Phoenix Lights. Thousands saw a massive V-shaped craft hover silently over Arizona. No sound, no explanation. Keep calling in - your experience might be the missing piece in this extraterrestrial puzzle.",
+      "voiceText": "*chuckle* Remember when everyone thought flying saucers were just mass hysteria? Well, the Pentagon admits they're real now. UAPs, they call them - Unidentified Aerial Phenomena. But we know what they really are. While the lines are quiet, let me tell you about the Phoenix Lights. Thousands saw a massive V-shaped craft hover silently over Arizona. No sound, no explanation. Keep calling in - your experience might be the missing piece in this extraterrestrial puzzle.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "deadair_neutral_6",
-      "text": "While we wait, let me share a little known fact about Area 51...",
-      "voiceText": "While we wait, let me share a little known fact about Area 51...",
-      "mood": "neutral"
+      "id": "deadair_ufos_6",
+      "text": "The government finally admitted they have a program to study UFOs. But they won't tell us what they've found. Leaked documents show encounters with craft that defy physics - instantaneous acceleration, right-angle turns at impossible speeds. While we wait for the next caller, consider the implications. If these are alien ships, they're using technology we can't even comprehend. Your call could help us understand how they work, or why they're here watching us.",
+      "voiceText": "The government finally admitted they have a program to study UFOs. But they won't tell us what they've found. Leaked documents show encounters with craft that defy physics - instantaneous acceleration, right-angle turns at impossible speeds. While we wait for the next caller, consider the implications. If these are alien ships, they're using technology we can't even comprehend. Your call could help us understand how they work, or why they're here watching us.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "deadair_neutral_7",
-      "text": "The night is young, and so are the mysteries we're about to uncover.",
-      "voiceText": "The night is young, and so are the mysteries we're about to uncover.",
-      "mood": "neutral"
+      "id": "deadair_ufos_7",
+      "text": "Crop circles, cattle mutilations, abductions - it's all connected to the UFO phenomenon. Ranchers find their livestock drained of blood, with surgical precision cuts. Ancient sites around the world show evidence of extraterrestrial contact. While the phone lines are silent, think about this: maybe the aliens have been here for thousands of years, influencing human development. Keep those lines open - your story might reveal the grand pattern behind it all.",
+      "voiceText": "Crop circles, cattle mutilations, abductions - it's all connected to the UFO phenomenon. Ranchers find their livestock drained of blood, with surgical precision cuts. Ancient sites around the world show evidence of extraterrestrial contact. While the phone lines are silent, think about this: maybe the aliens have been here for thousands of years, influencing human development. Keep those lines open - your story might reveal the grand pattern behind it all.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "deadair_neutral_8",
-      "text": "Stay on the line, folks. Your call could be the one that breaks the story.",
-      "voiceText": "Stay on the line, folks. Your call could be the one that breaks the story.",
-      "mood": "neutral"
+      "id": "deadair_ufos_8",
+      "text": "The Vatican has telescopes looking for alien life. NASA has a department for astrobiology. But when civilians see UFOs, they're dismissed. Why the double standard? While we wait for calls, let me tell you about the Rendlesham Forest incident. Military personnel saw a craft land in England, and when they approached, it shot beams of light. The government covered it up. Your UFO encounter could be the one that forces them to admit the truth.",
+      "voiceText": "The Vatican has telescopes looking for alien life. NASA has a department for astrobiology. But when civilians see UFOs, they're dismissed. Why the double standard? While we wait for calls, let me tell you about the Rendlesham Forest incident. Military personnel saw a craft land in England, and when they approached, it shot beams of light. The government covered it up. Your UFO encounter could be the one that forces them to admit the truth.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "deadair_neutral_9",
-      "text": "I've seen things that would make your hair stand on end. And we're just getting started.",
-      "voiceText": "I've seen things that would make your hair stand on end. And we're just getting started.",
-      "mood": "neutral"
+      "id": "deadair_ufos_9",
+      "text": "*sigh* Sometimes I wonder if we're alone in the universe. The numbers suggest no - billions of stars, planets in habitable zones. But then we see these craft violating our physics. While the lines are quiet, consider this: maybe they're time travelers from our future, or beings from another dimension. Keep calling in your sightings - together we might figure out what they want, and why they're keeping such a low profile despite their advanced technology.",
+      "voiceText": "*sigh* Sometimes I wonder if we're alone in the universe. The numbers suggest no - billions of stars, planets in habitable zones. But then we see these craft violating our physics. While the lines are quiet, consider this: maybe they're time travelers from our future, or beings from another dimension. Keep calling in your sightings - together we might figure out what they want, and why they're keeping such a low profile despite their advanced technology.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "deadair_neutral_10",
-      "text": "The truth is out there, and tonight we're going to find some of it.",
-      "voiceText": "The truth is out there, and tonight we're going to find some of it.",
-      "mood": "neutral"
+      "id": "deadair_ufos_10",
+      "text": "Project Mogul, weather balloons, swamp gas - the excuses never end. But the evidence keeps piling up. Radar tracks, multiple witnesses, physical traces. While we wait for the next caller, let me ask you this: if the government knows about aliens, why haven't they told us? Is it to prevent panic, or are they working with them? Your call might contain the clue that connects all these dots into a coherent picture of what's really happening in our skies.",
+      "voiceText": "Project Mogul, weather balloons, swamp gas - the excuses never end. But the evidence keeps piling up. Radar tracks, multiple witnesses, physical traces. While we wait for the next caller, let me ask you this: if the government knows about aliens, why haven't they told us? Is it to prevent panic, or are they working with them? Your call might contain the clue that connects all these dots into a coherent picture of what's really happening in our skies.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "deadair_energized_1",
-      "text": "WOW! This is incredible! While we wait, let me tell you about this amazing sighting!",
-      "voiceText": "WOW! This is incredible! While we wait, let me tell you about this amazing sighting!",
-      "mood": "energized"
+      "id": "deadair_ghosts_1",
+      "text": "While we're waiting for the next caller, let's talk about poltergeist activity. I've investigated homes where objects move on their own, voices echo in empty rooms, and cold spots appear suddenly. Science calls it infrasound or carbon monoxide hallucinations, but those who experience it know it's more. The veil between worlds is thin, and sometimes the dead reach out. Keep calling in your hauntings - we need to understand this phenomenon before it happens to more people.",
+      "voiceText": "While we're waiting for the next caller, let's talk about poltergeist activity. I've investigated homes where objects move on their own, voices echo in empty rooms, and cold spots appear suddenly. Science calls it infrasound or carbon monoxide hallucinations, but those who experience it know it's more. The veil between worlds is thin, and sometimes the dead reach out. Keep calling in your hauntings - we need to understand this phenomenon before it happens to more people.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "deadair_amused_1",
-      "text": "Heh, this is hilarious. Let me share this funny story while we wait...",
-      "voiceText": "Heh, this is hilarious. Let me share this funny story while we wait...",
-      "mood": "amused"
+      "id": "deadair_ghosts_2",
+      "text": "The afterlife - is it real, or just wishful thinking? EVP recordings capture voices from beyond, full-body apparitions appear to multiple witnesses simultaneously, and residual hauntings replay historical events. While the lines are quiet, consider this: if ghosts exist, what are they? Souls trapped between worlds? Echoes of trauma? Your personal experience could help us understand what happens when we die, and whether consciousness survives physical death.",
+      "voiceText": "The afterlife - is it real, or just wishful thinking? EVP recordings capture voices from beyond, full-body apparitions appear to multiple witnesses simultaneously, and residual hauntings replay historical events. While the lines are quiet, consider this: if ghosts exist, what are they? Souls trapped between worlds? Echoes of trauma? Your personal experience could help us understand what happens when we die, and whether consciousness survives physical death.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "deadair_focused_1",
-      "text": "Interesting development. Let me analyze this situation while we wait for calls.",
-      "voiceText": "Interesting development. Let me analyze this situation while we wait for calls.",
-      "mood": "focused"
+      "id": "deadair_ghosts_3",
+      "text": "*grunt* Ghosts don't care about skeptics. They appear when they want, how they want. I've seen shadow figures in the corner of rooms, heard footsteps in empty hallways, felt an unseen presence watching me. The scientific community dismisses it all as pareidolia or expectation, but the people who live with it know the truth. While we wait for calls, remember: the dead might be listening right now, waiting for their stories to be told.",
+      "voiceText": "*grunt* Ghosts don't care about skeptics. They appear when they want, how they want. I've seen shadow figures in the corner of rooms, heard footsteps in empty hallways, felt an unseen presence watching me. The scientific community dismisses it all as pareidolia or expectation, but the people who live with it know the truth. While we wait for calls, remember: the dead might be listening right now, waiting for their stories to be told.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "deadair_gruff_1",
-      "text": "Tch. While we wait for someone competent to call, let me rant about this.",
-      "voiceText": "Tch. While we wait for someone competent to call, let me rant about this.",
-      "mood": "gruff"
+      "id": "deadair_ghosts_4",
+      "text": "Haunted battlefields, cursed objects, possessed people - the paranormal world is vast. Some cultures embrace it, others fear it. But the evidence keeps coming: photographs with unexplained orbs, temperature drops during investigations, electromagnetic field spikes. While the phone lines are silent, think about this: if ghosts are real, what do they want? To communicate? To warn us? To find peace? Keep calling in - your encounter might reveal their purpose.",
+      "voiceText": "Haunted battlefields, cursed objects, possessed people - the paranormal world is vast. Some cultures embrace it, others fear it. But the evidence keeps coming: photographs with unexplained orbs, temperature drops during investigations, electromagnetic field spikes. While the phone lines are silent, think about this: if ghosts are real, what do they want? To communicate? To warn us? To find peace? Keep calling in - your encounter might reveal their purpose.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "deadair_irritated_1",
-      "text": "Ugh, this is ridiculous. Why isn't anyone calling? Let me complain about it.",
-      "voiceText": "Ugh, this is ridiculous. Why isn't anyone calling? Let me complain about it.",
-      "mood": "irritated"
+      "id": "deadair_ghosts_5",
+      "text": "*chuckle* Remember when ghost hunting was just a punchline? Now we've got infrared cameras, spirit boxes, and scientific methods. But the ghosts themselves don't care about our technology. They manifest when the conditions are right. While we wait for the next caller, let me tell you about the Bell Witch. A poltergeist that tormented a family for years in the 1800s. Keep those lines open - your modern haunting might be just as terrifying.",
+      "voiceText": "*chuckle* Remember when ghost hunting was just a punchline? Now we've got infrared cameras, spirit boxes, and scientific methods. But the ghosts themselves don't care about our technology. They manifest when the conditions are right. While we wait for the next caller, let me tell you about the Bell Witch. A poltergeist that tormented a family for years in the 1800s. Keep those lines open - your modern haunting might be just as terrifying.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "deadair_tired_1",
-      "text": "*yawn* Okay, while we wait... let me just rest my eyes for a second.",
-      "voiceText": "*yawn* Okay, while we wait... let me just rest my eyes for a second.",
+      "id": "deadair_ghosts_6",
+      "text": "Near-death experiences often describe tunnels of light, meeting deceased loved ones, life reviews. But what about those who claim to have seen ghosts while fully alive? Children seem particularly sensitive to paranormal activity. While we wait for calls, consider this: maybe ghosts are fragments of consciousness that didn't move on. Or perhaps they're interdimensional beings. Your story could help us understand the nature of these otherworldly visitors.",
+      "voiceText": "Near-death experiences often describe tunnels of light, meeting deceased loved ones, life reviews. But what about those who claim to have seen ghosts while fully alive? Children seem particularly sensitive to paranormal activity. While we wait for calls, consider this: maybe ghosts are fragments of consciousness that didn't move on. Or perhaps they're interdimensional beings. Your story could help us understand the nature of these otherworldly visitors.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "deadair_exhausted_1",
-      "text": "*yawn* While we wait... keep those lines open.",
-      "voiceText": "*yawn* While we wait... keep those lines open.",
-      "mood": "exhausted"
+      "id": "deadair_ghosts_7",
+      "text": "Cemeteries at night, abandoned asylums, old prisons - these are the places where the veil is thinnest. But hauntings can happen anywhere: homes, workplaces, even cars. The common thread is usually trauma or unfinished business. While the lines are quiet, think about this: if ghosts are real, does that mean we all become them? Or are they something else entirely? Keep calling in your experiences - together we might find the truth about what happens after death.",
+      "voiceText": "Cemeteries at night, abandoned asylums, old prisons - these are the places where the veil is thinnest. But hauntings can happen anywhere: homes, workplaces, even cars. The common thread is usually trauma or unfinished business. While the lines are quiet, think about this: if ghosts are real, does that mean we all become them? Or are they something else entirely? Keep calling in your experiences - together we might find the truth about what happens after death.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "deadair_exhausted_2",
-      "text": "Just hanging here... anyone out there?",
-      "voiceText": "Just hanging here... anyone out there?",
-      "mood": "exhausted"
+      "id": "deadair_ghosts_8",
+      "text": "The Catholic Church has exorcists, and they're busier than ever. Demonic possession, they call it. But what about regular ghosts? Are they all demons in disguise, or something more benign? While we wait for the next caller, let me tell you about the Enfield Poltergeist. A family terrorized by a spirit that threw objects and spoke through a child. Keep those lines open - your paranormal experience might be the key to understanding these phenomena.",
+      "voiceText": "The Catholic Church has exorcists, and they're busier than ever. Demonic possession, they call it. But what about regular ghosts? Are they all demons in disguise, or something more benign? While we wait for the next caller, let me tell you about the Enfield Poltergeist. A family terrorized by a spirit that threw objects and spoke through a child. Keep those lines open - your paranormal experience might be the key to understanding these phenomena.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "deadair_exhausted_3",
-      "text": "*grunt* Keep calling, folks.",
-      "voiceText": "*grunt* Keep calling, folks.",
-      "mood": "exhausted"
+      "id": "deadair_ghosts_9",
+      "text": "*sigh* Sometimes I wonder if we're all just waiting for the other side to reveal itself. The evidence is there: thousands of credible witnesses, photographic proof, audio recordings. But mainstream science ignores it. While the phone lines are silent, consider this: maybe ghosts are trying to tell us something important about life, death, or the universe itself. Your call could be the message we've been waiting for.",
+      "voiceText": "*sigh* Sometimes I wonder if we're all just waiting for the other side to reveal itself. The evidence is there: thousands of credible witnesses, photographic proof, audio recordings. But mainstream science ignores it. While the phone lines are silent, consider this: maybe ghosts are trying to tell us something important about life, death, or the universe itself. Your call could be the message we've been waiting for.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "deadair_exhausted_4",
-      "text": "While we wait for the next caller...",
-      "voiceText": "While we wait for the next caller...",
-      "mood": "exhausted"
+      "id": "deadair_ghosts_10",
+      "text": "Apparitions of the living, crisis apparitions, deathbed visions - these suggest consciousness can exist outside the body. But what about intelligent hauntings that interact with the living? They seem to have personality, memory, purpose. While we wait for calls, let me ask you this: if ghosts are real, what does that change about our understanding of reality? Keep calling in - your encounter might help us see beyond the veil that separates us from the unknown.",
+      "voiceText": "Apparitions of the living, crisis apparitions, deathbed visions - these suggest consciousness can exist outside the body. But what about intelligent hauntings that interact with the living? They seem to have personality, memory, purpose. While we wait for calls, let me ask you this: if ghosts are real, what does that change about our understanding of reality? Keep calling in - your encounter might help us see beyond the veil that separates us from the unknown.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "deadair_depressed_1",
-      "text": "While we wait... if anyone calls.",
-      "voiceText": "While we wait... if anyone calls.",
-      "mood": "depressed"
+      "id": "deadair_cryptids_1",
+      "text": "While we're waiting for the next caller, let's talk about Bigfoot. Thousands of sightings, footprint casts, audio recordings of wood knocks and howls. Mainstream science calls it a hoax or misidentification, but the eyewitness accounts are too consistent. From the Pacific Northwest to the Himalayas, similar creatures appear in folklore worldwide. Keep those lines open - your Bigfoot encounter could be the evidence that finally proves their existence.",
+      "voiceText": "While we're waiting for the next caller, let's talk about Bigfoot. Thousands of sightings, footprint casts, audio recordings of wood knocks and howls. Mainstream science calls it a hoax or misidentification, but the eyewitness accounts are too consistent. From the Pacific Northwest to the Himalayas, similar creatures appear in folklore worldwide. Keep those lines open - your Bigfoot encounter could be the evidence that finally proves their existence.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "deadair_depressed_2",
-      "text": "Keep those lines open, I suppose.",
-      "voiceText": "Keep those lines open, I suppose.",
-      "mood": "depressed"
+      "id": "deadair_cryptids_2",
+      "text": "The Loch Ness Monster, Thylacine, Ivory-billed Woodpecker - cryptids that might still exist in remote areas. As habitats shrink and human expansion continues, these creatures could be hiding in plain sight. While the lines are quiet, consider this: if Bigfoot is real, how many other species have we missed? Your sighting in the woods might be the discovery of a lifetime, proving that the world still holds mysteries we haven't cataloged.",
+      "voiceText": "The Loch Ness Monster, Thylacine, Ivory-billed Woodpecker - cryptids that might still exist in remote areas. As habitats shrink and human expansion continues, these creatures could be hiding in plain sight. While the lines are quiet, consider this: if Bigfoot is real, how many other species have we missed? Your sighting in the woods might be the discovery of a lifetime, proving that the world still holds mysteries we haven't cataloged.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "deadair_depressed_3",
-      "text": "Anyone out there?",
-      "voiceText": "Anyone out there?",
-      "mood": "depressed"
+      "id": "deadair_cryptids_3",
+      "text": "*grunt* Cryptozoology gets no respect from academia. They laugh at us, but the evidence keeps coming. Hair samples that don't match known animals, massive footprints in mud that can't be faked easily. While we wait for calls, remember: every great discovery was first dismissed as impossible. Your cryptid encounter could be the one that changes science forever.",
+      "voiceText": "*grunt* Cryptozoology gets no respect from academia. They laugh at us, but the evidence keeps coming. Hair samples that don't match known animals, massive footprints in mud that can't be faked easily. While we wait for calls, remember: every great discovery was first dismissed as impossible. Your cryptid encounter could be the one that changes science forever.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "deadair_depressed_4",
-      "text": "Waiting for the next caller.",
-      "voiceText": "Waiting for the next caller.",
-      "mood": "depressed"
+      "id": "deadair_cryptids_4",
+      "text": "From Mothman to the Chupacabra, cryptids often appear before disasters or during times of social upheaval. Is there a connection? Ancient legends speak of thunderbirds and sea serpents. While the phone lines are silent, think about this: maybe these creatures are interdimensional, appearing when the barriers between worlds weaken. Keep calling in your sightings - your story might reveal the pattern behind these mysterious appearances.",
+      "voiceText": "From Mothman to the Chupacabra, cryptids often appear before disasters or during times of social upheaval. Is there a connection? Ancient legends speak of thunderbirds and sea serpents. While the phone lines are silent, think about this: maybe these creatures are interdimensional, appearing when the barriers between worlds weaken. Keep calling in your sightings - your story might reveal the pattern behind these mysterious appearances.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "deadair_angry_1",
-      "text": "While we wait – hurry up and call already!",
-      "voiceText": "While we wait – hurry up and call already!",
-      "mood": "angry"
+      "id": "deadair_cryptids_5",
+      "text": "*chuckle* Remember when people thought the giant squid was a myth? Well, we found those. What's next? While we wait for the next caller, let me tell you about the Orang Pendek of Sumatra. A bipedal primate that walks upright, covered in hair. Locals have known about it for centuries. Keep those lines open - your cryptid discovery might be the next giant squid moment for science.",
+      "voiceText": "*chuckle* Remember when people thought the giant squid was a myth? Well, we found those. What's next? While we wait for the next caller, let me tell you about the Orang Pendek of Sumatra. A bipedal primate that walks upright, covered in hair. Locals have known about it for centuries. Keep those lines open - your cryptid discovery might be the next giant squid moment for science.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "deadair_angry_2",
-      "text": "Keep those lines open, damn it!",
-      "voiceText": "Keep those lines open, damn it!",
-      "mood": "angry"
+      "id": "deadair_cryptids_6",
+      "text": "DNA evidence is starting to support some cryptid claims. Unknown primates in the Congo, giant catfish in Vietnam. But what about the ones that defy classification entirely? While we wait for calls, consider this: evolution could have produced creatures we never imagined. Your encounter with something unexplainable might be evidence of a new species, or something that challenges our understanding of biology completely.",
+      "voiceText": "DNA evidence is starting to support some cryptid claims. Unknown primates in the Congo, giant catfish in Vietnam. But what about the ones that defy classification entirely? While we wait for calls, consider this: evolution could have produced creatures we never imagined. Your encounter with something unexplainable might be evidence of a new species, or something that challenges our understanding of biology completely.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "deadair_angry_3",
-      "text": "Anyone? Speak up!",
-      "voiceText": "Anyone? Speak up!",
-      "mood": "angry"
+      "id": "deadair_cryptids_7",
+      "text": "Remote forests, deep oceans, isolated mountains - these are the last refuges for unknown animals. As we encroach further, sightings increase. But are these creatures hiding from us, or are we invading their territory? While the lines are quiet, think about this: if cryptids exist, what does that say about our knowledge of the planet? Keep calling in - your sighting might help us understand how much of Earth's biodiversity we've missed.",
+      "voiceText": "Remote forests, deep oceans, isolated mountains - these are the last refuges for unknown animals. As we encroach further, sightings increase. But are these creatures hiding from us, or are we invading their territory? While the lines are quiet, think about this: if cryptids exist, what does that say about our knowledge of the planet? Keep calling in - your sighting might help us understand how much of Earth's biodiversity we've missed.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "deadair_angry_4",
-      "text": "While we wait for someone with guts to call!",
-      "voiceText": "While we wait for someone with guts to call!",
-      "mood": "angry"
+      "id": "deadair_cryptids_8",
+      "text": "The scientific method requires repeatable observation. But cryptids are elusive by nature. That doesn't make them less real. While we wait for the next caller, let me tell you about the Thylacine, thought extinct for 80 years until recent sightings. Keep those lines open - your cryptid encounter could prove that extinction isn't always permanent, and that some species have survived against all odds.",
+      "voiceText": "The scientific method requires repeatable observation. But cryptids are elusive by nature. That doesn't make them less real. While we wait for the next caller, let me tell you about the Thylacine, thought extinct for 80 years until recent sightings. Keep those lines open - your cryptid encounter could prove that extinction isn't always permanent, and that some species have survived against all odds.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "deadair_frustrated_1",
-      "text": "*sigh* While we wait...",
-      "voiceText": "*sigh* While we wait...",
-      "mood": "frustrated"
+      "id": "deadair_cryptids_9",
+      "text": "*sigh* Sometimes I wonder if we're the cryptids. Strange creatures walking around on two legs, destroying everything in our path. While the phone lines are silent, consider this: maybe the real mystery is us. Your encounter with something unknown might help us understand our place in the natural world, or reveal that we're not as alone as we think on this planet.",
+      "voiceText": "*sigh* Sometimes I wonder if we're the cryptids. Strange creatures walking around on two legs, destroying everything in our path. While the phone lines are silent, consider this: maybe the real mystery is us. Your encounter with something unknown might help us understand our place in the natural world, or reveal that we're not as alone as we think on this planet.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "deadair_frustrated_2",
-      "text": "Keep calling, please.",
-      "voiceText": "Keep calling, please.",
-      "mood": "frustrated"
+      "id": "deadair_cryptids_10",
+      "text": "Folklore from every culture speaks of mysterious beasts. Dragons, unicorns, griffins - are they all based on real animals we've since forgotten? Or exaggerated memories of encounters with surviving megafauna? While we wait for calls, let me ask you this: if cryptids are real, how have they avoided detection for so long? Keep calling in your sightings - your story might be the key to understanding these hidden inhabitants of our world.",
+      "voiceText": "Folklore from every culture speaks of mysterious beasts. Dragons, unicorns, griffins - are they all based on real animals we've since forgotten? Or exaggerated memories of encounters with surviving megafauna? While we wait for calls, let me ask you this: if cryptids are real, how have they avoided detection for so long? Keep calling in your sightings - your story might be the key to understanding these hidden inhabitants of our world.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "deadair_frustrated_3",
-      "text": "Anyone there?",
-      "voiceText": "Anyone there?",
-      "mood": "frustrated"
+      "id": "deadair_conspiracies_1",
+      "text": "While we're waiting for the next caller, let's talk about the deep state. Elected officials come and go, but the bureaucracy remains. Leaked documents show how intelligence agencies manipulate elections, suppress dissent, and protect their own. The Constitution was meant to limit government power, but over time, the executive branch has accumulated authority that threatens our freedoms. Keep those lines open - your experience with government overreach could expose the next layer of this conspiracy.",
+      "voiceText": "While we're waiting for the next caller, let's talk about the deep state. Elected officials come and go, but the bureaucracy remains. Leaked documents show how intelligence agencies manipulate elections, suppress dissent, and protect their own. The Constitution was meant to limit government power, but over time, the executive branch has accumulated authority that threatens our freedoms. Keep those lines open - your experience with government overreach could expose the next layer of this conspiracy.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "deadair_frustrated_4",
-      "text": "Waiting impatiently.",
-      "voiceText": "Waiting impatiently.",
-      "mood": "frustrated"
+      "id": "deadair_conspiracies_2",
+      "text": "The Federal Reserve isn't federal, and it doesn't have reserves. It's a private banking cartel that controls our money supply. Interest on the national debt goes straight into their pockets. While the lines are quiet, consider this: if we printed our own money interest-free, we'd have no debt. But that would end their profit. Your call about financial manipulation might reveal how this system keeps us enslaved economically.",
+      "voiceText": "The Federal Reserve isn't federal, and it doesn't have reserves. It's a private banking cartel that controls our money supply. Interest on the national debt goes straight into their pockets. While the lines are quiet, consider this: if we printed our own money interest-free, we'd have no debt. But that would end their profit. Your call about financial manipulation might reveal how this system keeps us enslaved economically.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "deadair_obsessive_1",
-      "text": "While we wait – think about the connections!",
-      "voiceText": "While we wait – think about the connections!",
-      "mood": "obsessive"
+      "id": "deadair_conspiracies_3",
+      "text": "*grunt* The mainstream media is controlled by six corporations. They all push the same narrative, ignore real news, and distract with celebrity gossip and sports. Why? Because the real power doesn't want an informed populace. While we wait for calls, remember: every major event has an official story and a real story. Your insider knowledge could help us see behind the curtain.",
+      "voiceText": "*grunt* The mainstream media is controlled by six corporations. They all push the same narrative, ignore real news, and distract with celebrity gossip and sports. Why? Because the real power doesn't want an informed populace. While we wait for calls, remember: every major event has an official story and a real story. Your insider knowledge could help us see behind the curtain.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "deadair_obsessive_2",
-      "text": "Keep those lines open – the truth connects us!",
-      "voiceText": "Keep those lines open – the truth connects us!",
-      "mood": "obsessive"
+      "id": "deadair_conspiracies_4",
+      "text": "Chemtrails, vaccines, GMOs - the agenda to control the population is everywhere. Microchips in vaccines, chemicals in our food and water to reduce fertility, surveillance everywhere. While the phone lines are silent, think about this: if they want to depopulate, why not just do it? Maybe it's about control, not death. Keep calling in your health concerns - your experience might reveal the next phase of this hidden war against humanity.",
+      "voiceText": "Chemtrails, vaccines, GMOs - the agenda to control the population is everywhere. Microchips in vaccines, chemicals in our food and water to reduce fertility, surveillance everywhere. While the phone lines are silent, think about this: if they want to depopulate, why not just do it? Maybe it's about control, not death. Keep calling in your health concerns - your experience might reveal the next phase of this hidden war against humanity.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "deadair_obsessive_3",
-      "text": "Anyone linking the dots out there?",
-      "voiceText": "Anyone linking the dots out there?",
-      "mood": "obsessive"
+      "id": "deadair_conspiracies_5",
+      "text": "*chuckle* The moon landing was faked? Maybe not. But what about the technology they supposedly couldn't duplicate for 50 years? While we wait for the next caller, let me tell you about Operation Northwoods - the government's plan to fake terrorist attacks to justify war. Keep those lines open - your conspiracy theory might be the one that connects all the dots into a coherent picture of who's really running things.",
+      "voiceText": "*chuckle* The moon landing was faked? Maybe not. But what about the technology they supposedly couldn't duplicate for 50 years? While we wait for the next caller, let me tell you about Operation Northwoods - the government's plan to fake terrorist attacks to justify war. Keep those lines open - your conspiracy theory might be the one that connects all the dots into a coherent picture of who's really running things.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "deadair_obsessive_4",
-      "text": "While we wait for the next revelation!",
-      "voiceText": "While we wait for the next revelation!",
-      "mood": "obsessive"
+      "id": "deadair_conspiracies_6",
+      "text": "The Bilderberg Group, Bohemian Grove, Skull and Bones - secret societies that run the world. Presidents, CEOs, royalty all attend their meetings. What do they discuss? Global governance, population control, economic manipulation. While we wait for calls, consider this: democracy is just a facade. The real decisions are made behind closed doors. Your whistleblower story could expose the next layer of this shadow government.",
+      "voiceText": "The Bilderberg Group, Bohemian Grove, Skull and Bones - secret societies that run the world. Presidents, CEOs, royalty all attend their meetings. What do they discuss? Global governance, population control, economic manipulation. While we wait for calls, consider this: democracy is just a facade. The real decisions are made behind closed doors. Your whistleblower story could expose the next layer of this shadow government.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "deadair_manic_1",
-      "text": "WHILE WE WAIT – THE ENERGY IS BUILDING! CALL NOW!",
-      "voiceText": "WHILE WE WAIT – THE ENERGY IS BUILDING! CALL NOW!",
-      "mood": "manic"
+      "id": "deadair_conspiracies_7",
+      "text": "9/11, JFK, Oklahoma City - the official stories never add up. Too many coincidences, too many loose ends. Building 7 collapsed without being hit, magic bullets, fertilizer that doesn't explode that way. While the lines are quiet, think about this: if these were inside jobs, what was the real motivation? Oil? Power? Distraction? Keep calling in - your research might be the piece that proves these events were orchestrated.",
+      "voiceText": "9/11, JFK, Oklahoma City - the official stories never add up. Too many coincidences, too many loose ends. Building 7 collapsed without being hit, magic bullets, fertilizer that doesn't explode that way. While the lines are quiet, think about this: if these were inside jobs, what was the real motivation? Oil? Power? Distraction? Keep calling in - your research might be the piece that proves these events were orchestrated.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "deadair_manic_2",
-      "text": "KEEP THOSE LINES OPEN – THE TRUTH WON'T WAIT!",
-      "voiceText": "KEEP THOSE LINES OPEN – THE TRUTH WON'T WAIT!",
-      "mood": "manic"
+      "id": "deadair_conspiracies_8",
+      "text": "The pharmaceutical industry profits from keeping us sick. They suppress natural cures, fund studies that support their drugs, and bribe doctors. While we wait for the next caller, let me tell you about the cancer cure that was buried because it couldn't be patented. Keep those lines open - your experience with medical corruption could help expose this deadly conspiracy.",
+      "voiceText": "The pharmaceutical industry profits from keeping us sick. They suppress natural cures, fund studies that support their drugs, and bribe doctors. While we wait for the next caller, let me tell you about the cancer cure that was buried because it couldn't be patented. Keep those lines open - your experience with medical corruption could help expose this deadly conspiracy.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "deadair_manic_3",
-      "text": "ANYONE OUT THERE? SPEAK UP – I'M BURSTING WITH ANTICIPATION!",
-      "voiceText": "ANYONE OUT THERE? SPEAK UP – I'M BURSTING WITH ANTICIPATION!",
-      "mood": "manic"
+      "id": "deadair_conspiracies_9",
+      "text": "*sigh* Sometimes I wonder if we're all just pawns in a game we don't understand. The elite control the media, the money, the politics. They create problems and offer solutions that increase their power. While the phone lines are silent, consider this: the real conspiracy is that we've been conditioned to accept this system as normal. Your awakening story might inspire others to see the matrix for what it is.",
+      "voiceText": "*sigh* Sometimes I wonder if we're all just pawns in a game we don't understand. The elite control the media, the money, the politics. They create problems and offer solutions that increase their power. While the phone lines are silent, consider this: the real conspiracy is that we've been conditioned to accept this system as normal. Your awakening story might inspire others to see the matrix for what it is.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "deadair_manic_4",
-      "text": "WHILE WE WAIT FOR THE NEXT BREAKTHROUGH – STAY TUNED!",
-      "voiceText": "WHILE WE WAIT FOR THE NEXT BREAKTHROUGH – STAY TUNED!",
-      "mood": "manic"
+      "id": "deadair_conspiracies_10",
+      "text": "The Georgia Guidestones called for reducing the population to 500 million. Depopulation through vaccines, food supply manipulation, engineered viruses. While we wait for calls, let me ask you this: if the elite want a smaller population, why not just tell us? Because they know we'd revolt. Keep calling in - your evidence of population control might be the smoking gun that proves this global conspiracy.",
+      "voiceText": "The Georgia Guidestones called for reducing the population to 500 million. Depopulation through vaccines, food supply manipulation, engineered viruses. While we wait for calls, let me ask you this: if the elite want a smaller population, why not tell us? Because they know we'd revolt. Keep calling in - your evidence of population control might be the smoking gun that proves this global conspiracy.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "deadair_open_1",
+      "text": "While we're waiting for the next caller, let's ponder the mysteries of the universe. From quantum entanglement to dark matter, there's so much we don't understand. Science has made incredible progress, but the fundamental questions remain: why are we here? What is consciousness? Your philosophical insight could help us explore the deeper meaning behind our existence.",
+      "voiceText": "While we're waiting for the next caller, let's ponder the mysteries of the universe. From quantum entanglement to dark matter, there's so much we don't understand. Science has made incredible progress, but the fundamental questions remain: why are we here? What is consciousness? Your philosophical insight could help us explore the deeper meaning behind our existence.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "deadair_open_2",
+      "text": "The unexplained happens every day. Synchronicities, premonitions, impossible coincidences. While the lines are quiet, consider this: maybe the universe is trying to communicate with us. Your story of the uncanny might help us understand if there's a pattern to these strange occurrences.",
+      "voiceText": "The unexplained happens every day. Synchronicities, premonitions, impossible coincidences. While the lines are quiet, consider this: maybe the universe is trying to communicate with us. Your story of the uncanny might help us understand if there's a pattern to these strange occurrences.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "deadair_open_3",
+      "text": "*grunt* Life is full of mysteries. From dreams that predict the future to intuitions that guide us, we ignore so much of what our minds can do. While we wait for calls, remember: the rational mind is just one tool. Your experience with the irrational might reveal abilities we all possess.",
+      "voiceText": "*grunt* Life is full of mysteries. From dreams that predict the future to intuitions that guide us, we ignore so much of what our minds can do. While we wait for calls, remember: the rational mind is just one tool. Your experience with the irrational might reveal abilities we all possess.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "deadair_open_4",
+      "text": "Ancient civilizations built monuments we still can't replicate. Pyramids, stone spheres, precision engineering without modern tools. While the phone lines are silent, think about this: what knowledge have we lost? Your discovery of ancient wisdom might help us reclaim what our ancestors knew about the universe.",
+      "voiceText": "Ancient civilizations built monuments we still can't replicate. Pyramids, stone spheres, precision engineering without modern tools. While the phone lines are silent, think about this: what knowledge have we lost? Your discovery of ancient wisdom might help us reclaim what our ancestors knew about the universe.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "deadair_open_5",
+      "text": "*chuckle* Remember when we thought we knew everything? Then quantum physics came along and blew our minds. While we wait for the next caller, let me tell you about observer effect - how consciousness changes reality. Keep those lines open - your mind-bending experience could help us understand the nature of existence itself.",
+      "voiceText": "*chuckle* Remember when we thought we knew everything? Then quantum physics came along and blew our minds. While we wait for the next caller, let me tell you about observer effect - how consciousness changes reality. Keep those lines open - your mind-bending experience could help us understand the nature of existence itself.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "deadair_open_6",
+      "text": "The placebo effect, spontaneous remissions, the power of prayer - these show that belief and consciousness affect physical reality. While we wait for calls, consider this: if mind over matter is real, what else can we do with our thoughts? Your experience with healing or manifestation might reveal the true power of human consciousness.",
+      "voiceText": "The placebo effect, spontaneous remissions, the power of prayer - these show that belief and consciousness affect physical reality. While we wait for calls, consider this: if mind over matter is real, what else can we do with our thoughts? Your experience with healing or manifestation might reveal the true power of human consciousness.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "deadair_open_7",
+      "text": "From crop circles to fairy rings, nature creates patterns we don't understand. Mathematical precision in sunflowers, fractal beauty in snowflakes. While the lines are quiet, think about this: maybe the universe is conscious, communicating through beauty and complexity. Keep calling in - your observation of natural wonder might help us decode the message.",
+      "voiceText": "From crop circles to fairy rings, nature creates patterns we don't understand. Mathematical precision in sunflowers, fractal beauty in snowflakes. While the lines are quiet, think about this: maybe the universe is conscious, communicating through beauty and complexity. Keep calling in - your observation of natural wonder might help us decode the message.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "deadair_open_8",
+      "text": "Near-death experiences often describe the same elements: tunnels, light, life reviews, meeting beings of light. But what about shared death experiences, where the living see visions too? While we wait for the next caller, let me tell you about quantum immortality. Your brush with the beyond might help us understand what happens after this life.",
+      "voiceText": "Near-death experiences often describe the same elements: tunnels, light, life reviews, meeting beings of light. But what about shared death experiences, where the living see visions too? While we wait for the next caller, let me tell you about quantum immortality. Your brush with the beyond might help us understand what happens after this life.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "deadair_open_9",
+      "text": "*sigh* Sometimes the biggest mysteries are right in front of us. Why do we dream? What is deja vu? How does intuition work? While the phone lines are silent, consider this: maybe we're all connected in ways we can't see. Your moment of knowing might be the key to understanding our interconnected consciousness.",
+      "voiceText": "*sigh* Sometimes the biggest mysteries are right in front of us. Why do we dream? What is deja vu? How does intuition work? While the phone lines are silent, consider this: maybe we're all connected in ways we can't see. Your moment of knowing might be the key to understanding our interconnected consciousness.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "deadair_open_10",
+      "text": "The universe is 13.8 billion years old, and life on Earth is 3.5 billion years old. We're here for a cosmic instant. While we wait for calls, let me ask you this: what is the meaning of it all? Keep calling in - your philosophical breakthrough might help us understand our place in the grand scheme of existence.",
+      "voiceText": "The universe is 13.8 billion years old, and life on Earth is 3.5 billion years old. We're here for a cosmic instant. While we wait for calls, let me ask you this: what is the meaning of it all? Keep calling in - your philosophical breakthrough might help us understand our place in the grand scheme of existence.",
+      "mood": "neutral",
+      "topic": "open"
     }
   ]
 }

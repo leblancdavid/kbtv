@@ -5,7 +5,8 @@ namespace KBTV.Callers
         Ghosts,
         UFOs,
         Cryptids,
-        Conspiracies
+        Conspiracies,
+        Open
     }
 
     public static class ShowTopicExtensions
@@ -18,6 +19,7 @@ namespace KBTV.Callers
                 ShowTopic.UFOs => "UFOs",
                 ShowTopic.Cryptids => "Cryptids",
                 ShowTopic.Conspiracies => "Conspiracies",
+                ShowTopic.Open => "Open",
                 _ => "Unknown"
             };
         }
@@ -35,6 +37,7 @@ namespace KBTV.Callers
                 "ufos" => ShowTopic.UFOs,
                 "cryptids" => ShowTopic.Cryptids,
                 "conspiracies" or "government" => ShowTopic.Conspiracies,
+                "open" => ShowTopic.Open,
                 _ => null
             };
         }

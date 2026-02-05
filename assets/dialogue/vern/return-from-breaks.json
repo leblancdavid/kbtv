@@ -3,189 +3,354 @@
   "description": "Lines when returning from commercial breaks",
   "lines": [
     {
-      "id": "return_neutral_1",
-      "text": "Alright folks, we're back from our sponsors. The lines are still open.",
-      "voiceText": "Alright folks, we're back from our sponsors. The lines are still open.",
-      "mood": "neutral"
+      "id": "return_ufos_1",
+      "text": "Welcome back from the break, folks. I was just thinking about the UFO disclosure that's been happening. The Pentagon admits they're real now, but they're calling them UAPs to avoid the stigma. While we were away, I got a call from someone who saw something incredible. Keep those lines open - your story might be the one that forces full disclosure.",
+      "voiceText": "Welcome back from the break, folks. I was just thinking about the UFO disclosure that's been happening. The Pentagon admits they're real now, but they're calling them UAPs to avoid the stigma. While we were away, I got a call from someone who saw something incredible. Keep those lines open - your story might be the one that forces full disclosure.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "return_tired_1",
-      "text": "Welcome back, night owls. Coffee's kicking in again.",
-      "voiceText": "Welcome back, night owls. Coffee's kicking in again.",
-      "mood": "tired"
+      "id": "return_ufos_2",
+      "text": "We're back on the air after that commercial break. You know, the government has been slowly releasing UFO information. From the Nimitz encounter to the recent Navy videos, they're admitting what they've known for decades. While the ads were running, I was thinking about how the truth is finally coming out. Your call could be the next piece of evidence that changes everything.",
+      "voiceText": "We're back on the air after that commercial break. You know, the government has been slowly releasing UFO information. From the Nimitz encounter to the recent Navy videos, they're admitting what they've known for decades. While the ads were running, I was thinking about how the truth is finally coming out. Your call could be the next piece of evidence that changes everything.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "return_energized_1",
-      "text": "And we're back! The board's still lighting up - let's keep this momentum going!",
-      "voiceText": "And we're back! The board's still lighting up - let's keep this momentum going!",
-      "mood": "energized"
+      "id": "return_ufos_3",
+      "text": "*grunt* Back from the break. Those commercials are getting ridiculous. Anyway, while we were off air, I was pondering the UFO phenomenon. Ancient astronauts, modern sightings, government cover-ups - it's all connected. The break gave me time to connect some dots. Keep calling in - your alien encounter might be the key to understanding their agenda.",
+      "voiceText": "*grunt* Back from the break. Those commercials are getting ridiculous. Anyway, while we were off air, I was pondering the UFO phenomenon. Ancient astronauts, modern sightings, government cover-ups - it's all connected. The break gave me time to connect some dots. Keep calling in - your alien encounter might be the key to understanding their agenda.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "return_irritated_1",
-      "text": "Back from break. Hopefully with fewer interruptions this time.",
-      "voiceText": "Back from break. Hopefully with fewer interruptions this time.",
-      "mood": "irritated"
+      "id": "return_ufos_4",
+      "text": "Welcome back to KBTV, truth-seekers. That commercial break was sponsored by companies that probably have their own UFO secrets. While we were away, I was thinking about the black budget programs that study extraterrestrial technology. Billions spent in secret. Your whistleblower call could expose what they've learned about these advanced craft.",
+      "voiceText": "Welcome back to KBTV, truth-seekers. That commercial break was sponsored by companies that probably have their own UFO secrets. While we were away, I was thinking about the black budget programs that study extraterrestrial technology. Billions spent in secret. Your whistleblower call could expose what they've learned about these advanced craft.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "return_gruff_1",
-      "text": "We're back. Next caller, you're on the air.",
-      "voiceText": "We're back. Next caller, you're on the air.",
-      "mood": "gruff"
+      "id": "return_ufos_5",
+      "text": "*chuckle* Ah, the sweet sound of return music. We're back from the break, and I was just thinking about how UFOs have become mainstream now. Tic-tac videos, Pentagon briefings - the government's finally admitting the truth. But there's so much more they haven't told us. Keep those lines open - your classified information might be what finally brings full disclosure.",
+      "voiceText": "*chuckle* Ah, the sweet sound of return music. We're back from the break, and I was just thinking about how UFOs have become mainstream now. Tic-tac videos, Pentagon briefings - the government's finally admitting the truth. But there's so much more they haven't told us. Keep those lines open - your classified information might be what finally brings full disclosure.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "return_amused_1",
-      "text": "Ah, the sweet sound of return music. Alright, who's next in line?",
-      "voiceText": "Ah, the sweet sound of return music. Alright, who's next in line?",
-      "mood": "amused"
+      "id": "return_ufos_6",
+      "text": "We're back on the air after those commercials. You know what I was thinking during the break? About the physics-defying maneuvers these UFOs perform. Instant acceleration, right-angle turns, no sonic booms. While the ads were playing, I was connecting the dots between ancient vimanas and modern sightings. Your technical analysis could help us understand how these craft work.",
+      "voiceText": "We're back on the air after those commercials. You know what I was thinking during the break? About the physics-defying maneuvers these UFOs perform. Instant acceleration, right-angle turns, no sonic booms. While the ads were playing, I was connecting the dots between ancient vimanas and modern sightings. Your technical analysis could help us understand how these craft work.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "return_focused_1",
-      "text": "Commercial break concluded. Resuming broadcast operations.",
-      "voiceText": "Commercial break concluded. Resuming broadcast operations.",
+      "id": "return_ufos_7",
+      "text": "Welcome back from the break. Those commercials always remind me of how corporations profit while hiding the truth about UFOs. While we were off air, I was thinking about the abduction phenomenon. Millions report encounters with beings from other worlds. The consistency is too striking to ignore. Keep calling in - your abduction story might reveal their purpose here on Earth.",
+      "voiceText": "Welcome back from the break. Those commercials always remind me of how corporations profit while hiding the truth about UFOs. While we were off air, I was thinking about the abduction phenomenon. Millions report encounters with beings from other worlds. The consistency is too striking to ignore. Keep calling in - your abduction story might reveal their purpose here on Earth.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "return_exhausted_1",
-      "text": "*yawn* Welcome back... I guess.",
-      "voiceText": "*yawn* Welcome back... I guess.",
-      "mood": "exhausted"
+      "id": "return_ufos_8",
+      "text": "Back from the commercial break, and I was just pondering the implications of UFO disclosure. If they're real and here, what does that mean for humanity? While the ads were running, I was thinking about contact protocols and first encounters. Your military experience could help us understand how governments are preparing for official contact.",
+      "voiceText": "Back from the commercial break, and I was just pondering the implications of UFO disclosure. If they're real and here, what does that mean for humanity? While the ads were running, I was thinking about contact protocols and first encounters. Your military experience could help us understand how governments are preparing for official contact.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "return_exhausted_2",
-      "text": "We're back on the air.",
-      "voiceText": "We're back on the air.",
-      "mood": "exhausted"
+      "id": "return_ufos_9",
+      "text": "*sigh* We're back after that break. I was thinking about how the media still dismisses UFO witnesses as unreliable. Pilots, astronauts, radar operators - all credible people seeing impossible things. While we were away, I was connecting the dots between sightings and seismic activity. Your geological expertise might link UFOs to earthquakes or other phenomena.",
+      "voiceText": "*sigh* We're back after that break. I was thinking about how the media still dismisses UFO witnesses as unreliable. Pilots, astronauts, radar operators - all credible people seeing impossible things. While we were away, I was connecting the dots between sightings and seismic activity. Your geological expertise might link UFOs to earthquakes or other phenomena.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "return_exhausted_3",
-      "text": "*grunt* Back from break.",
-      "voiceText": "*grunt* Back from break.",
-      "mood": "exhausted"
+      "id": "return_ufos_10",
+      "text": "Welcome back to KBTV. That commercial break gave me time to think about the UFO cover-up timeline. From Kenneth Arnold in 1947 to today's Pentagon admissions, it's been a slow drip of truth. While the ads were playing, I was wondering why they're revealing it now. Keep those lines open - your intelligence background might explain the timing of this disclosure.",
+      "voiceText": "Welcome back to KBTV. That commercial break gave me time to think about the UFO cover-up timeline. From Kenneth Arnold in 1947 to today's Pentagon admissions, it's been a slow drip of truth. While the ads were playing, I was wondering why they're revealing it now. Keep those lines open - your intelligence background might explain the timing of this disclosure.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "return_exhausted_4",
-      "text": "Welcome back to KBTV.",
-      "voiceText": "Welcome back to KBTV.",
-      "mood": "exhausted"
+      "id": "return_ghosts_1",
+      "text": "We're back from the break, and I was just thinking about the nature of hauntings. Are ghosts souls trapped between worlds, or echoes of traumatic events? While the commercials were running, I was pondering EVP recordings and their implications for the afterlife. Your paranormal investigation could help us understand what happens when we die.",
+      "voiceText": "We're back from the break, and I was just thinking about the nature of hauntings. Are ghosts souls trapped between worlds, or echoes of traumatic events? While the commercials were running, I was pondering EVP recordings and their implications for the afterlife. Your paranormal investigation could help us understand what happens when we die.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "return_depressed_1",
-      "text": "Welcome back... to this.",
-      "voiceText": "Welcome back... to this.",
-      "mood": "depressed"
+      "id": "return_ghosts_2",
+      "text": "Welcome back to KBTV. That commercial break reminded me of how the living world ignores the dead. While we were off air, I was thinking about poltergeist activity and how it often accompanies adolescents. Is it psychic energy or something more sinister? Keep calling in - your experience with restless spirits might reveal the truth about the other side.",
+      "voiceText": "Welcome back to KBTV. That commercial break reminded me of how the living world ignores the dead. While we were off air, I was thinking about poltergeist activity and how it often accompanies adolescents. Is it psychic energy or something more sinister? Keep calling in - your experience with restless spirits might reveal the truth about the other side.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "return_depressed_2",
-      "text": "We're back on the air.",
-      "voiceText": "We're back on the air.",
-      "mood": "depressed"
+      "id": "return_ghosts_3",
+      "text": "*grunt* Back from the break. Those ads are full of living people pretending everything's fine. While we were away, I was thinking about how ghosts manifest - apparitions, cold spots, unexplained sounds. The consistency across cultures suggests something real. Your haunting story could help us understand the veil between worlds.",
+      "voiceText": "*grunt* Back from the break. Those ads are full of living people pretending everything's fine. While we were away, I was thinking about how ghosts manifest - apparitions, cold spots, unexplained sounds. The consistency across cultures suggests something real. Your haunting story could help us understand the veil between worlds.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "return_depressed_3",
-      "text": "Back from break.",
-      "voiceText": "Back from break.",
-      "mood": "depressed"
+      "id": "return_ghosts_4",
+      "text": "We're back on the air. I was pondering during the break how children seem particularly sensitive to paranormal activity. While the commercials played, I was thinking about the Enfield Poltergeist case. Toys moving, voices speaking through children. Keep those lines open - your childhood encounter with the supernatural might explain this phenomenon.",
+      "voiceText": "We're back on the air. I was pondering during the break how children seem particularly sensitive to paranormal activity. While the commercials played, I was thinking about the Enfield Poltergeist case. Toys moving, voices speaking through children. Keep those lines open - your childhood encounter with the supernatural might explain this phenomenon.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "return_depressed_4",
-      "text": "Welcome back to KBTV.",
-      "voiceText": "Welcome back to KBTV.",
-      "mood": "depressed"
+      "id": "return_ghosts_5",
+      "text": "*chuckle* Ah, the break is over. I was just thinking about how ghost hunting has become mainstream now. EMF readers, spirit boxes, thermal cameras. But the ghosts themselves don't care about our gadgets. While we were away, I was connecting dots between hauntings and historical trauma. Your historical research might link ghosts to unresolved past events.",
+      "voiceText": "*chuckle* Ah, the break is over. I was just thinking about how ghost hunting has become mainstream now. EMF readers, spirit boxes, thermal cameras. But the ghosts themselves don't care about our gadgets. While we were away, I was connecting dots between hauntings and historical trauma. Your historical research might link ghosts to unresolved past events.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "return_angry_1",
-      "text": "Welcome back – now let's get serious!",
-      "voiceText": "Welcome back – now let's get serious!",
-      "mood": "angry"
+      "id": "return_ghosts_6",
+      "text": "Welcome back from the commercials. I was thinking during the break about near-death experiences and how they often describe meeting deceased loved ones. While the ads were running, I was wondering if these are actual encounters or just brain chemistry. Your NDE story could help us understand the nature of consciousness after death.",
+      "voiceText": "Welcome back from the commercials. I was thinking during the break about near-death experiences and how they often describe meeting deceased loved ones. While the ads were running, I was wondering if these are actual encounters or just brain chemistry. Your NDE story could help us understand the nature of consciousness after death.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "return_angry_2",
-      "text": "We're back on the air!",
-      "voiceText": "We're back on the air!",
-      "mood": "angry"
+      "id": "return_ghosts_7",
+      "text": "We're back after that break. Those commercials show the living world, but I was thinking about the dead one. While we were off air, I was pondering residual hauntings that replay historical events. Are these time echoes or intelligent spirits? Keep calling in - your investigation of an old battlefield might reveal the truth.",
+      "voiceText": "We're back after that break. Those commercials show the living world, but I was thinking about the dead one. While we were off air, I was pondering residual hauntings that replay historical events. Are these time echoes or intelligent spirits? Keep calling in - your investigation of an old battlefield might reveal the truth.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "return_angry_3",
-      "text": "Back from break – furious as ever!",
-      "voiceText": "Back from break – furious as ever!",
-      "mood": "angry"
+      "id": "return_ghosts_8",
+      "text": "Back from the commercial break. I was just thinking about how the Catholic Church still performs exorcisms regularly. While the ads played, I was wondering about the difference between demonic possession and regular hauntings. Your experience with spiritual cleansing could help us understand these dark phenomena.",
+      "voiceText": "Back from the commercial break. I was just thinking about how the Catholic Church still performs exorcisms regularly. While the ads played, I was wondering about the difference between demonic possession and regular hauntings. Your experience with spiritual cleansing could help us understand these dark phenomena.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "return_angry_4",
-      "text": "Welcome back to KBTV – let's expose some lies!",
-      "voiceText": "Welcome back to KBTV – let's expose some lies!",
-      "mood": "angry"
+      "id": "return_ghosts_9",
+      "text": "*sigh* We're back after the break. I was thinking about how mainstream science ignores the mountain of evidence for ghosts. Thousands of credible witnesses, photographic proof, audio recordings. While we were away, I was wondering why they resist. Your scientific background in parapsychology might help bridge this gap.",
+      "voiceText": "*sigh* We're back after the break. I was thinking about how mainstream science ignores the mountain of evidence for ghosts. Thousands of credible witnesses, photographic proof, audio recordings. While we were away, I was wondering why they resist. Your scientific background in parapsychology might help bridge this gap.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "return_frustrated_1",
-      "text": "*sigh* Welcome back.",
-      "voiceText": "*sigh* Welcome back.",
-      "mood": "frustrated"
+      "id": "return_ghosts_10",
+      "text": "Welcome back to KBTV. That break gave me time to think about the implications of ghosts being real. If consciousness survives death, what does that change about our understanding of existence? While the commercials ran, I was pondering the ethical implications. Keep those lines open - your philosophical perspective on the afterlife might change how we view life itself.",
+      "voiceText": "Welcome back to KBTV. That break gave me time to think about the implications of ghosts being real. If consciousness survives death, what does that change about our understanding of existence? While the commercials ran, I was pondering the ethical implications. Keep those lines open - your philosophical perspective on the afterlife might change how we view life itself.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "return_frustrated_2",
-      "text": "We're back on the air.",
-      "voiceText": "We're back on the air.",
-      "mood": "frustrated"
+      "id": "return_cryptids_1",
+      "text": "We're back from the break, and I was just thinking about Bigfoot. The Patterson film, the Sierra Sounds recordings, thousands of eyewitness accounts. While the commercials were playing, I was wondering why mainstream science dismisses it all. Your field research could be the evidence that finally proves their existence.",
+      "voiceText": "We're back from the break, and I was just thinking about Bigfoot. The Patterson film, the Sierra Sounds recordings, thousands of eyewitness accounts. While the commercials were playing, I was wondering why mainstream science dismisses it all. Your field research could be the evidence that finally proves their existence.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "return_frustrated_3",
-      "text": "Back from break.",
-      "voiceText": "Back from break.",
-      "mood": "frustrated"
+      "id": "return_cryptids_2",
+      "text": "Welcome back to KBTV. That commercial break reminded me of how corporations exploit nature while ignoring the cryptids that live there. While we were off air, I was thinking about the Thylacine, officially extinct but still sighted. Keep calling in - your encounter with an unknown animal might prove that cryptids are just undiscovered species.",
+      "voiceText": "Welcome back to KBTV. That commercial break reminded me of how corporations exploit nature while ignoring the cryptids that live there. While we were off air, I was thinking about the Thylacine, officially extinct but still sighted. Keep calling in - your encounter with an unknown animal might prove that cryptids are just undiscovered species.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "return_frustrated_4",
-      "text": "Welcome back to KBTV.",
-      "voiceText": "Welcome back to KBTV.",
-      "mood": "frustrated"
+      "id": "return_cryptids_3",
+      "text": "*grunt* Back from the break. Those ads show pristine wilderness, but I was thinking about the real creatures hiding there. While the commercials ran, I was pondering DNA evidence that doesn't match known animals. Your biological analysis could help classify these mysterious beasts.",
+      "voiceText": "*grunt* Back from the break. Those ads show pristine wilderness, but I was thinking about the real creatures hiding there. While the commercials ran, I was pondering DNA evidence that doesn't match known animals. Your biological analysis could help classify these mysterious beasts.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "return_obsessive_1",
-      "text": "Welcome back – the connections are stronger!",
-      "voiceText": "Welcome back – the connections are stronger!",
-      "mood": "obsessive"
+      "id": "return_cryptids_4",
+      "text": "We're back on the air. I was thinking during the break about how cryptids often appear before disasters or during times of social upheaval. While the ads played, I was connecting dots between Mothman sightings and bridge collapses. Your pattern analysis might reveal what triggers these appearances.",
+      "voiceText": "We're back on the air. I was thinking during the break about how cryptids often appear before disasters or during times of social upheaval. While the ads played, I was connecting dots between Mothman sightings and bridge collapses. Your pattern analysis might reveal what triggers these appearances.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "return_obsessive_2",
-      "text": "We're back on the air – patterns emerging!",
-      "voiceText": "We're back on the air – patterns emerging!",
-      "mood": "obsessive"
+      "id": "return_cryptids_5",
+      "text": "*chuckle* The break is over, and I was just thinking about how every culture has its cryptids. Dragons, unicorns, bunyips. While we were away, I was wondering if they're all based on real animals we've forgotten. Keep those lines open - your anthropological research might trace these legends back to actual creatures.",
+      "voiceText": "*chuckle* The break is over, and I was just thinking about how every culture has its cryptids. Dragons, unicorns, bunyips. While we were away, I was wondering if they're all based on real animals we've forgotten. Keep those lines open - your anthropological research might trace these legends back to actual creatures.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "return_obsessive_3",
-      "text": "Back from break – the web unfolds!",
-      "voiceText": "Back from break – the web unfolds!",
-      "mood": "obsessive"
+      "id": "return_cryptids_6",
+      "text": "Welcome back from the commercials. I was thinking about the Ivory-billed Woodpecker, thought extinct for decades but possibly still alive. While the ads were running, I was pondering what other species might be hiding in remote areas. Your ornithological expertise could help us understand these surviving populations.",
+      "voiceText": "Welcome back from the commercials. I was thinking about the Ivory-billed Woodpecker, thought extinct for decades but possibly still alive. While the ads were running, I was pondering what other species might be hiding in remote areas. Your ornithological expertise could help us understand these surviving populations.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "return_obsessive_4",
-      "text": "Welcome back to KBTV – connect the revelations!",
-      "voiceText": "Welcome back to KBTV – connect the revelations!",
-      "mood": "obsessive"
+      "id": "return_cryptids_7",
+      "text": "We're back after that break. Those commercials show happy families in nature, but I was thinking about the predators that might be watching. While we were off air, I was wondering about giant catfish in Vietnam or unknown primates in Africa. Keep calling in - your zoological discovery might add a new species to the catalog.",
+      "voiceText": "We're back after that break. Those commercials show happy families in nature, but I was thinking about the predators that might be watching. While we were off air, I was wondering about giant catfish in Vietnam or unknown primates in Africa. Keep calling in - your zoological discovery might add a new species to the catalog.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "return_manic_1",
-      "text": "WELCOME BACK – THE ENERGY IS BACK AND STRONGER!",
-      "voiceText": "WELCOME BACK – THE ENERGY IS BACK AND STRONGER!",
-      "mood": "manic"
+      "id": "return_cryptids_8",
+      "text": "Back from the commercial break. I was just thinking about how climate change might be forcing cryptids out of hiding. As habitats shrink, sightings increase. While the ads played, I was connecting dots between environmental change and mysterious appearances. Your ecological perspective could explain this phenomenon.",
+      "voiceText": "Back from the commercial break. I was just thinking about how climate change might be forcing cryptids out of hiding. As habitats shrink, sightings increase. While the ads played, I was connecting dots between environmental change and mysterious appearances. Your ecological perspective could explain this phenomenon.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "return_manic_2",
-      "text": "WE'RE BACK ON THE AIR – BURSTING WITH EXCITEMENT!",
-      "voiceText": "WE'RE BACK ON THE AIR – BURSTING WITH EXCITEMENT!",
-      "mood": "manic"
+      "id": "return_cryptids_9",
+      "text": "*sigh* We're back after the break. I was thinking about how cryptozoology gets no respect from academia. While we were away, I was wondering why they resist the evidence. Your academic background in biology might help change that perception.",
+      "voiceText": "*sigh* We're back after the break. I was thinking about how cryptozoology gets no respect from academia. While we were away, I was wondering why they resist the evidence. Your academic background in biology might help change that perception.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "return_manic_3",
-      "text": "BACK FROM BREAK – THE CONNECTIONS ARE FLOWING!",
-      "voiceText": "BACK FROM BREAK – THE CONNECTIONS ARE FLOWING!",
-      "mood": "manic"
+      "id": "return_cryptids_10",
+      "text": "Welcome back to KBTV. That break gave me time to think about the implications of cryptids being real. If there are unknown species walking among us, what does that say about our knowledge of the planet? While the commercials ran, I was pondering the biodiversity we might have missed. Keep those lines open - your conservation work might reveal these hidden inhabitants.",
+      "voiceText": "Welcome back to KBTV. That break gave me time to think about the implications of cryptids being real. If there are unknown species walking among us, what does that say about our knowledge of the planet? While the commercials ran, I was pondering the biodiversity we might have missed. Keep those lines open - your conservation work might reveal these hidden inhabitants.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "return_manic_4",
-      "text": "WELCOME BACK TO KBTV – LET'S UNCOVER MORE SECRETS!",
-      "voiceText": "WELCOME BACK TO KBTV – LET'S UNCOVER MORE SECRETS!",
-      "mood": "manic"
+      "id": "return_conspiracies_1",
+      "text": "We're back from the break, and I was just thinking about the Federal Reserve. Not federal, no reserves, controls our money supply. While the commercials were running, I was connecting dots between central banking and economic manipulation. Your financial expertise could expose how this system keeps us in debt.",
+      "voiceText": "We're back from the break, and I was just thinking about the Federal Reserve. Not federal, no reserves, controls our money supply. While the commercials were running, I was connecting dots between central banking and economic manipulation. Your financial expertise could expose how this system keeps us in debt.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_2",
+      "text": "Welcome back to KBTV. That commercial break was brought to you by the corporations that control the media. While we were off air, I was thinking about the six companies that own 90% of news outlets. Keep calling in - your media insider story might reveal the propaganda machine.",
+      "voiceText": "Welcome back to KBTV. That commercial break was brought to you by the corporations that control the media. While we were off air, I was thinking about the six companies that own 90% of news outlets. Keep calling in - your media insider story might reveal the propaganda machine.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_3",
+      "text": "*grunt* Back from the break. Those ads are full of happy consumers, but I was thinking about planned obsolescence and how corporations force us to buy more. While the commercials ran, I was pondering the Bilderberg Group meetings. Your attendance or knowledge could expose their global agenda.",
+      "voiceText": "*grunt* Back from the break. Those ads are full of happy consumers, but I was thinking about planned obsolescence and how corporations force us to buy more. While the commercials ran, I was pondering the Bilderberg Group meetings. Your attendance or knowledge could expose their global agenda.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_4",
+      "text": "We're back on the air. I was thinking during the break about how pharmaceutical companies profit from keeping us sick. While the ads played, I was connecting dots between suppressed cures and Big Pharma profits. Keep those lines open - your medical research could reveal the health conspiracy.",
+      "voiceText": "We're back on the air. I was thinking during the break about how pharmaceutical companies profit from keeping us sick. While the ads played, I was connecting dots between suppressed cures and Big Pharma profits. Keep those lines open - your medical research could reveal the health conspiracy.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_5",
+      "text": "*chuckle* The break is over, and I was just thinking about how conspiracy theories often become conspiracy facts. While we were away, I was pondering Operation Northwoods and other declassified false flags. Your historical documents might prove more government operations.",
+      "voiceText": "*chuckle* The break is over, and I was just thinking about how conspiracy theories often become conspiracy facts. While we were away, I was pondering Operation Northwoods and other declassified false flags. Your historical documents might prove more government operations.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_6",
+      "text": "Welcome back from the commercials. I was thinking about the Georgia Guidestones and their call for population reduction. While the ads were running, I was wondering about chemtrails and geoengineering. Your scientific analysis could confirm or debunk these depopulation theories.",
+      "voiceText": "Welcome back from the commercials. I was thinking about the Georgia Guidestones and their call for population reduction. While the ads were running, I was wondering about chemtrails and geoengineering. Your scientific analysis could confirm or debunk these depopulation theories.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_7",
+      "text": "We're back after that break. Those commercials show happy families, but I was thinking about the surveillance state. While we were off air, I was connecting dots between data collection and social control. Keep calling in - your tech background might reveal the digital conspiracy.",
+      "voiceText": "We're back after that break. Those commercials show happy families, but I was thinking about the surveillance state. While we were off air, I was connecting dots between data collection and social control. Keep calling in - your tech background might reveal the digital conspiracy.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_8",
+      "text": "Back from the commercial break. I was just thinking about how 9/11 changed everything. While the ads played, I was wondering about the controlled demolitions and insider trading. Your engineering expertise could help analyze the physics of that day.",
+      "voiceText": "Back from the commercial break. I was just thinking about how 9/11 changed everything. While the ads played, I was wondering about the controlled demolitions and insider trading. Your engineering expertise could help analyze the physics of that day.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_9",
+      "text": "*sigh* We're back after the break. I was thinking about how the education system indoctrinates rather than teaches. While we were away, I was wondering about the curriculum changes and historical revisionism. Your teaching experience might expose the education conspiracy.",
+      "voiceText": "*sigh* We're back after the break. I was thinking about how the education system indoctrinates rather than teaches. While we were away, I was wondering about the curriculum changes and historical revisionism. Your teaching experience might expose the education conspiracy.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_10",
+      "text": "Welcome back to KBTV. That break gave me time to think about the deep state and shadow government. While the commercials ran, I was pondering elected officials vs. unelected bureaucrats. Keep those lines open - your government experience might reveal the real power structure.",
+      "voiceText": "Welcome back to KBTV. That break gave me time to think about the deep state and shadow government. While the commercials ran, I was pondering elected officials vs. unelected bureaucrats. Keep those lines open - your government experience might reveal the real power structure.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_open_1",
+      "text": "We're back from the break, and I was just thinking about the mysteries of consciousness. While the commercials were running, I was pondering quantum mechanics and how observation changes reality. Your philosophical insights could help us understand the nature of existence itself.",
+      "voiceText": "We're back from the break, and I was just thinking about the mysteries of consciousness. While the commercials were running, I was pondering quantum mechanics and how observation changes reality. Your philosophical insights could help us understand the nature of existence itself.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "return_open_2",
+      "text": "Welcome back to KBTV. That commercial break showed perfect lives, but I was thinking about the unexplained phenomena we encounter daily. While we were off air, I was wondering about synchronicities and meaningful coincidences. Keep calling in - your story of the uncanny might reveal universal patterns.",
+      "voiceText": "Welcome back to KBTV. That commercial break showed perfect lives, but I was thinking about the unexplained phenomena we encounter daily. While we were off air, I was wondering about synchronicities and meaningful coincidences. Keep calling in - your story of the uncanny might reveal universal patterns.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "return_open_3",
+      "text": "*grunt* Back from the break. Those ads are all about material success, but I was thinking about what really matters. While the commercials ran, I was pondering the meaning of life and our place in the cosmos. Your spiritual journey could help us all find deeper purpose.",
+      "voiceText": "*grunt* Back from the break. Those ads are all about material success, but I was thinking about what really matters. While the commercials ran, I was pondering the meaning of life and our place in the cosmos. Your spiritual journey could help us all find deeper purpose.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "return_open_4",
+      "text": "We're back on the air. I was thinking during the break about ancient civilizations that achieved impossible engineering feats. While the ads played, I was wondering about lost knowledge and advanced ancient technology. Keep those lines open - your archaeological discoveries might rewrite history.",
+      "voiceText": "We're back on the air. I was thinking during the break about ancient civilizations that achieved impossible engineering feats. While the ads played, I was wondering about lost knowledge and advanced ancient technology. Keep those lines open - your archaeological discoveries might rewrite history.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "return_open_5",
+      "text": "*chuckle* The break is over, and I was just thinking about how science keeps discovering new mysteries. While we were away, I was pondering dark matter and energy that make up most of the universe. Your scientific breakthrough could change our understanding of reality.",
+      "voiceText": "*chuckle* The break is over, and I was just thinking about how science keeps discovering new mysteries. While we were away, I was pondering dark matter and energy that make up most of the universe. Your scientific breakthrough could change our understanding of reality.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "return_open_6",
+      "text": "Welcome back from the commercials. I was thinking about the power of belief and how it affects physical reality. While the ads were running, I was wondering about placebo effects and spontaneous healings. Your research in mind-body connection could reveal human potential we never imagined.",
+      "voiceText": "Welcome back from the commercials. I was thinking about the power of belief and how it affects physical reality. While the ads were running, I was wondering about placebo effects and spontaneous healings. Your research in mind-body connection could reveal human potential we never imagined.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "return_open_7",
+      "text": "We're back after that break. Those commercials show technological progress, but I was thinking about nature's own technology. While we were off air, I was pondering fractal patterns and mathematical beauty in the natural world. Keep calling in - your observation of natural wonder might decode the universe's message.",
+      "voiceText": "We're back after that break. Those commercials show technological progress, but I was thinking about nature's own technology. While we were off air, I was pondering fractal patterns and mathematical beauty in the natural world. Keep calling in - your observation of natural wonder might decode the universe's message.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "return_open_8",
+      "text": "Back from the commercial break. I was just thinking about near-death experiences and their consistent elements. While the ads played, I was wondering about the science of these transcendent states. Your medical perspective on NDEs could bridge spirituality and science.",
+      "voiceText": "Back from the commercial break. I was just thinking about near-death experiences and their consistent elements. While the ads played, I was wondering about the science of these transcendent states. Your medical perspective on NDEs could bridge spirituality and science.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "return_open_9",
+      "text": "*sigh* We're back after the break. I was thinking about the biggest questions: why are we here? What happens after death? While we were away, I was wondering about the nature of consciousness. Your contemplative practices might help us approach these eternal mysteries.",
+      "voiceText": "*sigh* We're back after the break. I was thinking about the biggest questions: why are we here? What happens after death? While we were away, I was wondering about the nature of consciousness. Your contemplative practices might help us approach these eternal mysteries.",
+      "mood": "neutral",
+      "topic": "open"
+    },
+    {
+      "id": "return_open_10",
+      "text": "Welcome back to KBTV. That break gave me time to think about the vastness of the universe. While the commercials ran, I was pondering our insignificance and significance all at once. Keep those lines open - your cosmic perspective might help us find meaning in the grand scheme.",
+      "voiceText": "Welcome back to KBTV. That break gave me time to think about the vastness of the universe. While the commercials ran, I was pondering our insignificance and significance all at once. Keep those lines open - your cosmic perspective might help us find meaning in the grand scheme.",
+      "mood": "neutral",
+      "topic": "open"
     }
   ]
 }

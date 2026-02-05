@@ -24,6 +24,7 @@ namespace KBTV.Data
             topics.Add(CreateSampleTopic("Conspiracies"));
             topics.Add(CreateSampleTopic("Ghosts"));
             topics.Add(CreateSampleTopic("Cryptids"));
+            topics.Add(CreateSampleTopic("Open"));
 
             GD.Print($"TopicLoader: Loaded {topics.Count} topics");
             return topics;

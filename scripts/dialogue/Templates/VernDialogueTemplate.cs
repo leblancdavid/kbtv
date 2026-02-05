@@ -1,6 +1,7 @@
 using Godot;
 using KBTV.Data;
 using System.Linq;
+using KBTV.Callers;
 
 namespace KBTV.Dialogue
 {
@@ -42,9 +43,49 @@ namespace KBTV.Dialogue
         public void SetOffTopicRemarkLines(DialogueTemplate[] lines) => _offTopicRemarkLines = new Godot.Collections.Array<DialogueTemplate>(lines);
 
         /// <summary>
+        /// Get a show opening line for the specified topic.
+        /// </summary>
+        public DialogueTemplate GetShowOpening(ShowTopic topic)
+        {
+            var topicString = topic.ToTopicName().ToLower();
+
+            var topicLines = System.Linq.Enumerable.Where(_showOpeningLines, line => line.Topic == topicString);
+
+            if (!topicLines.Any())
+            {
+                // Fallback to mood-based selection
+                return GetShowOpeningFallback(VernMoodType.Neutral);
+            }
+
+            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(topicLines));
+        }
+
+        /// <summary>
+        /// Get a show opening line for the specified mood (fallback).
+        /// </summary>
+        public DialogueTemplate GetShowOpeningFallback(VernMoodType mood)
+        {
+            var moodString = mood.ToString().ToLower();
+
+            var moodLines = System.Linq.Enumerable.Where(_showOpeningLines, line => line.Mood == moodString);
+
+            if (!moodLines.Any())
+            {
+                moodLines = System.Linq.Enumerable.Where(_showOpeningLines, line => line.Mood == "neutral");
+            }
+
+            if (!moodLines.Any())
+            {
+                moodLines = _showOpeningLines;
+            }
+
+            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(moodLines));
+        }
+
+        /// <summary>
         /// Get a show opening line.
         /// </summary>
-        public DialogueTemplate GetShowOpening() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_showOpeningLines));
+        public DialogueTemplate GetShowOpening() => GetShowOpening(ShowTopic.Ghosts); // Default fallback
 
         /// <summary>
         /// Get an introduction line for a caller.
@@ -52,14 +93,32 @@ namespace KBTV.Dialogue
         public DialogueTemplate GetIntroduction() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_introductionLines));
 
         /// <summary>
-        /// Get a show closing line.
+        /// Get a show closing line for the specified topic.
         /// </summary>
-        public DialogueTemplate GetShowClosing() => GetShowClosing(VernMoodType.Neutral);
+        public DialogueTemplate GetShowClosing(ShowTopic topic)
+        {
+            var topicString = topic.ToTopicName().ToLower();
+
+            var topicLines = System.Linq.Enumerable.Where(_showClosingLines, line => line.Topic == topicString);
+
+            if (!topicLines.Any())
+            {
+                // Fallback to mood-based selection
+                return GetShowClosingFallback(VernMoodType.Neutral);
+            }
+
+            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(topicLines));
+        }
 
         /// <summary>
-        /// Get a show closing line for the specified mood.
+        /// Get a show closing line.
         /// </summary>
-        public DialogueTemplate GetShowClosing(VernMoodType mood)
+        public DialogueTemplate GetShowClosing() => GetShowClosing(ShowTopic.Ghosts); // Default fallback
+
+        /// <summary>
+        /// Get a show closing line for the specified mood (fallback).
+        /// </summary>
+        public DialogueTemplate GetShowClosingFallback(VernMoodType mood)
         {
             var moodString = mood.ToString().ToLower();
 
@@ -106,6 +165,24 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
+        /// Get a dead air filler line for the specified topic.
+        /// </summary>
+        public DialogueTemplate GetDeadAirFiller(ShowTopic topic)
+        {
+            var topicString = topic.ToTopicName().ToLower();
+
+            var topicLines = System.Linq.Enumerable.Where(_deadAirFillerLines, line => line.Topic == topicString);
+
+            if (!topicLines.Any())
+            {
+                // Fallback to random selection
+                return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_deadAirFillerLines));
+            }
+
+            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(topicLines));
+        }
+
+        /// <summary>
         /// Get a dead air filler line.
         /// </summary>
         public DialogueTemplate GetDeadAirFiller() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_deadAirFillerLines));
@@ -121,7 +198,25 @@ namespace KBTV.Dialogue
         public DialogueTemplate GetBreakTransition() => DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_breakTransitionLines));
 
         /// <summary>
-        /// Get a return from break line (when returning from ad break).
+        /// Get a return from break line for the specified topic.
+        /// </summary>
+        public DialogueTemplate GetReturnFromBreak(ShowTopic topic)
+        {
+            var topicString = topic.ToTopicName().ToLower();
+
+            var topicLines = System.Linq.Enumerable.Where(_returnFromBreakLines, line => line.Topic == topicString);
+
+            if (!topicLines.Any())
+            {
+                // Fallback to mood-based selection
+                return GetReturnFromBreak(VernMoodType.Neutral);
+            }
+
+            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(topicLines));
+        }
+
+        /// <summary>
+        /// Get a return from break line.
         /// </summary>
         public DialogueTemplate GetReturnFromBreak() => GetReturnFromBreak(VernMoodType.Neutral);
 

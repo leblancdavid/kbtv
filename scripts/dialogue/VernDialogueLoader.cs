@@ -73,8 +73,9 @@ namespace KBTV.Dialogue
                     var text = itemDict.ContainsKey("text") ? itemDict["text"].AsString() : "";
                     var weight = itemDict.ContainsKey("weight") ? itemDict["weight"].AsSingle() : 1f;
                     var mood = itemDict.ContainsKey("mood") ? itemDict["mood"].AsString() : "";
+                    var topic = itemDict.ContainsKey("topic") ? itemDict["topic"].AsString() : "";
 
-                    return new DialogueTemplate(id, text, weight, mood);
+                    return new DialogueTemplate(id, text, weight, mood, topic);
                 }).Where(x => x != null).ToArray()!;
             }
             catch

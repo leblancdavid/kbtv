@@ -3,315 +3,354 @@
   "description": "Show opening lines",
   "lines": [
     {
-      "id": "opening_energized_1",
-      "text": "WHOA! Welcome to KBTV! We've got BIG stories tonight!",
-      "voiceText": "WHOA! Welcome to KBTV! We've got BIG stories tonight!",
-      "mood": "energized"
+      "id": "opening_ufos_1",
+      "text": "Good evening, truth-seekers! You're tuned to KBTV, where we investigate the UFO phenomenon that's been hiding in plain sight!",
+      "voiceText": "Good evening, truth-seekers! You're tuned to KBTV, where we investigate the UFO phenomenon that's been hiding in plain sight!",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "opening_amused_1",
-      "text": "Heh, welcome back everyone. This is gonna be fun.",
-      "voiceText": "Heh, welcome back everyone. This is gonna be fun.",
-      "mood": "amused"
+      "id": "opening_ufos_2",
+      "text": "Welcome to KBTV, the only show brave enough to talk about the flying saucers the government wants you to ignore. I'm Vern Tell, your host.",
+      "voiceText": "Welcome to KBTV, the only show brave enough to talk about the flying saucers the government wants you to ignore. I'm Vern Tell, your host.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "opening_neutral_1",
-      "text": "Good evening, truth-seekers. You're tuned to KBTV, Beyond the Veil AM. I'm your host, Vern Tell, and we've got a big show for you tonight.",
-      "voiceText": "Good evening, truth-seekers. You're tuned to KBTV, Beyond the Veil AM. I'm your host, Vern Tell, and we've got a big show for you tonight.",
-      "mood": "neutral"
+      "id": "opening_ufos_3",
+      "text": "*grunt* Alright, it's midnight. KBTV is on the air. Tonight we're diving into the UFO cover-up. Phone lines are open.",
+      "voiceText": "*grunt* Alright, it's midnight. KBTV is on the air. Tonight we're diving into the UFO cover-up. Phone lines are open.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "opening_focused_1",
-      "text": "Welcome to KBTV. Let's approach this systematically.",
-      "voiceText": "Welcome to KBTV. Let's approach this systematically.",
-      "mood": "focused"
+      "id": "opening_ufos_4",
+      "text": "You know what time it is? Time to talk about UFOs on KBTV. I'm Vern, and I've seen the evidence. Call in if you have too.",
+      "voiceText": "You know what time it is? Time to talk about UFOs on KBTV. I'm Vern, and I've seen the evidence. Call in if you have too.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "opening_gruff_1",
-      "text": "Welcome to the show. Let's get this over with.",
-      "voiceText": "Welcome to the show. Let's get this over with.",
-      "mood": "gruff"
+      "id": "opening_ufos_5",
+      "text": "*chuckle* Welcome back, folks. KBTV here, where we expose the alien visitors that are already among us.",
+      "voiceText": "*chuckle* Welcome back, folks. KBTV here, where we expose the alien visitors that are already among us.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "opening_irritated_1",
-      "text": "Ugh, welcome to KBTV. Another night of nonsense.",
-      "voiceText": "Ugh, welcome to KBTV. Another night of nonsense.",
-      "mood": "irritated"
+      "id": "opening_ufos_6",
+      "text": "It's the witching hour, and on KBTV, we're discussing unidentified flying objects. I'm Vern Tell, ready to separate fact from fiction.",
+      "voiceText": "It's the witching hour, and on KBTV, we're discussing unidentified flying objects. I'm Vern Tell, ready to separate fact from fiction.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "opening_tired_1",
-      "text": "*yawn* Welcome to KBTV. Let's hope this is interesting.",
-      "voiceText": "*yawn* Welcome to KBTV. Let's hope this is interesting.",
-      "mood": "tired"
+      "id": "opening_ufos_7",
+      "text": "Good evening. This is KBTV, Beyond the Veil AM. Tonight's topic: UFOs. I'm your host Vern, and the truth is out there... and it's coming for us.",
+      "voiceText": "Good evening. This is KBTV, Beyond the Veil AM. Tonight's topic: UFOs. I'm your host Vern, and the truth is out there... and it's coming for us.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "opening_energized_2",
-      "text": "Good evening, truth-seekers! You're tuned to KBTV! I'm Vern Tell, and we've got an incredible show lined up!",
-      "voiceText": "Good evening, truth-seekers! You're tuned to KBTV! I'm Vern Tell, and we've got an incredible show lined up!",
-      "mood": "energized"
+      "id": "opening_ufos_8",
+      "text": "Welcome to KBTV! If you've seen strange lights in the sky, tonight's show is for you. I'm Vern, and we're going to get to the bottom of this.",
+      "voiceText": "Welcome to KBTV! If you've seen strange lights in the sky, tonight's show is for you. I'm Vern, and we're going to get to the bottom of this.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "opening_amused_2",
-      "text": "*chuckle* Welcome back to KBTV. This should be entertaining.",
-      "voiceText": "*chuckle* Welcome back to KBTV. This should be entertaining.",
-      "mood": "amused"
+      "id": "opening_ufos_9",
+      "text": "*sigh* Another night on KBTV, talking about UFOs. I'm Vern Tell, and honestly, some of these stories might be real.",
+      "voiceText": "*sigh* Another night on KBTV, talking about UFOs. I'm Vern Tell, and honestly, some of these stories might be real.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "opening_neutral_2",
-      "text": "It's midnight on the dial, and you know what that means. Welcome to KBTV. The phone lines are open, and the truth is out there waiting.",
-      "voiceText": "It's midnight on the dial, and you know what that means. Welcome to KBTV. The phone lines are open, and the truth is out there waiting.",
-      "mood": "neutral"
+      "id": "opening_ufos_10",
+      "text": "You're listening to KBTV, where we pull back the curtain on the UFO phenomenon. I'm Vern, and I've got questions that need answers.",
+      "voiceText": "You're listening to KBTV, where we pull back the curtain on the UFO phenomenon. I'm Vern, and I've got questions that need answers.",
+      "mood": "neutral",
+      "topic": "ufos"
     },
     {
-      "id": "opening_focused_2",
-      "text": "Welcome to KBTV. Tonight we investigate the unknown with precision and care.",
-      "voiceText": "Welcome to KBTV. Tonight we investigate the unknown with precision and care.",
-      "mood": "focused"
+      "id": "opening_ghosts_1",
+      "text": "Good evening, paranormal enthusiasts! KBTV is back, and tonight we're exploring the world of ghosts and spirits.",
+      "voiceText": "Good evening, paranormal enthusiasts! KBTV is back, and tonight we're exploring the world of ghosts and spirits.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "opening_gruff_2",
-      "text": "Welcome to KBTV. Let's cut the chit-chat and get to the facts.",
-      "voiceText": "Welcome to KBTV. Let's cut the chit-chat and get to the facts.",
-      "mood": "gruff"
+      "id": "opening_ghosts_2",
+      "text": "Welcome to KBTV, where the veil between worlds is thin. I'm Vern Tell, and we're talking hauntings tonight.",
+      "voiceText": "Welcome to KBTV, where the veil between worlds is thin. I'm Vern Tell, and we're talking hauntings tonight.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "opening_irritated_2",
-      "text": "Welcome to KBTV. Another night of listening to crackpots.",
-      "voiceText": "Welcome to KBTV. Another night of listening to crackpots.",
-      "mood": "irritated"
+      "id": "opening_ghosts_3",
+      "text": "*grunt* It's midnight. KBTV on the air. Ghosts, apparitions, the undead. Let's hear your stories.",
+      "voiceText": "*grunt* It's midnight. KBTV on the air. Ghosts, apparitions, the undead. Let's hear your stories.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "opening_tired_2",
-      "text": "Welcome to KBTV. Let's try to make this interesting.",
-      "voiceText": "Welcome to KBTV. Let's try to make this interesting.",
-      "mood": "tired"
+      "id": "opening_ghosts_4",
+      "text": "You know what haunts me? The idea that ghosts might be real. On KBTV, we're investigating. I'm Vern.",
+      "voiceText": "You know what haunts me? The idea that ghosts might be real. On KBTV, we're investigating. I'm Vern.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "opening_energized_3",
-      "text": "HEY EVERYONE! Welcome to KBTV! We've got AMAZING stories tonight!",
-      "voiceText": "HEY EVERYONE! Welcome to KBTV! We've got AMAZING stories tonight!",
-      "mood": "energized"
+      "id": "opening_ghosts_5",
+      "text": "*chuckle* Welcome back to KBTV. Tonight, we're delving into the afterlife. Call in your ghost stories.",
+      "voiceText": "*chuckle* Welcome back to KBTV. Tonight, we're delving into the afterlife. Call in your ghost stories.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "opening_amused_3",
-      "text": "Welcome back, night owls. This is Vern Tell coming to you live. Tonight we're going deep.",
-      "voiceText": "Welcome back, night owls. This is Vern Tell coming to you live. Tonight we're going deep.",
-      "mood": "amused"
+      "id": "opening_ghosts_6",
+      "text": "The witching hour is upon us, and on KBTV, we're discussing spectral visitors. I'm Vern Tell.",
+      "voiceText": "The witching hour is upon us, and on KBTV, we're discussing spectral visitors. I'm Vern Tell.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "opening_neutral_3",
-      "text": "Welcome back, night owls. This is Vern Tell coming to you live from the KBTV studios. Tonight, we're going deep.",
-      "voiceText": "Welcome back, night owls. This is Vern Tell coming to you live from the KBTV studios. Tonight, we're going deep.",
-      "mood": "neutral"
+      "id": "opening_ghosts_7",
+      "text": "Good evening. KBTV, Beyond the Veil AM. Tonight: Ghosts. I'm your host Vern, and the dead might be listening.",
+      "voiceText": "Good evening. KBTV, Beyond the Veil AM. Tonight: Ghosts. I'm your host Vern, and the dead might be listening.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "opening_focused_3",
-      "text": "Good evening. Welcome to KBTV, where we examine the evidence systematically.",
-      "voiceText": "Good evening. Welcome to KBTV, where we examine the evidence systematically.",
-      "mood": "focused"
+      "id": "opening_ghosts_8",
+      "text": "Welcome to KBTV! If you've encountered spirits, tonight's your night. I'm Vern, and we're going to uncover the truth.",
+      "voiceText": "Welcome to KBTV! If you've encountered spirits, tonight's your night. I'm Vern, and we're going to uncover the truth.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "opening_gruff_3",
-      "text": "Welcome to KBTV. Keep it brief, folks.",
-      "voiceText": "Welcome to KBTV. Keep it brief, folks.",
-      "mood": "gruff"
+      "id": "opening_ghosts_9",
+      "text": "*sigh* KBTV again, talking ghosts. I'm Vern Tell, and some nights I wonder if they're watching us right now.",
+      "voiceText": "*sigh* KBTV again, talking ghosts. I'm Vern Tell, and some nights I wonder if they're watching us right now.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "opening_irritated_3",
-      "text": "Welcome to KBTV. Don't waste my time with nonsense.",
-      "voiceText": "Welcome to KBTV. Don't waste my time with nonsense.",
-      "mood": "irritated"
+      "id": "opening_ghosts_10",
+      "text": "You're listening to KBTV, where we investigate the paranormal. Tonight, ghosts. I'm Vern, and the veil is thin.",
+      "voiceText": "You're listening to KBTV, where we investigate the paranormal. Tonight, ghosts. I'm Vern, and the veil is thin.",
+      "mood": "neutral",
+      "topic": "ghosts"
     },
     {
-      "id": "opening_tired_3",
-      "text": "*yawn* Welcome to KBTV. Another long night.",
-      "voiceText": "*yawn* Welcome to KBTV. Another long night.",
-      "mood": "tired"
+      "id": "opening_cryptids_1",
+      "text": "Good evening, cryptozoologists! KBTV is here to discuss the creatures that science denies exist.",
+      "voiceText": "Good evening, cryptozoologists! KBTV is here to discuss the creatures that science denies exist.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "opening_energized_4",
-      "text": "Welcome to KBTV! The witching hour approaches, and so do the callers! Let's see what's out there tonight!",
-      "voiceText": "Welcome to KBTV! The witching hour approaches, and so do the callers! Let's see what's out there tonight!",
-      "mood": "energized"
+      "id": "opening_cryptids_2",
+      "text": "Welcome to KBTV, where we hunt for bigfoot and his friends. I'm Vern Tell, your guide through the unknown.",
+      "voiceText": "Welcome to KBTV, where we hunt for bigfoot and his friends. I'm Vern Tell, your guide through the unknown.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "opening_amused_4",
-      "text": "You're listening to KBTV, where we pull back the curtain. Let's get started.",
-      "voiceText": "You're listening to KBTV, where we pull back the curtain. Let's get started.",
-      "mood": "amused"
+      "id": "opening_cryptids_3",
+      "text": "*grunt* Midnight on KBTV. Cryptids tonight. Sasquatch, chupacabra, the works. Let's talk.",
+      "voiceText": "*grunt* Midnight on KBTV. Cryptids tonight. Sasquatch, chupacabra, the works. Let's talk.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "opening_neutral_4",
-      "text": "You're listening to KBTV, where we pull back the curtain on what they don't want you to know. Let's get started.",
-      "voiceText": "You're listening to KBTV, where we pull back the curtain on what they don't want you to know. Let's get started.",
-      "mood": "neutral"
+      "id": "opening_cryptids_4",
+      "text": "You think cryptids are just stories? On KBTV, we investigate. I'm Vern, and I've got evidence.",
+      "voiceText": "You think cryptids are just stories? On KBTV, we investigate. I'm Vern, and I've got evidence.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "opening_focused_4",
-      "text": "Welcome to KBTV. Tonight we explore the boundaries of human knowledge.",
-      "voiceText": "Welcome to KBTV. Tonight we explore the boundaries of human knowledge.",
-      "mood": "focused"
+      "id": "opening_cryptids_5",
+      "text": "*chuckle* Welcome to KBTV. Tonight, we're tracking elusive beasts. Call in your sightings.",
+      "voiceText": "*chuckle* Welcome to KBTV. Tonight, we're tracking elusive beasts. Call in your sightings.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "opening_gruff_4",
-      "text": "KBTV. Let's hear what crazy stories are out there.",
-      "voiceText": "KBTV. Let's hear what crazy stories are out there.",
-      "mood": "gruff"
+      "id": "opening_cryptids_6",
+      "text": "The witching hour, and KBTV is exploring cryptids. I'm Vern Tell, ready for your wild tales.",
+      "voiceText": "The witching hour, and KBTV is exploring cryptids. I'm Vern Tell, ready for your wild tales.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "opening_irritated_4",
-      "text": "Welcome to KBTV. The witching hour and all the lunatics come out.",
-      "voiceText": "Welcome to KBTV. The witching hour and all the lunatics come out.",
-      "mood": "irritated"
+      "id": "opening_cryptids_7",
+      "text": "Good evening. KBTV, Beyond the Veil AM. Tonight: Cryptids. I'm Vern, and the wilderness hides many secrets.",
+      "voiceText": "Good evening. KBTV, Beyond the Veil AM. Tonight: Cryptids. I'm Vern, and the wilderness hides many secrets.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "opening_tired_4",
-      "text": "The witching hour approaches. Welcome to KBTV.",
-      "voiceText": "The witching hour approaches. Welcome to KBTV.",
+      "id": "opening_cryptids_8",
+      "text": "Welcome to KBTV! Bigfoot believers, this show's for you. I'm Vern, and we're going deep into the woods.",
+      "voiceText": "Welcome to KBTV! Bigfoot believers, this show's for you. I'm Vern, and we're going deep into the woods.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "opening_exhausted_1",
-      "text": "*yawn* Good evening, folks... if you can call it that. You're tuned to KBTV, Beyond the Veil AM. I'm Vern Tell, and... uh, we've got some stuff lined up tonight. I think.",
-      "voiceText": "*yawn* Good evening, folks... if you can call it that. You're tuned to KBTV, Beyond the Veil AM. I'm Vern Tell, and... uh, we've got some stuff lined up tonight. I think.",
-      "mood": "exhausted"
+      "id": "opening_cryptids_9",
+      "text": "*sigh* Another KBTV show on cryptids. I'm Vern Tell, and sometimes I think they might be out there.",
+      "voiceText": "*sigh* Another KBTV show on cryptids. I'm Vern Tell, and sometimes I think they might be out there.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "opening_exhausted_2",
-      "text": "Alright, it's midnight... or is it? Welcome to KBTV. I'm Vern, your host who's barely hanging on. Phone lines are open, but don't expect miracles.",
-      "voiceText": "Alright, it's midnight... or is it? Welcome to KBTV. I'm Vern, your host who's barely hanging on. Phone lines are open, but don't expect miracles.",
-      "mood": "exhausted"
+      "id": "opening_cryptids_10",
+      "text": "You're listening to KBTV, where we uncover hidden animals. Tonight, cryptids. I'm Vern, and the hunt is on.",
+      "voiceText": "You're listening to KBTV, where we uncover hidden animals. Tonight, cryptids. I'm Vern, and the hunt is on.",
+      "mood": "neutral",
+      "topic": "cryptids"
     },
     {
-      "id": "opening_exhausted_3",
-      "text": "*grunt* Good evening, truth-seekers. This is KBTV. I'm Vern Tell, feeling like I've been up for days chasing shadows. Let's get this show started.",
-      "voiceText": "*grunt* Good evening, truth-seekers. This is KBTV. I'm Vern Tell, feeling like I've been up for days chasing shadows. Let's get this show started.",
-      "mood": "exhausted"
+      "id": "opening_conspiracies_1",
+      "text": "Good evening, truth-seekers! KBTV exposes the conspiracies that control our world.",
+      "voiceText": "Good evening, truth-seekers! KBTV exposes the conspiracies that control our world.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "opening_exhausted_4",
-      "text": "It's that time again... midnight on the dial. Welcome to KBTV. I'm your host Vern, and honestly, I'm just trying to make it through tonight without falling asleep.",
-      "voiceText": "It's that time again... midnight on the dial. Welcome to KBTV. I'm your host Vern, and honestly, I'm just trying to make it through tonight without falling asleep.",
-      "mood": "exhausted"
+      "id": "opening_conspiracies_2",
+      "text": "Welcome to KBTV, where we unravel the web of lies. I'm Vern Tell, your conspiracy host.",
+      "voiceText": "Welcome to KBTV, where we unravel the web of lies. I'm Vern Tell, your conspiracy host.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "opening_depressed_1",
-      "text": "Good evening... I guess. You're listening to KBTV, Beyond the Veil AM. I'm Vern Tell, and... well, we've got callers waiting. Or something.",
-      "voiceText": "Good evening... I guess. You're listening to KBTV, Beyond the Veil AM. I'm Vern Tell, and... well, we've got callers waiting. Or something.",
-      "mood": "depressed"
+      "id": "opening_conspiracies_3",
+      "text": "*grunt* It's midnight. KBTV time. Conspiracies tonight. Government secrets, shadow organizations. Spill it.",
+      "voiceText": "*grunt* It's midnight. KBTV time. Conspiracies tonight. Government secrets, shadow organizations. Spill it.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "opening_depressed_2",
-      "text": "It's midnight. Welcome to KBTV. I'm your host, Vern. Don't expect much excitement tonight. The truth is out there, but so is the darkness.",
-      "voiceText": "It's midnight. Welcome to KBTV. I'm your host, Vern. Don't expect much excitement tonight. The truth is out there, but so is the darkness.",
-      "mood": "depressed"
+      "id": "opening_conspiracies_4",
+      "text": "You want the real story? On KBTV, we dig into conspiracies. I'm Vern, and nothing is as it seems.",
+      "voiceText": "You want the real story? On KBTV, we dig into conspiracies. I'm Vern, and nothing is as it seems.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "opening_depressed_3",
-      "text": "Good evening, folks. This is KBTV. I'm Vern Tell, feeling about as hopeful as a black hole. Phone lines are open, but what's the point?",
-      "voiceText": "Good evening, folks. This is KBTV. I'm Vern Tell, feeling about as hopeful as a black hole. Phone lines are open, but what's the point?",
-      "mood": "depressed"
+      "id": "opening_conspiracies_5",
+      "text": "*chuckle* Welcome back to KBTV. Tonight, we're connecting the dots. Call in your theories.",
+      "voiceText": "*chuckle* Welcome back to KBTV. Tonight, we're connecting the dots. Call in your theories.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "opening_depressed_4",
-      "text": "Welcome to KBTV, Beyond the Veil. I'm your host Vern, and let's just say tonight's show might be a downer. The veil's thin, but so is my patience.",
-      "voiceText": "Welcome to KBTV, Beyond the Veil. I'm your host Vern, and let's just say tonight's show might be a downer. The veil's thin, but so is my patience.",
-      "mood": "depressed"
+      "id": "opening_conspiracies_6",
+      "text": "The witching hour, and KBTV is on conspiracies. I'm Vern Tell, exposing the hidden agenda.",
+      "voiceText": "The witching hour, and KBTV is on conspiracies. I'm Vern Tell, exposing the hidden agenda.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "opening_angry_1",
-      "text": "Good evening, you bunch of truth-seekers! This is KBTV, Beyond the Veil AM, and I'm Vern Tell, ready to tear through the lies tonight!",
-      "voiceText": "Good evening, you bunch of truth-seekers! This is KBTV, Beyond the Veil AM, and I'm Vern Tell, ready to tear through the lies tonight!",
-      "mood": "angry"
+      "id": "opening_conspiracies_7",
+      "text": "Good evening. KBTV, Beyond the Veil AM. Tonight: Conspiracies. I'm Vern, and the truth will set us free.",
+      "voiceText": "Good evening. KBTV, Beyond the Veil AM. Tonight: Conspiracies. I'm Vern, and the truth will set us free.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "opening_angry_2",
-      "text": "It's midnight on the dial, and you know what that means? Welcome to KBTV! I'm your host Vern, and I'm pissed off about what's really going on out there!",
-      "voiceText": "It's midnight on the dial, and you know what that means? Welcome to KBTV! I'm your host Vern, and I'm pissed off about what's really going on out there!",
-      "mood": "angry"
+      "id": "opening_conspiracies_8",
+      "text": "Welcome to KBTV! If you suspect a cover-up, tonight's for you. I'm Vern, and we're blowing it wide open.",
+      "voiceText": "Welcome to KBTV! If you suspect a cover-up, tonight's for you. I'm Vern, and we're blowing it wide open.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "opening_angry_3",
-      "text": "*grunt* Good evening, folks. You're tuned to KBTV. I'm Vern Tell, and let me tell you, someone's been hiding the truth, and it's making me furious!",
-      "voiceText": "*grunt* Good evening, folks. You're tuned to KBTV. I'm Vern Tell, and let me tell you, someone's been hiding the truth, and it's making me furious!",
-      "mood": "angry"
+      "id": "opening_conspiracies_9",
+      "text": "*sigh* KBTV, another night of conspiracies. I'm Vern Tell, and the lies are everywhere.",
+      "voiceText": "*sigh* KBTV, another night of conspiracies. I'm Vern Tell, and the lies are everywhere.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "opening_angry_4",
-      "text": "Welcome to KBTV, Beyond the Veil! I'm your host Vern, and I'm done playing nice. The conspiracies are piling up, and I'm ready to expose them all!",
-      "voiceText": "Welcome to KBTV, Beyond the Veil! I'm your host Vern, and I'm done playing nice. The conspiracies are piling up, and I'm ready to expose them all!",
-      "mood": "angry"
+      "id": "opening_conspiracies_10",
+      "text": "You're listening to KBTV, where we reveal the secrets. Tonight, conspiracies. I'm Vern, and the rabbit hole is deep.",
+      "voiceText": "You're listening to KBTV, where we reveal the secrets. Tonight, conspiracies. I'm Vern, and the rabbit hole is deep.",
+      "mood": "neutral",
+      "topic": "conspiracies"
     },
     {
-      "id": "opening_frustrated_1",
-      "text": "Good evening. KBTV, Beyond the Veil AM here. I'm Vern Tell, and honestly, I'm getting tired of all these half-baked stories.",
-      "voiceText": "Good evening. KBTV, Beyond the Veil AM here. I'm Vern Tell, and honestly, I'm getting tired of all these half-baked stories.",
-      "mood": "frustrated"
+      "id": "opening_open_1",
+      "text": "Good evening, seekers of truth! KBTV is on the air, ready for whatever comes through the phone lines.",
+      "voiceText": "Good evening, seekers of truth! KBTV is on the air, ready for whatever comes through the phone lines.",
+      "mood": "neutral",
+      "topic": "open"
     },
     {
-      "id": "opening_frustrated_2",
-      "text": "It's midnight. Welcome to KBTV. I'm your host Vern, trying to keep my cool while the world's conspiracies keep me up at night.",
-      "voiceText": "It's midnight. Welcome to KBTV. I'm your host Vern, trying to keep my cool while the world's conspiracies keep me up at night.",
-      "mood": "frustrated"
+      "id": "opening_open_2",
+      "text": "Welcome to KBTV, Beyond the Veil AM. I'm Vern Tell, and tonight could be about anything.",
+      "voiceText": "Welcome to KBTV, Beyond the Veil AM. I'm Vern Tell, and tonight could be about anything.",
+      "mood": "neutral",
+      "topic": "open"
     },
     {
-      "id": "opening_frustrated_3",
-      "text": "*sigh* Good evening, truth-seekers. This is KBTV. I'm Vern Tell, and let's just get through this show without any more nonsense.",
-      "voiceText": "*sigh* Good evening, truth-seekers. This is KBTV. I'm Vern Tell, and let's just get through this show without any more nonsense.",
-      "mood": "frustrated"
+      "id": "opening_open_3",
+      "text": "*grunt* Midnight. KBTV. Open lines, open minds. Let's see what the night brings.",
+      "voiceText": "*grunt* Midnight. KBTV. Open lines, open minds. Let's see what the night brings.",
+      "mood": "neutral",
+      "topic": "open"
     },
     {
-      "id": "opening_frustrated_4",
-      "text": "Welcome to KBTV, Beyond the Veil. I'm Vern, your frustrated host, wondering why people can't just tell it like it is.",
-      "voiceText": "Welcome to KBTV, Beyond the Veil. I'm Vern, your frustrated host, wondering why people can't just tell it like it is.",
-      "mood": "frustrated"
+      "id": "opening_open_4",
+      "text": "You never know what we'll talk about on KBTV. I'm Vern, and the unknown awaits.",
+      "voiceText": "You never know what we'll talk about on KBTV. I'm Vern, and the unknown awaits.",
+      "mood": "neutral",
+      "topic": "open"
     },
     {
-      "id": "opening_obsessive_1",
-      "text": "Good evening, seekers of truth! KBTV, Beyond the Veil AM! I'm Vern Tell, and I see the connections everywhere – the government's hiding something huge!",
-      "voiceText": "Good evening, seekers of truth! KBTV, Beyond the Veil AM! I'm Vern Tell, and I see the connections everywhere – the government's hiding something huge!",
-      "mood": "obsessive"
+      "id": "opening_open_5",
+      "text": "*chuckle* Welcome to KBTV. Tonight, anything goes. Call in your mysteries.",
+      "voiceText": "*chuckle* Welcome to KBTV. Tonight, anything goes. Call in your mysteries.",
+      "mood": "neutral",
+      "topic": "open"
     },
     {
-      "id": "opening_obsessive_2",
-      "text": "It's midnight on the dial, and the patterns are clear! Welcome to KBTV! I'm your host Vern, obsessed with uncovering the web of lies!",
-      "voiceText": "It's midnight on the dial, and the patterns are clear! Welcome to KBTV! I'm your host Vern, obsessed with uncovering the web of lies!",
-      "mood": "obsessive"
+      "id": "opening_open_6",
+      "text": "The witching hour on KBTV. I'm Vern Tell, ready for your stories, whatever they may be.",
+      "voiceText": "The witching hour on KBTV. I'm Vern Tell, ready for your stories, whatever they may be.",
+      "mood": "neutral",
+      "topic": "open"
     },
     {
-      "id": "opening_obsessive_3",
-      "text": "*chuckle* Good evening, folks. This is KBTV. I'm Vern Tell, and I've been connecting the dots – aliens, bigfoot, it's all linked!",
-      "voiceText": "*chuckle* Good evening, folks. This is KBTV. I'm Vern Tell, and I've been connecting the dots – aliens, bigfoot, it's all linked!",
-      "mood": "obsessive"
+      "id": "opening_open_7",
+      "text": "Good evening. KBTV, Beyond the Veil AM. Open topic tonight. I'm Vern, and the truth is out there.",
+      "voiceText": "Good evening. KBTV, Beyond the Veil AM. Open topic tonight. I'm Vern, and the truth is out there.",
+      "mood": "neutral",
+      "topic": "open"
     },
     {
-      "id": "opening_obsessive_4",
-      "text": "Welcome to KBTV, Beyond the Veil! I'm Vern, and I can't stop thinking about the grand conspiracy – it's bigger than you know!",
-      "voiceText": "Welcome to KBTV, Beyond the Veil! I'm Vern, and I can't stop thinking about the grand conspiracy – it's bigger than you know!",
-      "mood": "obsessive"
+      "id": "opening_open_8",
+      "text": "Welcome to KBTV! Whatever's on your mind, tonight's the night. I'm Vern, listening.",
+      "voiceText": "Welcome to KBTV! Whatever's on your mind, tonight's the night. I'm Vern, listening.",
+      "mood": "neutral",
+      "topic": "open"
     },
     {
-      "id": "opening_manic_1",
-      "text": "GOOD EVENING, TRUTH-SEEKERS! KBTV, BEYOND THE VEIL AM! I'M VERN TELL, AND EVERYTHING IS CONNECTED! THE SHOW'S STARTING NOW!",
-      "voiceText": "GOOD EVENING, TRUTH-SEEKERS! KBTV, BEYOND THE VEIL AM! I'M VERN TELL, AND EVERYTHING IS CONNECTED! THE SHOW'S STARTING NOW!",
-      "mood": "manic"
+      "id": "opening_open_9",
+      "text": "*sigh* Another open night on KBTV. I'm Vern Tell, and who knows what we'll uncover.",
+      "voiceText": "*sigh* Another open night on KBTV. I'm Vern Tell, and who knows what we'll uncover.",
+      "mood": "neutral",
+      "topic": "open"
     },
     {
-      "id": "opening_manic_2",
-      "text": "IT'S MIDNIGHT! WELCOME TO KBTV! I'M YOUR HOST VERN, AND THE ENERGY IS FLOWING! CALLERS, ALIENS, CONSPIRACIES – IT'S ALL HAPPENING!",
-      "voiceText": "IT'S MIDNIGHT! WELCOME TO KBTV! I'M YOUR HOST VERN, AND THE ENERGY IS FLOWING! CALLERS, ALIENS, CONSPIRACIES – IT'S ALL HAPPENING!",
-      "mood": "manic"
-    },
-    {
-      "id": "opening_manic_3",
-      "text": "*laughs maniacally* GOOD EVENING, FOLKS! THIS IS KBTV! I'M VERN TELL, AND I CAN'T STOP THINKING ABOUT ALL THE INCREDIBLE STORIES WE'LL HEAR!",
-      "voiceText": "*laughs maniacally* GOOD EVENING, FOLKS! THIS IS KBTV! I'M VERN TELL, AND I CAN'T STOP THINKING ABOUT ALL THE INCREDIBLE STORIES WE'LL HEAR!",
-      "mood": "manic"
-    },
-    {
-      "id": "opening_manic_4",
-      "text": "WELCOME TO KBTV, BEYOND THE VEIL! I'M VERN, AND I'M SO EXCITED I CAN BARELY CONTAIN MYSELF! THE TRUTH IS BURSTING OUT!",
-      "voiceText": "WELCOME TO KBTV, BEYOND THE VEIL! I'M VERN, AND I'M SO EXCITED I CAN BARELY CONTAIN MYSELF! THE TRUTH IS BURSTING OUT!",
-      "mood": "manic"
+      "id": "opening_open_10",
+      "text": "You're listening to KBTV, where we explore the unexplained. Tonight, open lines. I'm Vern, and let's begin.",
+      "voiceText": "You're listening to KBTV, where we explore the unexplained. Tonight, open lines. I'm Vern, and let's begin.",
+      "mood": "neutral",
+      "topic": "open"
     }
   ]
 }
