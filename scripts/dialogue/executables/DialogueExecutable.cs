@@ -179,6 +179,14 @@ namespace KBTV.Dialogue
                     GD.Print($"DialogueExecutable: Publishing started event for single Vern line '{item.Text}' (audioDuration: {audioDuration})");
                     _eventBus.Publish(startedEvent);
                     
+                    // Apply penalty for off-topic remarks when they start playing
+                    if (_lineType == VernLineType.OffTopicRemark)
+                    {
+                        GD.Print("DialogueExecutable: Applying off-topic remark penalty");
+                        var vernStats = _stateManager?.GameStateManager?.VernStats;
+                        vernStats?.ApplyOffTopicRemarkPenalty();
+                    }
+                    
                     if (!string.IsNullOrEmpty(_audioPath))
                     {
                         await PlayAudioAsync(_audioPath, localToken);

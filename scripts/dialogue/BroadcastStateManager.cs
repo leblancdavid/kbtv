@@ -76,6 +76,9 @@ namespace KBTV.Dialogue
         public bool _adBreakSequenceRunning = false;
         public AsyncBroadcastState _previousState = AsyncBroadcastState.Idle;
         
+        // Public accessor for GameStateManager
+        public IGameStateManager GameStateManager => _gameStateManager;
+        
         // Ad break tracking for sequential execution
         private int _currentAdIndex = 0;
         private int _totalAdsForBreak = 0;

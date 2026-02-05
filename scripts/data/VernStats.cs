@@ -302,16 +302,27 @@ namespace KBTV.Data
  			}
  		}
 
- 		/// <summary>
- 		/// Apply penalty for off-topic callers (hurts VIBE/listener engagement).
- 		/// </summary>
- 		public void ApplyOffTopicPenalty()
- 		{
- 			// VIBE penalty: -5 base + proportional to current Emotional/Mental
- 			float vibePenalty = -5f;
- 			_emotional.Modify(vibePenalty * 0.6f);  // -3 Emotional
- 			_mental.Modify(vibePenalty * 0.4f);     // -2 Mental
- 		}
+  		/// <summary>
+  		/// Apply penalty for off-topic callers (hurts VIBE/listener engagement).
+  		/// </summary>
+  		public void ApplyOffTopicPenalty()
+  		{
+  			// VIBE penalty: -5 base + proportional to current Emotional/Mental
+  			float vibePenalty = -5f;
+  			_emotional.Modify(vibePenalty * 0.6f);  // -3 Emotional
+  			_mental.Modify(vibePenalty * 0.4f);     // -2 Mental
+  		}
+
+  		/// <summary>
+  		/// Apply penalty for off-topic remark acknowledgment (hurts VIBE/listener engagement).
+  		/// </summary>
+  		public void ApplyOffTopicRemarkPenalty()
+  		{
+  			// VIBE penalty: -5 base + proportional to current Emotional/Mental
+  			float vibePenalty = -5f;
+  			_emotional.Modify(vibePenalty * 0.6f);  // -3 Emotional
+  			_mental.Modify(vibePenalty * 0.4f);     // -2 Mental
+  		}
 
  		/// <summary>
  		/// Apply dead air penalty with consecutive multiplier.

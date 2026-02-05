@@ -79,7 +79,7 @@ namespace KBTV.Callers
 
         [Export] private Godot.Collections.Array<string> _keywords = new Godot.Collections.Array<string>();
 
-        [Export(PropertyHint.Range, "0,1,0.01")] private float _offTopicRate = 0.1f;
+        [Export(PropertyHint.Range, "0,1,0.01")] private float _offTopicRate = 0.2f;
         [Export(PropertyHint.Range, "0,1,0.01")] private float _deceptionRate = 0.2f;
         [Export] private float _qualityMultiplier = 1f;
 

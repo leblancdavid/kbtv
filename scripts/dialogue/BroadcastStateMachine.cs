@@ -36,6 +36,9 @@ namespace KBTV.Dialogue
         private readonly DeadAirManager _deadAirManager;
         private readonly ConversationStatTracker _statTracker;
 
+        // Off-topic remark tracking
+        private bool _pendingOffTopicRemark = false;
+
         public BroadcastStateMachine(
             ICallerRepository callerRepository,
             IArcRepository arcRepository,
@@ -335,6 +338,8 @@ namespace KBTV.Dialogue
 
                 var endResult = _callerRepository.EndOnAir();
                 GD.Print($"BroadcastStateMachine: EndOnAir result - Success: {endResult.IsSuccess}, OnHoldCount: {_callerRepository.OnHoldCallers.Count}");
+                
+                Caller? caller = null;
                 if (endResult.IsSuccess)
                 {
                     GD.Print($"BroadcastStateMachine: Ended on-air caller {endResult.Value.Name}");
@@ -344,20 +349,30 @@ namespace KBTV.Dialogue
                      var vernStats = _gameStateManager?.VernStats;
                      if (vernStats != null)
                      {
-                         var caller = endResult.Value;
-                         
+                        
                          // Apply penalties only (stat effects already applied gradually)
+                         caller = endResult.Value;
                          if (caller.IsOffTopic)
+                         {
                              vernStats.ApplyOffTopicPenalty();
-                             
+                             _pendingOffTopicRemark = true;
+                         }
+                         
                          if (caller.Legitimacy == CallerLegitimacy.Fake)
                              vernStats.ApplyHoaxerFooledPenalty();
                      }
-                }
-
+                 }
+                               
                 var shouldPlayBetween = ShouldPlayBetweenCallers();
                 var shouldPlayDead = ShouldPlayDeadAir();
                 GD.Print($"BroadcastStateMachine: ShouldPlayBetweenCallers: {shouldPlayBetween}, ShouldPlayDeadAir: {shouldPlayDead}");
+                
+                // If we have a pending off-topic remark, stay in conversation state to play it
+                if (_pendingOffTopicRemark)
+                {
+                    GD.Print("BroadcastStateMachine: Pending off-topic remark, staying in Conversation state");
+                    return AsyncBroadcastState.Conversation;
+                }
                 
                 if (shouldPlayBetween)
                 {
@@ -416,6 +431,28 @@ namespace KBTV.Dialogue
         private BroadcastExecutable CreateConversationExecutable(AsyncBroadcastState currentState)
         {
             GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Starting - OnAirCaller: {_callerRepository.OnAirCaller?.Name ?? "null"}, OnHold: {_callerRepository.OnHoldCallers.Count}, Incoming: {_callerRepository.IncomingCallers.Count}, IsOnAir: {_callerRepository.IsOnAir}");
+            
+            // Check for pending off-topic remark first
+            if (_pendingOffTopicRemark)
+            {
+                GD.Print("BroadcastStateMachine.CreateConversationExecutable: Playing pending off-topic remark");
+                _pendingOffTopicRemark = false;
+                
+                // Get mood-appropriate remark
+                var vernStats = _gameStateManager?.VernStats;
+                var mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+                var remark = _vernDialogue.GetOffTopicRemark(mood);
+                if (remark != null)
+                {
+                    var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{remark.Id}.mp3";
+                    audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_OffTopicRemark");
+                    return new DialogueExecutable("off_topic_remark", remark.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.OffTopicRemark, _stateManager, _statTracker);
+                }
+                else
+                {
+                    GD.Print("BroadcastStateMachine.CreateConversationExecutable: No off-topic remark found, skipping");
+                }
+            }
             
             if (!_stateManager._hasPlayedVernOpening)
             {
