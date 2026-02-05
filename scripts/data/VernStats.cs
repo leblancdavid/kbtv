@@ -161,17 +161,17 @@ namespace KBTV.Data
 		public VernMoodType CalculateMoodType()
 		{
 			// Priority order: extreme negative first
-			if (_physical.Value < -66f && _emotional.Value < -33f) return VernMoodType.Exhausted;
-			if (_emotional.Value < -66f && _mental.Value < -33f) return VernMoodType.Depressed;
-			if (_emotional.Value < -66f && _physical.Value > -33f) return VernMoodType.Angry;
-			if (_emotional.Value >= -66f && _emotional.Value < -33f && _mental.Value >= -33f && _mental.Value <= 33f) return VernMoodType.Frustrated;
-			if (_physical.Value >= -66f && _physical.Value < -33f && _emotional.Value >= -33f && _emotional.Value <= 33f) return VernMoodType.Tired;
-			if (_mental.Value > 66f && _emotional.Value >= -33f && _emotional.Value <= 66f) return VernMoodType.Obsessive;
-			if (_physical.Value > 66f && _emotional.Value > 33f) return VernMoodType.Manic;
-			if (_physical.Value >= 33f && _physical.Value <= 66f && _emotional.Value >= 33f && _emotional.Value <= 66f) return VernMoodType.Energized;
-			if (_emotional.Value >= 33f && _emotional.Value <= 66f && _mental.Value >= -33f && _mental.Value <= 66f) return VernMoodType.Amused;
-			if (_mental.Value >= 33f && _mental.Value <= 66f && _physical.Value >= -33f && _physical.Value <= 66f) return VernMoodType.Focused;
-			if (_emotional.Value >= -33f && _emotional.Value < 0f && _mental.Value >= 33f && _mental.Value <= 66f && _physical.Value >= -33f && _physical.Value <= 66f) return VernMoodType.Gruff;
+			if (_physical.Value < -50f && _emotional.Value < -20f) return VernMoodType.Exhausted;
+			if (_emotional.Value < -50f && _mental.Value < -20f) return VernMoodType.Depressed;
+			if (_emotional.Value < -50f && _physical.Value > -20f) return VernMoodType.Angry;
+			if (_emotional.Value >= -50f && _emotional.Value < -20f && _mental.Value >= -20f && _mental.Value <= 20f) return VernMoodType.Frustrated;
+			if (_physical.Value >= -50f && _physical.Value < -20f && _emotional.Value >= -20f && _emotional.Value <= 20f) return VernMoodType.Tired;
+			if (_mental.Value > 50f && _emotional.Value >= -20f && _emotional.Value <= 50f) return VernMoodType.Obsessive;
+			if (_physical.Value > 50f && _emotional.Value > 20f) return VernMoodType.Manic;
+			if (_physical.Value >= 20f && _physical.Value <= 50f && _emotional.Value >= 20f && _emotional.Value <= 50f) return VernMoodType.Energized;
+			if (_emotional.Value >= 20f && _emotional.Value <= 50f && _mental.Value >= -20f && _mental.Value <= 50f) return VernMoodType.Amused;
+			if (_mental.Value >= 20f && _mental.Value <= 50f && _physical.Value >= -20f && _physical.Value <= 50f) return VernMoodType.Focused;
+			if (_emotional.Value >= -20f && _emotional.Value < 0f && _mental.Value >= 20f && _mental.Value <= 50f && _physical.Value >= -20f && _physical.Value <= 50f) return VernMoodType.Gruff;
 			
 			// Default
 			return VernMoodType.Neutral;

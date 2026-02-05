@@ -8,43 +8,43 @@
     /// </summary>
     public enum VernMoodType
     {
-        /// <summary>Physical < -66 AND Emotional < -33 - Completely drained, barely coherent</summary>
+        /// <summary>Physical < -50 AND Emotional < -20 - Completely drained, barely coherent</summary>
         Exhausted,
 
-        /// <summary>Emotional < -66 AND Mental < -33 - Deep sadness, hopeless, withdrawn</summary>
+        /// <summary>Emotional < -50 AND Mental < -20 - Deep sadness, hopeless, withdrawn</summary>
         Depressed,
 
-        /// <summary>Emotional < -66 AND Physical > -33 - Hostile, confrontational, high energy rage</summary>
+        /// <summary>Emotional < -50 AND Physical > -20 - Hostile, confrontational, high energy rage</summary>
         Angry,
 
-        /// <summary>Emotional -66 to -33 AND Mental -33 to +33 - Annoyed, short-tempered, distracted</summary>
+        /// <summary>Emotional -50 to -20 AND Mental -20 to +20 - Annoyed, short-tempered, distracted</summary>
         Frustrated,
 
-        /// <summary>Physical -66 to -33 AND Emotional -33 to +33 - Low energy, dismissive, needs rest</summary>
+        /// <summary>Physical -50 to -20 AND Emotional -20 to +20 - Low energy, dismissive, needs rest</summary>
         Tired,
 
-        /// <summary>Mental < -33 AND Emotional -33 to +33 AND Physical -33 to +33 - Annoyed by details, mentally fatigued</summary>
+        /// <summary>Mental < -20 AND Emotional -20 to +20 AND Physical -20 to +20 - Annoyed by details, mentally fatigued</summary>
         Irritated,
 
-        /// <summary>Mental > +66 AND Emotional -33 to +66 - Hyper-focused, conspiracy-prone, intense</summary>
+        /// <summary>Mental > +50 AND Emotional -20 to +50 - Hyper-focused, conspiracy-prone, intense</summary>
         Obsessive,
 
-        /// <summary>Physical > +66 AND Emotional > +33 - Over-excited, erratic, high-energy enthusiasm</summary>
+        /// <summary>Physical > +50 AND Emotional > +20 - Over-excited, erratic, high-energy enthusiasm</summary>
         Manic,
 
-        /// <summary>Physical +33 to +66 AND Emotional +33 to +66 - Enthusiastic, quick-witted, engaging</summary>
+        /// <summary>Physical +20 to +50 AND Emotional +20 to +50 - Enthusiastic, quick-witted, engaging</summary>
         Energized,
 
-        /// <summary>Emotional +33 to +66 AND Mental -33 to +66 - Playful, entertained, light-hearted</summary>
+        /// <summary>Emotional +20 to +50 AND Mental -20 to +50 - Playful, entertained, light-hearted</summary>
         Amused,
 
-        /// <summary>Mental +33 to +66 AND Physical -33 to +66 - Analytical, detail-oriented, methodical</summary>
+        /// <summary>Mental +20 to +50 AND Physical -20 to +50 - Analytical, detail-oriented, methodical</summary>
         Focused,
 
-        /// <summary>Emotional -33 to 0 AND Mental +33 to +66 AND Physical -33 to +66 - Grumpy but competent, professional cynicism</summary>
+        /// <summary>Emotional -20 to 0 AND Mental +20 to +50 AND Physical -20 to +50 - Grumpy but competent, professional cynicism</summary>
         Gruff,
 
-        /// <summary>All stats -33 to +33 - Professional, balanced, standard hosting mode</summary>
+        /// <summary>All stats -20 to +20 - Professional, balanced, standard hosting mode</summary>
         Neutral
     }
 }

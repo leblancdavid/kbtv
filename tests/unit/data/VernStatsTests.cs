@@ -108,8 +108,8 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Exhausted_ExtremeNegativePhysicalAndEmotional()
         {
-            _vernStats.Physical.SetValue(-70f);  // Below -66
-            _vernStats.Emotional.SetValue(-40f); // Below -33
+            _vernStats.Physical.SetValue(-60f);  // Below -50
+            _vernStats.Emotional.SetValue(-30f); // Below -20
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -119,8 +119,8 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Depressed_ExtremeNegativeEmotionalAndMental()
         {
-            _vernStats.Emotional.SetValue(-70f); // Below -66
-            _vernStats.Mental.SetValue(-40f);    // Below -33
+            _vernStats.Emotional.SetValue(-60f); // Below -50
+            _vernStats.Mental.SetValue(-30f);    // Below -20
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -130,8 +130,8 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Angry_ExtremeNegativeEmotional()
         {
-            _vernStats.Emotional.SetValue(-70f); // Below -66
-            _vernStats.Physical.SetValue(-30f);  // Above -33
+            _vernStats.Emotional.SetValue(-60f); // Below -50
+            _vernStats.Physical.SetValue(-15f);  // Above -20
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -141,8 +141,8 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Frustrated_ModerateNegativeEmotional()
         {
-            _vernStats.Emotional.SetValue(-50f); // -66 to -33
-            _vernStats.Mental.SetValue(0f);      // -33 to +33
+            _vernStats.Emotional.SetValue(-35f); // -50 to -20
+            _vernStats.Mental.SetValue(0f);      // -20 to +20
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -152,8 +152,8 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Tired_ModerateNegativePhysical()
         {
-            _vernStats.Physical.SetValue(-50f);  // -66 to -33
-            _vernStats.Emotional.SetValue(0f);   // -33 to +33
+            _vernStats.Physical.SetValue(-35f);  // -50 to -20
+            _vernStats.Emotional.SetValue(0f);   // -20 to +20
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -163,9 +163,9 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Irritated_LowMental()
         {
-            _vernStats.Mental.SetValue(-50f);    // Below -33
-            _vernStats.Emotional.SetValue(0f);   // -33 to +33
-            _vernStats.Physical.SetValue(0f);    // -33 to +33
+            _vernStats.Mental.SetValue(-30f);    // Below -20
+            _vernStats.Emotional.SetValue(0f);   // -20 to +20
+            _vernStats.Physical.SetValue(0f);    // -20 to +20
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -175,8 +175,8 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Obsessive_ExtremePositiveMental()
         {
-            _vernStats.Mental.SetValue(70f);     // Above +66
-            _vernStats.Emotional.SetValue(0f);   // -33 to +66
+            _vernStats.Mental.SetValue(60f);     // Above +50
+            _vernStats.Emotional.SetValue(0f);   // -20 to +50
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -186,8 +186,8 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Manic_ExtremePositivePhysicalAndEmotional()
         {
-            _vernStats.Physical.SetValue(70f);   // Above +66
-            _vernStats.Emotional.SetValue(40f);  // Above +33
+            _vernStats.Physical.SetValue(60f);   // Above +50
+            _vernStats.Emotional.SetValue(30f);  // Above +20
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -197,8 +197,8 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Energized_ModeratePositivePhysicalAndEmotional()
         {
-            _vernStats.Physical.SetValue(50f);   // +33 to +66
-            _vernStats.Emotional.SetValue(50f);  // +33 to +66
+            _vernStats.Physical.SetValue(35f);   // +20 to +50
+            _vernStats.Emotional.SetValue(35f);  // +20 to +50
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -208,8 +208,8 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Amused_ModeratePositiveEmotional()
         {
-            _vernStats.Emotional.SetValue(50f);  // +33 to +66
-            _vernStats.Mental.SetValue(0f);      // -33 to +66
+            _vernStats.Emotional.SetValue(35f);  // +20 to +50
+            _vernStats.Mental.SetValue(0f);      // -20 to +50
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -219,8 +219,8 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Focused_ModeratePositiveMental()
         {
-            _vernStats.Mental.SetValue(50f);     // +33 to +66
-            _vernStats.Physical.SetValue(0f);    // -33 to +66
+            _vernStats.Mental.SetValue(35f);     // +20 to +50
+            _vernStats.Physical.SetValue(0f);    // -20 to +50
 
             var mood = _vernStats.CalculateMoodType();
 
@@ -230,9 +230,9 @@ namespace KBTV.Tests.Unit.Data
         [Test]
         public void CalculateMoodType_Gruff_SlightlyNegativeEmotionalAndPositiveMental()
         {
-            _vernStats.Emotional.SetValue(-20f); // -33 to 0
-            _vernStats.Mental.SetValue(50f);     // +33 to +66
-            _vernStats.Physical.SetValue(0f);    // -33 to +66
+            _vernStats.Emotional.SetValue(-10f); // -20 to 0
+            _vernStats.Mental.SetValue(35f);     // +20 to +50
+            _vernStats.Physical.SetValue(0f);    // -20 to +50
 
             var mood = _vernStats.CalculateMoodType();
 

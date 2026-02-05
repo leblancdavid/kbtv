@@ -127,15 +127,23 @@ Negative states take priority over positive states.
 
 ### Mood Triggers
 
-| Mood Type | Trigger Conditions | Vern Sounds Like |
-|-----------|-------------------|------------------|
-| **Tired** | Physical < -25 | Slow, flat, yawning, misses cues |
-| **Irritated** | Emotional < -25 | Snarky, dismissive, short |
-| **Energized** | Physical > +50 | Quick, enthusiastic, energetic |
-| **Amused** | Emotional > +50 | Laughing, playful, engaged |
-| **Focused** | Mental > +50 | Analytical, probing, sharp |
-| **Gruff** | Emotional < 0 AND Mental > 0 | Grumpy but competent |
-| **Neutral** | Default (none of above) | Professional, balanced |
+Moods are determined by complex combinations of stat thresholds. Priority order determines which mood takes precedence when multiple conditions are met.
+
+| Mood Type | Trigger Conditions | Priority |
+|-----------|-------------------|----------|
+| **Exhausted** | Physical < -50 AND Emotional < -20 | 1 (highest) |
+| **Depressed** | Emotional < -50 AND Mental < -20 | 2 |
+| **Angry** | Emotional < -50 AND Physical > -20 | 3 |
+| **Frustrated** | Emotional -50 to -20 AND Mental -20 to +20 | 4 |
+| **Tired** | Physical -50 to -20 AND Emotional -20 to +20 | 5 |
+| **Irritated** | Mental < -20 AND Emotional/Physical -20 to +20 | 6 |
+| **Obsessive** | Mental > +50 AND Emotional -20 to +50 | 7 |
+| **Manic** | Physical > +50 AND Emotional > +20 | 8 |
+| **Energized** | Physical +20 to +50 AND Emotional +20 to +50 | 9 |
+| **Amused** | Emotional +20 to +50 AND Mental -20 to +50 | 10 |
+| **Focused** | Mental +20 to +50 AND Physical -20 to +50 | 11 |
+| **Gruff** | Emotional -20 to 0 AND Mental +20 to +50 | 12 |
+| **Neutral** | All stats -20 to +20 | 13 (lowest/default) |
 
 ---
 
