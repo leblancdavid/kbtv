@@ -16,8 +16,8 @@ namespace KBTV.UI.Components
         private Label _topicLabel = null!;
         private Label _xpLabel = null!;
         private ProgressBar _xpBar = null!;
+        private Label _levelLabel = null!;
         private Label _levelUpLabel = null!;
-        private Label _tierLabel = null!;
         private ProgressBar _freshnessBar = null!;
         private Label _freshnessLabel = null!;
         private bool _uiCreated = false;
@@ -59,39 +59,45 @@ namespace KBTV.UI.Components
         private void OnTierChanged(XPTier oldTier, XPTier newTier)
         {
             GD.Print($"TopicProgressPanel: {_topicName} tier changed from {oldTier} to {newTier}");
-            UpdateTierText(newTier);
+            UpdateLevelText(newTier);
             UpdateXPBar(_topicXP.XP); // Update with new tier thresholds
         }
 
         private void UpdateXPBar(float currentXP)
         {
             var currentTier = _topicXP.CurrentTier;
-            var nextTierThreshold = TopicXP.GetTierThreshold(currentTier + 1);
+            var currentThreshold = TopicXP.GetTierThreshold(currentTier);
+            var nextThreshold = TopicXP.GetTierThreshold(currentTier + 1);
             
-            // Update XP display: current/next format (even if over threshold)
-            _xpLabel.Text = $"{currentXP:F0}/{nextTierThreshold:F0} XP";
-            _xpBar.MaxValue = nextTierThreshold;
-            _xpBar.Value = Mathf.Min(currentXP, nextTierThreshold); // Cap at threshold for visual
+            // Show actual XP / current tier threshold (even if over)
+            _xpLabel.Text = $"{currentXP:F0}/{currentThreshold:F0} XP";
+            
+            // Progress bar: fill to 100% when XP exceeds current threshold
+            float progress = Mathf.Min(1.0f, currentXP / currentThreshold);
+            _xpBar.Value = progress * 100f;
+            
+            // Update level display
+            UpdateLevelText(currentTier);
         }
 
         private void UpdateLevelUpIndicator(float currentXP)
         {
             var currentTier = _topicXP.CurrentTier;
-            var nextTierThreshold = TopicXP.GetTierThreshold(currentTier + 1);
-            var canLevelUp = currentXP >= nextTierThreshold && currentTier < XPTier.TrueBeliever;
+            var currentThreshold = TopicXP.GetTierThreshold(currentTier);
+            var canLevelUp = currentXP >= currentThreshold && currentTier < XPTier.TrueBeliever;
             
-            // Set progress bar color based on level-up readiness
+            // Set progress bar color based on overflow XP (ready to level up)
             _xpBar.Modulate = canLevelUp ? Colors.Green : UIColors.Accent.Blue;
             
             // Show/hide level-up indicator
             _levelUpLabel.Visible = canLevelUp;
         }
 
-        private void UpdateTierText(XPTier tier)
+        private void UpdateLevelText(XPTier tier)
         {
+            int levelNumber = (int)tier;
             var tierName = TopicXP.GetTierName(tier);
-            var mentalBonus = _topicXP.MentalBonus;
-            SetTier(tierName, (int)(mentalBonus * 100f));
+            SetLevel($"Level {levelNumber} ({tierName})");
         }
 
         private void CreateUI()
@@ -157,14 +163,14 @@ namespace KBTV.UI.Components
             _levelUpLabel.Visible = false;
             vbox.AddChild(_levelUpLabel);
 
-            // XP tier
-            _tierLabel = new Label();
-            _tierLabel.Text = "Tier: SKEPTIC (+0%)";
-            _tierLabel.HorizontalAlignment = HorizontalAlignment.Left;
-            _tierLabel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            _tierLabel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
-            _tierLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            vbox.AddChild(_tierLabel);
+            // XP tier - now shows level
+            _levelLabel = new Label();
+            _levelLabel.Text = "Level 1 (Skeptic)";
+            _levelLabel.HorizontalAlignment = HorizontalAlignment.Left;
+            _levelLabel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            _levelLabel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+            _levelLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            vbox.AddChild(_levelLabel);
 
             // Freshness percentage (text only)
             _freshnessLabel = new Label();
@@ -204,7 +210,7 @@ namespace KBTV.UI.Components
             // Update all display elements
             UpdateXPBar(currentXP);
             UpdateLevelUpIndicator(currentXP);
-            UpdateTierText(currentTier);
+            UpdateLevelText(currentTier);
             
             // Update freshness (placeholder for now)
             var freshness = GetPlaceholderFreshness(_topicName);
@@ -228,9 +234,9 @@ namespace KBTV.UI.Components
             };
         }
 
-        private void SetTier(string tier, int bonusPercent)
+        private void SetLevel(string levelText)
         {
-            _tierLabel.Text = $"Tier: {tier} (+{bonusPercent}%)";
+            _levelLabel.Text = levelText;
         }
 
         private void SetFreshness(int percentage)

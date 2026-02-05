@@ -142,8 +142,8 @@ namespace KBTV.UI
 			var oldTier = topicXP.CurrentTier;
 			var newTier = oldTier + 1;
 			
-			// Update the topic to the new tier
-			topicXP.SetXP(TopicXP.GetTierThreshold(newTier));
+			// Level up the topic (preserves overflow XP)
+			topicXP.LevelUp();
 			
 			// Update UI
 			_levelUpTopicLabel.Text = topicXP.TopicName;

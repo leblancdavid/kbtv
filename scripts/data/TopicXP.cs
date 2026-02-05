@@ -33,7 +33,7 @@ namespace KBTV.Data
 		public string TopicId => _topicId;
 		public string TopicName => _topicName;
 		public float XP => _xp;
-		public XPTier CurrentTier => GetTierForXP(_xp);
+		public XPTier CurrentTier => _highestTierReached;
 		public XPTier HighestTierReached => _highestTierReached;
 
 		public event Action<float, float>? OnXPChanged; // oldValue, newValue
@@ -107,7 +107,7 @@ namespace KBTV.Data
 			_topicId = topicId;
 			_topicName = topicName;
 			_xp = Mathf.Max(0f, initialXP);
-			_highestTierReached = GetTierForXP(_xp);
+			_highestTierReached = GetTierForXP(_xp); // Initialize based on starting XP
 		}
 
 		// ═══════════════════════════════════════════════════════════════════════════════
@@ -116,6 +116,7 @@ namespace KBTV.Data
 
 		/// <summary>
 		/// Add or remove XP. Cannot drop below the floor of the highest tier reached.
+		/// Does not automatically advance tiers - leveling is manual.
 		/// </summary>
 		public void ModifyXP(float delta)
 		{
@@ -128,27 +129,18 @@ namespace KBTV.Data
 			float floor = GetTierFloor(_highestTierReached);
 			_xp = Mathf.Max(floor, _xp);
 
-			// Check if we reached a new highest tier
-			XPTier newTier = CurrentTier;
-			if (newTier > _highestTierReached)
-			{
-				_highestTierReached = newTier;
-			}
-
-			// Fire events
+			// Fire events (but no automatic tier advancement)
 			if (!Mathf.IsEqualApprox(oldXP, _xp))
 			{
 				OnXPChanged?.Invoke(oldXP, _xp);
 			}
 
-			if (oldTier != newTier)
-			{
-				OnTierChanged?.Invoke(oldTier, newTier);
-			}
+			// No OnTierChanged here - tiers only change manually
 		}
 
 		/// <summary>
 		/// Set XP to a specific value. Respects tier floor.
+		/// Does not automatically advance tiers - leveling is manual.
 		/// </summary>
 		public void SetXP(float value)
 		{
@@ -159,28 +151,44 @@ namespace KBTV.Data
 			float floor = GetTierFloor(_highestTierReached);
 			_xp = Mathf.Max(floor, value);
 
-			// Check if we reached a new highest tier
-			XPTier newTier = CurrentTier;
-			if (newTier > _highestTierReached)
-			{
-				_highestTierReached = newTier;
-			}
-
-			// Fire events
+			// Fire events (but no automatic tier advancement)
 			if (!Mathf.IsEqualApprox(oldXP, _xp))
 			{
 				OnXPChanged?.Invoke(oldXP, _xp);
 			}
 
-			if (oldTier != newTier)
-			{
-				OnTierChanged?.Invoke(oldTier, newTier);
-			}
+			// No OnTierChanged here - tiers only change manually
 		}
 
 		// ═══════════════════════════════════════════════════════════════════════════════
-		// CALLER EFFECTS
+		// MANUAL LEVELING
 		// ═══════════════════════════════════════════════════════════════════════════════
+
+		/// <summary>
+		/// Manually level up to the next tier, preserving overflow XP.
+		/// Example: 150 XP at Level 1 (threshold 100) → Level up → 50 XP at Level 2
+		/// </summary>
+		public void LevelUp()
+		{
+			XPTier newTier = CurrentTier + 1;
+			if (newTier > XPTier.TrueBeliever)
+				return; // Already at max tier
+
+			XPTier oldTier = CurrentTier;
+			
+			// Preserve overflow XP: subtract current tier threshold, keep remainder
+			float oldThreshold = GetTierThreshold(CurrentTier);
+			_xp = Mathf.Max(0, _xp - oldThreshold);
+			
+			// Advance to new tier
+			_highestTierReached = newTier;
+
+			// Fire tier changed event
+			OnTierChanged?.Invoke(oldTier, newTier);
+			
+			// Also fire XP changed event since XP value changed
+			OnXPChanged?.Invoke(oldThreshold, _xp);
+		}
 
 		/// <summary>
 		/// Apply XP change from a good on-topic caller.
