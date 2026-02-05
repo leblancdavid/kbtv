@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using KBTV.Callers;
 using KBTV.Data;
 using KBTV.Dialogue;
@@ -20,12 +21,14 @@ namespace KBTV.Broadcast
         private Caller _currentCaller;
         private VernStats? _vernStats;
         private TopicManager _topicManager;
+        private GameStateManager _gameStateManager;
         private float _totalXP;
         private float _appliedXP;
 
         public ConversationStatTracker(GameStateManager gameStateManager, TopicManager topicManager)
         {
             _vernStats = gameStateManager?.VernStats;
+            _gameStateManager = gameStateManager;
             _topicManager = topicManager;
         }
 
@@ -77,7 +80,7 @@ namespace KBTV.Broadcast
                 xpAward += incrementalAmount;
             }
             
-            if (xpAward != 0)  // Award even negative XP
+            if (xpAward != 0 && string.Equals(_currentCaller.ClaimedTopic, _gameStateManager?.SelectedTopic?.TopicName, StringComparison.OrdinalIgnoreCase))  // Award even negative XP
             {
                 _appliedXP += xpAward;
                 _topicManager.AwardXP(_currentCaller.ClaimedTopic, (int)Mathf.Round(xpAward));
