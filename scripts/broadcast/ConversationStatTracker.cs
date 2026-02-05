@@ -80,10 +80,10 @@ namespace KBTV.Broadcast
                 xpAward += incrementalAmount;
             }
             
-            if (xpAward != 0 && string.Equals(_currentCaller.ClaimedTopic, _gameStateManager?.SelectedTopic?.TopicName, StringComparison.OrdinalIgnoreCase))  // Award even negative XP
+            if (xpAward != 0 && string.Equals(_currentCaller.ActualTopic, _gameStateManager?.SelectedTopic?.TopicName, StringComparison.OrdinalIgnoreCase))  // Award even negative XP
             {
                 _appliedXP += xpAward;
-                _topicManager.AwardXP(_currentCaller.ClaimedTopic, (int)Mathf.Round(xpAward));
+                _topicManager.AwardXP(_currentCaller.ActualTopic, (int)Mathf.Round(xpAward));
             }
         }
 
