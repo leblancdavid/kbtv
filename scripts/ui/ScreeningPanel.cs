@@ -130,6 +130,9 @@ namespace KBTV.UI
 			var currentCaller = _controller.CurrentCaller;
 			var isScreening = _callerRepository?.IsScreening == true;
 			
+			// Control panel visibility - hide when no caller is being screened
+			this.Visible = isScreening;
+			
 			if (currentCaller != _previousCaller || !isScreening)
 			{
 				if (!isScreening && _previousCaller != null && _previousCaller.State == CallerState.Disconnected)
