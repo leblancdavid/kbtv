@@ -1,0 +1,245 @@
+{
+  "lineType": "dead-air-fillers",
+  "description": "Filler content when no callers are available",
+  "lines": [
+    {
+      "id": "deadair_neutral_1",
+      "text": "While we're waiting for the next caller, let me tell you about something interesting I read recently...",
+      "voiceText": "While we're waiting for the next caller, let me tell you about something interesting I read recently...",
+      "mood": "neutral"
+    },
+    {
+      "id": "deadair_neutral_2",
+      "text": "You know, I've been thinking about the nature of reality lately. What is real, and what isn't?",
+      "voiceText": "You know, I've been thinking about the nature of reality lately. What is real, and what isn't?",
+      "mood": "neutral"
+    },
+    {
+      "id": "deadair_neutral_3",
+      "text": "Keep those calls coming in, folks. The lines should be lighting up any moment now.",
+      "voiceText": "Keep those calls coming in, folks. The lines should be lighting up any moment now.",
+      "mood": "neutral"
+    },
+    {
+      "id": "deadair_neutral_4",
+      "text": "In the meantime, let's talk about government cover-ups. You know they exist.",
+      "voiceText": "In the meantime, let's talk about government cover-ups. You know they exist.",
+      "mood": "neutral"
+    },
+    {
+      "id": "deadair_neutral_5",
+      "text": "The phone lines are quiet right now, but that doesn't mean the truth is silent.",
+      "voiceText": "The phone lines are quiet right now, but that doesn't mean the truth is silent.",
+      "mood": "neutral"
+    },
+    {
+      "id": "deadair_neutral_6",
+      "text": "While we wait, let me share a little known fact about Area 51...",
+      "voiceText": "While we wait, let me share a little known fact about Area 51...",
+      "mood": "neutral"
+    },
+    {
+      "id": "deadair_neutral_7",
+      "text": "The night is young, and so are the mysteries we're about to uncover.",
+      "voiceText": "The night is young, and so are the mysteries we're about to uncover.",
+      "mood": "neutral"
+    },
+    {
+      "id": "deadair_neutral_8",
+      "text": "Stay on the line, folks. Your call could be the one that breaks the story.",
+      "voiceText": "Stay on the line, folks. Your call could be the one that breaks the story.",
+      "mood": "neutral"
+    },
+    {
+      "id": "deadair_neutral_9",
+      "text": "I've seen things that would make your hair stand on end. And we're just getting started.",
+      "voiceText": "I've seen things that would make your hair stand on end. And we're just getting started.",
+      "mood": "neutral"
+    },
+    {
+      "id": "deadair_neutral_10",
+      "text": "The truth is out there, and tonight we're going to find some of it.",
+      "voiceText": "The truth is out there, and tonight we're going to find some of it.",
+      "mood": "neutral"
+    },
+    {
+      "id": "deadair_energized_1",
+      "text": "WOW! This is incredible! While we wait, let me tell you about this amazing sighting!",
+      "voiceText": "WOW! This is incredible! While we wait, let me tell you about this amazing sighting!",
+      "mood": "energized"
+    },
+    {
+      "id": "deadair_amused_1",
+      "text": "Heh, this is hilarious. Let me share this funny story while we wait...",
+      "voiceText": "Heh, this is hilarious. Let me share this funny story while we wait...",
+      "mood": "amused"
+    },
+    {
+      "id": "deadair_focused_1",
+      "text": "Interesting development. Let me analyze this situation while we wait for calls.",
+      "voiceText": "Interesting development. Let me analyze this situation while we wait for calls.",
+      "mood": "focused"
+    },
+    {
+      "id": "deadair_gruff_1",
+      "text": "Tch. While we wait for someone competent to call, let me rant about this.",
+      "voiceText": "Tch. While we wait for someone competent to call, let me rant about this.",
+      "mood": "gruff"
+    },
+    {
+      "id": "deadair_irritated_1",
+      "text": "Ugh, this is ridiculous. Why isn't anyone calling? Let me complain about it.",
+      "voiceText": "Ugh, this is ridiculous. Why isn't anyone calling? Let me complain about it.",
+      "mood": "irritated"
+    },
+    {
+      "id": "deadair_tired_1",
+      "text": "*yawn* Okay, while we wait... let me just rest my eyes for a second.",
+      "voiceText": "*yawn* Okay, while we wait... let me just rest my eyes for a second.",
+    },
+    {
+      "id": "deadair_exhausted_1",
+      "text": "*yawn* While we wait... keep those lines open.",
+      "voiceText": "*yawn* While we wait... keep those lines open.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "deadair_exhausted_2",
+      "text": "Just hanging here... anyone out there?",
+      "voiceText": "Just hanging here... anyone out there?",
+      "mood": "exhausted"
+    },
+    {
+      "id": "deadair_exhausted_3",
+      "text": "*grunt* Keep calling, folks.",
+      "voiceText": "*grunt* Keep calling, folks.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "deadair_exhausted_4",
+      "text": "While we wait for the next caller...",
+      "voiceText": "While we wait for the next caller...",
+      "mood": "exhausted"
+    },
+    {
+      "id": "deadair_depressed_1",
+      "text": "While we wait... if anyone calls.",
+      "voiceText": "While we wait... if anyone calls.",
+      "mood": "depressed"
+    },
+    {
+      "id": "deadair_depressed_2",
+      "text": "Keep those lines open, I suppose.",
+      "voiceText": "Keep those lines open, I suppose.",
+      "mood": "depressed"
+    },
+    {
+      "id": "deadair_depressed_3",
+      "text": "Anyone out there?",
+      "voiceText": "Anyone out there?",
+      "mood": "depressed"
+    },
+    {
+      "id": "deadair_depressed_4",
+      "text": "Waiting for the next caller.",
+      "voiceText": "Waiting for the next caller.",
+      "mood": "depressed"
+    },
+    {
+      "id": "deadair_angry_1",
+      "text": "While we wait – hurry up and call already!",
+      "voiceText": "While we wait – hurry up and call already!",
+      "mood": "angry"
+    },
+    {
+      "id": "deadair_angry_2",
+      "text": "Keep those lines open, damn it!",
+      "voiceText": "Keep those lines open, damn it!",
+      "mood": "angry"
+    },
+    {
+      "id": "deadair_angry_3",
+      "text": "Anyone? Speak up!",
+      "voiceText": "Anyone? Speak up!",
+      "mood": "angry"
+    },
+    {
+      "id": "deadair_angry_4",
+      "text": "While we wait for someone with guts to call!",
+      "voiceText": "While we wait for someone with guts to call!",
+      "mood": "angry"
+    },
+    {
+      "id": "deadair_frustrated_1",
+      "text": "*sigh* While we wait...",
+      "voiceText": "*sigh* While we wait...",
+      "mood": "frustrated"
+    },
+    {
+      "id": "deadair_frustrated_2",
+      "text": "Keep calling, please.",
+      "voiceText": "Keep calling, please.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "deadair_frustrated_3",
+      "text": "Anyone there?",
+      "voiceText": "Anyone there?",
+      "mood": "frustrated"
+    },
+    {
+      "id": "deadair_frustrated_4",
+      "text": "Waiting impatiently.",
+      "voiceText": "Waiting impatiently.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "deadair_obsessive_1",
+      "text": "While we wait – think about the connections!",
+      "voiceText": "While we wait – think about the connections!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "deadair_obsessive_2",
+      "text": "Keep those lines open – the truth connects us!",
+      "voiceText": "Keep those lines open – the truth connects us!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "deadair_obsessive_3",
+      "text": "Anyone linking the dots out there?",
+      "voiceText": "Anyone linking the dots out there?",
+      "mood": "obsessive"
+    },
+    {
+      "id": "deadair_obsessive_4",
+      "text": "While we wait for the next revelation!",
+      "voiceText": "While we wait for the next revelation!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "deadair_manic_1",
+      "text": "WHILE WE WAIT – THE ENERGY IS BUILDING! CALL NOW!",
+      "voiceText": "WHILE WE WAIT – THE ENERGY IS BUILDING! CALL NOW!",
+      "mood": "manic"
+    },
+    {
+      "id": "deadair_manic_2",
+      "text": "KEEP THOSE LINES OPEN – THE TRUTH WON'T WAIT!",
+      "voiceText": "KEEP THOSE LINES OPEN – THE TRUTH WON'T WAIT!",
+      "mood": "manic"
+    },
+    {
+      "id": "deadair_manic_3",
+      "text": "ANYONE OUT THERE? SPEAK UP – I'M BURSTING WITH ANTICIPATION!",
+      "voiceText": "ANYONE OUT THERE? SPEAK UP – I'M BURSTING WITH ANTICIPATION!",
+      "mood": "manic"
+    },
+    {
+      "id": "deadair_manic_4",
+      "text": "WHILE WE WAIT FOR THE NEXT BREAKTHROUGH – STAY TUNED!",
+      "voiceText": "WHILE WE WAIT FOR THE NEXT BREAKTHROUGH – STAY TUNED!",
+      "mood": "manic"
+    }
+  ]
+}

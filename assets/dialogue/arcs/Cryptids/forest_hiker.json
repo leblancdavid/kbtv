@@ -51,6 +51,42 @@
           "text": "You're on. Describe your experience from the beginning.",
           "voiceText": "You're on. Describe your experience from the beginning.",
           "mood": "focused"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_exhausted_1",
+          "text": "*yawn* you're on the air. tell me what happened.",
+          "voiceText": "*yawn* you're on the air. tell me what happened.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_depressed_1",
+          "text": "You're on the air. Tell me what happened.",
+          "voiceText": "You're on the air. Tell me what happened.",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_angry_1",
+          "text": "YOU'RE ON THE AIR! TELL ME WHAT HAPPENED!",
+          "voiceText": "YOU'RE ON THE AIR! TELL ME WHAT HAPPENED!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_frustrated_1",
+          "text": "Ugh, you're on the air. tell me what happened.",
+          "voiceText": "Ugh, you're on the air. tell me what happened.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_obsessive_1",
+          "text": "You're on the air. Tell me what happened. You know what this means?",
+          "voiceText": "You're on the air. Tell me what happened. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_manic_1",
+          "text": "YOU'RE ON THE AIR. TELL ME WHAT HAPPENED.!!!",
+          "voiceText": "YOU'RE ON THE AIR. TELL ME WHAT HAPPENED.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -109,6 +145,42 @@
           "text": "Fifteen years of regional wilderness experience. What specific encounter triggered this response?",
           "voiceText": "Fifteen years of regional wilderness experience. What specific encounter triggered this response?",
           "mood": "focused"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_exhausted_2",
+          "text": "*yawn* alright, i'm listening. give me the details.",
+          "voiceText": "*yawn* alright, i'm listening. give me the details.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_depressed_2",
+          "text": "Alright, I'm listening. Give me the details.",
+          "voiceText": "Alright, I'm listening. Give me the details.",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_angry_2",
+          "text": "ALRIGHT, I'M LISTENING! GIVE ME THE DETAILS!",
+          "voiceText": "ALRIGHT, I'M LISTENING! GIVE ME THE DETAILS!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_frustrated_2",
+          "text": "Ugh, alright, i'm listening. give me the details.",
+          "voiceText": "Ugh, alright, i'm listening. give me the details.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_obsessive_2",
+          "text": "Alright, I'm listening. Give me the details. You know what this means?",
+          "voiceText": "Alright, I'm listening. Give me the details. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_manic_2",
+          "text": "ALRIGHT, I'M LISTENING. GIVE ME THE DETAILS.!!!",
+          "voiceText": "ALRIGHT, I'M LISTENING. GIVE ME THE DETAILS.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -167,6 +239,42 @@
           "text": "Fifty yard observation distance, mid-afternoon, clear visibility. What was the duration of this encounter?",
           "voiceText": "Fifty yard observation distance, mid-afternoon, clear visibility. What was the duration of this encounter?",
           "mood": "focused"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_exhausted_3",
+          "text": "*yawn* fifty yards in clear light. what happened next?",
+          "voiceText": "*yawn* fifty yards in clear light. what happened next?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_depressed_3",
+          "text": "Fifty yards in clear light. What happened next...",
+          "voiceText": "Fifty yards in clear light. What happened next...",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_angry_3",
+          "text": "FIFTY YARDS IN CLEAR LIGHT! WHAT HAPPENED NEXT?!",
+          "voiceText": "FIFTY YARDS IN CLEAR LIGHT! WHAT HAPPENED NEXT?!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_frustrated_3",
+          "text": "Ugh, fifty yards in clear light. what happened next?",
+          "voiceText": "Ugh, fifty yards in clear light. what happened next?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_obsessive_3",
+          "text": "Fifty yards in clear light. What happened next? You know what this means?",
+          "voiceText": "Fifty yards in clear light. What happened next? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_manic_3",
+          "text": "FIFTY YARDS IN CLEAR LIGHT. WHAT HAPPENED NEXT?!!!",
+          "voiceText": "FIFTY YARDS IN CLEAR LIGHT. WHAT HAPPENED NEXT?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -225,6 +333,42 @@
           "text": "Sustained eye contact. Regarding the bear hypothesis - what distinguishing characteristics ruled out Ursus species?",
           "voiceText": "Sustained eye contact. Regarding the bear hypothesis - what distinguishing characteristics ruled out Ursus species?",
           "mood": "focused"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_exhausted_4",
+          "text": "*yawn* eye contact. i have to ask - could it have been a bear standing upright? people mistake them all the time.",
+          "voiceText": "*yawn* eye contact. i have to ask - could it have been a bear standing upright? people mistake them all the time.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_depressed_4",
+          "text": "Eye contact. I have to ask - could it have been a bear standing upright... People mistake them all the time.",
+          "voiceText": "Eye contact. I have to ask - could it have been a bear standing upright... People mistake them all the time.",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_angry_4",
+          "text": "EYE CONTACT! I HAVE TO ASK - COULD IT HAVE BEEN A BEAR STANDING UPRIGHT?! PEOPLE MISTAKE THEM ALL THE TIME!",
+          "voiceText": "EYE CONTACT! I HAVE TO ASK - COULD IT HAVE BEEN A BEAR STANDING UPRIGHT?! PEOPLE MISTAKE THEM ALL THE TIME!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_frustrated_4",
+          "text": "Ugh, eye contact. i have to ask - could it have been a bear standing upright? people mistake them all the time.",
+          "voiceText": "Ugh, eye contact. i have to ask - could it have been a bear standing upright? people mistake them all the time.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_obsessive_4",
+          "text": "Eye contact. I have to ask - could it have been a bear standing upright? People mistake them all the time. You know what this means?",
+          "voiceText": "Eye contact. I have to ask - could it have been a bear standing upright? People mistake them all the time. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_manic_4",
+          "text": "EYE CONTACT. I HAVE TO ASK - COULD IT HAVE BEEN A BEAR STANDING UPRIGHT? PEOPLE MISTAKE THEM ALL THE TIME.!!!",
+          "voiceText": "EYE CONTACT. I HAVE TO ASK - COULD IT HAVE BEEN A BEAR STANDING UPRIGHT? PEOPLE MISTAKE THEM ALL THE TIME.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -283,6 +427,42 @@
           "text": "Please document any future encounters with photographic or video evidence. Secondary observers also strengthen witness credibility. Recommend approaching with appropriate safety precautions.",
           "voiceText": "Please document any future encounters with photographic or video evidence. Secondary observers also strengthen witness credibility. Recommend approaching with appropriate safety precautions.",
           "mood": "focused"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_exhausted_5",
+          "text": "*yawn* appreciate you sharing this. if you go back, bring documentation - camera, maybe a friend. we need evidence. stay safe out there.",
+          "voiceText": "*yawn* appreciate you sharing this. if you go back, bring documentation - camera, maybe a friend. we need evidence. stay safe out there.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_depressed_5",
+          "text": "Appreciate you sharing this. If you go back, bring documentation - camera, maybe a friend. We need evidence. Stay safe out there.",
+          "voiceText": "Appreciate you sharing this. If you go back, bring documentation - camera, maybe a friend. We need evidence. Stay safe out there.",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_angry_5",
+          "text": "APPRECIATE YOU SHARING THIS! IF YOU GO BACK, BRING DOCUMENTATION - CAMERA, MAYBE A FRIEND! WE NEED EVIDENCE! STAY SAFE OUT THERE!",
+          "voiceText": "APPRECIATE YOU SHARING THIS! IF YOU GO BACK, BRING DOCUMENTATION - CAMERA, MAYBE A FRIEND! WE NEED EVIDENCE! STAY SAFE OUT THERE!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_frustrated_5",
+          "text": "Ugh, appreciate you sharing this. if you go back, bring documentation - camera, maybe a friend. we need evidence. stay safe out there.",
+          "voiceText": "Ugh, appreciate you sharing this. if you go back, bring documentation - camera, maybe a friend. we need evidence. stay safe out there.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_obsessive_5",
+          "text": "Appreciate you sharing this. If you go back, bring documentation - camera, maybe a friend. We need evidence. Stay safe out there. You know what this means?",
+          "voiceText": "Appreciate you sharing this. If you go back, bring documentation - camera, maybe a friend. We need evidence. Stay safe out there. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptids_credible_forest_hiker_vern_manic_5",
+          "text": "APPRECIATE YOU SHARING THIS. IF YOU GO BACK, BRING DOCUMENTATION - CAMERA, MAYBE A FRIEND. WE NEED EVIDENCE. STAY SAFE OUT THERE.!!!",
+          "voiceText": "APPRECIATE YOU SHARING THIS. IF YOU GO BACK, BRING DOCUMENTATION - CAMERA, MAYBE A FRIEND. WE NEED EVIDENCE. STAY SAFE OUT THERE.!!!",
+          "mood": "manic"
         }
       ]
     },

@@ -51,6 +51,42 @@
           "text": "You're on. Describe the unusual activity in your area.",
           "voiceText": "You're on. Describe the unusual activity in your area.",
           "mood": "focused"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_exhausted_1",
+          "text": "*yawn* you're on the air. what's happening in your neck of the woods?",
+          "voiceText": "*yawn* you're on the air. what's happening in your neck of the woods?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_depressed_1",
+          "text": "You're on the air. What's happening in your neck of the woods...",
+          "voiceText": "You're on the air. What's happening in your neck of the woods...",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_angry_1",
+          "text": "YOU'RE ON THE AIR! WHAT'S HAPPENING IN YOUR NECK OF THE WOODS?!",
+          "voiceText": "YOU'RE ON THE AIR! WHAT'S HAPPENING IN YOUR NECK OF THE WOODS?!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_frustrated_1",
+          "text": "Ugh, you're on the air. what's happening in your neck of the woods?",
+          "voiceText": "Ugh, you're on the air. what's happening in your neck of the woods?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_obsessive_1",
+          "text": "You're on the air. What's happening in your neck of the woods? You know what this means?",
+          "voiceText": "You're on the air. What's happening in your neck of the woods? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_manic_1",
+          "text": "YOU'RE ON THE AIR. WHAT'S HAPPENING IN YOUR NECK OF THE WOODS?!!!",
+          "voiceText": "YOU'RE ON THE AIR. WHAT'S HAPPENING IN YOUR NECK OF THE WOODS?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -109,6 +145,42 @@
           "text": "Estimated size parameters and body shape configuration?",
           "voiceText": "Estimated size parameters and body shape configuration?",
           "mood": "focused"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_exhausted_2",
+          "text": "*yawn* can you describe it in more detail? size, shape?",
+          "voiceText": "*yawn* can you describe it in more detail? size, shape?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_depressed_2",
+          "text": "Can you describe it in more detail... Size, shape...",
+          "voiceText": "Can you describe it in more detail... Size, shape...",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_angry_2",
+          "text": "CAN YOU DESCRIBE IT IN MORE DETAIL?! SIZE, SHAPE?!",
+          "voiceText": "CAN YOU DESCRIBE IT IN MORE DETAIL?! SIZE, SHAPE?!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_frustrated_2",
+          "text": "Ugh, can you describe it in more detail? size, shape?",
+          "voiceText": "Ugh, can you describe it in more detail? size, shape?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_obsessive_2",
+          "text": "Can you describe it in more detail? Size, shape? You know what this means?",
+          "voiceText": "Can you describe it in more detail? Size, shape? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_manic_2",
+          "text": "CAN YOU DESCRIBE IT IN MORE DETAIL? SIZE, SHAPE?!!!",
+          "voiceText": "CAN YOU DESCRIBE IT IN MORE DETAIL? SIZE, SHAPE?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -167,6 +239,42 @@
           "text": "Stopped upon visual detection. What was the subsequent behavioral response?",
           "voiceText": "Stopped upon visual detection. What was the subsequent behavioral response?",
           "mood": "focused"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_exhausted_3",
+          "text": "*yawn* stopped. then what happened?",
+          "voiceText": "*yawn* stopped. then what happened?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_depressed_3",
+          "text": "Stopped. Then what happened...",
+          "voiceText": "Stopped. Then what happened...",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_angry_3",
+          "text": "STOPPED! THEN WHAT HAPPENED?!",
+          "voiceText": "STOPPED! THEN WHAT HAPPENED?!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_frustrated_3",
+          "text": "Ugh, stopped. then what happened?",
+          "voiceText": "Ugh, stopped. then what happened?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_obsessive_3",
+          "text": "Stopped. Then what happened? You know what this means?",
+          "voiceText": "Stopped. Then what happened? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_manic_3",
+          "text": "STOPPED. THEN WHAT HAPPENED?!!!",
+          "voiceText": "STOPPED. THEN WHAT HAPPENED?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -225,6 +333,42 @@
           "text": "Low light conditions. What alternative explanations have you considered? Moose, black bear, or other large fauna?",
           "voiceText": "Low light conditions. What alternative explanations have you considered? Moose, black bear, or other large fauna?",
           "mood": "focused"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_exhausted_4",
+          "text": "*yawn* dusk plays tricks on the eyes. could've been a large animal - moose, bear standing up.",
+          "voiceText": "*yawn* dusk plays tricks on the eyes. could've been a large animal - moose, bear standing up.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_depressed_4",
+          "text": "Dusk plays tricks on the eyes. Could've been a large animal - moose, bear standing up.",
+          "voiceText": "Dusk plays tricks on the eyes. Could've been a large animal - moose, bear standing up.",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_angry_4",
+          "text": "DUSK PLAYS TRICKS ON THE EYES! COULD'VE BEEN A LARGE ANIMAL - MOOSE, BEAR STANDING UP!",
+          "voiceText": "DUSK PLAYS TRICKS ON THE EYES! COULD'VE BEEN A LARGE ANIMAL - MOOSE, BEAR STANDING UP!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_frustrated_4",
+          "text": "Ugh, dusk plays tricks on the eyes. could've been a large animal - moose, bear standing up.",
+          "voiceText": "Ugh, dusk plays tricks on the eyes. could've been a large animal - moose, bear standing up.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_obsessive_4",
+          "text": "Dusk plays tricks on the eyes. Could've been a large animal - moose, bear standing up. You know what this means?",
+          "voiceText": "Dusk plays tricks on the eyes. Could've been a large animal - moose, bear standing up. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_manic_4",
+          "text": "DUSK PLAYS TRICKS ON THE EYES. COULD'VE BEEN A LARGE ANIMAL - MOOSE, BEAR STANDING UP.!!!",
+          "voiceText": "DUSK PLAYS TRICKS ON THE EYES. COULD'VE BEEN A LARGE ANIMAL - MOOSE, BEAR STANDING UP.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -283,6 +427,42 @@
           "text": "Please document any future activity with trail camera placement at strategic locations. Pattern analysis requires multiple data points. Thank you for your report.",
           "voiceText": "Please document any future activity with trail camera placement at strategic locations. Pattern analysis requires multiple data points. Thank you for your report.",
           "mood": "focused"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_exhausted_5",
+          "text": "*yawn* document any future sightings. set up a trail camera if you can. we'll track the pattern. thanks for calling in.",
+          "voiceText": "*yawn* document any future sightings. set up a trail camera if you can. we'll track the pattern. thanks for calling in.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_depressed_5",
+          "text": "Document any future sightings. Set up a trail camera if you can. We'll track the pattern. Thanks for calling in.",
+          "voiceText": "Document any future sightings. Set up a trail camera if you can. We'll track the pattern. Thanks for calling in.",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_angry_5",
+          "text": "DOCUMENT ANY FUTURE SIGHTINGS! SET UP A TRAIL CAMERA IF YOU CAN! WE'LL TRACK THE PATTERN! THANKS FOR CALLING IN!",
+          "voiceText": "DOCUMENT ANY FUTURE SIGHTINGS! SET UP A TRAIL CAMERA IF YOU CAN! WE'LL TRACK THE PATTERN! THANKS FOR CALLING IN!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_frustrated_5",
+          "text": "Ugh, document any future sightings. set up a trail camera if you can. we'll track the pattern. thanks for calling in.",
+          "voiceText": "Ugh, document any future sightings. set up a trail camera if you can. we'll track the pattern. thanks for calling in.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_obsessive_5",
+          "text": "Document any future sightings. Set up a trail camera if you can. We'll track the pattern. Thanks for calling in. You know what this means?",
+          "voiceText": "Document any future sightings. Set up a trail camera if you can. We'll track the pattern. Thanks for calling in. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptids_questionable_shadow_vern_manic_5",
+          "text": "DOCUMENT ANY FUTURE SIGHTINGS. SET UP A TRAIL CAMERA IF YOU CAN. WE'LL TRACK THE PATTERN. THANKS FOR CALLING IN.!!!",
+          "voiceText": "DOCUMENT ANY FUTURE SIGHTINGS. SET UP A TRAIL CAMERA IF YOU CAN. WE'LL TRACK THE PATTERN. THANKS FOR CALLING IN.!!!",
+          "mood": "manic"
         }
       ]
     },

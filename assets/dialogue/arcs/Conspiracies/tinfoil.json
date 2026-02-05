@@ -51,6 +51,42 @@
           "text": "You're on. State your conspiracy hypothesis concisely.",
           "voiceText": "You're on. State your conspiracy hypothesis concisely.",
           "mood": "focused"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_exhausted_1",
+          "text": "*yawn* you're on the air. what's the conspiracy?",
+          "voiceText": "*yawn* you're on the air. what's the conspiracy?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_depressed_1",
+          "text": "You're on the air. What's the conspiracy...",
+          "voiceText": "You're on the air. What's the conspiracy...",
+          "mood": "depressed"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_angry_1",
+          "text": "YOU'RE ON THE AIR! WHAT'S THE CONSPIRACY?!",
+          "voiceText": "YOU'RE ON THE AIR! WHAT'S THE CONSPIRACY?!",
+          "mood": "angry"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_frustrated_1",
+          "text": "Ugh, you're on the air. what's the conspiracy?",
+          "voiceText": "Ugh, you're on the air. what's the conspiracy?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_obsessive_1",
+          "text": "You're on the air. What's the conspiracy? You know what this means?",
+          "voiceText": "You're on the air. What's the conspiracy? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_manic_1",
+          "text": "YOU'RE ON THE AIR. WHAT'S THE CONSPIRACY?!!!",
+          "voiceText": "YOU'RE ON THE AIR. WHAT'S THE CONSPIRACY?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -109,6 +145,42 @@
           "text": "Horizontal rod mechanism has been extensively documented. What additional hypotheses do you possess?",
           "voiceText": "Horizontal rod mechanism has been extensively documented. What additional hypotheses do you possess?",
           "mood": "focused"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_exhausted_2",
+          "text": "*yawn* a fan in the studio. that's been thoroughly debunked. the flag had a horizontal rod to keep it extended. any other theories?",
+          "voiceText": "*yawn* a fan in the studio. that's been thoroughly debunked. the flag had a horizontal rod to keep it extended. any other theories?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_depressed_2",
+          "text": "A fan in the studio. That's been thoroughly debunked. The flag had a horizontal rod to keep it extended. Any other theories...",
+          "voiceText": "A fan in the studio. That's been thoroughly debunked. The flag had a horizontal rod to keep it extended. Any other theories...",
+          "mood": "depressed"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_angry_2",
+          "text": "A FAN IN THE STUDIO! THAT'S BEEN THOROUGHLY DEBUNKED! THE FLAG HAD A HORIZONTAL ROD TO KEEP IT EXTENDED! ANY OTHER THEORIES?!",
+          "voiceText": "A FAN IN THE STUDIO! THAT'S BEEN THOROUGHLY DEBUNKED! THE FLAG HAD A HORIZONTAL ROD TO KEEP IT EXTENDED! ANY OTHER THEORIES?!",
+          "mood": "angry"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_frustrated_2",
+          "text": "Ugh, a fan in the studio. that's been thoroughly debunked. the flag had a horizontal rod to keep it extended. any other theories?",
+          "voiceText": "Ugh, a fan in the studio. that's been thoroughly debunked. the flag had a horizontal rod to keep it extended. any other theories?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_obsessive_2",
+          "text": "A fan in the studio. That's been thoroughly debunked. The flag had a horizontal rod to keep it extended. Any other theories? You know what this means?",
+          "voiceText": "A fan in the studio. That's been thoroughly debunked. The flag had a horizontal rod to keep it extended. Any other theories? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_manic_2",
+          "text": "A FAN IN THE STUDIO. THAT'S BEEN THOROUGHLY DEBUNKED. THE FLAG HAD A HORIZONTAL ROD TO KEEP IT EXTENDED. ANY OTHER THEORIES?!!!",
+          "voiceText": "A FAN IN THE STUDIO. THAT'S BEEN THOROUGHLY DEBUNKED. THE FLAG HAD A HORIZONTAL ROD TO KEEP IT EXTENDED. ANY OTHER THEORIES?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -167,6 +239,42 @@
           "text": "Apollo missions 12, 14, 15, 16, and 17 successfully landed. Additional lunar missions occurred. What else?",
           "voiceText": "Apollo missions 12, 14, 15, 16, and 17 successfully landed. Additional lunar missions occurred. What else?",
           "mood": "focused"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_exhausted_3",
+          "text": "*yawn* we did go back. apollo 12, 14, 15, 16, and 17 all landed. multiple missions over several years.",
+          "voiceText": "*yawn* we did go back. apollo 12, 14, 15, 16, and 17 all landed. multiple missions over several years.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_depressed_3",
+          "text": "We did go back. Apollo 12, 14, 15, 16, and 17 all landed. Multiple missions over several years.",
+          "voiceText": "We did go back. Apollo 12, 14, 15, 16, and 17 all landed. Multiple missions over several years.",
+          "mood": "depressed"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_angry_3",
+          "text": "WE DID GO BACK! APOLLO 12, 14, 15, 16, AND 17 ALL LANDED! MULTIPLE MISSIONS OVER SEVERAL YEARS!",
+          "voiceText": "WE DID GO BACK! APOLLO 12, 14, 15, 16, AND 17 ALL LANDED! MULTIPLE MISSIONS OVER SEVERAL YEARS!",
+          "mood": "angry"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_frustrated_3",
+          "text": "Ugh, we did go back. apollo 12, 14, 15, 16, and 17 all landed. multiple missions over several years.",
+          "voiceText": "Ugh, we did go back. apollo 12, 14, 15, 16, and 17 all landed. multiple missions over several years.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_obsessive_3",
+          "text": "We did go back. Apollo 12, 14, 15, 16, and 17 all landed. Multiple missions over several years. You know what this means?",
+          "voiceText": "We did go back. Apollo 12, 14, 15, 16, and 17 all landed. Multiple missions over several years. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_manic_3",
+          "text": "WE DID GO BACK. APOLLO 12, 14, 15, 16, AND 17 ALL LANDED. MULTIPLE MISSIONS OVER SEVERAL YEARS.!!!",
+          "voiceText": "WE DID GO BACK. APOLLO 12, 14, 15, 16, AND 17 ALL LANDED. MULTIPLE MISSIONS OVER SEVERAL YEARS.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -225,6 +333,42 @@
           "text": "Comprehensive documentation is readily accessible through standard research channels. Next caller.",
           "voiceText": "Comprehensive documentation is readily accessible through standard research channels. Next caller.",
           "mood": "focused"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_exhausted_4",
+          "text": "*yawn* there's a documentary about this. it's widely available. next caller.",
+          "voiceText": "*yawn* there's a documentary about this. it's widely available. next caller.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_depressed_4",
+          "text": "There's a documentary about this. It's widely available. Next caller.",
+          "voiceText": "There's a documentary about this. It's widely available. Next caller.",
+          "mood": "depressed"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_angry_4",
+          "text": "THERE'S A DOCUMENTARY ABOUT THIS! IT'S WIDELY AVAILABLE! NEXT CALLER!",
+          "voiceText": "THERE'S A DOCUMENTARY ABOUT THIS! IT'S WIDELY AVAILABLE! NEXT CALLER!",
+          "mood": "angry"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_frustrated_4",
+          "text": "Ugh, there's a documentary about this. it's widely available. next caller.",
+          "voiceText": "Ugh, there's a documentary about this. it's widely available. next caller.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_obsessive_4",
+          "text": "There's a documentary about this. It's widely available. Next caller. You know what this means?",
+          "voiceText": "There's a documentary about this. It's widely available. Next caller. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "conspiracies_fake_tinfoil_vern_manic_4",
+          "text": "THERE'S A DOCUMENTARY ABOUT THIS. IT'S WIDELY AVAILABLE. NEXT CALLER.!!!",
+          "voiceText": "THERE'S A DOCUMENTARY ABOUT THIS. IT'S WIDELY AVAILABLE. NEXT CALLER.!!!",
+          "mood": "manic"
         }
       ]
     },

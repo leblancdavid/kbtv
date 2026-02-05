@@ -1,0 +1,359 @@
+{
+  "lineType": "closings",
+  "description": "Show closing lines",
+  "lines": [
+    {
+      "id": "closing_energized_1",
+      "text": "And that's all the time we have tonight! Thanks to everyone who called in. Keep watching the skies!",
+      "voiceText": "And that's all the time we have tonight! Thanks to everyone who called in. Keep watching the skies!",
+      "mood": "energized"
+    },
+    {
+      "id": "closing_amused_1",
+      "text": "*chuckle* That's all the time we have tonight. Thanks for the great calls, folks!",
+      "voiceText": "*chuckle* That's all the time we have tonight. Thanks for the great calls, folks!",
+      "mood": "amused"
+    },
+    {
+      "id": "closing_neutral_1",
+      "text": "And that's all the time we have tonight, folks. Thanks to everyone who called in. Keep watching the skies.",
+      "voiceText": "And that's all the time we have tonight, folks. Thanks to everyone who called in. Keep watching the skies.",
+      "mood": "neutral"
+    },
+    {
+      "id": "closing_focused_1",
+      "text": "And that's all the time we have tonight. Thank you for your thoughtful contributions to the investigation.",
+      "voiceText": "And that's all the time we have tonight. Thank you for your thoughtful contributions to the investigation.",
+      "mood": "focused"
+    },
+    {
+      "id": "closing_gruff_1",
+      "text": "That's all the time we have tonight. Thanks for calling in. Keep watching the skies.",
+      "voiceText": "That's all the time we have tonight. Thanks for calling in. Keep watching the skies.",
+      "mood": "gruff"
+    },
+    {
+      "id": "closing_irritated_1",
+      "text": "And that's all the time we have tonight. Thanks to everyone who called in. Just... keep watching the skies.",
+      "voiceText": "And that's all the time we have tonight. Thanks to everyone who called in. Just... keep watching the skies.",
+      "mood": "irritated"
+    },
+    {
+      "id": "closing_tired_1",
+      "text": "*yawn* That's all the time we have tonight. Thanks for listening, night owls. Stay vigilant out there.",
+      "voiceText": "*yawn* That's all the time we have tonight. Thanks for listening, night owls. Stay vigilant out there.",
+      "mood": "tired"
+    },
+    {
+      "id": "closing_energized_2",
+      "text": "The sun's coming up, truth-seekers! Time to sign off. But remember - the truth doesn't sleep, and neither should you!",
+      "voiceText": "The sun's coming up, truth-seekers! Time to sign off. But remember - the truth doesn't sleep, and neither should you!",
+      "mood": "energized"
+    },
+    {
+      "id": "closing_amused_2",
+      "text": "The sun's coming up. Time to sign off. But remember - the truth doesn't sleep. Neither should your sense of wonder!",
+      "voiceText": "The sun's coming up. Time to sign off. But remember - the truth doesn't sleep. Neither should your sense of wonder!",
+      "mood": "amused"
+    },
+    {
+      "id": "closing_neutral_2",
+      "text": "The sun's coming up, truth-seekers. Time to sign off. But remember - the truth doesn't sleep, and neither should you.",
+      "voiceText": "The sun's coming up, truth-seekers. Time to sign off. But remember - the truth doesn't sleep, and neither should you.",
+      "mood": "neutral"
+    },
+    {
+      "id": "closing_focused_2",
+      "text": "The sun's coming up. Time to sign off. But remember - the investigation continues.",
+      "voiceText": "The sun's coming up. Time to sign off. But remember - the investigation continues.",
+      "mood": "focused"
+    },
+    {
+      "id": "closing_gruff_2",
+      "text": "Sun's coming up. Time to sign off. Truth doesn't sleep. Neither should you.",
+      "voiceText": "Sun's coming up. Time to sign off. Truth doesn't sleep. Neither should you.",
+      "mood": "gruff"
+    },
+    {
+      "id": "closing_irritated_2",
+      "text": "The sun's coming up. Time to sign off. But remember - the truth doesn't sleep, and neither should you.",
+      "voiceText": "The sun's coming up. Time to sign off. But remember - the truth doesn't sleep, and neither should you.",
+      "mood": "irritated"
+    },
+    {
+      "id": "closing_tired_2",
+      "text": "*yawn* The sun's coming up. Time to sign off. Remember - the truth doesn't sleep...",
+      "voiceText": "*yawn* The sun's coming up. Time to sign off. Remember - the truth doesn't sleep...",
+      "mood": "tired"
+    },
+    {
+      "id": "closing_energized_3",
+      "text": "That's a wrap on tonight's show! This is Vern Tell saying good night. Stay curious!",
+      "voiceText": "That's a wrap on tonight's show! This is Vern Tell saying good night. Stay curious!",
+      "mood": "energized"
+    },
+    {
+      "id": "closing_amused_3",
+      "text": "That's a wrap on tonight's show. This is Vern Tell saying good night. Stay curious about the unknown!",
+      "voiceText": "That's a wrap on tonight's show. This is Vern Tell saying good night. Stay curious about the unknown!",
+      "mood": "amused"
+    },
+    {
+      "id": "closing_neutral_3",
+      "text": "That's a wrap on tonight's show. This is Vern Tell saying good night. Stay curious.",
+      "voiceText": "That's a wrap on tonight's show. This is Vern Tell saying good night. Stay curious.",
+      "mood": "neutral"
+    },
+    {
+      "id": "closing_focused_3",
+      "text": "That's a wrap on tonight's show. This is Vern Tell saying good night. Continue your research.",
+      "voiceText": "That's a wrap on tonight's show. This is Vern Tell saying good night. Continue your research.",
+      "mood": "focused"
+    },
+    {
+      "id": "closing_gruff_3",
+      "text": "That's a wrap on tonight's show. Vern Tell saying good night. Stay curious.",
+      "voiceText": "That's a wrap on tonight's show. Vern Tell saying good night. Stay curious.",
+      "mood": "gruff"
+    },
+    {
+      "id": "closing_irritated_3",
+      "text": "That's a wrap on tonight's show. This is Vern Tell saying good night. Stay curious.",
+      "voiceText": "That's a wrap on tonight's show. This is Vern Tell saying good night. Stay curious.",
+      "mood": "irritated"
+    },
+    {
+      "id": "closing_tired_3",
+      "text": "That's a wrap on tonight's show. This is Vern Tell saying... good night. Stay curious.",
+      "voiceText": "That's a wrap on tonight's show. This is Vern Tell saying... good night. Stay curious.",
+      "mood": "tired"
+    },
+    {
+      "id": "closing_energized_4",
+      "text": "We're out of time, but never out of mysteries! Thanks for listening to KBTV!",
+      "voiceText": "We're out of time, but never out of mysteries! Thanks for listening to KBTV!",
+      "mood": "energized"
+    },
+    {
+      "id": "closing_amused_4",
+      "text": "We're out of time, but never out of mysteries. Thanks for listening to KBTV. Keep exploring!",
+      "voiceText": "We're out of time, but never out of mysteries. Thanks for listening to KBTV. Keep exploring!",
+      "mood": "amused"
+    },
+    {
+      "id": "closing_neutral_4",
+      "text": "We're out of time, but never out of mysteries. Thanks for listening to KBTV.",
+      "voiceText": "We're out of time, but never out of mysteries. Thanks for listening to KBTV.",
+      "mood": "neutral"
+    },
+    {
+      "id": "closing_focused_4",
+      "text": "We're out of time, but never out of mysteries. Thank you for your attention to detail.",
+      "voiceText": "We're out of time, but never out of mysteries. Thank you for your attention to detail.",
+      "mood": "focused"
+    },
+    {
+      "id": "closing_gruff_4",
+      "text": "We're out of time, never out of mysteries. Thanks for listening to KBTV.",
+      "voiceText": "We're out of time, never out of mysteries. Thanks for listening to KBTV.",
+      "mood": "gruff"
+    },
+    {
+      "id": "closing_irritated_4",
+      "text": "We're out of time, but never out of mysteries. Thanks for listening to KBTV.",
+      "voiceText": "We're out of time, but never out of mysteries. Thanks for listening to KBTV.",
+      "mood": "irritated"
+    },
+    {
+      "id": "closing_tired_4",
+      "text": "We're out of time, but never out of mysteries. Thanks for listening to KBTV.",
+      "voiceText": "We're out of time, but never out of mysteries. Thanks for listening to KBTV.",
+      "mood": "tired"
+    },
+    {
+      "id": "closing_energized_5",
+      "text": "Another night, another pile of evidence! Thanks for calling in. Good night from KBTV!",
+      "voiceText": "Another night, another pile of evidence! Thanks for calling in. Good night from KBTV!",
+      "mood": "energized"
+    },
+    {
+      "id": "closing_amused_5",
+      "text": "Another night, another pile of evidence. Thanks for calling in. Good night from KBTV. Sleep well!",
+      "voiceText": "Another night, another pile of evidence. Thanks for calling in. Good night from KBTV. Sleep well!",
+      "mood": "amused"
+    },
+    {
+      "id": "closing_neutral_5",
+      "text": "Another night, another pile of evidence. Thanks for calling in. Good night from KBTV.",
+      "voiceText": "Another night, another pile of evidence. Thanks for calling in. Good night from KBTV.",
+      "mood": "neutral"
+    },
+    {
+      "id": "closing_focused_5",
+      "text": "Another night, another pile of evidence. Thank you for your contributions to the evidence base.",
+      "voiceText": "Another night, another pile of evidence. Thank you for your contributions to the evidence base.",
+      "mood": "focused"
+    },
+    {
+      "id": "closing_gruff_5",
+      "text": "Another night, another pile of evidence. Thanks for calling in. Good night from KBTV.",
+      "voiceText": "Another night, another pile of evidence. Thanks for calling in. Good night from KBTV.",
+      "mood": "gruff"
+    },
+    {
+      "id": "closing_irritated_5",
+      "text": "Another night, another pile of evidence. Thanks for calling in. Good night from KBTV.",
+      "voiceText": "Another night, another pile of evidence. Thanks for calling in. Good night from KBTV.",
+      "mood": "irritated"
+    },
+    {
+      "id": "closing_tired_5",
+      "text": "Another night, another pile of evidence. Thanks for calling in. Good night from KBTV.",
+      "voiceText": "Another night, another pile of evidence. Thanks for calling in. Good night from KBTV.",
+    },
+    {
+      "id": "closing_exhausted_1",
+      "text": "*yawn* And that's all the time we have tonight... I think. Thanks to everyone who called. Keep watching the skies. Good night.",
+      "voiceText": "*yawn* And that's all the time we have tonight... I think. Thanks to everyone who called. Keep watching the skies. Good night.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "closing_exhausted_2",
+      "text": "Alright, show's over. This is Vern Tell saying good night from KBTV. Stay curious, if you can.",
+      "voiceText": "Alright, show's over. This is Vern Tell saying good night from KBTV. Stay curious, if you can.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "closing_exhausted_3",
+      "text": "*grunt* That's a wrap on tonight's broadcast. Thanks for listening. This is Vern, signing off.",
+      "voiceText": "*grunt* That's a wrap on tonight's broadcast. Thanks for listening. This is Vern, signing off.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "closing_exhausted_4",
+      "text": "And... that's it for tonight. Good night, truth-seekers. Vern Tell, KBTV, out.",
+      "voiceText": "And... that's it for tonight. Good night, truth-seekers. Vern Tell, KBTV, out.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "closing_depressed_1",
+      "text": "And that's all... I suppose. Thanks to the callers. Keep watching the skies, though it won't help.",
+      "voiceText": "And that's all... I suppose. Thanks to the callers. Keep watching the skies, though it won't help.",
+      "mood": "depressed"
+    },
+    {
+      "id": "closing_depressed_2",
+      "text": "Show's over. This is Vern Tell saying good night. Stay curious, if you can find the will.",
+      "voiceText": "Show's over. This is Vern Tell saying good night. Stay curious, if you can find the will.",
+      "mood": "depressed"
+    },
+    {
+      "id": "closing_depressed_3",
+      "text": "That's a wrap. Thanks for listening. Vern Tell, KBTV. Good night.",
+      "voiceText": "That's a wrap. Thanks for listening. Vern Tell, KBTV. Good night.",
+      "mood": "depressed"
+    },
+    {
+      "id": "closing_depressed_4",
+      "text": "And... that's it. Good night from KBTV. This is Vern, signing off into the void.",
+      "voiceText": "And... that's it. Good night from KBTV. This is Vern, signing off into the void.",
+      "mood": "depressed"
+    },
+    {
+      "id": "closing_angry_1",
+      "text": "And that's all the time we have! Thanks to the callers who actually told the truth. Keep watching those skies, and stay angry!",
+      "voiceText": "And that's all the time we have! Thanks to the callers who actually told the truth. Keep watching those skies, and stay angry!",
+      "mood": "angry"
+    },
+    {
+      "id": "closing_angry_2",
+      "text": "Show's over! This is Vern Tell, furious as ever, saying good night from KBTV!",
+      "voiceText": "Show's over! This is Vern Tell, furious as ever, saying good night from KBTV!",
+      "mood": "angry"
+    },
+    {
+      "id": "closing_angry_3",
+      "text": "That's it for tonight! Thanks for listening, you truth-seekers. Vern Tell, out – and stay mad!",
+      "voiceText": "That's it for tonight! Thanks for listening, you truth-seekers. Vern Tell, out – and stay mad!",
+      "mood": "angry"
+    },
+    {
+      "id": "closing_angry_4",
+      "text": "Wrap it up! Good night from KBTV. This is Vern, and I'm still pissed off!",
+      "voiceText": "Wrap it up! Good night from KBTV. This is Vern, and I'm still pissed off!",
+      "mood": "angry"
+    },
+    {
+      "id": "closing_frustrated_1",
+      "text": "And that's all the time... finally. Thanks to the callers. Keep watching the skies.",
+      "voiceText": "And that's all the time... finally. Thanks to the callers. Keep watching the skies.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "closing_frustrated_2",
+      "text": "Show's over. This is Vern Tell saying good night. Try not to drive me crazy next time.",
+      "voiceText": "Show's over. This is Vern Tell saying good night. Try not to drive me crazy next time.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "closing_frustrated_3",
+      "text": "*sigh* That's a wrap. Thanks for listening. Vern, KBTV. Good night.",
+      "voiceText": "*sigh* That's a wrap. Thanks for listening. Vern, KBTV. Good night.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "closing_frustrated_4",
+      "text": "Alright, show's done. Good night from KBTV. This is Vern, finally getting some peace.",
+      "voiceText": "Alright, show's done. Good night from KBTV. This is Vern, finally getting some peace.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "closing_obsessive_1",
+      "text": "And that's all the time we have tonight! But remember, the connections don't stop here. Keep watching the skies and connecting the dots!",
+      "voiceText": "And that's all the time we have tonight! But remember, the connections don't stop here. Keep watching the skies and connecting the dots!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "closing_obsessive_2",
+      "text": "Show's over, but the conspiracy continues! This is Vern Tell saying good night. Stay vigilant!",
+      "voiceText": "Show's over, but the conspiracy continues! This is Vern Tell saying good night. Stay vigilant!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "closing_obsessive_3",
+      "text": "That's a wrap! Thanks for listening. Vern Tell, KBTV – the truth is out there, linking everything!",
+      "voiceText": "That's a wrap! Thanks for listening. Vern Tell, KBTV – the truth is out there, linking everything!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "closing_obsessive_4",
+      "text": "And that's it for tonight. Good night, truth-seekers. This is Vern, always connecting the patterns!",
+      "voiceText": "And that's it for tonight. Good night, truth-seekers. This is Vern, always connecting the patterns!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "closing_manic_1",
+      "text": "AND THAT'S ALL THE TIME! THANK YOU CALLERS! KEEP WATCHING THOSE SKIES – THE TRUTH IS EVERYWHERE! GOOD NIGHT!",
+      "voiceText": "AND THAT'S ALL THE TIME! THANK YOU CALLERS! KEEP WATCHING THOSE SKIES – THE TRUTH IS EVERYWHERE! GOOD NIGHT!",
+      "mood": "manic"
+    },
+    {
+      "id": "closing_manic_2",
+      "text": "SHOW'S OVER! VERN TELL SAYING GOOD NIGHT! STAY CURIOUS – THE CONNECTIONS NEVER END!",
+      "voiceText": "SHOW'S OVER! VERN TELL SAYING GOOD NIGHT! STAY CURIOUS – THE CONNECTIONS NEVER END!",
+      "mood": "manic"
+    },
+    {
+      "id": "closing_manic_3",
+      "text": "THAT'S A WRAP! THANK YOU FOR LISTENING! VERN TELL, KBTV – THE ENERGY CONTINUES!",
+      "voiceText": "THAT'S A WRAP! THANK YOU FOR LISTENING! VERN TELL, KBTV – THE ENERGY CONTINUES!",
+      "mood": "manic"
+    },
+    {
+      "id": "closing_manic_4",
+      "text": "AND THAT'S IT! GOOD NIGHT, TRUTH-SEEKERS! THIS IS VERN, BURSTING WITH EXCITEMENT!",
+      "voiceText": "AND THAT'S IT! GOOD NIGHT, TRUTH-SEEKERS! THIS IS VERN, BURSTING WITH EXCITEMENT!",
+      "mood": "manic"
+    }
+  ]
+}

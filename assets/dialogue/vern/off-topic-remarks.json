@@ -1,0 +1,179 @@
+{
+  "lineType": "off-topic-remarks",
+  "description": "Responses to callers going off-topic",
+  "lines": [
+    {
+      "id": "offtopic_irritated_1",
+      "text": "Okay, that was... definitely something. Moving on.",
+      "voiceText": "Okay, that was... definitely something. Moving on.",
+      "mood": "irritated"
+    },
+    {
+      "id": "offtopic_irritated_2",
+      "text": "I don't know what that was, but let's pretend it didn't happen.",
+      "voiceText": "I don't know what that was, but let's pretend it didn't happen.",
+      "mood": "irritated"
+    },
+    {
+      "id": "offtopic_irritated_3",
+      "text": "Folks, I apologize for that detour. Some people just like to hear their own voice.",
+      "voiceText": "Folks, I apologize for that detour. Some people just like to hear their own voice.",
+      "mood": "irritated"
+    },
+    {
+      "id": "offtopic_neutral_1",
+      "text": "And THAT is why we have a screening process. Anyway...",
+      "voiceText": "And THAT is why we have a screening process. Anyway...",
+      "mood": "neutral"
+    },
+    {
+      "id": "offtopic_neutral_2",
+      "text": "Okay then. Well. That didn't go where I expected. Who's next?",
+      "voiceText": "Okay then. Well. That didn't go where I expected. Who's next?",
+    },
+    {
+      "id": "offtopic_exhausted_1",
+      "text": "*yawn* You know, I've been thinking... about sleep.",
+      "voiceText": "*yawn* You know, I've been thinking... about sleep.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "offtopic_exhausted_2",
+      "text": "Something's been bothering me... tiredness, I guess.",
+      "voiceText": "Something's been bothering me... tiredness, I guess.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "offtopic_exhausted_3",
+      "text": "*grunt* I've been pondering... exhaustion.",
+      "voiceText": "*grunt* I've been pondering... exhaustion.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "offtopic_exhausted_4",
+      "text": "You know what keeps me up? Everything.",
+      "voiceText": "You know what keeps me up? Everything.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "offtopic_depressed_1",
+      "text": "You know, I've been thinking... about how bleak it all is.",
+      "voiceText": "You know, I've been thinking... about how bleak it all is.",
+      "mood": "depressed"
+    },
+    {
+      "id": "offtopic_depressed_2",
+      "text": "Something's been bothering me... the futility of it all.",
+      "voiceText": "Something's been bothering me... the futility of it all.",
+      "mood": "depressed"
+    },
+    {
+      "id": "offtopic_depressed_3",
+      "text": "I've been pondering... hopelessness.",
+      "voiceText": "I've been pondering... hopelessness.",
+      "mood": "depressed"
+    },
+    {
+      "id": "offtopic_depressed_4",
+      "text": "You know what haunts me? Everything.",
+      "voiceText": "You know what haunts me? Everything.",
+      "mood": "depressed"
+    },
+    {
+      "id": "offtopic_angry_1",
+      "text": "You know, I've been thinking... someone's got to pay for this!",
+      "voiceText": "You know, I've been thinking... someone's got to pay for this!",
+      "mood": "angry"
+    },
+    {
+      "id": "offtopic_angry_2",
+      "text": "Something's been bothering me... the damn cover-ups!",
+      "voiceText": "Something's been bothering me... the damn cover-ups!",
+      "mood": "angry"
+    },
+    {
+      "id": "offtopic_angry_3",
+      "text": "I've been pondering... who to blame!",
+      "voiceText": "I've been pondering... who to blame!",
+      "mood": "angry"
+    },
+    {
+      "id": "offtopic_angry_4",
+      "text": "You know what pisses me off? Lies!",
+      "voiceText": "You know what pisses me off? Lies!",
+      "mood": "angry"
+    },
+    {
+      "id": "offtopic_frustrated_1",
+      "text": "*sigh* You know, I've been thinking... why can't people just tell the truth?",
+      "voiceText": "*sigh* You know, I've been thinking... why can't people just tell the truth?",
+      "mood": "frustrated"
+    },
+    {
+      "id": "offtopic_frustrated_2",
+      "text": "Something's been bothering me... all the nonsense.",
+      "voiceText": "Something's been bothering me... all the nonsense.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "offtopic_frustrated_3",
+      "text": "I've been pondering... impatience.",
+      "voiceText": "I've been pondering... impatience.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "offtopic_frustrated_4",
+      "text": "You know what annoys me? Everything.",
+      "voiceText": "You know what annoys me? Everything.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "offtopic_obsessive_1",
+      "text": "You know, I've been thinking... about how everything connects!",
+      "voiceText": "You know, I've been thinking... about how everything connects!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "offtopic_obsessive_2",
+      "text": "Something's been bothering me... the hidden links!",
+      "voiceText": "Something's been bothering me... the hidden links!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "offtopic_obsessive_3",
+      "text": "I've been pondering... the grand conspiracy!",
+      "voiceText": "I've been pondering... the grand conspiracy!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "offtopic_obsessive_4",
+      "text": "You know what fascinates me? The patterns!",
+      "voiceText": "You know what fascinates me? The patterns!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "offtopic_manic_1",
+      "text": "YOU KNOW, I'VE BEEN THINKING... EVERYTHING IS CONNECTED IN WAYS YOU CAN'T IMAGINE!",
+      "voiceText": "YOU KNOW, I'VE BEEN THINKING... EVERYTHING IS CONNECTED IN WAYS YOU CAN'T IMAGINE!",
+      "mood": "manic"
+    },
+    {
+      "id": "offtopic_manic_2",
+      "text": "SOMETHING'S BEEN BOTHERING ME... THE HIDDEN CONNECTIONS BURSTING TO GET OUT!",
+      "voiceText": "SOMETHING'S BEEN BOTHERING ME... THE HIDDEN CONNECTIONS BURSTING TO GET OUT!",
+      "mood": "manic"
+    },
+    {
+      "id": "offtopic_manic_3",
+      "text": "I'VE BEEN PONDERING... THE GRAND CONSPIRACY THAT LINKS IT ALL!",
+      "voiceText": "I'VE BEEN PONDERING... THE GRAND CONSPIRACY THAT LINKS IT ALL!",
+      "mood": "manic"
+    },
+    {
+      "id": "offtopic_manic_4",
+      "text": "YOU KNOW WHAT EXCITES ME? THE PATTERNS THAT REVEAL EVERYTHING!",
+      "voiceText": "YOU KNOW WHAT EXCITES ME? THE PATTERNS THAT REVEAL EVERYTHING!",
+      "mood": "manic"
+    }
+  ]
+}

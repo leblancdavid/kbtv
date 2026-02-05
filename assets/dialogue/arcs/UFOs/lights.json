@@ -51,6 +51,42 @@
           "text": "You're on. Describe what you observed from the beginning.",
           "voiceText": "You're on. Describe what you observed from the beginning.",
           "mood": "focused"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_exhausted_1",
+          "text": "*yawn* you're on the air. what did you witness?",
+          "voiceText": "*yawn* you're on the air. what did you witness?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_depressed_1",
+          "text": "You're on the air. What did you witness...",
+          "voiceText": "You're on the air. What did you witness...",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_angry_1",
+          "text": "YOU'RE ON THE AIR! WHAT DID YOU WITNESS?!",
+          "voiceText": "YOU'RE ON THE AIR! WHAT DID YOU WITNESS?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_frustrated_1",
+          "text": "Ugh, you're on the air. what did you witness?",
+          "voiceText": "Ugh, you're on the air. what did you witness?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_obsessive_1",
+          "text": "You're on the air. What did you witness? You know what this means?",
+          "voiceText": "You're on the air. What did you witness? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_manic_1",
+          "text": "YOU'RE ON THE AIR. WHAT DID YOU WITNESS?!!!",
+          "voiceText": "YOU'RE ON THE AIR. WHAT DID YOU WITNESS?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -108,6 +144,42 @@
           "text": "Three lights in a stationary position. What was the duration of observation?",
           "voiceText": "Three lights in a stationary position. What was the duration of observation?",
           "mood": "focused"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_exhausted_2",
+          "text": "*yawn* three lights over the lake. how long were they there?",
+          "voiceText": "*yawn* three lights over the lake. how long were they there?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_depressed_2",
+          "text": "Three lights over the lake. How long were they there...",
+          "voiceText": "Three lights over the lake. How long were they there...",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_angry_2",
+          "text": "THREE LIGHTS OVER THE LAKE! HOW LONG WERE THEY THERE?!",
+          "voiceText": "THREE LIGHTS OVER THE LAKE! HOW LONG WERE THEY THERE?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_frustrated_2",
+          "text": "Ugh, three lights over the lake. how long were they there?",
+          "voiceText": "Ugh, three lights over the lake. how long were they there?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_obsessive_2",
+          "text": "Three lights over the lake. How long were they there? You know what this means?",
+          "voiceText": "Three lights over the lake. How long were they there? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_manic_2",
+          "text": "THREE LIGHTS OVER THE LAKE. HOW LONG WERE THEY THERE?!!!",
+          "voiceText": "THREE LIGHTS OVER THE LAKE. HOW LONG WERE THEY THERE?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -165,6 +237,42 @@
           "text": "Formation change followed by merger. What was the subsequent behavior of the unified light?",
           "voiceText": "Formation change followed by merger. What was the subsequent behavior of the unified light?",
           "mood": "focused"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_exhausted_3",
+          "text": "*yawn* merged into one light. that's unusual. what happened after that?",
+          "voiceText": "*yawn* merged into one light. that's unusual. what happened after that?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_depressed_3",
+          "text": "Merged into one light. That's unusual. What happened after that...",
+          "voiceText": "Merged into one light. That's unusual. What happened after that...",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_angry_3",
+          "text": "MERGED INTO ONE LIGHT! THAT'S UNUSUAL! WHAT HAPPENED AFTER THAT?!",
+          "voiceText": "MERGED INTO ONE LIGHT! THAT'S UNUSUAL! WHAT HAPPENED AFTER THAT?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_frustrated_3",
+          "text": "Ugh, merged into one light. that's unusual. what happened after that?",
+          "voiceText": "Ugh, merged into one light. that's unusual. what happened after that?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_obsessive_3",
+          "text": "Merged into one light. That's unusual. What happened after that? You know what this means?",
+          "voiceText": "Merged into one light. That's unusual. What happened after that? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_manic_3",
+          "text": "MERGED INTO ONE LIGHT. THAT'S UNUSUAL. WHAT HAPPENED AFTER THAT?!!!",
+          "voiceText": "MERGED INTO ONE LIGHT. THAT'S UNUSUAL. WHAT HAPPENED AFTER THAT?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -222,6 +330,42 @@
           "text": "Vertical acceleration at supersonic speeds. Given the proximity to the military installation, what are your thoughts on experimental aircraft or drone swarm testing?",
           "voiceText": "Vertical acceleration at supersonic speeds. Given the proximity to the military installation, what are your thoughts on experimental aircraft or drone swarm testing?",
           "mood": "focused"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_exhausted_4",
+          "text": "*yawn* there's a military base about forty miles from you. could be training exercises with flares or drones.",
+          "voiceText": "*yawn* there's a military base about forty miles from you. could be training exercises with flares or drones.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_depressed_4",
+          "text": "There's a military base about forty miles from you. Could be training exercises with flares or drones.",
+          "voiceText": "There's a military base about forty miles from you. Could be training exercises with flares or drones.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_angry_4",
+          "text": "THERE'S A MILITARY BASE ABOUT FORTY MILES FROM YOU! COULD BE TRAINING EXERCISES WITH FLARES OR DRONES!",
+          "voiceText": "THERE'S A MILITARY BASE ABOUT FORTY MILES FROM YOU! COULD BE TRAINING EXERCISES WITH FLARES OR DRONES!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_frustrated_4",
+          "text": "Ugh, there's a military base about forty miles from you. could be training exercises with flares or drones.",
+          "voiceText": "Ugh, there's a military base about forty miles from you. could be training exercises with flares or drones.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_obsessive_4",
+          "text": "There's a military base about forty miles from you. Could be training exercises with flares or drones. You know what this means?",
+          "voiceText": "There's a military base about forty miles from you. Could be training exercises with flares or drones. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_manic_4",
+          "text": "THERE'S A MILITARY BASE ABOUT FORTY MILES FROM YOU. COULD BE TRAINING EXERCISES WITH FLARES OR DRONES.!!!",
+          "voiceText": "THERE'S A MILITARY BASE ABOUT FORTY MILES FROM YOU. COULD BE TRAINING EXERCISES WITH FLARES OR DRONES.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -279,6 +423,42 @@
           "text": "Please submit that footage to our research division for frame-by-frame analysis. Additionally, we recommend having a secondary recording device prepared for future observations. Thank you for your report.",
           "voiceText": "Please submit that footage to our research division for frame-by-frame analysis. Additionally, we recommend having a secondary recording device prepared for future observations. Thank you for your report.",
           "mood": "focused"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_exhausted_5",
+          "text": "*yawn* send us that ring camera footage if you can. set up your phone next time too. we've got researchers who will analyze every frame. thanks for calling in.",
+          "voiceText": "*yawn* send us that ring camera footage if you can. set up your phone next time too. we've got researchers who will analyze every frame. thanks for calling in.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_depressed_5",
+          "text": "Send us that Ring camera footage if you can. Set up your phone next time too. We've got researchers who will analyze every frame. Thanks for calling in.",
+          "voiceText": "Send us that Ring camera footage if you can. Set up your phone next time too. We've got researchers who will analyze every frame. Thanks for calling in.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_angry_5",
+          "text": "SEND US THAT RING CAMERA FOOTAGE IF YOU CAN! SET UP YOUR PHONE NEXT TIME TOO! WE'VE GOT RESEARCHERS WHO WILL ANALYZE EVERY FRAME! THANKS FOR CALLING IN!",
+          "voiceText": "SEND US THAT RING CAMERA FOOTAGE IF YOU CAN! SET UP YOUR PHONE NEXT TIME TOO! WE'VE GOT RESEARCHERS WHO WILL ANALYZE EVERY FRAME! THANKS FOR CALLING IN!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_frustrated_5",
+          "text": "Ugh, send us that ring camera footage if you can. set up your phone next time too. we've got researchers who will analyze every frame. thanks for calling in.",
+          "voiceText": "Ugh, send us that ring camera footage if you can. set up your phone next time too. we've got researchers who will analyze every frame. thanks for calling in.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_obsessive_5",
+          "text": "Send us that Ring camera footage if you can. Set up your phone next time too. We've got researchers who will analyze every frame. Thanks for calling in. You know what this means?",
+          "voiceText": "Send us that Ring camera footage if you can. Set up your phone next time too. We've got researchers who will analyze every frame. Thanks for calling in. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_questionable_lights_vern_manic_5",
+          "text": "SEND US THAT RING CAMERA FOOTAGE IF YOU CAN. SET UP YOUR PHONE NEXT TIME TOO. WE'VE GOT RESEARCHERS WHO WILL ANALYZE EVERY FRAME. THANKS FOR CALLING IN.!!!",
+          "voiceText": "SEND US THAT RING CAMERA FOOTAGE IF YOU CAN. SET UP YOUR PHONE NEXT TIME TOO. WE'VE GOT RESEARCHERS WHO WILL ANALYZE EVERY FRAME. THANKS FOR CALLING IN.!!!",
+          "mood": "manic"
         }
       ]
     },

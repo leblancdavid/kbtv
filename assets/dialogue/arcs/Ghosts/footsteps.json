@@ -51,6 +51,42 @@
           "text": "You're on. Describe the unusual activity in your residence.",
           "voiceText": "You're on. Describe the unusual activity in your residence.",
           "mood": "focused"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_exhausted_1",
+          "text": "*yawn* you're on the air. what's happening at your place?",
+          "voiceText": "*yawn* you're on the air. what's happening at your place?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_depressed_1",
+          "text": "You're on the air. What's happening at your place...",
+          "voiceText": "You're on the air. What's happening at your place...",
+          "mood": "depressed"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_angry_1",
+          "text": "YOU'RE ON THE AIR! WHAT'S HAPPENING AT YOUR PLACE?!",
+          "voiceText": "YOU'RE ON THE AIR! WHAT'S HAPPENING AT YOUR PLACE?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_frustrated_1",
+          "text": "Ugh, you're on the air. what's happening at your place?",
+          "voiceText": "Ugh, you're on the air. what's happening at your place?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_obsessive_1",
+          "text": "You're on the air. What's happening at your place? You know what this means?",
+          "voiceText": "You're on the air. What's happening at your place? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_manic_1",
+          "text": "YOU'RE ON THE AIR. WHAT'S HAPPENING AT YOUR PLACE?!!!",
+          "voiceText": "YOU'RE ON THE AIR. WHAT'S HAPPENING AT YOUR PLACE?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -109,6 +145,42 @@
           "text": "Specific phenomena observed. Please describe in detail.",
           "voiceText": "Specific phenomena observed. Please describe in detail.",
           "mood": "focused"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_exhausted_2",
+          "text": "*yawn* give me specifics. what's been happening?",
+          "voiceText": "*yawn* give me specifics. what's been happening?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_depressed_2",
+          "text": "Give me specifics. What's been happening...",
+          "voiceText": "Give me specifics. What's been happening...",
+          "mood": "depressed"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_angry_2",
+          "text": "GIVE ME SPECIFICS! WHAT'S BEEN HAPPENING?!",
+          "voiceText": "GIVE ME SPECIFICS! WHAT'S BEEN HAPPENING?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_frustrated_2",
+          "text": "Ugh, give me specifics. what's been happening?",
+          "voiceText": "Ugh, give me specifics. what's been happening?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_obsessive_2",
+          "text": "Give me specifics. What's been happening? You know what this means?",
+          "voiceText": "Give me specifics. What's been happening? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_manic_2",
+          "text": "GIVE ME SPECIFICS. WHAT'S BEEN HAPPENING?!!!",
+          "voiceText": "GIVE ME SPECIFICS. WHAT'S BEEN HAPPENING?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -168,6 +240,42 @@
           "text": "Localized thermal anomaly and electromagnetic interference. Duration of phenomena?",
           "voiceText": "Localized thermal anomaly and electromagnetic interference. Duration of phenomena?",
           "mood": "focused"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_exhausted_3",
+          "text": "*yawn* electrical interference and cold spots together. how long has this been going on?",
+          "voiceText": "*yawn* electrical interference and cold spots together. how long has this been going on?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_depressed_3",
+          "text": "Electrical interference and cold spots together. How long has this been going on...",
+          "voiceText": "Electrical interference and cold spots together. How long has this been going on...",
+          "mood": "depressed"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_angry_3",
+          "text": "ELECTRICAL INTERFERENCE AND COLD SPOTS TOGETHER! HOW LONG HAS THIS BEEN GOING ON?!",
+          "voiceText": "ELECTRICAL INTERFERENCE AND COLD SPOTS TOGETHER! HOW LONG HAS THIS BEEN GOING ON?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_frustrated_3",
+          "text": "Ugh, electrical interference and cold spots together. how long has this been going on?",
+          "voiceText": "Ugh, electrical interference and cold spots together. how long has this been going on?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_obsessive_3",
+          "text": "Electrical interference and cold spots together. How long has this been going on? You know what this means?",
+          "voiceText": "Electrical interference and cold spots together. How long has this been going on? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_manic_3",
+          "text": "ELECTRICAL INTERFERENCE AND COLD SPOTS TOGETHER. HOW LONG HAS THIS BEEN GOING ON?!!!",
+          "voiceText": "ELECTRICAL INTERFERENCE AND COLD SPOTS TOGETHER. HOW LONG HAS THIS BEEN GOING ON?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -226,6 +334,42 @@
           "text": "Electrical infrastructure assessment. Have you consulted qualified personnel to evaluate potential causes?",
           "voiceText": "Electrical infrastructure assessment. Have you consulted qualified personnel to evaluate potential causes?",
           "mood": "focused"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_exhausted_4",
+          "text": "*yawn* electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. have you had an electrician look at it?",
+          "voiceText": "*yawn* electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. have you had an electrician look at it?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_depressed_4",
+          "text": "Electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. Have you had an electrician look at it...",
+          "voiceText": "Electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. Have you had an electrician look at it...",
+          "mood": "depressed"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_angry_4",
+          "text": "ELECTRICAL ISSUES COULD EXPLAIN BOTH - BAD WIRING COULD CAUSE COLD SPOTS FROM DRAFTS AND INTERFERENCE WITH ELECTRONICS! HAVE YOU HAD AN ELECTRICIAN LOOK AT IT?!",
+          "voiceText": "ELECTRICAL ISSUES COULD EXPLAIN BOTH - BAD WIRING COULD CAUSE COLD SPOTS FROM DRAFTS AND INTERFERENCE WITH ELECTRONICS! HAVE YOU HAD AN ELECTRICIAN LOOK AT IT?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_frustrated_4",
+          "text": "Ugh, electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. have you had an electrician look at it?",
+          "voiceText": "Ugh, electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. have you had an electrician look at it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_obsessive_4",
+          "text": "Electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. Have you had an electrician look at it? You know what this means?",
+          "voiceText": "Electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. Have you had an electrician look at it? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_manic_4",
+          "text": "ELECTRICAL ISSUES COULD EXPLAIN BOTH - BAD WIRING COULD CAUSE COLD SPOTS FROM DRAFTS AND INTERFERENCE WITH ELECTRONICS. HAVE YOU HAD AN ELECTRICIAN LOOK AT IT?!!!",
+          "voiceText": "ELECTRICAL ISSUES COULD EXPLAIN BOTH - BAD WIRING COULD CAUSE COLD SPOTS FROM DRAFTS AND INTERFERENCE WITH ELECTRONICS. HAVE YOU HAD AN ELECTRICIAN LOOK AT IT?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -284,6 +428,42 @@
           "text": "Please acquire electromagnetic field measurement equipment and document temperature differentials. Systematic data collection will clarify whether this represents genuine anomaly.",
           "voiceText": "Please acquire electromagnetic field measurement equipment and document temperature differentials. Systematic data collection will clarify whether this represents genuine anomaly.",
           "mood": "focused"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_exhausted_5",
+          "text": "*yawn* get an emf detector if you can and track the readings. document the temperature in that spot. if it's genuinely anomalous, the data will show it. thanks for calling in.",
+          "voiceText": "*yawn* get an emf detector if you can and track the readings. document the temperature in that spot. if it's genuinely anomalous, the data will show it. thanks for calling in.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_depressed_5",
+          "text": "Get an EMF detector if you can and track the readings. Document the temperature in that spot. If it's genuinely anomalous, the data will show it. Thanks for calling in.",
+          "voiceText": "Get an EMF detector if you can and track the readings. Document the temperature in that spot. If it's genuinely anomalous, the data will show it. Thanks for calling in.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_angry_5",
+          "text": "GET AN EMF DETECTOR IF YOU CAN AND TRACK THE READINGS! DOCUMENT THE TEMPERATURE IN THAT SPOT! IF IT'S GENUINELY ANOMALOUS, THE DATA WILL SHOW IT! THANKS FOR CALLING IN!",
+          "voiceText": "GET AN EMF DETECTOR IF YOU CAN AND TRACK THE READINGS! DOCUMENT THE TEMPERATURE IN THAT SPOT! IF IT'S GENUINELY ANOMALOUS, THE DATA WILL SHOW IT! THANKS FOR CALLING IN!",
+          "mood": "angry"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_frustrated_5",
+          "text": "Ugh, get an emf detector if you can and track the readings. document the temperature in that spot. if it's genuinely anomalous, the data will show it. thanks for calling in.",
+          "voiceText": "Ugh, get an emf detector if you can and track the readings. document the temperature in that spot. if it's genuinely anomalous, the data will show it. thanks for calling in.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_obsessive_5",
+          "text": "Get an EMF detector if you can and track the readings. Document the temperature in that spot. If it's genuinely anomalous, the data will show it. Thanks for calling in. You know what this means?",
+          "voiceText": "Get an EMF detector if you can and track the readings. Document the temperature in that spot. If it's genuinely anomalous, the data will show it. Thanks for calling in. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ghosts_questionable_footsteps_vern_manic_5",
+          "text": "GET AN EMF DETECTOR IF YOU CAN AND TRACK THE READINGS. DOCUMENT THE TEMPERATURE IN THAT SPOT. IF IT'S GENUINELY ANOMALOUS, THE DATA WILL SHOW IT. THANKS FOR CALLING IN.!!!",
+          "voiceText": "GET AN EMF DETECTOR IF YOU CAN AND TRACK THE READINGS. DOCUMENT THE TEMPERATURE IN THAT SPOT. IF IT'S GENUINELY ANOMALOUS, THE DATA WILL SHOW IT. THANKS FOR CALLING IN.!!!",
+          "mood": "manic"
         }
       ]
     },

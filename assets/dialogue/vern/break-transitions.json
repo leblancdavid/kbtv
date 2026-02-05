@@ -1,0 +1,215 @@
+{
+  "lineType": "break-transitions",
+  "description": "Lines when transitioning to commercial breaks",
+  "lines": [
+    {
+      "id": "break_neutral_1",
+      "text": "Alright folks, we're going to take a quick commercial break. Stay tuned, we'll be right back.",
+      "voiceText": "Alright folks, we're going to take a quick commercial break. Stay tuned, we'll be right back.",
+      "mood": "neutral"
+    },
+    {
+      "id": "break_tired_1",
+      "text": "Time for a short break. We'll be back in just a moment with more calls.",
+      "voiceText": "Time for a short break. We'll be back in just a moment with more calls.",
+      "mood": "tired"
+    },
+    {
+      "id": "break_energized_1",
+      "text": "We're going to pause for our sponsors. Don't go anywhere, the truth waits for no one.",
+      "voiceText": "We're going to pause for our sponsors. Don't go anywhere, the truth waits for no one.",
+      "mood": "energized"
+    },
+    {
+      "id": "break_irritated_1",
+      "text": "Commercial break time. We'll return with more callers and more revelations.",
+      "voiceText": "Commercial break time. We'll return with more callers and more revelations.",
+      "mood": "irritated"
+    },
+    {
+      "id": "break_gruff_1",
+      "text": "Taking a break now. Stay with us, folks. The night is just beginning.",
+      "voiceText": "Taking a break now. Stay with us, folks. The night is just beginning.",
+      "mood": "gruff"
+    },
+    {
+      "id": "break_amused_1",
+      "text": "WHOA! Commercial break! We'll be BACK with MORE!",
+      "voiceText": "WHOA! Commercial break! We'll be BACK with MORE!",
+      "mood": "amused"
+    },
+    {
+      "id": "break_focused_1",
+      "text": "Taking a brief intermission. We'll resume the investigation shortly.",
+      "voiceText": "Taking a brief intermission. We'll resume the investigation shortly.",
+      "mood": "focused"
+    },
+    {
+      "id": "break_neutral_2",
+      "text": "Break time. Don't move. We'll be back.",
+      "voiceText": "Break time. Don't move. We'll be back.",
+      "mood": "neutral"
+    },
+    {
+      "id": "break_tired_2",
+      "text": "Ugh, commercial break. As if we need more interruptions.",
+      "voiceText": "Ugh, commercial break. As if we need more interruptions.",
+      "mood": "tired"
+    },
+    {
+      "id": "break_energized_2",
+      "text": "Heh, time for a break. Don't worry, we'll be back with more craziness.",
+      "voiceText": "Heh, time for a break. Don't worry, we'll be back with more craziness.",
+      "mood": "energized"
+    },
+    {
+      "id": "break_irritated_2",
+      "text": "*yawn* Taking a break now. Wake me when we're back.",
+      "voiceText": "*yawn* Taking a break now. Wake me when we're back.",
+    },
+    {
+      "id": "break_exhausted_1",
+      "text": "*yawn* We'll be right back... I think.",
+      "voiceText": "*yawn* We'll be right back... I think.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "break_exhausted_2",
+      "text": "Time for a break. Stay tuned.",
+      "voiceText": "Time for a break. Stay tuned.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "break_exhausted_3",
+      "text": "*grunt* Quick break coming up.",
+      "voiceText": "*grunt* Quick break coming up.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "break_exhausted_4",
+      "text": "We'll be right back after these messages.",
+      "voiceText": "We'll be right back after these messages.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "break_depressed_1",
+      "text": "We'll be right back... eventually.",
+      "voiceText": "We'll be right back... eventually.",
+      "mood": "depressed"
+    },
+    {
+      "id": "break_depressed_2",
+      "text": "Time for a break. I suppose.",
+      "voiceText": "Time for a break. I suppose.",
+      "mood": "depressed"
+    },
+    {
+      "id": "break_depressed_3",
+      "text": "Quick break coming up.",
+      "voiceText": "Quick break coming up.",
+      "mood": "depressed"
+    },
+    {
+      "id": "break_depressed_4",
+      "text": "We'll be right back.",
+      "voiceText": "We'll be right back.",
+      "mood": "depressed"
+    },
+    {
+      "id": "break_angry_1",
+      "text": "We'll be right back – and it better be worth it!",
+      "voiceText": "We'll be right back – and it better be worth it!",
+      "mood": "angry"
+    },
+    {
+      "id": "break_angry_2",
+      "text": "Time for a break! Don't go anywhere!",
+      "voiceText": "Time for a break! Don't go anywhere!",
+      "mood": "angry"
+    },
+    {
+      "id": "break_angry_3",
+      "text": "Quick break – stay tuned!",
+      "voiceText": "Quick break – stay tuned!",
+      "mood": "angry"
+    },
+    {
+      "id": "break_angry_4",
+      "text": "We'll be right back after these damn messages!",
+      "voiceText": "We'll be right back after these damn messages!",
+      "mood": "angry"
+    },
+    {
+      "id": "break_frustrated_1",
+      "text": "*sigh* We'll be right back.",
+      "voiceText": "*sigh* We'll be right back.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "break_frustrated_2",
+      "text": "Time for a break. Again.",
+      "voiceText": "Time for a break. Again.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "break_frustrated_3",
+      "text": "Quick break coming up.",
+      "voiceText": "Quick break coming up.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "break_frustrated_4",
+      "text": "We'll be right back after these messages.",
+      "voiceText": "We'll be right back after these messages.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "break_obsessive_1",
+      "text": "We'll be right back – think about the connections!",
+      "voiceText": "We'll be right back – think about the connections!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "break_obsessive_2",
+      "text": "Time for a break – the patterns await!",
+      "voiceText": "Time for a break – the patterns await!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "break_obsessive_3",
+      "text": "Quick break – stay vigilant!",
+      "voiceText": "Quick break – stay vigilant!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "break_obsessive_4",
+      "text": "We'll be right back after these messages – connect the dots!",
+      "voiceText": "We'll be right back after these messages – connect the dots!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "break_manic_1",
+      "text": "WE'LL BE RIGHT BACK – DON'T GO ANYWHERE! THE TRUTH WAITS!",
+      "voiceText": "WE'LL BE RIGHT BACK – DON'T GO ANYWHERE! THE TRUTH WAITS!",
+      "mood": "manic"
+    },
+    {
+      "id": "break_manic_2",
+      "text": "TIME FOR A BREAK! STAY TUNED – THE ENERGY CONTINUES!",
+      "voiceText": "TIME FOR A BREAK! STAY TUNED – THE ENERGY CONTINUES!",
+      "mood": "manic"
+    },
+    {
+      "id": "break_manic_3",
+      "text": "QUICK BREAK – BUT I'M BURSTING WITH ANTICIPATION!",
+      "voiceText": "QUICK BREAK – BUT I'M BURSTING WITH ANTICIPATION!",
+      "mood": "manic"
+    },
+    {
+      "id": "break_manic_4",
+      "text": "WE'LL BE RIGHT BACK AFTER THESE MESSAGES – THE CONNECTIONS BUILD!",
+      "voiceText": "WE'LL BE RIGHT BACK AFTER THESE MESSAGES – THE CONNECTIONS BUILD!",
+      "mood": "manic"
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+{
+  "lineType": "return-from-breaks",
+  "description": "Lines when returning from commercial breaks",
+  "lines": [
+    {
+      "id": "return_neutral_1",
+      "text": "Alright folks, we're back from our sponsors. The lines are still open.",
+      "voiceText": "Alright folks, we're back from our sponsors. The lines are still open.",
+      "mood": "neutral"
+    },
+    {
+      "id": "return_tired_1",
+      "text": "Welcome back, night owls. Coffee's kicking in again.",
+      "voiceText": "Welcome back, night owls. Coffee's kicking in again.",
+      "mood": "tired"
+    },
+    {
+      "id": "return_energized_1",
+      "text": "And we're back! The board's still lighting up - let's keep this momentum going!",
+      "voiceText": "And we're back! The board's still lighting up - let's keep this momentum going!",
+      "mood": "energized"
+    },
+    {
+      "id": "return_irritated_1",
+      "text": "Back from break. Hopefully with fewer interruptions this time.",
+      "voiceText": "Back from break. Hopefully with fewer interruptions this time.",
+      "mood": "irritated"
+    },
+    {
+      "id": "return_gruff_1",
+      "text": "We're back. Next caller, you're on the air.",
+      "voiceText": "We're back. Next caller, you're on the air.",
+      "mood": "gruff"
+    },
+    {
+      "id": "return_amused_1",
+      "text": "Ah, the sweet sound of return music. Alright, who's next in line?",
+      "voiceText": "Ah, the sweet sound of return music. Alright, who's next in line?",
+      "mood": "amused"
+    },
+    {
+      "id": "return_focused_1",
+      "text": "Commercial break concluded. Resuming broadcast operations.",
+      "voiceText": "Commercial break concluded. Resuming broadcast operations.",
+    },
+    {
+      "id": "return_exhausted_1",
+      "text": "*yawn* Welcome back... I guess.",
+      "voiceText": "*yawn* Welcome back... I guess.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "return_exhausted_2",
+      "text": "We're back on the air.",
+      "voiceText": "We're back on the air.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "return_exhausted_3",
+      "text": "*grunt* Back from break.",
+      "voiceText": "*grunt* Back from break.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "return_exhausted_4",
+      "text": "Welcome back to KBTV.",
+      "voiceText": "Welcome back to KBTV.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "return_depressed_1",
+      "text": "Welcome back... to this.",
+      "voiceText": "Welcome back... to this.",
+      "mood": "depressed"
+    },
+    {
+      "id": "return_depressed_2",
+      "text": "We're back on the air.",
+      "voiceText": "We're back on the air.",
+      "mood": "depressed"
+    },
+    {
+      "id": "return_depressed_3",
+      "text": "Back from break.",
+      "voiceText": "Back from break.",
+      "mood": "depressed"
+    },
+    {
+      "id": "return_depressed_4",
+      "text": "Welcome back to KBTV.",
+      "voiceText": "Welcome back to KBTV.",
+      "mood": "depressed"
+    },
+    {
+      "id": "return_angry_1",
+      "text": "Welcome back – now let's get serious!",
+      "voiceText": "Welcome back – now let's get serious!",
+      "mood": "angry"
+    },
+    {
+      "id": "return_angry_2",
+      "text": "We're back on the air!",
+      "voiceText": "We're back on the air!",
+      "mood": "angry"
+    },
+    {
+      "id": "return_angry_3",
+      "text": "Back from break – furious as ever!",
+      "voiceText": "Back from break – furious as ever!",
+      "mood": "angry"
+    },
+    {
+      "id": "return_angry_4",
+      "text": "Welcome back to KBTV – let's expose some lies!",
+      "voiceText": "Welcome back to KBTV – let's expose some lies!",
+      "mood": "angry"
+    },
+    {
+      "id": "return_frustrated_1",
+      "text": "*sigh* Welcome back.",
+      "voiceText": "*sigh* Welcome back.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "return_frustrated_2",
+      "text": "We're back on the air.",
+      "voiceText": "We're back on the air.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "return_frustrated_3",
+      "text": "Back from break.",
+      "voiceText": "Back from break.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "return_frustrated_4",
+      "text": "Welcome back to KBTV.",
+      "voiceText": "Welcome back to KBTV.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "return_obsessive_1",
+      "text": "Welcome back – the connections are stronger!",
+      "voiceText": "Welcome back – the connections are stronger!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "return_obsessive_2",
+      "text": "We're back on the air – patterns emerging!",
+      "voiceText": "We're back on the air – patterns emerging!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "return_obsessive_3",
+      "text": "Back from break – the web unfolds!",
+      "voiceText": "Back from break – the web unfolds!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "return_obsessive_4",
+      "text": "Welcome back to KBTV – connect the revelations!",
+      "voiceText": "Welcome back to KBTV – connect the revelations!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "return_manic_1",
+      "text": "WELCOME BACK – THE ENERGY IS BACK AND STRONGER!",
+      "voiceText": "WELCOME BACK – THE ENERGY IS BACK AND STRONGER!",
+      "mood": "manic"
+    },
+    {
+      "id": "return_manic_2",
+      "text": "WE'RE BACK ON THE AIR – BURSTING WITH EXCITEMENT!",
+      "voiceText": "WE'RE BACK ON THE AIR – BURSTING WITH EXCITEMENT!",
+      "mood": "manic"
+    },
+    {
+      "id": "return_manic_3",
+      "text": "BACK FROM BREAK – THE CONNECTIONS ARE FLOWING!",
+      "voiceText": "BACK FROM BREAK – THE CONNECTIONS ARE FLOWING!",
+      "mood": "manic"
+    },
+    {
+      "id": "return_manic_4",
+      "text": "WELCOME BACK TO KBTV – LET'S UNCOVER MORE SECRETS!",
+      "voiceText": "WELCOME BACK TO KBTV – LET'S UNCOVER MORE SECRETS!",
+      "mood": "manic"
+    }
+  ]
+}

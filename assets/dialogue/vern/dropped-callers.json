@@ -1,0 +1,215 @@
+{
+  "lineType": "dropped-callers",
+  "description": "Responses when a caller unexpectedly disconnects",
+  "lines": [
+    {
+      "id": "dropped_neutral_1",
+      "text": "Well, we lost that caller. Technical difficulties, folks. Happens sometimes.",
+      "voiceText": "Well, we lost that caller. Technical difficulties, folks. Happens sometimes.",
+      "mood": "neutral"
+    },
+    {
+      "id": "dropped_neutral_2",
+      "text": "Connection dropped. That's the third one tonight. The lines must be busy.",
+      "voiceText": "Connection dropped. That's the third one tonight. The lines must be busy.",
+      "mood": "neutral"
+    },
+    {
+      "id": "dropped_neutral_3",
+      "text": "Sorry about that. We lost the caller. Let's try to get them back or move to the next one.",
+      "voiceText": "Sorry about that. We lost the caller. Let's try to get them back or move to the next one.",
+      "mood": "neutral"
+    },
+    {
+      "id": "dropped_neutral_4",
+      "text": "Technical glitch there. Don't worry, we'll get the next caller on.",
+      "voiceText": "Technical glitch there. Don't worry, we'll get the next caller on.",
+      "mood": "neutral"
+    },
+    {
+      "id": "dropped_neutral_5",
+      "text": "Lost that connection. Happens in these old studios. Next caller, you're on.",
+      "voiceText": "Lost that connection. Happens in these old studios. Next caller, you're on.",
+      "mood": "neutral"
+    },
+    {
+      "id": "dropped_energized_1",
+      "text": "WHOA! We lost that caller! That was intense! Next up!",
+      "voiceText": "WHOA! We lost that caller! That was intense! Next up!",
+      "mood": "energized"
+    },
+    {
+      "id": "dropped_amused_1",
+      "text": "Heh, that caller just... vanished. Poof! Okay, next caller!",
+      "voiceText": "Heh, that caller just... vanished. Poof! Okay, next caller!",
+      "mood": "amused"
+    },
+    {
+      "id": "dropped_focused_1",
+      "text": "Connection terminated. Analyzing the technical failure. Next caller.",
+      "voiceText": "Connection terminated. Analyzing the technical failure. Next caller.",
+      "mood": "focused"
+    },
+    {
+      "id": "dropped_gruff_1",
+      "text": "Lost 'em. Figures. Next caller, don't waste my time.",
+      "voiceText": "Lost 'em. Figures. Next caller, don't waste my time.",
+      "mood": "gruff"
+    },
+    {
+      "id": "dropped_irritated_1",
+      "text": "UGH! Another dropped call! This is infuriating! NEXT!",
+      "voiceText": "UGH! Another dropped call! This is infuriating! NEXT!",
+      "mood": "irritated"
+    },
+    {
+      "id": "dropped_tired_1",
+      "text": "*yawn* Lost the caller. Whatever. Next one.",
+      "voiceText": "*yawn* Lost the caller. Whatever. Next one.",
+    },
+    {
+      "id": "dropped_exhausted_1",
+      "text": "*yawn* Looks like we lost that caller... again.",
+      "voiceText": "*yawn* Looks like we lost that caller... again.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "dropped_exhausted_2",
+      "text": "Technical difficulties, I guess. Or something.",
+      "voiceText": "Technical difficulties, I guess. Or something.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "dropped_exhausted_3",
+      "text": "*grunt* We lost the connection.",
+      "voiceText": "*grunt* We lost the connection.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "dropped_exhausted_4",
+      "text": "Caller dropped. Happens.",
+      "voiceText": "Caller dropped. Happens.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "dropped_depressed_1",
+      "text": "Looks like we lost that caller. Figures.",
+      "voiceText": "Looks like we lost that caller. Figures.",
+      "mood": "depressed"
+    },
+    {
+      "id": "dropped_depressed_2",
+      "text": "Technical difficulties, I suppose.",
+      "voiceText": "Technical difficulties, I suppose.",
+      "mood": "depressed"
+    },
+    {
+      "id": "dropped_depressed_3",
+      "text": "Connection lost.",
+      "voiceText": "Connection lost.",
+      "mood": "depressed"
+    },
+    {
+      "id": "dropped_depressed_4",
+      "text": "Caller disconnected. Again.",
+      "voiceText": "Caller disconnected. Again.",
+      "mood": "depressed"
+    },
+    {
+      "id": "dropped_angry_1",
+      "text": "Looks like we lost that caller! What the hell?!",
+      "voiceText": "Looks like we lost that caller! What the hell?!",
+      "mood": "angry"
+    },
+    {
+      "id": "dropped_angry_2",
+      "text": "Technical difficulties my ass!",
+      "voiceText": "Technical difficulties my ass!",
+      "mood": "angry"
+    },
+    {
+      "id": "dropped_angry_3",
+      "text": "Connection dropped! Damn it!",
+      "voiceText": "Connection dropped! Damn it!",
+      "mood": "angry"
+    },
+    {
+      "id": "dropped_angry_4",
+      "text": "Lost the caller! Unbelievable!",
+      "voiceText": "Lost the caller! Unbelievable!",
+      "mood": "angry"
+    },
+    {
+      "id": "dropped_frustrated_1",
+      "text": "*sigh* We lost that caller.",
+      "voiceText": "*sigh* We lost that caller.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "dropped_frustrated_2",
+      "text": "Technical difficulties again.",
+      "voiceText": "Technical difficulties again.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "dropped_frustrated_3",
+      "text": "Connection dropped.",
+      "voiceText": "Connection dropped.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "dropped_frustrated_4",
+      "text": "Caller lost. Typical.",
+      "voiceText": "Caller lost. Typical.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "dropped_obsessive_1",
+      "text": "Looks like we lost that caller – but the connections remain!",
+      "voiceText": "Looks like we lost that caller – but the connections remain!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "dropped_obsessive_2",
+      "text": "Technical difficulties? Or something more sinister?",
+      "voiceText": "Technical difficulties? Or something more sinister?",
+      "mood": "obsessive"
+    },
+    {
+      "id": "dropped_obsessive_3",
+      "text": "Connection lost – the patterns continue!",
+      "voiceText": "Connection lost – the patterns continue!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "dropped_obsessive_4",
+      "text": "Caller dropped – but the web tightens!",
+      "voiceText": "Caller dropped – but the web tightens!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "dropped_manic_1",
+      "text": "LOST THAT CALLER! BUT THE ENERGY CONTINUES! NEXT!",
+      "voiceText": "LOST THAT CALLER! BUT THE ENERGY CONTINUES! NEXT!",
+      "mood": "manic"
+    },
+    {
+      "id": "dropped_manic_2",
+      "text": "TECHNICAL DIFFICULTIES? HA! THE TRUTH BREAKS THROUGH!",
+      "voiceText": "TECHNICAL DIFFICULTIES? HA! THE TRUTH BREAKS THROUGH!",
+      "mood": "manic"
+    },
+    {
+      "id": "dropped_manic_3",
+      "text": "CONNECTION DROPPED – BUT I'M STILL BURSTING WITH ENERGY!",
+      "voiceText": "CONNECTION DROPPED – BUT I'M STILL BURSTING WITH ENERGY!",
+      "mood": "manic"
+    },
+    {
+      "id": "dropped_manic_4",
+      "text": "LOST THE CALLER! UNBELIEVABLE! BUT THE EXCITEMENT CONTINUES!",
+      "voiceText": "LOST THE CALLER! UNBELIEVABLE! BUT THE EXCITEMENT CONTINUES!",
+      "mood": "manic"
+    }
+  ]
+}

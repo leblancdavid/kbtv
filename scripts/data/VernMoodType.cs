@@ -1,32 +1,50 @@
-namespace KBTV.Data
+ namespace KBTV.Data
 {
     /// <summary>
     /// Vern's current mood type, used to select dialog variants.
-    /// Determined by VernStats.CalculateMoodType().
-    /// Priority order: Tired → Energetized → Irritated → Amused → Gruff → Focused → Neutral
+    /// Determined by VernStats.CalculateMoodType() based on multi-stat combinations.
+    /// Priority order: Exhausted → Depressed → Angry → Frustrated → Tired → Irritated → Obsessive → Manic → Energized → Amused → Focused → Gruff → Neutral
     /// See docs/VERN_STATS.md for full documentation.
     /// </summary>
     public enum VernMoodType
     {
-        /// <summary>Energy < 30 - Slow, flat, misses cues</summary>
+        /// <summary>Physical < -66 AND Emotional < -33 - Completely drained, barely coherent</summary>
+        Exhausted,
+
+        /// <summary>Emotional < -66 AND Mental < -33 - Deep sadness, hopeless, withdrawn</summary>
+        Depressed,
+
+        /// <summary>Emotional < -66 AND Physical > -33 - Hostile, confrontational, high energy rage</summary>
+        Angry,
+
+        /// <summary>Emotional -66 to -33 AND Mental -33 to +33 - Annoyed, short-tempered, distracted</summary>
+        Frustrated,
+
+        /// <summary>Physical -66 to -33 AND Emotional -33 to +33 - Low energy, dismissive, needs rest</summary>
         Tired,
 
-        /// <summary>Caffeine > 60 AND Energy > 60 - Enthusiastic, quick-witted</summary>
-        Energized,
-
-        /// <summary>Spirit < -10 OR Patience < 40 - Snarky, dismissive</summary>
+        /// <summary>Mental < -33 AND Emotional -33 to +33 AND Physical -33 to +33 - Annoyed by details, mentally fatigued</summary>
         Irritated,
 
-        /// <summary>Spirit > 20 AND positive interaction - Laughing, playful</summary>
+        /// <summary>Mental > +66 AND Emotional -33 to +66 - Hyper-focused, conspiracy-prone, intense</summary>
+        Obsessive,
+
+        /// <summary>Physical > +66 AND Emotional > +33 - Over-excited, erratic, high-energy enthusiasm</summary>
+        Manic,
+
+        /// <summary>Physical +33 to +66 AND Emotional +33 to +66 - Enthusiastic, quick-witted, engaging</summary>
+        Energized,
+
+        /// <summary>Emotional +33 to +66 AND Mental -33 to +66 - Playful, entertained, light-hearted</summary>
         Amused,
 
-        /// <summary>Recent bad caller OR Spirit < 0 - Grumpy, reluctant</summary>
-        Gruff,
-
-        /// <summary>Alertness > 60 AND Discernment > 50 - Analytical, digging into claims</summary>
+        /// <summary>Mental +33 to +66 AND Physical -33 to +66 - Analytical, detail-oriented, methodical</summary>
         Focused,
 
-        /// <summary>Default state - Professional, balanced</summary>
+        /// <summary>Emotional -33 to 0 AND Mental +33 to +66 AND Physical -33 to +66 - Grumpy but competent, professional cynicism</summary>
+        Gruff,
+
+        /// <summary>All stats -33 to +33 - Professional, balanced, standard hosting mode</summary>
         Neutral
     }
 }

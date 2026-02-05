@@ -51,6 +51,42 @@
           "text": "You're on. Describe your research methodology and findings.",
           "voiceText": "You're on. Describe your research methodology and findings.",
           "mood": "focused"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_exhausted_1",
+          "text": "*yawn* you're on the air. what have you been researching?",
+          "voiceText": "*yawn* you're on the air. what have you been researching?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_depressed_1",
+          "text": "You're on the air. What have you been researching...",
+          "voiceText": "You're on the air. What have you been researching...",
+          "mood": "depressed"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_angry_1",
+          "text": "YOU'RE ON THE AIR! WHAT HAVE YOU BEEN RESEARCHING?!",
+          "voiceText": "YOU'RE ON THE AIR! WHAT HAVE YOU BEEN RESEARCHING?!",
+          "mood": "angry"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_frustrated_1",
+          "text": "Ugh, you're on the air. what have you been researching?",
+          "voiceText": "Ugh, you're on the air. what have you been researching?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_obsessive_1",
+          "text": "You're on the air. What have you been researching? You know what this means?",
+          "voiceText": "You're on the air. What have you been researching? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_manic_1",
+          "text": "YOU'RE ON THE AIR. WHAT HAVE YOU BEEN RESEARCHING?!!!",
+          "voiceText": "YOU'RE ON THE AIR. WHAT HAVE YOU BEEN RESEARCHING?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -109,6 +145,42 @@
           "text": "Board membership interconnection analysis. What specific patterns have you identified?",
           "voiceText": "Board membership interconnection analysis. What specific patterns have you identified?",
           "mood": "focused"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_exhausted_2",
+          "text": "*yawn* interlocking directorates. that's not unusual in big business.",
+          "voiceText": "*yawn* interlocking directorates. that's not unusual in big business.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_depressed_2",
+          "text": "Interlocking directorates. That's not unusual in big business.",
+          "voiceText": "Interlocking directorates. That's not unusual in big business.",
+          "mood": "depressed"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_angry_2",
+          "text": "INTERLOCKING DIRECTORATES! THAT'S NOT UNUSUAL IN BIG BUSINESS!",
+          "voiceText": "INTERLOCKING DIRECTORATES! THAT'S NOT UNUSUAL IN BIG BUSINESS!",
+          "mood": "angry"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_frustrated_2",
+          "text": "Ugh, interlocking directorates. that's not unusual in big business.",
+          "voiceText": "Ugh, interlocking directorates. that's not unusual in big business.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_obsessive_2",
+          "text": "Interlocking directorates. That's not unusual in big business. You know what this means?",
+          "voiceText": "Interlocking directorates. That's not unusual in big business. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_manic_2",
+          "text": "INTERLOCKING DIRECTORATES. THAT'S NOT UNUSUAL IN BIG BUSINESS.!!!",
+          "voiceText": "INTERLOCKING DIRECTORATES. THAT'S NOT UNUSUAL IN BIG BUSINESS.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -167,6 +239,42 @@
           "text": "Cross-industry board membership correlation. What quantitative analysis supports coordination hypothesis?",
           "voiceText": "Cross-industry board membership correlation. What quantitative analysis supports coordination hypothesis?",
           "mood": "focused"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_exhausted_3",
+          "text": "*yawn* wealthy people do tend to run in the same circles. doesn't necessarily prove coordination.",
+          "voiceText": "*yawn* wealthy people do tend to run in the same circles. doesn't necessarily prove coordination.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_depressed_3",
+          "text": "Wealthy people do tend to run in the same circles. Doesn't necessarily prove coordination.",
+          "voiceText": "Wealthy people do tend to run in the same circles. Doesn't necessarily prove coordination.",
+          "mood": "depressed"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_angry_3",
+          "text": "WEALTHY PEOPLE DO TEND TO RUN IN THE SAME CIRCLES! DOESN'T NECESSARILY PROVE COORDINATION!",
+          "voiceText": "WEALTHY PEOPLE DO TEND TO RUN IN THE SAME CIRCLES! DOESN'T NECESSARILY PROVE COORDINATION!",
+          "mood": "angry"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_frustrated_3",
+          "text": "Ugh, wealthy people do tend to run in the same circles. doesn't necessarily prove coordination.",
+          "voiceText": "Ugh, wealthy people do tend to run in the same circles. doesn't necessarily prove coordination.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_obsessive_3",
+          "text": "Wealthy people do tend to run in the same circles. Doesn't necessarily prove coordination. You know what this means?",
+          "voiceText": "Wealthy people do tend to run in the same circles. Doesn't necessarily prove coordination. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_manic_3",
+          "text": "WEALTHY PEOPLE DO TEND TO RUN IN THE SAME CIRCLES. DOESN'T NECESSARILY PROVE COORDINATION.!!!",
+          "voiceText": "WEALTHY PEOPLE DO TEND TO RUN IN THE SAME CIRCLES. DOESN'T NECESSARILY PROVE COORDINATION.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -225,6 +333,42 @@
           "text": "Temporal correlation between board meetings and policy decisions. Statistical significance requires rigorous analysis.",
           "voiceText": "Temporal correlation between board meetings and policy decisions. Statistical significance requires rigorous analysis.",
           "mood": "focused"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_exhausted_4",
+          "text": "*yawn* correlation isn't causation. this could all be explained by shared interests and natural alignment.",
+          "voiceText": "*yawn* correlation isn't causation. this could all be explained by shared interests and natural alignment.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_depressed_4",
+          "text": "Correlation isn't causation. This could all be explained by shared interests and natural alignment.",
+          "voiceText": "Correlation isn't causation. This could all be explained by shared interests and natural alignment.",
+          "mood": "depressed"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_angry_4",
+          "text": "CORRELATION ISN'T CAUSATION! THIS COULD ALL BE EXPLAINED BY SHARED INTERESTS AND NATURAL ALIGNMENT!",
+          "voiceText": "CORRELATION ISN'T CAUSATION! THIS COULD ALL BE EXPLAINED BY SHARED INTERESTS AND NATURAL ALIGNMENT!",
+          "mood": "angry"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_frustrated_4",
+          "text": "Ugh, correlation isn't causation. this could all be explained by shared interests and natural alignment.",
+          "voiceText": "Ugh, correlation isn't causation. this could all be explained by shared interests and natural alignment.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_obsessive_4",
+          "text": "Correlation isn't causation. This could all be explained by shared interests and natural alignment. You know what this means?",
+          "voiceText": "Correlation isn't causation. This could all be explained by shared interests and natural alignment. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_manic_4",
+          "text": "CORRELATION ISN'T CAUSATION. THIS COULD ALL BE EXPLAINED BY SHARED INTERESTS AND NATURAL ALIGNMENT.!!!",
+          "voiceText": "CORRELATION ISN'T CAUSATION. THIS COULD ALL BE EXPLAINED BY SHARED INTERESTS AND NATURAL ALIGNMENT.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -283,6 +427,42 @@
           "text": "Continued data collection and visualization is valuable. Please share findings as patterns emerge.",
           "voiceText": "Continued data collection and visualization is valuable. Please share findings as patterns emerge.",
           "mood": "focused"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_exhausted_5",
+          "text": "*yawn* keep mapping the connections and gathering data. let us know what you find as it develops. thanks for the research.",
+          "voiceText": "*yawn* keep mapping the connections and gathering data. let us know what you find as it develops. thanks for the research.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_depressed_5",
+          "text": "Keep mapping the connections and gathering data. Let us know what you find as it develops. Thanks for the research.",
+          "voiceText": "Keep mapping the connections and gathering data. Let us know what you find as it develops. Thanks for the research.",
+          "mood": "depressed"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_angry_5",
+          "text": "KEEP MAPPING THE CONNECTIONS AND GATHERING DATA! LET US KNOW WHAT YOU FIND AS IT DEVELOPS! THANKS FOR THE RESEARCH!",
+          "voiceText": "KEEP MAPPING THE CONNECTIONS AND GATHERING DATA! LET US KNOW WHAT YOU FIND AS IT DEVELOPS! THANKS FOR THE RESEARCH!",
+          "mood": "angry"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_frustrated_5",
+          "text": "Ugh, keep mapping the connections and gathering data. let us know what you find as it develops. thanks for the research.",
+          "voiceText": "Ugh, keep mapping the connections and gathering data. let us know what you find as it develops. thanks for the research.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_obsessive_5",
+          "text": "Keep mapping the connections and gathering data. Let us know what you find as it develops. Thanks for the research. You know what this means?",
+          "voiceText": "Keep mapping the connections and gathering data. Let us know what you find as it develops. Thanks for the research. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "conspiracies_questionable_patterns_vern_manic_5",
+          "text": "KEEP MAPPING THE CONNECTIONS AND GATHERING DATA. LET US KNOW WHAT YOU FIND AS IT DEVELOPS. THANKS FOR THE RESEARCH.!!!",
+          "voiceText": "KEEP MAPPING THE CONNECTIONS AND GATHERING DATA. LET US KNOW WHAT YOU FIND AS IT DEVELOPS. THANKS FOR THE RESEARCH.!!!",
+          "mood": "manic"
         }
       ]
     },

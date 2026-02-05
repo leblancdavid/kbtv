@@ -52,6 +52,42 @@
           "text": "You're on. Describe your UFO observation from the beginning.",
           "voiceText": "You're on. Describe your UFO observation from the beginning.",
           "mood": "focused"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_exhausted_1",
+          "text": "*yawn* you're on the air. said you had a ufo sighting?",
+          "voiceText": "*yawn* you're on the air. said you had a ufo sighting?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_depressed_1",
+          "text": "You're on the air. Said you had a UFO sighting...",
+          "voiceText": "You're on the air. Said you had a UFO sighting...",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_angry_1",
+          "text": "YOU'RE ON THE AIR! SAID YOU HAD A UFO SIGHTING?!",
+          "voiceText": "YOU'RE ON THE AIR! SAID YOU HAD A UFO SIGHTING?!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_frustrated_1",
+          "text": "Ugh, you're on the air. said you had a ufo sighting?",
+          "voiceText": "Ugh, you're on the air. said you had a ufo sighting?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_obsessive_1",
+          "text": "You're on the air. Said you had a UFO sighting? You know what this means?",
+          "voiceText": "You're on the air. Said you had a UFO sighting? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_manic_1",
+          "text": "YOU'RE ON THE AIR. SAID YOU HAD A UFO SIGHTING?!!!",
+          "voiceText": "YOU'RE ON THE AIR. SAID YOU HAD A UFO SIGHTING?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -110,6 +146,42 @@
           "text": "Topic misrepresentation acknowledged. What phenomenon did you actually observe?",
           "voiceText": "Topic misrepresentation acknowledged. What phenomenon did you actually observe?",
           "mood": "focused"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_exhausted_2",
+          "text": "*yawn* alright, i appreciate the honesty. what did you actually see?",
+          "voiceText": "*yawn* alright, i appreciate the honesty. what did you actually see?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_depressed_2",
+          "text": "Alright, I appreciate the honesty. What did you actually see...",
+          "voiceText": "Alright, I appreciate the honesty. What did you actually see...",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_angry_2",
+          "text": "ALRIGHT, I APPRECIATE THE HONESTY! WHAT DID YOU ACTUALLY SEE?!",
+          "voiceText": "ALRIGHT, I APPRECIATE THE HONESTY! WHAT DID YOU ACTUALLY SEE?!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_frustrated_2",
+          "text": "Ugh, alright, i appreciate the honesty. what did you actually see?",
+          "voiceText": "Ugh, alright, i appreciate the honesty. what did you actually see?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_obsessive_2",
+          "text": "Alright, I appreciate the honesty. What did you actually see? You know what this means?",
+          "voiceText": "Alright, I appreciate the honesty. What did you actually see? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_manic_2",
+          "text": "ALRIGHT, I APPRECIATE THE HONESTY. WHAT DID YOU ACTUALLY SEE?!!!",
+          "voiceText": "ALRIGHT, I APPRECIATE THE HONESTY. WHAT DID YOU ACTUALLY SEE?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -168,6 +240,42 @@
           "text": "Woodland environment, 3 AM. Describe the auditory and visual phenomena encountered.",
           "voiceText": "Woodland environment, 3 AM. Describe the auditory and visual phenomena encountered.",
           "mood": "focused"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_exhausted_3",
+          "text": "*yawn* in the woods at 3 am. and you saw something?",
+          "voiceText": "*yawn* in the woods at 3 am. and you saw something?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_depressed_3",
+          "text": "In the woods at 3 AM. And you saw something...",
+          "voiceText": "In the woods at 3 AM. And you saw something...",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_angry_3",
+          "text": "IN THE WOODS AT 3 AM! AND YOU SAW SOMETHING?!",
+          "voiceText": "IN THE WOODS AT 3 AM! AND YOU SAW SOMETHING?!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_frustrated_3",
+          "text": "Ugh, in the woods at 3 am. and you saw something?",
+          "voiceText": "Ugh, in the woods at 3 am. and you saw something?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_obsessive_3",
+          "text": "In the woods at 3 AM. And you saw something? You know what this means?",
+          "voiceText": "In the woods at 3 AM. And you saw something? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_manic_3",
+          "text": "IN THE WOODS AT 3 AM. AND YOU SAW SOMETHING?!!!",
+          "voiceText": "IN THE WOODS AT 3 AM. AND YOU SAW SOMETHING?!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -226,6 +334,42 @@
           "text": "Seven foot bipedal organism with fur covering. What distinguishing characteristics ruled out Ursus arctos horribilis in upright posture?",
           "voiceText": "Seven foot bipedal organism with fur covering. What distinguishing characteristics ruled out Ursus arctos horribilis in upright posture?",
           "mood": "focused"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_exhausted_4",
+          "text": "*yawn* seven feet tall, bipedal, fur. could've been a bear standing on its hind legs. they do that sometimes.",
+          "voiceText": "*yawn* seven feet tall, bipedal, fur. could've been a bear standing on its hind legs. they do that sometimes.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_depressed_4",
+          "text": "Seven feet tall, bipedal, fur. Could've been a bear standing on its hind legs. They do that sometimes.",
+          "voiceText": "Seven feet tall, bipedal, fur. Could've been a bear standing on its hind legs. They do that sometimes.",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_angry_4",
+          "text": "SEVEN FEET TALL, BIPEDAL, FUR! COULD'VE BEEN A BEAR STANDING ON ITS HIND LEGS! THEY DO THAT SOMETIMES!",
+          "voiceText": "SEVEN FEET TALL, BIPEDAL, FUR! COULD'VE BEEN A BEAR STANDING ON ITS HIND LEGS! THEY DO THAT SOMETIMES!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_frustrated_4",
+          "text": "Ugh, seven feet tall, bipedal, fur. could've been a bear standing on its hind legs. they do that sometimes.",
+          "voiceText": "Ugh, seven feet tall, bipedal, fur. could've been a bear standing on its hind legs. they do that sometimes.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_obsessive_4",
+          "text": "Seven feet tall, bipedal, fur. Could've been a bear standing on its hind legs. They do that sometimes. You know what this means?",
+          "voiceText": "Seven feet tall, bipedal, fur. Could've been a bear standing on its hind legs. They do that sometimes. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_manic_4",
+          "text": "SEVEN FEET TALL, BIPEDAL, FUR. COULD'VE BEEN A BEAR STANDING ON ITS HIND LEGS. THEY DO THAT SOMETIMES.!!!",
+          "voiceText": "SEVEN FEET TALL, BIPEDAL, FUR. COULD'VE BEEN A BEAR STANDING ON ITS HIND LEGS. THEY DO THAT SOMETIMES.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -284,6 +428,42 @@
           "text": "Honesty regarding topic is appreciated. Please document future encounters with trail camera placement. Misrepresentation undermines the research process. Thank you for your report.",
           "voiceText": "Honesty regarding topic is appreciated. Please document future encounters with trail camera placement. Misrepresentation undermines the research process. Thank you for your report.",
           "mood": "focused"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_exhausted_5",
+          "text": "*yawn* appreciate you coming clean about the topic. don't lie to get through next time, but this is legitimate. set up a trail camera if you can.",
+          "voiceText": "*yawn* appreciate you coming clean about the topic. don't lie to get through next time, but this is legitimate. set up a trail camera if you can.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_depressed_5",
+          "text": "Appreciate you coming clean about the topic. Don't lie to get through next time, but this is legitimate. Set up a trail camera if you can.",
+          "voiceText": "Appreciate you coming clean about the topic. Don't lie to get through next time, but this is legitimate. Set up a trail camera if you can.",
+          "mood": "depressed"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_angry_5",
+          "text": "APPRECIATE YOU COMING CLEAN ABOUT THE TOPIC! DON'T LIE TO GET THROUGH NEXT TIME, BUT THIS IS LEGITIMATE! SET UP A TRAIL CAMERA IF YOU CAN!",
+          "voiceText": "APPRECIATE YOU COMING CLEAN ABOUT THE TOPIC! DON'T LIE TO GET THROUGH NEXT TIME, BUT THIS IS LEGITIMATE! SET UP A TRAIL CAMERA IF YOU CAN!",
+          "mood": "angry"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_frustrated_5",
+          "text": "Ugh, appreciate you coming clean about the topic. don't lie to get through next time, but this is legitimate. set up a trail camera if you can.",
+          "voiceText": "Ugh, appreciate you coming clean about the topic. don't lie to get through next time, but this is legitimate. set up a trail camera if you can.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_obsessive_5",
+          "text": "Appreciate you coming clean about the topic. Don't lie to get through next time, but this is legitimate. Set up a trail camera if you can. You know what this means?",
+          "voiceText": "Appreciate you coming clean about the topic. Don't lie to get through next time, but this is legitimate. Set up a trail camera if you can. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "cryptid_credible_claims_ufos_vern_manic_5",
+          "text": "APPRECIATE YOU COMING CLEAN ABOUT THE TOPIC. DON'T LIE TO GET THROUGH NEXT TIME, BUT THIS IS LEGITIMATE. SET UP A TRAIL CAMERA IF YOU CAN.!!!",
+          "voiceText": "APPRECIATE YOU COMING CLEAN ABOUT THE TOPIC. DON'T LIE TO GET THROUGH NEXT TIME, BUT THIS IS LEGITIMATE. SET UP A TRAIL CAMERA IF YOU CAN.!!!",
+          "mood": "manic"
         }
       ]
     },

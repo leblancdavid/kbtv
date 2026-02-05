@@ -51,6 +51,42 @@
           "text": "You're on. Describe the residential property and any unusual phenomena.",
           "voiceText": "You're on. Describe the residential property and any unusual phenomena.",
           "mood": "focused"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_exhausted_1",
+          "text": "*yawn* you're on the air. tell us about your house.",
+          "voiceText": "*yawn* you're on the air. tell us about your house.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_depressed_1",
+          "text": "You're on the air. Tell us about your house.",
+          "voiceText": "You're on the air. Tell us about your house.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_angry_1",
+          "text": "YOU'RE ON THE AIR! TELL US ABOUT YOUR HOUSE!",
+          "voiceText": "YOU'RE ON THE AIR! TELL US ABOUT YOUR HOUSE!",
+          "mood": "angry"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_frustrated_1",
+          "text": "Ugh, you're on the air. tell us about your house.",
+          "voiceText": "Ugh, you're on the air. tell us about your house.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_obsessive_1",
+          "text": "You're on the air. Tell us about your house. You know what this means?",
+          "voiceText": "You're on the air. Tell us about your house. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_manic_1",
+          "text": "YOU'RE ON THE AIR. TELL US ABOUT YOUR HOUSE.!!!",
+          "voiceText": "YOU'RE ON THE AIR. TELL US ABOUT YOUR HOUSE.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -108,6 +144,42 @@
           "text": "Duration of occupancy is six months. What specific phenomena have you observed?",
           "voiceText": "Duration of occupancy is six months. What specific phenomena have you observed?",
           "mood": "focused"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_exhausted_2",
+          "text": "*yawn* what's been happening? walk me through it.",
+          "voiceText": "*yawn* what's been happening? walk me through it.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_depressed_2",
+          "text": "What's been happening... Walk me through it.",
+          "voiceText": "What's been happening... Walk me through it.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_angry_2",
+          "text": "WHAT'S BEEN HAPPENING?! WALK ME THROUGH IT!",
+          "voiceText": "WHAT'S BEEN HAPPENING?! WALK ME THROUGH IT!",
+          "mood": "angry"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_frustrated_2",
+          "text": "Ugh, what's been happening? walk me through it.",
+          "voiceText": "Ugh, what's been happening? walk me through it.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_obsessive_2",
+          "text": "What's been happening? Walk me through it. You know what this means?",
+          "voiceText": "What's been happening? Walk me through it. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_manic_2",
+          "text": "WHAT'S BEEN HAPPENING? WALK ME THROUGH IT.!!!",
+          "voiceText": "WHAT'S BEEN HAPPENING? WALK ME THROUGH IT.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -165,6 +237,42 @@
           "text": "Acoustic phenomena, thermal anomalies, and door movement. What structural factors have you considered?",
           "voiceText": "Acoustic phenomena, thermal anomalies, and door movement. What structural factors have you considered?",
           "mood": "focused"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_exhausted_3",
+          "text": "*yawn* old houses do strange things. could be the structure settling, drafts, old wood shifting.",
+          "voiceText": "*yawn* old houses do strange things. could be the structure settling, drafts, old wood shifting.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_depressed_3",
+          "text": "Old houses do strange things. Could be the structure settling, drafts, old wood shifting.",
+          "voiceText": "Old houses do strange things. Could be the structure settling, drafts, old wood shifting.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_angry_3",
+          "text": "OLD HOUSES DO STRANGE THINGS! COULD BE THE STRUCTURE SETTLING, DRAFTS, OLD WOOD SHIFTING!",
+          "voiceText": "OLD HOUSES DO STRANGE THINGS! COULD BE THE STRUCTURE SETTLING, DRAFTS, OLD WOOD SHIFTING!",
+          "mood": "angry"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_frustrated_3",
+          "text": "Ugh, old houses do strange things. could be the structure settling, drafts, old wood shifting.",
+          "voiceText": "Ugh, old houses do strange things. could be the structure settling, drafts, old wood shifting.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_obsessive_3",
+          "text": "Old houses do strange things. Could be the structure settling, drafts, old wood shifting. You know what this means?",
+          "voiceText": "Old houses do strange things. Could be the structure settling, drafts, old wood shifting. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_manic_3",
+          "text": "OLD HOUSES DO STRANGE THINGS. COULD BE THE STRUCTURE SETTLING, DRAFTS, OLD WOOD SHIFTING.!!!",
+          "voiceText": "OLD HOUSES DO STRANGE THINGS. COULD BE THE STRUCTURE SETTLING, DRAFTS, OLD WOOD SHIFTING.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -222,6 +330,42 @@
           "text": "Child's imaginary companion. At what age did this begin and what are the interaction patterns?",
           "voiceText": "Child's imaginary companion. At what age did this begin and what are the interaction patterns?",
           "mood": "focused"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_exhausted_4",
+          "text": "*yawn* kids invent imaginary friends. it's common and doesn't necessarily mean anything supernatural.",
+          "voiceText": "*yawn* kids invent imaginary friends. it's common and doesn't necessarily mean anything supernatural.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_depressed_4",
+          "text": "Kids invent imaginary friends. It's common and doesn't necessarily mean anything supernatural.",
+          "voiceText": "Kids invent imaginary friends. It's common and doesn't necessarily mean anything supernatural.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_angry_4",
+          "text": "KIDS INVENT IMAGINARY FRIENDS! IT'S COMMON AND DOESN'T NECESSARILY MEAN ANYTHING SUPERNATURAL!",
+          "voiceText": "KIDS INVENT IMAGINARY FRIENDS! IT'S COMMON AND DOESN'T NECESSARILY MEAN ANYTHING SUPERNATURAL!",
+          "mood": "angry"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_frustrated_4",
+          "text": "Ugh, kids invent imaginary friends. it's common and doesn't necessarily mean anything supernatural.",
+          "voiceText": "Ugh, kids invent imaginary friends. it's common and doesn't necessarily mean anything supernatural.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_obsessive_4",
+          "text": "Kids invent imaginary friends. It's common and doesn't necessarily mean anything supernatural. You know what this means?",
+          "voiceText": "Kids invent imaginary friends. It's common and doesn't necessarily mean anything supernatural. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_manic_4",
+          "text": "KIDS INVENT IMAGINARY FRIENDS. IT'S COMMON AND DOESN'T NECESSARILY MEAN ANYTHING SUPERNATURAL.!!!",
+          "voiceText": "KIDS INVENT IMAGINARY FRIENDS. IT'S COMMON AND DOESN'T NECESSARILY MEAN ANYTHING SUPERNATURAL.!!!",
+          "mood": "manic"
         }
       ]
     },
@@ -279,6 +423,42 @@
           "text": "Please document specific dates, times, observed behaviors, and your daughter's detailed descriptions. Pattern analysis requires systematic data collection.",
           "voiceText": "Please document specific dates, times, observed behaviors, and your daughter's detailed descriptions. Pattern analysis requires systematic data collection.",
           "mood": "focused"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_exhausted_5",
+          "text": "*yawn* document everything - dates, times, what happens, your daughter's descriptions. establishing patterns helps understand the nature of what's happening. thanks for calling in.",
+          "voiceText": "*yawn* document everything - dates, times, what happens, your daughter's descriptions. establishing patterns helps understand the nature of what's happening. thanks for calling in.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_depressed_5",
+          "text": "Document everything - dates, times, what happens, your daughter's descriptions. Establishing patterns helps understand the nature of what's happening. Thanks for calling in.",
+          "voiceText": "Document everything - dates, times, what happens, your daughter's descriptions. Establishing patterns helps understand the nature of what's happening. Thanks for calling in.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_angry_5",
+          "text": "DOCUMENT EVERYTHING - DATES, TIMES, WHAT HAPPENS, YOUR DAUGHTER'S DESCRIPTIONS! ESTABLISHING PATTERNS HELPS UNDERSTAND THE NATURE OF WHAT'S HAPPENING! THANKS FOR CALLING IN!",
+          "voiceText": "DOCUMENT EVERYTHING - DATES, TIMES, WHAT HAPPENS, YOUR DAUGHTER'S DESCRIPTIONS! ESTABLISHING PATTERNS HELPS UNDERSTAND THE NATURE OF WHAT'S HAPPENING! THANKS FOR CALLING IN!",
+          "mood": "angry"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_frustrated_5",
+          "text": "Ugh, document everything - dates, times, what happens, your daughter's descriptions. establishing patterns helps understand the nature of what's happening. thanks for calling in.",
+          "voiceText": "Ugh, document everything - dates, times, what happens, your daughter's descriptions. establishing patterns helps understand the nature of what's happening. thanks for calling in.",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_obsessive_5",
+          "text": "Document everything - dates, times, what happens, your daughter's descriptions. Establishing patterns helps understand the nature of what's happening. Thanks for calling in. You know what this means?",
+          "voiceText": "Document everything - dates, times, what happens, your daughter's descriptions. Establishing patterns helps understand the nature of what's happening. Thanks for calling in. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ghosts_credible_old_house_vern_manic_5",
+          "text": "DOCUMENT EVERYTHING - DATES, TIMES, WHAT HAPPENS, YOUR DAUGHTER'S DESCRIPTIONS. ESTABLISHING PATTERNS HELPS UNDERSTAND THE NATURE OF WHAT'S HAPPENING. THANKS FOR CALLING IN.!!!",
+          "voiceText": "DOCUMENT EVERYTHING - DATES, TIMES, WHAT HAPPENS, YOUR DAUGHTER'S DESCRIPTIONS. ESTABLISHING PATTERNS HELPS UNDERSTAND THE NATURE OF WHAT'S HAPPENING. THANKS FOR CALLING IN.!!!",
+          "mood": "manic"
         }
       ]
     },

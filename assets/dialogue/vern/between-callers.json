@@ -1,0 +1,191 @@
+{
+  "lineType": "between-callers",
+  "description": "Transitions between different callers during the show",
+  "lines": [
+    {
+      "id": "betweencallers_neutral_1",
+      "text": "Fascinating stuff. Let's see who else is on the line.",
+      "voiceText": "Fascinating stuff. Let's see who else is on the line.",
+      "mood": "neutral"
+    },
+    {
+      "id": "betweencallers_tired_1",
+      "text": "Alright, we've got more callers waiting. Let's keep this going.",
+      "voiceText": "Alright, we've got more callers waiting. Let's keep this going.",
+      "mood": "tired"
+    },
+    {
+      "id": "betweencallers_energized_1",
+      "text": "The board's lighting up tonight! Let's go to our next caller!",
+      "voiceText": "The board's lighting up tonight! Let's go to our next caller!",
+      "mood": "energized"
+    },
+    {
+      "id": "betweencallers_irritated_1",
+      "text": "Interesting call. But we've got more stories to hear. Next caller, you're on.",
+      "voiceText": "Interesting call. But we've got more stories to hear. Next caller, you're on.",
+      "mood": "irritated"
+    },
+    {
+      "id": "betweencallers_gruff_1",
+      "text": "More callers in the queue. Let's see what else is out there.",
+      "voiceText": "More callers in the queue. Let's see what else is out there.",
+      "mood": "gruff"
+    },
+    {
+      "id": "betweencallers_amused_1",
+      "text": "That's what I love about this show - you never know what's coming next. Speaking of which...",
+      "voiceText": "That's what I love about this show - you never know what's coming next. Speaking of which...",
+      "mood": "amused"
+    },
+    {
+      "id": "betweencallers_focused_1",
+      "text": "Additional callers are waiting. Proceeding to next interaction.",
+      "voiceText": "Additional callers are waiting. Proceeding to next interaction.",
+    },
+    {
+      "id": "betweencallers_exhausted_1",
+      "text": "*yawn* Alright, let's... move on to our next caller. I think.",
+      "voiceText": "*yawn* Alright, let's... move on to our next caller. I think.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "betweencallers_exhausted_2",
+      "text": "We've got another caller on the line... somewhere.",
+      "voiceText": "We've got another caller on the line... somewhere.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "betweencallers_exhausted_3",
+      "text": "*grunt* Next caller, you're on.",
+      "voiceText": "*grunt* Next caller, you're on.",
+      "mood": "exhausted"
+    },
+    {
+      "id": "betweencallers_exhausted_4",
+      "text": "Alright, let's get to the next one. Hello?",
+      "voiceText": "Alright, let's get to the next one. Hello?",
+      "mood": "exhausted"
+    },
+    {
+      "id": "betweencallers_depressed_1",
+      "text": "Alright... next caller.",
+      "voiceText": "Alright... next caller.",
+      "mood": "depressed"
+    },
+    {
+      "id": "betweencallers_depressed_2",
+      "text": "We've got another one waiting.",
+      "voiceText": "We've got another one waiting.",
+      "mood": "depressed"
+    },
+    {
+      "id": "betweencallers_depressed_3",
+      "text": "Next caller, go ahead.",
+      "voiceText": "Next caller, go ahead.",
+      "mood": "depressed"
+    },
+    {
+      "id": "betweencallers_depressed_4",
+      "text": "Let's move on. You're on the air.",
+      "voiceText": "Let's move on. You're on the air.",
+      "mood": "depressed"
+    },
+    {
+      "id": "betweencallers_angry_1",
+      "text": "Alright, next caller! Let's hear what you've got – and it better be good!",
+      "voiceText": "Alright, next caller! Let's hear what you've got – and it better be good!",
+      "mood": "angry"
+    },
+    {
+      "id": "betweencallers_angry_2",
+      "text": "We've got another caller – don't waste my time!",
+      "voiceText": "We've got another caller – don't waste my time!",
+      "mood": "angry"
+    },
+    {
+      "id": "betweencallers_angry_3",
+      "text": "Next one! Speak up!",
+      "voiceText": "Next one! Speak up!",
+      "mood": "angry"
+    },
+    {
+      "id": "betweencallers_angry_4",
+      "text": "Alright, you're on – make it count!",
+      "voiceText": "Alright, you're on – make it count!",
+      "mood": "angry"
+    },
+    {
+      "id": "betweencallers_frustrated_1",
+      "text": "*sigh* Alright, next caller.",
+      "voiceText": "*sigh* Alright, next caller.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "betweencallers_frustrated_2",
+      "text": "We've got another one. Go ahead.",
+      "voiceText": "We've got another one. Go ahead.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "betweencallers_frustrated_3",
+      "text": "Next caller, please.",
+      "voiceText": "Next caller, please.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "betweencallers_frustrated_4",
+      "text": "Alright, let's get this over with.",
+      "voiceText": "Alright, let's get this over with.",
+      "mood": "frustrated"
+    },
+    {
+      "id": "betweencallers_obsessive_1",
+      "text": "Alright, next caller – tell me how this connects!",
+      "voiceText": "Alright, next caller – tell me how this connects!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "betweencallers_obsessive_2",
+      "text": "We've got another truth-seeker – what's the link?",
+      "voiceText": "We've got another truth-seeker – what's the link?",
+      "mood": "obsessive"
+    },
+    {
+      "id": "betweencallers_obsessive_3",
+      "text": "Next one! The patterns await!",
+      "voiceText": "Next one! The patterns await!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "betweencallers_obsessive_4",
+      "text": "Alright, you're on – connect the dots for me!",
+      "voiceText": "Alright, you're on – connect the dots for me!",
+      "mood": "obsessive"
+    },
+    {
+      "id": "betweencallers_manic_1",
+      "text": "NEXT CALLER! LET'S HEAR WHAT YOU'VE GOT – THE ENERGY IS BUILDING!",
+      "voiceText": "NEXT CALLER! LET'S HEAR WHAT YOU'VE GOT – THE ENERGY IS BUILDING!",
+      "mood": "manic"
+    },
+    {
+      "id": "betweencallers_manic_2",
+      "text": "WE'VE GOT ANOTHER ONE! SPEAK UP – THE TRUTH WON'T WAIT!",
+      "voiceText": "WE'VE GOT ANOTHER ONE! SPEAK UP – THE TRUTH WON'T WAIT!",
+      "mood": "manic"
+    },
+    {
+      "id": "betweencallers_manic_3",
+      "text": "NEXT! TELL ME EVERYTHING – I'M BURSTING WITH CURIOSITY!",
+      "voiceText": "NEXT! TELL ME EVERYTHING – I'M BURSTING WITH CURIOSITY!",
+      "mood": "manic"
+    },
+    {
+      "id": "betweencallers_manic_4",
+      "text": "ALRIGHT, YOU'RE ON! LET'S UNEARTH SOME MORE SECRETS!",
+      "voiceText": "ALRIGHT, YOU'RE ON! LET'S UNEARTH SOME MORE SECRETS!",
+      "mood": "manic"
+    }
+  ]
+}

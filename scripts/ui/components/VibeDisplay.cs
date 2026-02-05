@@ -232,10 +232,16 @@ namespace KBTV.UI.Components
                 VernMoodType.Energized => UIColors.VernStat.High,
                 VernMoodType.Amused => UIColors.VernStat.High,
                 VernMoodType.Focused => UIColors.VernStat.High,
+                VernMoodType.Obsessive => UIColors.VernStat.High,
+                VernMoodType.Manic => UIColors.VernStat.High,
                 VernMoodType.Neutral => UIColors.TEXT_PRIMARY,
                 VernMoodType.Gruff => UIColors.VernStat.Medium,
+                VernMoodType.Frustrated => UIColors.VernStat.Medium,
                 VernMoodType.Tired => UIColors.VernStat.Low,
                 VernMoodType.Irritated => UIColors.VernStat.Low,
+                VernMoodType.Exhausted => UIColors.VernStat.Low,
+                VernMoodType.Depressed => UIColors.VernStat.Low,
+                VernMoodType.Angry => UIColors.VernStat.Low,
                 _ => UIColors.TEXT_PRIMARY
             };
             _moodLabel.AddThemeColorOverride("font_color", moodColor);
