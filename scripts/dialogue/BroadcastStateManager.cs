@@ -71,6 +71,7 @@ namespace KBTV.Dialogue
         private bool _isShowActive = false;
         public bool _hasPlayedVernOpening = false;
         public bool _pendingBreakTransition = false;
+        public bool _pendingCallerDropped = false;
         public bool _pendingShowEndingTransition = false;
         public bool _showClosingStarted = false;
         public bool _adBreakSequenceRunning = false;
@@ -268,6 +269,11 @@ namespace KBTV.Dialogue
                 GD.Print($"BroadcastStateManager: Show ending interruption received (current state: {_currentState}) - global queuing will handle transition");
                 // Global queuing in BroadcastStateMachine.GetNextExecutable() will handle state transition
             }
+            else if (interruptionEvent.Reason == BroadcastInterruptionReason.CallerDropped)
+            {
+                GD.Print($"BroadcastStateManager: Caller dropped interruption received - setting pending flag");
+                _pendingCallerDropped = true;  // Set flag instead of changing state
+            }
             
             if (_currentState != previousState)
             {
@@ -288,6 +294,7 @@ namespace KBTV.Dialogue
 
             // Reset flags for new show
             _pendingBreakTransition = false;
+            _pendingCallerDropped = false;
             _pendingShowEndingTransition = false;
             _showClosingStarted = false;
             _hasPlayedVernOpening = false;

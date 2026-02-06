@@ -73,7 +73,8 @@ namespace KBTV.Dialogue
             void OnInterruption(BroadcastInterruptionEvent interruptionEvent)
             {
                 if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakImminent ||
-                    interruptionEvent.Reason == BroadcastInterruptionReason.ShowEnding)
+                    interruptionEvent.Reason == BroadcastInterruptionReason.ShowEnding ||
+                    interruptionEvent.Reason == BroadcastInterruptionReason.CallerDropped)
                 {
                     // Handle interruption - effects up to current line are preserved
                     _statTracker?.InterruptConversation();
@@ -148,12 +149,19 @@ namespace KBTV.Dialogue
                         // Apply stat effects for this completed line
                         _statTracker?.OnLineCompleted();
 
-                        // Check for pending break transition (graceful interruption between lines)
-                        if (_stateManager?.PendingBreakTransition == true)
-                        {
-                            GD.Print($"DialogueExecutable: Break transition pending, exiting conversation loop early");
-                            break;
-                        }
+                         // Check for pending break transition (graceful interruption between lines)
+                         if (_stateManager?.PendingBreakTransition == true)
+                         {
+                             GD.Print($"DialogueExecutable: Break transition pending, exiting conversation loop early");
+                             break;
+                         }
+
+                         // Check for pending caller drop (immediate interruption)
+                         if (_stateManager?._pendingCallerDropped == true)
+                         {
+                             GD.Print($"DialogueExecutable: Caller drop pending, exiting conversation loop early");
+                             break;
+                         }
                     }
                     GD.Print($"DialogueExecutable: Conversation arc loop completed - all {_arc.Dialogue.Count} lines processed");
                     

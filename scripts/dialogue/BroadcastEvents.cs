@@ -83,6 +83,7 @@ namespace KBTV.Dialogue
         BreakImminent,
         BreakGracePeriod,
         UserAction,
+        CallerDropped,
         Error
     }
 

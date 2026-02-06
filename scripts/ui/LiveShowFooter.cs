@@ -12,12 +12,14 @@ namespace KBTV.UI
     {
         private Label _callerNameLabel = null!;
         private Button _queueAdsButton = null!;
+        private Button _dropCallerButton = null!;
         private Label _breaksRemainingLabel = null!;
         private Control _adBreakPanel = null!;
         private Control _endShowPanel = null!;
 
         private ICallerRepository _repository = null!;
         private AdManager _adManager = null!;
+        private AsyncBroadcastLoop _asyncBroadcastLoop = null!;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -28,6 +30,7 @@ namespace KBTV.UI
         {
             _callerNameLabel = GetNode<Label>("HBoxContainer/OnAirPanel/OnAirVBox/CallerNameLabel");
             _queueAdsButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/QueueAdsButton");
+            _dropCallerButton = GetNode<Button>("HBoxContainer/OnAirPanel/OnAirVBox/DropCallerButton");
             _breaksRemainingLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/BreaksRemainingLabel");
             _adBreakPanel = GetNode<Control>("HBoxContainer/AdBreakPanel");
             _endShowPanel = GetNode<Control>("HBoxContainer/EndShowPanel");
@@ -43,6 +46,7 @@ namespace KBTV.UI
             // Get dependencies via DI
             _repository = DependencyInjection.Get<ICallerRepository>(this);
             _adManager = DependencyInjection.Get<AdManager>(this);
+            _asyncBroadcastLoop = DependencyInjection.Get<AsyncBroadcastLoop>(this);
 
             // Set up AdManager events
             SetupAdManagerEvents();
@@ -51,6 +55,10 @@ namespace KBTV.UI
             if (_queueAdsButton != null)
             {
                 _queueAdsButton.Connect("pressed", Callable.From(OnQueueAdsPressed));
+            }
+            if (_dropCallerButton != null)
+            {
+                _dropCallerButton.Connect("pressed", Callable.From(OnDropCallerPressed));
             }
         }
 
@@ -97,6 +105,9 @@ namespace KBTV.UI
 
             // Update ad break controls (handles countdown display and button states)
             UpdateAdBreakControls();
+            
+            // Update drop caller button styling
+            UpdateDropCallerButton();
         }
 
         private void UpdateOnAirCaller()
@@ -105,6 +116,21 @@ namespace KBTV.UI
             {
                 var caller = _repository.OnAirCaller;
                 _callerNameLabel.Text = caller != null ? caller.Name : "No caller";
+            }
+
+            // Update drop button state
+            if (_dropCallerButton != null)
+            {
+                _dropCallerButton.Disabled = _repository?.OnAirCaller == null;
+            }
+        }
+
+        private void OnDropCallerPressed()
+        {
+            if (_repository?.OnAirCaller != null && _asyncBroadcastLoop != null)
+            {
+                GD.Print($"LiveShowFooter: Dropping caller {_repository.OnAirCaller.Name}");
+                _asyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.CallerDropped);
             }
         }
 
@@ -146,6 +172,65 @@ namespace KBTV.UI
         private void OnShowEnded()
         {
             UpdateAdBreakControls();
+        }
+
+        private void UpdateDropCallerButton()
+        {
+            if (_dropCallerButton == null) return;
+
+            bool hasCaller = _repository?.OnAirCaller != null;
+            
+            if (_dropCallerButton != null)
+            {
+                // Apply dynamic styling based on caller state
+                var styleBoxNormal = new StyleBoxFlat();
+                var styleBoxDisabled = new StyleBoxFlat();
+                var styleBoxPressed = new StyleBoxFlat();
+
+                Color bgColor, borderColor;
+                if (hasCaller)
+                {
+                    // Red color for drop action when caller is available
+                    bgColor = UIColors.Accent.Red;
+                    borderColor = UIColors.Accent.Red;
+                }
+                else
+                {
+                    // Reset to default style when no caller
+                    _dropCallerButton.RemoveThemeStyleboxOverride("normal");
+                    _dropCallerButton.RemoveThemeStyleboxOverride("disabled");
+                    _dropCallerButton.RemoveThemeStyleboxOverride("pressed");
+                    return;
+                }
+
+                // Normal state: full brightness
+                styleBoxNormal.BgColor = bgColor;
+                styleBoxNormal.BorderColor = borderColor;
+                styleBoxNormal.BorderWidthTop = 2;
+                styleBoxNormal.BorderWidthBottom = 2;
+                styleBoxNormal.BorderWidthLeft = 2;
+                styleBoxNormal.BorderWidthRight = 2;
+
+                // Disabled state: dimmed
+                styleBoxDisabled.BgColor = new Color(bgColor.R, bgColor.G, bgColor.B, 0.6f);
+                styleBoxDisabled.BorderColor = new Color(borderColor.R, borderColor.G, borderColor.B, 0.6f);
+                styleBoxDisabled.BorderWidthTop = 2;
+                styleBoxDisabled.BorderWidthBottom = 2;
+                styleBoxDisabled.BorderWidthLeft = 2;
+                styleBoxDisabled.BorderWidthRight = 2;
+
+                // Pressed state: full brightness
+                styleBoxPressed.BgColor = bgColor;
+                styleBoxPressed.BorderColor = borderColor;
+                styleBoxPressed.BorderWidthTop = 2;
+                styleBoxPressed.BorderWidthBottom = 2;
+                styleBoxPressed.BorderWidthLeft = 2;
+                styleBoxPressed.BorderWidthRight = 2;
+
+                _dropCallerButton.AddThemeStyleboxOverride("normal", styleBoxNormal);
+                _dropCallerButton.AddThemeStyleboxOverride("disabled", styleBoxDisabled);
+                _dropCallerButton.AddThemeStyleboxOverride("pressed", styleBoxPressed);
+            }
         }
 
 
@@ -321,6 +406,10 @@ namespace KBTV.UI
             if (_queueAdsButton != null)
             {
                 _queueAdsButton.Disconnect("pressed", Callable.From(OnQueueAdsPressed));
+            }
+            if (_dropCallerButton != null)
+            {
+                _dropCallerButton.Disconnect("pressed", Callable.From(OnDropCallerPressed));
             }
         }
     }

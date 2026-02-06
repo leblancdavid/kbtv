@@ -91,3 +91,9 @@ horizontal_alignment = 1
 layout_mode = 2
 text = "No caller"
 horizontal_alignment = 1
+
+[node name="DropCallerButton" type="Button" parent="HBoxContainer/OnAirPanel/OnAirVBox"]
+layout_mode = 2
+size_flags_horizontal = 4
+custom_minimum_size = Vector2(120, 80)
+text = "DROP CALLER"

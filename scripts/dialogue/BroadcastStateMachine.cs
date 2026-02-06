@@ -336,6 +336,14 @@ namespace KBTV.Dialogue
                     return AsyncBroadcastState.Conversation; // Stay for break transition
                 }
 
+                // Handle pending caller drop
+                if (_stateManager._pendingCallerDropped)
+                {
+                    GD.Print("BroadcastStateMachine: Pending caller drop found, transitioning to DroppedCaller state");
+                    _stateManager._pendingCallerDropped = false;
+                    return AsyncBroadcastState.DroppedCaller;
+                }
+
                 var endResult = _callerRepository.EndOnAir();
                 GD.Print($"BroadcastStateMachine: EndOnAir result - Success: {endResult.IsSuccess}, OnHoldCount: {_callerRepository.OnHoldCallers.Count}");
                 

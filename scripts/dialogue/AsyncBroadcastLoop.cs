@@ -444,15 +444,15 @@ namespace KBTV.Dialogue
                         callerRepository.RemoveCaller(onAirCaller);
                     }
                 }
-                
-                // Safety fallback: drop caller if BreakStarting and we have an on-air caller
-                if (reason == BroadcastInterruptionReason.BreakStarting)
+
+                // Handle manual caller dropping
+                if (reason == BroadcastInterruptionReason.CallerDropped)
                 {
                     var callerRepository = DependencyInjection.Get<ICallerRepository>(this);
                     var onAirCaller = callerRepository?.OnAirCaller;
                     if (onAirCaller != null)
                     {
-                        KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: SAFETY FALLBACK - Dropping on-air caller '{onAirCaller.Name}' via InterruptBroadcast");
+                        KBTV.Core.Logger.Debug($"AsyncBroadcastLoop: Manual caller drop - Dropping on-air caller '{onAirCaller.Name}'");
                         callerRepository.SetCallerState(onAirCaller, CallerState.Disconnected);
                         callerRepository.RemoveCaller(onAirCaller);
                     }
