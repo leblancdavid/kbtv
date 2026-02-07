@@ -38,7 +38,7 @@ namespace KBTV.Core
         {
             if (gameEvent == null)
             {
-                GD.PrintErr("EventBus.Publish: Attempted to publish null event");
+                Log.Error("EventBus.Publish: Attempted to publish null event");
                 return;
             }
 
@@ -83,7 +83,7 @@ namespace KBTV.Core
                     }
                     catch (Exception ex)
                     {
-                        GD.PrintErr($"EventBus.Publish: Error invoking subscriber for {eventType.Name}: {ex.Message}");
+                        Log.Error($"EventBus.Publish: Error invoking subscriber for {eventType.Name}: {ex.Message}");
                     }
                 }
             }

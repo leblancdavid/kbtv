@@ -63,7 +63,6 @@ namespace KBTV.Dialogue
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
         {
-            GD.Print($"DialogueExecutable: ExecuteInternalAsync started - Id: {_id}, Type: {_type}, HasArc: {_arc != null}, HasCaller: {_caller != null}");
             
             // Create local cancellation token for interruption handling
             using var localCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -140,13 +139,12 @@ namespace KBTV.Dialogue
                           float cursePoint = 0f;
                           if (line.Speaker != Speaker.Vern && _caller != null)
                           {
-                                // TEMPORARY: Increased to 50% for testing - TODO: Revert to normal rates
                                 float curseProbability = _caller.CurseRisk switch
                                 {
-                                    CallerCurseRisk.Low => 0.5f,     // TEMP: 50% for testing (was 1%)
-                                    CallerCurseRisk.Medium => 0.5f,  // TEMP: 50% for testing (was 3%)
-                                    CallerCurseRisk.High => 0.5f,    // TEMP: 50% for testing (was 5%)
-                                    _ => 0.5f // TEMP: 50% for testing (was 1%)
+                                    CallerCurseRisk.Low => 0.02f,     // 2%
+                                    CallerCurseRisk.Medium => 0.05f,  // 5%
+                                    CallerCurseRisk.High => 0.10f,    // 10%
+                                    _ => 0.02f // Default to low
                                 };
 
                               if (GD.Randf() < curseProbability)
@@ -154,30 +152,33 @@ namespace KBTV.Dialogue
                                   willCurse = true;
                                   // Random curse point between 30-70% of audio duration
                                   cursePoint = audioDuration * (float)GD.RandRange(0.3f, 0.7f);
-                                  GD.Print($"DialogueExecutable: Caller '{_caller.Name}' will curse at {cursePoint}s (30-70% of {audioDuration}s)");
                               }
                           }
 
                            // Publish started event for UI (duration depends on whether cursing occurs)
                            float effectiveDuration = willCurse ? cursePoint : BroadcastConstants.DEFAULT_LINE_DURATION;
                            var startedEvent = new BroadcastItemStartedEvent(item, effectiveDuration, willCurse ? cursePoint : audioDuration);
-                           GD.Print($"DialogueExecutable: Publishing started event for line '{line.Text}' (effectiveDuration: {effectiveDuration}, audioLength: {(willCurse ? cursePoint : audioDuration)})");
                           _eventBus.Publish(startedEvent);
 
                             // Play audio for this line (full or partial based on cursing)
                             if (willCurse)
                             {
-                                // Play partial audio for cursePoint duration with immediate stop
-                                await _audioService.PlayAudioForDurationAsync(audioPath, cursePoint, true, CancellationToken.None);
-                                
-                                // Play bleep immediately after
-                                await PlayAudioAsync("res://assets/audio/bleep.wav", CancellationToken.None);
-                                
-                                // Then interrupt conversation
-                                GD.Print($"DialogueExecutable: Cursing triggered at {cursePoint}s, publishing CallerCursed interruption");
-                                _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.CallerCursed));
-                                cursingOccurred = true;
-                                break; // Exit the conversation loop
+                             // Play partial audio for cursePoint duration with immediate stop
+                                 await _audioService.PlayAudioForDurationAsync(audioPath, cursePoint, true, CancellationToken.None);
+                                 
+                                 // Interrupt the conversation (equivalent to the old interruption event)
+                                 _statTracker?.InterruptConversation();
+                                 localCts.Cancel();
+                                 
+                                 // Set the pending flag for state transition (equivalent to interruption handling)
+                                 _stateManager._pendingCallerCursed = true;
+                                 
+                                 // Publish interruption event for UI components (timer, etc.)
+                                 var interruptionEvent = new BroadcastInterruptionEvent(BroadcastInterruptionReason.CallerCursed);
+                                 _eventBus.Publish(interruptionEvent);
+                                 
+                                 cursingOccurred = true;
+                                 break; // Exit the conversation loop
                             }
                            else
                            {
@@ -194,25 +195,21 @@ namespace KBTV.Dialogue
                          // Check for pending break transition (graceful interruption between lines)
                          if (_stateManager?.PendingBreakTransition == true)
                          {
-                             GD.Print($"DialogueExecutable: Break transition pending, exiting conversation loop early");
                              break;
                          }
 
                          // Check for pending caller drop (immediate interruption)
                          if (_stateManager?._pendingCallerDropped == true)
                          {
-                             GD.Print($"DialogueExecutable: Caller drop pending, exiting conversation loop early");
                              break;
                          }
 
                          // Check for pending caller cursed (immediate interruption)
                          if (_stateManager?._pendingCallerCursed == true)
                          {
-                             GD.Print($"DialogueExecutable: Caller cursed pending, exiting conversation loop early");
                              break;
                          }
                     }
-                     GD.Print($"DialogueExecutable: Conversation arc loop completed - all {_arc.Dialogue.Count} lines processed");
                      
                      // Conversation completed naturally - apply any remaining effects (only if no cursing occurred)
                      if (!cursingOccurred)
@@ -236,13 +233,11 @@ namespace KBTV.Dialogue
                     }
                     
                     var startedEvent = new BroadcastItemStartedEvent(item, _duration, audioDuration);
-                    GD.Print($"DialogueExecutable: Publishing started event for single Vern line '{item.Text}' (audioDuration: {audioDuration})");
                     _eventBus.Publish(startedEvent);
                     
                     // Apply penalty for off-topic remarks when they start playing
                     if (_lineType == VernLineType.OffTopicRemark)
                     {
-                        GD.Print("DialogueExecutable: Applying off-topic remark penalty");
                         var vernStats = _stateManager?.GameStateManager?.VernStats;
                         vernStats?.ApplyOffTopicRemarkPenalty();
                     }
@@ -261,7 +256,6 @@ namespace KBTV.Dialogue
             {
                 // Unsubscribe from interruption events
                 _eventBus.Unsubscribe<BroadcastInterruptionEvent>(OnInterruption);
-                GD.Print($"DialogueExecutable: ExecuteInternalAsync completed - Id: {_id}");
             }
         }
 

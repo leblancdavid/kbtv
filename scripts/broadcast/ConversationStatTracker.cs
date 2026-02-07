@@ -120,7 +120,7 @@ namespace KBTV.Broadcast
         {
             if (_vernStats == null)
             {
-                GD.PrintErr($"ConversationStatTracker.ApplyStatEffect: VernStats is null - cannot apply stat effect {statType}: {amount}");
+                Log.Error($"ConversationStatTracker.ApplyStatEffect: VernStats is null - cannot apply stat effect {statType}: {amount}");
                 return;
             }
 

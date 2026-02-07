@@ -40,7 +40,7 @@ namespace KBTV.UI
 
 			if (_continueButton == null)
 			{
-				GD.PrintErr("PostShowPanel: ContinueButton not found");
+				Log.Error("PostShowPanel: ContinueButton not found");
 				return;
 			}
 
@@ -125,7 +125,7 @@ namespace KBTV.UI
 			}
 			
 			_currentLevelUpIndex = 0;
-			GD.Print($"PostShowPanel: Found {_topicsReadyToLevel.Count} topics ready to level up");
+			Log.Debug($"PostShowPanel: Found {_topicsReadyToLevel.Count} topics ready to level up");
 		}
 
 		private void ShowNextLevelUp()
@@ -168,7 +168,7 @@ namespace KBTV.UI
 			// Update button text
 			_continueButton.Text = _currentLevelUpIndex >= _topicsReadyToLevel.Count ? "Continue" : "Awesome!";
 			
-			GD.Print($"PostShowPanel: Showing level-up for {topicXP.TopicName}: {oldTier} → {newTier}");
+			Log.Debug($"PostShowPanel: Showing level-up for {topicXP.TopicName}: {oldTier} → {newTier}");
 		}
 
 		private void UpdateStats()

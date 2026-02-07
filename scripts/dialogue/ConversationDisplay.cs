@@ -21,7 +21,7 @@ namespace KBTV.Dialogue
 
         public override void _Ready()
         {
-            GD.Print("ConversationDisplay: Ready, waiting for dependencies...");
+            Log.Debug("ConversationDisplay: Ready, waiting for dependencies...");
             // Dependencies resolved in OnResolved(), don't call base._Ready()
         }
 
@@ -30,7 +30,7 @@ namespace KBTV.Dialogue
         /// </summary>
         public override void OnResolved()
         {
-            GD.Print("ConversationDisplay: Dependencies resolved, initializing...");
+            Log.Debug("ConversationDisplay: Dependencies resolved, initializing...");
 
             // Get dependencies via DI
             _repository = DependencyInjection.Get<ICallerRepository>(this);
@@ -41,7 +41,7 @@ namespace KBTV.Dialogue
             _repository.Subscribe(this);
             eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
 
-            GD.Print("ConversationDisplay: Initialization complete");
+            Log.Debug("ConversationDisplay: Initialization complete");
         }
 
         // ICallerRepositoryObserver implementation
@@ -55,7 +55,7 @@ namespace KBTV.Dialogue
 
         private void HandleBroadcastEvent(BroadcastEvent @event)
         {
-            GD.Print($"ConversationDisplay.HandleBroadcastEvent: {@event.Type} - {@event.ItemId}");
+
 
             if (@event.Type == BroadcastEventType.Started && @event.Item != null)
             {
@@ -65,13 +65,13 @@ namespace KBTV.Dialogue
             else if (@event.Type == BroadcastEventType.Completed)
             {
                 // Item completed, coordinator will handle next item
-                GD.Print($"ConversationDisplay: Broadcast item completed - {@event.ItemId}");
+
             }
         }
 
         private void DisplayBroadcastItem(BroadcastItem item)
         {
-            GD.Print($"ConversationDisplay: Displaying broadcast item - {item.Id} ({item.Type})");
+
 
             // Update UI based on item type
             switch (item.Type)
@@ -107,14 +107,14 @@ namespace KBTV.Dialogue
                     break;
 
                 default:
-                    GD.PrintErr($"ConversationDisplay: Unknown broadcast item type {item.Type}");
+                    Log.Error($"ConversationDisplay: Unknown broadcast item type {item.Type}");
                     break;
             }
         }
 
         private void DisplayText(string text)
         {
-            GD.Print($"ConversationDisplay: Displaying text - {text}");
+
             // In real implementation, update UI labels
             _displayInfo = new ConversationDisplayInfo
             {
@@ -126,13 +126,13 @@ namespace KBTV.Dialogue
 
         private void PlayAudio(string audioPath)
         {
-            GD.Print($"ConversationDisplay: Playing audio - {audioPath}");
+
             // In real implementation, load and play audio
         }
 
         private void StartTimer(float duration, string itemId)
         {
-            GD.Print($"ConversationDisplay: Starting timer {duration}s for {itemId}");
+
             // In real implementation, create timer and publish completion event when done
         }
 

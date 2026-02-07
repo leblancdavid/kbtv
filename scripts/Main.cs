@@ -13,29 +13,29 @@ namespace KBTV
 
         public override void _Ready()
         {
-            GD.Print("Main: Game scene loaded, initializing ServiceProviderRoot");
+            Log.Debug("Main: Game scene loaded, initializing ServiceProviderRoot");
             
             // Get the ServiceProviderRoot child and initialize it
             _serviceProviderRoot = GetNode<ServiceProviderRoot>("ServiceProviderRoot");
             _serviceProviderRoot.Initialize();
             
-            GD.Print("Main: ServiceProviderRoot initialized successfully");
+            Log.Debug("Main: ServiceProviderRoot initialized successfully");
             
             // Add loading screen after services are initialized
             var loadingScreenScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LoadingScreen.tscn");
             var loadingScreen = loadingScreenScene.Instantiate<CanvasLayer>();
             _serviceProviderRoot.AddChild(loadingScreen);
             
-            GD.Print("Main: LoadingScreen instantiated successfully");
+            Log.Debug("Main: LoadingScreen instantiated successfully");
             
             // Instantiate UI managers after services are initialized
-            GD.Print("Main: Adding PreShowUIManager");
+            Log.Debug("Main: Adding PreShowUIManager");
             _serviceProviderRoot.AddChild(new PreShowUIManager());
-            GD.Print("Main: PreShowUIManager added");
+            Log.Debug("Main: PreShowUIManager added");
             _serviceProviderRoot.AddChild(new TabContainerManager());
             _serviceProviderRoot.AddChild(new PostShowUIManager());
             
-            GD.Print("Main: UI managers instantiated successfully");
+            Log.Debug("Main: UI managers instantiated successfully");
 
             // Add monitors after services are initialized to avoid dependency injection timing issues
             _serviceProviderRoot.AddChild(new CallerMonitor());
@@ -44,7 +44,7 @@ namespace KBTV
             _serviceProviderRoot.AddChild(new ConversationDisplay());
             _serviceProviderRoot.AddChild(new InputHandler());
             
-            GD.Print("Main: Monitors instantiated successfully");
+            Log.Debug("Main: Monitors instantiated successfully");
 
             // Finish loading phase and transition to PreShow
             _serviceProviderRoot.GameStateManager.FinishLoading();

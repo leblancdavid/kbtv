@@ -56,7 +56,7 @@ namespace KBTV.UI
 			}
 			else
 			{
-				GD.PrintErr("ScreeningPanel: Skipping ConnectSignals() due to missing node references");
+				Log.Error("ScreeningPanel: Skipping ConnectSignals() due to missing node references");
 			}
 			ValidateNodeReferences();
 		}
@@ -90,12 +90,12 @@ namespace KBTV.UI
 		{
 			if (_approveButton == null)
 			{
-				GD.PrintErr("ScreeningPanel: _approveButton is null - EnsureNodesInitialized failed to find node");
+				Log.Error("ScreeningPanel: _approveButton is null - EnsureNodesInitialized failed to find node");
 				return;
 			}
 			if (_rejectButton == null)
 			{
-				GD.PrintErr("ScreeningPanel: _rejectButton is null - EnsureNodesInitialized failed to find node");
+				Log.Error("ScreeningPanel: _rejectButton is null - EnsureNodesInitialized failed to find node");
 				return;
 			}
 
@@ -108,7 +108,7 @@ namespace KBTV.UI
 			var missingNodes = GetMissingNodeReferences();
 			if (missingNodes.Count > 0)
 			{
-				GD.PrintErr($"ScreeningPanel: Missing node references: {string.Join(", ", missingNodes)}");
+				Log.Error($"ScreeningPanel: Missing node references: {string.Join(", ", missingNodes)}");
 			}
 		}
 
@@ -300,7 +300,7 @@ namespace KBTV.UI
 			var result = _controller.Approve();
 			if (!result.IsSuccess)
 			{
-				GD.PrintErr($"ScreeningPanel: Approve failed - {result.ErrorCode}: {result.ErrorMessage}");
+				Log.Error($"ScreeningPanel: Approve failed - {result.ErrorCode}: {result.ErrorMessage}");
 			}
 		}
 
@@ -314,7 +314,7 @@ namespace KBTV.UI
 			var result = _controller.Reject();
 			if (!result.IsSuccess)
 			{
-				GD.PrintErr($"ScreeningPanel: Reject failed - {result.ErrorCode}: {result.ErrorMessage}");
+				Log.Error($"ScreeningPanel: Reject failed - {result.ErrorCode}: {result.ErrorMessage}");
 			}
 		}
 
@@ -370,7 +370,7 @@ namespace KBTV.UI
 				}
 				catch (Exception ex)
 				{
-					GD.PrintErr($"ScreeningPanel: Failed to find HeaderRow at VBoxContainer/CallerInfoScroll/InfoVBox/HeaderRow: {ex.Message}");
+					Log.Error($"ScreeningPanel: Failed to find HeaderRow at VBoxContainer/CallerInfoScroll/InfoVBox/HeaderRow: {ex.Message}");
 				}
 			}
 			if (_propertiesContainer == null)
@@ -386,7 +386,7 @@ namespace KBTV.UI
 				}
 				catch (Exception ex)
 				{
-					GD.PrintErr($"ScreeningPanel: Failed to find PropertiesContainer: {ex.Message}");
+					Log.Error($"ScreeningPanel: Failed to find PropertiesContainer: {ex.Message}");
 				}
 			}
 			if (_approveButton == null)
@@ -397,7 +397,7 @@ namespace KBTV.UI
 				}
 				catch (Exception ex)
 				{
-					GD.PrintErr($"ScreeningPanel: Failed to find ApproveButton at VBoxContainer/HBoxContainer/ApproveButton: {ex.Message}");
+					Log.Error($"ScreeningPanel: Failed to find ApproveButton at VBoxContainer/HBoxContainer/ApproveButton: {ex.Message}");
 				}
 			}
 			if (_rejectButton == null)
@@ -408,7 +408,7 @@ namespace KBTV.UI
 				}
 				catch (Exception ex)
 				{
-					GD.PrintErr($"ScreeningPanel: Failed to find RejectButton at VBoxContainer/HBoxContainer/RejectButton: {ex.Message}");
+					Log.Error($"ScreeningPanel: Failed to find RejectButton at VBoxContainer/HBoxContainer/RejectButton: {ex.Message}");
 				}
 			}
 
@@ -421,7 +421,7 @@ namespace KBTV.UI
 				}
 				catch (Exception ex)
 				{
-					GD.PrintErr($"ScreeningPanel: Failed to find PatienceProgressBar: {ex.Message}");
+					Log.Error($"ScreeningPanel: Failed to find PatienceProgressBar: {ex.Message}");
 				}
 			}
 		}

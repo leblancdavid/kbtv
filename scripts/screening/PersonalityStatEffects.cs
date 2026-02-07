@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using KBTV.Core;
 using KBTV.Data;
 using Godot;
 
@@ -30,7 +31,7 @@ namespace KBTV.Screening
             var file = Godot.FileAccess.FileExists(jsonPath) ? Godot.FileAccess.Open(jsonPath, Godot.FileAccess.ModeFlags.Read) : null;
             if (file == null)
             {
-                GD.PrintErr($"Failed to load stat modifiers config from {jsonPath}");
+                Log.Error($"Failed to load stat modifiers config from {jsonPath}");
                 _personalitiesData = new Godot.Collections.Dictionary();
                 _isLoaded = true;
                 return;
@@ -45,7 +46,7 @@ namespace KBTV.Screening
                 var error = json.Parse(jsonText);
                 if (error != Error.Ok)
                 {
-                    GD.PrintErr($"Failed to parse stat modifiers JSON: {json.GetErrorMessage()}");
+                    Log.Error($"Failed to parse stat modifiers JSON: {json.GetErrorMessage()}");
                     _personalitiesData = new Godot.Collections.Dictionary();
                     _isLoaded = true;
                     return;
@@ -67,7 +68,7 @@ namespace KBTV.Screening
             }
             catch (System.Exception ex)
             {
-                GD.PrintErr($"Exception loading personality config: {ex.Message}");
+                Log.Error($"Exception loading personality config: {ex.Message}");
                 _personalitiesData = new Godot.Collections.Dictionary();
             }
 

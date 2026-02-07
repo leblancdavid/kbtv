@@ -51,7 +51,7 @@ namespace KBTV.Monitors
             if (vernStats != null)
             {
                 vernStats.ApplyDeadAirPenalty(_consecutiveDeadAirCount);
-                GD.Print($"DeadAirManager: Applied dead air penalty (consecutive: {_consecutiveDeadAirCount})");
+                Log.Debug($"DeadAirManager: Applied dead air penalty (consecutive: {_consecutiveDeadAirCount})");
             }
         }
         
@@ -63,7 +63,7 @@ namespace KBTV.Monitors
         {
             if (_consecutiveDeadAirCount > 0)
             {
-                GD.Print($"DeadAirManager: Dead air ended, resetting consecutive counter from {_consecutiveDeadAirCount} to 0");
+                Log.Debug($"DeadAirManager: Dead air ended, resetting consecutive counter from {_consecutiveDeadAirCount} to 0");
                 _consecutiveDeadAirCount = 0;
             }
         }

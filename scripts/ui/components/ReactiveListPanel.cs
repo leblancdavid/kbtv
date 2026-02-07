@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Godot;
+using KBTV.Core;
 
 namespace KBTV.UI.Components
 {
@@ -64,7 +65,7 @@ namespace KBTV.UI.Components
         {
             if (_adapter == null)
             {
-                GD.PrintErr("ReactiveListPanel: No adapter set");
+                Log.Error("ReactiveListPanel: No adapter set");
                 return;
             }
 

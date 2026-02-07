@@ -3,6 +3,7 @@ using System.Linq;
 using Godot;
 using KBTV.Dialogue;
 using KBTV.Callers;
+using KBTV.Core;
 
 namespace KBTV.Testing
 {
@@ -10,13 +11,13 @@ namespace KBTV.Testing
     {
         public override void _Ready()
         {
-            GD.Print("=== Topic-Based Dialogue Test ===");
+            Log.Debug("=== Topic-Based Dialogue Test ===");
 
             // Test topic enum
-            GD.Print("Available topics:");
+            Log.Debug("Available topics:");
             foreach (ShowTopic topic in Enum.GetValues(typeof(ShowTopic)))
             {
-                GD.Print($"  - {topic.ToTopicName()}");
+                Log.Debug($"  - {topic.ToTopicName()}");
             }
 
             // Test dialogue loading
@@ -26,16 +27,16 @@ namespace KBTV.Testing
 
             if (template == null)
             {
-                GD.Print("ERROR: Failed to load dialogue template");
+                Log.Debug("ERROR: Failed to load dialogue template");
                 return;
             }
 
-            GD.Print("Dialogue template loaded successfully");
+            Log.Debug("Dialogue template loaded successfully");
 
             // Test topic-based selection for each topic
             foreach (ShowTopic topic in Enum.GetValues(typeof(ShowTopic)))
             {
-                GD.Print($"\n=== Testing {topic.ToTopicName()} topic ===");
+                Log.Debug($"\n=== Testing {topic.ToTopicName()} topic ===");
 
                 // Test each line type
                 TestLineType(template, "Opening", topic, () => template.GetShowOpening(topic));
@@ -44,7 +45,7 @@ namespace KBTV.Testing
                 TestLineType(template, "Return from Break", topic, () => template.GetReturnFromBreak(topic));
             }
 
-            GD.Print("\n=== Test Complete ===");
+            Log.Debug("\n=== Test Complete ===");
         }
 
         private void TestLineType(VernDialogueTemplate template, string lineTypeName, ShowTopic topic, Func<DialogueTemplate> selector)
@@ -54,17 +55,17 @@ namespace KBTV.Testing
                 var line = selector();
                 if (line != null)
                 {
-                    GD.Print($"  {lineTypeName}: {line.Id} (Topic: {line.Topic}, Mood: {line.Mood})");
-                    GD.Print($"    Text: {line.Text}");
+                    Log.Debug($"  {lineTypeName}: {line.Id} (Topic: {line.Topic}, Mood: {line.Mood})");
+                    Log.Debug($"    Text: {line.Text}");
                 }
                 else
                 {
-                    GD.Print($"  {lineTypeName}: NULL (no line found for {topic.ToTopicName()})");
+                    Log.Debug($"  {lineTypeName}: NULL (no line found for {topic.ToTopicName()})");
                 }
             }
             catch (Exception ex)
             {
-                GD.Print($"  {lineTypeName}: ERROR - {ex.Message}");
+                Log.Debug($"  {lineTypeName}: ERROR - {ex.Message}");
             }
         }
     }

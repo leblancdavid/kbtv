@@ -35,7 +35,7 @@ namespace KBTV.UI
             }
             catch (Exception ex)
             {
-                GD.PrintErr("[CallerQueueItem] ERROR getting node references: " + ex.Message);
+                Log.Error("[CallerQueueItem] ERROR getting node references: " + ex.Message);
             }
 
             _repository = DependencyInjection.Get<ICallerRepository>(this);
@@ -178,7 +178,7 @@ namespace KBTV.UI
             var success = _repository.StartScreening(caller);
             if (!success.IsSuccess)
             {
-                GD.PrintErr($"CallerQueueItem: Failed to start screening - {success.ErrorMessage}");
+                Log.Error($"CallerQueueItem: Failed to start screening - {success.ErrorMessage}");
             }
         }
 

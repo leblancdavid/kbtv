@@ -32,7 +32,7 @@ namespace KBTV.Ads
             {
                 // Apply to Emotional stat (mood penalty)
                 vernStats.Emotional.Modify(-AdConstants.UNQUEUED_MOOD_PENALTY);
-                GD.Print($"AdManager: Applied {AdConstants.UNQUEUED_MOOD_PENALTY} mood penalty (break not queued)");
+                Log.Debug($"AdManager: Applied {AdConstants.UNQUEUED_MOOD_PENALTY} mood penalty (break not queued)");
             }
         }
 

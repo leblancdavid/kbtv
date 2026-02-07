@@ -30,7 +30,7 @@ namespace KBTV.UI
 
             if (_repository == null)
             {
-                GD.PrintErr("DebugHelper: ICallerRepository not available");
+                Log.Error("DebugHelper: ICallerRepository not available");
             }
 
             // Auto-start live show for testing after 2 seconds
@@ -72,7 +72,7 @@ namespace KBTV.UI
                 var caller = _callerGenerator.SpawnCaller();
                 if (caller == null)
                 {
-                    GD.PrintErr("DebugHelper: Failed to spawn caller (queue full?)");
+                    Log.Error("DebugHelper: Failed to spawn caller (queue full?)");
                 }
             }
         }
@@ -84,7 +84,7 @@ namespace KBTV.UI
                 var result = _repository.ApproveScreening();
                 if (!result.IsSuccess)
                 {
-                    GD.PrintErr($"DebugHelper: Failed to approve caller - {result.ErrorCode}: {result.ErrorMessage}");
+                    Log.Error($"DebugHelper: Failed to approve caller - {result.ErrorCode}: {result.ErrorMessage}");
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace KBTV.UI
                 var result = _repository.RejectScreening();
                 if (!result.IsSuccess)
                 {
-                    GD.PrintErr($"DebugHelper: Failed to reject caller - {result.ErrorCode}: {result.ErrorMessage}");
+                    Log.Error($"DebugHelper: Failed to reject caller - {result.ErrorCode}: {result.ErrorMessage}");
                 }
             }
         }
@@ -121,12 +121,12 @@ namespace KBTV.UI
         {
             if (_gameState != null)
             {
-                GD.Print($"Phase: {_gameState.CurrentPhase}, Night: {_gameState.CurrentNight}");
+                Log.Debug($"Phase: {_gameState.CurrentPhase}, Night: {_gameState.CurrentNight}");
             }
 
             if (_repository != null)
             {
-                GD.Print($"Callers - Incoming: {_repository.IncomingCallers.Count}, Hold: {_repository.OnHoldCallers.Count}, Screening: {_repository.IsScreening}, OnAir: {_repository.IsOnAir}");
+                Log.Debug($"Callers - Incoming: {_repository.IncomingCallers.Count}, Hold: {_repository.OnHoldCallers.Count}, Screening: {_repository.IsScreening}, OnAir: {_repository.IsOnAir}");
             }
         }
 

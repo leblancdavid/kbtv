@@ -33,7 +33,7 @@ namespace KBTV.UI
 
         public void CreateScreeningPanel(Control panel)
         {
-            GD.Print("CallerTabManager: Setting up screening panel");
+            Log.Debug("CallerTabManager: Setting up screening panel");
 
             _screeningPanelContainer = panel;
 
@@ -53,12 +53,12 @@ namespace KBTV.UI
             {
                 var scenePath = "res://scenes/ui/ScreeningPanel.tscn";
                 var scene = ResourceLoader.Load<PackedScene>(scenePath);
-                GD.Print($"CallerTabManager: Screening scene loaded: {scene != null}");
+                Log.Debug($"CallerTabManager: Screening scene loaded: {scene != null}");
 
                 if (scene != null)
                 {
                     _screeningPanel = scene.Instantiate<ScreeningPanel>();
-                    GD.Print($"CallerTabManager: Screening panel instantiated: {_screeningPanel != null}");
+                    Log.Debug($"CallerTabManager: Screening panel instantiated: {_screeningPanel != null}");
 
                     if (_screeningPanel != null)
                     {
@@ -66,7 +66,7 @@ namespace KBTV.UI
                         _screeningPanel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
                         _screeningPanel.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
                         _screeningPanel.CustomMinimumSize = Vector2.Zero;
-                        GD.Print("CallerTabManager: Configured screening panel for full rect containment");
+                        Log.Debug("CallerTabManager: Configured screening panel for full rect containment");
 
                         panel.AddChild(_screeningPanel);
 
@@ -75,18 +75,18 @@ namespace KBTV.UI
 
                         var currentScreening = _repository.CurrentScreening;
                         _screeningPanel.SetCaller(currentScreening);
-                        GD.Print("CallerTabManager: Screening panel creation successful");
+                        Log.Debug("CallerTabManager: Screening panel creation successful");
                     }
                 }
                 else
                 {
-                    GD.PrintErr("CallerTabManager: Failed to load screening panel scene");
+                    Log.Error("CallerTabManager: Failed to load screening panel scene");
                     panel.AddChild(CreateErrorPanel("Failed to load screening panel"));
                 }
             }
             catch (Exception ex)
             {
-                GD.PrintErr($"CallerTabManager.CreateScreeningPanel failed: {ex.Message}");
+                Log.Error($"CallerTabManager.CreateScreeningPanel failed: {ex.Message}");
                 panel.AddChild(CreateErrorPanel("Failed to create screening panel"));
             }
         }
@@ -111,7 +111,7 @@ namespace KBTV.UI
                 _screeningPanel = null;
             }
             _screeningPanelContainer = null;
-            GD.Print("CallerTabManager: Cleanup completed");
+            Log.Debug("CallerTabManager: Cleanup completed");
         }
 
         private Control CreateErrorPanel(string message)

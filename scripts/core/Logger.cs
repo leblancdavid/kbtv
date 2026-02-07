@@ -8,7 +8,7 @@ namespace KBTV.Core
     /// Simple conditional debug logger for performance optimization.
     /// Replaces excessive GD.Print calls with conditional logging.
     /// </summary>
-    public static class Logger
+    public static class Log
     {
         /// <summary>
         /// Enable/disable debug logging. Disabled in production for performance.

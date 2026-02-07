@@ -68,7 +68,7 @@ namespace KBTV.UI
 			}
 			else
 			{
-				GD.PrintErr("PreShowUIManager: GameStateManager not available");
+				Log.Error("PreShowUIManager: GameStateManager not available");
 			}
 		}
 
@@ -109,12 +109,12 @@ namespace KBTV.UI
 			var uiManager = DependencyInjection.Get<IUIManager>(this);
 			if (uiManager == null)
 			{
-				GD.PrintErr("PreShowUIManager: UIManager not available - cannot register PreShow layer!");
+				Log.Error("PreShowUIManager: UIManager not available - cannot register PreShow layer!");
 				return;
 			}
 
 			uiManager.RegisterPreShowLayer(this);
-			GD.Print("PreShowUIManager: Registered with UIManager as PreShow layer");
+			Log.Debug("PreShowUIManager: Registered with UIManager as PreShow layer");
 		}
 
 		private void LoadFromSave()
@@ -235,7 +235,7 @@ namespace KBTV.UI
 			}
 			catch (System.Exception e)
 			{
-				GD.PrintErr($"Error in OnBreaksDecreasePressed: {e}");
+				Log.Error($"Error in OnBreaksDecreasePressed: {e}");
 			}
 		}
 
@@ -251,7 +251,7 @@ namespace KBTV.UI
 			}
 			catch (System.Exception e)
 			{
-				GD.PrintErr($"Error in OnBreaksIncreasePressed: {e}");
+				Log.Error($"Error in OnBreaksIncreasePressed: {e}");
 			}
 		}
 
@@ -267,7 +267,7 @@ namespace KBTV.UI
 			}
 			catch (System.Exception e)
 			{
-				GD.PrintErr($"Error in OnSlotsDecreasePressed: {e}");
+				Log.Error($"Error in OnSlotsDecreasePressed: {e}");
 			}
 		}
 
@@ -283,7 +283,7 @@ namespace KBTV.UI
 			}
 			catch (System.Exception e)
 			{
-				GD.PrintErr($"Error in OnSlotsIncreasePressed: {e}");
+				Log.Error($"Error in OnSlotsIncreasePressed: {e}");
 			}
 		}
 
@@ -300,7 +300,7 @@ namespace KBTV.UI
 			}
 			catch (System.Exception e)
 			{
-				GD.PrintErr($"Error in OnDurationDecreasePressed: {e}");
+				Log.Error($"Error in OnDurationDecreasePressed: {e}");
 			}
 		}
 
@@ -317,7 +317,7 @@ namespace KBTV.UI
 			}
 			catch (System.Exception e)
 			{
-				GD.PrintErr($"Error in OnDurationIncreasePressed: {e}");
+				Log.Error($"Error in OnDurationIncreasePressed: {e}");
 			}
 		}
 
@@ -345,7 +345,7 @@ namespace KBTV.UI
 			}
 			catch (System.Exception e)
 			{
-				GD.PrintErr($"Error in UpdateSave: {e}");
+				Log.Error($"Error in UpdateSave: {e}");
 			}
 		}
 
@@ -464,7 +464,7 @@ namespace KBTV.UI
 			else
 			{
 				_errorLabel.Text = "SYSTEM INITIALIZING... PLEASE WAIT";
-				GD.PrintErr("PreShowUIManager: Services still not available after deferral");
+				Log.Error("PreShowUIManager: Services still not available after deferral");
 			}
 		}
 
@@ -487,7 +487,7 @@ namespace KBTV.UI
 			else
 			{
 				_errorLabel.Text = "PLEASE SELECT A TOPIC FIRST";
-				GD.PrintErr("PreShowUIManager: Cannot start show - no topic selected");
+				Log.Error("PreShowUIManager: Cannot start show - no topic selected");
 			}
 		}
 

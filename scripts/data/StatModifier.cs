@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using KBTV.Core;
 
 namespace KBTV.Data
 {
@@ -41,7 +42,7 @@ namespace KBTV.Data
         {
             if (stats == null)
             {
-                GD.PrintErr($"StatModifier '{_displayName}': Cannot apply to null VernStats");
+                Log.Error($"StatModifier '{_displayName}': Cannot apply to null VernStats");
                 return;
             }
 

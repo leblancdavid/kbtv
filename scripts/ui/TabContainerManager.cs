@@ -48,7 +48,7 @@ namespace KBTV.UI
             }
             else
             {
-                GD.PrintErr("TabContainerManager: Failed to load LiveShowHeader.tscn");
+                Log.Error("TabContainerManager: Failed to load LiveShowHeader.tscn");
             }
 
             var tabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/TabContainerUI.tscn");
@@ -62,7 +62,7 @@ namespace KBTV.UI
             }
             else
             {
-                GD.PrintErr("TabContainerManager: Failed to load TabContainerUI.tscn");
+                Log.Error("TabContainerManager: Failed to load TabContainerUI.tscn");
             }
 
             var footerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LiveShowFooter.tscn");
@@ -76,7 +76,7 @@ namespace KBTV.UI
             }
             else
             {
-                GD.PrintErr("TabContainerManager: Failed to load LiveShowFooter.tscn");
+                Log.Error("TabContainerManager: Failed to load LiveShowFooter.tscn");
             }
         }
 
@@ -96,7 +96,7 @@ namespace KBTV.UI
             }
             else
             {
-                GD.PrintErr("TabContainerManager: Failed to load CallerTab.tscn");
+                Log.Error("TabContainerManager: Failed to load CallerTab.tscn");
                 AddPlaceholderTab("CALLERS");
             }
 
@@ -110,7 +110,7 @@ namespace KBTV.UI
             }
             else
             {
-                GD.PrintErr("TabContainerManager: Failed to load VernTab.tscn");
+                Log.Error("TabContainerManager: Failed to load VernTab.tscn");
                 AddPlaceholderTab("VERN");
             }
 
@@ -124,7 +124,7 @@ namespace KBTV.UI
             }
             else
             {
-                GD.PrintErr("TabContainerManager: Failed to load TopicTab.tscn");
+                Log.Error("TabContainerManager: Failed to load TopicTab.tscn");
                 AddPlaceholderTab("TOPIC");
             }
 
@@ -149,7 +149,7 @@ namespace KBTV.UI
             var uiManager = DependencyInjection.Get<IUIManager>(this);
             if (uiManager == null)
             {
-                GD.PrintErr("TabContainerManager: UIManager is null - cannot register LiveShow layer!");
+                Log.Error("TabContainerManager: UIManager is null - cannot register LiveShow layer!");
                 return;
             }
 

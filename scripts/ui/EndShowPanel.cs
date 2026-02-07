@@ -27,7 +27,7 @@ namespace KBTV.UI
 			_broadcastAudioService = DependencyInjection.Get<IBroadcastAudioService>(this);
 			if (_asyncLoop == null)
 			{
-				GD.PrintErr("EndShowPanel: AsyncBroadcastLoop not available");
+				Log.Error("EndShowPanel: AsyncBroadcastLoop not available");
 				return;
 			}
 
@@ -37,7 +37,7 @@ namespace KBTV.UI
 			EndShowButton = GetNode<Button>("VBoxContainer/EndShowButton");
 			if (EndShowButton == null)
 			{
-				GD.PrintErr("EndShowPanel: EndShowButton not found");
+				Log.Error("EndShowPanel: EndShowButton not found");
 				return;
 			}
 

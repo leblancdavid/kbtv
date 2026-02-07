@@ -150,7 +150,7 @@ namespace KBTV.Callers
             // Initialization already handled in _Ready()
             if (!_initialized)
             {
-                GD.Print("CallerGenerator: Initialize called (already initialized in _Ready)");
+                Log.Debug("CallerGenerator: Initialize called (already initialized in _Ready)");
                 _initialized = true;
             }
         }
@@ -159,13 +159,13 @@ namespace KBTV.Callers
         {
             if (_repository == null)
             {
-                GD.PrintErr("CallerGenerator: ICallerRepository not available after all services ready");
+                Log.Error("CallerGenerator: ICallerRepository not available after all services ready");
                 return;
             }
 
             if (_gameState == null)
             {
-                GD.PrintErr("CallerGenerator: GameStateManager not available after all services ready");
+                Log.Error("CallerGenerator: GameStateManager not available after all services ready");
                 return;
             }
 
@@ -176,7 +176,7 @@ namespace KBTV.Callers
                 StartGenerating();
             }
 
-            GD.Print("CallerGenerator: Initialization complete");
+            Log.Debug("CallerGenerator: Initialization complete");
             _initialized = true;
         }
 
@@ -206,7 +206,7 @@ namespace KBTV.Callers
         {
             _isGenerating = true;
             ScheduleNextSpawn();
-            // GD.Print("CallerGenerator: Started generating callers");
+            // Log.Debug("CallerGenerator: Started generating callers");
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace KBTV.Callers
         public void StopGenerating()
         {
             _isGenerating = false;
-            // GD.Print("CallerGenerator: Stopped generating callers");
+            // Log.Debug("CallerGenerator: Stopped generating callers");
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace KBTV.Callers
             var result = _repository.AddCaller(caller);
             if (result.IsSuccess)
             {
-                // GD.Print($"CallerGenerator: Generated caller {caller.Name}");
+                // Log.Debug($"CallerGenerator: Generated caller {caller.Name}");
                 return caller;
             }
             return null;

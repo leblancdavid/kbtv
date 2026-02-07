@@ -115,10 +115,10 @@ namespace KBTV.Core;
     /// </summary>
     public void Initialize()
     {
-        GD.Print("ServiceProviderRoot: Starting two-phase service initialization...");
+        Log.Debug("ServiceProviderRoot: Starting two-phase service initialization...");
 
         // Phase 1: Create all service instances (without adding to scene tree)
-        GD.Print("ServiceProviderRoot: Phase 1 - Creating all service instances...");
+        Log.Debug("ServiceProviderRoot: Phase 1 - Creating all service instances...");
 
         // Create core services (plain classes) - no dependencies
         var eventBus = new EventBus();
@@ -189,7 +189,7 @@ namespace KBTV.Core;
         var conversationStatTracker = new ConversationStatTracker(gameStateManager, topicManager);
 
         // Phase 2: Set all provider properties (now dependency injection will work)
-        GD.Print("ServiceProviderRoot: Phase 2 - Setting provider properties...");
+        Log.Debug("ServiceProviderRoot: Phase 2 - Setting provider properties...");
 
         EventBus = eventBus;
         ArcRepository = arcRepository;
@@ -215,11 +215,11 @@ namespace KBTV.Core;
         TopicManager = topicManager;
 
         // Make all services available BEFORE adding children to the scene tree
-        GD.Print("ServiceProviderRoot: Making services available for dependency injection...");
+        Log.Debug("ServiceProviderRoot: Making services available for dependency injection...");
         this.Provide();
 
         // Phase 3: Add Node-inheriting services to scene tree (triggers _Ready() and OnResolved())
-        GD.Print("ServiceProviderRoot: Phase 3 - Adding Node services to scene tree...");
+        Log.Debug("ServiceProviderRoot: Phase 3 - Adding Node services to scene tree...");
 
         // Only add services that inherit from Node
         AddChild(saveManager);
@@ -239,7 +239,7 @@ namespace KBTV.Core;
         AddChild(uiAudioService);
         AddChild(deadAirManager);
 
-        GD.Print("ServiceProviderRoot: All providers created and added to scene tree");
+        Log.Debug("ServiceProviderRoot: All providers created and added to scene tree");
     }
 
     /// <summary>
@@ -248,7 +248,7 @@ namespace KBTV.Core;
     /// </summary>
     public void OnReady()
     {
-        GD.Print("ServiceProviderRoot: Providing all services to descendants");
+        Log.Debug("ServiceProviderRoot: Providing all services to descendants");
         
         // Initialize any providers that need initialization
         TimeManager.Initialize();
@@ -277,6 +277,6 @@ namespace KBTV.Core;
     /// </summary>
     public void OnExitTree()
     {
-        GD.Print("ServiceProviderRoot: Exiting scene tree");
+        Log.Debug("ServiceProviderRoot: Exiting scene tree");
     }
 }

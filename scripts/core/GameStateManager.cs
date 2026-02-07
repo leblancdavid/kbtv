@@ -76,7 +76,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 		/// </summary>
 		public void OnResolved()
 		{
-			GD.Print("GameStateManager: Dependencies resolved, initializing...");
+			Log.Debug("GameStateManager: Dependencies resolved, initializing...");
 			_instanceId = ++_instanceCount;
 
 			// Connect to TimeManager event
@@ -100,7 +100,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
             }
             else
             {
-                GD.PrintErr("GameStateManager: Failed to create VernStats!");
+                Log.Error("GameStateManager: Failed to create VernStats!");
             }
 
             _gameInitialized = true;
@@ -113,11 +113,11 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
         {
             if (_currentPhase != GamePhase.Loading)
             {
-                GD.PrintErr("GameStateManager: Cannot finish loading - not in Loading phase");
+                Log.Error("GameStateManager: Cannot finish loading - not in Loading phase");
                 return;
             }
 
-            GD.Print("GameStateManager: Loading complete, transitioning to PreShow");
+            Log.Debug("GameStateManager: Loading complete, transitioning to PreShow");
             GamePhase oldPhase = _currentPhase;
             _currentPhase = GamePhase.PreShow;
             EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
@@ -135,7 +135,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 			{
 				case GamePhase.Loading:
 					// Cannot advance from Loading - use FinishLoading() instead
-					GD.PrintErr("GameStateManager: Cannot advance from Loading phase - use FinishLoading()");
+					Log.Error("GameStateManager: Cannot advance from Loading phase - use FinishLoading()");
 					return;
 
 				case GamePhase.PreShow:
@@ -162,14 +162,14 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 		/// </summary>
 		public void StartLiveShow()
 		{
-			GD.Print("DEBUG: GameStateManager.StartLiveShow called");
+			Log.Debug("DEBUG: GameStateManager.StartLiveShow called");
 			if (!CanStartLiveShow())
 			{
-				GD.PrintErr("GameStateManager: Cannot start live show - invalid state or no topic selected");
+				Log.Error("GameStateManager: Cannot start live show - invalid state or no topic selected");
 				return;
 			}
 
-			// GD.Print($"GameStateManager: Starting live show with topic '{_selectedTopic.DisplayName}'");
+			// Log.Debug($"GameStateManager: Starting live show with topic '{_selectedTopic.DisplayName}'");
 			GamePhase oldPhase = _currentPhase;
 			_currentPhase = GamePhase.LiveShow;
 			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
@@ -186,7 +186,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 			{
 				if (task.IsFaulted)
 				{
-					GD.PrintErr($"GameStateManager: Error in async broadcast: {task.Exception?.Message}");
+					Log.Error($"GameStateManager: Error in async broadcast: {task.Exception?.Message}");
 				}
 			});
 		}
@@ -209,7 +209,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
     	public void SetSelectedTopic(Topic topic)
     	{
     		_selectedTopic = topic;
-    		// GD.Print($"GameStateManager: Topic selected - {topic?.DisplayName ?? "None"}");
+    		// Log.Debug($"GameStateManager: Topic selected - {topic?.DisplayName ?? "None"}");
     	}
 
 		/// <summary>
@@ -263,7 +263,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 		/// </summary>
 		private async Task ProcessEndOfShow()
 		{
-			GD.Print("GameStateManager: ProcessEndOfShow started (T=0)");
+			Log.Debug("GameStateManager: ProcessEndOfShow started (T=0)");
 
 			// The closing dialog was already triggered at T-10s by OnShowEndingWarning event
 			// and should have completed by now. We just need to:
@@ -274,7 +274,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 
 			// Clear all callers (incoming, on-hold, on-air)
 			CallerRepository.ClearAll();
-			GD.Print("GameStateManager: All callers cleared");
+			Log.Debug("GameStateManager: All callers cleared");
 
 			// Get show performance data
 			int peakListeners = ListenerManager.PeakListeners;
@@ -284,7 +284,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 			// Calculate and award income
 			int income = IncomeCalculator.CalculateShowIncome(peakListeners, showQuality);
 			EconomyManager.AddMoney(income, "Show Income");
-			GD.Print($"GameStateManager: Added income {income} (quality: {showQuality:F1}, peak listeners: {peakListeners})");
+			Log.Debug($"GameStateManager: Added income {income} (quality: {showQuality:F1}, peak listeners: {peakListeners})");
 
 			// Update save data
 			if (SaveManager.CurrentSave != null)
@@ -302,18 +302,18 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 			TimeManager.ResetClock();
 
 			// Always play outro music at show end
-			GD.Print("GameStateManager: Playing outro music");
+			Log.Debug("GameStateManager: Playing outro music");
 			var outroItem = new BroadcastItem("outro_music", BroadcastItemType.Music, "Outro music", "res://assets/audio/music/intro_music.wav", 4.0f);
 			await AudioPlayer.PlayAudioForBroadcastItemAsync(outroItem);
-			GD.Print("GameStateManager: Outro music completed");
+			Log.Debug("GameStateManager: Outro music completed");
 
 			// End the broadcast loop
 			AsyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.ShowEnding);
-			GD.Print("GameStateManager: Broadcast loop interrupted");
+			Log.Debug("GameStateManager: Broadcast loop interrupted");
 
 			// Auto-save at end of show
 			SaveManager.Save();
-			GD.Print("GameStateManager: Game saved");
+			Log.Debug("GameStateManager: Game saved");
 		}
 
 		/// <summary>
@@ -322,16 +322,16 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 		/// </summary>
 		private async void OnShowTimerExpired()
 		{
-			GD.Print("GameStateManager: OnShowTimerExpired - Timer reached 0, ending show");
+			Log.Debug("GameStateManager: OnShowTimerExpired - Timer reached 0, ending show");
 
 			// Interrupt current audio playback
 			AudioPlayer.Stop();
-			GD.Print("GameStateManager: Current audio interrupted");
+			Log.Debug("GameStateManager: Current audio interrupted");
 
 			// Clear all callers and stop generation
 			CallerRepository.ClearAll();
 			CallerGenerator.StopGenerating();
-			GD.Print("GameStateManager: All callers cleared and generation stopped");
+			Log.Debug("GameStateManager: All callers cleared and generation stopped");
 
 			// Advance to PostShow phase after outro music
 			await AdvanceToPostShow();

@@ -30,7 +30,7 @@ namespace KBTV.UI
             }
             else
             {
-                GD.PrintErr("LoadingScreen: GameStateManager not available");
+                Log.Error("LoadingScreen: GameStateManager not available");
             }
         }
 

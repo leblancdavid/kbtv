@@ -1,6 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 using KBTV.Callers;
+using KBTV.Core;
 
 namespace KBTV.UI
 {
@@ -17,7 +18,7 @@ namespace KBTV.UI
 
 		public void SetHeader(string headerText, Color headerColor)
 		{
-			GD.Print($"CallerPanel.SetHeader: '{headerText}' (label null: {_headerLabel == null})");
+			Log.Debug($"CallerPanel.SetHeader: '{headerText}' (label null: {_headerLabel == null})");
 			if (_headerLabel != null)
 			{
 				_headerLabel.Text = headerText;

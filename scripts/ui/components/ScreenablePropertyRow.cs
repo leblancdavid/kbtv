@@ -74,7 +74,7 @@ namespace KBTV.UI.Components
         {
             if (_contentLabel == null)
             {
-                GD.PrintErr("ScreenablePropertyRow.SetProperty called before _Ready() - nodes not initialized");
+                Log.Error("ScreenablePropertyRow.SetProperty called before _Ready() - nodes not initialized");
                 return;
             }
 

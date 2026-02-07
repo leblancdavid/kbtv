@@ -89,7 +89,7 @@ namespace KBTV.UI
             var tree = GetTree();
             if (tree == null)
             {
-                GD.PrintErr("GlobalTransitionManager: GetTree() is null, cannot transition");
+                Log.Error("GlobalTransitionManager: GetTree() is null, cannot transition");
                 return;
             }
 

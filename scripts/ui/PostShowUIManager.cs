@@ -24,7 +24,7 @@ namespace KBTV.UI
 			var uiManager = DependencyInjection.Get<IUIManager>(this);
 			if (uiManager == null)
 			{
-				GD.PrintErr("PostShowUIManager: UIManager not available");
+				Log.Error("PostShowUIManager: UIManager not available");
 				return;
 			}
 
@@ -44,7 +44,7 @@ namespace KBTV.UI
 			}
 			else
 			{
-				GD.PrintErr("PostShowUIManager: Failed to load PostShowPanel.tscn");
+				Log.Error("PostShowUIManager: Failed to load PostShowPanel.tscn");
 			}
 		}
 	}

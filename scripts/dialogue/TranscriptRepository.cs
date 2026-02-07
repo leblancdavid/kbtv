@@ -37,7 +37,7 @@ namespace KBTV.Dialogue
         {
             if (entry == null)
             {
-                GD.PrintErr("TranscriptRepository: Cannot add null entry");
+                Log.Error("TranscriptRepository: Cannot add null entry");
                 return;
             }
 

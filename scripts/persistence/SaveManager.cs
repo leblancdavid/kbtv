@@ -113,7 +113,7 @@ namespace KBTV.Persistence
                 var file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Read);
                 if (file == null)
                 {
-                    GD.PrintErr($"[SaveManager] Failed to open save file: {Godot.FileAccess.GetOpenError()}");
+                    Log.Error($"[SaveManager] Failed to open save file: {Godot.FileAccess.GetOpenError()}");
                     _currentSave = CreateNewSave();
                 }
                 else
@@ -126,7 +126,7 @@ namespace KBTV.Persistence
                         var jsonParse = Json.ParseString(json);
                         if (jsonParse.VariantType == Variant.Type.Nil)
                         {
-                            GD.PrintErr("[SaveManager] Failed to parse JSON");
+                            Log.Error("[SaveManager] Failed to parse JSON");
                             _currentSave = CreateNewSave();
                         }
                         else
@@ -165,15 +165,15 @@ namespace KBTV.Persistence
                         }
                         else if (_currentSave.Version > CURRENT_VERSION)
                         {
-                            GD.PrintErr($"[SaveManager] Save file is from a newer version ({_currentSave.Version} > {CURRENT_VERSION}). Cannot load.");
+                            Log.Error($"[SaveManager] Save file is from a newer version ({_currentSave.Version} > {CURRENT_VERSION}). Cannot load.");
                             _currentSave = CreateNewSave();
                         }
 
-                        GD.Print($"[SaveManager] Loaded save from {path} (Night {_currentSave.CurrentNight}, ${_currentSave.Money})");
+                        Log.Debug($"[SaveManager] Loaded save from {path} (Night {_currentSave.CurrentNight}, ${_currentSave.Money})");
                     }
                     catch (Exception e)
                     {
-                        GD.PrintErr($"[SaveManager] Failed to load save: {e.Message}");
+                        Log.Error($"[SaveManager] Failed to load save: {e.Message}");
                         _currentSave = CreateNewSave();
                     }
                 }
@@ -202,7 +202,7 @@ namespace KBTV.Persistence
             {
                 migrated.ShowDurationMinutes = 10; // Default value
                 migrated.Version = 2;
-                GD.Print("[SaveManager] Migrated save from version 1 to 2");
+                Log.Debug("[SaveManager] Migrated save from version 1 to 2");
             }
 
             return migrated;
@@ -231,7 +231,7 @@ namespace KBTV.Persistence
                 var file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Write);
                 if (file == null)
                 {
-                    GD.PrintErr($"[SaveManager] Failed to create save file: {Godot.FileAccess.GetOpenError()}");
+                    Log.Error($"[SaveManager] Failed to create save file: {Godot.FileAccess.GetOpenError()}");
                     return;
                 }
 
@@ -256,12 +256,12 @@ namespace KBTV.Persistence
                 file.Close();
 
                 _isDirty = false;
-                GD.Print($"[SaveManager] Saved to {path}");
+                Log.Debug($"[SaveManager] Saved to {path}");
                 EmitSignal("SaveCompleted");
             }
             catch (Exception e)
             {
-                GD.PrintErr($"[SaveManager] Failed to save: {e.Message}");
+                Log.Error($"[SaveManager] Failed to save: {e.Message}");
             }
         }
 
@@ -278,11 +278,11 @@ namespace KBTV.Persistence
                 if (dir != null)
                 {
                     dir.Remove(path);
-                    GD.Print("[SaveManager] Save file deleted");
+                    Log.Debug("[SaveManager] Save file deleted");
                 }
                 else
                 {
-                    GD.PrintErr("[SaveManager] Failed to access user directory for deletion");
+                    Log.Error("[SaveManager] Failed to access user directory for deletion");
                 }
             }
 
@@ -394,7 +394,7 @@ namespace KBTV.Persistence
                 }
                 catch (Exception e)
                 {
-                    GD.PrintErr($"[SaveManager] Error in OnBeforeSave for {saveable.GetType().Name}: {e.Message}");
+                    Log.Error($"[SaveManager] Error in OnBeforeSave for {saveable.GetType().Name}: {e.Message}");
                 }
             }
         }
@@ -409,7 +409,7 @@ namespace KBTV.Persistence
                 }
                 catch (Exception e)
                 {
-                    GD.PrintErr($"[SaveManager] Error in OnAfterLoad for {saveable.GetType().Name}: {e.Message}");
+                    Log.Error($"[SaveManager] Error in OnAfterLoad for {saveable.GetType().Name}: {e.Message}");
                 }
             }
         }

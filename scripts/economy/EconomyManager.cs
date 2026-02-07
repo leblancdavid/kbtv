@@ -184,7 +184,7 @@ namespace KBTV.Economy
         // public void OnAfterLoad(SaveData data)
         // {
         //     SetMoney(data.Money);
-        //     GD.Print($"[EconomyManager] Loaded money: ${_currentMoney}");
+        //     Log.Debug($"[EconomyManager] Loaded money: ${_currentMoney}");
         // }
     }
 }

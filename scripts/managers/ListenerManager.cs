@@ -78,7 +78,7 @@ namespace KBTV.Managers
         {
             if (_gameState == null || _timeManager == null || _repository == null)
             {
-                GD.PrintErr("ListenerManager: Required services not available - check autoload order");
+                Log.Error("ListenerManager: Required services not available - check autoload order");
                 return;
             }
 

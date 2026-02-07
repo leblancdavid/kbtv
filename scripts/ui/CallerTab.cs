@@ -73,7 +73,7 @@ namespace KBTV.UI
         {
             if (_incomingPanel == null)
             {
-                GD.PrintErr("CallerTab.CreateIncomingPanel: _incomingPanel is null - node not found in scene");
+                Log.Error("CallerTab.CreateIncomingPanel: _incomingPanel is null - node not found in scene");
                 return;
             }
 
@@ -129,7 +129,7 @@ namespace KBTV.UI
         {
             if (_screeningPanel == null)
             {
-                GD.PrintErr("CallerTab.CreateScreeningPanel: _screeningPanel is null - node not found in scene");
+                Log.Error("CallerTab.CreateScreeningPanel: _screeningPanel is null - node not found in scene");
                 return;
             }
             _tabManager.CreateScreeningPanel(_screeningPanel);
@@ -139,7 +139,7 @@ namespace KBTV.UI
         {
             if (_screeningPanel == null)
             {
-                GD.PrintErr("CallerTab.UpdateScreeningPanel: _screeningPanel is null - node not found in scene");
+                Log.Error("CallerTab.UpdateScreeningPanel: _screeningPanel is null - node not found in scene");
                 return;
             }
             _tabManager.UpdateScreeningPanelContent();
@@ -149,7 +149,7 @@ namespace KBTV.UI
         {
             if (_onHoldPanel == null)
             {
-                GD.PrintErr("CallerTab.CreateOnHoldPanel: _onHoldPanel is null - node not found in scene");
+                Log.Error("CallerTab.CreateOnHoldPanel: _onHoldPanel is null - node not found in scene");
                 return;
             }
 
@@ -250,7 +250,7 @@ namespace KBTV.UI
             var result = _screeningController.Approve();
             if (!result.IsSuccess)
             {
-                GD.PrintErr($"CallerTab: Failed to approve caller: {result.ErrorCode}: {result.ErrorMessage}");
+                Log.Error($"CallerTab: Failed to approve caller: {result.ErrorCode}: {result.ErrorMessage}");
             }
         }
 
@@ -264,7 +264,7 @@ namespace KBTV.UI
             var result = _screeningController.Reject();
             if (!result.IsSuccess)
             {
-                GD.PrintErr($"CallerTab: Failed to reject caller: {result.ErrorCode}: {result.ErrorMessage}");
+                Log.Error($"CallerTab: Failed to reject caller: {result.ErrorCode}: {result.ErrorMessage}");
             }
         }
 

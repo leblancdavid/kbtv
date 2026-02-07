@@ -30,23 +30,23 @@ namespace KBTV.Dialogue
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
         {
-            GD.Print($"PutOnAirExecutable: Starting - OnHoldCallers: {_callerRepository.OnHoldCallers.Count}, IsOnAir: {_callerRepository.IsOnAir}");
+            Log.Debug($"PutOnAirExecutable: Starting - OnHoldCallers: {_callerRepository.OnHoldCallers.Count}, IsOnAir: {_callerRepository.IsOnAir}");
             
             var result = _callerRepository.PutOnAir();
 
             if (result.IsSuccess)
             {
                 // Caller successfully put on air - broadcast continues normally
-                GD.Print($"PutOnAirExecutable: Successfully put caller {result.Value.Name} on air");
+                Log.Debug($"PutOnAirExecutable: Successfully put caller {result.Value.Name} on air");
             }
             else
             {
                 // No suitable callers - transition to dropped caller state
-                GD.Print($"PutOnAirExecutable: Failed to put caller on air - {result.ErrorMessage}. Transitioning to DroppedCaller state");
+                Log.Debug($"PutOnAirExecutable: Failed to put caller on air - {result.ErrorMessage}. Transitioning to DroppedCaller state");
                 _stateManager.SetState(AsyncBroadcastState.DroppedCaller);
             }
             
-            GD.Print($"PutOnAirExecutable: Completed - OnAirCaller: {_callerRepository.OnAirCaller?.Name ?? "null"}");
+            Log.Debug($"PutOnAirExecutable: Completed - OnAirCaller: {_callerRepository.OnAirCaller?.Name ?? "null"}");
         }
 
         protected override BroadcastItem CreateBroadcastItem()

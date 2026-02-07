@@ -37,7 +37,7 @@ namespace KBTV.Dialogue
             var onAirCaller = _callerRepository.OnAirCaller;
             if (onAirCaller != null)
             {
-                GD.Print($"WaitForBreakExecutable: Dropping on-air caller '{onAirCaller.Name}' at break start");
+                Log.Debug($"WaitForBreakExecutable: Dropping on-air caller '{onAirCaller.Name}' at break start");
                 _callerRepository.SetCallerState(onAirCaller, CallerState.Disconnected);
                 _callerRepository.RemoveCaller(onAirCaller);
             }

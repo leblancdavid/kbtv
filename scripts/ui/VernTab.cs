@@ -59,14 +59,14 @@ namespace KBTV.UI
             var gameStateManager = DependencyInjection.Get<IGameStateManager>(this);
             if (gameStateManager == null)
             {
-                GD.PrintErr("VernTab: GameStateManager is null - cannot get VernStats!");
+                Log.Error("VernTab: GameStateManager is null - cannot get VernStats!");
                 return;
             }
 
             _vernStats = gameStateManager.VernStats;
             if (_vernStats == null)
             {
-                GD.PrintErr("VernTab: VernStats is null!");
+                Log.Error("VernTab: VernStats is null!");
                 return;
             }
 

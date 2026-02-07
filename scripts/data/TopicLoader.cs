@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Godot;
 using KBTV.Callers;
+using KBTV.Core;
 
 namespace KBTV.Data
 {
@@ -26,7 +27,7 @@ namespace KBTV.Data
             topics.Add(CreateSampleTopic("Cryptids"));
             topics.Add(CreateSampleTopic("Open"));
 
-            GD.Print($"TopicLoader: Loaded {topics.Count} topics");
+            Log.Debug($"TopicLoader: Loaded {topics.Count} topics");
             return topics;
         }
 

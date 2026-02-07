@@ -120,11 +120,11 @@ namespace KBTV.Audio
                 if (stream != null)
                 {
                     _sfxCache[path] = stream;
-                    GD.Print($"UIAudioService: Loaded {sfx} from {path}");
+                    Log.Debug($"UIAudioService: Loaded {sfx} from {path}");
                 }
             }
 
-            GD.Print($"UIAudioService: Preloaded {_sfxCache.Count}/{SfxPaths.Count} sound effects");
+            Log.Debug($"UIAudioService: Preloaded {_sfxCache.Count}/{SfxPaths.Count} sound effects");
         }
 
         /// <summary>

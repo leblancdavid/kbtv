@@ -155,7 +155,7 @@ public partial class BroadcastTimer : Node,
             if (!_isShowActive && eventType != BroadcastTimingEventType.ShowEnd)
                 return;
 
-            GD.Print($"BroadcastTimer: Timer fired - {eventType} at game time {_timeManager?.ElapsedTime ?? 0f:F1}s");
+            Log.Debug($"BroadcastTimer: Timer fired - {eventType} at game time {_timeManager?.ElapsedTime ?? 0f:F1}s");
 
             var timingEvent = new BroadcastTimingEvent(eventType);
             _eventBus.Publish(timingEvent);

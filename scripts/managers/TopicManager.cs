@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using KBTV.Data;
 using KBTV.Persistence;
+using KBTV.Core;
 
 namespace KBTV.Managers
 {
@@ -66,7 +67,7 @@ namespace KBTV.Managers
                 belief.ApplyBadCaller(points);
             }
 
-            Godot.GD.Print($"TopicManager: Awarded {points} XP to {topicName} (now {belief.XP:F0})");
+            Log.Debug($"TopicManager: Awarded {points} XP to {topicName} (now {belief.XP:F0})");
         }
 
         // ─────────────────────────────────────────────────────────────

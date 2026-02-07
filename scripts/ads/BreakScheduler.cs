@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using KBTV.Ads;
+using KBTV.Core;
 using KBTV.Managers;
 
 namespace KBTV.Ads
@@ -43,7 +44,7 @@ namespace KBTV.Ads
 
             if (nextBreakIndex >= _schedule.Breaks.Count)
             {
-                GD.Print($"BreakScheduler: All breaks completed - current: {_currentBreakIndex}, total: {_schedule.Breaks.Count}");
+                Log.Debug($"BreakScheduler: All breaks completed - current: {_currentBreakIndex}, total: {_schedule.Breaks.Count}");
                 return;
             }
 
@@ -83,7 +84,7 @@ namespace KBTV.Ads
             var tree = node.GetTree();
             if (tree == null)
             {
-                GD.PrintErr($"BreakScheduler: Cannot create timer - node not in scene tree (delay: {delay})");
+                Log.Error($"BreakScheduler: Cannot create timer - node not in scene tree (delay: {delay})");
                 return null;
             }
 
@@ -98,15 +99,15 @@ namespace KBTV.Ads
                     }
                     catch (Exception ex)
                     {
-                        GD.PrintErr($"BreakScheduler: Timer callback failed: {ex.Message}");
+                        Log.Error($"BreakScheduler: Timer callback failed: {ex.Message}");
                     }
                 };
-                GD.Print($"BreakScheduler: Created timer with {delay:F1}s delay");
+                Log.Debug($"BreakScheduler: Created timer with {delay:F1}s delay");
                 return timer;
             }
             catch (Exception ex)
             {
-                GD.PrintErr($"BreakScheduler: Failed to create timer (delay: {delay}): {ex.Message}");
+                Log.Error($"BreakScheduler: Failed to create timer (delay: {delay}): {ex.Message}");
                 return null;
             }
         }

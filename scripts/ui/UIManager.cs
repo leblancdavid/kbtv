@@ -81,7 +81,7 @@ namespace KBTV.UI
 
             if (newPhase == GamePhase.LiveShow && _liveShowLayer == null)
             {
-                GD.PrintErr("UIManager: Cannot switch to LiveShow - LiveShow layer not registered");
+                Log.Error("UIManager: Cannot switch to LiveShow - LiveShow layer not registered");
                 return;
             }
 
@@ -144,7 +144,7 @@ namespace KBTV.UI
                     break;
 
                 default:
-                    GD.PrintErr($"UIManager: Unknown game phase {newPhase}");
+                    Log.Error($"UIManager: Unknown game phase {newPhase}");
                     break;
             }
         }
@@ -170,7 +170,7 @@ namespace KBTV.UI
         {
             if (_postShowLayer == null)
             {
-                GD.PrintErr("UIManager: PostShow layer not registered");
+                Log.Error("UIManager: PostShow layer not registered");
                 return;
             }
 

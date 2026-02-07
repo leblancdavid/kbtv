@@ -6,6 +6,7 @@ using Godot;
 using System.Collections.Generic;
 using KBTV.Callers;
 using KBTV.UI;
+using KBTV.Core;
 
 namespace KBTV.UI
 {
@@ -165,7 +166,7 @@ namespace KBTV.UI
         /// </summary>
         private Control CreateCallerPanel(string name, string headerText, IReadOnlyList<Caller> callers, Color headerColor, Color itemColor)
         {
-            GD.Print($"Creating caller panel {name} with {callers.Count} callers");
+            Log.Debug($"Creating caller panel {name} with {callers.Count} callers");
 
             var panel = new Panel();
             panel.Name = name;

@@ -50,17 +50,17 @@ namespace KBTV.Callers
         public override void _Ready()
         {
             _instanceId = ++_instanceCount;
-            GD.Print($"CallerQueue: _Ready called (instance #{_instanceId})");
+            Log.Debug($"CallerQueue: _Ready called (instance #{_instanceId})");
 
             if (_repository == null)
             {
-                GD.PrintErr("CallerQueue: ICallerRepository not available");
+                Log.Error("CallerQueue: ICallerRepository not available");
                 return;
             }
 
             _repository.Subscribe(this);
 
-            GD.Print($"CallerQueue: Initialized (legacy wrapper, instance #{_instanceId})");
+            Log.Debug($"CallerQueue: Initialized (legacy wrapper, instance #{_instanceId})");
         }
 
         public override void _ExitTree()
@@ -84,7 +84,7 @@ namespace KBTV.Callers
         {
             if (_repository == null)
             {
-                GD.PrintErr("CallerQueue: Repository not available");
+                Log.Error("CallerQueue: Repository not available");
                 return false;
             }
             var result = _repository.AddCaller(caller);
@@ -95,7 +95,7 @@ namespace KBTV.Callers
         {
             if (_repository == null)
             {
-                GD.PrintErr("CallerQueue: Repository not available");
+                Log.Error("CallerQueue: Repository not available");
                 return null;
             }
             var result = _repository.StartScreeningNext();
@@ -106,7 +106,7 @@ namespace KBTV.Callers
         {
             if (_repository == null)
             {
-                GD.PrintErr("CallerQueue: Repository not available");
+                Log.Error("CallerQueue: Repository not available");
                 return false;
             }
             var result = _repository.StartScreening(caller);
@@ -132,7 +132,7 @@ namespace KBTV.Callers
         {
             if (_repository == null)
             {
-                GD.PrintErr("CallerQueue: Repository not available");
+                Log.Error("CallerQueue: Repository not available");
                 return false;
             }
             var result = _repository.ApproveScreening();
@@ -143,7 +143,7 @@ namespace KBTV.Callers
         {
             if (_repository == null)
             {
-                GD.PrintErr("CallerQueue: Repository not available");
+                Log.Error("CallerQueue: Repository not available");
                 return false;
             }
             var result = _repository.RejectScreening();
@@ -154,7 +154,7 @@ namespace KBTV.Callers
         {
             if (_repository == null)
             {
-                GD.PrintErr("CallerQueue: Repository not available");
+                Log.Error("CallerQueue: Repository not available");
                 return null;
             }
             var result = _repository.PutOnAir();
@@ -165,7 +165,7 @@ namespace KBTV.Callers
         {
             if (_repository == null)
             {
-                GD.PrintErr("CallerQueue: Repository not available");
+                Log.Error("CallerQueue: Repository not available");
                 return null;
             }
             var result = _repository.EndOnAir();

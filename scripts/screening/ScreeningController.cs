@@ -38,14 +38,14 @@ namespace KBTV.Screening
         {
             if (caller == null)
             {
-                GD.PrintErr("ScreeningController: Cannot start with null caller");
+                Log.Error("ScreeningController: Cannot start with null caller");
                 return;
             }
 
             _session = new ScreeningSession(caller);
             SetPhase(ScreeningPhase.Gathering);
 
-            GD.Print($"ScreeningController: Started for {caller.Name}");
+            Log.Debug($"ScreeningController: Started for {caller.Name}");
         }
 
         public Result<Caller> Approve()
@@ -63,7 +63,7 @@ namespace KBTV.Screening
 
             if (!repository.IsScreening)
             {
-                GD.PrintErr($"ScreeningController: State mismatch - controller has session but repository is not screening. Caller: {_session.Caller.Name}");
+                Log.Error($"ScreeningController: State mismatch - controller has session but repository is not screening. Caller: {_session.Caller.Name}");
                 _session = null;
                 return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
             }
@@ -73,7 +73,7 @@ namespace KBTV.Screening
             var caller = _session.Caller;
             _session = null;
             SetPhase(ScreeningPhase.Completed);
-            GD.Print($"ScreeningController: Approved {caller.Name}");
+            Log.Debug($"ScreeningController: Approved {caller.Name}");
 
             var result = repository.ApproveScreening();
             if (result.IsSuccess)
@@ -81,7 +81,7 @@ namespace KBTV.Screening
                 return Result<Caller>.Ok(caller);
             }
 
-            GD.PrintErr($"ScreeningController: Failed to approve - {result.ErrorMessage}");
+            Log.Error($"ScreeningController: Failed to approve - {result.ErrorMessage}");
             return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
         }
 
@@ -100,7 +100,7 @@ namespace KBTV.Screening
 
             if (!repository.IsScreening)
             {
-                GD.PrintErr($"ScreeningController: State mismatch - controller has session but repository is not screening. Caller: {_session.Caller.Name}");
+                Log.Error($"ScreeningController: State mismatch - controller has session but repository is not screening. Caller: {_session.Caller.Name}");
                 _session = null;
                 return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
             }
@@ -110,7 +110,7 @@ namespace KBTV.Screening
             var caller = _session.Caller;
             _session = null;
             SetPhase(ScreeningPhase.Completed);
-            GD.Print($"ScreeningController: Rejected {caller.Name}");
+            Log.Debug($"ScreeningController: Rejected {caller.Name}");
 
             var result = repository.RejectScreening();
             if (result.IsSuccess)
@@ -118,7 +118,7 @@ namespace KBTV.Screening
                 return Result<Caller>.Ok(caller);
             }
 
-            GD.PrintErr($"ScreeningController: Failed to reject - {result.ErrorMessage}");
+            Log.Error($"ScreeningController: Failed to reject - {result.ErrorMessage}");
             return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
         }
 
@@ -147,7 +147,7 @@ namespace KBTV.Screening
                 return;
             }
 
-            GD.Print($"ScreeningController: Patience expired for {_session.Caller.Name}");
+            Log.Debug($"ScreeningController: Patience expired for {_session.Caller.Name}");
 
             var repository = _callerRepository;
             repository?.RemoveCaller(_session.Caller);
@@ -175,7 +175,7 @@ namespace KBTV.Screening
                     break;
             }
 
-            GD.Print($"ScreeningController: Phase {oldPhase} -> {newPhase}");
+            Log.Debug($"ScreeningController: Phase {oldPhase} -> {newPhase}");
         }
 
         private ScreeningProgress CreateProgress()

@@ -38,7 +38,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
         {
             if (_audioPlayer == null)
             {
-                GD.PrintErr("AudioDialoguePlayer.PlayBroadcastItemAsync: AudioStreamPlayer not initialized");
+                Log.Error("AudioDialoguePlayer.PlayBroadcastItemAsync: AudioStreamPlayer not initialized");
                 return;
             }
 
@@ -98,7 +98,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             }
             else
             {
-                GD.PrintErr("AudioDialoguePlayer.OnAudioFinished: _currentLineId is null, not firing event");
+                Log.Error("AudioDialoguePlayer.OnAudioFinished: _currentLineId is null, not firing event");
             }
         }
 
@@ -269,7 +269,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             }
 
             // Fallback: use the whole arcId as folder (shouldn't happen with proper data)
-            GD.PrintErr($"AudioDialoguePlayer.GetArcFolderFromArcId: Unexpected arcId format: {arcId}");
+            Log.Error($"AudioDialoguePlayer.GetArcFolderFromArcId: Unexpected arcId format: {arcId}");
             return arcId;
         }
 
@@ -371,7 +371,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             var returnBumperDir = DirAccess.Open("res://assets/audio/bumpers/Return");
             if (returnBumperDir == null)
             {
-                GD.Print("AudioDialoguePlayer.LoadRandomReturnBumper: Return bumper directory not found, using silent fallback");
+                Log.Debug("AudioDialoguePlayer.LoadRandomReturnBumper: Return bumper directory not found, using silent fallback");
                 return GetSilentAudioFile();
             }
 
@@ -390,7 +390,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
 
             if (bumperFiles.Count == 0)
             {
-                GD.Print("AudioDialoguePlayer.LoadRandomReturnBumper: No return bumper files found, using silent fallback");
+                Log.Debug("AudioDialoguePlayer.LoadRandomReturnBumper: No return bumper files found, using silent fallback");
                 return GetSilentAudioFile();
             }
 
@@ -401,7 +401,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             var audioStream = GD.Load<AudioStream>(path);
             if (audioStream == null)
             {
-                GD.Print($"AudioDialoguePlayer.LoadRandomReturnBumper: Failed to load {path}, using silent fallback");
+                Log.Debug($"AudioDialoguePlayer.LoadRandomReturnBumper: Failed to load {path}, using silent fallback");
                 return GetSilentAudioFile();
             }
 
@@ -413,7 +413,7 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
             var audioStream = GD.Load<AudioStream>("res://assets/audio/silence_4sec.wav");
             if (audioStream == null)
             {
-                GD.PrintErr("AudioDialoguePlayer.GetSilentAudioFile: Failed to load silent audio file - returning null!");
+                Log.Error("AudioDialoguePlayer.GetSilentAudioFile: Failed to load silent audio file - returning null!");
                 return null;
             }
             return audioStream;

@@ -4,6 +4,7 @@ using Godot;
 using KBTV.Data;
 using KBTV.Dialogue;
 using KBTV.Screening;
+using KBTV.Core;
 
 namespace KBTV.Callers
 {
@@ -404,7 +405,7 @@ namespace KBTV.Callers
                 // Debug: Log if OnAir caller is somehow being updated (shouldn't happen)
                 if (_state == CallerState.OnAir)
                 {
-                    GD.Print($"WARNING: OnAir caller '{Name}' attempted patience update - this should not happen!");
+                    Log.Debug($"WARNING: OnAir caller '{Name}' attempted patience update - this should not happen!");
                 }
                 return false;
             }

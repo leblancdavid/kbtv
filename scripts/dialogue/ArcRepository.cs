@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Godot;
 using KBTV.Callers;
+using KBTV.Core;
 
 namespace KBTV.Dialogue
 {
@@ -66,7 +67,7 @@ namespace KBTV.Dialogue
             }
 
             _initialized = true;
-            GD.Print($"ArcRepository: Initialized with {_arcs.Count} arcs loaded");
+            Log.Debug($"ArcRepository: Initialized with {_arcs.Count} arcs loaded");
         }
 
 

@@ -114,7 +114,7 @@ namespace KBTV.Ads
         /// </summary>
         public void OnReady()
         {
-            GD.Print("AdManager: Ready, providing service to descendants");
+            Log.Debug("AdManager: Ready, providing service to descendants");
             this.Provide();
         }
 
@@ -122,7 +122,7 @@ namespace KBTV.Ads
         {
             if (schedule == null)
             {
-                GD.PrintErr("AdManager.Initialize() - schedule is null!");
+                Log.Error("AdManager.Initialize() - schedule is null!");
                 return;
             }
 
@@ -137,7 +137,7 @@ namespace KBTV.Ads
             if (_schedule.Breaks.Count == 0)
             {
                 _schedule.GenerateBreakSchedule(showDuration);
-                GD.Print($"AdManager: Generated break schedule with {_schedule.Breaks.Count} breaks");
+                Log.Debug($"AdManager: Generated break schedule with {_schedule.Breaks.Count} breaks");
             }
 
             // Schedule event-driven timers
@@ -146,7 +146,7 @@ namespace KBTV.Ads
             // Set initial countdown values for immediate UI display
             UpdateCountdownValues();
 
-            GD.Print($"AdManager: Initialized with {schedule.BreaksPerShow} breaks × {schedule.SlotsPerBreak} slots (event-driven)");
+            Log.Debug($"AdManager: Initialized with {schedule.BreaksPerShow} breaks × {schedule.SlotsPerBreak} slots (event-driven)");
             OnInitialized?.Invoke();
         }
 
@@ -154,14 +154,14 @@ namespace KBTV.Ads
         {
             if (_schedule == null || _schedule.Breaks.Count == 0)
             {
-                GD.Print($"AdManager: Initialized with 0 breaks (show will end immediately) - schedule: {_schedule}, breaks: {_schedule?.Breaks.Count ?? 0}");
+                Log.Debug($"AdManager: Initialized with 0 breaks (show will end immediately) - schedule: {_schedule}, breaks: {_schedule?.Breaks.Count ?? 0}");
                 return;
             }
 
             int nextBreakIndex = _currentBreakIndex + 1;
             if (nextBreakIndex >= _schedule.Breaks.Count)
             {
-                GD.Print($"AdManager: All breaks completed - current: {_currentBreakIndex}, total: {_schedule.Breaks.Count}");
+                Log.Debug($"AdManager: All breaks completed - current: {_currentBreakIndex}, total: {_schedule.Breaks.Count}");
                 return;
             }
 
@@ -178,7 +178,7 @@ namespace KBTV.Ads
             }
             else
             {
-                GD.Print($"AdManager: Warning - next break time {nextBreakTime:F1} is in the past (current: {currentTime:F1})");
+                Log.Debug($"AdManager: Warning - next break time {nextBreakTime:F1} is in the past (current: {currentTime:F1})");
             }
         }
 
@@ -220,7 +220,7 @@ namespace KBTV.Ads
 
             if (_currentBreakIndex >= _schedule.Breaks.Count)
             {
-                GD.Print("AdManager.StartBreak: No more breaks in schedule, ending");
+                Log.Debug("AdManager.StartBreak: No more breaks in schedule, ending");
                 EndAdBreak();
                 return;
             }
@@ -229,7 +229,7 @@ namespace KBTV.Ads
             int slotsInBreak = currentBreak.SlotsPerBreak;
             currentBreak.HasPlayed = true;
 
-            GD.Print($"AdManager.StartBreak: Current break has {slotsInBreak} slots");
+            Log.Debug($"AdManager.StartBreak: Current break has {slotsInBreak} slots");
 
             // Apply mood penalty if not queued
             bool wasQueued = (_breakQueueStatus == BreakQueueStatus.Queued);

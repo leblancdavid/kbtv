@@ -51,14 +51,14 @@ namespace KBTV.UI.Components
 
         private void OnXPChanged(float oldXP, float newXP)
         {
-            GD.Print($"TopicProgressPanel: {_topicName} XP changed from {oldXP} to {newXP}");
+
             UpdateXPBar(newXP);
             UpdateLevelUpIndicator(newXP);
         }
 
         private void OnTierChanged(XPTier oldTier, XPTier newTier)
         {
-            GD.Print($"TopicProgressPanel: {_topicName} tier changed from {oldTier} to {newTier}");
+
             UpdateLevelText(newTier);
             UpdateXPBar(_topicXP.XP); // Update with new tier thresholds
         }
@@ -114,7 +114,7 @@ namespace KBTV.UI.Components
 
         private void CreateUI()
         {
-            GD.Print($"CreateUI called for {_topicName}");
+            Log.Debug($"CreateUI called for {_topicName}");
             
             var panel = new Panel();
             var styleBox = new StyleBoxFlat();
@@ -196,7 +196,7 @@ namespace KBTV.UI.Components
 
         public void SetTopic(string topicName)
         {
-            GD.Print($"SetTopic called for {topicName}");
+            Log.Debug($"SetTopic called for {topicName}");
             
             // Ensure UI is created before setting data
             if (_topicLabel == null && !_uiCreated)
@@ -211,7 +211,7 @@ namespace KBTV.UI.Components
 
         public void UpdateDisplay()
         {
-            GD.Print($"UpdateDisplay called for {_topicName}");
+            Log.Debug($"UpdateDisplay called for {_topicName}");
             
             // Get real topic XP data
             var topicXP = _topicXP; // Use cached instance
@@ -228,7 +228,7 @@ namespace KBTV.UI.Components
             var freshness = GetPlaceholderFreshness(_topicName);
             SetFreshness(freshness);
             
-            GD.Print($"Topic {_topicName}: Tier {currentTier}, XP {currentXP}/{TopicXP.GetTierThreshold(currentTier + 1)}");
+
         }
 
         private int GetPlaceholderFreshness(string topicName)

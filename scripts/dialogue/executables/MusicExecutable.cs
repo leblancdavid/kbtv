@@ -26,7 +26,7 @@ namespace KBTV.Dialogue
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
         {
-            GD.Print($"MusicExecutable: Playing music - {_description}");
+            Log.Debug($"MusicExecutable: Playing music - {_description}");
             
             await PlayAudioAsync(_audioPath, cancellationToken);
         }

@@ -141,7 +141,7 @@ namespace KBTV.Dialogue
             if (newState == AsyncBroadcastState.AdBreak && previousState != AsyncBroadcastState.AdBreak)
             {
                 ResetAdBreakState();
-                GD.Print("BroadcastStateManager: Reset ad break state for new break");
+                Log.Debug("BroadcastStateManager: Reset ad break state for new break");
             }
             
             // Reset ad break sequence flag if transitioning out of AdBreak
@@ -196,19 +196,19 @@ namespace KBTV.Dialogue
                     SetState(AsyncBroadcastState.ShowEnding);
                     break;
                 case BroadcastTimingEventType.ShowEnd20Seconds:
-                    GD.Print($"BroadcastStateManager: T-20s fired - setting pending show ending transition (current state: {_currentState})");
+                    Log.Debug($"BroadcastStateManager: T-20s fired - setting pending show ending transition (current state: {_currentState})");
                     _pendingShowEndingTransition = true;
                     break;
                 case BroadcastTimingEventType.ShowEnd10Seconds:
-                    GD.Print($"BroadcastStateManager: T-10s fired - checking if closing started (current state: {_currentState}, closing started: {_showClosingStarted})");
+                    Log.Debug($"BroadcastStateManager: T-10s fired - checking if closing started (current state: {_currentState}, closing started: {_showClosingStarted})");
                     if (!_showClosingStarted)
                     {
-                        GD.Print("BroadcastStateManager: T-10s - closing not started, publishing interruption to force it");
+                        Log.Debug("BroadcastStateManager: T-10s - closing not started, publishing interruption to force it");
                         _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.ShowEnding));
                     }
                     else
                     {
-                        GD.Print("BroadcastStateManager: T-10s - closing already started, no interruption needed");
+                        Log.Debug("BroadcastStateManager: T-10s - closing already started, no interruption needed");
                     }
                     break;
                 case BroadcastTimingEventType.Break20Seconds:
@@ -220,7 +220,7 @@ namespace KBTV.Dialogue
                     break;
                 case BroadcastTimingEventType.Break5Seconds:
                     // T5 timing handled by interruption events now - no direct state change
-                    GD.Print($"BroadcastStateManager: T5 timing event received, current state: {_currentState}");
+                    Log.Debug($"BroadcastStateManager: T5 timing event received, current state: {_currentState}");
                     break;
                  case BroadcastTimingEventType.Break0Seconds:
                      // T0 event removed - caller dropping now handled by WaitForBreakExecutable completion
@@ -240,17 +240,17 @@ namespace KBTV.Dialogue
         /// </summary>
         private void HandleInterruptionEvent(BroadcastInterruptionEvent interruptionEvent)
         {
-            GD.Print($"BroadcastStateManager: Received interruption event: {interruptionEvent.Reason}");
+            Log.Debug($"BroadcastStateManager: Received interruption event: {interruptionEvent.Reason}");
             
             var previousState = _currentState;
             
             if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakImminent)
             {
-                GD.Print("BroadcastStateManager: Break imminent - setting pending break transition");
+                Log.Debug("BroadcastStateManager: Break imminent - setting pending break transition");
                 _pendingBreakTransition = true;  // Ensure Vern transition plays before ads
                 // IMPORTANT: Do NOT change state during BreakImminent - preserve current state
                 // This allows break transition to have priority over any other executable
-                GD.Print($"BroadcastStateManager: Pending break transition set, preserving state {_currentState}");
+                Log.Debug($"BroadcastStateManager: Pending break transition set, preserving state {_currentState}");
             }
             else if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakStarting)
             {
@@ -258,28 +258,28 @@ namespace KBTV.Dialogue
                 var onAirCallerFallback = _callerRepository.OnAirCaller;
                 if (onAirCallerFallback != null)
                 {
-                    GD.Print($"BroadcastStateManager: FALLBACK caller drop for '{onAirCallerFallback.Name}' via BreakStarting interruption");
+                    Log.Debug($"BroadcastStateManager: FALLBACK caller drop for '{onAirCallerFallback.Name}' via BreakStarting interruption");
                     _callerRepository.SetCallerState(onAirCallerFallback, CallerState.Disconnected);
                     _callerRepository.RemoveCaller(onAirCallerFallback);
                 }
                 else
                 {
-                    GD.Print("BroadcastStateManager: No on-air caller to drop via BreakStarting interruption (already handled)");
+                    Log.Debug("BroadcastStateManager: No on-air caller to drop via BreakStarting interruption (already handled)");
                 }
             }
             else if (interruptionEvent.Reason == BroadcastInterruptionReason.ShowEnding)
             {
-                GD.Print($"BroadcastStateManager: Show ending interruption received (current state: {_currentState}) - global queuing will handle transition");
+                Log.Debug($"BroadcastStateManager: Show ending interruption received (current state: {_currentState}) - global queuing will handle transition");
                 // Global queuing in BroadcastStateMachine.GetNextExecutable() will handle state transition
             }
             else if (interruptionEvent.Reason == BroadcastInterruptionReason.CallerDropped)
             {
-                GD.Print($"BroadcastStateManager: Caller dropped interruption received - setting pending flag");
+                Log.Debug($"BroadcastStateManager: Caller dropped interruption received - setting pending flag");
                 _pendingCallerDropped = true;  // Set flag instead of changing state
             }
             else if (interruptionEvent.Reason == BroadcastInterruptionReason.CallerCursed)
             {
-                GD.Print($"BroadcastStateManager: Caller cursed interruption received - setting pending flag");
+                Log.Debug($"BroadcastStateManager: Caller cursed interruption received - setting pending flag");
                 _pendingCallerCursed = true;  // Set flag instead of changing state
             }
             
@@ -296,7 +296,7 @@ namespace KBTV.Dialogue
         {
             if (_currentState != AsyncBroadcastState.Idle)
             {
-                GD.PrintErr($"BroadcastStateManager: Cannot start show - current state is {_currentState}, expected Idle");
+                Log.Error($"BroadcastStateManager: Cannot start show - current state is {_currentState}, expected Idle");
                 return null;
             }
 
@@ -315,7 +315,7 @@ namespace KBTV.Dialogue
             _isShowActive = true;
             _currentState = AsyncBroadcastState.ShowStarting;
             
-            GD.Print("BroadcastStateManager: Show started, returning first executable");
+            Log.Debug("BroadcastStateManager: Show started, returning first executable");
             return GetNextExecutable();
         }
 
@@ -326,7 +326,7 @@ namespace KBTV.Dialogue
         {
             var stateChangedEvent = new BroadcastStateChangedEvent(_currentState, previousState);
             _eventBus.Publish(stateChangedEvent);
-            GD.Print($"BroadcastStateManager: Published state change from {previousState} to {_currentState}");
+            Log.Debug($"BroadcastStateManager: Published state change from {previousState} to {_currentState}");
         }
 
         /// <summary>
@@ -337,7 +337,7 @@ namespace KBTV.Dialogue
         {
             if (_currentState != AsyncBroadcastState.AdBreak && _adBreakSequenceRunning)
             {
-                GD.Print("BroadcastStateManager: Resetting _adBreakSequenceRunning flag (transitioned out of AdBreak state)");
+                Log.Debug("BroadcastStateManager: Resetting _adBreakSequenceRunning flag (transitioned out of AdBreak state)");
                 _adBreakSequenceRunning = false;
             }
         }

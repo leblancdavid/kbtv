@@ -74,12 +74,10 @@ namespace KBTV.Dialogue
         /// </summary>
         public BroadcastExecutable? GetNextExecutable(AsyncBroadcastState currentState)
         {
-            GD.Print($"BroadcastStateMachine.GetNextExecutable: Called with state {currentState}");
             
             // Global pending transition checks - these take priority over current state
             if (_stateManager._pendingShowEndingTransition)
             {
-                GD.Print($"BroadcastStateMachine: Global queuing - show ending pending, forcing state from {currentState} to Conversation");
                 _stateManager.SetState(AsyncBroadcastState.Conversation);
                 return CreateConversationExecutable(AsyncBroadcastState.Conversation);
             }
@@ -91,11 +89,9 @@ namespace KBTV.Dialogue
                     currentState == AsyncBroadcastState.BreakReturn)
                 {
                     // Queue the transition for after current break completes
-                    GD.Print($"BroadcastStateMachine: Break transition pending but currently in {currentState} - queuing for later");
                 }
                 else
                 {
-                    GD.Print($"BroadcastStateMachine: Global queuing - break transition pending, forcing state from {currentState} to Conversation");
                     _stateManager.SetState(AsyncBroadcastState.Conversation);
                     return CreateConversationExecutable(AsyncBroadcastState.Conversation);
                 }
@@ -112,7 +108,6 @@ namespace KBTV.Dialogue
                 case AsyncBroadcastState.Conversation:
                     return CreateConversationExecutable(currentState);
                 case AsyncBroadcastState.BetweenCallers:
-                    GD.Print("BroadcastStateMachine: Creating BetweenCallers executable");
                     return CreateBetweenCallersExecutable();
                 case AsyncBroadcastState.DeadAir:
                     return CreateDeadAirExecutable();
@@ -128,7 +123,6 @@ namespace KBTV.Dialogue
                             _stateManager.SetAdBreakInitialized(true);
                             // Start the break when entering AdBreak state
                             _adManager?.StartBreak();
-                            GD.Print($"BroadcastStateMachine: Initialized ad break with {totalAds} ads");
                         }
                        if (_stateManager.CurrentAdIndex >= _stateManager.TotalAdsForBreak)
                        {
@@ -167,8 +161,8 @@ namespace KBTV.Dialogue
                            return new DialogueExecutable("caller_cursed", cursedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.CallerCursed, _stateManager, _statTracker);
                      }
                        return new DialogueExecutable("caller_cursed", "You can't use that kind of language on my show!", "Vern", _eventBus, _audioService, lineType: VernLineType.CallerCursed, stateManager: _stateManager, statTracker: _statTracker);
-                 case AsyncBroadcastState.CursingDelay:
-                     return new CursingDelayExecutable(_eventBus);
+                  case AsyncBroadcastState.CursingDelay:
+                      return new CursingDelayExecutable(_eventBus, _audioService, _sceneTree);
                    case AsyncBroadcastState.ShowClosing:
                   case AsyncBroadcastState.ShowEnding:
                       return null;
@@ -211,12 +205,10 @@ namespace KBTV.Dialogue
                     // After dropped caller line plays, check if there are more callers
                     if (ShouldPlayBetweenCallers())
                     {
-                        GD.Print("BroadcastStateMachine: DroppedCaller completed - callers on hold, transitioning to BetweenCallers");
                         newState = AsyncBroadcastState.BetweenCallers;
                     }
                     else
                     {
-                        GD.Print("BroadcastStateMachine: DroppedCaller completed - no callers on hold, transitioning to DeadAir");
                         newState = AsyncBroadcastState.DeadAir;
                     }
                     break;
@@ -224,18 +216,15 @@ namespace KBTV.Dialogue
                      // After cursed caller response, check if there are more callers
                      if (ShouldPlayBetweenCallers())
                      {
-                         GD.Print("BroadcastStateMachine: CallerCursed completed - callers on hold, transitioning to BetweenCallers");
                          newState = AsyncBroadcastState.BetweenCallers;
                      }
                      else
                      {
-                         GD.Print("BroadcastStateMachine: CallerCursed completed - no callers on hold, transitioning to DeadAir");
                          newState = AsyncBroadcastState.DeadAir;
                      }
                      break;
                  case AsyncBroadcastState.CursingDelay:
                      // After cursing delay completes, transition to Vern's cursing response
-                     GD.Print("BroadcastStateMachine: CursingDelay completed, transitioning to CallerCursed");
                      newState = AsyncBroadcastState.CallerCursed;
                      break;
                  case AsyncBroadcastState.AdBreak:
@@ -264,7 +253,6 @@ namespace KBTV.Dialogue
                            {
                                newState = AsyncBroadcastState.DeadAir;
                            }
-                           GD.Print($"BroadcastStateMachine: Return from break completed - {(_callerRepository.OnHoldCallers.Count > 0 ? "callers waiting, staying in conversation" : "no callers, going to dead air")}");
                        }
                        else
                        {
@@ -356,18 +344,15 @@ namespace KBTV.Dialogue
             // Handle caller conversation completion
             if (executable.Type == BroadcastItemType.Conversation)
             {
-                GD.Print($"BroadcastStateMachine: HandleConversationStateTransition - Conversation completed, executable.Id: {executable.Id}");
                 
                 if (_stateManager._pendingBreakTransition)
                 {
-                    GD.Print("BroadcastStateMachine: Pending break transition, staying in Conversation state");
                     return AsyncBroadcastState.Conversation; // Stay for break transition
                 }
 
                  // Handle pending caller drop
                  if (_stateManager._pendingCallerDropped)
                  {
-                     GD.Print("BroadcastStateMachine: Pending caller drop found, transitioning to DroppedCaller state");
                      _stateManager._pendingCallerDropped = false;
                      return AsyncBroadcastState.DroppedCaller;
                  }
@@ -375,18 +360,15 @@ namespace KBTV.Dialogue
                  // Handle pending caller cursed (must check before normal completion logic)
                  if (_stateManager._pendingCallerCursed)
                  {
-                     GD.Print("BroadcastStateMachine: Pending caller cursed found, transitioning to CursingDelay state");
                      _stateManager._pendingCallerCursed = false;
                      return AsyncBroadcastState.CursingDelay;
                  }
  
                  var endResult = _callerRepository.EndOnAir();
-                GD.Print($"BroadcastStateMachine: EndOnAir result - Success: {endResult.IsSuccess}, OnHoldCount: {_callerRepository.OnHoldCallers.Count}");
                 
                 Caller? caller = null;
                 if (endResult.IsSuccess)
                 {
-                    GD.Print($"BroadcastStateMachine: Ended on-air caller {endResult.Value.Name}");
                     
                      // NOTE: Stat effects are now applied gradually during conversation via ConversationStatTracker
                      // Only apply penalties here (they still apply at conversation end)
@@ -409,28 +391,23 @@ namespace KBTV.Dialogue
                                
                 var shouldPlayBetween = ShouldPlayBetweenCallers();
                 var shouldPlayDead = ShouldPlayDeadAir();
-                GD.Print($"BroadcastStateMachine: ShouldPlayBetweenCallers: {shouldPlayBetween}, ShouldPlayDeadAir: {shouldPlayDead}");
                 
                 // If we have a pending off-topic remark, stay in conversation state to play it
                 if (_pendingOffTopicRemark)
                 {
-                    GD.Print("BroadcastStateMachine: Pending off-topic remark, staying in Conversation state");
                     return AsyncBroadcastState.Conversation;
                 }
                 
                 if (shouldPlayBetween)
                 {
-                    GD.Print("BroadcastStateMachine: Transitioning to BetweenCallers state");
                     return AsyncBroadcastState.BetweenCallers;
                 }
                 else if (shouldPlayDead)
                 {
-                    GD.Print("BroadcastStateMachine: Transitioning to DeadAir state");
                     return AsyncBroadcastState.DeadAir;
                 }
                 else
                 {
-                    GD.Print("BroadcastStateMachine: Staying in Conversation state (fallback)");
                     return AsyncBroadcastState.Conversation;
                 }
             }
@@ -474,12 +451,10 @@ namespace KBTV.Dialogue
 
         private BroadcastExecutable CreateConversationExecutable(AsyncBroadcastState currentState)
         {
-            GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Starting - OnAirCaller: {_callerRepository.OnAirCaller?.Name ?? "null"}, OnHold: {_callerRepository.OnHoldCallers.Count}, Incoming: {_callerRepository.IncomingCallers.Count}, IsOnAir: {_callerRepository.IsOnAir}");
             
             // Check for pending off-topic remark first
             if (_pendingOffTopicRemark)
             {
-                GD.Print("BroadcastStateMachine.CreateConversationExecutable: Playing pending off-topic remark");
                 _pendingOffTopicRemark = false;
                 
                 // Get mood-appropriate remark
@@ -494,7 +469,6 @@ namespace KBTV.Dialogue
                 }
                 else
                 {
-                    GD.Print("BroadcastStateMachine.CreateConversationExecutable: No off-topic remark found, skipping");
                 }
             }
             
@@ -527,7 +501,6 @@ namespace KBTV.Dialogue
                 var closing = _vernDialogue.GetShowClosing(topic);
                 if (closing != null)
                 {
-                    GD.Print($"BroadcastStateMachine: Pending show ending transition found - queuing closing dialogue '{closing.Id}'");
                     _stateManager._showClosingStarted = true;  // Track that closing has started
                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{closing.Id}.mp3";
                     audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_ShowClosing");
@@ -535,51 +508,42 @@ namespace KBTV.Dialogue
                 }
                 else
                 {
-                    GD.Print("BroadcastStateMachine: Pending show ending transition found but no closing dialogue available");
                 }
             }
 
             var onAirCaller = _callerRepository.OnAirCaller;
             if (onAirCaller == null)
             {
-                GD.Print($"BroadcastStateMachine.CreateConversationExecutable: No on-air caller, checking for on-hold callers");
                 if (_callerRepository.OnHoldCallers.Count > 0 && !_callerRepository.IsOnAir)
                 {
-                    GD.Print("BroadcastStateMachine.CreateConversationExecutable: Returning PutOnAirExecutable");
                     return new PutOnAirExecutable(_eventBus, _callerRepository, _stateManager);
                 }
             }
 
             if (onAirCaller != null)
             {
-                GD.Print($"BroadcastStateMachine.CreateConversationExecutable: On-air caller found: {onAirCaller.Name}, topic: {onAirCaller.ActualTopic}");
                 var topic = ShowTopicExtensions.ParseTopic(onAirCaller.ActualTopic);
                 if (topic.HasValue)
                 {
                     var arc = _arcRepository.GetRandomArcForTopic(topic.Value, onAirCaller.Legitimacy);
                     if (arc != null)
                     {
-                        GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Got arc {arc.ArcId} with {arc.Dialogue.Count} lines");
                         return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus, _audioService, _stateManager, _statTracker);
                     }
                     else
                     {
-                        GD.Print($"BroadcastStateMachine.CreateConversationExecutable: No arc found for topic {topic.Value}");
                     }
                 }
                 else
                 {
-                    GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Could not parse topic '{onAirCaller.ActualTopic}'");
                 }
             }
 
             if (_callerRepository.IncomingCallers.Count > 0)
             {
-                GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Returning null - waiting for {_callerRepository.IncomingCallers.Count} incoming callers");
                 return null;
             }
 
-            GD.Print($"BroadcastStateMachine.CreateConversationExecutable: Fallback - ShouldPlayDeadAir: {ShouldPlayDeadAir()}");
 
             if (ShouldPlayDeadAir())
             {
@@ -641,7 +605,6 @@ namespace KBTV.Dialogue
             var returnBumperDir = DirAccess.Open("res://assets/audio/bumpers/Return");
             if (returnBumperDir == null)
             {
-                GD.Print("BroadcastStateMachine.GetRandomReturnBumperPath: Return bumper directory not found");
                 return null;
             }
 
@@ -660,7 +623,6 @@ namespace KBTV.Dialogue
 
             if (bumperFiles.Count == 0)
             {
-                GD.Print("BroadcastStateMachine.GetRandomReturnBumperPath: No return bumper files found");
                 return null;
             }
 
@@ -668,7 +630,6 @@ namespace KBTV.Dialogue
             var selectedFile = bumperFiles[random.Next(bumperFiles.Count)];
             var path = $"res://assets/audio/bumpers/Return/{selectedFile}";
 
-            GD.Print($"BroadcastStateMachine: Selected return bumper: {selectedFile}");
             return path;
         }
 
@@ -679,7 +640,6 @@ namespace KBTV.Dialogue
             {
                 if (!_audioService.IsAudioDisabled)
                 {
-                    GD.Print($"BroadcastStateMachine.{context}: Audio file not found, falling back to timeout: {audioPath}");
                 }
                 return null;
             }
@@ -701,17 +661,14 @@ namespace KBTV.Dialogue
 
             if (timeUntilBreak <= 0)
             {
-                GD.Print($"BroadcastStateMachine.CalculateTimeUntilBreak: Warning - calculated negative/zero time until break ({timeUntilBreak:F1}s). Break may have already started. Using minimum wait time.");
                 return MIN_WAIT_TIME;
             }
 
             if (timeUntilBreak > MAX_WAIT_TIME)
             {
-                GD.Print($"BroadcastStateMachine.CalculateTimeUntilBreak: Warning - calculated time until break ({timeUntilBreak:F1}s) exceeds maximum ({MAX_WAIT_TIME}s). Using maximum wait time.");
                 return MAX_WAIT_TIME;
             }
 
-            GD.Print($"BroadcastStateMachine.CalculateTimeUntilBreak: Calculated {timeUntilBreak:F1}s until next break (nextBreakTime: {nextBreakTime:F1}s, currentTime: {currentTime:F1}s)");
             return timeUntilBreak;
         }
 
@@ -730,17 +687,14 @@ namespace KBTV.Dialogue
 
             if (timeUntilShowEnd <= 0)
             {
-                GD.Print($"BroadcastStateMachine.CalculateTimeUntilShowEnd: Warning - calculated negative/zero time until show end ({timeUntilShowEnd:F1}s). Show may have already ended. Using minimum wait time.");
                 return MIN_WAIT_TIME;
             }
 
             if (timeUntilShowEnd > MAX_WAIT_TIME)
             {
-                GD.Print($"BroadcastStateMachine.CalculateTimeUntilShowEnd: Warning - calculated time until show end ({timeUntilShowEnd:F1}s) exceeds maximum ({MAX_WAIT_TIME}s). Using maximum wait time.");
                 return MAX_WAIT_TIME;
             }
 
-            GD.Print($"BroadcastStateMachine.CalculateTimeUntilShowEnd: Calculated {timeUntilShowEnd:F1}s until show end (showDuration: {showDuration:F1}s, currentTime: {currentTime:F1}s)");
             return timeUntilShowEnd;
         }
 

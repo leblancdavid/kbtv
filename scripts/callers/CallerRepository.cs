@@ -176,7 +176,6 @@ namespace KBTV.Callers
             caller.SetState(CallerState.OnHold);
             caller.WaitTime = 0f;  // Reset patience for fresh start in queue
 
-            GD.Print($"DEBUG: Notifying observers of approved caller {caller.Name}");
             NotifyObservers(o => o.OnScreeningEnded(caller, approved: true));
 
             _currentScreeningId = null;  // Clear screening state after approval
@@ -212,18 +211,14 @@ namespace KBTV.Callers
         
         public Result<Caller> PutOnAir()
         {
-            GD.Print("DEBUG: CallerRepository.PutOnAir called");
             if (IsOnAir)
             {
-                GD.Print("DEBUG: Already have caller on air, failing");
                 return Result<Caller>.Fail("Already have a caller on air", "ON_AIR_BUSY");
             }
 
             var onHold = OnHoldCallers.FirstOrDefault();
-            GD.Print($"DEBUG: OnHold callers count: {OnHoldCallers.Count}, First caller: {onHold?.Name ?? "null"}");
             if (onHold == null)
             {
-                GD.Print("DEBUG: No on-hold callers, failing");
                 return Result<Caller>.Fail("No on-hold callers", "NO_ON_HOLD");
             }
 
@@ -232,11 +227,9 @@ namespace KBTV.Callers
             float remainingPatience = onHold.Patience - onHold.WaitTime;
             if (remainingPatience <= MIN_REMAINING_PATIENCE)
             {
-                GD.Print($"DEBUG: Caller {onHold.Name} has insufficient patience ({remainingPatience:F1}s remaining), skipping");
                 return Result<Caller>.Fail("No callers with sufficient remaining patience", "INSUFFICIENT_PATIENCE");
             }
 
-            GD.Print($"DEBUG: Putting {onHold.Name} on air (remaining patience: {remainingPatience:F1}s)");
             _onAirCallerId = onHold.Id;
             onHold.SetState(CallerState.OnAir);
 
@@ -321,7 +314,7 @@ namespace KBTV.Callers
             _currentScreeningId = null;
             _onAirCallerId = null;
 
-            GD.Print("CallerRepository: Cleared all callers");
+            Log.Debug("CallerRepository: Cleared all callers");
         }
         
         public void Subscribe(ICallerRepositoryObserver observer)
@@ -354,7 +347,6 @@ namespace KBTV.Callers
         private void HandleCallerDisconnected(Caller caller)
         {
             CallerState stateAtDisconnect = caller.State;  // Capture state before changing it
-            GD.Print($"DEBUG: Caller '{caller.Name}' disconnected from {stateAtDisconnect} state (WaitTime: {caller.WaitTime:F1}s, Patience: {caller.Patience:F1}s)");
             caller.SetState(CallerState.Disconnected);
             RemoveCaller(caller);
         }

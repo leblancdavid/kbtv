@@ -20,7 +20,7 @@ namespace KBTV.UI
 
             if (_repository == null)
             {
-                GD.PrintErr("InputHandler: ICallerRepository not available");
+                Log.Error("InputHandler: ICallerRepository not available");
                 return;
             }
         }
@@ -51,7 +51,7 @@ namespace KBTV.UI
                         var result = _repository.ApproveScreening();
                         if (!result.IsSuccess)
                         {
-                            GD.PrintErr($"InputHandler: Failed to approve caller - {result.ErrorCode}: {result.ErrorMessage}");
+                            Log.Error($"InputHandler: Failed to approve caller - {result.ErrorCode}: {result.ErrorMessage}");
                         }
                     }
                     break;
@@ -62,7 +62,7 @@ namespace KBTV.UI
                         var result = _repository.RejectScreening();
                         if (!result.IsSuccess)
                         {
-                            GD.PrintErr($"InputHandler: Failed to reject caller - {result.ErrorCode}: {result.ErrorMessage}");
+                            Log.Error($"InputHandler: Failed to reject caller - {result.ErrorCode}: {result.ErrorMessage}");
                         }
                     }
                     break;
@@ -73,7 +73,7 @@ namespace KBTV.UI
                         var result = _repository.EndOnAir();
                         if (!result.IsSuccess)
                         {
-                            GD.PrintErr($"InputHandler: Failed to end call - {result.ErrorCode}: {result.ErrorMessage}");
+                            Log.Error($"InputHandler: Failed to end call - {result.ErrorCode}: {result.ErrorMessage}");
                         }
                     }
                     break;
@@ -84,7 +84,7 @@ namespace KBTV.UI
                         var result = _repository.StartScreeningNext();
                         if (!result.IsSuccess)
                         {
-                            GD.PrintErr($"InputHandler: Failed to start screening - {result.ErrorCode}: {result.ErrorMessage}");
+                            Log.Error($"InputHandler: Failed to start screening - {result.ErrorCode}: {result.ErrorMessage}");
                         }
                     }
                     break;
