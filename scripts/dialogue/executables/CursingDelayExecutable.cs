@@ -25,7 +25,6 @@ namespace KBTV.Dialogue
 
         protected override async Task ExecuteInternalAsync(CancellationToken cancellationToken)
         {
-            Log.Debug("CursingDelayExecutable: Starting 20-second cursing timer delay with continuous bleep");
 
             // Start looping bleep with fade effects
             StartRepeatingBleepFade();
@@ -41,7 +40,6 @@ namespace KBTV.Dialogue
             // Handler for timer completion event
             void OnTimerCompleted(CursingTimerCompletedEvent @event)
             {
-                Log.Debug($"CursingDelayExecutable: Timer completed - Successful: {@event.WasSuccessful}");
                 tcs.SetResult(true);
             }
 
@@ -58,13 +56,11 @@ namespace KBTV.Dialogue
 
                 if (completedTask == delayTask)
                 {
-                    Log.Debug("CursingDelayExecutable: Timer completed via timeout (UI may have failed)");
+                    // If completionTask finished first, OnTimerCompleted was called
                 }
-                // If completionTask finished first, OnTimerCompleted was called
             }
             catch (OperationCanceledException)
             {
-                Log.Debug("CursingDelayExecutable: Cancelled during execution");
                 throw;
             }
             finally
@@ -74,7 +70,6 @@ namespace KBTV.Dialogue
                 
                 // Unsubscribe from timer completion events
                 _eventBus.Unsubscribe<CursingTimerCompletedEvent>(OnTimerCompleted);
-                Log.Debug("CursingDelayExecutable: Delay completed, broadcast can continue");
             }
         }
 

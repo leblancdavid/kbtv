@@ -209,7 +209,6 @@ namespace KBTV.UI
             if (!_isCursingTimerActive) return;
 
             _cursingTimeRemaining -= (float)delta;
-            Log.Debug($"LiveShowFooter: Cursing timer - {_cursingTimeRemaining:F2}s remaining (delta: {delta:F3})");
 
             if (_cursingTimeRemaining <= 0)
             {
@@ -276,14 +275,12 @@ namespace KBTV.UI
         {
             _isCursingTimerActive = true;
             _cursingTimeRemaining = CURSING_TIMER_DURATION;
-            Log.Debug($"LiveShowFooter: Started cursing timer with {_cursingTimeRemaining} seconds remaining");
         }
 
         private void StopCursingTimer()
         {
             _isCursingTimerActive = false;
             _cursingTimeRemaining = 0;
-            Log.Debug("LiveShowFooter: Stopped cursing timer (successful drop)");
 
             // Reset button text
             if (_dropCallerButton != null)
