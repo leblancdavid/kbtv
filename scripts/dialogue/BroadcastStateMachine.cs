@@ -156,10 +156,20 @@ namespace KBTV.Dialogue
                     if (droppedCaller != null)
                     {
                         var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{droppedCaller.Id}.mp3";
-                         return new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller, _stateManager, _statTracker);
+                          return new DialogueExecutable("dropped_caller", droppedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.DroppedCaller, _stateManager, _statTracker);
                     }
-                     return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: _stateManager, statTracker: _statTracker);
-                  case AsyncBroadcastState.ShowClosing:
+                      return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: _stateManager, statTracker: _statTracker);
+                 case AsyncBroadcastState.CallerCursed:
+                     var cursedCaller = _vernDialogue.GetCallerCursed();
+                     if (cursedCaller != null)
+                     {
+                         var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{cursedCaller.Id}.mp3";
+                           return new DialogueExecutable("caller_cursed", cursedCaller.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.CallerCursed, _stateManager, _statTracker);
+                     }
+                       return new DialogueExecutable("caller_cursed", "You can't use that kind of language on my show!", "Vern", _eventBus, _audioService, lineType: VernLineType.CallerCursed, stateManager: _stateManager, statTracker: _statTracker);
+                 case AsyncBroadcastState.CursingDelay:
+                     return new CursingDelayExecutable(_eventBus);
+                   case AsyncBroadcastState.ShowClosing:
                   case AsyncBroadcastState.ShowEnding:
                       return null;
                 default:
@@ -210,6 +220,24 @@ namespace KBTV.Dialogue
                         newState = AsyncBroadcastState.DeadAir;
                     }
                     break;
+                 case AsyncBroadcastState.CallerCursed:
+                     // After cursed caller response, check if there are more callers
+                     if (ShouldPlayBetweenCallers())
+                     {
+                         GD.Print("BroadcastStateMachine: CallerCursed completed - callers on hold, transitioning to BetweenCallers");
+                         newState = AsyncBroadcastState.BetweenCallers;
+                     }
+                     else
+                     {
+                         GD.Print("BroadcastStateMachine: CallerCursed completed - no callers on hold, transitioning to DeadAir");
+                         newState = AsyncBroadcastState.DeadAir;
+                     }
+                     break;
+                 case AsyncBroadcastState.CursingDelay:
+                     // After cursing delay completes, transition to Vern's cursing response
+                     GD.Print("BroadcastStateMachine: CursingDelay completed, transitioning to CallerCursed");
+                     newState = AsyncBroadcastState.CallerCursed;
+                     break;
                  case AsyncBroadcastState.AdBreak:
                      _stateManager.IncrementAdIndex();
                      if (_stateManager.CurrentAdIndex >= _stateManager.TotalAdsForBreak)
@@ -336,15 +364,23 @@ namespace KBTV.Dialogue
                     return AsyncBroadcastState.Conversation; // Stay for break transition
                 }
 
-                // Handle pending caller drop
-                if (_stateManager._pendingCallerDropped)
-                {
-                    GD.Print("BroadcastStateMachine: Pending caller drop found, transitioning to DroppedCaller state");
-                    _stateManager._pendingCallerDropped = false;
-                    return AsyncBroadcastState.DroppedCaller;
-                }
+                 // Handle pending caller drop
+                 if (_stateManager._pendingCallerDropped)
+                 {
+                     GD.Print("BroadcastStateMachine: Pending caller drop found, transitioning to DroppedCaller state");
+                     _stateManager._pendingCallerDropped = false;
+                     return AsyncBroadcastState.DroppedCaller;
+                 }
 
-                var endResult = _callerRepository.EndOnAir();
+                 // Handle pending caller cursed (must check before normal completion logic)
+                 if (_stateManager._pendingCallerCursed)
+                 {
+                     GD.Print("BroadcastStateMachine: Pending caller cursed found, transitioning to CursingDelay state");
+                     _stateManager._pendingCallerCursed = false;
+                     return AsyncBroadcastState.CursingDelay;
+                 }
+ 
+                 var endResult = _callerRepository.EndOnAir();
                 GD.Print($"BroadcastStateMachine: EndOnAir result - Success: {endResult.IsSuccess}, OnHoldCount: {_callerRepository.OnHoldCallers.Count}");
                 
                 Caller? caller = null;

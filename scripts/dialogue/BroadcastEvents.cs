@@ -84,6 +84,7 @@ namespace KBTV.Dialogue
         BreakGracePeriod,
         UserAction,
         CallerDropped,
+        CallerCursed,
         Error
     }
 

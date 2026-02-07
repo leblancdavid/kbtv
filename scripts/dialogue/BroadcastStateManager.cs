@@ -33,6 +33,8 @@ namespace KBTV.Dialogue
         BreakReturn,
         DeadAir,
         DroppedCaller,
+        CallerCursed,
+        CursingDelay,    // New state: delay during cursing timer
         ShowClosing,
         ShowEnding,
         WaitingForBreak,  // New state: waiting for T0 after break transition
@@ -72,6 +74,7 @@ namespace KBTV.Dialogue
         public bool _hasPlayedVernOpening = false;
         public bool _pendingBreakTransition = false;
         public bool _pendingCallerDropped = false;
+        public bool _pendingCallerCursed = false;
         public bool _pendingShowEndingTransition = false;
         public bool _showClosingStarted = false;
         public bool _adBreakSequenceRunning = false;
@@ -274,6 +277,11 @@ namespace KBTV.Dialogue
                 GD.Print($"BroadcastStateManager: Caller dropped interruption received - setting pending flag");
                 _pendingCallerDropped = true;  // Set flag instead of changing state
             }
+            else if (interruptionEvent.Reason == BroadcastInterruptionReason.CallerCursed)
+            {
+                GD.Print($"BroadcastStateManager: Caller cursed interruption received - setting pending flag");
+                _pendingCallerCursed = true;  // Set flag instead of changing state
+            }
             
             if (_currentState != previousState)
             {
@@ -295,6 +303,7 @@ namespace KBTV.Dialogue
             // Reset flags for new show
             _pendingBreakTransition = false;
             _pendingCallerDropped = false;
+            _pendingCallerCursed = false;
             _pendingShowEndingTransition = false;
             _showClosingStarted = false;
             _hasPlayedVernOpening = false;

@@ -40,6 +40,7 @@ namespace KBTV.Dialogue
         Ad,             // Commercial advertisements
         DeadAir,        // Filler content when nothing else to play
         Transition,     // State transition indicators
-        PutOnAir        // Putting a caller on air
+        PutOnAir,       // Putting a caller on air
+        CursingDelay    // Delay during cursing timer
     }
 }

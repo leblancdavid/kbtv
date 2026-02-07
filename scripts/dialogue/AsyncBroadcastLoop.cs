@@ -347,8 +347,8 @@ namespace KBTV.Dialogue
                 float timeoutSeconds = 30.0f;
                 if (executable is KBTV.Dialogue.DialogueExecutable dialogueExec)
                 {
-                    // Dialogue arcs: lines × 4s + 10s buffer, single lines: 10s
-                    timeoutSeconds = dialogueExec.LineCount * BroadcastConstants.DEFAULT_LINE_DURATION + 10.0f;
+                    // Dialogue arcs: lines × 15s + 10s buffer (for long audio durations)
+                    timeoutSeconds = dialogueExec.LineCount * 15.0f + 10.0f;
                 }
                 
                 // Execute with timeout to prevent hanging
