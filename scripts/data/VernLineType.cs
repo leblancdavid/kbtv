@@ -1,39 +1,58 @@
 namespace KBTV.Data
 {
     /// <summary>
-    /// Types of Vern dialogue lines by purpose/context.
-    /// Used to classify Vern's speech without relying on string IDs.
+    /// Types of lines Vern can say during broadcast.
     /// </summary>
     public enum VernLineType
     {
-        /// <summary>First Vern line at show start</summary>
+        /// <summary>
+        /// When caller curses on air (requires immediate drop)
+        /// </summary>
+        CallerCursed,
+
+        /// <summary>
+        /// Show opening introduction
+        /// </summary>
         ShowOpening,
 
-        /// <summary>Vern line at show end</summary>
+        /// <summary>
+        /// Show closing signoff
+        /// </summary>
         ShowClosing,
 
-        /// <summary>Transition between callers</summary>
+        /// <summary>
+        /// Transition between callers
+        /// </summary>
         BetweenCallers,
 
-        /// <summary>Filler when no callers available</summary>
+        /// <summary>
+        /// Filler when no callers are available
+        /// </summary>
         DeadAirFiller,
 
-        /// <summary>When caller disconnects unexpectedly</summary>
+        /// <summary>
+        /// When caller disconnects unexpectedly
+        /// </summary>
         DroppedCaller,
 
-        /// <summary>Going to commercial break</summary>
+        /// <summary>
+        /// Going to commercial break
+        /// </summary>
         BreakTransition,
 
-        /// <summary>Returning from commercial break</summary>
+        /// <summary>
+        /// Returning from commercial break
+        /// </summary>
         ReturnFromBreak,
 
-        /// <summary>Random remarks during conversations</summary>
+        /// <summary>
+        /// Off-topic remark that costs money
+        /// </summary>
         OffTopicRemark,
 
-        /// <summary>Introducing a caller</summary>
-        Introduction,
-
-        /// <summary>Generic fallback line</summary>
+        /// <summary>
+        /// Generic fallback line
+        /// </summary>
         Fallback
     }
 }

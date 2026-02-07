@@ -29,6 +29,7 @@ namespace KBTV.Dialogue
             result.SetBreakTransitionLines(LoadDialogueFile("res://assets/dialogue/vern/break-transitions.json"));
             result.SetReturnFromBreakLines(LoadDialogueFile("res://assets/dialogue/vern/return-from-breaks.json"));
             result.SetOffTopicRemarkLines(LoadDialogueFile("res://assets/dialogue/vern/off-topic-remarks.json"));
+            result.SetCallerCursedLines(LoadDialogueFile("res://assets/dialogue/vern/caller-cursed.json"));
 
             return result;
         }

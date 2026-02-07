@@ -21,6 +21,7 @@ namespace KBTV.Dialogue
         [Export] private Godot.Collections.Array<DialogueTemplate> _breakTransitionLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _returnFromBreakLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _offTopicRemarkLines = new Godot.Collections.Array<DialogueTemplate>();
+        [Export] private Godot.Collections.Array<DialogueTemplate> _callerCursedLines = new Godot.Collections.Array<DialogueTemplate>();
 
         public Godot.Collections.Array<DialogueTemplate> ShowOpeningLines => _showOpeningLines;
         public Godot.Collections.Array<DialogueTemplate> IntroductionLines => _introductionLines;
@@ -31,6 +32,7 @@ namespace KBTV.Dialogue
         public Godot.Collections.Array<DialogueTemplate> BreakTransitionLines => _breakTransitionLines;
         public Godot.Collections.Array<DialogueTemplate> ReturnFromBreakLines => _returnFromBreakLines;
         public Godot.Collections.Array<DialogueTemplate> OffTopicRemarkLines => _offTopicRemarkLines;
+        public Godot.Collections.Array<DialogueTemplate> CallerCursedLines => _callerCursedLines;
 
         public void SetShowOpeningLines(DialogueTemplate[] lines) => _showOpeningLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetIntroductionLines(DialogueTemplate[] lines) => _introductionLines = new Godot.Collections.Array<DialogueTemplate>(lines);
@@ -41,6 +43,7 @@ namespace KBTV.Dialogue
         public void SetBreakTransitionLines(DialogueTemplate[] lines) => _breakTransitionLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetReturnFromBreakLines(DialogueTemplate[] lines) => _returnFromBreakLines = new Godot.Collections.Array<DialogueTemplate>(lines);
         public void SetOffTopicRemarkLines(DialogueTemplate[] lines) => _offTopicRemarkLines = new Godot.Collections.Array<DialogueTemplate>(lines);
+        public void SetCallerCursedLines(DialogueTemplate[] lines) => _callerCursedLines = new Godot.Collections.Array<DialogueTemplate>(lines);
 
         /// <summary>
         /// Get a show opening line for the specified topic.
@@ -265,6 +268,33 @@ namespace KBTV.Dialogue
             if (!moodLines.Any())
             {
                 moodLines = _offTopicRemarkLines;
+            }
+
+            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(moodLines));
+        }
+
+        /// <summary>
+        /// Get a caller cursed response line.
+        /// </summary>
+        public DialogueTemplate GetCallerCursed() => GetCallerCursed(VernMoodType.Neutral);
+
+        /// <summary>
+        /// Get a caller cursed response line for the specified mood.
+        /// </summary>
+        public DialogueTemplate GetCallerCursed(VernMoodType mood)
+        {
+            var moodString = mood.ToString().ToLower();
+
+            var moodLines = System.Linq.Enumerable.Where(_callerCursedLines, line => line.Mood == moodString);
+
+            if (!moodLines.Any())
+            {
+                moodLines = System.Linq.Enumerable.Where(_callerCursedLines, line => line.Mood == "neutral");
+            }
+
+            if (!moodLines.Any())
+            {
+                moodLines = _callerCursedLines;
             }
 
             return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(moodLines));

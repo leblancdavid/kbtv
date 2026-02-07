@@ -324,19 +324,28 @@ namespace KBTV.Data
   			_mental.Modify(vibePenalty * 0.4f);     // -2 Mental
   		}
 
- 		/// <summary>
- 		/// Apply dead air penalty with consecutive multiplier.
- 		/// </summary>
- 		public void ApplyDeadAirPenalty(int consecutiveCount)
- 		{
- 			// Base penalty: -5 VIBE, scales with consecutive dead air
- 			float basePenalty = -5f;
- 			float multiplier = 1f + (consecutiveCount - 1) * 0.5f; // Linear increase
- 			float totalPenalty = basePenalty * multiplier;
+  		/// <summary>
+  		/// Apply dead air penalty with consecutive multiplier.
+  		/// </summary>
+  		public void ApplyDeadAirPenalty(int consecutiveCount)
+  		{
+  			// Base penalty: -5 VIBE, scales with consecutive dead air
+  			float basePenalty = -5f;
+  			float multiplier = 1f + (consecutiveCount - 1) * 0.5f; // Linear increase
+  			float totalPenalty = basePenalty * multiplier;
 
- 			_emotional.Modify(totalPenalty * 0.7f);  // 70% to Emotional
- 			_mental.Modify(totalPenalty * 0.3f);     // 30% to Mental
- 		}
+  			_emotional.Modify(totalPenalty * 0.7f);  // 70% to Emotional
+  			_mental.Modify(totalPenalty * 0.3f);     // 30% to Mental
+  		}
+
+  		/// <summary>
+  		/// Apply penalty for failing to drop a cursing caller (annoyance/frustration).
+  		/// </summary>
+  		public void ApplyCursingPenalty()
+  		{
+  			_emotional.Modify(-10f);
+  			_mental.Modify(-15f);
+  		}
 
  		// ═══════════════════════════════════════════════════════════════════════════════
  		// ITEM EFFECTS
