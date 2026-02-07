@@ -57,6 +57,7 @@ namespace KBTV.UI
             eventBus.Subscribe<BroadcastEvent>(HandleBroadcastEvent);
             eventBus.Subscribe<BroadcastItemStartedEvent>(HandleBroadcastItemStarted);
             eventBus.Subscribe<BroadcastStateChangedEvent>(HandleBroadcastStateChanged);
+            eventBus.Subscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
 
             // Initialize UI nodes
             _speakerIcon = GetNode<Label>("%SpeakerIcon");
@@ -113,10 +114,20 @@ namespace KBTV.UI
 
 
 
-        // Handle broadcast interruptions (breaks, show ending)
+        // Handle broadcast interruptions (breaks, show ending, cursing)
         private void HandleBroadcastInterruption(BroadcastInterruptionEvent @event)
         {
-            CallDeferred("DeferredHandleBroadcastInterruption");
+            if (@event.Reason == BroadcastInterruptionReason.CallerCursed)
+            {
+                // For cursing, just reset typewriter state - cursing delay executable will handle UI
+                CallDeferred("DeferredResetTypewriterState");
+                GD.Print("LiveShowPanel: Cursing interruption - resetting typewriter state");
+            }
+            else
+            {
+                // For other interruptions (breaks, show ending), show interrupted display
+                CallDeferred("DeferredHandleBroadcastInterruption");
+            }
         }
 
         private void DeferredHandleBroadcastInterruption()

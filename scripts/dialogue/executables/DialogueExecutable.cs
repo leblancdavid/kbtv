@@ -74,7 +74,8 @@ namespace KBTV.Dialogue
             {
                 if (interruptionEvent.Reason == BroadcastInterruptionReason.BreakImminent ||
                     interruptionEvent.Reason == BroadcastInterruptionReason.ShowEnding ||
-                    interruptionEvent.Reason == BroadcastInterruptionReason.CallerDropped)
+                    interruptionEvent.Reason == BroadcastInterruptionReason.CallerDropped ||
+                    interruptionEvent.Reason == BroadcastInterruptionReason.CallerCursed)
                 {
                     // Handle interruption - effects up to current line are preserved
                     _statTracker?.InterruptConversation();
@@ -87,10 +88,13 @@ namespace KBTV.Dialogue
             {
                 if (_arc != null && _caller != null)
                 {
-                    // Initialize stat tracking for this conversation
-                    _statTracker?.StartConversation(_caller, _arc);
+                     // Initialize stat tracking for this conversation
+                     _statTracker?.StartConversation(_caller, _arc);
 
-                    // Play full conversation line by line
+                     // Track if cursing occurred during this conversation
+                     bool cursingOccurred = false;
+
+                     // Play full conversation line by line
                     var topic = _arc.TopicName;
                     foreach (var line in _arc.Dialogue)
                     {
@@ -124,30 +128,68 @@ namespace KBTV.Dialogue
                             metadata: new { ArcId = _arc.ArcId, SpeakerId = speakerName, CallerGender = _arc.CallerGender }
                         );
 
-                         // Get actual audio duration - skip loading if audio is disabled
-                         float audioDuration = BroadcastConstants.DEFAULT_LINE_DURATION; // Default fallback
-                         if (!_audioService.IsAudioDisabled)
-                         {
-                             audioDuration = await GetAudioDurationAsync(audioPath);
-                         }
+                          // Get actual audio duration - skip loading if audio is disabled
+                          float audioDuration = BroadcastConstants.DEFAULT_LINE_DURATION; // Default fallback
+                          if (!_audioService.IsAudioDisabled)
+                          {
+                              audioDuration = await GetAudioDurationAsync(audioPath);
+                          }
 
-                         // Publish started event for UI
-                         var startedEvent = new BroadcastItemStartedEvent(item, BroadcastConstants.DEFAULT_LINE_DURATION, audioDuration);
-                         GD.Print($"DialogueExecutable: Publishing started event for line '{line.Text}' (audioDuration: {audioDuration})");
-                         _eventBus.Publish(startedEvent);
+                          // Pre-playback cursing check for caller lines (not Vern lines)
+                          bool willCurse = false;
+                          float cursePoint = 0f;
+                          if (line.Speaker != Speaker.Vern && _caller != null)
+                          {
+                                // TEMPORARY: Increased to 50% for testing - TODO: Revert to normal rates
+                                float curseProbability = _caller.CurseRisk switch
+                                {
+                                    CallerCurseRisk.Low => 0.5f,     // TEMP: 50% for testing (was 1%)
+                                    CallerCurseRisk.Medium => 0.5f,  // TEMP: 50% for testing (was 3%)
+                                    CallerCurseRisk.High => 0.5f,    // TEMP: 50% for testing (was 5%)
+                                    _ => 0.5f // TEMP: 50% for testing (was 1%)
+                                };
 
-                        // Play audio for this line
-                        if (!string.IsNullOrEmpty(audioPath))
-                        {
-                            await PlayAudioAsync(audioPath, localToken);
-                        }
-                        else
-                        {
-                            await DelayAsync(BroadcastConstants.DEFAULT_LINE_DURATION, localToken);
-                        }
+                              if (GD.Randf() < curseProbability)
+                              {
+                                  willCurse = true;
+                                  // Random curse point between 30-70% of audio duration
+                                  cursePoint = audioDuration * (float)GD.RandRange(0.3f, 0.7f);
+                                  GD.Print($"DialogueExecutable: Caller '{_caller.Name}' will curse at {cursePoint}s (30-70% of {audioDuration}s)");
+                              }
+                          }
 
-                        // Apply stat effects for this completed line
-                        _statTracker?.OnLineCompleted();
+                           // Publish started event for UI (duration depends on whether cursing occurs)
+                           float effectiveDuration = willCurse ? cursePoint : BroadcastConstants.DEFAULT_LINE_DURATION;
+                           var startedEvent = new BroadcastItemStartedEvent(item, effectiveDuration, willCurse ? cursePoint : audioDuration);
+                           GD.Print($"DialogueExecutable: Publishing started event for line '{line.Text}' (effectiveDuration: {effectiveDuration}, audioLength: {(willCurse ? cursePoint : audioDuration)})");
+                          _eventBus.Publish(startedEvent);
+
+                            // Play audio for this line (full or partial based on cursing)
+                            if (willCurse)
+                            {
+                                // Play partial audio for cursePoint duration with immediate stop
+                                await _audioService.PlayAudioForDurationAsync(audioPath, cursePoint, true, CancellationToken.None);
+                                
+                                // Play bleep immediately after
+                                await PlayAudioAsync("res://assets/audio/bleep.wav", CancellationToken.None);
+                                
+                                // Then interrupt conversation
+                                GD.Print($"DialogueExecutable: Cursing triggered at {cursePoint}s, publishing CallerCursed interruption");
+                                _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.CallerCursed));
+                                cursingOccurred = true;
+                                break; // Exit the conversation loop
+                            }
+                           else
+                           {
+                               // No cursing: play entire audio normally
+                               await PlayAudioAsync(audioPath, localToken);
+                           }
+
+                          // Apply stat effects for this completed line (only when no cursing)
+                          if (!willCurse)
+                          {
+                              _statTracker?.OnLineCompleted();
+                          }
 
                          // Check for pending break transition (graceful interruption between lines)
                          if (_stateManager?.PendingBreakTransition == true)
@@ -162,11 +204,21 @@ namespace KBTV.Dialogue
                              GD.Print($"DialogueExecutable: Caller drop pending, exiting conversation loop early");
                              break;
                          }
+
+                         // Check for pending caller cursed (immediate interruption)
+                         if (_stateManager?._pendingCallerCursed == true)
+                         {
+                             GD.Print($"DialogueExecutable: Caller cursed pending, exiting conversation loop early");
+                             break;
+                         }
                     }
-                    GD.Print($"DialogueExecutable: Conversation arc loop completed - all {_arc.Dialogue.Count} lines processed");
-                    
-                    // Conversation completed naturally - apply any remaining effects
-                    _statTracker?.CompleteConversation();
+                     GD.Print($"DialogueExecutable: Conversation arc loop completed - all {_arc.Dialogue.Count} lines processed");
+                     
+                     // Conversation completed naturally - apply any remaining effects (only if no cursing occurred)
+                     if (!cursingOccurred)
+                     {
+                         _statTracker?.CompleteConversation();
+                     }
                 }
                 else
                 {

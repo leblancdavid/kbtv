@@ -1,0 +1,139 @@
+{
+  "lineType": "caller-cursed",
+  "description": "Vern's response when a caller curses on air",
+  "lines": [
+    {
+      "id": "cursed_neutral_1",
+      "text": "You can't use that kind of language on my show!",
+      "voiceText": "You can't use that kind of language on my show!",
+      "mood": "neutral",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_neutral_2",
+      "text": "Watch your language! This is live radio!",
+      "voiceText": "Watch your language! This is live radio!",
+      "mood": "neutral",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_neutral_3",
+      "text": "That kind of talk isn't appropriate here.",
+      "voiceText": "That kind of talk isn't appropriate here.",
+      "mood": "neutral",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_focused_1",
+      "text": "That language is unacceptable. You're done here.",
+      "voiceText": "That language is unacceptable. You're done here.",
+      "mood": "focused",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_focused_2",
+      "text": "Profanity will not be tolerated on this broadcast.",
+      "voiceText": "Profanity will not be tolerated on this broadcast.",
+      "mood": "focused",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_irritated_1",
+      "text": "Watch your mouth! This is a family show!",
+      "voiceText": "Watch your mouth! This is a family show!",
+      "mood": "irritated",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_irritated_2",
+      "text": "Hey! Language! We're live here!",
+      "voiceText": "Hey! Language! We're live here!",
+      "mood": "irritated",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_angry_1",
+      "text": "That is completely unacceptable! Get off my show!",
+      "voiceText": "That is completely unacceptable! Get off my show!",
+      "mood": "angry",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_angry_2",
+      "text": "Profanity? On my airwaves? You're finished!",
+      "voiceText": "Profanity? On my airwaves? You're finished!",
+      "mood": "angry",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_frustrated_1",
+      "text": "Ugh, not again. That language isn't welcome here.",
+      "voiceText": "Ugh, not again. That language isn't welcome here.",
+      "mood": "frustrated",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_frustrated_2",
+      "text": "*sigh* Language, caller. Language.",
+      "voiceText": "*sigh* Language, caller. Language.",
+      "mood": "frustrated",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_amused_1",
+      "text": "Whoa there, cowboy! Let's keep it clean!",
+      "voiceText": "Whoa there, cowboy! Let's keep it clean!",
+      "mood": "amused",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_energized_1",
+      "text": "WHOA! Language alert! We don't do that here!",
+      "voiceText": "WHOA! Language alert! We don't do that here!",
+      "mood": "energized",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_tired_1",
+      "text": "Not that kind of language. Please, folks...",
+      "voiceText": "Not that kind of language. Please, folks...",
+      "mood": "tired",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_exhausted_1",
+      "text": "Profanity... just what I needed today.",
+      "voiceText": "Profanity... just what I needed today.",
+      "mood": "exhausted",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_depressed_1",
+      "text": "That language... it's just not appropriate.",
+      "voiceText": "That language... it's just not appropriate.",
+      "mood": "depressed",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_obsessive_1",
+      "text": "The patterns continue... even the profane ones.",
+      "voiceText": "The patterns continue... even the profane ones.",
+      "mood": "obsessive",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_manic_1",
+      "text": "PROFANITY DETECTED! LANGUAGE VIOLATION! DROP! DROP!",
+      "voiceText": "PROFANITY DETECTED! LANGUAGE VIOLATION! DROP! DROP!",
+      "mood": "manic",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_gruff_1",
+      "text": "Watch your damn mouth. Get outta here.",
+      "voiceText": "Watch your damn mouth. Get outta here.",
+      "mood": "gruff",
+      "weight": 1.0
+    }
+  ]
+}

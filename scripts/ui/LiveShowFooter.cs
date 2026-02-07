@@ -2,7 +2,9 @@ using Godot;
 using KBTV.Ads;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Data;
 using KBTV.Dialogue;
+using KBTV.Economy;
 using KBTV.Managers;
 using KBTV.UI.Themes;
 
@@ -20,6 +22,13 @@ namespace KBTV.UI
         private ICallerRepository _repository = null!;
         private AdManager _adManager = null!;
         private AsyncBroadcastLoop _asyncBroadcastLoop = null!;
+        private EventBus _eventBus = null!;
+        private EconomyManager _economyManager = null!;
+
+        // Cursing timer fields
+        private bool _isCursingTimerActive = false;
+        private float _cursingTimeRemaining = 0f;
+        private const float CURSING_TIMER_DURATION = 20f;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -47,6 +56,10 @@ namespace KBTV.UI
             _repository = DependencyInjection.Get<ICallerRepository>(this);
             _adManager = DependencyInjection.Get<AdManager>(this);
             _asyncBroadcastLoop = DependencyInjection.Get<AsyncBroadcastLoop>(this);
+            _eventBus = DependencyInjection.Get<EventBus>(this);
+
+            // Subscribe to broadcast interruption events for cursing
+            _eventBus.Subscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
 
             // Set up AdManager events
             SetupAdManagerEvents();
@@ -106,6 +119,9 @@ namespace KBTV.UI
             // Update ad break controls (handles countdown display and button states)
             UpdateAdBreakControls();
             
+            // Update cursing timer if active
+            UpdateCursingTimer(delta);
+            
             // Update drop caller button styling
             UpdateDropCallerButton();
         }
@@ -131,6 +147,12 @@ namespace KBTV.UI
             {
                 GD.Print($"LiveShowFooter: Dropping caller {_repository.OnAirCaller.Name}");
                 _asyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.CallerDropped);
+
+                // If cursing timer was active, stop it (successful drop)
+                if (_isCursingTimerActive)
+                {
+                    StopCursingTimer();
+                }
             }
         }
 
@@ -174,6 +196,93 @@ namespace KBTV.UI
             UpdateAdBreakControls();
         }
 
+        private void OnBroadcastInterruption(BroadcastInterruptionEvent interruptionEvent)
+        {
+            if (interruptionEvent.Reason == BroadcastInterruptionReason.CallerCursed)
+            {
+                StartCursingTimer();
+            }
+        }
+
+        private void UpdateCursingTimer(double delta)
+        {
+            if (!_isCursingTimerActive) return;
+
+            _cursingTimeRemaining -= (float)delta;
+
+            if (_cursingTimeRemaining <= 0)
+            {
+                // Timer expired - apply penalties
+                OnCursingTimerExpired();
+                return;
+            }
+
+            // Update button text with countdown
+            if (_dropCallerButton != null)
+            {
+                int seconds = Mathf.CeilToInt(_cursingTimeRemaining);
+                _dropCallerButton.Text = $"DELAY {seconds}";
+            }
+        }
+
+        private void OnCursingTimerExpired()
+        {
+            _isCursingTimerActive = false;
+            _cursingTimeRemaining = 0;
+
+            GD.Print("LiveShowFooter: Cursing timer expired - applying penalties");
+
+            // Apply penalties: Vern stat penalties and FCC fine
+            var vernStats = DependencyInjection.Get<VernStats>(this);
+            var economyManager = DependencyInjection.Get<EconomyManager>(this);
+
+            if (vernStats != null)
+            {
+                vernStats.ApplyCursingPenalty();
+                GD.Print("LiveShowFooter: Applied Vern cursing penalties");
+            }
+
+            if (economyManager != null)
+            {
+                economyManager.ApplyFCCFine(100); // $100 fine
+                GD.Print("LiveShowFooter: Applied $100 FCC fine");
+            }
+
+            // Reset button text
+            if (_dropCallerButton != null)
+            {
+                _dropCallerButton.Text = "DROP CALLER";
+            }
+
+            // Publish timer completion event (unsuccessful - penalties applied)
+            var eventBus = DependencyInjection.Get<EventBus>(this);
+            eventBus?.Publish(new CursingTimerCompletedEvent(wasSuccessful: false));
+        }
+
+        private void StartCursingTimer()
+        {
+            _isCursingTimerActive = true;
+            _cursingTimeRemaining = CURSING_TIMER_DURATION;
+            GD.Print($"LiveShowFooter: Started cursing timer with {_cursingTimeRemaining} seconds remaining");
+        }
+
+        private void StopCursingTimer()
+        {
+            _isCursingTimerActive = false;
+            _cursingTimeRemaining = 0;
+            GD.Print("LiveShowFooter: Stopped cursing timer (successful drop)");
+
+            // Reset button text
+            if (_dropCallerButton != null)
+            {
+                _dropCallerButton.Text = "DROP CALLER";
+            }
+
+            // Publish timer completion event (successful - no penalties)
+            var eventBus = DependencyInjection.Get<EventBus>(this);
+            eventBus?.Publish(new CursingTimerCompletedEvent(wasSuccessful: true));
+        }
+
         private void UpdateDropCallerButton()
         {
             if (_dropCallerButton == null) return;
@@ -182,13 +291,22 @@ namespace KBTV.UI
             
             if (_dropCallerButton != null)
             {
-                // Apply dynamic styling based on caller state
+                // Apply dynamic styling based on caller state and cursing timer
                 var styleBoxNormal = new StyleBoxFlat();
                 var styleBoxDisabled = new StyleBoxFlat();
                 var styleBoxPressed = new StyleBoxFlat();
 
                 Color bgColor, borderColor;
-                if (hasCaller)
+                if (_isCursingTimerActive)
+                {
+                    // Flashing red during cursing timer (every 0.5 seconds)
+                    float flashTime = Time.GetTicksMsec() / 1000.0f;
+                    bool isRedPhase = Mathf.Floor(flashTime * 2) % 2 == 0; // Flash every 0.5 seconds
+                    
+                    bgColor = isRedPhase ? UIColors.Accent.Red : UIColors.BG_PANEL;
+                    borderColor = UIColors.Accent.Red;
+                }
+                else if (hasCaller)
                 {
                     // Red color for drop action when caller is available
                     bgColor = UIColors.Accent.Red;
@@ -401,6 +519,12 @@ namespace KBTV.UI
                 _adManager.OnBreakStarted -= OnBreakStarted;
                 _adManager.OnBreakEnded -= OnBreakEnded;
                 _adManager.OnShowEnded -= OnShowEnded;
+            }
+
+            // Unsubscribe from broadcast events
+            if (_eventBus != null)
+            {
+                _eventBus.Unsubscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
             }
 
             if (_queueAdsButton != null)
