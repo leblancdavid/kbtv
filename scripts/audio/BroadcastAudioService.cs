@@ -103,7 +103,7 @@ namespace KBTV.Audio
                 await Task.Delay(4000, CancellationToken.None);
                 return;
             }
-            // Special corruption check for the problematic file - skip when audio disabled to avoid unnecessary loading
+            // Special corruption check for the problematic file - skip loading if audio is disabled to avoid unnecessary loading
             if (!IsAudioDisabled && audioPath == "res://assets/audio/voice/Callers/UFOs/lights/ufos_questionable_lights_caller_2.mp3")
             {
                 var testStream = GD.Load<AudioStream>(audioPath);
@@ -166,6 +166,54 @@ namespace KBTV.Audio
             }
 
             await PlayAudioStreamInternalAsync(player, audioStream, audioPath, cancellationToken);
+        }
+
+        /// <summary>
+        /// Plays audio from the specified path for a maximum duration asynchronously.
+        /// Completes when either the duration expires or playback finishes (whichever comes first).
+        /// </summary>
+        public async Task PlayAudioForDurationAsync(string audioPath, float maxDuration, CancellationToken cancellationToken = default)
+        {
+            await PlayAudioForDurationAsync(audioPath, maxDuration, false, cancellationToken);
+        }
+
+        /// <summary>
+        /// Plays audio from the specified path for a maximum duration asynchronously.
+        /// Completes when either the duration expires or playback finishes (whichever comes first).
+        /// </summary>
+        /// <param name="immediateStop">If true, stops playback immediately when duration expires. If false, uses deferred stop for thread safety.</param>
+        public async Task PlayAudioForDurationAsync(string audioPath, float maxDuration, bool immediateStop, CancellationToken cancellationToken = default)
+        {
+            if (IsAudioDisabled)
+            {
+                await Task.Delay((int)(maxDuration * 1000), cancellationToken);
+                return;
+            }
+
+            if (!IsAudioStreamValid(audioPath))
+            {
+                GD.Print($"BroadcastAudioService: Skipping invalid audio file: {audioPath}, using {maxDuration}-second delay");
+                await Task.Delay((int)(maxDuration * 1000), cancellationToken);
+                return;
+            }
+
+            var player = GetAvailablePlayer();
+            if (player == null)
+            {
+                GD.PrintErr($"BroadcastAudioService: No available audio players for {audioPath}");
+                return;
+            }
+
+            var audioStream = GD.Load<AudioStream>(audioPath);
+            if (audioStream == null)
+            {
+                GD.Print($"BroadcastAudioService: Failed to load audio stream: {audioPath}");
+                ReturnPlayer(player);
+                await Task.Delay((int)(maxDuration * 1000), cancellationToken);
+                return;
+            }
+
+            await PlayAudioStreamForDurationAsync(player, audioStream, audioPath, maxDuration, immediateStop, cancellationToken);
         }
 
         /// <summary>
@@ -296,7 +344,7 @@ namespace KBTV.Audio
                 if (completedTask == timeoutTask)
                 {
                     GD.Print($"BroadcastAudioService: AUDIO TIMEOUT - Playback of {debugName} did not complete within {timeoutMs}ms, forcing completion");
-                    player.CallDeferred("Stop");
+                    player.Stop();
                     tcs.TrySetResult(); // Force completion to prevent hang
                 }
             }
@@ -308,6 +356,59 @@ namespace KBTV.Audio
             }
             
             // Normal completion - cleanup happens in OnPlayerFinished
+        }
+
+        /// <summary>
+        /// Internal method to play audio stream on a player for a maximum duration.
+        /// </summary>
+        private async Task PlayAudioStreamForDurationAsync(AudioStreamPlayer player, AudioStream audioStream, string debugName, float maxDuration, bool immediateStop, CancellationToken cancellationToken)
+        {
+            _activePlayers.Add(player);
+            var tcs = new TaskCompletionSource();
+            _completionSources[player] = tcs;
+
+            player.Stream = audioStream;
+            player.Play();
+
+            // Create duration timeout task
+            var durationMs = (int)(maxDuration * 1000);
+            var durationTask = Task.Delay(durationMs);
+
+            // Register cancellation to cancel the TCS
+            using var registration = cancellationToken.Register(() => 
+            {
+                player.CallDeferred("Stop");
+                tcs.TrySetCanceled(cancellationToken);
+            });
+
+            try
+            {
+                // Race between duration timeout and cancellation
+                var completedTask = await Task.WhenAny(tcs.Task, durationTask);
+
+                if (completedTask == durationTask)
+                {
+                    // Duration expired - stop playback
+                    GD.Print($"BroadcastAudioService: Duration limit reached for {debugName}, stopping playback after {maxDuration}s");
+                    if (immediateStop)
+                    {
+                        player.Stop();
+                    }
+                    else
+                    {
+                        player.CallDeferred("Stop");
+                    }
+                    tcs.SetResult(); // Signal completion
+                }
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                // Stop the player if still playing
+                player.CallDeferred("Stop");
+                throw;
+            }
+            
+            // Cleanup happens in OnPlayerFinished
         }
 
         private AudioStreamPlayer? GetAvailablePlayer()

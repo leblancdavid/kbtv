@@ -18,6 +18,19 @@ namespace KBTV.Audio
         Task PlayAudioAsync(string audioPath, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Plays audio from the specified path for a maximum duration asynchronously.
+        /// Completes when either the duration expires or playback finishes (whichever comes first).
+        /// </summary>
+        Task PlayAudioForDurationAsync(string audioPath, float maxDuration, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Plays audio from the specified path for a maximum duration asynchronously.
+        /// Completes when either the duration expires or playback finishes (whichever comes first).
+        /// </summary>
+        /// <param name="immediateStop">If true, stops playback immediately when duration expires. If false, uses deferred stop for thread safety.</param>
+        Task PlayAudioForDurationAsync(string audioPath, float maxDuration, bool immediateStop, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Plays the specified audio stream asynchronously.
         /// Completes when audio playback finishes.
         /// </summary>
