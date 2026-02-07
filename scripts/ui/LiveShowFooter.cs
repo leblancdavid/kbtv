@@ -209,6 +209,7 @@ namespace KBTV.UI
             if (!_isCursingTimerActive) return;
 
             _cursingTimeRemaining -= (float)delta;
+            GD.Print($"LiveShowFooter: Cursing timer - {_cursingTimeRemaining:F2}s remaining (delta: {delta:F3})");
 
             if (_cursingTimeRemaining <= 0)
             {
@@ -233,7 +234,8 @@ namespace KBTV.UI
             GD.Print("LiveShowFooter: Cursing timer expired - applying penalties");
 
             // Apply penalties: Vern stat penalties and FCC fine
-            var vernStats = DependencyInjection.Get<VernStats>(this);
+            var gameStateManager = DependencyInjection.Get<GameStateManager>(this);
+            var vernStats = gameStateManager?.VernStats;
             var economyManager = DependencyInjection.Get<EconomyManager>(this);
 
             if (vernStats != null)
@@ -241,11 +243,22 @@ namespace KBTV.UI
                 vernStats.ApplyCursingPenalty();
                 GD.Print("LiveShowFooter: Applied Vern cursing penalties");
             }
+            else
+            {
+                GD.PrintErr("LiveShowFooter: Could not access VernStats for cursing penalties");
+            }
 
             if (economyManager != null)
             {
                 economyManager.ApplyFCCFine(100); // $100 fine
                 GD.Print("LiveShowFooter: Applied $100 FCC fine");
+            }
+
+            // Automatically drop the caller (same as manual drop)
+            if (_repository?.OnAirCaller != null && _asyncBroadcastLoop != null)
+            {
+                GD.Print($"LiveShowFooter: Automatically dropping cursing caller {_repository.OnAirCaller.Name}");
+                _asyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.CallerDropped);
             }
 
             // Reset button text
