@@ -151,6 +151,27 @@ namespace KBTV.Economy
             }
         }
 
+        /// <summary>
+        /// Apply FCC fine for violating broadcast standards (cursing on air).
+        /// </summary>
+        /// <param name="amount">Fine amount to deduct</param>
+        /// <returns>True if fine was applied, false if insufficient funds</returns>
+        public bool ApplyFCCFine(int amount)
+        {
+            if (amount <= 0)
+            {
+                return false;
+            }
+
+            int oldMoney = _currentMoney;
+            _currentMoney = Mathf.Max(0, _currentMoney - amount);
+
+            EmitSignal("MoneyChanged", oldMoney, _currentMoney);
+            EmitSignal("Purchase", amount, $"FCC Fine - Profanity Violation");
+
+            return true; // Fine is always applied, even if it puts balance negative
+        }
+
         // ─────────────────────────────────────────────────────────────
         // ISaveable (TODO: Implement when SaveManager is ported)
         // ─────────────────────────────────────────────────────────────
