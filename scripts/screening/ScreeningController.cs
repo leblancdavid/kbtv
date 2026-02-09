@@ -185,6 +185,12 @@ namespace KBTV.Screening
                 _session.Caller.EvidenceLevel.ToString()
             );
 
+            if (_saveManager.CurrentSave == null)
+            {
+                Log.Error("ScreeningController: No current save available for evidence storage");
+                return false;
+            }
+
             _saveManager.CurrentSave.CollectedEvidence.Add(evidence);
             _saveManager.Save();
 
