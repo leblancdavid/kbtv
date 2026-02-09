@@ -457,7 +457,7 @@ namespace KBTV.UI
                     }
                     if (!found)
                     {
-                        result[i] = "_";
+                        result[i] = $"[color=red]{guessChars[i]}[/color]";
                     }
                 }
             }
