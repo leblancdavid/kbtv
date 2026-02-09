@@ -151,7 +151,6 @@ namespace KBTV.Screening
             // If evidence availability changed, immediately publish progress update for instant UI feedback
             if (_session.EvidenceAvailable != hadEvidenceBefore)
             {
-                GD.Print($"Evidence availability changed: {hadEvidenceBefore} -> {_session.EvidenceAvailable}");
                 var progress = CreateProgress();
                 ProgressUpdated?.Invoke(progress);
             }
@@ -197,22 +196,7 @@ namespace KBTV.Screening
         /// <summary>
         /// Check if evidence is currently available for collection.
         /// </summary>
-        public bool IsEvidenceAvailable 
-        {
-            get 
-            {
-                var result = _session?.EvidenceAvailable == true && _session?.EvidenceCollected == false;
-                if (_session != null)
-                {
-                    GD.Print($"IsEvidenceAvailable: session exists, EvidenceAvailable={_session.EvidenceAvailable}, EvidenceCollected={_session.EvidenceCollected}, result={result}");
-                }
-                else
-                {
-                    GD.Print("IsEvidenceAvailable: no session");
-                }
-                return result;
-            }
-        }
+        public bool IsEvidenceAvailable => _session?.EvidenceAvailable == true && _session?.EvidenceCollected == false;
 
         private void HandlePatienceExpired()
         {

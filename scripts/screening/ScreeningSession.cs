@@ -58,7 +58,6 @@ namespace KBTV.Screening
                 // Check if any new properties were revealed this frame
                 if (PropertiesRevealed > previousRevealedCount && !EvidenceAvailable)
                 {
-                    GD.Print($"Properties revealed increased: {previousRevealedCount} -> {PropertiesRevealed}, checking for evidence");
                     CheckForEvidenceRevelation();
                 }
             }
@@ -73,15 +72,13 @@ namespace KBTV.Screening
             var revealedProperties = Caller.GetRevealedProperties();
             bool hadEvidenceBefore = EvidenceAvailable;
             
-            GD.Print($"CheckForEvidenceRevelation: Revealed properties count = {revealedProperties.Count}");
+            // Look for the Evidence property among newly revealed properties
             foreach (var property in revealedProperties)
             {
-                GD.Print($"  Property: {property.PropertyKey} = {property.DisplayValue}, IsRevealed={property.IsRevealed}");
                 if (property.PropertyKey == "Evidence" && !EvidenceAvailable)
                 {
                     // Roll for evidence availability based on caller's evidence level
                     EvidenceAvailable = RollForEvidence(Caller.EvidenceLevel);
-                    GD.Print($"Evidence revealed! Level: {Caller.EvidenceLevel}, Available: {EvidenceAvailable}");
                     break;
                 }
             }

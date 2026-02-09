@@ -70,7 +70,6 @@ namespace KBTV.UI
             bool evidenceNowAvailable = _screeningController?.IsEvidenceAvailable ?? false;
             if (evidenceNowAvailable != _evidenceAvailable)
             {
-                GD.Print($"EvidenceSection: Evidence availability changed: {_evidenceAvailable} -> {evidenceNowAvailable}");
                 _evidenceAvailable = evidenceNowAvailable;
                 UpdateButtonState();
             }
@@ -112,7 +111,6 @@ namespace KBTV.UI
                 return;
 
             bool shouldBeEnabled = _evidenceAvailable;
-            GD.Print($"UpdateButtonState: shouldBeEnabled={shouldBeEnabled}, button exists={_examineButton != null}");
             _examineButton.Disabled = !shouldBeEnabled;
 
             if (shouldBeEnabled)
