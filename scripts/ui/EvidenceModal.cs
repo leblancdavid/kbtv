@@ -96,6 +96,7 @@ namespace KBTV.UI
                 FitContent = true,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
+            _currentInputDisplay.AddThemeFontSizeOverride("normal_font_size", 24);
             _guessHistory.AddChild(_currentInputDisplay);
         }
 
@@ -140,6 +141,7 @@ namespace KBTV.UI
                         FitContent = true,
                         CustomMinimumSize = new Vector2(20, 20)
                     };
+                    letterLabel.AddThemeFontSizeOverride("normal_font_size", 20);
                     rowContainer.AddChild(letterLabel);
                 }
 
@@ -372,6 +374,7 @@ namespace KBTV.UI
                 FitContent = true,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
+            guessLabel.AddThemeFontSizeOverride("normal_font_size", 24);
             _guessHistory.AddChild(guessLabel);
         }
 
@@ -431,6 +434,7 @@ namespace KBTV.UI
             {
                 ShowSuccessMessage();
                 _collectButton.Disabled = false; // Enable collect button
+                GD.Print("Collect button enabled after successful evidence collection");
             }
             else
             {
@@ -453,6 +457,7 @@ namespace KBTV.UI
                 FitContent = true,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
+            successLabel.AddThemeFontSizeOverride("normal_font_size", 20);
             _guessHistory.AddChild(successLabel);
         }
 
@@ -465,6 +470,7 @@ namespace KBTV.UI
                 FitContent = true,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
+            failureLabel.AddThemeFontSizeOverride("normal_font_size", 20);
             _guessHistory.AddChild(failureLabel);
         }
 
@@ -477,6 +483,7 @@ namespace KBTV.UI
                 FitContent = true,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
+            messageLabel.AddThemeFontSizeOverride("normal_font_size", 20);
             _guessHistory.AddChild(messageLabel);
         }
 
@@ -489,6 +496,7 @@ namespace KBTV.UI
                 FitContent = true,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
+            errorLabel.AddThemeFontSizeOverride("normal_font_size", 20);
             _guessHistory.AddChild(errorLabel);
         }
 
@@ -519,6 +527,7 @@ namespace KBTV.UI
                 FitContent = true,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
+            _currentInputDisplay.AddThemeFontSizeOverride("normal_font_size", 24);
             _guessHistory.AddChild(_currentInputDisplay);
         }
 
