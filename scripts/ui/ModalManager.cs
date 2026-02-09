@@ -27,7 +27,7 @@ namespace KBTV.UI
             _modalRoot = new CanvasLayer
             {
                 Name = "ModalRoot",
-                Layer = 100  // High layer index to appear above all UI CanvasLayers
+                Layer = 150  // Above UI layers (100) but below loading screens (200)
             };
             AddChild(_modalRoot);
 
