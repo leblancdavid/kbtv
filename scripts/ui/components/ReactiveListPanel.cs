@@ -203,5 +203,11 @@ namespace KBTV.UI.Components
             tween.TweenProperty(control, "modulate:a", 0f, AnimationDuration);
             tween.TweenCallback(Callable.From(control.QueueFree));
         }
+
+        public override void _ExitTree()
+        {
+            // Godot automatically cleans up tweens when nodes exit the tree
+            base._ExitTree();
+        }
     }
 }

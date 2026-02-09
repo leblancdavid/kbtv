@@ -96,5 +96,17 @@ namespace KBTV.UI
             versionLabel.AddThemeFontSizeOverride("font_size", 10);
             container.AddChild(versionLabel);
         }
+
+        public override void _ExitTree()
+        {
+            // Disconnect signal to prevent memory leaks
+            var gameStateManager = DependencyInjection.Get<GameStateManager>(this);
+            if (gameStateManager != null)
+            {
+                gameStateManager.Disconnect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
+            }
+            
+            base._ExitTree();
+        }
     }
 }

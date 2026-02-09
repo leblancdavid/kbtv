@@ -358,6 +358,16 @@ namespace KBTV.UI
 			{
 				_controller.PhaseChanged -= OnPhaseChanged;
 			}
+			
+			// Disconnect button signals to prevent memory leaks
+			if (_approveButton != null)
+			{
+				_approveButton.Pressed -= OnApprovePressed;
+			}
+			if (_rejectButton != null)
+			{
+				_rejectButton.Pressed -= OnRejectPressed;
+			}
 		}
 
 		private void EnsureNodesInitialized()

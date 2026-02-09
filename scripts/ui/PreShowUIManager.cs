@@ -500,8 +500,44 @@ namespace KBTV.UI
 			}
 		}
 
-
+		public override void _ExitTree()
+		{
+			// Disconnect Godot signals
+			var gameStateManager = DependencyInjection.Get<GameStateManager>(this);
+			if (gameStateManager != null)
+			{
+				gameStateManager.Disconnect("PhaseChanged", Callable.From<int, int>(OnPhaseChanged));
+			}
+			
+			// Disconnect C# events
+			if (_topicSelector != null)
+			{
+				_topicSelector.ItemSelected -= OnTopicSelected;
+			}
+			
+			if (adConfigPanel != null)
+			{
+				adConfigPanel.DecreaseDurationButton.Pressed -= OnDurationDecreasePressed;
+				adConfigPanel.IncreaseDurationButton.Pressed -= OnDurationIncreasePressed;
+				adConfigPanel.DecreaseBreaksButton.Pressed -= OnBreaksDecreasePressed;
+				adConfigPanel.IncreaseBreaksButton.Pressed -= OnBreaksIncreasePressed;
+				adConfigPanel.DecreaseSlotsButton.Pressed -= OnSlotsDecreasePressed;
+				adConfigPanel.IncreaseSlotsButton.Pressed -= OnSlotsIncreasePressed;
+			}
+			
+			if (_startShowButton != null)
+			{
+				_startShowButton.Pressed -= OnStartShowPressed;
+			}
+			
+			if (_disableAudioCheckBox != null)
+			{
+				_disableAudioCheckBox.Toggled -= OnDisableAudioToggled;
+			}
+			
+			base._ExitTree();
 
 
 	}
+}
 }

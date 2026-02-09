@@ -90,5 +90,17 @@ namespace KBTV.Monitors
                 return false;
             }
         }
+
+        public override void _ExitTree()
+        {
+            // Unsubscribe from events to prevent memory leaks
+            var eventBus = DependencyInjection.Get<EventBus>(this);
+            if (eventBus != null)
+            {
+                eventBus.Unsubscribe<BroadcastItemStartedEvent>(OnBroadcastItemStarted);
+            }
+            
+            base._ExitTree();
+        }
     }
 }

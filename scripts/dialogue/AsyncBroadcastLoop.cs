@@ -573,6 +573,14 @@ namespace KBTV.Dialogue
                 StopBroadcastUnsafe();
             }
             
+            // Unsubscribe from events to prevent memory leaks
+            EventBus.Unsubscribe<BroadcastTimingEvent>(HandleBroadcastTimingEvent);
+            EventBus.Unsubscribe<BroadcastStateChangedEvent>(HandleStateChangedEvent);
+            
+            // Remove AdManager event handlers
+            AdManager.OnBreakGracePeriod -= OnBreakGracePeriod;
+            AdManager.OnBreakImminent -= OnBreakImminent;
+            
             // Dispose all stored token sources
             foreach (var tokenSource in _oldTokenSources)
             {

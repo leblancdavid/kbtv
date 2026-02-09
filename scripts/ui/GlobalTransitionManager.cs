@@ -98,5 +98,11 @@ namespace KBTV.UI
             await ToSignal(tree, "process_frame");
             await FadeFromBlack(fadeInDuration);
         }
+
+        public override void _ExitTree()
+        {
+            // Godot automatically cleans up tweens when nodes exit the tree
+            base._ExitTree();
+        }
     }
 }

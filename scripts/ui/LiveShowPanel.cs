@@ -464,6 +464,17 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
+            // Unsubscribe from events to prevent memory leaks
+            var eventBus = DependencyInjection.Get<EventBus>(this);
+            if (eventBus != null)
+            {
+                eventBus.Unsubscribe<BroadcastEvent>(HandleBroadcastEvent);
+                eventBus.Unsubscribe<BroadcastItemStartedEvent>(HandleBroadcastItemStarted);
+                eventBus.Unsubscribe<BroadcastStateChangedEvent>(HandleBroadcastStateChanged);
+                eventBus.Unsubscribe<BroadcastInterruptionEvent>(HandleBroadcastInterruption);
+            }
+            
+            base._ExitTree();
         }
     }
 }

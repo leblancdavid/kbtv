@@ -387,5 +387,17 @@ namespace KBTV.Dialogue
             // Subscribe to interruption events for break handling
             _eventBus.Subscribe<BroadcastInterruptionEvent>(HandleInterruptionEvent);
         }
+
+        public override void _ExitTree()
+        {
+            // Unsubscribe from events to prevent memory leaks
+            if (_eventBus != null)
+            {
+                _eventBus.Unsubscribe<BroadcastTimingEvent>(HandleTimingEvent);
+                _eventBus.Unsubscribe<BroadcastInterruptionEvent>(HandleInterruptionEvent);
+            }
+            
+            base._ExitTree();
+        }
     }
 }

@@ -406,5 +406,13 @@ namespace KBTV.Ads
         {
             return _isActive && !_breakActive && _isInBreakWindow && !_isQueued;
         }
+
+        public override void _ExitTree()
+        {
+            // Unsubscribe from events to prevent memory leaks
+            _eventBus?.Unsubscribe<BroadcastTimingEvent>(HandleBroadcastTimingEvent);
+            
+            base._ExitTree();
+        }
     }
 }

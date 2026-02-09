@@ -148,5 +148,22 @@ namespace KBTV.Dialogue
         {
             // Event-driven system - no polling needed
         }
+
+        public override void _ExitTree()
+        {
+            // Unsubscribe from events to prevent memory leaks
+            if (_repository != null)
+            {
+                _repository.Unsubscribe(this);
+            }
+            
+            var eventBus = DependencyInjection.Get<EventBus>(this);
+            if (eventBus != null)
+            {
+                eventBus.Unsubscribe<BroadcastEvent>(HandleBroadcastEvent);
+            }
+            
+            base._ExitTree();
+        }
     }
 }
