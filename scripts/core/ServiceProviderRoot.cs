@@ -53,7 +53,8 @@ namespace KBTV.Core;
     IProvide<IUIAudioService>,
     IProvide<DeadAirManager>,
     IProvide<ConversationStatTracker>,
-    IProvide<TopicManager>
+    IProvide<TopicManager>,
+    IProvide<ItemManager>
 {
     public override void _Notification(int what) => this.Notify(what);
 
@@ -80,6 +81,7 @@ namespace KBTV.Core;
     public DeadAirManager DeadAirManager { get; private set; } = null!;
     public ConversationStatTracker ConversationStatTracker { get; private set; } = null!;
     public TopicManager TopicManager { get; private set; } = null!;
+    public ItemManager ItemManager { get; private set; } = null!;
 
     // Provider interface implementations
     GameStateManager IProvide<GameStateManager>.Value() => GameStateManager;
@@ -107,6 +109,7 @@ namespace KBTV.Core;
     DeadAirManager IProvide<DeadAirManager>.Value() => DeadAirManager;
     ConversationStatTracker IProvide<ConversationStatTracker>.Value() => ConversationStatTracker;
     TopicManager IProvide<TopicManager>.Value() => TopicManager;
+    ItemManager IProvide<ItemManager>.Value() => ItemManager;
 
     /// <summary>
     /// Initialize all service providers and register them with AutoInject.
@@ -130,7 +133,6 @@ namespace KBTV.Core;
         // Create caller repository with dependencies
         var callerRepo = new CallerRepository(arcRepository);
 
-        // Create screening controller (depends on CallerRepository)
         // Create topic manager
         var topicManager = new TopicManager();
 
@@ -143,6 +145,9 @@ namespace KBTV.Core;
         // Create independent providers
         var saveManager = new SaveManager();
         var economyManager = new EconomyManager();
+
+        // Create item manager
+        var itemManager = new ItemManager();
 
         // Create providers with dependencies
         var timeManager = new TimeManager();
@@ -213,6 +218,7 @@ namespace KBTV.Core;
         DeadAirManager = deadAirManager;
         ConversationStatTracker = conversationStatTracker;
         TopicManager = topicManager;
+        ItemManager = itemManager;
 
         // Make all services available BEFORE adding children to the scene tree
         Log.Debug("ServiceProviderRoot: Making services available for dependency injection...");
@@ -238,6 +244,7 @@ namespace KBTV.Core;
         AddChild(broadcastAudioService);
         AddChild(uiAudioService);
         AddChild(deadAirManager);
+        AddChild(itemManager);
 
         Log.Debug("ServiceProviderRoot: All providers created and added to scene tree");
     }

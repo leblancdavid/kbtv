@@ -128,8 +128,19 @@ namespace KBTV.UI
                 AddPlaceholderTab("TOPIC");
             }
 
-            // ITEMS tab (placeholder)
-            AddPlaceholderTab("ITEMS");
+            // ITEMS tab
+            var itemsTabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/ItemsTab.tscn");
+            if (itemsTabScene != null)
+            {
+                var itemsTab = itemsTabScene.Instantiate<Control>();
+                _tabContainer.AddChild(itemsTab);
+                _tabContainer.SetTabTitle(itemsTab.GetIndex(), "ITEMS");
+            }
+            else
+            {
+                Log.Error("TabContainerManager: Failed to load ItemsTab.tscn");
+                AddPlaceholderTab("ITEMS");
+            }
         }
 
         private void AddPlaceholderTab(string title)
