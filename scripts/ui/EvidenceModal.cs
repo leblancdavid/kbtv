@@ -46,7 +46,8 @@ namespace KBTV.UI
         private LineEdit _hiddenInput;
         private RichTextLabel _currentInputDisplay;
         private Dictionary<char, LetterState> _letterStates = new();
-        private string _currentInput = "";
+        private char[] _currentInputChars = new char[5];
+        private bool[] _positionsFilled = new bool[5];
 
         private string _targetWord;
         private int _maxAttempts = 6;
@@ -168,7 +169,8 @@ namespace KBTV.UI
             _currentAttempt = 0;
             _previousGuesses.Clear();
             _gameCompleted = false;
-            _currentInput = "";
+            _currentInputChars = new char[5] { '_', '_', '_', '_', '_' };
+            _positionsFilled = new bool[5] { false, false, false, false, false };
 
             UpdateUI();
             // Grab focus on the modal control itself for direct input handling
@@ -201,25 +203,38 @@ namespace KBTV.UI
             {
                 if (keyEvent.Keycode == Key.Enter)
                 {
-                    MakeGuess(_currentInput);
+                    if (IsCompleteGuess())
+                    {
+                        MakeGuess(GetCurrentGuess());
+                    }
                     GetViewport().SetInputAsHandled();
                 }
                 else if (keyEvent.Keycode == Key.Backspace)
                 {
-                    if (_currentInput.Length > 0)
+                    // Find the last unfilled position and clear it
+                    for (int i = 4; i >= 0; i--)
                     {
-                        _currentInput = _currentInput.Substring(0, _currentInput.Length - 1);
-                        UpdateCurrentInputDisplay();
+                        if (!_positionsFilled[i] && _currentInputChars[i] != '_')
+                        {
+                            _currentInputChars[i] = '_';
+                            UpdateCurrentInputDisplay();
+                            break;
+                        }
                     }
                     GetViewport().SetInputAsHandled();
                 }
                 else if (keyEvent.Unicode != 0 && char.IsLetter((char)keyEvent.Unicode))
                 {
                     char letter = char.ToUpper((char)keyEvent.Unicode);
-                    if (_currentInput.Length < 5)
+                    // Find the first unfilled position and fill it
+                    for (int i = 0; i < 5; i++)
                     {
-                        _currentInput += letter;
-                        UpdateCurrentInputDisplay();
+                        if (!_positionsFilled[i] && _currentInputChars[i] == '_')
+                        {
+                            _currentInputChars[i] = letter;
+                            UpdateCurrentInputDisplay();
+                            break;
+                        }
                     }
                     GetViewport().SetInputAsHandled();
                 }
@@ -228,7 +243,7 @@ namespace KBTV.UI
 
         private void MakeGuess(string guess)
         {
-            if (_gameCompleted || guess.Length != 5)
+            if (_gameCompleted || !IsCompleteGuess())
             {
                 return;
             }
@@ -258,9 +273,46 @@ namespace KBTV.UI
             else
             {
                 AddGuessToHistory(guess);
+                // Prepare next input: keep correct letters, clear wrong ones
+                PrepareNextInput(guess);
                 UpdateUI();
-                _currentInput = "";
-                // No need to grab focus again - modal stays focused
+            }
+        }
+
+        private bool IsCompleteGuess()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                if (_currentInputChars[i] == '_')
+                    return false;
+            }
+            return true;
+        }
+
+        private string GetCurrentGuess()
+        {
+            return new string(_currentInputChars);
+        }
+
+        private void PrepareNextInput(string guess)
+        {
+            var targetChars = _targetWord.ToCharArray();
+            var guessChars = guess.ToCharArray();
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (guessChars[i] == targetChars[i])
+                {
+                    // Correct position - keep the letter filled
+                    _currentInputChars[i] = guessChars[i];
+                    _positionsFilled[i] = true;
+                }
+                else
+                {
+                    // Wrong position - clear for next attempt
+                    _currentInputChars[i] = '_';
+                    _positionsFilled[i] = false;
+                }
             }
         }
 
@@ -322,14 +374,7 @@ namespace KBTV.UI
             var display = new string[5];
             for (int i = 0; i < 5; i++)
             {
-                if (i < _currentInput.Length)
-                {
-                    display[i] = _currentInput[i].ToString();
-                }
-                else
-                {
-                    display[i] = "_";
-                }
+                display[i] = _currentInputChars[i].ToString();
             }
             return $"> {string.Join(" ", display)}";
         }
@@ -360,8 +405,7 @@ namespace KBTV.UI
         private void ShowInvalidGuessMessage()
         {
             // Could add a temporary error message here
-            _currentInput = "";
-            UpdateCurrentInputDisplay();
+            // For now, just keep the current input
         }
 
         private void AddGuessToHistory(string guess)
