@@ -37,6 +37,14 @@ namespace KBTV.UI
                 _screeningController.ProgressUpdated += OnProgressUpdated;
                 _screeningController.PhaseChanged += OnPhaseChanged;
             }
+
+            // Subscribe to modal events to disable button during modal
+            var modalManager = DependencyInjection.Get<ModalManager>(this);
+            if (modalManager != null)
+            {
+                modalManager.ModalOpened += OnModalOpened;
+                modalManager.ModalClosed += OnModalClosed;
+            }
         }
 
         public override void _Process(double delta)
@@ -64,6 +72,25 @@ namespace KBTV.UI
             {
                 GD.Print($"EvidenceSection: Evidence availability changed: {_evidenceAvailable} -> {evidenceNowAvailable}");
                 _evidenceAvailable = evidenceNowAvailable;
+                UpdateButtonState();
+            }
+        }
+
+        private void OnModalOpened()
+        {
+            // Disable button while modal is open
+            if (_examineButton != null && IsInstanceValid(_examineButton))
+            {
+                _examineButton.Disabled = true;
+                StyleDisabledButton(); // Apply disabled styling
+            }
+        }
+
+        private void OnModalClosed()
+        {
+            // Re-enable button if evidence is still available
+            if (_evidenceAvailable)
+            {
                 UpdateButtonState();
             }
         }
@@ -201,6 +228,14 @@ namespace KBTV.UI
                 _screeningController.EvidenceCollected -= OnEvidenceCollected;
                 _screeningController.ProgressUpdated -= OnProgressUpdated;
                 _screeningController.PhaseChanged -= OnPhaseChanged;
+            }
+
+            // Unsubscribe from modal events
+            var modalManager = DependencyInjection.Get<ModalManager>(this);
+            if (modalManager != null)
+            {
+                modalManager.ModalOpened -= OnModalOpened;
+                modalManager.ModalClosed -= OnModalClosed;
             }
 
             if (_examineButton != null)

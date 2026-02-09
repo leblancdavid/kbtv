@@ -13,19 +13,21 @@ namespace KBTV.UI
         private static ModalManager? _instance;
         public static ModalManager Instance => _instance ?? throw new InvalidOperationException("ModalManager not initialized");
 
-        private Control? _modalRoot;
+        public event Action? ModalOpened;
+        public event Action? ModalClosed;
+
+        private CanvasLayer? _modalRoot;
         private Control? _currentModal;
 
         public override void _Ready()
         {
             _instance = this;
 
-            // Create modal root container
-            _modalRoot = new Control
+            // Create modal root container as CanvasLayer to ensure it's above all UI
+            _modalRoot = new CanvasLayer
             {
                 Name = "ModalRoot",
-                Size = GetViewport().GetVisibleRect().Size,
-                MouseFilter = Control.MouseFilterEnum.Stop
+                Layer = 100  // High layer index to appear above all UI CanvasLayers
             };
             AddChild(_modalRoot);
 
@@ -56,6 +58,9 @@ namespace KBTV.UI
 
             // Center the modal
             CenterModal(modal);
+
+            // Fire modal opened event
+            ModalOpened?.Invoke();
         }
 
         private void OnModalClosed()
@@ -65,6 +70,9 @@ namespace KBTV.UI
                 _currentModal.QueueFree();
                 _currentModal = null;
             }
+
+            // Fire modal closed event
+            ModalClosed?.Invoke();
         }
 
         private void CenterModal(Control modal)
@@ -78,11 +86,8 @@ namespace KBTV.UI
 
         private void OnViewportSizeChanged()
         {
-            if (_modalRoot != null)
-            {
-                _modalRoot.Size = GetViewport().GetVisibleRect().Size;
-            }
-
+            // CanvasLayer handles viewport sizing automatically
+            // Just re-center any open modal
             if (_currentModal != null)
             {
                 CenterModal(_currentModal);
