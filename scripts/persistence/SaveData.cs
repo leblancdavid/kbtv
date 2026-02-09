@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using KBTV.Data;
+using KBTV.Items;
 
 namespace KBTV.Persistence
 {
@@ -104,6 +105,15 @@ namespace KBTV.Persistence
         /// </summary>
         public List<TopicXPData> TopicXPs;
 
+        // ─────────────────────────────────────────────────────────────
+        // Evidence Collection
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Collection of evidence items obtained from callers.
+        /// </summary>
+        public List<EvidenceItem> CollectedEvidence;
+
         /// <summary>
         /// Creates a new save with default starting values.
         /// </summary>
@@ -122,7 +132,8 @@ namespace KBTV.Persistence
                 TotalCallersScreened = 0,
                 TotalShowsCompleted = 0,
                 PeakListenersAllTime = 0,
-                TopicXPs = new List<TopicXPData>()
+                TopicXPs = new List<TopicXPData>(),
+                CollectedEvidence = new List<EvidenceItem>()
             };
 
             // Initialize default equipment levels

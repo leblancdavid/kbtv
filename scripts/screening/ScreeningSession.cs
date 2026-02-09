@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Godot;
 using KBTV.Callers;
 using KBTV.Data;
 
@@ -17,6 +18,17 @@ namespace KBTV.Screening
         public float ElapsedTime { get; private set; }
         public int PropertiesRevealed => Caller.GetRevealedProperties().Count;
         public int TotalProperties => Caller.ScreenableProperties?.Length ?? 0;
+
+        /// <summary>
+        /// Whether evidence is available for collection from this caller.
+        /// Determined by probability roll when Evidence property is revealed.
+        /// </summary>
+        public bool EvidenceAvailable { get; private set; }
+
+        /// <summary>
+        /// Whether evidence has been collected from this caller.
+        /// </summary>
+        public bool EvidenceCollected { get; private set; }
 
         public ScreeningSession(Caller caller)
         {
@@ -37,7 +49,75 @@ namespace KBTV.Screening
             {
                 ScreeningPatience -= deltaTime * 0.5f;
                 ScreeningPatience = System.Math.Max(0, ScreeningPatience);
+                
+                // Store previous revealed count to detect new revelations
+                int previousRevealedCount = PropertiesRevealed;
+                
                 Caller.UpdateScreenableProperties(deltaTime);
+                
+                // Check if any new properties were revealed this frame
+                if (PropertiesRevealed > previousRevealedCount && !EvidenceAvailable)
+                {
+                    GD.Print($"Properties revealed increased: {previousRevealedCount} -> {PropertiesRevealed}, checking for evidence");
+                    CheckForEvidenceRevelation();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check if the Evidence property was just revealed and roll for evidence availability.
+        /// </summary>
+        /// <returns>True if evidence availability changed.</returns>
+        private bool CheckForEvidenceRevelation()
+        {
+            var revealedProperties = Caller.GetRevealedProperties();
+            bool hadEvidenceBefore = EvidenceAvailable;
+            
+            GD.Print($"CheckForEvidenceRevelation: Revealed properties count = {revealedProperties.Count}");
+            foreach (var property in revealedProperties)
+            {
+                GD.Print($"  Property: {property.PropertyKey} = {property.DisplayValue}, IsRevealed={property.IsRevealed}");
+                if (property.PropertyKey == "Evidence" && !EvidenceAvailable)
+                {
+                    // Roll for evidence availability based on caller's evidence level
+                    EvidenceAvailable = RollForEvidence(Caller.EvidenceLevel);
+                    GD.Print($"Evidence revealed! Level: {Caller.EvidenceLevel}, Available: {EvidenceAvailable}");
+                    break;
+                }
+            }
+            
+            return EvidenceAvailable != hadEvidenceBefore;
+        }
+
+        /// <summary>
+        /// Roll for evidence availability based on the caller's evidence level.
+        /// </summary>
+        /// <param name="level">The caller's evidence level.</param>
+        /// <returns>True if evidence is available for collection.</returns>
+        private bool RollForEvidence(CallerEvidenceLevel level)
+        {
+            // TEMPORARY: Set to 100% for testing evidence collection feature
+            var probability = level switch
+            {
+                CallerEvidenceLevel.None => 1.0f,
+                CallerEvidenceLevel.Low => 1.0f,
+                CallerEvidenceLevel.Medium => 1.0f,
+                CallerEvidenceLevel.High => 1.0f,
+                CallerEvidenceLevel.Irrefutable => 1.0f,
+                _ => 1.0f
+            };
+
+            return GD.Randf() < probability;
+        }
+
+        /// <summary>
+        /// Mark evidence as collected from this caller.
+        /// </summary>
+        public void CollectEvidence()
+        {
+            if (EvidenceAvailable && !EvidenceCollected)
+            {
+                EvidenceCollected = true;
             }
         }
 
@@ -58,6 +138,8 @@ namespace KBTV.Screening
         {
             ScreeningPatience = MaxPatience;
             ElapsedTime = 0f;
+            EvidenceAvailable = false;
+            EvidenceCollected = false;
             Caller.ResetScreenableProperties();
         }
     }

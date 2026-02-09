@@ -40,8 +40,11 @@ namespace KBTV.UI
 		// Property rows for animated reveal
 		private List<ScreenablePropertyRow> _propertyRows = new();
 
-		// Stat summary panel for aggregated effects
-		private StatSummaryPanel? _statSummaryPanel;
+        // Stat summary panel for aggregated effects
+        private StatSummaryPanel? _statSummaryPanel;
+
+        // Evidence section for collection interface
+        private EvidenceSection? _evidenceSection;
 
 		public override void _Notification(int what) => this.Notify(what);
 
@@ -214,22 +217,25 @@ namespace KBTV.UI
 			UpdateButtons();
 		}
 
-		/// <summary>
-		/// Clear all property rows from the container.
-		/// </summary>
-		private void ClearPropertyRows()
-		{
-			_propertyRows.Clear();
+        /// <summary>
+        /// Clear all property rows from the container.
+        /// </summary>
+        private void ClearPropertyRows()
+        {
+            _propertyRows.Clear();
 
-			for (int i = _propertiesContainer.GetChildCount() - 1; i >= 0; i--)
-			{
-				var child = _propertiesContainer.GetChild(i);
-				child.QueueFree();
-			}
+            for (int i = _propertiesContainer.GetChildCount() - 1; i >= 0; i--)
+            {
+                var child = _propertiesContainer.GetChild(i);
+                child.QueueFree();
+            }
 
-			// Clear stat summary reference (it will be recreated when new caller is set)
-			_statSummaryPanel = null;
-		}
+            // Clear stat summary reference (it will be recreated when new caller is set)
+            _statSummaryPanel = null;
+
+            // Clear evidence section reference (it will be recreated when new caller is set)
+            _evidenceSection = null;
+        }
 
 		/// <summary>
 		/// Build property rows for all screenable properties.
@@ -249,10 +255,12 @@ namespace KBTV.UI
 				_propertyRows.Add(row);
 			}
 
-			// Add stat summary panel at the bottom
-			EnsureStatSummaryPanel();
-			_statSummaryPanel!.SetProperties(caller.ScreenableProperties);
-		}
+            // Add evidence section above stat summary
+            EnsureEvidenceSection();
+
+            // Add stat summary panel at the bottom
+            EnsureStatSummaryPanel();
+        }
 
 		/// <summary>
 		/// Create a single property row for a screenable property.
@@ -268,27 +276,62 @@ namespace KBTV.UI
 			return row;
 		}
 
-		/// <summary>
-		/// Ensure the stat summary panel exists at the bottom of the properties container.
-		/// </summary>
-		private void EnsureStatSummaryPanel()
-		{
-			if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel))
-			{
-				// Move to bottom if it already exists
-				_propertiesContainer.MoveChild(_statSummaryPanel, _propertiesContainer.GetChildCount() - 1);
-				return;
-			}
+        /// <summary>
+        /// Ensure the stat summary panel exists at the bottom of the properties container.
+        /// </summary>
+        private void EnsureStatSummaryPanel()
+        {
+            if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel))
+            {
+                // Move to bottom if it already exists
+                _propertiesContainer.MoveChild(_statSummaryPanel, _propertiesContainer.GetChildCount() - 1);
+                return;
+            }
 
-			// Create new stat summary panel
-			_statSummaryPanel = new StatSummaryPanel
-			{
-				SizeFlagsHorizontal = SizeFlags.ExpandFill,
-				CustomMinimumSize = new Vector2(0, 40)
-			};
+            // Create new stat summary panel
+            _statSummaryPanel = new StatSummaryPanel
+            {
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                CustomMinimumSize = new Vector2(0, 40)
+            };
 
-			_propertiesContainer.AddChild(_statSummaryPanel);
-		}
+            _propertiesContainer.AddChild(_statSummaryPanel);
+        }
+
+        /// <summary>
+        /// Ensure the evidence section exists at the bottom of the properties container.
+        /// </summary>
+        private void EnsureEvidenceSection()
+        {
+            if (_evidenceSection != null && IsInstanceValid(_evidenceSection))
+            {
+                // Move to bottom if it already exists
+                _propertiesContainer.MoveChild(_evidenceSection, _propertiesContainer.GetChildCount() - 1);
+                return;
+            }
+
+            // Create new evidence section
+            var evidenceScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/EvidenceSection.tscn");
+            if (evidenceScene != null)
+            {
+                _evidenceSection = evidenceScene.Instantiate<EvidenceSection>();
+                _evidenceSection.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+                _evidenceSection.CustomMinimumSize = new Vector2(0, 50);
+            }
+            else
+            {
+                Log.Error("ScreeningPanel: Failed to load EvidenceSection.tscn");
+                return;
+            }
+
+            _propertiesContainer.AddChild(_evidenceSection);
+            
+            // CRITICAL: Manually trigger OnResolved() for dynamic IDependent nodes
+            if (_evidenceSection is IDependent dependent)
+            {
+                dependent.OnResolved();
+            }
+        }
 
 		private void OnApprovePressed()
 		{

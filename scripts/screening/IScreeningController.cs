@@ -43,13 +43,17 @@ namespace KBTV.Screening
         bool IsActive { get; }
         ScreeningPhase Phase { get; }
         ScreeningProgress Progress { get; }
+        bool IsEvidenceAvailable { get; }
 
         void Start(Caller caller);
         Result<Caller> Approve();
         Result<Caller> Reject();
         void Update(float deltaTime);
+        bool CollectEvidence(string guessedWord);
 
         event Action<ScreeningPhase> PhaseChanged;
         event Action<ScreeningProgress> ProgressUpdated;
+        event Action<Caller> EvidenceCollected;
+        event Action<Caller> EvidenceStored;
     }
 }

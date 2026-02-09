@@ -11,18 +11,9 @@ using KBTV.Screening;
 using KBTV.Audio;
 using KBTV.Monitors;
 using KBTV.Broadcast;
-using KBTV.Persistence;
-using KBTV.Core;
-using KBTV.Callers;
-using KBTV.Dialogue;
-using KBTV.UI;
-using KBTV.Ads;
-using KBTV.Screening;
-using KBTV.Audio;
-using KBTV.Monitors;
-using KBTV.Broadcast;
 
-namespace KBTV.Core;
+namespace KBTV.Core
+{
 
     /// <summary>
     /// Root service provider that manages all game services as AutoInject providers.
@@ -54,7 +45,8 @@ namespace KBTV.Core;
     IProvide<DeadAirManager>,
     IProvide<ConversationStatTracker>,
     IProvide<TopicManager>,
-    IProvide<ItemManager>
+    IProvide<ItemManager>,
+    IProvide<ModalManager>
 {
     public override void _Notification(int what) => this.Notify(what);
 
@@ -82,6 +74,7 @@ namespace KBTV.Core;
     public ConversationStatTracker ConversationStatTracker { get; private set; } = null!;
     public TopicManager TopicManager { get; private set; } = null!;
     public ItemManager ItemManager { get; private set; } = null!;
+    public ModalManager ModalManager { get; private set; } = null!;
 
     // Provider interface implementations
     GameStateManager IProvide<GameStateManager>.Value() => GameStateManager;
@@ -110,6 +103,7 @@ namespace KBTV.Core;
     ConversationStatTracker IProvide<ConversationStatTracker>.Value() => ConversationStatTracker;
     TopicManager IProvide<TopicManager>.Value() => TopicManager;
     ItemManager IProvide<ItemManager>.Value() => ItemManager;
+    ModalManager IProvide<ModalManager>.Value() => ModalManager;
 
     /// <summary>
     /// Initialize all service providers and register them with AutoInject.
@@ -126,6 +120,9 @@ namespace KBTV.Core;
         // Create core services (plain classes) - no dependencies
         var eventBus = new EventBus();
 
+        // Create save manager early (needed by ScreeningController)
+        var saveManager = new SaveManager();
+
         // Create arc repository first (needed by CallerRepository)
         var arcRepository = new ArcRepository();
         arcRepository.Initialize();
@@ -137,17 +134,20 @@ namespace KBTV.Core;
         var topicManager = new TopicManager();
 
         // Create screening controller (depends on CallerRepository and TopicManager)
-        var screeningController = new ScreeningController(callerRepo, topicManager);
+        var screeningController = new ScreeningController(callerRepo, topicManager, saveManager);
 
         // Resolve circular dependency
         callerRepo.ScreeningController = screeningController;
 
         // Create independent providers
-        var saveManager = new SaveManager();
+        // var saveManager = new SaveManager(); // Moved earlier
         var economyManager = new EconomyManager();
 
         // Create item manager
         var itemManager = new ItemManager();
+
+        // Create modal manager
+        var modalManager = new ModalManager();
 
         // Create providers with dependencies
         var timeManager = new TimeManager();
@@ -219,6 +219,7 @@ namespace KBTV.Core;
         ConversationStatTracker = conversationStatTracker;
         TopicManager = topicManager;
         ItemManager = itemManager;
+        ModalManager = modalManager;
 
         // Make all services available BEFORE adding children to the scene tree
         Log.Debug("ServiceProviderRoot: Making services available for dependency injection...");
@@ -245,6 +246,7 @@ namespace KBTV.Core;
         AddChild(uiAudioService);
         AddChild(deadAirManager);
         AddChild(itemManager);
+        AddChild(modalManager);
 
         Log.Debug("ServiceProviderRoot: All providers created and added to scene tree");
     }
@@ -285,5 +287,6 @@ namespace KBTV.Core;
     public void OnExitTree()
     {
         Log.Debug("ServiceProviderRoot: Exiting scene tree");
+    }
     }
 }

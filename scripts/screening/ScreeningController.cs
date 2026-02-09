@@ -6,6 +6,8 @@ using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Managers;
 using KBTV.Data;
+using KBTV.Items;
+using KBTV.Persistence;
 
 namespace KBTV.Screening
 {
@@ -19,6 +21,7 @@ namespace KBTV.Screening
         private ScreeningPhase _phase = ScreeningPhase.Idle;
         private readonly ICallerRepository _callerRepository;
         private readonly TopicManager _topicManager;
+        private readonly SaveManager _saveManager;
 
         public Caller? CurrentCaller => _session?.Caller;
         public bool IsActive => _session != null && _phase != ScreeningPhase.Completed;
@@ -28,10 +31,21 @@ namespace KBTV.Screening
         public event Action<ScreeningPhase>? PhaseChanged;
         public event Action<ScreeningProgress>? ProgressUpdated;
 
-        public ScreeningController(ICallerRepository callerRepository, TopicManager topicManager)
+        /// <summary>
+        /// Fired when evidence becomes available for collection from the current caller.
+        /// </summary>
+        public event Action<Caller>? EvidenceCollected;
+
+        /// <summary>
+        /// Fired when evidence has been successfully collected and stored.
+        /// </summary>
+        public event Action<Caller>? EvidenceStored;
+
+        public ScreeningController(ICallerRepository callerRepository, TopicManager topicManager, SaveManager saveManager)
         {
             _callerRepository = callerRepository;
             _topicManager = topicManager;
+            _saveManager = saveManager;
         }
 
         public void Start(Caller caller)
@@ -129,15 +143,75 @@ namespace KBTV.Screening
                 return;
             }
 
+            // Check for evidence availability before updating
+            bool hadEvidenceBefore = _session.EvidenceAvailable;
+
             _session.Update(deltaTime);
+
+            // If evidence availability changed, immediately publish progress update for instant UI feedback
+            if (_session.EvidenceAvailable != hadEvidenceBefore)
+            {
+                GD.Print($"Evidence availability changed: {hadEvidenceBefore} -> {_session.EvidenceAvailable}");
+                var progress = CreateProgress();
+                ProgressUpdated?.Invoke(progress);
+            }
 
             if (!_session.HasPatience)
             {
                 HandlePatienceExpired();
             }
 
-            var progress = CreateProgress();
-            ProgressUpdated?.Invoke(progress);
+            var finalProgress = CreateProgress();
+            ProgressUpdated?.Invoke(finalProgress);
+        }
+
+        /// <summary>
+        /// Mark evidence as collected from the current caller.
+        /// Fires EvidenceStored event if successful.
+        /// </summary>
+        /// <returns>True if evidence was successfully collected.</returns>
+        public bool CollectEvidence(string guessedWord)
+        {
+            if (_session == null || !_session.EvidenceAvailable || _session.EvidenceCollected)
+            {
+                return false;
+            }
+
+            _session.CollectEvidence();
+
+            // Create and store evidence item
+            var evidence = EvidenceItem.Create(
+                guessedWord,
+                _session.Caller.Name,
+                _session.Caller.EvidenceLevel.ToString()
+            );
+
+            _saveManager.CurrentSave.CollectedEvidence.Add(evidence);
+            _saveManager.Save();
+
+            EvidenceStored?.Invoke(_session.Caller);
+            EvidenceCollected?.Invoke(_session.Caller);
+            return true;
+        }
+
+        /// <summary>
+        /// Check if evidence is currently available for collection.
+        /// </summary>
+        public bool IsEvidenceAvailable 
+        {
+            get 
+            {
+                var result = _session?.EvidenceAvailable == true && _session?.EvidenceCollected == false;
+                if (_session != null)
+                {
+                    GD.Print($"IsEvidenceAvailable: session exists, EvidenceAvailable={_session.EvidenceAvailable}, EvidenceCollected={_session.EvidenceCollected}, result={result}");
+                }
+                else
+                {
+                    GD.Print("IsEvidenceAvailable: no session");
+                }
+                return result;
+            }
         }
 
         private void HandlePatienceExpired()

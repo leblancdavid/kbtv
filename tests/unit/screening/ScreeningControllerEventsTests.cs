@@ -5,6 +5,7 @@ using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Screening;
 using KBTV.Managers;
+using KBTV.Persistence;
 
 namespace KBTV.Tests.Unit.Screening
 {
@@ -14,6 +15,7 @@ namespace KBTV.Tests.Unit.Screening
 
         private ScreeningController _controller = null!;
         private MockCallerRepository _mockRepository = null!;
+        private SaveManager _saveManager = null!;
         private List<(ScreeningPhase phase, int callOrder)> _phaseChanges = null!;
         private List<(ScreeningProgress progress, int callOrder)> _progressUpdates = null!;
         private int _callOrder = 0;
@@ -22,7 +24,8 @@ namespace KBTV.Tests.Unit.Screening
         public void Setup()
         {
             _mockRepository = new MockCallerRepository();
-            _controller = new ScreeningController(_mockRepository, new TopicManager());
+            _saveManager = new SaveManager();
+            _controller = new ScreeningController(_mockRepository, new TopicManager(), _saveManager);
             _phaseChanges = new List<(ScreeningPhase, int)>();
             _progressUpdates = new List<(ScreeningProgress, int)>();
 

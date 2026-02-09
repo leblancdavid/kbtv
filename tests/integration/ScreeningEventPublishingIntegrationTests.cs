@@ -7,6 +7,7 @@ using KBTV.Core;
 using KBTV.Screening;
 using KBTV.Dialogue;
 using KBTV.Managers;
+using KBTV.Persistence;
 
 namespace KBTV.Tests.Integration
 {
@@ -16,6 +17,7 @@ namespace KBTV.Tests.Integration
 
         private CallerRepository _repository = null!;
         private ScreeningController _controller = null!;
+        private SaveManager _saveManager = null!;
         private List<string> _eventLog = null!;
         private MockArcRepository _mockArcRepository = null!;
         private MockCallerRepository _mockCallerRepositoryForController = null!;
@@ -27,7 +29,8 @@ namespace KBTV.Tests.Integration
             _repository = new CallerRepository(_mockArcRepository);
             
             _mockCallerRepositoryForController = new MockCallerRepository();
-            _controller = new ScreeningController(_mockCallerRepositoryForController, new TopicManager());
+            _saveManager = new SaveManager();
+            _controller = new ScreeningController(_mockCallerRepositoryForController, new TopicManager(), _saveManager);
             
             _eventLog = new List<string>();
 
