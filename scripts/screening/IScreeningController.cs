@@ -50,6 +50,7 @@ namespace KBTV.Screening
         Result<Caller> Reject();
         void Update(float deltaTime);
         bool CollectEvidence(string guessedWord);
+        void ResetPatienceAndTime();
 
         event Action<ScreeningPhase> PhaseChanged;
         event Action<ScreeningProgress> ProgressUpdated;

@@ -201,6 +201,9 @@ namespace KBTV.UI
         {
             if (_evidenceAvailable && _screeningController != null)
             {
+                // Reset patience and elapsed time when examining evidence
+                _screeningController.ResetPatienceAndTime();
+                
                 // Open evidence collection modal
                 var modalManager = DependencyInjection.Get<ModalManager>(this);
                 modalManager?.ShowEvidenceModal();

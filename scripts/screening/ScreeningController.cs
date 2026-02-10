@@ -304,10 +304,17 @@ namespace KBTV.Screening
 			);
 		}
 
-
-
-
-
-
+		/// <summary>
+		/// Resets the patience timer and elapsed time for the current screening session.
+		/// Called when the player clicks "Examine" to play the evidence minigame.
+		/// </summary>
+		public void ResetPatienceAndTime()
+		{
+			if (_session != null)
+			{
+				_session.ResetPatienceAndTime();
+				Log.Debug($"ScreeningController: Patience and elapsed time reset for {_session.Caller.Name}");
+			}
+		}
 	}
 }

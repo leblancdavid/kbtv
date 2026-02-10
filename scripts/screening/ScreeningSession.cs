@@ -144,5 +144,15 @@ namespace KBTV.Screening
             _evidencePropertyWasRevealed = false;
             Caller.ResetScreenableProperties();
         }
+
+        /// <summary>
+        /// Resets the patience timer and elapsed time without resetting other state.
+        /// Called when the player clicks "Examine" to play the evidence minigame.
+        /// </summary>
+        public void ResetPatienceAndTime()
+        {
+            ScreeningPatience = MaxPatience;
+            ElapsedTime = 0f;
+        }
     }
 }
