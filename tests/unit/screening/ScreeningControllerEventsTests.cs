@@ -6,6 +6,9 @@ using KBTV.Core;
 using KBTV.Screening;
 using KBTV.Managers;
 using KBTV.Persistence;
+using KBTV.Data;
+using System.Collections.Generic;
+using System;
 
 namespace KBTV.Tests.Unit.Screening
 {
@@ -16,6 +19,7 @@ namespace KBTV.Tests.Unit.Screening
         private ScreeningController _controller = null!;
         private MockCallerRepository _mockRepository = null!;
         private SaveManager _saveManager = null!;
+        private MockGameStateManager _mockGameStateManager = null!;
         private List<(ScreeningPhase phase, int callOrder)> _phaseChanges = null!;
         private List<(ScreeningProgress progress, int callOrder)> _progressUpdates = null!;
         private int _callOrder = 0;
@@ -25,10 +29,11 @@ namespace KBTV.Tests.Unit.Screening
         {
             _mockRepository = new MockCallerRepository();
             _saveManager = new SaveManager();
-            _controller = new ScreeningController(_mockRepository, new TopicManager(), _saveManager);
+            _mockGameStateManager = new MockGameStateManager();
+            _controller = new ScreeningController(_mockRepository, new TopicManager(), _saveManager, _mockGameStateManager);
             _phaseChanges = new List<(ScreeningPhase, int)>();
             _progressUpdates = new List<(ScreeningProgress, int)>();
-
+ 
             _controller.PhaseChanged += phase => {
                 _phaseChanges.Add((phase, _callOrder++));
             };
@@ -186,6 +191,26 @@ namespace KBTV.Tests.Unit.Screening
                 0.8f
             );
         }
+    }
+
+    public class MockGameStateManager : IGameStateManager
+    {
+        public GamePhase CurrentPhase { get; set; } = GamePhase.PreShow;
+        public int CurrentNight { get; set; } = 1;
+        public Topic SelectedTopic { get; set; } = null!;
+        public VernStats VernStats { get; set; } = new VernStats();
+        public bool IsLive => CurrentPhase == GamePhase.LiveShow;
+
+        public event Action<GamePhase, GamePhase> OnPhaseChanged = delegate { };
+        public event Action<int> OnNightStarted = delegate { };
+
+        public void InitializeGame() { }
+        public void AdvancePhase() { }
+        public void StartLiveShow() { }
+        public void SetPhase(GamePhase phase) { CurrentPhase = phase; }
+        public void SetSelectedTopic(Topic topic) { SelectedTopic = topic; }
+        public bool CanStartLiveShow() => true;
+        public void StartNewNight() { }
     }
 
     // Mock implementation for unit tests

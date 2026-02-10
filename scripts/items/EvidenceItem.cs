@@ -41,16 +41,16 @@ namespace KBTV.Items
         public string Description { get; set; }
 
         /// <summary>
-        /// Evidence tier based on difficulty (Common, Uncommon, Rare, Epic, Legendary).
+        /// Evidence tier based on difficulty (Common, Uncommon, Rare, VeryRare, OneOfAKind).
         /// </summary>
-        public string Tier { get; set; }
+        public EvidenceTier Tier { get; set; }
 
         /// <summary>
         /// Creates a new evidence item.
         /// </summary>
-        public static EvidenceItem Create(string word, string callerName, string evidenceLevel)
+        public static EvidenceItem Create(string word, string callerName, string evidenceLevel, int topicLevel)
         {
-            var tier = DetermineTier(evidenceLevel);
+            var tier = DetermineTier(topicLevel);
 
             return new EvidenceItem
             {
@@ -59,39 +59,48 @@ namespace KBTV.Items
                 SourceCallerName = callerName,
                 EvidenceLevel = evidenceLevel,
                 CollectionDate = DateTime.UtcNow.ToString("o"),
-                Description = GenerateDescription(word, callerName, evidenceLevel),
+                Description = GenerateDescription(word, callerName, tier),
                 Tier = tier
             };
         }
 
         /// <summary>
-        /// Determines the evidence tier based on difficulty.
+        /// Creates a new evidence item with a pre-determined tier (for loading from save).
         /// </summary>
-        private static string DetermineTier(string evidenceLevel)
+        public static EvidenceItem Create(string word, string callerName, string evidenceLevel, EvidenceTier tier)
         {
-            return evidenceLevel switch
+            return new EvidenceItem
             {
-                "Irrefutable" => "Legendary",
-                "High" => "Epic",
-                "Medium" => "Rare",
-                "Low" => "Uncommon",
-                "None" => "Common",
-                _ => "Common"
+                Id = Guid.NewGuid().ToString(),
+                Word = word.ToUpper(),
+                SourceCallerName = callerName,
+                EvidenceLevel = evidenceLevel,
+                CollectionDate = DateTime.UtcNow.ToString("o"),
+                Description = GenerateDescription(word, callerName, tier),
+                Tier = tier
             };
+        }
+
+        /// <summary>
+        /// Determines the evidence tier based on topic level using loot table roll.
+        /// </summary>
+        private static EvidenceTier DetermineTier(int topicLevel)
+        {
+            return EvidenceLootTable.RollQuality(topicLevel);
         }
 
         /// <summary>
         /// Generates a description for the evidence item.
         /// </summary>
-        private static string GenerateDescription(string word, string callerName, string evidenceLevel)
+        private static string GenerateDescription(string word, string callerName, EvidenceTier tier)
         {
-            var quality = evidenceLevel.ToLower() switch
+            var quality = tier switch
             {
-                "irrefutable" => "irrefutable proof",
-                "high" => "compelling evidence",
-                "medium" => "solid evidence",
-                "low" => "weak evidence",
-                "none" => "questionable evidence",
+                EvidenceTier.OneOfAKind => "one-of-a-kind evidence",
+                EvidenceTier.VeryRare => "extremely rare evidence",
+                EvidenceTier.Rare => "rare evidence",
+                EvidenceTier.Uncommon => "uncommon evidence",
+                EvidenceTier.Common => "common evidence",
                 _ => "evidence"
             };
 

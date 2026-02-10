@@ -113,41 +113,29 @@ namespace KBTV.Core
     public void Initialize()
     {
         Log.Debug("ServiceProviderRoot: Starting two-phase service initialization...");
+        InitializeServices();
+    }
 
-        // Phase 1: Create all service instances (without adding to scene tree)
-        Log.Debug("ServiceProviderRoot: Phase 1 - Creating all service instances...");
+    private void InitializeServices()
+    {
+        // Phase 1: Create all services in dependency order
+        Log.Debug("ServiceProviderRoot: Phase 1 - Creating services...");
 
-        // Create core services (plain classes) - no dependencies
+        // Create event bus first (no dependencies)
         var eventBus = new EventBus();
 
-        // Create save manager early (needed by ScreeningController)
-        var saveManager = new SaveManager();
-
-        // Create arc repository first (needed by CallerRepository)
+        // Create arc repository (no dependencies)
         var arcRepository = new ArcRepository();
         arcRepository.Initialize();
 
-        // Create caller repository with dependencies
+        // Create caller repository (depends on ArcRepository)
         var callerRepo = new CallerRepository(arcRepository);
 
         // Create topic manager
         var topicManager = new TopicManager();
 
-        // Create screening controller (depends on CallerRepository and TopicManager)
-        var screeningController = new ScreeningController(callerRepo, topicManager, saveManager);
-
-        // Resolve circular dependency
-        callerRepo.ScreeningController = screeningController;
-
-        // Create independent providers
-        // var saveManager = new SaveManager(); // Moved earlier
-        var economyManager = new EconomyManager();
-
-        // Create item manager
-        var itemManager = new ItemManager();
-
-        // Create modal manager
-        var modalManager = new ModalManager();
+        // Create save manager early (needed by ScreeningController)
+        var saveManager = new SaveManager();
 
         // Create providers with dependencies
         var timeManager = new TimeManager();
@@ -163,31 +151,28 @@ namespace KBTV.Core
         // Create caller generator
         var callerGenerator = new CallerGenerator(callerRepo, gameStateManager, arcRepository);
 
+        // Create screening controller (now has GameStateManager dependency)
+        var screeningController = new ScreeningController(callerRepo, topicManager, saveManager, gameStateManager);
+
+        // Resolve circular dependency
+        callerRepo.ScreeningController = screeningController;
+
+        // Create independent providers
+        var economyManager = new EconomyManager();
+        var itemManager = new ItemManager();
+        var modalManager = new ModalManager();
+
         // Create UI manager
         var uiManager = new UIManager();
 
         // Create broadcast services
         var asyncBroadcastLoop = new AsyncBroadcastLoop();
-
-        // Create broadcast timer
         var broadcastTimer = new BroadcastTimer();
-
-        // Create broadcast state manager
         var broadcastStateManager = new BroadcastStateManager();
-
-        // Create transition manager
         var globalTransitionManager = new GlobalTransitionManager();
-
-        // Create ad manager
         var adManager = new AdManager();
-
-        // Create broadcast audio service
         var broadcastAudioService = new BroadcastAudioService();
-
-        // Create UI audio service
         var uiAudioService = new UIAudioService();
-
-        // Create dead air manager
         var deadAirManager = new DeadAirManager();
 
         // Create conversation stat tracker (depends on GameStateManager.VernStats)

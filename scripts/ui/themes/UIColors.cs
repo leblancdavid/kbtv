@@ -66,6 +66,7 @@ namespace KBTV.UI.Themes
             public static readonly Color Red = new(0.8f, 0.2f, 0.2f);
             public static readonly Color Green = new(0.2f, 0.8f, 0.2f);
             public static readonly Color Blue = new(0.2f, 0.4f, 0.8f);
+            public static readonly Color Purple = new(0.6f, 0.2f, 0.8f);
         }
 
         // Stat effect indicator colors (for screening property reveals)

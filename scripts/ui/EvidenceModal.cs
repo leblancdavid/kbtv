@@ -60,6 +60,9 @@ public partial class EvidenceModal : Control
     private List<string> _previousGuesses = new();
     private bool _gameCompleted;
 
+    private EvidenceTier _discoveredTier;
+    private bool _evidenceCollected = false;
+
     private IScreeningController? _screeningController;
     private bool _dependencyResolutionAttempted = false;
 
@@ -859,27 +862,19 @@ public partial class EvidenceModal : Control
     private void OnGameWon(string winningGuess)
     {
         _gameCompleted = true;
+        _evidenceCollected = false; // Reset collection flag
         AddGuessToHistory(winningGuess);
 
-        // Cache caller data immediately to avoid null reference issues
-        string? callerName = _caller?.Name;
-        string? evidenceLevel = _caller?.EvidenceLevel.ToString();
-        string? callerId = _caller?.Id;
-
-        // Collect evidence - handle both current and cached caller scenarios
-        bool success = TryCollectEvidence(callerName, evidenceLevel, callerId);
-
-        if (success)
-        {
-            ShowSuccessMessage();
-            _collectButton.Disabled = false; // Enable collect button
-            _collectButton.Text = "Collect Evidence"; // Ensure correct text
-            GD.Print("Collect button enabled after successful evidence collection");
-        }
-        else
-        {
-            ShowErrorMessage("Failed to collect evidence");
-        }
+        // Roll loot table to determine evidence tier
+        _discoveredTier = RollEvidenceTier();
+        
+        // Show discovery message instead of collecting immediately
+        ShowDiscoveryMessage(_discoveredTier);
+        
+        // Enable collect button for user to collect evidence
+        _collectButton.Disabled = false;
+        _collectButton.Text = "Collect Evidence";
+        GD.Print($"Collect button enabled for evidence discovery (tier: {_discoveredTier})");
     }
 
     /// <summary>
@@ -943,13 +938,14 @@ public partial class EvidenceModal : Control
             // Use default evidence level if not provided
             evidenceLevel ??= "None";
 
-            GD.Print($"EvidenceModal: Creating evidence item - Word: {_targetWord}, Caller: {callerName}, Level: {evidenceLevel}");
+            GD.Print($"EvidenceModal: Creating evidence item - Word: {_targetWord}, Caller: {callerName}, Level: {evidenceLevel}, Tier: {_discoveredTier}");
 
-            // Create evidence item using cached data
+            // Create evidence item using cached data and pre-rolled tier
             var evidence = EvidenceItem.Create(
                 _targetWord,
                 callerName,
-                evidenceLevel
+                evidenceLevel,
+                _discoveredTier
             );
 
             if (evidence == null)
@@ -999,7 +995,8 @@ public partial class EvidenceModal : Control
             saveManager.CurrentSave.CollectedEvidence.Add(evidence);
             saveManager.Save();
 
-            GD.Print($"EvidenceModal: Direct evidence creation successful for {callerName}");
+            _evidenceCollected = true;
+            GD.Print($"EvidenceModal: Direct evidence creation successful for {callerName} with tier {_discoveredTier}");
             return true;
         }
         catch (Exception ex)
@@ -1165,9 +1162,30 @@ public partial class EvidenceModal : Control
 
     private void OnCollectPressed()
     {
-        if (_gameCompleted)
+        if (_gameCompleted && !_evidenceCollected)
         {
-            // Close modal (evidence already collected or game lost)
+            // Collect evidence with pre-rolled tier
+            string? callerName = _caller?.Name;
+            string? evidenceLevel = _caller?.EvidenceLevel.ToString();
+            string? callerId = _caller?.Id;
+
+            bool success = TryCollectEvidence(callerName, evidenceLevel, callerId);
+
+            if (success)
+            {
+                // Evidence collected successfully - close modal
+                ModalClosed?.Invoke();
+            }
+            else
+            {
+                // Collection failed - show error but keep modal open
+                ShowErrorMessage("Failed to collect evidence - try again");
+                GD.PrintErr("EvidenceModal: Evidence collection failed in OnCollectPressed");
+            }
+        }
+        else if (_gameCompleted && _evidenceCollected)
+        {
+            // Evidence already collected - just close modal
             ModalClosed?.Invoke();
         }
     }
@@ -1186,20 +1204,98 @@ public partial class EvidenceModal : Control
         _descriptionLabel ??= GetNodeOrNull<Label>("ModalPanel/ContentContainer/ContentVBox/DescriptionLabel");
     }
 
-    public override void _ExitTree()
+    /// <summary>
+    /// Roll loot table to determine evidence tier when puzzle is solved.
+    /// </summary>
+    private EvidenceTier RollEvidenceTier()
     {
-        if (_collectButton != null)
-            _collectButton.Pressed -= OnCollectPressed;
-
-        // Unsubscribe from close button event
-        if (_closeButton != null)
-            _closeButton.Pressed -= OnClosePressed;
-
-        // Unsubscribe from caller disconnection event
-        if (_caller != null)
+        if (_caller == null)
         {
-            _caller.OnDisconnected -= OnCallerDisconnected;
-            GD.Print($"EvidenceModal: Unsubscribed from OnDisconnected event for {_caller.Name}");
+            GD.PrintErr("EvidenceModal: Cannot roll evidence tier - caller is null");
+            return EvidenceTier.Common;
+        }
+
+        int lootLevel = GetLootLevelFromBeliefLevel(_caller.BeliefLevel);
+        _discoveredTier = EvidenceLootTable.RollQuality(lootLevel);
+        GD.Print($"EvidenceModal: Rolled evidence tier {_discoveredTier} for loot level {lootLevel} (belief level: {_caller.BeliefLevel})");
+        return _discoveredTier;
+    }
+
+    /// <summary>
+    /// Convert caller belief level to loot table level number.
+    /// </summary>
+    private int GetLootLevelFromBeliefLevel(CallerBeliefLevel beliefLevel)
+    {
+        return beliefLevel switch
+        {
+            CallerBeliefLevel.Curious => 2,
+            CallerBeliefLevel.Partial => 3,
+            CallerBeliefLevel.Committed => 4,
+            CallerBeliefLevel.Certain => 6,
+            CallerBeliefLevel.Zealot => 7,
+            _ => 2 // Default to lowest level
+        };
+    }
+
+    /// <summary>
+    /// Get display color for evidence tier.
+    /// </summary>
+    private string GetTierColor(EvidenceTier tier)
+    {
+        return tier switch
+        {
+            EvidenceTier.Common => "gray",
+            EvidenceTier.Uncommon => "green",
+            EvidenceTier.Rare => "blue",
+            EvidenceTier.VeryRare => "purple",
+            EvidenceTier.OneOfAKind => "gold",
+            _ => "gray"
+        };
+    }
+
+    /// <summary>
+    /// Get display name for evidence tier.
+    /// </summary>
+    private string GetTierDisplayName(EvidenceTier tier)
+    {
+        return tier switch
+        {
+            EvidenceTier.Common => "Common",
+            EvidenceTier.Uncommon => "Uncommon",
+            EvidenceTier.Rare => "Rare",
+            EvidenceTier.VeryRare => "Very Rare",
+            EvidenceTier.OneOfAKind => "One of a Kind",
+            _ => "Common"
+        };
+    }
+
+    /// <summary>
+    /// Show discovery message when evidence tier is determined.
+    /// </summary>
+    private void ShowDiscoveryMessage(EvidenceTier tier)
+    {
+        string color = GetTierColor(tier);
+        string displayName = GetTierDisplayName(tier);
+        
+        var discoveryLabel = new RichTextLabel
+        {
+            BbcodeEnabled = true,
+            Text = $"[color={color}]Evidence Discovered: {displayName}[/color]",
+            FitContent = true,
+            HorizontalAlignment = HorizontalAlignment.Center
+        };
+        discoveryLabel.AddThemeFontSizeOverride("normal_font_size", 20);
+        ApplyMonospaceFont(discoveryLabel);
+        
+        // Find the ScrollContainer content
+        var guessHistoryContent = _guessHistory.GetChild(0) as VBoxContainer;
+        if (guessHistoryContent != null)
+        {
+            guessHistoryContent.AddChild(discoveryLabel);
+        }
+        else
+        {
+            GD.Print("ERROR: Could not find ScrollContainer content in ShowDiscoveryMessage!");
         }
     }
 }

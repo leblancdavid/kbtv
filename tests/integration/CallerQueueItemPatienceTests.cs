@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using Chickensoft.GoDotTest;
 using Godot;
 using KBTV.Callers;
@@ -9,6 +10,7 @@ using KBTV.UI.Themes;
 using KBTV.Dialogue;
 using KBTV.Managers;
 using KBTV.Persistence;
+using KBTV.Data;
 
 namespace KBTV.Tests.Integration
 {
@@ -19,6 +21,7 @@ namespace KBTV.Tests.Integration
         private CallerRepository _repository = null!;
         private ScreeningController _controller = null!;
         private SaveManager _saveManager = null!;
+        private MockGameStateManager _mockGameStateManager = null!;
         private List<string> _eventLog = null!;
         private MockArcRepository _mockArcRepository = null!;
         private MockCallerRepository _mockCallerRepositoryForController = null!;
@@ -31,7 +34,8 @@ namespace KBTV.Tests.Integration
             
             _mockCallerRepositoryForController = new MockCallerRepository();
             _saveManager = new SaveManager();
-            _controller = new ScreeningController(_mockCallerRepositoryForController, new TopicManager(), _saveManager);
+            _mockGameStateManager = new MockGameStateManager();
+            _controller = new ScreeningController(_mockCallerRepositoryForController, new TopicManager(), _saveManager, _mockGameStateManager);
             
             _eventLog = new List<string>();
 
@@ -418,5 +422,25 @@ namespace KBTV.Tests.Integration
 
         public void Subscribe(ICallerRepositoryObserver observer) { }
         public void Unsubscribe(ICallerRepositoryObserver observer) { }
+    }
+
+    public class MockGameStateManager : IGameStateManager
+    {
+        public GamePhase CurrentPhase { get; set; } = GamePhase.PreShow;
+        public int CurrentNight { get; set; } = 1;
+        public Topic SelectedTopic { get; set; } = null!;
+        public VernStats VernStats { get; set; } = new VernStats();
+        public bool IsLive => CurrentPhase == GamePhase.LiveShow;
+
+        public event Action<GamePhase, GamePhase> OnPhaseChanged = delegate { };
+        public event Action<int> OnNightStarted = delegate { };
+
+        public void InitializeGame() { }
+        public void AdvancePhase() { }
+        public void StartLiveShow() { }
+        public void SetPhase(GamePhase phase) { CurrentPhase = phase; }
+        public void SetSelectedTopic(Topic topic) { SelectedTopic = topic; }
+        public bool CanStartLiveShow() => true;
+        public void StartNewNight() { }
     }
 }

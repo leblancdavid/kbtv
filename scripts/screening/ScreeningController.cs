@@ -22,6 +22,7 @@ namespace KBTV.Screening
 		private readonly ICallerRepository _callerRepository;
 		private readonly TopicManager _topicManager;
 		private readonly SaveManager _saveManager;
+		private readonly IGameStateManager _gameStateManager;
 
 		public Caller? CurrentCaller => _session?.Caller;
 		public bool IsActive => _session != null && _phase != ScreeningPhase.Completed;
@@ -41,11 +42,12 @@ namespace KBTV.Screening
 		/// </summary>
 		public event Action<Caller>? EvidenceStored;
 
-		public ScreeningController(ICallerRepository callerRepository, TopicManager topicManager, SaveManager saveManager)
+		public ScreeningController(ICallerRepository callerRepository, TopicManager topicManager, SaveManager saveManager, IGameStateManager gameStateManager)
 		{
 			_callerRepository = callerRepository;
 			_topicManager = topicManager;
 			_saveManager = saveManager;
+			_gameStateManager = gameStateManager;
 		}
 
 		public void Start(Caller caller)
@@ -198,10 +200,34 @@ namespace KBTV.Screening
 			_session.CollectEvidence();
 
 			// Create and store evidence item
+			int topicLevel = 1; // Default fallback
+			try
+			{
+				if (_gameStateManager?.SelectedTopic != null && _topicManager != null)
+				{
+					var topicXP = _topicManager.GetTopicXP(_gameStateManager.SelectedTopic.TopicId);
+					// Map XPTier (1-5) to loot table levels (1-7)
+					topicLevel = topicXP.CurrentTier switch
+					{
+						KBTV.Data.XPTier.Skeptic => 1,
+						KBTV.Data.XPTier.Curious => 2,
+						KBTV.Data.XPTier.Interested => 4,
+						KBTV.Data.XPTier.Believer => 6,
+						KBTV.Data.XPTier.TrueBeliever => 7,
+						_ => 1
+					};
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.Error($"ScreeningController: Failed to get topic level for evidence creation - {ex.Message}, using default level 1");
+			}
+
 			var evidence = EvidenceItem.Create(
 				guessedWord,
 				_session.Caller.Name,
-				_session.Caller.EvidenceLevel.ToString()
+				_session.Caller.EvidenceLevel.ToString(),
+				topicLevel
 			);
 
 			if (_saveManager == null)

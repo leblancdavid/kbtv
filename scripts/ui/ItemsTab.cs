@@ -212,7 +212,7 @@ namespace KBTV.UI
 
             var tierLabel = new Label
             {
-                Text = $"[{evidenceItem.Tier}]",
+                Text = $"[{GetTierDisplayName(evidenceItem.Tier)}]",
                 HorizontalAlignment = HorizontalAlignment.Right,
                 SizeFlagsHorizontal = SizeFlags.ExpandFill
             };
@@ -246,16 +246,29 @@ namespace KBTV.UI
             parent.AddChild(evidenceContainer);
         }
 
-        private Color GetTierColor(string tier)
+        private Color GetTierColor(EvidenceTier tier)
         {
             return tier switch
             {
-                "Legendary" => UIColors.Accent.Gold,
-                "Epic" => UIColors.Accent.Red,
-                "Rare" => UIColors.Warning.Critical,
-                "Uncommon" => UIColors.Warning.Caution,
-                "Common" => UIColors.TEXT_SECONDARY,
+                EvidenceTier.OneOfAKind => UIColors.Accent.Gold,
+                EvidenceTier.VeryRare => UIColors.Accent.Purple,
+                EvidenceTier.Rare => UIColors.Accent.Blue,
+                EvidenceTier.Uncommon => UIColors.Accent.Green,
+                EvidenceTier.Common => UIColors.TEXT_SECONDARY,
                 _ => UIColors.TEXT_SECONDARY
+            };
+        }
+
+        private string GetTierDisplayName(EvidenceTier tier)
+        {
+            return tier switch
+            {
+                EvidenceTier.OneOfAKind => "One of a Kind",
+                EvidenceTier.VeryRare => "Very Rare",
+                EvidenceTier.Rare => "Rare",
+                EvidenceTier.Uncommon => "Uncommon",
+                EvidenceTier.Common => "Common",
+                _ => "Common"
             };
         }
 

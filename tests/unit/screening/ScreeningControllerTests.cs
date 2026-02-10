@@ -5,7 +5,9 @@ using KBTV.Core;
 using KBTV.Screening;
 using KBTV.Managers;
 using KBTV.Persistence;
+using KBTV.Data;
 using System.Collections.Generic;
+using System;
 
 namespace KBTV.Tests.Unit.Screening
 {
@@ -16,13 +18,15 @@ namespace KBTV.Tests.Unit.Screening
         private ScreeningController _controller = null!;
         private MockCallerRepository _mockRepository = null!;
         private SaveManager _saveManager = null!;
+        private MockGameStateManager _mockGameStateManager = null!;
 
         [Setup]
         public void Setup()
         {
             _mockRepository = new MockCallerRepository();
             _saveManager = new SaveManager();
-            _controller = new ScreeningController(_mockRepository, new TopicManager(), _saveManager);
+            _mockGameStateManager = new MockGameStateManager();
+            _controller = new ScreeningController(_mockRepository, new TopicManager(), _saveManager, _mockGameStateManager);
         }
 
         private Caller CreateTestCaller(float patience = 30f)

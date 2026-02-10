@@ -375,11 +375,27 @@ namespace KBTV.Persistence
             foreach (var item in godotArray)
             {
                 var dict = (Godot.Collections.Dictionary)item;
+                
+                // Try to get the tier from save data, otherwise roll a new one
+                EvidenceTier tier;
+                if (dict.ContainsKey("Tier") && dict["Tier"].VariantType == Variant.Type.Int)
+                {
+                    int tierInt = (int)dict["Tier"];
+                    tier = (EvidenceTier)tierInt;
+                }
+                else
+                {
+                    // Roll a new tier with default topic level 1 for backwards compatibility
+                    tier = EvidenceLootTable.RollQuality(1);
+                }
+                
                 var evidence = EvidenceItem.Create(
                     (string)dict["Word"],
                     (string)dict["CallerName"],
-                    (string)dict["EvidenceLevel"]
+                    (string)dict["EvidenceLevel"],
+                    tier
                 );
+                
                 evidenceList.Add(evidence);
             }
             return evidenceList;
@@ -438,7 +454,8 @@ namespace KBTV.Persistence
                 {
                     ["Word"] = evidence.Word ?? "",
                     ["CallerName"] = evidence.SourceCallerName ?? "",
-                    ["EvidenceLevel"] = evidence.EvidenceLevel ?? ""
+                    ["EvidenceLevel"] = evidence.EvidenceLevel ?? "",
+                    ["Tier"] = (int)evidence.Tier
                 };
                 godotArray.Add(dict);
             }
