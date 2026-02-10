@@ -246,6 +246,19 @@ namespace KBTV.Screening
 		}
 
 		/// <summary>
+		/// Mark evidence opportunity as lost (e.g., failed minigame).
+		/// This prevents the evidence button from showing again.
+		/// </summary>
+		public void LoseEvidenceOpportunity()
+		{
+			if (_session != null)
+			{
+				_session.LoseEvidenceOpportunity();
+				Log.Debug($"ScreeningController: Evidence opportunity lost for {_session.Caller.Name}");
+			}
+		}
+
+		/// <summary>
 		/// Check if evidence is currently available for collection.
 		/// </summary>
 		public bool IsEvidenceAvailable => _session?.EvidenceAvailable == true && _session?.EvidenceCollected == false;

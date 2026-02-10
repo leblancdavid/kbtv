@@ -1070,6 +1070,9 @@ namespace KBTV.UI
             ShowFailureMessage();
             _collectButton.Disabled = false; // Enable button for dismissal
             _collectButton.Text = "Dismiss";
+
+            // Mark evidence opportunity as lost to hide the examine button
+            _screeningController?.LoseEvidenceOpportunity();
         }
 
         private void ShowSuccessMessage()

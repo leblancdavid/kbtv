@@ -487,7 +487,8 @@ namespace KBTV.UI.Components
             var text = $"XP {signText}{xpImpact:F0}";
 
             var label = new Label { Text = text };
-            label.AddThemeColorOverride("font_color", UIColors.Accent.Green);
+            var color = xpImpact >= 0 ? UIColors.StatEffect.Positive : UIColors.StatEffect.Negative;
+            label.AddThemeColorOverride("font_color", color);
             label.TooltipText = $"Topic Belief: {signText}{xpImpact:F1}";
 
             return label;

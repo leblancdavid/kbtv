@@ -122,6 +122,15 @@ namespace KBTV.Screening
             }
         }
 
+        /// <summary>
+        /// Mark evidence opportunity as lost (e.g., failed minigame).
+        /// This prevents the evidence button from showing again.
+        /// </summary>
+        public void LoseEvidenceOpportunity()
+        {
+            EvidenceCollected = true;
+        }
+
         public bool HasPatience => ScreeningPatience > 0;
         public float PatienceRemaining => ScreeningPatience;
         public float Progress => MaxPatience > 0 ? ScreeningPatience / MaxPatience : 0f;
