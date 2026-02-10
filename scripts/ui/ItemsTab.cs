@@ -148,6 +148,17 @@ namespace KBTV.UI
             var evidence = _saveManager.CurrentSave.CollectedEvidence;
             if (evidence.Count == 0) return;
 
+            // Count evidence by tier
+            var tierCounts = new System.Collections.Generic.Dictionary<EvidenceTier, int>();
+            foreach (var tier in System.Enum.GetValues<EvidenceTier>())
+            {
+                tierCounts[tier] = 0;
+            }
+            foreach (var evidenceItem in evidence)
+            {
+                tierCounts[evidenceItem.Tier]++;
+            }
+
             // Add separator
             var separator = new HSeparator();
             separator.AddThemeConstantOverride("separation", 20);
@@ -156,95 +167,64 @@ namespace KBTV.UI
             // Add evidence title
             var evidenceTitleLabel = new Label
             {
-                Text = "COLLECTED EVIDENCE",
+                Text = "EVIDENCE",
                 HorizontalAlignment = HorizontalAlignment.Center
             };
             evidenceTitleLabel.AddThemeFontSizeOverride("font_size", 18);
             parent.AddChild(evidenceTitleLabel);
 
-            // Add evidence count
-            var countLabel = new Label
+            // Add total count
+            var totalCountLabel = new Label
             {
                 Text = $"{evidence.Count} piece{(evidence.Count == 1 ? "" : "s")} collected",
                 HorizontalAlignment = HorizontalAlignment.Center
             };
-            countLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            parent.AddChild(countLabel);
+            totalCountLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            parent.AddChild(totalCountLabel);
 
-            // Add evidence items
-            foreach (var evidenceItem in evidence)
+            // Create horizontal layout for counts and button
+            var evidenceHBox = new HBoxContainer();
+            evidenceHBox.AddThemeConstantOverride("separation", 16);
+            evidenceHBox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            parent.AddChild(evidenceHBox);
+
+            // Left side: Evidence counts
+            var countsVBox = new VBoxContainer();
+            countsVBox.AddThemeConstantOverride("separation", 4);
+            countsVBox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            evidenceHBox.AddChild(countsVBox);
+
+            // Add tier counts
+            foreach (var tier in System.Enum.GetValues<EvidenceTier>())
             {
-                CreateEvidenceRow(parent, evidenceItem);
+                var tierCountLabel = new Label
+                {
+                    Text = $"{GetTierDisplayName(tier)}: {tierCounts[tier]}",
+                    HorizontalAlignment = HorizontalAlignment.Left
+                };
+                tierCountLabel.AddThemeColorOverride("font_color", GetTierColor(tier));
+                countsVBox.AddChild(tierCountLabel);
             }
+
+            // Right side: Process button
+            var processButton = new Button
+            {
+                Text = "PROCESS EVIDENCE",
+                SizeFlagsHorizontal = SizeFlags.ShrinkEnd,
+                CustomMinimumSize = new Vector2(140, 40)
+            };
+            UITheme.ApplyButtonStyle(processButton);
+            processButton.Pressed += OnProcessButtonPressed;
+            evidenceHBox.AddChild(processButton);
         }
 
-        private void CreateEvidenceRow(VBoxContainer parent, EvidenceItem evidenceItem)
+        private void OnProcessButtonPressed()
         {
-            var evidenceContainer = new PanelContainer();
-            evidenceContainer.AddThemeStyleboxOverride("panel", new StyleBoxFlat
-            {
-                BgColor = UIColors.BG_PANEL,
-                CornerRadiusTopLeft = 8,
-                CornerRadiusTopRight = 8,
-                CornerRadiusBottomLeft = 8,
-                CornerRadiusBottomRight = 8,
-                ContentMarginLeft = 12,
-                ContentMarginRight = 12,
-                ContentMarginTop = 8,
-                ContentMarginBottom = 8
-            });
-
-            var vbox = new VBoxContainer();
-            vbox.AddThemeConstantOverride("separation", 4);
-
-            // Header with word and tier
-            var headerHBox = new HBoxContainer();
-            headerHBox.AddThemeConstantOverride("separation", 8);
-
-            var wordLabel = new Label
-            {
-                Text = evidenceItem.Word,
-                HorizontalAlignment = HorizontalAlignment.Left
-            };
-            wordLabel.AddThemeFontSizeOverride("font_size", 16);
-            wordLabel.AddThemeColorOverride("font_color", UIColors.TEXT_PRIMARY);
-            headerHBox.AddChild(wordLabel);
-
-            var tierLabel = new Label
-            {
-                Text = $"[{GetTierDisplayName(evidenceItem.Tier)}]",
-                HorizontalAlignment = HorizontalAlignment.Right,
-                SizeFlagsHorizontal = SizeFlags.ExpandFill
-            };
-            tierLabel.AddThemeColorOverride("font_color", GetTierColor(evidenceItem.Tier));
-            headerHBox.AddChild(tierLabel);
-
-            vbox.AddChild(headerHBox);
-
-            // Description
-            var descLabel = new Label
-            {
-                Text = evidenceItem.Description,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                AutowrapMode = TextServer.AutowrapMode.Word
-            };
-            descLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            descLabel.AddThemeFontSizeOverride("font_size", 12);
-            vbox.AddChild(descLabel);
-
-            // Collection date
-            var dateLabel = new Label
-            {
-                Text = $"Collected: {FormatCollectionDate(evidenceItem.CollectionDate)}",
-                HorizontalAlignment = HorizontalAlignment.Left
-            };
-            dateLabel.AddThemeColorOverride("font_color", UIColors.TEXT_DISABLED);
-            dateLabel.AddThemeFontSizeOverride("font_size", 10);
-            vbox.AddChild(dateLabel);
-
-            evidenceContainer.AddChild(vbox);
-            parent.AddChild(evidenceContainer);
+            // Placeholder implementation - processing logic to be implemented later
+            GD.Print("Process Evidence button pressed - processing logic not yet implemented");
         }
+
+
 
         private Color GetTierColor(EvidenceTier tier)
         {
@@ -272,13 +252,6 @@ namespace KBTV.UI
             };
         }
 
-        private string FormatCollectionDate(string isoDate)
-        {
-            if (DateTime.TryParse(isoDate, out var date))
-            {
-                return date.ToLocalTime().ToString("MMM dd, yyyy HH:mm");
-            }
-            return isoDate;
-        }
+
     }
 }
