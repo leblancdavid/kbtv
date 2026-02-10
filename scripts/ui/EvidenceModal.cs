@@ -45,6 +45,9 @@ namespace KBTV.UI
         [Export]
         private Control _guessHistory = null!;
 
+        [Export]
+        private Button _closeButton = null!;
+
         private LineEdit _hiddenInput;
         private RichTextLabel _currentInputDisplay;
         private Dictionary<char, LetterState> _letterStates = new();
@@ -349,6 +352,16 @@ namespace KBTV.UI
             // Create alphabet display
             UpdateAlphabetDisplay();
 
+            // Setup close button (if not already set via Export)
+            if (_closeButton == null)
+            {
+                SetupCloseButton();
+            }
+            else
+            {
+                _closeButton.Pressed += OnClosePressed;
+            }
+
             // Ensure terminal display is visible immediately
             GD.Print("Setting up modal - creating terminal display");
             
@@ -376,6 +389,73 @@ namespace KBTV.UI
                 GD.Print($"_guessHistory type: {_guessHistory?.GetType().Name}");
                 GD.Print($"_guessHistory child count: {_guessHistory?.GetChildCount()}");
             }
+        }
+
+        /// <summary>
+        /// Sets up the close button in the top-right corner of the modal.
+        /// Creates an X button with styling if one doesn't exist via Export.
+        /// </summary>
+        private void SetupCloseButton()
+        {
+            var modalPanel = GetNodeOrNull<Control>("ModalPanel");
+            if (modalPanel == null)
+            {
+                GD.PrintErr("EvidenceModal: Cannot find ModalPanel for close button");
+                return;
+            }
+
+            // Create close button
+            _closeButton = new Button
+            {
+                Text = "X",
+                CustomMinimumSize = new Vector2(30, 30),
+                SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd,
+                SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
+            };
+
+            // Style the close button
+            var closeStyle = new StyleBoxFlat
+            {
+                BgColor = new Color(0.2f, 0.2f, 0.2f, 1.0f),
+                CornerRadiusTopLeft = 4,
+                CornerRadiusTopRight = 4,
+                CornerRadiusBottomLeft = 4,
+                CornerRadiusBottomRight = 4
+            };
+            _closeButton.AddThemeStyleboxOverride("normal", closeStyle);
+
+            var closeHoverStyle = new StyleBoxFlat
+            {
+                BgColor = new Color(0.8f, 0.2f, 0.2f, 1.0f),
+                CornerRadiusTopLeft = 4,
+                CornerRadiusTopRight = 4,
+                CornerRadiusBottomLeft = 4,
+                CornerRadiusBottomRight = 4
+            };
+            _closeButton.AddThemeStyleboxOverride("hover", closeHoverStyle);
+
+            _closeButton.AddThemeFontSizeOverride("font_size", 18);
+            _closeButton.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 0.9f, 1.0f));
+
+            // Connect close button signal
+            _closeButton.Pressed += OnClosePressed;
+
+            // Add to modal panel - position it at the top right
+            modalPanel.AddChild(_closeButton);
+
+            // Position the button in the top-right corner
+            _closeButton.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.TopRight, Control.LayoutPresetMode.Minsize, 10);
+
+            GD.Print("EvidenceModal: Close button created and positioned");
+        }
+
+        /// <summary>
+        /// Handles close button press - closes the modal.
+        /// </summary>
+        private void OnClosePressed()
+        {
+            GD.Print("EvidenceModal: Close button clicked");
+            ModalClosed?.Invoke();
         }
 
         private void InitializeLetterStates()
@@ -1153,7 +1233,11 @@ namespace KBTV.UI
         {
             if (_collectButton != null)
                 _collectButton.Pressed -= OnCollectPressed;
-            
+
+            // Unsubscribe from close button event
+            if (_closeButton != null)
+                _closeButton.Pressed -= OnClosePressed;
+
             // Unsubscribe from caller disconnection event
             if (_caller != null)
             {
