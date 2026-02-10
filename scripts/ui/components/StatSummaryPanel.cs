@@ -23,6 +23,7 @@ namespace KBTV.UI.Components
         private HBoxContainer _statsContainer = null!;
         private Label _noDataLabel = null!;
         private Button _evidenceFoundButton = null!;
+        private HBoxContainer _evidenceContainer = null!;
         
         // State
         private ScreenableProperty[]? _properties;
@@ -83,17 +84,30 @@ namespace KBTV.UI.Components
             spacer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             buttonContainer.AddChild(spacer);
 
+            // Evidence container (label + button)
+            _evidenceContainer = new HBoxContainer();
+            _evidenceContainer.AddThemeConstantOverride("separation", 8); // standard spacing
+            _evidenceContainer.Visible = false;
+            buttonContainer.AddChild(_evidenceContainer);
+
+            // Evidence Found label
+            var evidenceLabel = new Label
+            {
+                Text = "Evidence Found: "
+            };
+            evidenceLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            evidenceLabel.AddThemeFontSizeOverride("font_size", 16);
+            _evidenceContainer.AddChild(evidenceLabel);
+
             // Evidence Found button
             _evidenceFoundButton = new Button
             {
-                Text = "Evidence Found!",
-                CustomMinimumSize = new Vector2(120, 32),
-                Visible = false
+                Text = "Examine",
+                CustomMinimumSize = new Vector2(80, 32)
             };
             _evidenceFoundButton.AddThemeFontSizeOverride("font_size", 16);
-            // Note: HorizontalAlignment not directly available on Button in Godot 4.x
             _evidenceFoundButton.Pressed += OnEvidenceFoundPressed;
-            buttonContainer.AddChild(_evidenceFoundButton);
+            _evidenceContainer.AddChild(_evidenceFoundButton);
 
             // No data label (shown when nothing is revealed)
             _noDataLabel = new Label
@@ -173,11 +187,11 @@ namespace KBTV.UI.Components
         /// </summary>
         public void UpdateEvidenceButton(bool evidenceAvailable)
         {
-            if (_evidenceFoundButton == null || !GodotObject.IsInstanceValid(_evidenceFoundButton))
+            if (_evidenceContainer == null || !GodotObject.IsInstanceValid(_evidenceContainer))
                 return;
 
             _evidenceAvailable = evidenceAvailable;
-            _evidenceFoundButton.Visible = evidenceAvailable;
+            _evidenceContainer.Visible = evidenceAvailable;
             if (evidenceAvailable)
             {
                 _evidenceFoundButton.Disabled = false;
