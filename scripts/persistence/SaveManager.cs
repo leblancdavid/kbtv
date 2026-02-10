@@ -4,6 +4,7 @@ using Godot;
 using Godot.Collections;
 using KBTV.Core;
 using KBTV.Data;
+using KBTV.Items;
 
 namespace KBTV.Persistence
 {
@@ -26,7 +27,7 @@ namespace KBTV.Persistence
         private bool _isDirty;
         private List<ISaveable> _saveables = new List<ISaveable>();
         private const string SAVE_FILENAME = "save.json";
-        private const int CURRENT_VERSION = 2;
+        private const int CURRENT_VERSION = 3;
 
         // ─────────────────────────────────────────────────────────────
         // CONSTANTS
@@ -153,7 +154,10 @@ namespace KBTV.Persistence
                                 PeakListenersAllTime = (int)(long)dict["PeakListenersAllTime"],
                                 TopicXPs = dict.ContainsKey("TopicXPs") && dict["TopicXPs"].VariantType == Variant.Type.Array
                                     ? ConvertToTopicXPList((Godot.Collections.Array)dict["TopicXPs"])
-                                    : new List<SaveData.TopicXPData>()
+                                    : new List<SaveData.TopicXPData>(),
+                                CollectedEvidence = dict.ContainsKey("CollectedEvidence") && dict["CollectedEvidence"].VariantType == Variant.Type.Array
+                                    ? ConvertToEvidenceList((Godot.Collections.Array)dict["CollectedEvidence"])
+                                    : new List<EvidenceItem>()
                             };
                         }
 
@@ -205,6 +209,13 @@ namespace KBTV.Persistence
                 Log.Debug("[SaveManager] Migrated save from version 1 to 2");
             }
 
+            // Version 2 -> 3: Initialize CollectedEvidence list
+            if (migrated.CollectedEvidence == null)
+            {
+                migrated.CollectedEvidence = new List<EvidenceItem>();
+                Log.Debug("[SaveManager] Migrated save: Initialized CollectedEvidence list");
+            }
+
             return migrated;
         }
 
@@ -248,7 +259,8 @@ namespace KBTV.Persistence
                     ["TotalCallersScreened"] = _currentSave.TotalCallersScreened,
                     ["TotalShowsCompleted"] = _currentSave.TotalShowsCompleted,
                     ["PeakListenersAllTime"] = _currentSave.PeakListenersAllTime,
-                    ["TopicXPs"] = ConvertToGodotArray(_currentSave.TopicXPs)
+                    ["TopicXPs"] = ConvertToGodotArray(_currentSave.TopicXPs),
+                    ["CollectedEvidence"] = ConvertToGodotArray(_currentSave.CollectedEvidence)
                 };
 
                 string json = Json.Stringify(dict);
@@ -262,6 +274,7 @@ namespace KBTV.Persistence
             catch (Exception e)
             {
                 Log.Error($"[SaveManager] Failed to save: {e.Message}");
+                Log.Error($"[SaveManager] Stack trace: {e.StackTrace}");
             }
         }
 
@@ -320,6 +333,12 @@ namespace KBTV.Persistence
         private Godot.Collections.Dictionary ConvertToGodotDictionary(System.Collections.Generic.Dictionary<string, int> systemDict)
         {
             var godotDict = new Godot.Collections.Dictionary();
+            if (systemDict == null)
+            {
+                Log.Warning("[SaveManager] ConvertToGodotDictionary: systemDict is null, returning empty dictionary");
+                return godotDict;
+            }
+            
             foreach (var kv in systemDict)
             {
                 godotDict[kv.Key] = kv.Value;
@@ -348,18 +367,78 @@ namespace KBTV.Persistence
         }
 
         /// <summary>
+        /// Converts Godot.Collections.Array of Evidence dictionaries to List<EvidenceItem>
+        /// </summary>
+        private List<EvidenceItem> ConvertToEvidenceList(Godot.Collections.Array godotArray)
+        {
+            var evidenceList = new List<EvidenceItem>();
+            foreach (var item in godotArray)
+            {
+                var dict = (Godot.Collections.Dictionary)item;
+                var evidence = EvidenceItem.Create(
+                    (string)dict["Word"],
+                    (string)dict["CallerName"],
+                    (string)dict["EvidenceLevel"]
+                );
+                evidenceList.Add(evidence);
+            }
+            return evidenceList;
+        }
+
+        /// <summary>
         /// Converts List<SaveData.TopicXPData> to Godot.Collections.Array of dictionaries
         /// </summary>
         private Godot.Collections.Array ConvertToGodotArray(List<SaveData.TopicXPData> topicXPList)
         {
             var godotArray = new Godot.Collections.Array();
+            if (topicXPList == null)
+            {
+                return godotArray;
+            }
+            
             foreach (var topicXP in topicXPList)
             {
+                if (topicXP == null)
+                {
+                    Log.Warning("[SaveManager] Skipping null TopicXP item in serialization");
+                    continue;
+                }
+                
                 var dict = new Godot.Collections.Dictionary
                 {
-                    ["TopicId"] = topicXP.TopicId,
+                    ["TopicId"] = topicXP.TopicId ?? "",
                     ["XP"] = topicXP.XP,
                     ["HighestTierReached"] = (int)topicXP.HighestTierReached
+                };
+                godotArray.Add(dict);
+            }
+            return godotArray;
+        }
+
+        /// <summary>
+        /// Converts List<EvidenceItem> to Godot.Collections.Array of dictionaries
+        /// </summary>
+        private Godot.Collections.Array ConvertToGodotArray(List<EvidenceItem> evidenceList)
+        {
+            var godotArray = new Godot.Collections.Array();
+            if (evidenceList == null)
+            {
+                return godotArray;
+            }
+            
+            foreach (var evidence in evidenceList)
+            {
+                if (evidence == null)
+                {
+                    Log.Warning("[SaveManager] Skipping null evidence item in serialization");
+                    continue;
+                }
+                
+                var dict = new Godot.Collections.Dictionary
+                {
+                    ["Word"] = evidence.Word ?? "",
+                    ["CallerName"] = evidence.SourceCallerName ?? "",
+                    ["EvidenceLevel"] = evidence.EvidenceLevel ?? ""
                 };
                 godotArray.Add(dict);
             }

@@ -45,57 +45,90 @@ grow_horizontal = 2
 grow_vertical = 2
  theme_override_styles/panel = SubResource("1")
 
- [node name="XButton" type="Button" parent="ModalPanel"]
- layout_mode = 1
- anchors_preset = 1
- anchor_left = 1.0
- anchor_top = 0.0
- offset_left = -40.0
- offset_top = 10.0
- offset_right = -10.0
- offset_bottom = 40.0
- text = "X"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ModalPanel"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/separation = 20
 
-[node name="TitleLabel" type="Label" parent="ModalPanel/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="ModalPanel"]
 unique_name_in_owner = true
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 40.0
+offset_left = 10.0
+offset_top = 10.0
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
 text = "Evidence Collection"
 horizontal_alignment = 1
 
-   [node name="AttemptsLabel" type="Label" parent="ModalPanel/VBoxContainer"]
-  unique_name_in_owner = true
-  layout_mode = 2
-  size_flags_horizontal = 3
-  theme_override_font_sizes/font_size = 20
-  text = "Attempts remaining: 6/6"
-  horizontal_alignment = 1
+[node name="MainHBoxContainer" type="HBoxContainer" parent="ModalPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = 50.0
+offset_right = -10.0
+offset_bottom = -65.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
 
- [node name="GuessHistory" type="VBoxContainer" parent="ModalPanel/VBoxContainer"]
- unique_name_in_owner = true
- layout_mode = 2
- size_flags_vertical = 3
- size_flags_stretch_ratio = 2.0
- theme_override_constants/separation = 5
+[node name="LeftPanel" type="VBoxContainer" parent="ModalPanel/MainHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(450, 400)
+theme_override_constants/separation = 15
 
- [node name="AlphabetDisplay" type="VBoxContainer" parent="ModalPanel/VBoxContainer"]
- unique_name_in_owner = true
- layout_mode = 2
- size_flags_horizontal = 3
- theme_override_constants/separation = 5
+[node name="AttemptsLabel" type="Label" parent="ModalPanel/MainHBoxContainer/LeftPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
+text = "Attempts remaining: 6/6"
+horizontal_alignment = 1
 
- [node name="CollectButton" type="Button" parent="ModalPanel/VBoxContainer"]
- unique_name_in_owner = true
- layout_mode = 2
- size_flags_horizontal = 3
- text = "Collect Evidence"
+[node name="GuessHistory" type="ScrollContainer" parent="ModalPanel/MainHBoxContainer/LeftPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(420, 350)
+horizontal_scroll_mode = 0
+
+[node name="GuessHistoryContent" type="VBoxContainer" parent="ModalPanel/MainHBoxContainer/LeftPanel/GuessHistory"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 350)
+theme_override_constants/separation = 5
+
+[node name="RightPanel" type="VBoxContainer" parent="ModalPanel/MainHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+custom_minimum_size = Vector2(300, 400)
+theme_override_constants/separation = 15
+
+[node name="AlphabetDisplay" type="VBoxContainer" parent="ModalPanel/MainHBoxContainer/RightPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15
+theme_override_constants/margin_left = 15
+theme_override_constants/margin_right = 15
+
+[node name="CollectButton" type="Button" parent="ModalPanel"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -100.0
+offset_top = -60.0
+offset_right = 100.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+text = "Collect Evidence"

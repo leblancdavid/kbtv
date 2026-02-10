@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using KBTV.Core;
+using KBTV.Callers;
 
 namespace KBTV.UI
 {
@@ -35,7 +36,7 @@ namespace KBTV.UI
             GetViewport().SizeChanged += OnViewportSizeChanged;
         }
 
-        public void ShowEvidenceModal()
+        public void ShowEvidenceModal(Caller? caller = null)
         {
             if (_currentModal != null)
             {
@@ -52,6 +53,7 @@ namespace KBTV.UI
             }
 
             var modal = modalScene.Instantiate<EvidenceModal>();
+            modal.Initialize(caller);
             modal.ModalClosed += OnModalClosed;
             _currentModal = modal;
             _modalRoot?.AddChild(modal);
@@ -65,10 +67,17 @@ namespace KBTV.UI
 
         private void OnModalClosed()
         {
+            GD.Print("ModalManager: OnModalClosed called");
             if (_currentModal != null)
             {
+                GD.Print($"ModalManager: Closing modal {_currentModal.Name}");
                 _currentModal.QueueFree();
                 _currentModal = null;
+                GD.Print("ModalManager: Modal closed successfully");
+            }
+            else
+            {
+                GD.PrintErr("ModalManager: OnModalClosed called but _currentModal is null");
             }
 
             // Fire modal closed event

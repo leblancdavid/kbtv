@@ -30,12 +30,16 @@ namespace KBTV.Screening
         /// </summary>
         public bool EvidenceCollected { get; private set; }
 
+        // Track Evidence property revelation state to detect when it becomes revealed
+        private bool _evidencePropertyWasRevealed;
+
         public ScreeningSession(Caller caller)
         {
             Caller = caller ?? throw new System.ArgumentNullException(nameof(caller));
             ScreeningPatience = caller.Patience;
             MaxPatience = caller.Patience;
             ElapsedTime = 0f;
+            _evidencePropertyWasRevealed = false;
             // Note: We intentionally do NOT reset screenable properties here.
             // This allows reveal progress to persist when switching between callers.
             // Properties are only reset when a caller is removed (rejected/disconnected).
@@ -50,40 +54,40 @@ namespace KBTV.Screening
                 ScreeningPatience -= deltaTime * 0.5f;
                 ScreeningPatience = System.Math.Max(0, ScreeningPatience);
                 
-                // Store previous revealed count to detect new revelations
-                int previousRevealedCount = PropertiesRevealed;
-                
                 Caller.UpdateScreenableProperties(deltaTime);
                 
-                // Check if any new properties were revealed this frame
-                if (PropertiesRevealed > previousRevealedCount && !EvidenceAvailable)
-                {
-                    CheckForEvidenceRevelation();
-                }
+                // Check if Evidence property became revealed this frame
+                CheckForEvidenceRevelation();
             }
         }
 
         /// <summary>
-        /// Check if the Evidence property was just revealed and roll for evidence availability.
+        /// Check if the Evidence property transitioned to Revealed state this frame.
+        /// Only rolls for evidence availability once when Evidence is first revealed.
         /// </summary>
         /// <returns>True if evidence availability changed.</returns>
         private bool CheckForEvidenceRevelation()
         {
-            var revealedProperties = Caller.GetRevealedProperties();
-            bool hadEvidenceBefore = EvidenceAvailable;
-            
-            // Look for the Evidence property among newly revealed properties
-            foreach (var property in revealedProperties)
+            // Already determined evidence availability - no need to check again
+            if (EvidenceAvailable || _evidencePropertyWasRevealed)
             {
-                if (property.PropertyKey == "Evidence" && !EvidenceAvailable)
-                {
-                    // Roll for evidence availability based on caller's evidence level
-                    EvidenceAvailable = RollForEvidence(Caller.EvidenceLevel);
-                    break;
-                }
+                return false;
             }
+
+            // Get the Evidence property directly
+            var evidenceProperty = Caller.GetScreenableProperty("Evidence");
             
-            return EvidenceAvailable != hadEvidenceBefore;
+            // If Evidence property doesn't exist or isn't revealed yet, nothing to do
+            if (evidenceProperty == null || !evidenceProperty.IsRevealed)
+            {
+                return false;
+            }
+
+            // Evidence property just became revealed - roll for availability
+            _evidencePropertyWasRevealed = true;
+            EvidenceAvailable = RollForEvidence(Caller.EvidenceLevel);
+            
+            return EvidenceAvailable;
         }
 
         /// <summary>
@@ -137,6 +141,7 @@ namespace KBTV.Screening
             ElapsedTime = 0f;
             EvidenceAvailable = false;
             EvidenceCollected = false;
+            _evidencePropertyWasRevealed = false;
             Caller.ResetScreenableProperties();
         }
     }

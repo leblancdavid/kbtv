@@ -209,6 +209,15 @@ private SaveData MigrateSave(SaveData oldData)
 }
 ```
 
+### Development Note
+
+**Pre-v1 Release:** During active development before v1.0 release, we do not need to maintain save compatibility or migration paths. Save file format may change frequently, and players should expect to start fresh games when pulling updates. Only implement migration logic once we approach official release.
+
+**Current Save Version:** 3
+- v1: Initial save format
+- v2: Added `ShowDurationMinutes`
+- v3: Added `CollectedEvidence` list
+
 ## Error Handling
 
 | Scenario | Behavior |

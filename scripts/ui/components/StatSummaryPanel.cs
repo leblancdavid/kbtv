@@ -5,24 +5,31 @@ using KBTV.Callers;
 using KBTV.Data;
 using KBTV.Screening;
 using KBTV.UI.Themes;
+using KBTV.Core;
 
 namespace KBTV.UI.Components
 {
     /// <summary>
     /// UI component that displays an aggregated summary of all stat effects from revealed properties.
-    /// Shows the total predicted impact on Vern if this caller goes on-air.
+    /// Shows total predicted impact on Vern if this caller goes on-air.
     /// Updates dynamically as more properties are revealed during screening.
     /// </summary>
-    public partial class StatSummaryPanel : PanelContainer
+    public partial class StatSummaryPanel : PanelContainer, IDependent
     {
+        public override void _Notification(int what) => this.Notify(what);
+
         // Child nodes
         private Label _titleLabel = null!;
         private HBoxContainer _statsContainer = null!;
         private Label _noDataLabel = null!;
-
+        private Button _evidenceFoundButton = null!;
+        
         // State
         private ScreenableProperty[]? _properties;
         private Dictionary<StatType, float> _lastDisplayedTotals = new();
+        private IScreeningController? _screeningController;
+        private bool _evidenceAvailable;
+        private float _flashTimer;
 
         public override void _Ready()
         {
@@ -66,6 +73,28 @@ namespace KBTV.UI.Components
             _statsContainer.AddThemeConstantOverride("separation", 12);
             vbox.AddChild(_statsContainer);
 
+            // Evidence Found button container (right-aligned)
+            var buttonContainer = new HBoxContainer();
+            buttonContainer.AddThemeConstantOverride("separation", 8);
+            vbox.AddChild(buttonContainer);
+
+            // Spacer to push button to right
+            var spacer = new Control();
+            spacer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            buttonContainer.AddChild(spacer);
+
+            // Evidence Found button
+            _evidenceFoundButton = new Button
+            {
+                Text = "Evidence Found!",
+                CustomMinimumSize = new Vector2(120, 32),
+                Visible = false
+            };
+            _evidenceFoundButton.AddThemeFontSizeOverride("font_size", 16);
+            // Note: HorizontalAlignment not directly available on Button in Godot 4.x
+            _evidenceFoundButton.Pressed += OnEvidenceFoundPressed;
+            buttonContainer.AddChild(_evidenceFoundButton);
+
             // No data label (shown when nothing is revealed)
             _noDataLabel = new Label
             {
@@ -74,6 +103,34 @@ namespace KBTV.UI.Components
             };
             _noDataLabel.AddThemeColorOverride("font_color", UIColors.Placeholder.Text);
             _statsContainer.AddChild(_noDataLabel);
+
+            // Get screening controller for evidence button functionality
+            _screeningController = DependencyInjection.Get<IScreeningController>(this);
+            if (_screeningController != null)
+            {
+                _screeningController.EvidenceCollected += OnEvidenceCollected;
+                _screeningController.ProgressUpdated += OnProgressUpdated;
+            }
+
+            // Initialize evidence button state
+            _evidenceAvailable = false;
+            _flashTimer = 0f;
+            SetProcess(true);
+        }
+
+        public void OnResolved()
+        {
+            // Initialize dependencies when ready
+        }
+
+        public override void _Process(double delta)
+        {
+            // Handle flashing animation when evidence is available
+            if (_evidenceAvailable && _evidenceFoundButton != null && IsInstanceValid(_evidenceFoundButton) && _evidenceFoundButton.Disabled == false)
+            {
+                _flashTimer += (float)delta;
+                UpdateFlashAnimation();
+            }
         }
 
         /// <summary>
@@ -106,9 +163,161 @@ namespace KBTV.UI.Components
                 return; // No update needed
             }
 
-            // Update the display
+            // Update display
             _lastDisplayedTotals = new Dictionary<StatType, float>(totals);
             RebuildStatLabels(totals);
+        }
+
+        /// <summary>
+        /// Update evidence button visibility and styling based on evidence availability.
+        /// </summary>
+        public void UpdateEvidenceButton(bool evidenceAvailable)
+        {
+            if (_evidenceFoundButton == null || !GodotObject.IsInstanceValid(_evidenceFoundButton))
+                return;
+
+            _evidenceAvailable = evidenceAvailable;
+            _evidenceFoundButton.Visible = evidenceAvailable;
+            if (evidenceAvailable)
+            {
+                _evidenceFoundButton.Disabled = false;
+                StyleEnabledButton();
+            }
+            else
+            {
+                _evidenceFoundButton.Disabled = true;
+                StyleDisabledButton();
+            }
+        }
+
+        /// <summary>
+        /// Handle evidence found button press.
+        /// </summary>
+        private void OnEvidenceFoundPressed()
+        {
+            if (_evidenceFoundButton == null || !GodotObject.IsInstanceValid(_evidenceFoundButton))
+                return;
+                
+            if (!IsInstanceValid(this))
+                return;
+                
+            if (_evidenceAvailable && _screeningController != null)
+            {
+                // Open evidence collection modal with current caller
+                var modalManager = DependencyInjection.Get<ModalManager>(this);
+                var currentCaller = _screeningController.CurrentCaller;
+                modalManager?.ShowEvidenceModal(currentCaller);
+            }
+        }
+
+        /// <summary>
+        /// Handle evidence collection event.
+        /// </summary>
+        private void OnEvidenceCollected(Caller caller)
+        {
+            // Check if still in scene tree
+            if (!GodotObject.IsInstanceValid(this))
+                return;
+                
+            // Evidence has been collected, hide button
+            UpdateEvidenceButton(false);
+        }
+
+        /// <summary>
+        /// Handle screening progress updates.
+        /// </summary>
+        private void OnProgressUpdated(ScreeningProgress progress)
+        {
+            // Check if still in scene tree
+            if (!GodotObject.IsInstanceValid(this))
+                return;
+                
+            // Check if evidence availability has changed
+            bool evidenceNowAvailable = _screeningController?.IsEvidenceAvailable ?? false;
+            UpdateEvidenceButton(evidenceNowAvailable);
+        }
+
+        /// <summary>
+        /// Apply enabled styling to evidence button (green flashing).
+        /// </summary>
+        private void StyleEnabledButton()
+        {
+            if (_evidenceFoundButton == null)
+                return;
+
+            // Use green accent color for enabled state
+            var style = new StyleBoxFlat
+            {
+                BgColor = UIColors.Accent.Green,
+                CornerRadiusTopLeft = 8,
+                CornerRadiusTopRight = 8,
+                CornerRadiusBottomLeft = 8,
+                CornerRadiusBottomRight = 8,
+                ContentMarginLeft = 20,
+                ContentMarginRight = 20,
+                ContentMarginTop = 12,
+                ContentMarginBottom = 12
+            };
+            _evidenceFoundButton.AddThemeStyleboxOverride("normal", style);
+            _evidenceFoundButton.AddThemeStyleboxOverride("hover", style);
+            _evidenceFoundButton.AddThemeColorOverride("font_color", UIColors.TEXT_PRIMARY);
+            _evidenceFoundButton.QueueRedraw();
+        }
+
+        /// <summary>
+        /// Apply disabled styling to evidence button (gray).
+        /// </summary>
+        private void StyleDisabledButton()
+        {
+            if (_evidenceFoundButton == null)
+                return;
+
+            // Use disabled background color
+            var style = new StyleBoxFlat
+            {
+                BgColor = UIColors.BG_DISABLED,
+                CornerRadiusTopLeft = 8,
+                CornerRadiusTopRight = 8,
+                CornerRadiusBottomLeft = 8,
+                CornerRadiusBottomRight = 8,
+                ContentMarginLeft = 20,
+                ContentMarginRight = 20,
+                ContentMarginTop = 12,
+                ContentMarginBottom = 12
+            };
+            _evidenceFoundButton.AddThemeStyleboxOverride("normal", style);
+            _evidenceFoundButton.AddThemeStyleboxOverride("hover", style);
+            _evidenceFoundButton.AddThemeColorOverride("font_color", UIColors.TEXT_DISABLED);
+            _evidenceFoundButton.QueueRedraw();
+        }
+
+        /// <summary>
+        /// Update flashing animation for evidence button.
+        /// </summary>
+        private void UpdateFlashAnimation()
+        {
+            if (_evidenceFoundButton == null || !IsInstanceValid(_evidenceFoundButton))
+                return;
+
+            // Flash every 0.5 seconds between green and default disabled color
+            bool isFlashPhase = Mathf.Floor(_flashTimer * 2) % 2 == 0;
+            Color bgColor = isFlashPhase ? UIColors.Accent.Green : UIColors.BG_DISABLED;
+
+            var style = new StyleBoxFlat
+            {
+                BgColor = bgColor,
+                CornerRadiusTopLeft = 8,
+                CornerRadiusTopRight = 8,
+                CornerRadiusBottomLeft = 8,
+                CornerRadiusBottomRight = 8,
+                ContentMarginLeft = 20,
+                ContentMarginRight = 20,
+                ContentMarginTop = 12,
+                ContentMarginBottom = 12
+            };
+            _evidenceFoundButton.AddThemeStyleboxOverride("normal", style);
+            _evidenceFoundButton.AddThemeStyleboxOverride("hover", style);
+            _evidenceFoundButton.QueueRedraw();
         }
 
         /// <summary>
@@ -166,7 +375,7 @@ namespace KBTV.UI.Components
 
             if (totals.Count == 0)
             {
-                ShowNoData("Screening...");
+                ShowNoData("Neutral impact");
                 return;
             }
 
@@ -202,10 +411,7 @@ namespace KBTV.UI.Components
         /// </summary>
         private Label CreateStatLabel(StatType statType, float amount)
         {
-            var code = GetStatCode(statType);
             var fullName = GetStatFullName(statType);
-            var arrow = amount >= 0 ? "↑" : "↓";
-            var absAmount = Mathf.Abs(amount);
 
             // Format: "Patience +5" or "Spirit -3"
             var signText = amount >= 0 ? "+" : "";
@@ -224,7 +430,7 @@ namespace KBTV.UI.Components
         }
 
         /// <summary>
-        /// Show the no-data message.
+        /// Show a no-data message.
         /// </summary>
         private void ShowNoData(string message)
         {
@@ -243,23 +449,7 @@ namespace KBTV.UI.Components
         }
 
         /// <summary>
-        /// Get short code for a stat type.
-        /// </summary>
-        private static string GetStatCode(StatType statType)
-        {
-            return statType switch
-            {
-                StatType.Physical => "Ph",
-                StatType.Emotional => "Em",
-                StatType.Mental => "Me",
-                StatType.Caffeine => "Ca",
-                StatType.Nicotine => "Ni",
-                _ => "?"
-            };
-        }
-
-        /// <summary>
-        /// Get full name for a stat type.
+        /// Get full display name for a stat type.
         /// </summary>
         private static string GetStatFullName(StatType statType)
         {
@@ -273,35 +463,32 @@ namespace KBTV.UI.Components
                 _ => "Unknown"
             };
         }
+
+        /// <summary>
+        /// Calculate XP impact from revealed properties.
+        /// </summary>
         private float CalculateXPImpact()
         {
-            float xp = 0f;
+            if (_properties == null) return 0f;
 
-            foreach (var property in _properties!)
-            {
-                if (!property.IsRevealed) continue;
-
-                foreach (var effect in property.StatEffects)
-                {
-                    xp += effect.Amount;  // Sum ALL effects, including negatives
-                }
-            }
-
-            return xp;
+            // Sum up all stat effects as XP impact
+            return _properties
+                .Where(p => p.IsRevealed)
+                .SelectMany(p => p.StatEffects)
+                .Sum(e => e.Amount);
         }
 
-        private Label CreateXPLabel(float xpAmount)
+        /// <summary>
+        /// Create a label for XP impact.
+        /// </summary>
+        private Label CreateXPLabel(float xpImpact)
         {
-            var signText = xpAmount >= 0 ? "+" : "";
-            var text = $"XP: {signText}{xpAmount:F0}";
+            var signText = xpImpact >= 0 ? "+" : "";
+            var text = $"XP {signText}{xpImpact:F0}";
+
             var label = new Label { Text = text };
-
-            // Color based on positive/negative XP impact
-            var color = xpAmount >= 0 ? UIColors.StatEffect.Positive : UIColors.StatEffect.Negative;
-            label.AddThemeColorOverride("font_color", color);
-
-            // Tooltip explaining XP system
-            label.TooltipText = $"XP: {signText}{xpAmount:F1} (net impact, can be negative)";
+            label.AddThemeColorOverride("font_color", UIColors.Accent.Green);
+            label.TooltipText = $"Topic Belief: {signText}{xpImpact:F1}";
 
             return label;
         }

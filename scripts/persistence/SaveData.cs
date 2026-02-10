@@ -121,7 +121,7 @@ namespace KBTV.Persistence
         {
             var save = new SaveData
             {
-                Version = 2,
+                Version = 3,
                 LastSaveTime = DateTime.UtcNow.ToString("o"),
                 CurrentNight = 1,
                 Money = 500,

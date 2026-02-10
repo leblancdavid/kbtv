@@ -11,257 +11,303 @@ using KBTV.Persistence;
 
 namespace KBTV.Screening
 {
-    /// <summary>
-    /// Manages the screening workflow for callers.
-    /// Encapsulates revelation timing, patience tracking, and state machine.
-    /// </summary>
-    public partial class ScreeningController : IScreeningController
-    {
-        private ScreeningSession? _session;
-        private ScreeningPhase _phase = ScreeningPhase.Idle;
-        private readonly ICallerRepository _callerRepository;
-        private readonly TopicManager _topicManager;
-        private readonly SaveManager _saveManager;
+	/// <summary>
+	/// Manages the screening workflow for callers.
+	/// Encapsulates revelation timing, patience tracking, and state machine.
+	/// </summary>
+	public partial class ScreeningController : IScreeningController
+	{
+		private ScreeningSession? _session;
+		private ScreeningPhase _phase = ScreeningPhase.Idle;
+		private readonly ICallerRepository _callerRepository;
+		private readonly TopicManager _topicManager;
+		private readonly SaveManager _saveManager;
 
-        public Caller? CurrentCaller => _session?.Caller;
-        public bool IsActive => _session != null && _phase != ScreeningPhase.Completed;
-        public ScreeningPhase Phase => _phase;
-        public ScreeningProgress Progress => CreateProgress();
+		public Caller? CurrentCaller => _session?.Caller;
+		public bool IsActive => _session != null && _phase != ScreeningPhase.Completed;
+		public ScreeningPhase Phase => _phase;
+		public ScreeningProgress Progress => CreateProgress();
 
-        public event Action<ScreeningPhase>? PhaseChanged;
-        public event Action<ScreeningProgress>? ProgressUpdated;
+		public event Action<ScreeningPhase>? PhaseChanged;
+		public event Action<ScreeningProgress>? ProgressUpdated;
 
-        /// <summary>
-        /// Fired when evidence becomes available for collection from the current caller.
-        /// </summary>
-        public event Action<Caller>? EvidenceCollected;
+		/// <summary>
+		/// Fired when evidence becomes available for collection from the current caller.
+		/// </summary>
+		public event Action<Caller>? EvidenceCollected;
 
-        /// <summary>
-        /// Fired when evidence has been successfully collected and stored.
-        /// </summary>
-        public event Action<Caller>? EvidenceStored;
+		/// <summary>
+		/// Fired when evidence has been successfully collected and stored.
+		/// </summary>
+		public event Action<Caller>? EvidenceStored;
 
-        public ScreeningController(ICallerRepository callerRepository, TopicManager topicManager, SaveManager saveManager)
-        {
-            _callerRepository = callerRepository;
-            _topicManager = topicManager;
-            _saveManager = saveManager;
-        }
+		public ScreeningController(ICallerRepository callerRepository, TopicManager topicManager, SaveManager saveManager)
+		{
+			_callerRepository = callerRepository;
+			_topicManager = topicManager;
+			_saveManager = saveManager;
+		}
 
-        public void Start(Caller caller)
-        {
-            if (caller == null)
-            {
-                Log.Error("ScreeningController: Cannot start with null caller");
-                return;
-            }
+		public void Start(Caller caller)
+		{
+			if (caller == null)
+			{
+				Log.Error("ScreeningController: Cannot start with null caller");
+				return;
+			}
 
-            _session = new ScreeningSession(caller);
-            SetPhase(ScreeningPhase.Gathering);
+			_session = new ScreeningSession(caller);
+			SetPhase(ScreeningPhase.Gathering);
 
-            Log.Debug($"ScreeningController: Started for {caller.Name}");
-        }
+			Log.Debug($"ScreeningController: Started for {caller.Name}");
+		}
 
-        public Result<Caller> Approve()
-        {
-            if (_session == null)
-            {
-                return Result<Caller>.Fail("NO_SESSION", "No active screening session");
-            }
+		public Result<Caller> Approve()
+		{
+			if (_session == null)
+			{
+				return Result<Caller>.Fail("NO_SESSION", "No active screening session");
+			}
 
-            var repository = _callerRepository;
-            if (repository == null)
-            {
-                return Result<Caller>.Fail("NO_REPOSITORY", "Repository not available");
-            }
+			var repository = _callerRepository;
+			if (repository == null)
+			{
+				return Result<Caller>.Fail("NO_REPOSITORY", "Repository not available");
+			}
 
-            if (!repository.IsScreening)
-            {
-                Log.Error($"ScreeningController: State mismatch - controller has session but repository is not screening. Caller: {_session.Caller.Name}");
-                _session = null;
-                return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
-            }
+			if (!repository.IsScreening)
+			{
+				Log.Error($"ScreeningController: State mismatch - controller has session but repository is not screening. Caller: {_session.Caller.Name}");
+				_session = null;
+				return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
+			}
 
-            // Save caller reference and clear session BEFORE calling repository
-            // This allows AutoStartNextScreening() to create a new session without it being overwritten
-            var caller = _session.Caller;
-            _session = null;
-            SetPhase(ScreeningPhase.Completed);
-            Log.Debug($"ScreeningController: Approved {caller.Name}");
+			// Save caller reference and clear session BEFORE calling repository
+			// This allows AutoStartNextScreening() to create a new session without it being overwritten
+			var caller = _session.Caller;
+			_session = null;
+			SetPhase(ScreeningPhase.Completed);
+			Log.Debug($"ScreeningController: Approved {caller.Name}");
 
-            var result = repository.ApproveScreening();
-            if (result.IsSuccess)
-            {
-                return Result<Caller>.Ok(caller);
-            }
+			var result = repository.ApproveScreening();
+			if (result.IsSuccess)
+			{
+				return Result<Caller>.Ok(caller);
+			}
 
-            Log.Error($"ScreeningController: Failed to approve - {result.ErrorMessage}");
-            return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
-        }
+			Log.Error($"ScreeningController: Failed to approve - {result.ErrorMessage}");
+			return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
+		}
 
-        public Result<Caller> Reject()
-        {
-            if (_session == null)
-            {
-                return Result<Caller>.Fail("NO_SESSION", "No active screening session");
-            }
+		public Result<Caller> Reject()
+		{
+			if (_session == null)
+			{
+				return Result<Caller>.Fail("NO_SESSION", "No active screening session");
+			}
 
-            var repository = _callerRepository;
-            if (repository == null)
-            {
-                return Result<Caller>.Fail("NO_REPOSITORY", "Repository not available");
-            }
+			var repository = _callerRepository;
+			if (repository == null)
+			{
+				return Result<Caller>.Fail("NO_REPOSITORY", "Repository not available");
+			}
 
-            if (!repository.IsScreening)
-            {
-                Log.Error($"ScreeningController: State mismatch - controller has session but repository is not screening. Caller: {_session.Caller.Name}");
-                _session = null;
-                return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
-            }
+			if (!repository.IsScreening)
+			{
+				Log.Error($"ScreeningController: State mismatch - controller has session but repository is not screening. Caller: {_session.Caller.Name}");
+				_session = null;
+				return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
+			}
 
-            // Save caller reference and clear session BEFORE calling repository
-            // This allows AutoStartNextScreening() to create a new session without it being overwritten
-            var caller = _session.Caller;
-            _session = null;
-            SetPhase(ScreeningPhase.Completed);
-            Log.Debug($"ScreeningController: Rejected {caller.Name}");
+			// Save caller reference and clear session BEFORE calling repository
+			// This allows AutoStartNextScreening() to create a new session without it being overwritten
+			var caller = _session.Caller;
+			_session = null;
+			SetPhase(ScreeningPhase.Completed);
+			Log.Debug($"ScreeningController: Rejected {caller.Name}");
 
-            var result = repository.RejectScreening();
-            if (result.IsSuccess)
-            {
-                return Result<Caller>.Ok(caller);
-            }
+			var result = repository.RejectScreening();
+			if (result.IsSuccess)
+			{
+				return Result<Caller>.Ok(caller);
+			}
 
-            Log.Error($"ScreeningController: Failed to reject - {result.ErrorMessage}");
-            return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
-        }
+			Log.Error($"ScreeningController: Failed to reject - {result.ErrorMessage}");
+			return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
+		}
 
-        public void Update(float deltaTime)
-        {
-            if (_session == null)
-            {
-                return;
-            }
+		public void Update(float deltaTime)
+		{
+			if (_session == null)
+			{
+				return;
+			}
 
-            // Check for evidence availability before updating
-            bool hadEvidenceBefore = _session.EvidenceAvailable;
+			// Check for evidence availability before updating
+			bool hadEvidenceBefore = _session.EvidenceAvailable;
 
-            _session.Update(deltaTime);
+			_session.Update(deltaTime);
 
-            // If evidence availability changed, immediately publish progress update for instant UI feedback
-            if (_session.EvidenceAvailable != hadEvidenceBefore)
-            {
-                var progress = CreateProgress();
-                ProgressUpdated?.Invoke(progress);
-            }
+			// If evidence availability changed, immediately publish progress update for instant UI feedback
+			if (_session.EvidenceAvailable != hadEvidenceBefore)
+			{
+				var progress = CreateProgress();
+				ProgressUpdated?.Invoke(progress);
+			}
 
-            if (!_session.HasPatience)
-            {
-                HandlePatienceExpired();
-            }
+			if (!_session.HasPatience)
+			{
+				HandlePatienceExpired();
+			}
 
-            var finalProgress = CreateProgress();
-            ProgressUpdated?.Invoke(finalProgress);
-        }
+			var finalProgress = CreateProgress();
+			ProgressUpdated?.Invoke(finalProgress);
+		}
 
-        /// <summary>
-        /// Mark evidence as collected from the current caller.
-        /// Fires EvidenceStored event if successful.
-        /// </summary>
-        /// <returns>True if evidence was successfully collected.</returns>
-        public bool CollectEvidence(string guessedWord)
-        {
-            if (_session == null || !_session.EvidenceAvailable || _session.EvidenceCollected)
-            {
-                return false;
-            }
+		/// <summary>
+		/// Mark evidence as collected from the current caller.
+		/// Fires EvidenceStored event if successful.
+		/// </summary>
+		/// <returns>True if evidence was successfully collected.</returns>
+		public bool CollectEvidence(string guessedWord)
+		{
+			if (_session == null)
+			{
+				Log.Error("CollectEvidence failed: _session is null");
+				return false;
+			}
 
-            _session.CollectEvidence();
+			if (!_session.EvidenceAvailable)
+			{
+				Log.Error("CollectEvidence failed: EvidenceAvailable is false");
+				return false;
+			}
 
-            // Create and store evidence item
-            var evidence = EvidenceItem.Create(
-                guessedWord,
-                _session.Caller.Name,
-                _session.Caller.EvidenceLevel.ToString()
-            );
+			if (_session.EvidenceCollected)
+			{
+				Log.Error("CollectEvidence failed: EvidenceCollected is already true");
+				return false;
+			}
 
-            if (_saveManager.CurrentSave == null)
-            {
-                Log.Error("ScreeningController: No current save available for evidence storage");
-                return false;
-            }
+			if (_session.Caller == null)
+			{
+				Log.Error("CollectEvidence failed: Session caller is null");
+				return false;
+			}
 
-            _saveManager.CurrentSave.CollectedEvidence.Add(evidence);
-            _saveManager.Save();
+			_session.CollectEvidence();
 
-            EvidenceStored?.Invoke(_session.Caller);
-            EvidenceCollected?.Invoke(_session.Caller);
-            return true;
-        }
+			// Create and store evidence item
+			var evidence = EvidenceItem.Create(
+				guessedWord,
+				_session.Caller.Name,
+				_session.Caller.EvidenceLevel.ToString()
+			);
 
-        /// <summary>
-        /// Check if evidence is currently available for collection.
-        /// </summary>
-        public bool IsEvidenceAvailable => _session?.EvidenceAvailable == true && _session?.EvidenceCollected == false;
+			if (_saveManager == null)
+			{
+				Log.Error("ScreeningController: SaveManager is null");
+				return false;
+			}
 
-        private void HandlePatienceExpired()
-        {
-            if (_session == null)
-            {
-                return;
-            }
+			if (_saveManager.CurrentSave == null)
+			{
+				Log.Error("ScreeningController: No current save available for evidence storage");
+				return false;
+			}
 
-            Log.Debug($"ScreeningController: Patience expired for {_session.Caller.Name}");
+			if (_saveManager.CurrentSave.CollectedEvidence == null)
+			{
+				Log.Warning("ScreeningController: CollectedEvidence list is null, initializing");
+				_saveManager.CurrentSave.CollectedEvidence = new System.Collections.Generic.List<Items.EvidenceItem>();
+			}
 
-            var repository = _callerRepository;
-            repository?.RemoveCaller(_session.Caller);
+			if (_saveManager.CurrentSave.CollectedEvidence == null)
+			{
+				Log.Error("ScreeningController: Failed to initialize CollectedEvidence list");
+				return false;
+			}
 
-            _session = null;
-            SetPhase(ScreeningPhase.Completed);
-        }
+			_saveManager.CurrentSave.CollectedEvidence.Add(evidence);
+			
+			try
+			{
+				_saveManager.Save();
+			}
+			catch (Exception ex)
+			{
+				Log.Error($"ScreeningController: Save failed - {ex.Message}");
+				return false;
+			}
 
-        private void SetPhase(ScreeningPhase newPhase)
-        {
-            if (_phase == newPhase)
-            {
-                return;
-            }
+			EvidenceStored?.Invoke(_session.Caller);
+			EvidenceCollected?.Invoke(_session.Caller);
+			return true;
+		}
 
-            var oldPhase = _phase;
-            _phase = newPhase;
-            PhaseChanged?.Invoke(_phase);
+		/// <summary>
+		/// Check if evidence is currently available for collection.
+		/// </summary>
+		public bool IsEvidenceAvailable => _session?.EvidenceAvailable == true && _session?.EvidenceCollected == false;
 
-            switch (newPhase)
-            {
-                case ScreeningPhase.Gathering:
-                    break;
-                case ScreeningPhase.Deciding:
-                    break;
-            }
+		private void HandlePatienceExpired()
+		{
+			if (_session == null)
+			{
+				return;
+			}
 
-            Log.Debug($"ScreeningController: Phase {oldPhase} -> {newPhase}");
-        }
+			Log.Debug($"ScreeningController: Patience expired for {_session.Caller.Name}");
 
-        private ScreeningProgress CreateProgress()
-        {
-            if (_session == null)
-            {
-                return new ScreeningProgress(0, 0, 0f, 0f, 0f);
-            }
+			var repository = _callerRepository;
+			repository?.RemoveCaller(_session.Caller);
 
-            return new ScreeningProgress(
-                _session.PropertiesRevealed,
-                _session.TotalProperties,
-                _session.PatienceRemaining,
-                _session.MaxPatience,
-                _session.ElapsedTime
-            );
-        }
+			_session = null;
+			SetPhase(ScreeningPhase.Completed);
+		}
+
+		private void SetPhase(ScreeningPhase newPhase)
+		{
+			if (_phase == newPhase)
+			{
+				return;
+			}
+
+			var oldPhase = _phase;
+			_phase = newPhase;
+			PhaseChanged?.Invoke(_phase);
+
+			switch (newPhase)
+			{
+				case ScreeningPhase.Gathering:
+					break;
+				case ScreeningPhase.Deciding:
+					break;
+			}
+
+			Log.Debug($"ScreeningController: Phase {oldPhase} -> {newPhase}");
+		}
+
+		private ScreeningProgress CreateProgress()
+		{
+			if (_session == null)
+			{
+				return new ScreeningProgress(0, 0, 0f, 0f, 0f);
+			}
+
+			return new ScreeningProgress(
+				_session.PropertiesRevealed,
+				_session.TotalProperties,
+				_session.PatienceRemaining,
+				_session.MaxPatience,
+				_session.ElapsedTime
+			);
+		}
 
 
 
 
 
 
-    }
+	}
 }
