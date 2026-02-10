@@ -41,6 +41,7 @@ namespace KBTV.UI
             PopulateTabContent();
 
             TrackStateForRefresh();
+            RefreshTabContent(); // Ensure initial visibility is set correctly
         }
 
         private void InitializeNodeReferences()
@@ -238,6 +239,12 @@ namespace KBTV.UI
             UpdateIncomingPanelData();
             UpdateScreeningPanel();
             CreateOnHoldPanel();
+            
+            // Hide screening panel when no caller is being screened
+            if (_screeningPanel != null)
+            {
+                _screeningPanel.Visible = _repository.CurrentScreening != null;
+            }
         }
 
         public void OnApproveCaller()
