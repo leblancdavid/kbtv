@@ -1124,7 +1124,7 @@ public partial class EvidenceModal : Control
         // Update description label with current attempts
         if (_descriptionLabel != null)
         {
-            _descriptionLabel.Text = $"Guess the 5-letter code to unlock evidence!\nGreen = correct position • Yellow = wrong position • Red = wrong letter\n{_maxAttempts - _currentAttempt} attempts remaining";
+            _descriptionLabel.Text = "Guess the 5-letter code";
         }
 
         // Update alphabet display
