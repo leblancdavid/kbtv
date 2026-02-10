@@ -120,6 +120,15 @@ namespace KBTV.Callers
         /// </summary>
         public float ScreeningPatience { get; private set; }
 
+        /// <summary>
+        /// Resets the screening patience to the caller's base patience value.
+        /// Called when the player clicks "Examine" to play the evidence minigame.
+        /// </summary>
+        public void ResetScreeningPatience()
+        {
+            ScreeningPatience = _patience;
+        }
+
         public event Action<CallerState, CallerState> OnStateChanged;
         public event Action OnDisconnected;
 

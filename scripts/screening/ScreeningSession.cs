@@ -153,6 +153,8 @@ namespace KBTV.Screening
         {
             ScreeningPatience = MaxPatience;
             ElapsedTime = 0f;
+            // Also reset the caller's screening patience so the UI updates correctly
+            Caller.ResetScreeningPatience();
         }
     }
 }
