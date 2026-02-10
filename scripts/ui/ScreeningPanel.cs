@@ -40,11 +40,14 @@ namespace KBTV.UI
 		private Caller? _previousCaller;
 		private float _previousProgressPercent = -1f;
 
-		// Property rows for animated reveal
-		private List<ScreenablePropertyRow> _propertyRows = new();
+        // Property rows for animated reveal
+        private List<ScreenablePropertyRow> _propertyRows = new();
 
         // Stat summary panel for aggregated effects
         private StatSummaryPanel? _statSummaryPanel;
+
+        // Pending properties for deferred stat summary update
+        private ScreenableProperty[]? _pendingProperties;
 
 		public override void _Notification(int what) => this.Notify(what);
 
@@ -98,42 +101,48 @@ namespace KBTV.UI
 			}
 		}
 
-		public async void SetPendingCaller(Caller caller)
-		{
-			if (caller == null)
-			{
-				Log.Error("ScreeningPanel.SetPendingCaller: caller is null");
-				return;
-			}
+        public async void SetPendingCaller(Caller caller)
+        {
+            if (caller == null)
+            {
+                Log.Error("ScreeningPanel.SetPendingCaller: caller is null");
+                return;
+            }
 
-			// If we have a pending caller that's different, clear current state
-			if (_pendingCaller != null && _pendingCaller != caller)
-			{
-				ClearCurrentState();
-			}
+            // If we have a pending caller that's different, clear current state and stat summary
+            if (_pendingCaller != null && _pendingCaller != caller)
+            {
+                ClearCurrentState();
+                // Clear stat summary to show "No caller data" briefly when switching callers
+                if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel))
+                {
+                    _statSummaryPanel.SetProperties(null);
+                }
+            }
 
-			// Set the new pending caller
-			_pendingCaller = caller;
+            // Set the new pending caller
+            _pendingCaller = caller;
 
-			// Get properties for this caller (will create rows if needed)
-			var properties = caller.ScreenableProperties ?? Array.Empty<ScreenableProperty>();
+            // Get properties for this caller (will create rows if needed)
+            var properties = caller.ScreenableProperties ?? Array.Empty<ScreenableProperty>();
+            _pendingProperties = properties;
 
-			// Clear existing rows and create new ones
-			ClearPropertyRows();
-			foreach (var property in properties)
-			{
-				var row = CreatePropertyRow(property);
-				_propertiesContainer.AddChild(row);
-				_propertyRows.Add(row);
-			}
+            // Clear existing rows and create new ones
+            ClearPropertyRows();
+            foreach (var property in properties)
+            {
+                var row = CreatePropertyRow(property);
+                _propertiesContainer.AddChild(row);
+                _propertyRows.Add(row);
+            }
 
-            // Add stat summary panel and set properties once (not every frame)
+            // Add stat summary panel and set properties after a brief delay to show the clear state
             EnsureStatSummaryPanel();
             if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel))
             {
-                _statSummaryPanel.SetProperties(properties);
+                CallDeferred(nameof(SetPendingStatSummary));
             }
-		}
+        }
 
 		/// <summary>
 		/// Set the current caller for screening (alias for SetPendingCaller for compatibility).
@@ -320,21 +329,33 @@ namespace KBTV.UI
 			}
 		}
 
-		/// <summary>
-		/// Handle reject button press.
-		/// </summary>
-		private void OnRejectPressed()
-		{
-			if (_controller.CurrentCaller == null)
-			{
-				return;
-			}
+        /// <summary>
+        /// Handle reject button press.
+        /// </summary>
+        private void OnRejectPressed()
+        {
+            if (_controller.CurrentCaller == null)
+            {
+                return;
+            }
 
-			var result = _controller.Reject();
-			if (!result.IsSuccess)
-			{
-				Log.Error($"ScreeningPanel: Reject failed - {result.ErrorCode}: {result.ErrorMessage}");
-			}
-		}
-	}
+            var result = _controller.Reject();
+            if (!result.IsSuccess)
+            {
+                Log.Error($"ScreeningPanel: Reject failed - {result.ErrorCode}: {result.ErrorMessage}");
+            }
+        }
+
+        /// <summary>
+        /// Set the pending stat summary properties (called via CallDeferred).
+        /// </summary>
+        private void SetPendingStatSummary()
+        {
+            if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel) && _pendingProperties != null)
+            {
+                _statSummaryPanel.SetProperties(_pendingProperties);
+                _pendingProperties = null; // Clear after use
+            }
+        }
+    }
 }
