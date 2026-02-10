@@ -50,6 +50,7 @@ namespace KBTV.UI
 
         private LineEdit _hiddenInput;
         private RichTextLabel _currentInputDisplay;
+        private Label _descriptionLabel = null!;
         private Dictionary<char, LetterState> _letterStates = new();
         private char[] _currentInputChars = new char[5];
         private bool[] _positionsFilled = new bool[5];
@@ -291,9 +292,10 @@ namespace KBTV.UI
             _collectButton.Text = "Collect Evidence";
 
             // Create caller name label and patience progress bar at top
+            VBoxContainer? topContainer = null;
             if (_caller != null)
             {
-                var topContainer = new VBoxContainer();
+                topContainer = new VBoxContainer();
                 topContainer.AddThemeConstantOverride("separation", 4);
                 
                 // Caller name label
@@ -346,6 +348,28 @@ namespace KBTV.UI
                     // Insert at index 1 (after title, before main content)
                     modalPanel.AddChild(topContainer);
                     modalPanel.MoveChild(topContainer, 1);
+                }
+            }
+
+            // Create rules description label
+            _descriptionLabel = new Label
+            {
+                Text = $"Guess the 5-letter code to unlock evidence!\nGreen = correct position • Yellow = wrong position • Red = wrong letter\n{_maxAttempts - _currentAttempt} attempts remaining",
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            _descriptionLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            _descriptionLabel.AddThemeFontSizeOverride("font_size", 14);
+
+            // Add description label to modal panel at index 1 (after title, before topContainer)
+            var modalPanel2 = GetNodeOrNull<Control>("ModalPanel");
+            if (modalPanel2 != null)
+            {
+                modalPanel2.AddChild(_descriptionLabel);
+                modalPanel2.MoveChild(_descriptionLabel, 1);
+                // Move topContainer to index 2 if it exists
+                if (topContainer != null && modalPanel2.GetChildCount() > 2)
+                {
+                    modalPanel2.MoveChild(topContainer, 2);
                 }
             }
 
@@ -1174,6 +1198,12 @@ namespace KBTV.UI
         private void UpdateUI()
         {
             _attemptsLabel.Text = $"Attempts remaining: {_maxAttempts - _currentAttempt}/{_maxAttempts}";
+
+            // Update description label with current attempts
+            if (_descriptionLabel != null)
+            {
+                _descriptionLabel.Text = $"Guess the 5-letter code to unlock evidence!\nGreen = correct position • Yellow = wrong position • Red = wrong letter\n{_maxAttempts - _currentAttempt} attempts remaining";
+            }
 
             // Update alphabet display
             UpdateAlphabetDisplay();
