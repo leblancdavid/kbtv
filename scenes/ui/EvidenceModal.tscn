@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/EvidenceModal.cs" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="1"]
-bg_color = Color(0.1, 0.1, 0.1, 0.95)
+bg_color = Color(0.1, 0.1, 0.1, 1)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_left = 12
@@ -13,6 +13,10 @@ border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.3, 0.3, 0.3, 1)
+content_margin_left = 20.0
+content_margin_top = 20.0
+content_margin_right = 20.0
+content_margin_bottom = 20.0
 
 [node name="EvidenceModal" type="Control"]
 layout_mode = 3
@@ -36,51 +40,104 @@ color = Color(0, 0, 0, 0.7)
 
 [node name="ModalPanel" type="Panel" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.25
-anchor_top = 0.25
-anchor_right = 0.75
-anchor_bottom = 0.75
+anchors_preset = 0
+anchor_left = 0.2
+anchor_top = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
 grow_horizontal = 2
 grow_vertical = 2
- theme_override_styles/panel = SubResource("1")
+theme_override_styles/panel = SubResource("1")
 
-
-
-[node name="TitleLabel" type="Label" parent="ModalPanel"]
-unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 40.0
-offset_left = 10.0
-offset_top = 10.0
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 24
-text = "Evidence Collection"
-horizontal_alignment = 1
-
-[node name="MainHBoxContainer" type="HBoxContainer" parent="ModalPanel"]
+[node name="ContentContainer" type="VBoxContainer" parent="ModalPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 10.0
-offset_top = 50.0
-offset_right = -10.0
-offset_bottom = -65.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 10
 
-[node name="LeftPanel" type="VBoxContainer" parent="ModalPanel/MainHBoxContainer"]
+
+
+
+[node name="HeaderContainer" type="HBoxContainer" parent="ModalPanel/ContentContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+custom_minimum_size = Vector2(0, 40)
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="ModalPanel/ContentContainer/HeaderContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 24
+text = "Evidence Collection"
+horizontal_alignment = 1
+
+[node name="LeftSpacer" type="Control" parent="ModalPanel/ContentContainer/HeaderContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_minimum_size = Vector2(450, 400)
+
+[node name="PatienceHBox" type="HBoxContainer" parent="ModalPanel/ContentContainer/HeaderContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="PatienceLabel" type="Label" parent="ModalPanel/ContentContainer/HeaderContainer/PatienceHBox"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Patience:"
+horizontal_alignment = 2
+
+[node name="PatienceProgressBar" type="ProgressBar" parent="ModalPanel/ContentContainer/HeaderContainer/PatienceHBox"]
+layout_mode = 2
+size_flags_horizontal = 0
+custom_minimum_size = Vector2(120, 32)
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="RightSpacer" type="Control" parent="ModalPanel/ContentContainer/HeaderContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="ContentVBox" type="VBoxContainer" parent="ModalPanel/ContentContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="DescriptionLabel" type="Label" parent="ModalPanel/ContentContainer/ContentVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+text = "Collect evidence by guessing the 5-letter word."
+autowrap_mode = 3
+
+[node name="MainHBoxContainer" type="HBoxContainer" parent="ModalPanel/ContentContainer/ContentVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 20
+
+[node name="LeftPanel" type="VBoxContainer" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.5
 theme_override_constants/separation = 15
 
-[node name="AttemptsLabel" type="Label" parent="ModalPanel/MainHBoxContainer/LeftPanel"]
+[node name="AttemptsLabel" type="Label" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/LeftPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -88,47 +145,53 @@ theme_override_font_sizes/font_size = 20
 text = "Attempts remaining: 6/6"
 horizontal_alignment = 1
 
-[node name="GuessHistory" type="ScrollContainer" parent="ModalPanel/MainHBoxContainer/LeftPanel"]
+[node name="GuessHistory" type="ScrollContainer" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/LeftPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_minimum_size = Vector2(420, 350)
 horizontal_scroll_mode = 0
 
-[node name="GuessHistoryContent" type="VBoxContainer" parent="ModalPanel/MainHBoxContainer/LeftPanel/GuessHistory"]
+[node name="GuessHistoryContent" type="VBoxContainer" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/LeftPanel/GuessHistory"]
 layout_mode = 2
 size_flags_horizontal = 3
-custom_minimum_size = Vector2(0, 350)
 theme_override_constants/separation = 5
 
-[node name="RightPanel" type="VBoxContainer" parent="ModalPanel/MainHBoxContainer"]
+[node name="RightPanel" type="VBoxContainer" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-custom_minimum_size = Vector2(300, 400)
+size_flags_stretch_ratio = 1.0
 theme_override_constants/separation = 15
 
-[node name="AlphabetDisplay" type="VBoxContainer" parent="ModalPanel/MainHBoxContainer/RightPanel"]
+[node name="AlphabetDisplay" type="VBoxContainer" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/RightPanel"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 theme_override_constants/separation = 15
 theme_override_constants/margin_left = 15
 theme_override_constants/margin_right = 15
 
-[node name="CollectButton" type="Button" parent="ModalPanel"]
+[node name="FooterHBox" type="HBoxContainer" parent="ModalPanel/ContentContainer/ContentVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+custom_minimum_size = Vector2(0, 50)
+theme_override_constants/separation = 10
+
+[node name="FooterSpacerLeft" type="Control" parent="ModalPanel/ContentContainer/ContentVBox/FooterHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CollectButton" type="Button" parent="ModalPanel/ContentContainer/ContentVBox/FooterHBox"]
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -100.0
-offset_top = -60.0
-offset_right = 100.0
-offset_bottom = -20.0
-grow_horizontal = 2
-grow_vertical = 0
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+custom_minimum_size = Vector2(200, 40)
 text = "Collect Evidence"
+
+[node name="FooterSpacerRight" type="Control" parent="ModalPanel/ContentContainer/ContentVBox/FooterHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
