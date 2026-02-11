@@ -249,6 +249,7 @@ namespace KBTV.Core
         EconomyManager.Initialize();
         ListenerManager.Initialize();
         SaveManager.Initialize();
+        SaveManager.Load();
         CallerGenerator.Initialize();
         
         // Register saveables with SaveManager
