@@ -479,6 +479,15 @@ namespace KBTV.Audio
 
         public override void _ExitTree()
         {
+            // Stop all audio playback and unsubscribe from player events
+            foreach (var player in _availablePlayers.Concat(_activePlayers).ToList())
+            {
+                player.Stop();
+                player.Finished -= () => OnPlayerFinished(player);
+            }
+            _availablePlayers.Clear();
+            _activePlayers.Clear();
+
             // Clean up completion sources
             foreach (var tcs in _completionSources.Values)
             {

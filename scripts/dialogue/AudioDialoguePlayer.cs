@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 using KBTV.Core;
@@ -17,6 +18,7 @@ namespace KBTV.Dialogue
         private AudioStreamPlayer _audioPlayer = null!;
         private string? _currentLineId;
         private readonly GameStateManager _gameStateManager;
+        private CancellationTokenSource _timerCancellationSource = null!;
 
         public event System.Action<AudioCompletedEvent>? LineCompleted;
 
@@ -32,6 +34,7 @@ namespace KBTV.Dialogue
             _audioPlayer = new AudioStreamPlayer();
             AddChild(_audioPlayer);
             _audioPlayer.Finished += OnAudioFinished;
+            _timerCancellationSource = new CancellationTokenSource();
         }
 
 public async void PlayBroadcastItemAsync(BroadcastItem item)
@@ -71,8 +74,15 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
 
         private async Task StartTimerFallbackAsync(float duration)
         {
-            await Task.Delay((int)(duration * 1000));
-            OnAudioFinished();
+            try
+            {
+                await Task.Delay((int)(duration * 1000), _timerCancellationSource.Token);
+                OnAudioFinished();
+            }
+            catch (OperationCanceledException)
+            {
+                // Timer was cancelled - don't fire completion event
+            }
         }
 
 
@@ -84,8 +94,19 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
                 _audioPlayer.Stop();
             }
 
-            // Note: Async timer fallback cannot be cancelled once started
+            _timerCancellationSource.Cancel();
+            _timerCancellationSource.Dispose();
+            _timerCancellationSource = new CancellationTokenSource();
+
             _currentLineId = null;
+        }
+
+        public override void _ExitTree()
+        {
+            Stop();
+            _audioPlayer.Finished -= OnAudioFinished;
+            _timerCancellationSource.Cancel();
+            _timerCancellationSource.Dispose();
         }
 
         private void OnAudioFinished()

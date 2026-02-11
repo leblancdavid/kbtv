@@ -273,6 +273,12 @@ namespace KBTV.Core
     public void OnExitTree()
     {
         Log.Debug("ServiceProviderRoot: Exiting scene tree");
+
+        if (EventBus != null)
+        {
+            EventBus.Clear();
+            Log.Debug("ServiceProviderRoot: Cleared EventBus subscribers");
+        }
     }
     }
 }

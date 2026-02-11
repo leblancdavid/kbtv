@@ -151,6 +151,9 @@ namespace KBTV.Dialogue
 
         public override void _ExitTree()
         {
+            // Stop any active timers
+            // Note: StartTimer is not yet implemented, but timer cleanup should be added here when implemented
+            
             // Unsubscribe from events to prevent memory leaks
             if (_repository != null)
             {

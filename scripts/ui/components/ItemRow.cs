@@ -167,5 +167,19 @@ namespace KBTV.UI.Components
                 _itemManager.UseCigarette(_vernStats);
             }
         }
+
+        public override void _ExitTree()
+        {
+            if (_useButton != null)
+            {
+                _useButton.Pressed -= OnUseButtonPressed;
+            }
+
+            if (_useTimer != null)
+            {
+                _useTimer.Stop();
+                _useTimer.Timeout -= OnTimerTimeout;
+            }
+        }
     }
 }

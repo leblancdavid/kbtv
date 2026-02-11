@@ -507,5 +507,19 @@ namespace KBTV.UI.Components
 
             return label;
         }
+
+        public override void _ExitTree()
+        {
+            if (_screeningController != null)
+            {
+                _screeningController.EvidenceCollected -= OnEvidenceCollected;
+                _screeningController.ProgressUpdated -= OnProgressUpdated;
+            }
+
+            if (_evidenceFoundButton != null)
+            {
+                _evidenceFoundButton.Pressed -= OnEvidenceFoundPressed;
+            }
+        }
     }
 }

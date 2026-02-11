@@ -21,6 +21,7 @@ namespace KBTV.UI
 
     private BroadcastItem? _currentBroadcastItem;
     private GameStateManager? _gameStateManager;
+    private Timer? _notificationTimer;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -52,9 +53,9 @@ namespace KBTV.UI
             // Dependencies resolved in OnResolved()
             
             // Add notification timer for temporary system messages
-            var notificationTimer = new Timer { OneShot = true, WaitTime = 2.0f };
-            AddChild(notificationTimer);
-            notificationTimer.Timeout += () => DeferredResetToWaitingDisplay();
+            _notificationTimer = new Timer { OneShot = true, WaitTime = 2.0f };
+            AddChild(_notificationTimer);
+            _notificationTimer.Timeout += () => DeferredResetToWaitingDisplay();
         }
 
         /// <summary>
@@ -464,6 +465,13 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
+            // Stop notification timer
+            if (_notificationTimer != null)
+            {
+                _notificationTimer.Stop();
+                _notificationTimer.Timeout -= () => DeferredResetToWaitingDisplay();
+            }
+
             // Unsubscribe from events to prevent memory leaks
             var eventBus = DependencyInjection.Get<EventBus>(this);
             if (eventBus != null)

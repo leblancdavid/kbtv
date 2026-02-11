@@ -383,5 +383,14 @@ public partial class BroadcastTimer : Node,
         /// Public interface for starting ad break timing.
         /// </summary>
         public void StartAdBreak(float duration = 30.0f) => StartAdBreakInternal(duration);
+
+        public override void _ExitTree()
+        {
+            foreach (var timer in _timers.Values)
+            {
+                timer.Stop();
+            }
+            _timers.Clear();
+        }
     }
 }

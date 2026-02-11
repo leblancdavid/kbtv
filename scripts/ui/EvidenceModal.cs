@@ -1298,6 +1298,24 @@ public partial class EvidenceModal : Control
             GD.Print("ERROR: Could not find ScrollContainer content in ShowDiscoveryMessage!");
         }
     }
+
+    public override void _ExitTree()
+    {
+        if (_caller != null)
+        {
+            _caller.OnDisconnected -= OnCallerDisconnected;
+        }
+
+        if (_collectButton != null)
+        {
+            _collectButton.Pressed -= OnCollectPressed;
+        }
+
+        if (_closeButton != null)
+        {
+            _closeButton.Pressed -= OnClosePressed;
+        }
+    }
 }
 
 public enum LetterState

@@ -349,5 +349,14 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
 			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
 		}
+
+		public override void _ExitTree()
+		{
+			var timeManager = DependencyInjection.Get<TimeManager>(this);
+			if (timeManager != null)
+			{
+				timeManager.OnShowEnded -= OnShowTimerExpired;
+			}
+		}
 	}
 }

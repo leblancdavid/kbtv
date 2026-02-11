@@ -456,7 +456,7 @@ namespace KBTV.Dialogue
             // Wait for task to complete
             try
             {
-                _broadcastTask?.Wait(TimeSpan.FromSeconds(5));
+                _broadcastTask?.Wait(TimeSpan.FromSeconds(10));
             }
             catch (Exception ex)
             {
@@ -594,6 +594,20 @@ namespace KBTV.Dialogue
                 }
             }
             _oldTokenSources.Clear();
+
+            // Dispose all token sources in the pool
+            foreach (var tokenSource in _tokenPool)
+            {
+                try
+                {
+                    tokenSource.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    KBTV.Core.Log.Error($"AsyncBroadcastLoop: Error disposing pooled token source: {ex.Message}");
+                }
+            }
+            _tokenPool.Clear();
             
             base._ExitTree();
         }
