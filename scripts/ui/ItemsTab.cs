@@ -1,5 +1,3 @@
-#nullable enable
-
 using Godot;
 using System;
 using KBTV.UI.Themes;
@@ -28,6 +26,13 @@ namespace KBTV.UI
         // Item rows
         private ItemRow? _coffeeRow;
         private ItemRow? _cigaretteRow;
+
+        private bool _evidenceSectionCreated = false;
+        private VBoxContainer? _innerContainer;
+        
+        // Evidence section UI elements for refreshing
+        private Label? _totalCountLabel;
+        private System.Collections.Generic.List<Label>? _tierCountLabels;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -67,7 +72,70 @@ namespace KBTV.UI
                 return;
             }
 
+            // Connect to save completion event for evidence loading
+            _saveManager.Connect("LoadCompleted", new Callable(this, "OnSaveLoaded"));
+            _saveManager.Connect("DataChanged", new Callable(this, "OnDataChanged"));
+            _saveManager.Connect("SaveCompleted", new Callable(this, "OnSaveCompleted"));
+            GD.Print("ItemsTab: Connected to LoadCompleted, DataChanged, and SaveCompleted signals");
+
+            GD.Print($"ItemsTab: Dependencies resolved - SaveManager: {_saveManager != null}, CurrentSave: {_saveManager?.CurrentSave != null}");
+
+            // Initialize tier count labels list
+            _tierCountLabels = new System.Collections.Generic.List<Label>();
+
+            if (_saveManager?.CurrentSave?.CollectedEvidence != null)
+            {
+                GD.Print($"ItemsTab: Found {_saveManager.CurrentSave.CollectedEvidence.Count} pieces of evidence");
+                foreach (var evidence in _saveManager.CurrentSave.CollectedEvidence)
+                {
+                    GD.Print($"ItemsTab: Evidence - Word: {evidence.Word}, Tier: {evidence.Tier}, Caller: {evidence.SourceCallerName}");
+                }
+            }
+            else
+            {
+                GD.Print("ItemsTab: No evidence found in save data");
+                if (_saveManager?.CurrentSave == null)
+                {
+                    GD.Print("ItemsTab: CurrentSave is null");
+                }
+                else
+                {
+                    GD.Print($"ItemsTab: CollectedEvidence is {(_saveManager.CurrentSave.CollectedEvidence != null ? $"not null, count {_saveManager.CurrentSave.CollectedEvidence.Count}" : "null")} (CurrentSave exists but no evidence list)");
+                }
+            }
+
             BuildUI();
+        }
+
+        public void OnSaveLoaded()
+        {
+            GD.Print("ItemsTab: Save loaded event received, checking for evidence");
+            if (_saveManager?.CurrentSave?.CollectedEvidence?.Count > 0 && !_evidenceSectionCreated)
+            {
+                GD.Print($"ItemsTab: Evidence available ({_saveManager.CurrentSave.CollectedEvidence.Count} items) - creating section");
+                if (_innerContainer != null)
+                {
+                    CreateEvidenceSection(_innerContainer);
+                }
+            }
+        }
+
+        public void OnDataChanged()
+        {
+            GD.Print("ItemsTab: DataChanged signal received, refreshing evidence section");
+            if (_evidenceSectionCreated)
+            {
+                RefreshEvidenceSection();
+            }
+        }
+
+        public void OnSaveCompleted()
+        {
+            GD.Print("ItemsTab: SaveCompleted signal received, refreshing evidence section");
+            if (_evidenceSectionCreated)
+            {
+                RefreshEvidenceSection();
+            }
         }
 
         private void BuildUI()
@@ -100,12 +168,12 @@ namespace KBTV.UI
             paddingContainer.AddThemeConstantOverride("margin_bottom", 12);
             paddingContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
 
-            var innerContainer = new VBoxContainer
+            _innerContainer = new VBoxContainer
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill
             };
-            innerContainer.AddThemeConstantOverride("separation", 16);
-            paddingContainer.AddChild(innerContainer);
+            _innerContainer.AddThemeConstantOverride("separation", 16);
+            paddingContainer.AddChild(_innerContainer);
             _contentContainer.AddChild(paddingContainer);
 
             // Add title
@@ -115,13 +183,13 @@ namespace KBTV.UI
                 HorizontalAlignment = HorizontalAlignment.Center
             };
             titleLabel.AddThemeFontSizeOverride("font_size", 18);
-            innerContainer.AddChild(titleLabel);
+            _innerContainer.AddChild(titleLabel);
 
             // Add item rows
-            CreateItemRows(innerContainer);
+            CreateItemRows(_innerContainer);
 
-            // Add evidence section
-            CreateEvidenceSection(innerContainer);
+            // Add evidence section (will be added later if evidence loads)
+            CreateEvidenceSection(_innerContainer);
         }
 
         private void CreateItemRows(VBoxContainer parent)
@@ -143,10 +211,23 @@ namespace KBTV.UI
 
         private void CreateEvidenceSection(VBoxContainer parent)
         {
-            if (_saveManager?.CurrentSave?.CollectedEvidence == null) return;
+            if (_evidenceSectionCreated || _saveManager?.CurrentSave?.CollectedEvidence == null) {
+                return;
+            }
 
             var evidence = _saveManager.CurrentSave.CollectedEvidence;
-            if (evidence.Count == 0) return;
+
+            _evidenceSectionCreated = true;
+            
+            // Clear and reinitialize tier count labels list
+            if (_tierCountLabels == null)
+            {
+                _tierCountLabels = new System.Collections.Generic.List<Label>();
+            }
+            else
+            {
+                _tierCountLabels.Clear();
+            }
 
             // Count evidence by tier
             var tierCounts = new System.Collections.Generic.Dictionary<EvidenceTier, int>();
@@ -174,13 +255,13 @@ namespace KBTV.UI
             parent.AddChild(evidenceTitleLabel);
 
             // Add total count
-            var totalCountLabel = new Label
+            _totalCountLabel = new Label
             {
                 Text = $"{evidence.Count} piece{(evidence.Count == 1 ? "" : "s")} collected",
                 HorizontalAlignment = HorizontalAlignment.Center
             };
-            totalCountLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            parent.AddChild(totalCountLabel);
+            _totalCountLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            parent.AddChild(_totalCountLabel);
 
             // Create horizontal layout for counts and button
             var evidenceHBox = new HBoxContainer();
@@ -204,6 +285,7 @@ namespace KBTV.UI
                 };
                 tierCountLabel.AddThemeColorOverride("font_color", GetTierColor(tier));
                 countsVBox.AddChild(tierCountLabel);
+                _tierCountLabels?.Add(tierCountLabel);
             }
 
             // Right side: Process button
@@ -223,8 +305,6 @@ namespace KBTV.UI
             // Placeholder implementation - processing logic to be implemented later
             GD.Print("Process Evidence button pressed - processing logic not yet implemented");
         }
-
-
 
         private Color GetTierColor(EvidenceTier tier)
         {
@@ -252,6 +332,45 @@ namespace KBTV.UI
             };
         }
 
+        private void RefreshEvidenceSection()
+        {
+            if (!_evidenceSectionCreated || _saveManager?.CurrentSave?.CollectedEvidence == null)
+            {
+                return;
+            }
 
+            var evidence = _saveManager.CurrentSave.CollectedEvidence;
+            
+            // Update total count
+            if (_totalCountLabel != null)
+            {
+                _totalCountLabel.Text = $"{evidence.Count} piece{(evidence.Count == 1 ? "" : "s")} collected";
+            }
+
+            // Count evidence by tier
+            var tierCounts = new System.Collections.Generic.Dictionary<EvidenceTier, int>();
+            foreach (var tier in System.Enum.GetValues<EvidenceTier>())
+            {
+                tierCounts[tier] = 0;
+            }
+            foreach (var evidenceItem in evidence)
+            {
+                tierCounts[evidenceItem.Tier]++;
+            }
+
+            // Update tier count labels
+            var tiers = System.Enum.GetValues<EvidenceTier>();
+            for (int i = 0; i < tiers.Length && i < _tierCountLabels?.Count; i++)
+            {
+                var tier = tiers[i];
+                var label = _tierCountLabels[i];
+                if (label != null)
+                {
+                    label.Text = $"{GetTierDisplayName(tier)}: {tierCounts[tier]}";
+                }
+            }
+
+            GD.Print($"ItemsTab: Refreshed evidence counts - Total: {evidence.Count}");
+        }
     }
 }

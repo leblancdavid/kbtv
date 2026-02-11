@@ -112,7 +112,7 @@ namespace KBTV.Persistence
         /// <summary>
         /// Collection of evidence items obtained from callers.
         /// </summary>
-        public List<EvidenceItem> CollectedEvidence;
+        public List<EvidenceItem> CollectedEvidence = new List<EvidenceItem>();
 
         /// <summary>
         /// Creates a new save with default starting values.

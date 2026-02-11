@@ -102,15 +102,15 @@ namespace KBTV.Persistence
         // Public API
         // ─────────────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Load save from disk, or create new if none exists.
-        /// </summary>
         public void Load()
         {
+            GD.Print("[SaveManager] Load() called");
             string path = GetSavePath();
+            GD.Print($"[SaveManager] Save path: {path}");
 
             if (Godot.FileAccess.FileExists(path))
             {
+                GD.Print($"[SaveManager] Save file exists at {path}");
                 var file = Godot.FileAccess.Open(path, Godot.FileAccess.ModeFlags.Read);
                 if (file == null)
                 {
@@ -132,9 +132,20 @@ namespace KBTV.Persistence
                         }
                         else
                         {
-                            // Deserialize JSON to SaveData
-                            var dict = (Godot.Collections.Dictionary)jsonParse;
-                            _currentSave = new SaveData
+                        // Deserialize JSON to SaveData
+                        var dict = (Godot.Collections.Dictionary)jsonParse;
+                        GD.Print($"[SaveManager] Parsed JSON keys: {string.Join(", ", dict.Keys)}");
+                        GD.Print($"[SaveManager] CollectedEvidence key exists: {dict.ContainsKey("CollectedEvidence")}");
+                        if (dict.ContainsKey("CollectedEvidence"))
+                        {
+                            GD.Print($"[SaveManager] CollectedEvidence type: {dict["CollectedEvidence"].VariantType}");
+                            if (dict["CollectedEvidence"].VariantType == Variant.Type.Array)
+                            {
+                                var arr = (Godot.Collections.Array)dict["CollectedEvidence"];
+                                GD.Print($"[SaveManager] CollectedEvidence array count: {arr.Count}");
+                            }
+                        }
+                        _currentSave = new SaveData
                             {
                                 Version = (int)(long)dict["Version"],
                                 LastSaveTime = dict["LastSaveTime"].ToString(),
@@ -159,21 +170,25 @@ namespace KBTV.Persistence
                                     ? ConvertToEvidenceList((Godot.Collections.Array)dict["CollectedEvidence"])
                                     : new List<EvidenceItem>()
                             };
-                        }
 
-                        // Handle version migration
-                        if (_currentSave.Version < CURRENT_VERSION)
-                        {
-                            _currentSave = MigrateSave(_currentSave);
-                            _isDirty = true;
-                        }
-                        else if (_currentSave.Version > CURRENT_VERSION)
-                        {
-                            Log.Error($"[SaveManager] Save file is from a newer version ({_currentSave.Version} > {CURRENT_VERSION}). Cannot load.");
-                            _currentSave = CreateNewSave();
-                        }
+                            GD.Print($"[SaveManager] Created SaveData with CollectedEvidence: {(_currentSave.CollectedEvidence != null ? $"not null, count {_currentSave.CollectedEvidence.Count}" : "null")}");
 
-                        Log.Debug($"[SaveManager] Loaded save from {path} (Night {_currentSave.CurrentNight}, ${_currentSave.Money})");
+                            GD.Print($"[SaveManager] Loaded {_currentSave.CollectedEvidence.Count} evidence items from save");
+
+                            // Handle version migration
+                            if (_currentSave.Version < CURRENT_VERSION)
+                            {
+                                _currentSave = MigrateSave(_currentSave);
+                                _isDirty = true;
+                            }
+                            else if (_currentSave.Version > CURRENT_VERSION)
+                            {
+                                Log.Error($"[SaveManager] Save file is from a newer version ({_currentSave.Version} > {CURRENT_VERSION}). Cannot load.");
+                                _currentSave = CreateNewSave();
+                            }
+
+                            Log.Debug($"[SaveManager] Loaded save from {path} (Night {_currentSave.CurrentNight}, ${_currentSave.Money})");
+                        }
                     }
                     catch (Exception e)
                     {
@@ -184,6 +199,7 @@ namespace KBTV.Persistence
             }
             else
             {
+                GD.Print("[SaveManager] No save file found, creating new save");
                 _currentSave = CreateNewSave();
             }
 
@@ -192,6 +208,7 @@ namespace KBTV.Persistence
 
             _isDirty = false;
             EmitSignal("LoadCompleted");
+            GD.Print("[SaveManager] LoadCompleted signal emitted");
         }
 
         /// <summary>
@@ -372,9 +389,11 @@ namespace KBTV.Persistence
         private List<EvidenceItem> ConvertToEvidenceList(Godot.Collections.Array godotArray)
         {
             var evidenceList = new List<EvidenceItem>();
+            Log.Debug($"[SaveManager] Converting {godotArray.Count} evidence items from JSON");
             foreach (var item in godotArray)
             {
                 var dict = (Godot.Collections.Dictionary)item;
+                Log.Debug($"[SaveManager] Processing evidence dict: Word={dict["Word"]}, CallerName={dict["CallerName"]}, EvidenceLevel={dict["EvidenceLevel"]}, Tier={dict["Tier"]}");
                 
                 // Try to get the tier from save data, otherwise roll a new one
                 EvidenceTier tier;
@@ -382,11 +401,13 @@ namespace KBTV.Persistence
                 {
                     int tierInt = (int)dict["Tier"];
                     tier = (EvidenceTier)tierInt;
+                    Log.Debug($"[SaveManager] Using saved tier: {(int)tier} ({tier})");
                 }
                 else
                 {
                     // Roll a new tier with default topic level 1 for backwards compatibility
                     tier = EvidenceLootTable.RollQuality(1);
+                    Log.Debug($"[SaveManager] No tier in save, rolled new tier: {(int)tier} ({tier})");
                 }
                 
                 var evidence = EvidenceItem.Create(
@@ -397,7 +418,9 @@ namespace KBTV.Persistence
                 );
                 
                 evidenceList.Add(evidence);
+                Log.Debug($"[SaveManager] Created evidence item: {evidence.Word} (Tier: {evidence.Tier})");
             }
+            Log.Debug($"[SaveManager] Converted {evidenceList.Count} evidence items total");
             return evidenceList;
         }
 
