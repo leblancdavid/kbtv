@@ -5,6 +5,7 @@ using Godot;
 using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Managers;
+using KBTV.Persistence;
 
 namespace KBTV.Items
 {
@@ -28,6 +29,9 @@ namespace KBTV.Items
         int GetIdentifiedCount();
         int GetCabinetCount();
         int GetWebsiteCount();
+        int GetRawCountByTier(EvidenceTier tier);
+        void AddEvidence(EvidenceItem item);
+        void PopulateFromSaveData(List<EvidenceItem> collectedEvidence);
     }
 
     public partial class EvidenceAnalyzer : Node, IEvidenceAnalyzer
@@ -51,6 +55,24 @@ namespace KBTV.Items
             if (ServiceRegistry.IsInitialized)
             {
                 ServiceRegistry.Instance.RegisterSelf<IEvidenceAnalyzer>(this);
+            }
+
+            var saveManager = ServiceRegistry.Instance?.Get<SaveManager>();
+            if (saveManager?.CurrentSave != null)
+            {
+                var evidenceSystem = saveManager.CurrentSave.EvidenceSystem;
+                if (evidenceSystem?.RawEvidence != null && evidenceSystem.RawEvidence.Count > 0)
+                {
+                    foreach (var data in evidenceSystem.RawEvidence)
+                    {
+                        var item = EvidenceItem.Create(data.Word, data.SourceCallerName, data.EvidenceLevel, (EvidenceTier)data.Tier);
+                        AddEvidence(item);
+                    }
+                }
+                else if (saveManager.CurrentSave.CollectedEvidence != null && saveManager.CurrentSave.CollectedEvidence.Count > 0)
+                {
+                    PopulateFromSaveData(saveManager.CurrentSave.CollectedEvidence);
+                }
             }
         }
 
@@ -228,5 +250,20 @@ namespace KBTV.Items
         public int GetIdentifiedCount() => _evidence.Count(e => e.Status == EvidenceStatus.Identified);
         public int GetCabinetCount() => _evidence.Count(e => e.Status == EvidenceStatus.InCabinet);
         public int GetWebsiteCount() => _evidence.Count(e => e.Status == EvidenceStatus.OnWebsite);
+
+        public int GetRawCountByTier(EvidenceTier tier)
+        {
+            return _evidence.Count(e => e.Status == EvidenceStatus.Raw && e.Tier == tier);
+        }
+
+        public void PopulateFromSaveData(List<EvidenceItem> collectedEvidence)
+        {
+            _evidence.Clear();
+            foreach (var item in collectedEvidence)
+            {
+                var identified = IdentifiedEvidence.CreateRaw(item);
+                _evidence.Add(identified);
+            }
+        }
     }
 }

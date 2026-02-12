@@ -27,6 +27,11 @@ namespace KBTV.UI
         private bool _websiteSectionCreated;
 
         private Label? _rawCountLabel;
+        private Label? _commonCountLabel;
+        private Label? _uncommonCountLabel;
+        private Label? _rareCountLabel;
+        private Label? _veryRareCountLabel;
+        private Label? _oneOfAKindCountLabel;
         private Label? _processingCountLabel;
         private Label? _identifiedCountLabel;
         private Label? _cabinetCountLabel;
@@ -49,10 +54,30 @@ namespace KBTV.UI
             {
                 _saveManager.Connect("DataChanged", new Callable(this, "OnDataChanged"));
                 _saveManager.Connect("SaveCompleted", new Callable(this, "OnDataChanged"));
+                PopulateEvidenceFromSave();
             }
 
             BuildUI();
             RefreshAllSections();
+        }
+
+        private void PopulateEvidenceFromSave()
+        {
+            if (_saveManager?.CurrentSave == null || _analyzer == null) return;
+
+            var evidenceSystem = _saveManager.CurrentSave.EvidenceSystem;
+            if (evidenceSystem?.RawEvidence != null && evidenceSystem.RawEvidence.Count > 0)
+            {
+                foreach (var data in evidenceSystem.RawEvidence)
+                {
+                    var item = EvidenceItem.Create(data.Word, data.SourceCallerName, data.EvidenceLevel, (EvidenceTier)data.Tier);
+                    _analyzer.AddEvidence(item);
+                }
+            }
+            else if (_saveManager.CurrentSave.CollectedEvidence != null && _saveManager.CurrentSave.CollectedEvidence.Count > 0)
+            {
+                _analyzer.PopulateFromSaveData(_saveManager.CurrentSave.CollectedEvidence);
+            }
         }
 
         private void BuildUI()
@@ -134,6 +159,31 @@ namespace KBTV.UI
             _rawCountLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
             headerBox.AddChild(_rawCountLabel);
 
+            var tierCountsContainer = new HBoxContainer();
+            tierCountsContainer.AddThemeConstantOverride("separation", 16);
+            tierCountsContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            parent.AddChild(tierCountsContainer);
+
+            _commonCountLabel = new Label { Text = "Common: 0" };
+            _commonCountLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            tierCountsContainer.AddChild(_commonCountLabel);
+
+            _uncommonCountLabel = new Label { Text = "Uncommon: 0" };
+            _uncommonCountLabel.AddThemeColorOverride("font_color", UIColors.Accent.Green);
+            tierCountsContainer.AddChild(_uncommonCountLabel);
+
+            _rareCountLabel = new Label { Text = "Rare: 0" };
+            _rareCountLabel.AddThemeColorOverride("font_color", UIColors.Accent.Blue);
+            tierCountsContainer.AddChild(_rareCountLabel);
+
+            _veryRareCountLabel = new Label { Text = "Very Rare: 0" };
+            _veryRareCountLabel.AddThemeColorOverride("font_color", UIColors.Accent.Purple);
+            tierCountsContainer.AddChild(_veryRareCountLabel);
+
+            _oneOfAKindCountLabel = new Label { Text = "One of a Kind: 0" };
+            _oneOfAKindCountLabel.AddThemeColorOverride("font_color", UIColors.Accent.Gold);
+            tierCountsContainer.AddChild(_oneOfAKindCountLabel);
+
             var identifyButton = new Button
             {
                 Text = "IDENTIFY ALL",
@@ -143,8 +193,6 @@ namespace KBTV.UI
             UITheme.ApplyButtonStyle(identifyButton);
             identifyButton.Pressed += OnIdentifyAllPressed;
             parent.AddChild(identifyButton);
-
-            _rawSectionCreated = true;
         }
 
         private void CreateProcessingSection(VBoxContainer parent)
@@ -379,6 +427,17 @@ namespace KBTV.UI
 
             int count = _analyzer.GetRawCount();
             _rawCountLabel.Text = $"{count} piece{(count == 1 ? "" : "s")}";
+
+            if (_commonCountLabel != null)
+                _commonCountLabel.Text = $"Common: {_analyzer.GetRawCountByTier(EvidenceTier.Common)}";
+            if (_uncommonCountLabel != null)
+                _uncommonCountLabel.Text = $"Uncommon: {_analyzer.GetRawCountByTier(EvidenceTier.Uncommon)}";
+            if (_rareCountLabel != null)
+                _rareCountLabel.Text = $"Rare: {_analyzer.GetRawCountByTier(EvidenceTier.Rare)}";
+            if (_veryRareCountLabel != null)
+                _veryRareCountLabel.Text = $"Very Rare: {_analyzer.GetRawCountByTier(EvidenceTier.VeryRare)}";
+            if (_oneOfAKindCountLabel != null)
+                _oneOfAKindCountLabel.Text = $"One of a Kind: {_analyzer.GetRawCountByTier(EvidenceTier.OneOfAKind)}";
         }
 
         private void RefreshProcessingSection()
