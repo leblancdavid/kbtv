@@ -2,279 +2,248 @@
 
 ## Overview
 
-The evidence system allows players to collect, catalog, and display supernatural evidence discovered during broadcasts. Evidence serves as collectible loot that rewards exploration and provides stat bonuses to specific topics.
+The evidence system allows players to collect raw evidence during broadcasts, identify it to discover its properties, and then either sell it for money or store it for passive bonuses.
 
 ## Core Concepts
 
 | Concept | Description |
 |---------|-------------|
-| **Evidence Type** | Category of evidence (Photo, Audio, Sample, Document, Video) |
-| **Evidence Tier** | Rarity level (Common → Legendary), replaces lower tiers |
-| **Evidence Cabinet** | Display storage with upgradeable slots |
-| **Set Bonus** | Bonus granted when collecting all 5 types at a tier |
+| **Raw Evidence** | Unidentified evidence collected from callers |
+| **Identified Evidence** | Evidence with discovered properties and bonuses |
+| **Evidence Bonus Types** | Categories of bonuses (stats, income, listeners, etc.) |
+| **Evidence Cabinet** | Storage for passive stat bonuses |
+| **Evidence Website** | Public posting for passive income |
+| **Evidence Tier** | Rarity level (Common → One of a Kind) |
 
-## Evidence Types
+## Evidence Lifecycle
 
-| Type | Icon | Description |
-|------|------|-------------|
-| `Photo` | 📷 | Photographic evidence of paranormal activity |
-| `Audio` | 🎙️ | Recordings of voices, EVP, or unexplained sounds |
-| `Sample` | 🧪 | Physical traces (dust, residue, biological samples) |
-| `Document` | 📄 | Papers, journals, photographs, or records |
-| `Video` | 🎥 | Video footage of paranormal events |
+```
+1. COLLECT → Raw evidence from screening (Wordle minigame)
+2. PROCESS → Identify evidence (time-based on quality)
+3. DECIDE → Sell for money OR Store in Cabinet/Website
+```
 
-## Tier Progression
+## Evidence Tiers
 
-Each evidence type has 5 tiers. Higher tiers replace lower tiers (no duplicates stored):
+| Tier | Color | Analysis Time | Sell Price |
+|------|-------|----------------|------------|
+| Common | Gray | 5 seconds | $25 |
+| Uncommon | Green | 10 seconds | $50 |
+| Rare | Blue | 15 seconds | $100 |
+| Very Rare | Purple | 25 seconds | $200 |
+| One of a Kind | Gold | 45 seconds | $500 |
 
-| Tier | Name | Color | Rarity | Display Effect |
-|------|------|-------|--------|----------------|
-| 1 | Common | Gray | ~40% | Basic frame, no glow |
-| 2 | Uncommon | Green | ~30% | Simple frame, faint glow |
-| 3 | Rare | Blue | ~18% | Ornate frame, soft glow |
-| 4 | Epic | Purple | ~9% | Glowing frame, particles |
-| 5 | Legendary | Gold | ~3% | Radiant frame, intense effects |
+## Bonus Types
 
-## Evidence Sources
+| Bonus Type | Description | Cabinet | Website |
+|------------|-------------|---------|---------|
+| **Vern Physical** | Passive Physical stat bonus | ✓ | ✗ |
+| **Vern Emotional** | Passive Emotional stat bonus | ✓ | ✗ |
+| **Vern Mental** | Passive Mental stat bonus | ✓ | ✗ |
+| **Listener Growth** | Faster listener growth rate | ✓ | ✗ |
+| **Show Quality** | Base show quality bonus | ✓ | ✗ |
+| **Topic XP** | XP gain for specific topic | ✓ | ✗ |
+| **Income/Show** | Passive income per broadcast | ✗ | ✓ |
+| **Screening Info** | More info during screening | ✓ | ✗ |
 
-### Event Drops
+## Bonus Values by Tier
 
-Special events are the primary source of evidence. See [SPECIAL_EVENTS.md](SPECIAL_EVENTS.md) for details.
+| Bonus Type | Common | Uncommon | Rare | Very Rare | One of a Kind |
+|------------|--------|----------|------|-----------|---------------|
+| Vern Physical | +2 | +4 | +7 | +11 | +16 |
+| Vern Emotional | +2 | +4 | +7 | +11 | +16 |
+| Vern Mental | +2 | +4 | +7 | +11 | +16 |
+| Listener Growth | +3% | +6% | +10% | +15% | +22% |
+| Show Quality | +1% | +2% | +4% | +7% | +12% |
+| Topic XP | +5% | +10% | +15% | +22% | +35% |
+| Income/Show | $2 | $5 | $10 | $18 | $35 |
+| Screening Info | +1 | +2 | +3 | +5 | +8 |
 
-### Tool Bonus
+## Storage Systems
 
-Investigation tools increase evidence quality and drop rate. See [TOOLS_EQUIPMENT.md](TOOLS_EQUIPMENT.md).
+### Evidence Cabinet
 
-### Topic Bonuses
-
-Certain evidence provides bonuses to specific topics:
-
-| Evidence | Topic Bonus |
-|----------|-------------|
-| UFO Photos | +15% Listener Growth (UFOs) |
-| Government Documents | +20% Screening Info (Government) |
-| Ghost Audio | +10% Discernment (Supernatural) |
-| Bigfoot Hair Sample | +15% Caller Quality (Cryptids) |
-
-## Evidence Cabinet
-
-The cabinet stores collected evidence. Players start with limited slots and can upgrade.
-
-### Cabinet Slots
+Stores identified evidence for passive stat bonuses.
 
 | Upgrade | Slots | Cost |
 |---------|-------|------|
-| Basic Cabinet | 15 (3 per type) | — |
-| Extended Cabinet | 25 (5 per type) | $500 |
-| Professional Display | 40 (8 per type) | $1,500 |
-| Museum Quality | 60 (12 per type) | $4,000 |
+| Basic Cabinet | 5 | — |
+| Extended Cabinet | 10 | $300 |
+| Professional Display | 15 | $600 |
+| Museum Quality | 20 | $900 |
 
-### Organization
+**Active Bonuses** (sum of all evidence in cabinet):
+- Stat bonuses (Physical, Emotional, Mental)
+- Listener growth bonus
+- Show quality bonus
+- Topic XP bonus
+- Screening info bonus
 
-- Evidence is automatically organized by type
-- Within each type, higher tiers appear first
-- Players can favorites evidence for quick access
+### Evidence Website
 
-## Set Bonuses
+Posts evidence publicly for passive income based on listeners.
 
-Collecting all 5 evidence types at a tier grants a bonus:
+| Upgrade | Slots | Cost |
+|---------|-------|------|
+| Basic Website | 5 | — |
+| Extended Website | 10 | $400 |
+| Professional Site | 15 | $800 |
+| News Empire | 20 | $1,200 |
 
-| Complete Set | Bonus |
-|--------------|-------|
-| Common Set | +5% All Topic XP |
-| Uncommon Set | +10% All Topic XP |
-| Rare Set | +15% All Topic XP, +5% Show Quality |
-| Epic Set | +20% All Topic XP, +10% Show Quality, +$50/night |
-| Legendary Set | +25% All Topic XP, +15% Show Quality, +$150/night |
+**Income Formula:**
+```
+Base Income × (Listeners / 1000)
+```
 
-## Event Interactions
+Example: Very Rare evidence ($18 base) with 5,000 listeners = $90/show
 
-Special events can affect evidence:
+## Evidence Analysis
 
-### Theft Events
+### Process
 
-Some events may steal evidence from the cabinet:
-- Random chance during "Suspicious Van" (Government)
-- Evidence of specific type is removed
-- Legendary evidence cannot be stolen
-- Insurance can be purchased ($200/night) to prevent theft
+1. Collect raw evidence from screening (Wordle minigame)
+2. Click "Identify All" in Evidence tab
+3. Wait for analysis (time based on tier)
+4. Notification when ready
 
-### Breakage Events
+### Analysis Time (Testing)
 
-Physical events can damage evidence:
-- "Poltergeist" events may break framed evidence
-- Broken evidence is lost permanently
-- Display cases provide protection (Epic+)
+| Tier | Time |
+|------|------|
+| Common | 5 seconds |
+| Uncommon | 10 seconds |
+| Rare | 15 seconds |
+| Very Rare | 25 seconds |
+| One of a Kind | 45 seconds |
+
+**Future Enhancement:** Equipment upgrades can reduce analysis time and enable parallel processing.
+
+## Evidence Tab UI
+
+```
+┌─ EVIDENCE ────────────────────────────────┐
+│                                            │
+│  ┌─ RAW EVIDENCE (3) ──────────────────┐  │
+│  │ [Evidence Name]                    │  │
+│  │ [Evidence Name]                    │  │
+│  │ [Evidence Name]                    │  │
+│  │                                     │  │
+│  │ [ IDENTIFY ALL (10s each) ]       │  │
+│  └────────────────────────────────────┘  │
+│                                            │
+│  ┌─ PROCESSING (1) ───────────────────┐  │
+│  │ Analyzing: "UFO Sighting Report"   │  │
+│  │ [██████████░░░░░░░] 50% - 12s left │  │
+│  └────────────────────────────────────┘  │
+│                                            │
+│  ┌─ IDENTIFIED (5) ────────────────────┐  │
+│  │ [✓] UFO Sighting (Mental +7)       │  │
+│  │   [CABINET] [WEBSITE] [SELL $100] │  │
+│  │                                      │  │
+│  │ [✓] Ghost Photo (Show Quality +4%) │  │
+│  │   [CABINET] [WEBSITE] [SELL $100] │  │
+│  └────────────────────────────────────┘  │
+│                                            │
+│  ┌─ FILE CABINET (3/5) ────────────────┐ │
+│  │ Physical +11  |  Quality +7%        │ │
+│  │ [Ghost Photo] [UFO Sighting]        │ │
+│  │ [Mothman Footage]                    │ │
+│  │ [+ UPGRADE CABINET]                  │ │
+│  └────────────────────────────────────┘ │
+│                                            │
+│  ┌─ WEBSITE (2/5) ──────────────────────┐ │
+│  │ Income/Show: $24 (+12% listeners)   │ │
+│  │ [Bigfoot Hair Sample]                 │ │
+│  │ [Roswell Debris]                     │ │
+│  │ [+ UPGRADE WEBSITE]                  │ │
+│  └────────────────────────────────────┘ │
+│                                            │
+└────────────────────────────────────────────┘
+```
 
 ## Architecture
 
-### Components
+### Core Classes
 
-| Component | Description |
-|-----------|-------------|
-| `EvidenceType` | Enum of evidence categories |
-| `EvidenceTier` | Enum of rarity levels |
-| `EvidenceData` | Data class for single evidence item |
-| `EvidenceCabinet` | Singleton managing storage and display |
-| `EvidenceGenerator` | Handles evidence generation from events |
-| `EvidenceSetManager` | Tracks set collection and bonuses |
+| Class | Description |
+|-------|-------------|
+| `EvidenceBonusType` | Enum of bonus categories |
+| `EvidenceBonusConfig` | Static config for bonus values |
+| `IdentifiedEvidence` | Evidence with bonus properties |
+| `EvidenceAnalyzer` | Service for identification and management |
+| `EvidenceCabinet` | Passive stat bonus storage |
+| `EvidenceWebsite` | Passive income system |
 
-### EvidenceData Class
+### EvidenceAnalyzer API
 
 ```csharp
-[Serializable]
-public class EvidenceData
+public interface IEvidenceAnalyzer
 {
-    public EvidenceType Type;
-    public EvidenceTier Tier;
-    public string Title;           // "UFO Photo #42"
-    public string Description;     // Fluff text describing the evidence
-    public DateTime CollectedDate;
-    public TopicType? TopicBonus;  // Null if generic
+    List<IdentifiedEvidence> GetRawEvidence();
+    List<IdentifiedEvidence> GetProcessingEvidence();
+    List<IdentifiedEvidence> GetIdentifiedEvidence();
+    List<IdentifiedEvidence> GetCabinetEvidence();
+    List<IdentifiedEvidence> GetWebsiteEvidence();
+
+    void StartAnalysis(IdentifiedEvidence evidence);
+    void StartAnalysisAll();
+    void MoveToCabinet(IdentifiedEvidence evidence);
+    void MoveToWebsite(IdentifiedEvidence evidence);
+    bool SellEvidence(IdentifiedEvidence evidence);
+
+    float GetTotalCabinetBonus(EvidenceBonusType type);
+    float CalculatePassiveIncome(int currentListeners);
 }
 ```
 
-### EvidenceCabinet API
+### IdentifiedEvidence Class
 
 ```csharp
-public class EvidenceCabinet : MonoBehaviour
+public class IdentifiedEvidence : EvidenceItem
 {
-    public int TotalSlots;
-    public int UsedSlots;
-    public Dictionary<EvidenceType, List<EvidenceData>> StoredEvidence;
-    
-    public bool AddEvidence(EvidenceData evidence);
-    public bool HasEvidence(EvidenceType type, EvidenceTier tier);
-    public int GetCountByType(EvidenceType type);
-    public int GetSetBonusLevel(EvidenceTier tier);
-    public void TriggerSetBonuses();
+    public EvidenceBonusType BonusType;
+    public float BonusAmount;
+    public EvidenceStatus Status;  // Raw, Processing, Identified, InCabinet, OnWebsite, Sold
+
+    public string BonusDisplayName => EvidenceBonusConfig.GetBonusDisplayName(BonusType);
+    public string BonusDescription => EvidenceBonusConfig.GetBonusDescription(BonusType, BonusAmount);
+    public int SellPrice => EvidenceBonusConfig.GetSellPrice(Tier);
+    public float AnalysisTimeSeconds => EvidenceBonusConfig.GetAnalysisTimeSeconds(Tier);
 }
-```
-
-### EvidenceGenerator Class
-
-```csharp
-public class EvidenceGenerator
-{
-    public EvidenceData GenerateEvidence(
-        SpecialEventType eventType,
-        int toolLevel,
-        TopicType? relatedTopic = null);
-    
-    public float GetDropChance(SpecialEventType eventType, int toolLevel);
-    public EvidenceTier RollTier();
-}
-```
-
-## UI Design
-
-### Cabinet View
-
-```
-+------------------------------------------+
-|           EVIDENCE CABINET               |
-|  Set Bonus: Rare Set Complete! (+15% XP) |
-+------------------------------------------+
-|  [Photo]  [Audio]  [Sample]  [Doc]  [Vid]|
-+------------------------------------------+
-|                                          |
-|  📷 PHOTOS (4/8 slots)                   |
-|  +----------------------------------+    |
-|  | [🏆] UFO Photo - Mysterious      |    |
-|  |     Lights Over Nevada           |    |
-|  |     Tier: Epic | XP: +15% UFO    |    |
-|  +----------------------------------+    |
-|  | [⭐] EVP Recording Session       |    |
-|  |     "They're here..."            |    |
-|  |     Tier: Rare | XP: +10% All    |    |
-|  +----------------------------------+    |
-|                                          |
-|  🎙️ AUDIO (2/8 slots)                   |
-|  +----------------------------------+    |
-|  | [🥇] Government Wiretap          |    |
-|  |     Classified conversation      |    |
-|  |     Tier: Legendary | XP: +20%   |    |
-|  |     GOVT                       |    |
-|  +----------------------------------+    |
-|                                          |
-+------------------------------------------+
-|  [Upgrade Cabinet - $1,500]              |
-+------------------------------------------+
-```
-
-### Evidence Detail View
-
-```
-+------------------------------------------+
-|  📷 UFO Photo - Mysterious Lights        |
-+------------------------------------------+
-|          [ GOLDEN FRAME ]                |
-|                                          |
-|    ▓▓▓      ░░░                          |
-|   ▓▓▓▓▓   ░░░░░                          |
-|    ▓▓▓      ░░░    🔴 LIVE               |
-|                                          |
-|     Over Area 51, 3:47 AM                |
-+------------------------------------------+
-|  Tier: Legendary (5/5)                   |
-|  Bonus: +20% Topic XP (UFO)              |
-|  Collected: Night 23                     |
-+------------------------------------------+
-|  [Favorite]  [Rotate]  [Close]           |
-+------------------------------------------+
 ```
 
 ## Persistence
 
-Evidence is saved in `SaveData`:
+Evidence data is saved in `SaveData`:
 
 ```csharp
+public class EvidenceSystemData
+{
+    public List<IdentifiedEvidenceData> RawEvidence;
+    public List<IdentifiedEvidenceData> ProcessingEvidence;
+    public List<IdentifiedEvidenceData> IdentifiedEvidence;
+    public EvidenceCabinetData Cabinet;
+    public EvidenceWebsiteData Website;
+}
+
 public class SaveData
 {
-    public List<EvidenceData> CollectedEvidence;
-    public int CabinetSlots;
-    public HashSet<string> FavoriteEvidenceIds;
-    public int InsuranceActiveWeeks;  // 0 = inactive
+    public EvidenceSystemData EvidenceSystem;
+    // ... other fields
 }
 ```
 
-## Balance Notes
-
-### Drop Rates
-
-| Event Tier | Base Drop Chance | With Max Tools |
-|------------|------------------|----------------|
-| Tier 1 (Minor) | 25% | 50% |
-| Tier 2 (Major) | 50% | 80% |
-| Tier 3 (Critical) | 75% | 100% |
-
-### Tier Distribution
-
-| Tier | Weight |
-|------|--------|
-| Common | 40% |
-| Uncommon | 30% |
-| Rare | 18% |
-| Epic | 9% |
-| Legendary | 3% |
-
-### Expected Collection Rate
-
-- One evidence every 2-3 events on average
-- Complete Common set: ~10-15 events
-- Complete Legendary set: ~200+ events
-
 ## Future Enhancements
 
-- **Evidence trading**: Trade with other stations
+- **Parallel Processing**: Equipment upgrades for simultaneous analysis
+- **Faster Analysis**: Upgradeable lab equipment
+- **Set Bonuses**: Collect all bonus types at a tier for extra bonuses
+- **Evidence Trading**: Trade with other stations
 - **Authentication**: Some evidence can be proven fake
 - **Research**: Combine evidence for discoveries
-- **Story unlocks**: Legendary sets unlock special arcs
-- **Photo mode**: Zoom and rotate evidence in detail view
 
 ## References
 
-- [SPECIAL_EVENTS.md](SPECIAL_EVENTS.md) - Event system that generates evidence
-- [TOOLS_EQUIPMENT.md](TOOLS_EQUIPMENT.md) - Tools that improve evidence quality
-- [TOPIC_EXPERIENCE.md](TOPIC_EXPERIENCE.md) - Topic bonuses
-- [ECONOMY_SYSTEM.md](ECONOMY_SYSTEM.md) - Purchasing cabinet upgrades
+- [TOOLS_EQUIPMENT.md](TOOLS_EQUIPMENT.md) - Investigation tools
+- [ECONOMY_SYSTEM.md](ECONOMY_SYSTEM.md) - Economy and income
+- [GAME_DESIGN.md](../design/GAME_DESIGN.md) - Overall game design

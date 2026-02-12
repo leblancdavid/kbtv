@@ -84,7 +84,7 @@ namespace KBTV.UI
 
         private void InitializeTabs()
         {
-            // Tab order: CALLERS, VERN, TOPIC, ITEMS
+            // Tab order: CALLERS, VERN, TOPIC, ITEMS, EVIDENCE
 
             // CALLERS tab
             var callerTabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerTab.tscn");
@@ -140,6 +140,20 @@ namespace KBTV.UI
             {
                 Log.Error("TabContainerManager: Failed to load ItemsTab.tscn");
                 AddPlaceholderTab("ITEMS");
+            }
+
+            // EVIDENCE tab
+            var evidenceTabScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/EvidenceTab.tscn");
+            if (evidenceTabScene != null)
+            {
+                var evidenceTab = evidenceTabScene.Instantiate<Control>();
+                _tabContainer.AddChild(evidenceTab);
+                _tabContainer.SetTabTitle(evidenceTab.GetIndex(), "EVIDENCE");
+            }
+            else
+            {
+                Log.Error("TabContainerManager: Failed to load EvidenceTab.tscn");
+                AddPlaceholderTab("EVIDENCE");
             }
         }
 

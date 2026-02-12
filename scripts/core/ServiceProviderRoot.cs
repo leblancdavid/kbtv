@@ -11,6 +11,7 @@ using KBTV.Screening;
 using KBTV.Audio;
 using KBTV.Monitors;
 using KBTV.Broadcast;
+using KBTV.Items;
 
 namespace KBTV.Core
 {
@@ -46,7 +47,10 @@ namespace KBTV.Core
     IProvide<ConversationStatTracker>,
     IProvide<TopicManager>,
     IProvide<ItemManager>,
-    IProvide<ModalManager>
+    IProvide<ModalManager>,
+    IProvide<IEvidenceAnalyzer>,
+    IProvide<IEvidenceCabinet>,
+    IProvide<IEvidenceWebsite>
 {
     public override void _Notification(int what) => this.Notify(what);
 
@@ -75,6 +79,9 @@ namespace KBTV.Core
     public TopicManager TopicManager { get; private set; } = null!;
     public ItemManager ItemManager { get; private set; } = null!;
     public ModalManager ModalManager { get; private set; } = null!;
+    public EvidenceAnalyzer EvidenceAnalyzer { get; private set; } = null!;
+    public EvidenceCabinet EvidenceCabinet { get; private set; } = null!;
+    public EvidenceWebsite EvidenceWebsite { get; private set; } = null!;
 
     // Provider interface implementations
     GameStateManager IProvide<GameStateManager>.Value() => GameStateManager;
@@ -104,6 +111,9 @@ namespace KBTV.Core
     TopicManager IProvide<TopicManager>.Value() => TopicManager;
     ItemManager IProvide<ItemManager>.Value() => ItemManager;
     ModalManager IProvide<ModalManager>.Value() => ModalManager;
+    IEvidenceAnalyzer IProvide<IEvidenceAnalyzer>.Value() => EvidenceAnalyzer;
+    IEvidenceCabinet IProvide<IEvidenceCabinet>.Value() => EvidenceCabinet;
+    IEvidenceWebsite IProvide<IEvidenceWebsite>.Value() => EvidenceWebsite;
 
     /// <summary>
     /// Initialize all service providers and register them with AutoInject.
@@ -178,6 +188,11 @@ namespace KBTV.Core
         // Create conversation stat tracker (depends on GameStateManager.VernStats)
         var conversationStatTracker = new ConversationStatTracker(gameStateManager, topicManager);
 
+        // Create evidence system services
+        var evidenceAnalyzer = new EvidenceAnalyzer();
+        var evidenceCabinet = new EvidenceCabinet();
+        var evidenceWebsite = new EvidenceWebsite();
+
         // Phase 2: Set all provider properties (now dependency injection will work)
         Log.Debug("ServiceProviderRoot: Phase 2 - Setting provider properties...");
 
@@ -205,6 +220,9 @@ namespace KBTV.Core
         TopicManager = topicManager;
         ItemManager = itemManager;
         ModalManager = modalManager;
+        EvidenceAnalyzer = evidenceAnalyzer;
+        EvidenceCabinet = evidenceCabinet;
+        EvidenceWebsite = evidenceWebsite;
 
         // Make all services available BEFORE adding children to the scene tree
         Log.Debug("ServiceProviderRoot: Making services available for dependency injection...");
@@ -232,6 +250,9 @@ namespace KBTV.Core
         AddChild(deadAirManager);
         AddChild(itemManager);
         AddChild(modalManager);
+        AddChild(evidenceAnalyzer);
+        AddChild(evidenceCabinet);
+        AddChild(evidenceWebsite);
 
         Log.Debug("ServiceProviderRoot: All providers created and added to scene tree");
     }
@@ -251,10 +272,13 @@ namespace KBTV.Core
         SaveManager.Initialize();
         SaveManager.Load();
         CallerGenerator.Initialize();
-        
+        EvidenceAnalyzer.Initialize();
+        EvidenceCabinet.Initialize();
+        EvidenceWebsite.Initialize();
+
         // Register saveables with SaveManager
         SaveManager.RegisterSaveable(TopicManager);
-        
+
         // Services are already provided in Initialize() - don't call this.Provide() again
     }
 

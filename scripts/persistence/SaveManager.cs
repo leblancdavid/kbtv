@@ -27,7 +27,7 @@ namespace KBTV.Persistence
         private bool _isDirty;
         private List<ISaveable> _saveables = new List<ISaveable>();
         private const string SAVE_FILENAME = "save.json";
-        private const int CURRENT_VERSION = 3;
+        private const int CURRENT_VERSION = 4;
 
         // ─────────────────────────────────────────────────────────────
         // CONSTANTS
@@ -168,7 +168,10 @@ namespace KBTV.Persistence
                                     : new List<SaveData.TopicXPData>(),
                                 CollectedEvidence = dict.ContainsKey("CollectedEvidence") && dict["CollectedEvidence"].VariantType == Variant.Type.Array
                                     ? ConvertToEvidenceList((Godot.Collections.Array)dict["CollectedEvidence"])
-                                    : new List<EvidenceItem>()
+                                    : new List<EvidenceItem>(),
+                                EvidenceSystem = dict.ContainsKey("EvidenceSystem") && dict["EvidenceSystem"].VariantType == Variant.Type.Dictionary
+                                    ? ConvertToEvidenceSystemData((Godot.Collections.Dictionary)dict["EvidenceSystem"])
+                                    : new EvidenceSystemData()
                             };
 
                             GD.Print($"[SaveManager] Created SaveData with CollectedEvidence: {(_currentSave.CollectedEvidence != null ? $"not null, count {_currentSave.CollectedEvidence.Count}" : "null")}");
@@ -233,6 +236,39 @@ namespace KBTV.Persistence
                 Log.Debug("[SaveManager] Migrated save: Initialized CollectedEvidence list");
             }
 
+            // Version 3 -> 4: Initialize EvidenceSystem and migrate CollectedEvidence
+            if (oldData.Version < 4)
+            {
+                migrated.Version = 4;
+
+                if (migrated.EvidenceSystem == null)
+                {
+                    migrated.EvidenceSystem = new EvidenceSystemData();
+                }
+
+                // Migrate raw evidence to the new system
+                if (migrated.CollectedEvidence != null && migrated.CollectedEvidence.Count > 0)
+                {
+                    foreach (var item in migrated.CollectedEvidence)
+                    {
+                        var identified = IdentifiedEvidence.CreateRaw(item);
+                        migrated.EvidenceSystem.RawEvidence.Add(new IdentifiedEvidenceData
+                        {
+                            Word = identified.Word,
+                            SourceCallerName = identified.SourceCallerName,
+                            EvidenceLevel = identified.EvidenceLevel,
+                            Tier = (int)identified.Tier,
+                            BonusType = (int)identified.BonusType,
+                            BonusAmount = identified.BonusAmount,
+                            Status = (int)identified.Status
+                        });
+                    }
+                    Log.Debug($"[SaveManager] Migrated {migrated.CollectedEvidence.Count} evidence items to EvidenceSystem");
+                }
+
+                Log.Debug("[SaveManager] Migrated save to version 4: Evidence System");
+            }
+
             return migrated;
         }
 
@@ -277,7 +313,8 @@ namespace KBTV.Persistence
                     ["TotalShowsCompleted"] = _currentSave.TotalShowsCompleted,
                     ["PeakListenersAllTime"] = _currentSave.PeakListenersAllTime,
                     ["TopicXPs"] = ConvertToGodotArray(_currentSave.TopicXPs),
-                    ["CollectedEvidence"] = ConvertToGodotArray(_currentSave.CollectedEvidence)
+                    ["CollectedEvidence"] = ConvertToGodotArray(_currentSave.CollectedEvidence),
+                    ["EvidenceSystem"] = ConvertToGodotDictionary(_currentSave.EvidenceSystem)
                 };
 
                 string json = Json.Stringify(dict);
@@ -464,7 +501,7 @@ namespace KBTV.Persistence
             {
                 return godotArray;
             }
-            
+
             foreach (var evidence in evidenceList)
             {
                 if (evidence == null)
@@ -472,7 +509,7 @@ namespace KBTV.Persistence
                     Log.Warning("[SaveManager] Skipping null evidence item in serialization");
                     continue;
                 }
-                
+
                 var dict = new Godot.Collections.Dictionary
                 {
                     ["Word"] = evidence.Word ?? "",
@@ -482,6 +519,127 @@ namespace KBTV.Persistence
                 };
                 godotArray.Add(dict);
             }
+            return godotArray;
+        }
+
+        /// <summary>
+        /// Converts EvidenceSystemData to Godot.Collections.Dictionary
+        /// </summary>
+        private Godot.Collections.Dictionary ConvertToGodotDictionary(EvidenceSystemData data)
+        {
+            var dict = new Godot.Collections.Dictionary();
+
+            dict["CabinetUpgradeLevel"] = data.Cabinet.UpgradeLevel;
+            dict["WebsiteUpgradeLevel"] = data.Website.UpgradeLevel;
+
+            dict["RawEvidence"] = ConvertToGodotArray(data.RawEvidence);
+            dict["ProcessingEvidence"] = ConvertToGodotArray(data.ProcessingEvidence);
+            dict["IdentifiedEvidence"] = ConvertToGodotArray(data.IdentifiedEvidence);
+
+            return dict;
+        }
+
+        /// <summary>
+        /// Converts Godot.Collections.Dictionary to EvidenceSystemData
+        /// </summary>
+        private EvidenceSystemData ConvertToEvidenceSystemData(Godot.Collections.Dictionary dict)
+        {
+            var data = new EvidenceSystemData();
+
+            if (dict.ContainsKey("CabinetUpgradeLevel"))
+            {
+                data.Cabinet.UpgradeLevel = (int)(long)dict["CabinetUpgradeLevel"];
+            }
+            if (dict.ContainsKey("WebsiteUpgradeLevel"))
+            {
+                data.Website.UpgradeLevel = (int)(long)dict["WebsiteUpgradeLevel"];
+            }
+
+            if (dict.ContainsKey("RawEvidence") && dict["RawEvidence"].VariantType == Variant.Type.Array)
+            {
+                data.RawEvidence = ConvertToIdentifiedEvidenceList((Godot.Collections.Array)dict["RawEvidence"]);
+            }
+            if (dict.ContainsKey("ProcessingEvidence") && dict["ProcessingEvidence"].VariantType == Variant.Type.Array)
+            {
+                data.ProcessingEvidence = ConvertToIdentifiedEvidenceList((Godot.Collections.Array)dict["ProcessingEvidence"]);
+            }
+            if (dict.ContainsKey("IdentifiedEvidence") && dict["IdentifiedEvidence"].VariantType == Variant.Type.Array)
+            {
+                data.IdentifiedEvidence = ConvertToIdentifiedEvidenceList((Godot.Collections.Array)dict["IdentifiedEvidence"]);
+            }
+
+            return data;
+        }
+
+        /// <summary>
+        /// Converts Godot.Collections.Array to List<IdentifiedEvidenceData>
+        /// </summary>
+        private List<IdentifiedEvidenceData> ConvertToIdentifiedEvidenceList(Godot.Collections.Array godotArray)
+        {
+            var list = new List<IdentifiedEvidenceData>();
+
+            foreach (var item in godotArray)
+            {
+                var dict = (Godot.Collections.Dictionary)item;
+                var data = new IdentifiedEvidenceData
+                {
+                    Word = dict.ContainsKey("Word") ? (string)dict["Word"] : "",
+                    SourceCallerName = dict.ContainsKey("SourceCallerName") ? (string)dict["SourceCallerName"] : "",
+                    EvidenceLevel = dict.ContainsKey("EvidenceLevel") ? (string)dict["EvidenceLevel"] : "",
+                    Tier = dict.ContainsKey("Tier") ? (int)(long)dict["Tier"] : 0,
+                    BonusType = dict.ContainsKey("BonusType") ? (int)(long)dict["BonusType"] : 0,
+                    BonusAmount = dict.ContainsKey("BonusAmount") ? (float)(double)dict["BonusAmount"] : 0f,
+                    Status = dict.ContainsKey("Status") ? (int)(long)dict["Status"] : 0,
+                    TargetTopic = dict.ContainsKey("TargetTopic") ? (string)dict["TargetTopic"] : null,
+                    AnalysisId = dict.ContainsKey("AnalysisId") ? (string)dict["AnalysisId"] : null
+                };
+
+                if (dict.ContainsKey("AnalysisStartTimeTicks"))
+                {
+                    data.AnalysisStartTimeTicks = (long)dict["AnalysisStartTimeTicks"];
+                }
+
+                if (dict.ContainsKey("AnalysisCompleteTimeTicks"))
+                {
+                    var val = dict["AnalysisCompleteTimeTicks"];
+                    if (val.VariantType != Variant.Type.Nil)
+                    {
+                        data.AnalysisCompleteTimeTicks = (long)val;
+                    }
+                }
+
+                list.Add(data);
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Converts List<IdentifiedEvidenceData> to Godot.Collections.Array
+        /// </summary>
+        private Godot.Collections.Array ConvertToGodotArray(List<IdentifiedEvidenceData> list)
+        {
+            var godotArray = new Godot.Collections.Array();
+
+            foreach (var data in list)
+            {
+                var dict = new Godot.Collections.Dictionary
+                {
+                    ["Word"] = data.Word ?? "",
+                    ["SourceCallerName"] = data.SourceCallerName ?? "",
+                    ["EvidenceLevel"] = data.EvidenceLevel ?? "",
+                    ["Tier"] = data.Tier,
+                    ["BonusType"] = data.BonusType,
+                    ["BonusAmount"] = data.BonusAmount,
+                    ["Status"] = data.Status,
+                    ["TargetTopic"] = data.TargetTopic ?? "",
+                    ["AnalysisId"] = data.AnalysisId ?? "",
+                    ["AnalysisStartTimeTicks"] = data.AnalysisStartTimeTicks,
+                    ["AnalysisCompleteTimeTicks"] = data.AnalysisCompleteTimeTicks ?? 0
+                };
+                godotArray.Add(dict);
+            }
+
             return godotArray;
         }
 

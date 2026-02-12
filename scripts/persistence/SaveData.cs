@@ -110,9 +110,14 @@ namespace KBTV.Persistence
         // ─────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Collection of evidence items obtained from callers.
+        /// Legacy: Collection of raw evidence items (migrated to EvidenceSystemData).
         /// </summary>
         public List<EvidenceItem> CollectedEvidence = new List<EvidenceItem>();
+
+        /// <summary>
+        /// New evidence system with identification, cabinet, and website.
+        /// </summary>
+        public EvidenceSystemData EvidenceSystem = new EvidenceSystemData();
 
         /// <summary>
         /// Creates a new save with default starting values.
