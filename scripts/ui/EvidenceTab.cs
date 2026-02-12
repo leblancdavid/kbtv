@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using KBTV.Core;
 using KBTV.Items;
@@ -66,18 +67,31 @@ namespace KBTV.UI
             if (_saveManager?.CurrentSave == null || _analyzer == null) return;
 
             var evidenceSystem = _saveManager.CurrentSave.EvidenceSystem;
-            if (evidenceSystem?.RawEvidence != null && evidenceSystem.RawEvidence.Count > 0)
+            var collectedEvidence = evidenceSystem?.RawEvidence != null && evidenceSystem.RawEvidence.Count > 0
+                ? ConvertRawEvidenceDataToItems(evidenceSystem.RawEvidence)
+                : _saveManager.CurrentSave.CollectedEvidence;
+
+            if (collectedEvidence != null)
             {
-                foreach (var data in evidenceSystem.RawEvidence)
+                foreach (var item in collectedEvidence)
                 {
-                    var item = EvidenceItem.Create(data.Word, data.SourceCallerName, data.EvidenceLevel, (EvidenceTier)data.Tier);
-                    _analyzer.AddEvidence(item);
+                    if (!_analyzer.GetRawEvidence().Any(e => e.Word == item.Word && e.SourceCallerName == item.SourceCallerName))
+                    {
+                        _analyzer.AddEvidence(item);
+                    }
                 }
             }
-            else if (_saveManager.CurrentSave.CollectedEvidence != null && _saveManager.CurrentSave.CollectedEvidence.Count > 0)
+        }
+
+        private List<EvidenceItem> ConvertRawEvidenceDataToItems(List<IdentifiedEvidenceData> dataList)
+        {
+            var items = new List<EvidenceItem>();
+            foreach (var data in dataList)
             {
-                _analyzer.PopulateFromSaveData(_saveManager.CurrentSave.CollectedEvidence);
+                var item = EvidenceItem.Create(data.Word, data.SourceCallerName, data.EvidenceLevel, (EvidenceTier)data.Tier);
+                items.Add(item);
             }
+            return items;
         }
 
         private void BuildUI()
@@ -414,6 +428,7 @@ namespace KBTV.UI
 
         private void RefreshAllSections()
         {
+            PopulateEvidenceFromSave();
             RefreshRawSection();
             RefreshProcessingSection();
             RefreshIdentifiedSection();
