@@ -168,20 +168,48 @@ namespace KBTV.UI
             titleLabel.AddThemeFontSizeOverride("font_size", 18);
             innerContainer.AddChild(titleLabel);
 
-            CreateRawEvidenceSection(innerContainer);
-            CreateProcessingSection(innerContainer);
-            CreateIdentifiedSection(innerContainer);
-            CreateCabinetSection(innerContainer);
-            CreateWebsiteSection(innerContainer);
+            // Create 2x2 grid layout
+            var gridContainer = new GridContainer { Columns = 2 };
+            gridContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            gridContainer.SizeFlagsVertical = SizeFlags.ExpandFill;
+            gridContainer.AddThemeConstantOverride("h_separation", 16);
+            gridContainer.AddThemeConstantOverride("v_separation", 16);
+            innerContainer.AddChild(gridContainer);
+
+            // Top-left cell: Raw Evidence + Processing
+            var topLeftCell = new VBoxContainer();
+            topLeftCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            topLeftCell.SizeFlagsVertical = SizeFlags.ExpandFill;
+            gridContainer.AddChild(topLeftCell);
+            CreateRawEvidenceSection(topLeftCell);
+            CreateProcessingSection(topLeftCell);
+
+            // Top-right cell: Identified Evidence
+            var topRightCell = new VBoxContainer();
+            topRightCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            topRightCell.SizeFlagsVertical = SizeFlags.ExpandFill;
+            gridContainer.AddChild(topRightCell);
+            CreateIdentifiedSection(topRightCell);
+
+            // Bottom-left cell: File Cabinet (bigger height)
+            var bottomLeftCell = new VBoxContainer();
+            bottomLeftCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            bottomLeftCell.SizeFlagsVertical = SizeFlags.Expand | SizeFlags.Fill;
+            gridContainer.AddChild(bottomLeftCell);
+            CreateCabinetSection(bottomLeftCell);
+
+            // Bottom-right cell: Website (bigger height)
+            var bottomRightCell = new VBoxContainer();
+            bottomRightCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            bottomRightCell.SizeFlagsVertical = SizeFlags.Expand | SizeFlags.Fill;
+            gridContainer.AddChild(bottomRightCell);
+            CreateWebsiteSection(bottomRightCell);
         }
 
         private void CreateRawEvidenceSection(VBoxContainer parent)
         {
             if (_rawSectionCreated) return;
             _rawSectionCreated = true;
-
-            var separator = new HSeparator();
-            parent.AddChild(separator);
 
             var headerBox = new HBoxContainer();
             headerBox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
@@ -240,9 +268,6 @@ namespace KBTV.UI
             if (_processingSectionCreated) return;
             _processingSectionCreated = true;
 
-            var separator = new HSeparator();
-            parent.AddChild(separator);
-
             var headerBox = new HBoxContainer();
             headerBox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(headerBox);
@@ -276,9 +301,6 @@ namespace KBTV.UI
             if (_identifiedSectionCreated) return;
             _identifiedSectionCreated = true;
 
-            var separator = new HSeparator();
-            parent.AddChild(separator);
-
             var headerBox = new HBoxContainer();
             headerBox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(headerBox);
@@ -311,9 +333,6 @@ namespace KBTV.UI
         {
             if (_cabinetSectionCreated) return;
             _cabinetSectionCreated = true;
-
-            var separator = new HSeparator();
-            parent.AddChild(separator);
 
             var headerBox = new HBoxContainer();
             headerBox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
@@ -356,9 +375,6 @@ namespace KBTV.UI
         {
             if (_websiteSectionCreated) return;
             _websiteSectionCreated = true;
-
-            var separator = new HSeparator();
-            parent.AddChild(separator);
 
             var headerBox = new HBoxContainer();
             headerBox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
