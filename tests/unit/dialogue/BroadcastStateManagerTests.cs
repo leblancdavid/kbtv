@@ -72,7 +72,6 @@ namespace KBTV.Tests.Unit.Dialogue
                 CallerPhoneQuality.Good,
                 CallerEmotionalState.Calm,
                 CallerCurseRisk.Low,
-                CallerBeliefLevel.Curious,
                 CallerEvidenceLevel.None,
                 CallerCoherence.Coherent,
                 CallerUrgency.Low,

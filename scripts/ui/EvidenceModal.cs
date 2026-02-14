@@ -899,7 +899,7 @@ public partial class EvidenceModal : Control
             if (currentCaller != null && currentCaller.Id == callerId)
             {
                 GD.Print("EvidenceModal: Cached caller matches current caller, using normal collection flow");
-                bool success = _screeningController.CollectEvidence(_targetWord);
+                bool success = _screeningController.CollectEvidence(_targetWord, _discoveredTier);
                 if (success)
                 {
                     return true;
@@ -993,6 +993,32 @@ public partial class EvidenceModal : Control
             GD.Print($"EvidenceModal: CollectedEvidence list has {saveManager.CurrentSave.CollectedEvidence.Count} items");
 
             saveManager.CurrentSave.CollectedEvidence.Add(evidence);
+
+            // Also store in new EvidenceSystem for immediate availability
+            if (saveManager.CurrentSave.EvidenceSystem == null)
+            {
+                GD.Print("EvidenceModal: EvidenceSystem is null, initializing it");
+                saveManager.CurrentSave.EvidenceSystem = new Persistence.EvidenceSystemData();
+            }
+
+            if (saveManager.CurrentSave.EvidenceSystem.RawEvidence == null)
+            {
+                saveManager.CurrentSave.EvidenceSystem.RawEvidence = new System.Collections.Generic.List<Persistence.IdentifiedEvidenceData>();
+            }
+
+            var rawEvidenceData = new Persistence.IdentifiedEvidenceData
+            {
+                Word = evidence.Word,
+                SourceCallerName = evidence.SourceCallerName,
+                EvidenceLevel = evidence.EvidenceLevel,
+                Tier = (int)evidence.Tier,
+                BonusType = 0, // Will be determined during analysis
+                BonusAmount = 0f,
+                Status = 0 // EvidenceStatus.Raw
+            };
+
+            saveManager.CurrentSave.EvidenceSystem.RawEvidence.Add(rawEvidenceData);
+
             saveManager.Save();
 
             _evidenceCollected = true;
@@ -1209,32 +1235,22 @@ public partial class EvidenceModal : Control
     /// </summary>
     private EvidenceTier RollEvidenceTier()
     {
-        if (_caller == null)
+        // Get total belief level from topic mastery
+        int totalBeliefLevel;
+        try
         {
-            GD.PrintErr("EvidenceModal: Cannot roll evidence tier - caller is null");
-            return EvidenceTier.Common;
+            var topicManager = DependencyInjection.Get<TopicManager>(this);
+            totalBeliefLevel = topicManager.GetTotalBeliefLevel();
+        }
+        catch (Exception ex)
+        {
+            GD.PrintErr($"EvidenceModal: Failed to get TopicManager - {ex.Message}, using belief level 0");
+            totalBeliefLevel = 0;
         }
 
-        int lootLevel = GetLootLevelFromBeliefLevel(_caller.BeliefLevel);
-        _discoveredTier = EvidenceLootTable.RollQuality(lootLevel);
-        GD.Print($"EvidenceModal: Rolled evidence tier {_discoveredTier} for loot level {lootLevel} (belief level: {_caller.BeliefLevel})");
+        _discoveredTier = EvidenceLootTable.RollQuality(totalBeliefLevel);
+        GD.Print($"EvidenceModal: Rolled evidence tier {_discoveredTier} for belief level {totalBeliefLevel}");
         return _discoveredTier;
-    }
-
-    /// <summary>
-    /// Convert caller belief level to loot table level number.
-    /// </summary>
-    private int GetLootLevelFromBeliefLevel(CallerBeliefLevel beliefLevel)
-    {
-        return beliefLevel switch
-        {
-            CallerBeliefLevel.Curious => 2,
-            CallerBeliefLevel.Partial => 3,
-            CallerBeliefLevel.Committed => 4,
-            CallerBeliefLevel.Certain => 6,
-            CallerBeliefLevel.Zealot => 7,
-            _ => 2 // Default to lowest level
-        };
     }
 
     /// <summary>

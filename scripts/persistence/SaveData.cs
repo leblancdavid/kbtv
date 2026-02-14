@@ -96,7 +96,7 @@ namespace KBTV.Persistence
         {
             public string TopicId;
             public float XP;
-            public XPTier HighestTierReached;
+            public int HighestLevelReached;
         }
 
         /// <summary>
@@ -126,7 +126,7 @@ namespace KBTV.Persistence
         {
             var save = new SaveData
             {
-                Version = 3,
+                Version = 5,
                 LastSaveTime = DateTime.UtcNow.ToString("o"),
                 CurrentNight = 1,
                 Money = 500,

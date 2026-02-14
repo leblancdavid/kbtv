@@ -278,7 +278,6 @@ namespace KBTV.Callers
             CallerPhoneQuality phoneQuality = GeneratePhoneQuality(legitimacy);
             CallerEmotionalState emotionalState = GenerateEmotionalState(legitimacy);
             CallerCurseRisk curseRisk = GenerateCurseRisk(legitimacy);
-            CallerBeliefLevel beliefLevel = GenerateBeliefLevel(legitimacy);
             CallerEvidenceLevel evidenceLevel = GenerateEvidenceLevel(legitimacy);
             CallerCoherence coherence = GenerateCoherence(legitimacy);
             CallerUrgency urgency = GenerateUrgency(legitimacy);
@@ -385,7 +384,7 @@ namespace KBTV.Callers
             var caller = new Caller(name, phoneNumber, location,
                 claimedTopic, actualTopic, reason,
                 legitimacy, phoneQuality, emotionalState, curseRisk,
-                beliefLevel, evidenceLevel, coherence, urgency,
+                evidenceLevel, coherence, urgency,
                 personality.Name, null, claimedArc, actualArc, screeningSummary, patience, quality);
 
             if (isOffTopic)
@@ -532,38 +531,6 @@ namespace KBTV.Callers
                     (CallerCurseRisk.Medium, 15f),
                     (CallerCurseRisk.High, 5f)),
                 _ => CallerCurseRisk.Low
-            };
-        }
-
-        private CallerBeliefLevel GenerateBeliefLevel(CallerLegitimacy legitimacy)
-        {
-            return legitimacy switch
-            {
-                CallerLegitimacy.Fake => WeightedSelect(
-                    (CallerBeliefLevel.Curious, 30f),
-                    (CallerBeliefLevel.Partial, 10f),
-                    (CallerBeliefLevel.Committed, 10f),
-                    (CallerBeliefLevel.Certain, 10f),
-                    (CallerBeliefLevel.Zealot, 40f)),
-                CallerLegitimacy.Questionable => WeightedSelect(
-                    (CallerBeliefLevel.Curious, 25f),
-                    (CallerBeliefLevel.Partial, 35f),
-                    (CallerBeliefLevel.Committed, 25f),
-                    (CallerBeliefLevel.Certain, 10f),
-                    (CallerBeliefLevel.Zealot, 5f)),
-                CallerLegitimacy.Credible => WeightedSelect(
-                    (CallerBeliefLevel.Curious, 30f),
-                    (CallerBeliefLevel.Partial, 30f),
-                    (CallerBeliefLevel.Committed, 25f),
-                    (CallerBeliefLevel.Certain, 10f),
-                    (CallerBeliefLevel.Zealot, 5f)),
-                CallerLegitimacy.Compelling => WeightedSelect(
-                    (CallerBeliefLevel.Curious, 10f),
-                    (CallerBeliefLevel.Partial, 15f),
-                    (CallerBeliefLevel.Committed, 35f),
-                    (CallerBeliefLevel.Certain, 35f),
-                    (CallerBeliefLevel.Zealot, 5f)),
-                _ => CallerBeliefLevel.Curious
             };
         }
 

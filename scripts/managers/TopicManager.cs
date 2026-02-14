@@ -51,23 +51,16 @@ namespace KBTV.Managers
         }
 
         /// <summary>
-        /// Award XP for a topic after screening a caller.
+        /// Get the total belief level (sum of all topic levels).
         /// </summary>
-        public void AwardXP(string topicName, int points)
+        public int GetTotalBeliefLevel()
         {
-            var topicId = topicName.ToLower();
-            var belief = GetTopicXP(topicId);
-
-            if (points > 0)
+            int total = 0;
+            foreach (var topicXP in _topicXPs.Values)
             {
-                belief.ApplyGoodCaller(points);
+                total += topicXP.CurrentLevel;
             }
-            else
-            {
-                belief.ApplyBadCaller(points);
-            }
-
-            Log.Debug($"TopicManager: Awarded {points} XP to {topicName} (now {belief.XP:F0})");
+            return total;
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -86,7 +79,7 @@ namespace KBTV.Managers
                 {
                     TopicId = topicXP.TopicId,
                     XP = topicXP.XP,
-                    HighestTierReached = topicXP.HighestTierReached
+                    HighestLevelReached = topicXP.HighestLevelReached
                 });
             }
         }

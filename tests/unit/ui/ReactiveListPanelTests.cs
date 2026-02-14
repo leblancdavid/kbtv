@@ -105,7 +105,6 @@ namespace KBTV.Tests.Unit.UI
                 phoneQuality: CallerPhoneQuality.Good,
                 emotionalState: CallerEmotionalState.Calm,
                 curseRisk: CallerCurseRisk.Low,
-                beliefLevel: CallerBeliefLevel.Curious,
                 evidenceLevel: CallerEvidenceLevel.None,
                 coherence: CallerCoherence.Coherent,
                 urgency: CallerUrgency.Medium,

@@ -27,7 +27,6 @@ namespace KBTV.Tests.Unit.Callers
                 phoneQuality,
                 CallerEmotionalState.Calm,
                 CallerCurseRisk.Low,
-                CallerBeliefLevel.Curious,
                 CallerEvidenceLevel.None,
                 CallerCoherence.Coherent,
                 CallerUrgency.Low,
@@ -132,7 +131,7 @@ namespace KBTV.Tests.Unit.Callers
                 "Ghosts", "Aliens", "Reason",
                 CallerLegitimacy.Credible, CallerPhoneQuality.Good,
                 CallerEmotionalState.Calm, CallerCurseRisk.Low,
-                CallerBeliefLevel.Curious, CallerEvidenceLevel.None,
+                CallerEvidenceLevel.None,
                 CallerCoherence.Coherent, CallerUrgency.Low,
                 "personality", null, null, null, "summary", 30f, 0.8f
             );

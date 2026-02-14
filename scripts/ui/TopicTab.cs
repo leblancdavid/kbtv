@@ -3,6 +3,7 @@ using Godot;
 using KBTV.Core;
 using KBTV.UI.Themes;
 using KBTV.UI.Components;
+using KBTV.Managers;
 
 namespace KBTV.UI
 {
@@ -13,11 +14,12 @@ namespace KBTV.UI
     [GlobalClass]
     public partial class TopicTab : Control, IDependent
     {
-        private GridContainer _topicsGrid = null!;
-        private VBoxContainer _recentGains = null!;
+    private GridContainer _topicsGrid = null!;
+    private VBoxContainer _recentGains = null!;
+    private Label _beliefLevelLabel = null!;
 
-        // Topic progress panels
-        private TopicProgressPanel[] _topicPanels = new TopicProgressPanel[6];
+    // Topic progress panels
+    private TopicProgressPanel[] _topicPanels = new TopicProgressPanel[6];
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -29,7 +31,45 @@ namespace KBTV.UI
         public void OnResolved()
         {
             CreateTopicPanels();
+            UpdateBeliefLevelDisplay();
+            SubscribeToBeliefLevelChanges();
             // Removed UpdateDisplay() call - panels now update themselves via TopicXP events
+        }
+
+        private void SubscribeToBeliefLevelChanges()
+        {
+            try
+            {
+                var topicManager = DependencyInjection.Get<TopicManager>(this);
+                foreach (var topicXP in topicManager.GetAllTopicXPs())
+                {
+                    topicXP.OnLevelChanged += OnTopicLevelChanged;
+                }
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"TopicTab: Failed to subscribe to belief level changes - {ex.Message}");
+            }
+        }
+
+        private void OnTopicLevelChanged(int oldLevel, int newLevel)
+        {
+            UpdateBeliefLevelDisplay();
+        }
+
+        private void UpdateBeliefLevelDisplay()
+        {
+            try
+            {
+                var topicManager = DependencyInjection.Get<TopicManager>(this);
+                int totalBeliefLevel = topicManager.GetTotalBeliefLevel();
+                _beliefLevelLabel.Text = $"Total Belief Level: {totalBeliefLevel}";
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"TopicTab: Failed to update belief level display - {ex.Message}");
+                _beliefLevelLabel.Text = "Total Belief Level: Error";
+            }
         }
 
         private void InitializeComponents()
@@ -53,6 +93,24 @@ namespace KBTV.UI
             divider.Text = "═══════════════════════════════════════════════";
             divider.HorizontalAlignment = HorizontalAlignment.Center;
             mainVBox.AddChild(divider);
+
+            // Total Belief Level display
+            var beliefLevelLabel = new Label();
+            beliefLevelLabel.Name = "BeliefLevelLabel";
+            beliefLevelLabel.Text = "Total Belief Level: Calculating...";
+            beliefLevelLabel.HorizontalAlignment = HorizontalAlignment.Center;
+            beliefLevelLabel.AddThemeFontSizeOverride("font_size", 18);
+            mainVBox.AddChild(beliefLevelLabel);
+
+            // Belief level divider
+            var beliefDivider = new Label();
+            beliefDivider.Name = "BeliefDivider";
+            beliefDivider.Text = "───────────────────────────────────────────────";
+            beliefDivider.HorizontalAlignment = HorizontalAlignment.Center;
+            mainVBox.AddChild(beliefDivider);
+
+            // Store reference for updates
+            _beliefLevelLabel = beliefLevelLabel;
 
             // Scroll container for topics grid
             var scrollContainer = new ScrollContainer();

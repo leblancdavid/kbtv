@@ -144,7 +144,6 @@ namespace KBTV.Tests.Unit.Monitors
                 CallerPhoneQuality.Good,
                 CallerEmotionalState.Calm,
                 CallerCurseRisk.Low,
-                CallerBeliefLevel.Curious,
                 CallerEvidenceLevel.None,
                 CallerCoherence.Coherent,
                 CallerUrgency.Low,

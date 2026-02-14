@@ -269,6 +269,36 @@ namespace KBTV.Persistence
                 Log.Debug("[SaveManager] Migrated save to version 4: Evidence System");
             }
 
+            // Version 4 -> 5: Convert XPTier enum to int levels
+            if (oldData.Version < 5)
+            {
+                migrated.Version = 5;
+
+                if (migrated.TopicXPs != null)
+                {
+                    foreach (var topicXP in migrated.TopicXPs)
+                    {
+                        // Convert old XPTier enum values to new int levels
+                        // Old: Skeptic=1, Curious=2, Interested=4, Believer=6, TrueBeliever=7
+                        // New: 0, 1, 2, 3, 4, 5, 6
+                        int oldTierValue = topicXP.HighestLevelReached; // This was previously HighestTierReached cast to int
+                        int newLevel = oldTierValue switch
+                        {
+                            1 => 0, // Skeptic → Level 0
+                            2 => 1, // Curious → Level 1
+                            4 => 2, // Interested → Level 2
+                            6 => 3, // Believer → Level 3
+                            7 => 4, // TrueBeliever → Level 4
+                            _ => 0  // Default to 0
+                        };
+                        topicXP.HighestLevelReached = newLevel;
+                    }
+                    Log.Debug($"[SaveManager] Migrated {migrated.TopicXPs.Count} topic XP entries to new level system");
+                }
+
+                Log.Debug("[SaveManager] Migrated save to version 5: Topic Level System");
+            }
+
             return migrated;
         }
 
@@ -413,7 +443,7 @@ namespace KBTV.Persistence
                 {
                     TopicId = (string)dict["TopicId"],
                     XP = (float)(double)dict["XP"],  // Godot stores floats as double
-                    HighestTierReached = (XPTier)(int)(long)dict["HighestTierReached"]
+                    HighestLevelReached = (int)(long)dict["HighestTierReached"]  // Changed from HighestTierReached to HighestLevelReached
                 };
                 topicXPList.Add(topicXP);
             }
@@ -484,7 +514,7 @@ namespace KBTV.Persistence
                 {
                     ["TopicId"] = topicXP.TopicId ?? "",
                     ["XP"] = topicXP.XP,
-                    ["HighestTierReached"] = (int)topicXP.HighestTierReached
+                    ["HighestLevelReached"] = topicXP.HighestLevelReached
                 };
                 godotArray.Add(dict);
             }

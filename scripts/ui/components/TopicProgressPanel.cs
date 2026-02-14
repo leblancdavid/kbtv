@@ -34,7 +34,7 @@ namespace KBTV.UI.Components
             // Subscribe to TopicXP events for real-time updates
             _topicXP = _topicManager.GetTopicXP(_topicName.ToLower());
             _topicXP.OnXPChanged += OnXPChanged;
-            _topicXP.OnTierChanged += OnTierChanged;
+            _topicXP.OnLevelChanged += OnLevelChanged;
             
             UpdateDisplay(); // Initial display
         }
@@ -45,7 +45,7 @@ namespace KBTV.UI.Components
             if (_topicXP != null)
             {
                 _topicXP.OnXPChanged -= OnXPChanged;
-                _topicXP.OnTierChanged -= OnTierChanged;
+                _topicXP.OnLevelChanged -= OnLevelChanged;
             }
         }
 
@@ -56,47 +56,47 @@ namespace KBTV.UI.Components
             UpdateLevelUpIndicator(newXP);
         }
 
-        private void OnTierChanged(XPTier oldTier, XPTier newTier)
+        private void OnLevelChanged(int oldLevel, int newLevel)
         {
 
-            UpdateLevelText(newTier);
-            UpdateXPBar(_topicXP.XP); // Update with new tier thresholds
+            UpdateLevelText(newLevel);
+            UpdateXPBar(_topicXP.XP); // Update with new level thresholds
         }
 
         private void UpdateXPBar(float currentXP)
         {
-            var currentTier = _topicXP.CurrentTier;
-            var nextTier = currentTier + 1;
-            var nextThreshold = TopicXP.GetTierThreshold(nextTier);
+            var currentLevel = _topicXP.CurrentLevel;
+            var nextLevel = currentLevel + 1;
+            var nextThreshold = TopicXP.GetLevelThreshold(nextLevel);
             
-            // Show XP progress toward next tier
-            if (currentTier >= XPTier.TrueBeliever)
+            // Show XP progress toward next level
+            if (currentLevel >= TopicLevel.MaxLevel)
             {
-                // At max tier, show current XP / max threshold
+                // At max level, show current XP / max threshold
                 _xpLabel.Text = $"{currentXP:F0}/{nextThreshold:F0} XP (Max Level)";
             }
             else
             {
-                // Show progress toward next tier
+                // Show progress toward next level
                 _xpLabel.Text = $"{currentXP:F0}/{nextThreshold:F0} XP";
             }
             
-            // Progress bar: fill based on progress to next tier
-            float progress = currentTier >= XPTier.TrueBeliever ? 1.0f : Mathf.Min(1.0f, currentXP / nextThreshold);
+            // Progress bar: fill based on progress to next level
+            float progress = currentLevel >= TopicLevel.MaxLevel ? 1.0f : Mathf.Min(1.0f, currentXP / nextThreshold);
             _xpBar.Value = progress * 100f;
             
             // Update level display
-            UpdateLevelText(currentTier);
+            UpdateLevelText(currentLevel);
         }
 
         private void UpdateLevelUpIndicator(float currentXP)
         {
-            var currentTier = _topicXP.CurrentTier;
-            var nextTier = currentTier + 1;
-            var nextThreshold = TopicXP.GetTierThreshold(nextTier);
+            var currentLevel = _topicXP.CurrentLevel;
+            var nextLevel = currentLevel + 1;
+            var nextThreshold = TopicXP.GetLevelThreshold(nextLevel);
             
-            // Check if ready to level up (XP >= next tier threshold)
-            bool canLevelUp = currentXP >= nextThreshold && currentTier < XPTier.TrueBeliever;
+            // Check if ready to level up (XP >= next level threshold)
+            bool canLevelUp = currentXP >= nextThreshold && currentLevel < TopicLevel.MaxLevel;
             
             // Set progress bar color based on level-up readiness
             _xpBar.Modulate = canLevelUp ? Colors.Green : UIColors.Accent.Blue;
@@ -105,11 +105,10 @@ namespace KBTV.UI.Components
             _levelUpLabel.Visible = canLevelUp;
         }
 
-        private void UpdateLevelText(XPTier tier)
+        private void UpdateLevelText(int level)
         {
-            int levelNumber = (int)tier;
-            var tierName = TopicXP.GetTierName(tier);
-            SetLevel($"Level {levelNumber} ({tierName})");
+            var levelName = TopicLevel.GetLevelName(level);
+            SetLevel($"Level {level} ({levelName})");
         }
 
         private void CreateUI()
@@ -216,13 +215,13 @@ namespace KBTV.UI.Components
             // Get real topic XP data
             var topicXP = _topicXP; // Use cached instance
             var currentXP = topicXP.XP;
-            var currentTier = topicXP.CurrentTier;
+            var currentLevel = topicXP.CurrentLevel;
             var mentalBonus = topicXP.MentalBonus;
             
             // Update all display elements
             UpdateXPBar(currentXP);
             UpdateLevelUpIndicator(currentXP);
-            UpdateLevelText(currentTier);
+            UpdateLevelText(currentLevel);
             
             // Update freshness (placeholder for now)
             var freshness = GetPlaceholderFreshness(_topicName);

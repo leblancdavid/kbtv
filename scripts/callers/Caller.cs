@@ -31,7 +31,6 @@ namespace KBTV.Callers
         private CallerPhoneQuality _phoneQuality;
         private CallerEmotionalState _emotionalState;
         private CallerCurseRisk _curseRisk;
-        private CallerBeliefLevel _beliefLevel;
         private CallerEvidenceLevel _evidenceLevel;
         private CallerCoherence _coherence;
         private CallerUrgency _urgency;
@@ -61,7 +60,6 @@ namespace KBTV.Callers
         public CallerPhoneQuality PhoneQuality => _phoneQuality;
         public CallerEmotionalState EmotionalState => _emotionalState;
         public CallerCurseRisk CurseRisk => _curseRisk;
-        public CallerBeliefLevel BeliefLevel => _beliefLevel;
         public CallerEvidenceLevel EvidenceLevel => _evidenceLevel;
         public CallerCoherence Coherence => _coherence;
         public CallerUrgency Urgency => _urgency;
@@ -136,7 +134,7 @@ namespace KBTV.Callers
             string claimedTopic, string actualTopic, string callReason,
             CallerLegitimacy legitimacy, CallerPhoneQuality phoneQuality,
             CallerEmotionalState emotionalState, CallerCurseRisk curseRisk,
-            CallerBeliefLevel beliefLevel, CallerEvidenceLevel evidenceLevel,
+            CallerEvidenceLevel evidenceLevel,
             CallerCoherence coherence, CallerUrgency urgency,
             string personality, StatModification? personalityEffect,
             ConversationArc? claimedArc, ConversationArc? actualArc,
@@ -153,7 +151,6 @@ namespace KBTV.Callers
             _phoneQuality = phoneQuality;
             _emotionalState = emotionalState;
             _curseRisk = curseRisk;
-            _beliefLevel = beliefLevel;
             _evidenceLevel = evidenceLevel;
             _coherence = coherence;
             _urgency = urgency;
@@ -191,7 +188,6 @@ namespace KBTV.Callers
                 // Remaining properties
                 CreateScreenableProperty("EmotionalState", "Emotional State", _emotionalState),
                 CreateScreenableProperty("CurseRisk", "Curse Risk", _curseRisk),
-                CreateScreenableProperty("BeliefLevel", "Belief Level", _beliefLevel),
                 CreateScreenableProperty("Evidence", "Evidence", _evidenceLevel),
                 CreateScreenableProperty("Coherence", "Coherence", _coherence),
                 CreateScreenableProperty("Urgency", "Urgency", _urgency)

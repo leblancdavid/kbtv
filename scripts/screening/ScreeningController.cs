@@ -171,7 +171,7 @@ namespace KBTV.Screening
 		/// Fires EvidenceStored event if successful.
 		/// </summary>
 		/// <returns>True if evidence was successfully collected.</returns>
-		public bool CollectEvidence(string guessedWord)
+		public bool CollectEvidence(string guessedWord, EvidenceTier tier)
 		{
 			if (_session == null)
 			{
@@ -200,34 +200,11 @@ namespace KBTV.Screening
 			_session.CollectEvidence();
 
 			// Create and store evidence item
-			int topicLevel = 1; // Default fallback
-			try
-			{
-				if (_gameStateManager?.SelectedTopic != null && _topicManager != null)
-				{
-					var topicXP = _topicManager.GetTopicXP(_gameStateManager.SelectedTopic.TopicId);
-					// Map XPTier (1-5) to loot table levels (1-7)
-					topicLevel = topicXP.CurrentTier switch
-					{
-						KBTV.Data.XPTier.Skeptic => 1,
-						KBTV.Data.XPTier.Curious => 2,
-						KBTV.Data.XPTier.Interested => 4,
-						KBTV.Data.XPTier.Believer => 6,
-						KBTV.Data.XPTier.TrueBeliever => 7,
-						_ => 1
-					};
-				}
-			}
-			catch (Exception ex)
-			{
-				Log.Error($"ScreeningController: Failed to get topic level for evidence creation - {ex.Message}, using default level 1");
-			}
-
 			var evidence = EvidenceItem.Create(
 				guessedWord,
 				_session.Caller.Name,
 				_session.Caller.EvidenceLevel.ToString(),
-				topicLevel
+				tier
 			);
 
 			if (_saveManager == null)
@@ -255,6 +232,31 @@ namespace KBTV.Screening
 			}
 
 			_saveManager.CurrentSave.CollectedEvidence.Add(evidence);
+
+			// Also store in new EvidenceSystem for immediate availability
+			if (_saveManager.CurrentSave.EvidenceSystem == null)
+			{
+				Log.Warning("ScreeningController: EvidenceSystem is null, initializing");
+				_saveManager.CurrentSave.EvidenceSystem = new Persistence.EvidenceSystemData();
+			}
+
+			if (_saveManager.CurrentSave.EvidenceSystem.RawEvidence == null)
+			{
+				_saveManager.CurrentSave.EvidenceSystem.RawEvidence = new System.Collections.Generic.List<Persistence.IdentifiedEvidenceData>();
+			}
+
+			var rawEvidenceData = new Persistence.IdentifiedEvidenceData
+			{
+				Word = evidence.Word,
+				SourceCallerName = evidence.SourceCallerName,
+				EvidenceLevel = evidence.EvidenceLevel,
+				Tier = (int)evidence.Tier,
+				BonusType = 0, // Will be determined during analysis
+				BonusAmount = 0f,
+				Status = 0 // EvidenceStatus.Raw
+			};
+
+			_saveManager.CurrentSave.EvidenceSystem.RawEvidence.Add(rawEvidenceData);
 			
 			try
 			{

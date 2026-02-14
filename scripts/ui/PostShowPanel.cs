@@ -117,8 +117,8 @@ namespace KBTV.UI
 			_topicsReadyToLevel.Clear();
 			foreach (var topicXP in topicManager.GetAllTopicXPs())
 			{
-				var nextTierThreshold = TopicXP.GetTierThreshold(topicXP.CurrentTier + 1);
-				if (topicXP.XP >= nextTierThreshold && topicXP.CurrentTier < XPTier.TrueBeliever)
+				var nextLevelThreshold = TopicXP.GetLevelThreshold(topicXP.CurrentLevel + 1);
+				if (topicXP.XP >= nextLevelThreshold && topicXP.CurrentLevel < TopicLevel.MaxLevel)
 				{
 					_topicsReadyToLevel.Add(topicXP);
 				}
@@ -139,25 +139,25 @@ namespace KBTV.UI
 			}
 			
 			var topicXP = _topicsReadyToLevel[_currentLevelUpIndex];
-			var oldTier = topicXP.CurrentTier;
-			var newTier = oldTier + 1;
+			var oldLevel = topicXP.CurrentLevel;
+			var newLevel = oldLevel + 1;
 			
 			// Level up the topic (preserves overflow XP)
 			topicXP.LevelUp();
 			
 			// Update UI
 			_levelUpTopicLabel.Text = topicXP.TopicName;
-			_levelUpTierLabel.Text = $"{TopicXP.GetTierName(oldTier)} → {TopicXP.GetTierName(newTier)}";
+			_levelUpTierLabel.Text = $"{TopicLevel.GetLevelName(oldLevel)} → {TopicLevel.GetLevelName(newLevel)}";
 			
 			// Show bonuses
 			var bonuses = new System.Text.StringBuilder("New Bonuses:\n");
-			bonuses.Append($"• Mental: +{(int)(TopicXP.GetMentalBonusForTier(oldTier) * 100)}% → +{(int)(TopicXP.GetMentalBonusForTier(newTier) * 100)}%\n");
+			bonuses.Append($"• Mental: +{(int)(TopicXP.GetMentalBonusForLevel(oldLevel) * 100)}% → +{(int)(TopicXP.GetMentalBonusForLevel(newLevel) * 100)}%\n");
 			
-			if (newTier >= XPTier.Interested && oldTier < XPTier.Interested)
+			if (newLevel >= TopicLevel.Interested && oldLevel < TopicLevel.Interested)
 				bonuses.Append("• Screening hints unlocked\n");
-			if (newTier >= XPTier.Believer && oldTier < XPTier.Believer)
+			if (newLevel >= TopicLevel.Believer && oldLevel < TopicLevel.Believer)
 				bonuses.Append("• Better caller pool available\n");
-			if (newTier >= XPTier.TrueBeliever && oldTier < XPTier.TrueBeliever)
+			if (newLevel >= TopicLevel.TrueBeliever && oldLevel < TopicLevel.TrueBeliever)
 				bonuses.Append("• Expert guests available\n");
 			
 			_levelUpBonusesLabel.Text = bonuses.ToString();
@@ -168,7 +168,7 @@ namespace KBTV.UI
 			// Update button text
 			_continueButton.Text = _currentLevelUpIndex >= _topicsReadyToLevel.Count ? "Continue" : "Awesome!";
 			
-			Log.Debug($"PostShowPanel: Showing level-up for {topicXP.TopicName}: {oldTier} → {newTier}");
+			Log.Debug($"PostShowPanel: Showing level-up for {topicXP.TopicName}: {oldLevel} → {newLevel}");
 		}
 
 		private void UpdateStats()

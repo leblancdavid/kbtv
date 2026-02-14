@@ -4,23 +4,44 @@ using Godot;
 namespace KBTV.Data
 {
 	/// <summary>
-	/// Tier levels for Topic XP progression.
+	/// Tier levels for Topic XP progression (0-6, with 6+ showing as Expert).
 	/// </summary>
-	public enum XPTier
+	public static class TopicLevel
 	{
-		Skeptic = 1,      // 0 xp
-		Curious = 2,      // 100 xp
-		Interested = 3,   // 300 xp
-		Believer = 4,     // 600 xp
-		TrueBeliever = 5  // 1000 xp
+		public const int MinLevel = 0;
+		public const int MaxLevel = 6;
+		
+		public const int Skeptic = 0;
+		public const int Curious = 1;
+		public const int Interested = 2;
+		public const int Believer = 3;
+		public const int TrueBeliever = 4;
+		public const int Expert = 5;
+		public const int Master = 6;
+
+		public static string GetLevelName(int level)
+		{
+			if (level >= Master) return "Expert";
+			return level switch
+			{
+				Skeptic => "Skeptic",
+				Curious => "Curious",
+				Interested => "Interested",
+				Believer => "Believer",
+				TrueBeliever => "True Believer",
+				Expert => "Expert",
+				Master => "Master",
+				_ => $"Level {level}"
+			};
+		}
 	}
 
 	/// <summary>
 	/// Tracks Vern's experience in a specific topic.
 	/// XP is a tiered experience system where:
 	/// - XP can go up and down based on caller quality
-	/// - Once a tier is reached, XP cannot drop below that tier's floor
-	/// - Higher tiers provide Mental bonuses for that topic
+	/// - Once a level is reached, XP cannot drop below that level's floor
+	/// - Higher levels provide Mental bonuses for that topic
 	/// </summary>
 	[Serializable]
 	public class TopicXP
@@ -28,75 +49,80 @@ namespace KBTV.Data
 		private string _topicId;
 		private string _topicName;
 		private float _xp;
-		private XPTier _highestTierReached;
+		private int _highestLevelReached;
 
 		public string TopicId => _topicId;
 		public string TopicName => _topicName;
 		public float XP => _xp;
-		public XPTier CurrentTier => _highestTierReached;
-		public XPTier HighestTierReached => _highestTierReached;
+		public int CurrentLevel => _highestLevelReached;
+		public int HighestLevelReached => _highestLevelReached;
 
 		public event Action<float, float>? OnXPChanged; // oldValue, newValue
-		public event Action<XPTier, XPTier>? OnTierChanged; // oldTier, newTier
+		public event Action<int, int>? OnLevelChanged; // oldLevel, newLevel
 
 		// ═══════════════════════════════════════════════════════════════════════════════
-		// TIER THRESHOLDS
+		// LEVEL THRESHOLDS
 		// ═══════════════════════════════════════════════════════════════════════════════
 
-		public static float GetTierThreshold(XPTier tier) => tier switch
+		public static float GetLevelThreshold(int level) => level switch
 		{
-			XPTier.Skeptic => 0f,
-			XPTier.Curious => 100f,
-			XPTier.Interested => 300f,
-			XPTier.Believer => 600f,
-			XPTier.TrueBeliever => 1000f,
-			_ => 0f
+			0 => 0f,
+			1 => 100f,
+			2 => 250f,
+			3 => 450f,
+			4 => 700f,
+			5 => 1000f,
+			6 => 1400f,
+			_ => 1400f + (level - 6) * 200f // Allow unlimited leveling
 		};
 
-		public static float GetTierFloor(XPTier tier) => GetTierThreshold(tier);
+		public static float GetLevelFloor(int level) => GetLevelThreshold(level);
 
-		public static XPTier GetTierForXP(float xp)
+		public static int GetLevelForXP(float xp)
 		{
-			if (xp >= 1000f) return XPTier.TrueBeliever;
-			if (xp >= 600f) return XPTier.Believer;
-			if (xp >= 300f) return XPTier.Interested;
-			if (xp >= 100f) return XPTier.Curious;
-			return XPTier.Skeptic;
+			for (int level = TopicLevel.MaxLevel; level >= TopicLevel.MinLevel; level--)
+			{
+				if (xp >= GetLevelThreshold(level))
+					return level;
+			}
+			return TopicLevel.MinLevel;
 		}
 
 		// ═══════════════════════════════════════════════════════════════════════════════
-		// TIER BONUSES
+		// LEVEL BONUSES
 		// ═══════════════════════════════════════════════════════════════════════════════
 
 		/// <summary>
-		/// Get Mental bonus percentage for current tier.
+		/// Get Mental bonus percentage for current level.
 		/// </summary>
-		public float MentalBonus => GetMentalBonusForTier(CurrentTier);
+		public float MentalBonus => GetMentalBonusForLevel(CurrentLevel);
 
-		public static float GetMentalBonusForTier(XPTier tier) => tier switch
+		public static float GetMentalBonusForLevel(int level) => level switch
 		{
-			XPTier.Skeptic => 0f,
-			XPTier.Curious => 0.05f,      // +5%
-			XPTier.Interested => 0.10f,   // +10%
-			XPTier.Believer => 0.15f,     // +15%
-			XPTier.TrueBeliever => 0.20f, // +20%
-			_ => 0f
+			0 => 0f,
+			1 => 0.05f,      // +5%
+			2 => 0.10f,      // +10%
+			3 => 0.15f,      // +15%
+			4 => 0.20f,      // +20%
+			5 => 0.25f,      // +25%
+			6 => 0.30f,      // +30%
+			_ => 0.30f + (level - 6) * 0.02f // Small bonus increase for each level beyond
 		};
 
 		/// <summary>
-		/// Returns true if screening hints are available (Tier 3+).
+		/// Returns true if screening hints are available (Level 2+).
 		/// </summary>
-		public bool HasScreeningHints => CurrentTier >= XPTier.Interested;
+		public bool HasScreeningHints => CurrentLevel >= TopicLevel.Interested;
 
 		/// <summary>
-		/// Returns true if better caller pool is available (Tier 4+).
+		/// Returns true if better caller pool is available (Level 3+).
 		/// </summary>
-		public bool HasBetterCallerPool => CurrentTier >= XPTier.Believer;
+		public bool HasBetterCallerPool => CurrentLevel >= TopicLevel.Believer;
 
 		/// <summary>
-		/// Returns true if expert guests are available (Tier 5).
+		/// Returns true if expert guests are available (Level 4+).
 		/// </summary>
-		public bool HasExpertGuests => CurrentTier >= XPTier.TrueBeliever;
+		public bool HasExpertGuests => CurrentLevel >= TopicLevel.TrueBeliever;
 
 		// ═══════════════════════════════════════════════════════════════════════════════
 		// CONSTRUCTION
@@ -107,7 +133,7 @@ namespace KBTV.Data
 			_topicId = topicId;
 			_topicName = topicName;
 			_xp = Mathf.Max(0f, initialXP);
-			_highestTierReached = GetTierForXP(_xp); // Initialize based on starting XP
+			_highestLevelReached = GetLevelForXP(_xp); // Initialize based on starting XP
 		}
 
 		// ═══════════════════════════════════════════════════════════════════════════════
@@ -115,49 +141,49 @@ namespace KBTV.Data
 		// ═══════════════════════════════════════════════════════════════════════════════
 
 		/// <summary>
-		/// Add or remove XP. Cannot drop below the floor of the highest tier reached.
-		/// Does not automatically advance tiers - leveling is manual.
+		/// Add or remove XP. Cannot drop below the floor of the highest level reached.
+		/// Does not automatically advance levels - leveling is manual.
 		/// </summary>
 		public void ModifyXP(float delta)
 		{
 			float oldXP = _xp;
-			XPTier oldTier = CurrentTier;
+			int oldLevel = CurrentLevel;
 
 			_xp += delta;
 
-			// Enforce floor: cannot drop below highest tier reached
-			float floor = GetTierFloor(_highestTierReached);
+			// Enforce floor: cannot drop below highest level reached
+			float floor = GetLevelFloor(_highestLevelReached);
 			_xp = Mathf.Max(floor, _xp);
 
-			// Fire events (but no automatic tier advancement)
+			// Fire events (but no automatic level advancement)
 			if (!Mathf.IsEqualApprox(oldXP, _xp))
 			{
 				OnXPChanged?.Invoke(oldXP, _xp);
 			}
 
-			// No OnTierChanged here - tiers only change manually
+			// No OnLevelChanged here - levels only change manually
 		}
 
 		/// <summary>
-		/// Set XP to a specific value. Respects tier floor.
-		/// Does not automatically advance tiers - leveling is manual.
+		/// Set XP to a specific value. Respects level floor.
+		/// Does not automatically advance levels - leveling is manual.
 		/// </summary>
 		public void SetXP(float value)
 		{
 			float oldXP = _xp;
-			XPTier oldTier = CurrentTier;
+			int oldLevel = CurrentLevel;
 
 			// Enforce floor
-			float floor = GetTierFloor(_highestTierReached);
+			float floor = GetLevelFloor(_highestLevelReached);
 			_xp = Mathf.Max(floor, value);
 
-			// Fire events (but no automatic tier advancement)
+			// Fire events (but no automatic level advancement)
 			if (!Mathf.IsEqualApprox(oldXP, _xp))
 			{
 				OnXPChanged?.Invoke(oldXP, _xp);
 			}
 
-			// No OnTierChanged here - tiers only change manually
+			// No OnLevelChanged here - levels only change manually
 		}
 
 		// ═══════════════════════════════════════════════════════════════════════════════
@@ -165,26 +191,24 @@ namespace KBTV.Data
 		// ═══════════════════════════════════════════════════════════════════════════════
 
 		/// <summary>
-		/// Manually level up to the next tier, preserving overflow XP.
+		/// Manually level up to the next level, preserving overflow XP.
 		/// Example: 150 XP at Level 1 (threshold 100) → Level up → 50 XP at Level 2
 		/// </summary>
 		public void LevelUp()
 		{
-			XPTier newTier = CurrentTier + 1;
-			if (newTier > XPTier.TrueBeliever)
-				return; // Already at max tier
+			int newLevel = CurrentLevel + 1;
 
-			XPTier oldTier = CurrentTier;
+			int oldLevel = CurrentLevel;
 			
-			// Preserve overflow XP: subtract current tier threshold, keep remainder
-			float oldThreshold = GetTierThreshold(CurrentTier);
+			// Preserve overflow XP: subtract current level threshold, keep remainder
+			float oldThreshold = GetLevelThreshold(CurrentLevel);
 			_xp = Mathf.Max(0, _xp - oldThreshold);
 			
-			// Advance to new tier
-			_highestTierReached = newTier;
+			// Advance to new level
+			_highestLevelReached = newLevel;
 
-			// Fire tier changed event
-			OnTierChanged?.Invoke(oldTier, newTier);
+			// Fire level changed event
+			OnLevelChanged?.Invoke(oldLevel, newLevel);
 			
 			// Also fire XP changed event since XP value changed
 			OnXPChanged?.Invoke(oldThreshold, _xp);
@@ -219,36 +243,36 @@ namespace KBTV.Data
 		// ═══════════════════════════════════════════════════════════════════════════════
 
 		/// <summary>
-		/// Get progress toward the next tier (0 to 1).
-		/// Returns 1.0 if at max tier.
+		/// Get progress toward the next level (0 to 1).
+		/// Returns 1.0 if at max level.
 		/// </summary>
-		public float ProgressToNextTier
+		public float ProgressToNextLevel
 		{
 			get
 			{
-				if (CurrentTier == XPTier.TrueBeliever)
-					return 1f;
-
-				float currentFloor = GetTierFloor(CurrentTier);
-				float nextFloor = GetTierFloor(CurrentTier + 1);
+				int nextLevel = CurrentLevel + 1;
+				float currentFloor = GetLevelFloor(CurrentLevel);
+				float nextFloor = GetLevelFloor(nextLevel);
 				float range = nextFloor - currentFloor;
+
+				if (range <= 0) return 1f; // At or beyond max level
 
 				return (_xp - currentFloor) / range;
 			}
 		}
 
 		/// <summary>
-		/// Get XP required to reach the next tier.
-		/// Returns 0 if at max tier.
+		/// Get XP required to reach the next level.
+		/// Returns 0 if at or beyond max level.
 		/// </summary>
-		public float XPToNextTier
+		public float XPToNextLevel
 		{
 			get
 			{
-				if (CurrentTier == XPTier.TrueBeliever)
-					return 0f;
+				int nextLevel = CurrentLevel + 1;
+				float nextFloor = GetLevelFloor(nextLevel);
+				if (_xp >= nextFloor) return 0f;
 
-				float nextFloor = GetTierFloor(CurrentTier + 1);
 				return nextFloor - _xp;
 			}
 		}
@@ -257,21 +281,11 @@ namespace KBTV.Data
 		// DISPLAY
 		// ═══════════════════════════════════════════════════════════════════════════════
 
-		public static string GetTierName(XPTier tier) => tier switch
-		{
-			XPTier.Skeptic => "Skeptic",
-			XPTier.Curious => "Curious",
-			XPTier.Interested => "Interested",
-			XPTier.Believer => "Believer",
-			XPTier.TrueBeliever => "True Believer",
-			_ => "Unknown"
-		};
-
-		public string CurrentTierName => GetTierName(CurrentTier);
+		public string CurrentLevelName => TopicLevel.GetLevelName(CurrentLevel);
 
 		public override string ToString()
 		{
-			return $"{_topicName}: Tier {(int)CurrentTier} ({CurrentTierName}) - {_xp:F0} XP";
+			return $"{_topicName}: Level {CurrentLevel} ({CurrentLevelName}) - {_xp:F0} XP";
 		}
 	}
 }

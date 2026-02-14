@@ -105,7 +105,7 @@ namespace KBTV.Tests.Integration
                 caller.Name, caller.PhoneNumber, caller.Location,
                 caller.ClaimedTopic, caller.ActualTopic, caller.CallReason,
                 caller.Legitimacy, caller.PhoneQuality, caller.EmotionalState,
-                caller.CurseRisk, caller.BeliefLevel, caller.EvidenceLevel,
+                caller.CurseRisk, caller.EvidenceLevel,
                 caller.Coherence, caller.Urgency, caller.Personality,
                 null, null, null, caller.ScreeningSummary, 1f, 0.8f
             );
@@ -131,7 +131,6 @@ namespace KBTV.Tests.Integration
                 CallerPhoneQuality.Good,
                 CallerEmotionalState.Calm,
                 CallerCurseRisk.Low,
-                CallerBeliefLevel.Curious,
                 CallerEvidenceLevel.None,
                 CallerCoherence.Coherent,
                 CallerUrgency.Low,

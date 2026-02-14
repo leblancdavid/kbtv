@@ -1,8 +1,7 @@
-#nullable enable
-
 using System;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Items;
 
 namespace KBTV.Screening
 {
@@ -49,7 +48,7 @@ namespace KBTV.Screening
         Result<Caller> Approve();
         Result<Caller> Reject();
         void Update(float deltaTime);
-        bool CollectEvidence(string guessedWord);
+        bool CollectEvidence(string guessedWord, EvidenceTier tier);
         void LoseEvidenceOpportunity();
         void ResetPatienceAndTime();
 
