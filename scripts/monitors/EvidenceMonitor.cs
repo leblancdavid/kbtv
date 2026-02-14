@@ -27,6 +27,17 @@ namespace KBTV.Monitors
             _analyzer = EvidenceAnalyzer;
         }
 
+        public override void _Process(double delta)
+        {
+            // Override base class check - EvidenceMonitor uses _analyzer, not _repository
+            if (_analyzer == null)
+            {
+                return;
+            }
+
+            OnUpdate((float)delta);
+        }
+
         protected override void OnUpdate(float deltaTime)
         {
             _analyzer?.Update();

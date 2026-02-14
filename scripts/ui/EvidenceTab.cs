@@ -502,7 +502,7 @@ namespace KBTV.UI
                 var evidence = processingEvidence[0]; // Only one can be processing
                 float timeRemaining = evidence.AnalysisTimeSeconds - ((float)evidence.AnalysisProgress * evidence.AnalysisTimeSeconds);
                 string tierName = GetTierName(evidence.Tier);
-                _processingCountLabel.Text = $"Analyzing '{evidence.Word}' ({tierName}) - {timeRemaining:F0}s remaining";
+                _processingCountLabel.Text = $"Analyzing {tierName} Evidence - {timeRemaining:F0}s remaining";
             }
             else
             {
