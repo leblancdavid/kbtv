@@ -17,10 +17,11 @@ namespace KBTV.Items
         List<IdentifiedEvidence> GetCabinetEvidence();
         List<IdentifiedEvidence> GetWebsiteEvidence();
         void StartAnalysis(IdentifiedEvidence evidence);
-        void StartAnalysisAll();
         void MoveToCabinet(IdentifiedEvidence evidence);
         void MoveToWebsite(IdentifiedEvidence evidence);
         bool SellEvidence(IdentifiedEvidence evidence);
+        bool IsProcessingEvidence { get; }
+        void StartProcessingSpecificEvidence(IdentifiedEvidence evidence);
         float GetTotalCabinetBonus(EvidenceBonusType type);
         float CalculatePassiveIncome(int currentListeners);
         void Update();
@@ -45,6 +46,7 @@ namespace KBTV.Items
         public int WebsiteSlots => _websiteSlots;
         public int CabinetUsed => _evidence.Count(e => e.Status == EvidenceStatus.InCabinet);
         public int WebsiteUsed => _evidence.Count(e => e.Status == EvidenceStatus.OnWebsite);
+        public bool IsProcessingEvidence => GetProcessingCount() > 0;
 
         public override void _Ready()
         {
@@ -130,13 +132,12 @@ namespace KBTV.Items
             _processingEvidence[analysisId] = evidence;
         }
 
-        public void StartAnalysisAll()
+        public void StartProcessingSpecificEvidence(IdentifiedEvidence evidence)
         {
-            var rawEvidence = GetRawEvidence();
-            foreach (var evidence in rawEvidence)
-            {
-                StartAnalysis(evidence);
-            }
+            if (evidence.Status != EvidenceStatus.Raw || IsProcessingEvidence)
+                return;
+
+            StartAnalysis(evidence);
         }
 
         public void MoveToCabinet(IdentifiedEvidence evidence)

@@ -197,16 +197,6 @@ namespace KBTV.UI
             _oneOfAKindCountLabel = new Label { Text = "One of a Kind: 0" };
             _oneOfAKindCountLabel.AddThemeColorOverride("font_color", UIColors.Accent.Gold);
             tierCountsContainer.AddChild(_oneOfAKindCountLabel);
-
-            var identifyButton = new Button
-            {
-                Text = "IDENTIFY ALL",
-                SizeFlagsHorizontal = SizeFlags.ShrinkEnd,
-                CustomMinimumSize = new Vector2(120, 36)
-            };
-            UITheme.ApplyButtonStyle(identifyButton);
-            identifyButton.Pressed += OnIdentifyAllPressed;
-            parent.AddChild(identifyButton);
         }
 
         private void CreateProcessingSection(VBoxContainer parent)
@@ -387,12 +377,6 @@ namespace KBTV.UI
             parent.AddChild(websiteContainer);
 
             _websiteSectionCreated = true;
-        }
-
-        private void OnIdentifyAllPressed()
-        {
-            _analyzer?.StartAnalysisAll();
-            RefreshAllSections();
         }
 
         private void OnUpgradeCabinetPressed()

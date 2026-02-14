@@ -41,6 +41,7 @@ namespace KBTV
             _serviceProviderRoot.AddChild(new CallerMonitor());
             _serviceProviderRoot.AddChild(new VernStatsMonitor());
             _serviceProviderRoot.AddChild(new ScreeningMonitor());
+            _serviceProviderRoot.AddChild(new EvidenceMonitor());
             _serviceProviderRoot.AddChild(new ConversationDisplay());
             _serviceProviderRoot.AddChild(new InputHandler());
             

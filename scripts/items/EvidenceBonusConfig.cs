@@ -24,12 +24,12 @@ namespace KBTV.Items
         {
             return tier switch
             {
-                EvidenceTier.Common => 5f,
-                EvidenceTier.Uncommon => 10f,
-                EvidenceTier.Rare => 15f,
-                EvidenceTier.VeryRare => 25f,
-                EvidenceTier.OneOfAKind => 45f,
-                _ => 5f
+                EvidenceTier.Common => 30f,
+                EvidenceTier.Uncommon => 60f,
+                EvidenceTier.Rare => 120f,
+                EvidenceTier.VeryRare => 240f,
+                EvidenceTier.OneOfAKind => 480f,
+                _ => 30f
             };
         }
 

@@ -24,6 +24,7 @@ namespace KBTV.UI
         private Button? _closeButton;
 
         private List<IdentifiedEvidence> _displayedEvidence = new();
+        private int _previousProcessingCount = 0;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -118,25 +119,58 @@ namespace KBTV.UI
                 _evidenceListContainer.AddChild(itemRow);
             }
 
+            // Disable raw evidence buttons while processing
+            UpdateButtonStates();
+
+            _previousProcessingCount = _displayedEvidence.Count(e => e.Status == EvidenceStatus.Processing);
+
             Visible = true;
+        }
+
+        private void UpdateButtonStates()
+        {
+            bool isProcessing = _analyzer?.IsProcessingEvidence ?? false;
+            
+            foreach (var child in _evidenceListContainer.GetChildren())
+            {
+                if (child is Button button)
+                {
+                    button.Disabled = isProcessing;
+                }
+            }
         }
 
         private Control CreateEvidenceRow(IdentifiedEvidence evidence)
         {
-            var container = new PanelContainer();
-            var style = new StyleBoxFlat
+            Control container;
+            
+            if (evidence.Status == EvidenceStatus.Raw)
             {
-                BgColor = UIColors.BG_DARK,
-                CornerRadiusTopLeft = 6,
-                CornerRadiusTopRight = 6,
-                CornerRadiusBottomLeft = 6,
-                CornerRadiusBottomRight = 6,
-                ContentMarginLeft = 12,
-                ContentMarginRight = 12,
-                ContentMarginTop = 8,
-                ContentMarginBottom = 8
-            };
-            container.AddThemeStyleboxOverride("panel", style);
+                // Raw evidence: make the whole row a clickable button
+                var button = new Button();
+                button.Pressed += () => OnProcessEvidence(evidence);
+                button.Disabled = _analyzer?.IsProcessingEvidence ?? false;
+                UITheme.ApplyButtonStyle(button);
+                container = button;
+            }
+            else
+            {
+                // Processing/Identified: use panel container
+                container = new PanelContainer();
+                var style = new StyleBoxFlat
+                {
+                    BgColor = UIColors.BG_DARK,
+                    CornerRadiusTopLeft = 6,
+                    CornerRadiusTopRight = 6,
+                    CornerRadiusBottomLeft = 6,
+                    CornerRadiusBottomRight = 6,
+                    ContentMarginLeft = 12,
+                    ContentMarginRight = 12,
+                    ContentMarginTop = 8,
+                    ContentMarginBottom = 8
+                };
+                container.AddThemeStyleboxOverride("panel", style);
+            }
 
             var hbox = new HBoxContainer();
             hbox.AddThemeConstantOverride("separation", 12);
@@ -254,6 +288,12 @@ namespace KBTV.UI
             RefreshDisplay();
         }
 
+        private void OnProcessEvidence(IdentifiedEvidence evidence)
+        {
+            _analyzer?.StartProcessingSpecificEvidence(evidence);
+            RefreshDisplay();
+        }
+
         private void OnClosePressed()
         {
             Visible = false;
@@ -272,9 +312,12 @@ namespace KBTV.UI
             if (Visible && _displayedEvidence.Count > 0)
             {
                 _analyzer?.Update();
-                var processingCount = _displayedEvidence.Count(e => e.Status == EvidenceStatus.Processing);
-                if (processingCount == 0)
+                var currentProcessingCount = _displayedEvidence.Count(e => e.Status == EvidenceStatus.Processing);
+                
+                // Refresh display if processing status changed
+                if (currentProcessingCount != _previousProcessingCount)
                 {
+                    _previousProcessingCount = currentProcessingCount;
                     RefreshDisplay();
                 }
             }
