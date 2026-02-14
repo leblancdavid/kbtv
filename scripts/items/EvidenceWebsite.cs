@@ -17,7 +17,6 @@ namespace KBTV.Items
         List<IdentifiedEvidence> GetAllEvidence();
         int GetUpgradeCost();
         void Upgrade(int level);
-        void MoveToWebsite(IdentifiedEvidence evidence);
     }
 
     public partial class EvidenceWebsite : Node, IEvidenceWebsite
@@ -83,11 +82,6 @@ namespace KBTV.Items
         public int GetUpgradeCost()
         {
             return _upgradeLevel * 400;
-        }
-
-        public void MoveToWebsite(IdentifiedEvidence evidence)
-        {
-            _analyzer?.MoveToWebsite(evidence);
         }
 
         public string GetUpgradeDescription()

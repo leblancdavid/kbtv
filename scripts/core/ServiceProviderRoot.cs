@@ -192,6 +192,7 @@ namespace KBTV.Core
         var evidenceAnalyzer = new EvidenceAnalyzer();
         var evidenceCabinet = new EvidenceCabinet();
         var evidenceWebsite = new EvidenceWebsite();
+        Log.Debug($"ServiceProviderRoot: Created evidence services - Analyzer: {evidenceAnalyzer != null}");
 
         // Phase 2: Set all provider properties (now dependency injection will work)
         Log.Debug("ServiceProviderRoot: Phase 2 - Setting provider properties...");
@@ -272,7 +273,9 @@ namespace KBTV.Core
         SaveManager.Initialize();
         SaveManager.Load();
         CallerGenerator.Initialize();
+        Log.Debug("ServiceProviderRoot: Calling EvidenceAnalyzer.Initialize()");
         EvidenceAnalyzer.Initialize();
+        Log.Debug($"ServiceProviderRoot: After Initialize - Evidence count: {EvidenceAnalyzer.GetIdentifiedCount()} identified");
         EvidenceCabinet.Initialize();
         EvidenceWebsite.Initialize();
 

@@ -272,13 +272,13 @@ namespace KBTV.UI
 
         private void OnMoveToCabinet(IdentifiedEvidence evidence)
         {
-            _cabinet?.MoveToCabinet(evidence);
+            _analyzer?.MoveToCabinet(evidence);
             RefreshDisplay();
         }
 
         private void OnMoveToWebsite(IdentifiedEvidence evidence)
         {
-            _website?.MoveToWebsite(evidence);
+            _analyzer?.MoveToWebsite(evidence);
             RefreshDisplay();
         }
 

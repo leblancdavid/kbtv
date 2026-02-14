@@ -1,9 +1,85 @@
-using KBTV.Callers;
+using System.Collections.Generic;
 
 namespace KBTV.Items
 {
     public static class EvidenceBonusConfig
     {
+        private static List<string> _itemNames = new();
+        private static bool _itemsLoaded = false;
+        private const string ITEMS_PATH = "res://assets/config/evidence_items.json";
+
+        private static void LoadItemNames()
+        {
+            if (_itemsLoaded)
+            {
+                return;
+            }
+
+            _itemsLoaded = true;
+
+            try
+            {
+                if (!Godot.FileAccess.FileExists(ITEMS_PATH))
+                {
+                    Godot.GD.PrintErr($"EvidenceBonusConfig: Item names file not found at {ITEMS_PATH}");
+                    return;
+                }
+
+                var file = Godot.FileAccess.Open(ITEMS_PATH, Godot.FileAccess.ModeFlags.Read);
+                if (file == null)
+                {
+                    Godot.GD.PrintErr($"EvidenceBonusConfig: Failed to open item names file");
+                    return;
+                }
+
+                string json = file.GetAsText();
+                file.Close();
+
+                var jsonParse = Godot.Json.ParseString(json);
+                if (jsonParse.VariantType == Godot.Variant.Type.Nil)
+                {
+                    Godot.GD.PrintErr("EvidenceBonusConfig: Failed to parse item names JSON");
+                    return;
+                }
+
+                var dict = (Godot.Collections.Dictionary)jsonParse;
+                if (!dict.ContainsKey("items"))
+                {
+                    Godot.GD.PrintErr("EvidenceBonusConfig: Item names JSON missing 'items' key");
+                    return;
+                }
+
+                var itemsArray = (Godot.Collections.Array)dict["items"];
+                _itemNames.Clear();
+
+                foreach (var itemVariant in itemsArray)
+                {
+                    string itemName = itemVariant.ToString();
+                    if (!string.IsNullOrEmpty(itemName))
+                    {
+                        _itemNames.Add(itemName);
+                    }
+                }
+
+                Godot.GD.Print($"EvidenceBonusConfig: Successfully loaded {_itemNames.Count} item names from {ITEMS_PATH}");
+            }
+            catch (System.Exception ex)
+            {
+                Godot.GD.PrintErr($"EvidenceBonusConfig: Exception loading item names: {ex.Message}");
+            }
+        }
+
+        public static string GetRandomItemName()
+        {
+            LoadItemNames();
+            
+            if (_itemNames.Count == 0)
+            {
+                return "Unknown Evidence"; // Fallback
+            }
+
+            return _itemNames[(int)(Godot.GD.Randi() % (uint)_itemNames.Count)];
+        }
         public static float GetBonusAmount(EvidenceTier tier, EvidenceBonusType type)
         {
             return type switch
@@ -22,15 +98,7 @@ namespace KBTV.Items
 
         public static float GetAnalysisTimeSeconds(EvidenceTier tier)
         {
-            return tier switch
-            {
-                EvidenceTier.Common => 30f,
-                EvidenceTier.Uncommon => 60f,
-                EvidenceTier.Rare => 120f,
-                EvidenceTier.VeryRare => 240f,
-                EvidenceTier.OneOfAKind => 480f,
-                _ => 30f
-            };
+            return 5f; // Fast analysis for testing
         }
 
         public static int GetSellPrice(EvidenceTier tier)
@@ -46,7 +114,7 @@ namespace KBTV.Items
             };
         }
 
-        public static EvidenceBonusType GetRandomBonusType(ShowTopic? topic = null)
+        public static EvidenceBonusType GetRandomBonusType()
         {
             var values = System.Enum.GetValues<EvidenceBonusType>();
             return values[Godot.GD.RandRange(0, values.Length - 1)];

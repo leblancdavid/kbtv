@@ -23,7 +23,6 @@ namespace KBTV.Items
         List<IdentifiedEvidence> GetAllEvidence();
         int GetUpgradeCost();
         void Upgrade(int level);
-        void MoveToCabinet(IdentifiedEvidence evidence);
     }
 
     public partial class EvidenceCabinet : Node, IEvidenceCabinet
@@ -102,11 +101,6 @@ namespace KBTV.Items
         public int GetUpgradeCost()
         {
             return _upgradeLevel * 300;
-        }
-
-        public void MoveToCabinet(IdentifiedEvidence evidence)
-        {
-            _analyzer?.MoveToCabinet(evidence);
         }
 
         public string GetUpgradeDescription()

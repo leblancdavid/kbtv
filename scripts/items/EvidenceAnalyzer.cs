@@ -50,16 +50,21 @@ namespace KBTV.Items
 
         public override void _Ready()
         {
+            GD.Print("EvidenceAnalyzer._Ready: Adding test evidence in _Ready");
+            AddTestEvidence();
+            GD.Print($"EvidenceAnalyzer._Ready: Completed. Total evidence: {_evidence.Count}, Identified: {GetIdentifiedCount()}");
         }
 
         public void Initialize()
         {
+            GD.Print("EvidenceAnalyzer.Initialize: Starting initialization");
             if (ServiceRegistry.IsInitialized)
             {
                 ServiceRegistry.Instance.RegisterSelf<IEvidenceAnalyzer>(this);
             }
 
             var saveManager = ServiceRegistry.Instance?.Get<SaveManager>();
+            GD.Print($"EvidenceAnalyzer.Initialize: saveManager={saveManager?.CurrentSave != null}");
             if (saveManager?.CurrentSave != null)
             {
                 var evidenceSystem = saveManager.CurrentSave.EvidenceSystem;
@@ -76,6 +81,10 @@ namespace KBTV.Items
                     PopulateFromSaveData(saveManager.CurrentSave.CollectedEvidence);
                 }
             }
+
+            // Always add test identified evidence for development testing
+            GD.Print("EvidenceAnalyzer.Initialize: Adding test evidence");
+            GD.Print($"EvidenceAnalyzer.Initialize: Completed. Total evidence: {_evidence.Count}, Identified: {GetIdentifiedCount()}");
         }
 
         public void AddEvidence(EvidenceItem item)
@@ -142,30 +151,38 @@ namespace KBTV.Items
 
         public void MoveToCabinet(IdentifiedEvidence evidence)
         {
+            GD.Print($"MoveToCabinet status check - evidence.Status: {evidence.Status}, expected: {EvidenceStatus.Identified}");
             if (evidence.Status != EvidenceStatus.Identified)
                 return;
 
-            if (CabinetUsed >= _cabinetSlots)
+            var cabinet = ServiceRegistry.Instance?.EvidenceCabinet;
+            GD.Print($"MoveToCabinet called - Evidence: {evidence.Word}, Status: {evidence.Status}, CabinetUsed: {CabinetUsed}, Capacity: {cabinet?.Capacity}");
+            if (cabinet != null && CabinetUsed >= cabinet.Capacity)
             {
-                Log.Warning($"Cannot move to cabinet: Cabinet full ({CabinetUsed}/{_cabinetSlots})");
+                Log.Warning($"Cannot move to cabinet: Cabinet full ({CabinetUsed}/{cabinet.Capacity})");
                 return;
             }
 
             evidence.MoveToCabinet();
+            GD.Print($"MoveToCabinet completed - Evidence status: {evidence.Status}");
         }
 
         public void MoveToWebsite(IdentifiedEvidence evidence)
         {
+            GD.Print($"MoveToWebsite status check - evidence.Status: {evidence.Status}, expected: {EvidenceStatus.Identified}");
             if (evidence.Status != EvidenceStatus.Identified)
                 return;
 
-            if (WebsiteUsed >= _websiteSlots)
+            var website = ServiceRegistry.Instance?.EvidenceWebsite;
+            GD.Print($"MoveToWebsite called - Evidence: {evidence.Word}, Status: {evidence.Status}, WebsiteUsed: {WebsiteUsed}, Capacity: {website?.Capacity}");
+            if (website != null && WebsiteUsed >= website.Capacity)
             {
-                Log.Warning($"Cannot move to website: Website full ({WebsiteUsed}/{_websiteSlots})");
+                Log.Warning($"Cannot move to website: Website full ({WebsiteUsed}/{website.Capacity})");
                 return;
             }
 
             evidence.MoveToWebsite();
+            GD.Print($"MoveToWebsite completed - Evidence status: {evidence.Status}");
         }
 
         public bool SellEvidence(IdentifiedEvidence evidence)
@@ -210,12 +227,14 @@ namespace KBTV.Items
 
         public void UpgradeCabinet(int additionalSlots)
         {
-            _cabinetSlots += additionalSlots;
+            var cabinet = ServiceRegistry.Instance?.EvidenceCabinet;
+            cabinet?.Upgrade(cabinet.Capacity / 5 + 1);
         }
 
         public void UpgradeWebsite(int additionalSlots)
         {
-            _websiteSlots += additionalSlots;
+            var website = ServiceRegistry.Instance?.EvidenceWebsite;
+            website?.Upgrade(website.Capacity / 5 + 1);
         }
 
         public void Update()
@@ -265,6 +284,30 @@ namespace KBTV.Items
                 var identified = IdentifiedEvidence.CreateRaw(item);
                 _evidence.Add(identified);
             }
+        }
+
+        private void AddTestEvidence()
+        {
+            GD.Print("AddTestEvidence: Adding 5 test identified evidence items");
+            // Add test identified evidence of various tiers for immediate testing of File/Post/Sell buttons
+            var commonItem = EvidenceItem.Create("Test Evidence Common", "Test Caller 1", "Low", EvidenceTier.Common);
+            var uncommonItem = EvidenceItem.Create("Test Evidence Uncommon", "Test Caller 2", "Medium", EvidenceTier.Uncommon);
+            var rareItem = EvidenceItem.Create("Test Evidence Rare", "Test Caller 3", "High", EvidenceTier.Rare);
+            var veryRareItem = EvidenceItem.Create("Test Evidence VeryRare", "Test Caller 4", "Irrefutable", EvidenceTier.VeryRare);
+            var oneOfAKindItem = EvidenceItem.Create("Test Evidence OneOfAKind", "Test Caller 5", "Irrefutable", EvidenceTier.OneOfAKind);
+
+            var commonEvidence = IdentifiedEvidence.CreateIdentified(commonItem, EvidenceBonusType.VernPhysical, 10f);
+            var uncommonEvidence = IdentifiedEvidence.CreateIdentified(uncommonItem, EvidenceBonusType.VernEmotional, 15f);
+            var rareEvidence = IdentifiedEvidence.CreateIdentified(rareItem, EvidenceBonusType.ListenerGrowth, 20f);
+            var veryRareEvidence = IdentifiedEvidence.CreateIdentified(veryRareItem, EvidenceBonusType.ShowQuality, 25f);
+            var oneOfAKindEvidence = IdentifiedEvidence.CreateIdentified(oneOfAKindItem, EvidenceBonusType.TopicXP, 30f);
+
+            _evidence.Add(commonEvidence);
+            _evidence.Add(uncommonEvidence);
+            _evidence.Add(rareEvidence);
+            _evidence.Add(veryRareEvidence);
+            _evidence.Add(oneOfAKindEvidence);
+            GD.Print($"AddTestEvidence: Added evidence. Total evidence count: {_evidence.Count}, Identified count: {GetIdentifiedCount()}");
         }
     }
 }

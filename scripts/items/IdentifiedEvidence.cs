@@ -1,4 +1,5 @@
 using System;
+using Godot;
 using KBTV.Callers;
 
 namespace KBTV.Items
@@ -44,13 +45,13 @@ namespace KBTV.Items
         {
             return new IdentifiedEvidence
             {
-                Word = item.Word,
+                Word = EvidenceBonusConfig.GetRandomItemName(),
                 SourceCallerName = item.SourceCallerName,
                 EvidenceLevel = item.EvidenceLevel,
                 Tier = item.Tier,
                 _status = EvidenceStatus.Raw,
-                _bonusType = EvidenceBonusConfig.GetRandomBonusType(null),
-                _bonusAmount = EvidenceBonusConfig.GetBonusAmount(item.Tier, EvidenceBonusConfig.GetRandomBonusType(null))
+                _bonusType = EvidenceBonusConfig.GetRandomBonusType(),
+                _bonusAmount = EvidenceBonusConfig.GetBonusAmount(item.Tier, EvidenceBonusConfig.GetRandomBonusType())
             };
         }
 
@@ -62,7 +63,7 @@ namespace KBTV.Items
         {
             return new IdentifiedEvidence
             {
-                Word = item.Word,
+                Word = EvidenceBonusConfig.GetRandomItemName(),
                 SourceCallerName = item.SourceCallerName,
                 EvidenceLevel = item.EvidenceLevel,
                 Tier = item.Tier,
@@ -101,17 +102,29 @@ namespace KBTV.Items
 
         public void MoveToCabinet()
         {
+            GD.Print($"IdentifiedEvidence.MoveToCabinet: Current status: {_status}, Target: {EvidenceStatus.Identified}");
             if (_status == EvidenceStatus.Identified)
             {
                 _status = EvidenceStatus.InCabinet;
+                GD.Print($"IdentifiedEvidence.MoveToCabinet: Status changed to {_status}");
+            }
+            else
+            {
+                GD.Print($"IdentifiedEvidence.MoveToCabinet: Cannot move - status is {_status}");
             }
         }
 
         public void MoveToWebsite()
         {
+            GD.Print($"IdentifiedEvidence.MoveToWebsite: Current status: {_status}, Target: {EvidenceStatus.Identified}");
             if (_status == EvidenceStatus.Identified)
             {
                 _status = EvidenceStatus.OnWebsite;
+                GD.Print($"IdentifiedEvidence.MoveToWebsite: Status changed to {_status}");
+            }
+            else
+            {
+                GD.Print($"IdentifiedEvidence.MoveToWebsite: Cannot move - status is {_status}");
             }
         }
 
