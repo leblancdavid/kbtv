@@ -37,6 +37,8 @@ namespace KBTV.UI
         private Label? _identifiedCountLabel;
         private Label? _cabinetCountLabel;
         private Label? _websiteCountLabel;
+        private Label? _cabinetBonusLabel;
+        private Label? _websiteIncomeLabel;
         private VBoxContainer? _identifiedContainer;
         private VBoxContainer? _cabinetContainer;
         private VBoxContainer? _websiteContainer;
@@ -334,23 +336,14 @@ namespace KBTV.UI
             _cabinetCountLabel.AddThemeColorOverride("font_color", UIColors.Accent.Blue);
             headerBox.AddChild(_cabinetCountLabel);
 
-            var bonusLabel = new Label
+            _cabinetBonusLabel = new Label
             {
                 Text = GetCabinetBonusText(),
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Visible = false
             };
-            bonusLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            parent.AddChild(bonusLabel);
-
-            var upgradeButton = new Button
-            {
-                Text = "Upgrade Cabinet (+5 slots - $300)",
-                SizeFlagsHorizontal = SizeFlags.ShrinkEnd,
-                CustomMinimumSize = new Vector2(220, 36)
-            };
-            UITheme.ApplyButtonStyle(upgradeButton);
-            upgradeButton.Pressed += OnUpgradeCabinetPressed;
-            parent.AddChild(upgradeButton);
+            _cabinetBonusLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            parent.AddChild(_cabinetBonusLabel);
 
             _cabinetContainer = new VBoxContainer();
             _cabinetContainer.AddThemeConstantOverride("separation", 8);
@@ -388,23 +381,14 @@ namespace KBTV.UI
             _websiteCountLabel.AddThemeColorOverride("font_color", UIColors.Accent.Purple);
             headerBox.AddChild(_websiteCountLabel);
 
-            var incomeLabel = new Label
+            _websiteIncomeLabel = new Label
             {
                 Text = GetWebsiteIncomeText(),
-                HorizontalAlignment = HorizontalAlignment.Center
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Visible = false
             };
-            incomeLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            parent.AddChild(incomeLabel);
-
-            var upgradeButton = new Button
-            {
-                Text = "Upgrade Website (+5 slots - $400)",
-                SizeFlagsHorizontal = SizeFlags.ShrinkEnd,
-                CustomMinimumSize = new Vector2(220, 36)
-            };
-            UITheme.ApplyButtonStyle(upgradeButton);
-            upgradeButton.Pressed += OnUpgradeWebsitePressed;
-            parent.AddChild(upgradeButton);
+            _websiteIncomeLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            parent.AddChild(_websiteIncomeLabel);
 
             _websiteContainer = new VBoxContainer();
             _websiteContainer.AddThemeConstantOverride("separation", 8);
@@ -433,32 +417,6 @@ namespace KBTV.UI
             RefreshProcessingSection();
         }
 
-        private void OnUpgradeCabinetPressed()
-        {
-            if (_cabinet == null) return;
-
-            var cost = _cabinet.GetUpgradeCost();
-            var economyManager = ServiceRegistry.Instance?.EconomyManager;
-            if (economyManager != null && economyManager.SpendMoney(cost, "Upgrade Evidence Cabinet"))
-            {
-                _cabinet.Upgrade(_cabinet.Capacity / 5 + 1);
-                RefreshAllSections();
-            }
-        }
-
-        private void OnUpgradeWebsitePressed()
-        {
-            if (_website == null) return;
-
-            var cost = _website.GetUpgradeCost();
-            var economyManager = ServiceRegistry.Instance?.EconomyManager;
-            if (economyManager != null && economyManager.SpendMoney(cost, "Upgrade Evidence Website"))
-            {
-                _website.Upgrade(_website.Capacity / 5 + 1);
-                RefreshAllSections();
-            }
-        }
-
         private void OnFileEvidencePressed(IdentifiedEvidence evidence)
         {
             GD.Print($"File button clicked - Evidence: {evidence.Word}, Status: {evidence.Status}, Cabinet capacity: {_cabinet?.Capacity}, Used: {_cabinet?.Used}");
@@ -480,11 +438,6 @@ namespace KBTV.UI
             if (_analyzer == null) return;
 
             _analyzer.SellEvidence(evidence);
-            RefreshAllSections();
-        }
-
-        public void OnDataChanged()
-        {
             RefreshAllSections();
         }
 
@@ -655,6 +608,16 @@ namespace KBTV.UI
             GD.Print($"RefreshCabinetSection: used={used}, capacity={capacity}");
             _cabinetCountLabel.Text = $"{used}/{capacity} slots";
 
+            // Show/hide bonus label based on item count
+            if (_cabinetBonusLabel != null)
+            {
+                _cabinetBonusLabel.Visible = used > 0;
+                if (used > 0)
+                {
+                    _cabinetBonusLabel.Text = GetCabinetBonusText();
+                }
+            }
+
             // Populate cabinet items
             foreach (var evidence in cabinetEvidence)
             {
@@ -702,6 +665,16 @@ namespace KBTV.UI
             int capacity = _website?.Capacity ?? 5;
             GD.Print($"RefreshWebsiteSection: used={used}, capacity={capacity}");
             _websiteCountLabel.Text = $"{used}/{capacity} slots";
+
+            // Show/hide income label based on item count
+            if (_websiteIncomeLabel != null)
+            {
+                _websiteIncomeLabel.Visible = used > 0;
+                if (used > 0)
+                {
+                    _websiteIncomeLabel.Text = GetWebsiteIncomeText();
+                }
+            }
 
             // Populate website items
             foreach (var evidence in websiteEvidence)
