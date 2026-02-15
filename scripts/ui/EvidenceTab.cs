@@ -127,23 +127,16 @@ namespace KBTV.UI
 
         private void BuildUI()
         {
-            _scrollContainer = new ScrollContainer
-            {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill,
-                SizeFlagsVertical = SizeFlags.ExpandFill,
-                HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
-                VerticalScrollMode = ScrollContainer.ScrollMode.Auto
-            };
-            _scrollContainer.SetAnchorsPreset(LayoutPreset.FullRect);
-            AddChild(_scrollContainer);
+            _scrollContainer = null;
 
             _contentContainer = new VBoxContainer
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 SizeFlagsVertical = SizeFlags.ExpandFill
             };
+            _contentContainer.SetAnchorsPreset(LayoutPreset.FullRect);
             _contentContainer.AddThemeConstantOverride("separation", 16);
-            _scrollContainer.AddChild(_contentContainer);
+            AddChild(_contentContainer);
 
             var paddingContainer = new MarginContainer();
             paddingContainer.AddThemeConstantOverride("margin_left", 16);
@@ -151,10 +144,12 @@ namespace KBTV.UI
             paddingContainer.AddThemeConstantOverride("margin_top", 12);
             paddingContainer.AddThemeConstantOverride("margin_bottom", 12);
             paddingContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            paddingContainer.SizeFlagsVertical = SizeFlags.ExpandFill;
 
             var innerContainer = new VBoxContainer
             {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                SizeFlagsVertical = SizeFlags.ExpandFill
             };
             innerContainer.AddThemeConstantOverride("separation", 16);
             paddingContainer.AddChild(innerContainer);
@@ -168,41 +163,150 @@ namespace KBTV.UI
             titleLabel.AddThemeFontSizeOverride("font_size", 18);
             innerContainer.AddChild(titleLabel);
 
-            // Create 2x2 grid layout
-            var gridContainer = new GridContainer { Columns = 2 };
-            gridContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            gridContainer.SizeFlagsVertical = SizeFlags.ExpandFill;
-            gridContainer.AddThemeConstantOverride("h_separation", 16);
-            gridContainer.AddThemeConstantOverride("v_separation", 16);
-            innerContainer.AddChild(gridContainer);
+            // Create 2x2 layout using nested HBoxContainers
+            var mainVBox = new VBoxContainer();
+            mainVBox.AddThemeConstantOverride("separation", 24);
+            mainVBox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            mainVBox.SizeFlagsVertical = SizeFlags.ExpandFill;
+            innerContainer.AddChild(mainVBox);
+
+            // Top row
+            var topRow = new HBoxContainer();
+            topRow.AddThemeConstantOverride("separation", 24);
+            topRow.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            topRow.SizeFlagsVertical = SizeFlags.ExpandFill;
+            mainVBox.AddChild(topRow);
+
+            // Bottom row
+            var bottomRow = new HBoxContainer();
+            bottomRow.AddThemeConstantOverride("separation", 24);
+            bottomRow.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            bottomRow.SizeFlagsVertical = SizeFlags.ExpandFill;
+            mainVBox.AddChild(bottomRow);
 
             // Top-left cell: Raw Evidence + Processing
+            var topLeftPanel = new Panel();
+            UITheme.ApplyPanelStyle(topLeftPanel);
+            topLeftPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            topLeftPanel.SizeFlagsVertical = SizeFlags.ExpandFill;
+            
+            var topLeftScroll = new ScrollContainer();
+            topLeftScroll.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            topLeftScroll.SizeFlagsVertical = SizeFlags.ExpandFill;
+            topLeftScroll.SetAnchorsPreset(LayoutPreset.FullRect);
+            topLeftScroll.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
+            topLeftScroll.VerticalScrollMode = ScrollContainer.ScrollMode.Auto;
+            topLeftPanel.AddChild(topLeftScroll);
+            
+            var topLeftMargin = new MarginContainer();
+            topLeftMargin.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            topLeftMargin.SizeFlagsVertical = SizeFlags.ExpandFill;
+            topLeftMargin.AddThemeConstantOverride("margin_left", 12);
+            topLeftMargin.AddThemeConstantOverride("margin_right", 12);
+            topLeftMargin.AddThemeConstantOverride("margin_top", 8);
+            topLeftMargin.AddThemeConstantOverride("margin_bottom", 8);
+            topLeftScroll.AddChild(topLeftMargin);
+            
             var topLeftCell = new VBoxContainer();
             topLeftCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            topLeftCell.SizeFlagsVertical = SizeFlags.ExpandFill;
-            gridContainer.AddChild(topLeftCell);
+            topLeftCell.SizeFlagsVertical = SizeFlags.Expand;
+            topLeftCell.AddThemeConstantOverride("separation", 8);
+            topLeftMargin.AddChild(topLeftCell);
+            topRow.AddChild(topLeftPanel);
             CreateRawEvidenceSection(topLeftCell);
             CreateProcessingSection(topLeftCell);
 
             // Top-right cell: Identified Evidence
+            var topRightPanel = new Panel();
+            UITheme.ApplyPanelStyle(topRightPanel);
+            topRightPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            topRightPanel.SizeFlagsVertical = SizeFlags.ExpandFill;
+            
+            var topRightScroll = new ScrollContainer();
+            topRightScroll.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            topRightScroll.SizeFlagsVertical = SizeFlags.ExpandFill;
+            topRightScroll.SetAnchorsPreset(LayoutPreset.FullRect);
+            topRightScroll.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
+            topRightScroll.VerticalScrollMode = ScrollContainer.ScrollMode.Auto;
+            topRightPanel.AddChild(topRightScroll);
+            
+            var topRightMargin = new MarginContainer();
+            topRightMargin.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            topRightMargin.SizeFlagsVertical = SizeFlags.ExpandFill;
+            topRightMargin.AddThemeConstantOverride("margin_left", 12);
+            topRightMargin.AddThemeConstantOverride("margin_right", 12);
+            topRightMargin.AddThemeConstantOverride("margin_top", 8);
+            topRightMargin.AddThemeConstantOverride("margin_bottom", 8);
+            topRightScroll.AddChild(topRightMargin);
+            
             var topRightCell = new VBoxContainer();
             topRightCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            topRightCell.SizeFlagsVertical = SizeFlags.ExpandFill;
-            gridContainer.AddChild(topRightCell);
+            topRightCell.SizeFlagsVertical = SizeFlags.Expand;
+            topRightCell.AddThemeConstantOverride("separation", 8);
+            topRightMargin.AddChild(topRightCell);
+            topRow.AddChild(topRightPanel);
             CreateIdentifiedSection(topRightCell);
 
-            // Bottom-left cell: File Cabinet (bigger height)
+            // Bottom-left cell: File Cabinet
+            var bottomLeftPanel = new Panel();
+            UITheme.ApplyPanelStyle(bottomLeftPanel);
+            bottomLeftPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            bottomLeftPanel.SizeFlagsVertical = SizeFlags.ExpandFill;
+            
+            var bottomLeftScroll = new ScrollContainer();
+            bottomLeftScroll.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            bottomLeftScroll.SizeFlagsVertical = SizeFlags.ExpandFill;
+            bottomLeftScroll.SetAnchorsPreset(LayoutPreset.FullRect);
+            bottomLeftScroll.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
+            bottomLeftScroll.VerticalScrollMode = ScrollContainer.ScrollMode.Auto;
+            bottomLeftPanel.AddChild(bottomLeftScroll);
+            
+            var bottomLeftMargin = new MarginContainer();
+            bottomLeftMargin.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            bottomLeftMargin.SizeFlagsVertical = SizeFlags.ExpandFill;
+            bottomLeftMargin.AddThemeConstantOverride("margin_left", 12);
+            bottomLeftMargin.AddThemeConstantOverride("margin_right", 12);
+            bottomLeftMargin.AddThemeConstantOverride("margin_top", 8);
+            bottomLeftMargin.AddThemeConstantOverride("margin_bottom", 8);
+            bottomLeftScroll.AddChild(bottomLeftMargin);
+            
             var bottomLeftCell = new VBoxContainer();
             bottomLeftCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            bottomLeftCell.SizeFlagsVertical = SizeFlags.Expand | SizeFlags.Fill;
-            gridContainer.AddChild(bottomLeftCell);
+            bottomLeftCell.SizeFlagsVertical = SizeFlags.Expand;
+            bottomLeftCell.AddThemeConstantOverride("separation", 8);
+            bottomLeftMargin.AddChild(bottomLeftCell);
+            bottomRow.AddChild(bottomLeftPanel);
             CreateCabinetSection(bottomLeftCell);
 
-            // Bottom-right cell: Website (bigger height)
+            // Bottom-right cell: Website
+            var bottomRightPanel = new Panel();
+            UITheme.ApplyPanelStyle(bottomRightPanel);
+            bottomRightPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            bottomRightPanel.SizeFlagsVertical = SizeFlags.ExpandFill;
+            
+            var bottomRightScroll = new ScrollContainer();
+            bottomRightScroll.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            bottomRightScroll.SizeFlagsVertical = SizeFlags.ExpandFill;
+            bottomRightScroll.SetAnchorsPreset(LayoutPreset.FullRect);
+            bottomRightScroll.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
+            bottomRightScroll.VerticalScrollMode = ScrollContainer.ScrollMode.Auto;
+            bottomRightPanel.AddChild(bottomRightScroll);
+            
+            var bottomRightMargin = new MarginContainer();
+            bottomRightMargin.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            bottomRightMargin.SizeFlagsVertical = SizeFlags.ExpandFill;
+            bottomRightMargin.AddThemeConstantOverride("margin_left", 12);
+            bottomRightMargin.AddThemeConstantOverride("margin_right", 12);
+            bottomRightMargin.AddThemeConstantOverride("margin_top", 8);
+            bottomRightMargin.AddThemeConstantOverride("margin_bottom", 8);
+            bottomRightScroll.AddChild(bottomRightMargin);
+            
             var bottomRightCell = new VBoxContainer();
             bottomRightCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            bottomRightCell.SizeFlagsVertical = SizeFlags.Expand | SizeFlags.Fill;
-            gridContainer.AddChild(bottomRightCell);
+            bottomRightCell.SizeFlagsVertical = SizeFlags.Expand;
+            bottomRightCell.AddThemeConstantOverride("separation", 8);
+            bottomRightMargin.AddChild(bottomRightCell);
+            bottomRow.AddChild(bottomRightPanel);
             CreateWebsiteSection(bottomRightCell);
         }
 
@@ -291,6 +395,7 @@ namespace KBTV.UI
 
             var processingContainer = new VBoxContainer();
             processingContainer.AddThemeConstantOverride("separation", 8);
+            processingContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(processingContainer);
 
             _processingSectionCreated = true;
@@ -324,6 +429,7 @@ namespace KBTV.UI
 
             _identifiedContainer = new VBoxContainer();
             _identifiedContainer.AddThemeConstantOverride("separation", 8);
+            _identifiedContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(_identifiedContainer);
 
             _identifiedSectionCreated = true;
@@ -366,6 +472,7 @@ namespace KBTV.UI
 
             _cabinetContainer = new VBoxContainer();
             _cabinetContainer.AddThemeConstantOverride("separation", 8);
+            _cabinetContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(_cabinetContainer);
 
             _cabinetSectionCreated = true;
@@ -408,6 +515,7 @@ namespace KBTV.UI
 
             _websiteContainer = new VBoxContainer();
             _websiteContainer.AddThemeConstantOverride("separation", 8);
+            _websiteContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(_websiteContainer);
 
             _websiteSectionCreated = true;
