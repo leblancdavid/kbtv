@@ -4,6 +4,7 @@ using KBTV.Callers;
 using KBTV.Data;
 using KBTV.Dialogue;
 using KBTV.Core;
+using KBTV.Items;
 using KBTV.Managers;
 using Godot;
 
@@ -83,8 +84,18 @@ namespace KBTV.Broadcast
             if (xpAward != 0 && string.Equals(_currentCaller.ActualTopic, _gameStateManager?.SelectedTopic?.TopicName, StringComparison.OrdinalIgnoreCase))  // Award even negative XP
             {
                 _appliedXP += xpAward;
+                
+                // Apply cabinet XP bonus
+                float xpBonusPercent = 0f;
+                var cabinet = ServiceRegistry.Instance?.EvidenceCabinet;
+                if (cabinet != null)
+                {
+                    xpBonusPercent = cabinet.GetTopicXPBonus() / 100f;
+                }
+                
+                int xpGain = (int)Mathf.Round(xpAward * (1f + xpBonusPercent));
                 var topicXP = _topicManager.GetTopicXP(_currentCaller.ActualTopic);
-                topicXP.ModifyXP((int)Mathf.Round(xpAward));
+                topicXP.ModifyXP(xpGain);
             }
         }
 

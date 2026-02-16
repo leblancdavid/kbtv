@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using KBTV.Core;
+using KBTV.Items;
 
 namespace KBTV.Data
 {
@@ -284,23 +286,49 @@ namespace KBTV.Data
  			_mental.Modify(-15f);
  		}
 
- 		/// <summary>
- 		/// Apply per-property caller effects from aggregated stat dictionary.
- 		/// </summary>
- 		public void ApplyCallerEffects(Dictionary<StatType, float> effects)
- 		{
- 			foreach (var (statType, amount) in effects)
- 			{
- 				switch (statType)
- 				{
- 					case StatType.Physical: _physical.Modify(amount); break;
- 					case StatType.Emotional: _emotional.Modify(amount); break;
- 					case StatType.Mental: _mental.Modify(amount); break;
- 					case StatType.Caffeine: _caffeine.Modify(amount); break;
- 					case StatType.Nicotine: _nicotine.Modify(amount); break;
- 				}
- 			}
- 		}
+		/// <summary>
+		/// Apply per-property caller effects from aggregated stat dictionary.
+		/// Also adds cabinet evidence bonuses to stat changes.
+		/// </summary>
+		public void ApplyCallerEffects(Dictionary<StatType, float> effects)
+		{
+			// Get cabinet bonuses (if available)
+			float cabinetPhysicalBonus = 0f;
+			float cabinetEmotionalBonus = 0f;
+			float cabinetMentalBonus = 0f;
+			
+			var cabinet = ServiceRegistry.Instance?.EvidenceCabinet;
+			if (cabinet != null)
+			{
+				cabinetPhysicalBonus = cabinet.GetPhysicalBonus();
+				cabinetEmotionalBonus = cabinet.GetEmotionalBonus();
+				cabinetMentalBonus = cabinet.GetMentalBonus();
+			}
+			
+			foreach (var (statType, amount) in effects)
+			{
+				float totalAmount = amount;
+				
+				// Add cabinet bonus based on stat type
+				switch (statType)
+				{
+					case StatType.Physical:
+						totalAmount += cabinetPhysicalBonus;
+						_physical.Modify(totalAmount);
+						break;
+					case StatType.Emotional:
+						totalAmount += cabinetEmotionalBonus;
+						_emotional.Modify(totalAmount);
+						break;
+					case StatType.Mental:
+						totalAmount += cabinetMentalBonus;
+						_mental.Modify(totalAmount);
+						break;
+					case StatType.Caffeine: _caffeine.Modify(amount); break;
+					case StatType.Nicotine: _nicotine.Modify(amount); break;
+				}
+			}
+		}
 
   		/// <summary>
   		/// Apply penalty for off-topic callers (hurts VIBE/listener engagement).

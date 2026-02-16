@@ -6,6 +6,7 @@ using KBTV.Audio;
 using KBTV.Data;
 using KBTV.Dialogue;
 using KBTV.Economy;
+using KBTV.Items;
 using KBTV.Managers;
 using KBTV.Persistence;
 using KBTV.Callers;
@@ -285,6 +286,18 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 			int income = IncomeCalculator.CalculateShowIncome(peakListeners, showQuality);
 			EconomyManager.AddMoney(income, "Show Income");
 			Log.Debug($"GameStateManager: Added income {income} (quality: {showQuality:F1}, peak listeners: {peakListeners})");
+
+			// Add website income from posted evidence
+			var analyzer = ServiceRegistry.Instance?.EvidenceAnalyzer;
+			if (analyzer != null)
+			{
+				int websiteIncome = (int)analyzer.CalculatePassiveIncome(peakListeners);
+				if (websiteIncome > 0)
+				{
+					EconomyManager.AddMoney(websiteIncome, "Website Income");
+					Log.Debug($"GameStateManager: Added website income {websiteIncome} (peak listeners: {peakListeners})");
+				}
+			}
 
 			// Update save data
 			if (SaveManager.CurrentSave != null)
