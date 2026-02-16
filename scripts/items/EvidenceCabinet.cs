@@ -50,7 +50,9 @@ namespace KBTV.Items
 
         public float GetTotalBonus(EvidenceBonusType type)
         {
-            return _analyzer?.GetTotalCabinetBonus(type) ?? 0f;
+            float bonus = _analyzer?.GetTotalCabinetBonus(type) ?? 0f;
+            GD.Print($"EvidenceCabinet.GetTotalBonus({type}): analyzer={_analyzer != null}, bonus={bonus}");
+            return bonus;
         }
 
         public float GetPhysicalBonus()

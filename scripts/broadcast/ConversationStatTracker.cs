@@ -91,12 +91,18 @@ namespace KBTV.Broadcast
                 if (cabinet != null)
                 {
                     xpBonusPercent = cabinet.GetTopicXPBonus() / 100f;
+                    GD.Print($"ConversationStatTracker: XP award {xpAward}, Cabinet XP bonus: {xpBonusPercent * 100}%");
+                }
+                else
+                {
+                    GD.Print($"ConversationStatTracker: XP award {xpAward}, Cabinet is null - no XP bonus");
                 }
                 
                 int xpBonus = (int)Mathf.Round(Mathf.Abs(xpAward) * xpBonusPercent);
                 int xpGain = (int)xpAward + xpBonus;
                 var topicXP = _topicManager.GetTopicXP(_currentCaller.ActualTopic);
                 topicXP.ModifyXP(xpGain);
+                GD.Print($"ConversationStatTracker: Final XP gain: {xpAward} + {xpBonus} = {xpGain}");
             }
         }
 

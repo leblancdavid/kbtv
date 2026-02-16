@@ -202,9 +202,17 @@ namespace KBTV.Items
 
         public float GetTotalCabinetBonus(EvidenceBonusType type)
         {
-            return GetCabinetEvidence()
+            var cabinetEvidence = GetCabinetEvidence();
+            GD.Print($"EvidenceAnalyzer.GetTotalCabinetBonus({type}): Found {cabinetEvidence.Count} evidence in cabinet");
+            foreach (var e in cabinetEvidence)
+            {
+                GD.Print($"  - {e.Word}: {e.BonusType} = {e.BonusAmount}");
+            }
+            float total = cabinetEvidence
                 .Where(e => e.BonusType == type)
                 .Sum(e => e.BonusAmount);
+            GD.Print($"EvidenceAnalyzer.GetTotalCabinetBonus({type}): Total = {total}");
+            return total;
         }
 
         public float CalculatePassiveIncome(int currentListeners)

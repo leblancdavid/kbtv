@@ -303,6 +303,11 @@ namespace KBTV.Data
 				cabinetPhysicalBonus = cabinet.GetPhysicalBonus();
 				cabinetEmotionalBonus = cabinet.GetEmotionalBonus();
 				cabinetMentalBonus = cabinet.GetMentalBonus();
+				GD.Print($"VernStats.ApplyCallerEffects: Cabinet bonuses - Physical: {cabinetPhysicalBonus}, Emotional: {cabinetEmotionalBonus}, Mental: {cabinetMentalBonus}");
+			}
+			else
+			{
+				GD.Print("VernStats.ApplyCallerEffects: Cabinet is null - no bonuses applied");
 			}
 			
 			foreach (var (statType, amount) in effects)
@@ -314,14 +319,17 @@ namespace KBTV.Data
 				{
 					case StatType.Physical:
 						totalAmount += cabinetPhysicalBonus;
+						GD.Print($"VernStats.ApplyCallerEffects: Physical {amount} + {cabinetPhysicalBonus} = {totalAmount}");
 						_physical.Modify(totalAmount);
 						break;
 					case StatType.Emotional:
 						totalAmount += cabinetEmotionalBonus;
+						GD.Print($"VernStats.ApplyCallerEffects: Emotional {amount} + {cabinetEmotionalBonus} = {totalAmount}");
 						_emotional.Modify(totalAmount);
 						break;
 					case StatType.Mental:
 						totalAmount += cabinetMentalBonus;
+						GD.Print($"VernStats.ApplyCallerEffects: Mental {amount} + {cabinetMentalBonus} = {totalAmount}");
 						_mental.Modify(totalAmount);
 						break;
 					case StatType.Caffeine: _caffeine.Modify(amount); break;
