@@ -565,6 +565,12 @@ namespace KBTV.UI
             RefreshAllSections();
         }
 
+        private void OnDataChanged()
+        {
+            GD.Print("EvidenceTab: Data changed, refreshing all sections");
+            RefreshAllSections();
+        }
+
         private void RefreshAllSections()
         {
             PopulateEvidenceFromSave();
@@ -817,7 +823,7 @@ namespace KBTV.UI
 
                 var bonusLabel = new Label
                 {
-                    Text = evidence.BonusDescription,
+                    Text = $"${evidence.BonusAmount:F0}/show",
                     SizeFlagsHorizontal = SizeFlags.ShrinkEnd
                 };
                 bonusLabel.AddThemeColorOverride("font_color", UIColors.Accent.Purple);

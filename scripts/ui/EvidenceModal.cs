@@ -521,10 +521,19 @@ public partial class EvidenceModal : Control
         // Check if caller is still valid and update patience bar
         if (_caller != null && !_gameCompleted)
         {
-            // Update patience progress bar
+            // Update patience progress bar - use same calculation as ScreeningPanel
             if (_patienceProgressBar != null && IsInstanceValid(_patienceProgressBar))
             {
-                _patienceProgressBar.Value = _caller.ScreeningPatience;
+                var screeningController = DependencyInjection.Get<IScreeningController>(this);
+                if (screeningController != null)
+                {
+                    var progress = screeningController.Progress;
+                    _patienceProgressBar.Value = _caller.ScreeningPatience - progress.ElapsedTime;
+                }
+                else
+                {
+                    _patienceProgressBar.Value = _caller.ScreeningPatience;
+                }
             }
             
             // Check if patience expired (fallback if event doesn't fire)
@@ -864,6 +873,10 @@ public partial class EvidenceModal : Control
         _gameCompleted = true;
         _evidenceCollected = false; // Reset collection flag
         AddGuessToHistory(winningGuess);
+
+        // Reset patience when evidence is revealed (both in minigame and screening panel)
+        var screeningController = DependencyInjection.Get<IScreeningController>(this);
+        screeningController?.ResetPatienceAndTime();
 
         // Roll loot table to determine evidence tier
         _discoveredTier = RollEvidenceTier();
