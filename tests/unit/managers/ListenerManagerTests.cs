@@ -4,6 +4,7 @@ using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Data;
 using KBTV.Managers;
+using KBTV.Persistence;
 using System.Collections.Generic;
 using System;
 
@@ -17,6 +18,7 @@ namespace KBTV.Tests.Unit.Managers
         private MockGameStateManager _mockGameStateManager = null!;
         private MockTimeManager _mockTimeManager = null!;
         private MockCallerRepository _mockCallerRepository = null!;
+        private SaveManager _saveManager = null!;
 
         [Setup]
         public void Setup()
@@ -24,7 +26,8 @@ namespace KBTV.Tests.Unit.Managers
             _mockGameStateManager = new MockGameStateManager();
             _mockTimeManager = new MockTimeManager();
             _mockCallerRepository = new MockCallerRepository();
-            _listenerManager = new ListenerManager(_mockGameStateManager, _mockTimeManager, _mockCallerRepository);
+            _saveManager = new SaveManager();
+            _listenerManager = new ListenerManager(_mockGameStateManager, _mockTimeManager, _mockCallerRepository, _saveManager);
             _listenerManager._Ready();
         }
 

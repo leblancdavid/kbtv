@@ -47,6 +47,33 @@ namespace KBTV.Persistence
         public bool DisableBroadcastAudio = true;
 
         // ─────────────────────────────────────────────────────────────
+        // Station Reach
+        // ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Total maximum listener capacity across all cities.
+        /// </summary>
+        public int StationReach = 500;
+
+        /// <summary>
+        /// City data for station expansion.
+        /// </summary>
+        [Serializable]
+        public class CityData
+        {
+            public string CityId;
+            public string CityName;
+            public int AntennaLevel = 1;
+            public bool IsUnlocked;
+            public int UnlockCost;
+        }
+
+        /// <summary>
+        /// List of all cities (some locked, some unlocked).
+        /// </summary>
+        public List<CityData> Cities = new List<CityData>();
+
+        // ─────────────────────────────────────────────────────────────
         // Equipment
         // ─────────────────────────────────────────────────────────────
 
@@ -126,19 +153,28 @@ namespace KBTV.Persistence
         {
             var save = new SaveData
             {
-                Version = 5,
+                Version = 6,
                 LastSaveTime = DateTime.UtcNow.ToString("o"),
                 CurrentNight = 1,
                 Money = 500,
                 ShowDurationMinutes = 10,
                 DisableBroadcastAudio = true,
+                StationReach = 750,  // Hometown at level 1: (1 * 250) + 500 = 750
                 EquipmentLevels = new System.Collections.Generic.Dictionary<string, int>(),
                 ItemQuantities = new System.Collections.Generic.Dictionary<string, int>(),
                 TotalCallersScreened = 0,
                 TotalShowsCompleted = 0,
                 PeakListenersAllTime = 0,
                 TopicXPs = new List<TopicXPData>(),
-                CollectedEvidence = new List<EvidenceItem>()
+                CollectedEvidence = new List<EvidenceItem>(),
+                Cities = new List<CityData>
+                {
+                    new CityData { CityId = "hometown", CityName = "Hometown", AntennaLevel = 1, IsUnlocked = true, UnlockCost = 0 },
+                    new CityData { CityId = "downtown", CityName = "Downtown", AntennaLevel = 1, IsUnlocked = false, UnlockCost = 500 },
+                    new CityData { CityId = "suburbs", CityName = "Suburbs", AntennaLevel = 1, IsUnlocked = false, UnlockCost = 1000 },
+                    new CityData { CityId = "industrial", CityName = "Industrial District", AntennaLevel = 1, IsUnlocked = false, UnlockCost = 2000 },
+                    new CityData { CityId = "mountains", CityName = "Mountains", AntennaLevel = 1, IsUnlocked = false, UnlockCost = 0 }
+                }
             };
 
             // Initialize default equipment levels

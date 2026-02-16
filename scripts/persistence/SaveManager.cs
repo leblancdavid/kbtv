@@ -27,7 +27,7 @@ namespace KBTV.Persistence
         private bool _isDirty;
         private List<ISaveable> _saveables = new List<ISaveable>();
         private const string SAVE_FILENAME = "save.json";
-        private const int CURRENT_VERSION = 4;
+        private const int CURRENT_VERSION = 6;
 
         // ─────────────────────────────────────────────────────────────
         // CONSTANTS
@@ -297,6 +297,29 @@ namespace KBTV.Persistence
                 }
 
                 Log.Debug("[SaveManager] Migrated save to version 5: Topic Level System");
+            }
+
+            // Version 5 -> 6: Add station reach and cities
+            if (migrated.Version < 6)
+            {
+                migrated.Version = 6;
+
+                // Initialize station reach
+                migrated.StationReach = 750; // Hometown at level 1
+
+                // Initialize cities
+                if (migrated.Cities == null || migrated.Cities.Count == 0)
+                {
+                    migrated.Cities = new List<SaveData.CityData>
+                    {
+                        new SaveData.CityData { CityId = "hometown", CityName = "Hometown", AntennaLevel = 1, IsUnlocked = true, UnlockCost = 0 },
+                        new SaveData.CityData { CityId = "downtown", CityName = "Downtown", AntennaLevel = 1, IsUnlocked = false, UnlockCost = 500 },
+                        new SaveData.CityData { CityId = "suburbs", CityName = "Suburbs", AntennaLevel = 1, IsUnlocked = false, UnlockCost = 1000 },
+                        new SaveData.CityData { CityId = "industrial", CityName = "Industrial District", AntennaLevel = 1, IsUnlocked = false, UnlockCost = 2000 },
+                        new SaveData.CityData { CityId = "mountains", CityName = "Mountains", AntennaLevel = 1, IsUnlocked = false, UnlockCost = 0 }
+                    };
+                    Log.Debug("[SaveManager] Migrated save to version 6: Added station reach and cities");
+                }
             }
 
             return migrated;

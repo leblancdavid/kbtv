@@ -3,6 +3,7 @@ using Godot;
 using KBTV.Core;
 using KBTV.Data;
 using KBTV.Callers;
+using KBTV.Persistence;
 
 namespace KBTV.Managers
 {
@@ -11,50 +12,56 @@ namespace KBTV.Managers
     /// Listener count fluctuates based on VIBE (sigmoid curve) and caller quality.
     /// See docs/VERN_STATS.md for VIBE documentation.
     /// </summary>
-  	public partial class ListenerManager : Node
-  	{
-		[Signal] public delegate void ListenersChangedEventHandler(int oldCount, int newCount);
+   	public partial class ListenerManager : Node
+   	{
+        [Signal] public delegate void ListenersChangedEventHandler(int oldCount, int newCount);
 		[Signal] public delegate void PeakReachedEventHandler(int newPeak);
         [Export] private int _baseListeners = 1000;
         [Export] private int _listenerVariance = 200;
-        [Export] private float _baseGrowthRate = 2f;
-        [Export] private float _maxGrowthMultiplier = 12f;
-        [Export] private float _minGrowthMultiplier = -12f;
-        [Export] private float _maxListenerMultiplier = 3f;
-        [Export] private float _minListenerMultiplier = 0.1f;
         [Export] private int _greatCallerBonus = 150;
         [Export] private int _goodCallerBonus = 50;
         [Export] private int _badCallerPenalty = 100;
         [Export] private int _disconnectPenalty = 25;
 
+        // Periodic update settings
+        [Export] private float _updateIntervalSeconds = 1.5f;
+        [Export] private float _noisePercent = 0.03f;
+        [Export] private float _driftPercent = 0.2f;
+        [Export] private float _spikeChance = 0.08f;
+        [Export] private float _spikePercentMin = 0.01f;
+        [Export] private float _spikePercentMax = 0.03f;
+        [Export] private float _vibeInfluencePercent = 0.15f;
+
         // Runtime state
         private int _currentListeners;
         private int _peakListeners;
         private int _startingListeners;
-        private float _accumulatedGrowth;
+        private float _timeSinceLastUpdate;
+        private int _stationReach;
 
         public int CurrentListeners => _currentListeners;
         public int PeakListeners => _peakListeners;
         public int StartingListeners => _startingListeners;
+        public int MaxListeners => _stationReach;
 
         /// <summary>
         /// Listener change since show started. Can be negative.
         /// </summary>
         public int ListenerChange => _currentListeners - _startingListeners;
 
-
-
         private readonly IGameStateManager _gameState;
         private readonly ITimeManager _timeManager;
         private readonly ICallerRepository _repository;
+        private readonly SaveManager _saveManager;
 
         private bool _initialized;
 
-        public ListenerManager(IGameStateManager gameState, ITimeManager timeManager, ICallerRepository repository)
+        public ListenerManager(IGameStateManager gameState, ITimeManager timeManager, ICallerRepository repository, SaveManager saveManager)
         {
             _gameState = gameState;
             _timeManager = timeManager;
             _repository = repository;
+            _saveManager = saveManager;
         }
 
         public override void _Ready()
@@ -110,12 +117,15 @@ namespace KBTV.Managers
 
         private void InitializeListeners()
         {
+            // Calculate station reach from save data
+            RefreshStationReach();
+
             // Calculate starting listeners with some variance
             int variance = (int)GD.RandRange(-_listenerVariance, _listenerVariance + 1);
-            _startingListeners = Mathf.Max(100, _baseListeners + variance);
+            _startingListeners = Mathf.Max(0, _baseListeners + variance);
             _currentListeners = _startingListeners;
             _peakListeners = _startingListeners;
-            _accumulatedGrowth = 0f;
+            _timeSinceLastUpdate = 0f;
 
             EmitSignal("ListenersChanged", 0, _currentListeners);
         }
@@ -127,43 +137,57 @@ namespace KBTV.Managers
             VernStats stats = _gameState.VernStats;
             if (stats == null) return;
 
+            _timeSinceLastUpdate += deltaTime;
+
+            if (_timeSinceLastUpdate >= _updateIntervalSeconds)
+            {
+                _timeSinceLastUpdate = 0f;
+                UpdateListenersPeriodic(stats);
+            }
+        }
+
+        private void UpdateListenersPeriodic(VernStats stats)
+        {
             // Get VIBE (-100 to +100)
             float vibe = stats.CalculateVIBE();
 
-            // Calculate growth rate using sigmoid curve
-            // Sigmoid: modifier = 1.0 + (vibe/100 * 0.8) + (vibe/100)^2 * 0.4
-            float normalizedVibe = vibe / 100f;
-            float modifier = 1.0f + (normalizedVibe * 0.8f) + (normalizedVibe * normalizedVibe * 0.4f);
+            // Calculate min/max bounds - min is 0, max is station reach
+            int minListeners = 0;
+            int maxListeners = _stationReach;
 
-            // Map modifier to growth rate
-            // modifier 0.2 (at -100 VIBE) -> -12x multiplier
-            // modifier 1.0 (at 0 VIBE) -> 1x multiplier (base rate)
-            // modifier 1.6 (at +100 VIBE) -> +12x multiplier
-            float growthRate;
-            if (modifier >= 1f)
+            // VIBE directly influences target: +100 VIBE pushes toward max, -100 toward min
+            float normalizedVibe = vibe / 100f; // -1 to +1
+            float vibeTargetOffset = normalizedVibe * _vibeInfluencePercent * _baseListeners;
+            int vibeBasedTarget = _currentListeners + Mathf.RoundToInt(vibeTargetOffset * _updateIntervalSeconds * 2f);
+            vibeBasedTarget = Mathf.Clamp(vibeBasedTarget, minListeners, maxListeners);
+
+            // Add percentage-based noise
+            float noiseRange = _noisePercent * _currentListeners;
+            int noise = (int)GD.RandRange(-noiseRange, noiseRange);
+            int noisyTarget = vibeBasedTarget + noise;
+
+            // Drift toward target (increased for more responsiveness)
+            float driftAmount = (noisyTarget - _currentListeners) * _driftPercent;
+            int newListeners = _currentListeners + Mathf.RoundToInt(driftAmount);
+
+            // Random spike (small chance, smaller magnitude)
+            if (GD.Randf() < _spikeChance)
             {
-                // Positive VIBE: grow at rate proportional to modifier
-                growthRate = _baseGrowthRate * (1f + (modifier - 1f) * (_maxGrowthMultiplier - 1f));
+                float spikePercent = (float)GD.RandRange(_spikePercentMin, _spikePercentMax);
+                int spikeAmount = (int)(_currentListeners * spikePercent);
+                // 50% chance positive or negative spike
+                if (GD.Randf() < 0.5f)
+                    newListeners += spikeAmount;
+                else
+                    newListeners -= spikeAmount;
             }
-            else
+
+            // Final clamp
+            newListeners = Mathf.Clamp(newListeners, minListeners, maxListeners);
+
+            if (newListeners != _currentListeners)
             {
-                // Negative VIBE: lose listeners proportional to inverse modifier
-                float inverseModifier = 1f - modifier;  // 0.8 at -100 VIBE
-                growthRate = _baseGrowthRate * -inverseModifier * (_minGrowthMultiplier * -1f);
-            }
-
-            // Apply growth
-            float growthAmount = growthRate * deltaTime;
-
-            // Accumulate fractional growth
-            _accumulatedGrowth += growthAmount;
-
-            // Apply whole number changes
-            int wholeChange = Mathf.FloorToInt(_accumulatedGrowth);
-            if (wholeChange != 0)
-            {
-                _accumulatedGrowth -= wholeChange;
-                ModifyListeners(wholeChange);
+                ModifyListeners(newListeners - _currentListeners);
             }
         }
 
@@ -172,8 +196,8 @@ namespace KBTV.Managers
         /// </summary>
         public void ModifyListeners(int amount)
         {
-            int minListeners = Mathf.RoundToInt(_baseListeners * _minListenerMultiplier);
-            int maxListeners = Mathf.RoundToInt(_baseListeners * _maxListenerMultiplier);
+            int minListeners = 0;
+            int maxListeners = _stationReach;
 
             int oldCount = _currentListeners;
             _currentListeners = Mathf.Clamp(_currentListeners + amount, minListeners, maxListeners);
@@ -196,6 +220,14 @@ namespace KBTV.Managers
         public string GetFormattedListeners()
         {
             return FormatListenerCount(_currentListeners);
+        }
+
+        /// <summary>
+        /// Get a formatted listener count with max (e.g., "1,234 / 1,500")
+        /// </summary>
+        public string GetFormattedListenersWithMax()
+        {
+            return $"{FormatListenerCount(_currentListeners)} / {FormatListenerCount(_stationReach)}";
         }
 
         /// <summary>
@@ -229,6 +261,46 @@ namespace KBTV.Managers
                 return $"{sign}{absCount:N0}";
             }
         }
+
+        /// <summary>
+        /// Recalculate station reach from SaveData cities.
+        /// Call this when cities are unlocked or upgraded.
+        /// </summary>
+        public void RefreshStationReach()
+        {
+            if (_saveManager == null)
+            {
+                _stationReach = 750; // Default fallback
+                return;
+            }
+
+            var save = _saveManager.CurrentSave;
+            if (save.Cities == null || save.Cities.Count == 0)
+            {
+                _stationReach = 750;
+                return;
+            }
+
+            int totalReach = 0;
+            foreach (var city in save.Cities)
+            {
+                if (city.IsUnlocked)
+                {
+                    // Formula: (level * 250) + 500
+                    totalReach += (city.AntennaLevel * 250) + 500;
+                }
+            }
+
+            _stationReach = totalReach;
+            save.StationReach = totalReach;
+
+            Log.Debug($"ListenerManager: Station reach updated to {_stationReach}");
+        }
+
+        /// <summary>
+        /// Get the current station reach (max listeners).
+        /// </summary>
+        public int GetStationReach() => _stationReach;
 
         private void HandleCallerCompleted(Caller caller)
         {

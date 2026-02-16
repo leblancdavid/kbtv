@@ -10,9 +10,19 @@ using KBTV.UI;
 
 namespace KBTV.UI
 {
-	public partial class PreShowUIManager : CanvasLayer, IDependent
-	{
-		public override void _Notification(int what) => this.Notify(what);
+ 	public partial class PreShowUIManager : CanvasLayer, IDependent
+ 	{
+ 		public override void _Notification(int what) => this.Notify(what);
+
+		// Tab system
+		private Button _showTabButton = null!;
+		private Button _upgradesTabButton = null!;
+		private Control _showPanelContainer = null!;
+		private Control _upgradesPanelContainer = null!;
+		private PreShowShowPanel? _showPanel;
+		private PreShowUpgradesPanel? _upgradesPanel;
+
+		// Legacy fields (kept for compatibility but not used)
 		private VBoxContainer contentContainer;
 		private OptionButton _topicSelector;
 		private Label _topicDescription;
@@ -36,18 +46,125 @@ namespace KBTV.UI
 		private Label _durationLabel;
 		private Button _increaseDurationButton;
 
-		public override void _Ready()
+ 		public override void _Ready()
+ 		{
+ 			CreateTabSystem();
+ 			ConnectToGameStateManager();
+ 		}
+
+ 		public void OnResolved()
+ 		{
+ 			RegisterWithUIManager();
+			InitializePanels();
+ 		}
+
+		private void InitializePanels()
 		{
-			CreatePreShowUI();
-			ConnectToGameStateManager();
+			GD.Print("[PreShowUIManager] Creating panels...");
+			
+			// Create the Show panel
+			_showPanel = new PreShowShowPanel();
+			_showPanelContainer.AddChild(_showPanel);
+			GD.Print("[PreShowUIManager] Show panel created");
+			
+			// Create the Upgrades panel
+			_upgradesPanel = new PreShowUpgradesPanel();
+			_upgradesPanelContainer.AddChild(_upgradesPanel);
+			GD.Print("[PreShowUIManager] Upgrades panel created");
+			
+			// Initially show the Show tab
+			ShowTab("show");
+			GD.Print("[PreShowUIManager] Initial tab set");
 		}
 
-		public void OnResolved()
+		private void CreateTabSystem()
 		{
-			RegisterWithUIManager();
+			// Create main container
+			var mainContainer = new MarginContainer();
+			mainContainer.AnchorLeft = 0;
+			mainContainer.AnchorTop = 0;
+			mainContainer.AnchorRight = 1;
+			mainContainer.AnchorBottom = 1;
+			mainContainer.OffsetLeft = 0;
+			mainContainer.OffsetTop = 0;
+			mainContainer.OffsetRight = 0;
+			mainContainer.OffsetBottom = 0;
+			AddChild(mainContainer);
+
+			// Create vertical split for tabs and content
+			var vbox = new VBoxContainer();
+			vbox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			vbox.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			vbox.AddThemeConstantOverride("separation", 10);
+			mainContainer.AddChild(vbox);
+
+			// Create tab button container at the top
+			var tabButtonContainer = new HBoxContainer();
+			tabButtonContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+			tabButtonContainer.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+			tabButtonContainer.AddThemeConstantOverride("separation", 20);
+			vbox.AddChild(tabButtonContainer);
+
+			_showTabButton = new Button();
+			_showTabButton.Text = "SHOW";
+			_showTabButton.CustomMinimumSize = new Vector2(150, 40);
+			_showTabButton.Pressed += () => ShowTab("show");
+			UITheme.ApplyButtonStyle(_showTabButton);
+			tabButtonContainer.AddChild(_showTabButton);
+
+			_upgradesTabButton = new Button();
+			_upgradesTabButton.Text = "UPGRADES";
+			_upgradesTabButton.CustomMinimumSize = new Vector2(150, 40);
+			_upgradesTabButton.Pressed += () => ShowTab("upgrades");
+			UITheme.ApplyButtonStyle(_upgradesTabButton);
+			tabButtonContainer.AddChild(_upgradesTabButton);
+
+			// Create content container that fills remaining space
+			var contentContainer = new Control();
+			contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			contentContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			vbox.AddChild(contentContainer);
+
+			// Show panel container - fills content area
+			_showPanelContainer = new Control();
+			_showPanelContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			_showPanelContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			_showPanelContainer.Visible = true;
+			contentContainer.AddChild(_showPanelContainer);
+
+			// Upgrades panel container - fills content area
+			_upgradesPanelContainer = new Control();
+			_upgradesPanelContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			_upgradesPanelContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			_upgradesPanelContainer.Visible = false;
+			contentContainer.AddChild(_upgradesPanelContainer);
 		}
 
-		private void CompleteInitialization()
+		private void ShowTab(string tabName)
+		{
+			GD.Print($"[PreShowUIManager] Switching to tab: {tabName}");
+			
+			if (tabName == "show")
+			{
+				_showPanelContainer.Visible = true;
+				_upgradesPanelContainer.Visible = false;
+				_showTabButton.AddThemeColorOverride("font_color", UITheme.ACCENT_GOLD);
+				_upgradesTabButton.AddThemeColorOverride("font_color", Colors.Gray);
+				_showPanel?.RefreshData();
+				GD.Print("[PreShowUIManager] Show tab active");
+			}
+			else
+			{
+				_showPanelContainer.Visible = false;
+				_upgradesPanelContainer.Visible = true;
+				_showTabButton.AddThemeColorOverride("font_color", Colors.Gray);
+				_upgradesTabButton.AddThemeColorOverride("font_color", UITheme.ACCENT_GOLD);
+				_upgradesPanel?.RefreshData();
+				GD.Print("[PreShowUIManager] Upgrades tab active");
+			}
+		}
+
+ 		private void CompleteInitialization()
 		{
 			LoadFromSave();
 			UpdateUI();

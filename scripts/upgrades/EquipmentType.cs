@@ -16,11 +16,16 @@ namespace KBTV.Upgrades
         /// Broadcast equipment - affects Vern's audio quality.
         /// Controls EQ, compression, and clarity of the host voice.
         /// </summary>
-        Broadcast
+        Broadcast,
+
+        /// <summary>
+        /// Antenna equipment - affects listener capacity per city.
+        /// Controls maximum listeners that can be reached.
+        /// </summary>
+        Antenna
 
         // Future equipment types:
-        // Transmitter,      // Listener range, signal strength
-        // ScreeningTools,   // Caller info visibility
+        // ScreeningTools,   // Caller info visibility, legitimacy hints
         // StudioAcoustics,  // Background noise reduction
         // RecordingGear     // Call recording capabilities
     }

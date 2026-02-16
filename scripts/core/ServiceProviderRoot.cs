@@ -153,7 +153,7 @@ namespace KBTV.Core
         gameStateManager.InitializeGame();
 
         // Create listener manager with dependencies
-        var listenerManager = new ListenerManager(gameStateManager, timeManager, callerRepo);
+        var listenerManager = new ListenerManager(gameStateManager, timeManager, callerRepo, saveManager);
 
         // Create transcript repository
         var transcriptRepository = new TranscriptRepository();

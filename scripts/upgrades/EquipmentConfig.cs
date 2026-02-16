@@ -11,6 +11,7 @@ namespace KBTV.Upgrades
     {
         [Export] private Godot.Collections.Array<EquipmentUpgrade> _phoneLineUpgrades = new Godot.Collections.Array<EquipmentUpgrade>();
         [Export] private Godot.Collections.Array<EquipmentUpgrade> _broadcastUpgrades = new Godot.Collections.Array<EquipmentUpgrade>();
+        [Export] private Godot.Collections.Array<EquipmentUpgrade> _antennaUpgrades = new Godot.Collections.Array<EquipmentUpgrade>();
 
         /// <summary>
         /// Get all upgrades for an equipment type.
@@ -21,6 +22,7 @@ namespace KBTV.Upgrades
             {
                 EquipmentType.PhoneLine => _phoneLineUpgrades,
                 EquipmentType.Broadcast => _broadcastUpgrades,
+                EquipmentType.Antenna => _antennaUpgrades,
                 _ => new Godot.Collections.Array<EquipmentUpgrade>()
             };
         }
@@ -62,6 +64,29 @@ namespace KBTV.Upgrades
         }
 
         /// <summary>
+        /// Get the max listeners for a city based on antenna level.
+        /// Formula: (level * 250) + 500
+        /// Level 1: 750, Level 2: 1000, Level 3: 1250, Level 4: 1500, Level 5: 1750
+        /// </summary>
+        public int GetMaxListenersForLevel(int antennaLevel)
+        {
+            return (antennaLevel * 250) + 500;
+        }
+
+        /// <summary>
+        /// Get the upgrade cost for the next antenna level.
+        /// Returns 0 if already at max level.
+        /// </summary>
+        public int GetAntennaUpgradeCost(int currentLevel)
+        {
+            if (currentLevel >= GetMaxLevel(EquipmentType.Antenna))
+                return 0;
+
+            var upgrade = GetNextUpgrade(EquipmentType.Antenna, currentLevel);
+            return upgrade?.Cost ?? 0;
+        }
+
+        /// <summary>
         /// Create default upgrades if none exist.
         /// Called from editor script or on validate.
         /// </summary>
@@ -81,6 +106,15 @@ namespace KBTV.Upgrades
                 _broadcastUpgrades.Add(new EquipmentUpgrade("Basic Broadcast", "Clearer signal, reduced distortion.", 2, 300));
                 _broadcastUpgrades.Add(new EquipmentUpgrade("Professional", "Clean radio sound, good presence.", 3, 800));
                 _broadcastUpgrades.Add(new EquipmentUpgrade("Studio Quality", "Warm, professional broadcast quality.", 4, 2000));
+            }
+
+            if (_antennaUpgrades.Count == 0)
+            {
+                _antennaUpgrades.Add(new EquipmentUpgrade("Basic Antenna", "Standard antenna, limited range.", 1, 0));
+                _antennaUpgrades.Add(new EquipmentUpgrade("Enhanced Antenna", "Improved signal strength.", 2, 300));
+                _antennaUpgrades.Add(new EquipmentUpgrade("High-Gain Antenna", "Extended broadcast range.", 3, 600));
+                _antennaUpgrades.Add(new EquipmentUpgrade("Professional Array", "Professional-grade antenna system.", 4, 1200));
+                _antennaUpgrades.Add(new EquipmentUpgrade("Broadcast Tower", "Full broadcast tower with maximum range.", 5, 2500));
             }
         }
     }

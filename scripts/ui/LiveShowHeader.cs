@@ -104,7 +104,7 @@ namespace KBTV.UI
         {
             if (_listenerManager != null && _listenersLabel != null)
             {
-                _listenersLabel.Text = $"Listeners: {_listenerManager.GetFormattedListeners()}";
+                _listenersLabel.Text = $"Listeners: {_listenerManager.GetFormattedListenersWithMax()}";
             }
         }
 
