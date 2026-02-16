@@ -296,11 +296,26 @@ namespace KBTV.Items
             var veryRareItem = EvidenceItem.Create("Test Evidence VeryRare", "Test Caller 4", "Irrefutable", EvidenceTier.VeryRare);
             var oneOfAKindItem = EvidenceItem.Create("Test Evidence OneOfAKind", "Test Caller 5", "Irrefutable", EvidenceTier.OneOfAKind);
 
-            var commonEvidence = IdentifiedEvidence.CreateIdentified(commonItem, EvidenceBonusType.VernPhysical, 10f);
-            var uncommonEvidence = IdentifiedEvidence.CreateIdentified(uncommonItem, EvidenceBonusType.VernEmotional, 15f);
-            var rareEvidence = IdentifiedEvidence.CreateIdentified(rareItem, EvidenceBonusType.ListenerGrowth, 20f);
-            var veryRareEvidence = IdentifiedEvidence.CreateIdentified(veryRareItem, EvidenceBonusType.ShowQuality, 25f);
-            var oneOfAKindEvidence = IdentifiedEvidence.CreateIdentified(oneOfAKindItem, EvidenceBonusType.TopicXP, 30f);
+            var commonEvidence = IdentifiedEvidence.CreateIdentified(
+                commonItem, 
+                EvidenceBonusType.VernPhysical, 
+                EvidenceBonusConfig.GetBonusAmount(EvidenceTier.Common, EvidenceBonusType.VernPhysical));
+            var uncommonEvidence = IdentifiedEvidence.CreateIdentified(
+                uncommonItem, 
+                EvidenceBonusType.VernEmotional, 
+                EvidenceBonusConfig.GetBonusAmount(EvidenceTier.Uncommon, EvidenceBonusType.VernEmotional));
+            var rareEvidence = IdentifiedEvidence.CreateIdentified(
+                rareItem, 
+                EvidenceBonusType.ListenerGrowth, 
+                EvidenceBonusConfig.GetBonusAmount(EvidenceTier.Rare, EvidenceBonusType.ListenerGrowth));
+            var veryRareEvidence = IdentifiedEvidence.CreateIdentified(
+                veryRareItem, 
+                EvidenceBonusType.ShowQuality, 
+                EvidenceBonusConfig.GetBonusAmount(EvidenceTier.VeryRare, EvidenceBonusType.ShowQuality));
+            var oneOfAKindEvidence = IdentifiedEvidence.CreateIdentified(
+                oneOfAKindItem, 
+                EvidenceBonusType.TopicXP, 
+                EvidenceBonusConfig.GetBonusAmount(EvidenceTier.OneOfAKind, EvidenceBonusType.TopicXP));
 
             _evidence.Add(commonEvidence);
             _evidence.Add(uncommonEvidence);
