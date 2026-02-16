@@ -156,9 +156,9 @@ namespace KBTV.Items
                 EvidenceBonusType.VernPhysical => $"Physical Stat +{amount:F0}",
                 EvidenceBonusType.VernEmotional => $"Emotional Stat +{amount:F0}",
                 EvidenceBonusType.VernMental => $"Mental Stat +{amount:F0}",
-                EvidenceBonusType.ListenerGrowth => $"Listener Growth +{amount:F0}%",
-                EvidenceBonusType.ShowQuality => $"Show Quality +{amount:F0}%",
-                EvidenceBonusType.TopicXP => $"Topic XP +{amount:F0}%",
+                EvidenceBonusType.ListenerGrowth => $"Listener Growth +{amount * 100:F0}%",
+                EvidenceBonusType.ShowQuality => $"Show Quality +{amount * 100:F0}%",
+                EvidenceBonusType.TopicXP => $"Topic XP +{amount * 100:F0}%",
                 EvidenceBonusType.IncomePerShow => $"${amount:F0}/show",
                 EvidenceBonusType.ScreeningInfo => $"+{amount:F0} Screening Info",
                 _ => "Unknown Bonus"

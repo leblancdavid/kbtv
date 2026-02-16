@@ -768,7 +768,7 @@ namespace KBTV.UI
                     Text = evidence.BonusDescription,
                     SizeFlagsHorizontal = SizeFlags.ShrinkEnd
                 };
-                bonusLabel.AddThemeColorOverride("font_color", UIColors.Accent.Blue);
+                bonusLabel.AddThemeColorOverride("font_color", GetColorForTier(evidence.Tier));
                 itemContainer.AddChild(bonusLabel);
 
                 if (_cabinetContainer != null)
@@ -826,7 +826,7 @@ namespace KBTV.UI
                     Text = $"${evidence.BonusAmount:F0}/show",
                     SizeFlagsHorizontal = SizeFlags.ShrinkEnd
                 };
-                bonusLabel.AddThemeColorOverride("font_color", UIColors.Accent.Purple);
+                bonusLabel.AddThemeColorOverride("font_color", GetColorForTier(evidence.Tier));
                 itemContainer.AddChild(bonusLabel);
 
                 if (_websiteContainer != null)
@@ -844,6 +844,19 @@ namespace KBTV.UI
                 EvidenceTier.VeryRare => "Very Rare",
                 EvidenceTier.OneOfAKind => "One of a Kind",
                 _ => "Unknown"
+            };
+        }
+
+        private Color GetColorForTier(EvidenceTier tier)
+        {
+            return tier switch
+            {
+                EvidenceTier.Common => Colors.White,
+                EvidenceTier.Uncommon => Colors.Green,
+                EvidenceTier.Rare => Colors.Cyan,
+                EvidenceTier.VeryRare => new Color(0.6f, 0.2f, 0.8f), // Purple
+                EvidenceTier.OneOfAKind => new Color(1f, 0.8f, 0.2f), // Gold
+                _ => Colors.White
             };
         }
 
