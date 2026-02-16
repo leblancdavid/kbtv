@@ -85,7 +85,7 @@ namespace KBTV.Broadcast
             {
                 _appliedXP += xpAward;
                 
-                // Apply cabinet XP bonus
+                // Apply cabinet XP bonus using absolute value - reduces loss for negative XP
                 float xpBonusPercent = 0f;
                 var cabinet = ServiceRegistry.Instance?.EvidenceCabinet;
                 if (cabinet != null)
@@ -93,7 +93,8 @@ namespace KBTV.Broadcast
                     xpBonusPercent = cabinet.GetTopicXPBonus() / 100f;
                 }
                 
-                int xpGain = (int)Mathf.Round(xpAward * (1f + xpBonusPercent));
+                int xpBonus = (int)Mathf.Round(Mathf.Abs(xpAward) * xpBonusPercent);
+                int xpGain = (int)xpAward + xpBonus;
                 var topicXP = _topicManager.GetTopicXP(_currentCaller.ActualTopic);
                 topicXP.ModifyXP(xpGain);
             }

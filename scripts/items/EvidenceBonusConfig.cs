@@ -84,12 +84,12 @@ namespace KBTV.Items
         {
             return type switch
             {
-                EvidenceBonusType.VernPhysical => GetTierValue(tier, 2f, 4f, 7f, 11f, 16f),
-                EvidenceBonusType.VernEmotional => GetTierValue(tier, 2f, 4f, 7f, 11f, 16f),
-                EvidenceBonusType.VernMental => GetTierValue(tier, 2f, 4f, 7f, 11f, 16f),
+                EvidenceBonusType.VernPhysical => GetTierValue(tier, 1f, 2f, 3f, 4f, 5f),
+                EvidenceBonusType.VernEmotional => GetTierValue(tier, 1f, 2f, 3f, 4f, 5f),
+                EvidenceBonusType.VernMental => GetTierValue(tier, 1f, 2f, 3f, 4f, 5f),
                 EvidenceBonusType.ListenerGrowth => GetTierValue(tier, 0.03f, 0.06f, 0.10f, 0.15f, 0.22f),
                 EvidenceBonusType.ShowQuality => GetTierValue(tier, 0.01f, 0.02f, 0.04f, 0.07f, 0.12f),
-                EvidenceBonusType.TopicXP => GetTierValue(tier, 0.05f, 0.10f, 0.15f, 0.22f, 0.35f),
+                EvidenceBonusType.TopicXP => GetTierValue(tier, 0.05f, 0.10f, 0.15f, 0.20f, 0.25f),
                 EvidenceBonusType.IncomePerShow => GetTierValue(tier, 2f, 5f, 10f, 18f, 35f),
                 EvidenceBonusType.ScreeningInfo => GetTierValue(tier, 1f, 2f, 3f, 5f, 8f),
                 _ => 0f
