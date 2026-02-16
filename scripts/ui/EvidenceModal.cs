@@ -293,9 +293,10 @@ public partial class EvidenceModal : Control
         _collectButton.Disabled = true;
         _collectButton.Text = "Dismiss";
 
-        // Set patience progress bar initial value
+        // Set patience progress bar initial value and max
         if (_patienceProgressBar != null)
         {
+            _patienceProgressBar.MaxValue = _initialPatience;
             _patienceProgressBar.Value = _initialPatience;
         }
 
@@ -877,6 +878,12 @@ public partial class EvidenceModal : Control
         // Reset patience when evidence is revealed (both in minigame and screening panel)
         var screeningController = DependencyInjection.Get<IScreeningController>(this);
         screeningController?.ResetPatienceAndTime();
+
+        // Reset progress bar to full immediately
+        if (_patienceProgressBar != null)
+        {
+            _patienceProgressBar.Value = _patienceProgressBar.MaxValue;
+        }
 
         // Roll loot table to determine evidence tier
         _discoveredTier = RollEvidenceTier();
