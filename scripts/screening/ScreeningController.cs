@@ -153,6 +153,13 @@ namespace KBTV.Screening
 			// If evidence availability changed, immediately publish progress update for instant UI feedback
 			if (_session.EvidenceAvailable != hadEvidenceBefore)
 			{
+				// When evidence becomes available (transitions from false to true), reset patience timer
+				if (!hadEvidenceBefore && _session.EvidenceAvailable)
+				{
+					_session.ResetPatienceAndTime();
+					Log.Debug("ScreeningController: Evidence revealed - resetting patience and time");
+				}
+				
 				var progress = CreateProgress();
 				ProgressUpdated?.Invoke(progress);
 			}
