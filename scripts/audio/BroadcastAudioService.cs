@@ -441,10 +441,12 @@ namespace KBTV.Audio
                 if (_currentSpeaker == Speaker.Caller)
                 {
                     player.Bus = "Caller";
+                    GD.Print("BroadcastAudioService: Assigned Caller bus to player for speaker: " + _currentSpeaker);
                 }
                 else
                 {
                     player.Bus = "Vern";
+                    GD.Print("BroadcastAudioService: Assigned Vern bus to player for speaker: " + _currentSpeaker);
                 }
 
                 return player;

@@ -63,6 +63,7 @@ namespace KBTV.Audio
             SetupAudioBuses();
             SetupAudioPlayers();
             UpdateAudioQuality();
+            GD.Print("AudioMixerManager: Initialized with equipment levels - Phone: " + GetPhoneLineLevel() + ", Broadcast: " + GetBroadcastLevel());
         }
 
         private void SetupAudioBuses()
@@ -90,43 +91,36 @@ namespace KBTV.Audio
 
         private void ConfigureVernBus()
         {
-            // Add HighPass filter (index 0) - remove rumble
+            // Vern should be clean - minimal processing
+            // Just a highpass to remove rumble, nothing else
+            
+            // Add HighPass filter (index 0) - remove rumble only
             var highPass = new AudioEffectHighPassFilter();
             highPass.CutoffHz = 80f;
             AudioServer.AddBusEffect(_vernBusIndex, highPass);
             _vernHighPassIndex = 0;
 
-            // Add Compressor (index 1) - radio compression for consistent volume
-            var compressor = new AudioEffectCompressor();
-            compressor.Threshold = -20f;
-            compressor.Ratio = 3f;
-            compressor.AttackUs = 50f;
-            compressor.ReleaseMs = 100f;
-            AudioServer.AddBusEffect(_vernBusIndex, compressor);
-            _vernCompressorIndex = 1;
-
-            // Add EQ for slight mid-boost (index 2) - subtle radio presence
-            var eq = new AudioEffectEQ();
-            eq.SetBandGainDb(3, 1f);  // ~1kHz - slight presence
-            AudioServer.AddBusEffect(_vernBusIndex, eq);
-            _vernEqIndex = 2;
-
-            // No distortion for Vern - keep it clean
+            // No compressor - makes Vern sound too processed
+            // No EQ - keep Vern natural
+            // No distortion - keep Vern clean
+            _vernCompressorIndex = -1;
+            _vernEqIndex = -1;
             _vernDistortionIndex = -1;
         }
 
         private void ConfigureCallerBus()
         {
             // Add LowPass filter (index 0) - simulates phone bandwidth
+            // Start with Level 1 settings: 800Hz, resonance 4.0
             var lowPass = new AudioEffectLowPassFilter();
-            lowPass.CutoffHz = 2200f;  // Start at level 1
-            lowPass.Resonance = 2.5f;
+            lowPass.CutoffHz = 800f;
+            lowPass.Resonance = 4.0f;
             AudioServer.AddBusEffect(_callerBusIndex, lowPass);
             _callerLowPassIndex = 0;
 
-            // Add HighPass filter (index 1) - removes rumble
+            // Add HighPass filter (index 1) - removes low frequencies
             var highPass = new AudioEffectHighPassFilter();
-            highPass.CutoffHz = 500f;  // Start at level 1
+            highPass.CutoffHz = 400f;  // Level 1: 400Hz
             AudioServer.AddBusEffect(_callerBusIndex, highPass);
             _callerHighPassIndex = 1;
 
@@ -134,7 +128,7 @@ namespace KBTV.Audio
             var distortion = new AudioEffectDistortion();
             distortion.Mode = AudioEffectDistortion.ModeEnum.Overdrive;
             distortion.PreGain = 1f;
-            distortion.Drive = 0.12f;  // Start at level 1
+            distortion.Drive = 0.30f;  // Level 1: 0.30
             AudioServer.AddBusEffect(_callerBusIndex, distortion);
             _callerDistortionIndex = 2;
         }
