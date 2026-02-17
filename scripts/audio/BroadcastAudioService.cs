@@ -30,6 +30,10 @@ namespace KBTV.Audio
         // Audio routing for effects
         private AudioMixerManager? _audioMixer;
 
+        // Track when static started for minimum duration enforcement
+        private double _staticStartTime = 0.0;
+        private const double MINIMUM_STATIC_DURATION = 2.0; // 2 seconds minimum
+
         // Dependency injection
         private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
 
@@ -483,7 +487,7 @@ namespace KBTV.Audio
             _availablePlayers.Add(player);
         }
 
-        private void OnPlayerFinished(AudioStreamPlayer player)
+        private async void OnPlayerFinished(AudioStreamPlayer player)
         {
             GD.Print($"OnPlayerFinished: player finished, _currentSpeaker={_currentSpeaker}");
             
@@ -496,6 +500,17 @@ namespace KBTV.Audio
             // Stop static for caller audio using _currentSpeaker
             if (_currentSpeaker == Speaker.Caller)
             {
+                double elapsed = (Time.GetTicksMsec() / 1000.0) - _staticStartTime;
+                GD.Print($"OnPlayerFinished: Static has been playing for {elapsed:F2} seconds");
+                
+                if (elapsed < MINIMUM_STATIC_DURATION)
+                {
+                    int delayMs = (int)((MINIMUM_STATIC_DURATION - elapsed) * 1000);
+                    GD.Print($"OnPlayerFinished: Waiting {delayMs}ms to meet minimum {MINIMUM_STATIC_DURATION}s duration");
+                    await Task.Delay(delayMs);
+                    GD.Print("OnPlayerFinished: Minimum duration elapsed, now stopping static");
+                }
+                
                 GD.Print("OnPlayerFinished: Stopping static for caller");
                 HandleStaticForSpeaker(_currentSpeaker, false);
             }
@@ -532,6 +547,8 @@ namespace KBTV.Audio
                     {
                         GD.Print("HandleStaticForSpeaker: Starting static");
                         staticController.StartStatic();
+                        _staticStartTime = Time.GetTicksMsec() / 1000.0;
+                        GD.Print($"HandleStaticForSpeaker: Recorded static start time: {_staticStartTime}");
                     }
                     else
                     {
