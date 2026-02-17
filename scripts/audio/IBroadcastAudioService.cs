@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
+using KBTV.Callers;
 using KBTV.Dialogue;
 
 namespace KBTV.Audio
@@ -66,6 +67,11 @@ namespace KBTV.Audio
         /// Gets the duration of an audio stream in seconds.
         /// </summary>
         float GetAudioDuration(AudioStream audioStream);
+
+        /// <summary>
+        /// Sets the caller's phone quality for static volume adjustment.
+        /// </summary>
+        void SetCallerPhoneQuality(CallerPhoneQuality quality);
 
         /// <summary>
         /// Event fired when a broadcast item audio completes playback.

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
+using KBTV.Callers;
 using KBTV.Core;
 using KBTV.Managers;
 using KBTV.Dialogue;
@@ -521,6 +522,19 @@ namespace KBTV.Audio
                 return player;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Sets the caller's phone quality for static volume adjustment.
+        /// </summary>
+        public void SetCallerPhoneQuality(CallerPhoneQuality quality)
+        {
+            var staticController = _audioMixer?.GetStaticController();
+            if (staticController != null)
+            {
+                staticController.SetPhoneQuality(quality);
+                GD.Print($"BroadcastAudioService: Set caller phone quality to {quality}");
+            }
         }
 
         private void ReturnPlayer(AudioStreamPlayer player)

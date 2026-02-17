@@ -166,7 +166,7 @@ namespace KBTV.Audio
 
             // Add Amplify (index 3) - boost caller voice above static
             var amplify = new AudioEffectAmplify();
-            amplify.VolumeDb = 6f;  // Boost by 6dB
+            amplify.VolumeDb = 8f;  // Boost by 8dB
             AudioServer.AddBusEffect(_callerBusIndex, amplify);
             _callerAmplifyIndex = 3;
             GD.Print("AudioMixerManager: Added Amplify to Caller bus");
@@ -306,7 +306,7 @@ namespace KBTV.Audio
             
             ApplyCallerEffects(_currentPhoneLineLevel);
             ApplyVernEffects(_currentBroadcastLevel);
-            _staticController?.SetEquipmentLevel(_currentPhoneLineLevel);
+            // Static volume is now controlled by caller's PhoneQuality, not equipment level
             
             GD.Print($"AudioMixerManager: Updated quality - PhoneLine: {_currentPhoneLineLevel}, Broadcast: {_currentBroadcastLevel}");
         }

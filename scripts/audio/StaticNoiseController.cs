@@ -1,14 +1,14 @@
 #nullable enable
 
 using System;
-using System.Threading.Tasks;
 using Godot;
+using KBTV.Callers;
 
 namespace KBTV.Audio
 {
     /// <summary>
     /// Controls phone static noise playback during caller audio.
-    /// Volume is based on equipment level - worse equipment = more static.
+    /// Volume is based on caller's phone quality - worse quality = more static.
     /// Uses Finished signal for seamless looping.
     /// </summary>
     public partial class StaticNoiseController : Node
@@ -16,13 +16,21 @@ namespace KBTV.Audio
         private AudioStreamPlayer _staticPlayer = null!;
         private AudioStream? _staticStream;
         
-        private float _currentVolume = 0.20f;
-        private int _equipmentLevel = 1;
+        private float _currentVolume = 0.10f;
         private bool _shouldBePlaying = false;
 
-        // Static volume by equipment level (1 = loud, 4 = quiet)
-        // 10% at level 1, tapering down
-        private static readonly float[] StaticVolumes = { 0.10f, 0.06f, 0.03f, 0.01f };
+        // Base static volume (10%)
+        private const float BASE_STATIC_VOLUME = 0.10f;
+
+        // Phone quality multipliers (linear: 100% → 50%)
+        // Terrible quality = most static, Good quality = least static
+        private static readonly float[] PhoneQualityMultipliers = 
+        {
+            1.0f,   // Terrible: 100% static (rotary phone, bad signal)
+            0.83f,  // Poor: 83% static (old cordless, cheap prepaid)
+            0.67f,  // Average: 67% static (standard landline)
+            0.5f    // Good: 50% static (modern smartphone, clear VOIP)
+        };
 
         public override void _Ready()
         {
@@ -57,6 +65,9 @@ namespace KBTV.Audio
             {
                 GD.PrintErr("StaticNoiseController: FAILED to load phone_static_loop.ogg - File not found or corrupted!");
             }
+            
+            // Set default volume (Average quality)
+            SetPhoneQuality(CallerPhoneQuality.Average);
         }
 
         private void OnStaticFinished()
@@ -71,27 +82,22 @@ namespace KBTV.Audio
         }
 
         /// <summary>
-        /// Sets the equipment level and adjusts static volume accordingly.
+        /// Sets the caller's phone quality for static volume adjustment.
+        /// Worse quality = more static, better quality = less static.
         /// </summary>
-        public void SetEquipmentLevel(int level)
+        public void SetPhoneQuality(CallerPhoneQuality quality)
         {
-            _equipmentLevel = Mathf.Clamp(level, 1, 4);
-            UpdateStaticVolume();
-        }
-
-        private void UpdateStaticVolume()
-        {
-            int arrayIndex = Mathf.Clamp(_equipmentLevel - 1, 0, StaticVolumes.Length - 1);
-            _currentVolume = StaticVolumes[arrayIndex];
-            float db = LinearToDb(_currentVolume);
+            int index = (int)quality;  // Enum order: Terrible=0, Poor=1, Average=2, Good=3
+            float multiplier = PhoneQualityMultipliers[index];
+            _currentVolume = BASE_STATIC_VOLUME * multiplier;
             
-            GD.Print($"StaticNoiseController: Setting volume - Linear={_currentVolume}, dB={db:F2}");
-            
+            // Apply immediately if player exists
             if (_staticPlayer != null)
             {
-                _staticPlayer.VolumeDb = db;
-                GD.Print($"StaticNoiseController: VolumeDb set to {_staticPlayer.VolumeDb:F2}");
+                _staticPlayer.VolumeDb = LinearToDb(_currentVolume);
             }
+            
+            GD.Print($"StaticNoiseController: PhoneQuality={quality}, Static volume={(_currentVolume * 100f):F1}%");
         }
 
         /// <summary>
@@ -99,7 +105,7 @@ namespace KBTV.Audio
         /// </summary>
         public void StartStatic()
         {
-            GD.Print($"StartStatic CALLED - equipmentLevel={_equipmentLevel}, currentVolume={_currentVolume}");
+            GD.Print($"StartStatic CALLED - currentVolume={_currentVolume}");
             if (_staticPlayer != null && _staticStream != null)
             {
                 _shouldBePlaying = true;
@@ -107,8 +113,7 @@ namespace KBTV.Audio
                 if (!_staticPlayer.Playing)
                 {
                     _staticPlayer.Play();
-                    GD.Print($"StaticNoiseController: Started static - Equipment Level: {_equipmentLevel}, Volume: {_currentVolume}, dB: {_staticPlayer.VolumeDb:F2}");
-                    GD.Print($"StaticNoiseController: Bus='{_staticPlayer.Bus}', Playing={_staticPlayer.Playing}, VolumeDb={_staticPlayer.VolumeDb:F2}");
+                    GD.Print($"StaticNoiseController: Started static - Volume: {(_currentVolume * 100f):F1}%, dB: {_staticPlayer.VolumeDb:F2}");
                 }
                 else
                 {

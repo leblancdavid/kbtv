@@ -134,11 +134,14 @@ namespace KBTV.Dialogue
                               audioDuration = await GetAudioDurationAsync(audioPath);
                           }
 
-                          // Pre-playback cursing check for caller lines (not Vern lines)
-                          bool willCurse = false;
-                          float cursePoint = 0f;
-                          if (line.Speaker != Speaker.Vern && _caller != null)
-                          {
+                            // Pre-playback cursing check for caller lines (not Vern lines)
+                            bool willCurse = false;
+                            float cursePoint = 0f;
+                            if (line.Speaker != Speaker.Vern && _caller != null)
+                            {
+                                // Set caller's phone quality for static volume adjustment
+                                _audioService.SetCallerPhoneQuality(_caller.PhoneQuality);
+
                                 float curseProbability = _caller.CurseRisk switch
                                 {
                                     CallerCurseRisk.Low => 0.02f,     // 2%
