@@ -106,6 +106,14 @@ namespace KBTV.Audio
             GD.Print($"AudioMixerManager: Created Music bus at index {_musicBusIndex}");
 
             GD.Print($"AudioMixerManager: All buses created - Master: {_masterBusIndex}, Vern: {_vernBusIndex}, Caller: {_callerBusIndex}, Static: {_staticBusIndex}, Music: {_musicBusIndex}");
+            
+            // Verify all buses exist
+            for (int i = 0; i < AudioServer.BusCount; i++)
+            {
+                string name = AudioServer.GetBusName(i);
+                int effectCount = AudioServer.GetBusEffectCount(i);
+                GD.Print($"Bus[{i}]: '{name}', Effects: {effectCount}");
+            }
         }
 
         private void ConfigureVernBus()

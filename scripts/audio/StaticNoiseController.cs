@@ -50,6 +50,7 @@ namespace KBTV.Audio
             _staticPlayer.Name = "StaticPlayer";
             _staticPlayer.Bus = "Static";  // Route to Static bus with light phone effects
             AddChild(_staticPlayer);
+            GD.Print($"SetupStaticPlayer: Static player created, assigned to Bus='{_staticPlayer.Bus}'");
 
             // Load the static audio file
             GD.Print("StaticNoiseController: Attempting to load phone_static_loop.ogg...");
@@ -108,6 +109,7 @@ namespace KBTV.Audio
                 {
                     _staticPlayer.Play();
                     GD.Print($"StaticNoiseController: Started static - Equipment Level: {_equipmentLevel}, Volume: {_currentVolume}, dB: {_staticPlayer.VolumeDb:F2}");
+                    GD.Print($"StaticNoiseController: Bus='{_staticPlayer.Bus}', Playing={_staticPlayer.Playing}, VolumeDb={_staticPlayer.VolumeDb:F2}");
                 }
                 else
                 {
