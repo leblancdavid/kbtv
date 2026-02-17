@@ -64,8 +64,9 @@
     },
     {
       "id": "dropped_tired_1",
-"text": "... lost the caller. Whatever. Next one.",
+      "text": "... lost the caller. Whatever. Next one.",
       "voiceText": "... lost the caller. Whatever. Next one.",
+      "mood": "tired"
     },
     {
       "id": "dropped_exhausted_1",

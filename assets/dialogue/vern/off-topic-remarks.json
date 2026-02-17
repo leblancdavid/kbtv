@@ -30,6 +30,7 @@
       "id": "offtopic_neutral_2",
       "text": "Okay then. Well. That didn't go where I expected. Who's next?",
       "voiceText": "Okay then. Well. That didn't go where I expected. Who's next?",
+      "mood": "neutral"
     },
     {
       "id": "offtopic_exhausted_1",

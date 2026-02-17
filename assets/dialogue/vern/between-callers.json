@@ -42,6 +42,7 @@
       "id": "betweencallers_focused_1",
       "text": "Additional callers are waiting. Proceeding to next interaction.",
       "voiceText": "Additional callers are waiting. Proceeding to next interaction.",
+      "mood": "focused"
     },
     {
       "id": "betweencallers_exhausted_1",

@@ -64,8 +64,9 @@
     },
     {
       "id": "break_irritated_2",
-"text": "... taking a break now. Wake me when we're back.",
+      "text": "... taking a break now. Wake me when we're back.",
       "voiceText": "... taking a break now. Wake me when we're back.",
+      "mood": "irritated"
     },
     {
       "id": "break_exhausted_1",
