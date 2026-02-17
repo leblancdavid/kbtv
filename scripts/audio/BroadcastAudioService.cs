@@ -435,6 +435,18 @@ namespace KBTV.Audio
             {
                 var player = _availablePlayers[0];
                 _availablePlayers.RemoveAt(0);
+
+                // Route player to correct bus based on speaker type
+                // This ensures audio goes through the appropriate effects chain
+                if (_currentSpeaker == Speaker.Caller)
+                {
+                    player.Bus = "Caller";
+                }
+                else
+                {
+                    player.Bus = "Vern";
+                }
+
                 return player;
             }
             return null;
@@ -442,6 +454,8 @@ namespace KBTV.Audio
 
         private void ReturnPlayer(AudioStreamPlayer player)
         {
+            // Reset bus to Master when returning player to pool
+            player.Bus = "Master";
             _activePlayers.Remove(player);
             _availablePlayers.Add(player);
         }

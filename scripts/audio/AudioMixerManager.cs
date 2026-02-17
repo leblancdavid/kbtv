@@ -16,12 +16,14 @@ namespace KBTV.Audio
     {
         private AudioStreamPlayer _vernPlayer = null!;
         private AudioStreamPlayer _callerPlayer = null!;
+        private AudioStreamPlayer _musicPlayer = null!;
         private StaticNoiseController _staticController = null!;
 
         // Bus indices
         private int _masterBusIndex = 0;
         private int _vernBusIndex = -1;
         private int _callerBusIndex = -1;
+        private int _musicBusIndex = -1;
 
         // Effect indices within buses
         private int _callerLowPassIndex = -1;
@@ -76,7 +78,13 @@ namespace KBTV.Audio
             AudioServer.SetBusName(_callerBusIndex, "Caller");
             ConfigureCallerBus();
 
-            GD.Print($"AudioMixerManager: Created buses - Master: {_masterBusIndex}, Vern: {_vernBusIndex}, Caller: {_callerBusIndex}");
+            // Create Music bus
+            _musicBusIndex = AudioServer.BusCount;
+            AudioServer.AddBus(_musicBusIndex);
+            AudioServer.SetBusName(_musicBusIndex, "Music");
+            ConfigureMusicBus();
+
+            GD.Print($"AudioMixerManager: Created buses - Master: {_masterBusIndex}, Vern: {_vernBusIndex}, Caller: {_callerBusIndex}, Music: {_musicBusIndex}");
         }
 
         private void ConfigureVernBus()
@@ -138,6 +146,27 @@ namespace KBTV.Audio
             _callerDistortionIndex = 2;
         }
 
+        private void ConfigureMusicBus()
+        {
+            // Add Compressor for consistent music volume
+            var compressor = new AudioEffectCompressor();
+            compressor.Threshold = -18f;
+            compressor.Ratio = 2f;
+            compressor.AttackUs = 10f;
+            compressor.ReleaseMs = 200f;
+            AudioServer.AddBusEffect(_musicBusIndex, compressor);
+
+            // Add EQ for music enhancement
+            var eq = new AudioEffectEQ();
+            // Slight bass boost, slight treble cut for warmth
+            eq.SetBandGainDb(0, 1f);   // Bass
+            eq.SetBandGainDb(1, 0.5f);
+            eq.SetBandGainDb(2, 0f);
+            eq.SetBandGainDb(3, -0.5f);  // Slight treble cut
+            eq.SetBandGainDb(4, -1f);    // More treble cut
+            AudioServer.AddBusEffect(_musicBusIndex, eq);
+        }
+
         private void SetupAudioPlayers()
         {
             _vernPlayer = new AudioStreamPlayer();
@@ -147,6 +176,11 @@ namespace KBTV.Audio
             _callerPlayer = new AudioStreamPlayer();
             _callerPlayer.Name = "CallerPlayer";
             AddChild(_callerPlayer);
+
+            _musicPlayer = new AudioStreamPlayer();
+            _musicPlayer.Name = "MusicPlayer";
+            _musicPlayer.Bus = AudioServer.GetBusName(_musicBusIndex);
+            AddChild(_musicPlayer);
 
             _staticController = new StaticNoiseController();
             AddChild(_staticController);
@@ -332,6 +366,30 @@ namespace KBTV.Audio
         }
 
         /// <summary>
+        /// Gets the Vern audio player for direct playback.
+        /// </summary>
+        public AudioStreamPlayer GetMusicPlayer() => _musicPlayer;
+
+        /// <summary>
+        /// Plays audio through the Music player (background music).
+        /// </summary>
+        public void PlayMusic(AudioStream stream, bool loop = true)
+        {
+            if (_musicPlayer == null) return;
+            
+            _musicPlayer.Stream = stream;
+            _musicPlayer.Play();
+        }
+
+        /// <summary>
+        /// Stops Music playback.
+        /// </summary>
+        public void StopMusic()
+        {
+            _musicPlayer?.Stop();
+        }
+
+        /// <summary>
         /// Checks if Vern is currently playing.
         /// </summary>
         public bool IsVernPlaying => _vernPlayer?.Playing ?? false;
@@ -340,6 +398,11 @@ namespace KBTV.Audio
         /// Checks if Caller is currently playing.
         /// </summary>
         public bool IsCallerPlaying => _callerPlayer?.Playing ?? false;
+
+        /// <summary>
+        /// Checks if Music is currently playing.
+        /// </summary>
+        public bool IsMusicPlaying => _musicPlayer?.Playing ?? false;
 
         /// <summary>
         /// Gets the StaticNoiseController for external control.
