@@ -18,8 +18,8 @@ namespace KBTV.Audio
         private int _equipmentLevel = 1;
 
         // Static volume by equipment level (1 = loud, 4 = quiet)
-        // Subtle static levels
-        private static readonly float[] StaticVolumes = { 0.08f, 0.05f, 0.02f, 0.01f };
+        // Audible but not overpowering
+        private static readonly float[] StaticVolumes = { 0.25f, 0.15f, 0.08f, 0.03f };
 
         // Timer for restarting static to simulate looping
         private float _staticRestartTimer = 0f;
