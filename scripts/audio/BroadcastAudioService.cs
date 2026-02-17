@@ -411,7 +411,7 @@ namespace KBTV.Audio
             // Register cancellation to cancel the TCS
             using var registration = cancellationToken.Register(() => 
             {
-                player.CallDeferred("Stop");
+                player.CallDeferred("stop");
                 tcs.TrySetCanceled(cancellationToken);
             });
 
@@ -429,7 +429,7 @@ namespace KBTV.Audio
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 // Stop the player if still playing
-                player.CallDeferred("Stop");
+                player.CallDeferred("stop");
                 throw;
             }
             
@@ -464,7 +464,7 @@ namespace KBTV.Audio
             // Register cancellation to cancel the TCS
             using var registration = cancellationToken.Register(() => 
             {
-                player.CallDeferred("Stop");
+                player.CallDeferred("stop");
                 tcs.TrySetCanceled(cancellationToken);
             });
 
@@ -482,7 +482,7 @@ namespace KBTV.Audio
                     }
                     else
                     {
-                        player.CallDeferred("Stop");
+                        player.CallDeferred("stop");
                     }
                     tcs.SetResult(); // Signal completion
                 }
@@ -490,7 +490,7 @@ namespace KBTV.Audio
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 // Stop the player if still playing
-                player.CallDeferred("Stop");
+                player.CallDeferred("stop");
                 throw;
             }
             
