@@ -74,20 +74,23 @@ namespace KBTV.Audio
             AudioServer.AddBus(_vernBusIndex);
             AudioServer.SetBusName(_vernBusIndex, "Vern");
             ConfigureVernBus();
+            GD.Print($"AudioMixerManager: Created Vern bus at index {_vernBusIndex}");
 
             // Create Caller bus
             _callerBusIndex = AudioServer.BusCount;
             AudioServer.AddBus(_callerBusIndex);
             AudioServer.SetBusName(_callerBusIndex, "Caller");
             ConfigureCallerBus();
+            GD.Print($"AudioMixerManager: Created Caller bus at index {_callerBusIndex}");
 
             // Create Music bus
             _musicBusIndex = AudioServer.BusCount;
             AudioServer.AddBus(_musicBusIndex);
             AudioServer.SetBusName(_musicBusIndex, "Music");
             ConfigureMusicBus();
+            GD.Print($"AudioMixerManager: Created Music bus at index {_musicBusIndex}");
 
-            GD.Print($"AudioMixerManager: Created buses - Master: {_masterBusIndex}, Vern: {_vernBusIndex}, Caller: {_callerBusIndex}, Music: {_musicBusIndex}");
+            GD.Print($"AudioMixerManager: All buses created - Master: {_masterBusIndex}, Vern: {_vernBusIndex}, Caller: {_callerBusIndex}, Music: {_musicBusIndex}");
         }
 
         private void ConfigureVernBus()
@@ -118,12 +121,14 @@ namespace KBTV.Audio
             lowPass.Resonance = 5.0f;
             AudioServer.AddBusEffect(_callerBusIndex, lowPass);
             _callerLowPassIndex = 0;
+            GD.Print("AudioMixerManager: Added LowPass to Caller bus");
 
             // Add HighPass filter (index 1) - removes low frequencies aggressively
             var highPass = new AudioEffectHighPassFilter();
             highPass.CutoffHz = 600f;  // Level 1: 600Hz - aggressive
             AudioServer.AddBusEffect(_callerBusIndex, highPass);
             _callerHighPassIndex = 1;
+            GD.Print("AudioMixerManager: Added HighPass to Caller bus");
 
             // Add Distortion (index 2) - phone line character
             var distortion = new AudioEffectDistortion();
@@ -132,15 +137,18 @@ namespace KBTV.Audio
             distortion.Drive = 0.40f;  // Level 1: 0.40
             AudioServer.AddBusEffect(_callerBusIndex, distortion);
             _callerDistortionIndex = 2;
+            GD.Print("AudioMixerManager: Added Distortion to Caller bus");
 
+            // TEMPORARILY REMOVED - was causing issues
             // Add Compressor (index 3) - heavily compress phone audio (squashed sound)
-            var compressor = new AudioEffectCompressor();
-            compressor.Threshold = -15f;  // High threshold for heavy compression
-            compressor.Ratio = 6f;       // Aggressive ratio
-            compressor.AttackUs = 1f;     // Fast attack
-            compressor.ReleaseMs = 50f;   // Quick release
-            AudioServer.AddBusEffect(_callerBusIndex, compressor);
-            _callerCompressorIndex = 3;
+            // var compressor = new AudioEffectCompressor();
+            // compressor.Threshold = -15f;
+            // compressor.Ratio = 6f;
+            // compressor.AttackUs = 1f;
+            // compressor.ReleaseMs = 50f;
+            // AudioServer.AddBusEffect(_callerBusIndex, compressor);
+            // _callerCompressorIndex = 3;
+            // GD.Print("AudioMixerManager: Added Compressor to Caller bus");
         }
 
         private void ConfigureMusicBus()

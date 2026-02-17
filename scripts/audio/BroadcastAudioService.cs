@@ -105,8 +105,11 @@ namespace KBTV.Audio
             _audioMixer = GetNode<AudioMixerManager>("/root/AudioMixerManager");
             if (_audioMixer == null)
             {
-                // AudioMixerManager not in scene tree - effects won't be applied
                 GD.PrintErr("BroadcastAudioService: AudioMixerManager not found - audio effects disabled");
+            }
+            else
+            {
+                GD.Print("BroadcastAudioService: Found AudioMixerManager");
             }
         }
 
