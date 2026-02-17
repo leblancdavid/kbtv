@@ -120,7 +120,9 @@ namespace KBTV.Audio
         public async Task PlayAudioAsync(string audioPath, CancellationToken cancellationToken = default)
         {
             // Determine speaker based on audio path
-            _currentSpeaker = DetermineSpeakerFromPath(audioPath);
+            var detectedSpeaker = DetermineSpeakerFromPath(audioPath);
+            _currentSpeaker = detectedSpeaker;
+            GD.Print($"PlayAudioAsync: Set _currentSpeaker to {detectedSpeaker} from path {audioPath}");
             
             if (IsAudioDisabled)
             {
@@ -207,7 +209,9 @@ namespace KBTV.Audio
         public async Task PlayAudioForDurationAsync(string audioPath, float maxDuration, bool immediateStop, CancellationToken cancellationToken = default)
         {
             // Determine speaker based on audio path
-            _currentSpeaker = DetermineSpeakerFromPath(audioPath);
+            var detectedSpeaker = DetermineSpeakerFromPath(audioPath);
+            _currentSpeaker = detectedSpeaker;
+            GD.Print($"PlayAudioForDurationAsync: Set _currentSpeaker to {detectedSpeaker} from path {audioPath}");
             
             if (IsAudioDisabled)
             {
@@ -294,9 +298,9 @@ namespace KBTV.Audio
         public async Task PlayAudioForBroadcastItemAsync(BroadcastItem item)
         {
             _currentBroadcastItem = item;
-            _currentSpeaker = GetSpeakerFromBroadcastItemType(item.Type);
-            
-            GD.Print($"PlayAudioForBroadcastItemAsync: item.Type={item.Type}, _currentSpeaker={_currentSpeaker}");
+            var detectedSpeaker = GetSpeakerFromBroadcastItemType(item.Type);
+            _currentSpeaker = detectedSpeaker;
+            GD.Print($"PlayAudioForBroadcastItemAsync: Set _currentSpeaker to {detectedSpeaker} from item.Type={item.Type}");
             
             if (IsAudioDisabled)
             {
@@ -349,7 +353,9 @@ namespace KBTV.Audio
             GD.Print($"PlayAudioStreamInternalAsync: _currentSpeaker={_currentSpeaker}, debugName={debugName}");
             
             // Start static for caller audio
+            GD.Print($"About to call HandleStaticForSpeaker with _currentSpeaker={_currentSpeaker}");
             HandleStaticForSpeaker(_currentSpeaker, true);
+            GD.Print($"After HandleStaticForSpeaker call");
 
             player.Stream = audioStream;
             player.Play();

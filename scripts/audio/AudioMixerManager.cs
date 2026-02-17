@@ -147,7 +147,7 @@ namespace KBTV.Audio
 
             // Add Amplify (index 3) - boost caller voice above static
             var amplify = new AudioEffectAmplify();
-            amplify.VolumeDb = 9f;  // Boost by 9dB (reduced from 12dB)
+            amplify.VolumeDb = 6f;  // Boost by 6dB
             AudioServer.AddBusEffect(_callerBusIndex, amplify);
             _callerAmplifyIndex = 3;
             GD.Print("AudioMixerManager: Added Amplify to Caller bus");
