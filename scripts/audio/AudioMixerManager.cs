@@ -96,13 +96,12 @@ namespace KBTV.Audio
             AudioServer.AddBusEffect(_vernBusIndex, compressor);
             _vernCompressorIndex = 1;
 
-            // Add EQ for mid-boost (index 2)
+            // Add EQ for mid-boost (index 2) - EQ6 has 6 bands: 0-5
             var eq = new AudioEffectEQ();
-            // Add bands: 31Hz, 62Hz, 125Hz, 250Hz, 500Hz, 1kHz, 2kHz, 4kHz, 8kHz, 16kHz
-            // Boost 2-4kHz range for radio presence
-            eq.SetBandGainDb(5, 1f);   // 1kHz
-            eq.SetBandGainDb(6, 2f);  // 2kHz - main presence
-            eq.SetBandGainDb(7, 1.5f); // 4kHz
+            // Boost 1-4kHz range for radio presence (bands 2-4)
+            eq.SetBandGainDb(2, 1f);   // ~500Hz
+            eq.SetBandGainDb(3, 2f);  // ~1kHz - main presence
+            eq.SetBandGainDb(4, 1.5f); // ~2kHz
             AudioServer.AddBusEffect(_vernBusIndex, eq);
             _vernEqIndex = 2;
 
@@ -256,16 +255,16 @@ namespace KBTV.Audio
             int presetIndex = Mathf.Clamp(level - 1, 0, VernPresets.Length - 1);
             var preset = VernPresets[presetIndex];
 
-            // Update EQ
+            // Update EQ - EQ6 has bands 0-5
             if (_vernEqIndex >= 0)
             {
                 var effect = AudioServer.GetBusEffect(_vernBusIndex, _vernEqIndex);
                 if (effect is AudioEffectEQ eq)
                 {
-                    // Adjust mid-boost based on level
-                    eq.SetBandGainDb(5, (float)(preset.eqGain * 0.5));
-                    eq.SetBandGainDb(6, preset.eqGain);
-                    eq.SetBandGainDb(7, (float)(preset.eqGain * 0.75));
+                    // Adjust mid-boost based on level (bands 2-4)
+                    eq.SetBandGainDb(2, (float)(preset.eqGain * 0.5));
+                    eq.SetBandGainDb(3, preset.eqGain);
+                    eq.SetBandGainDb(4, (float)(preset.eqGain * 0.75));
                 }
             }
 
