@@ -18,8 +18,8 @@ namespace KBTV.Audio
         private int _equipmentLevel = 1;
 
         // Static volume by equipment level (1 = loud, 4 = quiet)
-        // Increased volumes for more audible static
-        private static readonly float[] StaticVolumes = { 1.5f, 1.0f, 0.6f, 0.2f };
+        // Reduced volumes to not overpower caller voice
+        private static readonly float[] StaticVolumes = { 0.4f, 0.25f, 0.15f, 0.05f };
 
         public override void _Ready()
         {
@@ -72,6 +72,8 @@ namespace KBTV.Audio
             if (_staticPlayer != null && _staticStream != null)
             {
                 _staticPlayer.Stream = _staticStream;
+                // Note: AudioStream.Loop is not available in Godot 4
+                // Static will play once and restart for each caller line
                 if (!_staticPlayer.Playing)
                 {
                     _staticPlayer.Play();

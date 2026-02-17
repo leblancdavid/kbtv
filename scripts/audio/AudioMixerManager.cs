@@ -29,6 +29,7 @@ namespace KBTV.Audio
         private int _callerLowPassIndex = -1;
         private int _callerHighPassIndex = -1;
         private int _callerDistortionIndex = -1;
+        private int _callerAmplifyIndex = -1;
         private int _callerCompressorIndex = -1;
         private int _vernHighPassIndex = -1;
         private int _vernCompressorIndex = -1;
@@ -141,6 +142,13 @@ namespace KBTV.Audio
             AudioServer.AddBusEffect(_callerBusIndex, distortion);
             _callerDistortionIndex = 2;
             GD.Print("AudioMixerManager: Added Distortion to Caller bus");
+
+            // Add Amplify (index 3) - boost caller voice above static
+            var amplify = new AudioEffectAmplify();
+            amplify.VolumeDb = 8f;  // Boost by 8dB (roughly 2.5x volume)
+            AudioServer.AddBusEffect(_callerBusIndex, amplify);
+            _callerAmplifyIndex = 3;
+            GD.Print("AudioMixerManager: Added Amplify to Caller bus");
 
             // TEMPORARILY REMOVED - was causing issues
             // Add Compressor (index 3) - heavily compress phone audio (squashed sound)
