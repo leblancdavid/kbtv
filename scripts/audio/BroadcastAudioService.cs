@@ -32,7 +32,10 @@ namespace KBTV.Audio
 
         // Track when static started for logging
         private double _staticStartTime = 0.0;
-        private const double MINIMUM_STATIC_DURATION = 1.0; // 1 second minimum
+
+        // Track caller audio duration for static timing
+        private double _currentCallerAudioDuration = 0.0;
+        private CancellationTokenSource? _staticStopCts = null;
 
         // Dependency injection
         private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
@@ -207,6 +210,13 @@ namespace KBTV.Audio
                 return;
             }
 
+            // Track duration for caller static timing
+            if (_currentSpeaker == Speaker.Caller)
+            {
+                _currentCallerAudioDuration = GetAudioDuration(audioStream);
+                GD.Print($"PlayAudioAsync: Caller audio duration: {_currentCallerAudioDuration}s");
+            }
+
             await PlayAudioStreamInternalAsync(player, audioStream, audioPath, cancellationToken);
         }
 
@@ -256,6 +266,14 @@ namespace KBTV.Audio
                 ReturnPlayer(player);
                 await Task.Delay((int)(maxDuration * 1000), cancellationToken);
                 return;
+            }
+
+            // Track duration for caller static timing (use actual duration or maxDuration, whichever is smaller)
+            if (_currentSpeaker == Speaker.Caller)
+            {
+                float actualDuration = GetAudioDuration(audioStream);
+                _currentCallerAudioDuration = Math.Min(actualDuration, maxDuration);
+                GD.Print($"PlayAudioForDurationAsync: Caller audio duration: {_currentCallerAudioDuration}s (actual: {actualDuration}s, max: {maxDuration}s)");
             }
 
             await PlayAudioStreamForDurationAsync(player, audioStream, audioPath, maxDuration, immediateStop, cancellationToken);
@@ -374,6 +392,12 @@ namespace KBTV.Audio
             GD.Print($"About to call HandleStaticForSpeaker with _currentSpeaker={_currentSpeaker}");
             HandleStaticForSpeaker(_currentSpeaker, true);
             GD.Print($"After HandleStaticForSpeaker call");
+            
+            // Start duration-based static timer for caller audio
+            if (_currentSpeaker == Speaker.Caller && _staticStopCts != null)
+            {
+                _ = StopStaticAfterDurationAsync(_currentCallerAudioDuration, _staticStopCts.Token);
+            }
 
             player.Stream = audioStream;
             player.Play();
@@ -422,6 +446,12 @@ namespace KBTV.Audio
 
             // Start static for caller audio
             HandleStaticForSpeaker(_currentSpeaker, true);
+            
+            // Start duration-based static timer for caller audio
+            if (_currentSpeaker == Speaker.Caller && _staticStopCts != null)
+            {
+                _ = StopStaticAfterDurationAsync(_currentCallerAudioDuration, _staticStopCts.Token);
+            }
 
             player.Stream = audioStream;
             player.Play();
@@ -501,7 +531,7 @@ namespace KBTV.Audio
             _availablePlayers.Add(player);
         }
 
-        private async void OnPlayerFinished(AudioStreamPlayer player)
+        private void OnPlayerFinished(AudioStreamPlayer player)
         {
             GD.Print($"OnPlayerFinished: player finished, _currentSpeaker={_currentSpeaker}");
             
@@ -511,21 +541,16 @@ namespace KBTV.Audio
                 _completionSources.Remove(player);
             }
             
-            // Stop static for caller audio using _currentSpeaker (minimum duration enforced)
+            // Static is now stopped by StopStaticAfterDurationAsync() timer, not here
+            // This is a safety check in case timer didn't fire
             if (_currentSpeaker == Speaker.Caller)
             {
-                double elapsed = (Time.GetTicksMsec() / 1000.0) - _staticStartTime;
-                GD.Print($"OnPlayerFinished: Static has been playing for {elapsed:F2} seconds");
-                
-                if (elapsed < MINIMUM_STATIC_DURATION)
+                var staticController = _audioMixer?.GetStaticController();
+                if (staticController != null && staticController.IsPlaying)
                 {
-                    int delayMs = (int)((MINIMUM_STATIC_DURATION - elapsed) * 1000);
-                    GD.Print($"OnPlayerFinished: Waiting {delayMs}ms to meet minimum {MINIMUM_STATIC_DURATION}s duration");
-                    await Task.Delay(delayMs);
-                    GD.Print("OnPlayerFinished: Minimum duration elapsed, now stopping static");
+                    double elapsed = (Time.GetTicksMsec() / 1000.0) - _staticStartTime;
+                    GD.Print($"OnPlayerFinished: SAFETY CHECK - Static still playing after {elapsed:F2}s, timer may have failed");
                 }
-                
-                HandleStaticForSpeaker(_currentSpeaker, false);
             }
             
             // Publish AudioCompletedEvent if we have a current broadcast item
@@ -558,6 +583,14 @@ namespace KBTV.Audio
                 {
                     if (start)
                     {
+                        // Cancel any existing static timer (new caller starting)
+                        if (_staticStopCts != null && !_staticStopCts.IsCancellationRequested)
+                        {
+                            GD.Print("HandleStaticForSpeaker: Cancelling previous static timer");
+                            _staticStopCts.Cancel();
+                        }
+                        _staticStopCts = new CancellationTokenSource();
+                        
                         GD.Print("HandleStaticForSpeaker: Starting static");
                         staticController.StartStatic();
                         _staticStartTime = Time.GetTicksMsec() / 1000.0;
@@ -573,6 +606,34 @@ namespace KBTV.Audio
             else
             {
                 GD.Print($"HandleStaticForSpeaker: Not handling - speaker={speaker} (expected Caller), _audioMixer={_audioMixer != null}");
+            }
+        }
+
+        /// <summary>
+        /// Stops static after a specified duration (caller audio duration + buffer).
+        /// Uses cancellation token to support cancellation when new caller starts.
+        /// </summary>
+        private async Task StopStaticAfterDurationAsync(double duration, CancellationToken cancellationToken)
+        {
+            // Add 0.1s buffer so static slightly outlasts audio
+            double totalDuration = duration + 0.1;
+            GD.Print($"StopStaticAfterDurationAsync: Will stop static after {totalDuration}s");
+            
+            try
+            {
+                await Task.Delay((int)(totalDuration * 1000), cancellationToken);
+                
+                // Check if static is still playing (not already stopped by interruption)
+                var staticController = _audioMixer?.GetStaticController();
+                if (staticController != null && staticController.IsPlaying)
+                {
+                    GD.Print("StopStaticAfterDurationAsync: Stopping static after natural duration");
+                    staticController.StopStatic();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                GD.Print("StopStaticAfterDurationAsync: Timer cancelled (new caller started)");
             }
         }
 
