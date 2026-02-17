@@ -290,6 +290,8 @@ namespace KBTV.Audio
             _currentBroadcastItem = item;
             _currentSpeaker = GetSpeakerFromBroadcastItemType(item.Type);
             
+            GD.Print($"PlayAudioForBroadcastItemAsync: item.Type={item.Type}, _currentSpeaker={_currentSpeaker}");
+            
             if (IsAudioDisabled)
             {
                 await Task.Delay(4000);
@@ -438,6 +440,8 @@ namespace KBTV.Audio
             {
                 var player = _availablePlayers[0];
                 _availablePlayers.RemoveAt(0);
+
+                GD.Print($"GetAvailablePlayer: _currentSpeaker={_currentSpeaker}");
 
                 // Route player to correct bus based on speaker type
                 // This ensures audio goes through the appropriate effects chain
