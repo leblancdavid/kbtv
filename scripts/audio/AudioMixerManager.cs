@@ -23,6 +23,7 @@ namespace KBTV.Audio
         private int _masterBusIndex = 0;
         private int _vernBusIndex = -1;
         private int _callerBusIndex = -1;
+        private int _staticBusIndex = -1;
         private int _musicBusIndex = -1;
 
         // Effect indices within buses
@@ -33,6 +34,9 @@ namespace KBTV.Audio
         private int _callerCompressorIndex = -1;
         private int _callerEqIndex = -1;
         private int _callerChorusIndex = -1;
+        private int _staticLowPassIndex = -1;
+        private int _staticHighPassIndex = -1;
+        private int _staticDistortionIndex = -1;
         private int _vernHighPassIndex = -1;
         private int _vernCompressorIndex = -1;
         private int _vernEqIndex = -1;
@@ -87,6 +91,13 @@ namespace KBTV.Audio
             ConfigureCallerBus();
             GD.Print($"AudioMixerManager: Finished configuring Caller bus");
 
+            // Create Static bus
+            _staticBusIndex = AudioServer.BusCount;
+            AudioServer.AddBus(_staticBusIndex);
+            AudioServer.SetBusName(_staticBusIndex, "Static");
+            ConfigureStaticBus();
+            GD.Print($"AudioMixerManager: Created Static bus at index {_staticBusIndex}");
+
             // Create Music bus
             _musicBusIndex = AudioServer.BusCount;
             AudioServer.AddBus(_musicBusIndex);
@@ -94,7 +105,7 @@ namespace KBTV.Audio
             ConfigureMusicBus();
             GD.Print($"AudioMixerManager: Created Music bus at index {_musicBusIndex}");
 
-            GD.Print($"AudioMixerManager: All buses created - Master: {_masterBusIndex}, Vern: {_vernBusIndex}, Caller: {_callerBusIndex}, Music: {_musicBusIndex}");
+            GD.Print($"AudioMixerManager: All buses created - Master: {_masterBusIndex}, Vern: {_vernBusIndex}, Caller: {_callerBusIndex}, Static: {_staticBusIndex}, Music: {_musicBusIndex}");
         }
 
         private void ConfigureVernBus()
@@ -190,6 +201,30 @@ namespace KBTV.Audio
             eq.SetBandGainDb(3, -0.5f);  // Slight treble cut
             eq.SetBandGainDb(4, -1f);    // More treble cut
             AudioServer.AddBusEffect(_musicBusIndex, eq);
+        }
+
+        private void ConfigureStaticBus()
+        {
+            // Add LowPass filter (index 0) - wider than caller to keep static audible
+            var lowPass = new AudioEffectLowPassFilter();
+            lowPass.CutoffHz = 3000f;  // Much wider than caller (600Hz)
+            lowPass.Resonance = 2.0f;   // Lower resonance to avoid spikes
+            AudioServer.AddBusEffect(_staticBusIndex, lowPass);
+            _staticLowPassIndex = 0;
+
+            // Add HighPass filter (index 1) - remove rumble but keep body
+            var highPass = new AudioEffectHighPassFilter();
+            highPass.CutoffHz = 150f;   // Lower than caller (400Hz)
+            AudioServer.AddBusEffect(_staticBusIndex, highPass);
+            _staticHighPassIndex = 1;
+
+            // Add light Distortion (index 2) - subtle phone line character
+            var distortion = new AudioEffectDistortion();
+            distortion.Mode = AudioEffectDistortion.ModeEnum.Overdrive;
+            distortion.PreGain = 0.8f;
+            distortion.Drive = 0.15f;   // Light distortion
+            AudioServer.AddBusEffect(_staticBusIndex, distortion);
+            _staticDistortionIndex = 2;
         }
 
         private void SetupAudioPlayers()

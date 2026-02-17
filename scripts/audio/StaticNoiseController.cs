@@ -66,7 +66,7 @@ namespace KBTV.Audio
         {
             _staticPlayer = new AudioStreamPlayer();
             _staticPlayer.Name = "StaticPlayer";
-            _staticPlayer.Bus = "Master";  // Explicitly route to Master bus
+            _staticPlayer.Bus = "Static";  // Route to Static bus with light phone effects
             AddChild(_staticPlayer);
 
             // Load the static audio file
