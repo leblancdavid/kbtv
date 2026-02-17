@@ -18,7 +18,8 @@ namespace KBTV.Audio
         private int _equipmentLevel = 1;
 
         // Static volume by equipment level (1 = loud, 4 = quiet)
-        private static readonly float[] StaticVolumes = { 0.8f, 0.5f, 0.2f, 0.05f };
+        // Louder static to emphasize bad phone quality
+        private static readonly float[] StaticVolumes = { 1.0f, 0.7f, 0.4f, 0.1f };
 
         public override void _Ready()
         {

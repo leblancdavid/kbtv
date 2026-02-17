@@ -38,23 +38,24 @@ namespace KBTV.Audio
         private int _currentPhoneLineLevel = 1;
         private int _currentBroadcastLevel = 1;
 
-        // Effect presets for each equipment level
+        // Effect presets for each equipment level - CALLERS
         // Format: (lowPassHz, highPassHz, distortion, resonance)
+        // Bandpass effect: aggressive lowpass + highpass = old phone sound
         private static readonly (float lowPass, float highPass, float distortion, float resonance)[] CallerPresets = 
         {
-            (2200f, 500f, 0.12f, 2.5f),  // Level 1: Very muffled, lots of distortion
-            (3500f, 350f, 0.08f, 2.0f),   // Level 2: Muffled, some distortion
-            (6000f, 200f, 0.04f, 1.5f),   // Level 3: Near clear, minimal distortion
-            (10000f, 100f, 0.0f, 1.0f)    // Level 4: Crystal clear, no distortion
+            (800f, 400f, 0.30f, 4.0f),   // Level 1: Very bad phone - bandpass 400-800Hz, harsh distortion
+            (1500f, 350f, 0.20f, 3.5f),   // Level 2: Bad phone - bandpass 350-1500Hz
+            (3000f, 200f, 0.10f, 2.5f),   // Level 3: Decent phone - bandpass 200-3000Hz
+            (10000f, 100f, 0.0f, 1.0f)    // Level 4: Clear phone - almost full range
         };
 
-        // Vern broadcast presets (simpler, mostly quality improvements)
+        // Vern broadcast presets - VERN (should be clean)
         private static readonly (float eqGain, float distortion)[] VernPresets = 
         {
-            (1.0f, 0.02f),   // Level 1: Muffled, some hum
-            (1.5f, 0.01f),   // Level 2: Clearer
-            (2.0f, 0.005f),  // Level 3: Professional
-            (2.5f, 0.0f)     // Level 4: Broadcast quality
+            (1.0f, 0.0f),   // Level 1: Clean - no distortion
+            (1.0f, 0.0f),   // Level 2: Clean
+            (1.0f, 0.0f),   // Level 3: Clean
+            (1.0f, 0.0f)    // Level 4: Clean - broadcast quality
         };
 
         public override void _Ready()
@@ -89,13 +90,13 @@ namespace KBTV.Audio
 
         private void ConfigureVernBus()
         {
-            // Add HighPass filter (index 0)
+            // Add HighPass filter (index 0) - remove rumble
             var highPass = new AudioEffectHighPassFilter();
             highPass.CutoffHz = 80f;
             AudioServer.AddBusEffect(_vernBusIndex, highPass);
             _vernHighPassIndex = 0;
 
-            // Add Compressor (index 1)
+            // Add Compressor (index 1) - radio compression for consistent volume
             var compressor = new AudioEffectCompressor();
             compressor.Threshold = -20f;
             compressor.Ratio = 3f;
@@ -104,22 +105,14 @@ namespace KBTV.Audio
             AudioServer.AddBusEffect(_vernBusIndex, compressor);
             _vernCompressorIndex = 1;
 
-            // Add EQ for mid-boost (index 2) - EQ6 has 6 bands: 0-5
+            // Add EQ for slight mid-boost (index 2) - subtle radio presence
             var eq = new AudioEffectEQ();
-            // Boost 1-4kHz range for radio presence (bands 2-4)
-            eq.SetBandGainDb(2, 1f);   // ~500Hz
-            eq.SetBandGainDb(3, 2f);  // ~1kHz - main presence
-            eq.SetBandGainDb(4, 1.5f); // ~2kHz
+            eq.SetBandGainDb(3, 1f);  // ~1kHz - slight presence
             AudioServer.AddBusEffect(_vernBusIndex, eq);
             _vernEqIndex = 2;
 
-            // Add subtle distortion (index 3)
-            var distortion = new AudioEffectDistortion();
-            distortion.Mode = AudioEffectDistortion.ModeEnum.Overdrive;
-            distortion.PreGain = 1f;
-            distortion.PostGain = 0.98f;
-            AudioServer.AddBusEffect(_vernBusIndex, distortion);
-            _vernDistortionIndex = 3;
+            // No distortion for Vern - keep it clean
+            _vernDistortionIndex = -1;
         }
 
         private void ConfigureCallerBus()
@@ -286,31 +279,18 @@ namespace KBTV.Audio
         {
             if (_vernBusIndex < 0) return;
 
-            int presetIndex = Mathf.Clamp(level - 1, 0, VernPresets.Length - 1);
-            var preset = VernPresets[presetIndex];
-
-            // Update EQ - EQ6 has bands 0-5
+            // Vern is always clean - no distortion, minimal EQ
+            // Update EQ - just band 3 for slight presence
             if (_vernEqIndex >= 0)
             {
                 var effect = AudioServer.GetBusEffect(_vernBusIndex, _vernEqIndex);
                 if (effect is AudioEffectEQ eq)
                 {
-                    // Adjust mid-boost based on level (bands 2-4)
-                    eq.SetBandGainDb(2, (float)(preset.eqGain * 0.5));
-                    eq.SetBandGainDb(3, preset.eqGain);
-                    eq.SetBandGainDb(4, (float)(preset.eqGain * 0.75));
+                    eq.SetBandGainDb(3, 1f);  // ~1kHz - slight presence
                 }
             }
 
-            // Update Distortion
-            if (_vernDistortionIndex >= 0)
-            {
-                var effect = AudioServer.GetBusEffect(_vernBusIndex, _vernDistortionIndex);
-                if (effect is AudioEffectDistortion distortion)
-                {
-                    distortion.Drive = preset.distortion;
-                }
-            }
+            // No distortion for Vern - disabled
         }
 
         /// <summary>
