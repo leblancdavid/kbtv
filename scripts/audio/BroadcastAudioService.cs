@@ -30,12 +30,12 @@ namespace KBTV.Audio
         // Audio routing for effects
         private AudioMixerManager? _audioMixer;
 
-        // Track when static started for minimum duration enforcement
+        // Track when static started for logging
         private double _staticStartTime = 0.0;
-        private const double MINIMUM_STATIC_DURATION = 2.0; // 2 seconds minimum
 
         // Dependency injection
         private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
+        private EventBus EventBus => DependencyInjection.Get<EventBus>(this);
 
         /// <summary>
         /// Check if broadcast audio is disabled (uses 4-second timeouts).
@@ -101,6 +101,19 @@ namespace KBTV.Audio
 
             // Initialize audio mixer for effects
             InitializeAudioMixer();
+            
+            // Subscribe to interruption events for static fade-out
+            EventBus.Subscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
+        }
+        
+        private void OnBroadcastInterruption(BroadcastInterruptionEvent evt)
+        {
+            if (evt.Reason == BroadcastInterruptionReason.CallerCursed || 
+                evt.Reason == BroadcastInterruptionReason.CallerDropped)
+            {
+                GD.Print($"BroadcastAudioService: Received interruption {evt.Reason}, fading out static");
+                _audioMixer?.GetStaticController()?.StopStaticWithFade(0.15f);
+            }
         }
 
         private void InitializeAudioMixer()
@@ -497,21 +510,11 @@ namespace KBTV.Audio
                 _completionSources.Remove(player);
             }
             
-            // Stop static for caller audio using _currentSpeaker
+            // Stop static for caller audio using _currentSpeaker (natural duration)
             if (_currentSpeaker == Speaker.Caller)
             {
                 double elapsed = (Time.GetTicksMsec() / 1000.0) - _staticStartTime;
-                GD.Print($"OnPlayerFinished: Static has been playing for {elapsed:F2} seconds");
-                
-                if (elapsed < MINIMUM_STATIC_DURATION)
-                {
-                    int delayMs = (int)((MINIMUM_STATIC_DURATION - elapsed) * 1000);
-                    GD.Print($"OnPlayerFinished: Waiting {delayMs}ms to meet minimum {MINIMUM_STATIC_DURATION}s duration");
-                    await Task.Delay(delayMs);
-                    GD.Print("OnPlayerFinished: Minimum duration elapsed, now stopping static");
-                }
-                
-                GD.Print("OnPlayerFinished: Stopping static for caller");
+                GD.Print($"OnPlayerFinished: Static played for {elapsed:F2} seconds, stopping now");
                 HandleStaticForSpeaker(_currentSpeaker, false);
             }
             

@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Threading.Tasks;
 using Godot;
 
 namespace KBTV.Audio
@@ -131,6 +132,32 @@ namespace KBTV.Audio
             {
                 _staticPlayer.Stop();
                 GD.Print("StaticNoiseController: Stopped static");
+            }
+        }
+
+        /// <summary>
+        /// Stops playing static noise with a fade-out effect.
+        /// </summary>
+        public async void StopStaticWithFade(float fadeDuration = 0.15f)
+        {
+            if (_staticPlayer != null && _staticPlayer.Playing)
+            {
+                float startVolume = _staticPlayer.VolumeDb;
+                int steps = 10;
+                float stepDuration = fadeDuration / steps;
+                float volumeStep = startVolume / steps;
+                
+                GD.Print($"StaticNoiseController: Fading out static over {fadeDuration}s from {startVolume:F2}dB");
+                
+                for (int i = 0; i < steps; i++)
+                {
+                    _staticPlayer.VolumeDb -= volumeStep;
+                    await Task.Delay((int)(stepDuration * 1000));
+                }
+                
+                _staticPlayer.Stop();
+                _staticPlayer.VolumeDb = startVolume; // Reset for next time
+                GD.Print("StaticNoiseController: Stopped static after fade");
             }
         }
 
