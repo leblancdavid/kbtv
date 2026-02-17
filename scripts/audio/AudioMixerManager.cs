@@ -80,8 +80,9 @@ namespace KBTV.Audio
             _callerBusIndex = AudioServer.BusCount;
             AudioServer.AddBus(_callerBusIndex);
             AudioServer.SetBusName(_callerBusIndex, "Caller");
+            GD.Print($"AudioMixerManager: Creating Caller bus at index {_callerBusIndex}");
             ConfigureCallerBus();
-            GD.Print($"AudioMixerManager: Created Caller bus at index {_callerBusIndex}");
+            GD.Print($"AudioMixerManager: Finished configuring Caller bus");
 
             // Create Music bus
             _musicBusIndex = AudioServer.BusCount;
@@ -114,6 +115,8 @@ namespace KBTV.Audio
 
         private void ConfigureCallerBus()
         {
+            GD.Print($"ConfigureCallerBus: Adding effects to bus index {_callerBusIndex}");
+            
             // Add LowPass filter (index 0) - simulates phone bandwidth
             // Start with Level 1 settings: 600Hz, resonance 5.0
             var lowPass = new AudioEffectLowPassFilter();
