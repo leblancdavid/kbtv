@@ -479,7 +479,7 @@ namespace KBTV.Audio
 
         private void OnPlayerFinished(AudioStreamPlayer player)
         {
-            GD.Print($"OnPlayerFinished: player finished, _currentBroadcastItem={_currentBroadcastItem != null}");
+            GD.Print($"OnPlayerFinished: player finished, _currentSpeaker={_currentSpeaker}");
             
             if (_completionSources.TryGetValue(player, out var tcs))
             {
@@ -487,21 +487,25 @@ namespace KBTV.Audio
                 _completionSources.Remove(player);
             }
             
+            // Stop static for caller audio using _currentSpeaker
+            if (_currentSpeaker == Speaker.Caller)
+            {
+                GD.Print("OnPlayerFinished: Stopping static for caller");
+                HandleStaticForSpeaker(_currentSpeaker, false);
+            }
+            
             // Publish AudioCompletedEvent if we have a current broadcast item
             if (_currentBroadcastItem != null)
             {
                 var speaker = GetSpeakerFromBroadcastItemType(_currentBroadcastItem.Type);
-                GD.Print($"OnPlayerFinished: speaker from broadcast item = {speaker}, _currentSpeaker = {_currentSpeaker}");
+                GD.Print($"OnPlayerFinished: speaker from broadcast item = {speaker}");
                 var completedEvent = new AudioCompletedEvent(_currentBroadcastItem.Id, speaker);
                 LineCompleted?.Invoke(completedEvent);
-                
-                // Stop static for caller audio
-                HandleStaticForSpeaker(speaker, false);
             }
-            else
-            {
-                GD.Print("OnPlayerFinished: No _currentBroadcastItem, cannot stop static properly");
-            }
+            
+            // Reset speaker to Vern for next audio
+            _currentSpeaker = Speaker.Vern;
+            GD.Print("OnPlayerFinished: Reset _currentSpeaker to Vern");
             
             ReturnPlayer(player);
         }
