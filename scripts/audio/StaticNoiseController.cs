@@ -27,24 +27,6 @@ namespace KBTV.Audio
 
         public override void _Process(double delta)
         {
-            // Manual test: Press 'S' to test static playback
-            if (Input.IsActionJustPressed("test_static"))
-            {
-                GD.Print("StaticNoiseController: Manual test triggered with 'S' key");
-                if (IsPlaying)
-                {
-                    StopStatic();
-                    GD.Print("StaticNoiseController: Stopped static (was playing)");
-                }
-                else
-                {
-                    // Force set to max volume for testing
-                    SetVolume(1.0f);
-                    StartStatic();
-                    GD.Print("StaticNoiseController: Started static at 100% volume for test");
-                }
-            }
-
             // Restart static periodically to simulate looping
             if (_staticPlayer != null && _staticPlayer.Playing)
             {
