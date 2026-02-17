@@ -21,8 +21,8 @@ namespace KBTV.Audio
         private bool _shouldBePlaying = false;
 
         // Static volume by equipment level (1 = loud, 4 = quiet)
-        // 20% at level 1, tapering down
-        private static readonly float[] StaticVolumes = { 0.20f, 0.12f, 0.06f, 0.02f };
+        // 10% at level 1, tapering down
+        private static readonly float[] StaticVolumes = { 0.10f, 0.06f, 0.03f, 0.01f };
 
         public override void _Ready()
         {
