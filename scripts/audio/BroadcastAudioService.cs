@@ -346,6 +346,8 @@ namespace KBTV.Audio
             var tcs = new TaskCompletionSource();
             _completionSources[player] = tcs;
 
+            GD.Print($"PlayAudioStreamInternalAsync: _currentSpeaker={_currentSpeaker}, debugName={debugName}");
+            
             // Start static for caller audio
             HandleStaticForSpeaker(_currentSpeaker, true);
 
@@ -477,6 +479,8 @@ namespace KBTV.Audio
 
         private void OnPlayerFinished(AudioStreamPlayer player)
         {
+            GD.Print($"OnPlayerFinished: player finished, _currentBroadcastItem={_currentBroadcastItem != null}");
+            
             if (_completionSources.TryGetValue(player, out var tcs))
             {
                 tcs.SetResult();
@@ -487,11 +491,16 @@ namespace KBTV.Audio
             if (_currentBroadcastItem != null)
             {
                 var speaker = GetSpeakerFromBroadcastItemType(_currentBroadcastItem.Type);
+                GD.Print($"OnPlayerFinished: speaker from broadcast item = {speaker}, _currentSpeaker = {_currentSpeaker}");
                 var completedEvent = new AudioCompletedEvent(_currentBroadcastItem.Id, speaker);
                 LineCompleted?.Invoke(completedEvent);
                 
                 // Stop static for caller audio
                 HandleStaticForSpeaker(speaker, false);
+            }
+            else
+            {
+                GD.Print("OnPlayerFinished: No _currentBroadcastItem, cannot stop static properly");
             }
             
             ReturnPlayer(player);
@@ -502,16 +511,28 @@ namespace KBTV.Audio
         /// </summary>
         private void HandleStaticForSpeaker(Speaker speaker, bool start)
         {
+            GD.Print($"HandleStaticForSpeaker: speaker={speaker}, start={start}, _audioMixer={_audioMixer != null}");
             if (speaker == Speaker.Caller && _audioMixer != null)
             {
                 var staticController = _audioMixer.GetStaticController();
+                GD.Print($"HandleStaticForSpeaker: staticController={staticController != null}");
                 if (staticController != null)
                 {
                     if (start)
+                    {
+                        GD.Print("HandleStaticForSpeaker: Starting static");
                         staticController.StartStatic();
+                    }
                     else
+                    {
+                        GD.Print("HandleStaticForSpeaker: Stopping static");
                         staticController.StopStatic();
+                    }
                 }
+            }
+            else
+            {
+                GD.Print($"HandleStaticForSpeaker: Not handling - speaker={speaker} (expected Caller), _audioMixer={_audioMixer != null}");
             }
         }
 

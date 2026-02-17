@@ -47,10 +47,10 @@ namespace KBTV.Audio
         // Balanced phone effect
         private static readonly (float lowPass, float highPass, float distortion, float resonance)[] CallerPresets = 
         {
-            (600f, 400f, 0.30f, 4.0f),   // Level 1: Bad phone - balanced
-            (800f, 350f, 0.25f, 4.0f),   // Level 2: Improved
-            (1200f, 300f, 0.20f, 3.5f),   // Level 3: Better
-            (2500f, 200f, 0.10f, 3.0f)    // Level 4: Clear
+            (600f, 400f, 0.40f, 3.0f),   // Level 1: Bad phone - balanced
+            (800f, 350f, 0.35f, 3.0f),   // Level 2: Improved
+            (1200f, 300f, 0.30f, 3.0f),   // Level 3: Better
+            (2500f, 200f, 0.20f, 3.0f)    // Level 4: Clear
         };
 
         // Vern broadcast presets - VERN (should be clean)
@@ -121,10 +121,10 @@ namespace KBTV.Audio
             GD.Print($"ConfigureCallerBus: Adding effects to bus index {_callerBusIndex}");
             
             // Add LowPass filter (index 0) - simulates phone bandwidth
-            // Start with Level 1 settings: 600Hz, resonance 4.0
+            // Start with Level 1 settings: 600Hz, resonance 3.0
             var lowPass = new AudioEffectLowPassFilter();
             lowPass.CutoffHz = 600f;
-            lowPass.Resonance = 4.0f;
+            lowPass.Resonance = 3.0f;
             AudioServer.AddBusEffect(_callerBusIndex, lowPass);
             _callerLowPassIndex = 0;
             GD.Print("AudioMixerManager: Added LowPass to Caller bus");
@@ -140,7 +140,7 @@ namespace KBTV.Audio
             var distortion = new AudioEffectDistortion();
             distortion.Mode = AudioEffectDistortion.ModeEnum.Overdrive;
             distortion.PreGain = 1f;
-            distortion.Drive = 0.30f;  // Level 1: 0.30
+            distortion.Drive = 0.40f;  // Level 1: 0.40
             AudioServer.AddBusEffect(_callerBusIndex, distortion);
             _callerDistortionIndex = 2;
             GD.Print("AudioMixerManager: Added Distortion to Caller bus");
