@@ -27,6 +27,24 @@ namespace KBTV.Audio
 
         public override void _Process(double delta)
         {
+            // Manual test: Press 'S' to test static playback
+            if (Input.IsActionJustPressed("test_static"))
+            {
+                GD.Print("StaticNoiseController: Manual test triggered with 'S' key");
+                if (IsPlaying)
+                {
+                    StopStatic();
+                    GD.Print("StaticNoiseController: Stopped static (was playing)");
+                }
+                else
+                {
+                    // Force set to max volume for testing
+                    SetVolume(1.0f);
+                    StartStatic();
+                    GD.Print("StaticNoiseController: Started static at 100% volume for test");
+                }
+            }
+
             // Restart static periodically to simulate looping
             if (_staticPlayer != null && _staticPlayer.Playing)
             {
@@ -48,17 +66,24 @@ namespace KBTV.Audio
         {
             _staticPlayer = new AudioStreamPlayer();
             _staticPlayer.Name = "StaticPlayer";
+            _staticPlayer.Bus = "Master";  // Explicitly route to Master bus
             AddChild(_staticPlayer);
 
             // Load the static audio file
+            GD.Print("StaticNoiseController: Attempting to load phone_static_loop.ogg...");
             _staticStream = GD.Load<AudioStream>("res://assets/audio/sfx/phone_static_loop.ogg");
             if (_staticStream != null)
             {
                 _staticPlayer.Stream = _staticStream;
+                float length = 0f;
+                if (_staticStream is AudioStreamMP3 mp3) length = (float)mp3.GetLength();
+                else if (_staticStream is AudioStreamOggVorbis ogg) length = (float)ogg.GetLength();
+                else if (_staticStream is Godot.AudioStreamWav wav) length = (float)wav.GetLength();
+                GD.Print($"StaticNoiseController: Successfully loaded phone_static_loop.ogg - Length: {length}s");
             }
             else
             {
-                GD.PrintErr("StaticNoiseController: Failed to load phone_static_loop.ogg");
+                GD.PrintErr("StaticNoiseController: FAILED to load phone_static_loop.ogg - File not found or corrupted!");
             }
         }
 
@@ -75,10 +100,14 @@ namespace KBTV.Audio
         {
             int arrayIndex = Mathf.Clamp(_equipmentLevel - 1, 0, StaticVolumes.Length - 1);
             _currentVolume = StaticVolumes[arrayIndex];
+            float db = LinearToDb(_currentVolume);
+            
+            GD.Print($"StaticNoiseController: Setting volume - Linear={_currentVolume}, dB={db:F2}");
             
             if (_staticPlayer != null)
             {
-                _staticPlayer.VolumeDb = LinearToDb(_currentVolume);
+                _staticPlayer.VolumeDb = db;
+                GD.Print($"StaticNoiseController: VolumeDb set to {_staticPlayer.VolumeDb:F2}");
             }
         }
 
