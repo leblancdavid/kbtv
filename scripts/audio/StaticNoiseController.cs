@@ -9,36 +9,20 @@ namespace KBTV.Audio
     /// <summary>
     /// Controls phone static noise playback during caller audio.
     /// Volume is based on equipment level - worse equipment = more static.
+    /// Uses Finished signal for seamless looping.
     /// </summary>
     public partial class StaticNoiseController : Node
     {
         private AudioStreamPlayer _staticPlayer = null!;
         private AudioStream? _staticStream;
         
-        private float _currentVolume = 0.8f;
+        private float _currentVolume = 0.20f;
         private int _equipmentLevel = 1;
+        private bool _shouldBePlaying = false;
 
         // Static volume by equipment level (1 = loud, 4 = quiet)
-        // 50% at level 1, tapering down
-        private static readonly float[] StaticVolumes = { 0.5f, 0.25f, 0.12f, 0.05f };
-
-        // Timer for restarting static to simulate looping
-        private float _staticRestartTimer = 0f;
-        private const float STATIC_RESTART_INTERVAL = 2.0f;
-
-        public override void _Process(double delta)
-        {
-            // Restart static periodically to simulate looping
-            if (_staticPlayer != null && _staticPlayer.Playing)
-            {
-                _staticRestartTimer += (float)delta;
-                if (_staticRestartTimer >= STATIC_RESTART_INTERVAL)
-                {
-                    _staticRestartTimer = 0f;
-                    _staticPlayer.Play(); // Restart from beginning
-                }
-            }
-        }
+        // 20% at level 1, tapering down
+        private static readonly float[] StaticVolumes = { 0.20f, 0.12f, 0.06f, 0.02f };
 
         public override void _Ready()
         {
@@ -51,6 +35,10 @@ namespace KBTV.Audio
             _staticPlayer.Name = "StaticPlayer";
             _staticPlayer.Bus = "Static";  // Route to Static bus with light phone effects
             AddChild(_staticPlayer);
+            
+            // Subscribe to Finished signal for seamless looping
+            _staticPlayer.Finished += OnStaticFinished;
+            
             GD.Print($"SetupStaticPlayer: Static player created, assigned to Bus='{_staticPlayer.Bus}'");
 
             // Load the static audio file
@@ -68,6 +56,17 @@ namespace KBTV.Audio
             else
             {
                 GD.PrintErr("StaticNoiseController: FAILED to load phone_static_loop.ogg - File not found or corrupted!");
+            }
+        }
+
+        private void OnStaticFinished()
+        {
+            // Restart immediately for seamless loop (if still supposed to be playing)
+            if (_staticPlayer != null && _staticStream != null && _shouldBePlaying)
+            {
+                _staticPlayer.Stream = _staticStream;
+                _staticPlayer.Play();
+                GD.Print("StaticNoiseController: Static looped seamlessly");
             }
         }
 
@@ -103,9 +102,8 @@ namespace KBTV.Audio
             GD.Print($"StartStatic CALLED - equipmentLevel={_equipmentLevel}, currentVolume={_currentVolume}");
             if (_staticPlayer != null && _staticStream != null)
             {
+                _shouldBePlaying = true;
                 _staticPlayer.Stream = _staticStream;
-                // Note: AudioStream.Loop is not available in Godot 4
-                // Static will play once and restart for each caller line
                 if (!_staticPlayer.Playing)
                 {
                     _staticPlayer.Play();
@@ -128,6 +126,7 @@ namespace KBTV.Audio
         /// </summary>
         public void StopStatic()
         {
+            _shouldBePlaying = false;
             if (_staticPlayer != null && _staticPlayer.Playing)
             {
                 _staticPlayer.Stop();
@@ -136,29 +135,13 @@ namespace KBTV.Audio
         }
 
         /// <summary>
-        /// Stops playing static noise with a fade-out effect.
+        /// Stops playing static noise instantly (no fade).
         /// </summary>
-        public async void StopStaticWithFade(float fadeDuration = 0.15f)
+        public void StopStaticWithFade(float fadeDuration = 0.15f)
         {
-            if (_staticPlayer != null && _staticPlayer.Playing)
-            {
-                float startVolume = _staticPlayer.VolumeDb;
-                int steps = 10;
-                float stepDuration = fadeDuration / steps;
-                float volumeStep = startVolume / steps;
-                
-                GD.Print($"StaticNoiseController: Fading out static over {fadeDuration}s from {startVolume:F2}dB");
-                
-                for (int i = 0; i < steps; i++)
-                {
-                    _staticPlayer.VolumeDb -= volumeStep;
-                    await Task.Delay((int)(stepDuration * 1000));
-                }
-                
-                _staticPlayer.Stop();
-                _staticPlayer.VolumeDb = startVolume; // Reset for next time
-                GD.Print("StaticNoiseController: Stopped static after fade");
-            }
+            // Instant stop - no fade
+            StopStatic();
+            GD.Print("StaticNoiseController: Stopped static instantly (no fade)");
         }
 
         /// <summary>
