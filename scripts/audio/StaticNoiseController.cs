@@ -116,6 +116,7 @@ namespace KBTV.Audio
         /// </summary>
         public void StartStatic()
         {
+            GD.Print($"StartStatic CALLED - equipmentLevel={_equipmentLevel}, currentVolume={_currentVolume}");
             if (_staticPlayer != null && _staticStream != null)
             {
                 _staticPlayer.Stream = _staticStream;
@@ -124,7 +125,11 @@ namespace KBTV.Audio
                 if (!_staticPlayer.Playing)
                 {
                     _staticPlayer.Play();
-                    GD.Print($"StaticNoiseController: Started static at volume {_currentVolume}");
+                    GD.Print($"StaticNoiseController: Started static - Equipment Level: {_equipmentLevel}, Volume: {_currentVolume}, dB: {_staticPlayer.VolumeDb:F2}");
+                }
+                else
+                {
+                    GD.Print("StaticNoiseController: Static already playing, not restarting");
                 }
             }
             else
