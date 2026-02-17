@@ -32,6 +32,7 @@ namespace KBTV.Audio
 
         // Track when static started for logging
         private double _staticStartTime = 0.0;
+        private const double MINIMUM_STATIC_DURATION = 1.0; // 1 second minimum
 
         // Dependency injection
         private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
@@ -510,11 +511,20 @@ namespace KBTV.Audio
                 _completionSources.Remove(player);
             }
             
-            // Stop static for caller audio using _currentSpeaker (natural duration)
+            // Stop static for caller audio using _currentSpeaker (minimum duration enforced)
             if (_currentSpeaker == Speaker.Caller)
             {
                 double elapsed = (Time.GetTicksMsec() / 1000.0) - _staticStartTime;
-                GD.Print($"OnPlayerFinished: Static played for {elapsed:F2} seconds, stopping now");
+                GD.Print($"OnPlayerFinished: Static has been playing for {elapsed:F2} seconds");
+                
+                if (elapsed < MINIMUM_STATIC_DURATION)
+                {
+                    int delayMs = (int)((MINIMUM_STATIC_DURATION - elapsed) * 1000);
+                    GD.Print($"OnPlayerFinished: Waiting {delayMs}ms to meet minimum {MINIMUM_STATIC_DURATION}s duration");
+                    await Task.Delay(delayMs);
+                    GD.Print("OnPlayerFinished: Minimum duration elapsed, now stopping static");
+                }
+                
                 HandleStaticForSpeaker(_currentSpeaker, false);
             }
             
