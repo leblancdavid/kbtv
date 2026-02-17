@@ -64,13 +64,13 @@
     },
     {
       "id": "dropped_tired_1",
-      "text": "*yawn* Lost the caller. Whatever. Next one.",
-      "voiceText": "*yawn* Lost the caller. Whatever. Next one.",
+"text": "... lost the caller. Whatever. Next one.",
+      "voiceText": "... lost the caller. Whatever. Next one.",
     },
     {
       "id": "dropped_exhausted_1",
-      "text": "*yawn* Looks like we lost that caller... again.",
-      "voiceText": "*yawn* Looks like we lost that caller... again.",
+"text": "... looks like we lost that caller... again.",
+      "voiceText": "... looks like we lost that caller... again.",
       "mood": "exhausted"
     },
     {
@@ -81,8 +81,8 @@
     },
     {
       "id": "dropped_exhausted_3",
-      "text": "*grunt* We lost the connection.",
-      "voiceText": "*grunt* We lost the connection.",
+"text": "hmm, we lost the connection.",
+      "voiceText": "hmm, we lost the connection.",
       "mood": "exhausted"
     },
     {
@@ -141,8 +141,8 @@
     },
     {
       "id": "dropped_frustrated_1",
-      "text": "*sigh* We lost that caller.",
-      "voiceText": "*sigh* We lost that caller.",
+"text": "ah... we lost that caller.",
+      "voiceText": "ah... we lost that caller.",
       "mood": "frustrated"
     },
     {

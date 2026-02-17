@@ -74,8 +74,8 @@
     },
     {
       "id": "cursed_frustrated_2",
-      "text": "*sigh* Language, caller. Language.",
-      "voiceText": "*sigh* Language, caller. Language.",
+      "text": "ah... language, caller. Language.",
+      "voiceText": "ah... language, caller. Language.",
       "mood": "frustrated",
       "weight": 1.0
     },

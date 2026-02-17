@@ -116,16 +116,79 @@ class ElevenLabsVoiceCloner:
         Returns:
             output_path: Path to the generated audio file
         """
-        # Handle voice archetypes vs voice IDs
+        # Male voice pool (13 voices) - diverse everyday male voices
+        male_voice_pool = [
+            "CwhRBWXzGAHq8TQ4Fs17",  # Roger - Laid-Back, Casual
+            "IKne3meq5aSn9XLyUdCD",  # Charlie - Deep, Australian Male
+            "JBFqnCBsd6RMkjVDRZzb",  # George - Warm Storyteller
+            "N2lVS1w4EtoT3dr4eOWO",  # Callum - Husky Trickster
+            "SAz9YHcvj6GT2YYXdXww",  # River - Relaxed, Neutral
+            "bIHbv24MWmeRgasZH58o",  # Will - Relaxed Optimist
+            "cjVigY5qzO86Huf0OWal",  # Eric - Smooth, Trustworthy
+            "iP95p4xoKVk53GoZ742B",  # Chris - Charming, Down-to-Earth
+            "nPczCjzI2devNBz1zQrb",  # Brian - Deep, Resonant
+            "pNInz6obpgDQGcFmaJgB",  # Adam - Dominant, Firm
+            "SOYHLrjzK2X1ezoPC6cr",  # Harry - Fierce Warrior
+            "TX3LPaxmHKxFdv7VOQHJ",  # Liam - Energetic, Social
+            "onwK4e9ZLuTAKqWW03F9",  # Daniel - Steady Broadcaster
+        ]
+
+        # Female voice pool (6 voices) - diverse everyday female voices
+        female_voice_pool = [
+            "FGY2WhTYpPnrIDTdsKH5",  # Laura - Enthusiast, Quirky
+            "cgSgspJ2msm6clMCkdW9",  # Jessica - Playful, Bright
+            "hpp4J3VqNfWAUOO0d1Us",  # Bella - Professional, Bright
+            "pFZP5JQG7iQjIQuC4Bku",  # Lily - Velvety British Female
+            "Xb7hH8MSUJpSbSDYk0k2",  # Alice - Clear, Engaging Educator
+            "XrExE9yKIg1WjnnlVkGX",  # Matilda - Knowledgeable, Professional
+        ]
+
+        # Voice settings overrides for special effects
+        # These modify the base voice to sound older or have regional accents
+        voice_settings_override = {
+            # Older-sounding male voices (lower stability = more robotic/elderly)
+            "nPczCjzI2devNBz1zQrb": {"stability": 0.2, "style": 0.1},  # Brian as older male
+            "JBFqnCBsd6RMkjVDRZzb": {"stability": 0.25, "style": 0.15},  # George as older storyteller
+            "onwK4e9ZLuTAKqWW03F9": {"stability": 0.2, "style": 0.1},  # Daniel as older
+
+            # Southern/country-sounding male voices (warmer, more relaxed)
+            "CwhRBWXzGAHq8TQ4Fs17": {"stability": 0.6, "style": 0.3},  # Roger southern-fried
+            "IKne3meq5aSn9XLyUdCD": {"stability": 0.5, "style": 0.4},  # Charlie country
+            "bIHbv24MWmeRgasZH58o": {"stability": 0.55, "style": 0.35},  # Will southern
+            "iP95p4xoKVk53GoZ742B": {"stability": 0.5, "style": 0.3},  # Chris southern
+        }
+
+        # Mapping for voice index selection (for cycling through pool)
+        # Use arc_id hash to consistently select voice per arc
+        def get_caller_voice_from_pool(arc_id, gender="male"):
+            """Get a voice from the pool based on arc_id for consistency"""
+            import hashlib
+            # Create a hash from arc_id to get consistent voice per caller
+            hash_val = int(hashlib.md5(arc_id.encode()).hexdigest(), 16)
+            pool = male_voice_pool if gender == "male" else female_voice_pool
+            return pool[hash_val % len(pool)]
+
+        # Check if requesting a caller voice from pool
+        if voice_id and voice_id.startswith("caller_pool_"):
+            # Format: caller_pool_gender_hash (e.g., caller_pool_male_123)
+            parts = voice_id.replace("caller_pool_", "").split("_")
+            gender = parts[0] if len(parts) > 0 else "male"
+            try:
+                arc_hash = int(parts[1]) if len(parts) > 1 else 0
+                voice_id = get_caller_voice_from_pool(f"arc_{arc_hash}", gender)
+            except (ValueError, IndexError):
+                voice_id = male_voice_pool[0]  # Default fallback
+
+        # Legacy archetype mapping (kept for backwards compatibility)
         archetype_to_voice_id = {
-            "default_male": "29vD33N1CtxCmqQRPOHJ",      # Drew
-            "default_female": "21m00Tcm4TlvDq8ikWAM",    # Rachel
-            "gruff": "29vD33N1CtxCmqQRPOHJ",             # Drew (deeper)
-            "nervous": "AZnzlk1XvdvUeBnXmlld",          # Dani
-            "enthusiastic": "EXAVITQu4vr4xnSDxMaL",      # Bella
-            "conspiracy": "ErXwobaYiN019PkySvjV",        # Antoni
-            "elderly_male": "29vD33N1CtxCmqQRPOHJ",      # Drew (can adjust speed/pitch)
-            "elderly_female": "21m00Tcm4TlvDq8ikWAM"     # Rachel (can adjust for elderly)
+            "default_male": "pNInz6obpgDRGcneiaZ6",   # Adam
+            "default_female": "21m00Tcm4TlvDq8ikWAM",  # Rachel
+            "gruff": "29vD33N1CtxCmqQRPOHJ",           # Drew (deeper)
+            "nervous": "AZnzlk1XvdvUeBnXmlld",        # Dani
+            "enthusiastic": "EXAVITQu4vr4xnSDxMaL",    # Bella
+            "conspiracy": "ErXwobaYiN019PkySvjV",     # Antoni
+            "elderly_male": "yoZ6DzaCZdzDDFgqxjZ",    # Fin
+            "elderly_female": "cfV7xL7fn2s8LNcNjNWD"  # Eleanor
         }
 
         # Check if voice_id is an archetype (string in our mapping) vs cloned voice ID

@@ -5,7 +5,7 @@
   "screeningSummary": "Prank caller with debunked moon landing theory - admits to testing the host",
   "callerPersonality": "charismatic_storyteller",
   "arcNotes": "Obvious prank, moon landing debunked on air, self-aware humor",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "conspiracies_fake_tinfoil_vern_exhausted_1",
-          "text": "*yawn* you're on the air. what's the conspiracy?",
-          "voiceText": "*yawn* you're on the air. what's the conspiracy?",
+          "text": "... you're on the air. what's the conspiracy?",
+          "voiceText": "... you're on the air. what's the conspiracy?",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "conspiracies_fake_tinfoil_caller_1",
           "text": "Okay, so I have this theory about the moon landing. It was filmed in a warehouse in Nevada, Vern. The flag was waving because there was a fan in the studio!",
-          "voiceText": "Okay, so I have this theory about the moon landing. It was filmed in a warehouse in Nevada, Vern. The flag was waving because there was a fan in the studio!",
+          "voiceText": "Okay, so I have this, uh, theory about the moon landing. It was filmed in a warehouse in Nevada, Vern. The flag was waving because there was a fan in the studio!",
           "mood": "neutral"
         }
       ]
@@ -148,8 +148,8 @@
         },
         {
           "id": "conspiracies_fake_tinfoil_vern_exhausted_2",
-          "text": "*yawn* a fan in the studio. that's been thoroughly debunked. the flag had a horizontal rod to keep it extended. any other theories?",
-          "voiceText": "*yawn* a fan in the studio. that's been thoroughly debunked. the flag had a horizontal rod to keep it extended. any other theories?",
+          "text": "... a fan in the studio. that's been thoroughly debunked. the flag had a horizontal rod to keep it extended. any other theories?",
+          "voiceText": "... a fan in the studio. that's been thoroughly debunked. the flag had a horizontal rod to keep it extended. any other theories?",
           "mood": "exhausted"
         },
         {
@@ -190,7 +190,7 @@
         {
           "id": "conspiracies_fake_tinfoil_caller_2",
           "text": "Well, no, but think about it - the astronauts never went back! Why wouldn't they go back if they really landed?!",
-          "voiceText": "Well, no, but think about it - the astronauts never went back! Why wouldn't they go back if they really landed?!",
+          "voiceText": "Well, no, but, like, think about it - the astronauts never went back! Why wouldn't they go back if they really landed?!",
           "mood": "neutral"
         }
       ]
@@ -242,8 +242,8 @@
         },
         {
           "id": "conspiracies_fake_tinfoil_vern_exhausted_3",
-          "text": "*yawn* we did go back. apollo 12, 14, 15, 16, and 17 all landed. multiple missions over several years.",
-          "voiceText": "*yawn* we did go back. apollo 12, 14, 15, 16, and 17 all landed. multiple missions over several years.",
+          "text": "... we did go back. apollo 12, 14, 15, 16, and 17 all landed. multiple missions over several years.",
+          "voiceText": "... we did go back. apollo 12, 14, 15, 16, and 17 all landed. multiple missions over several years.",
           "mood": "exhausted"
         },
         {
@@ -284,7 +284,7 @@
         {
           "id": "conspiracies_fake_tinfoil_caller_3",
           "text": "Oh. I... I didn't know that part.",
-          "voiceText": "Oh. I... I didn't know that part.",
+          "voiceText": "Oh. Uh, I... I didn't know that part.",
           "mood": "neutral"
         }
       ]
@@ -336,8 +336,8 @@
         },
         {
           "id": "conspiracies_fake_tinfoil_vern_exhausted_4",
-          "text": "*yawn* there's a documentary about this. it's widely available. next caller.",
-          "voiceText": "*yawn* there's a documentary about this. it's widely available. next caller.",
+          "text": "... there's a documentary about this. it's widely available. next caller.",
+          "voiceText": "... there's a documentary about this. it's widely available. next caller.",
           "mood": "exhausted"
         },
         {
@@ -377,8 +377,8 @@
       "lines": [
         {
           "id": "conspiracies_fake_tinfoil_caller_4",
-          "text": "*laughing* Okay okay, I was just testing you! You passed! Great show, Vern!",
-          "voiceText": "*laughing* Okay okay, I was just testing you! You passed! Great show, Vern!",
+          "text": "haha, okay okay, I was just testing you! You passed! Great show, Vern!",
+          "voiceText": "haha, okay okay, I was just testing you! You passed! Great show, Vern!",
           "mood": "neutral"
         }
       ]

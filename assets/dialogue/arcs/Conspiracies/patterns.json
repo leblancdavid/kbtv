@@ -5,7 +5,7 @@
   "screeningSummary": "Data analyst mapping corporate board connections - finds policy changes after cross-industry meetings",
   "callerPersonality": "cold_factual",
   "arcNotes": "Data analyst, board interconnection mapping, policy timing correlation, legitimate research",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "conspiracies_questionable_patterns_vern_exhausted_1",
-          "text": "*yawn* you're on the air. what have you been researching?",
-          "voiceText": "*yawn* you're on the air. what have you been researching?",
+          "text": "... you're on the air. what have you been researching?",
+          "voiceText": "... you're on the air. what have you been researching?",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "conspiracies_questionable_patterns_caller_1",
           "text": "Corporate connections, Vern. I've been mapping board memberships across companies, and something strange keeps coming up.",
-          "voiceText": "Corporate connections, Vern. I've been mapping board memberships across companies, and something strange keeps coming up.",
+          "voiceText": "Uh, corporate connections, Vern. I've been mapping board memberships across companies, and, like, something strange keeps coming up.",
           "mood": "neutral"
         }
       ]
@@ -148,8 +148,8 @@
         },
         {
           "id": "conspiracies_questionable_patterns_vern_exhausted_2",
-          "text": "*yawn* interlocking directorates. that's not unusual in big business.",
-          "voiceText": "*yawn* interlocking directorates. that's not unusual in big business.",
+          "text": "... interlocking directorates. that's not unusual in big business.",
+          "voiceText": "... interlocking directorates. that's not unusual in big business.",
           "mood": "exhausted"
         },
         {
@@ -190,7 +190,7 @@
         {
           "id": "conspiracies_questionable_patterns_caller_2",
           "text": "Not unusual individually. But the pattern extends beyond one industry. Media companies, defense contractors, pharmaceutical firms - they all share board members at the highest levels.",
-          "voiceText": "Not unusual individually. But the pattern extends beyond one industry. Media companies, defense contractors, pharmaceutical firms - they all share board members at the highest levels.",
+          "voiceText": "Not unusual individually, you know? But the pattern extends beyond one industry. Media companies, defense contractors, pharmaceutical firms - they all share, like, board members at the highest levels.",
           "mood": "neutral"
         }
       ]
@@ -242,8 +242,8 @@
         },
         {
           "id": "conspiracies_questionable_patterns_vern_exhausted_3",
-          "text": "*yawn* wealthy people do tend to run in the same circles. doesn't necessarily prove coordination.",
-          "voiceText": "*yawn* wealthy people do tend to run in the same circles. doesn't necessarily prove coordination.",
+          "text": "... wealthy people do tend to run in the same circles. doesn't necessarily prove coordination.",
+          "voiceText": "... wealthy people do tend to run in the same circles. doesn't necessarily prove coordination.",
           "mood": "exhausted"
         },
         {
@@ -284,7 +284,7 @@
         {
           "id": "conspiracies_questionable_patterns_caller_3",
           "text": "True. But the timing of certain decisions seems too convenient. Major policy changes, regulatory approvals, all happening after specific board meetings. It's hard to dismiss as coincidence.",
-          "voiceText": "True. But the timing of certain decisions seems too convenient. Major policy changes, regulatory approvals, all happening after specific board meetings. It's hard to dismiss as coincidence.",
+          "voiceText": "True. But, like, the timing of certain decisions seems too convenient. Major policy changes, regulatory approvals - all happening after specific board meetings. It's hard to dismiss as coincidence, honestly.",
           "mood": "neutral"
         }
       ]
@@ -336,8 +336,8 @@
         },
         {
           "id": "conspiracies_questionable_patterns_vern_exhausted_4",
-          "text": "*yawn* correlation isn't causation. this could all be explained by shared interests and natural alignment.",
-          "voiceText": "*yawn* correlation isn't causation. this could all be explained by shared interests and natural alignment.",
+          "text": "... correlation isn't causation. this could all be explained by shared interests and natural alignment.",
+          "voiceText": "... correlation isn't causation. this could all be explained by shared interests and natural alignment.",
           "mood": "exhausted"
         },
         {
@@ -378,7 +378,7 @@
         {
           "id": "conspiracies_questionable_patterns_caller_4",
           "text": "I thought the same thing. But when I mapped it out visually, the connections are too dense. There's definitely something going on at the highest levels of corporate power.",
-          "voiceText": "I thought the same thing. But when I mapped it out visually, the connections are too dense. There's definitely something going on at the highest levels of corporate power.",
+          "voiceText": "I thought the same thing too, obviously. But when I mapped it out visually, the connections are, like, too dense. There's definitely something going on at the highest levels of corporate power.",
           "mood": "neutral"
         }
       ]
@@ -430,8 +430,8 @@
         },
         {
           "id": "conspiracies_questionable_patterns_vern_exhausted_5",
-          "text": "*yawn* keep mapping the connections and gathering data. let us know what you find as it develops. thanks for the research.",
-          "voiceText": "*yawn* keep mapping the connections and gathering data. let us know what you find as it develops. thanks for the research.",
+          "text": "... keep mapping the connections and gathering data. let us know what you find as it develops. thanks for the research.",
+          "voiceText": "... keep mapping the connections and gathering data. let us know what you find as it develops. thanks for the research.",
           "mood": "exhausted"
         },
         {

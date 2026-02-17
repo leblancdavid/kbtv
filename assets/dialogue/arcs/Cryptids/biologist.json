@@ -5,7 +5,7 @@
   "screeningSummary": "Wildlife biologist with dermal ridge evidence - five-toed tracks from eight-foot bipedal creature",
   "callerPersonality": "cold_factual",
   "arcNotes": "Wildlife biologist, dermal ridge evidence, published attempts blocked, collaboration with other researchers",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "cryptids_compelling_biologist_vern_exhausted_1",
-          "text": "*yawn* you're on the air. i understand you have scientific credentials?",
-          "voiceText": "*yawn* you're on the air. i understand you have scientific credentials?",
+          "text": "... you're on the air. i understand you have scientific credentials?",
+          "voiceText": "... you're on the air. i understand you have scientific credentials?",
           "mood": "exhausted"
         },
         {
@@ -148,8 +148,8 @@
         },
         {
           "id": "cryptids_compelling_biologist_vern_exhausted_2",
-          "text": "*yawn* you tried to debunk and ended up finding evidence instead?",
-          "voiceText": "*yawn* you tried to debunk and ended up finding evidence instead?",
+          "text": "... you tried to debunk and ended up finding evidence instead?",
+          "voiceText": "... you tried to debunk and ended up finding evidence instead?",
           "mood": "exhausted"
         },
         {
@@ -242,8 +242,8 @@
         },
         {
           "id": "cryptids_compelling_biologist_vern_exhausted_3",
-          "text": "*yawn* dermal ridges. that's hard to fake. tell me more.",
-          "voiceText": "*yawn* dermal ridges. that's hard to fake. tell me more.",
+          "text": "... dermal ridges. that's hard to fake. tell me more.",
+          "voiceText": "... dermal ridges. that's hard to fake. tell me more.",
           "mood": "exhausted"
         },
         {
@@ -336,8 +336,8 @@
         },
         {
           "id": "cryptids_compelling_biologist_vern_exhausted_4",
-          "text": "*yawn* could sophisticated hoaxers have created these? there are people who try to fake this evidence.",
-          "voiceText": "*yawn* could sophisticated hoaxers have created these? there are people who try to fake this evidence.",
+          "text": "... could sophisticated hoaxers have created these? there are people who try to fake this evidence.",
+          "voiceText": "... could sophisticated hoaxers have created these? there are people who try to fake this evidence.",
           "mood": "exhausted"
         },
         {
@@ -430,8 +430,8 @@
         },
         {
           "id": "cryptids_compelling_biologist_vern_exhausted_5",
-          "text": "*yawn* thank you for your work. we need more rigorous scientists in this field. send us your documentation if you're willing.",
-          "voiceText": "*yawn* thank you for your work. we need more rigorous scientists in this field. send us your documentation if you're willing.",
+          "text": "... thank you for your work. we need more rigorous scientists in this field. send us your documentation if you're willing.",
+          "voiceText": "... thank you for your work. we need more rigorous scientists in this field. send us your documentation if you're willing.",
           "mood": "exhausted"
         },
         {

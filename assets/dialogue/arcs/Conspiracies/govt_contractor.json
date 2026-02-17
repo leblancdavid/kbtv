@@ -5,7 +5,7 @@
   "screeningSummary": "Former federal contractor describing domestic surveillance infrastructure - predictive behavioral analysis",
   "callerPersonality": "gruff_experienced",
   "arcNotes": "Former federal contractor, surveillance infrastructure details, moral objection, personal risk",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "conspiracies_credible_govt_contractor_vern_exhausted_1",
-          "text": "*yawn* you're on the air. you've got some inside knowledge?",
-          "voiceText": "*yawn* you're on the air. you've got some inside knowledge?",
+          "text": "... you're on the air. you've got some inside knowledge?",
+          "voiceText": "... you're on the air. you've got some inside knowledge?",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "conspiracies_credible_govt_contractor_caller_1",
           "text": "Eight years as a federal contractor, Vern. I can't say which agency, but I've seen how the surveillance apparatus actually works from the inside.",
-          "voiceText": "Eight years as a federal contractor, Vern. I can't say which agency, but I've seen how the surveillance apparatus actually works from the inside.",
+          "voiceText": "Uh, eight years as a federal contractor, Vern. I can't say which agency, but I've seen how the surveillance apparatus actually works from the inside.",
           "mood": "neutral"
         }
       ]
@@ -148,8 +148,8 @@
         },
         {
           "id": "conspiracies_credible_govt_contractor_vern_exhausted_2",
-          "text": "*yawn* what can you tell us about the surveillance programs?",
-          "voiceText": "*yawn* what can you tell us about the surveillance programs?",
+          "text": "... what can you tell us about the surveillance programs?",
+          "voiceText": "... what can you tell us about the surveillance programs?",
           "mood": "exhausted"
         },
         {
@@ -190,7 +190,7 @@
         {
           "id": "conspiracies_credible_govt_contractor_caller_2",
           "text": "What Snowden revealed was real, but it was also a controlled leak. The scope of domestic monitoring is far beyond what was disclosed. Every smart device, every phone with a microphone, every car with GPS - it's all being collected and processed.",
-          "voiceText": "What Snowden revealed was real, but it was also a controlled leak. The scope of domestic monitoring is far beyond what was disclosed. Every smart device, every phone with a microphone, every car with GPS - it's all being collected and processed.",
+          "voiceText": "What Snowden revealed was real, but it was also, like, a controlled leak. The scope of domestic monitoring is far beyond what was disclosed. Every smart device, every phone with a microphone, every car with GPS - it's all being collected and processed, you know?",
           "mood": "neutral"
         }
       ]
@@ -242,8 +242,8 @@
         },
         {
           "id": "conspiracies_credible_govt_contractor_vern_exhausted_3",
-          "text": "*yawn* processing for what purpose?",
-          "voiceText": "*yawn* processing for what purpose?",
+          "text": "... processing for what purpose?",
+          "voiceText": "... processing for what purpose?",
           "mood": "exhausted"
         },
         {
@@ -284,7 +284,7 @@
         {
           "id": "conspiracies_credible_govt_contractor_caller_3",
           "text": "Predictive analysis. Behavioral prediction. They can identify potential threats before those threats even formulate. The infrastructure is built, the algorithms are running, and the oversight is minimal.",
-          "voiceText": "Predictive analysis. Behavioral prediction. They can identify potential threats before those threats even formulate. The infrastructure is built, the algorithms are running, and the oversight is minimal.",
+          "voiceText": "It's, um, predictive analysis. Behavioral prediction. They can identify potential threats before those threats even formulate. The infrastructure is built, the algorithms are running, and the oversight is minimal.",
           "mood": "neutral"
         }
       ]
@@ -336,8 +336,8 @@
         },
         {
           "id": "conspiracies_credible_govt_contractor_vern_exhausted_4",
-          "text": "*yawn* this has all been alleged before. without documentation, it's just testimony.",
-          "voiceText": "*yawn* this has all been alleged before. without documentation, it's just testimony.",
+          "text": "... this has all been alleged before. without documentation, it's just testimony.",
+          "voiceText": "... this has all been alleged before. without documentation, it's just testimony.",
           "mood": "exhausted"
         },
         {
@@ -378,7 +378,7 @@
         {
           "id": "conspiracies_credible_govt_contractor_caller_4",
           "text": "I understand the skepticism. I was a skeptic too before I saw the systems myself. But I've taken precautions and I'm speaking out because people deserve to know what's being done in their name.",
-          "voiceText": "I understand the skepticism. I was a skeptic too before I saw the systems myself. But I've taken precautions and I'm speaking out because people deserve to know what's being done in their name.",
+          "voiceText": "I understand the skepticism, honestly. I was a skeptic too before I saw the systems myself. But I've taken precautions and I'm speaking out because, like, people deserve to know what's being done in their name.",
           "mood": "neutral"
         }
       ]
@@ -430,8 +430,8 @@
         },
         {
           "id": "conspiracies_credible_govt_contractor_vern_exhausted_5",
-          "text": "*yawn* thank you for coming forward. be careful out there. your anonymity matters.",
-          "voiceText": "*yawn* thank you for coming forward. be careful out there. your anonymity matters.",
+          "text": "... thank you for coming forward. be careful out there. your anonymity matters.",
+          "voiceText": "... thank you for coming forward. be careful out there. your anonymity matters.",
           "mood": "exhausted"
         },
         {

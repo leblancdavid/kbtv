@@ -5,7 +5,7 @@
   "screeningSummary": "Prank caller with classic abduction story - admits to being dared by friends",
   "callerPersonality": "charismatic_storyteller",
   "arcNotes": "Prank call with classic abduction tropes, caller is being playful, breaks the fourth wall at the end",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "ufos_fake_prankster_vern_exhausted_1",
-          "text": "*yawn* you're on the air. what's your story?",
-          "voiceText": "*yawn* you're on the air. what's your story?",
+          "text": "... you're on the air. what's your story?",
+          "voiceText": "... you're on the air. what's your story?",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "ufos_fake_prankster_caller_1",
           "text": "Okay, so this is gonna sound crazy, but I've been rehearsing what to say for three days. Last Tuesday, I was at my buddy's place out past Miller Road, maybe had a few drinks, and then... light. Coming from everywhere.",
-          "voiceText": "Okay, so this is gonna sound crazy, but I've been rehearsing what to say for three days. Last Tuesday, I was at my buddy's place out past Miller Road, maybe had a few drinks, and then... light. Coming from everywhere."
+          "voiceText": "Okay, so, uh, this is gonna sound crazy, but I've been, like, rehearsing what to say for three days. Last Tuesday, I was at my buddy's place out past Miller Road, and, uh, maybe had a few drinks, and then... light. Coming from everywhere, you know?"
         }
       ]
     },
@@ -147,8 +147,8 @@
         },
         {
           "id": "ufos_fake_prankster_vern_exhausted_2",
-          "text": "*yawn* go on.",
-          "voiceText": "*yawn* go on.",
+          "text": "... go on.",
+          "voiceText": "... go on.",
           "mood": "exhausted"
         },
         {
@@ -189,7 +189,7 @@
         {
           "id": "ufos_fake_prankster_caller_2",
           "text": "Next thing I know, I'm in this room. White, no doors I could see. And there's... look, I know how this sounds, okay? But there were three of them. Gray skin, big eyes, the classic look you know from every movie ever.",
-          "voiceText": "Next thing I know, I'm in this room. White, no doors I could see. And there's... look, I know how this sounds, okay? But there were three of them. Gray skin, big eyes, the classic look you know from every movie ever."
+          "voiceText": "And then, uh, next thing I know, I'm in this room. White, no doors I could see. And there's... look, I know how this sounds, okay? But there were, like, three of them. Gray skin, big eyes, the classic look, you know, from every movie ever."
         }
       ]
     },
@@ -240,8 +240,8 @@
         },
         {
           "id": "ufos_fake_prankster_vern_exhausted_3",
-          "text": "*yawn* three beings. what happened next?",
-          "voiceText": "*yawn* three beings. what happened next?",
+          "text": "... three beings. what happened next?",
+          "voiceText": "... three beings. what happened next?",
           "mood": "exhausted"
         },
         {
@@ -282,7 +282,7 @@
         {
           "id": "ufos_fake_prankster_caller_3",
           "text": "They did... tests. I woke up in my buddy's backyard with scoop marks on my arm. I've been staring at those marks for three days, trying to figure out if I dreamed the whole thing or...",
-          "voiceText": "They did... tests. I woke up in my buddy's backyard with scoop marks on my arm. I've been staring at those marks for three days, trying to figure out if I dreamed the whole thing or..."
+          "voiceText": "And they did, um... tests. I woke up in my buddy's backyard with, like, scoop marks on my arm. I've been staring at those marks for three days now, trying to figure out if I dreamed the whole thing or, uh..."
         }
       ]
     },
@@ -333,8 +333,8 @@
         },
         {
           "id": "ufos_fake_prankster_vern_exhausted_4",
-          "text": "*yawn* classic abduction story. look, you could have gotten this from any ufo book or movie from the last fifty years. next caller.",
-          "voiceText": "*yawn* classic abduction story. look, you could have gotten this from any ufo book or movie from the last fifty years. next caller.",
+          "text": "... classic abduction story. look, you could have gotten this from any ufo book or movie from the last fifty years. next caller.",
+          "voiceText": "... classic abduction story. look, you could have gotten this from any ufo book or movie from the last fifty years. next caller.",
           "mood": "exhausted"
         },
         {
@@ -374,8 +374,8 @@
       "lines": [
         {
           "id": "ufos_fake_prankster_caller_4",
-          "text": "*bursts out laughing* I'm sorry, Vern! My buddies dared me! I can't believe you bought it for like two seconds! This is why I love this show!",
-          "voiceText": "*bursts out laughing* I'm sorry, Vern! My buddies dared me! I can't believe you bought it for like two seconds! This is why I love this show!"
+          "text": "haha, I'm sorry, Vern! My buddies dared me! I can't believe you bought it for like two seconds! This is why I love this show!",
+          "voiceText": "haha, I'm sorry, Vern! My buddies dared me! I can't believe you bought it for like two seconds! This is why I love this show!"
         }
       ]
     }

@@ -64,13 +64,13 @@
     },
     {
       "id": "break_irritated_2",
-      "text": "*yawn* Taking a break now. Wake me when we're back.",
-      "voiceText": "*yawn* Taking a break now. Wake me when we're back.",
+"text": "... taking a break now. Wake me when we're back.",
+      "voiceText": "... taking a break now. Wake me when we're back.",
     },
     {
       "id": "break_exhausted_1",
-      "text": "*yawn* We'll be right back... I think.",
-      "voiceText": "*yawn* We'll be right back... I think.",
+"text": "... we'll be right back... I think.",
+      "voiceText": "... we'll be right back... I think.",
       "mood": "exhausted"
     },
     {
@@ -81,8 +81,8 @@
     },
     {
       "id": "break_exhausted_3",
-      "text": "*grunt* Quick break coming up.",
-      "voiceText": "*grunt* Quick break coming up.",
+"text": "hmm, quick break coming up.",
+      "voiceText": "hmm, quick break coming up.",
       "mood": "exhausted"
     },
     {
@@ -141,8 +141,8 @@
     },
     {
       "id": "break_frustrated_1",
-      "text": "*sigh* We'll be right back.",
-      "voiceText": "*sigh* We'll be right back.",
+"text": "ah... we'll be right back.",
+      "voiceText": "ah... we'll be right back.",
       "mood": "frustrated"
     },
     {

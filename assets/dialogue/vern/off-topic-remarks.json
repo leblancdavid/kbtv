@@ -33,8 +33,8 @@
     },
     {
       "id": "offtopic_exhausted_1",
-      "text": "*yawn* You know, I've been thinking... about sleep.",
-      "voiceText": "*yawn* You know, I've been thinking... about sleep.",
+"text": "... you know, I've been thinking... about sleep.",
+      "voiceText": "... you know, I've been thinking... about sleep.",
       "mood": "exhausted"
     },
     {
@@ -45,8 +45,8 @@
     },
     {
       "id": "offtopic_exhausted_3",
-      "text": "*grunt* I've been pondering... exhaustion.",
-      "voiceText": "*grunt* I've been pondering... exhaustion.",
+"text": "hmm, I've been pondering... exhaustion.",
+      "voiceText": "hmm, I've been pondering... exhaustion.",
       "mood": "exhausted"
     },
     {
@@ -105,8 +105,8 @@
     },
     {
       "id": "offtopic_frustrated_1",
-      "text": "*sigh* You know, I've been thinking... why can't people just tell the truth?",
-      "voiceText": "*sigh* You know, I've been thinking... why can't people just tell the truth?",
+"text": "ah... you know, I've been thinking... why can't people just tell the truth?",
+      "voiceText": "ah... you know, I've been thinking... why can't people just tell the truth?",
       "mood": "frustrated"
     },
     {

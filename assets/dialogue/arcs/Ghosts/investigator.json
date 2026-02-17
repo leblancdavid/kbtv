@@ -2,7 +2,7 @@
   "arcId": "investigator",
   "topic": "Ghosts",
   "legitimacy": "Compelling",
-  "callerGender": "caller",
+  "callerGender": "male",
   "screeningSummary": "Professional paranormal researcher with four-device corroboration of apparition - submitted for peer review",
   "callerPersonality": "cold_factual",
   "arcNotes": "Professional paranormal researcher, four-device corroboration, submitted for peer review, rigorous methodology",
@@ -54,8 +54,8 @@
         },
         {
           "id": "ghosts_compelling_investigator_vern_exhausted_1",
-          "text": "*yawn* you're on the air. i understand you're a professional investigator?",
-          "voiceText": "*yawn* you're on the air. i understand you're a professional investigator?",
+          "text": "... you're on the air. i understand you're a professional investigator?",
+          "voiceText": "... you're on the air. i understand you're a professional investigator?",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "ghosts_compelling_investigator_caller_1",
           "text": "Paranormal researcher with twenty years of experience, Vern. I use scientific methodology - full spectrum cameras, EMF sensors, infrasound detectors. Last month I documented something unprecedented.",
-          "voiceText": "Paranormal researcher with twenty years of experience, Vern. I use scientific methodology - full spectrum cameras, EMF sensors, infrasound detectors. Last month I documented something unprecedented."
+          "voiceText": "Uh, I'm a paranormal researcher with twenty years of experience, Vern. I use scientific methodology - full spectrum cameras, EMF sensors, infrasound detectors. And, like, last month I documented something unprecedented."
         }
       ]
     },
@@ -147,8 +147,8 @@
         },
         {
           "id": "ghosts_compelling_investigator_vern_exhausted_2",
-          "text": "*yawn* scientific methodology in this field is rare. what did you document?",
-          "voiceText": "*yawn* scientific methodology in this field is rare. what did you document?",
+          "text": "... scientific methodology in this field is rare. what did you document?",
+          "voiceText": "... scientific methodology in this field is rare. what did you document?",
           "mood": "exhausted"
         },
         {
@@ -189,7 +189,7 @@
         {
           "id": "ghosts_compelling_investigator_caller_2",
           "text": "An apparition captured on four different device types simultaneously. Visual spectrum camera, thermal imaging, EMF sensor, and audio recording. All showing the same phenomenon at the same moment.",
-          "voiceText": "An apparition captured on four different device types simultaneously. Visual spectrum camera, thermal imaging, EMF sensor, and audio recording. All showing the same phenomenon at the same moment."
+          "voiceText": "So, an apparition captured on four different device types simultaneously. Visual spectrum camera, thermal imaging, EMF sensor, and audio recording - all showing, like, the same phenomenon at the same moment, you know?"
         }
       ]
     },
@@ -240,8 +240,8 @@
         },
         {
           "id": "ghosts_compelling_investigator_vern_exhausted_3",
-          "text": "*yawn* four devices, same moment. that's significant corroboration.",
-          "voiceText": "*yawn* four devices, same moment. that's significant corroboration.",
+          "text": "... four devices, same moment. that's significant corroboration.",
+          "voiceText": "... four devices, same moment. that's significant corroboration.",
           "mood": "exhausted"
         },
         {
@@ -282,7 +282,7 @@
         {
           "id": "ghosts_compelling_investigator_caller_3",
           "text": "Different manufacturers, different technologies. The statistical probability of synchronized equipment malfunction across all four is effectively zero. I've isolated a thirty-second window where something was present in that room that shouldn't have been.",
-          "voiceText": "Different manufacturers, different technologies. The statistical probability of synchronized equipment malfunction across all four is effectively zero. I've isolated a thirty-second window where something was present in that room that shouldn't have been."
+          "voiceText": "Different manufacturers, different technologies - all, like, independent systems. The statistical probability of synchronized equipment malfunction across all four is, uh, effectively zero. And I've isolated a thirty-second window where something was present in that room that shouldn't have been."
         }
       ]
     },
@@ -333,8 +333,8 @@
         },
         {
           "id": "ghosts_compelling_investigator_vern_exhausted_4",
-          "text": "*yawn* could correlated equipment malfunctions explain this? electrical interference, environmental factors?",
-          "voiceText": "*yawn* could correlated equipment malfunctions explain this? electrical interference, environmental factors?",
+          "text": "... could correlated equipment malfunctions explain this? electrical interference, environmental factors?",
+          "voiceText": "... could correlated equipment malfunctions explain this? electrical interference, environmental factors?",
           "mood": "exhausted"
         },
         {
@@ -375,7 +375,7 @@
         {
           "id": "ghosts_compelling_investigator_caller_4",
           "text": "I considered that extensively. The devices are battery-powered and isolated. The thermal signature shows a localized temperature anomaly that moved deliberately - not random interference. And the audio includes structured sounds that match no conventional source.",
-          "voiceText": "I considered that extensively. The devices are battery-powered and isolated. The thermal signature shows a localized temperature anomaly that moved deliberately - not random interference. And the audio includes structured sounds that match no conventional source."
+          "voiceText": "I considered that extensively, obviously. The devices are battery-powered and isolated. The thermal signature shows a localized temperature anomaly that moved deliberately - not random interference. And the audio includes, um, structured sounds that match no conventional source."
         }
       ]
     },
@@ -426,8 +426,8 @@
         },
         {
           "id": "ghosts_compelling_investigator_vern_exhausted_5",
-          "text": "*yawn* send us the findings when they're published or available. if this holds up under independent scrutiny, it's significant. thank you for applying real scientific methodology to this field.",
-          "voiceText": "*yawn* send us the findings when they're published or available. if this holds up under independent scrutiny, it's significant. thank you for applying real scientific methodology to this field.",
+          "text": "... send us the findings when they're published or available. if this holds up under independent scrutiny, it's significant. thank you for applying real scientific methodology to this field.",
+          "voiceText": "... send us the findings when they're published or available. if this holds up under independent scrutiny, it's significant. thank you for applying real scientific methodology to this field.",
           "mood": "exhausted"
         },
         {

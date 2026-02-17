@@ -5,7 +5,7 @@
   "screeningSummary": "Prank caller claiming Bigfoot behind 7-Eleven - reveals friend in gorilla suit",
   "callerPersonality": "charismatic_storyteller",
   "arcNotes": "Prank call, reveals it's a friend in a gorilla suit, self-aware humor",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "cryptids_fake_costume_vern_exhausted_1",
-          "text": "*yawn* you're on the air. what's your story?",
-          "voiceText": "*yawn* you're on the air. what's your story?",
+          "text": "... you're on the air. what's your story?",
+          "voiceText": "... you're on the air. what's your story?",
           "mood": "exhausted"
         },
         {
@@ -148,8 +148,8 @@
         },
         {
           "id": "cryptids_fake_costume_vern_exhausted_2",
-          "text": "*yawn* behind the convenience store. doing what exactly?",
-          "voiceText": "*yawn* behind the convenience store. doing what exactly?",
+          "text": "... behind the convenience store. doing what exactly?",
+          "voiceText": "... behind the convenience store. doing what exactly?",
           "mood": "exhausted"
         },
         {
@@ -242,8 +242,8 @@
         },
         {
           "id": "cryptids_fake_costume_vern_exhausted_3",
-          "text": "*yawn* and?",
-          "voiceText": "*yawn* and?",
+          "text": "... and?",
+          "voiceText": "... and?",
           "mood": "exhausted"
         },
         {
@@ -336,8 +336,8 @@
         },
         {
           "id": "cryptids_fake_costume_vern_exhausted_4",
-          "text": "*yawn* probably buying beef jerky. next caller.",
-          "voiceText": "*yawn* probably buying beef jerky. next caller.",
+          "text": "... probably buying beef jerky. next caller.",
+          "voiceText": "... probably buying beef jerky. next caller.",
           "mood": "exhausted"
         },
         {
@@ -377,8 +377,8 @@
       "lines": [
         {
           "id": "cryptids_fake_costume_caller_4",
-          "text": "*snorts* Okay you got me, great show though Vern. I'm never living this down.",
-          "voiceText": "*snorts* Okay you got me, great show though Vern. I'm never living this down.",
+          "text": "heh, okay you got me, great show though Vern. I'm never living this down.",
+          "voiceText": "heh, okay you got me, great show though Vern. I'm never living this down.",
           "mood": "neutral"
         }
       ]

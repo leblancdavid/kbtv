@@ -6,7 +6,7 @@
   "screeningSummary": "Topic-switcher - claimed UFO, actually saw seven-foot bipedal creature with green eyes in woods",
   "callerPersonality": "nervous_hesitant",
   "arcNotes": "Topic-switcher (claimed UFO, actual cryptid), green eye shine detail, local resident, researching after",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -55,8 +55,8 @@
         },
         {
           "id": "cryptid_credible_claims_ufos_vern_exhausted_1",
-          "text": "*yawn* you're on the air. said you had a ufo sighting?",
-          "voiceText": "*yawn* you're on the air. said you had a ufo sighting?",
+          "text": "... you're on the air. said you had a ufo sighting?",
+          "voiceText": "... you're on the air. said you had a ufo sighting?",
           "mood": "exhausted"
         },
         {
@@ -149,8 +149,8 @@
         },
         {
           "id": "cryptid_credible_claims_ufos_vern_exhausted_2",
-          "text": "*yawn* alright, i appreciate the honesty. what did you actually see?",
-          "voiceText": "*yawn* alright, i appreciate the honesty. what did you actually see?",
+          "text": "... alright, i appreciate the honesty. what did you actually see?",
+          "voiceText": "... alright, i appreciate the honesty. what did you actually see?",
           "mood": "exhausted"
         },
         {
@@ -243,8 +243,8 @@
         },
         {
           "id": "cryptid_credible_claims_ufos_vern_exhausted_3",
-          "text": "*yawn* in the woods at 3 am. and you saw something?",
-          "voiceText": "*yawn* in the woods at 3 am. and you saw something?",
+          "text": "... in the woods at 3 am. and you saw something?",
+          "voiceText": "... in the woods at 3 am. and you saw something?",
           "mood": "exhausted"
         },
         {
@@ -337,8 +337,8 @@
         },
         {
           "id": "cryptid_credible_claims_ufos_vern_exhausted_4",
-          "text": "*yawn* seven feet tall, bipedal, fur. could've been a bear standing on its hind legs. they do that sometimes.",
-          "voiceText": "*yawn* seven feet tall, bipedal, fur. could've been a bear standing on its hind legs. they do that sometimes.",
+          "text": "... seven feet tall, bipedal, fur. could've been a bear standing on its hind legs. they do that sometimes.",
+          "voiceText": "... seven feet tall, bipedal, fur. could've been a bear standing on its hind legs. they do that sometimes.",
           "mood": "exhausted"
         },
         {
@@ -431,8 +431,8 @@
         },
         {
           "id": "cryptid_credible_claims_ufos_vern_exhausted_5",
-          "text": "*yawn* appreciate you coming clean about the topic. don't lie to get through next time, but this is legitimate. set up a trail camera if you can.",
-          "voiceText": "*yawn* appreciate you coming clean about the topic. don't lie to get through next time, but this is legitimate. set up a trail camera if you can.",
+          "text": "... appreciate you coming clean about the topic. don't lie to get through next time, but this is legitimate. set up a trail camera if you can.",
+          "voiceText": "... appreciate you coming clean about the topic. don't lie to get through next time, but this is legitimate. set up a trail camera if you can.",
           "mood": "exhausted"
         },
         {

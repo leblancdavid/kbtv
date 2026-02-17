@@ -5,7 +5,7 @@
   "screeningSummary": "Family in Victorian home where child describes previous owner Margaret in detail matching historical records",
   "callerPersonality": "emotional_wreck",
   "arcNotes": "Family with child involved, previous owner connection, child medium-like ability, escalating concern",
-  "callerGender": "caller",
+  "callerGender": "female",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "ghosts_credible_old_house_vern_exhausted_1",
-          "text": "*yawn* you're on the air. tell us about your house.",
-          "voiceText": "*yawn* you're on the air. tell us about your house.",
+          "text": "... you're on the air. tell us about your house.",
+          "voiceText": "... you're on the air. tell us about your house.",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "ghosts_credible_old_house_caller_1",
           "text": "Vern, my family moved into an old Victorian six months ago. I don't think we're alone in there, and I've tried to explain it away but I can't anymore.",
-          "voiceText": "Vern, my family moved into an old Victorian six months ago. I don't think we're alone in there, and I've tried to explain it away but I can't anymore."
+          "voiceText": "Uh, Vern, my family moved into an old Victorian about six months ago, and, I mean, I don't think we're alone in there. I've tried to explain it away but I can't anymore, you know?"
         }
       ]
     },
@@ -147,8 +147,8 @@
         },
         {
           "id": "ghosts_credible_old_house_vern_exhausted_2",
-          "text": "*yawn* what's been happening? walk me through it.",
-          "voiceText": "*yawn* what's been happening? walk me through it.",
+          "text": "... what's been happening? walk me through it.",
+          "voiceText": "... what's been happening? walk me through it.",
           "mood": "exhausted"
         },
         {
@@ -189,7 +189,7 @@
         {
           "id": "ghosts_credible_old_house_caller_2",
           "text": "Started small. Footsteps upstairs when everyone's downstairs. Doors that open on their own. Cold spots that seem to move through rooms. Normal haunting stuff, you know?",
-          "voiceText": "Started small. Footsteps upstairs when everyone's downstairs. Doors that open on their own. Cold spots that seem to move through rooms. Normal haunting stuff, you know?"
+          "voiceText": "It started small, you know? Like, footsteps upstairs when everyone's downstairs. Doors that open on their own. Cold spots that seem to, um, move through rooms. Normal haunting stuff, I guess?"
         }
       ]
     },
@@ -240,8 +240,8 @@
         },
         {
           "id": "ghosts_credible_old_house_vern_exhausted_3",
-          "text": "*yawn* old houses do strange things. could be the structure settling, drafts, old wood shifting.",
-          "voiceText": "*yawn* old houses do strange things. could be the structure settling, drafts, old wood shifting.",
+          "text": "... old houses do strange things. could be the structure settling, drafts, old wood shifting.",
+          "voiceText": "... old houses do strange things. could be the structure settling, drafts, old wood shifting.",
           "mood": "exhausted"
         },
         {
@@ -282,7 +282,7 @@
         {
           "id": "ghosts_credible_old_house_caller_3",
           "text": "That's what I told myself. For months. Then my seven-year-old started having conversations with someone named Margaret. At first I thought it was an imaginary friend.",
-          "voiceText": "That's what I told myself. For months. Then my seven-year-old started having conversations with someone named Margaret. At first I thought it was an imaginary friend."
+          "voiceText": "That's what I told myself, you know? For months. And then, uh, my seven-year-old started having conversations with someone named Margaret. At first I thought it was, like, an imaginary friend."
         }
       ]
     },
@@ -333,8 +333,8 @@
         },
         {
           "id": "ghosts_credible_old_house_vern_exhausted_4",
-          "text": "*yawn* kids invent imaginary friends. it's common and doesn't necessarily mean anything supernatural.",
-          "voiceText": "*yawn* kids invent imaginary friends. it's common and doesn't necessarily mean anything supernatural.",
+          "text": "... kids invent imaginary friends. it's common and doesn't necessarily mean anything supernatural.",
+          "voiceText": "... kids invent imaginary friends. it's common and doesn't necessarily mean anything supernatural.",
           "mood": "exhausted"
         },
         {
@@ -375,7 +375,7 @@
         {
           "id": "ghosts_credible_old_house_caller_4",
           "text": "She described an elderly woman in a blue Victorian dress. Specific details - the cameo brooch she always wore, the way her hair was styled. I found an obituary - the previous owner died in that house twenty years ago. Her name was Margaret. Blue was her favorite color.",
-          "voiceText": "She described an elderly woman in a blue Victorian dress. Specific details - the cameo brooch she always wore, the way her hair was styled. I found an obituary - the previous owner died in that house twenty years ago. Her name was Margaret. Blue was her favorite color."
+          "voiceText": "And she described, like, an elderly woman in a blue Victorian dress. Specific details - the cameo brooch she always wore, the way her hair was styled. I found an obituary - the previous owner died in that house twenty years ago. Her name was Margaret. And, uh, blue was her favorite color."
         }
       ]
     },
@@ -426,8 +426,8 @@
         },
         {
           "id": "ghosts_credible_old_house_vern_exhausted_5",
-          "text": "*yawn* document everything - dates, times, what happens, your daughter's descriptions. establishing patterns helps understand the nature of what's happening. thanks for calling in.",
-          "voiceText": "*yawn* document everything - dates, times, what happens, your daughter's descriptions. establishing patterns helps understand the nature of what's happening. thanks for calling in.",
+          "text": "... document everything - dates, times, what happens, your daughter's descriptions. establishing patterns helps understand the nature of what's happening. thanks for calling in.",
+          "voiceText": "... document everything - dates, times, what happens, your daughter's descriptions. establishing patterns helps understand the nature of what's happening. thanks for calling in.",
           "mood": "exhausted"
         },
         {

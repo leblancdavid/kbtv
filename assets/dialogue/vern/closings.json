@@ -18,8 +18,8 @@
     },
     {
       "id": "closing_ufos_3",
-      "text": "*grunt* Alright, that's it. UFOs don't sleep, but I do. Goodnight.",
-      "voiceText": "*grunt* Alright, that's it. UFOs don't sleep, but I do. Goodnight.",
+      "text": "hmm, Alright, that's it. UFOs don't sleep, but I do. Goodnight.",
+      "voiceText": "hmm, Alright, that's it. UFOs don't sleep, but I do. Goodnight.",
       "mood": "neutral",
       "topic": "ufos"
     },
@@ -32,8 +32,8 @@
     },
     {
       "id": "closing_ufos_5",
-      "text": "*chuckle* What a night. UFOs everywhere. Sleep tight, don't let the aliens bite.",
-      "voiceText": "*chuckle* What a night. UFOs everywhere. Sleep tight, don't let the aliens bite.",
+      "text": "heh, What a night. UFOs everywhere. Sleep tight, don't let the aliens bite.",
+      "voiceText": "heh, What a night. UFOs everywhere. Sleep tight, don't let the aliens bite.",
       "mood": "neutral",
       "topic": "ufos"
     },
@@ -60,8 +60,8 @@
     },
     {
       "id": "closing_ufos_9",
-      "text": "*sigh* Another show done. UFOs will be back. KBTV signing off.",
-      "voiceText": "*sigh* Another show done. UFOs will be back. KBTV signing off.",
+      "text": "ah... Another show done. UFOs will be back. KBTV signing off.",
+      "voiceText": "ah... Another show done. UFOs will be back. KBTV signing off.",
       "mood": "neutral",
       "topic": "ufos"
     },
@@ -88,8 +88,8 @@
     },
     {
       "id": "closing_ghosts_3",
-      "text": "*grunt* That's it. Ghosts don't scare me. Goodnight.",
-      "voiceText": "*grunt* That's it. Ghosts don't scare me. Goodnight.",
+      "text": "hmm, That's it. Ghosts don't scare me. Goodnight.",
+      "voiceText": "hmm, That's it. Ghosts don't scare me. Goodnight.",
       "mood": "neutral",
       "topic": "ghosts"
     },
@@ -102,8 +102,8 @@
     },
     {
       "id": "closing_ghosts_5",
-      "text": "*chuckle* What hauntings! Sleep tight, don't let the bedbugs ghost you.",
-      "voiceText": "*chuckle* What hauntings! Sleep tight, don't let the bedbugs ghost you.",
+      "text": "heh, What hauntings! Sleep tight, don't let the bedbugs ghost you.",
+      "voiceText": "heh, What hauntings! Sleep tight, don't let the bedbugs ghost you.",
       "mood": "neutral",
       "topic": "ghosts"
     },
@@ -130,8 +130,8 @@
     },
     {
       "id": "closing_ghosts_9",
-      "text": "*sigh* Show done. Ghosts linger. KBTV signing off.",
-      "voiceText": "*sigh* Show done. Ghosts linger. KBTV signing off.",
+      "text": "ah... Show done. Ghosts linger. KBTV signing off.",
+      "voiceText": "ah... Show done. Ghosts linger. KBTV signing off.",
       "mood": "neutral",
       "topic": "ghosts"
     },
@@ -158,8 +158,8 @@
     },
     {
       "id": "closing_cryptids_3",
-      "text": "*grunt* That's it. Creatures in the night. Goodnight.",
-      "voiceText": "*grunt* That's it. Creatures in the night. Goodnight.",
+      "text": "hmm, That's it. Creatures in the night. Goodnight.",
+      "voiceText": "hmm, That's it. Creatures in the night. Goodnight.",
       "mood": "neutral",
       "topic": "cryptids"
     },
@@ -172,8 +172,8 @@
     },
     {
       "id": "closing_cryptids_5",
-      "text": "*chuckle* Wild tales! Sleep tight, watch for shadows.",
-      "voiceText": "*chuckle* Wild tales! Sleep tight, watch for shadows.",
+      "text": "heh, Wild tales! Sleep tight, watch for shadows.",
+      "voiceText": "heh, Wild tales! Sleep tight, watch for shadows.",
       "mood": "neutral",
       "topic": "cryptids"
     },
@@ -200,8 +200,8 @@
     },
     {
       "id": "closing_cryptids_9",
-      "text": "*sigh* Show done. Cryptids are real. KBTV signing off.",
-      "voiceText": "*sigh* Show done. Cryptids are real. KBTV signing off.",
+      "text": "ah... Show done. Cryptids are real. KBTV signing off.",
+      "voiceText": "ah... Show done. Cryptids are real. KBTV signing off.",
       "mood": "neutral",
       "topic": "cryptids"
     },
@@ -228,8 +228,8 @@
     },
     {
       "id": "closing_conspiracies_3",
-      "text": "*grunt* That's it. Lies everywhere. Goodnight.",
-      "voiceText": "*grunt* That's it. Lies everywhere. Goodnight.",
+      "text": "hmm, That's it. Lies everywhere. Goodnight.",
+      "voiceText": "hmm, That's it. Lies everywhere. Goodnight.",
       "mood": "neutral",
       "topic": "conspiracies"
     },
@@ -242,8 +242,8 @@
     },
     {
       "id": "closing_conspiracies_5",
-      "text": "*chuckle* Deep rabbit hole! Sleep tight, don't trust anyone.",
-      "voiceText": "*chuckle* Deep rabbit hole! Sleep tight, don't trust anyone.",
+      "text": "heh, Deep rabbit hole! Sleep tight, don't trust anyone.",
+      "voiceText": "heh, Deep rabbit hole! Sleep tight, don't trust anyone.",
       "mood": "neutral",
       "topic": "conspiracies"
     },
@@ -270,8 +270,8 @@
     },
     {
       "id": "closing_conspiracies_9",
-      "text": "*sigh* Show done. Conspiracies abound. KBTV signing off.",
-      "voiceText": "*sigh* Show done. Conspiracies abound. KBTV signing off.",
+      "text": "ah... Show done. Conspiracies abound. KBTV signing off.",
+      "voiceText": "ah... Show done. Conspiracies abound. KBTV signing off.",
       "mood": "neutral",
       "topic": "conspiracies"
     },
@@ -298,8 +298,8 @@
     },
     {
       "id": "closing_open_3",
-      "text": "*grunt* That's it. Another night done. Goodnight.",
-      "voiceText": "*grunt* That's it. Another night done. Goodnight.",
+      "text": "hmm, That's it. Another night done. Goodnight.",
+      "voiceText": "hmm, That's it. Another night done. Goodnight.",
       "mood": "neutral",
       "topic": "open"
     },
@@ -312,8 +312,8 @@
     },
     {
       "id": "closing_open_5",
-      "text": "*chuckle* What a show! Sleep tight, dream of the unexplained.",
-      "voiceText": "*chuckle* What a show! Sleep tight, dream of the unexplained.",
+      "text": "heh, What a show! Sleep tight, dream of the unexplained.",
+      "voiceText": "heh, What a show! Sleep tight, dream of the unexplained.",
       "mood": "neutral",
       "topic": "open"
     },
@@ -340,8 +340,8 @@
     },
     {
       "id": "closing_open_9",
-      "text": "*sigh* Show done. More to come. KBTV signing off.",
-      "voiceText": "*sigh* Show done. More to come. KBTV signing off.",
+      "text": "ah... Show done. More to come. KBTV signing off.",
+      "voiceText": "ah... Show done. More to come. KBTV signing off.",
       "mood": "neutral",
       "topic": "open"
     },

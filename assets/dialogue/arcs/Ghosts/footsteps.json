@@ -5,7 +5,7 @@
   "screeningSummary": "Homeowner with cold spots and electronics acting up - three electricians found nothing wrong",
   "callerPersonality": "nervous_hesitant",
   "arcNotes": "Gradual onset activity, electrical + temperature anomaly, multiple inspections, skeptical but investigating",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "ghosts_questionable_footsteps_vern_exhausted_1",
-          "text": "*yawn* you're on the air. what's happening at your place?",
-          "voiceText": "*yawn* you're on the air. what's happening at your place?",
+          "text": "... you're on the air. what's happening at your place?",
+          "voiceText": "... you're on the air. what's happening at your place?",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "ghosts_questionable_footsteps_caller_1",
           "text": "Strange occurrences, Vern. Nothing dramatic, but consistent enough that I can't ignore it anymore.",
-          "voiceText": "Strange occurrences, Vern. Nothing dramatic, but consistent enough that I can't ignore it anymore.",
+          "voiceText": "Uh, strange occurrences, Vern. Nothing really dramatic, but, like, consistent enough that I can't ignore it anymore.",
           "mood": "neutral"
         }
       ]
@@ -148,8 +148,8 @@
         },
         {
           "id": "ghosts_questionable_footsteps_vern_exhausted_2",
-          "text": "*yawn* give me specifics. what's been happening?",
-          "voiceText": "*yawn* give me specifics. what's been happening?",
+          "text": "... give me specifics. what's been happening?",
+          "voiceText": "... give me specifics. what's been happening?",
           "mood": "exhausted"
         },
         {
@@ -190,7 +190,7 @@
         {
           "id": "ghosts_questionable_footsteps_caller_2",
           "text": "Cold spots in one corner of the living room. Just one spot, maybe six feet across. You can feel it when you walk past. Then the electronics in that area start acting up - the radio turns on by itself, the TV input switches randomly.",
-          "voiceText": "Cold spots in one corner of the living room. Just one spot, maybe six feet across. You can feel it when you walk past. Then the electronics in that area start acting up - the radio turns on by itself, the TV input switches randomly.",
+          "voiceText": "Cold spots in one corner of the living room. Just one spot, maybe six feet across. You can, like, feel it when you walk past. And then the electronics in that area start acting up - the radio turns on by itself, the TV input switches randomly.",
           "mood": "neutral"
         }
       ]
@@ -243,8 +243,8 @@
         },
         {
           "id": "ghosts_questionable_footsteps_vern_exhausted_3",
-          "text": "*yawn* electrical interference and cold spots together. how long has this been going on?",
-          "voiceText": "*yawn* electrical interference and cold spots together. how long has this been going on?",
+          "text": "... electrical interference and cold spots together. how long has this been going on?",
+          "voiceText": "... electrical interference and cold spots together. how long has this been going on?",
           "mood": "exhausted"
         },
         {
@@ -285,7 +285,7 @@
         {
           "id": "ghosts_questionable_footsteps_caller_3",
           "text": "Started about three weeks ago. Nothing before that. I've lived here for ten years with no issues.",
-          "voiceText": "Started about three weeks ago. Nothing before that. I've lived here for ten years with no issues.",
+          "voiceText": "It started about three weeks ago. Nothing before that. I've lived here for, like, ten years with no issues, you know?",
           "mood": "neutral"
         }
       ]
@@ -337,8 +337,8 @@
         },
         {
           "id": "ghosts_questionable_footsteps_vern_exhausted_4",
-          "text": "*yawn* electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. have you had an electrician look at it?",
-          "voiceText": "*yawn* electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. have you had an electrician look at it?",
+          "text": "... electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. have you had an electrician look at it?",
+          "voiceText": "... electrical issues could explain both - bad wiring could cause cold spots from drafts and interference with electronics. have you had an electrician look at it?",
           "mood": "exhausted"
         },
         {
@@ -379,7 +379,7 @@
         {
           "id": "ghosts_questionable_footsteps_caller_4",
           "text": "I called three different electricians. They all found nothing wrong with the wiring. The cold spot is real - one of them felt it himself.",
-          "voiceText": "I called three different electricians. They all found nothing wrong with the wiring. The cold spot is real - one of them felt it himself.",
+          "voiceText": "I called three different electricians. They all found, um, nothing wrong with the wiring. But the cold spot is real - one of them felt it himself, you know?",
           "mood": "neutral"
         }
       ]
@@ -431,8 +431,8 @@
         },
         {
           "id": "ghosts_questionable_footsteps_vern_exhausted_5",
-          "text": "*yawn* get an emf detector if you can and track the readings. document the temperature in that spot. if it's genuinely anomalous, the data will show it. thanks for calling in.",
-          "voiceText": "*yawn* get an emf detector if you can and track the readings. document the temperature in that spot. if it's genuinely anomalous, the data will show it. thanks for calling in.",
+          "text": "... get an emf detector if you can and track the readings. document the temperature in that spot. if it's genuinely anomalous, the data will show it. thanks for calling in.",
+          "voiceText": "... get an emf detector if you can and track the readings. document the temperature in that spot. if it's genuinely anomalous, the data will show it. thanks for calling in.",
           "mood": "exhausted"
         },
         {

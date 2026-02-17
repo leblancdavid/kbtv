@@ -18,8 +18,8 @@
     },
     {
       "id": "opening_ufos_3",
-      "text": "*grunt* Alright, it's midnight. KBTV is on the air. Tonight we're diving into the UFO cover-up. Phone lines are open.",
-      "voiceText": "*grunt* Alright, it's midnight. KBTV is on the air. Tonight we're diving into the UFO cover-up. Phone lines are open.",
+"text": "hmm, alright, it's midnight. KBTV is on the air. Tonight we're diving into the UFO cover-up. Phone lines are open.",
+      "voiceText": "hmm, alright, it's midnight. KBTV is on the air. Tonight we're diving into the UFO cover-up. Phone lines are open.",
       "mood": "neutral",
       "topic": "ufos"
     },
@@ -32,8 +32,8 @@
     },
     {
       "id": "opening_ufos_5",
-      "text": "*chuckle* Welcome back, folks. KBTV here, where we expose the alien visitors that are already among us.",
-      "voiceText": "*chuckle* Welcome back, folks. KBTV here, where we expose the alien visitors that are already among us.",
+"text": "heh, welcome back, folks. KBTV here, where we expose the alien visitors that are already among us.",
+      "voiceText": "heh, welcome back, folks. KBTV here, where we expose the alien visitors that are already among us.",
       "mood": "neutral",
       "topic": "ufos"
     },
@@ -60,8 +60,8 @@
     },
     {
       "id": "opening_ufos_9",
-      "text": "*sigh* Another night on KBTV, talking about UFOs. I'm Vern Tell, and honestly, some of these stories might be real.",
-      "voiceText": "*sigh* Another night on KBTV, talking about UFOs. I'm Vern Tell, and honestly, some of these stories might be real.",
+"text": "ah... another night on KBTV, talking about UFOs. I'm Vern Tell, and honestly, some of these stories might be real.",
+      "voiceText": "ah... another night on KBTV, talking about UFOs. I'm Vern Tell, and honestly, some of these stories might be real.",
       "mood": "neutral",
       "topic": "ufos"
     },
@@ -88,8 +88,8 @@
     },
     {
       "id": "opening_ghosts_3",
-      "text": "*grunt* It's midnight. KBTV on the air. Ghosts, apparitions, the undead. Let's hear your stories.",
-      "voiceText": "*grunt* It's midnight. KBTV on the air. Ghosts, apparitions, the undead. Let's hear your stories.",
+"text": "hmm, it's midnight. KBTV on the air. Ghosts, apparitions, the undead. Let's hear your stories.",
+      "voiceText": "hmm, it's midnight. KBTV on the air. Ghosts, apparitions, the undead. Let's hear your stories.",
       "mood": "neutral",
       "topic": "ghosts"
     },
@@ -102,8 +102,8 @@
     },
     {
       "id": "opening_ghosts_5",
-      "text": "*chuckle* Welcome back to KBTV. Tonight, we're delving into the afterlife. Call in your ghost stories.",
-      "voiceText": "*chuckle* Welcome back to KBTV. Tonight, we're delving into the afterlife. Call in your ghost stories.",
+"text": "heh, welcome back to KBTV. Tonight, we're delving into the afterlife. Call in your ghost stories.",
+      "voiceText": "heh, welcome back to KBTV. Tonight, we're delving into the afterlife. Call in your ghost stories.",
       "mood": "neutral",
       "topic": "ghosts"
     },
@@ -130,8 +130,8 @@
     },
     {
       "id": "opening_ghosts_9",
-      "text": "*sigh* KBTV again, talking ghosts. I'm Vern Tell, and some nights I wonder if they're watching us right now.",
-      "voiceText": "*sigh* KBTV again, talking ghosts. I'm Vern Tell, and some nights I wonder if they're watching us right now.",
+"text": "ah... KBTV again, talking ghosts. I'm Vern Tell, and some nights I wonder if they're watching us right now.",
+      "voiceText": "ah... KBTV again, talking ghosts. I'm Vern Tell, and some nights I wonder if they're watching us right now.",
       "mood": "neutral",
       "topic": "ghosts"
     },
@@ -158,8 +158,8 @@
     },
     {
       "id": "opening_cryptids_3",
-      "text": "*grunt* Midnight on KBTV. Cryptids tonight. Sasquatch, chupacabra, the works. Let's talk.",
-      "voiceText": "*grunt* Midnight on KBTV. Cryptids tonight. Sasquatch, chupacabra, the works. Let's talk.",
+"text": "hmm, midnight on KBTV. Cryptids tonight. Sasquatch, chupacabra, the works. Let's talk.",
+      "voiceText": "hmm, midnight on KBTV. Cryptids tonight. Sasquatch, chupacabra, the works. Let's talk.",
       "mood": "neutral",
       "topic": "cryptids"
     },
@@ -172,8 +172,8 @@
     },
     {
       "id": "opening_cryptids_5",
-      "text": "*chuckle* Welcome to KBTV. Tonight, we're tracking elusive beasts. Call in your sightings.",
-      "voiceText": "*chuckle* Welcome to KBTV. Tonight, we're tracking elusive beasts. Call in your sightings.",
+"text": "heh, welcome to KBTV. Tonight, we're tracking elusive beasts. Call in your sightings.",
+      "voiceText": "heh, welcome to KBTV. Tonight, we're tracking elusive beasts. Call in your sightings.",
       "mood": "neutral",
       "topic": "cryptids"
     },
@@ -200,8 +200,8 @@
     },
     {
       "id": "opening_cryptids_9",
-      "text": "*sigh* Another KBTV show on cryptids. I'm Vern Tell, and sometimes I think they might be out there.",
-      "voiceText": "*sigh* Another KBTV show on cryptids. I'm Vern Tell, and sometimes I think they might be out there.",
+"text": "ah... another KBTV show on cryptids. I'm Vern Tell, and sometimes I think they might be out there.",
+      "voiceText": "ah... another KBTV show on cryptids. I'm Vern Tell, and sometimes I think they might be out there.",
       "mood": "neutral",
       "topic": "cryptids"
     },
@@ -228,8 +228,8 @@
     },
     {
       "id": "opening_conspiracies_3",
-      "text": "*grunt* It's midnight. KBTV time. Conspiracies tonight. Government secrets, shadow organizations. Spill it.",
-      "voiceText": "*grunt* It's midnight. KBTV time. Conspiracies tonight. Government secrets, shadow organizations. Spill it.",
+"text": "hmm, it's midnight. KBTV time. Conspiracies tonight. Government secrets, shadow organizations. Spill it.",
+      "voiceText": "hmm, it's midnight. KBTV time. Conspiracies tonight. Government secrets, shadow organizations. Spill it.",
       "mood": "neutral",
       "topic": "conspiracies"
     },
@@ -242,8 +242,8 @@
     },
     {
       "id": "opening_conspiracies_5",
-      "text": "*chuckle* Welcome back to KBTV. Tonight, we're connecting the dots. Call in your theories.",
-      "voiceText": "*chuckle* Welcome back to KBTV. Tonight, we're connecting the dots. Call in your theories.",
+"text": "heh, welcome back to KBTV. Tonight, we're connecting the dots. Call in your theories.",
+      "voiceText": "heh, welcome back to KBTV. Tonight, we're connecting the dots. Call in your theories.",
       "mood": "neutral",
       "topic": "conspiracies"
     },
@@ -270,8 +270,8 @@
     },
     {
       "id": "opening_conspiracies_9",
-      "text": "*sigh* KBTV, another night of conspiracies. I'm Vern Tell, and the lies are everywhere.",
-      "voiceText": "*sigh* KBTV, another night of conspiracies. I'm Vern Tell, and the lies are everywhere.",
+"text": "ah... KBTV, another night of conspiracies. I'm Vern Tell, and the lies are everywhere.",
+      "voiceText": "ah... KBTV, another night of conspiracies. I'm Vern Tell, and the lies are everywhere.",
       "mood": "neutral",
       "topic": "conspiracies"
     },
@@ -298,8 +298,8 @@
     },
     {
       "id": "opening_open_3",
-      "text": "*grunt* Midnight. KBTV. Open lines, open minds. Let's see what the night brings.",
-      "voiceText": "*grunt* Midnight. KBTV. Open lines, open minds. Let's see what the night brings.",
+"text": "hmm, midnight. KBTV. Open lines, open minds. Let's see what the night brings.",
+      "voiceText": "hmm, midnight. KBTV. Open lines, open minds. Let's see what the night brings.",
       "mood": "neutral",
       "topic": "open"
     },
@@ -312,8 +312,8 @@
     },
     {
       "id": "opening_open_5",
-      "text": "*chuckle* Welcome to KBTV. Tonight, anything goes. Call in your mysteries.",
-      "voiceText": "*chuckle* Welcome to KBTV. Tonight, anything goes. Call in your mysteries.",
+"text": "heh, welcome to KBTV. Tonight, anything goes. Call in your mysteries.",
+      "voiceText": "heh, welcome to KBTV. Tonight, anything goes. Call in your mysteries.",
       "mood": "neutral",
       "topic": "open"
     },
@@ -340,8 +340,8 @@
     },
     {
       "id": "opening_open_9",
-      "text": "*sigh* Another open night on KBTV. I'm Vern Tell, and who knows what we'll uncover.",
-      "voiceText": "*sigh* Another open night on KBTV. I'm Vern Tell, and who knows what we'll uncover.",
+"text": "ah... another open night on KBTV. I'm Vern Tell, and who knows what we'll uncover.",
+      "voiceText": "ah... another open night on KBTV. I'm Vern Tell, and who knows what we'll uncover.",
       "mood": "neutral",
       "topic": "open"
     },

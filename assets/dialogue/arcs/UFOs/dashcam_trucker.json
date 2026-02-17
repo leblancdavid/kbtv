@@ -5,7 +5,7 @@
   "screeningSummary": "Trucker with dashcam footage of triangular object pacing his truck for two miles",
   "callerPersonality": "gruff_experienced",
   "arcNotes": "Trucker with dashcam evidence, skeptical but has specific details, willing to defend his experience",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "ufos_credible_dashcam_vern_exhausted_1",
-          "text": "*yawn* you're on the air. what's your story?",
-          "voiceText": "*yawn* you're on the air. what's your story?",
+          "text": "... you're on the air. what's your story?",
+          "voiceText": "... you're on the air. what's your story?",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "ufos_credible_dashcam_caller_1",
           "text": "Twenty-two years driving trucks, Vern. Last night, I'm on Route 9 past the county line, maybe two hours into my shift, and I see this light. Not a plane. Not a drone. Just... hovering. Pacing my truck.",
-          "voiceText": "Twenty-two years driving trucks, Vern. Last night, I'm on Route 9 past the county line, maybe two hours into my shift, and I see this light. Not a plane. Not a drone. Just... hovering. Pacing my truck."
+          "voiceText": "Uh, I've been driving trucks for twenty-two years, Vern. Last night, I'm on Route 9 past the county line, maybe, like, two hours into my shift, and I see this light. Not a plane. Not a drone. Just... hovering. Pacing my truck, you know?"
         }
       ]
     },
@@ -147,8 +147,8 @@
         },
         {
           "id": "ufos_credible_dashcam_vern_exhausted_2",
-          "text": "*yawn* pacing your truck. how long did this go on?",
-          "voiceText": "*yawn* pacing your truck. how long did this go on?",
+          "text": "... pacing your truck. how long did this go on?",
+          "voiceText": "... pacing your truck. how long did this go on?",
           "mood": "exhausted"
         },
         {
@@ -189,7 +189,7 @@
         {
           "id": "ufos_credible_dashcam_caller_2",
           "text": "Two miles, Vern. Two miles at my exact speed. I'm doing fifty-five, this thing is doing fifty-five. Triangular, three lights at each point, dead silent. I know aircraft. I see them every night on these highways. This wasn't anything I've ever seen.",
-          "voiceText": "Two miles, Vern. Two miles at my exact speed. I'm doing fifty-five, this thing is doing fifty-five. Triangular, three lights at each point, dead silent. I know aircraft. I see them every night on these highways. This wasn't anything I've ever seen."
+          "voiceText": "Two miles, Vern. Two miles at my exact speed, you know? I'm doing fifty-five, this thing is doing fifty-five. Triangular, three lights at each point, dead silent. I know aircraft - I see them every night on these highways. This wasn't, um, anything I've ever seen before."
         }
       ]
     },
@@ -240,8 +240,8 @@
         },
         {
           "id": "ufos_credible_dashcam_vern_exhausted_3",
-          "text": "*yawn* two miles at your speed. what happened after that?",
-          "voiceText": "*yawn* two miles at your speed. what happened after that?",
+          "text": "... two miles at your speed. what happened after that?",
+          "voiceText": "... two miles at your speed. what happened after that?",
           "mood": "exhausted"
         },
         {
@@ -282,7 +282,7 @@
         {
           "id": "ufos_credible_dashcam_caller_3",
           "text": "It just... accelerated. Straight up. Gone in two seconds. I watched it on my dash cam when I stopped. Clear as day. I've been staring at that footage for six hours now, trying to figure out what I'm looking at.",
-          "voiceText": "It just... accelerated. Straight up. Gone in two seconds. I watched it on my dash cam when I stopped. Clear as day. I've been staring at that footage for six hours now, trying to figure out what I'm looking at."
+          "voiceText": "And then it just... accelerated. Straight up. Gone in, like, two seconds. I watched it on my dash cam when I stopped. Clear as day. I've been staring at that footage for, uh, six hours now, trying to figure out what I'm looking at, honestly."
         }
       ]
     },
@@ -333,8 +333,8 @@
         },
         {
           "id": "ufos_credible_dashcam_vern_exhausted_4",
-          "text": "*yawn* i've got to ask - could this be military testing? there's a lot of black projects out there.",
-          "voiceText": "*yawn* i've got to ask - could this be military testing? there's a lot of black projects out there.",
+          "text": "... i've got to ask - could this be military testing? there's a lot of black projects out there.",
+          "voiceText": "... i've got to ask - could this be military testing? there's a lot of black projects out there.",
           "mood": "exhausted"
         },
         {
@@ -375,7 +375,7 @@
         {
           "id": "ufos_credible_dashcam_caller_4",
           "text": "I thought the same thing, okay? I've been running through every explanation. But Vern, I've been driving these routes for twenty-two years. I know what military aircraft looks like. This broke every expectation I had about what aircraft can do.",
-          "voiceText": "I thought the same thing, okay? I've been running through every explanation. But Vern, I've been driving these routes for twenty-two years. I know what military aircraft looks like. This broke every expectation I had about what aircraft can do."
+          "voiceText": "I thought the same thing, okay? I've been running through every explanation. But, Vern, I've been driving these routes for twenty-two years. I know what military aircraft looks like. This, like, broke every expectation I had about what aircraft can do."
         }
       ]
     },
@@ -426,8 +426,8 @@
         },
         {
           "id": "ufos_credible_dashcam_vern_exhausted_5",
-          "text": "*yawn* send that footage in. our team will tear it apart and if it's real, you're going to be part of something big. appreciate you calling in.",
-          "voiceText": "*yawn* send that footage in. our team will tear it apart and if it's real, you're going to be part of something big. appreciate you calling in.",
+          "text": "... send that footage in. our team will tear it apart and if it's real, you're going to be part of something big. appreciate you calling in.",
+          "voiceText": "... send that footage in. our team will tear it apart and if it's real, you're going to be part of something big. appreciate you calling in.",
           "mood": "exhausted"
         },
         {

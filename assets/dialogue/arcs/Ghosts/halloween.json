@@ -5,7 +5,7 @@
   "screeningSummary": "Prank caller claiming blood came from walls - admits friends dared him to call",
   "callerPersonality": "charismatic_storyteller",
   "arcNotes": "Obvious prank, dramatic claims, self-aware humor, cat jumping as 'flying'",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "ghosts_fake_halloween_vern_exhausted_1",
-          "text": "*yawn* you're on the air. what's happening at your place?",
-          "voiceText": "*yawn* you're on the air. what's happening at your place?",
+          "text": "... you're on the air. what's happening at your place?",
+          "voiceText": "... you're on the air. what's happening at your place?",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "ghosts_fake_halloween_caller_1",
           "text": "Okay, so my house is haunted, Vern. Blood coming out of the walls last night! Actual blood! I tasted it to be sure!",
-          "voiceText": "Okay, so my house is haunted, Vern. Blood coming out of the walls last night! Actual blood! I tasted it to be sure!"
+          "voiceText": "Okay, so, uh, my house is haunted, Vern! Blood coming out of the walls last night! Actual blood! And, like, I tasted it to be sure, you know?"
         }
       ]
     },
@@ -147,8 +147,8 @@
         },
         {
           "id": "ghosts_fake_halloween_vern_exhausted_2",
-          "text": "*yawn* blood from the walls. that's... dramatic. have you had the plumbing checked?",
-          "voiceText": "*yawn* blood from the walls. that's... dramatic. have you had the plumbing checked?",
+          "text": "... blood from the walls. that's... dramatic. have you had the plumbing checked?",
+          "voiceText": "... blood from the walls. that's... dramatic. have you had the plumbing checked?",
           "mood": "exhausted"
         },
         {
@@ -189,7 +189,7 @@
         {
           "id": "ghosts_fake_halloween_caller_2",
           "text": "It's not rust! It's actual blood! Old blood, you know? Like the house is bleeding from old wounds!",
-          "voiceText": "It's not rust! It's actual blood! Old blood, you know? Like the house is bleeding from old wounds!"
+          "voiceText": "It's not rust, okay?! It's actual blood! Old blood, you know? Like, the house is bleeding from old wounds, seriously!"
         }
       ]
     },
@@ -240,8 +240,8 @@
         },
         {
           "id": "ghosts_fake_halloween_vern_exhausted_3",
-          "text": "*yawn* old wounds. the house is bleeding from old wounds.",
-          "voiceText": "*yawn* old wounds. the house is bleeding from old wounds.",
+          "text": "... old wounds. the house is bleeding from old wounds.",
+          "voiceText": "... old wounds. the house is bleeding from old wounds.",
           "mood": "exhausted"
         },
         {
@@ -282,7 +282,7 @@
         {
           "id": "ghosts_fake_halloween_caller_3",
           "text": "I know how it sounds! But wait, there's more! Objects have been flying everywhere! My cat flew across the room!",
-          "voiceText": "I know how it sounds! But wait, there's more! Objects have been flying everywhere! My cat flew across the room!"
+          "voiceText": "I know how it sounds, okay?! But wait, there's more! Objects have been flying everywhere! My cat, like, flew across the room!"
         }
       ]
     },
@@ -333,8 +333,8 @@
         },
         {
           "id": "ghosts_fake_halloween_vern_exhausted_4",
-          "text": "*yawn* you tasted mystery liquid from your wall and your cat jumped. that's two natural explanations. next caller.",
-          "voiceText": "*yawn* you tasted mystery liquid from your wall and your cat jumped. that's two natural explanations. next caller.",
+          "text": "... you tasted mystery liquid from your wall and your cat jumped. that's two natural explanations. next caller.",
+          "voiceText": "... you tasted mystery liquid from your wall and your cat jumped. that's two natural explanations. next caller.",
           "mood": "exhausted"
         },
         {
@@ -374,8 +374,8 @@
       "lines": [
         {
           "id": "ghosts_fake_halloween_caller_4",
-          "text": "*snickering* Okay yeah, I was just messing around. My friends dared me to call. Great show though, Vern!",
-          "voiceText": "*snickering* Okay yeah, I was just messing around. My friends dared me to call. Great show though, Vern!"
+          "text": "heh, Okay yeah, I was just messing around. My friends dared me to call. Great show though, Vern!",
+          "voiceText": "heh, Okay yeah, I was just messing around. My friends dared me to call. Great show though, Vern!"
         }
       ]
     }

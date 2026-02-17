@@ -5,7 +5,7 @@
   "screeningSummary": "First-time witness with Ring camera footage of three lights merging and accelerating straight up",
   "callerPersonality": "enthusiastic_convert",
   "arcNotes": "First-time witness, was skeptical before, now believes something is happening, has some footage",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "ufos_questionable_lights_vern_exhausted_1",
-          "text": "*yawn* you're on the air. what did you witness?",
-          "voiceText": "*yawn* you're on the air. what did you witness?",
+          "text": "... you're on the air. what did you witness?",
+          "voiceText": "... you're on the air. what did you witness?",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "ufos_questionable_lights_caller_1",
           "text": "Okay so this is gonna sound insane, but last night at about 2 AM I'm letting my dog out and I see these three lights over the lake behind my house. Not planes - they were too deliberate. Just hovering there, completely silent.",
-          "voiceText": "Okay so this is gonna sound insane, but last night at about 2 AM I'm letting my dog out and I see these three lights over the lake behind my house. Not planes - they were too deliberate. Just hovering there, completely silent."
+          "voiceText": "Okay, so, uh, this is gonna sound insane, but, like, last night at about 2 AM I'm letting my dog out and, um, I see these three lights over the lake behind my house. Not planes - they were too deliberate, you know? Just hovering there, completely silent."
         }
       ]
     },
@@ -147,8 +147,8 @@
         },
         {
           "id": "ufos_questionable_lights_vern_exhausted_2",
-          "text": "*yawn* three lights over the lake. how long were they there?",
-          "voiceText": "*yawn* three lights over the lake. how long were they there?",
+          "text": "... three lights over the lake. how long were they there?",
+          "voiceText": "... three lights over the lake. how long were they there?",
           "mood": "exhausted"
         },
         {
@@ -189,7 +189,7 @@
         {
           "id": "ufos_questionable_lights_caller_2",
           "text": "Five minutes, maybe. I just stood there watching. Then they started moving. Not randomly - they were communicating with each other somehow. They formed a triangle, then merged into one light.",
-          "voiceText": "Five minutes, maybe. I just stood there watching. Then they started moving. Not randomly - they were communicating with each other somehow. They formed a triangle, then merged into one light."
+          "voiceText": "Uh, five minutes, maybe? I just, like, stood there watching, you know? Then they started moving. Not randomly - they were, uh, communicating with each other somehow. They formed a triangle, and then, um, merged into one light."
         }
       ]
     },
@@ -240,8 +240,8 @@
         },
         {
           "id": "ufos_questionable_lights_vern_exhausted_3",
-          "text": "*yawn* merged into one light. that's unusual. what happened after that?",
-          "voiceText": "*yawn* merged into one light. that's unusual. what happened after that?",
+          "text": "... merged into one light. that's unusual. what happened after that?",
+          "voiceText": "... merged into one light. that's unusual. what happened after that?",
           "mood": "exhausted"
         },
         {
@@ -282,7 +282,7 @@
         {
           "id": "ufos_questionable_lights_caller_3",
           "text": "Shot straight up. Gone in less than a second. I have a ring camera that caught the lights, but it didn't catch the departure. Too fast for anything I've ever seen.",
-          "voiceText": "Shot straight up. Gone in less than a second. I have a ring camera that caught the lights, but it didn't catch the departure. Too fast for anything I've ever seen."
+          "voiceText": "And then it just shot straight up. Gone in, like, less than a second. I have a ring camera that caught the lights, but it didn't catch the departure, you know? Too fast for anything I've ever seen."
         }
       ]
     },
@@ -333,8 +333,8 @@
         },
         {
           "id": "ufos_questionable_lights_vern_exhausted_4",
-          "text": "*yawn* there's a military base about forty miles from you. could be training exercises with flares or drones.",
-          "voiceText": "*yawn* there's a military base about forty miles from you. could be training exercises with flares or drones.",
+          "text": "... there's a military base about forty miles from you. could be training exercises with flares or drones.",
+          "voiceText": "... there's a military base about forty miles from you. could be training exercises with flares or drones.",
           "mood": "exhausted"
         },
         {
@@ -375,7 +375,7 @@
         {
           "id": "ufos_questionable_lights_caller_4",
           "text": "I thought about that. But flares don't hover for five minutes and then accelerate straight up. I've seen military exercises, Vern. This was something else. I'm not saying aliens, but... I don't know what else to call it.",
-          "voiceText": "I thought about that. But flares don't hover for five minutes and then accelerate straight up. I've seen military exercises, Vern. This was something else. I'm not saying aliens, but... I don't know what else to call it."
+          "voiceText": "I thought about that, uh, obviously. But, like, flares don't hover for five minutes and then accelerate straight up. I've seen military exercises, Vern. This was, um, something else. I'm not saying aliens, but... I don't know what else to call it, honestly."
         }
       ]
     },
@@ -426,8 +426,8 @@
         },
         {
           "id": "ufos_questionable_lights_vern_exhausted_5",
-          "text": "*yawn* send us that ring camera footage if you can. set up your phone next time too. we've got researchers who will analyze every frame. thanks for calling in.",
-          "voiceText": "*yawn* send us that ring camera footage if you can. set up your phone next time too. we've got researchers who will analyze every frame. thanks for calling in.",
+          "text": "... send us that ring camera footage if you can. set up your phone next time too. we've got researchers who will analyze every frame. thanks for calling in.",
+          "voiceText": "... send us that ring camera footage if you can. set up your phone next time too. we've got researchers who will analyze every frame. thanks for calling in.",
           "mood": "exhausted"
         },
         {

@@ -5,7 +5,7 @@
   "screeningSummary": "Experienced hiker with clear daylight sighting of eight-foot creature - made eye contact",
   "callerPersonality": "gruff_experienced",
   "arcNotes": "Experienced hiker, clear daylight sighting, rational attempt to debunk, eye contact, self-researching after",
-  "callerGender": "caller",
+  "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
@@ -54,8 +54,8 @@
         },
         {
           "id": "cryptids_credible_forest_hiker_vern_exhausted_1",
-          "text": "*yawn* you're on the air. tell me what happened.",
-          "voiceText": "*yawn* you're on the air. tell me what happened.",
+          "text": "... you're on the air. tell me what happened.",
+          "voiceText": "... you're on the air. tell me what happened.",
           "mood": "exhausted"
         },
         {
@@ -96,7 +96,7 @@
         {
           "id": "cryptids_credible_forest_hiker_caller_1",
           "text": "Vern, I've been hiking the Pacific Northwest for fifteen years. Last weekend, I had an encounter I can't explain and it's been eating at me since.",
-          "voiceText": "Vern, I've been hiking the Pacific Northwest for fifteen years. Last weekend, I had an encounter I can't explain and it's been eating at me since.",
+          "voiceText": "Uh, Vern, I've been hiking the Pacific Northwest for fifteen years. And, like, last weekend I had an encounter I can't explain and it's been eating at me since.",
           "mood": "neutral"
         }
       ]
@@ -148,8 +148,8 @@
         },
         {
           "id": "cryptids_credible_forest_hiker_vern_exhausted_2",
-          "text": "*yawn* alright, i'm listening. give me the details.",
-          "voiceText": "*yawn* alright, i'm listening. give me the details.",
+          "text": "... alright, i'm listening. give me the details.",
+          "voiceText": "... alright, i'm listening. give me the details.",
           "mood": "exhausted"
         },
         {
@@ -190,7 +190,7 @@
         {
           "id": "cryptids_credible_forest_hiker_caller_2",
           "text": "Mount Rainier area, about ten miles in on a trail I've done dozens of times. Mid-afternoon, clear visibility. Through the trees, maybe fifty yards out, something was standing there. Eight feet tall, dark brown fur, standing completely upright like a person.",
-          "voiceText": "Mount Rainier area, about ten miles in on a trail I've done dozens of times. Mid-afternoon, clear visibility. Through the trees, maybe fifty yards out, something was standing there. Eight feet tall, dark brown fur, standing completely upright like a person.",
+          "voiceText": "So, Mount Rainier area, about ten miles in on a trail I've done dozens of times. Mid-afternoon, clear visibility. Through the trees, maybe fifty yards out, something was standing there. Eight feet tall, dark brown fur, standing completely upright like a person.",
           "mood": "neutral"
         }
       ]
@@ -242,8 +242,8 @@
         },
         {
           "id": "cryptids_credible_forest_hiker_vern_exhausted_3",
-          "text": "*yawn* fifty yards in clear light. what happened next?",
-          "voiceText": "*yawn* fifty yards in clear light. what happened next?",
+          "text": "... fifty yards in clear light. what happened next?",
+          "voiceText": "... fifty yards in clear light. what happened next?",
           "mood": "exhausted"
         },
         {
@@ -284,7 +284,7 @@
         {
           "id": "cryptids_credible_forest_hiker_caller_3",
           "text": "We made eye contact. I'm certain of it. It just stood there for maybe ten seconds, then turned and walked deeper into the forest. Not running, not hurrying. Like it didn't care that I saw it. Like I was the one intruding.",
-          "voiceText": "We made eye contact. I'm certain of it. It just stood there for maybe ten seconds, then turned and walked deeper into the forest. Not running, not hurrying. Like it didn't care that I saw it. Like I was the one intruding.",
+          "voiceText": "And we made eye contact. I'm certain of it. It just stood there for, like, maybe ten seconds, and then turned and walked deeper into the forest. Not running, not hurrying. Like it didn't care that I saw it. Like I was the one intruding, you know?",
           "mood": "neutral"
         }
       ]
@@ -336,8 +336,8 @@
         },
         {
           "id": "cryptids_credible_forest_hiker_vern_exhausted_4",
-          "text": "*yawn* eye contact. i have to ask - could it have been a bear standing upright? people mistake them all the time.",
-          "voiceText": "*yawn* eye contact. i have to ask - could it have been a bear standing upright? people mistake them all the time.",
+          "text": "... eye contact. i have to ask - could it have been a bear standing upright? people mistake them all the time.",
+          "voiceText": "... eye contact. i have to ask - could it have been a bear standing upright? people mistake them all the time.",
           "mood": "exhausted"
         },
         {
@@ -378,7 +378,7 @@
         {
           "id": "cryptids_credible_forest_hiker_caller_4",
           "text": "I've photographed black bears and grizzlies for years, Vern. This had human proportions. Shoulders, the way it turned its head. And the size - bears don't stand eight feet tall on their hind legs that comfortably.",
-          "voiceText": "I've photographed black bears and grizzlies for years, Vern. This had human proportions. Shoulders, the way it turned its head. And the size - bears don't stand eight feet tall on their hind legs that comfortably.",
+          "voiceText": "I've photographed black bears and grizzlies for years, Vern. This had, like, human proportions. Shoulders, the way it turned its head. And the size - bears don't stand eight feet tall on their hind legs that comfortably, you know?",
           "mood": "neutral"
         }
       ]
@@ -430,8 +430,8 @@
         },
         {
           "id": "cryptids_credible_forest_hiker_vern_exhausted_5",
-          "text": "*yawn* appreciate you sharing this. if you go back, bring documentation - camera, maybe a friend. we need evidence. stay safe out there.",
-          "voiceText": "*yawn* appreciate you sharing this. if you go back, bring documentation - camera, maybe a friend. we need evidence. stay safe out there.",
+          "text": "... appreciate you sharing this. if you go back, bring documentation - camera, maybe a friend. we need evidence. stay safe out there.",
+          "voiceText": "... appreciate you sharing this. if you go back, bring documentation - camera, maybe a friend. we need evidence. stay safe out there.",
           "mood": "exhausted"
         },
         {

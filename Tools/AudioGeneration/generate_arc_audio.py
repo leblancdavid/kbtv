@@ -19,19 +19,19 @@ def get_arc_folder_name(arc_id):
     """Get the actual folder name used for this arc"""
     folder_name_map = {
         'conspiracies_credible_govt_contractor': 'govt_contractor',
-        'ghosts_credible_old_house': 'old_house',
-        'cryptids_credible_forest_hiker': 'forest_hiker',
-        'cryptid_credible_claims_ufos': 'claims_ufos',
-        'ufos_credible_dashcam': 'dashcam_trucker',
         'conspiracies_compelling_whistleblower': 'whistleblower',
         'conspiracies_questionable_patterns': 'patterns',
         'conspiracies_fake_tinfoil': 'tinfoil',
+        'ghosts_credible_old_house': 'old_house',
         'ghosts_compelling_investigator': 'investigator',
         'ghosts_fake_halloween': 'halloween',
         'ghosts_questionable_footsteps': 'footsteps',
+        'cryptids_credible_forest_hiker': 'forest_hiker',
         'cryptids_compelling_biologist': 'biologist',
         'cryptids_fake_costume': 'costume',
         'cryptids_questionable_shadow': 'shadow',
+        'cryptids_credible_claims_ufos': 'claims_ufos',
+        'ufos_credible_dashcam_trucker': 'dashcam_trucker',
         'ufos_compelling_pilot': 'pilot',
         'ufos_fake_prankster': 'prankster',
         'ufos_questionable_lights': 'lights'
@@ -39,19 +39,13 @@ def get_arc_folder_name(arc_id):
 
     return folder_name_map.get(arc_id, arc_id.split('_')[-1])
 
-def get_caller_archetype(arc_id):
-    """Get appropriate caller voice archetype based on arc characteristics"""
-    # This is a simplified mapping - in practice you'd use the callerPersonality from JSON
-    if "compelling" in arc_id:
-        return "enthusiastic"  # Credible, compelling callers
-    elif "credible" in arc_id:
-        return "default_male"  # Standard credible witnesses
-    elif "questionable" in arc_id:
-        return "nervous"  # Hesitant, questionable claims
-    elif "fake" in arc_id:
-        return "conspiracy"  # Intense conspiracy theorists
-    else:
-        return "default_male"  # Default
+def get_caller_voice_for_arc(arc_id, line_index):
+    """
+    Get a caller voice that cycles through the 20-voice pool based on arc_id.
+    This ensures each arc gets a consistent voice for all caller lines,
+    but different arcs get different voices for variety.
+    """
+    return f"caller_pool_{arc_id}_{line_index}"
 
 def generate_arc_audio(arc_id, force_regenerate=False, verbose=False, speaker_filter='both'):
     """Generate audio for a specific conversation arc"""
@@ -72,13 +66,32 @@ def generate_arc_audio(arc_id, force_regenerate=False, verbose=False, speaker_fi
     with open(json_file, 'r', encoding='utf-8') as f:
         arc_data = json.load(f)
 
-    lines = arc_data.get('lines', [])
-    print(f"Found {len(lines)} dialogue lines")
+    # Get caller gender for voice selection
+    caller_gender = arc_data.get('callerGender', 'male').lower()
+    if caller_gender not in ['male', 'female']:
+        caller_gender = 'male'  # Default to male
+    
+    print(f"Caller gender: {caller_gender}")
+
+    lines = arc_data.get('arcLines', [])
+    print(f"Found {len(lines)} dialogue groups")
+    
+    # Flatten the nested structure: each group has speaker + lines array
+    flat_lines = []
+    for group in lines:
+        speaker = group.get('speaker', '').lower()
+        speaker_lines = group.get('lines', [])
+        for line_entry in speaker_lines:
+            flat_line = line_entry.copy()
+            flat_line['speaker'] = speaker
+            flat_lines.append(flat_line)
+    
+    print(f"Found {len(flat_lines)} total dialogue lines after flattening")
 
     generated_count = 0
     skipped_count = 0
 
-    for line in lines:
+    for line in flat_lines:
         line_id = line.get('id', '')
         speaker = line.get('speaker', '').lower()
         text = line.get('voiceText', line.get('text', ''))
@@ -166,13 +179,36 @@ def generate_arc_audio(arc_id, force_regenerate=False, verbose=False, speaker_fi
                 print(f"ERROR generating {line_id}: {e}")
 
         elif speaker == 'caller':
-            # Use caller archetype
-            archetype = get_caller_archetype(arc_id)
+            # Use caller voice from gender-specific pool (consistent per arc)
+            # Use hash of arc_id only - same voice for all caller lines in an arc
+            import hashlib
+            arc_hash = int(hashlib.md5(arc_id.encode()).hexdigest(), 16) % 1000
+            caller_voice = f"caller_pool_{caller_gender}_{arc_hash}"
+            
+            # Get voice settings override if available (for older/southern effects)
+            voice_settings_override = {
+                "nPczCjzI2devNBz1zQrb": {"stability": 0.2, "style": 0.1},
+                "JBFqnCBsd6RMkjVDRZzb": {"stability": 0.25, "style": 0.15},
+                "onwK4e9ZLuTAKqWW03F9": {"stability": 0.2, "style": 0.1},
+                "CwhRBWXzGAHq8TQ4Fs17": {"stability": 0.6, "style": 0.3},
+                "IKne3meq5aSn9XLyUdCD": {"stability": 0.5, "style": 0.4},
+                "bIHbv24MWmeRgasZH58o": {"stability": 0.55, "style": 0.35},
+                "iP95p4xoKVk53GoZ742B": {"stability": 0.5, "style": 0.3},
+            }
+            
+            # Apply overrides if this voice has special settings
+            override = voice_settings_override.get(caller_voice, {})
+            stability = override.get("stability", 0.5)
+            style = override.get("style", 0.5)
+            
             try:
                 result_path = cloner.generate_audio(
                     text=text,
                     output_path=output_path,
-                    voice_id=archetype
+                    voice_id=caller_voice,
+                    stability=stability,
+                    similarity_boost=0.8,
+                    style=style
                 )
                 print(f"GENERATED: {line_id}")
                 generated_count += 1
