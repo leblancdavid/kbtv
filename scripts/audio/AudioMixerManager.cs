@@ -31,6 +31,8 @@ namespace KBTV.Audio
         private int _callerDistortionIndex = -1;
         private int _callerAmplifyIndex = -1;
         private int _callerCompressorIndex = -1;
+        private int _callerEqIndex = -1;
+        private int _callerChorusIndex = -1;
         private int _vernHighPassIndex = -1;
         private int _vernCompressorIndex = -1;
         private int _vernEqIndex = -1;
@@ -45,10 +47,10 @@ namespace KBTV.Audio
         // More aggressive bandpass for authentic old phone sound
         private static readonly (float lowPass, float highPass, float distortion, float resonance)[] CallerPresets = 
         {
-            (600f, 600f, 0.40f, 5.0f),   // Level 1: Very bad phone - aggressive bandpass
-            (800f, 500f, 0.30f, 4.5f),   // Level 2: Bad phone
-            (1500f, 400f, 0.20f, 4.0f),   // Level 3: Decent phone
-            (3000f, 200f, 0.10f, 3.0f)    // Level 4: Clear phone
+            (400f, 500f, 0.45f, 5.0f),   // Level 1: Very bad phone - aggressive bandpass
+            (500f, 400f, 0.35f, 4.5f),   // Level 2: Bad phone
+            (800f, 300f, 0.25f, 4.0f),   // Level 3: Decent phone
+            (1500f, 200f, 0.15f, 3.0f)    // Level 4: Clear phone
         };
 
         // Vern broadcast presets - VERN (should be clean)
@@ -119,9 +121,9 @@ namespace KBTV.Audio
             GD.Print($"ConfigureCallerBus: Adding effects to bus index {_callerBusIndex}");
             
             // Add LowPass filter (index 0) - simulates phone bandwidth
-            // Start with Level 1 settings: 600Hz, resonance 5.0
+            // Start with Level 1 settings: 400Hz, resonance 5.0
             var lowPass = new AudioEffectLowPassFilter();
-            lowPass.CutoffHz = 600f;
+            lowPass.CutoffHz = 400f;
             lowPass.Resonance = 5.0f;
             AudioServer.AddBusEffect(_callerBusIndex, lowPass);
             _callerLowPassIndex = 0;
@@ -129,7 +131,7 @@ namespace KBTV.Audio
 
             // Add HighPass filter (index 1) - removes low frequencies aggressively
             var highPass = new AudioEffectHighPassFilter();
-            highPass.CutoffHz = 600f;  // Level 1: 600Hz - aggressive
+            highPass.CutoffHz = 500f;  // Level 1: 500Hz - aggressive
             AudioServer.AddBusEffect(_callerBusIndex, highPass);
             _callerHighPassIndex = 1;
             GD.Print("AudioMixerManager: Added HighPass to Caller bus");
@@ -138,28 +140,35 @@ namespace KBTV.Audio
             var distortion = new AudioEffectDistortion();
             distortion.Mode = AudioEffectDistortion.ModeEnum.Overdrive;
             distortion.PreGain = 1f;
-            distortion.Drive = 0.40f;  // Level 1: 0.40
+            distortion.Drive = 0.45f;  // Level 1: 0.45 - more aggressive
             AudioServer.AddBusEffect(_callerBusIndex, distortion);
             _callerDistortionIndex = 2;
             GD.Print("AudioMixerManager: Added Distortion to Caller bus");
 
             // Add Amplify (index 3) - boost caller voice above static
             var amplify = new AudioEffectAmplify();
-            amplify.VolumeDb = 8f;  // Boost by 8dB (roughly 2.5x volume)
+            amplify.VolumeDb = 8f;  // Boost by 8dB
             AudioServer.AddBusEffect(_callerBusIndex, amplify);
             _callerAmplifyIndex = 3;
             GD.Print("AudioMixerManager: Added Amplify to Caller bus");
 
-            // TEMPORARILY REMOVED - was causing issues
-            // Add Compressor (index 3) - heavily compress phone audio (squashed sound)
-            // var compressor = new AudioEffectCompressor();
-            // compressor.Threshold = -15f;
-            // compressor.Ratio = 6f;
-            // compressor.AttackUs = 1f;
-            // compressor.ReleaseMs = 50f;
-            // AudioServer.AddBusEffect(_callerBusIndex, compressor);
-            // _callerCompressorIndex = 3;
-            // GD.Print("AudioMixerManager: Added Compressor to Caller bus");
+            // Add EQ (index 4) - telephone "honk" at 1-2kHz
+            var eq = new AudioEffectEQ();
+            eq.SetBandGainDb(3, 3f);   // ~1kHz - boost for phone honk
+            eq.SetBandGainDb(4, 4f);   // ~2kHz - main phone presence
+            AudioServer.AddBusEffect(_callerBusIndex, eq);
+            _callerEqIndex = 4;
+            GD.Print("AudioMixerManager: Added EQ to Caller bus for phone honk");
+
+            // Add Chorus (index 5) - warbly old phone sound
+            var chorus = new AudioEffectChorus();
+            chorus.VoiceCount = 1;  // Single voice for subtle effect
+            chorus.Wet = 0.3f;  // 30% wet
+            chorus.SetVoiceDelayMs(0, 30f);  // Voice 0: 30ms delay
+            chorus.SetVoiceRateHz(0, 2f);   // Voice 0: 2Hz rate for warble
+            AudioServer.AddBusEffect(_callerBusIndex, chorus);
+            _callerChorusIndex = 5;
+            GD.Print("AudioMixerManager: Added Chorus to Caller bus for warble");
         }
 
         private void ConfigureMusicBus()

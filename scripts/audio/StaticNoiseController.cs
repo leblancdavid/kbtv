@@ -18,8 +18,26 @@ namespace KBTV.Audio
         private int _equipmentLevel = 1;
 
         // Static volume by equipment level (1 = loud, 4 = quiet)
-        // Reduced volumes to not overpower caller voice
-        private static readonly float[] StaticVolumes = { 0.4f, 0.25f, 0.15f, 0.05f };
+        // Further reduced volumes
+        private static readonly float[] StaticVolumes = { 0.2f, 0.12f, 0.06f, 0.02f };
+
+        // Timer for restarting static to simulate looping
+        private float _staticRestartTimer = 0f;
+        private const float STATIC_RESTART_INTERVAL = 2.0f;
+
+        public override void _Process(double delta)
+        {
+            // Restart static periodically to simulate looping
+            if (_staticPlayer != null && _staticPlayer.Playing)
+            {
+                _staticRestartTimer += (float)delta;
+                if (_staticRestartTimer >= STATIC_RESTART_INTERVAL)
+                {
+                    _staticRestartTimer = 0f;
+                    _staticPlayer.Play(); // Restart from beginning
+                }
+            }
+        }
 
         public override void _Ready()
         {
