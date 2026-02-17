@@ -119,6 +119,9 @@ namespace KBTV.Audio
         /// </summary>
         public async Task PlayAudioAsync(string audioPath, CancellationToken cancellationToken = default)
         {
+            // Determine speaker based on audio path
+            _currentSpeaker = DetermineSpeakerFromPath(audioPath);
+            
             if (IsAudioDisabled)
             {
                 await Task.Delay(4000, CancellationToken.None);
@@ -203,6 +206,9 @@ namespace KBTV.Audio
         /// <param name="immediateStop">If true, stops playback immediately when duration expires. If false, uses deferred stop for thread safety.</param>
         public async Task PlayAudioForDurationAsync(string audioPath, float maxDuration, bool immediateStop, CancellationToken cancellationToken = default)
         {
+            // Determine speaker based on audio path
+            _currentSpeaker = DetermineSpeakerFromPath(audioPath);
+            
             if (IsAudioDisabled)
             {
                 await Task.Delay((int)(maxDuration * 1000), cancellationToken);
@@ -544,6 +550,21 @@ namespace KBTV.Audio
                 BroadcastItemType.Conversation => Speaker.Vern, // Default to Vern for conversation containers
                 _ => Speaker.Vern // Default to Vern for other types
             };
+        }
+
+        /// <summary>
+        /// Determines speaker based on audio file path.
+        /// </summary>
+        private Speaker DetermineSpeakerFromPath(string audioPath)
+        {
+            if (string.IsNullOrEmpty(audioPath))
+                return Speaker.Vern;
+            
+            // Check path for caller vs vern audio
+            if (audioPath.Contains("/Callers/") || audioPath.Contains("\\Callers\\"))
+                return Speaker.Caller;
+            
+            return Speaker.Vern;
         }
 
         public override void _ExitTree()
