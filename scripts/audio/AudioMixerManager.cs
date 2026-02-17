@@ -29,6 +29,7 @@ namespace KBTV.Audio
         private int _callerLowPassIndex = -1;
         private int _callerHighPassIndex = -1;
         private int _callerDistortionIndex = -1;
+        private int _callerCompressorIndex = -1;
         private int _vernHighPassIndex = -1;
         private int _vernCompressorIndex = -1;
         private int _vernEqIndex = -1;
@@ -40,13 +41,13 @@ namespace KBTV.Audio
 
         // Effect presets for each equipment level - CALLERS
         // Format: (lowPassHz, highPassHz, distortion, resonance)
-        // Bandpass effect: aggressive lowpass + highpass = old phone sound
+        // More aggressive bandpass for authentic old phone sound
         private static readonly (float lowPass, float highPass, float distortion, float resonance)[] CallerPresets = 
         {
-            (800f, 400f, 0.30f, 4.0f),   // Level 1: Very bad phone - bandpass 400-800Hz, harsh distortion
-            (1500f, 350f, 0.20f, 3.5f),   // Level 2: Bad phone - bandpass 350-1500Hz
-            (3000f, 200f, 0.10f, 2.5f),   // Level 3: Decent phone - bandpass 200-3000Hz
-            (10000f, 100f, 0.0f, 1.0f)    // Level 4: Clear phone - almost full range
+            (600f, 600f, 0.40f, 5.0f),   // Level 1: Very bad phone - aggressive bandpass
+            (800f, 500f, 0.30f, 4.5f),   // Level 2: Bad phone
+            (1500f, 400f, 0.20f, 4.0f),   // Level 3: Decent phone
+            (3000f, 200f, 0.10f, 3.0f)    // Level 4: Clear phone
         };
 
         // Vern broadcast presets - VERN (should be clean)
@@ -111,16 +112,16 @@ namespace KBTV.Audio
         private void ConfigureCallerBus()
         {
             // Add LowPass filter (index 0) - simulates phone bandwidth
-            // Start with Level 1 settings: 800Hz, resonance 4.0
+            // Start with Level 1 settings: 600Hz, resonance 5.0
             var lowPass = new AudioEffectLowPassFilter();
-            lowPass.CutoffHz = 800f;
-            lowPass.Resonance = 4.0f;
+            lowPass.CutoffHz = 600f;
+            lowPass.Resonance = 5.0f;
             AudioServer.AddBusEffect(_callerBusIndex, lowPass);
             _callerLowPassIndex = 0;
 
-            // Add HighPass filter (index 1) - removes low frequencies
+            // Add HighPass filter (index 1) - removes low frequencies aggressively
             var highPass = new AudioEffectHighPassFilter();
-            highPass.CutoffHz = 400f;  // Level 1: 400Hz
+            highPass.CutoffHz = 600f;  // Level 1: 600Hz - aggressive
             AudioServer.AddBusEffect(_callerBusIndex, highPass);
             _callerHighPassIndex = 1;
 
@@ -128,9 +129,18 @@ namespace KBTV.Audio
             var distortion = new AudioEffectDistortion();
             distortion.Mode = AudioEffectDistortion.ModeEnum.Overdrive;
             distortion.PreGain = 1f;
-            distortion.Drive = 0.30f;  // Level 1: 0.30
+            distortion.Drive = 0.40f;  // Level 1: 0.40
             AudioServer.AddBusEffect(_callerBusIndex, distortion);
             _callerDistortionIndex = 2;
+
+            // Add Compressor (index 3) - heavily compress phone audio (squashed sound)
+            var compressor = new AudioEffectCompressor();
+            compressor.Threshold = -15f;  // High threshold for heavy compression
+            compressor.Ratio = 6f;       // Aggressive ratio
+            compressor.AttackUs = 1f;     // Fast attack
+            compressor.ReleaseMs = 50f;   // Quick release
+            AudioServer.AddBusEffect(_callerBusIndex, compressor);
+            _callerCompressorIndex = 3;
         }
 
         private void ConfigureMusicBus()

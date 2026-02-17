@@ -18,8 +18,8 @@ namespace KBTV.Audio
         private int _equipmentLevel = 1;
 
         // Static volume by equipment level (1 = loud, 4 = quiet)
-        // Louder static to emphasize bad phone quality
-        private static readonly float[] StaticVolumes = { 1.0f, 0.7f, 0.4f, 0.1f };
+        // Increased volumes for more audible static
+        private static readonly float[] StaticVolumes = { 1.5f, 1.0f, 0.6f, 0.2f };
 
         public override void _Ready()
         {
@@ -69,10 +69,18 @@ namespace KBTV.Audio
         /// </summary>
         public void StartStatic()
         {
-            if (_staticPlayer != null && _staticStream != null && !_staticPlayer.Playing)
+            if (_staticPlayer != null && _staticStream != null)
             {
                 _staticPlayer.Stream = _staticStream;
-                _staticPlayer.Play();
+                if (!_staticPlayer.Playing)
+                {
+                    _staticPlayer.Play();
+                    GD.Print($"StaticNoiseController: Started static at volume {_currentVolume}");
+                }
+            }
+            else
+            {
+                GD.PrintErr($"StaticNoiseController: Failed to start static - player: {_staticPlayer != null}, stream: {_staticStream != null}");
             }
         }
 
@@ -84,6 +92,7 @@ namespace KBTV.Audio
             if (_staticPlayer != null && _staticPlayer.Playing)
             {
                 _staticPlayer.Stop();
+                GD.Print("StaticNoiseController: Stopped static");
             }
         }
 
