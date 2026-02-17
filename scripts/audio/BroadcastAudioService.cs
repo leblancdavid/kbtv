@@ -25,6 +25,10 @@ namespace KBTV.Audio
         private readonly Dictionary<AudioStreamPlayer, TaskCompletionSource> _completionSources = new();
 
         private BroadcastItem? _currentBroadcastItem;
+        private Speaker _currentSpeaker = Speaker.Vern;
+
+        // Audio routing for effects
+        private AudioMixerManager? _audioMixer;
 
         // Dependency injection
         private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
@@ -89,6 +93,20 @@ namespace KBTV.Audio
                 AddChild(player);
                 _availablePlayers.Add(player);
                 player.Finished += () => OnPlayerFinished(player);
+            }
+
+            // Initialize audio mixer for effects
+            InitializeAudioMixer();
+        }
+
+        private void InitializeAudioMixer()
+        {
+            // Try to get AudioMixerManager from the scene tree
+            _audioMixer = GetNode<AudioMixerManager>("/root/AudioMixerManager");
+            if (_audioMixer == null)
+            {
+                // AudioMixerManager not in scene tree - effects won't be applied
+                GD.PrintErr("BroadcastAudioService: AudioMixerManager not found - audio effects disabled");
             }
         }
 
@@ -267,6 +285,7 @@ namespace KBTV.Audio
         public async Task PlayAudioForBroadcastItemAsync(BroadcastItem item)
         {
             _currentBroadcastItem = item;
+            _currentSpeaker = GetSpeakerFromBroadcastItemType(item.Type);
             
             if (IsAudioDisabled)
             {
@@ -316,6 +335,9 @@ namespace KBTV.Audio
             var tcs = new TaskCompletionSource();
             _completionSources[player] = tcs;
 
+            // Start static for caller audio
+            HandleStaticForSpeaker(_currentSpeaker, true);
+
             player.Stream = audioStream;
             player.Play();
 
@@ -360,6 +382,9 @@ namespace KBTV.Audio
             _activePlayers.Add(player);
             var tcs = new TaskCompletionSource();
             _completionSources[player] = tcs;
+
+            // Start static for caller audio
+            HandleStaticForSpeaker(_currentSpeaker, true);
 
             player.Stream = audioStream;
             player.Play();
@@ -435,9 +460,30 @@ namespace KBTV.Audio
                 var speaker = GetSpeakerFromBroadcastItemType(_currentBroadcastItem.Type);
                 var completedEvent = new AudioCompletedEvent(_currentBroadcastItem.Id, speaker);
                 LineCompleted?.Invoke(completedEvent);
+                
+                // Stop static for caller audio
+                HandleStaticForSpeaker(speaker, false);
             }
             
             ReturnPlayer(player);
+        }
+
+        /// <summary>
+        /// Handles starting/stopping static based on speaker type.
+        /// </summary>
+        private void HandleStaticForSpeaker(Speaker speaker, bool start)
+        {
+            if (speaker == Speaker.Caller && _audioMixer != null)
+            {
+                var staticController = _audioMixer.GetStaticController();
+                if (staticController != null)
+                {
+                    if (start)
+                        staticController.StartStatic();
+                    else
+                        staticController.StopStatic();
+                }
+            }
         }
 
         /// <summary>
