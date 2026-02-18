@@ -4,6 +4,11 @@ public partial class Player : CharacterBody2D
 {
     [Export] private float _speed = 150.0f;
 
+    public override void _Ready()
+    {
+        AddToGroup("player");
+    }
+
     public override void _PhysicsProcess(double delta)
     {
         var velocity = Vector2.Zero;

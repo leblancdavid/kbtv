@@ -165,3 +165,53 @@ ControlRoom (Node2D)
 - PNG files need `.import` metadata files in the same folder
 - Delete `.godot` folder to force clean re-import
 - Godot auto-generates UIDs for resources
+
+## Pseudo-Isometric Implementation
+
+### Overview
+The game uses a **top-down with depth** visual style that achieves pseudo-isometric occlusion:
+- Objects have height drawn as "front face" + "top face"
+- When player walks behind tall objects, they fade out smoothly
+- This creates the illusion of 3D space in 2D
+
+### Depth Sprite Format
+Each sprite has two visual components:
+- **Top face** (lighter color): Shows the surface facing up
+- **Front face** (darker color): Shows the wall/object facing the viewer
+
+```
+┌─────────────┐  ← Top (lighter)
+│             │
+│             │
+├─────────────┤  ← Front (darker)
+│             │
+└─────────────┘
+```
+
+### Occlusion System
+
+**Shader** (`shaders/occlusion.gdshader`):
+- Calculates alpha based on player position vs object height
+- Smooth fade when player Y < object Y + height
+
+**Occluder Component** (`scripts/components/Occluder.cs`):
+- Attaches to Sprite2D nodes
+- Configurable `Height` property (pixels)
+- Configurable `FadeRange` for transition smoothness
+
+**Usage**:
+1. Attach Occluder script to any Sprite2D
+2. Set `Height` based on object tallness:
+   - Walls: 48px
+   - Tall furniture: 40-64px
+   - Small items: 0px (never occlude)
+
+### Wall Sprite Naming
+- `wall_depth_top.png` - Cap piece (16px tall)
+- `wall_depth_mid.png` - Tall section (48px tall)  
+- `wall_depth_bottom.png` - Base section (32px tall)
+- `wall_depth_corner.png` - Corner piece (48px tall)
+
+### Prop Sprite Naming
+- `*_depth.png` - Sprites with depth for occluding objects
+- No `_depth` suffix - Sprites that don't occlude (small items)
