@@ -1,0 +1,102 @@
+[gd_scene load_steps=20 format=3 uid="uid://btar47n3yptfo"]
+
+[ext_resource type="PackedScene" uid="uid://2xfyhgvmpogv" path="res://scenes/world/Player.tscn" id="1"]
+[ext_resource type="Texture2D" uid="uid://bky2eftens8v0" path="res://assets/tiles/floor/floor_carpet.png" id="1_qutej"]
+[ext_resource type="Texture2D" uid="uid://d17vn67f8xa0b" path="res://assets/tiles/floor/floor_dark.png" id="2_rpv3p"]
+[ext_resource type="Texture2D" uid="uid://mrrkok6t7v25" path="res://assets/tiles/floor/floor_light.png" id="3_jwd4e"]
+[ext_resource type="Texture2D" uid="uid://cwaxul373tvub" path="res://assets/tiles/walls/wall_bottom.png" id="4_hucdw"]
+[ext_resource type="Texture2D" uid="uid://cv24y3r3t65ej" path="res://assets/tiles/walls/wall_corner.png" id="5_bw7qa"]
+[ext_resource type="Texture2D" uid="uid://rhwk203l0jhg" path="res://assets/tiles/walls/wall_mid.png" id="6_borqk"]
+[ext_resource type="Texture2D" uid="uid://dnqaw21a3su12" path="res://assets/tiles/walls/wall_top.png" id="7_jg0ob"]
+[ext_resource type="Texture2D" uid="uid://monitorconsole" path="res://assets/tiles/props/monitor_console.png" id="8"]
+[ext_resource type="Texture2D" uid="uid://monitorscreengreen" path="res://assets/tiles/props/monitor_screen_green.png" id="9"]
+[ext_resource type="Texture2D" uid="uid://wallclock" path="res://assets/tiles/props/wall_clock.png" id="10"]
+[ext_resource type="Texture2D" uid="uid://cabinettall" path="res://assets/tiles/props/cabinet_tall.png" id="11"]
+[ext_resource type="Texture2D" uid="uid://desklong" path="res://assets/tiles/props/desk_long.png" id="12"]
+[ext_resource type="Texture2D" uid="uid://phonebank" path="res://assets/tiles/props/phone_bank.png" id="13"]
+[ext_resource type="Texture2D" uid="uid://coffeestation" path="res://assets/tiles/props/coffee_station.png" id="14"]
+
+[sub_resource type="TileSetAtlasSource" id="floor_dark"]
+texture = ExtResource("2_rpv3p")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="wall_top"]
+texture = ExtResource("7_jg0ob")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="wall_mid"]
+texture = ExtResource("6_borqk")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="wall_bottom"]
+texture = ExtResource("4_hucdw")
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="wall_corner"]
+texture = ExtResource("5_bw7qa")
+0:0/0 = 0
+
+[sub_resource type="TileSet" id="tileset_main"]
+sources/0 = SubResource("floor_dark")
+sources/1 = SubResource("wall_top")
+sources/2 = SubResource("wall_mid")
+sources/3 = SubResource("wall_bottom")
+sources/4 = SubResource("wall_corner")
+
+[node name="ControlRoom" type="Node2D"]
+
+[node name="FloorLayer" type="TileMapLayer" parent="."]
+tile_set = SubResource("tileset_main")
+layer_name = "Floor"
+enabled = true
+y_sort_enabled = true
+
+[node name="WallsLayer" type="TileMapLayer" parent="."]
+tile_set = SubResource("tileset_main")
+layer_name = "Walls"
+enabled = true
+
+[node name="DetailsLayer" type="TileMapLayer" parent="."]
+tile_set = SubResource("tileset_main")
+layer_name = "Details"
+enabled = true
+y_sort_enabled = true
+
+[node name="Player" parent="." instance=ExtResource("1")]
+position = Vector2(320, 240)
+
+[node name="MonitorConsole" type="Sprite2D" parent="."]
+position = Vector2(384, 180)
+texture = ExtResource("8")
+
+[node name="MonitorScreen1" type="Sprite2D" parent="MonitorConsole"]
+position = Vector2(-24, -10)
+texture = ExtResource("9")
+
+[node name="MonitorScreen2" type="Sprite2D" parent="MonitorConsole"]
+position = Vector2(0, -10)
+texture = ExtResource("9")
+
+[node name="MonitorScreen3" type="Sprite2D" parent="MonitorConsole"]
+position = Vector2(24, -10)
+texture = ExtResource("9")
+
+[node name="WallClock" type="Sprite2D" parent="."]
+position = Vector2(128, 80)
+texture = ExtResource("10")
+
+[node name="FilingCabinet" type="Sprite2D" parent="."]
+position = Vector2(96, 200)
+texture = ExtResource("11")
+
+[node name="Desk" type="Sprite2D" parent="."]
+position = Vector2(512, 220)
+texture = ExtResource("12")
+
+[node name="PhoneBank" type="Sprite2D" parent="."]
+position = Vector2(200, 180)
+texture = ExtResource("13")
+
+[node name="CoffeeStation" type="Sprite2D" parent="."]
+position = Vector2(560, 120)
+texture = ExtResource("14")
