@@ -1,4 +1,33 @@
-## Current Session - Evidence Collection System Runtime Fixes ✅
+## Current Session - Isometric ControlRoom Layout ✅
+
+**Branch**: `feature/` (unknown)
+
+**Task**: Implement rectangular grid with isometric projection using TileMapLayer (standard workflow).
+
+### Work Done
+- Confirmed TileMap is deprecated; migrated to TileMapLayer-based scene structure.
+- Updated `ControlRoom` to use TileMapLayer for floor and Sprite2D walls with Occluder.
+- Adjusted TileSet resource to use isometric tile shape.
+- Switching to rectangular logical grid (standard isometric projection) after diamond footprint issues.
+- Attempted forced isometric basis transform on TileMapLayer; tiles stopped rendering.
+ - Set Tile Layout to Diamond Right to get straight-edge parallelogram footprint.
+ - Documented TileSet layout requirements in isometric pattern doc.
+
+### Files Modified
+- `scenes/world/ControlRoom.tscn`
+- `scripts/world/ControlRoom.cs`
+- `assets/tiles/iso_tiles/iso_tileset.tres`
+- `docs/technical/ISOMETRIC_BUILDING_PATTERN.md`
+
+### Next Steps
+- Validate in editor and tune Grid Anchor if needed.
+
+### Blockers
+- None
+
+---
+
+## Previous Session - Evidence Collection System Runtime Fixes ✅
 
 **Branch**: `feature/evidence-collection`
 
@@ -87,7 +116,7 @@
 
 ---
 
-## Current Session - Evidence Modal Terminal Improvements ✅
+## Previous Session - Evidence Modal Terminal Improvements ✅
 
 **Branch**: `feature/evidence-collection`
 
@@ -138,7 +167,7 @@
 
 ---
 
-## Current Session - Evidence Modal UI & Input Flow Improvements ✅
+## Previous Session - Evidence Modal UI & Input Flow Improvements ✅
 
 **Branch**: `feature/evidence-collection`
 

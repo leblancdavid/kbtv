@@ -4,14 +4,21 @@ uniform vec2 player_position = vec2(0.0, 0.0);
 uniform float object_height : hint_range(0.0, 128.0) = 32.0;
 uniform float fade_range : hint_range(0.0, 64.0) = 16.0;
 uniform bool occluder_enabled = true;
+uniform float custom_alpha : hint_range(0.0, 1.0) = 1.0;
 
 void fragment() {
-	if (!occluder_enabled) {
-		COLOR.a = 1.0;
+	vec4 tex_color = texture(TEXTURE, UV);
+	
+	if (tex_color.a == 0.0) {
+		COLOR = tex_color;
 		return;
 	}
 	
-	vec2 object_position = (COLOREXT.xy * (1.0 / TEXTURE_PIXEL_SIZE)) + VERTEX;
+	if (!occluder_enabled) {
+		COLOR = tex_color;
+		return;
+	}
+	
 	vec2 world_position = (MODEL_MATRIX * vec4(VERTEX, 0.0, 1.0)).xy;
 	
 	float object_top = world_position.y + object_height;
@@ -23,5 +30,9 @@ void fragment() {
 		alpha = clamp(distance_to_player / fade_range, 0.0, 1.0);
 	}
 	
-	COLOR.a = alpha * texture(TEXTURE, UV).a;
+	// Use custom_alpha for front wall occlusion
+	alpha = alpha * custom_alpha;
+	
+	COLOR = tex_color;
+	COLOR.a = alpha * tex_color.a;
 }
