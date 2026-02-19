@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://ckp7x8d3q4h8k"]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/TopicTab.cs" id="1"]
 

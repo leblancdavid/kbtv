@@ -1,26 +1,22 @@
-[gd_scene load_steps=25 format=3 uid="uid://btar47n3yptfo"]
+[gd_scene load_steps=16 format=3 uid="uid://chuqhubtslcgg"]
 
-[ext_resource type="PackedScene" uid="uid://2xfyhgvmpogv" path="res://scenes/world/Player.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/world/Player.tscn" id="1"]
 [ext_resource type="Texture2D" uid="uid://d17vn67f8xa0b" path="res://assets/tiles/floor/floor_dark.png" id="2_rpv3p"]
-[ext_resource type="Texture2D" uid="uid://walltop" path="res://assets/tiles/walls/wall_depth_top.png" id="10"]
-[ext_resource type="Texture2D" uid="uid://wallmid" path="res://assets/tiles/walls/wall_depth_mid.png" id="11"]
-[ext_resource type="Texture2D" uid="uid://wallbottom" path="res://assets/tiles/walls/wall_depth_bottom.png" id="12"]
-[ext_resource type="Texture2D" uid="uid://wallcorner" path="res://assets/tiles/walls/wall_depth_corner.png" id="13"]
-[ext_resource type="Texture2D" uid="uid://monitorconsole" path="res://assets/tiles/props/monitor_console_depth.png" id="14"]
-[ext_resource type="Texture2D" uid="uid://monitorscreengreen" path="res://assets/tiles/props/monitor_screen_green.png" id="15"]
-[ext_resource type="Texture2D" uid="uid://wallclock" path="res://assets/tiles/props/wall_clock.png" id="16"]
-[ext_resource type="Texture2D" uid="uid://cabinet" path="res://assets/tiles/props/cabinet_depth.png" id="17"]
-[ext_resource type="Texture2D" uid="uid://desk" path="res://assets/tiles/props/desk_depth.png" id="18"]
-[ext_resource type="Texture2D" uid="uid://phonebank" path="res://assets/tiles/props/phone_bank_depth.png" id="19"]
-[ext_resource type="Texture2D" uid="uid://coffeestation" path="res://assets/tiles/props/coffee_station.png" id="20"]
-[ext_resource type="Script" uid="uid://occluderscript" path="res://scripts/components/Occluder.cs" id="100"]
+[ext_resource type="Texture2D" uid="uid://bq830vkhrf6sd" path="res://assets/tiles/walls/wall_depth_top.png" id="10"]
+[ext_resource type="Texture2D" uid="uid://b1ed2mjjnexgo" path="res://assets/tiles/walls/wall_depth_mid.png" id="11"]
+[ext_resource type="Texture2D" uid="uid://ck8stjiry15v1" path="res://assets/tiles/walls/wall_depth_bottom.png" id="12"]
+[ext_resource type="Texture2D" uid="uid://5iycbbcukl3v" path="res://assets/tiles/props/monitor_console_depth.png" id="14"]
+[ext_resource type="Texture2D" uid="uid://cqyapcbtv8k6m" path="res://assets/tiles/props/monitor_screen_green.png" id="15"]
+[ext_resource type="Texture2D" uid="uid://bv5oq2jifiaay" path="res://assets/tiles/props/wall_clock.png" id="16"]
+[ext_resource type="Texture2D" uid="uid://cag4ye72l3ca8" path="res://assets/tiles/props/cabinet_depth.png" id="17"]
+[ext_resource type="Texture2D" uid="uid://bxurmorgs57ck" path="res://assets/tiles/props/desk_depth.png" id="18"]
+[ext_resource type="Texture2D" uid="uid://da0pugfob7r6n" path="res://assets/tiles/props/phone_bank_depth.png" id="19"]
+[ext_resource type="Texture2D" uid="uid://cortcya3bvicx" path="res://assets/tiles/props/coffee_station.png" id="20"]
+[ext_resource type="Script" uid="uid://upvbdqfyojvx" path="res://scripts/components/Occluder.cs" id="100"]
 
 [sub_resource type="TileSetAtlasSource" id="floor_dark"]
 texture = ExtResource("2_rpv3p")
 0:0/0 = 0
-1:0/0 = 0
-2:0/0 = 0
-3:0/0 = 0
 
 [sub_resource type="TileSet" id="tileset_floor"]
 sources/0 = SubResource("floor_dark")
@@ -28,11 +24,8 @@ sources/0 = SubResource("floor_dark")
 [node name="ControlRoom" type="Node2D"]
 
 [node name="FloorLayer" type="TileMapLayer" parent="."]
-tile_set = SubResource("tileset_floor")
-layer_name = "Floor"
-enabled = true
 y_sort_enabled = true
-tile_data = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+tile_set = SubResource("tileset_floor")
 
 [node name="Player" parent="." instance=ExtResource("1")]
 position = Vector2(320, 240)
@@ -155,55 +148,46 @@ Height = 48.0
 position = Vector2(32, 416)
 texture = ExtResource("12")
 script = ExtResource("100")
-Height = 32.0
 
 [node name="WallBottom2" type="Sprite2D" parent="."]
 position = Vector2(96, 416)
 texture = ExtResource("12")
 script = ExtResource("100")
-Height = 32.0
 
 [node name="WallBottom3" type="Sprite2D" parent="."]
 position = Vector2(160, 416)
 texture = ExtResource("12")
 script = ExtResource("100")
-Height = 32.0
 
 [node name="WallBottom4" type="Sprite2D" parent="."]
 position = Vector2(224, 416)
 texture = ExtResource("12")
 script = ExtResource("100")
-Height = 32.0
 
 [node name="WallBottom5" type="Sprite2D" parent="."]
 position = Vector2(288, 416)
 texture = ExtResource("12")
 script = ExtResource("100")
-Height = 32.0
 
 [node name="WallBottom6" type="Sprite2D" parent="."]
 position = Vector2(352, 416)
 texture = ExtResource("12")
 script = ExtResource("100")
-Height = 32.0
 
 [node name="WallBottom7" type="Sprite2D" parent="."]
 position = Vector2(416, 416)
 texture = ExtResource("12")
 script = ExtResource("100")
-Height = 32.0
 
 [node name="WallBottom8" type="Sprite2D" parent="."]
 position = Vector2(480, 416)
 texture = ExtResource("12")
 script = ExtResource("100")
-Height = 32.0
 
 [node name="WallBottom9" type="Sprite2D" parent="."]
 position = Vector2(544, 416)
 texture = ExtResource("12")
 script = ExtResource("100")
-Height = 32.0
 
 [node name="MonitorConsole" type="Sprite2D" parent="."]
 position = Vector2(384, 180)
@@ -249,4 +233,3 @@ Height = 40.0
 position = Vector2(560, 120)
 texture = ExtResource("20")
 script = ExtResource("100")
-Height = 32.0

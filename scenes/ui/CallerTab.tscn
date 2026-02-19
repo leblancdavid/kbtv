@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://caller_tab"]
+[gd_scene load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/CallerTab.cs" id="1"]
 

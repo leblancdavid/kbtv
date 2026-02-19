@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://game"]
+[gd_scene load_steps=3 format=3 uid="uid://ib5tojifmfsk"]
 
-[ext_resource type="Script" uid="uid://6klnv8xapn1o" path="res://scripts/Main.cs" id="1"]
-[ext_resource type="Script" uid="uid://c8g1qgxq3p4qb" path="res://scripts/core/ServiceProviderRoot.cs" id="2"]
+[ext_resource type="Script" uid="uid://bpjhqjvacdtwu" path="res://scripts/Main.cs" id="1"]
+[ext_resource type="Script" uid="uid://bxi206n0mswws" path="res://scripts/core/ServiceProviderRoot.cs" id="2"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -11,4 +11,3 @@ script = ExtResource("2")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(960, 540)
-

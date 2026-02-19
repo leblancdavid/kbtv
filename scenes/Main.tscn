@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://bxbaken7kvsjs"]
+[gd_scene load_steps=3 format=3]
 
-[ext_resource type="Script" uid="uid://6klnv8xapn1o" path="res://scripts/Main.cs" id="1"]
+[ext_resource type="Script" path="res://scripts/Main.cs" id="1"]
 [ext_resource type="Script" path="res://scripts/core/ServiceProviderRoot.cs" id="2"]
 
 [node name="Main" type="Node2D"]

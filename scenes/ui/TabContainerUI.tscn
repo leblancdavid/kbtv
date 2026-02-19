@@ -1,4 +1,4 @@
-[gd_scene load_steps=1 format=3 uid="uid://t7c5ergcmmbs"]
+[gd_scene load_steps=1 format=3]
 
 [node name="TabContainerUI" type="TabContainer"]
 anchors_preset = 15
