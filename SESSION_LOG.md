@@ -1,26 +1,24 @@
-## Current Session - Isometric ControlRoom Layout ✅
+## Current Session - ControlRoom 5x8 Layout
 
-**Branch**: `feature/` (unknown)
+**Branch**: `develop`
 
-**Task**: Implement rectangular grid with isometric projection using TileMapLayer (standard workflow).
+**Task**: Set ControlRoom to 5x8 grid, ensure walls use iso_tiles assets, add fallback texture loading, remove non-iso assets.
 
 ### Work Done
-- Confirmed TileMap is deprecated; migrated to TileMapLayer-based scene structure.
-- Updated `ControlRoom` to use TileMapLayer for floor and Sprite2D walls with Occluder.
-- Adjusted TileSet resource to use isometric tile shape.
-- Switching to rectangular logical grid (standard isometric projection) after diamond footprint issues.
-- Attempted forced isometric basis transform on TileMapLayer; tiles stopped rendering.
- - Set Tile Layout to Diamond Right to get straight-edge parallelogram footprint.
- - Documented TileSet layout requirements in isometric pattern doc.
+- Updated ControlRoom defaults to 5x8 grid.
+- Added fallback wall texture loading from iso_tiles.
+- Removed deprecated ControlRoom.gd and non-iso tile assets.
 
 ### Files Modified
-- `scenes/world/ControlRoom.tscn`
 - `scripts/world/ControlRoom.cs`
-- `assets/tiles/iso_tiles/iso_tileset.tres`
-- `docs/technical/ISOMETRIC_BUILDING_PATTERN.md`
+- `scripts/world/ControlRoom.gd` (deleted)
+- `scripts/world/ControlRoom.gd.uid` (deleted)
+- `assets/tiles/floor_iso/` (deleted)
+- `assets/tiles/walls_iso/` (deleted)
 
 ### Next Steps
-- Validate in editor and tune Grid Anchor if needed.
+- Update ControlRoom grid defaults to 5x8 and add wall texture fallbacks.
+- Remove unused non-iso tile assets after verifying no references.
 
 ### Blockers
 - None

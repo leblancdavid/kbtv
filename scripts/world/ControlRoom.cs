@@ -8,8 +8,8 @@ public partial class ControlRoom : Node2D
     [Export] private Texture2D _wallEast;
     [Export] private Vector2 _gridAnchor = new Vector2(320, 180);
 
-    [Export] private int _gridWidth = 4;
-    [Export] private int _gridHeight = 6;
+    [Export] private int _gridWidth = 5;
+    [Export] private int _gridHeight = 8;
 
     // TileSet source IDs from iso_tileset.tres
     private const int FLOOR_SOURCE_ID = 0;
@@ -28,6 +28,8 @@ public partial class ControlRoom : Node2D
             GD.PrintErr("ControlRoom: FloorLayer not found!");
             return;
         }
+
+        LoadWallTexturesFallback();
 
         // Create floor tiles on the TileMapLayer
         CreateFloor();
@@ -128,6 +130,14 @@ public partial class ControlRoom : Node2D
                 wallsNode.AddChild(sprite);
             }
         }
+    }
+
+    private void LoadWallTexturesFallback()
+    {
+        _wallNorth ??= GD.Load<Texture2D>("res://assets/tiles/iso_tiles/wall_north.png");
+        _wallSouth ??= GD.Load<Texture2D>("res://assets/tiles/iso_tiles/wall_south.png");
+        _wallWest ??= GD.Load<Texture2D>("res://assets/tiles/iso_tiles/wall_west.png");
+        _wallEast ??= GD.Load<Texture2D>("res://assets/tiles/iso_tiles/wall_east.png");
     }
 
     private Vector2 AutoCenterFloor()
