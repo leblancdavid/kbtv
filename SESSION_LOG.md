@@ -14,6 +14,7 @@
 - Adjusted shelf pixel offsets to move them down one row visually.
 - Lowered prop sprite Z index and raised south wall/door layers to render above props.
 - Dropped shelves another 16px via pixel offsets.
+- Moved shelves back up 16px.
 
 ### In Progress
 - None.

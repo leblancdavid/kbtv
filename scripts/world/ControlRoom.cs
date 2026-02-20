@@ -166,8 +166,8 @@ public partial class ControlRoom : Node2D
         AddProp("res://assets/tiles/props/computer_station.png", new Vector2I(4, 1), new Vector2(-2, -38));
 
         AddProp("res://assets/tiles/props/audio_cabinet.png", new Vector2I(6, 1), new Vector2(0, -40));
-        AddProp("res://assets/tiles/props/storage_shelf.png", new Vector2I(2, 4), new Vector2(-16, 0));
-        AddProp("res://assets/tiles/props/storage_shelf.png", new Vector2I(5, 4), new Vector2(-16, 0));
+        AddProp("res://assets/tiles/props/storage_shelf.png", new Vector2I(2, 4), new Vector2(-16, -16));
+        AddProp("res://assets/tiles/props/storage_shelf.png", new Vector2I(5, 4), new Vector2(-16, -16));
         AddProp("res://assets/tiles/props/computer_chair.png", new Vector2I(3, 2), new Vector2(0, -22));
     }
 
