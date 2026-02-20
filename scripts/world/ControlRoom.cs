@@ -30,6 +30,7 @@ public partial class ControlRoom : Node2D
     private TileMapLayer _doorLayer;
     private Vector2 _gridOffset = Vector2.Zero;
     private Node2D _player;
+    private Node2D _propsRoot;
 
     public override void _Ready()
     {
@@ -68,6 +69,13 @@ public partial class ControlRoom : Node2D
             return;
         }
 
+        _propsRoot = GetNode<Node2D>("Props");
+        if (_propsRoot == null)
+        {
+            GD.PrintErr("ControlRoom: Props root not found!");
+            return;
+        }
+
         // Create floor tiles on the TileMapLayer
         CreateFloor();
 
@@ -78,9 +86,13 @@ public partial class ControlRoom : Node2D
         _southWallLayer.Position = _gridOffset;
         _southWallStripLayer.Position = _gridOffset;
         _doorLayer.Position = _gridOffset;
+        _propsRoot.Position = _gridOffset;
 
         // Create walls as tiles
         CreateWalls();
+
+        // Create props
+        CreateProps();
 
         // Position player in center
         _player = GetNode<Node2D>("Player");
@@ -136,6 +148,40 @@ public partial class ControlRoom : Node2D
         {
             _southWallStripLayer.SetCell(new Vector2I(x, _gridHeight - 1), WALL_SOUTH_STRIP_SOURCE_ID, ATLAS_COORDS_LEFT);
         }
+    }
+
+    private void CreateProps()
+    {
+        _propsRoot.QueueFree();
+        _propsRoot = new Node2D { Name = "Props", Position = _gridOffset };
+        AddChild(_propsRoot);
+
+        AddProp("res://assets/tiles/props/speaker_stand.png", new Vector2I(1, 1), new Vector2(0, -40));
+        AddProp("res://assets/tiles/props/speaker_stand.png", new Vector2I(5, 1), new Vector2(0, -40));
+
+        AddProp("res://assets/tiles/props/studio_table.png", new Vector2I(3, 1), new Vector2(0, -20));
+
+        AddProp("res://assets/tiles/props/phone_line.png", new Vector2I(2, 1), new Vector2(4, -26));
+        AddProp("res://assets/tiles/props/sound_board.png", new Vector2I(3, 1), new Vector2(2, -26));
+        AddProp("res://assets/tiles/props/computer_station.png", new Vector2I(4, 1), new Vector2(-2, -38));
+    }
+
+    private void AddProp(string texturePath, Vector2I gridCoords, Vector2 pixelOffset)
+    {
+        var texture = GD.Load<Texture2D>(texturePath);
+        if (texture == null)
+        {
+            GD.PrintErr($"ControlRoom: Missing prop texture {texturePath}");
+            return;
+        }
+
+        var sprite = new Sprite2D
+        {
+            Texture = texture,
+            Position = _floorLayer.MapToLocal(gridCoords) + pixelOffset,
+            ZIndex = 3
+        };
+        _propsRoot.AddChild(sprite);
     }
 
     private Vector2 AutoCenterFloor()

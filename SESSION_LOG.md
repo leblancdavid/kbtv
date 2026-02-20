@@ -29,6 +29,12 @@
 - Enhanced east wall door tile with visible frame and interior.
 - Added a dedicated DoorLayer to render the door above walls.
 - Documented the topdown building pattern and updated AGENTS references.
+- Adjusted wall tile origins to render upward without overlapping floor rows.
+- Moved props to row 1 and shifted the table right to span x=3-5.
+- Shifted table-top props one tile left.
+- Centered speaker props on their tiles.
+- Added placeholder studio props (speakers, table, phone line, sound board, computer) to the ControlRoom.
+- Aligned north wall props to row 0 with speakers at x=1/5 and centered table span x=2-4.
 
 ### In Progress
 - None.
@@ -48,6 +54,11 @@
 - `docs/technical/TOPDOWN_BUILDING_PATTERN.md`
 - `docs/technical/ISOMETRIC_BUILDING_PATTERN.md` (deleted)
 - `AGENTS.md`
+- `assets/tiles/props/speaker_stand.png`
+- `assets/tiles/props/studio_table.png`
+- `assets/tiles/props/phone_line.png`
+- `assets/tiles/props/sound_board.png`
+- `assets/tiles/props/computer_station.png`
 
 ### Next Steps
 - Redesign props to match the topdown wall/floor style.
