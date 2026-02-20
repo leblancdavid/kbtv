@@ -7,7 +7,7 @@ public partial class ControlRoom : Node2D
     [Export] private float _southWallHideOffset = 8.0f;
 
     [Export] private int _gridWidth = 7;
-    [Export] private int _gridHeight = 7;
+    [Export] private int _gridHeight = 5;
 
     // TileSet source IDs from topdown_tileset.tres
     private const int FLOOR_SOURCE_ID = 0;
@@ -125,7 +125,7 @@ public partial class ControlRoom : Node2D
 
     private void CreateWalls()
     {
-        var doorY = Mathf.Clamp(3, 0, _gridHeight - 1);
+        var doorY = Mathf.Clamp(1, 0, _gridHeight - 1);
         for (int x = 0; x < _gridWidth; x++)
         {
             var northAtlas = ResolveHorizontalAtlas(x, _gridWidth);
@@ -164,6 +164,11 @@ public partial class ControlRoom : Node2D
         AddProp("res://assets/tiles/props/phone_line.png", new Vector2I(2, 1), new Vector2(4, -26));
         AddProp("res://assets/tiles/props/sound_board.png", new Vector2I(3, 1), new Vector2(2, -26));
         AddProp("res://assets/tiles/props/computer_station.png", new Vector2I(4, 1), new Vector2(-2, -38));
+
+        AddProp("res://assets/tiles/props/audio_cabinet.png", new Vector2I(6, 1), new Vector2(0, -40));
+        AddProp("res://assets/tiles/props/storage_shelf.png", new Vector2I(2, 4), new Vector2(-16, 0));
+        AddProp("res://assets/tiles/props/storage_shelf.png", new Vector2I(5, 4), new Vector2(-16, 0));
+        AddProp("res://assets/tiles/props/computer_chair.png", new Vector2I(3, 2), new Vector2(0, -22));
     }
 
     private void AddProp(string texturePath, Vector2I gridCoords, Vector2 pixelOffset)
@@ -179,7 +184,7 @@ public partial class ControlRoom : Node2D
         {
             Texture = texture,
             Position = _floorLayer.MapToLocal(gridCoords) + pixelOffset,
-            ZIndex = 3
+            ZIndex = 2
         };
         _propsRoot.AddChild(sprite);
     }

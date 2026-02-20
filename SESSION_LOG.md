@@ -1,4 +1,40 @@
-## Current Session - Topdown 2D Tiles Redesign
+## Current Session - ControlRoom Props Additions
+
+**Branch**: `develop`
+
+**Task**: Add cabinet (audio equipment), two storage shelves, and a computer chair to the ControlRoom layout.
+
+### Work Done
+- Added new prop textures (audio cabinet, storage shelf, computer chair).
+- Placed cabinet in top-right, shelves along bottom wall, and chair below table.
+- Reduced ControlRoom height to 5 rows, moved door up, and realigned shelves to new bottom row.
+- Shifted chair up 16px.
+- Increased ControlRoom height to 6 rows to place shelves at y=5 and shifted left shelf right.
+- Reverted ControlRoom height to 5 rows and moved shelves back to y=4.
+- Adjusted shelf pixel offsets to move them down one row visually.
+- Lowered prop sprite Z index and raised south wall/door layers to render above props.
+- Dropped shelves another 16px via pixel offsets.
+
+### In Progress
+- None.
+
+### Files Modified
+- `scripts/world/ControlRoom.cs`
+- `assets/tiles/props/audio_cabinet.png`
+- `assets/tiles/props/storage_shelf.png`
+- `assets/tiles/props/computer_chair.png`
+- `SESSION_LOG.md`
+- `scenes/world/ControlRoom.tscn`
+
+### Next Steps
+- Verify placements in scene and tweak offsets if needed.
+
+### Blockers
+- None
+
+---
+
+## Previous Session - Topdown 2D Tiles Redesign
 
 **Branch**: `develop`
 
