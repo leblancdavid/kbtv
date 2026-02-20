@@ -27,6 +27,7 @@ public partial class ControlRoom : Node2D
     private TileMapLayer _wallLayer;
     private TileMapLayer _southWallLayer;
     private TileMapLayer _southWallStripLayer;
+    private TileMapLayer _doorLayer;
     private Vector2 _gridOffset = Vector2.Zero;
     private Node2D _player;
 
@@ -60,6 +61,13 @@ public partial class ControlRoom : Node2D
             return;
         }
 
+        _doorLayer = GetNode<TileMapLayer>("DoorLayer");
+        if (_doorLayer == null)
+        {
+            GD.PrintErr("ControlRoom: DoorLayer not found!");
+            return;
+        }
+
         // Create floor tiles on the TileMapLayer
         CreateFloor();
 
@@ -69,6 +77,7 @@ public partial class ControlRoom : Node2D
         _wallLayer.Position = _gridOffset;
         _southWallLayer.Position = _gridOffset;
         _southWallStripLayer.Position = _gridOffset;
+        _doorLayer.Position = _gridOffset;
 
         // Create walls as tiles
         CreateWalls();
@@ -121,6 +130,8 @@ public partial class ControlRoom : Node2D
             _wallLayer.SetCell(new Vector2I(_gridWidth, y), WALL_EAST_SOURCE_ID, eastAtlas);
         }
 
+        _doorLayer.SetCell(new Vector2I(_gridWidth, doorY), WALL_EAST_SOURCE_ID, ATLAS_COORDS_DOOR);
+
         for (int x = 0; x < _gridWidth; x++)
         {
             _southWallStripLayer.SetCell(new Vector2I(x, _gridHeight - 1), WALL_SOUTH_STRIP_SOURCE_ID, ATLAS_COORDS_LEFT);
@@ -156,6 +167,10 @@ public partial class ControlRoom : Node2D
         if (_southWallStripLayer != null)
         {
             _southWallStripLayer.Visible = shouldHide;
+        }
+        if (_doorLayer != null)
+        {
+            _doorLayer.Visible = true;
         }
     }
 

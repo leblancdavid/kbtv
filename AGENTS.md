@@ -48,6 +48,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [AUDIO_DESIGN.md](docs/audio/AUDIO_DESIGN.md) | Sound design, music, and audio technical specs |
 | [ROADMAP.md](docs/design/ROADMAP.md) | Development milestones and feature backlog |
 | [CI_CD_SETUP.md](docs/technical/CI_CD_SETUP.md) | Build and export setup for Godot (CI/CD not currently implemented) |
+| [TOPDOWN_BUILDING_PATTERN.md](docs/technical/TOPDOWN_BUILDING_PATTERN.md) | Topdown room building pattern - tile specs, wall layers, and south wall hiding |
 | [UI_DESIGN.md](docs/ui/UI_DESIGN.md) | UI design document - layout, panels, typography, and interaction design |
 | [UI_IMPLEMENTATION.md](docs/ui/UI_IMPLEMENTATION.md) | UI implementation pattern - uGUI Canvas, phase-based UI, creating panels |
 | [SCREENING_DESIGN.md](docs/ui/SCREENING_DESIGN.md) | Screening system design - information gathering game, property revelations, patience system |

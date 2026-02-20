@@ -19,5 +19,9 @@ tile_set = ExtResource("2")
 [node name="SouthWallStripLayer" type="TileMapLayer" parent="."]
 tile_set = ExtResource("2")
 
+[node name="DoorLayer" type="TileMapLayer" parent="."]
+tile_set = ExtResource("2")
+z_index = 5
+
 [node name="Player" parent="." instance=ExtResource("1")]
 position = Vector2(7, -16)

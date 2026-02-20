@@ -2,7 +2,7 @@
 
 **Branch**: `develop`
 
-**Task**: Switch from isometric to topdown 2D tiles (32px), redesign wall assets (64px tall), implement south wall hide with Y-threshold, set internal resolution to 640x360 with UI scaling, and resize ControlRoom to 7x7.
+**Task**: Switch from isometric to topdown 2D tiles (32px), redesign wall assets (64px tall), implement south wall hide with Y-threshold, set internal resolution to 640x360 with UI scaling, resize ControlRoom to 7x7, and update documentation for the new topdown pattern.
 
 ### Work Done
 - Confirmed 32px tiles, 64px wall height (Stardew-like proportions), and UI scaling with internal resolution.
@@ -24,19 +24,19 @@
 - Extended east/west walls down to meet the south wall row.
 - Moved south wall strip to the south wall row for alignment and trimmed east/west wall range.
 - Shifted south wall and strip up one tile to align with floor edge.
+- Tweaked wall atlas shading (lighter top band, darker base) and darkened south strip.
+- Regenerated east/west wall atlases with 16px strips and 32px top band.
+- Enhanced east wall door tile with visible frame and interior.
+- Added a dedicated DoorLayer to render the door above walls.
+- Documented the topdown building pattern and updated AGENTS references.
 
 ### In Progress
-- Adjust wall rendering to match north/south alignment and strip behavior.
+- None.
 
 ### Files Modified
 - `scripts/world/ControlRoom.cs`
 - `scenes/world/ControlRoom.tscn`
 - `project.godot`
-- `assets/tiles/iso_tiles/iso_tileset.tres`
-- `assets/tiles/topdown/wall_north.png`
-- `assets/tiles/topdown/wall_south.png`
-- `assets/tiles/topdown/wall_west.png`
-- `assets/tiles/topdown/wall_east.png`
 - `assets/tiles/topdown/floor_atlas.png`
 - `assets/tiles/topdown/wall_north_atlas.png`
 - `assets/tiles/topdown/wall_south_atlas.png`
@@ -45,11 +45,12 @@
 - `assets/tiles/topdown/topdown_tileset.tres`
 - `scenes/world/ControlRoom.tscn`
 - `assets/tiles/topdown/wall_south_strip.png`
+- `docs/technical/TOPDOWN_BUILDING_PATTERN.md`
+- `docs/technical/ISOMETRIC_BUILDING_PATTERN.md` (deleted)
+- `AGENTS.md`
 
 ### Next Steps
-- Update `project.godot` for 640x360 internal resolution and window size settings.
-- Replace iso tile assets/tilesets with topdown variants and adjust atlas regions.
-- Update ControlRoom build logic for new tile IDs and south wall hide.
+- Redesign props to match the topdown wall/floor style.
 
 ### Blockers
 - None
