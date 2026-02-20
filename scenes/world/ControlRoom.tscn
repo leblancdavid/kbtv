@@ -1,13 +1,22 @@
 [gd_scene load_steps=4 format=3 uid="uid://chuqhubtslcgg"]
 
 [ext_resource type="PackedScene" uid="uid://bk68g26c8oppy" path="res://scenes/world/Player.tscn" id="1"]
-[ext_resource type="TileSet" uid="uid://7h5w5ev5n5d6" path="res://assets/tiles/iso_tiles/iso_tileset.tres" id="2"]
+[ext_resource type="TileSet" uid="uid://7h5w5ev5n5d6" path="res://assets/tiles/topdown/topdown_tileset.tres" id="2"]
 [ext_resource type="Script" uid="uid://be2dodntrrbnh" path="res://scripts/world/ControlRoom.cs" id="3"]
 
 [node name="ControlRoom" type="Node2D"]
 script = ExtResource("3")
 
 [node name="FloorLayer" type="TileMapLayer" parent="."]
+tile_set = ExtResource("2")
+
+[node name="WallLayer" type="TileMapLayer" parent="."]
+tile_set = ExtResource("2")
+
+[node name="SouthWallLayer" type="TileMapLayer" parent="."]
+tile_set = ExtResource("2")
+
+[node name="SouthWallStripLayer" type="TileMapLayer" parent="."]
 tile_set = ExtResource("2")
 
 [node name="Player" parent="." instance=ExtResource("1")]

@@ -1,13 +1,79 @@
-## Current Session - ControlRoom 5x8 Layout
+## Current Session - Topdown 2D Tiles Redesign
 
 **Branch**: `develop`
 
-**Task**: Set ControlRoom to 5x8 grid, ensure walls use iso_tiles assets, add fallback texture loading, remove non-iso assets.
+**Task**: Switch from isometric to topdown 2D tiles (32px), redesign wall assets (64px tall), implement south wall hide with Y-threshold, set internal resolution to 640x360 with UI scaling, and resize ControlRoom to 7x7.
+
+### Work Done
+- Confirmed 32px tiles, 64px wall height (Stardew-like proportions), and UI scaling with internal resolution.
+- Decided on Y-threshold for south wall hiding.
+- Implemented south wall layer split and Y-threshold visibility toggling.
+- Switched internal viewport to 640x360.
+- Added topdown placeholder wall textures (64px tall) and repointed tileset.
+- Added topdown floor atlas (dark + light) and updated tileset source.
+- Added topdown wall atlases with corners and door tiles; updated ControlRoom to use corner atlas coords.
+- Added east wall door tile and placed door in east wall midpoint.
+- Resized ControlRoom to 7x7 and set east wall door to row 4.
+- Adjusted east wall door to row index 3 (0-based).
+- Removed unused iso/floor/wall tile assets and kept topdown + props.
+- Renamed tileset to topdown and updated references.
+- Cleared Godot editor filesystem cache entries referencing old tileset path.
+- Removed Godot UID cache so old resource paths are rebuilt.
+- Added south wall strip tileset source and layer; south wall now hides with strip visible.
+- Extended east/west walls to include the north wall row.
+- Extended east/west walls down to meet the south wall row.
+- Moved south wall strip to the south wall row for alignment and trimmed east/west wall range.
+- Shifted south wall and strip up one tile to align with floor edge.
+
+### In Progress
+- Adjust wall rendering to match north/south alignment and strip behavior.
+
+### Files Modified
+- `scripts/world/ControlRoom.cs`
+- `scenes/world/ControlRoom.tscn`
+- `project.godot`
+- `assets/tiles/iso_tiles/iso_tileset.tres`
+- `assets/tiles/topdown/wall_north.png`
+- `assets/tiles/topdown/wall_south.png`
+- `assets/tiles/topdown/wall_west.png`
+- `assets/tiles/topdown/wall_east.png`
+- `assets/tiles/topdown/floor_atlas.png`
+- `assets/tiles/topdown/wall_north_atlas.png`
+- `assets/tiles/topdown/wall_south_atlas.png`
+- `assets/tiles/topdown/wall_west_atlas.png`
+- `assets/tiles/topdown/wall_east_atlas.png`
+- `assets/tiles/topdown/topdown_tileset.tres`
+- `scenes/world/ControlRoom.tscn`
+- `assets/tiles/topdown/wall_south_strip.png`
+
+### Next Steps
+- Update `project.godot` for 640x360 internal resolution and window size settings.
+- Replace iso tile assets/tilesets with topdown variants and adjust atlas regions.
+- Update ControlRoom build logic for new tile IDs and south wall hide.
+
+### Blockers
+- None
+
+---
+
+## Previous Session - ControlRoom 5x8 Layout
+
+**Branch**: `develop`
+
+**Task**: Set ControlRoom to 5x8 grid, ensure walls use iso_tiles assets, add fallback texture loading, remove non-iso tile assets.
 
 ### Work Done
 - Updated ControlRoom defaults to 5x8 grid.
 - Added fallback wall texture loading from iso_tiles.
 - Removed deprecated ControlRoom.gd and non-iso tile assets.
+
+### In Progress
+- Regenerate isometric placeholder assets (3-tone shading, 96px wall height, 16px thickness, no outlines).
+
+### Work Done
+- Regenerated iso_tiles placeholder assets with new wall proportions and shading.
+- Updated TileSet atlas region sizes to match new wall dimensions.
+ - Rebuilt wall textures with angled caps and 32px east/west widths.
 
 ### Files Modified
 - `scripts/world/ControlRoom.cs`
