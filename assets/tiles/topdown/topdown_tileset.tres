@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://clubpf35wpxio" path="res://assets/tiles/topdown/wall_west_atlas.png" id="4"]
 [ext_resource type="Texture2D" uid="uid://bhh2t0hfgkqvh" path="res://assets/tiles/topdown/wall_east_atlas.png" id="5"]
 [ext_resource type="Texture2D" uid="uid://b5k4mx3xf33l1" path="res://assets/tiles/topdown/wall_south_strip.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://cw0j1i4q5o6f7" path="res://assets/tiles/topdown/grid_debug.png" id="7"]
 
 [sub_resource type="TileSetAtlasSource" id="floor_source"]
 texture = ExtResource("1")
@@ -54,6 +55,11 @@ texture_region_size = Vector2i(32, 64)
 texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="grid_debug_source"]
+texture = ExtResource("7")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+
 [resource]
 tile_shape = 0
 tile_layout = 0
@@ -64,3 +70,4 @@ sources/2 = SubResource("wall_south_source")
 sources/3 = SubResource("wall_west_source")
 sources/4 = SubResource("wall_east_source")
 sources/5 = SubResource("wall_south_strip_source")
+sources/6 = SubResource("grid_debug_source")

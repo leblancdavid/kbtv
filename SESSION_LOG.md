@@ -1,34 +1,24 @@
-## Current Session - ControlRoom Props Additions
+## Current Session - Topdown Pattern Documentation
 
 **Branch**: `develop`
 
-**Task**: Add cabinet (audio equipment), two storage shelves, and a computer chair to the ControlRoom layout.
+**Task**: Document the finalized topdown pattern (bottom anchors, layering, door/wall rules, debug grid) to standardize future work.
 
 ### Work Done
-- Added new prop textures (audio cabinet, storage shelf, computer chair).
-- Placed cabinet in top-right, shelves along bottom wall, and chair below table.
-- Reduced ControlRoom height to 5 rows, moved door up, and realigned shelves to new bottom row.
-- Shifted chair up 16px.
-- Increased ControlRoom height to 6 rows to place shelves at y=5 and shifted left shelf right.
-- Reverted ControlRoom height to 5 rows and moved shelves back to y=4.
-- Adjusted shelf pixel offsets to move them down one row visually.
-- Lowered prop sprite Z index and raised south wall/door layers to render above props.
-- Dropped shelves another 16px via pixel offsets.
-- Moved shelves back up 16px.
+- Added bottom-anchor rule to the topdown pattern.
+- Captured layering strategy (PropsBack/PropsFront) and player swap logic.
+- Added debug grid toggle for layout verification.
 
 ### In Progress
 - None.
 
 ### Files Modified
-- `scripts/world/ControlRoom.cs`
-- `assets/tiles/props/audio_cabinet.png`
-- `assets/tiles/props/storage_shelf.png`
-- `assets/tiles/props/computer_chair.png`
+- `docs/technical/TOPDOWN_BUILDING_PATTERN.md`
+- `AGENTS.md`
 - `SESSION_LOG.md`
-- `scenes/world/ControlRoom.tscn`
 
 ### Next Steps
-- Verify placements in scene and tweak offsets if needed.
+- Continue refining prop placement as needed.
 
 ### Blockers
 - None
@@ -91,6 +81,10 @@
 - Replaced y-sorting with layered props and player layer swapping; table props now in front layer.
 - Updated door art to be bottom-anchored (opening extends north).
 - Fixed player reparenting to avoid adding child twice.
+- Enforced bottom-anchor rule for props and collision placement; updated docs.
+- Shifted all prop grid rows down by 1 to compensate for bottom-anchor change.
+- Added a toggleable grid debug layer and nudged table cluster up by 16px; chair moved up one row.
+- Added grid debug toggle on ui_select in ControlRoom.
 - Added placeholder studio props (speakers, table, phone line, sound board, computer) to the ControlRoom.
 - Aligned north wall props to row 0 with speakers at x=1/5 and centered table span x=2-4.
 

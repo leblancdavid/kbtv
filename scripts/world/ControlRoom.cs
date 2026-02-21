@@ -18,6 +18,7 @@ public partial class ControlRoom : Node2D
     private const int WALL_WEST_SOURCE_ID = 3;
     private const int WALL_EAST_SOURCE_ID = 4;
     private const int WALL_SOUTH_STRIP_SOURCE_ID = 5;
+    private const int GRID_DEBUG_SOURCE_ID = 6;
 
     // Atlas coordinates
     private static readonly Vector2I ATLAS_COORDS_LEFT = new Vector2I(0, 0);
@@ -30,11 +31,13 @@ public partial class ControlRoom : Node2D
     private TileMapLayer _southWallLayer;
     private TileMapLayer _southWallStripLayer;
     private TileMapLayer _doorLayer;
+    private TileMapLayer _gridDebugLayer;
     private Vector2 _gridOffset = Vector2.Zero;
     private Node2D _player;
     private Node2D _propsBackRoot;
     private Node2D _propsFrontRoot;
     private StaticBody2D _wallColliderBody;
+    private float _tableSortY;
 
     private const float TileSize = 32.0f;
     private const float WallThickness = 8.0f;
@@ -77,6 +80,13 @@ public partial class ControlRoom : Node2D
             return;
         }
 
+        _gridDebugLayer = GetNode<TileMapLayer>("GridDebugLayer");
+        if (_gridDebugLayer == null)
+        {
+            GD.PrintErr("ControlRoom: GridDebugLayer not found!");
+            return;
+        }
+
         _propsBackRoot = GetNode<Node2D>("PropsBack");
         if (_propsBackRoot == null)
         {
@@ -101,11 +111,15 @@ public partial class ControlRoom : Node2D
         _southWallLayer.Position = _gridOffset;
         _southWallStripLayer.Position = _gridOffset;
         _doorLayer.Position = _gridOffset;
+        _gridDebugLayer.Position = _gridOffset;
         _propsBackRoot.Position = _gridOffset;
         _propsFrontRoot.Position = _gridOffset;
 
         // Create walls as tiles
         CreateWalls();
+
+        // Create debug grid overlay
+        CreateDebugGrid();
 
         // Create wall collisions
         CreateWallColliders();
@@ -129,6 +143,14 @@ public partial class ControlRoom : Node2D
     {
         UpdateSouthWallVisibility();
         UpdatePlayerLayering();
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        if (@event.IsActionPressed("ui_select"))
+        {
+            _gridDebugLayer.Visible = !_gridDebugLayer.Visible;
+        }
     }
 
     private void CreateFloor()
@@ -181,19 +203,33 @@ public partial class ControlRoom : Node2D
         AddChild(_propsBackRoot);
         AddChild(_propsFrontRoot);
 
-        AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(1, 1), new Vector2(0, -40), true, new Vector2(24, 16));
-        AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(5, 1), new Vector2(0, -40), true, new Vector2(24, 16));
+        AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(1, 2), new Vector2(0, -40), true, new Vector2(24, 16));
+        AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(5, 2), new Vector2(0, -40), true, new Vector2(24, 16));
 
-        AddProp(_propsBackRoot, "res://assets/tiles/props/studio_table.png", new Vector2I(3, 1), new Vector2(0, -20), true, new Vector2(96, 14));
+        var tableBase = _floorLayer.MapToLocal(new Vector2I(3, 2)) + new Vector2(0, -36);
+        _tableSortY = _gridOffset.Y + tableBase.Y;
+        AddProp(_propsBackRoot, "res://assets/tiles/props/studio_table.png", new Vector2I(3, 2), new Vector2(0, -36), true, new Vector2(96, 14));
 
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/phone_line.png", new Vector2I(2, 1), new Vector2(4, -26), true, new Vector2(20, 10));
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/sound_board.png", new Vector2I(3, 1), new Vector2(2, -26), true, new Vector2(22, 10));
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/computer_station.png", new Vector2I(4, 1), new Vector2(-2, -38), true, new Vector2(22, 12));
+        AddProp(_propsFrontRoot, "res://assets/tiles/props/phone_line.png", new Vector2I(2, 2), new Vector2(4, -42), true, new Vector2(20, 10));
+        AddProp(_propsFrontRoot, "res://assets/tiles/props/sound_board.png", new Vector2I(3, 2), new Vector2(2, -42), true, new Vector2(22, 10));
+        AddProp(_propsFrontRoot, "res://assets/tiles/props/computer_station.png", new Vector2I(4, 2), new Vector2(-2, -54), true, new Vector2(22, 12));
 
-        AddProp(_propsBackRoot, "res://assets/tiles/props/audio_cabinet.png", new Vector2I(6, 1), new Vector2(0, -40), true, new Vector2(24, 16));
-        AddProp(_propsBackRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(2, 4), new Vector2(-16, -16), true, new Vector2(28, 12));
-        AddProp(_propsBackRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(5, 4), new Vector2(-16, -16), true, new Vector2(28, 12));
+        AddProp(_propsBackRoot, "res://assets/tiles/props/audio_cabinet.png", new Vector2I(6, 2), new Vector2(0, -40), true, new Vector2(24, 16));
+        AddProp(_propsBackRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(2, 5), new Vector2(-16, -16), true, new Vector2(28, 12));
+        AddProp(_propsBackRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(5, 5), new Vector2(-16, -16), true, new Vector2(28, 12));
         AddProp(_propsFrontRoot, "res://assets/tiles/props/computer_chair.png", new Vector2I(3, 2), new Vector2(0, -22), false, Vector2.Zero);
+    }
+
+    private void CreateDebugGrid()
+    {
+        _gridDebugLayer.Clear();
+        for (int y = 0; y < _gridHeight; y++)
+        {
+            for (int x = 0; x < _gridWidth; x++)
+            {
+                _gridDebugLayer.SetCell(new Vector2I(x, y), GRID_DEBUG_SOURCE_ID, ATLAS_COORDS_LEFT);
+            }
+        }
     }
 
     private void AddProp(Node2D parent, string texturePath, Vector2I gridCoords, Vector2 pixelOffset, bool collidable, Vector2 colliderSize)
@@ -209,7 +245,7 @@ public partial class ControlRoom : Node2D
         var root = collidable ? new StaticBody2D() : new Node2D();
         root.Position = basePosition;
 
-        var sprite = new Sprite2D { Texture = texture, Position = new Vector2(0, -8) };
+        var sprite = new Sprite2D { Texture = texture, Position = new Vector2(0, -texture.GetSize().Y * 0.5f) };
         root.AddChild(sprite);
 
         if (collidable && root is StaticBody2D body)
@@ -217,8 +253,7 @@ public partial class ControlRoom : Node2D
             var shape = new RectangleShape2D { Size = colliderSize };
             var collision = new CollisionShape2D { Shape = shape };
 
-            var size = texture.GetSize();
-            collision.Position = new Vector2(0, (size.Y * 0.5f) - (colliderSize.Y * 0.5f) - 8);
+            collision.Position = new Vector2(0, -(colliderSize.Y * 0.5f));
             body.AddChild(collision);
         }
 
@@ -230,8 +265,7 @@ public partial class ControlRoom : Node2D
         if (_player == null || _propsBackRoot == null || _propsFrontRoot == null)
             return;
 
-        var tableSortY = _floorLayer.MapToLocal(new Vector2I(3, 1)).Y + _gridOffset.Y - 4;
-        if (_player.GlobalPosition.Y < tableSortY)
+        if (_player.GlobalPosition.Y < _tableSortY)
         {
             if (_player.GetParent() != _propsBackRoot)
                 _player.Reparent(_propsBackRoot);
@@ -250,7 +284,7 @@ public partial class ControlRoom : Node2D
         _wallColliderBody = new StaticBody2D { Name = "WallColliders", Position = _gridOffset };
         AddChild(_wallColliderBody);
 
-        var topLeft = _floorLayer.MapToLocal(new Vector2I(0, 0)) - new Vector2(TileSize * 0.5f, TileSize * 0.5f);
+        var topLeft = _floorLayer.MapToLocal(new Vector2I(0, 0));
         var width = _gridWidth * TileSize;
         var height = _gridHeight * TileSize;
 

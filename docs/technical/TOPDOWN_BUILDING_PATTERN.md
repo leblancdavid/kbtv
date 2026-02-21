@@ -12,6 +12,41 @@ KBTV uses a square topdown tile layout with faux perspective walls. This documen
 - **Top band height (walls)**: 32px
 - **Bottom band height (walls)**: 16px
 
+## Bottom-Anchor Rule
+
+- **All sprites use a bottom anchor** (the bottom of the image sits on the tile line).
+- **Any sprite taller than 32px extends upward only**.
+- **Collisions are placed at the bottom of the sprite** (not centered).
+
+## Layering Strategy (Player vs Props)
+
+KBTV uses explicit layers instead of full Y-sort for predictable occlusion.
+
+- `PropsBack`: large furniture (tables, speakers, shelves, cabinets)
+- `PropsFront`: small tabletop items and chairs
+- `Player` is moved between these layers based on a per-object threshold
+
+**Pattern (ControlRoom):**
+
+```csharp
+private void UpdatePlayerLayering()
+{
+    var tableSortY = _tableSortY;
+    if (_player.GlobalPosition.Y < tableSortY)
+        _player.Reparent(_propsBackRoot);
+    else
+        _player.Reparent(_propsFrontRoot);
+}
+```
+
+## Debug Grid Overlay
+
+Use a dedicated debug TileMapLayer with a grid tile for layout verification:
+
+- Tile: `assets/tiles/topdown/grid_debug.png`
+- Layer: `GridDebugLayer` (set `visible=false` by default)
+- Toggle in `ControlRoom` using `ui_select`
+
 ## Tileset Configuration
 
 - **Tile Shape**: Square
