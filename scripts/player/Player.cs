@@ -7,6 +7,7 @@ public partial class Player : CharacterBody2D
     public override void _Ready()
     {
         AddToGroup("player");
+        YSortEnabled = true;
     }
 
     public override void _PhysicsProcess(double delta)

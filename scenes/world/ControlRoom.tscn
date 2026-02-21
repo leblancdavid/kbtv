@@ -25,7 +25,10 @@ z_index = 10
 tile_set = ExtResource("2")
 z_index = 11
 
-[node name="Props" type="Node2D" parent="."]
+
+[node name="PropsBack" type="Node2D" parent="."]
+
+[node name="PropsFront" type="Node2D" parent="."]
 
 [node name="Player" parent="." instance=ExtResource("1")]
 position = Vector2(7, -16)

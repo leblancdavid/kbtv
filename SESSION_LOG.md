@@ -70,6 +70,27 @@
 - Moved props to row 1 and shifted the table right to span x=3-5.
 - Shifted table-top props one tile left.
 - Centered speaker props on their tiles.
+- Added 24x48 player sprite with 24x24 foot collision box.
+- Added wall and prop collision shapes (door is pass-through, chair excluded).
+- Added YSort container for proper player/prop depth ordering.
+- Adjusted door row to align collider gap with a 32px opening.
+- Ensured chair renders above desk.
+- Replaced YSort node type with Node2D + y_sort_enabled to avoid missing type error.
+- Fixed south wall hide logic, unified door row, and forced player sprite reimport.
+- Replaced player sprite with a new 24x48 placeholder and adjusted door opening to 32px.
+- Tweaked south wall hide threshold and tinted player sprite for verification.
+- Replaced player sprite with a new 24x48 placeholder v3 and cleared old import cache.
+- Overwrote player_placeholder.png with 24x48 art and reset Player.tscn to use it.
+- Set door row to 1 for alignment.
+- Resized player art to 24x40 and adjusted collision offset; enabled y-sort on Props.
+- Shrunk player collision to 16x16 at feet; adjusted wall colliders to match 16px strips and fixed east/west offsets.
+- Set prop Y-sort origins to their feet for correct depth ordering.
+- Replaced YSortOrigin usage with position offsets for compatibility.
+- Removed Z-index overrides and enabled y-sort for player/props only.
+- Raised table-top props sort offset and realigned wall colliders to wall strips.
+- Replaced y-sorting with layered props and player layer swapping; table props now in front layer.
+- Updated door art to be bottom-anchored (opening extends north).
+- Fixed player reparenting to avoid adding child twice.
 - Added placeholder studio props (speakers, table, phone line, sound board, computer) to the ControlRoom.
 - Aligned north wall props to row 0 with speakers at x=1/5 and centered table span x=2-4.
 
