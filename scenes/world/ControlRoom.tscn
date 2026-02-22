@@ -10,37 +10,9 @@ script = ExtResource("3")
 [node name="FloorLayer" type="TileMapLayer" parent="."]
 tile_set = ExtResource("2")
 
-[node name="NorthWallLayer" type="TileMapLayer" parent="."]
-tile_set = ExtResource("2")
-z_index = 150
-
-[node name="WestWallLayer" type="TileMapLayer" parent="."]
-tile_set = ExtResource("2")
-z_index = 150
-
-[node name="EastWallLayer" type="TileMapLayer" parent="."]
-tile_set = ExtResource("2")
-z_index = 150
-
-[node name="SouthWallLayer" type="TileMapLayer" parent="."]
-tile_set = ExtResource("2")
-z_index = 150
-
-[node name="SouthWallCornerLayer" type="TileMapLayer" parent="."]
-tile_set = ExtResource("2")
-z_index = 150
-
-[node name="NorthWallStripLayer" type="TileMapLayer" parent="."]
-tile_set = ExtResource("2")
-z_index = 100
-
-[node name="SouthWallStripLayer" type="TileMapLayer" parent="."]
-tile_set = ExtResource("2")
-z_index = 100
-
 [node name="DoorLayer" type="TileMapLayer" parent="."]
 tile_set = ExtResource("2")
-z_index = 400
+z_index = 1000
 
 [node name="GridDebugLayer" type="TileMapLayer" parent="."]
 tile_set = ExtResource("2")

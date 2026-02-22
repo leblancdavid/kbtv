@@ -3,8 +3,8 @@
 [ext_resource type="Texture2D" uid="uid://bi4tx0ofgq5hc" path="res://assets/tiles/topdown/floor_atlas.png" id="1"]
 [ext_resource type="Texture2D" uid="uid://cilv77mv8ij3t" path="res://assets/tiles/topdown/wall_north_atlas.png" id="2"]
 [ext_resource type="Texture2D" uid="uid://cbgtfdul7ijuq" path="res://assets/tiles/topdown/wall_south_atlas.png" id="3"]
-[ext_resource type="Texture2D" uid="uid://clubpf35wpxio" path="res://assets/tiles/topdown/wall_west_atlas.png" id="4"]
-[ext_resource type="Texture2D" uid="uid://bhh2t0hfgkqvh" path="res://assets/tiles/topdown/wall_east_atlas.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/tiles/topdown/wall_side_atlas.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/tiles/topdown/wall_side_atlas.png" id="5"]
 [ext_resource type="Texture2D" uid="uid://b5k4mx3xf33l1" path="res://assets/tiles/topdown/wall_south_strip.png" id="6"]
 [ext_resource type="Texture2D" uid="uid://cw0j1i4q5o6f7" path="res://assets/tiles/topdown/grid_debug.png" id="7"]
 

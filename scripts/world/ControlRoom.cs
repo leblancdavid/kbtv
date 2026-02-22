@@ -29,15 +29,9 @@ public partial class ControlRoom : Node2D
     private static readonly Vector2I ATLAS_COORDS_DOOR = new Vector2I(3, 0);
 
     private TileMapLayer _floorLayer;
-    private TileMapLayer _northWallLayer;
-    private TileMapLayer _westWallLayer;
-    private TileMapLayer _eastWallLayer;
-    private TileMapLayer _southWallLayer;
-    private TileMapLayer _southWallCornerLayer;
-    private TileMapLayer _northWallStripLayer;
-    private TileMapLayer _southWallStripLayer;
     private TileMapLayer _doorLayer;
     private TileMapLayer _gridDebugLayer;
+    private Node2D _wallsRoot;
     private Vector2 _gridOffset = Vector2.Zero;
     private Node2D _player;
     private Node2D _propsRoot;
@@ -49,6 +43,15 @@ public partial class ControlRoom : Node2D
     private bool _debugVisible;
     private float _tableSortY;
 
+    // Wall sprites for visibility toggling
+    private readonly List<Sprite2D> _northWallSprites = new();
+    private readonly List<Sprite2D> _northWallStripSprites = new();
+    private readonly List<Sprite2D> _southWallSprites = new();
+    private readonly List<Sprite2D> _southWallStripSprites = new();
+    private readonly List<Sprite2D> _westWallSprites = new();
+    private readonly List<Sprite2D> _eastWallSprites = new();
+    private readonly List<Sprite2D> _southCornerSprites = new();
+
     private const float TileSize = 16.0f;
     private const float WallThickness = 8.0f;
     private const float WallStripWidth = 16.0f;
@@ -59,55 +62,6 @@ public partial class ControlRoom : Node2D
         if (_floorLayer == null)
         {
             GD.PrintErr("ControlRoom: FloorLayer not found!");
-            return;
-        }
-
-        _northWallLayer = GetNode<TileMapLayer>("NorthWallLayer");
-        if (_northWallLayer == null)
-        {
-            GD.PrintErr("ControlRoom: NorthWallLayer not found!");
-            return;
-        }
-
-        _westWallLayer = GetNode<TileMapLayer>("WestWallLayer");
-        if (_westWallLayer == null)
-        {
-            GD.PrintErr("ControlRoom: WestWallLayer not found!");
-            return;
-        }
-
-        _eastWallLayer = GetNode<TileMapLayer>("EastWallLayer");
-        if (_eastWallLayer == null)
-        {
-            GD.PrintErr("ControlRoom: EastWallLayer not found!");
-            return;
-        }
-
-        _southWallLayer = GetNode<TileMapLayer>("SouthWallLayer");
-        if (_southWallLayer == null)
-        {
-            GD.PrintErr("ControlRoom: SouthWallLayer not found!");
-            return;
-        }
-
-        _southWallCornerLayer = GetNode<TileMapLayer>("SouthWallCornerLayer");
-        if (_southWallCornerLayer == null)
-        {
-            GD.PrintErr("ControlRoom: SouthWallCornerLayer not found!");
-            return;
-        }
-
-        _northWallStripLayer = GetNode<TileMapLayer>("NorthWallStripLayer");
-        if (_northWallStripLayer == null)
-        {
-            GD.PrintErr("ControlRoom: NorthWallStripLayer not found!");
-            return;
-        }
-
-        _southWallStripLayer = GetNode<TileMapLayer>("SouthWallStripLayer");
-        if (_southWallStripLayer == null)
-        {
-            GD.PrintErr("ControlRoom: SouthWallStripLayer not found!");
             return;
         }
 
@@ -125,6 +79,16 @@ public partial class ControlRoom : Node2D
             return;
         }
 
+        var propSort = GetNode<Node2D>("PropSort");
+        
+        // Create Walls node dynamically if not in scene
+        _wallsRoot = propSort.GetNodeOrNull<Node2D>("Walls");
+        if (_wallsRoot == null)
+        {
+            _wallsRoot = new Node2D { Name = "Walls" };
+            propSort.AddChild(_wallsRoot);
+        }
+
         _propsRoot = GetNode<Node2D>("PropSort/Props");
         if (_propsRoot == null)
         {
@@ -135,16 +99,8 @@ public partial class ControlRoom : Node2D
         ZIndex = 1000;
         ZAsRelative = false;
         _floorLayer.ZAsRelative = false;
-        _northWallLayer.ZAsRelative = false;
-        _westWallLayer.ZAsRelative = false;
-        _eastWallLayer.ZAsRelative = false;
-        _southWallLayer.ZAsRelative = false;
-        _southWallCornerLayer.ZAsRelative = false;
-        _northWallStripLayer.ZAsRelative = false;
-        _southWallStripLayer.ZAsRelative = false;
         _doorLayer.ZAsRelative = false;
         _gridDebugLayer.ZAsRelative = false;
-        var propSort = GetNodeOrNull<Node2D>("PropSort");
         if (propSort != null)
             propSort.ZAsRelative = false;
 
@@ -154,18 +110,12 @@ public partial class ControlRoom : Node2D
         // Auto-center the floor grid around the anchor
         _gridOffset = AutoCenterFloor();
         _floorLayer.Position = _gridOffset;
-        _northWallLayer.Position = _gridOffset;
-        _westWallLayer.Position = _gridOffset;
-        _eastWallLayer.Position = _gridOffset;
-        _southWallLayer.Position = _gridOffset;
-        _southWallCornerLayer.Position = _gridOffset;
-        _northWallStripLayer.Position = _gridOffset;
-        _southWallStripLayer.Position = _gridOffset;
         _doorLayer.Position = _gridOffset;
         _gridDebugLayer.Position = _gridOffset;
+        _wallsRoot.Position = _gridOffset;
         _propsRoot.Position = _gridOffset;
 
-        // Create walls as tiles
+        // Create walls as sprites
         CreateWalls();
 
         // Create debug grid overlay
@@ -245,33 +195,110 @@ public partial class ControlRoom : Node2D
 
     private void CreateWalls()
     {
+        // Clear existing wall sprites
+        _northWallSprites.Clear();
+        _northWallStripSprites.Clear();
+        _southWallSprites.Clear();
+        _southWallStripSprites.Clear();
+        _westWallSprites.Clear();
+        _eastWallSprites.Clear();
+        _southCornerSprites.Clear();
+        _wallsRoot.QueueFree();
+        
+        // Get PropSort node for direct sprite addition (for Y-sorting)
+        var propSort = GetNode<Node2D>("PropSort");
+        _wallsRoot = new Node2D { Name = "Walls" };
+        propSort.AddChild(_wallsRoot);
+        _wallsRoot.Position = _gridOffset;
+
+        // Load wall textures
+        var northTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_north_atlas.png");
+        var southTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_atlas.png");
+        var sideTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_side_atlas.png");
+        var southStripTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_strip.png");
+
         var doorY = Mathf.Clamp(_doorRow, 0, _gridHeight - 1);
+
+        // Create north wall (row -1)
         for (int x = 0; x < _gridWidth; x++)
         {
-            var northAtlas = ResolveHorizontalAtlas(x, _gridWidth);
-            var southAtlas = ResolveHorizontalAtlas(x, _gridWidth);
-            _northWallLayer.SetCell(new Vector2I(x, -1), WALL_NORTH_SOURCE_ID, northAtlas);
-            _southWallLayer.SetCell(new Vector2I(x, _gridHeight - 1), WALL_SOUTH_SOURCE_ID, southAtlas);
-            _northWallStripLayer.SetCell(new Vector2I(x, -1), WALL_NORTH_STRIP_SOURCE_ID, ATLAS_COORDS_LEFT);
+            var atlas = ResolveHorizontalAtlas(x, _gridWidth);
+            var gridPos = new Vector2I(x, -1);
+            var sprite = CreateWallSprite(northTexture, atlas, gridPos);
+            _northWallSprites.Add(sprite);
+            _wallsRoot.AddChild(sprite);
+
+            // North strip (for when hiding)
+            var stripSprite = CreateWallSprite(southStripTexture, ATLAS_COORDS_LEFT, gridPos);
+            _northWallStripSprites.Add(stripSprite);
+            stripSprite.Visible = false;
+            _wallsRoot.AddChild(stripSprite);
         }
 
-        _southWallCornerLayer.SetCell(new Vector2I(-1, _gridHeight - 1), WALL_SOUTH_SOURCE_ID, ATLAS_COORDS_LEFT);
-        _southWallCornerLayer.SetCell(new Vector2I(_gridWidth, _gridHeight - 1), WALL_SOUTH_SOURCE_ID, ATLAS_COORDS_RIGHT);
+        // Create south wall (row _gridHeight)
+        for (int x = 0; x < _gridWidth; x++)
+        {
+            var atlas = ResolveHorizontalAtlas(x, _gridWidth);
+            var gridPos = new Vector2I(x, _gridHeight);
+            var sprite = CreateWallSprite(southTexture, atlas, gridPos);
+            _southWallSprites.Add(sprite);
+            _wallsRoot.AddChild(sprite);
 
+            // South strip (for when hiding)
+            var stripSprite = CreateWallSprite(southStripTexture, ATLAS_COORDS_LEFT, gridPos);
+            _southWallStripSprites.Add(stripSprite);
+            _wallsRoot.AddChild(stripSprite);
+        }
+
+        // South corners
+        var leftCorner = CreateWallSprite(southTexture, ATLAS_COORDS_LEFT, new Vector2I(-1, _gridHeight));
+        leftCorner.Position = _floorLayer.MapToLocal(new Vector2I(0, _gridHeight)) + new Vector2(-16, 0);
+        _southCornerSprites.Add(leftCorner);
+        _wallsRoot.AddChild(leftCorner);
+
+        var rightCorner = CreateWallSprite(southTexture, ATLAS_COORDS_RIGHT, new Vector2I(_gridWidth, _gridHeight));
+        rightCorner.Position = _floorLayer.MapToLocal(new Vector2I(_gridWidth - 1, _gridHeight)) + new Vector2(16, 0);
+        _southCornerSprites.Add(rightCorner);
+        _wallsRoot.AddChild(rightCorner);
+
+        // Create west wall (column -1)
         for (int y = -1; y < _gridHeight; y++)
         {
-            var westAtlas = ResolveVerticalAtlas(y, _gridHeight);
-            var eastAtlas = y == doorY ? ATLAS_COORDS_DOOR : ResolveVerticalAtlas(y, _gridHeight);
-            _westWallLayer.SetCell(new Vector2I(-1, y), WALL_WEST_SOURCE_ID, westAtlas);
-            _eastWallLayer.SetCell(new Vector2I(_gridWidth, y), WALL_EAST_SOURCE_ID, eastAtlas);
+            var atlas = ResolveVerticalAtlas(y, _gridHeight);
+            var sprite = CreateWallSprite(sideTexture, atlas, new Vector2I(-1, y));
+            sprite.FlipH = true;
+            _westWallSprites.Add(sprite);
+            _wallsRoot.AddChild(sprite);
         }
 
-        _doorLayer.SetCell(new Vector2I(_gridWidth, doorY), WALL_EAST_SOURCE_ID, ATLAS_COORDS_DOOR);
-
-        for (int x = 0; x < _gridWidth; x++)
+        // Create east wall (column _gridWidth) - with door gap
+        for (int y = -1; y < _gridHeight; y++)
         {
-            _southWallStripLayer.SetCell(new Vector2I(x, _gridHeight - 1), WALL_SOUTH_STRIP_SOURCE_ID, ATLAS_COORDS_LEFT);
+            var atlas = y == doorY ? ATLAS_COORDS_DOOR : ResolveVerticalAtlas(y, _gridHeight);
+            var sprite = CreateWallSprite(sideTexture, atlas, new Vector2I(_gridWidth, y));
+            _eastWallSprites.Add(sprite);
+            _wallsRoot.AddChild(sprite);
         }
+
+        // Door is handled by TileMapLayer - keep it in front
+        _doorLayer.SetCell(new Vector2I(_gridWidth, doorY), WALL_EAST_SOURCE_ID, ATLAS_COORDS_DOOR);
+    }
+
+    private Sprite2D CreateWallSprite(Texture2D texture, Vector2I atlasCoords, Vector2I gridCoords)
+    {
+        var position = _floorLayer.MapToLocal(gridCoords);
+
+        var sprite = new Sprite2D
+        {
+            Texture = texture,
+            Position = position,
+            Offset = new Vector2(0, -24),
+            Hframes = 4,
+            Vframes = 1,
+            Frame = atlasCoords.X
+        };
+
+        return sprite;
     }
 
     private void CreateProps()
@@ -289,8 +316,8 @@ public partial class ControlRoom : Node2D
         AddTableGroup(new Vector2I(6, 2));
 
         AddProp(_propsRoot, "res://assets/tiles/props/audio_cabinet.png", new Vector2I(12, 2), Vector2.Zero, true, new Vector2(24, 16));
-        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(4, 10), Vector2.Zero, true, new Vector2(48, 32));
-        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(10, 10), Vector2.Zero, true, new Vector2(48, 32));
+        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(2, 5), Vector2.Zero, true, new Vector2(48, 32));
+        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(8, 5), Vector2.Zero, true, new Vector2(48, 32));
         AddProp(_propsRoot, "res://assets/tiles/props/computer_chair.png", new Vector2I(6, 3), Vector2.Zero, false, Vector2.Zero);
     }
 
@@ -396,77 +423,68 @@ public partial class ControlRoom : Node2D
         _wallColliderBody = new StaticBody2D { Name = "WallColliders", Position = _gridOffset };
         AddChild(_wallColliderBody);
 
-        var topLeftCell = _floorLayer.MapToLocal(new Vector2I(0, 0));
-        var topLeft = topLeftCell - new Vector2(TileSize * 0.5f, TileSize * 0.5f);
-        var width = _gridWidth * TileSize;
-        var height = _gridHeight * TileSize;
-        var stripCell = _northWallStripLayer.MapToLocal(new Vector2I(0, -1));
-        var stripBottom = stripCell.Y;
-        var wallYOffset = (stripBottom - topLeft.Y) + TileSize;
-
+        // North wall colliders (row y=-1)
         for (int x = 0; x < _gridWidth; x++)
         {
-            var cellLeft = topLeft.X + (x * TileSize);
+            var cellPos = _floorLayer.MapToLocal(new Vector2I(x, -1));
             AddWallCollider(new Rect2(
-                cellLeft,
-                topLeft.Y + wallYOffset,
-                TileSize,
-                TileSize
-            ));
-
-            AddWallCollider(new Rect2(
-                cellLeft,
-                topLeft.Y + height + wallYOffset,
+                cellPos.X - TileSize * 0.5f,
+                cellPos.Y - TileSize * 0.5f,
                 TileSize,
                 TileSize
             ));
         }
 
-        AddWallCollider(new Rect2(
-            topLeft.X - WallStripWidth,
-            topLeft.Y + height + wallYOffset,
-            WallStripWidth,
-            TileSize
-        ));
+        // South wall colliders (row y=_gridHeight)
+        for (int x = 0; x < _gridWidth; x++)
+        {
+            var cellPos = _floorLayer.MapToLocal(new Vector2I(x, _gridHeight));
+            AddWallCollider(new Rect2(
+                cellPos.X - TileSize * 0.5f,
+                cellPos.Y - TileSize * 0.5f,
+                TileSize,
+                TileSize
+            ));
+        }
 
-        AddWallCollider(new Rect2(
-            topLeft.X + width,
-            topLeft.Y + height + wallYOffset,
-            WallStripWidth,
-            TileSize
-        ));
-
-        var doorY = Mathf.Clamp(_doorRow, 0, _gridHeight - 1);
-        var doorTop = topLeft.Y + wallYOffset + (doorY * TileSize);
-        var doorBottom = doorTop + (_doorHeightTiles * TileSize);
-
-        var westX = topLeft.X - WallStripWidth;
-        var eastX = topLeft.X + width;
-        _debugDoorRect = new Rect2(
-            _wallColliderBody.ToGlobal(new Vector2(eastX, doorTop)),
-            new Vector2(WallStripWidth, doorBottom - doorTop)
-        );
-
+        // West wall colliders (column x=-1)
         for (int y = 0; y < _gridHeight; y++)
         {
-            var cellTop = topLeft.Y + wallYOffset + (y * TileSize);
+            var cellPos = _floorLayer.MapToLocal(new Vector2I(-1, y));
             AddWallCollider(new Rect2(
-                westX,
-                cellTop,
+                cellPos.X - TileSize * 0.5f,
+                cellPos.Y - TileSize * 0.5f,
                 WallStripWidth,
                 TileSize
             ));
-
-            if (y < doorY || y >= doorY + _doorHeightTiles)
-            {
-                AddWallCollider(new Rect2(
-                    eastX,
-                    cellTop,
-                    WallStripWidth,
-                    TileSize
-                ));
-            }
         }
+
+        // East wall colliders (column x=_gridWidth) - with door gap
+        var doorY = Mathf.Clamp(_doorRow, 0, _gridHeight - 1);
+        for (int y = 0; y < _gridHeight; y++)
+        {
+            var cellPos = _floorLayer.MapToLocal(new Vector2I(_gridWidth, y));
+            
+            // Skip door gap
+            if (y >= doorY && y < doorY + _doorHeightTiles)
+                continue;
+
+            AddWallCollider(new Rect2(
+                cellPos.X - TileSize * 0.5f,
+                cellPos.Y - TileSize * 0.5f,
+                WallStripWidth,
+                TileSize
+            ));
+        }
+
+        // Door collider
+        var doorCellPos = _floorLayer.MapToLocal(new Vector2I(_gridWidth, doorY));
+        var doorTop = doorCellPos.Y - TileSize * 0.5f;
+        var doorBottom = doorTop + (_doorHeightTiles * TileSize);
+        _debugDoorRect = new Rect2(
+            _wallColliderBody.ToGlobal(new Vector2(doorCellPos.X - TileSize * 0.5f, doorTop)),
+            new Vector2(WallStripWidth, doorBottom - doorTop)
+        );
     }
 
     private void AddWallCollider(Rect2 rect)
@@ -551,18 +569,27 @@ public partial class ControlRoom : Node2D
         var roomLeft = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, 0))).X;
         var roomWidth = _gridWidth * TileSize;
 
-        var northBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, 0))).Y;
-        var northRect = new Rect2(roomLeft, northBottomY - 64.0f, roomWidth, 64.0f);
+        // North wall visibility
+        var floorTopY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, 0))).Y - TileSize * 0.5f;
+        var northRect = new Rect2(roomLeft, floorTopY - 64.0f, roomWidth, 64.0f);
         var hideNorth = northRect.Intersects(playerRect);
-        _northWallLayer.Visible = !hideNorth;
-        _northWallStripLayer.Visible = hideNorth;
+        
+        foreach (var sprite in _northWallSprites)
+            sprite.Visible = !hideNorth;
+        foreach (var sprite in _northWallStripSprites)
+            sprite.Visible = hideNorth;
 
-        var southBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, _gridHeight - 1))).Y;
-        var southRect = new Rect2(roomLeft, southBottomY - 64.0f, roomWidth, 64.0f);
+        // South wall visibility (now at row _gridHeight)
+        var southWallBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, _gridHeight))).Y - TileSize * 0.5f;
+        var southRect = new Rect2(roomLeft, southWallBottomY - 64.0f, roomWidth, 64.0f);
         var hideSouth = southRect.Intersects(playerRect);
-        _southWallLayer.Visible = !hideSouth;
-        _southWallStripLayer.Visible = hideSouth;
-        _southWallCornerLayer.Visible = true;
+        
+        foreach (var sprite in _southWallSprites)
+            sprite.Visible = !hideSouth;
+        foreach (var sprite in _southWallStripSprites)
+            sprite.Visible = hideSouth;
+        foreach (var sprite in _southCornerSprites)
+            sprite.Visible = true; // Corners always visible
 
         _doorLayer.Visible = true;
     }
