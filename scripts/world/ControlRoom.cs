@@ -33,6 +33,7 @@ public partial class ControlRoom : Node2D
     private TileMapLayer _westWallLayer;
     private TileMapLayer _eastWallLayer;
     private TileMapLayer _southWallLayer;
+    private TileMapLayer _southWallCornerLayer;
     private TileMapLayer _northWallStripLayer;
     private TileMapLayer _southWallStripLayer;
     private TileMapLayer _doorLayer;
@@ -89,6 +90,13 @@ public partial class ControlRoom : Node2D
             return;
         }
 
+        _southWallCornerLayer = GetNode<TileMapLayer>("SouthWallCornerLayer");
+        if (_southWallCornerLayer == null)
+        {
+            GD.PrintErr("ControlRoom: SouthWallCornerLayer not found!");
+            return;
+        }
+
         _northWallStripLayer = GetNode<TileMapLayer>("NorthWallStripLayer");
         if (_northWallStripLayer == null)
         {
@@ -131,6 +139,7 @@ public partial class ControlRoom : Node2D
         _westWallLayer.ZAsRelative = false;
         _eastWallLayer.ZAsRelative = false;
         _southWallLayer.ZAsRelative = false;
+        _southWallCornerLayer.ZAsRelative = false;
         _northWallStripLayer.ZAsRelative = false;
         _southWallStripLayer.ZAsRelative = false;
         _doorLayer.ZAsRelative = false;
@@ -149,6 +158,7 @@ public partial class ControlRoom : Node2D
         _westWallLayer.Position = _gridOffset;
         _eastWallLayer.Position = _gridOffset;
         _southWallLayer.Position = _gridOffset;
+        _southWallCornerLayer.Position = _gridOffset;
         _northWallStripLayer.Position = _gridOffset;
         _southWallStripLayer.Position = _gridOffset;
         _doorLayer.Position = _gridOffset;
@@ -245,6 +255,9 @@ public partial class ControlRoom : Node2D
             _northWallStripLayer.SetCell(new Vector2I(x, -1), WALL_NORTH_STRIP_SOURCE_ID, ATLAS_COORDS_LEFT);
         }
 
+        _southWallCornerLayer.SetCell(new Vector2I(-1, _gridHeight - 1), WALL_SOUTH_SOURCE_ID, ATLAS_COORDS_LEFT);
+        _southWallCornerLayer.SetCell(new Vector2I(_gridWidth, _gridHeight - 1), WALL_SOUTH_SOURCE_ID, ATLAS_COORDS_RIGHT);
+
         for (int y = -1; y < _gridHeight; y++)
         {
             var westAtlas = ResolveVerticalAtlas(y, _gridHeight);
@@ -276,8 +289,8 @@ public partial class ControlRoom : Node2D
         AddTableGroup(new Vector2I(6, 2));
 
         AddProp(_propsRoot, "res://assets/tiles/props/audio_cabinet.png", new Vector2I(12, 2), Vector2.Zero, true, new Vector2(24, 16));
-        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(4, 10), Vector2.Zero, true, new Vector2(28, 12));
-        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(10, 10), Vector2.Zero, true, new Vector2(28, 12));
+        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(4, 10), Vector2.Zero, true, new Vector2(48, 32));
+        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(10, 10), Vector2.Zero, true, new Vector2(48, 32));
         AddProp(_propsRoot, "res://assets/tiles/props/computer_chair.png", new Vector2I(6, 3), Vector2.Zero, false, Vector2.Zero);
     }
 
@@ -409,6 +422,20 @@ public partial class ControlRoom : Node2D
             ));
         }
 
+        AddWallCollider(new Rect2(
+            topLeft.X - WallStripWidth,
+            topLeft.Y + height + wallYOffset,
+            WallStripWidth,
+            TileSize
+        ));
+
+        AddWallCollider(new Rect2(
+            topLeft.X + width,
+            topLeft.Y + height + wallYOffset,
+            WallStripWidth,
+            TileSize
+        ));
+
         var doorY = Mathf.Clamp(_doorRow, 0, _gridHeight - 1);
         var doorTop = topLeft.Y + wallYOffset + (doorY * TileSize);
         var doorBottom = doorTop + (_doorHeightTiles * TileSize);
@@ -535,6 +562,7 @@ public partial class ControlRoom : Node2D
         var hideSouth = southRect.Intersects(playerRect);
         _southWallLayer.Visible = !hideSouth;
         _southWallStripLayer.Visible = hideSouth;
+        _southWallCornerLayer.Visible = true;
 
         _doorLayer.Visible = true;
     }

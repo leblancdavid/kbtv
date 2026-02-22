@@ -18,10 +18,13 @@
 - Raised ControlRoom debug overlay z-order and disabled relative z on layers.
 - Aligned wall collider offset to wall strip, moved player collider to bottom 16px, and rebuilt prop debug rects from collision groups.
 - Shifted wall colliders down one tile and moved player collider up one tile.
+- Updated shelf colliders to 3x2 tiles and kept south wall corners visible when hiding walls.
+- Moved south wall corners to the outer wall columns.
+- Added south corner wall colliders to match visible corners.
 - Shifted wall colliders down one tile and raised player collision box.
 
 ### In Progress
-- Validate ControlRoom alignment (debug overlay, collisions, door opening, Y-sort).
+- None.
 
 ### Files Modified
 - `scripts/world/ControlRoom.cs`
