@@ -1,4 +1,36 @@
-## Current Session - Topdown 16x16 Grid Migration
+## Current Session - Y-Sort Wall Sprites
+
+**Branch**: `develop`
+
+**Task**: Convert wall TileMapLayers to sprites with Y-sorting for proper depth interleaving with props.
+
+### Work Done
+- Replaced wall TileMapLayers with Sprite2D nodes in PropSort.
+- Added CreateWallSprite helper method to create wall sprites from atlas textures.
+- Updated wall visibility to toggle sprite visibility instead of layer visibility.
+- Simplified scene structure: removed wall TileMapLayers, kept DoorLayer (always in front), FloorLayer.
+- PropSort node handles Y-sorting for both walls and props.
+- Fixed shelf positions to be within grid bounds (y=5 instead of y=10).
+- Door remains on TileMapLayer with Z=1000 (always in front).
+
+### In Progress
+- None.
+
+### Files Modified
+- `scripts/world/ControlRoom.cs`
+- `scenes/world/ControlRoom.tscn`
+- `SESSION_LOG.md`
+
+### Next Steps
+- Verify wall and prop depth sorting works correctly in-game.
+- Adjust wall sprite positioning if needed for proper Y-sorting.
+
+### Blockers
+- None
+
+---
+
+## Previous Session - Topdown 16x16 Grid Migration
 
 **Branch**: `develop`
 

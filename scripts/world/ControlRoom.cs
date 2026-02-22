@@ -31,10 +31,9 @@ public partial class ControlRoom : Node2D
     private TileMapLayer _floorLayer;
     private TileMapLayer _doorLayer;
     private TileMapLayer _gridDebugLayer;
-    private Node2D _wallsRoot;
+    private Node2D _propSort;
     private Vector2 _gridOffset = Vector2.Zero;
     private Node2D _player;
-    private Node2D _propsRoot;
     private StaticBody2D _wallColliderBody;
     private readonly List<Rect2> _debugWallRects = new();
     private readonly List<Rect2> _debugPropRects = new();
@@ -79,30 +78,14 @@ public partial class ControlRoom : Node2D
             return;
         }
 
-        var propSort = GetNode<Node2D>("PropSort");
-        
-        // Create Walls node dynamically if not in scene
-        _wallsRoot = propSort.GetNodeOrNull<Node2D>("Walls");
-        if (_wallsRoot == null)
-        {
-            _wallsRoot = new Node2D { Name = "Walls" };
-            propSort.AddChild(_wallsRoot);
-        }
+        _propSort = GetNode<Node2D>("PropSort");
 
-        _propsRoot = GetNode<Node2D>("PropSort/Props");
-        if (_propsRoot == null)
-        {
-            GD.PrintErr("ControlRoom: Props root not found!");
-            return;
-        }
-
-        ZIndex = 1000;
+        ZIndex = 1001;
         ZAsRelative = false;
         _floorLayer.ZAsRelative = false;
         _doorLayer.ZAsRelative = false;
         _gridDebugLayer.ZAsRelative = false;
-        if (propSort != null)
-            propSort.ZAsRelative = false;
+        _propSort.ZAsRelative = false;
 
         // Create floor tiles on the TileMapLayer
         CreateFloor();
@@ -112,8 +95,6 @@ public partial class ControlRoom : Node2D
         _floorLayer.Position = _gridOffset;
         _doorLayer.Position = _gridOffset;
         _gridDebugLayer.Position = _gridOffset;
-        _wallsRoot.Position = _gridOffset;
-        _propsRoot.Position = _gridOffset;
 
         // Create walls as sprites
         CreateWalls();
@@ -196,6 +177,21 @@ public partial class ControlRoom : Node2D
     private void CreateWalls()
     {
         // Clear existing wall sprites
+        foreach (var sprite in _northWallSprites)
+            sprite.QueueFree();
+        foreach (var sprite in _northWallStripSprites)
+            sprite.QueueFree();
+        foreach (var sprite in _southWallSprites)
+            sprite.QueueFree();
+        foreach (var sprite in _southWallStripSprites)
+            sprite.QueueFree();
+        foreach (var sprite in _westWallSprites)
+            sprite.QueueFree();
+        foreach (var sprite in _eastWallSprites)
+            sprite.QueueFree();
+        foreach (var sprite in _southCornerSprites)
+            sprite.QueueFree();
+        
         _northWallSprites.Clear();
         _northWallStripSprites.Clear();
         _southWallSprites.Clear();
@@ -203,13 +199,9 @@ public partial class ControlRoom : Node2D
         _westWallSprites.Clear();
         _eastWallSprites.Clear();
         _southCornerSprites.Clear();
-        _wallsRoot.QueueFree();
-        
+
         // Get PropSort node for direct sprite addition (for Y-sorting)
         var propSort = GetNode<Node2D>("PropSort");
-        _wallsRoot = new Node2D { Name = "Walls" };
-        propSort.AddChild(_wallsRoot);
-        _wallsRoot.Position = _gridOffset;
 
         // Load wall textures
         var northTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_north_atlas.png");
@@ -226,13 +218,13 @@ public partial class ControlRoom : Node2D
             var gridPos = new Vector2I(x, -1);
             var sprite = CreateWallSprite(northTexture, atlas, gridPos);
             _northWallSprites.Add(sprite);
-            _wallsRoot.AddChild(sprite);
+            _propSort.AddChild(sprite);
 
             // North strip (for when hiding)
-            var stripSprite = CreateWallSprite(southStripTexture, ATLAS_COORDS_LEFT, gridPos);
+            var stripSprite = CreateStripSprite(southStripTexture, gridPos);
             _northWallStripSprites.Add(stripSprite);
             stripSprite.Visible = false;
-            _wallsRoot.AddChild(stripSprite);
+            _propSort.AddChild(stripSprite);
         }
 
         // Create south wall (row _gridHeight)
@@ -242,24 +234,24 @@ public partial class ControlRoom : Node2D
             var gridPos = new Vector2I(x, _gridHeight);
             var sprite = CreateWallSprite(southTexture, atlas, gridPos);
             _southWallSprites.Add(sprite);
-            _wallsRoot.AddChild(sprite);
+            _propSort.AddChild(sprite);
 
             // South strip (for when hiding)
-            var stripSprite = CreateWallSprite(southStripTexture, ATLAS_COORDS_LEFT, gridPos);
+            var stripSprite = CreateStripSprite(southStripTexture, gridPos);
             _southWallStripSprites.Add(stripSprite);
-            _wallsRoot.AddChild(stripSprite);
+            _propSort.AddChild(stripSprite);
         }
 
         // South corners
         var leftCorner = CreateWallSprite(southTexture, ATLAS_COORDS_LEFT, new Vector2I(-1, _gridHeight));
-        leftCorner.Position = _floorLayer.MapToLocal(new Vector2I(0, _gridHeight)) + new Vector2(-16, 0);
+        leftCorner.Position = _floorLayer.MapToLocal(new Vector2I(0, _gridHeight)) + new Vector2(-16, 0) + _gridOffset;
         _southCornerSprites.Add(leftCorner);
-        _wallsRoot.AddChild(leftCorner);
+        _propSort.AddChild(leftCorner);
 
         var rightCorner = CreateWallSprite(southTexture, ATLAS_COORDS_RIGHT, new Vector2I(_gridWidth, _gridHeight));
-        rightCorner.Position = _floorLayer.MapToLocal(new Vector2I(_gridWidth - 1, _gridHeight)) + new Vector2(16, 0);
+        rightCorner.Position = _floorLayer.MapToLocal(new Vector2I(_gridWidth - 1, _gridHeight)) + new Vector2(16, 0) + _gridOffset;
         _southCornerSprites.Add(rightCorner);
-        _wallsRoot.AddChild(rightCorner);
+        _propSort.AddChild(rightCorner);
 
         // Create west wall (column -1)
         for (int y = -1; y < _gridHeight; y++)
@@ -268,7 +260,7 @@ public partial class ControlRoom : Node2D
             var sprite = CreateWallSprite(sideTexture, atlas, new Vector2I(-1, y));
             sprite.FlipH = true;
             _westWallSprites.Add(sprite);
-            _wallsRoot.AddChild(sprite);
+            _propSort.AddChild(sprite);
         }
 
         // Create east wall (column _gridWidth) - with door gap
@@ -277,7 +269,7 @@ public partial class ControlRoom : Node2D
             var atlas = y == doorY ? ATLAS_COORDS_DOOR : ResolveVerticalAtlas(y, _gridHeight);
             var sprite = CreateWallSprite(sideTexture, atlas, new Vector2I(_gridWidth, y));
             _eastWallSprites.Add(sprite);
-            _wallsRoot.AddChild(sprite);
+            _propSort.AddChild(sprite);
         }
 
         // Door is handled by TileMapLayer - keep it in front
@@ -286,7 +278,7 @@ public partial class ControlRoom : Node2D
 
     private Sprite2D CreateWallSprite(Texture2D texture, Vector2I atlasCoords, Vector2I gridCoords)
     {
-        var position = _floorLayer.MapToLocal(gridCoords);
+        var position = _floorLayer.MapToLocal(gridCoords) + _gridOffset;
 
         var sprite = new Sprite2D
         {
@@ -301,24 +293,38 @@ public partial class ControlRoom : Node2D
         return sprite;
     }
 
+    private Sprite2D CreateStripSprite(Texture2D texture, Vector2I gridCoords)
+    {
+        var position = _floorLayer.MapToLocal(gridCoords) + _gridOffset;
+
+        var sprite = new Sprite2D
+        {
+            Texture = texture,
+            Position = position,
+            Offset = new Vector2(0, -24),
+            Hframes = 1,
+            Vframes = 1,
+            Frame = 0
+        };
+
+        return sprite;
+    }
+
     private void CreateProps()
     {
-        _propsRoot.QueueFree();
         _debugPropRects.Clear();
 
         var propSort = GetNode<Node2D>("PropSort");
-        _propsRoot = new Node2D { Name = "Props", Position = _gridOffset };
-        propSort.AddChild(_propsRoot);
 
-        AddProp(_propsRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(2, 2), Vector2.Zero, true, new Vector2(24, 16));
-        AddProp(_propsRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(10, 2), Vector2.Zero, true, new Vector2(24, 16));
+        AddProp(propSort, "res://assets/tiles/props/speaker_stand.png", new Vector2I(2, 1), Vector2.Zero, true, new Vector2(24, 16));
+        AddProp(propSort, "res://assets/tiles/props/speaker_stand.png", new Vector2I(10, 1), Vector2.Zero, true, new Vector2(24, 16));
 
-        AddTableGroup(new Vector2I(6, 2));
+        AddTableGroup(new Vector2I(6, 1));
 
-        AddProp(_propsRoot, "res://assets/tiles/props/audio_cabinet.png", new Vector2I(12, 2), Vector2.Zero, true, new Vector2(24, 16));
-        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(2, 5), Vector2.Zero, true, new Vector2(48, 32));
-        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(8, 5), Vector2.Zero, true, new Vector2(48, 32));
-        AddProp(_propsRoot, "res://assets/tiles/props/computer_chair.png", new Vector2I(6, 3), Vector2.Zero, false, Vector2.Zero);
+        AddProp(propSort, "res://assets/tiles/props/audio_cabinet.png", new Vector2I(12, 1), Vector2.Zero, true, new Vector2(24, 16));
+        AddProp(propSort, "res://assets/tiles/props/storage_shelf.png", new Vector2I(4, 10), Vector2.Zero, true, new Vector2(48, 32));
+        AddProp(propSort, "res://assets/tiles/props/storage_shelf.png", new Vector2I(10, 10), Vector2.Zero, true, new Vector2(48, 32));
+        AddProp(propSort, "res://assets/tiles/props/computer_chair.png", new Vector2I(6, 3), Vector2.Zero, false, Vector2.Zero);
     }
 
     private void AddTableGroup(Vector2I gridCoords)
@@ -393,7 +399,7 @@ public partial class ControlRoom : Node2D
             return;
         }
 
-        var basePosition = _floorLayer.MapToLocal(gridCoords) + pixelOffset;
+        var basePosition = _floorLayer.MapToLocal(gridCoords) + pixelOffset + _gridOffset;
         var root = collidable ? new StaticBody2D() : new Node2D();
         root.Position = basePosition;
 
@@ -459,6 +465,15 @@ public partial class ControlRoom : Node2D
             ));
         }
 
+        // NW corner
+        var nwPos = _floorLayer.MapToLocal(new Vector2I(-1, -1));
+        AddWallCollider(new Rect2(
+            nwPos.X - TileSize * 0.5f,
+            nwPos.Y - TileSize * 0.5f,
+            WallStripWidth,
+            TileSize
+        ));
+
         // East wall colliders (column x=_gridWidth) - with door gap
         var doorY = Mathf.Clamp(_doorRow, 0, _gridHeight - 1);
         for (int y = 0; y < _gridHeight; y++)
@@ -476,6 +491,33 @@ public partial class ControlRoom : Node2D
                 TileSize
             ));
         }
+
+        // NE corner
+        var nePos = _floorLayer.MapToLocal(new Vector2I(_gridWidth, -1));
+        AddWallCollider(new Rect2(
+            nePos.X - TileSize * 0.5f,
+            nePos.Y - TileSize * 0.5f,
+            WallStripWidth,
+            TileSize
+        ));
+
+        // SW corner
+        var swPos = _floorLayer.MapToLocal(new Vector2I(-1, _gridHeight));
+        AddWallCollider(new Rect2(
+            swPos.X - TileSize * 0.5f,
+            swPos.Y - TileSize * 0.5f,
+            WallStripWidth,
+            TileSize
+        ));
+
+        // SE corner
+        var sePos = _floorLayer.MapToLocal(new Vector2I(_gridWidth, _gridHeight));
+        AddWallCollider(new Rect2(
+            sePos.X - TileSize * 0.5f,
+            sePos.Y - TileSize * 0.5f,
+            WallStripWidth,
+            TileSize
+        ));
 
         // Door collider
         var doorCellPos = _floorLayer.MapToLocal(new Vector2I(_gridWidth, doorY));
