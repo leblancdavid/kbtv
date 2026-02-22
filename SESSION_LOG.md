@@ -14,9 +14,14 @@
 - Fixed wall collider alignment with 16x16 boxes.
 - Adjusted door art and row alignment.
 - Updated topdown pattern docs with grid and layering rules.
+- Corrected debug overlay rects to use collision global positions.
+- Raised ControlRoom debug overlay z-order and disabled relative z on layers.
+- Aligned wall collider offset to wall strip, moved player collider to bottom 16px, and rebuilt prop debug rects from collision groups.
+- Shifted wall colliders down one tile and moved player collider up one tile.
+- Shifted wall colliders down one tile and raised player collision box.
 
 ### In Progress
-- None.
+- Validate ControlRoom alignment (debug overlay, collisions, door opening, Y-sort).
 
 ### Files Modified
 - `scripts/world/ControlRoom.cs`
@@ -32,7 +37,9 @@
 - `SESSION_LOG.md`
 
 ### Next Steps
-- Verify final placement and tune grid coordinates if needed.
+- Inspect `scripts/world/ControlRoom.cs` and `scenes/world/ControlRoom.tscn` for alignment issues.
+- Verify debug overlay alignment after local-space conversion.
+- Validate door opening vs. collider gap and adjust if needed.
 
 ### Blockers
 - None
@@ -117,6 +124,14 @@
 - Simplified wall hiding to north/south only with a shared strip and collision-rect overlap.
 - Applied 100-band z_index scheme for layers and props.
 - Moved props/player under a y-sorted PropSort layer to avoid props hiding behind walls.
+- Switched to pure Y-sort for props/player and removed manual player layer swapping.
+- Removed wall hide dead-zone (collision overlap only).
+- Added collision debug overlay tied to the grid toggle.
+- Fixed debug door rect initialization order.
+- Grouped table and tabletop items under a single bottom-anchored TableGroup with a smaller collision box.
+- Added slight forward offset for player sprite anchoring.
+- Adjusted tabletop offsets down by 32px and increased table collider height slightly.
+- Moved tabletop offsets up by 16px.
 - Lowered strip layers z_index so props/player render above strips.
 - Raised strip layers above floor and set props z_index above strips.
 - Added placeholder studio props (speakers, table, phone line, sound board, computer) to the ControlRoom.

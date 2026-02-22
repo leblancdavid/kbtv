@@ -46,9 +46,7 @@ visible = false
 y_sort_enabled = true
 z_index = 200
 
-[node name="PropsBack" type="Node2D" parent="PropSort"]
-
-[node name="PropsFront" type="Node2D" parent="PropSort"]
+[node name="Props" type="Node2D" parent="PropSort"]
 
 [node name="Player" parent="PropSort" instance=ExtResource("1")]
 position = Vector2(7, -16)

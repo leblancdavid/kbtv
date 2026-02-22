@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 
 public partial class ControlRoom : Node2D
 {
@@ -38,9 +39,13 @@ public partial class ControlRoom : Node2D
     private TileMapLayer _gridDebugLayer;
     private Vector2 _gridOffset = Vector2.Zero;
     private Node2D _player;
-    private Node2D _propsBackRoot;
-    private Node2D _propsFrontRoot;
+    private Node2D _propsRoot;
     private StaticBody2D _wallColliderBody;
+    private readonly List<Rect2> _debugWallRects = new();
+    private readonly List<Rect2> _debugPropRects = new();
+    private Rect2 _debugPlayerRect;
+    private Rect2 _debugDoorRect;
+    private bool _debugVisible;
     private float _tableSortY;
 
     private const float TileSize = 16.0f;
@@ -112,19 +117,27 @@ public partial class ControlRoom : Node2D
             return;
         }
 
-        _propsBackRoot = GetNode<Node2D>("PropSort/PropsBack");
-        if (_propsBackRoot == null)
+        _propsRoot = GetNode<Node2D>("PropSort/Props");
+        if (_propsRoot == null)
         {
-            GD.PrintErr("ControlRoom: PropsBack root not found!");
+            GD.PrintErr("ControlRoom: Props root not found!");
             return;
         }
 
-        _propsFrontRoot = GetNode<Node2D>("PropSort/PropsFront");
-        if (_propsFrontRoot == null)
-        {
-            GD.PrintErr("ControlRoom: PropsFront root not found!");
-            return;
-        }
+        ZIndex = 1000;
+        ZAsRelative = false;
+        _floorLayer.ZAsRelative = false;
+        _northWallLayer.ZAsRelative = false;
+        _westWallLayer.ZAsRelative = false;
+        _eastWallLayer.ZAsRelative = false;
+        _southWallLayer.ZAsRelative = false;
+        _northWallStripLayer.ZAsRelative = false;
+        _southWallStripLayer.ZAsRelative = false;
+        _doorLayer.ZAsRelative = false;
+        _gridDebugLayer.ZAsRelative = false;
+        var propSort = GetNodeOrNull<Node2D>("PropSort");
+        if (propSort != null)
+            propSort.ZAsRelative = false;
 
         // Create floor tiles on the TileMapLayer
         CreateFloor();
@@ -140,8 +153,7 @@ public partial class ControlRoom : Node2D
         _southWallStripLayer.Position = _gridOffset;
         _doorLayer.Position = _gridOffset;
         _gridDebugLayer.Position = _gridOffset;
-        _propsBackRoot.Position = _gridOffset;
-        _propsFrontRoot.Position = _gridOffset;
+        _propsRoot.Position = _gridOffset;
 
         // Create walls as tiles
         CreateWalls();
@@ -170,7 +182,12 @@ public partial class ControlRoom : Node2D
     public override void _Process(double delta)
     {
         UpdateWallVisibility();
-        UpdatePlayerLayering();
+        if (_debugVisible)
+        {
+            UpdateDebugPlayerRect();
+            UpdateDebugPropRects();
+            QueueRedraw();
+        }
     }
 
     public override void _Input(InputEvent @event)
@@ -178,7 +195,30 @@ public partial class ControlRoom : Node2D
         if (@event.IsActionPressed("ui_select"))
         {
             _gridDebugLayer.Visible = !_gridDebugLayer.Visible;
+            _debugVisible = _gridDebugLayer.Visible;
+            QueueRedraw();
         }
+    }
+
+    public override void _Draw()
+    {
+        if (!_debugVisible)
+            return;
+
+        var wallColor = new Color(1, 0, 0, 0.2f);
+        var propColor = new Color(0, 1, 0, 0.2f);
+        var playerColor = new Color(0, 0.5f, 1, 0.25f);
+        var doorColor = new Color(1, 1, 0, 0.2f);
+
+        foreach (var rect in _debugWallRects)
+            DrawRect(ToLocalRect(rect), wallColor, true);
+
+        foreach (var rect in _debugPropRects)
+            DrawRect(ToLocalRect(rect), propColor, true);
+
+        DrawRect(ToLocalRect(_debugPlayerRect), playerColor, true);
+        if (_debugDoorRect.Size != Vector2.Zero)
+            DrawRect(ToLocalRect(_debugDoorRect), doorColor, true);
     }
 
     private void CreateFloor()
@@ -223,31 +263,73 @@ public partial class ControlRoom : Node2D
 
     private void CreateProps()
     {
-        _propsBackRoot.QueueFree();
-        _propsFrontRoot.QueueFree();
+        _propsRoot.QueueFree();
+        _debugPropRects.Clear();
 
         var propSort = GetNode<Node2D>("PropSort");
-        _propsBackRoot = new Node2D { Name = "PropsBack", Position = _gridOffset };
-        _propsFrontRoot = new Node2D { Name = "PropsFront", Position = _gridOffset };
+        _propsRoot = new Node2D { Name = "Props", Position = _gridOffset };
+        propSort.AddChild(_propsRoot);
 
-        propSort.AddChild(_propsBackRoot);
-        propSort.AddChild(_propsFrontRoot);
+        AddProp(_propsRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(2, 2), Vector2.Zero, true, new Vector2(24, 16));
+        AddProp(_propsRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(10, 2), Vector2.Zero, true, new Vector2(24, 16));
 
-        AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(2, 2), Vector2.Zero, true, new Vector2(24, 16));
-        AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(10, 2), Vector2.Zero, true, new Vector2(24, 16));
+        AddTableGroup(new Vector2I(6, 2));
 
-        var tableBase = _floorLayer.MapToLocal(new Vector2I(6, 2));
-        _tableSortY = _gridOffset.Y + tableBase.Y - 8;
-        AddProp(_propsBackRoot, "res://assets/tiles/props/studio_table.png", new Vector2I(6, 2), Vector2.Zero, true, new Vector2(96, 14));
+        AddProp(_propsRoot, "res://assets/tiles/props/audio_cabinet.png", new Vector2I(12, 2), Vector2.Zero, true, new Vector2(24, 16));
+        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(4, 10), Vector2.Zero, true, new Vector2(28, 12));
+        AddProp(_propsRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(10, 10), Vector2.Zero, true, new Vector2(28, 12));
+        AddProp(_propsRoot, "res://assets/tiles/props/computer_chair.png", new Vector2I(6, 3), Vector2.Zero, false, Vector2.Zero);
+    }
 
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/phone_line.png", new Vector2I(4, 4), new Vector2(4, -42), true, new Vector2(20, 10));
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/sound_board.png", new Vector2I(6, 4), new Vector2(2, -42), true, new Vector2(22, 10));
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/computer_station.png", new Vector2I(8, 4), new Vector2(-2, -54), true, new Vector2(22, 12));
+    private void AddTableGroup(Vector2I gridCoords)
+    {
+        var propSort = GetNode<Node2D>("PropSort");
+        var group = new Node2D { Name = "TableGroup" };
+        group.Position = _floorLayer.MapToLocal(gridCoords) + _gridOffset;
+        propSort.AddChild(group);
 
-        AddProp(_propsBackRoot, "res://assets/tiles/props/audio_cabinet.png", new Vector2I(12, 2), Vector2.Zero, true, new Vector2(24, 16));
-        AddProp(_propsBackRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(4, 10), Vector2.Zero, true, new Vector2(28, 12));
-        AddProp(_propsBackRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(10, 10), Vector2.Zero, true, new Vector2(28, 12));
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/computer_chair.png", new Vector2I(6, 3), Vector2.Zero, false, Vector2.Zero);
+        var tableTexture = GD.Load<Texture2D>("res://assets/tiles/props/studio_table.png");
+        if (tableTexture == null)
+        {
+            GD.PrintErr("ControlRoom: Missing table texture");
+            return;
+        }
+
+        var tableSprite = new Sprite2D
+        {
+            Texture = tableTexture,
+            Position = new Vector2(0, -tableTexture.GetSize().Y * 0.5f)
+        };
+        group.AddChild(tableSprite);
+
+        var tableBody = new StaticBody2D();
+        var tableShape = new RectangleShape2D { Size = new Vector2(92, 14) };
+        var tableCollision = new CollisionShape2D { Shape = tableShape };
+        tableCollision.Position = new Vector2(0, -(tableShape.Size.Y * 0.5f));
+        tableCollision.AddToGroup("debug_prop_collision");
+        tableBody.AddChild(tableCollision);
+        group.AddChild(tableBody);
+
+        AddTabletopSprite(group, "res://assets/tiles/props/phone_line.png", new Vector2(-32, -26));
+        AddTabletopSprite(group, "res://assets/tiles/props/sound_board.png", new Vector2(0, -26));
+        AddTabletopSprite(group, "res://assets/tiles/props/computer_station.png", new Vector2(32, -38));
+    }
+
+    private void AddTabletopSprite(Node2D parent, string texturePath, Vector2 offset)
+    {
+        var texture = GD.Load<Texture2D>(texturePath);
+        if (texture == null)
+        {
+            GD.PrintErr($"ControlRoom: Missing tabletop texture {texturePath}");
+            return;
+        }
+
+        var sprite = new Sprite2D
+        {
+            Texture = texture,
+            Position = offset
+        };
+        parent.AddChild(sprite);
     }
 
     private void CreateDebugGrid()
@@ -284,32 +366,19 @@ public partial class ControlRoom : Node2D
             var collision = new CollisionShape2D { Shape = shape };
 
             collision.Position = new Vector2(0, -(colliderSize.Y * 0.5f));
+            collision.AddToGroup("debug_prop_collision");
             body.AddChild(collision);
         }
 
         parent.AddChild(root);
     }
 
-    private void UpdatePlayerLayering()
-    {
-        if (_player == null || _propsBackRoot == null || _propsFrontRoot == null)
-            return;
-
-        if (_player.GlobalPosition.Y < _tableSortY)
-        {
-            if (_player.GetParent() != _propsBackRoot)
-                _player.Reparent(_propsBackRoot);
-        }
-        else
-        {
-            if (_player.GetParent() != _propsFrontRoot)
-                _player.Reparent(_propsFrontRoot);
-        }
-    }
 
     private void CreateWallColliders()
     {
         _wallColliderBody?.QueueFree();
+        _debugWallRects.Clear();
+        _debugDoorRect = new Rect2();
 
         _wallColliderBody = new StaticBody2D { Name = "WallColliders", Position = _gridOffset };
         AddChild(_wallColliderBody);
@@ -318,35 +387,42 @@ public partial class ControlRoom : Node2D
         var topLeft = topLeftCell - new Vector2(TileSize * 0.5f, TileSize * 0.5f);
         var width = _gridWidth * TileSize;
         var height = _gridHeight * TileSize;
+        var stripCell = _northWallStripLayer.MapToLocal(new Vector2I(0, -1));
+        var stripBottom = stripCell.Y;
+        var wallYOffset = (stripBottom - topLeft.Y) + TileSize;
 
         for (int x = 0; x < _gridWidth; x++)
         {
             var cellLeft = topLeft.X + (x * TileSize);
             AddWallCollider(new Rect2(
                 cellLeft,
-                topLeft.Y,
+                topLeft.Y + wallYOffset,
                 TileSize,
                 TileSize
             ));
 
             AddWallCollider(new Rect2(
                 cellLeft,
-                topLeft.Y + height,
+                topLeft.Y + height + wallYOffset,
                 TileSize,
                 TileSize
             ));
         }
 
         var doorY = Mathf.Clamp(_doorRow, 0, _gridHeight - 1);
-        var doorTop = topLeft.Y + (doorY * TileSize);
+        var doorTop = topLeft.Y + wallYOffset + (doorY * TileSize);
         var doorBottom = doorTop + (_doorHeightTiles * TileSize);
 
         var westX = topLeft.X - WallStripWidth;
         var eastX = topLeft.X + width;
+        _debugDoorRect = new Rect2(
+            _wallColliderBody.ToGlobal(new Vector2(eastX, doorTop)),
+            new Vector2(WallStripWidth, doorBottom - doorTop)
+        );
 
         for (int y = 0; y < _gridHeight; y++)
         {
-            var cellTop = topLeft.Y + (y * TileSize);
+            var cellTop = topLeft.Y + wallYOffset + (y * TileSize);
             AddWallCollider(new Rect2(
                 westX,
                 cellTop,
@@ -372,6 +448,46 @@ public partial class ControlRoom : Node2D
         var collision = new CollisionShape2D { Shape = shape };
         collision.Position = rect.Position + (rect.Size * 0.5f);
         _wallColliderBody.AddChild(collision);
+        _debugWallRects.Add(new Rect2(_wallColliderBody.ToGlobal(rect.Position), rect.Size));
+    }
+
+    private void UpdateDebugPlayerRect()
+    {
+        var playerCollision = _player.GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
+        if (playerCollision?.Shape is not RectangleShape2D playerShape)
+            return;
+
+        var size = playerShape.Size;
+        _debugPlayerRect = new Rect2(
+            playerCollision.GlobalPosition - (size * 0.5f),
+            size
+        );
+    }
+
+    private void UpdateDebugPropRects()
+    {
+        _debugPropRects.Clear();
+        var debugNodes = GetTree().GetNodesInGroup("debug_prop_collision");
+        foreach (var node in debugNodes)
+        {
+            if (node is not CollisionShape2D shape)
+                continue;
+            if (!IsInstanceValid(shape))
+                continue;
+            if (shape.Shape is not RectangleShape2D rectShape)
+                continue;
+
+            _debugPropRects.Add(new Rect2(
+                shape.GlobalPosition - (rectShape.Size * 0.5f),
+                rectShape.Size
+            ));
+        }
+    }
+
+    private Rect2 ToLocalRect(Rect2 rect)
+    {
+        var topLeft = ToLocal(rect.Position);
+        return new Rect2(topLeft, rect.Size);
     }
 
     private Vector2 AutoCenterFloor()
@@ -395,30 +511,26 @@ public partial class ControlRoom : Node2D
         if (_player == null)
             return;
 
-        var deadZone = 4.0f;
-
         var playerCollision = _player.GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
         if (playerCollision?.Shape is not RectangleShape2D playerShape)
             return;
 
         var playerSize = playerShape.Size;
         var playerRect = new Rect2(
-            _player.GlobalPosition.X - (playerSize.X * 0.5f),
-            _player.GlobalPosition.Y - (playerSize.Y * 0.5f),
-            playerSize.X,
-            playerSize.Y
+            playerCollision.GlobalPosition - (playerSize * 0.5f),
+            playerSize
         );
 
         var roomLeft = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, 0))).X;
         var roomWidth = _gridWidth * TileSize;
 
-        var northBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, 0))).Y - deadZone;
+        var northBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, 0))).Y;
         var northRect = new Rect2(roomLeft, northBottomY - 64.0f, roomWidth, 64.0f);
         var hideNorth = northRect.Intersects(playerRect);
         _northWallLayer.Visible = !hideNorth;
         _northWallStripLayer.Visible = hideNorth;
 
-        var southBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, _gridHeight - 1))).Y + deadZone;
+        var southBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, _gridHeight - 1))).Y;
         var southRect = new Rect2(roomLeft, southBottomY - 64.0f, roomWidth, 64.0f);
         var hideSouth = southRect.Intersects(playerRect);
         _southWallLayer.Visible = !hideSouth;
