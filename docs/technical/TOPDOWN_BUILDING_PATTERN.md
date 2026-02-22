@@ -78,6 +78,19 @@ Use multiple TileMapLayer children for clarity and occlusion behavior:
 4. `SouthWallStripLayer` (thin strip when south wall hides)
 5. `DoorLayer` (door tile drawn above walls)
 
+## Z-Index Bands
+
+Use 100-point bands to keep ordering predictable and extensible:
+
+- Floor: **0**
+- Wall strips: **100**
+- Full walls: **150**
+- PropsBack: **200**
+- Player: **250**
+- PropsFront: **300**
+- DoorLayer: **400**
+- UI/Overlays: **1000**
+
 ## Wall Placement Rules
 
 - **North wall**: row `y = -1`

@@ -19,6 +19,7 @@ public partial class ControlRoom : Node2D
     private const int WALL_EAST_SOURCE_ID = 4;
     private const int WALL_SOUTH_STRIP_SOURCE_ID = 5;
     private const int GRID_DEBUG_SOURCE_ID = 6;
+    private const int WALL_NORTH_STRIP_SOURCE_ID = 5;
 
     // Atlas coordinates
     private static readonly Vector2I ATLAS_COORDS_LEFT = new Vector2I(0, 0);
@@ -27,8 +28,11 @@ public partial class ControlRoom : Node2D
     private static readonly Vector2I ATLAS_COORDS_DOOR = new Vector2I(3, 0);
 
     private TileMapLayer _floorLayer;
-    private TileMapLayer _wallLayer;
+    private TileMapLayer _northWallLayer;
+    private TileMapLayer _westWallLayer;
+    private TileMapLayer _eastWallLayer;
     private TileMapLayer _southWallLayer;
+    private TileMapLayer _northWallStripLayer;
     private TileMapLayer _southWallStripLayer;
     private TileMapLayer _doorLayer;
     private TileMapLayer _gridDebugLayer;
@@ -52,10 +56,24 @@ public partial class ControlRoom : Node2D
             return;
         }
 
-        _wallLayer = GetNode<TileMapLayer>("WallLayer");
-        if (_wallLayer == null)
+        _northWallLayer = GetNode<TileMapLayer>("NorthWallLayer");
+        if (_northWallLayer == null)
         {
-            GD.PrintErr("ControlRoom: WallLayer not found!");
+            GD.PrintErr("ControlRoom: NorthWallLayer not found!");
+            return;
+        }
+
+        _westWallLayer = GetNode<TileMapLayer>("WestWallLayer");
+        if (_westWallLayer == null)
+        {
+            GD.PrintErr("ControlRoom: WestWallLayer not found!");
+            return;
+        }
+
+        _eastWallLayer = GetNode<TileMapLayer>("EastWallLayer");
+        if (_eastWallLayer == null)
+        {
+            GD.PrintErr("ControlRoom: EastWallLayer not found!");
             return;
         }
 
@@ -63,6 +81,13 @@ public partial class ControlRoom : Node2D
         if (_southWallLayer == null)
         {
             GD.PrintErr("ControlRoom: SouthWallLayer not found!");
+            return;
+        }
+
+        _northWallStripLayer = GetNode<TileMapLayer>("NorthWallStripLayer");
+        if (_northWallStripLayer == null)
+        {
+            GD.PrintErr("ControlRoom: NorthWallStripLayer not found!");
             return;
         }
 
@@ -87,14 +112,14 @@ public partial class ControlRoom : Node2D
             return;
         }
 
-        _propsBackRoot = GetNode<Node2D>("PropsBack");
+        _propsBackRoot = GetNode<Node2D>("PropSort/PropsBack");
         if (_propsBackRoot == null)
         {
             GD.PrintErr("ControlRoom: PropsBack root not found!");
             return;
         }
 
-        _propsFrontRoot = GetNode<Node2D>("PropsFront");
+        _propsFrontRoot = GetNode<Node2D>("PropSort/PropsFront");
         if (_propsFrontRoot == null)
         {
             GD.PrintErr("ControlRoom: PropsFront root not found!");
@@ -107,8 +132,11 @@ public partial class ControlRoom : Node2D
         // Auto-center the floor grid around the anchor
         _gridOffset = AutoCenterFloor();
         _floorLayer.Position = _gridOffset;
-        _wallLayer.Position = _gridOffset;
+        _northWallLayer.Position = _gridOffset;
+        _westWallLayer.Position = _gridOffset;
+        _eastWallLayer.Position = _gridOffset;
         _southWallLayer.Position = _gridOffset;
+        _northWallStripLayer.Position = _gridOffset;
         _southWallStripLayer.Position = _gridOffset;
         _doorLayer.Position = _gridOffset;
         _gridDebugLayer.Position = _gridOffset;
@@ -128,7 +156,7 @@ public partial class ControlRoom : Node2D
         CreateProps();
 
         // Position player in center
-        _player = GetNode<Node2D>("Player");
+        _player = GetNode<Node2D>("PropSort/Player");
         if (_player != null)
         {
             var centerX = _gridWidth / 2;
@@ -136,12 +164,12 @@ public partial class ControlRoom : Node2D
             _player.Position = _floorLayer.MapToLocal(new Vector2I(centerX, centerY)) + _gridOffset;
         }
 
-        UpdateSouthWallVisibility();
+        UpdateWallVisibility();
     }
 
     public override void _Process(double delta)
     {
-        UpdateSouthWallVisibility();
+        UpdateWallVisibility();
         UpdatePlayerLayering();
     }
 
@@ -172,16 +200,17 @@ public partial class ControlRoom : Node2D
         {
             var northAtlas = ResolveHorizontalAtlas(x, _gridWidth);
             var southAtlas = ResolveHorizontalAtlas(x, _gridWidth);
-            _wallLayer.SetCell(new Vector2I(x, -1), WALL_NORTH_SOURCE_ID, northAtlas);
+            _northWallLayer.SetCell(new Vector2I(x, -1), WALL_NORTH_SOURCE_ID, northAtlas);
             _southWallLayer.SetCell(new Vector2I(x, _gridHeight - 1), WALL_SOUTH_SOURCE_ID, southAtlas);
+            _northWallStripLayer.SetCell(new Vector2I(x, -1), WALL_NORTH_STRIP_SOURCE_ID, ATLAS_COORDS_LEFT);
         }
 
         for (int y = -1; y < _gridHeight; y++)
         {
             var westAtlas = ResolveVerticalAtlas(y, _gridHeight);
             var eastAtlas = y == doorY ? ATLAS_COORDS_DOOR : ResolveVerticalAtlas(y, _gridHeight);
-            _wallLayer.SetCell(new Vector2I(-1, y), WALL_WEST_SOURCE_ID, westAtlas);
-            _wallLayer.SetCell(new Vector2I(_gridWidth, y), WALL_EAST_SOURCE_ID, eastAtlas);
+            _westWallLayer.SetCell(new Vector2I(-1, y), WALL_WEST_SOURCE_ID, westAtlas);
+            _eastWallLayer.SetCell(new Vector2I(_gridWidth, y), WALL_EAST_SOURCE_ID, eastAtlas);
         }
 
         _doorLayer.SetCell(new Vector2I(_gridWidth, doorY), WALL_EAST_SOURCE_ID, ATLAS_COORDS_DOOR);
@@ -197,11 +226,12 @@ public partial class ControlRoom : Node2D
         _propsBackRoot.QueueFree();
         _propsFrontRoot.QueueFree();
 
+        var propSort = GetNode<Node2D>("PropSort");
         _propsBackRoot = new Node2D { Name = "PropsBack", Position = _gridOffset };
         _propsFrontRoot = new Node2D { Name = "PropsFront", Position = _gridOffset };
 
-        AddChild(_propsBackRoot);
-        AddChild(_propsFrontRoot);
+        propSort.AddChild(_propsBackRoot);
+        propSort.AddChild(_propsFrontRoot);
 
         AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(2, 2), Vector2.Zero, true, new Vector2(24, 16));
         AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(10, 2), Vector2.Zero, true, new Vector2(24, 16));
@@ -360,24 +390,41 @@ public partial class ControlRoom : Node2D
         return _gridAnchor - center;
     }
 
-    private void UpdateSouthWallVisibility()
+    private void UpdateWallVisibility()
     {
-        if (_southWallLayer == null || _player == null)
+        if (_player == null)
             return;
 
-        var southWallLocal = _floorLayer.MapToLocal(new Vector2I(0, _gridHeight - 1));
-        var southWallGlobalY = _floorLayer.ToGlobal(southWallLocal).Y;
-        var shouldHide = _player.GlobalPosition.Y > southWallGlobalY + _southWallHideOffset;
+        var deadZone = 4.0f;
 
-        _southWallLayer.Visible = !shouldHide;
-        if (_southWallStripLayer != null)
-        {
-            _southWallStripLayer.Visible = shouldHide;
-        }
-        if (_doorLayer != null)
-        {
-            _doorLayer.Visible = true;
-        }
+        var playerCollision = _player.GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
+        if (playerCollision?.Shape is not RectangleShape2D playerShape)
+            return;
+
+        var playerSize = playerShape.Size;
+        var playerRect = new Rect2(
+            _player.GlobalPosition.X - (playerSize.X * 0.5f),
+            _player.GlobalPosition.Y - (playerSize.Y * 0.5f),
+            playerSize.X,
+            playerSize.Y
+        );
+
+        var roomLeft = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, 0))).X;
+        var roomWidth = _gridWidth * TileSize;
+
+        var northBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, 0))).Y - deadZone;
+        var northRect = new Rect2(roomLeft, northBottomY - 64.0f, roomWidth, 64.0f);
+        var hideNorth = northRect.Intersects(playerRect);
+        _northWallLayer.Visible = !hideNorth;
+        _northWallStripLayer.Visible = hideNorth;
+
+        var southBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, _gridHeight - 1))).Y + deadZone;
+        var southRect = new Rect2(roomLeft, southBottomY - 64.0f, roomWidth, 64.0f);
+        var hideSouth = southRect.Intersects(playerRect);
+        _southWallLayer.Visible = !hideSouth;
+        _southWallStripLayer.Visible = hideSouth;
+
+        _doorLayer.Visible = true;
     }
 
     private static Vector2I ResolveHorizontalAtlas(int x, int width)

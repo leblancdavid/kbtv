@@ -113,6 +113,12 @@
 - Moved north wall collision to the bottom anchored row.
 - Redrew east wall door tile with a centered opening.
 - Adjusted table sort threshold so tabletop props render behind the player when adjacent.
+- Split wall layers by direction and added strip layers for all walls with dead zone hiding.
+- Simplified wall hiding to north/south only with a shared strip and collision-rect overlap.
+- Applied 100-band z_index scheme for layers and props.
+- Moved props/player under a y-sorted PropSort layer to avoid props hiding behind walls.
+- Lowered strip layers z_index so props/player render above strips.
+- Raised strip layers above floor and set props z_index above strips.
 - Added placeholder studio props (speakers, table, phone line, sound board, computer) to the ControlRoom.
 - Aligned north wall props to row 0 with speakers at x=1/5 and centered table span x=2-4.
 

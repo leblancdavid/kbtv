@@ -61,6 +61,7 @@ texture = ExtResource("7")
 texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 
+
 [resource]
 tile_shape = 0
 tile_layout = 0
@@ -72,3 +73,4 @@ sources/3 = SubResource("wall_west_source")
 sources/4 = SubResource("wall_east_source")
 sources/5 = SubResource("wall_south_strip_source")
 sources/6 = SubResource("grid_debug_source")
+sources/7 = SubResource("wall_south_strip_source")
