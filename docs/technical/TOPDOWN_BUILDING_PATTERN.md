@@ -6,9 +6,9 @@ KBTV uses a square topdown tile layout with faux perspective walls. This documen
 
 ## Tile Specs
 
-- **Floor tiles**: 32x32
-- **North/South walls**: 32x64 wall faces (top band + mid + base)
-- **East/West walls**: 16px wide vertical strips inside a 32x64 tile
+- **Floor tiles**: 16x16
+- **North/South walls**: 16x64 wall faces (4 tiles tall)
+- **East/West walls**: 16px wide vertical strips inside a 16x64 tile
 - **Top band height (walls)**: 32px
 - **Bottom band height (walls)**: 16px
 
@@ -17,6 +17,12 @@ KBTV uses a square topdown tile layout with faux perspective walls. This documen
 - **All sprites use a bottom anchor** (the bottom of the image sits on the tile line).
 - **Any sprite taller than 32px extends upward only**.
 - **Collisions are placed at the bottom of the sprite** (not centered).
+
+## Grid Alignment
+
+- **Place walls and props on grid coordinates only**.
+- **Avoid per-prop pixel offsets** except for tabletop items that must sit on a surface.
+- When in doubt, adjust grid coordinates, not pixel offsets.
 
 ## Layering Strategy (Player vs Props)
 
@@ -43,16 +49,24 @@ private void UpdatePlayerLayering()
 
 Use a dedicated debug TileMapLayer with a grid tile for layout verification:
 
-- Tile: `assets/tiles/topdown/grid_debug.png`
+- Tile: `assets/tiles/topdown/grid_debug.png` (16x16)
 - Layer: `GridDebugLayer` (set `visible=false` by default)
 - Toggle in `ControlRoom` using `ui_select`
+
+## Tabletop Offsets
+
+The only approved pixel offsets are for tabletop items to sit on the desk surface:
+
+- `phone_line.png`
+- `sound_board.png`
+- `computer_station.png`
 
 ## Tileset Configuration
 
 - **Tile Shape**: Square
 - **Tile Layout**: Square
-- **Tile Size**: 32x32
-- **Wall origins**: `texture_origin = Vector2i(0, -64)` for 32x64 wall tiles
+- **Tile Size**: 16x16
+- **Wall origins**: `texture_origin = Vector2i(0, -64)` for 16x64 wall tiles
 
 ## Layering Pattern
 
@@ -69,7 +83,7 @@ Use multiple TileMapLayer children for clarity and occlusion behavior:
 - **North wall**: row `y = -1`
 - **South wall**: row `y = _gridHeight - 1`
 - **East/West walls**: rows `y = -1` through `y = _gridHeight - 1`
-- **Door**: placed on `DoorLayer` at the east wall coordinate
+- **Door**: placed on `DoorLayer` at the east wall coordinate (2 tiles high)
 
 ## South Wall Hide Behavior
 

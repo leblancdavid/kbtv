@@ -10,13 +10,14 @@
 
 [sub_resource type="TileSetAtlasSource" id="floor_source"]
 texture = ExtResource("1")
-texture_region_size = Vector2i(32, 32)
+texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 1:0/0 = 0
+2:0/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="wall_north_source"]
 texture = ExtResource("2")
-texture_region_size = Vector2i(32, 64)
+texture_region_size = Vector2i(16, 64)
 texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 1:0/0 = 0
@@ -25,7 +26,7 @@ texture_origin = Vector2i(0, -64)
 
 [sub_resource type="TileSetAtlasSource" id="wall_south_source"]
 texture = ExtResource("3")
-texture_region_size = Vector2i(32, 64)
+texture_region_size = Vector2i(16, 64)
 texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 1:0/0 = 0
@@ -34,7 +35,7 @@ texture_origin = Vector2i(0, -64)
 
 [sub_resource type="TileSetAtlasSource" id="wall_west_source"]
 texture = ExtResource("4")
-texture_region_size = Vector2i(32, 64)
+texture_region_size = Vector2i(16, 64)
 texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 1:0/0 = 0
@@ -42,7 +43,7 @@ texture_origin = Vector2i(0, -64)
 
 [sub_resource type="TileSetAtlasSource" id="wall_east_source"]
 texture = ExtResource("5")
-texture_region_size = Vector2i(32, 64)
+texture_region_size = Vector2i(16, 64)
 texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 1:0/0 = 0
@@ -51,19 +52,19 @@ texture_origin = Vector2i(0, -64)
 
 [sub_resource type="TileSetAtlasSource" id="wall_south_strip_source"]
 texture = ExtResource("6")
-texture_region_size = Vector2i(32, 64)
+texture_region_size = Vector2i(16, 64)
 texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="grid_debug_source"]
 texture = ExtResource("7")
-texture_region_size = Vector2i(32, 32)
+texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 
 [resource]
 tile_shape = 0
 tile_layout = 0
-tile_size = Vector2i(32, 32)
+tile_size = Vector2i(16, 16)
 sources/0 = SubResource("floor_source")
 sources/1 = SubResource("wall_north_source")
 sources/2 = SubResource("wall_south_source")

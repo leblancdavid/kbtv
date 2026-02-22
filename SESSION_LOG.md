@@ -1,24 +1,38 @@
-## Current Session - Topdown Pattern Documentation
+## Current Session - Topdown 16x16 Grid Migration
 
 **Branch**: `develop`
 
-**Task**: Document the finalized topdown pattern (bottom anchors, layering, door/wall rules, debug grid) to standardize future work.
+**Task**: Migrate to 16x16 tiles, redraw walls/floors, align walls/props to grid, and document the finalized topdown pattern.
 
 ### Work Done
-- Added bottom-anchor rule to the topdown pattern.
-- Captured layering strategy (PropsBack/PropsFront) and player swap logic.
-- Added debug grid toggle for layout verification.
+- Redrew floors and walls for 16x16 grid.
+- Updated tileset to 16x16 tile size and 16x64 wall sources.
+- Added debug grid overlay tile and toggle.
+- Converted ControlRoom to 14x10 grid and doubled placements.
+- Implemented layered props (PropsBack/PropsFront) with player swapping.
+- Snapped props to grid; kept tabletop offsets only.
+- Fixed wall collider alignment with 16x16 boxes.
+- Adjusted door art and row alignment.
+- Updated topdown pattern docs with grid and layering rules.
 
 ### In Progress
 - None.
 
 ### Files Modified
+- `scripts/world/ControlRoom.cs`
+- `assets/tiles/topdown/floor_atlas.png`
+- `assets/tiles/topdown/wall_north_atlas.png`
+- `assets/tiles/topdown/wall_south_atlas.png`
+- `assets/tiles/topdown/wall_west_atlas.png`
+- `assets/tiles/topdown/wall_east_atlas.png`
+- `assets/tiles/topdown/wall_south_strip.png`
+- `assets/tiles/topdown/topdown_tileset.tres`
+- `assets/tiles/topdown/grid_debug.png`
 - `docs/technical/TOPDOWN_BUILDING_PATTERN.md`
-- `AGENTS.md`
 - `SESSION_LOG.md`
 
 ### Next Steps
-- Continue refining prop placement as needed.
+- Verify final placement and tune grid coordinates if needed.
 
 ### Blockers
 - None
@@ -84,7 +98,21 @@
 - Enforced bottom-anchor rule for props and collision placement; updated docs.
 - Shifted all prop grid rows down by 1 to compensate for bottom-anchor change.
 - Added a toggleable grid debug layer and nudged table cluster up by 16px; chair moved up one row.
+- Migrated ControlRoom to 16x16 grid (14x10), redrew floors/walls, and doubled placements.
+- Updated topdown pattern docs for 16x16 tiles, 16x64 walls, and 2-tile doors.
 - Added grid debug toggle on ui_select in ControlRoom.
+- Snapped props to grid by removing non-tabletop pixel offsets.
+- Moved speakers/table/cabinet up two rows and chair up three rows.
+- Moved phone line, sound board, and computer down two rows.
+- Moved door down one row and widened opening to 2 tiles.
+- Fixed east/west wall collider width to 16px and aligned to tile origin.
+- Moved door opening down two rows to align with the door.
+- Moved door row back up and snapped east/west wall colliders to 16x16 cells.
+- Shifted door opening up two tiles to match door position.
+- Snapped north/south wall colliders to 16x16 cell boxes.
+- Moved north wall collision to the bottom anchored row.
+- Redrew east wall door tile with a centered opening.
+- Adjusted table sort threshold so tabletop props render behind the player when adjacent.
 - Added placeholder studio props (speakers, table, phone line, sound board, computer) to the ControlRoom.
 - Aligned north wall props to row 0 with speakers at x=1/5 and centered table span x=2-4.
 

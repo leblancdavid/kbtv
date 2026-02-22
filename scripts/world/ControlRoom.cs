@@ -6,10 +6,10 @@ public partial class ControlRoom : Node2D
 
     [Export] private float _southWallHideOffset = 8.0f;
 
-    [Export] private int _gridWidth = 7;
-    [Export] private int _gridHeight = 5;
-    [Export] private int _doorRow = 1;
-    [Export] private int _doorHeightTiles = 1;
+    [Export] private int _gridWidth = 14;
+    [Export] private int _gridHeight = 10;
+    [Export] private int _doorRow = 3;
+    [Export] private int _doorHeightTiles = 2;
 
     // TileSet source IDs from topdown_tileset.tres
     private const int FLOOR_SOURCE_ID = 0;
@@ -39,7 +39,7 @@ public partial class ControlRoom : Node2D
     private StaticBody2D _wallColliderBody;
     private float _tableSortY;
 
-    private const float TileSize = 32.0f;
+    private const float TileSize = 16.0f;
     private const float WallThickness = 8.0f;
     private const float WallStripWidth = 16.0f;
 
@@ -203,21 +203,21 @@ public partial class ControlRoom : Node2D
         AddChild(_propsBackRoot);
         AddChild(_propsFrontRoot);
 
-        AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(1, 2), new Vector2(0, -40), true, new Vector2(24, 16));
-        AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(5, 2), new Vector2(0, -40), true, new Vector2(24, 16));
+        AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(2, 2), Vector2.Zero, true, new Vector2(24, 16));
+        AddProp(_propsBackRoot, "res://assets/tiles/props/speaker_stand.png", new Vector2I(10, 2), Vector2.Zero, true, new Vector2(24, 16));
 
-        var tableBase = _floorLayer.MapToLocal(new Vector2I(3, 2)) + new Vector2(0, -36);
-        _tableSortY = _gridOffset.Y + tableBase.Y;
-        AddProp(_propsBackRoot, "res://assets/tiles/props/studio_table.png", new Vector2I(3, 2), new Vector2(0, -36), true, new Vector2(96, 14));
+        var tableBase = _floorLayer.MapToLocal(new Vector2I(6, 2));
+        _tableSortY = _gridOffset.Y + tableBase.Y - 8;
+        AddProp(_propsBackRoot, "res://assets/tiles/props/studio_table.png", new Vector2I(6, 2), Vector2.Zero, true, new Vector2(96, 14));
 
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/phone_line.png", new Vector2I(2, 2), new Vector2(4, -42), true, new Vector2(20, 10));
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/sound_board.png", new Vector2I(3, 2), new Vector2(2, -42), true, new Vector2(22, 10));
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/computer_station.png", new Vector2I(4, 2), new Vector2(-2, -54), true, new Vector2(22, 12));
+        AddProp(_propsFrontRoot, "res://assets/tiles/props/phone_line.png", new Vector2I(4, 4), new Vector2(4, -42), true, new Vector2(20, 10));
+        AddProp(_propsFrontRoot, "res://assets/tiles/props/sound_board.png", new Vector2I(6, 4), new Vector2(2, -42), true, new Vector2(22, 10));
+        AddProp(_propsFrontRoot, "res://assets/tiles/props/computer_station.png", new Vector2I(8, 4), new Vector2(-2, -54), true, new Vector2(22, 12));
 
-        AddProp(_propsBackRoot, "res://assets/tiles/props/audio_cabinet.png", new Vector2I(6, 2), new Vector2(0, -40), true, new Vector2(24, 16));
-        AddProp(_propsBackRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(2, 5), new Vector2(-16, -16), true, new Vector2(28, 12));
-        AddProp(_propsBackRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(5, 5), new Vector2(-16, -16), true, new Vector2(28, 12));
-        AddProp(_propsFrontRoot, "res://assets/tiles/props/computer_chair.png", new Vector2I(3, 2), new Vector2(0, -22), false, Vector2.Zero);
+        AddProp(_propsBackRoot, "res://assets/tiles/props/audio_cabinet.png", new Vector2I(12, 2), Vector2.Zero, true, new Vector2(24, 16));
+        AddProp(_propsBackRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(4, 10), Vector2.Zero, true, new Vector2(28, 12));
+        AddProp(_propsBackRoot, "res://assets/tiles/props/storage_shelf.png", new Vector2I(10, 10), Vector2.Zero, true, new Vector2(28, 12));
+        AddProp(_propsFrontRoot, "res://assets/tiles/props/computer_chair.png", new Vector2I(6, 3), Vector2.Zero, false, Vector2.Zero);
     }
 
     private void CreateDebugGrid()
@@ -284,56 +284,55 @@ public partial class ControlRoom : Node2D
         _wallColliderBody = new StaticBody2D { Name = "WallColliders", Position = _gridOffset };
         AddChild(_wallColliderBody);
 
-        var topLeft = _floorLayer.MapToLocal(new Vector2I(0, 0));
+        var topLeftCell = _floorLayer.MapToLocal(new Vector2I(0, 0));
+        var topLeft = topLeftCell - new Vector2(TileSize * 0.5f, TileSize * 0.5f);
         var width = _gridWidth * TileSize;
         var height = _gridHeight * TileSize;
 
-        AddWallCollider(new Rect2(
-            topLeft.X,
-            topLeft.Y - WallThickness,
-            width,
-            WallThickness
-        ));
+        for (int x = 0; x < _gridWidth; x++)
+        {
+            var cellLeft = topLeft.X + (x * TileSize);
+            AddWallCollider(new Rect2(
+                cellLeft,
+                topLeft.Y,
+                TileSize,
+                TileSize
+            ));
 
-        AddWallCollider(new Rect2(
-            topLeft.X,
-            topLeft.Y + height,
-            width,
-            WallThickness
-        ));
-
-        AddWallCollider(new Rect2(
-            topLeft.X - WallStripWidth,
-            topLeft.Y,
-            WallStripWidth,
-            height
-        ));
+            AddWallCollider(new Rect2(
+                cellLeft,
+                topLeft.Y + height,
+                TileSize,
+                TileSize
+            ));
+        }
 
         var doorY = Mathf.Clamp(_doorRow, 0, _gridHeight - 1);
         var doorTop = topLeft.Y + (doorY * TileSize);
         var doorBottom = doorTop + (_doorHeightTiles * TileSize);
 
+        var westX = topLeft.X - WallStripWidth;
         var eastX = topLeft.X + width;
-        var upperHeight = doorTop - topLeft.Y;
-        if (upperHeight > 0)
-        {
-            AddWallCollider(new Rect2(
-                eastX,
-                topLeft.Y,
-                WallThickness,
-                upperHeight
-            ));
-        }
 
-        var lowerHeight = (topLeft.Y + height) - doorBottom;
-        if (lowerHeight > 0)
+        for (int y = 0; y < _gridHeight; y++)
         {
+            var cellTop = topLeft.Y + (y * TileSize);
             AddWallCollider(new Rect2(
-                eastX,
-                doorBottom,
-                WallThickness,
-                lowerHeight
+                westX,
+                cellTop,
+                WallStripWidth,
+                TileSize
             ));
+
+            if (y < doorY || y >= doorY + _doorHeightTiles)
+            {
+                AddWallCollider(new Rect2(
+                    eastX,
+                    cellTop,
+                    WallStripWidth,
+                    TileSize
+                ));
+            }
         }
     }
 
