@@ -71,6 +71,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [VERN_STATS.md](docs/systems/VERN_STATS.md) | Vern's stats system - Physical/Emotional/Mental, dependencies (Caffeine/Nicotine), VIBE, mood types, Topic Belief |
 | [TESTING.md](docs/testing/TESTING.md) | GdUnit4 testing framework setup, patterns, and best practices |
 | [MONITOR_PATTERN.md](docs/technical/MONITOR_PATTERN.md) | Domain monitor pattern - state updates per frame, side effects |
+| [ZINDEX_Y_SORT_PATTERN.md](docs/technical/ZINDEX_Y_SORT_PATTERN.md) | ZIndex-based y-sort pattern - manual sorting for topdown 2D games |
 
 When adding new documentation (technical specs, feature plans, art guidelines, etc.), place them in the `docs/` folder and add a reference here.
 

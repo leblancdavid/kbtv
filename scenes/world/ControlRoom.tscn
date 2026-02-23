@@ -20,7 +20,6 @@ visible = false
 
 [node name="PropSort" type="Node2D" parent="."]
 y_sort_enabled = true
-z_index = 200
 
 [node name="Props" type="Node2D" parent="PropSort"]
 

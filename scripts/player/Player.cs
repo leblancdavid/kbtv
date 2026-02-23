@@ -3,21 +3,25 @@ using Godot;
 public partial class Player : CharacterBody2D
 {
     [Export] private float _speed = 150.0f;
-    [Export] private float _spriteForwardOffset = 2.0f;
 
     private Sprite2D _sprite;
 
     public override void _Ready()
     {
         AddToGroup("player");
-        YSortEnabled = true;
+        YSortEnabled = false;
 
         _sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
         if (_sprite != null)
         {
             var size = _sprite.Texture?.GetSize() ?? Vector2.Zero;
-            _sprite.Position = new Vector2(0, -(size.Y * 0.5f) + _spriteForwardOffset);
+            _sprite.Position = new Vector2(0, -(size.Y * 0.5f));
         }
+    }
+
+    public override void _Process(double delta)
+    {
+        ZIndex = (int)GlobalPosition.Y;
     }
 
     public override void _PhysicsProcess(double delta)

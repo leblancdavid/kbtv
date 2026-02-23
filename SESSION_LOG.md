@@ -12,6 +12,7 @@
 - PropSort node handles Y-sorting for both walls and props.
 - Fixed shelf positions to be within grid bounds (y=5 instead of y=10).
 - Door remains on TileMapLayer with Z=1000 (always in front).
+- Reverted prop positioning changes and added debug pivot drawing.
 
 ### In Progress
 - None.
