@@ -20,7 +20,11 @@ public partial class ControlRoom : Node2D
 	private const int WALL_EAST_SOURCE_ID = 4;
 	private const int WALL_SOUTH_STRIP_SOURCE_ID = 5;
 	private const int GRID_DEBUG_SOURCE_ID = 6;
-	private const int WALL_NORTH_STRIP_SOURCE_ID = 5;
+	private const int WALL_WINDOW_SOURCE_ID = 7;
+
+	// Window configuration
+	private const int WindowStartColumn = 3;
+	private const int WindowEndColumn = 9;
 
 	// Atlas coordinates
 	private static readonly Vector2I ATLAS_COORDS_LEFT = new Vector2I(0, 0);
@@ -51,6 +55,7 @@ public partial class ControlRoom : Node2D
 	private readonly List<Sprite2D> _westWallSprites = new();
 	private readonly List<Sprite2D> _eastWallSprites = new();
 	private readonly List<Sprite2D> _southCornerSprites = new();
+	private readonly List<Sprite2D> _windowSprites = new();
 
 	private const float TileSize = 16.0f;
 	private const float WallThickness = 8.0f;
@@ -217,12 +222,20 @@ public partial class ControlRoom : Node2D
 		var southTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_atlas.png");
 		var sideTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_side_atlas.png");
 		var southStripTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_strip.png");
+		var windowTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_window_atlas.png");
 
 		var doorY = Mathf.Clamp(_doorRow, 0, _gridHeight - 1);
 
-		// Create north wall (row -1)
+		// Create north wall (row -1) with window gap at columns 3-9
 		for (int x = 0; x < _gridWidth; x++)
 		{
+			// Skip wall creation for window columns
+			if (x >= WindowStartColumn && x <= WindowEndColumn)
+			{
+				CreateWindow(x, windowTexture);
+				continue;
+			}
+
 			var atlas = ResolveHorizontalAtlas(x, _gridWidth);
 			var gridPos = new Vector2I(x, -1);
 			var sprite = CreateWallSprite(northTexture, atlas, gridPos);
@@ -319,6 +332,30 @@ public partial class ControlRoom : Node2D
 		};
 
 		return sprite;
+	}
+
+	private void CreateWindow(int column, Texture2D texture)
+	{
+		// Window is 64px tall, positioned at row -1 (covers rows -1 and -2)
+		var gridPos = new Vector2I(column, -1);
+		var position = _floorLayer.MapToLocal(gridPos) + _gridOffset;
+
+		// Calculate frame within the window atlas (columns 0-6)
+		int frame = column - WindowStartColumn;
+
+		var sprite = new Sprite2D
+		{
+			Texture = texture,
+			Position = position,
+			Offset = new Vector2(0, -24),
+			Hframes = 7,
+			Vframes = 1,
+			Frame = frame,
+			ZIndex = (int)position.Y
+		};
+
+		_windowSprites.Add(sprite);
+		_propSort.AddChild(sprite);
 	}
 
 	private void CreateProps()
@@ -637,6 +674,8 @@ public partial class ControlRoom : Node2D
 			sprite.Visible = !hideNorth;
 		foreach (var sprite in _northWallStripSprites)
 			sprite.Visible = hideNorth;
+
+		// Windows are always visible (they are part of the wall)
 
 		// South wall visibility (now at row _gridHeight)
 		var southWallBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, _gridHeight))).Y - TileSize * 0.5f;
