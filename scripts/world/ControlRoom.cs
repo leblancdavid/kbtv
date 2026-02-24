@@ -56,6 +56,11 @@ public partial class ControlRoom : Node2D
 	private float _flickerTime;
 	private ShaderMaterial _depthShadowMaterial;
 
+	// Shadow parameters
+	private float _shadowDistanceScale = 400f;
+	private float _shadowLerpFactor = 0.12f;
+	private readonly Dictionary<Node2D, Sprite2D> _pivotToShadowSprite = new();
+
 	// Wall sprites for visibility toggling
 	private readonly List<Sprite2D> _northWallSprites = new();
 	private readonly List<Sprite2D> _northWallStripSprites = new();
@@ -142,12 +147,18 @@ public partial class ControlRoom : Node2D
 			var centerX = _gridWidth / 2;
 			var centerY = _gridHeight / 2;
 			_player.Position = _floorLayer.MapToLocal(new Vector2I(centerX, centerY)) + _gridOffset + new Vector2(0, 8);
-			
+
 			// Apply depth shadow shader to player
 			var playerSprite = _player.GetNode<Sprite2D>("Sprite2D");
 			if (playerSprite != null && _depthShadowMaterial != null)
 			{
 				playerSprite.Material = _depthShadowMaterial;
+			}
+
+			// Create cast shadow for player
+			if (playerSprite != null)
+			{
+				CreateShadowForPlayer(_player, playerSprite.Texture);
 			}
 		}
 
@@ -185,6 +196,12 @@ public partial class ControlRoom : Node2D
 		{
 			var shimmer = 0.25f + Mathf.Sin(_flickerTime * 3f) * 0.02f;
 			_deskLampLight.Energy = shimmer;
+		}
+
+		// Update shadows
+		if (_ceilingLight != null)
+		{
+			UpdateShadows(delta);
 		}
 
 		UpdateWallVisibility();
@@ -278,7 +295,7 @@ public partial class ControlRoom : Node2D
 			sprite.QueueFree();
 		foreach (var sprite in _southCornerSprites)
 			sprite.QueueFree();
-		
+
 		_northWallSprites.Clear();
 		_northWallStripSprites.Clear();
 		_southWallSprites.Clear();
@@ -588,13 +605,13 @@ public partial class ControlRoom : Node2D
 		var sizeY = height > 0 ? height : (int)(radius * 0.8f);
 		sizeX = Mathf.Max(sizeX, 48);
 		sizeY = Mathf.Max(sizeY, 48);
-		
+
 		var image = Image.Create(sizeX, sizeY, false, Image.Format.Rgba8);
-		
+
 		var centerX = sizeX / 2f;
 		var centerY = sizeY / 2f;
 		var maxDist = Mathf.Min(centerX, centerY);
-		
+
 		for (int y = 0; y < sizeY; y++)
 		{
 			for (int x = 0; x < sizeX; x++)
@@ -602,7 +619,7 @@ public partial class ControlRoom : Node2D
 				var dx = (x - centerX) / centerX;
 				var dy = (y - centerY) / centerY;
 				var dist = Mathf.Sqrt(dx * dx + dy * dy);
-				
+
 				byte alpha;
 				if (dist < 0.2f)
 				{
@@ -619,11 +636,11 @@ public partial class ControlRoom : Node2D
 				{
 					alpha = 0;
 				}
-				
+
 				image.SetPixel(x, y, new Color(1, 1, 1, alpha / 255f));
 			}
 		}
-		
+
 		return ImageTexture.CreateFromImage(image);
 	}
 
@@ -653,28 +670,28 @@ public partial class ControlRoom : Node2D
 	private GradientTexture2D CreateLightGradient(float radius)
 	{
 		var gradientTexture = new GradientTexture2D();
-		
+
 		// Radial fill from center
 		gradientTexture.Set("fill", (int)0); // Radial
 		gradientTexture.Set("fill_from", new Vector2(0.5f, 0.5f));
 		gradientTexture.Set("fill_to", new Vector2(1f, 1f));
-		
+
 		// Gradient: white at center (alpha 1) -> transparent at edge (alpha 0)
 		// This is the KEY: white to transparent, NOT white to black
 		var gradient = new Gradient();
-		gradient.Set("colors", new Color[] 
-		{ 
+		gradient.Set("colors", new Color[]
+		{
 			new Color(1f, 1f, 1f, 1f),   // Center: white, opaque
 			new Color(1f, 1f, 1f, 0f)     // Edge: white, transparent
 		});
 		gradient.Set("offsets", new float[] { 0f, 1f });
 		gradientTexture.Gradient = gradient;
-		
+
 		// Size matches the radius
 		var size = (int)radius;
 		gradientTexture.Width = size;
 		gradientTexture.Height = size;
-		
+
 		return gradientTexture;
 	}
 
@@ -687,30 +704,30 @@ public partial class ControlRoom : Node2D
 		// Single large rectangular occluder that surrounds the entire room
 		// Room is 14x10 tiles, we'll create a 16x12 tile occluder (256x192 pixels)
 		// with 1 tile padding around the room to block all light from escaping
-		
+
 		var roomWidthTiles = _gridWidth + 2;  // 16 tiles (1 tile padding on each side)
 		var roomHeightTiles = _gridHeight + 2; // 12 tiles (1 tile padding on each side)
-		
+
 		// Calculate center position of the room
 		var centerX = _gridWidth / 2f;
 		var centerY = _gridHeight / 2f;
 		var centerPos = _floorLayer.MapToLocal(new Vector2I((int)centerX, (int)centerY)) + _gridOffset;
-		
+
 		// Create a wide horizontal occluder (north and south walls combined)
 		var wallWidth = roomWidthTiles * 16f;  // 256px wide
 		var wallHeight = 20f;  // Slightly taller to ensure coverage
 		var wallPos = centerPos + new Vector2(0, -((_gridHeight / 2f + 1f) * 16f));
 		CreateOccluderRectangle(occluderNode, wallPos, wallWidth, wallHeight);  // North
-		
+
 		wallPos = centerPos + new Vector2(0, (_gridHeight / 2f + 1f) * 16f);
 		CreateOccluderRectangle(occluderNode, wallPos, wallWidth, wallHeight);  // South
-		
+
 		// Create tall vertical occluders (east and west walls)
 		var tallWidth = 20f;
 		var tallHeight = roomHeightTiles * 16f;  // 192px tall
 		wallPos = centerPos + new Vector2(-((_gridWidth / 2f + 1f) * 16f), 0);
 		CreateOccluderRectangle(occluderNode, wallPos, tallWidth, tallHeight);  // West
-		
+
 		wallPos = centerPos + new Vector2((_gridWidth / 2f + 1f) * 16f, 0);
 		CreateOccluderRectangle(occluderNode, wallPos, tallWidth, tallHeight);  // East
 	}
@@ -773,14 +790,17 @@ public partial class ControlRoom : Node2D
 		root.Position = basePosition;
 
 		var sprite = new Sprite2D { Texture = texture, Position = new Vector2(0, -texture.GetSize().Y * 0.5f) };
-		
+
 		// Apply depth shadow shader
 		if (_depthShadowMaterial != null)
 		{
 			sprite.Material = _depthShadowMaterial;
 		}
-		
+
 		root.AddChild(sprite);
+
+		// Create cast shadow as child of prop
+		CreateShadowForProp(root, texture);
 
 		if (collidable && root is StaticBody2D body)
 		{
@@ -795,6 +815,54 @@ public partial class ControlRoom : Node2D
 		root.ZIndex = (int)root.GlobalPosition.Y;
 		parent.AddChild(root);
 		_debugPropPivots.Add(root.GlobalPosition);
+	}
+
+	private void CreateShadowForProp(Node2D propRoot, Texture2D texture)
+	{
+		var spriteSize = texture.GetSize();
+
+		// Create pivot Node2D at prop's base (feet)
+		var shadowPivot = new Node2D
+		{
+			Name = "ShadowPivot",
+			Position = Vector2.Zero  // At prop's origin (feet)
+		};
+		shadowPivot.AddToGroup("shadow_pivots");
+		propRoot.AddChild(shadowPivot);
+
+		// Create shadow sprite, offset so bottom touches pivot
+		var shadowSprite = new Sprite2D
+		{
+			Texture = texture,
+			Position = new Vector2(0, spriteSize.Y * 0.5f),  // Offset up so bottom at pivot
+			FlipV = true,
+			Modulate = new Color(0, 0, 0, 0.8f)
+		};
+		shadowPivot.AddChild(shadowSprite);
+		_pivotToShadowSprite[shadowPivot] = shadowSprite;
+	}
+
+	private void CreateShadowForPlayer(Node2D playerRoot, Texture2D texture)
+	{
+		var spriteSize = texture.GetSize();
+
+		var shadowPivot = new Node2D
+		{
+			Name = "ShadowPivot",
+			Position = Vector2.Zero
+		};
+		shadowPivot.AddToGroup("shadow_pivots");
+		playerRoot.AddChild(shadowPivot);
+
+		var shadowSprite = new Sprite2D
+		{
+			Texture = texture,
+			Position = new Vector2(0, spriteSize.Y * 0.5f),
+			FlipV = true,
+			Modulate = new Color(0, 0, 0, 0.8f)
+		};
+		shadowPivot.AddChild(shadowSprite);
+		_pivotToShadowSprite[shadowPivot] = shadowSprite;
 	}
 
 
@@ -857,7 +925,7 @@ public partial class ControlRoom : Node2D
 		for (int y = 0; y < _gridHeight; y++)
 		{
 			var cellPos = _floorLayer.MapToLocal(new Vector2I(_gridWidth, y));
-			
+
 			// Skip door gap
 			if (y >= doorY && y < doorY + _doorHeightTiles)
 				continue;
@@ -993,7 +1061,7 @@ public partial class ControlRoom : Node2D
 		var floorTopY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, 0))).Y - TileSize * 0.5f;
 		var northRect = new Rect2(roomLeft, floorTopY - 64.0f, roomWidth, 64.0f);
 		var hideNorth = northRect.Intersects(playerRect);
-		
+
 		foreach (var sprite in _northWallSprites)
 			sprite.Visible = !hideNorth;
 		foreach (var sprite in _northWallStripSprites)
@@ -1005,7 +1073,7 @@ public partial class ControlRoom : Node2D
 		var southWallBottomY = _floorLayer.ToGlobal(_floorLayer.MapToLocal(new Vector2I(0, _gridHeight))).Y - TileSize * 0.5f;
 		var southRect = new Rect2(roomLeft, southWallBottomY - 64.0f, roomWidth, 64.0f);
 		var hideSouth = southRect.Intersects(playerRect);
-		
+
 		foreach (var sprite in _southWallSprites)
 			sprite.Visible = !hideSouth;
 		foreach (var sprite in _southWallStripSprites)
@@ -1034,5 +1102,35 @@ public partial class ControlRoom : Node2D
 		return ATLAS_COORDS_MID;
 	}
 
+	private void UpdateShadows(double delta)
+	{
+		var lightPos = _ceilingLight.GlobalPosition;
+
+		var shadowPivots = GetTree().GetNodesInGroup("shadow_pivots");
+
+		foreach (Node node in shadowPivots)
+		{
+			if (node is not Node2D pivot)
+				continue;
+
+			var pivotWorldPos = pivot.GlobalPosition;
+			var lightToPivot = pivotWorldPos - lightPos;
+			var distance = lightToPivot.Length();
+
+			// Rotation - angle from light to object, offset by -90 degrees for sprite's upright default
+			var angle = Mathf.Atan2(lightToPivot.Y, lightToPivot.X) - Mathf.DegToRad(90);
+			pivot.Rotation = angle;
+
+			// Y-Scale based on distance (inverse: closer = smaller, farther = larger)
+			var scaleY = Mathf.Clamp(0.2f + (distance / _shadowDistanceScale) * 1.8f, 0.2f, 2.0f);
+			pivot.Scale = new Vector2(1f, scaleY);
+
+			// Flip horizontally when object is below the light
+			if (_pivotToShadowSprite.TryGetValue(pivot, out var shadowSprite))
+			{
+				shadowSprite.FlipH = pivotWorldPos.Y > lightPos.Y;
+			}
+		}
+	}
 
 }

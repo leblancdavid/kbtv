@@ -1,4 +1,52 @@
-## Current Session - Y-Sort Wall Sprites
+## Current Session - Slanted Projection Shadows
+
+**Branch**: `develop`
+
+**Task**: Implement slanted projection shadows that rotate based on angle from light, scale with distance, and anchor to object feet.
+
+### Work Done
+- Created `shaders/shadow_blur.gdshader` - Canvas item shader with blur and shadow color.
+- Completely rewrote shadow system with Node2D pivot approach:
+  - **Node2D pivot** at parent's feet position (in PropSort, same level as props)
+  - **Sprite2D** as child, offset up by half sprite height (so top edge touches pivot)
+  - **FlipV = true** to flip shadow vertically
+  - **Z-index** = parentWorldPos.Y + 1 (floor level + 1)
+- Data structures:
+  - `_shadowPivots` - list of pivot Node2Ds
+  - `_shadowPivotToParent` - maps pivot to parent object
+  - `_shadowPivotToSprite` - maps pivot to shadow sprite
+  - `_shadowHeightScale` (0.005) - shear intensity per pixel (more dramatic)
+  - `_shadowDistanceScale` (400) - max distance for scale calc
+  - `_shadowLerpFactor` (0.12) - smooth movement
+- `UpdateShadows()` logic (updated to skew instead of rotation):
+  - Calculate `lightToObject` vector and direction
+  - Shear calculation: `shearX = direction.X * distance * 0.005`, `shearY = direction.Y * distance * 0.005`
+  - Clamp shear to ±2.0 to prevent extreme distortion
+  - Scale: Y scales with distance (0.1 → 1.5), X stays at 1.0 (preserve width)
+  - Apply transform with shear: `transform.X = (scaleX, 0)`, `transform.Y = (shearX, scaleY)`
+  - Position lerps to localPos to follow object movement
+
+### Behavior
+- Shadows rotate to face away from light direction
+- Scale ranges from 0.1 (far from light) to 1.5 (close to light)
+- Shadow pivot stays at object feet position (no Y offset)
+- VFlipped so shadow appears "on the floor"
+- Z-index ensures shadows render on floor plane (parent.Y + 1)
+
+### Files Modified
+- `shaders/shadow_blur.gdshader` (new)
+- `scripts/world/ControlRoom.cs`
+
+### Next Steps
+- Test shadow rotation, scale, and positioning
+- Tune `_shadowHeightScale` and `_shadowDistanceScale` as needed
+
+### Blockers
+- None
+
+---
+
+## Previous Session - Y-Sort Wall Sprites
 
 **Branch**: `develop`
 
