@@ -5,10 +5,24 @@ uniform vec4 shadow_color : source_color = vec4(0.0, 0.0, 0.0, 0.5);
 uniform float gradient_fade_height : hint_range(0.0, 1.0) = 0.5;
 uniform bool gradient_at_top = false;
 
+uniform vec4 room_bounds = vec4(0.0, 0.0, 0.0, 0.0);
+uniform vec2 sprite_world_position = vec2(0.0, 0.0);
+
 void fragment() {
     // Get texture alpha
     vec4 tex_color = texture(TEXTURE, UV);
     float tex_alpha = tex_color.a;
+    
+    // Clip shadow pixels outside room bounds
+    if (room_bounds.z > 0.0 && room_bounds.w > 0.0) {
+        vec2 texture_size = vec2(textureSize(TEXTURE, 0));
+        vec2 world_pos = sprite_world_position + (UV - 0.5) * texture_size;
+        
+        if (world_pos.x < room_bounds.x || world_pos.x > room_bounds.x + room_bounds.z ||
+            world_pos.y < room_bounds.y || world_pos.y > room_bounds.y + room_bounds.w) {
+            discard;
+        }
+    }
     
     // Calculate dual gradient (fade on both top and bottom edges)
     float fade_top = smoothstep(0.0, gradient_fade_height, UV.y);

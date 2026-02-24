@@ -149,6 +149,9 @@ public partial class ControlRoom : Node2D
 		_doorLayer.Position = _gridOffset;
 		_gridDebugLayer.Position = _gridOffset;
 
+		// Set room bounds for shadow clipping
+		SetShadowRoomBounds();
+
 		// Create walls as sprites
 		CreateWalls();
 
@@ -296,6 +299,28 @@ public partial class ControlRoom : Node2D
 				Vector2I coords = new Vector2I(x, y);
 				_floorLayer.SetCell(coords, FLOOR_SOURCE_ID, ATLAS_COORDS_LEFT);
 			}
+		}
+	}
+
+	private void SetShadowRoomBounds()
+	{
+		// Calculate room bounds in world coordinates
+		// Room spans from grid (0,0) to grid (_gridWidth-1, _gridHeight-1)
+		// Each tile is 16x16 pixels
+		var roomOrigin = _floorLayer.MapToLocal(new Vector2I(0, 0)) + _gridOffset;
+		var roomWidth = _gridWidth * TileSize;
+		var roomHeight = _gridHeight * TileSize;
+
+		// Set room_bounds uniform on both shadow materials (x, y, width, height)
+		var roomBounds = new Vector4(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
+
+		if (_shadowMaterial != null)
+		{
+			_shadowMaterial.SetShaderParameter("room_bounds", roomBounds);
+		}
+		if (_baseShadowMaterial != null)
+		{
+			_baseShadowMaterial.SetShaderParameter("room_bounds", roomBounds);
 		}
 	}
 
@@ -861,11 +886,18 @@ public partial class ControlRoom : Node2D
 		shadowPivot.AddToGroup("shadow_pivots");
 		propRoot.AddChild(shadowPivot);
 
+		// Clone material for this specific shadow to set unique world position
+		var propMaterial = _shadowMaterial?.Duplicate() as ShaderMaterial;
+		if (propMaterial != null)
+		{
+			propMaterial.SetShaderParameter("sprite_world_position", propRoot.GlobalPosition);
+		}
+
 		// Create shadow sprite, offset so bottom touches pivot
 		var shadowSprite = new Sprite2D
 		{
 			Texture = texture,
-			Material = _shadowMaterial,
+			Material = propMaterial,
 			Position = new Vector2(0, spriteSize.Y * 0.5f),  // Offset up so bottom at pivot
 			FlipV = true,
 			Modulate = new Color(0, 0, 0, 0.6f),
@@ -882,10 +914,17 @@ public partial class ControlRoom : Node2D
 		var bottomImage = originalImage.GetRegion(region);
 		var bottomTexture = ImageTexture.CreateFromImage(bottomImage);
 
+		// Clone material for base shadow
+		var baseMaterial = _baseShadowMaterial?.Duplicate() as ShaderMaterial;
+		if (baseMaterial != null)
+		{
+			baseMaterial.SetShaderParameter("sprite_world_position", propRoot.GlobalPosition);
+		}
+
 		var baseShadowSprite = new Sprite2D
 		{
 			Texture = bottomTexture,
-			Material = _baseShadowMaterial,  // Use base shadow material with gradient
+			Material = baseMaterial,
 			Position = new Vector2(0, 0),  // At object's feet
 			FlipV = false,  // No flip - original orientation
 			Modulate = new Color(0, 0, 0, 0.6f),
@@ -907,10 +946,17 @@ public partial class ControlRoom : Node2D
 		shadowPivot.AddToGroup("shadow_pivots");
 		playerRoot.AddChild(shadowPivot);
 
+		// Clone material for this specific shadow to set unique world position
+		var playerMaterial = _shadowMaterial?.Duplicate() as ShaderMaterial;
+		if (playerMaterial != null)
+		{
+			playerMaterial.SetShaderParameter("sprite_world_position", playerRoot.GlobalPosition);
+		}
+
 		var shadowSprite = new Sprite2D
 		{
 			Texture = texture,
-			Material = _shadowMaterial,
+			Material = playerMaterial,
 			Position = new Vector2(0, spriteSize.Y * 0.5f),
 			FlipV = true,
 			Modulate = new Color(0, 0, 0, 0.6f),
@@ -927,10 +973,17 @@ public partial class ControlRoom : Node2D
 		var bottomImage = originalImage.GetRegion(region);
 		var bottomTexture = ImageTexture.CreateFromImage(bottomImage);
 
+		// Clone material for base shadow
+		var baseMaterial = _baseShadowMaterial?.Duplicate() as ShaderMaterial;
+		if (baseMaterial != null)
+		{
+			baseMaterial.SetShaderParameter("sprite_world_position", playerRoot.GlobalPosition);
+		}
+
 		var baseShadowSprite = new Sprite2D
 		{
 			Texture = bottomTexture,
-			Material = _baseShadowMaterial,  // Use base shadow material with gradient
+			Material = baseMaterial,
 			Position = new Vector2(0, 0),  // At player's feet
 			FlipV = false,  // No flip - original orientation
 			Modulate = new Color(0, 0, 0, 0.6f),
@@ -952,10 +1005,17 @@ public partial class ControlRoom : Node2D
 		shadowPivot.AddToGroup("shadow_pivots");
 		tableRoot.AddChild(shadowPivot);
 
+		// Clone material for this specific shadow to set unique world position
+		var tableMaterial = _shadowMaterial?.Duplicate() as ShaderMaterial;
+		if (tableMaterial != null)
+		{
+			tableMaterial.SetShaderParameter("sprite_world_position", tableRoot.GlobalPosition);
+		}
+
 		var shadowSprite = new Sprite2D
 		{
 			Texture = texture,
-			Material = _shadowMaterial,
+			Material = tableMaterial,
 			Position = new Vector2(0, spriteSize.Y * 0.5f),
 			FlipV = true,
 			Modulate = new Color(0, 0, 0, 0.6f),
@@ -972,10 +1032,17 @@ public partial class ControlRoom : Node2D
 		var bottomImage = originalImage.GetRegion(region);
 		var bottomTexture = ImageTexture.CreateFromImage(bottomImage);
 
+		// Clone material for base shadow
+		var baseMaterial = _baseShadowMaterial?.Duplicate() as ShaderMaterial;
+		if (baseMaterial != null)
+		{
+			baseMaterial.SetShaderParameter("sprite_world_position", tableRoot.GlobalPosition);
+		}
+
 		var baseShadowSprite = new Sprite2D
 		{
 			Texture = bottomTexture,
-			Material = _baseShadowMaterial,
+			Material = baseMaterial,
 			Position = new Vector2(0, 0),
 			FlipV = false,
 			Modulate = new Color(0, 0, 0, 0.6f),
