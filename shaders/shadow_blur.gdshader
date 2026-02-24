@@ -1,31 +1,54 @@
 shader_type canvas_item;
 
-uniform float blur_amount : hint_range(0.0, 8.0) = 2.0;
+uniform float blur_amount : hint_range(0.0, 8.0) = 1.0;
 uniform vec4 shadow_color : source_color = vec4(0.0, 0.0, 0.0, 0.5);
+uniform float gradient_fade_height : hint_range(0.0, 1.0) = 0.5;
+uniform bool gradient_at_top = false;
 
 void fragment() {
-    vec4 color = vec4(0.0);
+    // Get texture alpha
+    vec4 tex_color = texture(TEXTURE, UV);
+    float tex_alpha = tex_color.a;
     
+    // Calculate dual gradient (fade on both top and bottom edges)
+    float fade_top = smoothstep(0.0, gradient_fade_height, UV.y);
+    float fade_bottom = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, UV.y);
+    float gradient = fade_top * fade_bottom;
+    
+    // Multiply texture alpha by gradient
+    float faded_alpha = tex_alpha * gradient;
+    
+    // Blur the faded alpha
+    float blurred_alpha = 0.0;
     float total = 0.0;
     float offset = blur_amount;
     
-    // Simple box blur
     for (float x = -3.0; x <= 3.0; x += 1.0) {
         for (float y = -3.0; y <= 3.0; y += 1.0) {
             vec2 uv_offset = vec2(x, y) * offset / vec2(textureSize(TEXTURE, 0));
-            vec4 tex_color = texture(TEXTURE, UV + uv_offset);
+            vec2 sample_uv = UV + uv_offset;
+            
+            // Clamp sample_uv to valid range
+            sample_uv = clamp(sample_uv, vec2(0.0), vec2(1.0));
+            
+            vec4 sample_tex = texture(TEXTURE, sample_uv);
+            float sample_fade_top = smoothstep(0.0, gradient_fade_height, sample_uv.y);
+            float sample_fade_bottom = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, sample_uv.y);
+            float sample_gradient = sample_fade_top * sample_fade_bottom;
+            
+            float sample_alpha = sample_tex.a * sample_gradient;
+            
             float weight = 1.0 - length(vec2(x, y)) / 4.24;
             weight = max(weight, 0.0);
-            color += tex_color * weight;
+            
+            blurred_alpha += sample_alpha * weight;
             total += weight;
         }
     }
     
-    color /= total;
+    blurred_alpha /= total;
     
-    // Apply shadow color (black with alpha)
-    color.rgb = shadow_color.rgb;
-    color.a *= shadow_color.a;
-    
+    // Apply shadow color
+    vec4 color = vec4(shadow_color.rgb, shadow_color.a * blurred_alpha);
     COLOR = color;
 }

@@ -61,6 +61,7 @@ public partial class ControlRoom : Node2D
 	private float _shadowLerpFactor = 0.12f;
 	private readonly Dictionary<Node2D, Sprite2D> _pivotToShadowSprite = new();
 	private ShaderMaterial _shadowMaterial;
+	private ShaderMaterial _baseShadowMaterial;
 
 	// Wall sprites for visibility toggling
 	private readonly List<Sprite2D> _northWallSprites = new();
@@ -119,8 +120,17 @@ public partial class ControlRoom : Node2D
 		{
 			_shadowMaterial = new ShaderMaterial();
 			_shadowMaterial.Shader = shadowShader;
-			_shadowMaterial.SetShaderParameter("blur_amount", 2.0f);
+			_shadowMaterial.SetShaderParameter("blur_amount", 1.0f);
 			_shadowMaterial.SetShaderParameter("shadow_color", new Color(0, 0, 0, 0.6f));
+			_shadowMaterial.SetShaderParameter("gradient_fade_height", 0.5f);
+
+			// Base shadow material - dual gradient for smooth edges (3px fade on each side of 10px)
+			_baseShadowMaterial = new ShaderMaterial();
+			_baseShadowMaterial.Shader = shadowShader;
+			_baseShadowMaterial.SetShaderParameter("blur_amount", 1.0f);
+			_baseShadowMaterial.SetShaderParameter("shadow_color", new Color(0, 0, 0, 0.6f));
+			_baseShadowMaterial.SetShaderParameter("gradient_fade_height", 0.5f);  // 4px fade on each side of 8px
+			_baseShadowMaterial.SetShaderParameter("gradient_at_top", true);
 		}
 
 		ZIndex = 1001;
@@ -854,6 +864,25 @@ public partial class ControlRoom : Node2D
 		};
 		shadowPivot.AddChild(shadowSprite);
 		_pivotToShadowSprite[shadowPivot] = shadowSprite;
+
+		// Create base shadow (bottom 8px) - child of propRoot so it doesn't rotate
+		var originalImage = texture.GetImage();
+		var regionHeight = 8;
+		var region = new Rect2I(0, originalImage.GetHeight() - regionHeight, originalImage.GetWidth(), regionHeight);
+		var bottomImage = originalImage.GetRegion(region);
+		var bottomTexture = ImageTexture.CreateFromImage(bottomImage);
+
+		var baseShadowSprite = new Sprite2D
+		{
+			Texture = bottomTexture,
+			Material = _baseShadowMaterial,  // Use base shadow material with gradient
+			Position = new Vector2(0, 0),  // At object's feet
+			FlipV = false,  // No flip - original orientation
+			Modulate = new Color(0, 0, 0, 0.6f),
+			ZAsRelative = false,
+			ZIndex = 1
+		};
+		propRoot.AddChild(baseShadowSprite);  // Child of propRoot, NOT pivot - stays at feet
 	}
 
 	private void CreateShadowForPlayer(Node2D playerRoot, Texture2D texture)
@@ -880,6 +909,25 @@ public partial class ControlRoom : Node2D
 		};
 		shadowPivot.AddChild(shadowSprite);
 		_pivotToShadowSprite[shadowPivot] = shadowSprite;
+
+		// Create base shadow (bottom 8px) - child of playerRoot so it doesn't rotate
+		var originalImage = texture.GetImage();
+		var regionHeight = 8;
+		var region = new Rect2I(0, originalImage.GetHeight() - regionHeight, originalImage.GetWidth(), regionHeight);
+		var bottomImage = originalImage.GetRegion(region);
+		var bottomTexture = ImageTexture.CreateFromImage(bottomImage);
+
+		var baseShadowSprite = new Sprite2D
+		{
+			Texture = bottomTexture,
+			Material = _baseShadowMaterial,  // Use base shadow material with gradient
+			Position = new Vector2(0, 0),  // At player's feet
+			FlipV = false,  // No flip - original orientation
+			Modulate = new Color(0, 0, 0, 0.6f),
+			ZAsRelative = false,
+			ZIndex = 1
+		};
+		playerRoot.AddChild(baseShadowSprite);  // Child of playerRoot, NOT pivot - stays at feet
 	}
 
 
