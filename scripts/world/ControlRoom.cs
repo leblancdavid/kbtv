@@ -601,8 +601,8 @@ public partial class ControlRoom : Node2D
 		_deskLampLight.TextureScale = 1.8f;
 		AddChild(_deskLampLight);
 
-		// Wall occluders disabled - using natural light falloff instead
-		// CreateWallOccluders();
+		// Enable wall occluders to clip ceiling light shadows
+		CreateWallOccluders();
 
 		_flickerTime = 0f;
 	}
@@ -728,42 +728,48 @@ public partial class ControlRoom : Node2D
 
 	private void CreateWallOccluders()
 	{
-		// Create a node to hold all wall occluders
 		var occluderNode = new Node2D { Name = "WallOccluders" };
 		AddChild(occluderNode);
 
-		// Single large rectangular occluder that surrounds the entire room
-		// Room is 14x10 tiles, we'll create a 16x12 tile occluder (256x192 pixels)
-		// with 1 tile padding around the room to block all light from escaping
+		// North wall (row 0) - skip window gap columns 3-9
+		for (int x = 0; x < _gridWidth; x++)
+		{
+			if (x >= WindowStartColumn && x <= WindowEndColumn)
+				continue;
 
-		var roomWidthTiles = _gridWidth + 2;  // 16 tiles (1 tile padding on each side)
-		var roomHeightTiles = _gridHeight + 2; // 12 tiles (1 tile padding on each side)
+			var cellPos = _floorLayer.MapToLocal(new Vector2I(x, 0)) + _gridOffset;
+			CreateOccluderTile(occluderNode, cellPos);
+		}
 
-		// Calculate center position of the room
-		var centerX = _gridWidth / 2f;
-		var centerY = _gridHeight / 2f;
-		var centerPos = _floorLayer.MapToLocal(new Vector2I((int)centerX, (int)centerY)) + _gridOffset;
+		// South wall (row _gridHeight - 1)
+		for (int x = 0; x < _gridWidth; x++)
+		{
+			var cellPos = _floorLayer.MapToLocal(new Vector2I(x, _gridHeight - 1)) + _gridOffset;
+			CreateOccluderTile(occluderNode, cellPos);
+		}
 
-		// Create a wide horizontal occluder (north and south walls combined)
-		var wallWidth = roomWidthTiles * 16f;  // 256px wide
-		var wallHeight = 20f;  // Slightly taller to ensure coverage
-		var wallPos = centerPos + new Vector2(0, -((_gridHeight / 2f + 1f) * 16f));
-		CreateOccluderRectangle(occluderNode, wallPos, wallWidth, wallHeight);  // North
+		// West wall (column 0)
+		for (int y = 0; y < _gridHeight; y++)
+		{
+			var cellPos = _floorLayer.MapToLocal(new Vector2I(0, y)) + _gridOffset;
+			CreateOccluderTile(occluderNode, cellPos);
+		}
 
-		wallPos = centerPos + new Vector2(0, (_gridHeight / 2f + 1f) * 16f);
-		CreateOccluderRectangle(occluderNode, wallPos, wallWidth, wallHeight);  // South
+		// East wall (column _gridWidth - 1)
+		for (int y = 0; y < _gridHeight; y++)
+		{
+			var cellPos = _floorLayer.MapToLocal(new Vector2I(_gridWidth - 1, y)) + _gridOffset;
+			CreateOccluderTile(occluderNode, cellPos);
+		}
 
-		// Create tall vertical occluders (east and west walls)
-		var tallWidth = 20f;
-		var tallHeight = roomHeightTiles * 16f;  // 192px tall
-		wallPos = centerPos + new Vector2(-((_gridWidth / 2f + 1f) * 16f), 0);
-		CreateOccluderRectangle(occluderNode, wallPos, tallWidth, tallHeight);  // West
-
-		wallPos = centerPos + new Vector2((_gridWidth / 2f + 1f) * 16f, 0);
-		CreateOccluderRectangle(occluderNode, wallPos, tallWidth, tallHeight);  // East
+		// Corner occluders (all 4 corners)
+		CreateOccluderTile(occluderNode, _floorLayer.MapToLocal(new Vector2I(0, 0)) + _gridOffset);
+		CreateOccluderTile(occluderNode, _floorLayer.MapToLocal(new Vector2I(_gridWidth - 1, 0)) + _gridOffset);
+		CreateOccluderTile(occluderNode, _floorLayer.MapToLocal(new Vector2I(0, _gridHeight - 1)) + _gridOffset);
+		CreateOccluderTile(occluderNode, _floorLayer.MapToLocal(new Vector2I(_gridWidth - 1, _gridHeight - 1)) + _gridOffset);
 	}
 
-	private void CreateOccluderRectangle(Node2D parent, Vector2 position, float width, float height)
+	private void CreateOccluderTile(Node2D parent, Vector2 position)
 	{
 		var occluder = new LightOccluder2D
 		{
@@ -774,10 +780,10 @@ public partial class ControlRoom : Node2D
 		{
 			Polygon = new Vector2[]
 			{
-				new Vector2(-width * 0.5f, -height * 0.5f),
-				new Vector2(width * 0.5f, -height * 0.5f),
-				new Vector2(width * 0.5f, height * 0.5f),
-				new Vector2(-width * 0.5f, height * 0.5f)
+				new Vector2(-TileSize * 0.5f, -TileSize * 0.5f),
+				new Vector2(TileSize * 0.5f, -TileSize * 0.5f),
+				new Vector2(TileSize * 0.5f, TileSize * 0.5f),
+				new Vector2(-TileSize * 0.5f, TileSize * 0.5f)
 			},
 			CullMode = OccluderPolygon2D.CullModeEnum.Disabled
 		};
@@ -785,13 +791,7 @@ public partial class ControlRoom : Node2D
 		occluder.Occluder = polygon;
 		parent.AddChild(occluder);
 
-		// Add to debug rectangles for visualization
-		var rect = new Rect2(
-			position.X - width * 0.5f,
-			position.Y - height * 0.5f,
-			width,
-			height
-		);
+		var rect = new Rect2(position.X - TileSize * 0.5f, position.Y - TileSize * 0.5f, TileSize, TileSize);
 		_debugOccluderRects.Add(rect);
 	}
 
