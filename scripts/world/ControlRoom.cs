@@ -42,10 +42,19 @@ public partial class ControlRoom : Node2D
 	private readonly List<Rect2> _debugWallRects = new();
 	private readonly List<Rect2> _debugPropRects = new();
 	private readonly List<Vector2> _debugPropPivots = new();
+	private readonly List<Rect2> _debugOccluderRects = new();
 	private Rect2 _debugPlayerRect;
 	private Rect2 _debugDoorRect;
 	private bool _debugVisible;
 	private float _tableSortY;
+
+	// Lighting nodes
+	private CanvasModulate _canvasModulate;
+	private PointLight2D _ceilingLight;
+	private PointLight2D _monitorLight;
+	private PointLight2D _deskLampLight;
+	private float _flickerTime;
+	private ShaderMaterial _depthShadowMaterial;
 
 	// Wall sprites for visibility toggling
 	private readonly List<Sprite2D> _northWallSprites = new();
@@ -86,6 +95,14 @@ public partial class ControlRoom : Node2D
 
 		_propSort = GetNode<Node2D>("PropSort");
 
+		// Load depth shadow shader for props and player
+		var shader = GD.Load<Shader>("res://shaders/depth_shadow.gdshader");
+		if (shader != null)
+		{
+			_depthShadowMaterial = new ShaderMaterial();
+			_depthShadowMaterial.Shader = shader;
+		}
+
 		ZIndex = 1001;
 		ZAsRelative = false;
 		_floorLayer.ZAsRelative = false;
@@ -121,13 +138,51 @@ public partial class ControlRoom : Node2D
 			var centerX = _gridWidth / 2;
 			var centerY = _gridHeight / 2;
 			_player.Position = _floorLayer.MapToLocal(new Vector2I(centerX, centerY)) + _gridOffset + new Vector2(0, 8);
+			
+			// Apply depth shadow shader to player
+			var playerSprite = _player.GetNode<Sprite2D>("Sprite2D");
+			if (playerSprite != null && _depthShadowMaterial != null)
+			{
+				playerSprite.Material = _depthShadowMaterial;
+			}
 		}
+
+		// Initialize lighting
+		CreateLighting();
 
 		UpdateWallVisibility();
 	}
 
 	public override void _Process(double delta)
 	{
+		_flickerTime += (float)delta;
+
+		// Update depth shadow shader with ceiling light Y position
+		if (_ceilingLight != null && _depthShadowMaterial != null)
+		{
+			_depthShadowMaterial.SetShaderParameter("light_y", _ceilingLight.GlobalPosition.Y);
+		}
+
+		// Ceiling light - steady, no flickering
+		if (_ceilingLight != null)
+		{
+			_ceilingLight.Energy = 0.8f;
+		}
+
+		// Subtle pulse for monitor light
+		if (_monitorLight != null)
+		{
+			var pulse = 0.3f + Mathf.Sin(_flickerTime * 2f) * 0.03f;
+			_monitorLight.Energy = pulse;
+		}
+
+		// Slight shimmer for desk lamp
+		if (_deskLampLight != null)
+		{
+			var shimmer = 0.25f + Mathf.Sin(_flickerTime * 3f) * 0.02f;
+			_deskLampLight.Energy = shimmer;
+		}
+
 		UpdateWallVisibility();
 		if (_debugVisible)
 		{
@@ -157,6 +212,8 @@ public partial class ControlRoom : Node2D
 		var playerColor = new Color(0, 0.5f, 1, 0.25f);
 		var doorColor = new Color(1, 1, 0, 0.2f);
 		var pivotColor = new Color(1, 0, 1, 0.9f);
+		var lightColor = new Color(1, 1, 0, 0.9f);
+		var occluderColor = new Color(0, 1, 1, 0.5f);
 
 		foreach (var rect in _debugWallRects)
 			DrawRect(ToLocalRect(rect), wallColor, true);
@@ -172,8 +229,20 @@ public partial class ControlRoom : Node2D
 		if (_player != null)
 			DrawCircle(ToLocal(_player.GlobalPosition), 3f, pivotColor);
 
+		// Draw light positions
+		if (_ceilingLight != null)
+			DrawCircle(ToLocal(_ceilingLight.GlobalPosition), 8f, lightColor);
+		if (_monitorLight != null)
+			DrawCircle(ToLocal(_monitorLight.GlobalPosition), 6f, lightColor);
+		if (_deskLampLight != null)
+			DrawCircle(ToLocal(_deskLampLight.GlobalPosition), 6f, lightColor);
+
 		foreach (var pivot in _debugPropPivots)
 			DrawCircle(ToLocal(pivot), 3f, pivotColor);
+
+		// Draw occluder rectangles
+		foreach (var rect in _debugOccluderRects)
+			DrawRect(ToLocalRect(rect), occluderColor, true);
 	}
 
 	private void CreateFloor()
@@ -430,6 +499,250 @@ public partial class ControlRoom : Node2D
 		parent.AddChild(sprite);
 	}
 
+	private void CreateLighting()
+	{
+		// CanvasModulate - darkens the entire scene (multiply)
+		// This creates the dark base - areas without lights stay dark
+		_canvasModulate = new CanvasModulate
+		{
+			Color = new Color(0.15f, 0.15f, 0.20f) // Dark blue-gray
+		};
+		AddChild(_canvasModulate);
+
+		// Calculate room center for positioning
+		var roomCenterX = _gridWidth / 2;
+		var roomCenterY = _gridHeight / 2;
+		var roomCenter = _floorLayer.MapToLocal(new Vector2I(roomCenterX, roomCenterY)) + _gridOffset;
+		var tablePosition = _floorLayer.MapToLocal(new Vector2I(6, 1)) + _gridOffset;
+
+		// Ceiling Light - positioned at room center, 16x16 tiles (256x256)
+		_ceilingLight = CreatePointLightWithTexture(
+			_gridAnchor + new Vector2(0, -32),  // 2 tiles north
+			new Color(1f, 1f, 1f),  // White
+			0.8f,
+			450f,  // Large range to fill room
+			true,  // shadows enabled
+			256,   // Width: 16 tiles
+			256    // Height: 16 tiles
+		);
+		AddChild(_ceilingLight);
+
+		// Screen Light - centered on computer station (soft oval)
+		_monitorLight = CreatePointLightWithTexture(
+			tablePosition + new Vector2(32, -38),
+			new Color(0f, 1f, 0.27f),  // Green
+			0.3f,
+			80f,
+			false
+		);
+		_monitorLight.TextureScale = 2.0f;
+		AddChild(_monitorLight);
+
+		// Desk Lamp Light - centered near phone line (soft glow)
+		_deskLampLight = CreatePointLightWithTexture(
+			tablePosition + new Vector2(-32, -35),
+			new Color(1f, 0.67f, 0.27f),  // Orange
+			0.25f,
+			60f,
+			false
+		);
+		_deskLampLight.TextureScale = 1.8f;
+		AddChild(_deskLampLight);
+
+		// Wall occluders disabled - using natural light falloff instead
+		// CreateWallOccluders();
+
+		_flickerTime = 0f;
+	}
+
+	private PointLight2D CreatePointLightWithTexture(Vector2 position, Color color, float energy, float radius, bool shadows, int textureWidth = 0, int textureHeight = 0)
+	{
+		var light = new PointLight2D
+		{
+			Position = position,
+			Color = color,
+			Energy = energy,
+			ShadowEnabled = shadows,
+			ShadowColor = new Color(0, 0, 0, 0.3f)
+		};
+
+		// Create oval gradient texture programmatically
+		var texture = CreateOvalGradientTexture(textureWidth, textureHeight, radius);
+		light.Texture = texture;
+		light.TextureScale = 1.0f;
+
+		// Set range
+		light.Set("range", radius);
+
+		return light;
+	}
+
+	private ImageTexture CreateOvalGradientTexture(int width, int height, float radius)
+	{
+		// Use provided dimensions or calculate from radius
+		var sizeX = width > 0 ? width : (int)(radius * 0.8f);
+		var sizeY = height > 0 ? height : (int)(radius * 0.8f);
+		sizeX = Mathf.Max(sizeX, 48);
+		sizeY = Mathf.Max(sizeY, 48);
+		
+		var image = Image.Create(sizeX, sizeY, false, Image.Format.Rgba8);
+		
+		var centerX = sizeX / 2f;
+		var centerY = sizeY / 2f;
+		var maxDist = Mathf.Min(centerX, centerY);
+		
+		for (int y = 0; y < sizeY; y++)
+		{
+			for (int x = 0; x < sizeX; x++)
+			{
+				var dx = (x - centerX) / centerX;
+				var dy = (y - centerY) / centerY;
+				var dist = Mathf.Sqrt(dx * dx + dy * dy);
+				
+				byte alpha;
+				if (dist < 0.2f)
+				{
+					alpha = 255;
+				}
+				else if (dist < 1.0f)
+				{
+					var t = (dist - 0.2f) / 0.8f;
+					// Soft edge with smooth falloff
+					t = t * t * t; // Cubic for very soft edge
+					alpha = (byte)(255 * (1f - t));
+				}
+				else
+				{
+					alpha = 0;
+				}
+				
+				image.SetPixel(x, y, new Color(1, 1, 1, alpha / 255f));
+			}
+		}
+		
+		return ImageTexture.CreateFromImage(image);
+	}
+
+	private PointLight2D CreatePointLight(Vector2 position, Color color, float energy, float radius, bool shadows)
+	{
+		var light = new PointLight2D
+		{
+			Position = position,
+			Color = color,
+			Energy = energy,
+			ShadowEnabled = shadows,
+			ShadowColor = new Color(0, 0, 0, 0.7f),
+			ShadowFilter = PointLight2D.ShadowFilterEnum.None
+		};
+
+		// Create gradient texture: white (center) to transparent (edge)
+		var gradientTexture = CreateLightGradient(radius);
+		light.Texture = gradientTexture;
+		light.TextureScale = 1.0f;
+
+		// Set range
+		light.Set("range", radius);
+
+		return light;
+	}
+
+	private GradientTexture2D CreateLightGradient(float radius)
+	{
+		var gradientTexture = new GradientTexture2D();
+		
+		// Radial fill from center
+		gradientTexture.Set("fill", (int)0); // Radial
+		gradientTexture.Set("fill_from", new Vector2(0.5f, 0.5f));
+		gradientTexture.Set("fill_to", new Vector2(1f, 1f));
+		
+		// Gradient: white at center (alpha 1) -> transparent at edge (alpha 0)
+		// This is the KEY: white to transparent, NOT white to black
+		var gradient = new Gradient();
+		gradient.Set("colors", new Color[] 
+		{ 
+			new Color(1f, 1f, 1f, 1f),   // Center: white, opaque
+			new Color(1f, 1f, 1f, 0f)     // Edge: white, transparent
+		});
+		gradient.Set("offsets", new float[] { 0f, 1f });
+		gradientTexture.Gradient = gradient;
+		
+		// Size matches the radius
+		var size = (int)radius;
+		gradientTexture.Width = size;
+		gradientTexture.Height = size;
+		
+		return gradientTexture;
+	}
+
+	private void CreateWallOccluders()
+	{
+		// Create a node to hold all wall occluders
+		var occluderNode = new Node2D { Name = "WallOccluders" };
+		AddChild(occluderNode);
+
+		// Single large rectangular occluder that surrounds the entire room
+		// Room is 14x10 tiles, we'll create a 16x12 tile occluder (256x192 pixels)
+		// with 1 tile padding around the room to block all light from escaping
+		
+		var roomWidthTiles = _gridWidth + 2;  // 16 tiles (1 tile padding on each side)
+		var roomHeightTiles = _gridHeight + 2; // 12 tiles (1 tile padding on each side)
+		
+		// Calculate center position of the room
+		var centerX = _gridWidth / 2f;
+		var centerY = _gridHeight / 2f;
+		var centerPos = _floorLayer.MapToLocal(new Vector2I((int)centerX, (int)centerY)) + _gridOffset;
+		
+		// Create a wide horizontal occluder (north and south walls combined)
+		var wallWidth = roomWidthTiles * 16f;  // 256px wide
+		var wallHeight = 20f;  // Slightly taller to ensure coverage
+		var wallPos = centerPos + new Vector2(0, -((_gridHeight / 2f + 1f) * 16f));
+		CreateOccluderRectangle(occluderNode, wallPos, wallWidth, wallHeight);  // North
+		
+		wallPos = centerPos + new Vector2(0, (_gridHeight / 2f + 1f) * 16f);
+		CreateOccluderRectangle(occluderNode, wallPos, wallWidth, wallHeight);  // South
+		
+		// Create tall vertical occluders (east and west walls)
+		var tallWidth = 20f;
+		var tallHeight = roomHeightTiles * 16f;  // 192px tall
+		wallPos = centerPos + new Vector2(-((_gridWidth / 2f + 1f) * 16f), 0);
+		CreateOccluderRectangle(occluderNode, wallPos, tallWidth, tallHeight);  // West
+		
+		wallPos = centerPos + new Vector2((_gridWidth / 2f + 1f) * 16f, 0);
+		CreateOccluderRectangle(occluderNode, wallPos, tallWidth, tallHeight);  // East
+	}
+
+	private void CreateOccluderRectangle(Node2D parent, Vector2 position, float width, float height)
+	{
+		var occluder = new LightOccluder2D
+		{
+			Position = position
+		};
+
+		var polygon = new OccluderPolygon2D
+		{
+			Polygon = new Vector2[]
+			{
+				new Vector2(-width * 0.5f, -height * 0.5f),
+				new Vector2(width * 0.5f, -height * 0.5f),
+				new Vector2(width * 0.5f, height * 0.5f),
+				new Vector2(-width * 0.5f, height * 0.5f)
+			},
+			CullMode = OccluderPolygon2D.CullModeEnum.Disabled
+		};
+
+		occluder.Occluder = polygon;
+		parent.AddChild(occluder);
+
+		// Add to debug rectangles for visualization
+		var rect = new Rect2(
+			position.X - width * 0.5f,
+			position.Y - height * 0.5f,
+			width,
+			height
+		);
+		_debugOccluderRects.Add(rect);
+	}
+
 	private void CreateDebugGrid()
 	{
 		_gridDebugLayer.Clear();
@@ -456,6 +769,13 @@ public partial class ControlRoom : Node2D
 		root.Position = basePosition;
 
 		var sprite = new Sprite2D { Texture = texture, Position = new Vector2(0, -texture.GetSize().Y * 0.5f) };
+		
+		// Apply depth shadow shader
+		if (_depthShadowMaterial != null)
+		{
+			sprite.Material = _depthShadowMaterial;
+		}
+		
 		root.AddChild(sprite);
 
 		if (collidable && root is StaticBody2D body)
