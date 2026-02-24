@@ -57,9 +57,10 @@ public partial class ControlRoom : Node2D
 	private ShaderMaterial _depthShadowMaterial;
 
 	// Shadow parameters
-	private float _shadowDistanceScale = 400f;
+	private float _shadowMaxDistance = 256f;  // Based on ceiling light texture size
 	private float _shadowLerpFactor = 0.12f;
 	private readonly Dictionary<Node2D, Sprite2D> _pivotToShadowSprite = new();
+	private ShaderMaterial _shadowMaterial;
 
 	// Wall sprites for visibility toggling
 	private readonly List<Sprite2D> _northWallSprites = new();
@@ -110,6 +111,16 @@ public partial class ControlRoom : Node2D
 			_depthShadowMaterial.SetShaderParameter("light_radius", 350.0f);
 			_depthShadowMaterial.SetShaderParameter("max_brightness", 4.0f);
 			_depthShadowMaterial.SetShaderParameter("shadow_factor", 0.8f);
+		}
+
+		// Load shadow blur shader for cast shadows
+		var shadowShader = GD.Load<Shader>("res://shaders/shadow_blur.gdshader");
+		if (shadowShader != null)
+		{
+			_shadowMaterial = new ShaderMaterial();
+			_shadowMaterial.Shader = shadowShader;
+			_shadowMaterial.SetShaderParameter("blur_amount", 2.0f);
+			_shadowMaterial.SetShaderParameter("shadow_color", new Color(0, 0, 0, 0.6f));
 		}
 
 		ZIndex = 1001;
@@ -821,11 +832,11 @@ public partial class ControlRoom : Node2D
 	{
 		var spriteSize = texture.GetSize();
 
-		// Create pivot Node2D at prop's base (feet)
+		// Create pivot Node2D slightly above prop's base (feet)
 		var shadowPivot = new Node2D
 		{
 			Name = "ShadowPivot",
-			Position = Vector2.Zero  // At prop's origin (feet)
+			Position = new Vector2(0, -3)  // 3px above base
 		};
 		shadowPivot.AddToGroup("shadow_pivots");
 		propRoot.AddChild(shadowPivot);
@@ -834,9 +845,12 @@ public partial class ControlRoom : Node2D
 		var shadowSprite = new Sprite2D
 		{
 			Texture = texture,
+			Material = _shadowMaterial,
 			Position = new Vector2(0, spriteSize.Y * 0.5f),  // Offset up so bottom at pivot
 			FlipV = true,
-			Modulate = new Color(0, 0, 0, 0.8f)
+			Modulate = new Color(0, 0, 0, 0.6f),
+			ZAsRelative = false,
+			ZIndex = 1  // Floor + 1
 		};
 		shadowPivot.AddChild(shadowSprite);
 		_pivotToShadowSprite[shadowPivot] = shadowSprite;
@@ -849,7 +863,7 @@ public partial class ControlRoom : Node2D
 		var shadowPivot = new Node2D
 		{
 			Name = "ShadowPivot",
-			Position = Vector2.Zero
+			Position = new Vector2(0, -3)  // 3px above base
 		};
 		shadowPivot.AddToGroup("shadow_pivots");
 		playerRoot.AddChild(shadowPivot);
@@ -857,9 +871,12 @@ public partial class ControlRoom : Node2D
 		var shadowSprite = new Sprite2D
 		{
 			Texture = texture,
+			Material = _shadowMaterial,
 			Position = new Vector2(0, spriteSize.Y * 0.5f),
 			FlipV = true,
-			Modulate = new Color(0, 0, 0, 0.8f)
+			Modulate = new Color(0, 0, 0, 0.6f),
+			ZAsRelative = false,
+			ZIndex = 1  // Floor + 1
 		};
 		shadowPivot.AddChild(shadowSprite);
 		_pivotToShadowSprite[shadowPivot] = shadowSprite;
@@ -1122,7 +1139,7 @@ public partial class ControlRoom : Node2D
 			pivot.Rotation = angle;
 
 			// Y-Scale based on distance (inverse: closer = smaller, farther = larger)
-			var scaleY = Mathf.Clamp(0.2f + (distance / _shadowDistanceScale) * 1.8f, 0.2f, 2.0f);
+			var scaleY = Mathf.Clamp(0.2f + (distance / _shadowMaxDistance) * 1.8f, 0.2f, 2.0f);
 			pivot.Scale = new Vector2(1f, scaleY);
 
 			// Flip horizontally when object is below the light
