@@ -101,6 +101,10 @@ public partial class ControlRoom : Node2D
 		{
 			_depthShadowMaterial = new ShaderMaterial();
 			_depthShadowMaterial.Shader = shader;
+			// Set default shader parameters
+			_depthShadowMaterial.SetShaderParameter("light_radius", 350.0f);
+			_depthShadowMaterial.SetShaderParameter("max_brightness", 4.0f);
+			_depthShadowMaterial.SetShaderParameter("shadow_factor", 0.8f);
 		}
 
 		ZIndex = 1001;
@@ -157,10 +161,10 @@ public partial class ControlRoom : Node2D
 	{
 		_flickerTime += (float)delta;
 
-		// Update depth shadow shader with ceiling light Y position
+		// Update depth shadow shader with ceiling light position
 		if (_ceilingLight != null && _depthShadowMaterial != null)
 		{
-			_depthShadowMaterial.SetShaderParameter("light_y", _ceilingLight.GlobalPosition.Y);
+			_depthShadowMaterial.SetShaderParameter("light_position", _ceilingLight.GlobalPosition);
 		}
 
 		// Ceiling light - steady, no flickering
