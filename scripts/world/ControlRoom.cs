@@ -507,7 +507,17 @@ public partial class ControlRoom : Node2D
 			Texture = tableTexture,
 			Position = new Vector2(0, -tableTexture.GetSize().Y * 0.5f)
 		};
+
+		// Apply depth shadow shader
+		if (_depthShadowMaterial != null)
+		{
+			tableSprite.Material = _depthShadowMaterial;
+		}
+
 		group.AddChild(tableSprite);
+
+		// Create cast shadow for table
+		CreateShadowForTable(group, tableTexture);
 
 		var tableBody = new StaticBody2D();
 		var tableShape = new RectangleShape2D { Size = new Vector2(92, 14) };
@@ -928,6 +938,51 @@ public partial class ControlRoom : Node2D
 			ZIndex = 1
 		};
 		playerRoot.AddChild(baseShadowSprite);  // Child of playerRoot, NOT pivot - stays at feet
+	}
+
+	private void CreateShadowForTable(Node2D tableRoot, Texture2D texture)
+	{
+		var spriteSize = texture.GetSize();
+
+		var shadowPivot = new Node2D
+		{
+			Name = "ShadowPivot",
+			Position = new Vector2(0, -3)
+		};
+		shadowPivot.AddToGroup("shadow_pivots");
+		tableRoot.AddChild(shadowPivot);
+
+		var shadowSprite = new Sprite2D
+		{
+			Texture = texture,
+			Material = _shadowMaterial,
+			Position = new Vector2(0, spriteSize.Y * 0.5f),
+			FlipV = true,
+			Modulate = new Color(0, 0, 0, 0.6f),
+			ZAsRelative = false,
+			ZIndex = 1
+		};
+		shadowPivot.AddChild(shadowSprite);
+		_pivotToShadowSprite[shadowPivot] = shadowSprite;
+
+		// Create base shadow (bottom 8px)
+		var originalImage = texture.GetImage();
+		var regionHeight = 8;
+		var region = new Rect2I(0, originalImage.GetHeight() - regionHeight, originalImage.GetWidth(), regionHeight);
+		var bottomImage = originalImage.GetRegion(region);
+		var bottomTexture = ImageTexture.CreateFromImage(bottomImage);
+
+		var baseShadowSprite = new Sprite2D
+		{
+			Texture = bottomTexture,
+			Material = _baseShadowMaterial,
+			Position = new Vector2(0, 0),
+			FlipV = false,
+			Modulate = new Color(0, 0, 0, 0.6f),
+			ZAsRelative = false,
+			ZIndex = 1
+		};
+		tableRoot.AddChild(baseShadowSprite);
 	}
 
 
