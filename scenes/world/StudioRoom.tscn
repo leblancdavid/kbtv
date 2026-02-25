@@ -7,7 +7,6 @@
 
 [node name="StudioRoom" type="Node2D"]
 script = ExtResource("3")
-AutoCenter = false
 GridAnchor = Vector2(0, 160)
 StudioNorthWallTexture = ExtResource("4")
 
