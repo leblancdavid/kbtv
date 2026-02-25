@@ -14,22 +14,6 @@ void fragment() {
     vec4 tex_color = texture(TEXTURE, UV);
     float tex_alpha = tex_color.a;
     
-    // Clip shadow pixels outside room bounds and shadow AABB
-    if (room_bounds.z > 0.0 && room_bounds.w > 0.0 && shadow_aabb_max.x > shadow_aabb_min.x) {
-        vec2 texture_size = vec2(textureSize(TEXTURE, 0));
-        
-        // Calculate world position based on AABB
-        vec2 world_pos = mix(shadow_aabb_min, shadow_aabb_max, UV);
-        
-        // First check if inside shadow AABB, then check if inside room bounds
-        if (world_pos.x < shadow_aabb_min.x || world_pos.x > shadow_aabb_max.x ||
-            world_pos.y < shadow_aabb_min.y || world_pos.y > shadow_aabb_max.y ||
-            world_pos.x < room_bounds.x || world_pos.x > room_bounds.x + room_bounds.z ||
-            world_pos.y < room_bounds.y || world_pos.y > room_bounds.y + room_bounds.w) {
-            discard;
-        }
-    }
-    
     // Calculate dual gradient (fade on both top and bottom edges)
     float fade_top = smoothstep(0.0, gradient_fade_height, UV.y);
     float fade_bottom = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, UV.y);
@@ -70,5 +54,18 @@ void fragment() {
     
     // Apply shadow color
     vec4 color = vec4(shadow_color.rgb, shadow_color.a * blurred_alpha);
+    
+    // NOW check bounds at the very end - after all transformations
+    if (room_bounds.z > 0.0 && room_bounds.w > 0.0 && shadow_aabb_max.x > shadow_aabb_min.x) {
+        // Calculate world position based on AABB
+        vec2 world_pos = mix(shadow_aabb_min, shadow_aabb_max, UV);
+        
+        // Check if outside room bounds
+        if (world_pos.x < room_bounds.x || world_pos.x > room_bounds.x + room_bounds.z ||
+            world_pos.y < room_bounds.y || world_pos.y > room_bounds.y + room_bounds.w) {
+            discard;
+        }
+    }
+    
     COLOR = color;
 }
