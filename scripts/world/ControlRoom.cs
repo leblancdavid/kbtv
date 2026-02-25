@@ -1331,7 +1331,7 @@ public partial class ControlRoom : Node2D
 			// Flip horizontally when object is below the light
 			if (_pivotToShadowSprite.TryGetValue(pivot, out var shadowSprite))
 			{
-				shadowSprite.FlipH = pivotWorldPos.Y > lightPos.Y;
+				// shadowSprite.FlipH = pivotWorldPos.Y > lightPos.Y;  // TEMP: disabled for debugging
 
 				// Update shader with transform components for accurate world position calculation
 				var material = shadowSprite.Material as ShaderMaterial;
