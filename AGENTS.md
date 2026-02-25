@@ -91,7 +91,8 @@ scripts/
 ├── audio/          # Audio configs (AudioManager, BumperConfig, TransitionMusicConfig)
 ├── ads/            # Ad system (AdData, AdType)
 ├── upgrades/       # Equipment upgrades (EquipmentConfig, EquipmentUpgrade, EquipmentType)
-└── patterns/       # Result<T> type pattern
+├── patterns/       # Result<T> type pattern
+└── world/          # Room system (RoomBase, WallSystem, RoomLighting, CastShadowSystem)
 
 scenes/
 ├── Main.tscn              # Main game scene
@@ -694,6 +695,107 @@ When refactoring large scripts (>500 lines), break them into focused modules usi
 - Created BreakScheduler, BreakLogic, RevenueCalculator for AdManager modularization
 - Removed dead code from BroadcastCoordinator, AdManager, SaveManager, PreShowUIManager
 - Aimed to reduce file sizes by 60-80% while maintaining functionality
+
+### Room Component Architecture
+
+KBTV uses a **component-based architecture** for room scenes. The ControlRoom has been refactored into reusable components that can be composed to create new rooms.
+
+**Component Files:**
+
+| File | Purpose |
+|------|---------|
+| `RoomBase.cs` | Abstract base class - grid/floor management, coordinate utilities |
+| `WallSystem.cs` | Wall/door/window creation and visibility toggling |
+| `RoomLighting.cs` | PointLights, CanvasModulate, flicker effects |
+| `CastShadowSystem.cs` | Shader-based cast shadows and base shadows |
+| `RoomDebug.cs` | Debug visualization overlay |
+| `PropBuilder.cs` | Static helper for creating props with shadows |
+
+**File Structure (world/):**
+
+```
+scripts/world/
+├── RoomBase.cs           # Abstract base for all rooms
+├── WallSystem.cs         # Wall/door/window management
+├── RoomLighting.cs       # PointLights and ambient lighting
+├── CastShadowSystem.cs   # Complex shader-based shadows
+├── RoomDebug.cs         # Debug visualization overlay
+├── PropBuilder.cs       # Helper for creating props
+└── ControlRoom.cs       # Example: Room-specific config + props
+```
+
+**Creating a New Room:**
+
+```csharp
+public partial class StudioRoom : RoomBase
+{
+    [ExportGroup("Door Settings")]
+    [Export] private int DoorRow = 3;
+    [Export] private int DoorHeightTiles = 2;
+
+    [ExportGroup("Props")]
+    [Export] private bool PlaceRecordingBooth = true;
+
+    private WallSystem _wallSystem;
+    private RoomLighting _lighting;
+    private CastShadowSystem _shadows;
+
+    public override void _Ready()
+    {
+        // Configure grid
+        GridWidth = 18;
+        GridHeight = 12;
+
+        base._Ready();
+
+        // Initialize components
+        _wallSystem = new WallSystem { DoorRow = DoorRow, DoorHeightTiles = DoorHeightTiles };
+        _lighting = new RoomLighting { EnableCeilingLight = true };
+        _shadows = new CastShadowSystem { LightRadius = 450f };
+
+        AddChild(_wallSystem);
+        AddChild(_lighting);
+        AddChild(_shadows);
+
+        // IMPORTANT: Create lighting BEFORE initializing shadows
+        _wallSystem.Initialize(this);
+        _lighting.Initialize(this);
+        var tablePos = GridToWorld(new Vector2I(6, 1));
+        _lighting.CreateLighting(tablePos);
+        _shadows.Initialize(this, _lighting.CeilingLight);
+
+        _wallSystem.CreateWalls();
+        _wallSystem.CreateWallColliders();
+
+        CreateProps();
+    }
+
+    private void CreateProps()
+    {
+        if (PlaceRecordingBooth)
+        {
+            PropBuilder.CreateProp(PropSort, "res://...",
+                new Vector2I(8, 4), Vector2.Zero, true, new Vector2(32, 24),
+                _shadows, _shadows.DepthShadowMaterial, this);
+        }
+    }
+}
+```
+
+**Key Points:**
+- Always call `_lighting.CreateLighting()` **before** `_shadows.Initialize()` to avoid null light reference
+- Use `PropBuilder.CreateProp()` for props with shadows
+- Wall visibility is handled automatically by `WallSystem.UpdateVisibility(player)`
+- Components handle their own `_Process()` updates - call them from the room's `_Process()`
+
+**Exports Available:**
+
+| Component | Key Exports |
+|-----------|-------------|
+| RoomBase | `GridAnchor`, `GridWidth`, `GridHeight`, `SouthWallHideOffset` |
+| WallSystem | `DoorRow`, `DoorHeightTiles`, `WindowStartColumn`, `WindowEndColumn` |
+| RoomLighting | `EnableCeilingLight`, `CeilingLightColor`, `CeilingLightRadius`, `EnableMonitorLight`, `EnableDeskLampLight` |
+| CastShadowSystem | `ShadowLerpFactor`, `LightRadius`, `ShadowOpacity` |
 
 ## Project Overview
 - **Engine**: Godot 4.x

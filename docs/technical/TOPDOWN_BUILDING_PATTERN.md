@@ -1,5 +1,7 @@
 # Topdown Scene Building Pattern - Godot 4
 
+> **Note:** For new room development, see [Room Component Architecture](../AGENTS.md#room-component-architecture) in AGENTS.md. The components (`RoomBase`, `WallSystem`, `RoomLighting`, `CastShadowSystem`) handle most of this automatically.
+
 ## Overview
 
 KBTV uses a square topdown tile layout with faux perspective walls. This document defines the grid, wall, and layering standards for building rooms programmatically in Godot 4 using C#.
