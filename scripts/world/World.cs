@@ -2,7 +2,6 @@ using Godot;
 
 public partial class World : Node2D
 {
-	[Export] public float DoorRow = 3f;
 	[Export] public float TileSize = 16f;
 
 	public ControlRoom ControlRoom { get; private set; } = null!;
@@ -37,13 +36,11 @@ public partial class World : Node2D
 
 	private void CalculateRoomBounds()
 	{
-		var crHeight = ControlRoom.GridHeight * TileSize;
-		_controlRoomMinY = -TileSize;
-		_controlRoomMaxY = crHeight + TileSize;
+		_controlRoomMinY = ControlRoom.Position.Y - TileSize;
+		_controlRoomMaxY = ControlRoom.Position.Y + ControlRoom.GridHeight * TileSize;
 
-		var srHeight = StudioRoom.GridHeight * TileSize;
-		_studioRoomMinY = -TileSize + StudioRoom.Position.Y;
-		_studioRoomMaxY = srHeight + TileSize + StudioRoom.Position.Y;
+		_studioRoomMinY = StudioRoom.Position.Y - TileSize;
+		_studioRoomMaxY = StudioRoom.Position.Y + StudioRoom.GridHeight * TileSize;
 	}
 
 	public void RegisterPlayer(Node2D player)
@@ -60,16 +57,14 @@ public partial class World : Node2D
 
 		if (CurrentRoom == ControlRoom)
 		{
-			var doorY = _controlRoomMaxY - (DoorRow * TileSize) - TileSize;
-			if (playerY < doorY - DOOR_TRANSITION_ZONE)
+			if (playerY > _controlRoomMaxY + DOOR_TRANSITION_ZONE)
 			{
 				TransitionToStudio();
 			}
 		}
 		else if (CurrentRoom == StudioRoom)
 		{
-			var doorY = _studioRoomMaxY - (DoorRow * TileSize) - TileSize;
-			if (playerY > doorY + DOOR_TRANSITION_ZONE)
+			if (playerY < _studioRoomMinY - DOOR_TRANSITION_ZONE)
 			{
 				TransitionToControlRoom();
 			}
@@ -87,11 +82,6 @@ public partial class World : Node2D
 		StudioRoom.Visible = true;
 		StudioRoom.ProcessMode = ProcessModeEnum.Inherit;
 
-		var doorWorldY = _controlRoomMaxY - (DoorRow * TileSize) - TileSize;
-		var studioDoorWorldY = _studioRoomMaxY - (DoorRow * TileSize) - TileSize;
-		var offset = studioDoorWorldY - doorWorldY;
-		_player.GlobalPosition = new Vector2(_player.GlobalPosition.X, _player.GlobalPosition.Y + offset);
-
 		GD.Print($"World: Transitioned from Control Room to Studio. Player now at y={_player.GlobalPosition.Y}");
 	}
 
@@ -105,11 +95,6 @@ public partial class World : Node2D
 
 		ControlRoom.Visible = true;
 		ControlRoom.ProcessMode = ProcessModeEnum.Inherit;
-
-		var studioDoorWorldY = _studioRoomMaxY - (DoorRow * TileSize) - TileSize;
-		var controlDoorWorldY = _controlRoomMaxY - (DoorRow * TileSize) - TileSize;
-		var offset = controlDoorWorldY - studioDoorWorldY;
-		_player.GlobalPosition = new Vector2(_player.GlobalPosition.X, _player.GlobalPosition.Y + offset);
 
 		GD.Print($"World: Transitioned from Studio to Control Room. Player now at y={_player.GlobalPosition.Y}");
 	}

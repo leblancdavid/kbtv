@@ -8,6 +8,7 @@ public abstract partial class RoomBase : Node2D
 	[Export] public int GridWidth = 14;
 	[Export] public int GridHeight = 10;
 	[Export] public float SouthWallHideOffset = 8.0f;
+	[Export] public bool AutoCenter = true;
 
 	[ExportGroup("TileMap")]
 	[Export] public int FloorSourceId = 0;
@@ -111,7 +112,10 @@ public abstract partial class RoomBase : Node2D
 		PropSort.ZAsRelative = false;
 
 		CreateFloor();
-		GridOffset = AutoCenterFloor();
+		if (AutoCenter)
+		{
+			GridOffset = AutoCenterFloor();
+		}
 		FloorLayer.Position = GridOffset;
 		DoorLayer.Position = GridOffset;
 		GridDebugLayer.Position = GridOffset;
