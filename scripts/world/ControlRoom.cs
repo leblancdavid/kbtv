@@ -62,6 +62,7 @@ public partial class ControlRoom : Node2D
 	private readonly Dictionary<Node2D, Sprite2D> _pivotToShadowSprite = new();
 	private ShaderMaterial _shadowMaterial;
 	private ShaderMaterial _baseShadowMaterial;
+	private Rect2 _shadowRoomBounds;
 
 	// Wall sprites for visibility toggling
 	private readonly List<Sprite2D> _northWallSprites = new();
@@ -288,6 +289,13 @@ public partial class ControlRoom : Node2D
 		// Draw occluder rectangles
 		foreach (var rect in _debugOccluderRects)
 			DrawRect(ToLocalRect(rect), occluderColor, true);
+
+		// Draw shadow room bounds
+		if (_shadowRoomBounds.Size != Vector2.Zero)
+		{
+			var boundsColor = new Color(1, 0.5f, 0, 0.8f);  // Orange outline
+			DrawRect(ToLocalRect(_shadowRoomBounds), boundsColor, false);
+		}
 	}
 
 	private void CreateFloor()
@@ -310,6 +318,8 @@ public partial class ControlRoom : Node2D
 		var roomOrigin = _floorLayer.MapToLocal(new Vector2I(0, 0)) + _gridOffset;
 		var roomWidth = _gridWidth * TileSize;
 		var roomHeight = _gridHeight * TileSize;
+
+		_shadowRoomBounds = new Rect2(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
 
 		// Set room_bounds uniform on both shadow materials (x, y, width, height)
 		var roomBounds = new Vector4(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
