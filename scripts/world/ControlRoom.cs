@@ -904,12 +904,12 @@ public partial class ControlRoom : Node2D
 			propMaterial.SetShaderParameter("sprite_world_position", propRoot.GlobalPosition);
 		}
 
-		// Create shadow sprite, offset so bottom touches pivot
+		// Create shadow sprite, centered on pivot
 		var shadowSprite = new Sprite2D
 		{
 			Texture = texture,
 			Material = propMaterial,
-			Position = new Vector2(0, spriteSize.Y * 0.5f),  // Offset up so bottom at pivot
+			Position = Vector2.Zero,  // Centered on pivot
 			FlipV = true,
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
@@ -969,7 +969,7 @@ public partial class ControlRoom : Node2D
 		{
 			Texture = texture,
 			Material = playerMaterial,
-			Position = new Vector2(0, spriteSize.Y * 0.5f),
+			Position = Vector2.Zero,  // Centered on pivot
 			FlipV = true,
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
@@ -1029,7 +1029,7 @@ public partial class ControlRoom : Node2D
 		{
 			Texture = texture,
 			Material = tableMaterial,
-			Position = new Vector2(0, spriteSize.Y * 0.5f),
+			Position = Vector2.Zero,  // Centered on pivot
 			FlipV = true,
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
