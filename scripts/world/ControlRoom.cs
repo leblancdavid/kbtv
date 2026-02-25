@@ -60,6 +60,7 @@ public partial class ControlRoom : Node2D
 	private float _shadowMaxDistance = 256f;  // Based on ceiling light texture size
 	private float _shadowLerpFactor = 0.12f;
 	private readonly Dictionary<Node2D, Sprite2D> _pivotToShadowSprite = new();
+	private readonly List<Sprite2D> _baseShadowSprites = new();
 	private ShaderMaterial _shadowMaterial;
 	private ShaderMaterial _baseShadowMaterial;
 	private Rect2 _shadowRoomBounds;
@@ -313,11 +314,11 @@ public partial class ControlRoom : Node2D
 	private void SetShadowRoomBounds()
 	{
 		// Calculate room bounds in world coordinates
-		// Room spans from grid (0,0) to grid (_gridWidth-1, _gridHeight-1)
-		// Each tile is 16x16 pixels
+		// Room spans from grid (0,0) to grid (_gridWidth, _gridHeight)
+		// Extended +1 tile east and +1 tile north to match wall positions
 		var roomOrigin = _floorLayer.MapToLocal(new Vector2I(0, 0)) + _gridOffset;
-		var roomWidth = _gridWidth * TileSize;
-		var roomHeight = _gridHeight * TileSize;
+		var roomWidth = (_gridWidth + 1) * TileSize;  // +1 tile east
+		var roomHeight = (_gridHeight + 1) * TileSize;  // +1 tile north
 
 		_shadowRoomBounds = new Rect2(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
 
@@ -942,6 +943,7 @@ public partial class ControlRoom : Node2D
 			ZIndex = 1
 		};
 		propRoot.AddChild(baseShadowSprite);  // Child of propRoot, NOT pivot - stays at feet
+		_baseShadowSprites.Add(baseShadowSprite);
 	}
 
 	private void CreateShadowForPlayer(Node2D playerRoot, Texture2D texture)
@@ -1001,6 +1003,7 @@ public partial class ControlRoom : Node2D
 			ZIndex = 1
 		};
 		playerRoot.AddChild(baseShadowSprite);  // Child of playerRoot, NOT pivot - stays at feet
+		_baseShadowSprites.Add(baseShadowSprite);
 	}
 
 	private void CreateShadowForTable(Node2D tableRoot, Texture2D texture)
@@ -1060,6 +1063,7 @@ public partial class ControlRoom : Node2D
 			ZIndex = 1
 		};
 		tableRoot.AddChild(baseShadowSprite);
+		_baseShadowSprites.Add(baseShadowSprite);
 	}
 
 
@@ -1326,6 +1330,26 @@ public partial class ControlRoom : Node2D
 			if (_pivotToShadowSprite.TryGetValue(pivot, out var shadowSprite))
 			{
 				shadowSprite.FlipH = pivotWorldPos.Y > lightPos.Y;
+
+				// Update shader with actual transformed world position
+				var material = shadowSprite.Material as ShaderMaterial;
+				if (material != null)
+				{
+					material.SetShaderParameter("sprite_world_position", shadowSprite.GlobalPosition);
+				}
+			}
+		}
+
+		// Update base shadow sprites (they move with parent but don't rotate)
+		foreach (var baseSprite in _baseShadowSprites)
+		{
+			if (!IsInstanceValid(baseSprite))
+				continue;
+
+			var material = baseSprite.Material as ShaderMaterial;
+			if (material != null)
+			{
+				material.SetShaderParameter("sprite_world_position", baseSprite.GlobalPosition);
 			}
 		}
 	}
