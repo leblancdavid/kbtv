@@ -6,7 +6,9 @@ uniform float gradient_fade_height : hint_range(0.0, 1.0) = 0.5;
 uniform bool gradient_at_top = false;
 
 uniform vec4 room_bounds = vec4(0.0, 0.0, 0.0, 0.0);
-uniform vec4 shadow_bounds = vec4(0.0, 0.0, 0.0, 0.0);  // x1, y1, x2, y2 (min/max corners)
+uniform vec2 shadow_world_pos = vec2(0.0, 0.0);
+uniform vec2 shadow_scale = vec2(1.0, 1.0);
+uniform float shadow_rotation = 0.0;
 
 void fragment() {
     // Get texture alpha
@@ -14,13 +16,21 @@ void fragment() {
     float tex_alpha = tex_color.a;
     
     // Clip shadow pixels outside room bounds
-    if (room_bounds.z > 0.0 && room_bounds.w > 0.0 && shadow_bounds.z > shadow_bounds.x) {
-        // Use pre-calculated transformed bounds from shadow_bounds
-        vec2 min_corner = shadow_bounds.xy;
-        vec2 max_corner = shadow_bounds.zw;
+    if (room_bounds.z > 0.0 && room_bounds.w > 0.0) {
+        vec2 texture_size = vec2(textureSize(TEXTURE, 0));
         
-        // Interpolate between min and max corners based on UV
-        vec2 world_pos = mix(min_corner, max_corner, UV);
+        // Calculate rotation matrix
+        float c = cos(shadow_rotation);
+        float s = sin(shadow_rotation);
+        mat2 rot = mat2(vec2(c, s), vec2(-s, c));
+        
+        // Center UV, apply scale and rotation
+        vec2 centered_uv = UV - 0.5;
+        vec2 scaled_uv = centered_uv * shadow_scale;
+        vec2 rotated_uv = rot * scaled_uv;
+        
+        // Calculate true world position
+        vec2 world_pos = shadow_world_pos + rotated_uv * texture_size;
         
         if (world_pos.x < room_bounds.x || world_pos.x > room_bounds.x + room_bounds.z ||
             world_pos.y < room_bounds.y || world_pos.y > room_bounds.y + room_bounds.w) {
