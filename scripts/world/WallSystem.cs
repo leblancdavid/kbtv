@@ -114,6 +114,9 @@ public partial class WallSystem : Node
 			_eastWallSprites.Add(sprite);
 			_propSort.AddChild(sprite);
 		}
+
+		// Door is handled by DoorLayer - keep it in front
+		_room.DoorLayer.SetCell(new Vector2I(_room.GridWidth, doorY), WallEastSourceId, RoomBase.AtlasCoordsRight);
 	}
 
 	public void CreateWallColliders()
