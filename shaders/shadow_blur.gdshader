@@ -13,19 +13,13 @@ uniform vec2 shadow_texture_size = vec2(16.0, 16.0);
 uniform bool shadow_flip_v = true;
 
 void fragment() {
-    // Account for FlipV - flip UV.y before any calculations
-    vec2 uv = UV;
-    if (shadow_flip_v) {
-        uv.y = 1.0 - uv.y;
-    }
-    
     // Get texture alpha
-    vec4 tex_color = texture(TEXTURE, uv);
+    vec4 tex_color = texture(TEXTURE, UV);
     float tex_alpha = tex_color.a;
     
     // Calculate dual gradient (fade on both top and bottom edges)
-    float fade_top = smoothstep(0.0, gradient_fade_height, uv.y);
-    float fade_bottom = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, uv.y);
+    float fade_top = smoothstep(0.0, gradient_fade_height, UV.y);
+    float fade_bottom = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, UV.y);
     float gradient = fade_top * fade_bottom;
     
     // Multiply texture alpha by gradient
@@ -39,7 +33,7 @@ void fragment() {
     for (float x = -3.0; x <= 3.0; x += 1.0) {
         for (float y = -3.0; y <= 3.0; y += 1.0) {
             vec2 uv_offset = vec2(x, y) * offset / vec2(textureSize(TEXTURE, 0));
-            vec2 sample_uv = uv + uv_offset;
+            vec2 sample_uv = UV + uv_offset;
             
             // Clamp sample_uv to valid range
             sample_uv = clamp(sample_uv, vec2(0.0), vec2(1.0));
@@ -69,10 +63,18 @@ void fragment() {
     float s = sin(shadow_rotation);
     mat2 rot = mat2(vec2(c, s), vec2(-s, c));
     
-    vec2 centered_uv = uv - 0.5;
+    vec2 centered_uv = UV - 0.5;
     vec2 scaled_uv = centered_uv * shadow_scale;
     vec2 rotated_uv = rot * scaled_uv;
-    vec2 world_pos = shadow_world_position + rotated_uv * shadow_texture_size;
+    
+    // Flip Y for world position if FlipV is enabled
+    vec2 world_pos = shadow_world_position;
+    if (shadow_flip_v) {
+        world_pos.x += rotated_uv.x * shadow_texture_size.x;
+        world_pos.y -= rotated_uv.y * shadow_texture_size.y;
+    } else {
+        world_pos += rotated_uv * shadow_texture_size;
+    }
     
     // Check bounds at the very end
     if (room_bounds.z > 0.0 && room_bounds.w > 0.0) {

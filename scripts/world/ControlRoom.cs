@@ -1322,10 +1322,8 @@ public partial class ControlRoom : Node2D
 			var angle = Mathf.Atan2(lightToPivot.Y, lightToPivot.X) - Mathf.DegToRad(90);
 			pivot.Rotation = angle;
 
-			// TEMP TEST: Fixed scale to isolate the issue
 			// Y-Scale based on distance (inverse: closer = smaller, farther = larger)
-			// var scaleY = Mathf.Clamp(0.2f + (distance / _shadowMaxDistance) * 1.8f, 0.2f, 2.0f);
-			var scaleY = 1.0f;
+			var scaleY = Mathf.Clamp(0.2f + (distance / _shadowMaxDistance) * 1.8f, 0.2f, 2.0f);
 			pivot.Scale = new Vector2(1f, scaleY);
 
 			// Flip horizontally when object is below the light
