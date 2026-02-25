@@ -1324,14 +1324,13 @@ public partial class ControlRoom : Node2D
 			pivot.Rotation = angle;
 
 			// Y-Scale based on distance (inverse: closer = smaller, farther = larger)
-			// var scaleY = Mathf.Clamp(0.2f + (distance / _shadowMaxDistance) * 1.8f, 0.2f, 2.0f);
-			var scaleY = 2.0f;  // TEMP: fixed scale for debugging
+			var scaleY = Mathf.Clamp(0.2f + (distance / _shadowMaxDistance) * 1.8f, 0.2f, 2.0f);
 			pivot.Scale = new Vector2(1f, scaleY);
 
 			// Flip horizontally when object is below the light
 			if (_pivotToShadowSprite.TryGetValue(pivot, out var shadowSprite))
 			{
-				// shadowSprite.FlipH = pivotWorldPos.Y > lightPos.Y;  // TEMP: disabled for debugging
+				shadowSprite.FlipH = pivotWorldPos.Y > lightPos.Y;
 
 				// Update shader with transform components for accurate world position calculation
 				var material = shadowSprite.Material as ShaderMaterial;
@@ -1342,6 +1341,7 @@ public partial class ControlRoom : Node2D
 					material.SetShaderParameter("shadow_scale", shadowSprite.GlobalScale);
 					material.SetShaderParameter("shadow_rotation", shadowSprite.GlobalRotation);
 					material.SetShaderParameter("shadow_texture_size", shadowSprite.Texture.GetSize());
+					material.SetShaderParameter("shadow_flip_h", shadowSprite.FlipH);
 				}
 			}
 		}
