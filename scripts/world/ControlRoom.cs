@@ -57,7 +57,6 @@ public partial class ControlRoom : Node2D
 	private ShaderMaterial _depthShadowMaterial;
 
 	// Shadow parameters
-	private float _shadowMaxDistance = 256f;  // Based on ceiling light texture size
 	private float _shadowLerpFactor = 0.12f;
 	private readonly Dictionary<Node2D, Sprite2D> _pivotToShadowSprite = new();
 	private readonly List<Sprite2D> _baseShadowSprites = new();
@@ -122,16 +121,16 @@ public partial class ControlRoom : Node2D
 		{
 			_shadowMaterial = new ShaderMaterial();
 			_shadowMaterial.Shader = shadowShader;
-			_shadowMaterial.SetShaderParameter("blur_amount", 1.0f);
-			_shadowMaterial.SetShaderParameter("shadow_color", new Color(0, 0, 0, 0.6f));
-			_shadowMaterial.SetShaderParameter("gradient_fade_height", 0.5f);
+		_shadowMaterial.SetShaderParameter("blur_amount", 0.2f);
+			_shadowMaterial.SetShaderParameter("shadow_color", new Color(0, 0, 0, 0.35f));
+			_shadowMaterial.SetShaderParameter("gradient_fade_height", 0.25f);
 
 			// Base shadow material - dual gradient for smooth edges (3px fade on each side of 10px)
 			_baseShadowMaterial = new ShaderMaterial();
 			_baseShadowMaterial.Shader = shadowShader;
-			_baseShadowMaterial.SetShaderParameter("blur_amount", 1.0f);
-			_baseShadowMaterial.SetShaderParameter("shadow_color", new Color(0, 0, 0, 0.6f));
-			_baseShadowMaterial.SetShaderParameter("gradient_fade_height", 0.5f);  // 4px fade on each side of 8px
+		_baseShadowMaterial.SetShaderParameter("blur_amount", 0.5f);
+			_baseShadowMaterial.SetShaderParameter("shadow_color", new Color(0, 0, 0, 0.35f));
+			_baseShadowMaterial.SetShaderParameter("gradient_fade_height", 0.25f);  // 4px fade on each side of 8px
 			_baseShadowMaterial.SetShaderParameter("gradient_at_top", true);
 		}
 
@@ -936,7 +935,7 @@ public partial class ControlRoom : Node2D
 		{
 			Texture = bottomTexture,
 			Material = baseMaterial,
-			Position = new Vector2(0, 0),  // At object's feet
+			Position = new Vector2(0, -2),  // At object's feet
 			FlipV = false,  // No flip - original orientation
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
@@ -996,7 +995,7 @@ public partial class ControlRoom : Node2D
 		{
 			Texture = bottomTexture,
 			Material = baseMaterial,
-			Position = new Vector2(0, 0),  // At player's feet
+			Position = new Vector2(0, -2),  // At player's feet
 			FlipV = false,  // No flip - original orientation
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
@@ -1056,7 +1055,7 @@ public partial class ControlRoom : Node2D
 		{
 			Texture = bottomTexture,
 			Material = baseMaterial,
-			Position = new Vector2(0, 0),
+			Position = new Vector2(0, -2),
 			FlipV = false,
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
@@ -1323,9 +1322,15 @@ public partial class ControlRoom : Node2D
 			var angle = Mathf.Atan2(lightToPivot.Y, lightToPivot.X) - Mathf.DegToRad(90) + Mathf.DegToRad(180);
 			pivot.Rotation = angle;
 
-			// Y-Scale based on distance (inverse: closer = smaller, farther = larger)
-			var scaleY = Mathf.Clamp(0.2f + (distance / _shadowMaxDistance) * 1.8f, 0.2f, 2.0f);
-			pivot.Scale = new Vector2(1f, scaleY);
+			// Y-Scale based on distance: 0.5 at center, 1.5 at radius/2 (225), clamped beyond
+			var lightRadius = 450f;
+			var radiusHalf = lightRadius / 2f;
+			var scaleY = Mathf.Clamp(0.5f + (distance / radiusHalf) * 1.0f, 0.5f, 1.5f);
+
+			// X-Scale based on angle: 1.0 at 0°/180°, 0.5 at 90°/270°
+			var scaleX = 0.5f + Mathf.Abs(Mathf.Cos(angle)) * 0.5f;
+
+			pivot.Scale = new Vector2(scaleX, scaleY);
 
 			// Flip horizontally when object is below the light
 			if (_pivotToShadowSprite.TryGetValue(pivot, out var shadowSprite))
