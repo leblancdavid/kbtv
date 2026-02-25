@@ -116,6 +116,10 @@ public abstract partial class RoomBase : Node2D
 		{
 			GridOffset = AutoCenterFloor();
 		}
+		else
+		{
+			GridOffset = GridAnchor;
+		}
 		FloorLayer.Position = GridOffset;
 		DoorLayer.Position = GridOffset;
 		GridDebugLayer.Position = GridOffset;

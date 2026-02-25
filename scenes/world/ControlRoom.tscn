@@ -7,6 +7,7 @@
 [node name="ControlRoom" type="Node2D"]
 script = ExtResource("3")
 AutoCenter = false
+GridAnchor = Vector2(0, 0)
 
 [node name="FloorLayer" type="TileMapLayer" parent="."]
 tile_set = ExtResource("2")
