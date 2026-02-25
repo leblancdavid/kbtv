@@ -1319,7 +1319,8 @@ public partial class ControlRoom : Node2D
 			var distance = lightToPivot.Length();
 
 			// Rotation - angle from light to object, offset by -90 degrees for sprite's upright default
-			var angle = Mathf.Atan2(lightToPivot.Y, lightToPivot.X) - Mathf.DegToRad(90);
+			// Add 180 degrees to make shadow point away from light
+			var angle = Mathf.Atan2(lightToPivot.Y, lightToPivot.X) - Mathf.DegToRad(90) + Mathf.DegToRad(180);
 			pivot.Rotation = angle;
 
 			// Y-Scale based on distance (inverse: closer = smaller, farther = larger)
