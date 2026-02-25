@@ -77,16 +77,16 @@ public partial class ControlRoom : RoomBase
 
 		_wallSystem.Initialize(this);
 		_lighting.Initialize(this);
-		_shadows.Initialize(this, _lighting.CeilingLight);
-		_debug.Initialize(this, _wallSystem, _shadows);
-
-		_wallSystem.CreateWalls();
-		_wallSystem.CreateWallColliders();
 
 		var tablePosition = GridToWorld(new Vector2I(6, 1));
 		_lighting.CreateLighting(tablePosition);
 
+		_shadows.Initialize(this, _lighting.CeilingLight);
 		_shadows.UpdateDepthShadowLightPosition();
+		_debug.Initialize(this, _wallSystem, _shadows);
+
+		_wallSystem.CreateWalls();
+		_wallSystem.CreateWallColliders();
 
 		SetupPlayer();
 		CreateProps();
