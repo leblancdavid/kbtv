@@ -909,8 +909,8 @@ public partial class ControlRoom : Node2D
 		{
 			Texture = texture,
 			Material = propMaterial,
-			Position = new Vector2(0, spriteSize.Y * 0.5f),  // Offset up so bottom at pivot
-			FlipV = true,
+			Position = new Vector2(0, -spriteSize.Y * 0.5f),  // Bottom of sprite at pivot
+			FlipV = false,
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
 			ZIndex = 1  // Floor + 1
@@ -969,8 +969,8 @@ public partial class ControlRoom : Node2D
 		{
 			Texture = texture,
 			Material = playerMaterial,
-			Position = new Vector2(0, spriteSize.Y * 0.5f),
-			FlipV = true,
+			Position = new Vector2(0, -spriteSize.Y * 0.5f),  // Bottom of sprite at pivot
+			FlipV = false,
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
 			ZIndex = 1  // Floor + 1
@@ -1029,8 +1029,8 @@ public partial class ControlRoom : Node2D
 		{
 			Texture = texture,
 			Material = tableMaterial,
-			Position = new Vector2(0, spriteSize.Y * 0.5f),
-			FlipV = true,
+			Position = new Vector2(0, -spriteSize.Y * 0.5f),  // Bottom of sprite at pivot
+			FlipV = false,
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
 			ZIndex = 1
@@ -1335,9 +1335,8 @@ public partial class ControlRoom : Node2D
 				var material = shadowSprite.Material as ShaderMaterial;
 				if (material != null && shadowSprite.Texture != null)
 				{
-					// Calculate actual sprite center by subtracting the Position offset
-					var spriteCenter = shadowSprite.GlobalPosition - shadowSprite.Position;
-					material.SetShaderParameter("shadow_world_position", spriteCenter);
+					// GlobalPosition is the sprite center in world space
+					material.SetShaderParameter("shadow_world_position", shadowSprite.GlobalPosition);
 					material.SetShaderParameter("shadow_scale", shadowSprite.GlobalScale);
 					material.SetShaderParameter("shadow_rotation", shadowSprite.GlobalRotation);
 					material.SetShaderParameter("shadow_texture_size", shadowSprite.Texture.GetSize());
@@ -1354,9 +1353,8 @@ public partial class ControlRoom : Node2D
 			var material = baseSprite.Material as ShaderMaterial;
 			if (material != null && baseSprite.Texture != null)
 			{
-				// Calculate actual sprite center by subtracting the Position offset
-				var spriteCenter = baseSprite.GlobalPosition - baseSprite.Position;
-				material.SetShaderParameter("shadow_world_position", spriteCenter);
+				// GlobalPosition is the sprite center in world space
+				material.SetShaderParameter("shadow_world_position", baseSprite.GlobalPosition);
 				material.SetShaderParameter("shadow_scale", baseSprite.GlobalScale);
 				material.SetShaderParameter("shadow_rotation", baseSprite.GlobalRotation);
 				material.SetShaderParameter("shadow_texture_size", baseSprite.Texture.GetSize());

@@ -10,7 +10,6 @@ uniform vec2 shadow_world_position = vec2(0.0, 0.0);
 uniform vec2 shadow_scale = vec2(1.0, 1.0);
 uniform float shadow_rotation = 0.0;
 uniform vec2 shadow_texture_size = vec2(16.0, 16.0);
-uniform bool shadow_flip_v = true;
 
 void fragment() {
     // Get texture alpha
@@ -66,15 +65,7 @@ void fragment() {
     vec2 centered_uv = UV - 0.5;
     vec2 scaled_uv = centered_uv * shadow_scale;
     vec2 rotated_uv = rot * scaled_uv;
-    
-    // Flip Y for world position if FlipV is enabled
-    vec2 world_pos = shadow_world_position;
-    if (shadow_flip_v) {
-        world_pos.x += rotated_uv.x * shadow_texture_size.x;
-        world_pos.y -= rotated_uv.y * shadow_texture_size.y;
-    } else {
-        world_pos += rotated_uv * shadow_texture_size;
-    }
+    vec2 world_pos = shadow_world_position + rotated_uv * shadow_texture_size;
     
     // Check bounds at the very end
     if (room_bounds.z > 0.0 && room_bounds.w > 0.0) {
