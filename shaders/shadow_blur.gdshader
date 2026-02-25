@@ -6,33 +6,25 @@ uniform float gradient_fade_height : hint_range(0.0, 1.0) = 0.5;
 uniform bool gradient_at_top = false;
 
 uniform vec4 room_bounds = vec4(0.0, 0.0, 0.0, 0.0);
-uniform vec2 shadow_world_pos = vec2(0.0, 0.0);
-uniform vec2 shadow_scale = vec2(1.0, 1.0);
-uniform float shadow_rotation = 0.0;
+uniform vec2 shadow_aabb_min = vec2(0.0, 0.0);
+uniform vec2 shadow_aabb_max = vec2(0.0, 0.0);
 
 void fragment() {
     // Get texture alpha
     vec4 tex_color = texture(TEXTURE, UV);
     float tex_alpha = tex_color.a;
     
-    // Clip shadow pixels outside room bounds
-    if (room_bounds.z > 0.0 && room_bounds.w > 0.0) {
+    // Clip shadow pixels outside room bounds and shadow AABB
+    if (room_bounds.z > 0.0 && room_bounds.w > 0.0 && shadow_aabb_max.x > shadow_aabb_min.x) {
         vec2 texture_size = vec2(textureSize(TEXTURE, 0));
         
-        // Calculate rotation matrix
-        float c = cos(shadow_rotation);
-        float s = sin(shadow_rotation);
-        mat2 rot = mat2(vec2(c, s), vec2(-s, c));
+        // Calculate world position based on AABB
+        vec2 world_pos = mix(shadow_aabb_min, shadow_aabb_max, UV);
         
-        // Center UV, apply scale and rotation
-        vec2 centered_uv = UV - 0.5;
-        vec2 scaled_uv = centered_uv * shadow_scale;
-        vec2 rotated_uv = rot * scaled_uv;
-        
-        // Calculate true world position
-        vec2 world_pos = shadow_world_pos + rotated_uv * texture_size;
-        
-        if (world_pos.x < room_bounds.x || world_pos.x > room_bounds.x + room_bounds.z ||
+        // First check if inside shadow AABB, then check if inside room bounds
+        if (world_pos.x < shadow_aabb_min.x || world_pos.x > shadow_aabb_max.x ||
+            world_pos.y < shadow_aabb_min.y || world_pos.y > shadow_aabb_max.y ||
+            world_pos.x < room_bounds.x || world_pos.x > room_bounds.x + room_bounds.z ||
             world_pos.y < room_bounds.y || world_pos.y > room_bounds.y + room_bounds.w) {
             discard;
         }
