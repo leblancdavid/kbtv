@@ -1,16 +1,14 @@
-[gd_resource type="TileSet" load_steps=11 format=3 uid="uid://7h5w5ev5n5d6"]
+[gd_resource type="TileSet" load_steps=14 format=3 uid="uid://7h5w5ev5n5d6"]
 
-[ext_resource type="Texture2D" uid="uid://bi4tx0ofgq5hc" path="res://assets/tiles/topdown/floor_atlas.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://cilv77mv8ij3t" path="res://assets/tiles/topdown/wall_north_atlas.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://cbgtfdul7ijuq" path="res://assets/tiles/topdown/wall_south_atlas.png" id="3"]
-[ext_resource type="Texture2D" path="res://assets/tiles/topdown/wall_side_atlas.png" id="4"]
-[ext_resource type="Texture2D" path="res://assets/tiles/topdown/wall_side_atlas.png" id="5"]
-[ext_resource type="Texture2D" uid="uid://b5k4mx3xf33l1" path="res://assets/tiles/topdown/wall_south_strip.png" id="6"]
-[ext_resource type="Texture2D" uid="uid://cw0j1i4q5o6f7" path="res://assets/tiles/topdown/grid_debug.png" id="7"]
+[ext_resource type="Texture2D" uid="uid://bx53vwkkrj2cp" path="res://assets/tiles/topdown/floor_atlas.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://bin0cke1mawc3" path="res://assets/tiles/topdown/control_room_north_atlas.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://bfm8lfuimvdcs" path="res://assets/tiles/topdown/wall_south_atlas.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://dwy5ubswjxp74" path="res://assets/tiles/topdown/wall_side_atlas.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://buawl7ty1k41f" path="res://assets/tiles/topdown/wall_south_strip.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://bm0s0j3naexee" path="res://assets/tiles/topdown/grid_debug.png" id="7"]
 
 [sub_resource type="TileSetAtlasSource" id="floor_source"]
 texture = ExtResource("1")
-texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -18,7 +16,6 @@ texture_region_size = Vector2i(16, 16)
 [sub_resource type="TileSetAtlasSource" id="wall_north_source"]
 texture = ExtResource("2")
 texture_region_size = Vector2i(16, 64)
-texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -27,16 +24,14 @@ texture_origin = Vector2i(0, -64)
 [sub_resource type="TileSetAtlasSource" id="wall_south_source"]
 texture = ExtResource("3")
 texture_region_size = Vector2i(16, 64)
-texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
 3:0/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="wall_west_source"]
-texture = ExtResource("4")
+texture = ExtResource("5")
 texture_region_size = Vector2i(16, 64)
-texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -44,7 +39,6 @@ texture_origin = Vector2i(0, -64)
 [sub_resource type="TileSetAtlasSource" id="wall_east_source"]
 texture = ExtResource("5")
 texture_region_size = Vector2i(16, 64)
-texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -53,19 +47,13 @@ texture_origin = Vector2i(0, -64)
 [sub_resource type="TileSetAtlasSource" id="wall_south_strip_source"]
 texture = ExtResource("6")
 texture_region_size = Vector2i(16, 64)
-texture_origin = Vector2i(0, -64)
 0:0/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="grid_debug_source"]
 texture = ExtResource("7")
-texture_region_size = Vector2i(16, 16)
 0:0/0 = 0
 
-
 [resource]
-tile_shape = 0
-tile_layout = 0
-tile_size = Vector2i(16, 16)
 sources/0 = SubResource("floor_source")
 sources/1 = SubResource("wall_north_source")
 sources/2 = SubResource("wall_south_source")

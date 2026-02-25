@@ -5,6 +5,7 @@ public partial class Player : CharacterBody2D
     [Export] private float _speed = 150.0f;
 
     private Sprite2D _sprite;
+    private World? _world;
 
     public override void _Ready()
     {
@@ -17,6 +18,12 @@ public partial class Player : CharacterBody2D
             var size = _sprite.Texture?.GetSize() ?? Vector2.Zero;
             _sprite.Position = new Vector2(0, -(size.Y * 0.5f));
         }
+    }
+
+    public void SetWorld(World world)
+    {
+        _world = world;
+        _world.RegisterPlayer(this);
     }
 
     public override void _Process(double delta)

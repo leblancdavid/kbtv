@@ -8,6 +8,9 @@ public partial class WallSystem : Node
 	[Export] public int DoorHeightTiles = 2;
 	[Export] public int WindowStartColumn = 3;
 	[Export] public int WindowEndColumn = 9;
+	[Export] public bool EnableSouthWall = true;
+	[Export] public bool EnableSouthDoor = false;
+	[Export] public int SouthDoorRow = 3;
 
 	[ExportGroup("TileMap Sources")]
 	[Export] public int WallNorthSourceId = 1;
@@ -16,6 +19,11 @@ public partial class WallSystem : Node
 	[Export] public int WallEastSourceId = 4;
 	[Export] public int WallSouthStripSourceId = 5;
 	[Export] public int WallWindowSourceId = 7;
+
+	[ExportGroup("Wall Textures")]
+	[Export] public Texture2D CustomNorthWallTexture;
+	[Export] public Texture2D CustomSouthWallTexture;
+	[Export] public Texture2D CustomSideWallTexture;
 
 	[ExportGroup("Wall Dimensions")]
 	[Export] public float WallThickness = 8.0f;
@@ -27,6 +35,7 @@ public partial class WallSystem : Node
 
 	private readonly List<Rect2> _debugWallRects = new();
 	private Rect2 _debugDoorRect = new Rect2(0, 0, 0, 0);
+	private Rect2 _debugSouthDoorRect = new Rect2(0, 0, 0, 0);
 
 	private readonly List<Sprite2D> _northWallSprites = new();
 	private readonly List<Sprite2D> _northWallStripSprites = new();
@@ -39,6 +48,7 @@ public partial class WallSystem : Node
 
 	public List<Rect2> DebugWallRects => _debugWallRects;
 	public Rect2 DebugDoorRect => _debugDoorRect;
+	public Rect2 DebugSouthDoorRect => _debugSouthDoorRect;
 
 	public void Initialize(RoomBase room)
 	{
@@ -50,9 +60,9 @@ public partial class WallSystem : Node
 	{
 		ClearWallSprites();
 
-		var northTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_north_atlas.png");
-		var southTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_atlas.png");
-		var sideTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_side_atlas.png");
+		var northTexture = CustomNorthWallTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/control_room_north_atlas.png");
+		var southTexture = CustomSouthWallTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_atlas.png");
+		var sideTexture = CustomSideWallTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/wall_side_atlas.png");
 		var southStripTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_strip.png");
 		var windowTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_window_atlas.png");
 
@@ -80,6 +90,9 @@ public partial class WallSystem : Node
 
 		for (int x = 0; x < _room.GridWidth; x++)
 		{
+			if (!EnableSouthWall)
+				continue;
+
 			var atlas = ResolveHorizontalAtlas(x, _room.GridWidth);
 			var gridPos = new Vector2I(x, _room.GridHeight);
 			var sprite = CreateWallSprite(southTexture, atlas, gridPos);
@@ -91,12 +104,15 @@ public partial class WallSystem : Node
 			_propSort.AddChild(stripSprite);
 		}
 
-		var leftCorner = CreateWallSprite(southTexture, RoomBase.AtlasCoordsLeft, new Vector2I(-1, _room.GridHeight));
-		var rightCorner = CreateWallSprite(southTexture, RoomBase.AtlasCoordsRight, new Vector2I(_room.GridWidth, _room.GridHeight));
-		_southCornerSprites.Add(leftCorner);
-		_propSort.AddChild(leftCorner);
-		_southCornerSprites.Add(rightCorner);
-		_propSort.AddChild(rightCorner);
+		if (EnableSouthWall)
+		{
+			var leftCorner = CreateWallSprite(southTexture, RoomBase.AtlasCoordsLeft, new Vector2I(-1, _room.GridHeight));
+			var rightCorner = CreateWallSprite(southTexture, RoomBase.AtlasCoordsRight, new Vector2I(_room.GridWidth, _room.GridHeight));
+			_southCornerSprites.Add(leftCorner);
+			_propSort.AddChild(leftCorner);
+			_southCornerSprites.Add(rightCorner);
+			_propSort.AddChild(rightCorner);
+		}
 
 		for (int y = -1; y < _room.GridHeight; y++)
 		{
@@ -117,6 +133,12 @@ public partial class WallSystem : Node
 
 		// Door is handled by DoorLayer - keep it in front
 		_room.DoorLayer.SetCell(new Vector2I(_room.GridWidth, doorY), WallEastSourceId, RoomBase.AtlasCoordsRight);
+
+		if (EnableSouthDoor)
+		{
+			var southDoorY = Mathf.Clamp(SouthDoorRow, 0, _room.GridHeight - 1);
+			_room.DoorLayer.SetCell(new Vector2I(southDoorY, _room.GridHeight), WallSouthSourceId, RoomBase.AtlasCoordsRight);
+		}
 	}
 
 	public void CreateWallColliders()
@@ -141,7 +163,18 @@ public partial class WallSystem : Node
 
 		for (int x = 0; x < _room.GridWidth; x++)
 		{
+			if (!EnableSouthWall)
+				continue;
+
 			var cellPos = _room.FloorLayer.MapToLocal(new Vector2I(x, _room.GridHeight));
+
+			if (EnableSouthDoor)
+			{
+				var southDoorY = Mathf.Clamp(SouthDoorRow, 0, _room.GridHeight - 1);
+				if (x >= southDoorY && x < southDoorY + DoorHeightTiles)
+					continue;
+			}
+
 			AddWallCollider(new Rect2(
 				cellPos.X - RoomBase.TileSize * 0.5f,
 				cellPos.Y - RoomBase.TileSize * 0.5f,
@@ -193,21 +226,24 @@ public partial class WallSystem : Node
 			RoomBase.TileSize
 		));
 
-		var swPos = _room.FloorLayer.MapToLocal(new Vector2I(-1, _room.GridHeight));
-		AddWallCollider(new Rect2(
-			swPos.X - WallStripWidth * 0.5f,
-			swPos.Y - RoomBase.TileSize * 0.5f,
-			WallStripWidth,
-			RoomBase.TileSize
-		));
+		if (EnableSouthWall)
+		{
+			var swPos = _room.FloorLayer.MapToLocal(new Vector2I(-1, _room.GridHeight));
+			AddWallCollider(new Rect2(
+				swPos.X - WallStripWidth * 0.5f,
+				swPos.Y - RoomBase.TileSize * 0.5f,
+				WallStripWidth,
+				RoomBase.TileSize
+			));
 
-		var sePos = _room.FloorLayer.MapToLocal(new Vector2I(_room.GridWidth, _room.GridHeight));
-		AddWallCollider(new Rect2(
-			sePos.X - WallStripWidth * 0.5f,
-			sePos.Y - RoomBase.TileSize * 0.5f,
-			WallStripWidth,
-			RoomBase.TileSize
-		));
+			var sePos = _room.FloorLayer.MapToLocal(new Vector2I(_room.GridWidth, _room.GridHeight));
+			AddWallCollider(new Rect2(
+				sePos.X - WallStripWidth * 0.5f,
+				sePos.Y - RoomBase.TileSize * 0.5f,
+				WallStripWidth,
+				RoomBase.TileSize
+			));
+		}
 
 		var doorCellPos = _room.FloorLayer.MapToLocal(new Vector2I(_room.GridWidth, doorY));
 		var doorTop = doorCellPos.Y - RoomBase.TileSize * 0.5f;
@@ -216,6 +252,18 @@ public partial class WallSystem : Node
 			_wallColliderBody.ToGlobal(new Vector2(doorCellPos.X - RoomBase.TileSize * 0.5f, doorTop)),
 			new Vector2(WallStripWidth, doorBottom - doorTop)
 		);
+
+		if (EnableSouthDoor)
+		{
+			var southDoorY = Mathf.Clamp(SouthDoorRow, 0, _room.GridHeight - 1);
+			var southDoorCellPos = _room.FloorLayer.MapToLocal(new Vector2I(southDoorY, _room.GridHeight));
+			var southDoorTop = southDoorCellPos.Y - RoomBase.TileSize * 0.5f;
+			var southDoorBottom = southDoorTop + (DoorHeightTiles * RoomBase.TileSize);
+			_debugSouthDoorRect = new Rect2(
+				_wallColliderBody.ToGlobal(new Vector2(southDoorCellPos.X - RoomBase.TileSize * 0.5f, southDoorTop)),
+				new Vector2(RoomBase.TileSize, southDoorBottom - southDoorTop)
+			);
+		}
 	}
 
 	public void UpdateVisibility(Node2D player)
@@ -247,14 +295,14 @@ public partial class WallSystem : Node
 
 		var southWallBottomY = _room.FloorLayer.ToGlobal(_room.FloorLayer.MapToLocal(new Vector2I(0, _room.GridHeight))).Y - RoomBase.TileSize * 0.5f;
 		var southRect = new Rect2(roomLeft, southWallBottomY - 64.0f, roomWidth, 64.0f);
-		var hideSouth = southRect.Intersects(playerRect);
+		var hideSouth = EnableSouthWall && southRect.Intersects(playerRect);
 
 		foreach (var sprite in _southWallSprites)
 			sprite.Visible = !hideSouth;
 		foreach (var sprite in _southWallStripSprites)
 			sprite.Visible = hideSouth;
 		foreach (var sprite in _southCornerSprites)
-			sprite.Visible = true;
+			sprite.Visible = EnableSouthWall;
 
 		_room.DoorLayer.Visible = true;
 	}
