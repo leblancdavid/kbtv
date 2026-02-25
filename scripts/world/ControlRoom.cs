@@ -904,12 +904,12 @@ public partial class ControlRoom : Node2D
 			propMaterial.SetShaderParameter("sprite_world_position", propRoot.GlobalPosition);
 		}
 
-		// Create shadow sprite, centered on pivot
+		// Create shadow sprite, offset so bottom touches pivot
 		var shadowSprite = new Sprite2D
 		{
 			Texture = texture,
 			Material = propMaterial,
-			Position = Vector2.Zero,  // Centered on pivot
+			Position = new Vector2(0, spriteSize.Y * 0.5f),  // Offset up so bottom at pivot
 			FlipV = true,
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
@@ -969,7 +969,7 @@ public partial class ControlRoom : Node2D
 		{
 			Texture = texture,
 			Material = playerMaterial,
-			Position = Vector2.Zero,  // Centered on pivot
+			Position = new Vector2(0, spriteSize.Y * 0.5f),
 			FlipV = true,
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
@@ -1029,7 +1029,7 @@ public partial class ControlRoom : Node2D
 		{
 			Texture = texture,
 			Material = tableMaterial,
-			Position = Vector2.Zero,  // Centered on pivot
+			Position = new Vector2(0, spriteSize.Y * 0.5f),
 			FlipV = true,
 			Modulate = new Color(0, 0, 0, 0.6f),
 			ZAsRelative = false,
@@ -1335,7 +1335,9 @@ public partial class ControlRoom : Node2D
 				var material = shadowSprite.Material as ShaderMaterial;
 				if (material != null && shadowSprite.Texture != null)
 				{
-					material.SetShaderParameter("shadow_world_position", shadowSprite.GlobalPosition);
+					// Calculate actual sprite center by subtracting the Position offset
+					var spriteCenter = shadowSprite.GlobalPosition - shadowSprite.Position;
+					material.SetShaderParameter("shadow_world_position", spriteCenter);
 					material.SetShaderParameter("shadow_scale", shadowSprite.GlobalScale);
 					material.SetShaderParameter("shadow_rotation", shadowSprite.GlobalRotation);
 					material.SetShaderParameter("shadow_texture_size", shadowSprite.Texture.GetSize());
@@ -1352,7 +1354,9 @@ public partial class ControlRoom : Node2D
 			var material = baseSprite.Material as ShaderMaterial;
 			if (material != null && baseSprite.Texture != null)
 			{
-				material.SetShaderParameter("shadow_world_position", baseSprite.GlobalPosition);
+				// Calculate actual sprite center by subtracting the Position offset
+				var spriteCenter = baseSprite.GlobalPosition - baseSprite.Position;
+				material.SetShaderParameter("shadow_world_position", spriteCenter);
 				material.SetShaderParameter("shadow_scale", baseSprite.GlobalScale);
 				material.SetShaderParameter("shadow_rotation", baseSprite.GlobalRotation);
 				material.SetShaderParameter("shadow_texture_size", baseSprite.Texture.GetSize());
