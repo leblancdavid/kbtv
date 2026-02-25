@@ -1331,37 +1331,14 @@ public partial class ControlRoom : Node2D
 			{
 				shadowSprite.FlipH = pivotWorldPos.Y > lightPos.Y;
 
-				// Update shader with transformed AABB for accurate bounds checking
+				// Update shader with transform components for accurate world position calculation
 				var material = shadowSprite.Material as ShaderMaterial;
 				if (material != null && shadowSprite.Texture != null)
 				{
-					var textureSize = shadowSprite.Texture.GetSize();
-					var worldTransform = shadowSprite.GlobalTransform;
-
-					// Calculate the 4 corners after transformation
-					var halfSize = textureSize * 0.5f;
-					var corners = new Vector2[] {
-						new Vector2(-halfSize.X, -halfSize.Y),
-						new Vector2(halfSize.X, -halfSize.Y),
-						new Vector2(halfSize.X, halfSize.Y),
-						new Vector2(-halfSize.X, halfSize.Y)
-					};
-
-					var minCorner = new Vector2(float.MaxValue, float.MaxValue);
-					var maxCorner = new Vector2(float.MinValue, float.MinValue);
-
-					foreach (var corner in corners)
-					{
-						var worldCorner = worldTransform * corner;
-						minCorner.X = Mathf.Min(minCorner.X, worldCorner.X);
-						minCorner.Y = Mathf.Min(minCorner.Y, worldCorner.Y);
-						maxCorner.X = Mathf.Max(maxCorner.X, worldCorner.X);
-						maxCorner.Y = Mathf.Max(maxCorner.Y, worldCorner.Y);
-					}
-
-					// Pass transformed AABB (min.x, min.y, max.x, max.y)
-					material.SetShaderParameter("shadow_aabb_min", minCorner);
-					material.SetShaderParameter("shadow_aabb_max", maxCorner);
+					material.SetShaderParameter("shadow_world_position", shadowSprite.GlobalPosition);
+					material.SetShaderParameter("shadow_scale", shadowSprite.GlobalScale);
+					material.SetShaderParameter("shadow_rotation", shadowSprite.GlobalRotation);
+					material.SetShaderParameter("shadow_texture_size", shadowSprite.Texture.GetSize());
 				}
 			}
 		}
@@ -1375,33 +1352,10 @@ public partial class ControlRoom : Node2D
 			var material = baseSprite.Material as ShaderMaterial;
 			if (material != null && baseSprite.Texture != null)
 			{
-				var textureSize = baseSprite.Texture.GetSize();
-				var worldTransform = baseSprite.GlobalTransform;
-
-				// Calculate the 4 corners after transformation
-				var halfSize = textureSize * 0.5f;
-				var corners = new Vector2[] {
-					new Vector2(-halfSize.X, -halfSize.Y),
-					new Vector2(halfSize.X, -halfSize.Y),
-					new Vector2(halfSize.X, halfSize.Y),
-					new Vector2(-halfSize.X, halfSize.Y)
-				};
-
-				var minCorner = new Vector2(float.MaxValue, float.MaxValue);
-				var maxCorner = new Vector2(float.MinValue, float.MinValue);
-
-				foreach (var corner in corners)
-				{
-					var worldCorner = worldTransform * corner;
-					minCorner.X = Mathf.Min(minCorner.X, worldCorner.X);
-					minCorner.Y = Mathf.Min(minCorner.Y, worldCorner.Y);
-					maxCorner.X = Mathf.Max(maxCorner.X, worldCorner.X);
-					maxCorner.Y = Mathf.Max(maxCorner.Y, worldCorner.Y);
-				}
-
-				// Pass transformed AABB
-				material.SetShaderParameter("shadow_aabb_min", minCorner);
-				material.SetShaderParameter("shadow_aabb_max", maxCorner);
+				material.SetShaderParameter("shadow_world_position", baseSprite.GlobalPosition);
+				material.SetShaderParameter("shadow_scale", baseSprite.GlobalScale);
+				material.SetShaderParameter("shadow_rotation", baseSprite.GlobalRotation);
+				material.SetShaderParameter("shadow_texture_size", baseSprite.Texture.GetSize());
 			}
 		}
 	}

@@ -6,8 +6,10 @@ uniform float gradient_fade_height : hint_range(0.0, 1.0) = 0.5;
 uniform bool gradient_at_top = false;
 
 uniform vec4 room_bounds = vec4(0.0, 0.0, 0.0, 0.0);
-uniform vec2 shadow_aabb_min = vec2(0.0, 0.0);
-uniform vec2 shadow_aabb_max = vec2(0.0, 0.0);
+uniform vec2 shadow_world_position = vec2(0.0, 0.0);
+uniform vec2 shadow_scale = vec2(1.0, 1.0);
+uniform float shadow_rotation = 0.0;
+uniform vec2 shadow_texture_size = vec2(16.0, 16.0);
 
 void fragment() {
     // Get texture alpha
@@ -55,12 +57,18 @@ void fragment() {
     // Apply shadow color
     vec4 color = vec4(shadow_color.rgb, shadow_color.a * blurred_alpha);
     
-    // NOW check bounds at the very end - after all transformations
-    if (room_bounds.z > 0.0 && room_bounds.w > 0.0 && shadow_aabb_max.x > shadow_aabb_min.x) {
-        // Calculate world position based on AABB
-        vec2 world_pos = mix(shadow_aabb_min, shadow_aabb_max, UV);
-        
-        // Check if outside room bounds
+    // Calculate world position using transform matrix
+    float c = cos(shadow_rotation);
+    float s = sin(shadow_rotation);
+    mat2 rot = mat2(vec2(c, s), vec2(-s, c));
+    
+    vec2 centered_uv = UV - 0.5;
+    vec2 scaled_uv = centered_uv * shadow_scale;
+    vec2 rotated_uv = rot * scaled_uv;
+    vec2 world_pos = shadow_world_position + rotated_uv * shadow_texture_size;
+    
+    // Check bounds at the very end
+    if (room_bounds.z > 0.0 && room_bounds.w > 0.0) {
         if (world_pos.x < room_bounds.x || world_pos.x > room_bounds.x + room_bounds.z ||
             world_pos.y < room_bounds.y || world_pos.y > room_bounds.y + room_bounds.w) {
             discard;
