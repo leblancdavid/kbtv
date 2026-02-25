@@ -1336,8 +1336,8 @@ public partial class ControlRoom : Node2D
 				var material = shadowSprite.Material as ShaderMaterial;
 				if (material != null && shadowSprite.Texture != null)
 				{
-					// Use pivot's world position as the rotation center
-					material.SetShaderParameter("shadow_world_position", pivot.GlobalPosition);
+					// Use sprite's global position as the center
+					material.SetShaderParameter("shadow_world_position", shadowSprite.GlobalPosition);
 					material.SetShaderParameter("shadow_scale", shadowSprite.GlobalScale);
 					material.SetShaderParameter("shadow_rotation", shadowSprite.GlobalRotation);
 					material.SetShaderParameter("shadow_texture_size", shadowSprite.Texture.GetSize());
