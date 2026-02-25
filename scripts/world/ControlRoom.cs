@@ -314,11 +314,11 @@ public partial class ControlRoom : Node2D
 	private void SetShadowRoomBounds()
 	{
 		// Calculate room bounds in world coordinates
-		// Room spans from grid (0,0) to grid (_gridWidth, _gridHeight)
-		// Extended +1 tile east and +1 tile north to match wall positions
-		var roomOrigin = _floorLayer.MapToLocal(new Vector2I(0, 0)) + _gridOffset;
-		var roomWidth = (_gridWidth + 1) * TileSize;  // +1 tile east
-		var roomHeight = (_gridHeight + 1) * TileSize;  // +1 tile north
+		// Room spans from grid (-1,-1) to grid (_gridWidth, _gridHeight)
+		// Extended +1 tile east and +1 tile north from floor grid (0,0) to (13,9)
+		var roomOrigin = _floorLayer.MapToLocal(new Vector2I(-1, -1)) + _gridOffset;
+		var roomWidth = (_gridWidth + 1) * TileSize;
+		var roomHeight = (_gridHeight + 1) * TileSize;
 
 		_shadowRoomBounds = new Rect2(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
 
@@ -1331,11 +1331,33 @@ public partial class ControlRoom : Node2D
 			{
 				shadowSprite.FlipH = pivotWorldPos.Y > lightPos.Y;
 
-				// Update shader with actual transformed world position
+				// Update shader with pre-calculated transformed bounds
 				var material = shadowSprite.Material as ShaderMaterial;
-				if (material != null)
+				if (material != null && shadowSprite.Texture != null)
 				{
-					material.SetShaderParameter("sprite_world_position", shadowSprite.GlobalPosition);
+					var textureSize = shadowSprite.Texture.GetSize();
+					var worldTransform = shadowSprite.GlobalTransform;
+					
+					// Calculate the 4 corners of the sprite in world space
+					var halfSize = textureSize * 0.5f;
+					var localCorners = new Vector2[] {
+						new Vector2(-halfSize.X, -halfSize.Y),  // top-left
+						new Vector2(halfSize.X, -halfSize.Y),   // top-right
+						new Vector2(halfSize.X, halfSize.Y),    // bottom-right
+						new Vector2(-halfSize.X, halfSize.Y)    // bottom-left
+					};
+
+					var minCorner = new Vector2(float.MaxValue, float.MaxValue);
+					var maxCorner = new Vector2(float.MinValue, float.MinValue);
+
+					foreach (var corner in localCorners)
+					{
+						var worldCorner = worldTransform * corner;
+						minCorner = new Vector2(Mathf.Min(minCorner.X, worldCorner.X), Mathf.Min(minCorner.Y, worldCorner.Y));
+						maxCorner = new Vector2(Mathf.Max(maxCorner.X, worldCorner.X), Mathf.Max(maxCorner.Y, worldCorner.Y));
+					}
+
+					material.SetShaderParameter("shadow_bounds", new Vector4(minCorner.X, minCorner.Y, maxCorner.X, maxCorner.Y));
 				}
 			}
 		}
@@ -1347,9 +1369,31 @@ public partial class ControlRoom : Node2D
 				continue;
 
 			var material = baseSprite.Material as ShaderMaterial;
-			if (material != null)
+			if (material != null && baseSprite.Texture != null)
 			{
-				material.SetShaderParameter("sprite_world_position", baseSprite.GlobalPosition);
+				var textureSize = baseSprite.Texture.GetSize();
+				var worldTransform = baseSprite.GlobalTransform;
+
+				// Calculate the 4 corners of the sprite in world space
+				var halfSize = textureSize * 0.5f;
+				var localCorners = new Vector2[] {
+					new Vector2(-halfSize.X, -halfSize.Y),
+					new Vector2(halfSize.X, -halfSize.Y),
+					new Vector2(halfSize.X, halfSize.Y),
+					new Vector2(-halfSize.X, halfSize.Y)
+				};
+
+				var minCorner = new Vector2(float.MaxValue, float.MaxValue);
+				var maxCorner = new Vector2(float.MinValue, float.MinValue);
+
+				foreach (var corner in localCorners)
+				{
+					var worldCorner = worldTransform * corner;
+					minCorner = new Vector2(Mathf.Min(minCorner.X, worldCorner.X), Mathf.Min(minCorner.Y, worldCorner.Y));
+					maxCorner = new Vector2(Mathf.Max(maxCorner.X, worldCorner.X), Mathf.Max(maxCorner.Y, worldCorner.Y));
+				}
+
+				material.SetShaderParameter("shadow_bounds", new Vector4(minCorner.X, minCorner.Y, maxCorner.X, maxCorner.Y));
 			}
 		}
 	}
