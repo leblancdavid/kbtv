@@ -69,6 +69,22 @@ public static partial class PropBuilder
 		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos);
 	}
 
+	public static Node2D CreateProp(
+		Node2D parent,
+		string texturePath,
+		Vector2I gridCoords,
+		Vector2 pixelOffset,
+		bool collidable,
+		Vector2 colliderSize,
+		CastShadowSystem shadowSystem,
+		ShaderMaterial depthShadowMaterial,
+		IRoomSection roomSection
+	)
+	{
+		var worldPos = roomSection.GridToWorld(gridCoords) + pixelOffset;
+		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos);
+	}
+
 	public static Node2D CreateTableGroup(
 		Node2D parent,
 		Vector2I gridCoords,
@@ -78,8 +94,33 @@ public static partial class PropBuilder
 		params (string texture, Vector2 offset)[] tabletops
 	)
 	{
+		var worldPos = room.GridToWorld(gridCoords);
+		return CreateTableGroupInternal(parent, worldPos, shadowSystem, depthShadowMaterial, tabletops);
+	}
+
+	public static Node2D CreateTableGroup(
+		Node2D parent,
+		Vector2I gridCoords,
+		CastShadowSystem shadowSystem,
+		ShaderMaterial depthShadowMaterial,
+		IRoomSection roomSection,
+		params (string texture, Vector2 offset)[] tabletops
+	)
+	{
+		var worldPos = roomSection.GridToWorld(gridCoords);
+		return CreateTableGroupInternal(parent, worldPos, shadowSystem, depthShadowMaterial, tabletops);
+	}
+
+	private static Node2D CreateTableGroupInternal(
+		Node2D parent,
+		Vector2 worldPos,
+		CastShadowSystem shadowSystem,
+		ShaderMaterial depthShadowMaterial,
+		params (string texture, Vector2 offset)[] tabletops
+	)
+	{
 		var group = new Node2D { Name = "TableGroup" };
-		group.Position = room.GridToWorld(gridCoords);
+		group.Position = worldPos;
 		parent.AddChild(group);
 
 		var tableTexture = GD.Load<Texture2D>("res://assets/tiles/props/studio_table.png");

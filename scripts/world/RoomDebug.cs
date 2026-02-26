@@ -37,12 +37,28 @@ public partial class RoomDebug : Node2D
 		_debugVisible = DebugEnabled;
 	}
 
+	public void Initialize(IRoomSection roomSection, WallSystem wallSystem, CastShadowSystem shadowSystem, PointLight2D ceilingLight = null, PointLight2D monitorLight = null, PointLight2D deskLampLight = null)
+	{
+		_wallSystem = wallSystem;
+		_shadowSystem = shadowSystem;
+		_player = roomSection.Player;
+		_ceilingLight = ceilingLight;
+		_monitorLight = monitorLight;
+		_deskLampLight = deskLampLight;
+
+		Visible = DebugEnabled;
+		_debugVisible = DebugEnabled;
+	}
+
 	public void Toggle()
 	{
 		_debugVisible = !_debugVisible;
 		Visible = _debugVisible;
-		_room.GetNode<TileMapLayer>("GridDebugLayer").Visible = _debugVisible;
-		_room.QueueRedraw();
+		if (_room != null)
+		{
+			_room.GetNode<TileMapLayer>("GridDebugLayer").Visible = _debugVisible;
+			_room.QueueRedraw();
+		}
 	}
 
 	public void UpdatePropRects()

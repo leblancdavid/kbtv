@@ -35,6 +35,30 @@ public partial class CastShadowSystem : Node
 		SetShadowRoomBounds();
 	}
 
+	public void Initialize(IRoomSection roomSection, PointLight2D lightSource)
+	{
+		_lightSource = lightSource;
+		LoadShaders();
+
+		var gridWidth = roomSection.GridWidth;
+		var gridHeight = roomSection.GridHeight;
+		var floorLayer = roomSection.FloorLayer;
+		var gridOffset = roomSection.GridOffset;
+
+		var roomOrigin = floorLayer.MapToLocal(new Vector2I(-1, -1)) + gridOffset;
+		var roomWidth = (gridWidth + 1) * RoomBase.TileSize;
+		var roomHeight = (gridHeight + 1) * RoomBase.TileSize;
+
+		_shadowRoomBounds = new Rect2(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
+
+		var roomBounds = new Vector4(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
+
+		if (_shadowMaterial != null)
+			_shadowMaterial.SetShaderParameter("room_bounds", roomBounds);
+		if (_baseShadowMaterial != null)
+			_baseShadowMaterial.SetShaderParameter("room_bounds", roomBounds);
+	}
+
 	private void LoadShaders()
 	{
 		var depthShader = GD.Load<Shader>("res://shaders/depth_shadow.gdshader");
