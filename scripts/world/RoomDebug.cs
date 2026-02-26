@@ -114,8 +114,6 @@ public partial class RoomDebug : Node2D
 		var pivotColor = new Color(1, 0, 1, 0.9f);
 		var lightColor = new Color(1, 1, 0, 0.9f);
 		var boundsColor = new Color(1, 0.5f, 0, 0.8f);
-		var shadowLineColor = new Color(0, 1, 1, 0.8f);
-		var shadowDirColor = new Color(1, 0, 0, 0.8f);
 
 		if (_wallSystem != null)
 		{
@@ -134,15 +132,8 @@ public partial class RoomDebug : Node2D
 		if (_player != null)
 			DrawCircle(ToLocal(_player.GlobalPosition), 3f, pivotColor);
 
-		var lightPos = Vector2.Zero;
-		float lightRadius = 200f;
 		if (_ceilingLight != null)
-		{
-			lightPos = _ceilingLight.GlobalPosition;
-			lightRadius = _shadowSystem != null ? _shadowSystem.LightRadius : 200f;
-			DrawCircle(ToLocal(lightPos), 8f, lightColor);
-			DrawArc(ToLocal(lightPos), lightRadius, 0, Mathf.Tau, 64, new Color(1, 1, 0, 0.3f), 2f);
-		}
+			DrawCircle(ToLocal(_ceilingLight.GlobalPosition), 8f, lightColor);
 		if (_monitorLight != null)
 			DrawCircle(ToLocal(_monitorLight.GlobalPosition), 6f, lightColor);
 		if (_deskLampLight != null)
@@ -157,28 +148,6 @@ public partial class RoomDebug : Node2D
 		if (_shadowSystem != null && _shadowSystem.ShadowRoomBounds.Size != Vector2.Zero)
 		{
 			DrawRect(ToLocalRect(_shadowSystem.ShadowRoomBounds), boundsColor, false);
-		}
-
-		if (_ceilingLight != null && lightPos != Vector2.Zero)
-		{
-			var shadowPivots = GetTree().GetNodesInGroup("shadow_pivots");
-			foreach (Node node in shadowPivots)
-			{
-				if (node is not Node2D pivot)
-					continue;
-
-				var pivotPos = pivot.GlobalPosition;
-				DrawLine(ToLocal(lightPos), ToLocal(pivotPos), shadowLineColor, 2f);
-
-				var shadowDir = new Vector2(Mathf.Cos(pivot.Rotation), Mathf.Sin(pivot.Rotation));
-				DrawLine(ToLocal(pivotPos), ToLocal(pivotPos + shadowDir * 30f), shadowDirColor, 3f);
-			}
-
-			if (_player != null)
-			{
-				var playerPos = _player.GlobalPosition;
-				DrawLine(ToLocal(lightPos), ToLocal(playerPos), new Color(0, 1, 0, 0.8f), 3f);
-			}
 		}
 	}
 

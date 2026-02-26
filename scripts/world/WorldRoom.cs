@@ -244,7 +244,7 @@ public partial class WorldRoom : Node2D
 		_controlShadows = new CastShadowSystem { LightRadius = ControlCeilingLightRadius };
 		AddChild(_controlShadows);
 
-		_controlDebug = new RoomDebug { DebugEnabled = true, ZIndex = 100, ZAsRelative = false };
+		_controlDebug = new RoomDebug { DebugEnabled = false };
 		AddChild(_controlDebug);
 
 		_studioWallSystem = new WallSystem
@@ -260,7 +260,7 @@ public partial class WorldRoom : Node2D
 		_studioShadows = new CastShadowSystem { LightRadius = StudioCeilingLightRadius };
 		AddChild(_studioShadows);
 
-		_studioDebug = new RoomDebug { DebugEnabled = true, ZIndex = 100, ZAsRelative = false };
+		_studioDebug = new RoomDebug { DebugEnabled = false };
 		AddChild(_studioDebug);
 
 		_controlWallSystem.Initialize(_controlSection);
@@ -290,7 +290,7 @@ public partial class WorldRoom : Node2D
 		if (ControlEnableCeilingLight)
 		{
 			_controlCeilingLight = CreatePointLightWithTexture(
-				new Vector2(controlCenter.X, 32),
+				new Vector2(controlCenter.X, 48),
 				ControlCeilingLightColor,
 				ControlCeilingLightEnergy,
 				ControlCeilingLightRadius,
