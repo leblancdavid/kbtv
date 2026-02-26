@@ -57,14 +57,14 @@ public partial class World : Node2D
 
 		if (CurrentRoom == ControlRoom)
 		{
-			if (playerY > _controlRoomMaxY + DOOR_TRANSITION_ZONE)
+			if (playerY < _controlRoomMinY - DOOR_TRANSITION_ZONE)
 			{
 				TransitionToStudio();
 			}
 		}
 		else if (CurrentRoom == StudioRoom)
 		{
-			if (playerY < _studioRoomMinY - DOOR_TRANSITION_ZONE)
+			if (playerY > _studioRoomMaxY + DOOR_TRANSITION_ZONE)
 			{
 				TransitionToControlRoom();
 			}
