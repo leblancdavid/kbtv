@@ -6,7 +6,7 @@ public partial class CastShadowSystem : Node
 	[ExportGroup("Shadow Settings")]
 	[Export] public float ShadowLerpFactor = 0.12f;
 	[Export] public float LightRadius = 450f;
-	[Export] public float ShadowOpacity = 0.6f;
+	[Export] public float ShadowOpacity = 0.3f;
 
 	[ExportGroup("Shader Parameters")]
 	[Export] public float BlurAmount = 0.2f;

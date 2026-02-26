@@ -11,6 +11,10 @@ public partial class RoomDebug : Node2D
 	private Node2D _player;
 	private bool _debugVisible;
 
+	private PointLight2D _ceilingLight;
+	private PointLight2D _monitorLight;
+	private PointLight2D _deskLampLight;
+
 	private readonly List<Rect2> _debugPropRects = new();
 	private readonly List<Vector2> _debugPropPivots = new();
 	private readonly List<Rect2> _debugOccluderRects = new();
@@ -19,12 +23,15 @@ public partial class RoomDebug : Node2D
 	public List<Rect2> DebugPropRects => _debugPropRects;
 	public List<Vector2> DebugPropPivots => _debugPropPivots;
 
-	public void Initialize(RoomBase room, WallSystem wallSystem, CastShadowSystem shadowSystem)
+	public void Initialize(RoomBase room, WallSystem wallSystem, CastShadowSystem shadowSystem, PointLight2D ceilingLight = null, PointLight2D monitorLight = null, PointLight2D deskLampLight = null)
 	{
 		_room = room;
 		_wallSystem = wallSystem;
 		_shadowSystem = shadowSystem;
-		_player = room.GetNode<Node2D>("PropSort/Player");
+		_player = room.Player;
+		_ceilingLight = ceilingLight;
+		_monitorLight = monitorLight;
+		_deskLampLight = deskLampLight;
 
 		Visible = DebugEnabled;
 		_debugVisible = DebugEnabled;
@@ -109,16 +116,12 @@ public partial class RoomDebug : Node2D
 		if (_player != null)
 			DrawCircle(ToLocal(_player.GlobalPosition), 3f, pivotColor);
 
-		var lighting = _room.GetNodeOrNull<RoomLighting>("../RoomLighting");
-		if (lighting != null)
-		{
-			if (lighting.CeilingLight != null)
-				DrawCircle(ToLocal(lighting.CeilingLight.GlobalPosition), 8f, lightColor);
-			if (lighting.MonitorLight != null)
-				DrawCircle(ToLocal(lighting.MonitorLight.GlobalPosition), 6f, lightColor);
-			if (lighting.DeskLampLight != null)
-				DrawCircle(ToLocal(lighting.DeskLampLight.GlobalPosition), 6f, lightColor);
-		}
+		if (_ceilingLight != null)
+			DrawCircle(ToLocal(_ceilingLight.GlobalPosition), 8f, lightColor);
+		if (_monitorLight != null)
+			DrawCircle(ToLocal(_monitorLight.GlobalPosition), 6f, lightColor);
+		if (_deskLampLight != null)
+			DrawCircle(ToLocal(_deskLampLight.GlobalPosition), 6f, lightColor);
 
 		foreach (var pivot in _debugPropPivots)
 			DrawCircle(ToLocal(pivot), 3f, pivotColor);

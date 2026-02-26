@@ -6,10 +6,9 @@ public partial class World : Node2D
 
 	public ControlRoom ControlRoom { get; private set; } = null!;
 	public StudioRoom StudioRoom { get; private set; } = null!;
+	public Player Player { get; private set; } = null!;
 	public Node2D? CurrentRoom { get; private set; }
 	public Node2D? PreviousRoom { get; private set; }
-
-	private Node2D _player = null!;
 
 	private float _controlRoomMinY;
 	private float _controlRoomMaxY;
@@ -20,8 +19,19 @@ public partial class World : Node2D
 
 	public override void _Ready()
 	{
+		Player = GetNode<Player>("Player");
 		ControlRoom = GetNode<ControlRoom>("ControlRoom");
 		StudioRoom = GetNode<StudioRoom>("StudioRoom");
+
+		Player.SetWorld(this);
+		ControlRoom.SetPlayer(Player);
+		StudioRoom.SetPlayer(Player);
+
+		var playerSprite = Player.GetNode<Sprite2D>("Sprite2D");
+		if (playerSprite != null)
+		{
+			ControlRoom.Shadows.CreateShadowForObject(Player, playerSprite.Texture);
+		}
 
 		CalculateRoomBounds();
 
@@ -30,8 +40,6 @@ public partial class World : Node2D
 
 		StudioRoom.Visible = false;
 		StudioRoom.ProcessMode = ProcessModeEnum.Disabled;
-
-		GetTree().CallDeferred("call_group", "player", "set_world", this);
 	}
 
 	private void CalculateRoomBounds()
@@ -43,17 +51,12 @@ public partial class World : Node2D
 		_studioRoomMaxY = StudioRoom.Position.Y + StudioRoom.GridHeight * TileSize;
 	}
 
-	public void RegisterPlayer(Node2D player)
-	{
-		_player = player;
-	}
-
 	public override void _Process(double delta)
 	{
-		if (_player == null)
+		if (Player == null)
 			return;
 
-		var playerY = _player.GlobalPosition.Y;
+		var playerY = Player.GlobalPosition.Y;
 
 		if (CurrentRoom == ControlRoom)
 		{
@@ -82,7 +85,7 @@ public partial class World : Node2D
 		StudioRoom.Visible = true;
 		StudioRoom.ProcessMode = ProcessModeEnum.Inherit;
 
-		GD.Print($"World: Transitioned from Control Room to Studio. Player now at y={_player.GlobalPosition.Y}");
+		GD.Print($"World: Transitioned from Control Room to Studio. Player now at y={Player.GlobalPosition.Y}");
 	}
 
 	private void TransitionToControlRoom()
@@ -96,6 +99,6 @@ public partial class World : Node2D
 		ControlRoom.Visible = true;
 		ControlRoom.ProcessMode = ProcessModeEnum.Inherit;
 
-		GD.Print($"World: Transitioned from Studio to Control Room. Player now at y={_player.GlobalPosition.Y}");
+		GD.Print($"World: Transitioned from Studio to Control Room. Player now at y={Player.GlobalPosition.Y}");
 	}
 }

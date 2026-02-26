@@ -26,6 +26,11 @@ public abstract partial class RoomBase : Node2D
 	public static readonly Vector2I AtlasCoordsMid = new(1, 0);
 	public static readonly Vector2I AtlasCoordsRight = new(2, 0);
 
+	public void SetPlayer(CharacterBody2D player)
+	{
+		Player = player;
+	}
+
 	public Vector2 GridToWorld(Vector2I gridPos)
 	{
 		return FloorLayer.MapToLocal(gridPos) + GridOffset;

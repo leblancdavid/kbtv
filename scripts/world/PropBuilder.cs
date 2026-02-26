@@ -101,7 +101,7 @@ public static partial class PropBuilder
 		group.AddChild(tableSprite);
 
 		if (shadowSystem != null)
-			shadowSystem.CreateShadowForObject(group, tableTexture);
+			shadowSystem.CreateBaseShadowForObject(group, tableTexture);
 
 		var tableBody = new StaticBody2D();
 		var tableShape = new RectangleShape2D { Size = new Vector2(92, 14) };

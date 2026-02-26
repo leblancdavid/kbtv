@@ -1,6 +1,5 @@
-[gd_scene load_steps=5 format=3 uid="uid://studio_room_scene"]
+[gd_scene load_steps=4 format=3 uid="uid://studio_room_scene"]
 
-[ext_resource type="PackedScene" uid="uid://bk68g26c8oppy" path="res://scenes/world/Player.tscn" id="1"]
 [ext_resource type="TileSet" uid="uid://7h5w5ev5n5d6" path="res://assets/tiles/topdown/topdown_tileset.tres" id="2"]
 [ext_resource type="Script" uid="uid://studio_room_script" path="res://scripts/world/StudioRoom.cs" id="3"]
 [ext_resource type="Texture2D" uid="uid://studio_north_wall" path="res://assets/tiles/topdown/studio_north_atlas.png" id="4"]
@@ -25,8 +24,3 @@ visible = false
 y_sort_enabled = true
 
 [node name="Props" type="Node2D" parent="PropSort"]
-
-[node name="Player" parent="PropSort" instance=ExtResource("1")]
-position = Vector2(7, -16)
-
-[node name="Camera2D" type="Camera2D" parent="PropSort/Player"]

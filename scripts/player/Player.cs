@@ -23,7 +23,6 @@ public partial class Player : CharacterBody2D
     public void SetWorld(World world)
     {
         _world = world;
-        _world.RegisterPlayer(this);
     }
 
     public override void _Process(double delta)
