@@ -60,7 +60,7 @@ public partial class WorldRoom : Node2D
 	[ExportGroup("Studio - Lighting")]
 	[Export] private bool StudioEnableCeilingLight = true;
 	[Export] private Color StudioCeilingLightColor = new(1f, 0.95f, 0.8f);
-	[Export] private float StudioCeilingLightEnergy = 0.9f;
+	[Export] private float StudioCeilingLightEnergy = 0.8f;
 	[Export] private float StudioCeilingLightRadius = 450f;
 	[Export] private bool StudioCeilingLightShadows = true;
 
@@ -147,8 +147,9 @@ public partial class WorldRoom : Node2D
 	public override void _Ready()
 	{
 		CreateTileMapLayers();
-		CreateSystems();
 		CreateLighting();
+		CreateSystems();
+		InitializeDebug();
 		CreateProps();
 	}
 
@@ -243,7 +244,7 @@ public partial class WorldRoom : Node2D
 		_controlShadows = new CastShadowSystem { LightRadius = ControlCeilingLightRadius };
 		AddChild(_controlShadows);
 
-		_controlDebug = new RoomDebug { DebugEnabled = false };
+		_controlDebug = new RoomDebug { DebugEnabled = true, ZIndex = 100, ZAsRelative = false };
 		AddChild(_controlDebug);
 
 		_studioWallSystem = new WallSystem
@@ -259,7 +260,7 @@ public partial class WorldRoom : Node2D
 		_studioShadows = new CastShadowSystem { LightRadius = StudioCeilingLightRadius };
 		AddChild(_studioShadows);
 
-		_studioDebug = new RoomDebug { DebugEnabled = false };
+		_studioDebug = new RoomDebug { DebugEnabled = true, ZIndex = 100, ZAsRelative = false };
 		AddChild(_studioDebug);
 
 		_controlWallSystem.Initialize(_controlSection);
@@ -267,9 +268,6 @@ public partial class WorldRoom : Node2D
 
 		_controlShadows.Initialize(_controlSection, _controlCeilingLight);
 		_studioShadows.Initialize(_studioSection, _studioCeilingLight);
-
-		_controlDebug.Initialize(_controlSection, _controlWallSystem, _controlShadows, _controlCeilingLight, _controlMonitorLight, _controlDeskLampLight);
-		_studioDebug.Initialize(_studioSection, _studioWallSystem, _studioShadows, _studioCeilingLight, _studioMonitorLight, _studioDeskLampLight);
 
 		_controlWallSystem.CreateWalls();
 		_controlWallSystem.CreateWallColliders();
@@ -379,6 +377,12 @@ public partial class WorldRoom : Node2D
 
 		_controlFlickerTime = 0f;
 		_studioFlickerTime = 0f;
+	}
+
+	private void InitializeDebug()
+	{
+		_controlDebug.Initialize(_controlSection, _controlWallSystem, _controlShadows, _controlCeilingLight, _controlMonitorLight, _controlDeskLampLight);
+		_studioDebug.Initialize(_studioSection, _studioWallSystem, _studioShadows, _studioCeilingLight, _studioMonitorLight, _studioDeskLampLight);
 	}
 
 	private PointLight2D CreatePointLightWithTexture(Vector2 position, Color color, float energy, float radius, bool shadows, int textureWidth = 0, int textureHeight = 0)

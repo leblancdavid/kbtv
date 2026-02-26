@@ -7,6 +7,7 @@ public partial class CastShadowSystem : Node
 	[Export] public float ShadowLerpFactor = 0.12f;
 	[Export] public float LightRadius = 450f;
 	[Export] public float ShadowOpacity = 0.3f;
+	[Export] public bool ShowDebug = false;
 
 	[ExportGroup("Shader Parameters")]
 	[Export] public float BlurAmount = 0.2f;
@@ -66,7 +67,7 @@ public partial class CastShadowSystem : Node
 		{
 			_depthShadowMaterial = new ShaderMaterial();
 			_depthShadowMaterial.Shader = depthShader;
-			_depthShadowMaterial.SetShaderParameter("light_radius", 350.0f);
+			_depthShadowMaterial.SetShaderParameter("light_radius", LightRadius);
 			_depthShadowMaterial.SetShaderParameter("max_brightness", 4.0f);
 			_depthShadowMaterial.SetShaderParameter("shadow_factor", 0.8f);
 		}
@@ -215,6 +216,54 @@ public partial class CastShadowSystem : Node
 				material.SetShaderParameter("shadow_rotation", baseSprite.GlobalRotation);
 				material.SetShaderParameter("shadow_texture_size", baseSprite.Texture.GetSize());
 			}
+		}
+
+		UpdateDebugVisualization();
+	}
+
+	private void UpdateDebugVisualization()
+	{
+		if (_lightSource == null)
+			return;
+
+		var debugNode = GetTree().CurrentScene.GetNodeOrNull<Node2D>("ShadowDebug");
+		
+		if (ShowDebug)
+		{
+			if (debugNode == null)
+			{
+				debugNode = new Node2D 
+				{ 
+					Name = "ShadowDebug",
+					ZIndex = 10000,
+					ZAsRelative = false
+				};
+				GetTree().CurrentScene.AddChild(debugNode);
+			}
+			debugNode.Visible = true;
+			debugNode.QueueRedraw();
+			
+			var lightPos = _lightSource.GlobalPosition;
+			
+			debugNode.DrawCircle(lightPos, 8f, new Color(1, 0, 0, 1));
+			debugNode.DrawCircle(lightPos, LightRadius, new Color(1, 1, 0, 0.2f));
+			
+			var shadowPivots = GetTree().GetNodesInGroup("shadow_pivots");
+			foreach (Node node in shadowPivots)
+			{
+				if (node is not Node2D pivot)
+					continue;
+				
+				var pivotPos = pivot.GlobalPosition;
+				debugNode.DrawLine(lightPos, pivotPos, new Color(0, 1, 1, 1), 2f);
+				
+				var shadowDir = new Vector2(Mathf.Cos(pivot.Rotation), Mathf.Sin(pivot.Rotation));
+				debugNode.DrawLine(pivotPos, pivotPos + shadowDir * 20f, new Color(1, 0, 1, 1), 2f);
+			}
+		}
+		else if (debugNode != null)
+		{
+			debugNode.Visible = false;
 		}
 	}
 
