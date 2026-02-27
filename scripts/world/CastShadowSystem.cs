@@ -174,6 +174,9 @@ public partial class CastShadowSystem : Node
 				continue;
 
 			var pivotWorldPos = pivot.GlobalPosition;
+
+			if (!_shadowRoomBounds.HasPoint(pivotWorldPos))
+				continue;
 			var lightToPivot = pivotWorldPos - lightPos;
 			var distance = lightToPivot.Length();
 
@@ -205,6 +208,10 @@ public partial class CastShadowSystem : Node
 		foreach (var baseSprite in _baseShadowSprites)
 		{
 			if (!IsInstanceValid(baseSprite))
+				continue;
+
+			var spritePos = baseSprite.GlobalPosition;
+			if (!_shadowRoomBounds.HasPoint(spritePos))
 				continue;
 
 			var material = baseSprite.Material as ShaderMaterial;
