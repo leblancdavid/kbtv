@@ -3,7 +3,7 @@ using Godot;
 public partial class ControlRoomBuilder : IRoomBuilder
 {
 	[ExportGroup("Grid Settings")]
-	[Export] public Vector2 GridAnchor = new(0, 0);
+	[Export] public Vector2 GridAnchor = new(0, 500);
 	[Export] public int GridWidth = 14;
 	[Export] public int GridHeight = 10;
 
@@ -21,7 +21,6 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	[Export] private float CeilingLightEnergy = 0.8f;
 	[Export] private float CeilingLightRadius = 450f;
 	[Export] private bool CeilingLightShadows = true;
-	[Export] private float CeilingLightY = 48f;
 
 	[ExportGroup("Monitor Light")]
 	[Export] private bool EnableMonitorLight = true;
@@ -71,7 +70,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			return;
 		}
 
-		_floorLayer = new TileMapLayer { Name = "ControlFloorLayer", TileSet = tileSet };
+		_floorLayer = new TileMapLayer { Name = "ControlFloorLayer", TileSet = tileSet, ZIndex = 0 };
 		_doorLayer = new TileMapLayer { Name = "ControlDoorLayer", TileSet = tileSet, ZIndex = 1000 };
 		_gridDebugLayer = new TileMapLayer { Name = "ControlGridDebugLayer", TileSet = tileSet, Visible = false };
 
@@ -128,7 +127,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		_shadows = new CastShadowSystem { LightRadius = CeilingLightRadius };
 		world.AddChild(_shadows);
 
-		_debug = new RoomDebug { DebugEnabled = false };
+		_debug = new RoomDebug { DebugEnabled = false, ZIndex = 2000 };
 		world.AddChild(_debug);
 
 		_wallSystem.Initialize(_section);
@@ -148,7 +147,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		if (EnableCeilingLight)
 		{
 			_ceilingLight = CreatePointLightWithTexture(
-				new Vector2(center.X, CeilingLightY),
+				new Vector2(center.X, center.Y),
 				CeilingLightColor,
 				CeilingLightEnergy,
 				CeilingLightRadius,
@@ -199,7 +198,8 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			Color = color,
 			Energy = energy,
 			ShadowEnabled = shadows,
-			ShadowColor = new Color(0, 0, 0, 0.3f)
+			ShadowColor = new Color(0, 0, 0, 0.3f),
+			ZIndex = 10
 		};
 
 		var texture = CreateOvalGradientTexture(textureWidth, textureHeight, radius);
@@ -264,10 +264,10 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/speaker_stand.png",
 				new Vector2I(2, 1), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(2, 1)));
+				_shadows, _shadows.DepthShadowMaterial, _section);
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/speaker_stand.png",
 				new Vector2I(10, 1), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(10, 1)));
+				_shadows, _shadows.DepthShadowMaterial, _section);
 		}
 
 		if (PlaceTableGroup)
@@ -284,24 +284,24 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/audio_cabinet.png",
 				new Vector2I(12, 1), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(12, 1)));
+				_shadows, _shadows.DepthShadowMaterial, _section);
 		}
 
 		if (PlaceStorageShelves)
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/storage_shelf.png",
-				new Vector2I(4, 10), new Vector2(0, -8), true, new Vector2(48, 32),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(4, 10)));
+				new Vector2I(4, 10), new Vector2(0, -16), true, new Vector2(48, 32),
+				_shadows, _shadows.DepthShadowMaterial, _section);
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/storage_shelf.png",
-				new Vector2I(10, 10), new Vector2(0, -8), true, new Vector2(48, 32),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(10, 10)));
+				new Vector2I(10, 10), new Vector2(0, -16), true, new Vector2(48, 32),
+				_shadows, _shadows.DepthShadowMaterial, _section);
 		}
 
 		if (PlaceChair)
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/computer_chair.png",
 				new Vector2I(6, 2), Vector2.Zero, false, Vector2.Zero,
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(6, 2)));
+				_shadows, _shadows.DepthShadowMaterial, _section);
 		}
 	}
 

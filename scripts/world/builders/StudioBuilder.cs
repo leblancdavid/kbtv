@@ -3,7 +3,7 @@ using Godot;
 public partial class StudioBuilder : IRoomBuilder
 {
 	[ExportGroup("Grid Settings")]
-	[Export] public Vector2 GridAnchor = new(0, -160);
+	[Export] public Vector2 GridAnchor = new(0, 388);
 	[Export] public int GridWidth = 14;
 	[Export] public int GridHeight = 6;
 
@@ -71,7 +71,7 @@ public partial class StudioBuilder : IRoomBuilder
 			return;
 		}
 
-		_floorLayer = new TileMapLayer { Name = "StudioFloorLayer", TileSet = tileSet };
+		_floorLayer = new TileMapLayer { Name = "StudioFloorLayer", TileSet = tileSet, ZIndex = 0 };
 		_doorLayer = new TileMapLayer { Name = "StudioDoorLayer", TileSet = tileSet, ZIndex = 1000 };
 		_gridDebugLayer = new TileMapLayer { Name = "StudioGridDebugLayer", TileSet = tileSet, Visible = false };
 
@@ -129,7 +129,7 @@ public partial class StudioBuilder : IRoomBuilder
 		_shadows = new CastShadowSystem { LightRadius = CeilingLightRadius };
 		world.AddChild(_shadows);
 
-		_debug = new RoomDebug { DebugEnabled = false };
+		_debug = new RoomDebug { DebugEnabled = false, ZIndex = 2000 };
 		world.AddChild(_debug);
 
 		_wallSystem.Initialize(_section);
@@ -149,7 +149,7 @@ public partial class StudioBuilder : IRoomBuilder
 		if (EnableCeilingLight)
 		{
 			_ceilingLight = CreatePointLightWithTexture(
-				new Vector2(center.X, 32),
+				new Vector2(center.X, center.Y - 16),
 				CeilingLightColor,
 				CeilingLightEnergy,
 				CeilingLightRadius,
@@ -200,7 +200,8 @@ public partial class StudioBuilder : IRoomBuilder
 			Color = color,
 			Energy = energy,
 			ShadowEnabled = shadows,
-			ShadowColor = new Color(0, 0, 0, 0.3f)
+			ShadowColor = new Color(0, 0, 0, 0.3f),
+			ZIndex = 10
 		};
 
 		var texture = CreateOvalGradientTexture(textureWidth, textureHeight, radius);
@@ -261,60 +262,7 @@ public partial class StudioBuilder : IRoomBuilder
 
 	private void CreateProps()
 	{
-		if (PlaceStudioTable)
-		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/studio_table.png",
-				new Vector2I(6, 2), Vector2.Zero, true, new Vector2(48, 24),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(6, 2)));
-		}
-
-		if (PlaceMonitorConsole)
-		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/monitor_console.png",
-				new Vector2I(6, 1), new Vector2(0, -26), false, Vector2.Zero,
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(6, 1)));
-		}
-
-		if (PlaceSpeakerStands)
-		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/speaker_stand.png",
-				new Vector2I(2, 1), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(2, 1)));
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/speaker_stand.png",
-				new Vector2I(10, 1), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(10, 1)));
-		}
-
-		if (PlaceStorageCabinet)
-		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/audio_cabinet.png",
-				new Vector2I(11, 1), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(11, 1)));
-		}
-
-		if (PlaceChair)
-		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/computer_chair.png",
-				new Vector2I(6, 3), Vector2.Zero, false, Vector2.Zero,
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(6, 3)));
-		}
-
-		if (PlaceCoffeeStation)
-		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/coffee_station.png",
-				new Vector2I(1, 1), Vector2.Zero, true, new Vector2(20, 24),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(1, 1)));
-		}
-
-		if (PlaceWallDecor)
-		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/poster.png",
-				new Vector2I(3, 1), Vector2.Zero, true, new Vector2(16, 16),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(3, 1)));
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/wall_clock.png",
-				new Vector2I(10, 1), Vector2.Zero, true, new Vector2(16, 16),
-				_shadows, _shadows.DepthShadowMaterial, GridToWorld(new Vector2I(10, 1)));
-		}
+		// Studio props disabled
 	}
 
 	public void SetPlayer(CharacterBody2D player)
