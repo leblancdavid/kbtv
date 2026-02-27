@@ -6,6 +6,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	[Export] public Vector2 GridAnchor = new(0, 500);
 	[Export] public int GridWidth = 14;
 	[Export] public int GridHeight = 10;
+	[Export] public int LightMask = 1;
 
 	[ExportGroup("Door Settings")]
 	[Export] private int DoorRow = 3;
@@ -18,8 +19,8 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	[ExportGroup("Lighting")]
 	[Export] private bool EnableCeilingLight = true;
 	[Export] private Color CeilingLightColor = new(1f, 1f, 1f);
-	[Export] private float CeilingLightEnergy = 0.8f;
-	[Export] private float CeilingLightRadius = 450f;
+	[Export] private float CeilingLightEnergy = 1.2f;
+	[Export] private float CeilingLightRadius = 1000f;
 	[Export] private bool CeilingLightShadows = true;
 
 	[ExportGroup("Monitor Light")]
@@ -70,7 +71,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			return;
 		}
 
-		_floorLayer = new TileMapLayer { Name = "ControlFloorLayer", TileSet = tileSet, ZIndex = 0 };
+		_floorLayer = new TileMapLayer { Name = "ControlFloorLayer", TileSet = tileSet, ZIndex = 0, LightMask = LightMask };
 		_doorLayer = new TileMapLayer { Name = "ControlDoorLayer", TileSet = tileSet, ZIndex = 1000 };
 		_gridDebugLayer = new TileMapLayer { Name = "ControlGridDebugLayer", TileSet = tileSet, Visible = false };
 
@@ -120,7 +121,9 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			DoorRow = DoorRow,
 			DoorHeightTiles = DoorHeightTiles,
 			WindowStartColumn = WindowStartColumn,
-			WindowEndColumn = WindowEndColumn
+			WindowEndColumn = WindowEndColumn,
+			LightMask = 0,
+			NorthWallLightMask = LightMask
 		};
 		world.AddChild(_wallSystem);
 
@@ -147,13 +150,14 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		if (EnableCeilingLight)
 		{
 			_ceilingLight = CreatePointLightWithTexture(
-				new Vector2(center.X, center.Y),
+				new Vector2(center.X, center.Y - 32),
 				CeilingLightColor,
 				CeilingLightEnergy,
 				CeilingLightRadius,
 				CeilingLightShadows,
 				256,
-				256
+				256,
+				LightMask
 			);
 			world.AddChild(_ceilingLight);
 		}
@@ -167,9 +171,12 @@ public partial class ControlRoomBuilder : IRoomBuilder
 				MonitorLightColor,
 				MonitorLightEnergy,
 				MonitorLightRadius,
-				false
+				false,
+				0,
+				0,
+				LightMask
 			);
-			_monitorLight.TextureScale = 2.0f;
+			_monitorLight.TextureScale = 1.0f;
 			world.AddChild(_monitorLight);
 		}
 
@@ -180,9 +187,12 @@ public partial class ControlRoomBuilder : IRoomBuilder
 				DeskLampColor,
 				DeskLampEnergy,
 				DeskLampRadius,
-				false
+				false,
+				0,
+				0,
+				LightMask
 			);
-			_deskLampLight.TextureScale = 1.8f;
+			_deskLampLight.TextureScale = 1.0f;
 			world.AddChild(_deskLampLight);
 		}
 
@@ -190,7 +200,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		_flickerTime = 0f;
 	}
 
-	private PointLight2D CreatePointLightWithTexture(Vector2 position, Color color, float energy, float radius, bool shadows, int textureWidth = 0, int textureHeight = 0)
+	private PointLight2D CreatePointLightWithTexture(Vector2 position, Color color, float energy, float radius, bool shadows, int textureWidth = 0, int textureHeight = 0, int itemCullMask = 1)
 	{
 		var light = new PointLight2D
 		{
@@ -201,6 +211,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			ShadowColor = new Color(0, 0, 0, 0.3f),
 			ZIndex = 10
 		};
+		light.Set("range_item_cull_mask", itemCullMask);
 
 		var texture = CreateOvalGradientTexture(textureWidth, textureHeight, radius);
 		light.Texture = texture;
@@ -212,8 +223,8 @@ public partial class ControlRoomBuilder : IRoomBuilder
 
 	private ImageTexture CreateOvalGradientTexture(int width, int height, float radius)
 	{
-		var sizeX = width > 0 ? width : (int)(radius * 0.8f);
-		var sizeY = height > 0 ? height : (int)(radius * 0.8f);
+		var sizeX = width > 0 ? width : (int)(radius);
+		var sizeY = height > 0 ? height : (int)(radius);
 		sizeX = Mathf.Max(sizeX, 48);
 		sizeY = Mathf.Max(sizeY, 48);
 
@@ -264,16 +275,16 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/speaker_stand.png",
 				new Vector2I(2, 1), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, _section);
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/speaker_stand.png",
 				new Vector2I(10, 1), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, _section);
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 		}
 
 		if (PlaceTableGroup)
 		{
 			PropBuilder.CreateTableGroup(_propSort, new Vector2I(6, 1),
-				_shadows, _shadows.DepthShadowMaterial, _section,
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
 				("res://assets/tiles/props/phone_line.png", new Vector2(-32, -26)),
 				("res://assets/tiles/props/sound_board.png", new Vector2(0, -26)),
 				("res://assets/tiles/props/computer_station.png", new Vector2(32, -38))
@@ -284,24 +295,24 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/audio_cabinet.png",
 				new Vector2I(12, 1), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, _section);
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 		}
 
 		if (PlaceStorageShelves)
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/storage_shelf.png",
 				new Vector2I(4, 10), new Vector2(0, -16), true, new Vector2(48, 32),
-				_shadows, _shadows.DepthShadowMaterial, _section);
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/storage_shelf.png",
 				new Vector2I(10, 10), new Vector2(0, -16), true, new Vector2(48, 32),
-				_shadows, _shadows.DepthShadowMaterial, _section);
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 		}
 
 		if (PlaceChair)
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/computer_chair.png",
 				new Vector2I(6, 2), Vector2.Zero, false, Vector2.Zero,
-				_shadows, _shadows.DepthShadowMaterial, _section);
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 		}
 	}
 

@@ -1,9 +1,11 @@
 using Godot;
 using System.Collections.Generic;
 
+public enum WallDirection { North, South, West, East, Strip, Window }
+
 public partial class WallSystem : Node
 {
-	[ExportGroup("Wall Settings")]
+[ExportGroup("Wall Settings")]
 	[Export] public int DoorRow = 3;
 	[Export] public int DoorHeightTiles = 2;
 	[Export] public int WindowStartColumn = 3;
@@ -11,6 +13,10 @@ public partial class WallSystem : Node
 	[Export] public bool EnableSouthWall = true;
 	[Export] public bool EnableSouthDoor = false;
 	[Export] public int SouthDoorRow = 3;
+
+	[ExportGroup("Light Masking")]
+	[Export] public int LightMask = 0;
+	[Export] public int NorthWallLightMask = 1;
 
 	[ExportGroup("Grid (set when not using RoomBase)")]
 	[Export] public int GridWidthOverride = 14;
@@ -144,9 +150,9 @@ public partial class WallSystem : Node
 				continue;
 			}
 
-			var atlas = ResolveHorizontalAtlas(x, gridWidth);
+		var atlas = ResolveHorizontalAtlas(x, gridWidth);
 			var gridPos = new Vector2I(x, -1);
-			var sprite = CreateWallSprite(northTexture, atlas, gridPos);
+			var sprite = CreateWallSprite(northTexture, atlas, gridPos, WallDirection.North);
 			_northWallSprites.Add(sprite);
 			_propSort.AddChild(sprite);
 
@@ -161,9 +167,9 @@ public partial class WallSystem : Node
 			if (!EnableSouthWall)
 				continue;
 
-			var atlas = ResolveHorizontalAtlas(x, gridWidth);
+		var atlas = ResolveHorizontalAtlas(x, gridWidth);
 			var gridPos = new Vector2I(x, gridHeight);
-			var sprite = CreateWallSprite(southTexture, atlas, gridPos);
+			var sprite = CreateWallSprite(southTexture, atlas, gridPos, WallDirection.South);
 			_southWallSprites.Add(sprite);
 			_propSort.AddChild(sprite);
 
@@ -174,8 +180,8 @@ public partial class WallSystem : Node
 
 		if (EnableSouthWall)
 		{
-			var leftCorner = CreateWallSprite(southTexture, RoomBase.AtlasCoordsLeft, new Vector2I(-1, gridHeight));
-			var rightCorner = CreateWallSprite(southTexture, RoomBase.AtlasCoordsRight, new Vector2I(gridWidth, gridHeight));
+			var leftCorner = CreateWallSprite(southTexture, RoomBase.AtlasCoordsLeft, new Vector2I(-1, gridHeight), WallDirection.South);
+			var rightCorner = CreateWallSprite(southTexture, RoomBase.AtlasCoordsRight, new Vector2I(gridWidth, gridHeight), WallDirection.South);
 			_southCornerSprites.Add(leftCorner);
 			_propSort.AddChild(leftCorner);
 			_southCornerSprites.Add(rightCorner);
@@ -185,7 +191,7 @@ public partial class WallSystem : Node
 		for (int y = -1; y < gridHeight; y++)
 		{
 			var atlasY = ResolveVerticalAtlas(y, gridHeight);
-			var sprite = CreateWallSprite(sideTexture, atlasY, new Vector2I(-1, y));
+			var sprite = CreateWallSprite(sideTexture, atlasY, new Vector2I(-1, y), WallDirection.West);
 			sprite.FlipH = true;
 			_westWallSprites.Add(sprite);
 			_propSort.AddChild(sprite);
@@ -194,7 +200,7 @@ public partial class WallSystem : Node
 		for (int y = -1; y < gridHeight; y++)
 		{
 			var atlasY = y == doorY ? RoomBase.AtlasCoordsRight : ResolveVerticalAtlas(y, gridHeight);
-			var sprite = CreateWallSprite(sideTexture, atlasY, new Vector2I(gridWidth, y));
+			var sprite = CreateWallSprite(sideTexture, atlasY, new Vector2I(gridWidth, y), WallDirection.East);
 			_eastWallSprites.Add(sprite);
 			_propSort.AddChild(sprite);
 		}
@@ -403,11 +409,11 @@ public partial class WallSystem : Node
 		_southCornerSprites.Clear();
 	}
 
-	private Sprite2D CreateWallSprite(Texture2D texture, Vector2I atlasCoords, Vector2I gridCoords)
+	private Sprite2D CreateWallSprite(Texture2D texture, Vector2I atlasCoords, Vector2I gridCoords, WallDirection direction)
 	{
 		var position = GetGridToWorld(gridCoords);
 
-		return new Sprite2D
+		var sprite = new Sprite2D
 		{
 			Texture = texture,
 			Position = position,
@@ -417,13 +423,22 @@ public partial class WallSystem : Node
 			Frame = atlasCoords.X,
 			ZIndex = (int)position.Y
 		};
+
+		int mask = direction switch
+		{
+			WallDirection.North => NorthWallLightMask,
+			_ => LightMask
+		};
+		sprite.Set("light_mask", mask);
+
+		return sprite;
 	}
 
 	private Sprite2D CreateStripSprite(Texture2D texture, Vector2I gridCoords)
 	{
 		var position = GetGridToWorld(gridCoords);
 
-		return new Sprite2D
+		var sprite = new Sprite2D
 		{
 			Texture = texture,
 			Position = position,
@@ -433,6 +448,9 @@ public partial class WallSystem : Node
 			Frame = 0,
 			ZIndex = (int)position.Y
 		};
+		sprite.Set("light_mask", LightMask);
+
+		return sprite;
 	}
 
 	private void CreateWindow(int column, Texture2D texture)
@@ -452,6 +470,7 @@ public partial class WallSystem : Node
 			Frame = frame,
 			ZIndex = (int)position.Y
 		};
+		sprite.Set("light_mask", NorthWallLightMask);
 
 		_windowSprites.Add(sprite);
 		_propSort.AddChild(sprite);

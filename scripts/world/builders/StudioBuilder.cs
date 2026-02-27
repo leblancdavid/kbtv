@@ -6,6 +6,7 @@ public partial class StudioBuilder : IRoomBuilder
 	[Export] public Vector2 GridAnchor = new(0, 388);
 	[Export] public int GridWidth = 14;
 	[Export] public int GridHeight = 6;
+	[Export] public int LightMask = 2;
 
 	[ExportGroup("Door Settings")]
 	[Export] private int DoorRow = 3;
@@ -71,7 +72,7 @@ public partial class StudioBuilder : IRoomBuilder
 			return;
 		}
 
-		_floorLayer = new TileMapLayer { Name = "StudioFloorLayer", TileSet = tileSet, ZIndex = 0 };
+		_floorLayer = new TileMapLayer { Name = "StudioFloorLayer", TileSet = tileSet, ZIndex = 0, LightMask = LightMask };
 		_doorLayer = new TileMapLayer { Name = "StudioDoorLayer", TileSet = tileSet, ZIndex = 1000 };
 		_gridDebugLayer = new TileMapLayer { Name = "StudioGridDebugLayer", TileSet = tileSet, Visible = false };
 
@@ -122,7 +123,9 @@ public partial class StudioBuilder : IRoomBuilder
 			DoorHeightTiles = DoorHeightTiles,
 			EnableSouthWall = EnableSouthWall,
 			EnableSouthDoor = EnableSouthDoor,
-			SouthDoorRow = SouthDoorRow
+			SouthDoorRow = SouthDoorRow,
+			LightMask = 0,
+			NorthWallLightMask = LightMask
 		};
 		world.AddChild(_wallSystem);
 
@@ -155,7 +158,8 @@ public partial class StudioBuilder : IRoomBuilder
 				CeilingLightRadius,
 				CeilingLightShadows,
 				256,
-				256
+				256,
+				LightMask
 			);
 			world.AddChild(_ceilingLight);
 		}
@@ -169,7 +173,10 @@ public partial class StudioBuilder : IRoomBuilder
 				MonitorLightColor,
 				MonitorLightEnergy,
 				MonitorLightRadius,
-				false
+				false,
+				0,
+				0,
+				LightMask
 			);
 			_monitorLight.TextureScale = 2.0f;
 			world.AddChild(_monitorLight);
@@ -182,7 +189,10 @@ public partial class StudioBuilder : IRoomBuilder
 				DeskLampColor,
 				DeskLampEnergy,
 				DeskLampRadius,
-				false
+				false,
+				0,
+				0,
+				LightMask
 			);
 			_deskLampLight.TextureScale = 1.8f;
 			world.AddChild(_deskLampLight);
@@ -192,7 +202,7 @@ public partial class StudioBuilder : IRoomBuilder
 		_flickerTime = 0f;
 	}
 
-	private PointLight2D CreatePointLightWithTexture(Vector2 position, Color color, float energy, float radius, bool shadows, int textureWidth = 0, int textureHeight = 0)
+	private PointLight2D CreatePointLightWithTexture(Vector2 position, Color color, float energy, float radius, bool shadows, int textureWidth = 0, int textureHeight = 0, int itemCullMask = 2)
 	{
 		var light = new PointLight2D
 		{
@@ -203,6 +213,7 @@ public partial class StudioBuilder : IRoomBuilder
 			ShadowColor = new Color(0, 0, 0, 0.3f),
 			ZIndex = 10
 		};
+		light.Set("range_item_cull_mask", itemCullMask);
 
 		var texture = CreateOvalGradientTexture(textureWidth, textureHeight, radius);
 		light.Texture = texture;

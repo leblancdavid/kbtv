@@ -11,7 +11,8 @@ public static partial class PropBuilder
 		Vector2 colliderSize,
 		CastShadowSystem shadowSystem,
 		ShaderMaterial depthShadowMaterial,
-		Vector2 worldPosition
+		Vector2 worldPosition,
+		int lightMask = 1
 	)
 	{
 		var texture = GD.Load<Texture2D>(texturePath);
@@ -29,6 +30,7 @@ public static partial class PropBuilder
 			Texture = texture,
 			Position = new Vector2(0, -texture.GetSize().Y * 0.5f)
 		};
+		sprite.Set("light_mask", lightMask);
 
 		if (depthShadowMaterial != null)
 			sprite.Material = depthShadowMaterial;
@@ -62,11 +64,29 @@ public static partial class PropBuilder
 		Vector2 colliderSize,
 		CastShadowSystem shadowSystem,
 		ShaderMaterial depthShadowMaterial,
-		RoomBase room
+		RoomBase room,
+		int lightMask = 1
 	)
 	{
 		var worldPos = room.GridToWorld(gridCoords) + pixelOffset;
-		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos);
+		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos, lightMask);
+	}
+
+	public static Node2D CreateProp(
+		Node2D parent,
+		string texturePath,
+		Vector2I gridCoords,
+		Vector2 pixelOffset,
+		bool collidable,
+		Vector2 colliderSize,
+		CastShadowSystem shadowSystem,
+		ShaderMaterial depthShadowMaterial,
+		IRoomSection roomSection,
+		int lightMask = 1
+	)
+	{
+		var worldPos = roomSection.GridToWorld(gridCoords) + pixelOffset;
+		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos, lightMask);
 	}
 
 	public static Node2D CreateProp(
@@ -91,11 +111,12 @@ public static partial class PropBuilder
 		CastShadowSystem shadowSystem,
 		ShaderMaterial depthShadowMaterial,
 		RoomBase room,
+		int lightMask = 1,
 		params (string texture, Vector2 offset)[] tabletops
 	)
 	{
 		var worldPos = room.GridToWorld(gridCoords);
-		return CreateTableGroupInternal(parent, worldPos, shadowSystem, depthShadowMaterial, tabletops);
+		return CreateTableGroupInternal(parent, worldPos, shadowSystem, depthShadowMaterial, lightMask, tabletops);
 	}
 
 	public static Node2D CreateTableGroup(
@@ -104,11 +125,12 @@ public static partial class PropBuilder
 		CastShadowSystem shadowSystem,
 		ShaderMaterial depthShadowMaterial,
 		IRoomSection roomSection,
+		int lightMask = 1,
 		params (string texture, Vector2 offset)[] tabletops
 	)
 	{
 		var worldPos = roomSection.GridToWorld(gridCoords);
-		return CreateTableGroupInternal(parent, worldPos, shadowSystem, depthShadowMaterial, tabletops);
+		return CreateTableGroupInternal(parent, worldPos, shadowSystem, depthShadowMaterial, lightMask, tabletops);
 	}
 
 	private static Node2D CreateTableGroupInternal(
@@ -116,6 +138,7 @@ public static partial class PropBuilder
 		Vector2 worldPos,
 		CastShadowSystem shadowSystem,
 		ShaderMaterial depthShadowMaterial,
+		int lightMask,
 		params (string texture, Vector2 offset)[] tabletops
 	)
 	{
@@ -135,6 +158,7 @@ public static partial class PropBuilder
 			Texture = tableTexture,
 			Position = new Vector2(0, -tableTexture.GetSize().Y * 0.5f)
 		};
+		tableSprite.Set("light_mask", lightMask);
 
 		if (depthShadowMaterial != null)
 			tableSprite.Material = depthShadowMaterial;
@@ -156,13 +180,13 @@ public static partial class PropBuilder
 
 		foreach (var (texturePath, offset) in tabletops)
 		{
-			CreateTabletopSprite(group, texturePath, offset);
+			CreateTabletopSprite(group, texturePath, offset, lightMask);
 		}
 
 		return group;
 	}
 
-	public static void CreateTabletopSprite(Node2D parent, string texturePath, Vector2 offset)
+	public static void CreateTabletopSprite(Node2D parent, string texturePath, Vector2 offset, int lightMask = 1)
 	{
 		var texture = GD.Load<Texture2D>(texturePath);
 		if (texture == null)
@@ -176,6 +200,7 @@ public static partial class PropBuilder
 			Texture = texture,
 			Position = offset
 		};
+		sprite.Set("light_mask", lightMask);
 		parent.AddChild(sprite);
 	}
 }

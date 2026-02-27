@@ -1,4 +1,58 @@
-## Current Session - Slanted Projection Shadows
+## Current Session
+
+**Branch**: `develop`
+
+**Task**: Implement light masking for walls and props in rooms.
+
+### Work Done
+
+#### 1. Deleted legacy room files
+- Removed `scripts/world/ControlRoom.cs`
+- Removed `scripts/world/StudioRoom.cs`
+
+#### 2. Implemented wall light masking in WallSystem.cs
+- Added `WallDirection` enum (North, South, West, East, Strip, Window)
+- Added `LightMask` export (default 0 - unlit) for side/back walls
+- Added `NorthWallLightMask` export (default 1 - lit) for north wall/windows
+- Updated `CreateWallSprite()` to apply appropriate light_mask based on direction
+- Updated `CreateStripSprite()` to set light_mask = 0 (unlit)
+- Updated `CreateWindow()` to set light_mask = NorthWallLightMask (lit)
+
+#### 3. Updated builders
+- ControlRoomBuilder: Set `WallSystem.LightMask = 0`, `NorthWallLightMask = LightMask (1)`
+- StudioBuilder: Set `WallSystem.LightMask = 0`, `NorthWallLightMask = LightMask (2)`
+
+#### 4. Light mask configuration
+- **Control Room**: Light mask 1
+  - North wall + windows: light_mask = 1 (lit)
+  - East/West/South walls + strips: light_mask = 0 (unlit)
+  - Props: light_mask = 1 (lit)
+  - Floor: LightMask = 1 (lit)
+- **Studio**: Light mask 2
+  - Same pattern as Control Room
+
+### Files Modified
+- `scripts/world/WallSystem.cs` (light mask exports + apply to sprites)
+- `scripts/world/builders/ControlRoomBuilder.cs` (set wall masks)
+- `scripts/world/builders/StudioBuilder.cs` (set wall masks)
+
+### Deleted Files
+- `scripts/world/ControlRoom.cs`
+- `scripts/world/StudioRoom.cs`
+
+### Next Steps
+- Test in-game to verify:
+  - North wall gets lit by room's light
+  - East/West/South walls are unlit
+  - Props are properly lit
+- Investigate why props look dark (separate issue)
+
+### Blockers
+- None
+
+---
+
+## Previous Session - Slanted Projection Shadows
 
 **Branch**: `develop`
 
