@@ -4,7 +4,54 @@
 
 ## Overview
 
-KBTV uses a square topdown tile layout with faux perspective walls. This document defines the grid, wall, and layering standards for building rooms programmatically in Godot 4 using C#.
+KBTV uses a single **WorldRoom** scene that contains multiple room sections (Control Room, Studio, etc.) in one unified world. This document defines the grid, wall, and layering standards for building rooms programmatically in Godot 4 using C#.
+
+## WorldRoom Architecture
+
+KBTV uses a **single world scene** approach where multiple rooms exist in one `WorldRoom` scene. Each room is a `RoomSection` child that manages its own grid, walls, lighting, and props.
+
+### Key Concepts
+
+| Concept | Description |
+|---------|-------------|
+| **WorldRoom** | Single scene containing all rooms |
+| **RoomSection** | Manages one room's grid, walls, lighting |
+| **GridAnchor** | Offset position for each room's grid in world space |
+| **TileMapLayer** | Floor, door, and debug layers per room |
+
+### Grid Anchors
+
+Rooms are positioned using grid anchors - world coordinates where each room's grid starts:
+
+```csharp
+[ExportGroup("Grid Settings")]
+[Export] public Vector2 ControlRoomGridAnchor = new(0, 0);    // Origin
+[Export] public Vector2 StudioGridAnchor = new(0, -160);      // 160px above (Y increases down)
+```
+
+### Creating a New Room
+
+1. Add grid anchor export to WorldRoom
+2. Create TileMapLayers for floor, door, debug
+3. Add RoomSection child with grid dimensions
+4. Configure WallSystem, RoomLighting, CastShadowSystem
+5. Add prop placement code in CreateProps()
+
+### Room Section Setup
+
+```csharp
+private RoomSection CreateRoomSection(Vector2 gridAnchor, int width, int height)
+{
+    var section = new RoomSection
+    {
+        GridAnchor = gridAnchor,
+        GridWidth = width,
+        GridHeight = height
+    };
+    AddChild(section);
+    return section;
+}
+```
 
 ## Tile Specs
 
@@ -130,7 +177,14 @@ private void UpdateSouthWallVisibility()
 
 ## Example Setup
 
-- `scenes/world/ControlRoom.tscn`
-- `scripts/world/ControlRoom.cs`
+- `scenes/world/WorldRoom.tscn` - Single scene with all rooms
+- `scripts/world/WorldRoom.cs` - Main world coordinator
+- `scripts/world/RoomSection.cs` - Individual room grid manager
+- `scripts/world/ControlRoom.cs` - Legacy standalone room (deprecated)
+- `scripts/world/StudioRoom.cs` - Legacy standalone room (deprecated)
 
-The ControlRoom uses the topdown tileset and the layering rules above for wall placement, door visibility, and south wall occlusion.
+The WorldRoom uses the topdown tileset and the layering rules above for wall placement, door visibility, and south wall occlusion. Each room section manages its own:
+- TileMapLayers (floor, door, debug)
+- WallSystem (walls, doors, windows)
+- RoomLighting (ceiling, monitor, desk lamp)
+- CastShadowSystem (shadow casting)

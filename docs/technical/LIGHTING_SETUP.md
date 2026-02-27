@@ -21,7 +21,22 @@
 ### CanvasModulate
 - **Color**: `#262638` (RGB: 38, 38, 56) - slightly brighter for visibility
 - **Purpose**: Darkens entire scene to simulate nighttime
-- **Implementation**: Added to ControlRoom scene root
+- **Implementation**: Added per-room in WorldRoom (ControlAmbientColor, StudioAmbientColor)
+
+### Multi-Room Lighting
+
+WorldRoom manages lighting separately for each room section:
+
+| Room | Ambient Color | Ceiling Light | Monitor Light | Desk Lamp |
+|------|---------------|---------------|---------------|-----------|
+| Control Room | #262638 | Yes | Yes | Yes |
+| Studio | #333344 | Yes | Yes | Yes |
+
+Each room has its own:
+- CanvasModulate for ambient darkness
+- PointLight2D ceiling light with shadows
+- PointLight2D monitor/desk lamp accent lights
+- CastShadowSystem for shadow rendering
 
 ## Light Sources
 
@@ -201,6 +216,28 @@ occluder.Occluder = polygon;
 parent.AddChild(occluder);
 ```
 
+## Critical: Lighting Initialization Order
+
+**IMPORTANT**: When setting up rooms programmatically, lights MUST be created before shadows are initialized. This is handled automatically by WorldRoom's `_Ready()` method:
+
+```csharp
+public override void _Ready()
+{
+    CreateTileMapLayers();
+    CreateLighting();    // MUST be before CreateSystems()
+    CreateSystems();     // Shadows initialized with valid light refs
+    InitializeDebug();
+    CreateProps();
+}
+```
+
+If shadows are initialized with null light references:
+- Shadow system silently skips all updates
+- Props appear "too bright" (no shadow modulation)
+- Shadow angle calculations fail
+
+The fix (commit `b96d6c4d`) ensures lights exist before `CastShadowSystem.Initialize()` is called.
+
 ## Future Enhancements
 
 ### Animations
@@ -222,20 +259,21 @@ parent.AddChild(occluder);
 
 ### Modified
 - `scripts/world/ControlRoom.cs` - Added CreateLighting(), CreateGlowSprite(), CreateWallOccluders()
+- `scripts/world/WorldRoom.cs` - Multi-room lighting with per-room CanvasModulate and PointLight2D
+- `scripts/world/CastShadowSystem.cs` - Shadow rendering tied to ceiling light
 
 ### Created
 - `docs/technical/LIGHTING_SETUP.md` - This specification
 
 ## Current Implementation Summary
 
-- **CanvasModulate**: Darkens scene to `#1a1a28` (dark blue-black)
-- **Shadow Light**: Single dim PointLight2D (energy 0.12) for shadow casting
-- **Glow Sprites**: 3 Sprite2D nodes with additive blending + PNG textures
-  - Ceiling: `glow_soft_128.png`, white, 1.2x scale, flicker animation
-  - Monitor: `glow_tight_32.png`, green, 1.5x scale, pulse animation
-  - Desk Lamp: `glow_oval_96.png`, orange, 1.0x scale, shimmer animation
+- **WorldRoom**: Single scene with multiple rooms (Control Room, Studio)
+- **CanvasModulate**: Per-room ambient darkening (#262638 control, #333344 studio)
+- **Ceiling Lights**: PointLight2D with shadows enabled, positioned at room center
+- **Monitor/Desk Lamp Lights**: Accent PointLight2D for local illumination
+- **CastShadowSystem**: Dynamic shadows based on ceiling light position
 - **Wall Occluders**: LightOccluder2D nodes on all walls
-- **Result**: High contrast dark atmosphere with colored glows + shadow effects
+- **Result**: Multi-room dark atmosphere with room-specific lighting + shadow effects
 
 ## Available Glow Textures
 
