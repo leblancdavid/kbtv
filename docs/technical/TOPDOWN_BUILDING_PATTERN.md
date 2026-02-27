@@ -31,11 +31,99 @@ Rooms are positioned using grid anchors - world coordinates where each room's gr
 
 ### Creating a New Room
 
-1. Add grid anchor export to WorldRoom
-2. Create TileMapLayers for floor, door, debug
-3. Add RoomSection child with grid dimensions
-4. Configure WallSystem, RoomLighting, CastShadowSystem
-5. Add prop placement code in CreateProps()
+1. Create a new RoomBuilder class in `scripts/world/builders/`
+2. Implement `IRoomBuilder` interface
+3. Add the builder to WorldRoom
+4. Configure exports for grid, lighting, props
+
+### Room Builder Pattern
+
+KBTV uses the **Room Builder pattern** to encapsulate each room's logic. Each room has its own builder class that handles all setup:
+
+```
+scripts/world/
+├── WorldRoom.cs              # Orchestrator - delegates to builders
+├── builders/
+│   ├── IRoomBuilder.cs       # Interface all builders implement
+│   ├── ControlRoomBuilder.cs # Control room specific logic
+│   └── StudioBuilder.cs      # Studio specific logic
+```
+
+#### IRoomBuilder Interface
+
+```csharp
+public interface IRoomBuilder
+{
+    void Build(WorldRoom world);
+    void SetPlayer(CharacterBody2D player);
+    Vector2 GridToWorld(Vector2I gridPos);
+    CastShadowSystem GetShadows();
+}
+```
+
+#### Creating a New Room Builder
+
+1. Create a new class extending the pattern
+2. Add exports for all room configuration (grid, doors, lighting, props)
+3. Implement Build(), SetPlayer(), GridToWorld(), GetShadows(), Update(), ToggleDebug()
+
+```csharp
+public partial class MyRoomBuilder : IRoomBuilder
+{
+    [ExportGroup("Grid Settings")]
+    [Export] public Vector2 GridAnchor = new(0, -320);
+    [Export] public int GridWidth = 14;
+    [Export] public int GridHeight = 8;
+
+    // Add exports for doors, windows, lighting, props...
+
+    public void Build(WorldRoom world)
+    {
+        // 1. Create TileMapLayers
+        // 2. Create RoomSection
+        // 3. Create WallSystem
+        // 4. Create CastShadowSystem
+        // 5. Create lighting
+        // 6. Create props
+    }
+
+    // Implement other interface members...
+}
+```
+
+#### Adding a Room to WorldRoom
+
+```csharp
+public partial class WorldRoom : Node2D
+{
+    private MyRoomBuilder _myRoomBuilder = null!;
+
+    public override void _Ready()
+    {
+        PropSort = new Node2D { Name = "PropSort" };
+        PropSort.YSortEnabled = true;
+        AddChild(PropSort);
+
+        _myRoomBuilder = new MyRoomBuilder();
+        _myRoomBuilder.Build(this);
+    }
+
+    public override void _Process(double delta)
+    {
+        _myRoomBuilder.Update(this, delta);
+    }
+}
+```
+
+#### Room Builder Responsibilities
+
+Each builder handles:
+- **TileMapLayers**: Floor, door, debug layers
+- **WallSystem**: Walls, doors, windows setup
+- **CastShadowSystem**: Shadow rendering
+- **Lighting**: CanvasModulate, PointLights (room-specific)
+- **Props**: All room props via PropBuilder
+- **Debug**: RoomDebug initialization and toggling
 
 ### Room Section Setup
 
@@ -177,14 +265,25 @@ private void UpdateSouthWallVisibility()
 
 ## Example Setup
 
-- `scenes/world/WorldRoom.tscn` - Single scene with all rooms
-- `scripts/world/WorldRoom.cs` - Main world coordinator
-- `scripts/world/RoomSection.cs` - Individual room grid manager
-- `scripts/world/ControlRoom.cs` - Legacy standalone room (deprecated)
-- `scripts/world/StudioRoom.cs` - Legacy standalone room (deprecated)
+```
+scripts/world/
+├── WorldRoom.tscn            # Single scene with all rooms
+├── WorldRoom.cs              # Main world coordinator (~65 lines)
+├── RoomSection.cs            # Individual room grid manager
+├── builders/
+│   ├── IRoomBuilder.cs       # Interface for room builders
+│   ├── ControlRoomBuilder.cs # Control room logic
+│   └── StudioBuilder.cs      # Studio logic
+├── WallSystem.cs            # Wall/door/window management
+├── CastShadowSystem.cs      # Shadow rendering
+├── PropBuilder.cs           # Static helper for props
+└── ControlRoom.cs          # Legacy standalone room (kept for testing)
+└── StudioRoom.cs           # Legacy standalone room (kept for testing)
+```
 
-The WorldRoom uses the topdown tileset and the layering rules above for wall placement, door visibility, and south wall occlusion. Each room section manages its own:
+The WorldRoom uses the topdown tileset and the layering rules above for wall placement, door visibility, and south wall occlusion. Each room builder manages its own:
 - TileMapLayers (floor, door, debug)
 - WallSystem (walls, doors, windows)
-- RoomLighting (ceiling, monitor, desk lamp)
+- Lighting (ceiling, monitor, desk lamp)
 - CastShadowSystem (shadow casting)
+- Props (via PropBuilder)
