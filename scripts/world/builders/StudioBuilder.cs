@@ -12,7 +12,7 @@ public partial class StudioBuilder : IRoomBuilder
 	[Export] private int DoorRow = 3;
 	[Export] private int DoorHeightTiles = 2;
 	[Export] private bool EnableSouthWall = false;
-	[Export] private bool EnableSouthDoor = true;
+	[Export] private bool EnableSouthDoor = false;
 	[Export] private int SouthDoorRow = 3;
 
 	[ExportGroup("Lighting")]

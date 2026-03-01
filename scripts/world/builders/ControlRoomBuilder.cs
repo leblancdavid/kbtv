@@ -123,7 +123,11 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			WindowStartColumn = WindowStartColumn,
 			WindowEndColumn = WindowEndColumn,
 			LightMask = 0,
-			NorthWallLightMask = LightMask
+			NorthWallLightMask = LightMask,
+			EnableNorthDoor = true,
+			NorthDoorStartColumn = 0,
+			NorthDoorWidth = 2,
+			WallNorthDoorSourceId = 8
 		};
 		world.AddChild(_wallSystem);
 

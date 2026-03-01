@@ -14,6 +14,12 @@ public partial class WallSystem : Node
 	[Export] public bool EnableSouthDoor = false;
 	[Export] public int SouthDoorRow = 3;
 
+	[ExportGroup("North Door")]
+	[Export] public bool EnableNorthDoor = false;
+	[Export] public int NorthDoorStartColumn = 0;
+	[Export] public int NorthDoorWidth = 2;
+	[Export] public int WallNorthDoorSourceId = 8;
+
 	[ExportGroup("Light Masking")]
 	[Export] public int LightMask = 0;
 	[Export] public int NorthWallLightMask = 1;
@@ -34,6 +40,7 @@ public partial class WallSystem : Node
 	[Export] public Texture2D CustomNorthWallTexture;
 	[Export] public Texture2D CustomSouthWallTexture;
 	[Export] public Texture2D CustomSideWallTexture;
+	[Export] public Texture2D CustomNorthDoorTexture;
 
 	[ExportGroup("Wall Dimensions")]
 	[Export] public float WallThickness = 8.0f;
@@ -55,6 +62,7 @@ public partial class WallSystem : Node
 	private readonly List<Sprite2D> _eastWallSprites = new();
 	private readonly List<Sprite2D> _southCornerSprites = new();
 	private readonly List<Sprite2D> _windowSprites = new();
+	private readonly List<Sprite2D> _northDoorSprites = new();
 
 	public List<Rect2> DebugWallRects => _debugWallRects;
 	public Rect2 DebugDoorRect => _debugDoorRect;
@@ -150,7 +158,12 @@ public partial class WallSystem : Node
 				continue;
 			}
 
-		var atlas = ResolveHorizontalAtlas(x, gridWidth);
+			if (EnableNorthDoor && x >= NorthDoorStartColumn && x < NorthDoorStartColumn + NorthDoorWidth)
+			{
+				continue;
+			}
+
+			var atlas = ResolveHorizontalAtlas(x, gridWidth);
 			var gridPos = new Vector2I(x, -1);
 			var sprite = CreateWallSprite(northTexture, atlas, gridPos, WallDirection.North);
 			_northWallSprites.Add(sprite);
@@ -160,6 +173,19 @@ public partial class WallSystem : Node
 			_northWallStripSprites.Add(stripSprite);
 			stripSprite.Visible = false;
 			_propSort.AddChild(stripSprite);
+		}
+
+		if (EnableNorthDoor)
+		{
+			var doorTexture = CustomNorthDoorTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/wall_north_door_atlas.png");
+			for (int i = 0; i < NorthDoorWidth; i++)
+			{
+				int col = NorthDoorStartColumn + i;
+				var gridPos = new Vector2I(col, -1);
+				var sprite = CreateNorthDoorSprite(doorTexture, i, gridPos);
+				_northDoorSprites.Add(sprite);
+				_propSort.AddChild(sprite);
+			}
 		}
 
 		for (int x = 0; x < gridWidth; x++)
@@ -399,6 +425,7 @@ public partial class WallSystem : Node
 		foreach (var sprite in _westWallSprites) sprite.QueueFree();
 		foreach (var sprite in _eastWallSprites) sprite.QueueFree();
 		foreach (var sprite in _southCornerSprites) sprite.QueueFree();
+		foreach (var sprite in _northDoorSprites) sprite.QueueFree();
 
 		_northWallSprites.Clear();
 		_northWallStripSprites.Clear();
@@ -407,6 +434,7 @@ public partial class WallSystem : Node
 		_westWallSprites.Clear();
 		_eastWallSprites.Clear();
 		_southCornerSprites.Clear();
+		_northDoorSprites.Clear();
 	}
 
 	private Sprite2D CreateWallSprite(Texture2D texture, Vector2I atlasCoords, Vector2I gridCoords, WallDirection direction)
@@ -430,6 +458,25 @@ public partial class WallSystem : Node
 			_ => LightMask
 		};
 		sprite.Set("light_mask", mask);
+
+		return sprite;
+	}
+
+	private Sprite2D CreateNorthDoorSprite(Texture2D texture, int doorColumnIndex, Vector2I gridCoords)
+	{
+		var position = GetGridToWorld(gridCoords);
+
+		var sprite = new Sprite2D
+		{
+			Texture = texture,
+			Position = position,
+			Offset = new Vector2(0, -24),
+			Hframes = 2,
+			Vframes = 1,
+			Frame = doorColumnIndex,
+			ZIndex = (int)position.Y
+		};
+		sprite.Set("light_mask", NorthWallLightMask);
 
 		return sprite;
 	}
