@@ -127,7 +127,8 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			EnableNorthDoor = true,
 			NorthDoorStartColumn = 0,
 			NorthDoorWidth = 2,
-			WallNorthDoorSourceId = 8
+			WallNorthDoorSourceId = 8,
+			EnableOnAirSign = true
 		};
 		world.AddChild(_wallSystem);
 
@@ -358,6 +359,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		}
 
 		_shadows.Update(delta);
+		_wallSystem.UpdateOnAirSign(delta);
 		_debug.UpdatePlayerRect();
 		_debug.UpdatePropRects();
 	}

@@ -20,6 +20,14 @@ public partial class WallSystem : Node
 	[Export] public int NorthDoorWidth = 2;
 	[Export] public int WallNorthDoorSourceId = 8;
 
+	[ExportGroup("On-Air Sign")]
+	[Export] public bool EnableOnAirSign = false;
+	[Export] public Color OnAirSignColor = new(1f, 0.1f, 0.1f);
+	[Export] public float OnAirLightEnergy = 0.4f;
+	[Export] public float OnAirLightRadius = 80f;
+	[Export] public float OnAirBlinkSpeed = 3f;
+	[Export] public float OnAirBlinkAmount = 0.2f;
+
 	[ExportGroup("Light Masking")]
 	[Export] public int LightMask = 0;
 	[Export] public int NorthWallLightMask = 1;
@@ -63,6 +71,9 @@ public partial class WallSystem : Node
 	private readonly List<Sprite2D> _southCornerSprites = new();
 	private readonly List<Sprite2D> _windowSprites = new();
 	private readonly List<Sprite2D> _northDoorSprites = new();
+	private Sprite2D _onAirSign;
+	private PointLight2D _onAirLight;
+	private float _onAirBlinkTime;
 
 	public List<Rect2> DebugWallRects => _debugWallRects;
 	public Rect2 DebugDoorRect => _debugDoorRect;
@@ -185,6 +196,11 @@ public partial class WallSystem : Node
 				var sprite = CreateNorthDoorSprite(doorTexture, i, gridPos);
 				_northDoorSprites.Add(sprite);
 				_propSort.AddChild(sprite);
+			}
+
+			if (EnableOnAirSign)
+			{
+				CreateOnAirSign();
 			}
 		}
 
@@ -421,6 +437,16 @@ public partial class WallSystem : Node
 		GetDoorLayer().Visible = true;
 	}
 
+	public void UpdateOnAirSign(double delta)
+	{
+		if (_onAirLight == null || !EnableOnAirSign)
+			return;
+
+		_onAirBlinkTime += (float)delta;
+		var blink = Mathf.Sin(_onAirBlinkTime * OnAirBlinkSpeed) * OnAirBlinkAmount;
+		_onAirLight.Energy = OnAirLightEnergy + blink;
+	}
+
 	private void ClearWallSprites()
 	{
 		foreach (var sprite in _northWallSprites) sprite.QueueFree();
@@ -440,6 +466,17 @@ public partial class WallSystem : Node
 		_eastWallSprites.Clear();
 		_southCornerSprites.Clear();
 		_northDoorSprites.Clear();
+
+		if (_onAirSign != null)
+		{
+			_onAirSign.QueueFree();
+			_onAirSign = null;
+		}
+		if (_onAirLight != null)
+		{
+			_onAirLight.QueueFree();
+			_onAirLight = null;
+		}
 	}
 
 	private Sprite2D CreateWallSprite(Texture2D texture, Vector2I atlasCoords, Vector2I gridCoords, WallDirection direction)
@@ -484,6 +521,44 @@ public partial class WallSystem : Node
 		sprite.Set("light_mask", NorthWallLightMask);
 
 		return sprite;
+	}
+
+	private void CreateOnAirSign()
+	{
+		var signTexture = GD.Load<Texture2D>("res://assets/tiles/props/on_air_sign.png");
+		if (signTexture == null)
+		{
+			GD.PrintErr("WallSystem: Missing on_air_sign.png texture");
+			return;
+		}
+
+		float centerCol = NorthDoorStartColumn + (NorthDoorWidth / 2f);
+		var gridPos = new Vector2I((int)centerCol, -2);
+		var position = GetGridToWorld(gridPos);
+
+		_onAirSign = new Sprite2D
+		{
+			Texture = signTexture,
+			Position = position + new Vector2(0, -12),
+			Offset = new Vector2(0, -12),
+			ZIndex = (int)position.Y
+		};
+		_onAirSign.Set("light_mask", NorthWallLightMask);
+		_propSort.AddChild(_onAirSign);
+
+		_onAirLight = new PointLight2D
+		{
+			Position = position + new Vector2(0, -12),
+			Color = OnAirSignColor,
+			Energy = OnAirLightEnergy,
+			ShadowEnabled = false,
+			ZIndex = (int)position.Y + 1
+		};
+		_onAirLight.Set("range", OnAirLightRadius);
+		_onAirLight.Set("range_item_cull_mask", NorthWallLightMask);
+		_propSort.AddChild(_onAirLight);
+
+		_onAirBlinkTime = 0f;
 	}
 
 	private Sprite2D CreateStripSprite(Texture2D texture, Vector2I gridCoords)
