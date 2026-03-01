@@ -257,6 +257,11 @@ public partial class WallSystem : Node
 
 		for (int x = 0; x < gridWidth; x++)
 		{
+			if (EnableNorthDoor && x >= NorthDoorStartColumn && x < NorthDoorStartColumn + NorthDoorWidth)
+			{
+				continue;
+			}
+
 			var cellPos = floorLayer.MapToLocal(new Vector2I(x, -1));
 			AddWallCollider(new Rect2(
 				cellPos.X - RoomBase.TileSize * 0.5f,
