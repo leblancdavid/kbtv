@@ -133,7 +133,7 @@ namespace KBTV.UI
 
                 case GamePhase.LiveShow:
                     _preShowLayer?.Hide();
-                    _liveShowLayer?.Show();
+                    _liveShowLayer?.Hide();
                     if (_postShowLayer != null) _postShowLayer.Hide();
                     break;
 

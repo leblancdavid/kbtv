@@ -92,22 +92,19 @@ namespace KBTV.UI
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 SizeFlagsVertical = SizeFlags.ExpandFill
             };
-            _contentContainer.AddThemeConstantOverride("separation", 16);
+            _contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             _scrollContainer.AddChild(_contentContainer);
 
             // Add padding container
             var paddingContainer = new MarginContainer();
-            paddingContainer.AddThemeConstantOverride("margin_left", 16);
-            paddingContainer.AddThemeConstantOverride("margin_right", 16);
-            paddingContainer.AddThemeConstantOverride("margin_top", 12);
-            paddingContainer.AddThemeConstantOverride("margin_bottom", 12);
+            UITheme.ApplyMargins(paddingContainer, UITheme.MARGIN_MEDIUM, UITheme.MARGIN_SMALL, UITheme.MARGIN_MEDIUM, UITheme.MARGIN_SMALL);
             paddingContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
 
             var innerContainer = new VBoxContainer
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill
             };
-            innerContainer.AddThemeConstantOverride("separation", 16);
+            innerContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             paddingContainer.AddChild(innerContainer);
             _contentContainer.AddChild(paddingContainer);
 
@@ -134,7 +131,7 @@ namespace KBTV.UI
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill
             };
-            columnsContainer.AddThemeConstantOverride("separation", 24);
+            columnsContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             parent.AddChild(columnsContainer);
 
             // Left column - Stats
@@ -143,7 +140,7 @@ namespace KBTV.UI
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 SizeFlagsStretchRatio = 1.0f
             };
-            leftColumn.AddThemeConstantOverride("separation", 20);
+            leftColumn.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             columnsContainer.AddChild(leftColumn);
 
             // Right column - Status panel

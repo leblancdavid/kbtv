@@ -233,6 +233,7 @@ namespace KBTV.Core
         Log.Debug("ServiceProviderRoot: Phase 3 - Adding Node services to scene tree...");
 
         // Only add services that inherit from Node
+        AddChild(eventBus);
         AddChild(saveManager);
         AddChild(economyManager);
         AddChild(timeManager);

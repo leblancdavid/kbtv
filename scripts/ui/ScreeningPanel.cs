@@ -267,7 +267,7 @@ namespace KBTV.UI
                 
                 _statSummaryPanel = new StatSummaryPanel();
                 _statSummaryPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-                _statSummaryPanel.CustomMinimumSize = new Vector2(0, 120);
+				_statSummaryPanel.CustomMinimumSize = new Vector2(0, 90);
                 
                 _statSummaryContainer.AddChild(_statSummaryPanel);
                 

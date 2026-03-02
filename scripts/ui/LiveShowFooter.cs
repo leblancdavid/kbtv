@@ -221,7 +221,7 @@ namespace KBTV.UI
             if (_dropCallerButton != null)
             {
                 int seconds = Mathf.CeilToInt(_cursingTimeRemaining);
-                _dropCallerButton.Text = $"DELAY {seconds}";
+                _dropCallerButton.Text = $"DROP {seconds}";
             }
         }
 
@@ -263,7 +263,7 @@ namespace KBTV.UI
             // Reset button text
             if (_dropCallerButton != null)
             {
-                _dropCallerButton.Text = "DROP CALLER";
+            _dropCallerButton.Text = "DROP";
             }
 
             // Publish timer completion event (unsuccessful - penalties applied)
@@ -285,7 +285,7 @@ namespace KBTV.UI
             // Reset button text
             if (_dropCallerButton != null)
             {
-                _dropCallerButton.Text = "DROP CALLER";
+            _dropCallerButton.Text = "DROP";
             }
 
             // Publish timer completion event (successful - no penalties)
@@ -365,53 +365,7 @@ namespace KBTV.UI
 
         private string GetQueueButtonText()
         {
-            if (_adManager == null || !_adManager.IsInitialized)
-            {
-                return "N/A";
-            }
-
-            if (!_adManager.IsActive) return "NO BREAKS";
-            if (_adManager.IsAdBreakActive) return "ON BREAK";
-
-            if (_adManager.IsQueued)
-            {
-                float nextBreakTimeQueued = _adManager.GetNextBreakTime();
-                if (nextBreakTimeQueued > 0)
-                {
-                    float currentTime = DependencyInjection.Get<TimeManager>(this)?.ElapsedTime ?? 0f;
-                    float countdown = Mathf.Max(0, nextBreakTimeQueued - currentTime);
-                    int minutes = Mathf.FloorToInt(countdown / 60);
-                    int seconds = Mathf.FloorToInt(countdown % 60);
-                    return $"QUEUED {minutes}:{seconds:D2}";
-                }
-            }
-
-            if (_adManager.IsInBreakWindow)
-            {
-                float nextBreakTimeWindow = _adManager.GetNextBreakTime();
-                if (nextBreakTimeWindow > 0)
-                {
-                    float currentTime = DependencyInjection.Get<TimeManager>(this)?.ElapsedTime ?? 0f;
-                    float countdown = Mathf.Max(0, nextBreakTimeWindow - currentTime);
-                    int minutes = Mathf.FloorToInt(countdown / 60);
-                    int seconds = Mathf.FloorToInt(countdown % 60);
-                    return $"BREAK IN {minutes}:{seconds:D2}";
-                }
-                return "BREAK NOW";
-            }
-
-            // Outside window: show countdown to next break
-            float nextBreakTimeOutside = _adManager.GetNextBreakTime();
-            if (nextBreakTimeOutside > 0)
-            {
-                float currentTime = DependencyInjection.Get<TimeManager>(this)?.ElapsedTime ?? 0f;
-                float countdown = Mathf.Max(0, nextBreakTimeOutside - currentTime);
-                int minutes = Mathf.FloorToInt(countdown / 60);
-                int seconds = Mathf.FloorToInt(countdown % 60);
-                return $"BREAK IN {minutes}:{seconds:D2}";
-            }
-
-            return "BREAK SOON";
+            return "A";
         }
 
         private void UpdateAdBreakControls()
@@ -421,7 +375,7 @@ namespace KBTV.UI
                 if (_queueAdsButton != null)
                 {
                     _queueAdsButton.Disabled = true;
-                    _queueAdsButton.Text = "N/A";
+                    _queueAdsButton.Text = "A";
                 }
                 if (_breaksRemainingLabel != null)
                 {
@@ -430,7 +384,6 @@ namespace KBTV.UI
                 return;
             }
 
-            string buttonText = GetQueueButtonText();
             bool buttonEnabled = _adManager.IsQueueButtonEnabled();
 
             if (buttonEnabled != _lastButtonEnabled)
@@ -438,11 +391,11 @@ namespace KBTV.UI
                 _lastButtonEnabled = buttonEnabled;
             }
 
-            if (_queueAdsButton != null)
-            {
-                _queueAdsButton.Text = buttonText;
-                _queueAdsButton.Disabled = !buttonEnabled;
-                _queueAdsButton.Visible = true;
+                if (_queueAdsButton != null)
+                {
+                    _queueAdsButton.Text = "A";
+                    _queueAdsButton.Disabled = !buttonEnabled;
+                    _queueAdsButton.Visible = true;
 
                 // Apply dynamic styling based on ad break state
                 var styleBoxNormal = new StyleBoxFlat();

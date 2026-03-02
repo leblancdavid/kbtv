@@ -33,38 +33,38 @@ theme_override_constants/separation = 12
 
 [node name="SpeakerIcon" type="Label" parent="VBoxContainer/HeaderContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 12
 text = "VERN"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="SpeakerName" type="Label" parent="VBoxContainer/HeaderContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(160, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 12
 text = "Vern Tell"
 vertical_alignment = 1
 
 [node name="PhaseLabel" type="Label" parent="VBoxContainer/HeaderContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 0)
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 size_flags_horizontal = 8
 theme_override_colors/font_color = Color(0.5, 0.8, 0.5, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 10
 text = "ON AIR"
 horizontal_alignment = 2
 vertical_alignment = 1
 
 [node name="DialogueContainer" type="Panel" parent="VBoxContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 120)
+custom_minimum_size = Vector2(0, 90)
 layout_mode = 2
 size_flags_vertical = 3
 
@@ -77,7 +77,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/default_color = Color(0.9, 0.9, 0.85, 1)
-theme_override_font_sizes/normal_font_size = 18
+theme_override_font_sizes/normal_font_size = 12
 bbcode_enabled = true
 fit_content = true
 scroll_active = false

@@ -84,7 +84,7 @@ namespace KBTV.UI
             header.Name = "HeaderLabel";
             header.Text = "TOPIC EXPERIENCE & XP";
             header.HorizontalAlignment = HorizontalAlignment.Center;
-            header.AddThemeFontSizeOverride("font_size", 16);
+            header.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             mainVBox.AddChild(header);
 
             // Divider
@@ -99,7 +99,7 @@ namespace KBTV.UI
             beliefLevelLabel.Name = "BeliefLevelLabel";
             beliefLevelLabel.Text = "Total Belief Level: Calculating...";
             beliefLevelLabel.HorizontalAlignment = HorizontalAlignment.Center;
-            beliefLevelLabel.AddThemeFontSizeOverride("font_size", 18);
+            beliefLevelLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_BASE);
             mainVBox.AddChild(beliefLevelLabel);
 
             // Belief level divider
@@ -125,15 +125,15 @@ namespace KBTV.UI
             _topicsGrid.Columns = 2;
             _topicsGrid.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             _topicsGrid.SizeFlagsVertical = SizeFlags.ExpandFill;
-            _topicsGrid.Set("theme_override_constants/h_separation", 20);
-            _topicsGrid.Set("theme_override_constants/v_separation", 10);
+            _topicsGrid.Set("theme_override_constants/h_separation", UITheme.SPACING_MEDIUM);
+            _topicsGrid.Set("theme_override_constants/v_separation", UITheme.SPACING_SMALL);
             scrollContainer.AddChild(_topicsGrid);
 
             // Recent gains section
             var recentHeader = new Label();
             recentHeader.Name = "RecentHeader";
             recentHeader.Text = "\nRECENT GAINS (Last Show):";
-            recentHeader.AddThemeFontSizeOverride("font_size", 14);
+            recentHeader.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
             mainVBox.AddChild(recentHeader);
 
             _recentGains = new VBoxContainer();

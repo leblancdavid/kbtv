@@ -18,11 +18,30 @@ namespace KBTV.UI
         public static readonly Color ACCENT_RED = new Color(0.8f, 0.2f, 0.2f);
         public static readonly Color ACCENT_GREEN = new Color(0.2f, 0.8f, 0.2f);
 
+        // Global scale
+        public const float SCALE = 1.0f;
+
+        // Typography (scaled)
+        public static int FONT_TINY => ScaleInt(10);
+        public static int FONT_SMALL => ScaleInt(11);
+        public static int FONT_BASE => ScaleInt(12);
+        public static int FONT_MEDIUM => ScaleInt(13);
+        public static int FONT_LARGE => ScaleInt(14);
+        public static int FONT_XL => ScaleInt(16);
+
         // Dimensions (in pixels)
-        public const float HEADER_HEIGHT = 28f;
-        public const float TAB_HEIGHT = 24f;
-        public const float FOOTER_HEIGHT = 160f;
-        public const float BUTTON_HEIGHT = 28f;
+        public static float HEADER_HEIGHT => Scale(24f);
+        public static float TAB_HEIGHT => Scale(22f);
+        public static float FOOTER_HEIGHT => Scale(120f);
+        public static float BUTTON_HEIGHT => Scale(22f);
+
+        // Spacing (scaled)
+        public static int SPACING_SMALL => ScaleInt(4);
+        public static int SPACING_MEDIUM => ScaleInt(6);
+        public static int SPACING_LARGE => ScaleInt(10);
+        public static int MARGIN_SMALL => ScaleInt(6);
+        public static int MARGIN_MEDIUM => ScaleInt(8);
+        public static int MARGIN_LARGE => ScaleInt(10);
 
         // Panel Widths (as fractions)
         public const float ONAIR_WIDTH = 0.35f;
@@ -54,6 +73,12 @@ namespace KBTV.UI
         public static void ApplyButtonStyle(Button button)
         {
             button.AddThemeColorOverride("font_color", TEXT_PRIMARY);
+            button.AddThemeFontSizeOverride("font_size", FONT_TINY);
+
+            if (button.CustomMinimumSize.Y < BUTTON_HEIGHT)
+            {
+                button.CustomMinimumSize = new Vector2(button.CustomMinimumSize.X, BUTTON_HEIGHT);
+            }
 
             // Normal state
             var normalStyle = new StyleBoxFlat();
@@ -119,6 +144,7 @@ namespace KBTV.UI
         {
             label.AddThemeColorOverride("font_color",
                 isPrimary ? TEXT_PRIMARY : TEXT_SECONDARY);
+            label.AddThemeFontSizeOverride("font_size", FONT_SMALL);
         }
 
         /// <summary>
@@ -140,7 +166,7 @@ namespace KBTV.UI
         public static HBoxContainer CreateHLayout(float spacing = 4f, bool expandFill = true)
         {
             var layout = new HBoxContainer();
-            layout.AddThemeConstantOverride("separation", (int)spacing);
+            layout.AddThemeConstantOverride("separation", (int)Scale(spacing));
             if (expandFill)
             {
                 layout.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -155,7 +181,7 @@ namespace KBTV.UI
         public static VBoxContainer CreateVLayout(float spacing = 4f, bool expandFill = true)
         {
             var layout = new VBoxContainer();
-            layout.AddThemeConstantOverride("separation", (int)spacing);
+            layout.AddThemeConstantOverride("separation", (int)Scale(spacing));
             if (expandFill)
             {
                 layout.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -170,10 +196,20 @@ namespace KBTV.UI
         public static void ApplyMargins(Control control, float left = 8f, float top = 8f,
                                        float right = 8f, float bottom = 8f)
         {
-            control.AddThemeConstantOverride("margin_left", (int)left);
-            control.AddThemeConstantOverride("margin_top", (int)top);
-            control.AddThemeConstantOverride("margin_right", (int)right);
-            control.AddThemeConstantOverride("margin_bottom", (int)bottom);
+            control.AddThemeConstantOverride("margin_left", (int)Scale(left));
+            control.AddThemeConstantOverride("margin_top", (int)Scale(top));
+            control.AddThemeConstantOverride("margin_right", (int)Scale(right));
+            control.AddThemeConstantOverride("margin_bottom", (int)Scale(bottom));
+        }
+
+        public static float Scale(float value)
+        {
+            return value * SCALE;
+        }
+
+        public static int ScaleInt(int value)
+        {
+            return Mathf.RoundToInt(value * SCALE);
         }
     }
 }

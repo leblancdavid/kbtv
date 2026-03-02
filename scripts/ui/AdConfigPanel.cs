@@ -32,7 +32,7 @@ namespace KBTV.UI
             // Set proper size flags for container layout
             this.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             this.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            this.CustomMinimumSize = new Vector2(0, 150);
+            this.CustomMinimumSize = new Vector2(0, UITheme.Scale(90));
 
             CreateUI();
         }
@@ -42,7 +42,8 @@ namespace KBTV.UI
             var container = new VBoxContainer();
             container.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             container.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            container.CustomMinimumSize = new Vector2(0, 150);
+            container.CustomMinimumSize = new Vector2(0, UITheme.Scale(90));
+            container.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             AddChild(container);
 
             // Header
@@ -51,6 +52,7 @@ namespace KBTV.UI
             header.HorizontalAlignment = HorizontalAlignment.Center;
             header.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             header.AddThemeColorOverride("font_color", UITheme.TEXT_PRIMARY);
+            header.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
             container.AddChild(header);
 
             container.AddChild(UITheme.CreateSpacer(false, false));
@@ -80,11 +82,13 @@ namespace KBTV.UI
             var revenueLabel = new Label();
             revenueLabel.Text = "Est. Revenue: ";
             revenueLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+            revenueLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
             estimatesContainer.AddChild(revenueLabel);
 
             _revenueEstimateLabel = new Label();
             _revenueEstimateLabel.Text = "$12 - $24";
             _revenueEstimateLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_GREEN);
+            _revenueEstimateLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
             estimatesContainer.AddChild(_revenueEstimateLabel);
 
             var spacer = new Control();
@@ -94,11 +98,13 @@ namespace KBTV.UI
             var timeLabel = new Label();
             timeLabel.Text = "Ad Time: ";
             timeLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+            timeLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
             estimatesContainer.AddChild(timeLabel);
 
             _adTimeEstimateLabel = new Label();
             _adTimeEstimateLabel.Text = "~1:24";
             _adTimeEstimateLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+            _adTimeEstimateLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
             estimatesContainer.AddChild(_adTimeEstimateLabel);
 
             container.AddChild(estimatesContainer);
@@ -114,7 +120,7 @@ namespace KBTV.UI
         {
             var row = new HBoxContainer();
             row.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            row.CustomMinimumSize = new Vector2(0, UITheme.BUTTON_HEIGHT + 4);
+            row.CustomMinimumSize = new Vector2(0, UITheme.Scale(20));
             row.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
 
             // Left spacer
@@ -133,7 +139,7 @@ namespace KBTV.UI
             // Decrease button
             decreaseButton = new Button();
             decreaseButton.Text = "<";
-            decreaseButton.CustomMinimumSize = new Vector2(40, 28);
+            decreaseButton.CustomMinimumSize = new Vector2(UITheme.ScaleInt(24), UITheme.Scale(20));
             decreaseButton.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
             decreaseButton.MouseFilter = Control.MouseFilterEnum.Pass;
             decreaseButton.FocusMode = Control.FocusModeEnum.All;
@@ -145,7 +151,7 @@ namespace KBTV.UI
             // Count label
             countLabel = new Label();
             countLabel.HorizontalAlignment = HorizontalAlignment.Center;
-            countLabel.CustomMinimumSize = new Vector2(60, 0);
+            countLabel.CustomMinimumSize = new Vector2(UITheme.ScaleInt(50), 0);
             countLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_GREEN);
             row.AddChild(countLabel);
 
@@ -154,7 +160,7 @@ namespace KBTV.UI
             // Increase button
             increaseButton = new Button();
             increaseButton.Text = ">";
-            increaseButton.CustomMinimumSize = new Vector2(40, 28);
+            increaseButton.CustomMinimumSize = new Vector2(UITheme.ScaleInt(24), UITheme.Scale(20));
             increaseButton.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
             increaseButton.MouseFilter = Control.MouseFilterEnum.Pass;
             increaseButton.FocusMode = Control.FocusModeEnum.All;

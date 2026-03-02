@@ -86,13 +86,13 @@ namespace KBTV.UI
             _contentContainer.AnchorTop = 0;
             _contentContainer.AnchorRight = 1;
             _contentContainer.AnchorBottom = 1;
-            _contentContainer.OffsetLeft = 20;
-            _contentContainer.OffsetTop = 20;
-            _contentContainer.OffsetRight = -20;
-            _contentContainer.OffsetBottom = -20;
+            _contentContainer.OffsetLeft = UITheme.MARGIN_SMALL;
+            _contentContainer.OffsetTop = UITheme.MARGIN_SMALL;
+            _contentContainer.OffsetRight = -UITheme.MARGIN_SMALL;
+            _contentContainer.OffsetBottom = -UITheme.MARGIN_SMALL;
             _contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
             _contentContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            _contentContainer.AddThemeConstantOverride("separation", 20);
+            _contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             AddChild(_contentContainer);
         }
 
@@ -121,7 +121,7 @@ namespace KBTV.UI
             _contentContainer.AddChild(title);
 
             var spacer1 = UITheme.CreateSpacer(false, true);
-            spacer1.SizeFlagsStretchRatio = 2;
+            spacer1.SizeFlagsStretchRatio = 0.4f;
             _contentContainer.AddChild(spacer1);
 
             var topicSelector = new TopicSelector(_availableTopics);
@@ -129,6 +129,8 @@ namespace KBTV.UI
             {
                 _topicSelector = topicSelector.SelectorButton;
                 _topicDescription = topicSelector.TopicDescription;
+            _topicDescription.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
+            _topicDescription.CustomMinimumSize = new Vector2(0, UITheme.Scale(24));
             }
             _contentContainer.AddChild(topicSelector);
             topicSelector.SizeFlagsStretchRatio = 0;
@@ -142,7 +144,7 @@ namespace KBTV.UI
             _contentContainer.AddChild(audioToggleContainer);
 
             var spacer3 = UITheme.CreateSpacer(false, true);
-            spacer3.SizeFlagsStretchRatio = 2;
+            spacer3.SizeFlagsStretchRatio = 0.4f;
             _contentContainer.AddChild(spacer3);
 
             var startButtonContainer = CreateStartButton();
@@ -178,7 +180,8 @@ namespace KBTV.UI
             title.HorizontalAlignment = HorizontalAlignment.Center;
             title.AddThemeColorOverride("font_color", UITheme.ACCENT_GOLD);
             title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            title.CustomMinimumSize = new Vector2(0, 60);
+            title.CustomMinimumSize = new Vector2(0, UITheme.Scale(36));
+            title.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             return title;
         }
 
@@ -272,7 +275,7 @@ namespace KBTV.UI
             var buttonContainer = new HBoxContainer();
             buttonContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             buttonContainer.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-            buttonContainer.CustomMinimumSize = new Vector2(0, 60);
+            buttonContainer.CustomMinimumSize = new Vector2(0, UITheme.Scale(28));
 
             var leftSpacer = new Control();
             leftSpacer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -281,7 +284,8 @@ namespace KBTV.UI
             _startShowButton = new Button();
             _startShowButton.Text = "START LIVE SHOW";
             _startShowButton.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
-            _startShowButton.CustomMinimumSize = new Vector2(250, 50);
+            _startShowButton.CustomMinimumSize = new Vector2(UITheme.ScaleInt(150), UITheme.Scale(26));
+            _startShowButton.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
             _startShowButton.Disabled = true;
             _startShowButton.Pressed += OnStartShowPressed;
             UITheme.ApplyButtonStyle(_startShowButton);
@@ -299,13 +303,14 @@ namespace KBTV.UI
             var container = new HBoxContainer();
             container.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             container.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-            container.CustomMinimumSize = new Vector2(0, 50);
-            container.AddThemeConstantOverride("separation", 10);
+            container.CustomMinimumSize = new Vector2(0, UITheme.Scale(30));
+            container.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
 
             var label = new Label();
             label.Text = "Disable Broadcast Audio";
             label.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
             label.VerticalAlignment = VerticalAlignment.Center;
+            label.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
             container.AddChild(label);
 
             _disableAudioCheckBox = new CheckBox();
@@ -324,7 +329,7 @@ namespace KBTV.UI
             _errorLabel.HorizontalAlignment = HorizontalAlignment.Center;
             _errorLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             _errorLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_RED);
-            _errorLabel.CustomMinimumSize = new Vector2(0, 40);
+            _errorLabel.CustomMinimumSize = new Vector2(0, UITheme.Scale(24));
             return _errorLabel;
         }
 

@@ -41,6 +41,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
         private IBroadcastAudioService AudioPlayer => DependencyInjection.Get<IBroadcastAudioService>(this);
         private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
         private EventBus EventBus => DependencyInjection.Get<EventBus>(this);
+        private World? _world;
 
 		private GamePhase _currentPhase = GamePhase.Loading;
         private VernStats _vernStats;
@@ -75,14 +76,16 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 		/// <summary>
 		/// Called when all dependencies are resolved.
 		/// </summary>
-		public void OnResolved()
-		{
-			Log.Debug("GameStateManager: Dependencies resolved, initializing...");
-			_instanceId = ++_instanceCount;
+        public void OnResolved()
+        {
+            Log.Debug("GameStateManager: Dependencies resolved, initializing...");
+            _instanceId = ++_instanceCount;
 
-			// Connect to TimeManager event
+            // Connect to TimeManager event
             TimeManager.OnShowEnded += OnShowTimerExpired;
-		}
+            CacheWorldReference();
+            UpdateWorldVisibility();
+        }
 
         /// <summary>
         /// Initialize the game state. VernStats is created automatically.
@@ -124,6 +127,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
             _currentPhase = GamePhase.PreShow;
             EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
             OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
+            UpdateWorldVisibility();
         }
 
 		/// <summary>
@@ -162,20 +166,21 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 		/// <summary>
 		/// Start the live show phase if a topic is selected.
 		/// </summary>
-		public void StartLiveShow()
-		{
-			Log.Debug("DEBUG: GameStateManager.StartLiveShow called");
-			if (!CanStartLiveShow())
-			{
-				Log.Error("GameStateManager: Cannot start live show - invalid state or no topic selected");
-				return;
-			}
+        public void StartLiveShow()
+        {
+            Log.Debug("DEBUG: GameStateManager.StartLiveShow called");
+            if (!CanStartLiveShow())
+            {
+                Log.Error("GameStateManager: Cannot start live show - invalid state or no topic selected");
+                return;
+            }
 
 			// Log.Debug($"GameStateManager: Starting live show with topic '{_selectedTopic.DisplayName}'");
-			GamePhase oldPhase = _currentPhase;
-			_currentPhase = GamePhase.LiveShow;
-			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
-			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
+            GamePhase oldPhase = _currentPhase;
+            _currentPhase = GamePhase.LiveShow;
+            EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
+            OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
+            UpdateWorldVisibility();
 
 			// Start the show clock
 			TimeManager.StartClock();
@@ -198,12 +203,13 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 		/// <summary>
 		/// Directly set the game phase (useful for testing/debugging).
 		/// </summary>
-		public void SetPhase(GamePhase phase)
-		{
-			var oldPhase = _currentPhase;
-			_currentPhase = phase;
-			EmitSignal("PhaseChanged", (int)oldPhase, (int)phase);
-		}
+        public void SetPhase(GamePhase phase)
+        {
+            var oldPhase = _currentPhase;
+            _currentPhase = phase;
+            EmitSignal("PhaseChanged", (int)oldPhase, (int)phase);
+            UpdateWorldVisibility();
+        }
 
     	/// <summary>
     	/// Set the selected topic for the current show.
@@ -235,12 +241,12 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 		/// <summary>
 		/// Start a new night, resetting stats and returning to PreShow.
 		/// </summary>
-		public void StartNewNight()
-		{
-			_currentNight++;
+        public void StartNewNight()
+        {
+            _currentNight++;
 
-			GamePhase oldPhase = _currentPhase;
-			_currentPhase = GamePhase.PreShow;
+            GamePhase oldPhase = _currentPhase;
+            _currentPhase = GamePhase.PreShow;
 
 			// Re-initialize Vern's stats for the new night
 			if (_vernStats != null)
@@ -248,11 +254,12 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 				_vernStats.Initialize();
 			}
 
-			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
-			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
-			EmitSignal("NightStarted", _currentNight);
-			OnNightStarted?.Invoke(_currentNight);
-		}
+            EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
+            OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
+            EmitSignal("NightStarted", _currentNight);
+            OnNightStarted?.Invoke(_currentNight);
+            UpdateWorldVisibility();
+        }
 
 		/// <summary>
 		/// Check if we're currently in the live broadcast phase.
@@ -354,15 +361,54 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
 		/// <summary>
 		/// Advance to PostShow phase after outro music completion.
 		/// </summary>
-		private async Task AdvanceToPostShow()
-		{
-			await ProcessEndOfShow();
+        private async Task AdvanceToPostShow()
+        {
+            await ProcessEndOfShow();
 
-			GamePhase oldPhase = _currentPhase;
-			_currentPhase = GamePhase.PostShow;
-			EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
-			OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
-		}
+            GamePhase oldPhase = _currentPhase;
+            _currentPhase = GamePhase.PostShow;
+            EmitSignal("PhaseChanged", (int)oldPhase, (int)_currentPhase);
+            OnPhaseChanged?.Invoke(oldPhase, _currentPhase);
+            UpdateWorldVisibility();
+        }
+
+        private void CacheWorldReference()
+        {
+            var tree = GetTree();
+            _world = tree?.CurrentScene?.GetNodeOrNull<World>("World");
+        }
+
+        private void UpdateWorldVisibility()
+        {
+            if (_world == null)
+            {
+                CacheWorldReference();
+            }
+
+            if (_world == null)
+            {
+                return;
+            }
+
+            if (_currentPhase == GamePhase.Loading)
+            {
+                _world.Hide();
+                return;
+            }
+
+            switch (_currentPhase)
+            {
+                case GamePhase.PreShow:
+                    _world.Hide();
+                    break;
+                case GamePhase.LiveShow:
+                    _world.Show();
+                    break;
+                case GamePhase.PostShow:
+                    _world.Hide();
+                    break;
+            }
+        }
 
 		public override void _ExitTree()
 		{

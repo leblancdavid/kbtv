@@ -24,7 +24,7 @@ namespace KBTV.UI
             // Set proper size flags for container layout
             this.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             this.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-            this.CustomMinimumSize = new Vector2(600, 200);
+            this.CustomMinimumSize = new Vector2(UITheme.ScaleInt(280), UITheme.Scale(120));
 
             CreateUI();
         }
@@ -32,13 +32,13 @@ namespace KBTV.UI
     private void CreateUI()
     {
         // Set minimum size for visibility
-        CustomMinimumSize = new Vector2(600, 200);
+        CustomMinimumSize = new Vector2(UITheme.ScaleInt(280), UITheme.Scale(120));
         SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
 
         // Create vertical layout
         var vbox = new VBoxContainer();
         vbox.Name = "TopicSelectorVBox";
-        vbox.AddThemeConstantOverride("separation", 10);
+        vbox.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
         AddChild(vbox);
 
         // Topic selector label
@@ -46,12 +46,14 @@ namespace KBTV.UI
         label.Name = "TopicLabel";
         label.Text = "Select Broadcast Topic";
         label.HorizontalAlignment = HorizontalAlignment.Center;
+        label.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
         vbox.AddChild(label);
 
         // Topic dropdown
         _topicSelector = new OptionButton();
         _topicSelector.Name = "TopicOptionButton";
         _topicSelector.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        _topicSelector.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
         _topicSelector.ItemSelected += OnTopicSelected;
         vbox.AddChild(_topicSelector);
 
@@ -60,7 +62,8 @@ namespace KBTV.UI
         _topicDescription.Name = "DescriptionLabel";
         _topicDescription.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
         _topicDescription.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        _topicDescription.CustomMinimumSize = new Vector2(0, 60);
+        _topicDescription.CustomMinimumSize = new Vector2(0, UITheme.Scale(28));
+        _topicDescription.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
         vbox.AddChild(_topicDescription);
 
         // Populate topics

@@ -74,21 +74,18 @@ namespace KBTV.UI
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 SizeFlagsVertical = SizeFlags.ExpandFill
             };
-            _contentContainer.AddThemeConstantOverride("separation", 16);
+            _contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             _scrollContainer.AddChild(_contentContainer);
 
             var paddingContainer = new MarginContainer();
-            paddingContainer.AddThemeConstantOverride("margin_left", 16);
-            paddingContainer.AddThemeConstantOverride("margin_right", 16);
-            paddingContainer.AddThemeConstantOverride("margin_top", 12);
-            paddingContainer.AddThemeConstantOverride("margin_bottom", 12);
+            UITheme.ApplyMargins(paddingContainer, UITheme.MARGIN_MEDIUM, UITheme.MARGIN_SMALL, UITheme.MARGIN_MEDIUM, UITheme.MARGIN_SMALL);
             paddingContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
 
             var innerContainer = new VBoxContainer
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill
             };
-            innerContainer.AddThemeConstantOverride("separation", 16);
+            innerContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             paddingContainer.AddChild(innerContainer);
             _contentContainer.AddChild(paddingContainer);
 
@@ -97,7 +94,7 @@ namespace KBTV.UI
                 Text = "CONSUMABLE ITEMS",
                 HorizontalAlignment = HorizontalAlignment.Center
             };
-            titleLabel.AddThemeFontSizeOverride("font_size", 18);
+            titleLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_BASE);
             innerContainer.AddChild(titleLabel);
 
             CreateItemRows(innerContainer);

@@ -13,10 +13,12 @@ namespace KBTV.UI
         private GameStateManager _gameState;
         private ICallerRepository _repository;
 
-        public override void _Ready()
-        {
-            _gameState = DependencyInjection.Get<GameStateManager>(this);
-            _repository = DependencyInjection.Get<ICallerRepository>(this);
+    public override void _Ready()
+    {
+        _gameState = DependencyInjection.Get<GameStateManager>(this);
+        _repository = DependencyInjection.Get<ICallerRepository>(this);
+
+        EnsureInteractAction();
 
             if (_repository == null)
             {
@@ -27,6 +29,16 @@ namespace KBTV.UI
 
         public override void _Input(InputEvent @event)
         {
+            if (@event.IsActionPressed("interact"))
+            {
+                GD.Print("InputHandler: interact action pressed");
+            }
+
+            if (@event is InputEventKey rawKey && rawKey.Pressed && rawKey.Keycode == Key.F)
+            {
+                GD.Print("InputHandler: raw F key pressed");
+            }
+
             if (_gameState == null || _gameState.CurrentPhase != GamePhase.LiveShow)
                 return;
 
@@ -97,6 +109,26 @@ namespace KBTV.UI
 
         public override void _Process(double delta)
         {
+        }
+
+        private void EnsureInteractAction()
+        {
+            if (!InputMap.HasAction("interact"))
+            {
+                InputMap.AddAction("interact");
+            }
+
+            var events = InputMap.ActionGetEvents("interact");
+            foreach (var inputEvent in events)
+            {
+                if (inputEvent is InputEventKey keyEvent && keyEvent.Keycode == Key.F)
+                {
+                    return;
+                }
+            }
+
+            var fEvent = new InputEventKey { Keycode = Key.F };
+            InputMap.ActionAddEvent("interact", fEvent);
         }
     }
 }

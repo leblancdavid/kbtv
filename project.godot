@@ -26,6 +26,10 @@ window/size/viewport_height=360
 window/size/mode=2
 window/stretch/mode="viewport"
 
+[input]
+
+interact={"deadzone":0.5,"events":[{"type":"InputEventKey","device":-1,"keycode":70,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"pressed":false,"shift":false,"alt":false,"ctrl":false,"meta":false}]}
+
 [dotnet]
 
 project/assembly_name="KBTV"

@@ -49,6 +49,7 @@ namespace KBTV.UI
             _incomingPanel = GetNode<VBoxContainer>("HBoxContainer/IncomingScroll/IncomingList");
             _screeningPanel = GetNode<Control>("HBoxContainer/ScreeningContainer");
             _onHoldPanel = GetNode<VBoxContainer>("HBoxContainer/OnHoldScroll/OnHoldList");
+
         }
 
         private void InitializeServices()
@@ -68,6 +69,7 @@ namespace KBTV.UI
             CreateIncomingPanel();
             CreateScreeningPanel();
             CreateOnHoldPanel();
+
         }
 
         private void CreateIncomingPanel()
@@ -90,14 +92,15 @@ namespace KBTV.UI
                 {
                     Text = "INCOMING CALLERS",
                     HorizontalAlignment = HorizontalAlignment.Center,
-                    CustomMinimumSize = new Vector2(0, 24)
+                    CustomMinimumSize = new Vector2(0, UITheme.BUTTON_HEIGHT)
                 };
+                header.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
                 header.AddThemeColorOverride("font_color", UIColors.Queue.Incoming);
                 _incomingPanel.AddChild(header);
 
                 var spacer = new Control
                 {
-                    CustomMinimumSize = new Vector2(0, 16),
+                    CustomMinimumSize = new Vector2(0, UITheme.SPACING_MEDIUM),
                     SizeFlagsVertical = SizeFlags.ShrinkEnd
                 };
                 _incomingPanel.AddChild(spacer);
@@ -164,14 +167,15 @@ namespace KBTV.UI
             {
                 Text = "ON HOLD",
                 HorizontalAlignment = HorizontalAlignment.Center,
-                CustomMinimumSize = new Vector2(0, 24)
+                CustomMinimumSize = new Vector2(0, UITheme.BUTTON_HEIGHT)
             };
+            header.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             header.AddThemeColorOverride("font_color", UIColors.Queue.OnHold);
             _onHoldPanel.AddChild(header);
 
             var spacer = new Control
             {
-                CustomMinimumSize = new Vector2(0, 16),
+                CustomMinimumSize = new Vector2(0, UITheme.SPACING_MEDIUM),
                 SizeFlagsVertical = SizeFlags.ShrinkEnd
             };
             _onHoldPanel.AddChild(spacer);
@@ -181,7 +185,7 @@ namespace KBTV.UI
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 SizeFlagsVertical = SizeFlags.ExpandFill
             };
-            listContainer.AddThemeConstantOverride("separation", 4);
+            listContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             _onHoldPanel.AddChild(listContainer);
 
             if (_repository.OnHoldCallers.Count > 0)
@@ -192,6 +196,7 @@ namespace KBTV.UI
                     {
                         Text = $"• {caller.Name} - {caller.Location}"
                     };
+                    callerLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
                     callerLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
                     listContainer.AddChild(callerLabel);
                 }
@@ -203,6 +208,7 @@ namespace KBTV.UI
                     Text = "None",
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
+                emptyLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
                 emptyLabel.AddThemeColorOverride("font_color", UIColors.TEXT_DISABLED);
                 listContainer.AddChild(emptyLabel);
             }

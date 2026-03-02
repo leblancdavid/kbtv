@@ -1,4 +1,6 @@
 using Godot;
+using KBTV.Core;
+using KBTV.UI;
 public partial class ControlRoomBuilder : IRoomBuilder
 {
 	[ExportGroup("Grid Settings")]
@@ -58,11 +60,16 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	private PointLight2D _deskLampLight;
 	private CharacterBody2D _player;
 	private float _flickerTime;
+	private Area2D? _screeningTrigger;
+	private bool _playerInScreeningRange;
+	private EventBus? _eventBus;
+	private GameStateManager? _gameStateManager;
 
 	public CastShadowSystem GetShadows() => _shadows;
 
 	public void Build(WorldRoom world)
 	{
+		CacheServices(world);
 		var tileSet = GD.Load<TileSet>("res://assets/tiles/topdown/topdown_tileset.tres");
 		if (tileSet == null)
 		{
@@ -293,6 +300,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 				("res://assets/tiles/props/sound_board.png", new Vector2(0, -26)),
 				("res://assets/tiles/props/computer_station.png", new Vector2(32, -38))
 			);
+			CreateScreeningTrigger();
 		}
 
 		if (PlaceAudioCabinet)
@@ -320,6 +328,48 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		}
 
 		CreateOnAirSign();
+	}
+
+	private void CreateScreeningTrigger()
+	{
+		if (_screeningTrigger != null)
+		{
+			return;
+		}
+
+		var trigger = new Area2D { Name = "ScreeningTrigger" };
+		var shape = new RectangleShape2D { Size = new Vector2(120, 50) };
+		var collision = new CollisionShape2D { Shape = shape };
+
+		trigger.AddChild(collision);
+		trigger.Position = _section.GridToWorld(new Vector2I(6, 2)) + new Vector2(0, 8);
+		trigger.Monitoring = true;
+		trigger.Monitorable = true;
+
+		trigger.BodyEntered += OnScreeningTriggerEntered;
+		trigger.BodyExited += OnScreeningTriggerExited;
+
+		_propSort.AddChild(trigger);
+		_screeningTrigger = trigger;
+		_playerInScreeningRange = false;
+	}
+
+	private void OnScreeningTriggerEntered(Node body)
+	{
+		if (body.IsInGroup("player"))
+		{
+			_playerInScreeningRange = true;
+			GD.Print("ControlRoomBuilder: Player entered screening trigger");
+		}
+	}
+
+	private void OnScreeningTriggerExited(Node body)
+	{
+		if (body.IsInGroup("player"))
+		{
+			_playerInScreeningRange = false;
+			GD.Print("ControlRoomBuilder: Player exited screening trigger");
+		}
 	}
 
 	private void CreateOnAirSign()
@@ -413,6 +463,52 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		_wallSystem.UpdateOnAirSign(delta);
 		_debug.UpdatePlayerRect();
 		_debug.UpdatePropRects();
+
+		if (_eventBus == null || _gameStateManager == null)
+		{
+			CacheServices(world);
+		}
+
+		if (_playerInScreeningRange && (Input.IsActionJustPressed("interact") || Input.IsKeyPressed(Key.F)))
+		{
+			GD.Print("ControlRoomBuilder: interact pressed in range");
+			if (_gameStateManager != null)
+			{
+				GD.Print($"ControlRoomBuilder: CurrentPhase={_gameStateManager.CurrentPhase}");
+			}
+			else
+			{
+				GD.PrintErr("ControlRoomBuilder: GameStateManager not available");
+			}
+
+			if (_gameStateManager == null || _gameStateManager.CurrentPhase != GamePhase.LiveShow)
+			{
+				return;
+			}
+
+			if (_eventBus != null)
+			{
+				GD.Print("ControlRoomBuilder: Publishing ScreeningRequestedEvent");
+				_eventBus.Publish(new ScreeningRequestedEvent());
+			}
+			else
+			{
+				GD.PrintErr("ControlRoomBuilder: EventBus not available for screening request");
+			}
+		}
+	}
+
+	private void CacheServices(WorldRoom world)
+	{
+		var scene = world.GetTree()?.CurrentScene;
+		var root = scene?.GetNodeOrNull<ServiceProviderRoot>("ServiceProviderRoot");
+		if (root == null)
+		{
+			return;
+		}
+
+		_eventBus = DependencyInjection.Get<EventBus>(root);
+		_gameStateManager = DependencyInjection.Get<GameStateManager>(root);
 	}
 
 	public void ToggleDebug()

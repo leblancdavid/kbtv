@@ -135,14 +135,11 @@ namespace KBTV.UI
                 SizeFlagsVertical = SizeFlags.ExpandFill
             };
             _contentContainer.SetAnchorsPreset(LayoutPreset.FullRect);
-            _contentContainer.AddThemeConstantOverride("separation", 16);
+            _contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             AddChild(_contentContainer);
 
             var paddingContainer = new MarginContainer();
-            paddingContainer.AddThemeConstantOverride("margin_left", 16);
-            paddingContainer.AddThemeConstantOverride("margin_right", 16);
-            paddingContainer.AddThemeConstantOverride("margin_top", 12);
-            paddingContainer.AddThemeConstantOverride("margin_bottom", 12);
+            UITheme.ApplyMargins(paddingContainer, UITheme.MARGIN_MEDIUM, UITheme.MARGIN_SMALL, UITheme.MARGIN_MEDIUM, UITheme.MARGIN_SMALL);
             paddingContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             paddingContainer.SizeFlagsVertical = SizeFlags.ExpandFill;
 
@@ -151,7 +148,7 @@ namespace KBTV.UI
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 SizeFlagsVertical = SizeFlags.ExpandFill
             };
-            innerContainer.AddThemeConstantOverride("separation", 16);
+            innerContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             paddingContainer.AddChild(innerContainer);
             _contentContainer.AddChild(paddingContainer);
 
@@ -160,26 +157,26 @@ namespace KBTV.UI
                 Text = "EVIDENCE",
                 HorizontalAlignment = HorizontalAlignment.Center
             };
-            titleLabel.AddThemeFontSizeOverride("font_size", 18);
+            titleLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_BASE);
             innerContainer.AddChild(titleLabel);
 
             // Create 2x2 layout using nested HBoxContainers
             var mainVBox = new VBoxContainer();
-            mainVBox.AddThemeConstantOverride("separation", 24);
+            mainVBox.AddThemeConstantOverride("separation", UITheme.SPACING_LARGE);
             mainVBox.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             mainVBox.SizeFlagsVertical = SizeFlags.ExpandFill;
             innerContainer.AddChild(mainVBox);
 
             // Top row
             var topRow = new HBoxContainer();
-            topRow.AddThemeConstantOverride("separation", 24);
+            topRow.AddThemeConstantOverride("separation", UITheme.SPACING_LARGE);
             topRow.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             topRow.SizeFlagsVertical = SizeFlags.ExpandFill;
             mainVBox.AddChild(topRow);
 
             // Bottom row
             var bottomRow = new HBoxContainer();
-            bottomRow.AddThemeConstantOverride("separation", 24);
+            bottomRow.AddThemeConstantOverride("separation", UITheme.SPACING_LARGE);
             bottomRow.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             bottomRow.SizeFlagsVertical = SizeFlags.ExpandFill;
             mainVBox.AddChild(bottomRow);
@@ -201,16 +198,13 @@ namespace KBTV.UI
             var topLeftMargin = new MarginContainer();
             topLeftMargin.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             topLeftMargin.SizeFlagsVertical = SizeFlags.ExpandFill;
-            topLeftMargin.AddThemeConstantOverride("margin_left", 12);
-            topLeftMargin.AddThemeConstantOverride("margin_right", 12);
-            topLeftMargin.AddThemeConstantOverride("margin_top", 8);
-            topLeftMargin.AddThemeConstantOverride("margin_bottom", 8);
+            UITheme.ApplyMargins(topLeftMargin, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL);
             topLeftScroll.AddChild(topLeftMargin);
             
             var topLeftCell = new VBoxContainer();
             topLeftCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             topLeftCell.SizeFlagsVertical = SizeFlags.Expand;
-            topLeftCell.AddThemeConstantOverride("separation", 8);
+            topLeftCell.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             topLeftMargin.AddChild(topLeftCell);
             topRow.AddChild(topLeftPanel);
             CreateRawEvidenceSection(topLeftCell);
@@ -233,16 +227,13 @@ namespace KBTV.UI
             var topRightMargin = new MarginContainer();
             topRightMargin.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             topRightMargin.SizeFlagsVertical = SizeFlags.ExpandFill;
-            topRightMargin.AddThemeConstantOverride("margin_left", 12);
-            topRightMargin.AddThemeConstantOverride("margin_right", 12);
-            topRightMargin.AddThemeConstantOverride("margin_top", 8);
-            topRightMargin.AddThemeConstantOverride("margin_bottom", 8);
+            UITheme.ApplyMargins(topRightMargin, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL);
             topRightScroll.AddChild(topRightMargin);
             
             var topRightCell = new VBoxContainer();
             topRightCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             topRightCell.SizeFlagsVertical = SizeFlags.Expand;
-            topRightCell.AddThemeConstantOverride("separation", 8);
+            topRightCell.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             topRightMargin.AddChild(topRightCell);
             topRow.AddChild(topRightPanel);
             CreateIdentifiedSection(topRightCell);
@@ -264,16 +255,13 @@ namespace KBTV.UI
             var bottomLeftMargin = new MarginContainer();
             bottomLeftMargin.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             bottomLeftMargin.SizeFlagsVertical = SizeFlags.ExpandFill;
-            bottomLeftMargin.AddThemeConstantOverride("margin_left", 12);
-            bottomLeftMargin.AddThemeConstantOverride("margin_right", 12);
-            bottomLeftMargin.AddThemeConstantOverride("margin_top", 8);
-            bottomLeftMargin.AddThemeConstantOverride("margin_bottom", 8);
+            UITheme.ApplyMargins(bottomLeftMargin, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL);
             bottomLeftScroll.AddChild(bottomLeftMargin);
             
             var bottomLeftCell = new VBoxContainer();
             bottomLeftCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             bottomLeftCell.SizeFlagsVertical = SizeFlags.Expand;
-            bottomLeftCell.AddThemeConstantOverride("separation", 8);
+            bottomLeftCell.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             bottomLeftMargin.AddChild(bottomLeftCell);
             bottomRow.AddChild(bottomLeftPanel);
             CreateCabinetSection(bottomLeftCell);
@@ -295,16 +283,13 @@ namespace KBTV.UI
             var bottomRightMargin = new MarginContainer();
             bottomRightMargin.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             bottomRightMargin.SizeFlagsVertical = SizeFlags.ExpandFill;
-            bottomRightMargin.AddThemeConstantOverride("margin_left", 12);
-            bottomRightMargin.AddThemeConstantOverride("margin_right", 12);
-            bottomRightMargin.AddThemeConstantOverride("margin_top", 8);
-            bottomRightMargin.AddThemeConstantOverride("margin_bottom", 8);
+            UITheme.ApplyMargins(bottomRightMargin, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL);
             bottomRightScroll.AddChild(bottomRightMargin);
             
             var bottomRightCell = new VBoxContainer();
             bottomRightCell.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             bottomRightCell.SizeFlagsVertical = SizeFlags.Expand;
-            bottomRightCell.AddThemeConstantOverride("separation", 8);
+            bottomRightCell.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             bottomRightMargin.AddChild(bottomRightCell);
             bottomRow.AddChild(bottomRightPanel);
             CreateWebsiteSection(bottomRightCell);
@@ -325,7 +310,7 @@ namespace KBTV.UI
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
-            titleLabel.AddThemeFontSizeOverride("font_size", 16);
+            titleLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             headerBox.AddChild(titleLabel);
 
             _rawCountLabel = new Label
@@ -337,31 +322,31 @@ namespace KBTV.UI
             headerBox.AddChild(_rawCountLabel);
 
             var tierCountsContainer = new HBoxContainer();
-            tierCountsContainer.AddThemeConstantOverride("separation", 16);
+            tierCountsContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             tierCountsContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(tierCountsContainer);
 
-            _commonCountButton = new Button { Text = "Common: 0", CustomMinimumSize = new Vector2(80, 36) };
+            _commonCountButton = new Button { Text = "Common: 0", CustomMinimumSize = new Vector2(UITheme.ScaleInt(80), UITheme.Scale(28)) };
             UITheme.ApplyButtonStyle(_commonCountButton);
             _commonCountButton.Pressed += () => OnProcessTierPressed(EvidenceTier.Common);
             tierCountsContainer.AddChild(_commonCountButton);
 
-            _uncommonCountButton = new Button { Text = "Uncommon: 0", CustomMinimumSize = new Vector2(80, 36) };
+            _uncommonCountButton = new Button { Text = "Uncommon: 0", CustomMinimumSize = new Vector2(UITheme.ScaleInt(80), UITheme.Scale(28)) };
             UITheme.ApplyButtonStyle(_uncommonCountButton);
             _uncommonCountButton.Pressed += () => OnProcessTierPressed(EvidenceTier.Uncommon);
             tierCountsContainer.AddChild(_uncommonCountButton);
 
-            _rareCountButton = new Button { Text = "Rare: 0", CustomMinimumSize = new Vector2(80, 36) };
+            _rareCountButton = new Button { Text = "Rare: 0", CustomMinimumSize = new Vector2(UITheme.ScaleInt(80), UITheme.Scale(28)) };
             UITheme.ApplyButtonStyle(_rareCountButton);
             _rareCountButton.Pressed += () => OnProcessTierPressed(EvidenceTier.Rare);
             tierCountsContainer.AddChild(_rareCountButton);
 
-            _veryRareCountButton = new Button { Text = "Very Rare: 0", CustomMinimumSize = new Vector2(80, 36) };
+            _veryRareCountButton = new Button { Text = "Very Rare: 0", CustomMinimumSize = new Vector2(UITheme.ScaleInt(80), UITheme.Scale(28)) };
             UITheme.ApplyButtonStyle(_veryRareCountButton);
             _veryRareCountButton.Pressed += () => OnProcessTierPressed(EvidenceTier.VeryRare);
             tierCountsContainer.AddChild(_veryRareCountButton);
 
-            _oneOfAKindCountButton = new Button { Text = "One of a Kind: 0", CustomMinimumSize = new Vector2(80, 36) };
+            _oneOfAKindCountButton = new Button { Text = "One of a Kind: 0", CustomMinimumSize = new Vector2(UITheme.ScaleInt(90), UITheme.Scale(28)) };
             UITheme.ApplyButtonStyle(_oneOfAKindCountButton);
             _oneOfAKindCountButton.Pressed += () => OnProcessTierPressed(EvidenceTier.OneOfAKind);
             tierCountsContainer.AddChild(_oneOfAKindCountButton);
@@ -382,7 +367,7 @@ namespace KBTV.UI
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
-            titleLabel.AddThemeFontSizeOverride("font_size", 16);
+            titleLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             headerBox.AddChild(titleLabel);
 
             _processingCountLabel = new Label
@@ -394,7 +379,7 @@ namespace KBTV.UI
             headerBox.AddChild(_processingCountLabel);
 
             var processingContainer = new VBoxContainer();
-            processingContainer.AddThemeConstantOverride("separation", 8);
+            processingContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             processingContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(processingContainer);
 
@@ -416,7 +401,7 @@ namespace KBTV.UI
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
-            titleLabel.AddThemeFontSizeOverride("font_size", 16);
+            titleLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             headerBox.AddChild(titleLabel);
 
             _identifiedCountLabel = new Label
@@ -428,7 +413,7 @@ namespace KBTV.UI
             headerBox.AddChild(_identifiedCountLabel);
 
             _identifiedContainer = new VBoxContainer();
-            _identifiedContainer.AddThemeConstantOverride("separation", 8);
+            _identifiedContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             _identifiedContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(_identifiedContainer);
 
@@ -450,7 +435,7 @@ namespace KBTV.UI
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
-            titleLabel.AddThemeFontSizeOverride("font_size", 16);
+            titleLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             headerBox.AddChild(titleLabel);
 
             _cabinetCountLabel = new Label
@@ -471,7 +456,7 @@ namespace KBTV.UI
             parent.AddChild(_cabinetBonusLabel);
 
             _cabinetContainer = new VBoxContainer();
-            _cabinetContainer.AddThemeConstantOverride("separation", 8);
+            _cabinetContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             _cabinetContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(_cabinetContainer);
 
@@ -493,7 +478,7 @@ namespace KBTV.UI
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
-            titleLabel.AddThemeFontSizeOverride("font_size", 16);
+            titleLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             headerBox.AddChild(titleLabel);
 
             _websiteCountLabel = new Label
@@ -514,7 +499,7 @@ namespace KBTV.UI
             parent.AddChild(_websiteIncomeLabel);
 
             _websiteContainer = new VBoxContainer();
-            _websiteContainer.AddThemeConstantOverride("separation", 8);
+            _websiteContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             _websiteContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             parent.AddChild(_websiteContainer);
 
@@ -679,7 +664,7 @@ namespace KBTV.UI
                     Text = evidence.Word,
                     SizeFlagsHorizontal = SizeFlags.ExpandFill
                 };
-                nameLabel.AddThemeFontSizeOverride("font_size", 14);
+                    nameLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
                 infoVBox.AddChild(nameLabel);
                 
                 var bonusLabel = new Label
@@ -696,19 +681,19 @@ namespace KBTV.UI
                 var buttonsHBox = new HBoxContainer();
                 buttonsHBox.AddThemeConstantOverride("separation", 4);
                 
-                var fileButton = new Button { Text = "File", CustomMinimumSize = new Vector2(80, 36) };
+                var fileButton = new Button { Text = "File", CustomMinimumSize = new Vector2(UITheme.ScaleInt(64), UITheme.Scale(28)) };
                 UITheme.ApplyButtonStyle(fileButton);
                 fileButton.Disabled = !cabinetHasSpace;
                 fileButton.Pressed += () => OnFileEvidencePressed(evidence);
                 buttonsHBox.AddChild(fileButton);
                 
-                var postButton = new Button { Text = "Post", CustomMinimumSize = new Vector2(80, 36) };
+                var postButton = new Button { Text = "Post", CustomMinimumSize = new Vector2(UITheme.ScaleInt(64), UITheme.Scale(28)) };
                 UITheme.ApplyButtonStyle(postButton);
                 postButton.Disabled = !websiteHasSpace;
                 postButton.Pressed += () => OnPostEvidencePressed(evidence);
                 buttonsHBox.AddChild(postButton);
                 
-                var sellButton = new Button { Text = "Sell", CustomMinimumSize = new Vector2(80, 36) };
+                var sellButton = new Button { Text = "Sell", CustomMinimumSize = new Vector2(UITheme.ScaleInt(64), UITheme.Scale(28)) };
                 UITheme.ApplyButtonStyle(sellButton);
                 sellButton.Pressed += () => OnSellEvidencePressed(evidence);
                 buttonsHBox.AddChild(sellButton);
@@ -760,7 +745,7 @@ namespace KBTV.UI
                     Text = evidence.Word,
                     SizeFlagsHorizontal = SizeFlags.ExpandFill
                 };
-                nameLabel.AddThemeFontSizeOverride("font_size", 14);
+                nameLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
                 itemContainer.AddChild(nameLabel);
 
                 var bonusLabel = new Label
@@ -818,7 +803,7 @@ namespace KBTV.UI
                     Text = evidence.Word,
                     SizeFlagsHorizontal = SizeFlags.ExpandFill
                 };
-                nameLabel.AddThemeFontSizeOverride("font_size", 14);
+                nameLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
                 itemContainer.AddChild(nameLabel);
 
                 var bonusLabel = new Label

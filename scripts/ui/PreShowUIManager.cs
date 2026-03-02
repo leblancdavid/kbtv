@@ -95,26 +95,28 @@ namespace KBTV.UI
 			var vbox = new VBoxContainer();
 			vbox.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			vbox.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			vbox.AddThemeConstantOverride("separation", 10);
+			vbox.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
 			mainContainer.AddChild(vbox);
 
 			// Create tab button container at the top
 			var tabButtonContainer = new HBoxContainer();
 			tabButtonContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
 			tabButtonContainer.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-			tabButtonContainer.AddThemeConstantOverride("separation", 20);
+			tabButtonContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
 			vbox.AddChild(tabButtonContainer);
 
 			_showTabButton = new Button();
 			_showTabButton.Text = "SHOW";
-			_showTabButton.CustomMinimumSize = new Vector2(150, 40);
+			_showTabButton.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
+			_showTabButton.CustomMinimumSize = new Vector2(UITheme.ScaleInt(110), UITheme.BUTTON_HEIGHT);
 			_showTabButton.Pressed += () => ShowTab("show");
 			UITheme.ApplyButtonStyle(_showTabButton);
 			tabButtonContainer.AddChild(_showTabButton);
 
 			_upgradesTabButton = new Button();
 			_upgradesTabButton.Text = "UPGRADES";
-			_upgradesTabButton.CustomMinimumSize = new Vector2(150, 40);
+			_upgradesTabButton.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
+			_upgradesTabButton.CustomMinimumSize = new Vector2(UITheme.ScaleInt(110), UITheme.BUTTON_HEIGHT);
 			_upgradesTabButton.Pressed += () => ShowTab("upgrades");
 			UITheme.ApplyButtonStyle(_upgradesTabButton);
 			tabButtonContainer.AddChild(_upgradesTabButton);
@@ -250,12 +252,20 @@ namespace KBTV.UI
 
 		private void SetupPreShowUI(Container container)
 		{
+			var scrollContainer = new ScrollContainer();
+			scrollContainer.Name = "PreShowScroll";
+			scrollContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			scrollContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			scrollContainer.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
+			scrollContainer.VerticalScrollMode = ScrollContainer.ScrollMode.Auto;
+			container.AddChild(scrollContainer);
+
 			contentContainer = new VBoxContainer();
 			contentContainer.Name = "PreShowContent";
 			contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
 			contentContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			contentContainer.AddThemeConstantOverride("separation", 20);
-			container.AddChild(contentContainer);
+			contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
+			scrollContainer.AddChild(contentContainer);
 
 			var title = CreateTitle();
 			title.SizeFlagsStretchRatio = 0;
@@ -473,7 +483,7 @@ namespace KBTV.UI
 			var buttonContainer = new HBoxContainer();
 			buttonContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			buttonContainer.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-			buttonContainer.CustomMinimumSize = new Vector2(0, 60);
+			buttonContainer.CustomMinimumSize = new Vector2(0, UITheme.Scale(36));
 
 			var leftSpacer = new Control();
 			leftSpacer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
@@ -482,7 +492,7 @@ namespace KBTV.UI
 			_startShowButton = new Button();
 			_startShowButton.Text = "START LIVE SHOW";
 			_startShowButton.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
-			_startShowButton.CustomMinimumSize = new Vector2(250, 50);
+			_startShowButton.CustomMinimumSize = new Vector2(UITheme.ScaleInt(180), UITheme.Scale(36));
 			_startShowButton.Disabled = true;
 			_startShowButton.Pressed += OnStartShowPressed;
 			UITheme.ApplyButtonStyle(_startShowButton);
@@ -500,8 +510,8 @@ namespace KBTV.UI
 			var container = new HBoxContainer();
 			container.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			container.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-			container.CustomMinimumSize = new Vector2(0, 50);
-			container.AddThemeConstantOverride("separation", 10);
+			container.CustomMinimumSize = new Vector2(0, UITheme.Scale(36));
+			container.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
 
 			var label = new Label();
 			label.Text = "Disable Broadcast Audio";
@@ -525,7 +535,7 @@ namespace KBTV.UI
 			_errorLabel.HorizontalAlignment = HorizontalAlignment.Center;
 			_errorLabel.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			_errorLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_RED);
-			_errorLabel.CustomMinimumSize = new Vector2(0, 40);
+			_errorLabel.CustomMinimumSize = new Vector2(0, UITheme.Scale(24));
 			return _errorLabel;
 		}
 

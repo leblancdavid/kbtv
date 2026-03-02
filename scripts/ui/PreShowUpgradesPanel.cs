@@ -52,13 +52,13 @@ namespace KBTV.UI
             _contentContainer.AnchorTop = 0;
             _contentContainer.AnchorRight = 1;
             _contentContainer.AnchorBottom = 1;
-            _contentContainer.OffsetLeft = 20;
-            _contentContainer.OffsetTop = 20;
-            _contentContainer.OffsetRight = -20;
-            _contentContainer.OffsetBottom = -20;
+            _contentContainer.OffsetLeft = UITheme.MARGIN_SMALL;
+            _contentContainer.OffsetTop = UITheme.MARGIN_SMALL;
+            _contentContainer.OffsetRight = -UITheme.MARGIN_SMALL;
+            _contentContainer.OffsetBottom = -UITheme.MARGIN_SMALL;
             _contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
             _contentContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            _contentContainer.AddThemeConstantOverride("separation", 20);
+            _contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
             AddChild(_contentContainer);
 
             var title = CreateTitle();
@@ -66,7 +66,7 @@ namespace KBTV.UI
             _contentContainer.AddChild(title);
 
             var spacer1 = UITheme.CreateSpacer(false, true);
-            spacer1.SizeFlagsStretchRatio = 1;
+            spacer1.SizeFlagsStretchRatio = 0.4f;
             _contentContainer.AddChild(spacer1);
 
             var reachContainer = CreateStationReachDisplay();
@@ -77,28 +77,28 @@ namespace KBTV.UI
             sectionTitle.Text = "CITIES";
             sectionTitle.HorizontalAlignment = HorizontalAlignment.Center;
             sectionTitle.AddThemeColorOverride("font_color", UITheme.ACCENT_GOLD);
-            sectionTitle.AddThemeFontSizeOverride("font_size", 20);
+            sectionTitle.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             _contentContainer.AddChild(sectionTitle);
 
             _citiesScrollContainer = new ScrollContainer();
             _citiesScrollContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             _citiesScrollContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            _citiesScrollContainer.CustomMinimumSize = new Vector2(0, 300);
+            _citiesScrollContainer.CustomMinimumSize = new Vector2(0, UITheme.Scale(140));
             _contentContainer.AddChild(_citiesScrollContainer);
 
             _citiesContainer = new VBoxContainer();
             _citiesContainer.Name = "CitiesContainer";
-            _citiesContainer.AddThemeConstantOverride("separation", 15);
+            _citiesContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             _citiesScrollContainer.AddChild(_citiesContainer);
 
             var spacer2 = UITheme.CreateSpacer(false, true);
-            spacer2.SizeFlagsStretchRatio = 1;
+            spacer2.SizeFlagsStretchRatio = 0.4f;
             _contentContainer.AddChild(spacer2);
 
             _moneyLabel = new Label();
             _moneyLabel.HorizontalAlignment = HorizontalAlignment.Center;
             _moneyLabel.AddThemeColorOverride("font_color", UITheme.ACCENT_GREEN);
-            _moneyLabel.AddThemeFontSizeOverride("font_size", 24);
+            _moneyLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             _moneyLabel.SizeFlagsStretchRatio = 0;
             _contentContainer.AddChild(_moneyLabel);
 
@@ -112,15 +112,15 @@ namespace KBTV.UI
             title.HorizontalAlignment = HorizontalAlignment.Center;
             title.AddThemeColorOverride("font_color", UITheme.ACCENT_GOLD);
             title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            title.CustomMinimumSize = new Vector2(0, 60);
-            title.AddThemeFontSizeOverride("font_size", 28);
+            title.CustomMinimumSize = new Vector2(0, UITheme.Scale(36));
+            title.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
             return title;
         }
 
         private Control CreateStationReachDisplay()
         {
             var container = new VBoxContainer();
-            container.AddThemeConstantOverride("separation", 10);
+            container.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
 
             var label = new Label();
             label.Text = "STATION REACH";
@@ -130,14 +130,14 @@ namespace KBTV.UI
 
             _stationReachLabel = new Label();
             _stationReachLabel.HorizontalAlignment = HorizontalAlignment.Center;
-            _stationReachLabel.AddThemeFontSizeOverride("font_size", 36);
+            _stationReachLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_BASE);
             _stationReachLabel.AddThemeColorOverride("font_color", Colors.White);
             container.AddChild(_stationReachLabel);
 
             var sublabel = new Label();
             sublabel.Text = "Maximum Listeners";
             sublabel.HorizontalAlignment = HorizontalAlignment.Center;
-            sublabel.AddThemeFontSizeOverride("font_size", 14);
+            sublabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
             sublabel.AddThemeColorOverride("font_color", Colors.Gray);
             container.AddChild(sublabel);
 

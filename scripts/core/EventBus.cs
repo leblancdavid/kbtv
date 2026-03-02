@@ -34,25 +34,38 @@ namespace KBTV.Core
         /// If called from background thread, defers publishing to main thread.
         /// </summary>
         /// <param name="gameEvent">The event to publish</param>
-        public void Publish(GameEvent gameEvent)
+    public void Publish(GameEvent gameEvent)
+    {
+        if (gameEvent == null)
         {
-            if (gameEvent == null)
-            {
-                Log.Error("EventBus.Publish: Attempted to publish null event");
-                return;
-            }
+            Log.Error("EventBus.Publish: Attempted to publish null event");
+            return;
+        }
+
+        if (gameEvent is KBTV.UI.ScreeningRequestedEvent)
+        {
+            GD.Print("EventBus.Publish: ScreeningRequestedEvent received");
+        }
 
             // If we're on a background thread, defer to main thread
-            if (Thread.CurrentThread.ManagedThreadId != _mainThreadId)
+        if (Thread.CurrentThread.ManagedThreadId != _mainThreadId)
+        {
+            if (gameEvent is KBTV.UI.ScreeningRequestedEvent)
             {
-                _deferredEvent = gameEvent;
-                CallDeferred(nameof(PublishDeferred));
-                return;
+                GD.Print("EventBus.Publish: Deferring ScreeningRequestedEvent to main thread");
             }
-
-            // On main thread - publish immediately
-            PublishImmediate(gameEvent);
+            _deferredEvent = gameEvent;
+            CallDeferred(nameof(PublishDeferred));
+            return;
         }
+
+        // On main thread - publish immediately
+        if (gameEvent is KBTV.UI.ScreeningRequestedEvent)
+        {
+            GD.Print("EventBus.Publish: Publishing ScreeningRequestedEvent immediately");
+        }
+        PublishImmediate(gameEvent);
+    }
 
         /// <summary>
         /// Deferred method called on main thread to publish stored event.
