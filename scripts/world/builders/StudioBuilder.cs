@@ -45,6 +45,8 @@ public partial class StudioBuilder : IRoomBuilder
 	[Export] private bool PlaceChair = true;
 	[Export] private bool PlaceCoffeeStation = true;
 	[Export] private bool PlaceWallDecor = true;
+	[Export] private bool PlaceRoundTable = true;
+	[Export] private bool PlaceVern = true;
 
 	private TileMapLayer _floorLayer;
 	private TileMapLayer _doorLayer;
@@ -273,7 +275,104 @@ public partial class StudioBuilder : IRoomBuilder
 
 	private void CreateProps()
 	{
-		// Studio props disabled
+		if (PlaceRoundTable)
+		{
+			CreateRoundTableGroup();
+		}
+
+		if (PlaceVern)
+		{
+			CreateVernGroup();
+		}
+	}
+
+	private void CreateRoundTableGroup()
+	{
+		var tableTexture = GD.Load<Texture2D>("res://assets/tiles/props/round_table.png");
+		if (tableTexture == null)
+		{
+			GD.PrintErr("StudioBuilder: Missing round_table.png texture");
+			return;
+		}
+
+		var worldPos = GridToWorld(new Vector2I(7, 3));
+
+		var group = new Node2D { Name = "RoundTableGroup" };
+		group.Position = worldPos;
+		_propSort.AddChild(group);
+
+		var tableSprite = new Sprite2D
+		{
+			Texture = tableTexture,
+			Position = new Vector2(0, -tableTexture.GetSize().Y * 0.5f)
+		};
+		tableSprite.Set("light_mask", LightMask);
+		group.AddChild(tableSprite);
+
+		var tableBody = new StaticBody2D();
+		var tableShape = new RectangleShape2D { Size = new Vector2(48, 48) };
+		var tableCollision = new CollisionShape2D { Shape = tableShape };
+		tableCollision.Position = new Vector2(0, -(tableShape.Size.Y * 0.5f));
+		tableBody.AddChild(tableCollision);
+		group.AddChild(tableBody);
+
+		group.ZIndex = (int)group.GlobalPosition.Y;
+
+		CreateTabletopSprite(group, "res://assets/tiles/props/boom_mic.png", new Vector2(-12, -32), LightMask);
+	}
+
+	private void CreateVernGroup()
+	{
+		var chairTexture = GD.Load<Texture2D>("res://assets/tiles/props/vern_chair.png");
+		var vernTexture = GD.Load<Texture2D>("res://assets/tiles/props/vern.png");
+
+		if (chairTexture == null || vernTexture == null)
+		{
+			GD.PrintErr("StudioBuilder: Missing vern chair or vern texture");
+			return;
+		}
+
+		var worldPos = GridToWorld(new Vector2I(5, 3));
+
+		var group = new Node2D { Name = "VernGroup" };
+		group.Position = worldPos;
+		_propSort.AddChild(group);
+
+		var chairSprite = new Sprite2D
+		{
+			Texture = chairTexture,
+			Position = new Vector2(0, -chairTexture.GetSize().Y * 0.5f)
+		};
+		chairSprite.Set("light_mask", LightMask);
+		group.AddChild(chairSprite);
+
+		var vernSprite = new Sprite2D
+		{
+			Texture = vernTexture,
+			Position = new Vector2(0, -vernTexture.GetSize().Y * 0.5f)
+		};
+		vernSprite.Set("light_mask", LightMask);
+		group.AddChild(vernSprite);
+
+		group.ZIndex = (int)group.GlobalPosition.Y;
+	}
+
+	private void CreateTabletopSprite(Node2D parent, string texturePath, Vector2 offset, int lightMask)
+	{
+		var texture = GD.Load<Texture2D>(texturePath);
+		if (texture == null)
+		{
+			GD.PrintErr($"StudioBuilder: Missing tabletop texture {texturePath}");
+			return;
+		}
+
+		var sprite = new Sprite2D
+		{
+			Texture = texture,
+			Position = offset
+		};
+		sprite.Set("light_mask", lightMask);
+		parent.AddChild(sprite);
 	}
 
 	public void SetPlayer(CharacterBody2D player)
