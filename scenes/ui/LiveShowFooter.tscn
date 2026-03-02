@@ -43,7 +43,7 @@ theme_override_constants/separation = 2
 layout_mode = 2
 text = "AD BREAK"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 
 [node name="AdBreakControls" type="VBoxContainer" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
 layout_mode = 2
@@ -52,15 +52,15 @@ size_flags_vertical = 3
 [node name="QueueAdsButton" type="Button" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
 layout_mode = 2
 size_flags_horizontal = 4
-custom_minimum_size = Vector2(50, 24)
+custom_minimum_size = Vector2(50, 20)
 text = "A"
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 9
 
 [node name="BreaksRemainingLabel" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
 layout_mode = 2
 text = "Breaks: 0"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 9
 
 [node name="EndShowPanel" parent="HBoxContainer" instance=ExtResource("3")]
 layout_mode = 2
@@ -91,17 +91,17 @@ theme_override_constants/separation = 2
 layout_mode = 2
 text = "ON AIR"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 10
 
 [node name="CallerNameLabel" type="Label" parent="HBoxContainer/OnAirPanel/OnAirVBox"]
 layout_mode = 2
 text = "No caller"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 9
 
 [node name="DropCallerButton" type="Button" parent="HBoxContainer/OnAirPanel/OnAirVBox"]
 layout_mode = 2
 size_flags_horizontal = 4
-custom_minimum_size = Vector2(60, 24)
+custom_minimum_size = Vector2(60, 20)
 text = "DROP"
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 9

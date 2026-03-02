@@ -10,7 +10,7 @@ corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
 [node name="CallerQueueItem" type="Panel"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,7 +31,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
 alignment = 1
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="NameLabel" type="Label" parent="HBoxContainer"]
 layout_mode = 2
@@ -43,6 +43,7 @@ grow_vertical = 2
 size_flags_horizontal = 3
 text = ""
 vertical_alignment = 1
+theme_override_font_sizes/font_size = 9
 
 [node name="ProgressLabel" type="Label" parent="HBoxContainer"]
 layout_mode = 2
@@ -51,3 +52,4 @@ custom_minimum_size = Vector2(40, 0)
 text = ""
 horizontal_alignment = 2
 vertical_alignment = 1
+theme_override_font_sizes/font_size = 9

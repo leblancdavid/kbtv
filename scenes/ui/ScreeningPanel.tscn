@@ -32,101 +32,124 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("ControlBackground")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="ContentMargin" type="MarginContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
 
-[node name="HeaderLabel" type="Label" parent="VBoxContainer"]
-text = "SCREENING"
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 12
+[node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 1
 
-[node name="CallerInfoScroll" type="ScrollContainer" parent="VBoxContainer"]
+[node name="TopRow" type="HBoxContainer" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="ScreeningLabel" type="Label" parent="ContentMargin/VBoxContainer/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Screening: --"
+horizontal_alignment = 0
+theme_override_font_sizes/font_size = 10
+
+[node name="PatienceRight" type="HBoxContainer" parent="ContentMargin/VBoxContainer/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 8
+alignment = 2
+theme_override_constants/separation = 4
+
+[node name="PatienceLabel" type="Label" parent="ContentMargin/VBoxContainer/TopRow/PatienceRight"]
+layout_mode = 2
+text = "Patience"
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 9
+
+[node name="CallerInfoScroll" type="ScrollContainer" parent="ContentMargin/VBoxContainer"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 1
+theme_override_constants/scrollbar_margin_right = 4
 
-[node name="InfoVBox" type="VBoxContainer" parent="VBoxContainer/CallerInfoScroll"]
+[node name="InfoMargin" type="MarginContainer" parent="ContentMargin/VBoxContainer/CallerInfoScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="InfoVBox" type="VBoxContainer" parent="ContentMargin/VBoxContainer/CallerInfoScroll/InfoMargin"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="HeaderRow" type="Label" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
+[node name="HeaderRow" type="Label" parent="ContentMargin/VBoxContainer/CallerInfoScroll/InfoMargin/InfoVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Name: --  |  Phone: --  |  Location: --  |  Topic: --"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 9
 
-[node name="Divider" type="Label" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-text = "────────────────────────────────────────────────────────────────────────────────────────"
-theme_override_font_sizes/font_size = 10
-
-[node name="PatienceHBox" type="HBoxContainer" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 4
-
-[node name="PatienceLabel" type="Label" parent="VBoxContainer/CallerInfoScroll/InfoVBox/PatienceHBox"]
+[node name="PatienceProgressBar" type="ProgressBar" parent="ContentMargin/VBoxContainer/TopRow/PatienceRight"]
 layout_mode = 2
 size_flags_horizontal = 0
-text = "Patience:"
-horizontal_alignment = 2
-theme_override_font_sizes/font_size = 10
-
-[node name="PatienceProgressBar" type="ProgressBar" parent="VBoxContainer/CallerInfoScroll/InfoVBox/PatienceHBox"]
-layout_mode = 2
-size_flags_horizontal = 0
-custom_minimum_size = Vector2(50, 14)
+custom_minimum_size = Vector2(50, 12)
 max_value = 100.0
 value = 100.0
 show_percentage = false
 theme_override_styles/background = SubResource("PatienceBarBackground")
 
-[node name="PropertiesContainer" type="VBoxContainer" parent="VBoxContainer/CallerInfoScroll/InfoVBox"]
+[node name="PropertiesContainer" type="VBoxContainer" parent="ContentMargin/VBoxContainer/CallerInfoScroll/InfoMargin/InfoVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 1
 
-[node name="StatSummaryContainer" type="VBoxContainer" parent="VBoxContainer"]
+[node name="ImpactRow" type="HBoxContainer" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 2
-custom_minimum_size = Vector2(0, 90)
+theme_override_constants/separation = 6
+custom_minimum_size = Vector2(0, 18)
 
-[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/separation = 4
-custom_minimum_size = Vector2(0, 28)
+custom_minimum_size = Vector2(0, 22)
 
-[node name="RejectButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="RejectButton" type="Button" parent="ContentMargin/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.0
 text = "REJECT"
 horizontal_alignment = 1
-custom_minimum_size = Vector2(0, 22)
-theme_override_font_sizes/font_size = 10
+custom_minimum_size = Vector2(0, 20)
+theme_override_font_sizes/font_size = 9
 
-[node name="ApproveButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+[node name="ApproveButton" type="Button" parent="ContentMargin/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.0
 text = "APPROVE"
 horizontal_alignment = 1
-custom_minimum_size = Vector2(0, 22)
-theme_override_font_sizes/font_size = 10
+custom_minimum_size = Vector2(0, 20)
+theme_override_font_sizes/font_size = 9
 
-[node name="NotificationContainer" type="Panel" parent="VBoxContainer"]
+[node name="NotificationContainer" type="Panel" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0

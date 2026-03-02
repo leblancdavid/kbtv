@@ -47,48 +47,35 @@ namespace KBTV.UI.Components
                 CornerRadiusTopRight = 4,
                 CornerRadiusBottomLeft = 4,
                 CornerRadiusBottomRight = 4,
-                ContentMarginLeft = 8,
-                ContentMarginRight = 8,
-                ContentMarginTop = 4,
-                ContentMarginBottom = 4
+                ContentMarginLeft = 4,
+                ContentMarginRight = 4,
+                ContentMarginTop = 2,
+                ContentMarginBottom = 2
             };
             AddThemeStyleboxOverride("panel", panelStyle);
 
-            // Create inner VBox layout
-            var vbox = new VBoxContainer();
-            vbox.AddThemeConstantOverride("separation", 4);
-            AddChild(vbox);
+            // Create inner layout (compact, single row)
+            var rootRow = new HBoxContainer();
+            rootRow.AddThemeConstantOverride("separation", 6);
+            rootRow.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+            AddChild(rootRow);
 
-            // Title row
-            _titleLabel = new Label
-            {
-                Text = "Predicted Impact on Vern:",
-                HorizontalAlignment = HorizontalAlignment.Left
-            };
-            _titleLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            _titleLabel.AddThemeFontSizeOverride("font_size", 12);
-            vbox.AddChild(_titleLabel);
-
-            // Stats container (horizontal)
             _statsContainer = new HBoxContainer();
-            _statsContainer.AddThemeConstantOverride("separation", 12);
-            vbox.AddChild(_statsContainer);
+            _statsContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            _statsContainer.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+            _statsContainer.AddThemeConstantOverride("separation", 8);
+            rootRow.AddChild(_statsContainer);
 
-            // Evidence Found button container (right-aligned)
-            var buttonContainer = new HBoxContainer();
-            buttonContainer.AddThemeConstantOverride("separation", 8);
-            vbox.AddChild(buttonContainer);
-
-            // Spacer to push button to right
-            var spacer = new Control();
-            spacer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            buttonContainer.AddChild(spacer);
+            var evidenceWrap = new HBoxContainer();
+            evidenceWrap.AddThemeConstantOverride("separation", 6);
+            evidenceWrap.Alignment = BoxContainer.AlignmentMode.End;
+            rootRow.AddChild(evidenceWrap);
 
             // Evidence container (label + button)
             _evidenceContainer = new HBoxContainer();
-            _evidenceContainer.AddThemeConstantOverride("separation", 8); // standard spacing
+            _evidenceContainer.AddThemeConstantOverride("separation", 6);
             _evidenceContainer.Visible = false;
-            buttonContainer.AddChild(_evidenceContainer);
+            evidenceWrap.AddChild(_evidenceContainer);
 
             // Evidence Found label
             var evidenceLabel = new Label
@@ -96,16 +83,16 @@ namespace KBTV.UI.Components
                 Text = "Evidence Found: "
             };
             evidenceLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            evidenceLabel.AddThemeFontSizeOverride("font_size", 16);
+            evidenceLabel.AddThemeFontSizeOverride("font_size", 9);
             _evidenceContainer.AddChild(evidenceLabel);
 
             // Evidence Found button
             _evidenceFoundButton = new Button
             {
                 Text = "Examine",
-                CustomMinimumSize = new Vector2(80, 32)
+                CustomMinimumSize = new Vector2(66, 16)
             };
-            _evidenceFoundButton.AddThemeFontSizeOverride("font_size", 16);
+            _evidenceFoundButton.AddThemeFontSizeOverride("font_size", 9);
             _evidenceFoundButton.Pressed += OnEvidenceFoundPressed;
             _evidenceContainer.AddChild(_evidenceFoundButton);
 
@@ -263,14 +250,14 @@ namespace KBTV.UI.Components
             var style = new StyleBoxFlat
             {
                 BgColor = UIColors.Accent.Green,
-                CornerRadiusTopLeft = 8,
-                CornerRadiusTopRight = 8,
-                CornerRadiusBottomLeft = 8,
-                CornerRadiusBottomRight = 8,
-                ContentMarginLeft = 20,
-                ContentMarginRight = 20,
-                ContentMarginTop = 12,
-                ContentMarginBottom = 12
+                CornerRadiusTopLeft = 6,
+                CornerRadiusTopRight = 6,
+                CornerRadiusBottomLeft = 6,
+                CornerRadiusBottomRight = 6,
+                ContentMarginLeft = 6,
+                ContentMarginRight = 6,
+                ContentMarginTop = 3,
+                ContentMarginBottom = 3
             };
             _evidenceFoundButton.AddThemeStyleboxOverride("normal", style);
             _evidenceFoundButton.AddThemeStyleboxOverride("hover", style);
@@ -290,14 +277,14 @@ namespace KBTV.UI.Components
             var style = new StyleBoxFlat
             {
                 BgColor = UIColors.BG_DISABLED,
-                CornerRadiusTopLeft = 8,
-                CornerRadiusTopRight = 8,
-                CornerRadiusBottomLeft = 8,
-                CornerRadiusBottomRight = 8,
-                ContentMarginLeft = 20,
-                ContentMarginRight = 20,
-                ContentMarginTop = 12,
-                ContentMarginBottom = 12
+                CornerRadiusTopLeft = 6,
+                CornerRadiusTopRight = 6,
+                CornerRadiusBottomLeft = 6,
+                CornerRadiusBottomRight = 6,
+                ContentMarginLeft = 6,
+                ContentMarginRight = 6,
+                ContentMarginTop = 3,
+                ContentMarginBottom = 3
             };
             _evidenceFoundButton.AddThemeStyleboxOverride("normal", style);
             _evidenceFoundButton.AddThemeStyleboxOverride("hover", style);
@@ -320,14 +307,14 @@ namespace KBTV.UI.Components
             var style = new StyleBoxFlat
             {
                 BgColor = bgColor,
-                CornerRadiusTopLeft = 8,
-                CornerRadiusTopRight = 8,
-                CornerRadiusBottomLeft = 8,
-                CornerRadiusBottomRight = 8,
-                ContentMarginLeft = 20,
-                ContentMarginRight = 20,
-                ContentMarginTop = 12,
-                ContentMarginBottom = 12
+                CornerRadiusTopLeft = 6,
+                CornerRadiusTopRight = 6,
+                CornerRadiusBottomLeft = 6,
+                CornerRadiusBottomRight = 6,
+                ContentMarginLeft = 6,
+                ContentMarginRight = 6,
+                ContentMarginTop = 3,
+                ContentMarginBottom = 3
             };
             _evidenceFoundButton.AddThemeStyleboxOverride("normal", style);
             _evidenceFoundButton.AddThemeStyleboxOverride("hover", style);
@@ -436,6 +423,7 @@ namespace KBTV.UI.Components
             // Color based on positive/negative
             var color = amount >= 0 ? UIColors.StatEffect.Positive : UIColors.StatEffect.Negative;
             label.AddThemeColorOverride("font_color", color);
+            label.AddThemeFontSizeOverride("font_size", 9);
 
             // Tooltip with full stat name
             label.TooltipText = $"{fullName}: {signText}{amount:F1}";
@@ -459,6 +447,7 @@ namespace KBTV.UI.Components
                 HorizontalAlignment = HorizontalAlignment.Center
             };
             _noDataLabel.AddThemeColorOverride("font_color", UIColors.Placeholder.Text);
+            _noDataLabel.AddThemeFontSizeOverride("font_size", 9);
             _statsContainer.AddChild(_noDataLabel);
         }
 
@@ -503,6 +492,7 @@ namespace KBTV.UI.Components
             var label = new Label { Text = text };
             var color = xpImpact >= 0 ? UIColors.StatEffect.Positive : UIColors.StatEffect.Negative;
             label.AddThemeColorOverride("font_color", color);
+            label.AddThemeFontSizeOverride("font_size", 9);
             label.TooltipText = $"Topic Belief: {signText}{xpImpact:F1}";
 
             return label;

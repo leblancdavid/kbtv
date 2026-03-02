@@ -28,6 +28,7 @@ namespace KBTV.UI
         private CallerTabManager _tabManager = null!;
         private CallerListAdapter _incomingAdapter = null!;
         private ReactiveListPanel<Caller>? _reactiveListPanel;
+        private Button? _closeButton;
 
         private string? _previousScreeningCallerId;
         private int _previousIncomingCount;
@@ -46,9 +47,9 @@ namespace KBTV.UI
 
         private void InitializeNodeReferences()
         {
-            _incomingPanel = GetNode<VBoxContainer>("HBoxContainer/IncomingScroll/IncomingList");
+            _incomingPanel = GetNode<VBoxContainer>("HBoxContainer/IncomingScroll/IncomingMargin/IncomingList");
             _screeningPanel = GetNode<Control>("HBoxContainer/ScreeningContainer");
-            _onHoldPanel = GetNode<VBoxContainer>("HBoxContainer/OnHoldScroll/OnHoldList");
+            _onHoldPanel = GetNode<VBoxContainer>("HBoxContainer/OnHoldScroll/OnHoldMargin/OnHoldList");
 
         }
 
@@ -94,13 +95,15 @@ namespace KBTV.UI
                     HorizontalAlignment = HorizontalAlignment.Center,
                     CustomMinimumSize = new Vector2(0, UITheme.BUTTON_HEIGHT)
                 };
-                header.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
+                header.AddThemeFontSizeOverride("font_size", 10);
+                header.AddThemeConstantOverride("margin_left", 4);
+                header.AddThemeConstantOverride("margin_right", 4);
                 header.AddThemeColorOverride("font_color", UIColors.Queue.Incoming);
                 _incomingPanel.AddChild(header);
 
                 var spacer = new Control
                 {
-                    CustomMinimumSize = new Vector2(0, UITheme.SPACING_MEDIUM),
+                    CustomMinimumSize = new Vector2(0, UITheme.SPACING_SMALL),
                     SizeFlagsVertical = SizeFlags.ShrinkEnd
                 };
                 _incomingPanel.AddChild(spacer);
@@ -163,21 +166,41 @@ namespace KBTV.UI
                 child.QueueFree();
             }
 
+            if (_closeButton != null)
+            {
+                _closeButton.Pressed -= OnClosePressed;
+                _closeButton.QueueFree();
+                _closeButton = null;
+            }
+
+            _closeButton = new Button
+            {
+                Text = "X",
+                CustomMinimumSize = new Vector2(24, 18),
+                SizeFlagsHorizontal = SizeFlags.ShrinkEnd
+            };
+            _closeButton.AddThemeFontSizeOverride("font_size", 9);
+            UITheme.ApplyButtonStyle(_closeButton);
+            _closeButton.Pressed += OnClosePressed;
+            _onHoldPanel.AddChild(_closeButton);
+
             var header = new Label
             {
                 Text = "ON HOLD",
                 HorizontalAlignment = HorizontalAlignment.Center,
                 CustomMinimumSize = new Vector2(0, UITheme.BUTTON_HEIGHT)
             };
-            header.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
+                header.AddThemeFontSizeOverride("font_size", 10);
+                header.AddThemeConstantOverride("margin_left", 4);
+                header.AddThemeConstantOverride("margin_right", 4);
             header.AddThemeColorOverride("font_color", UIColors.Queue.OnHold);
             _onHoldPanel.AddChild(header);
 
-            var spacer = new Control
-            {
-                CustomMinimumSize = new Vector2(0, UITheme.SPACING_MEDIUM),
-                SizeFlagsVertical = SizeFlags.ShrinkEnd
-            };
+                var spacer = new Control
+                {
+                    CustomMinimumSize = new Vector2(0, UITheme.SPACING_SMALL),
+                    SizeFlagsVertical = SizeFlags.ShrinkEnd
+                };
             _onHoldPanel.AddChild(spacer);
 
             var listContainer = new VBoxContainer
@@ -196,7 +219,7 @@ namespace KBTV.UI
                     {
                         Text = $"• {caller.Name} - {caller.Location}"
                     };
-                    callerLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
+                    callerLabel.AddThemeFontSizeOverride("font_size", 9);
                     callerLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
                     listContainer.AddChild(callerLabel);
                 }
@@ -208,9 +231,23 @@ namespace KBTV.UI
                     Text = "None",
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
-                emptyLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
+                emptyLabel.AddThemeFontSizeOverride("font_size", 9);
                 emptyLabel.AddThemeColorOverride("font_color", UIColors.TEXT_DISABLED);
                 listContainer.AddChild(emptyLabel);
+            }
+        }
+
+        private void OnClosePressed()
+        {
+            var canvas = GetParentOrNull<CanvasLayer>();
+            if (canvas == null)
+            {
+                canvas = GetParent()?.GetParentOrNull<CanvasLayer>();
+            }
+
+            if (canvas != null)
+            {
+                canvas.Hide();
             }
         }
 
@@ -283,6 +320,10 @@ namespace KBTV.UI
 
         public override void _ExitTree()
         {
+            if (_closeButton != null)
+            {
+                _closeButton.Pressed -= OnClosePressed;
+            }
         }
     }
 }

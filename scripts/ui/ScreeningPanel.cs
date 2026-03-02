@@ -28,6 +28,12 @@ namespace KBTV.UI
 		[Export]
 		private Control _statSummaryContainer = null!;
 
+		[Export]
+		private Label _screeningLabel = null!;
+
+		[Export]
+		private Control _impactRow = null!;
+
 		[ExportGroup("Optional UI")]
 		[Export]
 		private ProgressBar? _patienceProgressBar;
@@ -79,12 +85,14 @@ namespace KBTV.UI
 		/// </summary>
 		private void EnsureNodesInitialized()
 		{
-			_headerRow ??= GetNodeOrNull<Label>("VBoxContainer/CallerInfoScroll/InfoVBox/HeaderRow");
-			_propertiesContainer ??= GetNodeOrNull<Control>("VBoxContainer/CallerInfoScroll/InfoVBox/PropertiesContainer");
-			_approveButton ??= GetNodeOrNull<Button>("VBoxContainer/HBoxContainer/ApproveButton");
-			_rejectButton ??= GetNodeOrNull<Button>("VBoxContainer/HBoxContainer/RejectButton");
-			_patienceProgressBar ??= GetNodeOrNull<ProgressBar>("VBoxContainer/CallerInfoScroll/InfoVBox/PatienceHBox/PatienceProgressBar");
-			_statSummaryContainer ??= GetNodeOrNull<Control>("VBoxContainer/StatSummaryContainer");
+			_headerRow ??= GetNodeOrNull<Label>("ContentMargin/VBoxContainer/CallerInfoScroll/InfoMargin/InfoVBox/HeaderRow");
+			_propertiesContainer ??= GetNodeOrNull<Control>("ContentMargin/VBoxContainer/CallerInfoScroll/InfoMargin/InfoVBox/PropertiesContainer");
+			_approveButton ??= GetNodeOrNull<Button>("ContentMargin/VBoxContainer/HBoxContainer/ApproveButton");
+			_rejectButton ??= GetNodeOrNull<Button>("ContentMargin/VBoxContainer/HBoxContainer/RejectButton");
+			_patienceProgressBar ??= GetNodeOrNull<ProgressBar>("ContentMargin/VBoxContainer/TopRow/PatienceRight/PatienceProgressBar");
+			_statSummaryContainer ??= GetNodeOrNull<Control>("ContentMargin/VBoxContainer/ImpactRow");
+			_screeningLabel ??= GetNodeOrNull<Label>("ContentMargin/VBoxContainer/TopRow/ScreeningLabel");
+			_impactRow ??= GetNodeOrNull<Control>("ContentMargin/VBoxContainer/ImpactRow");
 		}
 
 		public override void _Process(double delta)
@@ -164,7 +172,11 @@ namespace KBTV.UI
 		/// </summary>
 		private void UpdateForNoCaller()
 		{
-			_headerRow.Text = "Waiting for callers...";
+			_headerRow.Text = string.Empty;
+			if (_screeningLabel != null)
+			{
+				_screeningLabel.Text = "Waiting for callers...";
+			}
 			_approveButton.Disabled = true;
 			_rejectButton.Disabled = true;
 
@@ -194,7 +206,11 @@ namespace KBTV.UI
 			var progress = _controller.Progress;
  
 			// Update header
-			_headerRow.Text = $"Screening: {caller.Name}";
+			_headerRow.Text = string.Empty;
+			if (_screeningLabel != null)
+			{
+				_screeningLabel.Text = $"Screening: {caller.Name}";
+			}
 
 			// Enable/disable buttons based on screening phase
 			// Enable buttons during Gathering and Deciding phases
@@ -254,8 +270,8 @@ namespace KBTV.UI
         /// <summary>
         /// Ensure the stat summary panel exists in the summary container.
         /// </summary>
-        private void EnsureStatSummaryPanel()
-        {
+		private void EnsureStatSummaryPanel()
+		{
             // Only create if doesn't exist
             if (_statSummaryPanel == null || !IsInstanceValid(_statSummaryPanel))
             {
@@ -265,19 +281,25 @@ namespace KBTV.UI
                     return;
                 }
                 
-                _statSummaryPanel = new StatSummaryPanel();
-                _statSummaryPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-				_statSummaryPanel.CustomMinimumSize = new Vector2(0, 90);
+				_statSummaryPanel = new StatSummaryPanel();
+				_statSummaryPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+				_statSummaryPanel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+				_statSummaryPanel.CustomMinimumSize = new Vector2(0, 18);
                 
                 _statSummaryContainer.AddChild(_statSummaryPanel);
                 
-                // CRITICAL: Manually trigger OnResolved() for dynamic IDependent nodes
-                if (_statSummaryPanel is IDependent dependent)
-                {
-                    dependent.OnResolved();
-                }
-            }
-        }
+				// CRITICAL: Manually trigger OnResolved() for dynamic IDependent nodes
+				if (_statSummaryPanel is IDependent dependent)
+				{
+					dependent.OnResolved();
+				}
+			}
+
+			if (_impactRow != null)
+			{
+				_impactRow.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+			}
+		}
 
 		/// <summary>
 		/// Clear all property rows from the container.

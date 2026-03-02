@@ -2,66 +2,33 @@
 
 **Branch**: `develop`
 
-**Task**: Fix PreShow/LiveShow UI scaling and integrate world + screening interaction
+**Task**: Reformat screening panel layout and move close button to on-hold column
 
 **Status**: In Progress
 
 **Files Modified**:
-- `project.godot`
-- `scripts/ui/ScreeningRequestedEvent.cs`
 - `scripts/ui/TabContainerManager.cs`
-- `scripts/core/GameStateManager.cs`
-- `scripts/world/builders/ControlRoomBuilder.cs`
-- `scripts/core/ServiceProviderRoot.cs`
-- `scripts/ui/TabContainerManager.cs`
-- `scripts/ui/UITheme.cs`
-- `scenes/ui/LiveShowHeader.tscn`
-- `scenes/ui/LiveShowFooter.tscn`
-- `scenes/ui/LiveShowPanel.tscn`
-- `scripts/ui/PreShowUIManager.cs`
-- `scripts/ui/PreShowShowPanel.cs`
-- `scripts/ui/PreShowUpgradesPanel.cs`
-- `scripts/ui/AdConfigPanel.cs`
-- `scripts/ui/TopicSelector.cs`
-- `scripts/ui/VernTab.cs`
-- `scripts/ui/ItemsTab.cs`
-- `scripts/ui/TopicTab.cs`
-- `scripts/ui/EvidenceTab.cs`
 - `scripts/ui/CallerTab.cs`
-- `scripts/ui/LiveShowFooter.cs`
-- `scenes/ui/CallerTab.tscn`
 - `scenes/ui/ScreeningPanel.tscn`
-- `scripts/world/builders/ControlRoomBuilder.cs`
+- `scripts/ui/ScreeningPanel.cs`
+- `scripts/ui/components/StatSummaryPanel.cs`
+- `scenes/ui/CallerTab.tscn`
 
 **Work Done**:
-- Added `interact` input action bound to F
-- Added screening request event + tab switching hook in `TabContainerManager`
-- Added desk interaction trigger and event publish in `ControlRoomBuilder`
-- Wired world visibility to game phase changes in `GameStateManager`
-- Scaled LiveShow header/footer/panel for 640x360
-- Scaled PreShow panels and ad config UI for 640x360
-- Introduced global UI scaling in `UITheme` and applied to layout spacing and fonts
-- Tightened PreShow layout with scroll container and scaled controls
-- Reduced LiveShow tab spacing and font sizes (Vern/Topic/Items/Evidence)
-- Reset global UI scale to 1.0 with small font defaults
-- Removed LiveShow header/tabs and switched to single screening layout
-- Tightened PreShow and screening UI sizes for native resolution
-- LiveShow UI now hidden by default in LiveShow phase
-- Added close "X" button to hide LiveShow desk UI
-- Restored incoming/on-hold panels with 25/50/25 layout
-- Reduced screening button sizes and footer height
-- Fixed desk interaction by retrying service cache and using player group detection
-- Added EventBus to scene tree for event delivery
-- Added temporary screening event log in TabContainerManager
-- Added diagnostic logs for input, EventBus publish, and subscription
-- Added diagnostic input logs for interact and raw F
-- Ensured interact action is registered at runtime
-- Added F key fallback for desk interaction
+- Removed screening header and rebuilt top row (caller + patience)
+- Moved stat impact/evidence to compact row above buttons
+- Updated close button placement to sit above on-hold column
+- Adjusted screening label usage to avoid duplicate header text
+- Set column width split to 20/60/20
+- Reduced impact row height and removed divider line
+- Added 4px padding to screening content and caller lists
+- Reduced outcome/evidence row height and button padding
+- Reserved scrollbar space to avoid content shrink
+- Removed stat summary hardcoded min height and forced compact sizing
 
 **Next Steps**:
-- Verify LiveShow UI only appears at desk
-- Confirm 25/50/25 columns and button sizes fit
-- Adjust footer height if needed
+- Verify screening panel no longer overflows and uses full height
+- Check close button placement over on-hold column
 
 **Related Docs**:
 - `docs/ui/UI_DESIGN.md`

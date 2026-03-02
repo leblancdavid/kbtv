@@ -20,6 +20,7 @@ grow_vertical = 2
 [node name="HeaderLabel" type="Label" parent="VBoxContainer"]
 text = "HEADER"
 horizontal_alignment = 1
+theme_override_font_sizes/font_size = 10
 
 [node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
 size_flags_horizontal = 3

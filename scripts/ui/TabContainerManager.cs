@@ -38,26 +38,6 @@ namespace KBTV.UI
             mainLayout.SetAnchorsPreset(Control.LayoutPreset.FullRect);
             _canvas.AddChild(mainLayout);
 
-            var headerRow = new HBoxContainer();
-            headerRow.Name = "DeskHeaderRow";
-            headerRow.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            headerRow.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin;
-            headerRow.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
-            mainLayout.AddChild(headerRow);
-
-            var headerSpacer = new Control();
-            headerSpacer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            headerRow.AddChild(headerSpacer);
-
-            var closeButton = new Button();
-            closeButton.Name = "CloseDeskButton";
-            closeButton.Text = "X";
-            closeButton.CustomMinimumSize = new Vector2(24, 18);
-            closeButton.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
-            UITheme.ApplyButtonStyle(closeButton);
-            closeButton.Pressed += OnClosePressed;
-            headerRow.AddChild(closeButton);
-
             var callerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerTab.tscn");
             if (callerScene != null)
             {
@@ -77,7 +57,7 @@ namespace KBTV.UI
                 var footer = footerScene.Instantiate<Control>();
                 footer.Name = "LiveShowFooter";
                 footer.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd;
-                footer.CustomMinimumSize = new Vector2(0, 72);
+                footer.CustomMinimumSize = new Vector2(0, 64);
                 mainLayout.AddChild(footer);
             }
             else
