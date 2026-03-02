@@ -532,15 +532,17 @@ public partial class WallSystem : Node
 			return;
 		}
 
-		float centerCol = NorthDoorStartColumn + (NorthDoorWidth / 2f);
-		var gridPos = new Vector2I((int)centerCol, -2);
+		// Position: centered on north door, one tile above the door
+		float centerCol = (float)NorthDoorStartColumn + (NorthDoorWidth / 2f);
+		var gridPos = new Vector2I((int)centerCol, DoorRow - 1);
 		var position = GetGridToWorld(gridPos);
 
 		_onAirSign = new Sprite2D
 		{
 			Texture = signTexture,
-			Position = position + new Vector2(0, -12),
-			Offset = new Vector2(0, -12),
+			Position = position,
+			Offset = new Vector2(0, -6),
+			Scale = new Vector2(0.375f, 0.5f),
 			ZIndex = (int)position.Y
 		};
 		_onAirSign.Set("light_mask", NorthWallLightMask);
@@ -548,7 +550,7 @@ public partial class WallSystem : Node
 
 		_onAirLight = new PointLight2D
 		{
-			Position = position + new Vector2(0, -12),
+			Position = position,
 			Color = OnAirSignColor,
 			Energy = OnAirLightEnergy,
 			ShadowEnabled = false,

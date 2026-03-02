@@ -128,7 +128,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			NorthDoorStartColumn = 0,
 			NorthDoorWidth = 2,
 			WallNorthDoorSourceId = 8,
-			EnableOnAirSign = true
+			EnableOnAirSign = false
 		};
 		world.AddChild(_wallSystem);
 
@@ -319,6 +319,46 @@ public partial class ControlRoomBuilder : IRoomBuilder
 				new Vector2I(6, 2), Vector2.Zero, false, Vector2.Zero,
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 		}
+
+		CreateOnAirSign();
+	}
+
+	private void CreateOnAirSign()
+	{
+		var onAirTexture = GD.Load<Texture2D>("res://assets/tiles/props/on_air_sign.png");
+		if (onAirTexture == null)
+		{
+			GD.PrintErr("ControlRoomBuilder: Missing on_air_sign.png texture");
+			return;
+		}
+
+		// Position: above door, shifted up 64px from wall bottom
+		// Wall bottom is at GridAnchor.y + 8 = 508, shift up 64 = 444
+		var signPos = GridAnchor + new Vector2(16, -56);
+
+		var onAirSign = new Sprite2D
+		{
+			Texture = onAirTexture,
+			Position = signPos,
+			Scale = new Vector2(0.375f, 0.5f),
+			Offset = new Vector2(0, -0),
+			ZIndex = 1001
+		};
+		_propSort.AddChild(onAirSign);
+
+		// Light - use helper to create texture so it's visible
+		var onAirLight = CreatePointLightWithTexture(
+			signPos,
+			new Color(1f, 0.1f, 0.1f),
+			0.5f,
+			60f,
+			false,
+			32,
+			32,
+			LightMask
+		);
+		onAirLight.ZIndex = 1002;
+		_propSort.AddChild(onAirLight);
 	}
 
 	public void SetPlayer(CharacterBody2D player)
