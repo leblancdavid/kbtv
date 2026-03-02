@@ -82,6 +82,7 @@ namespace KBTV.Monitors
 
             stats.Caffeine.Modify(-caffeineDecay * dtMinutes);
             stats.Nicotine.Modify(-nicotineDecay * dtMinutes);
+            stats.TimeSinceLastCigarette += deltaTime;
 
             // ═══════════════════════════════════════════════════════════════════════════════
             // CORE STAT DECAY (only when dependencies depleted)

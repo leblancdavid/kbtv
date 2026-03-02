@@ -4,6 +4,7 @@ using Godot;
 using KBTV.Items;
 using KBTV.Economy;
 using KBTV.Managers;
+using KBTV.Data;
 
 namespace KBTV.Core
 {
@@ -44,11 +45,12 @@ namespace KBTV.Core
             _services.Clear();
         }
 
-        // Convenience properties for common services
-        public IEvidenceAnalyzer? EvidenceAnalyzer => Get<IEvidenceAnalyzer>();
-        public IEvidenceCabinet? EvidenceCabinet => Get<IEvidenceCabinet>();
-        public IEvidenceWebsite? EvidenceWebsite => Get<IEvidenceWebsite>();
-        public EconomyManager? EconomyManager => Get<EconomyManager>();
-        public IListenerManager? ListenerManager => Get<IListenerManager>();
+	// Convenience properties for common services
+	public IEvidenceAnalyzer? EvidenceAnalyzer => Get<IEvidenceAnalyzer>();
+	public IEvidenceCabinet? EvidenceCabinet => Get<IEvidenceCabinet>();
+	public IEvidenceWebsite? EvidenceWebsite => Get<IEvidenceWebsite>();
+	public EconomyManager? EconomyManager => Get<EconomyManager>();
+	public IListenerManager? ListenerManager => Get<IListenerManager>();
+	public VernStats? VernStats => Get<VernStats>();
     }
 }

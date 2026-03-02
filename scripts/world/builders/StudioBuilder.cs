@@ -1,4 +1,6 @@
+using System;
 using Godot;
+using KBTV.Data;
 
 public partial class StudioBuilder : IRoomBuilder
 {
@@ -31,6 +33,11 @@ public partial class StudioBuilder : IRoomBuilder
 	[ExportGroup("Ambient")]
 	[Export] private Color AmbientColor = new(0.15f, 0.15f, 0.20f);
 
+	[ExportGroup("Smoke")]
+	[Export] private bool EnableSmoke = true;
+	[Export] private float SmokeMaxParticles = 500f;
+	[Export] private float SmokeDecayTime = 60f;
+
 	[ExportGroup("Props")]
 	[Export] private bool PlaceRoundTable = true;
 	[Export] private bool PlaceVern = true;
@@ -45,6 +52,12 @@ public partial class StudioBuilder : IRoomBuilder
 	private RoomDebug _debug;
 	private CanvasModulate _canvasModulate;
 	private PointLight2D _ceilingLight;
+	private Node2D _smokeRoot;
+	private Node2D[] _smokeLayers = Array.Empty<Node2D>();
+	private AnimatedSprite2D[] _smokeSprites = Array.Empty<AnimatedSprite2D>();
+	private float[] _smokeInitialX = Array.Empty<float>();
+	private float[] _smokeTimeOffsets = Array.Empty<float>();
+	private float[] _smokeLayerOffsets = Array.Empty<float>();
 	private CharacterBody2D _player;
 	private float _flickerTime;
 
@@ -87,6 +100,7 @@ public partial class StudioBuilder : IRoomBuilder
 
 		CreateSystems(world);
 		CreateLighting(world);
+		CreateSmoke(world);
 		InitializeDebug();
 		CreateProps();
 	}
@@ -155,6 +169,91 @@ public partial class StudioBuilder : IRoomBuilder
 
 		_shadows.Initialize(_section, _ceilingLight);
 		_flickerTime = 0f;
+	}
+
+	private void CreateSmoke(WorldRoom world)
+	{
+		if (!EnableSmoke)
+		{
+			return;
+		}
+
+		var smokePosition = GridToWorld(new Vector2I(7, GridHeight - 3));
+
+		_smokeRoot = new Node2D
+		{
+			Name = "SmokeRoot",
+			Position = smokePosition,
+			YSortEnabled = true,
+			ZIndex = 480
+		};
+
+		_smokeInitialX = new float[(int)SmokeMaxParticles];
+		var smokeTexture = GD.Load<Texture2D>("res://assets/tiles/smoke_sheet.png");
+		if (smokeTexture == null)
+		{
+			GD.PrintErr("StudioBuilder: Failed to load smoke_sheet.png");
+			return;
+		}
+
+		var frames = new SpriteFrames();
+		var frameSize = new Vector2I(256, 256);
+		for (int y = 0; y < 5; y++)
+		{
+			for (int x = 0; x < 5; x++)
+			{
+				var region = new Rect2I(new Vector2I(x * frameSize.X, y * frameSize.Y), frameSize);
+				var frame = new AtlasTexture
+				{
+					Atlas = smokeTexture,
+					Region = region
+				};
+				frames.AddFrame("default", frame);
+			}
+		}
+		frames.SetAnimationSpeed("default", 0.5f);
+		frames.SetAnimationLoop("default", true);
+
+		var layerCount = 3;
+		_smokeLayers = new Node2D[layerCount];
+		_smokeLayerOffsets = new float[layerCount];
+		for (int i = 0; i < layerCount; i++)
+		{
+			var layer = new Node2D { Name = $"SmokeLayer_{i}", YSortEnabled = true };
+			_smokeLayers[i] = layer;
+			_smokeLayerOffsets[i] = i * 7.5f;
+			_smokeRoot.AddChild(layer);
+		}
+
+		_smokeSprites = new AnimatedSprite2D[(int)SmokeMaxParticles];
+		_smokeInitialX = new float[(int)SmokeMaxParticles];
+		_smokeTimeOffsets = new float[(int)SmokeMaxParticles];
+
+		for (int i = 0; i < SmokeMaxParticles; i++)
+		{
+			var initialX = GD.Randf() * 200 - 100;
+			_smokeInitialX[i] = initialX;
+			_smokeTimeOffsets[i] = GD.Randf() * 30f;
+
+			var smokeSprite = new AnimatedSprite2D
+			{
+				Name = $"SmokePuff_{i}",
+				SpriteFrames = frames,
+				Position = new Vector2(initialX, -GD.Randf() * 180 + 96),
+				Scale = new Vector2(1.5f + GD.Randf() * 0.5f, 1.5f + GD.Randf() * 0.5f),
+				Modulate = new Color(1f, 1f, 1f, 0.02f)
+			};
+			smokeSprite.Set("light_mask", LightMask);
+			smokeSprite.Play("default");
+			smokeSprite.Frame = (int)(GD.Randf() * 25f);
+
+			var layerIndex = i % layerCount;
+			smokeSprite.SpeedScale = 0.8f + (layerIndex * 0.1f);
+			_smokeLayers[layerIndex].AddChild(smokeSprite);
+			_smokeSprites[i] = smokeSprite;
+		}
+
+		_propSort.AddChild(_smokeRoot);
 	}
 
 	private PointLight2D CreatePointLightWithTexture(Vector2 position, Color color, float energy, float radius, bool shadows, int textureWidth = 0, int textureHeight = 0, int itemCullMask = 2)
@@ -476,7 +575,7 @@ public partial class StudioBuilder : IRoomBuilder
 		);
 	}
 
-	public void Update(WorldRoom world, double delta)
+	public void Update(WorldRoom world, double delta, VernStats? vernStats)
 	{
 		if (_player != null)
 		{
@@ -490,9 +589,73 @@ public partial class StudioBuilder : IRoomBuilder
 			_ceilingLight.Energy = CeilingLightEnergy;
 		}
 
+		UpdateSmoke(vernStats);
+
 		_shadows.Update(delta);
 		_debug.UpdatePlayerRect();
 		_debug.UpdatePropRects();
+	}
+
+	private void UpdateSmoke(VernStats? vernStats)
+	{
+		if (_smokeRoot == null)
+		{
+			return;
+		}
+
+		float intensity;
+		if (vernStats == null)
+		{
+			intensity = 1f;
+		}
+		else
+		{
+			var timeSinceLastCigarette = vernStats.TimeSinceLastCigarette;
+			if (timeSinceLastCigarette < 5f)
+			{
+				intensity = 1f;
+			}
+			else if (timeSinceLastCigarette < SmokeDecayTime)
+			{
+				float t = (timeSinceLastCigarette - 5f) / (SmokeDecayTime - 5f);
+				intensity = 1f - t;
+			}
+			else
+			{
+				intensity = 0f;
+			}
+		}
+
+		var baseAlpha = Mathf.Clamp(intensity, 0f, 1f) * 0.03f;
+
+		var smokeTime = Time.GetTicksMsec() / 1000f;
+
+		for (int i = 0; i < _smokeSprites.Length; i++)
+		{
+			var sprite = _smokeSprites[i];
+			if (sprite == null) continue;
+
+			var layerIndex = i % _smokeLayerOffsets.Length;
+			var adjustedTime = smokeTime + _smokeTimeOffsets[i] + _smokeLayerOffsets[layerIndex];
+			var cyclePos = adjustedTime % 60f / 60f;
+
+			var yOffset = cyclePos * 180f;
+			var xWobble = Mathf.Sin(smokeTime * 0.12f + i) * 5f;
+
+			sprite.Position = new Vector2(
+				_smokeInitialX[i] + xWobble,
+				-yOffset + 96
+			);
+
+			float fadeIn = cyclePos < 0.3f ? cyclePos / 0.3f : 1f;
+			float fadeOut = cyclePos > 0.6f ? (1f - cyclePos) / 0.4f : 1f;
+			var alpha = baseAlpha * fadeIn * fadeOut;
+
+			sprite.Modulate = new Color(1f, 1f, 1f, alpha);
+
+			var scale = 1.0f + cyclePos * 0.5f;
+			sprite.Scale = new Vector2(scale, scale);
+		}
 	}
 
 	public void ToggleDebug()

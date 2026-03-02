@@ -403,6 +403,14 @@ namespace KBTV.Data
 		{
 			_nicotine.SetValue(100f);
 			_emotional.Modify(5f);
+			_timeSinceLastCigarette = 0f;
 		}
-	}
+
+		public float TimeSinceLastCigarette
+		{
+			get => _timeSinceLastCigarette;
+			set => _timeSinceLastCigarette = value;
+		}
+		private float _timeSinceLastCigarette;
+}
 }

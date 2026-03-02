@@ -1,4 +1,6 @@
 using Godot;
+using KBTV.Data;
+using KBTV.Core;
 
 public partial class WorldRoom : Node2D
 {
@@ -59,10 +61,16 @@ public partial class WorldRoom : Node2D
 
 	public override void _Process(double delta)
 	{
-		_controlBuilder.Update(this, delta);
-		_studioBuilder.Update(this, delta);
+		var vernStats = GetVernStats();
+		_controlBuilder.Update(this, delta, vernStats);
+		_studioBuilder.Update(this, delta, vernStats);
 
 		UpdatePlayerLightMask();
+	}
+
+	private VernStats? GetVernStats()
+	{
+		return ServiceRegistry.Instance?.VernStats;
 	}
 
 	private void UpdatePlayerLightMask()

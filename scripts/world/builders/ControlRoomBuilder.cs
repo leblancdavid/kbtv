@@ -1,4 +1,5 @@
 using Godot;
+using KBTV.Data;
 
 public partial class ControlRoomBuilder : IRoomBuilder
 {
@@ -38,6 +39,11 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	[ExportGroup("Ambient")]
 	[Export] private Color AmbientColor = new(0.15f, 0.15f, 0.20f);
 
+	[ExportGroup("Smoke")]
+	[Export] private bool EnableSmoke = false;
+	[Export] private float SmokeMaxParticles = 50f;
+	[Export] private float SmokeDecayTime = 30f;
+
 	[ExportGroup("Props")]
 	[Export] private bool PlaceSpeakerStands = true;
 	[Export] private bool PlaceTableGroup = true;
@@ -57,6 +63,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	private PointLight2D _ceilingLight;
 	private PointLight2D _monitorLight;
 	private PointLight2D _deskLampLight;
+	private Node2D _smokeRoot;
 	private CharacterBody2D _player;
 	private float _flickerTime;
 
@@ -99,6 +106,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 
 		CreateSystems(world);
 		CreateLighting(world);
+		CreateSmoke(world);
 		InitializeDebug();
 		CreateProps();
 	}
@@ -203,6 +211,57 @@ public partial class ControlRoomBuilder : IRoomBuilder
 
 		_shadows.Initialize(_section, _ceilingLight);
 		_flickerTime = 0f;
+	}
+
+	private void CreateSmoke(WorldRoom world)
+	{
+		if (!EnableSmoke)
+		{
+			return;
+		}
+
+		var tablePosition = GridToWorld(new Vector2I(6, 1));
+		var smokePosition = tablePosition + new Vector2(0, -40);
+
+		_smokeRoot = new Node2D
+		{
+			Name = "SmokeRoot",
+			Position = smokePosition,
+			ZIndex = 5
+		};
+
+		for (int i = 0; i < SmokeMaxParticles; i++)
+		{
+			var smokeSprite = new Sprite2D
+			{
+				Name = $"SmokePuff_{i}",
+				Texture = CreateSmokeTexture(),
+				Position = new Vector2(
+					GD.Randf() * 40 - 20,
+					-GD.Randf() * 60
+				),
+				Modulate = new Color(0.7f, 0.7f, 0.75f, 0f),
+				Scale = new Vector2(0.5f + GD.Randf() * 0.5f, 0.5f + GD.Randf() * 0.5f)
+			};
+			_smokeRoot.AddChild(smokeSprite);
+		}
+
+		world.AddChild(_smokeRoot);
+	}
+
+	private GradientTexture2D CreateSmokeTexture()
+	{
+		var gradient = new Gradient();
+		gradient.SetColor(0, new Color(1f, 1f, 1f, 0f));
+		gradient.SetColor(1, new Color(1f, 1f, 1f, 0.4f));
+
+		return new GradientTexture2D
+		{
+			Gradient = gradient,
+			Fill = GradientTexture2D.FillEnum.Radial,
+			FillFrom = new Vector2(0.5f, 0.5f),
+			FillTo = new Vector2(1f, 1f)
+		};
 	}
 
 	private PointLight2D CreatePointLightWithTexture(Vector2 position, Color color, float energy, float radius, bool shadows, int textureWidth = 0, int textureHeight = 0, int itemCullMask = 1)
@@ -384,7 +443,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		);
 	}
 
-	public void Update(WorldRoom world, double delta)
+	public void Update(WorldRoom world, double delta, VernStats? vernStats)
 	{
 		if (_player != null)
 		{
@@ -410,10 +469,67 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			_deskLampLight.Energy = shimmer;
 		}
 
+		UpdateSmoke(vernStats);
+
 		_shadows.Update(delta);
 		_wallSystem.UpdateOnAirSign(delta);
 		_debug.UpdatePlayerRect();
 		_debug.UpdatePropRects();
+	}
+
+	private void UpdateSmoke(VernStats? vernStats)
+	{
+		if (_smokeRoot == null || vernStats == null)
+		{
+			return;
+		}
+
+		var timeSinceLastCigarette = vernStats.TimeSinceLastCigarette;
+		float intensity;
+
+		if (timeSinceLastCigarette < 5f)
+		{
+			intensity = 1f;
+		}
+		else if (timeSinceLastCigarette < SmokeDecayTime)
+		{
+			float t = (timeSinceLastCigarette - 5f) / (SmokeDecayTime - 5f);
+			intensity = 1f - t;
+		}
+		else
+		{
+			intensity = 0f;
+		}
+
+		var baseAlpha = Mathf.Clamp(intensity, 0f, 1f) * 0.15f;
+
+		var smokeTime = Time.GetTicksMsec() / 1000f;
+
+		for (int i = 0; i < _smokeRoot.GetChildCount(); i++)
+		{
+			var sprite = _smokeRoot.GetChildOrNull<Sprite2D>(i);
+			if (sprite == null) continue;
+
+			var offset = i * 0.5f;
+			var cyclePos = (smokeTime + offset) % 4f / 4f;
+
+			var yOffset = cyclePos * 60f;
+			var xWobble = Mathf.Sin(smokeTime * 2f + i) * 5f;
+
+			sprite.Position = new Vector2(
+				(GD.Randf() * 40 - 20) + xWobble,
+				-yOffset
+			);
+
+			float fadeIn = cyclePos < 0.2f ? cyclePos / 0.2f : 1f;
+			float fadeOut = cyclePos > 0.7f ? (1f - cyclePos) / 0.3f : 1f;
+			var alpha = baseAlpha * fadeIn * fadeOut;
+
+			sprite.Modulate = new Color(0.7f, 0.7f, 0.75f, alpha);
+
+			var scale = 0.5f + cyclePos * 0.5f;
+			sprite.Scale = new Vector2(scale, scale);
+		}
 	}
 
 	public void ToggleDebug()

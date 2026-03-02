@@ -98,6 +98,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
             if (_vernStats != null)
             {
                 _vernStats.Initialize();
+                ServiceRegistry.Instance.RegisterSelf<VernStats>(_vernStats);
             }
             else
             {
