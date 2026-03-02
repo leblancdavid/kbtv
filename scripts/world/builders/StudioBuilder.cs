@@ -15,6 +15,10 @@ public partial class StudioBuilder : IRoomBuilder
 	[Export] private bool EnableSouthDoor = false;
 	[Export] private int SouthDoorRow = 3;
 
+	[ExportGroup("Window Settings")]
+	[Export] private int WindowStartColumn = 99;
+	[Export] private int WindowEndColumn = 0;
+
 	[ExportGroup("Lighting")]
 	[Export] private bool EnableCeilingLight = true;
 	[Export] private Color CeilingLightColor = new(1f, 0.95f, 0.8f);
@@ -22,29 +26,12 @@ public partial class StudioBuilder : IRoomBuilder
 	[Export] private float CeilingLightRadius = 450f;
 	[Export] private bool CeilingLightShadows = true;
 
-	[ExportGroup("Monitor Light")]
-	[Export] private bool EnableMonitorLight = true;
-	[Export] private Color MonitorLightColor = new(0.2f, 0.8f, 1f);
-	[Export] private float MonitorLightEnergy = 0.35f;
-	[Export] private float MonitorLightRadius = 80f;
 
-	[ExportGroup("Desk Lamp")]
-	[Export] private bool EnableDeskLampLight = true;
-	[Export] private Color DeskLampColor = new(1f, 0.9f, 0.6f);
-	[Export] private float DeskLampEnergy = 0.3f;
-	[Export] private float DeskLampRadius = 60f;
 
 	[ExportGroup("Ambient")]
 	[Export] private Color AmbientColor = new(0.15f, 0.15f, 0.20f);
 
 	[ExportGroup("Props")]
-	[Export] private bool PlaceStudioTable = true;
-	[Export] private bool PlaceMonitorConsole = true;
-	[Export] private bool PlaceSpeakerStands = true;
-	[Export] private bool PlaceStorageCabinet = true;
-	[Export] private bool PlaceChair = true;
-	[Export] private bool PlaceCoffeeStation = true;
-	[Export] private bool PlaceWallDecor = true;
 	[Export] private bool PlaceRoundTable = true;
 	[Export] private bool PlaceVern = true;
 
@@ -58,8 +45,6 @@ public partial class StudioBuilder : IRoomBuilder
 	private RoomDebug _debug;
 	private CanvasModulate _canvasModulate;
 	private PointLight2D _ceilingLight;
-	private PointLight2D _monitorLight;
-	private PointLight2D _deskLampLight;
 	private CharacterBody2D _player;
 	private float _flickerTime;
 
@@ -126,6 +111,8 @@ public partial class StudioBuilder : IRoomBuilder
 			EnableSouthWall = EnableSouthWall,
 			EnableSouthDoor = EnableSouthDoor,
 			SouthDoorRow = SouthDoorRow,
+			WindowStartColumn = WindowStartColumn,
+			WindowEndColumn = WindowEndColumn,
 			LightMask = 0,
 			NorthWallLightMask = LightMask
 		};
@@ -164,40 +151,6 @@ public partial class StudioBuilder : IRoomBuilder
 				LightMask
 			);
 			world.AddChild(_ceilingLight);
-		}
-
-		var tablePosition = GridToWorld(new Vector2I(6, 2));
-
-		if (EnableMonitorLight)
-		{
-			_monitorLight = CreatePointLightWithTexture(
-				tablePosition + new Vector2(32, -38),
-				MonitorLightColor,
-				MonitorLightEnergy,
-				MonitorLightRadius,
-				false,
-				0,
-				0,
-				LightMask
-			);
-			_monitorLight.TextureScale = 2.0f;
-			world.AddChild(_monitorLight);
-		}
-
-		if (EnableDeskLampLight)
-		{
-			_deskLampLight = CreatePointLightWithTexture(
-				tablePosition + new Vector2(-32, -35),
-				DeskLampColor,
-				DeskLampEnergy,
-				DeskLampRadius,
-				false,
-				0,
-				0,
-				LightMask
-			);
-			_deskLampLight.TextureScale = 1.8f;
-			world.AddChild(_deskLampLight);
 		}
 
 		_shadows.Initialize(_section, _ceilingLight);
@@ -270,11 +223,13 @@ public partial class StudioBuilder : IRoomBuilder
 
 	private void InitializeDebug()
 	{
-		_debug.Initialize(_section, _wallSystem, _shadows, _ceilingLight, _monitorLight, _deskLampLight);
+		_debug.Initialize(_section, _wallSystem, _shadows, _ceilingLight, null, null);
 	}
 
 	private void CreateProps()
 	{
+		CreateBookcases();
+
 		if (PlaceRoundTable)
 		{
 			CreateRoundTableGroup();
@@ -282,46 +237,122 @@ public partial class StudioBuilder : IRoomBuilder
 
 		if (PlaceVern)
 		{
-			CreateVernGroup();
+			CreateVernChairGroup();
 		}
+	}
+
+	private void CreateBookcases()
+	{
+		CreatePropWithCollision(
+			"res://assets/tiles/props/bookcase.png",
+			new Vector2I(1, 0),
+			Vector2.Zero,
+			new Vector2(48, 32)
+		);
+
+		CreatePropWithCollision(
+			"res://assets/tiles/props/bookcase.png",
+			new Vector2I(12, 0),
+			Vector2.Zero,
+			new Vector2(48, 32)
+		);
+	}
+
+	private Node2D CreatePropWithCollision(
+		string texturePath,
+		Vector2I gridCoords,
+		Vector2 pixelOffset,
+		Vector2 colliderSize,
+		bool createShadow = true)
+	{
+		var texture = GD.Load<Texture2D>(texturePath);
+		if (texture == null)
+		{
+			GD.PrintErr($"StudioBuilder: Missing texture {texturePath}");
+			return null;
+		}
+
+		var worldPos = GridToWorld(gridCoords) + pixelOffset;
+
+		var body = new StaticBody2D();
+		body.Position = worldPos;
+
+		var sprite = new Sprite2D
+		{
+			Texture = texture,
+			Position = new Vector2(0, -texture.GetSize().Y * 0.5f)
+		};
+		sprite.Set("light_mask", LightMask);
+
+		if (_shadows != null && createShadow)
+		{
+			_shadows.CreateShadowForObject(body, texture);
+		}
+
+		body.AddChild(sprite);
+
+		if (colliderSize != Vector2.Zero)
+		{
+			var shape = new RectangleShape2D { Size = colliderSize };
+			var collision = new CollisionShape2D { Shape = shape };
+			collision.Position = new Vector2(0, -(colliderSize.Y * 0.5f));
+			collision.AddToGroup("debug_prop_collision");
+			body.AddChild(collision);
+		}
+
+		body.ZIndex = (int)body.GlobalPosition.Y;
+		_propSort.AddChild(body);
+
+		return body;
+	}
+
+	private Node2D CreatePropNoCollision(string texturePath, Vector2I gridCoords, Vector2 pixelOffset)
+	{
+		var texture = GD.Load<Texture2D>(texturePath);
+		if (texture == null)
+		{
+			GD.PrintErr($"StudioBuilder: Missing texture {texturePath}");
+			return null;
+		}
+
+		var worldPos = GridToWorld(gridCoords) + pixelOffset;
+
+		var node = new Node2D();
+		node.Position = worldPos;
+
+		var sprite = new Sprite2D
+		{
+			Texture = texture,
+			Position = new Vector2(0, -texture.GetSize().Y * 0.5f)
+		};
+		sprite.Set("light_mask", LightMask);
+
+		node.AddChild(sprite);
+
+		node.ZIndex = (int)node.GlobalPosition.Y;
+		_propSort.AddChild(node);
+
+		return node;
 	}
 
 	private void CreateRoundTableGroup()
 	{
-		var tableTexture = GD.Load<Texture2D>("res://assets/tiles/props/round_table.png");
-		if (tableTexture == null)
-		{
-			GD.PrintErr("StudioBuilder: Missing round_table.png texture");
-			return;
-		}
+		var tablePos = new Vector2I(7, 2);
 
-		var worldPos = GridToWorld(new Vector2I(7, 3));
+		var tableGroup = CreatePropWithCollision(
+			"res://assets/tiles/props/round_table.png",
+			tablePos,
+			Vector2.Zero,
+			new Vector2(48, 48)
+		);
+		if (tableGroup == null) return;
 
-		var group = new Node2D { Name = "RoundTableGroup" };
-		group.Position = worldPos;
-		_propSort.AddChild(group);
+		tableGroup.Name = "RoundTableGroup";
 
-		var tableSprite = new Sprite2D
-		{
-			Texture = tableTexture,
-			Position = new Vector2(0, -tableTexture.GetSize().Y * 0.5f)
-		};
-		tableSprite.Set("light_mask", LightMask);
-		group.AddChild(tableSprite);
-
-		var tableBody = new StaticBody2D();
-		var tableShape = new RectangleShape2D { Size = new Vector2(48, 48) };
-		var tableCollision = new CollisionShape2D { Shape = tableShape };
-		tableCollision.Position = new Vector2(0, -(tableShape.Size.Y * 0.5f));
-		tableBody.AddChild(tableCollision);
-		group.AddChild(tableBody);
-
-		group.ZIndex = (int)group.GlobalPosition.Y;
-
-		CreateTabletopSprite(group, "res://assets/tiles/props/boom_mic.png", new Vector2(-12, -32), LightMask);
+		CreateTabletopSprite(tableGroup, "res://assets/tiles/props/boom_mic.png", new Vector2(-12, -32), LightMask);
 	}
 
-	private void CreateVernGroup()
+	private void CreateVernChairGroup()
 	{
 		var chairTexture = GD.Load<Texture2D>("res://assets/tiles/props/vern_chair.png");
 		var vernTexture = GD.Load<Texture2D>("res://assets/tiles/props/vern.png");
@@ -332,11 +363,10 @@ public partial class StudioBuilder : IRoomBuilder
 			return;
 		}
 
-		var worldPos = GridToWorld(new Vector2I(5, 3));
+		var chairPos = new Vector2I(5, 2);
 
-		var group = new Node2D { Name = "VernGroup" };
-		group.Position = worldPos;
-		_propSort.AddChild(group);
+		var body = new StaticBody2D { Name = "VernChairGroup" };
+		body.Position = GridToWorld(chairPos);
 
 		var chairSprite = new Sprite2D
 		{
@@ -344,7 +374,18 @@ public partial class StudioBuilder : IRoomBuilder
 			Position = new Vector2(0, -chairTexture.GetSize().Y * 0.5f)
 		};
 		chairSprite.Set("light_mask", LightMask);
-		group.AddChild(chairSprite);
+		body.AddChild(chairSprite);
+
+		if (_shadows != null)
+		{
+			_shadows.CreateShadowForObject(body, chairTexture);
+		}
+
+		var shape = new RectangleShape2D { Size = new Vector2(32, 32) };
+		var collision = new CollisionShape2D { Shape = shape };
+		collision.Position = new Vector2(0, -(shape.Size.Y * 0.5f));
+		collision.AddToGroup("debug_prop_collision");
+		body.AddChild(collision);
 
 		var vernSprite = new Sprite2D
 		{
@@ -352,9 +393,10 @@ public partial class StudioBuilder : IRoomBuilder
 			Position = new Vector2(0, -vernTexture.GetSize().Y * 0.5f)
 		};
 		vernSprite.Set("light_mask", LightMask);
-		group.AddChild(vernSprite);
+		body.AddChild(vernSprite);
 
-		group.ZIndex = (int)group.GlobalPosition.Y;
+		body.ZIndex = (int)body.GlobalPosition.Y;
+		_propSort.AddChild(body);
 	}
 
 	private void CreateTabletopSprite(Node2D parent, string texturePath, Vector2 offset, int lightMask)
@@ -386,6 +428,18 @@ public partial class StudioBuilder : IRoomBuilder
 		return _section.GridToWorld(gridPos);
 	}
 
+	public Rect2 GetFloorBounds()
+	{
+		var topLeft = _section.GridToWorld(new Vector2I(0, 0));
+		var bottomRight = _section.GridToWorld(new Vector2I(GridWidth - 1, GridHeight - 1));
+		return new Rect2(
+			topLeft.X,
+			topLeft.Y,
+			GridWidth * RoomBase.TileSize,
+			GridHeight * RoomBase.TileSize
+		);
+	}
+
 	public void Update(WorldRoom world, double delta)
 	{
 		if (_player != null)
@@ -398,18 +452,6 @@ public partial class StudioBuilder : IRoomBuilder
 		if (_ceilingLight != null)
 		{
 			_ceilingLight.Energy = CeilingLightEnergy;
-		}
-
-		if (_monitorLight != null)
-		{
-			var pulse = MonitorLightEnergy + Mathf.Sin(_flickerTime * 2f) * 0.03f;
-			_monitorLight.Energy = pulse;
-		}
-
-		if (_deskLampLight != null)
-		{
-			var shimmer = DeskLampEnergy + Mathf.Sin(_flickerTime * 3f) * 0.02f;
-			_deskLampLight.Energy = shimmer;
 		}
 
 		_shadows.Update(delta);

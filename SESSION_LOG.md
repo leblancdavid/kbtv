@@ -2,7 +2,46 @@
 
 **Branch**: `develop`
 
-**Task**: Implement light masking for walls and props in rooms.
+**Task**: Update studio layout - walls, lights, props ✅ COMPLETED
+
+### Changes Made
+
+#### 1. North Wall - Full Wall (No Window)
+- Added `WindowStartColumn` and `WindowEndColumn` exports to StudioBuilder
+- Set to 99 and 0 respectively to disable windows on north wall
+
+#### 2. Removed Extra Lights
+- Removed monitor light and desk lamp light from studio
+- Only ceiling light remains
+- Cleaned up related Update() code
+
+#### 3. Moved Props Up One Tile
+- Round table: (7, 3) → (7, 2)
+- Vern + chair: (5, 3) → (5, 2)
+
+#### 4. Added Bookcases in Corners
+- Created new `bookcase.png` (48x64, wooden with colored books)
+- Placed at grid positions (1, 0) and (12, 0)
+- Both have collision (48x32) and shadows
+
+### Props in Studio (after update)
+| Prop | Grid | Collision | Shadows |
+|------|------|-----------|---------|
+| Bookcase (left) | (1, 0) | Yes (48x32) | Yes |
+| Bookcase (right) | (12, 0) | Yes (48x32) | Yes |
+| Round table | (7, 2) | Yes (48x48) | Yes |
+| Boom mic | on table | No | - |
+| Vern + chair | (5, 2) | Yes (32x32) | Yes |
+
+### Files Modified
+- `scripts/world/builders/StudioBuilder.cs`
+- `scripts/world/builders/ControlRoomBuilder.cs`
+- `scripts/world/builders/IRoomBuilder.cs` (added GetFloorBounds interface)
+- `scripts/world/WorldRoom.cs` (added dynamic light mask using floor bounds)
+- `assets/tiles/props/bookcase.png` (new)
+
+### Build Result
+✅ Build succeeded with 0 errors (9 pre-existing warnings)
 
 ### Work Done
 

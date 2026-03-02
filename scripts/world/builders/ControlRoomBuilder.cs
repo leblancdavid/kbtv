@@ -372,6 +372,18 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		return _section.GridToWorld(gridPos);
 	}
 
+	public Rect2 GetFloorBounds()
+	{
+		var topLeft = _section.GridToWorld(new Vector2I(0, 0));
+		var bottomRight = _section.GridToWorld(new Vector2I(GridWidth - 1, GridHeight - 1));
+		return new Rect2(
+			topLeft.X,
+			topLeft.Y,
+			GridWidth * RoomBase.TileSize,
+			GridHeight * RoomBase.TileSize
+		);
+	}
+
 	public void Update(WorldRoom world, double delta)
 	{
 		if (_player != null)

@@ -61,5 +61,35 @@ public partial class WorldRoom : Node2D
 	{
 		_controlBuilder.Update(this, delta);
 		_studioBuilder.Update(this, delta);
+
+		UpdatePlayerLightMask();
+	}
+
+	private void UpdatePlayerLightMask()
+	{
+		if (Player == null) return;
+
+		var sprite = Player.GetNodeOrNull<Sprite2D>("Sprite2D");
+		if (sprite == null) return;
+
+		var playerPos = Player.GlobalPosition;
+		var studioBounds = _studioBuilder.GetFloorBounds();
+		var controlBounds = _controlBuilder.GetFloorBounds();
+
+		int targetMask;
+		if (studioBounds.HasPoint(playerPos))
+		{
+			targetMask = 2;
+		}
+		else if (controlBounds.HasPoint(playerPos))
+		{
+			targetMask = 1;
+		}
+		else
+		{
+			return;
+		}
+
+		sprite.Set("light_mask", targetMask);
 	}
 }
