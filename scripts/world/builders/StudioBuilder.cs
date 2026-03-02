@@ -229,6 +229,7 @@ public partial class StudioBuilder : IRoomBuilder
 	private void CreateProps()
 	{
 		CreateBookcases();
+		CreateOnAirSign();
 
 		if (PlaceRoundTable)
 		{
@@ -245,17 +246,52 @@ public partial class StudioBuilder : IRoomBuilder
 	{
 		CreatePropWithCollision(
 			"res://assets/tiles/props/bookcase.png",
-			new Vector2I(1, 0),
+			new Vector2I(1, 1),
 			Vector2.Zero,
 			new Vector2(48, 32)
 		);
 
 		CreatePropWithCollision(
 			"res://assets/tiles/props/bookcase.png",
-			new Vector2I(12, 0),
+			new Vector2I(12, 1),
 			Vector2.Zero,
 			new Vector2(48, 32)
 		);
+	}
+
+	private void CreateOnAirSign()
+	{
+		var onAirTexture = GD.Load<Texture2D>("res://assets/tiles/props/on_air_sign.png");
+		if (onAirTexture == null)
+		{
+			GD.PrintErr("StudioBuilder: Missing on_air_sign.png texture");
+			return;
+		}
+
+		var signPos = GridAnchor + new Vector2(112, -56);
+
+		var onAirSign = new Sprite2D
+		{
+			Texture = onAirTexture,
+			Position = signPos,
+			Scale = new Vector2(0.375f, 0.5f),
+			ZIndex = 1001
+		};
+		onAirSign.Set("light_mask", LightMask);
+		_propSort.AddChild(onAirSign);
+
+		var onAirLight = CreatePointLightWithTexture(
+			signPos,
+			new Color(1f, 0.1f, 0.1f),
+			0.5f,
+			60f,
+			false,
+			32,
+			32,
+			LightMask
+		);
+		onAirLight.ZIndex = 1002;
+		_propSort.AddChild(onAirLight);
 	}
 
 	private Node2D CreatePropWithCollision(
