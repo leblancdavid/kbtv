@@ -62,7 +62,7 @@ public partial class WorldRoom : Node2D
 	public override void _Process(double delta)
 	{
 		var vernStats = GetVernStats();
-		_controlBuilder.Update(this, delta, vernStats);
+		_controlBuilder.Update(this, delta);
 		_studioBuilder.Update(this, delta, vernStats);
 
 		UpdatePlayerLightMask();

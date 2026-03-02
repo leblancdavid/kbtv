@@ -23,7 +23,7 @@ public partial class StudioBuilder : IRoomBuilder
 
 	[ExportGroup("Lighting")]
 	[Export] private bool EnableCeilingLight = true;
-	[Export] private Color CeilingLightColor = new(1f, 0.95f, 0.8f);
+	[Export] private Color CeilingLightColor = new(1f, 0.95f, 0.9f);
 	[Export] private float CeilingLightEnergy = 0.8f;
 	[Export] private float CeilingLightRadius = 450f;
 	[Export] private bool CeilingLightShadows = true;
@@ -35,7 +35,7 @@ public partial class StudioBuilder : IRoomBuilder
 
 	[ExportGroup("Smoke")]
 	[Export] private bool EnableSmoke = true;
-	[Export] private float SmokeMaxParticles = 500f;
+	[Export] private float SmokeMaxParticles = 100f;
 	[Export] private float SmokeDecayTime = 60f;
 
 	[ExportGroup("Props")]
@@ -58,6 +58,8 @@ public partial class StudioBuilder : IRoomBuilder
 	private float[] _smokeInitialX = Array.Empty<float>();
 	private float[] _smokeTimeOffsets = Array.Empty<float>();
 	private float[] _smokeLayerOffsets = Array.Empty<float>();
+	private float[] _smokeCycleLengths = Array.Empty<float>();
+	private float[] _smokePhaseOffsets = Array.Empty<float>();
 	private CharacterBody2D _player;
 	private float _flickerTime;
 
@@ -228,27 +230,29 @@ public partial class StudioBuilder : IRoomBuilder
 		_smokeSprites = new AnimatedSprite2D[(int)SmokeMaxParticles];
 		_smokeInitialX = new float[(int)SmokeMaxParticles];
 		_smokeTimeOffsets = new float[(int)SmokeMaxParticles];
+		_smokeCycleLengths = new float[(int)SmokeMaxParticles];
+		_smokePhaseOffsets = new float[(int)SmokeMaxParticles];
 
 		for (int i = 0; i < SmokeMaxParticles; i++)
 		{
-			var initialX = GD.Randf() * 200 - 100;
+			var initialX = GD.Randf() * 240 - 120;
 			_smokeInitialX[i] = initialX;
 			_smokeTimeOffsets[i] = GD.Randf() * 30f;
+			_smokeCycleLengths[i] = 50f + GD.Randf() * 20f;
+			_smokePhaseOffsets[i] = GD.Randf() * _smokeCycleLengths[i];
 
 			var smokeSprite = new AnimatedSprite2D
 			{
 				Name = $"SmokePuff_{i}",
 				SpriteFrames = frames,
-				Position = new Vector2(initialX, -GD.Randf() * 180 + 96),
-				Scale = new Vector2(1.5f + GD.Randf() * 0.5f, 1.5f + GD.Randf() * 0.5f),
+				Position = new Vector2(initialX, -GD.Randf() * 180 + 160),
+				Scale = new Vector2(1.8f + GD.Randf() * 0.6f, 1.8f + GD.Randf() * 0.6f),
 				Modulate = new Color(1f, 1f, 1f, 0.02f)
 			};
 			smokeSprite.Set("light_mask", LightMask);
-			smokeSprite.Play("default");
 			smokeSprite.Frame = (int)(GD.Randf() * 25f);
 
 			var layerIndex = i % layerCount;
-			smokeSprite.SpeedScale = 0.8f + (layerIndex * 0.1f);
 			_smokeLayers[layerIndex].AddChild(smokeSprite);
 			_smokeSprites[i] = smokeSprite;
 		}
@@ -637,14 +641,17 @@ public partial class StudioBuilder : IRoomBuilder
 
 			var layerIndex = i % _smokeLayerOffsets.Length;
 			var adjustedTime = smokeTime + _smokeTimeOffsets[i] + _smokeLayerOffsets[layerIndex];
-			var cyclePos = adjustedTime % 60f / 60f;
+			var cycleLength = _smokeCycleLengths[i];
+			var cyclePos = ((adjustedTime + _smokePhaseOffsets[i]) % cycleLength) / cycleLength;
+			var eased = Mathf.SmoothStep(0f, 1f, cyclePos);
 
-			var yOffset = cyclePos * 180f;
+			var yOffset = eased * 180f;
 			var xWobble = Mathf.Sin(smokeTime * 0.12f + i) * 5f;
+			var yBias = i * 0.01f;
 
 			sprite.Position = new Vector2(
 				_smokeInitialX[i] + xWobble,
-				-yOffset + 96
+				-yOffset + 32 + yBias
 			);
 
 			float fadeIn = cyclePos < 0.3f ? cyclePos / 0.3f : 1f;
@@ -653,8 +660,12 @@ public partial class StudioBuilder : IRoomBuilder
 
 			sprite.Modulate = new Color(1f, 1f, 1f, alpha);
 
-			var scale = 1.0f + cyclePos * 0.5f;
+			var scale = 1.0f + eased * 0.5f;
 			sprite.Scale = new Vector2(scale, scale);
+
+			const int totalFrames = 25;
+			var frameIndex = Mathf.Clamp((int)(cyclePos * totalFrames), 0, totalFrames - 1);
+			sprite.Frame = frameIndex;
 		}
 	}
 
