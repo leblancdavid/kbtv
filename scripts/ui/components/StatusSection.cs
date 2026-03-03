@@ -46,10 +46,8 @@ namespace KBTV.UI.Components
             };
             _headerLabel.AddThemeColorOverride("font_color", UIColors.Status.SectionHeader);
 
-            // Apply monospace font
-            var monoFont = new SystemFont();
-            monoFont.FontNames = new string[] { "Consolas", "Courier New", "Liberation Mono", "monospace" };
-            _headerLabel.AddThemeFontOverride("font", monoFont);
+            // Apply mono pixel font
+            _headerLabel.AddThemeFontOverride("font", UITheme.MonoFont);
             _headerLabel.AddThemeFontSizeOverride("font_size", 13);
 
             AddChild(_headerLabel);
@@ -103,10 +101,8 @@ namespace KBTV.UI.Components
             };
             itemLabel.AddThemeColorOverride("font_color", color ?? UIColors.Status.ItemText);
 
-            // Apply monospace font
-            var monoFont = new SystemFont();
-            monoFont.FontNames = new string[] { "Consolas", "Courier New", "Liberation Mono", "monospace" };
-            itemLabel.AddThemeFontOverride("font", monoFont);
+            // Apply mono pixel font
+            itemLabel.AddThemeFontOverride("font", UITheme.MonoFont);
             itemLabel.AddThemeFontSizeOverride("font_size", 12);
 
             _itemsContainer.AddChild(itemLabel);

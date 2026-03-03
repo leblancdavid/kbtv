@@ -18,6 +18,22 @@ namespace KBTV.UI
         public static readonly Color ACCENT_RED = new Color(0.8f, 0.2f, 0.2f);
         public static readonly Color ACCENT_GREEN = new Color(0.2f, 0.8f, 0.2f);
 
+        // Font
+        private static FontFile? _monoFont;
+
+        public static FontFile MonoFont
+        {
+            get
+            {
+                if (_monoFont == null)
+                {
+                    _monoFont = GD.Load<FontFile>("res://assets/fonts/PixelOperatorMono.ttf");
+                }
+
+                return _monoFont;
+            }
+        }
+
         // Global scale
         public const float SCALE = 1.0f;
 
@@ -74,6 +90,7 @@ namespace KBTV.UI
         {
             button.AddThemeColorOverride("font_color", TEXT_PRIMARY);
             button.AddThemeFontSizeOverride("font_size", FONT_TINY);
+            button.AddThemeFontOverride("font", MonoFont);
 
             if (button.CustomMinimumSize.Y < BUTTON_HEIGHT)
             {
@@ -145,6 +162,7 @@ namespace KBTV.UI
             label.AddThemeColorOverride("font_color",
                 isPrimary ? TEXT_PRIMARY : TEXT_SECONDARY);
             label.AddThemeFontSizeOverride("font_size", FONT_SMALL);
+            label.AddThemeFontOverride("font", MonoFont);
         }
 
         /// <summary>

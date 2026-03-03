@@ -57,11 +57,9 @@ namespace KBTV.UI.Components
             _valueLabel.AddThemeColorOverride("font_color", UIColors.TEXT_PRIMARY);
             AddChild(_valueLabel);
 
-            // Apply monospace font to all labels
-            var monoFont = new SystemFont();
-            monoFont.FontNames = new string[] { "Consolas", "Courier New", "Liberation Mono", "monospace" };
-            _nameLabel.AddThemeFontOverride("font", monoFont);
-            _valueLabel.AddThemeFontOverride("font", monoFont);
+            // Apply mono pixel font to all labels
+            _nameLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _valueLabel.AddThemeFontOverride("font", UITheme.MonoFont);
 
             // Style the progress bar background
             var bgStyle = new StyleBoxFlat

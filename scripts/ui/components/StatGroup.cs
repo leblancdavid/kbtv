@@ -43,10 +43,8 @@ namespace KBTV.UI.Components
             _headerLabel.AddThemeColorOverride("font_color", UIColors.VernStat.CategoryHeader);
             AddChild(_headerLabel);
 
-            // Apply monospace font for consistent dashes
-            var monoFont = new SystemFont();
-            monoFont.FontNames = new string[] { "Consolas", "Courier New", "Liberation Mono", "monospace" };
-            _headerLabel.AddThemeFontOverride("font", monoFont);
+            // Apply mono pixel font for consistent dashes
+            _headerLabel.AddThemeFontOverride("font", UITheme.MonoFont);
 
             // Set header text
             UpdateHeaderText();

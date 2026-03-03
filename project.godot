@@ -24,7 +24,16 @@ AudioMixerManager="*res://scripts/audio/AudioMixerManager.cs"
 window/size/viewport_width=640
 window/size/viewport_height=360
 window/size/mode=2
-window/stretch/mode="viewport"
+window/size/resizable=true
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+window/stretch/scale_mode="integer"
+
+[gui]
+
+theme/default_font="res://assets/fonts/PixelOperatorMono.ttf"
+theme/default_font_size=9
+theme/custom="res://assets/ui/KBTVTheme.tres"
 
 [input]
 

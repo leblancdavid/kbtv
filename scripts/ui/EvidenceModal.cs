@@ -245,9 +245,7 @@ public partial class EvidenceModal : Control
     /// </summary>
     private static void ApplyMonospaceFont(Control control)
     {
-        var monoFont = new SystemFont();
-        monoFont.FontNames = new string[] { "Consolas", "Courier New", "Liberation Mono", "monospace" };
-        control.AddThemeFontOverride("font", monoFont);
+        control.AddThemeFontOverride("font", UITheme.MonoFont);
     }
 
     public override void _Ready()

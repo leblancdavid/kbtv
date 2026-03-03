@@ -46,12 +46,8 @@ namespace KBTV.UI.Components
             };
             AddChild(_contentLabel);
 
-            // Create a monospace system font for console-like appearance
-            var monoFont = new SystemFont();
-            monoFont.FontNames = new string[] { "Consolas", "Courier New", "Liberation Mono", "monospace" };
-
-            // Apply font
-            _contentLabel.AddThemeFontOverride("normal_font", monoFont);
+            // Apply mono pixel font
+            _contentLabel.AddThemeFontOverride("normal_font", UITheme.MonoFont);
             _contentLabel.AddThemeFontSizeOverride("normal_font_size", 9);
 
             // Try to get audio service for reveal sounds

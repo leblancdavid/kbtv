@@ -114,12 +114,10 @@ namespace KBTV.UI.Components
             _moodLabel.AddThemeColorOverride("font_color", UIColors.TEXT_PRIMARY);
             AddChild(_moodLabel);
 
-            // Apply monospace font to all labels
-            var monoFont = new SystemFont();
-            monoFont.FontNames = new string[] { "Consolas", "Courier New", "Liberation Mono", "monospace" };
-            _vibeLabel.AddThemeFontOverride("font", monoFont);
-            _valueLabel.AddThemeFontOverride("font", monoFont);
-            _moodLabel.AddThemeFontOverride("font", monoFont);
+            // Apply mono pixel font to all labels
+            _vibeLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _valueLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _moodLabel.AddThemeFontOverride("font", UITheme.MonoFont);
 
             // Initial update if stats already set
             if (_vernStats != null)

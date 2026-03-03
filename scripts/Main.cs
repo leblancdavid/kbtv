@@ -34,6 +34,10 @@ namespace KBTV
             Log.Debug("Main: PreShowUIManager added");
             _serviceProviderRoot.AddChild(new TabContainerManager());
             _serviceProviderRoot.AddChild(new PostShowUIManager());
+
+            var windowScaleManager = new WindowScaleManager();
+            _serviceProviderRoot.AddChild(windowScaleManager);
+            windowScaleManager.SetBorderlessFullscreen();
             
             Log.Debug("Main: UI managers instantiated successfully");
 

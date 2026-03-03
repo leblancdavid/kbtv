@@ -2,33 +2,25 @@
 
 **Branch**: `develop`
 
-**Task**: Reformat screening panel layout and move close button to on-hold column
+**Task**: Add integer scale snapping for resizable window
 
 **Status**: In Progress
 
 **Files Modified**:
-- `scripts/ui/TabContainerManager.cs`
-- `scripts/ui/CallerTab.cs`
-- `scenes/ui/ScreeningPanel.tscn`
-- `scripts/ui/ScreeningPanel.cs`
-- `scripts/ui/components/StatSummaryPanel.cs`
-- `scenes/ui/CallerTab.tscn`
+- `project.godot`
+- `scripts/core/WindowScaleManager.cs`
+- `scripts/Main.cs`
+- `scenes/Game.tscn`
+- `SESSION_LOG.md`
 
 **Work Done**:
-- Removed screening header and rebuilt top row (caller + patience)
-- Moved stat impact/evidence to compact row above buttons
-- Updated close button placement to sit above on-hold column
-- Adjusted screening label usage to avoid duplicate header text
-- Set column width split to 20/60/20
-- Reduced impact row height and removed divider line
-- Added 4px padding to screening content and caller lists
-- Reduced outcome/evidence row height and button padding
-- Reserved scrollbar space to avoid content shrink
-- Removed stat summary hardcoded min height and forced compact sizing
+- Implementing integer scale snapping for resizable window
+- Switched stretch aspect to expand for full-window fill
+- Added borderless fullscreen setup and letterbox background
+- Moved letterbox CanvasLayer behind UI layers
 
 **Next Steps**:
-- Verify screening panel no longer overflows and uses full height
-- Check close button placement over on-hold column
+- Validate window resize snapping to 1x/2x/3x
 
 **Related Docs**:
 - `docs/ui/UI_DESIGN.md`

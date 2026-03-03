@@ -39,9 +39,7 @@ namespace KBTV.UI.Components
             };
             headerLabel.AddThemeColorOverride("font_color", UIColors.VernStat.CategoryHeader);
 
-            var monoFont = new SystemFont();
-            monoFont.FontNames = new string[] { "Consolas", "Courier New", "Liberation Mono", "monospace" };
-            headerLabel.AddThemeFontOverride("font", monoFont);
+            headerLabel.AddThemeFontOverride("font", UITheme.MonoFont);
             AddChild(headerLabel);
 
             // Create sections
