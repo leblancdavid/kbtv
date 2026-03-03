@@ -5,6 +5,7 @@ using System.Linq;
 using Godot;
 using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Managers;
 using KBTV.Screening;
 using KBTV.UI.Components;
 using KBTV.UI.Themes;
@@ -14,6 +15,7 @@ namespace KBTV.UI
     public partial class CallerTab : Control, ICallerActions
     {
         public event Action? CloseRequested;
+        public event Action? BackRequested;
         [ExportGroup("Node References")]
         [Export]
         private VBoxContainer? _incomingPanel;
@@ -30,10 +32,14 @@ namespace KBTV.UI
         private CallerListAdapter _incomingAdapter = null!;
         private ReactiveListPanel<Caller>? _reactiveListPanel;
         private Button? _closeButton;
+        private Button? _backButton;
+        private Label? _showTimerLabel;
+        private TimeManager _timeManager = null!;
 
         private string? _previousScreeningCallerId;
         private int _previousIncomingCount;
         private int _previousOnHoldCount;
+        private string _previousTimerText = "--:--";
 
         public override void _Ready()
         {
@@ -44,6 +50,7 @@ namespace KBTV.UI
 
             TrackStateForRefresh();
             RefreshTabContent(); // Ensure initial visibility is set correctly
+            UpdateShowTimer();
         }
 
         private void InitializeNodeReferences()
@@ -59,6 +66,7 @@ namespace KBTV.UI
             _repository = DependencyInjection.Get<ICallerRepository>(this);
             _screeningController = DependencyInjection.Get<IScreeningController>(this);
             _incomingAdapter = new CallerListAdapter(_repository);
+            _timeManager = DependencyInjection.Get<TimeManager>(this);
         }
 
         private void CreateTabManager()
@@ -89,6 +97,42 @@ namespace KBTV.UI
                     _incomingPanel.RemoveChild(child);
                     child.QueueFree();
                 }
+
+                if (_backButton != null)
+                {
+                    _backButton.Pressed -= OnBackPressed;
+                    _backButton.QueueFree();
+                    _backButton = null;
+                }
+
+                var topRow = new HBoxContainer
+                {
+                    SizeFlagsHorizontal = SizeFlags.ExpandFill
+                };
+                topRow.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
+
+                _backButton = new Button
+                {
+                    Text = "<-",
+                    CustomMinimumSize = new Vector2(24, 18),
+                    SizeFlagsHorizontal = SizeFlags.ShrinkBegin
+                };
+                _backButton.AddThemeFontSizeOverride("font_size", 9);
+                UITheme.ApplyButtonStyle(_backButton);
+                _backButton.Pressed += OnBackPressed;
+                topRow.AddChild(_backButton);
+
+                _showTimerLabel = new Label
+                {
+                    Text = _timeManager?.RemainingTimeFormatted ?? "--:--",
+                    HorizontalAlignment = HorizontalAlignment.Left,
+                    SizeFlagsHorizontal = SizeFlags.ExpandFill
+                };
+                _showTimerLabel.AddThemeFontSizeOverride("font_size", 9);
+                _showTimerLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+                topRow.AddChild(_showTimerLabel);
+
+                _incomingPanel.AddChild(topRow);
 
                 var header = new Label
                 {
@@ -243,11 +287,17 @@ namespace KBTV.UI
             CloseRequested?.Invoke();
         }
 
+        private void OnBackPressed()
+        {
+            BackRequested?.Invoke();
+        }
+
         private void TrackStateForRefresh()
         {
             _previousScreeningCallerId = _repository.CurrentScreening?.Id;
             _previousIncomingCount = _repository.IncomingCallers.Count;
             _previousOnHoldCount = _repository.OnHoldCallers.Count;
+            _previousTimerText = _timeManager?.RemainingTimeFormatted ?? "--:--";
         }
 
         public override void _Process(double delta)
@@ -257,15 +307,19 @@ namespace KBTV.UI
             var screeningCallerId = _repository.CurrentScreening?.Id;
             var incomingCount = _repository.IncomingCallers.Count;
             var onHoldCount = _repository.OnHoldCallers.Count;
+            var timerText = _timeManager?.RemainingTimeFormatted ?? "--:--";
 
             if (screeningCallerId != _previousScreeningCallerId ||
                 incomingCount != _previousIncomingCount ||
-                onHoldCount != _previousOnHoldCount)
+                onHoldCount != _previousOnHoldCount ||
+                timerText != _previousTimerText)
             {
                 RefreshTabContent();
+                UpdateShowTimer();
                 _previousScreeningCallerId = screeningCallerId;
                 _previousIncomingCount = incomingCount;
                 _previousOnHoldCount = onHoldCount;
+                _previousTimerText = timerText;
             }
         }
 
@@ -279,6 +333,31 @@ namespace KBTV.UI
             if (_screeningPanel != null)
             {
                 _screeningPanel.Visible = true;
+            }
+        }
+
+        private void UpdateShowTimer()
+        {
+            if (_timeManager == null || _showTimerLabel == null)
+            {
+                return;
+            }
+
+            var remainingText = _timeManager.RemainingTimeFormatted ?? "--:--";
+            _showTimerLabel.Text = remainingText;
+
+            var remainingSeconds = _timeManager.RemainingTime;
+            if (remainingSeconds <= 30f)
+            {
+                _showTimerLabel.AddThemeColorOverride("font_color", Colors.Red);
+            }
+            else if (remainingSeconds <= 60f)
+            {
+                _showTimerLabel.AddThemeColorOverride("font_color", Colors.Yellow);
+            }
+            else
+            {
+                _showTimerLabel.AddThemeColorOverride("font_color", Colors.White);
             }
         }
 
@@ -315,6 +394,11 @@ namespace KBTV.UI
             if (_closeButton != null)
             {
                 _closeButton.Pressed -= OnClosePressed;
+            }
+
+            if (_backButton != null)
+            {
+                _backButton.Pressed -= OnBackPressed;
             }
         }
     }

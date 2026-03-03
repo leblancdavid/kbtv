@@ -2,6 +2,42 @@
 
 **Branch**: `develop`
 
+**Task**: Add Vern stat view and navigation from screener
+
+**Status**: In Progress
+
+**Files Modified**:
+- `SESSION_LOG.md`
+- `scripts/ui/CallerScreenerManager.cs`
+- `scripts/ui/CallerTab.cs`
+- `scripts/ui/VernStatView.cs`
+- `scenes/ui/VernStatView.tscn`
+- `scripts/world/WorldRoom.cs`
+
+**Work Done**:
+- Initialized new task for Vern stat view and screener navigation
+- Renamed VernTab to VernStatView (script + scene)
+- Added Vern stat view container with placeholder background and forward button
+- Added screener back button and live show timer label above incoming queue
+- Wired view switching between screener and Vern stat view
+- Swapped placeholder background for SubViewport camera feed and transcript-only layout
+
+**Next Steps**:
+- Verify Vern stat view renders correctly and navigation works
+
+**Related Docs**:
+- `docs/ui/UI_DESIGN.md`
+- `docs/ui/UI_IMPLEMENTATION.md`
+
+**Blockers**:
+- None
+
+---
+
+## Previous Session
+
+**Branch**: `develop`
+
 **Task**: Fix cast shadow gradient fade direction
 
 **Status**: In Progress

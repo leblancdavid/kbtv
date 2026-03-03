@@ -15,6 +15,17 @@ namespace KBTV.UI
         private EventBus? _eventBus;
         private ColorRect? _background;
         private CallerTab? _callerTab;
+        private Control? _liveShowFooter;
+        private Control? _vernStatView;
+        private Control? _vernViewContainer;
+        private SubViewport? _vernViewport;
+        private Camera2D? _vernCamera;
+        private TextureRect? _vernViewportTexture;
+        private Control? _vernTranscriptPanel;
+        private ColorRect? _vernBackdrop;
+
+        private static readonly float VernCameraZoomScale = 1.15f;
+        private static readonly Vector2I VernGridPosition = new Vector2I(5, 2);
 
         public bool IsOpen { get; private set; }
         public event Action? Opened;
@@ -61,6 +72,7 @@ namespace KBTV.UI
                 _callerTab.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
                 _callerTab.SizeFlagsStretchRatio = 3;
                 _callerTab.CloseRequested += OnCloseRequested;
+                _callerTab.BackRequested += OnBackRequested;
                 mainLayout.AddChild(_callerTab);
             }
             else
@@ -71,16 +83,87 @@ namespace KBTV.UI
             var footerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LiveShowFooter.tscn");
             if (footerScene != null)
             {
-                var footer = footerScene.Instantiate<Control>();
-                footer.Name = "LiveShowFooter";
-                footer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-                footer.SizeFlagsStretchRatio = 1;
-                footer.CustomMinimumSize = Vector2.Zero;
-                mainLayout.AddChild(footer);
+                _liveShowFooter = footerScene.Instantiate<Control>();
+                _liveShowFooter.Name = "LiveShowFooter";
+                _liveShowFooter.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+                _liveShowFooter.SizeFlagsStretchRatio = 1;
+                _liveShowFooter.CustomMinimumSize = Vector2.Zero;
+                mainLayout.AddChild(_liveShowFooter);
             }
             else
             {
                 Log.Error("CallerScreenerManager: Failed to load LiveShowFooter.tscn");
+            }
+
+            var vernScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/VernStatView.tscn");
+            if (vernScene != null)
+            {
+                EnsureVernViewport();
+
+                _vernViewContainer = new Control();
+                _vernViewContainer.Name = "VernStatContainer";
+                _vernViewContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+
+                _vernBackdrop = new ColorRect
+                {
+                    Name = "VernBackdrop",
+                    Color = new Color(0.02f, 0.02f, 0.02f, 1f)
+                };
+                _vernBackdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                _vernBackdrop.MouseFilter = Control.MouseFilterEnum.Ignore;
+                _vernViewContainer.AddChild(_vernBackdrop);
+
+                _vernViewportTexture = new TextureRect
+                {
+                    Name = "VernViewportTexture",
+                    StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered
+                };
+                _vernViewportTexture.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                _vernViewportTexture.MouseFilter = Control.MouseFilterEnum.Ignore;
+                if (_vernViewport != null)
+                {
+                    _vernViewportTexture.Texture = _vernViewport.GetTexture();
+                }
+                _vernViewContainer.AddChild(_vernViewportTexture);
+
+                _vernStatView = vernScene.Instantiate<Control>();
+                _vernStatView.Name = "VernStatView";
+                _vernStatView.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                _vernViewContainer.AddChild(_vernStatView);
+
+                var transcriptScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LiveShowPanel.tscn");
+                if (transcriptScene != null)
+                {
+                    _vernTranscriptPanel = transcriptScene.Instantiate<Control>();
+                    _vernTranscriptPanel.Name = "VernTranscriptPanel";
+                    _vernViewContainer.AddChild(_vernTranscriptPanel);
+                }
+                else
+                {
+                    Log.Error("CallerScreenerManager: Failed to load LiveShowPanel.tscn");
+                }
+
+                var forwardButton = new Button
+                {
+                    Name = "ForwardButton",
+                    Text = "->",
+                    CustomMinimumSize = new Vector2(24, 18)
+                };
+                forwardButton.SetAnchorsPreset(Control.LayoutPreset.TopRight);
+                forwardButton.OffsetLeft = -36;
+                forwardButton.OffsetTop = 6;
+                forwardButton.OffsetRight = -12;
+                forwardButton.OffsetBottom = 24;
+                UITheme.ApplyButtonStyle(forwardButton);
+                forwardButton.Pressed += OnForwardRequested;
+                _vernViewContainer.AddChild(forwardButton);
+
+                _vernViewContainer.Hide();
+                _canvas.AddChild(_vernViewContainer);
+            }
+            else
+            {
+                Log.Error("CallerScreenerManager: Failed to load VernStatView.tscn");
             }
 
             _canvas.Hide();
@@ -110,6 +193,25 @@ namespace KBTV.UI
             if (_canvas != null)
             {
                 _canvas.Show();
+                if (_background != null)
+                {
+                    _background.Show();
+                }
+                if (_vernViewContainer != null)
+                {
+                    _vernViewContainer.Hide();
+                }
+
+                if (_callerTab != null)
+                {
+                    _callerTab.Show();
+                }
+
+                if (_liveShowFooter != null)
+                {
+                    _liveShowFooter.Show();
+                }
+
                 IsOpen = true;
                 Opened?.Invoke();
                 GetTree()?.CallGroup("player", "SetMovementLocked", true);
@@ -121,10 +223,63 @@ namespace KBTV.UI
             if (_canvas != null)
             {
                 _canvas.Hide();
+                if (_vernViewContainer != null)
+                {
+                    _vernViewContainer.Hide();
+                }
+
+                if (_callerTab != null)
+                {
+                    _callerTab.Hide();
+                }
+
+                if (_liveShowFooter != null)
+                {
+                    _liveShowFooter.Hide();
+                }
+
                 IsOpen = false;
                 Closed?.Invoke();
                 GetTree()?.CallGroup("player", "SetMovementLocked", false);
             }
+        }
+
+        private void ShowVernStatView()
+        {
+            if (_canvas == null)
+            {
+                return;
+            }
+
+            _canvas.Show();
+            if (_background != null)
+            {
+                _background.Hide();
+            }
+            if (_callerTab != null)
+            {
+                _callerTab.Hide();
+            }
+
+            if (_liveShowFooter != null)
+            {
+                _liveShowFooter.Hide();
+            }
+
+            EnsureVernViewport();
+            UpdateVernViewportSize();
+            UpdateVernCameraTarget();
+            UpdateVernCameraZoom();
+            UpdateVernTranscriptLayout();
+
+            if (_vernViewContainer != null)
+            {
+                _vernViewContainer.Show();
+            }
+
+            IsOpen = true;
+            Opened?.Invoke();
+            GetTree()?.CallGroup("player", "SetMovementLocked", true);
         }
 
         public void Show()
@@ -161,6 +316,140 @@ namespace KBTV.UI
             Hide();
         }
 
+        private void OnBackRequested()
+        {
+            ShowVernStatView();
+        }
+
+        private void OnForwardRequested()
+        {
+            ShowCallersTab();
+        }
+
+        private void EnsureVernViewport()
+        {
+            if (_vernViewport != null)
+            {
+                return;
+            }
+
+            _vernViewport = new SubViewport
+            {
+                Name = "VernSubViewport",
+                TransparentBg = true,
+                RenderTargetUpdateMode = SubViewport.UpdateMode.Always
+            };
+
+            var rootViewport = GetViewport();
+            if (rootViewport != null)
+            {
+                _vernViewport.World2D = rootViewport.World2D;
+            }
+
+            _vernCamera = new Camera2D
+            {
+                Name = "VernCamera"
+            };
+
+            AddChild(_vernViewport);
+            _vernViewport.AddChild(_vernCamera);
+            _vernCamera.CallDeferred("make_current");
+        }
+
+        private void UpdateVernViewportSize()
+        {
+            if (_vernViewport == null)
+            {
+                return;
+            }
+
+            var rootViewport = GetViewport();
+            if (rootViewport == null)
+            {
+                return;
+            }
+
+            var size = rootViewport.GetVisibleRect().Size;
+            _vernViewport.Size = new Vector2I((int)size.X, (int)size.Y);
+            _vernViewContainer.CustomMinimumSize = size;
+        }
+
+        private void UpdateVernTranscriptLayout()
+        {
+            if (_vernTranscriptPanel == null)
+            {
+                return;
+            }
+
+            var rootViewport = GetViewport();
+            if (rootViewport == null)
+            {
+                return;
+            }
+
+            var size = rootViewport.GetVisibleRect().Size;
+            var panelWidth = size.X * 0.6f;
+            var panelHeight = size.Y * 0.25f;
+            var left = (size.X - panelWidth) * 0.5f;
+            var top = size.Y - panelHeight;
+
+            _vernTranscriptPanel.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
+            _vernTranscriptPanel.OffsetLeft = left;
+            _vernTranscriptPanel.OffsetTop = top;
+            _vernTranscriptPanel.OffsetRight = left + panelWidth;
+            _vernTranscriptPanel.OffsetBottom = top + panelHeight;
+        }
+
+        private void UpdateVernCameraTarget()
+        {
+            if (_vernCamera == null)
+            {
+                return;
+            }
+
+            var worldRoom = GetTree()?.Root?.GetNodeOrNull<global::WorldRoom>("Main/World/WorldRoom");
+            if (worldRoom == null)
+            {
+                return;
+            }
+
+            var target = worldRoom.StudioGridToWorld(VernGridPosition);
+            _vernCamera.GlobalPosition = target;
+        }
+
+        private void UpdateVernCameraZoom()
+        {
+            if (_vernCamera == null)
+            {
+                return;
+            }
+
+            var rootViewport = GetViewport();
+            if (rootViewport == null)
+            {
+                return;
+            }
+
+            var worldRoom = GetTree()?.Root?.GetNodeOrNull<global::WorldRoom>("Main/World/WorldRoom");
+            if (worldRoom == null)
+            {
+                return;
+            }
+
+            var studioBounds = worldRoom.GetStudioBounds();
+            if (studioBounds.Size.X <= 0f || studioBounds.Size.Y <= 0f)
+            {
+                return;
+            }
+
+            var viewportSize = rootViewport.GetVisibleRect().Size;
+            var zoomX = viewportSize.X / studioBounds.Size.X;
+            var zoomY = viewportSize.Y / studioBounds.Size.Y;
+            var baseZoom = Mathf.Min(zoomX, zoomY);
+            var zoom = baseZoom * VernCameraZoomScale;
+            _vernCamera.Zoom = new Vector2(zoom, zoom);
+        }
+
         public override void _ExitTree()
         {
             if (_eventBus != null)
@@ -171,6 +460,7 @@ namespace KBTV.UI
             if (_callerTab != null)
             {
                 _callerTab.CloseRequested -= OnCloseRequested;
+                _callerTab.BackRequested -= OnBackRequested;
             }
         }
     }

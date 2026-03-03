@@ -37,6 +37,11 @@ public partial class WorldRoom : Node2D
 		return _studioBuilder.GridToWorld(gridPos);
 	}
 
+	public Rect2 GetStudioBounds()
+	{
+		return _studioBuilder.GetFloorBounds();
+	}
+
 	public override void _Ready()
 	{
 		PropSort = new Node2D { Name = "PropSort" };

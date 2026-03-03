@@ -9,38 +9,14 @@ using KBTV.UI.Themes;
 namespace KBTV.UI
 {
     /// <summary>
-    /// Main VERN tab controller displaying all of Vern's stats in a two-column layout.
-    /// 
-    /// Layout:
-    /// ┌─────────────────────────────────────────────────────────────────────────────┐
-    /// │  VIBE  [░░░░░░░████████████░░░░]  +25   FOCUSED     (full width header)     │
-    /// ├─────────────────────────────────┬───────────────────────────────────────────┤
-    /// │  LEFT COLUMN (50%)              │  RIGHT COLUMN (50%)                       │
-    /// │                                 │                                           │
-    /// │  ─── DEPENDENCIES ───           │  ─── STATUS ───                           │
-    /// │  CAFFEINE  [████████░░░░] 80    │  DECAY RATES                              │
-    /// │  NICOTINE  [████░░░░░░░░] 40    │  ├─ Caffeine: -3.75/min (0.75x)           │
-    /// │                                 │  └─ Nicotine: -4.00/min (1.00x)           │
-    /// │  ─── CORE STATS ───             │                                           │
-    /// │  PHYSICAL  [░░░░░|██░░░] +30    │  WITHDRAWAL                               │
-    /// │  EMOTIONAL [░░░██|░░░░░] -20    │  └─ None (dependencies OK)                │
-    /// │  MENTAL    [░░░░░|█░░░░] +15    │                                           │
-    /// │                                 │  STAT INTERACTIONS                        │
-    /// │                                 │  └─ None active                           │
-    /// │                                 │                                           │
-    /// │                                 │  ⚠ CAFFEINE CRASH                         │
-    /// │                                 │  ⚠ LISTENERS LEAVING                      │
-    /// └─────────────────────────────────┴───────────────────────────────────────────┘
-    /// 
-    /// Implements IDependent to get VernStats from GameStateManager via DI.
+    /// Main Vern stat view displaying all of Vern's stats in a two-column layout.
     /// </summary>
-    public partial class VernTab : Control, IDependent
+    public partial class VernStatView : Control, IDependent
     {
         private VernStats? _vernStats;
         private ScrollContainer? _scrollContainer;
         private VBoxContainer? _contentContainer;
 
-        // Stat display components
         private VibeDisplay? _vibeDisplay;
         private StatGroup? _dependenciesGroup;
         private StatGroup? _coreStatsGroup;
@@ -55,18 +31,17 @@ namespace KBTV.UI
 
         public void OnResolved()
         {
-            // Get VernStats from GameStateManager via DI
             var gameStateManager = DependencyInjection.Get<IGameStateManager>(this);
             if (gameStateManager == null)
             {
-                Log.Error("VernTab: GameStateManager is null - cannot get VernStats!");
+                Log.Error("VernStatView: GameStateManager is null - cannot get VernStats!");
                 return;
             }
 
             _vernStats = gameStateManager.VernStats;
             if (_vernStats == null)
             {
-                Log.Error("VernTab: VernStats is null!");
+                Log.Error("VernStatView: VernStats is null!");
                 return;
             }
 
@@ -75,7 +50,6 @@ namespace KBTV.UI
 
         private void BuildUI()
         {
-            // Create scroll container for the entire tab
             _scrollContainer = new ScrollContainer
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
@@ -86,7 +60,6 @@ namespace KBTV.UI
             _scrollContainer.SetAnchorsPreset(LayoutPreset.FullRect);
             AddChild(_scrollContainer);
 
-            // Create main content container
             _contentContainer = new VBoxContainer
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
@@ -95,7 +68,6 @@ namespace KBTV.UI
             _contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             _scrollContainer.AddChild(_contentContainer);
 
-            // Add padding container
             var paddingContainer = new MarginContainer();
             UITheme.ApplyMargins(paddingContainer, UITheme.MARGIN_MEDIUM, UITheme.MARGIN_SMALL, UITheme.MARGIN_MEDIUM, UITheme.MARGIN_SMALL);
             paddingContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
@@ -108,7 +80,6 @@ namespace KBTV.UI
             paddingContainer.AddChild(innerContainer);
             _contentContainer.AddChild(paddingContainer);
 
-            // Build sections
             CreateVibeDisplay(innerContainer);
             CreateTwoColumnLayout(innerContainer);
         }
@@ -126,7 +97,6 @@ namespace KBTV.UI
         {
             if (_vernStats == null) return;
 
-            // Create horizontal container for two columns (50/50 split)
             var columnsContainer = new HBoxContainer
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill
@@ -134,7 +104,6 @@ namespace KBTV.UI
             columnsContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             parent.AddChild(columnsContainer);
 
-            // Left column - Stats
             var leftColumn = new VBoxContainer
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
@@ -143,7 +112,6 @@ namespace KBTV.UI
             leftColumn.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
             columnsContainer.AddChild(leftColumn);
 
-            // Right column - Status panel
             var rightColumn = new VBoxContainer
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
@@ -151,11 +119,8 @@ namespace KBTV.UI
             };
             columnsContainer.AddChild(rightColumn);
 
-            // Build left column content
             CreateDependenciesGroup(leftColumn);
             CreateCoreStatsGroup(leftColumn);
-
-            // Build right column content
             CreateStatusPanel(rightColumn);
         }
 
@@ -166,12 +131,10 @@ namespace KBTV.UI
             _dependenciesGroup = new StatGroup("DEPENDENCIES");
             parent.AddChild(_dependenciesGroup);
 
-            // Caffeine (0-100 bar)
             var caffeineBar = new StatBar();
             _dependenciesGroup.AddStatBar(caffeineBar);
             caffeineBar.SetStat(_vernStats.Caffeine);
 
-            // Nicotine (0-100 bar)
             var nicotineBar = new StatBar();
             _dependenciesGroup.AddStatBar(nicotineBar);
             nicotineBar.SetStat(_vernStats.Nicotine);
@@ -184,17 +147,14 @@ namespace KBTV.UI
             _coreStatsGroup = new StatGroup("CORE STATS");
             parent.AddChild(_coreStatsGroup);
 
-            // Physical (-100 to +100, centered bar)
             var physicalBar = new CenteredStatBar();
             _coreStatsGroup.AddCenteredStatBar(physicalBar);
             physicalBar.SetStat(_vernStats.Physical);
 
-            // Emotional (-100 to +100, centered bar)
             var emotionalBar = new CenteredStatBar();
             _coreStatsGroup.AddCenteredStatBar(emotionalBar);
             emotionalBar.SetStat(_vernStats.Emotional);
 
-            // Mental (-100 to +100, centered bar)
             var mentalBar = new CenteredStatBar();
             _coreStatsGroup.AddCenteredStatBar(mentalBar);
             mentalBar.SetStat(_vernStats.Mental);
