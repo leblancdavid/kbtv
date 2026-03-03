@@ -25,7 +25,7 @@ script = ExtResource("1")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 4
 
 [node name="HeaderContainer" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
@@ -64,7 +64,7 @@ vertical_alignment = 1
 
 [node name="DialogueContainer" type="Panel" parent="VBoxContainer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 90)
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_vertical = 3
 

@@ -32,7 +32,7 @@ namespace KBTV
             Log.Debug("Main: Adding PreShowUIManager");
             _serviceProviderRoot.AddChild(new PreShowUIManager());
             Log.Debug("Main: PreShowUIManager added");
-            _serviceProviderRoot.AddChild(new TabContainerManager());
+            _serviceProviderRoot.AddChild(new CallerScreenerManager());
             _serviceProviderRoot.AddChild(new PostShowUIManager());
 
             var windowScaleManager = new WindowScaleManager();

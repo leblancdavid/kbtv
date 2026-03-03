@@ -13,12 +13,12 @@ namespace KBTV.UI
         private GameStateManager _gameState;
         private ICallerRepository _repository;
 
-    public override void _Ready()
-    {
-        _gameState = DependencyInjection.Get<GameStateManager>(this);
-        _repository = DependencyInjection.Get<ICallerRepository>(this);
+        public override void _Ready()
+        {
+            _gameState = DependencyInjection.Get<GameStateManager>(this);
+            _repository = DependencyInjection.Get<ICallerRepository>(this);
 
-        EnsureInteractAction();
+            EnsureInteractAction();
 
             if (_repository == null)
             {

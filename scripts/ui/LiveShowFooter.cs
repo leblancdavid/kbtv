@@ -15,7 +15,9 @@ namespace KBTV.UI
         private Label _callerNameLabel = null!;
         private Button _queueAdsButton = null!;
         private Button _dropCallerButton = null!;
-        private Label _breaksRemainingLabel = null!;
+        private Label _queueAdsTimerLabel = null!;
+        private Label _dropTimerLabel = null!;
+        private Label _adBreakTimerLabel = null!;
         private Control _adBreakPanel = null!;
         private Control _endShowPanel = null!;
 
@@ -30,6 +32,8 @@ namespace KBTV.UI
         private float _cursingTimeRemaining = 0f;
         private const float CURSING_TIMER_DURATION = 20f;
 
+        private float _previousAdBreakSeconds = -1f;
+
         public override void _Notification(int what) => this.Notify(what);
 
         private string _previousOnAirCallerId = string.Empty;
@@ -37,12 +41,24 @@ namespace KBTV.UI
 
         public override void _Ready()
         {
-            _callerNameLabel = GetNode<Label>("HBoxContainer/OnAirPanel/OnAirVBox/CallerNameLabel");
-            _queueAdsButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls/QueueAdsButton");
-            _dropCallerButton = GetNode<Button>("HBoxContainer/OnAirPanel/OnAirVBox/DropCallerButton");
-            _breaksRemainingLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/BreaksRemainingLabel");
+            _callerNameLabel = GetNode<Label>("HBoxContainer/OnAirPanel/OnAirVBox/OnAirTop/CallerNameLabel");
+            _queueAdsButton = GetNode<Button>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakCenter/AdBreakControls/QueueAdsButton");
+            _dropCallerButton = GetNode<Button>("HBoxContainer/OnAirPanel/OnAirVBox/OnAirCenter/DropControls/DropCallerButton");
+            _queueAdsTimerLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakCenter/AdBreakControls/QueueAdsTimerLabel");
+            _dropTimerLabel = GetNode<Label>("HBoxContainer/OnAirPanel/OnAirVBox/OnAirCenter/DropControls/DropTimerLabel");
+            _adBreakTimerLabel = GetNode<Label>("HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakTop/AdBreakTimerLabel");
             _adBreakPanel = GetNode<Control>("HBoxContainer/AdBreakPanel");
             _endShowPanel = GetNode<Control>("HBoxContainer/EndShowPanel");
+
+            if (_queueAdsButton != null)
+            {
+                _queueAdsButton.Text = "QUEUE";
+            }
+
+            if (_dropCallerButton != null)
+            {
+                _dropCallerButton.Text = "DROP";
+            }
 
             // Dependencies resolved in OnResolved()
         }
@@ -118,6 +134,7 @@ namespace KBTV.UI
 
             // Update ad break controls (handles countdown display and button states)
             UpdateAdBreakControls();
+            UpdateAdBreakTimer();
             
             // Update cursing timer if active
             UpdateCursingTimer(delta);
@@ -138,6 +155,11 @@ namespace KBTV.UI
             if (_dropCallerButton != null)
             {
                 _dropCallerButton.Disabled = _repository?.OnAirCaller == null;
+            }
+
+            if (_dropTimerLabel != null && _repository?.OnAirCaller == null)
+            {
+                _dropTimerLabel.Text = "--:--";
             }
         }
 
@@ -218,10 +240,10 @@ namespace KBTV.UI
             }
 
             // Update button text with countdown
-            if (_dropCallerButton != null)
+            if (_dropTimerLabel != null)
             {
                 int seconds = Mathf.CeilToInt(_cursingTimeRemaining);
-                _dropCallerButton.Text = $"DROP {seconds}";
+                _dropTimerLabel.Text = $"DROP {seconds}";
             }
         }
 
@@ -260,10 +282,9 @@ namespace KBTV.UI
                 _asyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.CallerDropped);
             }
 
-            // Reset button text
-            if (_dropCallerButton != null)
+            if (_dropTimerLabel != null)
             {
-            _dropCallerButton.Text = "DROP";
+                _dropTimerLabel.Text = "--:--";
             }
 
             // Publish timer completion event (unsuccessful - penalties applied)
@@ -282,10 +303,9 @@ namespace KBTV.UI
             _isCursingTimerActive = false;
             _cursingTimeRemaining = 0;
 
-            // Reset button text
-            if (_dropCallerButton != null)
+            if (_dropTimerLabel != null)
             {
-            _dropCallerButton.Text = "DROP";
+                _dropTimerLabel.Text = "--:--";
             }
 
             // Publish timer completion event (successful - no penalties)
@@ -375,11 +395,15 @@ namespace KBTV.UI
                 if (_queueAdsButton != null)
                 {
                     _queueAdsButton.Disabled = true;
-                    _queueAdsButton.Text = "A";
+                    _queueAdsButton.Text = "QUEUE";
                 }
-                if (_breaksRemainingLabel != null)
+                if (_queueAdsTimerLabel != null)
                 {
-                    _breaksRemainingLabel.Text = "Breaks: 0";
+                    _queueAdsTimerLabel.Text = "--:--";
+                }
+                if (_adBreakTimerLabel != null)
+                {
+                    _adBreakTimerLabel.Text = "Next break: --:--";
                 }
                 return;
             }
@@ -393,7 +417,7 @@ namespace KBTV.UI
 
                 if (_queueAdsButton != null)
                 {
-                    _queueAdsButton.Text = "A";
+                    _queueAdsButton.Text = "QUEUE";
                     _queueAdsButton.Disabled = !buttonEnabled;
                     _queueAdsButton.Visible = true;
 
@@ -454,13 +478,99 @@ namespace KBTV.UI
                 _queueAdsButton.AddThemeStyleboxOverride("normal", styleBoxNormal);
                 _queueAdsButton.AddThemeStyleboxOverride("disabled", styleBoxDisabled);
                 _queueAdsButton.AddThemeStyleboxOverride("pressed", styleBoxPressed);
+                if (_queueAdsTimerLabel != null)
+                {
+                    if (_adManager.IsQueued && _adManager.QueuedCountdown > 0f)
+                    {
+                        int seconds = Mathf.CeilToInt(_adManager.QueuedCountdown);
+                        _queueAdsTimerLabel.Text = $"QUEUED {FormatSeconds(seconds)}";
+                    }
+                    else if (_adManager.IsInBreakWindow && _adManager.TimeUntilNextBreak > 0f)
+                    {
+                        int seconds = Mathf.CeilToInt(_adManager.TimeUntilNextBreak);
+                        _queueAdsTimerLabel.Text = $"BREAK IN {FormatSeconds(seconds)}";
+                    }
+                    else if (_adManager.TimeUntilNextBreak > 0f)
+                    {
+                        int seconds = Mathf.CeilToInt(_adManager.TimeUntilNextBreak);
+                        _queueAdsTimerLabel.Text = $"BREAK IN {FormatSeconds(seconds)}";
+                    }
+                    else
+                    {
+                        _queueAdsTimerLabel.Text = "--:--";
+                    }
+                }
             }
 
-            if (_breaksRemainingLabel != null)
+        }
+
+        private void UpdateAdBreakTimer()
+        {
+            if (_adBreakTimerLabel == null)
             {
-                int remaining = _adManager.BreaksRemaining;
-                _breaksRemainingLabel.Text = $"Breaks: {remaining}";
+                return;
             }
+
+            if (_adManager == null || !_adManager.IsInitialized)
+            {
+                _adBreakTimerLabel.Text = "Next break: --:--";
+                _previousAdBreakSeconds = -1f;
+                return;
+            }
+
+            float secondsUntilBreak = 0f;
+
+            if (_adManager.IsAdBreakActive)
+            {
+                if (_adManager.QueuedCountdown > 0f)
+                {
+                    int seconds = Mathf.CeilToInt(_adManager.QueuedCountdown);
+                    _adBreakTimerLabel.Text = $"Break: {FormatSeconds(seconds)}";
+                }
+                else
+                {
+                    _adBreakTimerLabel.Text = "Break: LIVE";
+                }
+                _previousAdBreakSeconds = -1f;
+                return;
+            }
+
+            if (_adManager.BreaksRemaining <= 0)
+            {
+                _adBreakTimerLabel.Text = "Next break: --:--";
+                _previousAdBreakSeconds = -1f;
+                return;
+            }
+
+            if (_adManager.IsQueued && _adManager.QueuedCountdown > 0f)
+            {
+                secondsUntilBreak = _adManager.QueuedCountdown;
+            }
+            else if (_adManager.TimeUntilNextBreak > 0f)
+            {
+                secondsUntilBreak = _adManager.TimeUntilNextBreak;
+            }
+
+            int roundedSeconds = Mathf.CeilToInt(secondsUntilBreak);
+            if (roundedSeconds == Mathf.CeilToInt(_previousAdBreakSeconds))
+            {
+                return;
+            }
+
+            _previousAdBreakSeconds = secondsUntilBreak;
+            _adBreakTimerLabel.Text = $"Next break: {FormatSeconds(roundedSeconds)}";
+        }
+
+        private static string FormatSeconds(int totalSeconds)
+        {
+            if (totalSeconds < 0)
+            {
+                return "--:--";
+            }
+
+            int minutes = totalSeconds / 60;
+            int seconds = totalSeconds % 60;
+            return $"{minutes}:{seconds:D2}";
         }
 
         private void OnAdManagerInitialized()

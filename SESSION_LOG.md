@@ -2,6 +2,65 @@
 
 **Branch**: `develop`
 
+**Task**: Remove break count, add background, lock player during caller tab
+
+**Status**: In Progress
+
+**Files Modified**:
+- `SESSION_LOG.md`
+- `scripts/ui/CallerTab.cs`
+- `scenes/ui/LiveShowFooter.tscn`
+- `scripts/ui/LiveShowFooter.cs`
+- `scripts/ads/AdManager.cs`
+- `scripts/ui/CallerScreenerManager.cs`
+- `scripts/ui/InputHandler.cs`
+- `scripts/player/Player.cs`
+- `scripts/Main.cs`
+
+**Work Done**:
+- Reviewed screening panel layout and live show footer for button/timer changes
+- Kept screening panel visible to preserve 60% width
+- Updated QUEUE/DROP buttons to 24x24 and centered
+- Added ad-break timer label and wired countdown updates
+- Adjusted QUEUE/DROP buttons to 24x24 with 8px font for in-button text
+- Removed button padding via custom style for square controls
+- Added timer labels below QUEUE/DROP buttons and locked button text
+- Increased QUEUE/DROP buttons to 48x48 and ensured vertical centering
+- Restructured AdBreak/OnAir panels with top + centered button stacks
+- Set footer to fill height so side panels match transcript height
+- Adjusted live show layout to 3:1 (caller:footer) height split
+- Reduced transcript panel minimum height to avoid footer clipping
+- Fixed CallerNameLabel path after footer layout refactor
+- Starting updates for break timer labels, background, and movement lock
+- Removed break count label and updated break timer behavior
+- Added full-screen background under live show UI
+- Locked player movement while caller tab is visible
+- Renamed TabContainerManager to CallerScreenerManager
+- Wired close button to manager and show on interact
+- Added missing CallerScreenerManager using in Player
+- Added missing DependencyInjection using in Player
+- Removed global interact hook for screener
+- Defaulted screener to hidden until requested
+- Switched player screener lookup to node path instead of DI
+- Removed CallerScreenerManager DI lookup from InputHandler
+- Fixed background type to ColorRect
+
+**Next Steps**:
+- Verify show timer visibility in LiveShowHeader
+- Run build if needed
+
+**Related Docs**:
+- None
+
+**Blockers**:
+- None
+
+---
+
+## Previous Session
+
+**Branch**: `develop`
+
 **Task**: Rebalance Pre-Show layout spacing (Show panel)
 
 **Status**: In Progress
@@ -38,8 +97,6 @@
 - None
 
 ---
-
-## Previous Session
 
 **Branch**: `develop`
 

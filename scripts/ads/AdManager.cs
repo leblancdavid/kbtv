@@ -311,6 +311,21 @@ namespace KBTV.Ads
             OnBreakEnded?.Invoke(revenue);
         }
 
+        public override void _Process(double delta)
+        {
+            if (!_isActive || _schedule == null)
+            {
+                return;
+            }
+
+            UpdateCountdownValues();
+
+            if (_isQueued)
+            {
+                _queuedCountdown = Mathf.Max(0f, _timeUntilNextBreak);
+            }
+        }
+
         /// <summary>
         /// Player clicks "Queue Ads" button - queues the next break.
         /// </summary>

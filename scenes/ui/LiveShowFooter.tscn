@@ -7,6 +7,22 @@
 [sub_resource type="StyleBoxFlat" id="PanelBackground"]
 bg_color = Color(0.15, 0.15, 0.15, 1)
 
+[sub_resource type="StyleBoxFlat" id="SquareButton"]
+bg_color = Color(0.15, 0.15, 0.15, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.2, 0.2, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_left = 3
+corner_radius_bottom_right = 3
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
 [node name="LiveShowFooter" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -27,6 +43,7 @@ grow_vertical = 2
 [node name="AdBreakPanel" type="Panel" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 theme_override_styles/panel = SubResource("PanelBackground")
 
@@ -39,42 +56,64 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 2
 
-[node name="AdBreakHeader" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
+[node name="AdBreakTop" type="VBoxContainer" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="AdBreakHeader" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakTop"]
 layout_mode = 2
 text = "AD BREAK"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 10
 
-[node name="AdBreakControls" type="VBoxContainer" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
+[node name="AdBreakTimerLabel" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakTop"]
+layout_mode = 2
+text = "Next break: --:--"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 9
+
+[node name="AdBreakCenter" type="CenterContainer" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="QueueAdsButton" type="Button" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakControls"]
+[node name="AdBreakControls" type="VBoxContainer" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakCenter"]
 layout_mode = 2
-size_flags_horizontal = 4
-custom_minimum_size = Vector2(50, 20)
-text = "A"
-theme_override_font_sizes/font_size = 9
+alignment = 1
 
-[node name="BreaksRemainingLabel" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox"]
+[node name="QueueAdsButton" type="Button" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakCenter/AdBreakControls"]
 layout_mode = 2
-text = "Breaks: 0"
+custom_minimum_size = Vector2(48, 48)
+size_flags_horizontal = 0
+size_flags_vertical = 0
+text = "QUEUE"
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("SquareButton")
+theme_override_styles/hover = SubResource("SquareButton")
+theme_override_styles/pressed = SubResource("SquareButton")
+theme_override_styles/disabled = SubResource("SquareButton")
+
+[node name="QueueAdsTimerLabel" type="Label" parent="HBoxContainer/AdBreakPanel/AdBreakVBox/AdBreakCenter/AdBreakControls"]
+layout_mode = 2
+text = "--:--"
 horizontal_alignment = 1
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 8
 
 [node name="EndShowPanel" parent="HBoxContainer" instance=ExtResource("3")]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 
 [node name="LiveShowPanel" parent="HBoxContainer" instance=ExtResource("2")]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 size_flags_stretch_ratio = 0.6
 
 [node name="OnAirPanel" type="Panel" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 theme_override_styles/panel = SubResource("PanelBackground")
 
@@ -86,22 +125,47 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 2
+alignment = 1
+size_flags_vertical = 3
 
-[node name="OnAirHeader" type="Label" parent="HBoxContainer/OnAirPanel/OnAirVBox"]
+[node name="OnAirTop" type="VBoxContainer" parent="HBoxContainer/OnAirPanel/OnAirVBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="OnAirHeader" type="Label" parent="HBoxContainer/OnAirPanel/OnAirVBox/OnAirTop"]
 layout_mode = 2
 text = "ON AIR"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 10
 
-[node name="CallerNameLabel" type="Label" parent="HBoxContainer/OnAirPanel/OnAirVBox"]
+[node name="CallerNameLabel" type="Label" parent="HBoxContainer/OnAirPanel/OnAirVBox/OnAirTop"]
 layout_mode = 2
 text = "No caller"
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 9
 
-[node name="DropCallerButton" type="Button" parent="HBoxContainer/OnAirPanel/OnAirVBox"]
+[node name="OnAirCenter" type="CenterContainer" parent="HBoxContainer/OnAirPanel/OnAirVBox"]
 layout_mode = 2
-size_flags_horizontal = 4
-custom_minimum_size = Vector2(60, 20)
+size_flags_vertical = 3
+
+[node name="DropControls" type="VBoxContainer" parent="HBoxContainer/OnAirPanel/OnAirVBox/OnAirCenter"]
+layout_mode = 2
+alignment = 1
+
+[node name="DropCallerButton" type="Button" parent="HBoxContainer/OnAirPanel/OnAirVBox/OnAirCenter/DropControls"]
+layout_mode = 2
+custom_minimum_size = Vector2(48, 48)
+size_flags_horizontal = 0
+size_flags_vertical = 0
 text = "DROP"
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("SquareButton")
+theme_override_styles/hover = SubResource("SquareButton")
+theme_override_styles/pressed = SubResource("SquareButton")
+theme_override_styles/disabled = SubResource("SquareButton")
+
+[node name="DropTimerLabel" type="Label" parent="HBoxContainer/OnAirPanel/OnAirVBox/OnAirCenter/DropControls"]
+layout_mode = 2
+text = "--:--"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 8

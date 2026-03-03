@@ -13,6 +13,7 @@ namespace KBTV.UI
 {
     public partial class CallerTab : Control, ICallerActions
     {
+        public event Action? CloseRequested;
         [ExportGroup("Node References")]
         [Export]
         private VBoxContainer? _incomingPanel;
@@ -239,16 +240,7 @@ namespace KBTV.UI
 
         private void OnClosePressed()
         {
-            var canvas = GetParentOrNull<CanvasLayer>();
-            if (canvas == null)
-            {
-                canvas = GetParent()?.GetParentOrNull<CanvasLayer>();
-            }
-
-            if (canvas != null)
-            {
-                canvas.Hide();
-            }
+            CloseRequested?.Invoke();
         }
 
         private void TrackStateForRefresh()
@@ -283,10 +275,10 @@ namespace KBTV.UI
             UpdateScreeningPanel();
             CreateOnHoldPanel();
             
-            // Hide screening panel when no caller is being screened
+            // Keep screening panel visible to preserve layout width
             if (_screeningPanel != null)
             {
-                _screeningPanel.Visible = _repository.CurrentScreening != null;
+                _screeningPanel.Visible = true;
             }
         }
 

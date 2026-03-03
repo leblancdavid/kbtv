@@ -1,4 +1,6 @@
 using Godot;
+using KBTV.UI;
+using KBTV.Core;
 
 public partial class Player : CharacterBody2D
 {
@@ -6,17 +8,44 @@ public partial class Player : CharacterBody2D
 
     private Sprite2D _sprite;
     private World? _world;
+    private CanvasLayer? _callerTabLayer;
+    private CallerScreenerManager? _callerScreenerManager;
 
     public override void _Ready()
     {
         AddToGroup("player");
         YSortEnabled = false;
 
+        CacheCallerTabLayer();
+
         _sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
         if (_sprite != null)
         {
             var size = _sprite.Texture?.GetSize() ?? Vector2.Zero;
             _sprite.Position = new Vector2(0, -(size.Y * 0.5f));
+        }
+    }
+
+    private void CacheCallerTabLayer()
+    {
+        var tree = GetTree();
+        if (tree?.Root == null)
+        {
+            return;
+        }
+
+        _callerTabLayer = tree.Root.GetNodeOrNull<CanvasLayer>("Main/ServiceProviderRoot/CallerScreenerManager/CanvasLayer");
+
+        if (_callerTabLayer == null)
+        {
+            _callerTabLayer = tree.Root.GetNodeOrNull<CanvasLayer>("/root/Main/ServiceProviderRoot/CallerScreenerManager/CanvasLayer");
+        }
+
+        _callerScreenerManager = tree.Root.GetNodeOrNull<CallerScreenerManager>("Main/ServiceProviderRoot/CallerScreenerManager");
+
+        if (_callerScreenerManager == null)
+        {
+            _callerScreenerManager = tree.Root.GetNodeOrNull<CallerScreenerManager>("/root/Main/ServiceProviderRoot/CallerScreenerManager");
         }
     }
 
@@ -32,6 +61,23 @@ public partial class Player : CharacterBody2D
 
     public override void _PhysicsProcess(double delta)
     {
+        if (_callerTabLayer == null)
+        {
+            CacheCallerTabLayer();
+        }
+
+        if (_callerScreenerManager != null && _callerScreenerManager.IsOpen)
+        {
+            Velocity = Vector2.Zero;
+            return;
+        }
+
+        if (_callerTabLayer != null && _callerTabLayer.Visible)
+        {
+            Velocity = Vector2.Zero;
+            return;
+        }
+
         var velocity = Vector2.Zero;
 
         if (Input.IsActionPressed("ui_up"))
