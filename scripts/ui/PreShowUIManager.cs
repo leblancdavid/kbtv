@@ -262,18 +262,57 @@ namespace KBTV.UI
 
 			contentContainer = new VBoxContainer();
 			contentContainer.Name = "PreShowContent";
-			contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+			contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 			contentContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-			contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
+			contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
 			scrollContainer.AddChild(contentContainer);
 
 			var title = CreateTitle();
 			title.SizeFlagsStretchRatio = 0;
 			contentContainer.AddChild(title);
 
-			var spacer1 = UITheme.CreateSpacer(false, true);
-			spacer1.SizeFlagsStretchRatio = 2;
-			contentContainer.AddChild(spacer1);
+			var contentPadding = new MarginContainer();
+			contentPadding.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			contentPadding.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			contentPadding.AddThemeConstantOverride("margin_left", UITheme.ScaleInt(20));
+			contentPadding.AddThemeConstantOverride("margin_right", UITheme.ScaleInt(20));
+			contentPadding.AddThemeConstantOverride("margin_top", UITheme.ScaleInt(10));
+			contentPadding.AddThemeConstantOverride("margin_bottom", UITheme.ScaleInt(10));
+			contentContainer.AddChild(contentPadding);
+
+			var centerWrapper = new VBoxContainer();
+			centerWrapper.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			centerWrapper.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+			centerWrapper.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
+			contentPadding.AddChild(centerWrapper);
+
+			var topSpacer = UITheme.CreateSpacer(false, true);
+			centerWrapper.AddChild(topSpacer);
+
+			var centerContainer = new CenterContainer();
+			centerContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			centerContainer.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+			centerWrapper.AddChild(centerContainer);
+
+			var mainBlock = new HBoxContainer();
+			mainBlock.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+			mainBlock.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+			mainBlock.CustomMinimumSize = new Vector2(UITheme.ScaleInt(540), 0);
+			mainBlock.AddThemeConstantOverride("separation", UITheme.SPACING_LARGE);
+			centerContainer.AddChild(mainBlock);
+
+			var bottomSpacer = UITheme.CreateSpacer(false, true);
+			centerWrapper.AddChild(bottomSpacer);
+
+			var leftColumn = new VBoxContainer();
+			leftColumn.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			leftColumn.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
+			mainBlock.AddChild(leftColumn);
+
+			var rightColumn = new VBoxContainer();
+			rightColumn.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+			rightColumn.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
+			mainBlock.AddChild(rightColumn);
 
 			var topicSelector = new TopicSelector(_availableTopics);
 			if (topicSelector != null && topicSelector.SelectorButton != null)
@@ -282,16 +321,14 @@ namespace KBTV.UI
 				_topicDescription = topicSelector.TopicDescription;
 				_topicSelector.ItemSelected += OnTopicSelected;
 			}
-			contentContainer.AddChild(topicSelector);
-			topicSelector.SizeFlagsStretchRatio = 0;
+			leftColumn.AddChild(topicSelector);
+
 			adConfigPanel = new AdConfigPanel();
-			adConfigPanel.SizeFlagsStretchRatio = 0;
-			contentContainer.AddChild(adConfigPanel);
+			rightColumn.AddChild(adConfigPanel);
 
 			// Add audio disable toggle
 			var audioToggleContainer = CreateAudioToggle();
-			audioToggleContainer.SizeFlagsStretchRatio = 0;
-			contentContainer.AddChild(audioToggleContainer);
+			rightColumn.AddChild(audioToggleContainer);
 
 			// Connect incrementor/decrement button events
 			adConfigPanel.DecreaseDurationButton.Pressed += OnDurationDecreasePressed;
@@ -300,10 +337,6 @@ namespace KBTV.UI
 			adConfigPanel.IncreaseBreaksButton.Pressed += OnBreaksIncreasePressed;
 			adConfigPanel.DecreaseSlotsButton.Pressed += OnSlotsDecreasePressed;
 			adConfigPanel.IncreaseSlotsButton.Pressed += OnSlotsIncreasePressed;
-
-			var spacer3 = UITheme.CreateSpacer(false, true);
-			spacer3.SizeFlagsStretchRatio = 2;
-			contentContainer.AddChild(spacer3);
 
 			var startButtonContainer = CreateStartButton();
 			startButtonContainer.SizeFlagsStretchRatio = 0;

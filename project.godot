@@ -31,7 +31,7 @@ window/stretch/scale_mode="integer"
 
 [gui]
 
-theme/default_font="res://assets/fonts/PixelOperatorMono.ttf"
+theme/default_font="res://assets/fonts/AcPlus_IBM_VGA_8x16.ttf"
 theme/default_font_size=9
 theme/custom="res://assets/ui/KBTVTheme.tres"
 

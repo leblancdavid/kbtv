@@ -78,22 +78,29 @@ namespace KBTV.UI
             OffsetTop = 0;
             OffsetRight = 0;
             OffsetBottom = 0;
+            MouseFilter = MouseFilterEnum.Pass;
 
-            // Create content container directly
+            var outerMargin = new MarginContainer();
+            outerMargin.AnchorLeft = 0;
+            outerMargin.AnchorTop = 0;
+            outerMargin.AnchorRight = 1;
+            outerMargin.AnchorBottom = 1;
+            outerMargin.OffsetLeft = 0;
+            outerMargin.OffsetTop = 0;
+            outerMargin.OffsetRight = 0;
+            outerMargin.OffsetBottom = 0;
+            outerMargin.AddThemeConstantOverride("margin_left", UITheme.ScaleInt(20));
+            outerMargin.AddThemeConstantOverride("margin_right", UITheme.ScaleInt(20));
+            outerMargin.AddThemeConstantOverride("margin_top", UITheme.ScaleInt(10));
+            outerMargin.AddThemeConstantOverride("margin_bottom", UITheme.ScaleInt(10));
+            AddChild(outerMargin);
+
             _contentContainer = new VBoxContainer();
             _contentContainer.Name = "ShowContent";
-            _contentContainer.AnchorLeft = 0;
-            _contentContainer.AnchorTop = 0;
-            _contentContainer.AnchorRight = 1;
-            _contentContainer.AnchorBottom = 1;
-            _contentContainer.OffsetLeft = UITheme.MARGIN_SMALL;
-            _contentContainer.OffsetTop = UITheme.MARGIN_SMALL;
-            _contentContainer.OffsetRight = -UITheme.MARGIN_SMALL;
-            _contentContainer.OffsetBottom = -UITheme.MARGIN_SMALL;
-            _contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+            _contentContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             _contentContainer.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
-            _contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
-            AddChild(_contentContainer);
+            _contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
+            outerMargin.AddChild(_contentContainer);
         }
 
         private void LoadTopics()
@@ -120,32 +127,55 @@ namespace KBTV.UI
             title.SizeFlagsStretchRatio = 0;
             _contentContainer.AddChild(title);
 
-            var spacer1 = UITheme.CreateSpacer(false, true);
-            spacer1.SizeFlagsStretchRatio = 0.4f;
-            _contentContainer.AddChild(spacer1);
+            var centerWrapper = new VBoxContainer();
+            centerWrapper.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            centerWrapper.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+            centerWrapper.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
+            _contentContainer.AddChild(centerWrapper);
+
+            var topSpacer = UITheme.CreateSpacer(false, true);
+            centerWrapper.AddChild(topSpacer);
+
+            var centerContainer = new CenterContainer();
+            centerContainer.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            centerContainer.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            centerWrapper.AddChild(centerContainer);
+
+            var mainBlock = new HBoxContainer();
+            mainBlock.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter;
+            mainBlock.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            mainBlock.CustomMinimumSize = new Vector2(UITheme.ScaleInt(520), 0);
+            mainBlock.AddThemeConstantOverride("separation", UITheme.SPACING_LARGE);
+            centerContainer.AddChild(mainBlock);
+
+            var leftColumn = new VBoxContainer();
+            leftColumn.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            leftColumn.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
+            mainBlock.AddChild(leftColumn);
+
+            var rightColumn = new VBoxContainer();
+            rightColumn.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            rightColumn.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
+            mainBlock.AddChild(rightColumn);
 
             var topicSelector = new TopicSelector(_availableTopics);
             if (topicSelector != null && topicSelector.SelectorButton != null)
             {
                 _topicSelector = topicSelector.SelectorButton;
                 _topicDescription = topicSelector.TopicDescription;
-            _topicDescription.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
-            _topicDescription.CustomMinimumSize = new Vector2(0, UITheme.Scale(24));
+                _topicDescription.AddThemeFontSizeOverride("font_size", UITheme.FONT_TINY);
+                _topicDescription.CustomMinimumSize = new Vector2(0, UITheme.Scale(24));
             }
-            _contentContainer.AddChild(topicSelector);
-            topicSelector.SizeFlagsStretchRatio = 0;
+            leftColumn.AddChild(topicSelector);
 
             _adConfigPanel = new AdConfigPanel();
-            _adConfigPanel.SizeFlagsStretchRatio = 0;
-            _contentContainer.AddChild(_adConfigPanel);
+            rightColumn.AddChild(_adConfigPanel);
 
             var audioToggleContainer = CreateAudioToggle();
-            audioToggleContainer.SizeFlagsStretchRatio = 0;
-            _contentContainer.AddChild(audioToggleContainer);
+            rightColumn.AddChild(audioToggleContainer);
 
-            var spacer3 = UITheme.CreateSpacer(false, true);
-            spacer3.SizeFlagsStretchRatio = 0.4f;
-            _contentContainer.AddChild(spacer3);
+            var bottomSpacer = UITheme.CreateSpacer(false, true);
+            centerWrapper.AddChild(bottomSpacer);
 
             var startButtonContainer = CreateStartButton();
             startButtonContainer.SizeFlagsStretchRatio = 0;

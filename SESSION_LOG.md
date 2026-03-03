@@ -2,22 +2,30 @@
 
 **Branch**: `develop`
 
-**Task**: Add integer scale snapping for resizable window
+**Task**: Rebalance Pre-Show layout spacing (Show panel)
 
 **Status**: In Progress
 
 **Files Modified**:
+- `assets/ui/KBTVTheme.tres`
+- `scripts/ui/UITheme.cs`
+- `project.godot`
 - `project.godot`
 - `scripts/core/WindowScaleManager.cs`
-- `scripts/Main.cs`
-- `scenes/Game.tscn`
-- `SESSION_LOG.md`
+ - `scripts/Main.cs`
+ - `scenes/Game.tscn`
+ - `SESSION_LOG.md`
+ - `scripts/ui/PreShowUIManager.cs`
+ - `scripts/ui/PreShowShowPanel.cs`
 
 **Work Done**:
 - Implementing integer scale snapping for resizable window
 - Switched stretch aspect to expand for full-window fill
 - Added borderless fullscreen setup and letterbox background
 - Moved letterbox CanvasLayer behind UI layers
+ - Switched global font to AcPlus_IBM_VGA_8x16
+ - Centered pre-show content in a two-column layout
+ - Updated PreShowShowPanel to use two-column centered layout and bottom start button
 
 **Next Steps**:
 - Validate window resize snapping to 1x/2x/3x

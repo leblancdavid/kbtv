@@ -27,7 +27,7 @@ namespace KBTV.UI
             {
                 if (_monoFont == null)
                 {
-                    _monoFont = GD.Load<FontFile>("res://assets/fonts/PixelOperatorMono.ttf");
+                    _monoFont = GD.Load<FontFile>("res://assets/fonts/AcPlus_IBM_VGA_8x16.ttf");
                 }
 
                 return _monoFont;
