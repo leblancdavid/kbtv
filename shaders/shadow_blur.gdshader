@@ -23,10 +23,15 @@ void fragment() {
     vec4 tex_color = texture(TEXTURE, uv);
     float tex_alpha = tex_color.a;
     
-    // Calculate dual gradient (fade on both top and bottom edges)
-    float fade_top = smoothstep(0.0, gradient_fade_height, uv.y);
-    float fade_bottom = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, uv.y);
-    float gradient = fade_top * fade_bottom;
+    // Calculate gradient fade direction
+    float gradient = 1.0;
+    if (gradient_at_top) {
+        float fade_top = smoothstep(0.0, gradient_fade_height, uv.y);
+        float fade_bottom = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, uv.y);
+        gradient = fade_top * fade_bottom;
+    } else {
+        gradient = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, uv.y);
+    }
     
     // Multiply texture alpha by gradient
     float faded_alpha = tex_alpha * gradient;
@@ -45,9 +50,14 @@ void fragment() {
             sample_uv = clamp(sample_uv, vec2(0.0), vec2(1.0));
             
             vec4 sample_tex = texture(TEXTURE, sample_uv);
-            float sample_fade_top = smoothstep(0.0, gradient_fade_height, sample_uv.y);
-            float sample_fade_bottom = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, sample_uv.y);
-            float sample_gradient = sample_fade_top * sample_fade_bottom;
+            float sample_gradient = 1.0;
+            if (gradient_at_top) {
+                float sample_fade_top = smoothstep(0.0, gradient_fade_height, sample_uv.y);
+                float sample_fade_bottom = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, sample_uv.y);
+                sample_gradient = sample_fade_top * sample_fade_bottom;
+            } else {
+                sample_gradient = 1.0 - smoothstep(1.0 - gradient_fade_height, 1.0, sample_uv.y);
+            }
             
             float sample_alpha = sample_tex.a * sample_gradient;
             

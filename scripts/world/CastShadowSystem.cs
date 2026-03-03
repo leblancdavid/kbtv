@@ -9,9 +9,9 @@ public partial class CastShadowSystem : Node
 	[Export] public float ShadowOpacity = 0.3f;
 
 	[ExportGroup("Shader Parameters")]
-	[Export] public float BlurAmount = 0.2f;
+	[Export] public float BlurAmount = 0.3f;
 	[Export] public float BaseBlurAmount = 0.5f;
-	[Export] public float GradientFadeHeight = 0.25f;
+	[Export] public float GradientFadeHeight = 0.4f;
 
 	private RoomBase _room;
 	private PointLight2D _lightSource;
