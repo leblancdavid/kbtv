@@ -17,10 +17,13 @@ namespace KBTV.UI
         private ScrollContainer? _scrollContainer;
         private VBoxContainer? _contentContainer;
 
+        private VBoxContainer? _statsColumn;
         private VibeDisplay? _vibeDisplay;
-        private StatGroup? _dependenciesGroup;
-        private StatGroup? _coreStatsGroup;
-        private VernStatusPanel? _statusPanel;
+        private StatBar? _caffeineBar;
+        private StatBar? _nicotineBar;
+        private CenteredStatBar? _physicalBar;
+        private CenteredStatBar? _emotionalBar;
+        private CenteredStatBar? _mentalBar;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -50,38 +53,23 @@ namespace KBTV.UI
 
         private void BuildUI()
         {
-            _scrollContainer = new ScrollContainer
-            {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill,
-                SizeFlagsVertical = SizeFlags.ExpandFill,
-                HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled,
-                VerticalScrollMode = ScrollContainer.ScrollMode.Auto
-            };
-            _scrollContainer.SetAnchorsPreset(LayoutPreset.FullRect);
-            AddChild(_scrollContainer);
+            // Parent (_vernRightPanel) is already anchored to right half of screen.
+            // No extra right-half container needed here — just add padding + content directly.
+            var paddingContainer = new MarginContainer();
+            UITheme.ApplyMargins(paddingContainer, 16, 56, UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL);
+            paddingContainer.SetAnchorsPreset(LayoutPreset.FullRect);
+            AddChild(paddingContainer);
 
-            _contentContainer = new VBoxContainer
+            _statsColumn = new VBoxContainer
             {
                 SizeFlagsHorizontal = SizeFlags.ExpandFill,
                 SizeFlagsVertical = SizeFlags.ExpandFill
             };
-            _contentContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
-            _scrollContainer.AddChild(_contentContainer);
+            _statsColumn.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
+            paddingContainer.AddChild(_statsColumn);
 
-            var paddingContainer = new MarginContainer();
-            UITheme.ApplyMargins(paddingContainer, UITheme.MARGIN_MEDIUM, UITheme.MARGIN_SMALL, UITheme.MARGIN_MEDIUM, UITheme.MARGIN_SMALL);
-            paddingContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-
-            var innerContainer = new VBoxContainer
-            {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill
-            };
-            innerContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
-            paddingContainer.AddChild(innerContainer);
-            _contentContainer.AddChild(paddingContainer);
-
-            CreateVibeDisplay(innerContainer);
-            CreateTwoColumnLayout(innerContainer);
+            CreateVibeDisplay(_statsColumn);
+            CreateStatsColumn(_statsColumn);
         }
 
         private void CreateVibeDisplay(VBoxContainer parent)
@@ -93,80 +81,203 @@ namespace KBTV.UI
             _vibeDisplay.SetVernStats(_vernStats);
         }
 
-        private void CreateTwoColumnLayout(VBoxContainer parent)
+        private void CreateStatsColumn(VBoxContainer parent)
         {
             if (_vernStats == null) return;
 
-            var columnsContainer = new HBoxContainer
-            {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill
-            };
-            columnsContainer.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
-            parent.AddChild(columnsContainer);
+            _caffeineBar = new StatBar();
+            parent.AddChild(_caffeineBar);
+            _caffeineBar.SetStat(_vernStats.Caffeine);
 
-            var leftColumn = new VBoxContainer
-            {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill,
-                SizeFlagsStretchRatio = 1.0f
-            };
-            leftColumn.AddThemeConstantOverride("separation", UITheme.SPACING_MEDIUM);
-            columnsContainer.AddChild(leftColumn);
+            _nicotineBar = new StatBar();
+            parent.AddChild(_nicotineBar);
+            _nicotineBar.SetStat(_vernStats.Nicotine);
 
-            var rightColumn = new VBoxContainer
-            {
-                SizeFlagsHorizontal = SizeFlags.ExpandFill,
-                SizeFlagsStretchRatio = 1.0f
-            };
-            columnsContainer.AddChild(rightColumn);
+            _physicalBar = new CenteredStatBar();
+            parent.AddChild(_physicalBar);
+            _physicalBar.SetStat(_vernStats.Physical);
 
-            CreateDependenciesGroup(leftColumn);
-            CreateCoreStatsGroup(leftColumn);
-            CreateStatusPanel(rightColumn);
+            _emotionalBar = new CenteredStatBar();
+            parent.AddChild(_emotionalBar);
+            _emotionalBar.SetStat(_vernStats.Emotional);
+
+            _mentalBar = new CenteredStatBar();
+            parent.AddChild(_mentalBar);
+            _mentalBar.SetStat(_vernStats.Mental);
         }
 
-        private void CreateDependenciesGroup(VBoxContainer parent)
+        public override void _Process(double delta)
         {
-            if (_vernStats == null) return;
-
-            _dependenciesGroup = new StatGroup("DEPENDENCIES");
-            parent.AddChild(_dependenciesGroup);
-
-            var caffeineBar = new StatBar();
-            _dependenciesGroup.AddStatBar(caffeineBar);
-            caffeineBar.SetStat(_vernStats.Caffeine);
-
-            var nicotineBar = new StatBar();
-            _dependenciesGroup.AddStatBar(nicotineBar);
-            nicotineBar.SetStat(_vernStats.Nicotine);
+            UpdateModifiers();
         }
 
-        private void CreateCoreStatsGroup(VBoxContainer parent)
+        private void UpdateModifiers()
         {
-            if (_vernStats == null) return;
+            if (_vernStats == null)
+            {
+                return;
+            }
 
-            _coreStatsGroup = new StatGroup("CORE STATS");
-            parent.AddChild(_coreStatsGroup);
-
-            var physicalBar = new CenteredStatBar();
-            _coreStatsGroup.AddCenteredStatBar(physicalBar);
-            physicalBar.SetStat(_vernStats.Physical);
-
-            var emotionalBar = new CenteredStatBar();
-            _coreStatsGroup.AddCenteredStatBar(emotionalBar);
-            emotionalBar.SetStat(_vernStats.Emotional);
-
-            var mentalBar = new CenteredStatBar();
-            _coreStatsGroup.AddCenteredStatBar(mentalBar);
-            mentalBar.SetStat(_vernStats.Mental);
+            UpdateDependencyModifiers();
+            UpdateCoreModifiers();
         }
 
-        private void CreateStatusPanel(VBoxContainer parent)
+        private void UpdateDependencyModifiers()
         {
-            if (_vernStats == null) return;
+            if (_caffeineBar == null || _nicotineBar == null)
+            {
+                return;
+            }
 
-            _statusPanel = new VernStatusPanel();
-            parent.AddChild(_statusPanel);
-            _statusPanel.SetVernStats(_vernStats);
+            float dependencyCriticalMultiplier = _vernStats.IsMentalCritical
+                ? _vernStats.LowMentalDependencyMultiplier
+                : 1f;
+
+            float caffeineModifier = _vernStats.GetCaffeineDecayModifier() * dependencyCriticalMultiplier;
+            float nicotineModifier = _vernStats.GetNicotineDecayModifier() * dependencyCriticalMultiplier;
+
+            UpdateDependencyModifier(_caffeineBar, _vernStats.CaffeineDecayRate, caffeineModifier);
+            UpdateDependencyModifier(_nicotineBar, _vernStats.NicotineDecayRate, nicotineModifier);
+        }
+
+        private void UpdateCoreModifiers()
+        {
+            if (_physicalBar == null || _emotionalBar == null || _mentalBar == null)
+            {
+                return;
+            }
+
+            bool hasCaffeineWithdrawal = _vernStats.IsCaffeineDepleted;
+            bool hasNicotineWithdrawal = _vernStats.IsNicotineDepleted;
+
+            float physicalDecay = hasCaffeineWithdrawal ? _vernStats.PhysicalDecayRate : 0f;
+            float emotionalDecay = hasNicotineWithdrawal ? _vernStats.EmotionalDecayRate : 0f;
+
+            float mentalDecay = 0f;
+            if (hasCaffeineWithdrawal)
+            {
+                mentalDecay += _vernStats.MentalDecayRate;
+            }
+            if (hasNicotineWithdrawal)
+            {
+                mentalDecay += _vernStats.MentalDecayRate;
+            }
+
+            float physicalMultiplier = _vernStats.IsEmotionalCritical ? _vernStats.LowStatDecayMultiplier : 1f;
+            float emotionalMultiplier = _vernStats.IsPhysicalCritical ? _vernStats.LowStatDecayMultiplier : 1f;
+            float mentalMultiplier = 1f;
+
+            if (_vernStats.IsPhysicalCritical && mentalDecay > 0f)
+            {
+                mentalMultiplier = _vernStats.LowStatDecayMultiplier;
+            }
+
+            if (_vernStats.IsEmotionalCritical && mentalDecay > 0f)
+            {
+                mentalMultiplier = _vernStats.LowStatDecayMultiplier;
+            }
+
+            physicalDecay *= physicalMultiplier;
+            emotionalDecay *= emotionalMultiplier;
+            mentalDecay *= mentalMultiplier;
+
+            ApplyCoreModifier(_physicalBar, physicalDecay, physicalMultiplier);
+            ApplyCoreModifier(_emotionalBar, emotionalDecay, emotionalMultiplier);
+            ApplyCoreModifier(_mentalBar, mentalDecay, mentalMultiplier);
+        }
+
+        private void ApplyCoreModifier(CenteredStatBar bar, float decayRate, float multiplier)
+        {
+            if (bar == null)
+            {
+                return;
+            }
+
+            string? decayText = BuildDecayRateText(decayRate);
+            string? percentText = BuildPercentModifierText(multiplier);
+
+            if (string.IsNullOrWhiteSpace(decayText) && string.IsNullOrWhiteSpace(percentText))
+            {
+                bar.SetModifier(null, UIColors.Status.ModifierNeutral);
+                return;
+            }
+
+            var color = GetModifierColor(multiplier);
+            if (string.IsNullOrWhiteSpace(decayText))
+            {
+                bar.SetModifier(percentText, color);
+            }
+            else if (string.IsNullOrWhiteSpace(percentText))
+            {
+                bar.SetModifier(decayText, color);
+            }
+            else
+            {
+                bar.SetModifier($"{percentText} {decayText}", color);
+            }
+        }
+
+        private void UpdateDependencyModifier(StatBar bar, float baseDecayRate, float modifier)
+        {
+            string? percentText = BuildPercentModifierText(modifier);
+            if (percentText == null)
+            {
+                bar.SetModifier(null, UIColors.Status.ModifierNeutral);
+                return;
+            }
+
+            var effectiveRate = baseDecayRate * modifier;
+            var decayText = BuildDecayRateText(effectiveRate);
+            var color = GetModifierColor(modifier);
+
+            if (string.IsNullOrWhiteSpace(decayText))
+            {
+                bar.SetModifier(percentText, color);
+                return;
+            }
+
+            bar.SetModifier($"{percentText} {decayText}", color);
+        }
+
+        private static string? BuildPercentModifierText(float modifier)
+        {
+            if (Mathf.IsEqualApprox(modifier, 1f))
+            {
+                return null;
+            }
+
+            var percentDelta = (modifier - 1f) * 100f;
+            var rounded = Mathf.RoundToInt(percentDelta);
+            if (rounded == 0)
+            {
+                return null;
+            }
+
+            var sign = rounded > 0 ? "+" : "";
+            return $"{sign}{rounded}%";
+        }
+
+        private static string? BuildDecayRateText(float decayRate)
+        {
+            if (decayRate <= 0f)
+            {
+                return null;
+            }
+
+            return $"-{decayRate:F1}/min";
+        }
+
+        private static Color GetModifierColor(float modifier)
+        {
+            if (modifier <= 0.75f)
+            {
+                return UIColors.Status.ModifierBuff;
+            }
+            if (modifier <= 1.0f)
+            {
+                return UIColors.Status.ModifierNeutral;
+            }
+            return UIColors.Status.ModifierDebuff;
         }
     }
 }

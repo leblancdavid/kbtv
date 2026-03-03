@@ -19,6 +19,7 @@ namespace KBTV.UI.Components
         private Label _nameLabel = null!;
         private ProgressBar _bar = null!;
         private Label _valueLabel = null!;
+        private Label _modifierLabel = null!;
 
         // State
         private Stat? _stat;
@@ -29,7 +30,7 @@ namespace KBTV.UI.Components
             // Create name label (CAPS, cyan)
             _nameLabel = new Label
             {
-                CustomMinimumSize = new Vector2(100, 0),
+                CustomMinimumSize = new Vector2(74, 0),
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -39,8 +40,8 @@ namespace KBTV.UI.Components
             // Create progress bar
             _bar = new ProgressBar
             {
-                CustomMinimumSize = new Vector2(150, 20),
-                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                CustomMinimumSize = new Vector2(90, 14),
+                SizeFlagsHorizontal = SizeFlags.ShrinkBegin,
                 MaxValue = 100,
                 Value = 0,
                 ShowPercentage = false
@@ -50,16 +51,27 @@ namespace KBTV.UI.Components
             // Create value label
             _valueLabel = new Label
             {
-                CustomMinimumSize = new Vector2(60, 0),
+                CustomMinimumSize = new Vector2(40, 0),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Center
             };
             _valueLabel.AddThemeColorOverride("font_color", UIColors.TEXT_PRIMARY);
             AddChild(_valueLabel);
 
+            _modifierLabel = new Label
+            {
+                CustomMinimumSize = new Vector2(72, 0),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center,
+                Visible = false
+            };
+            _modifierLabel.AddThemeColorOverride("font_color", UIColors.Status.ModifierNeutral);
+            AddChild(_modifierLabel);
+
             // Apply mono pixel font to all labels
             _nameLabel.AddThemeFontOverride("font", UITheme.MonoFont);
             _valueLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _modifierLabel.AddThemeFontOverride("font", UITheme.MonoFont);
 
             // Style the progress bar background
             var bgStyle = new StyleBoxFlat
@@ -169,6 +181,25 @@ namespace KBTV.UI.Components
             }
 
             _currentTween?.Kill();
+        }
+
+        public void SetModifier(string? text, Color color)
+        {
+            if (_modifierLabel == null)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                _modifierLabel.Visible = false;
+                _modifierLabel.Text = string.Empty;
+                return;
+            }
+
+            _modifierLabel.Text = text;
+            _modifierLabel.AddThemeColorOverride("font_color", color);
+            _modifierLabel.Visible = true;
         }
     }
 }

@@ -23,6 +23,8 @@ namespace KBTV.UI
         private TextureRect? _vernViewportTexture;
         private Control? _vernTranscriptPanel;
         private ColorRect? _vernBackdrop;
+        private Control? _vernRightPanel;
+        private ColorRect? _vernRightOverlay;
 
         private static readonly float VernCameraZoomScale = 1.15f;
         private static readonly Vector2I VernGridPosition = new Vector2I(5, 2);
@@ -113,6 +115,7 @@ namespace KBTV.UI
                 _vernBackdrop.MouseFilter = Control.MouseFilterEnum.Ignore;
                 _vernViewContainer.AddChild(_vernBackdrop);
 
+                // Viewport texture MUST be added before the right panel so stats draw on top
                 _vernViewportTexture = new TextureRect
                 {
                     Name = "VernViewportTexture",
@@ -126,10 +129,30 @@ namespace KBTV.UI
                 }
                 _vernViewContainer.AddChild(_vernViewportTexture);
 
+                _vernRightPanel = new Control
+                {
+                    Name = "VernRightPanel",
+                    SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                    SizeFlagsVertical = Control.SizeFlags.ExpandFill
+                };
+                _vernRightPanel.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                _vernRightPanel.AnchorLeft = 0.5f;
+                _vernViewContainer.AddChild(_vernRightPanel);
+
+                _vernRightOverlay = new ColorRect
+                {
+                    Name = "VernRightOverlay",
+                    Color = new Color(0f, 0f, 0f, 0.7f)
+                };
+                _vernRightOverlay.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                _vernRightOverlay.AnchorLeft = 0.5f;
+                _vernRightOverlay.MouseFilter = Control.MouseFilterEnum.Ignore;
+                _vernRightPanel.AddChild(_vernRightOverlay);
+
                 _vernStatView = vernScene.Instantiate<Control>();
                 _vernStatView.Name = "VernStatView";
                 _vernStatView.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-                _vernViewContainer.AddChild(_vernStatView);
+                _vernRightPanel.AddChild(_vernStatView);
 
                 var transcriptScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LiveShowPanel.tscn");
                 if (transcriptScene != null)
@@ -268,8 +291,8 @@ namespace KBTV.UI
 
             EnsureVernViewport();
             UpdateVernViewportSize();
-            UpdateVernCameraTarget();
             UpdateVernCameraZoom();
+            UpdateVernCameraTarget();
             UpdateVernTranscriptLayout();
 
             if (_vernViewContainer != null)
@@ -370,8 +393,8 @@ namespace KBTV.UI
             }
 
             var size = rootViewport.GetVisibleRect().Size;
-            _vernViewport.Size = new Vector2I((int)size.X, (int)size.Y);
             _vernViewContainer.CustomMinimumSize = size;
+            _vernViewport.Size = new Vector2I((int)size.X, (int)size.Y);
         }
 
         private void UpdateVernTranscriptLayout()
@@ -414,7 +437,12 @@ namespace KBTV.UI
             }
 
             var target = worldRoom.StudioGridToWorld(VernGridPosition);
-            _vernCamera.GlobalPosition = target;
+            var viewportSize = GetViewport()?.GetVisibleRect().Size ?? Vector2.Zero;
+            var zoom = _vernCamera.Zoom;
+            var worldWidth = zoom.X > 0 ? viewportSize.X / zoom.X : 0f;
+            var offsetX = worldWidth * 0.25f;
+            // Shift camera RIGHT so Vern appears at 25% from the left edge
+            _vernCamera.GlobalPosition = new Vector2(target.X + offsetX, target.Y);
         }
 
         private void UpdateVernCameraZoom()

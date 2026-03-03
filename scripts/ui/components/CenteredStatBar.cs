@@ -22,6 +22,7 @@ namespace KBTV.UI.Components
         private ColorRect _positiveBar = null!;
         private ColorRect _centerLine = null!;
         private Label _valueLabel = null!;
+        private Label _modifierLabel = null!;
 
         // State
         private Stat? _stat;
@@ -33,7 +34,7 @@ namespace KBTV.UI.Components
             // Create name label (CAPS, cyan)
             _nameLabel = new Label
             {
-                CustomMinimumSize = new Vector2(100, 0),
+                CustomMinimumSize = new Vector2(74, 0),
                 HorizontalAlignment = HorizontalAlignment.Left,
                 VerticalAlignment = VerticalAlignment.Center
             };
@@ -43,8 +44,8 @@ namespace KBTV.UI.Components
             // Create bar container (custom drawn)
             _barContainer = new Control
             {
-                CustomMinimumSize = new Vector2(150, 20),
-                SizeFlagsHorizontal = SizeFlags.ExpandFill
+                CustomMinimumSize = new Vector2(90, 14),
+                SizeFlagsHorizontal = SizeFlags.ShrinkBegin
             };
             AddChild(_barContainer);
 
@@ -95,16 +96,27 @@ namespace KBTV.UI.Components
             // Create value label
             _valueLabel = new Label
             {
-                CustomMinimumSize = new Vector2(60, 0),
+                CustomMinimumSize = new Vector2(40, 0),
                 HorizontalAlignment = HorizontalAlignment.Right,
                 VerticalAlignment = VerticalAlignment.Center
             };
             _valueLabel.AddThemeColorOverride("font_color", UIColors.TEXT_PRIMARY);
             AddChild(_valueLabel);
 
+            _modifierLabel = new Label
+            {
+                CustomMinimumSize = new Vector2(72, 0),
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Center,
+                Visible = false
+            };
+            _modifierLabel.AddThemeColorOverride("font_color", UIColors.Status.ModifierNeutral);
+            AddChild(_modifierLabel);
+
             // Apply mono pixel font to all labels
             _nameLabel.AddThemeFontOverride("font", UITheme.MonoFont);
             _valueLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _modifierLabel.AddThemeFontOverride("font", UITheme.MonoFont);
 
             // Initial update if stat already set
             if (_stat != null)
@@ -234,6 +246,25 @@ namespace KBTV.UI.Components
             }
 
             _currentTween?.Kill();
+        }
+
+        public void SetModifier(string? text, Color color)
+        {
+            if (_modifierLabel == null)
+            {
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                _modifierLabel.Visible = false;
+                _modifierLabel.Text = string.Empty;
+                return;
+            }
+
+            _modifierLabel.Text = text;
+            _modifierLabel.AddThemeColorOverride("font_color", color);
+            _modifierLabel.Visible = true;
         }
     }
 }
