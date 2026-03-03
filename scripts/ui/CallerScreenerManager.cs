@@ -25,6 +25,7 @@ namespace KBTV.UI
         private ColorRect? _vernBackdrop;
         private Control? _vernRightPanel;
         private ColorRect? _vernRightOverlay;
+        private Button? _vernCloseButton;
 
         private static readonly float VernCameraZoomScale = 1.15f;
         private static readonly Vector2I VernGridPosition = new Vector2I(5, 2);
@@ -145,9 +146,35 @@ namespace KBTV.UI
                     Color = new Color(0f, 0f, 0f, 0.7f)
                 };
                 _vernRightOverlay.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-                _vernRightOverlay.AnchorLeft = 0.5f;
                 _vernRightOverlay.MouseFilter = Control.MouseFilterEnum.Ignore;
                 _vernRightPanel.AddChild(_vernRightOverlay);
+
+                // Gradient fade on the left edge of the dark overlay for a smooth transition
+                var gradient = new Gradient();
+                gradient.SetColor(0, new Color(0f, 0f, 0f, 0f));
+                gradient.SetColor(1, new Color(0f, 0f, 0f, 0.7f));
+                var gradientTexture = new GradientTexture2D
+                {
+                    Gradient = gradient,
+                    Width = 32,
+                    Height = 1,
+                    Fill = GradientTexture2D.FillEnum.Linear,
+                    FillFrom = new Vector2(0f, 0f),
+                    FillTo = new Vector2(1f, 0f)
+                };
+                var gradientRect = new TextureRect
+                {
+                    Name = "VernOverlayGradient",
+                    Texture = gradientTexture,
+                    StretchMode = TextureRect.StretchModeEnum.Scale
+                };
+                gradientRect.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                gradientRect.AnchorLeft = 0.5f;
+                gradientRect.AnchorRight = 0.5f;
+                gradientRect.OffsetLeft = -32;
+                gradientRect.OffsetRight = 0;
+                gradientRect.MouseFilter = Control.MouseFilterEnum.Ignore;
+                _vernViewContainer.AddChild(gradientRect);
 
                 _vernStatView = vernScene.Instantiate<Control>();
                 _vernStatView.Name = "VernStatView";
@@ -166,20 +193,37 @@ namespace KBTV.UI
                     Log.Error("CallerScreenerManager: Failed to load LiveShowPanel.tscn");
                 }
 
+                // -> button top-left (mirrors <- position in screener)
                 var forwardButton = new Button
                 {
                     Name = "ForwardButton",
                     Text = "->",
                     CustomMinimumSize = new Vector2(24, 18)
                 };
-                forwardButton.SetAnchorsPreset(Control.LayoutPreset.TopRight);
-                forwardButton.OffsetLeft = -36;
+                forwardButton.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
+                forwardButton.OffsetLeft = 12;
                 forwardButton.OffsetTop = 6;
-                forwardButton.OffsetRight = -12;
+                forwardButton.OffsetRight = 36;
                 forwardButton.OffsetBottom = 24;
                 UITheme.ApplyButtonStyle(forwardButton);
                 forwardButton.Pressed += OnForwardRequested;
                 _vernViewContainer.AddChild(forwardButton);
+
+                // X button top-right (mirrors X position in screener)
+                _vernCloseButton = new Button
+                {
+                    Name = "VernCloseButton",
+                    Text = "X",
+                    CustomMinimumSize = new Vector2(24, 18)
+                };
+                _vernCloseButton.SetAnchorsPreset(Control.LayoutPreset.TopRight);
+                _vernCloseButton.OffsetLeft = -36;
+                _vernCloseButton.OffsetTop = 6;
+                _vernCloseButton.OffsetRight = -12;
+                _vernCloseButton.OffsetBottom = 24;
+                UITheme.ApplyButtonStyle(_vernCloseButton);
+                _vernCloseButton.Pressed += OnCloseRequested;
+                _vernViewContainer.AddChild(_vernCloseButton);
 
                 _vernViewContainer.Hide();
                 _canvas.AddChild(_vernViewContainer);
@@ -489,6 +533,11 @@ namespace KBTV.UI
             {
                 _callerTab.CloseRequested -= OnCloseRequested;
                 _callerTab.BackRequested -= OnBackRequested;
+            }
+
+            if (_vernCloseButton != null)
+            {
+                _vernCloseButton.Pressed -= OnCloseRequested;
             }
         }
     }
