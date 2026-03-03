@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using KBTV.Core;
 
@@ -16,6 +17,8 @@ namespace KBTV.UI
         private CallerTab? _callerTab;
 
         public bool IsOpen { get; private set; }
+        public event Action? Opened;
+        public event Action? Closed;
 
         public override void _Notification(int what) => this.Notify(what);
 
@@ -108,6 +111,8 @@ namespace KBTV.UI
             {
                 _canvas.Show();
                 IsOpen = true;
+                Opened?.Invoke();
+                GetTree()?.CallGroup("player", "SetMovementLocked", true);
             }
         }
 
@@ -117,6 +122,8 @@ namespace KBTV.UI
             {
                 _canvas.Hide();
                 IsOpen = false;
+                Closed?.Invoke();
+                GetTree()?.CallGroup("player", "SetMovementLocked", false);
             }
         }
 

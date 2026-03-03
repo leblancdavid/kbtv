@@ -43,6 +43,8 @@
 - Defaulted screener to hidden until requested
 - Switched player screener lookup to node path instead of DI
 - Removed CallerScreenerManager DI lookup from InputHandler
+- Added screener open/close events and hard player movement lock
+- Locked player via CallGroup on screener show/hide
 - Fixed background type to ColorRect
 
 **Next Steps**:

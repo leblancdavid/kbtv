@@ -17,6 +17,7 @@ public partial class Player : CharacterBody2D
         YSortEnabled = false;
 
         CacheCallerTabLayer();
+        SubscribeToScreener();
 
         _sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
         if (_sprite != null)
@@ -24,6 +25,38 @@ public partial class Player : CharacterBody2D
             var size = _sprite.Texture?.GetSize() ?? Vector2.Zero;
             _sprite.Position = new Vector2(0, -(size.Y * 0.5f));
         }
+    }
+
+    private void SubscribeToScreener()
+    {
+        if (_callerScreenerManager == null)
+        {
+            return;
+        }
+
+        _callerScreenerManager.Opened += OnScreenerOpened;
+        _callerScreenerManager.Closed += OnScreenerClosed;
+    }
+
+    private void UnsubscribeFromScreener()
+    {
+        if (_callerScreenerManager == null)
+        {
+            return;
+        }
+
+        _callerScreenerManager.Opened -= OnScreenerOpened;
+        _callerScreenerManager.Closed -= OnScreenerClosed;
+    }
+
+    private void OnScreenerOpened()
+    {
+        SetMovementLocked(true);
+    }
+
+    private void OnScreenerClosed()
+    {
+        SetMovementLocked(false);
     }
 
     private void CacheCallerTabLayer()
@@ -61,20 +94,15 @@ public partial class Player : CharacterBody2D
 
     public override void _PhysicsProcess(double delta)
     {
-        if (_callerTabLayer == null)
+        if (_callerTabLayer == null || _callerScreenerManager == null)
         {
             CacheCallerTabLayer();
+            SubscribeToScreener();
         }
 
         if (_callerScreenerManager != null && _callerScreenerManager.IsOpen)
         {
-            Velocity = Vector2.Zero;
-            return;
-        }
-
-        if (_callerTabLayer != null && _callerTabLayer.Visible)
-        {
-            Velocity = Vector2.Zero;
+            SetMovementLocked(true);
             return;
         }
 
@@ -94,5 +122,20 @@ public partial class Player : CharacterBody2D
 
         Velocity = velocity * _speed;
         MoveAndSlide();
+    }
+
+    public void SetMovementLocked(bool locked)
+    {
+        if (locked)
+        {
+            Velocity = Vector2.Zero;
+        }
+
+        SetPhysicsProcess(!locked);
+    }
+
+    public override void _ExitTree()
+    {
+        UnsubscribeFromScreener();
     }
 }
