@@ -210,6 +210,12 @@ namespace KBTV.Ads
                 return;
             }
 
+            // Stop the transition music when break starts
+            if (BroadcastAudioService is BroadcastAudioService bas)
+            {
+                bas.StopBreakTransitionMusic();
+            }
+
             // Breaks always start on schedule - transitions are best-effort and can be interrupted
             _breakActive = true;
             _isInBreakWindow = false;  // Break window closes when break starts
@@ -337,8 +343,11 @@ namespace KBTV.Ads
             _queuedCountdown = _timeUntilNextBreak;
             _breakQueueStatus = BreakQueueStatus.Queued;
 
-            // Play transition music as audio cue to Vern
-            _ = BroadcastAudioService.PlaySilentAudioAsync();
+            // Play random transition music as audio cue to Vern
+            if (BroadcastAudioService is BroadcastAudioService bas)
+            {
+                bas.PlayBreakTransitionMusic();
+            }
 
             OnBreakQueued?.Invoke();
         }

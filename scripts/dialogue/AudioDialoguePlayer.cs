@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
@@ -341,50 +342,70 @@ public async void PlayBroadcastItemAsync(BroadcastItem item)
 
         private AudioStream? LoadAdAudio(BroadcastItem item)
         {
-            // Try to load ad audio files
-            // Ads are stored in assets/audio/ads/ with various sponsor folders
-            string[] possibleAdPaths = {
-                "res://assets/audio/ads/area_51_tours_v1.mp3",
-                "res://assets/audio/ads/big_earls_auto_v1.mp3",
-                "res://assets/audio/ads/cryptid_hunters_v1.mp3",
-                "res://assets/audio/ads/ghost_busters_v1.mp3",
-                "res://assets/audio/ads/ufology_today_v1.mp3"
-            };
-
-            foreach (var path in possibleAdPaths)
+            var adDir = DirAccess.Open("res://assets/audio/ads");
+            if (adDir == null)
             {
-                var testStream = GD.Load<AudioStream>(path);
-                if (testStream != null)
-                {
-                    return testStream;
-                }
+                return null;
             }
 
-            return null;
+            var sponsorFolders = new List<string>();
+            adDir.ListDirBegin();
+            string dirName = adDir.GetNext();
+            while (dirName != "")
+            {
+                if (!dirName.StartsWith(".") && !dirName.EndsWith(".import") && dirName != "Reference")
+                {
+                    var testDir = DirAccess.Open($"res://assets/audio/ads/{dirName}");
+                    if (testDir != null)
+                    {
+                        sponsorFolders.Add(dirName);
+                    }
+                }
+                dirName = adDir.GetNext();
+            }
+            adDir.ListDirEnd();
+
+            if (sponsorFolders.Count == 0)
+            {
+                return null;
+            }
+
+            var random = new Random();
+            var selectedSponsor = sponsorFolders[random.Next(sponsorFolders.Count)];
+            var sponsorDir = DirAccess.Open($"res://assets/audio/ads/{selectedSponsor}");
+            if (sponsorDir == null)
+            {
+                return null;
+            }
+
+            var audioFiles = new List<string>();
+            sponsorDir.ListDirBegin();
+            string fileName = sponsorDir.GetNext();
+            while (fileName != "")
+            {
+                if (!fileName.StartsWith(".") && !fileName.EndsWith(".import") && 
+                    (fileName.EndsWith(".ogg") || fileName.EndsWith(".wav") || fileName.EndsWith(".mp3")))
+                {
+                    audioFiles.Add(fileName);
+                }
+                fileName = sponsorDir.GetNext();
+            }
+            sponsorDir.ListDirEnd();
+
+            if (audioFiles.Count == 0)
+            {
+                return null;
+            }
+
+            var selectedFile = audioFiles[random.Next(audioFiles.Count)];
+            var path = $"res://assets/audio/ads/{selectedSponsor}/{selectedFile}";
+            
+            return GD.Load<AudioStream>(path);
         }
 
         private AudioStream? LoadAdAudio(BroadcastLine line)
         {
-            // Try to load ad audio files
-            // Ads are stored in assets/audio/ads/ with various sponsor folders
-            string[] possibleAdPaths = {
-                "res://assets/audio/ads/area_51_tours_v1.mp3",
-                "res://assets/audio/ads/big_earls_auto_v1.mp3",
-                "res://assets/audio/ads/cryptid_hunters_v1.mp3",
-                "res://assets/audio/ads/ghost_busters_v1.mp3",
-                "res://assets/audio/ads/ufology_today_v1.mp3"
-            };
-
-            foreach (var path in possibleAdPaths)
-            {
-                var testStream = GD.Load<AudioStream>(path);
-                if (testStream != null)
-                {
-                    return testStream;
-                }
-            }
-
-            return null;
+            return LoadAdAudio((BroadcastItem)new BroadcastItem("ad", BroadcastItemType.Ad, "", "", 0, null));
         }
 
         private AudioStream? LoadRandomReturnBumper()

@@ -446,7 +446,7 @@ namespace KBTV.Dialogue
             new TransitionExecutable("show_start", "Show is starting...", 3.0f, _eventBus, _audioService, _sceneTree, null);
 
         private BroadcastExecutable CreateIntroMusicExecutable() =>
-            new MusicExecutable("intro_music", "Intro music", "res://assets/audio/music/intro_music.wav", 4.0f, _eventBus, _audioService, _sceneTree);
+            new MusicExecutable("INTRO_MUSIC", "Intro bumper", "", 4.0f, _eventBus, _audioService, _sceneTree);
 
 
         private BroadcastExecutable CreateConversationExecutable(AsyncBroadcastState currentState)

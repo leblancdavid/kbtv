@@ -25,6 +25,9 @@ namespace KBTV.Audio
         private readonly List<AudioStreamPlayer> _activePlayers = new();
         private readonly Dictionary<AudioStreamPlayer, TaskCompletionSource> _completionSources = new();
 
+        // Background music player for ad break transitions
+        private AudioStreamPlayer? _backgroundMusicPlayer;
+
         private BroadcastItem? _currentBroadcastItem;
         private Speaker _currentSpeaker = Speaker.Vern;
 
@@ -103,6 +106,12 @@ namespace KBTV.Audio
                 _availablePlayers.Add(player);
                 player.Finished += () => OnPlayerFinished(player);
             }
+
+            // Initialize background music player for ad break transitions
+            _backgroundMusicPlayer = new AudioStreamPlayer();
+            _backgroundMusicPlayer.Name = "BackgroundMusic";
+            _backgroundMusicPlayer.Bus = "Music";
+            AddChild(_backgroundMusicPlayer);
 
             // Initialize audio mixer for effects
             InitializeAudioMixer();
@@ -327,6 +336,44 @@ namespace KBTV.Audio
             // For now, use the standard 4-second silent audio file
             // Future enhancement could create dynamic silent audio of any duration
             await PlayAudioAsync("res://assets/audio/silence_4sec.wav");
+        }
+
+        /// <summary>
+        /// Plays random background music for ad break transitions.
+        /// Uses a separate player so it doesn't interfere with main audio.
+        /// </summary>
+        public void PlayBreakTransitionMusic()
+        {
+            if (IsAudioDisabled)
+            {
+                return;
+            }
+
+            if (_backgroundMusicPlayer == null)
+            {
+                Log.Warning("PlayBreakTransitionMusic: Background music player not initialized");
+                return;
+            }
+
+            var music = LoadRandomBreakTransitionMusic();
+            if (music != null)
+            {
+                _backgroundMusicPlayer.Stream = music;
+                _backgroundMusicPlayer.Play();
+                Log.Debug("PlayBreakTransitionMusic: Started background music");
+            }
+        }
+
+        /// <summary>
+        /// Stops the background music for ad break transitions.
+        /// </summary>
+        public void StopBreakTransitionMusic()
+        {
+            if (_backgroundMusicPlayer != null && _backgroundMusicPlayer.Playing)
+            {
+                _backgroundMusicPlayer.Stop();
+                Log.Debug("StopBreakTransitionMusic: Stopped background music");
+            }
         }
 
         /// <summary>
@@ -763,6 +810,10 @@ namespace KBTV.Audio
                     {
                         return LoadRandomReturnBumper();
                     }
+                    else if (item.Id == "INTRO_MUSIC")
+                    {
+                        return LoadRandomIntroBumper();
+                    }
                     // Fall through to general audio loading
                     break;
             }
@@ -879,70 +930,150 @@ namespace KBTV.Audio
 
         /// <summary>
         /// Loads ad audio for a broadcast item.
+        /// Scans res://assets/audio/ads/ for sponsor subdirectories and returns a random ad.
         /// </summary>
         private AudioStream? LoadAdAudio(BroadcastItem item)
         {
-            // Try to load ad audio files
-            // Ads are stored in assets/audio/ads/ with various sponsor folders
-            string[] possibleAdPaths = {
-                "res://assets/audio/ads/area_51_tours_v1.mp3",
-                "res://assets/audio/ads/big_earls_auto_v1.mp3",
-                "res://assets/audio/ads/cryptid_hunters_v1.mp3",
-                "res://assets/audio/ads/ghost_busters_v1.mp3",
-                "res://assets/audio/ads/ufology_today_v1.mp3"
-            };
-
-            foreach (var path in possibleAdPaths)
+            var adDir = DirAccess.Open("res://assets/audio/ads");
+            if (adDir == null)
             {
-                var testStream = GD.Load<AudioStream>(path);
-                if (testStream != null)
-                {
-                    return testStream;
-                }
+                Log.Warning("LoadAdAudio: Could not open ads directory");
+                return null;
             }
 
-            return null;
+            var sponsorFolders = new List<string>();
+            adDir.ListDirBegin();
+            string dirName = adDir.GetNext();
+            while (dirName != "")
+            {
+                if (!dirName.StartsWith(".") && !dirName.EndsWith(".import") && dirName != "Reference")
+                {
+                    var testDir = DirAccess.Open($"res://assets/audio/ads/{dirName}");
+                    if (testDir != null)
+                    {
+                        sponsorFolders.Add(dirName);
+                    }
+                }
+                dirName = adDir.GetNext();
+            }
+            adDir.ListDirEnd();
+
+            if (sponsorFolders.Count == 0)
+            {
+                Log.Warning("LoadAdAudio: No sponsor folders found");
+                return null;
+            }
+
+            var random = new Random();
+            var selectedSponsor = sponsorFolders[random.Next(sponsorFolders.Count)];
+            var sponsorDir = DirAccess.Open($"res://assets/audio/ads/{selectedSponsor}");
+            if (sponsorDir == null)
+            {
+                return null;
+            }
+
+            var audioFiles = new List<string>();
+            sponsorDir.ListDirBegin();
+            string fileName = sponsorDir.GetNext();
+            while (fileName != "")
+            {
+                if (!fileName.StartsWith(".") && !fileName.EndsWith(".import") && 
+                    (fileName.EndsWith(".ogg") || fileName.EndsWith(".wav") || fileName.EndsWith(".mp3")))
+                {
+                    audioFiles.Add(fileName);
+                }
+                fileName = sponsorDir.GetNext();
+            }
+            sponsorDir.ListDirEnd();
+
+            if (audioFiles.Count == 0)
+            {
+                Log.Warning($"LoadAdAudio: No audio files found in {selectedSponsor}");
+                return null;
+            }
+
+            var selectedFile = audioFiles[random.Next(audioFiles.Count)];
+            var path = $"res://assets/audio/ads/{selectedSponsor}/{selectedFile}";
+            
+            var audioStream = GD.Load<AudioStream>(path);
+            if (audioStream == null)
+            {
+                Log.Warning($"LoadAdAudio: Failed to load {path}");
+                return null;
+            }
+
+            Log.Debug($"LoadAdAudio: Loaded {path}");
+            return audioStream;
         }
 
         /// <summary>
         /// Loads a random return bumper audio file.
         /// </summary>
-        private AudioStream? LoadRandomReturnBumper()
+        public AudioStream? LoadRandomReturnBumper()
         {
-            var returnBumperDir = DirAccess.Open("res://assets/audio/bumpers/Return");
-            if (returnBumperDir == null)
+            return LoadRandomAudioFromFolder("res://assets/audio/bumpers/Return");
+        }
+
+        /// <summary>
+        /// Loads a random intro bumper audio file.
+        /// </summary>
+        public AudioStream? LoadRandomIntroBumper()
+        {
+            return LoadRandomAudioFromFolder("res://assets/audio/bumpers/Intro");
+        }
+
+        /// <summary>
+        /// Loads a random background music track for ad break transitions.
+        /// </summary>
+        public AudioStream? LoadRandomBreakTransitionMusic()
+        {
+            return LoadRandomAudioFromFolder("res://assets/audio/music", "break_transition_");
+        }
+
+        private AudioStream? LoadRandomAudioFromFolder(string folderPath, string prefixFilter = "")
+        {
+            var dir = DirAccess.Open(folderPath);
+            if (dir == null)
             {
+                Log.Warning($"LoadRandomAudioFromFolder: Could not open {folderPath}");
                 return GetSilentAudioFile();
             }
 
-            var bumperFiles = new System.Collections.Generic.List<string>();
-            returnBumperDir.ListDirBegin();
-            string fileName = returnBumperDir.GetNext();
+            var audioFiles = new List<string>();
+            dir.ListDirBegin();
+            string fileName = dir.GetNext();
             while (fileName != "")
             {
-                if (!fileName.StartsWith(".") && (fileName.EndsWith(".ogg") || fileName.EndsWith(".wav") || fileName.EndsWith(".mp3")))
+                if (!fileName.StartsWith(".") && !fileName.EndsWith(".import") && 
+                    (fileName.EndsWith(".ogg") || fileName.EndsWith(".wav") || fileName.EndsWith(".mp3")))
                 {
-                    bumperFiles.Add(fileName);
+                    if (string.IsNullOrEmpty(prefixFilter) || fileName.StartsWith(prefixFilter))
+                    {
+                        audioFiles.Add(fileName);
+                    }
                 }
-                fileName = returnBumperDir.GetNext();
+                fileName = dir.GetNext();
             }
-            returnBumperDir.ListDirEnd();
+            dir.ListDirEnd();
 
-            if (bumperFiles.Count == 0)
+            if (audioFiles.Count == 0)
             {
+                Log.Warning($"LoadRandomAudioFromFolder: No audio files found in {folderPath}");
                 return GetSilentAudioFile();
             }
 
             var random = new Random();
-            var selectedFile = bumperFiles[random.Next(bumperFiles.Count)];
-            var path = $"res://assets/audio/bumpers/Return/{selectedFile}";
+            var selectedFile = audioFiles[random.Next(audioFiles.Count)];
+            var path = $"{folderPath}/{selectedFile}";
 
             var audioStream = GD.Load<AudioStream>(path);
             if (audioStream == null)
             {
+                Log.Warning($"LoadRandomAudioFromFolder: Failed to load {path}");
                 return GetSilentAudioFile();
             }
 
+            Log.Debug($"LoadRandomAudioFromFolder: Loaded {path}");
             return audioStream;
         }
 

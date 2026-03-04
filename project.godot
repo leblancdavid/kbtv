@@ -24,24 +24,38 @@ AudioMixerManager="*res://scripts/audio/AudioMixerManager.cs"
 window/size/viewport_width=640
 window/size/viewport_height=360
 window/size/mode=2
-window/size/resizable=true
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
 window/stretch/scale_mode="integer"
-
-[gui]
-
-theme/default_font="res://assets/fonts/AcPlus_IBM_VGA_8x16.ttf"
-theme/default_font_size=9
-theme/custom="res://assets/ui/KBTVTheme.tres"
-
-[input]
-
-interact={"deadzone":0.5,"events":[{"type":"InputEventKey","device":-1,"keycode":70,"physical_keycode":0,"unicode":0,"location":0,"echo":false,"pressed":false,"shift":false,"alt":false,"ctrl":false,"meta":false}]}
 
 [dotnet]
 
 project/assembly_name="KBTV"
+
+[gui]
+
+theme/custom="res://assets/ui/KBTVTheme.tres"
+theme/default_font="res://assets/fonts/AcPlus_IBM_VGA_8x16.ttf"
+theme/default_font_size=9
+
+[input]
+
+interact={
+"deadzone": 0.5,
+"events": [{
+"alt": false,
+"ctrl": false,
+"device": -1,
+"echo": false,
+"keycode": 70,
+"location": 0,
+"meta": false,
+"physical_keycode": 0,
+"pressed": false,
+"shift": false,
+"type": "InputEventKey",
+"unicode": 0
+}]
+}
 
 [rendering]
 

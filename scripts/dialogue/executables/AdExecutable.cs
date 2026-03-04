@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
@@ -150,23 +151,63 @@ namespace KBTV.Dialogue
 
         private static string? GetExistingAdAudioPath(AdType adType, int adIndex)
         {
-            // Check for various possible audio file locations/patterns
-            var possiblePaths = new[]
+            var adDir = DirAccess.Open("res://assets/audio/ads");
+            if (adDir == null)
             {
-                $"res://assets/audio/ads/{adType.ToString().ToLower()}_{adIndex}.mp3",
-                $"res://assets/audio/ads/ad_{adIndex}.mp3",
-                $"res://assets/audio/ads/commercial_{adIndex}.mp3"
-            };
-            
-            foreach (var path in possiblePaths)
-            {
-                if (FileExists(path))
-                {
-                    return path;
-                }
+                return null;
             }
-            
-            return null; // Use delay fallback
+
+            var sponsorFolders = new List<string>();
+            adDir.ListDirBegin();
+            string dirName = adDir.GetNext();
+            while (dirName != "")
+            {
+                if (!dirName.StartsWith(".") && !dirName.EndsWith(".import") && dirName != "Reference")
+                {
+                    var testDir = DirAccess.Open($"res://assets/audio/ads/{dirName}");
+                    if (testDir != null)
+                    {
+                        sponsorFolders.Add(dirName);
+                    }
+                }
+                dirName = adDir.GetNext();
+            }
+            adDir.ListDirEnd();
+
+            if (sponsorFolders.Count == 0)
+            {
+                return null;
+            }
+
+            var random = new Random();
+            var selectedSponsor = sponsorFolders[random.Next(sponsorFolders.Count)];
+            var sponsorDir = DirAccess.Open($"res://assets/audio/ads/{selectedSponsor}");
+            if (sponsorDir == null)
+            {
+                return null;
+            }
+
+            var audioFiles = new List<string>();
+            sponsorDir.ListDirBegin();
+            string fileName = sponsorDir.GetNext();
+            while (fileName != "")
+            {
+                if (!fileName.StartsWith(".") && !fileName.EndsWith(".import") && 
+                    (fileName.EndsWith(".ogg") || fileName.EndsWith(".wav") || fileName.EndsWith(".mp3")))
+                {
+                    audioFiles.Add(fileName);
+                }
+                fileName = sponsorDir.GetNext();
+            }
+            sponsorDir.ListDirEnd();
+
+            if (audioFiles.Count == 0)
+            {
+                return null;
+            }
+
+            var selectedFile = audioFiles[random.Next(audioFiles.Count)];
+            return $"res://assets/audio/ads/{selectedSponsor}/{selectedFile}";
         }
         
         private static string GetSponsorName(AdType adType)
