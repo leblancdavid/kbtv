@@ -63,6 +63,15 @@ namespace KBTV.Dialogue
             return CreateBroadcastItem();
         }
 
+        public override async Task<float> GetEstimatedDurationAsync()
+        {
+            float audioDuration = await GetAudioDurationAsync();
+            if (audioDuration > 0)
+                return audioDuration;
+
+            return _duration;
+        }
+
         protected override async Task<float> GetAudioDurationAsync()
         {
             if (string.IsNullOrEmpty(_audioPath))

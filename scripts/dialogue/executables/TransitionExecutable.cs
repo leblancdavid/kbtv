@@ -43,6 +43,19 @@ namespace KBTV.Dialogue
             return new BroadcastItem(_id, _type, _text, _audioPath, _duration, new { Speaker = "TRANSITION" });
         }
 
+        public override async Task<float> GetEstimatedDurationAsync()
+        {
+            // Check if there's audio and get its actual duration
+            if (!string.IsNullOrEmpty(_audioPath))
+            {
+                float audioDuration = await GetAudioDurationAsync(_audioPath, _duration);
+                if (audioDuration > 0)
+                    return audioDuration;
+            }
+
+            return _duration;
+        }
+
         protected override async Task<float> GetAudioDurationAsync()
         {
             return await GetAudioDurationAsync(_audioPath, _duration);

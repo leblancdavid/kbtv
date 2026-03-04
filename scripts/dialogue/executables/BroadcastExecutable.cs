@@ -67,11 +67,18 @@ namespace KBTV.Dialogue
 
             try
             {
+                // Get actual audio duration and update _duration for timeout calculations
+                float actualDuration = await GetAudioDurationAsync();
+                if (actualDuration > 0)
+                {
+                    _duration = actualDuration;
+                }
+
                 // Publish started event for UI
                 var startedEvent = new BroadcastItemStartedEvent(
                     CreateBroadcastItem(),
                     _duration,
-                    await GetAudioDurationAsync()
+                    actualDuration
                 );
                 _eventBus.Publish(startedEvent);
 
@@ -95,6 +102,18 @@ namespace KBTV.Dialogue
         /// Create a BroadcastItem for this executable.
         /// </summary>
         protected abstract BroadcastItem CreateBroadcastItem();
+
+        /// <summary>
+        /// Get estimated duration before execution. Called by AsyncBroadcastLoop to calculate timeout.
+        /// </summary>
+        public virtual async Task<float> GetEstimatedDurationAsync()
+        {
+            // Default: use existing _duration or calculate from audio
+            if (_duration > 0)
+                return _duration;
+
+            return await GetAudioDurationAsync();
+        }
 
         /// <summary>
         /// Get the actual audio duration if available.

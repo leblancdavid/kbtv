@@ -272,6 +272,25 @@ namespace KBTV.Dialogue
             });
         }
 
+        public override async Task<float> GetEstimatedDurationAsync()
+        {
+            // For Vern lines with audio, get actual duration
+            if (!string.IsNullOrEmpty(_audioPath))
+            {
+                float audioDuration = await GetAudioDurationAsync(_audioPath, 4.0f);
+                if (audioDuration > 0)
+                    return audioDuration;
+            }
+
+            // For caller conversations, estimate based on line count
+            if (_arc != null)
+            {
+                return _arc.Dialogue?.Count * 15.0f + 10.0f ?? 25.0f;
+            }
+
+            return _duration;
+        }
+
         protected override async Task<float> GetAudioDurationAsync()
         {
             if (string.IsNullOrEmpty(_audioPath))
