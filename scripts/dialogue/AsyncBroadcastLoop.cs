@@ -326,13 +326,11 @@ namespace KBTV.Dialogue
 
             try
             {
-                // Calculate timeout based on executable type
-                float timeoutSeconds = 30.0f;
-                if (executable is KBTV.Dialogue.DialogueExecutable dialogueExec)
-                {
-                    // Dialogue arcs: lines × 15s + 10s buffer (for long audio durations)
-                    timeoutSeconds = dialogueExec.LineCount * 15.0f + 10.0f;
-                }
+                // Calculate timeout based on executable duration + buffer
+                // Use actual audio duration for all executable types (dead air, transitions, etc.)
+                float timeoutSeconds = executable.Duration > 0
+                    ? executable.Duration + 10.0f  // Duration + 10s buffer for audio loading/processing
+                    : 30.0f;                       // Fallback for items without duration
                 
                 // Execute with timeout to prevent hanging
                 var timeoutTask = Task.Delay(TimeSpan.FromSeconds(timeoutSeconds), cancellationToken);
