@@ -43,10 +43,10 @@ LINE_TYPE_MAPPING = {
 def get_output_filename(line_type, line_id, mood):
     """Generate output filename based on line type and mood"""
     prefix = LINE_TYPE_MAPPING.get(line_type, line_type)
-    # Extract number from line_id (e.g., opening_ufos_1 -> 1)
-    parts = line_id.split('_')
-    num = parts[-1] if parts else '1'
-    return f"{prefix}_{mood}_{num}.mp3"
+    # Use full line_id to avoid collisions (e.g., opening_ufos_1)
+    # Replace line_type prefix with short prefix, keep topic and number
+    # e.g., opening_ufos_1 -> opening_ufos_1 -> opening_ufos_1.mp3
+    return f"{line_id}.mp3"
 
 def generate_vern_audio(force_regenerate=False, verbose=False):
     """Generate all Vern broadcast audio"""

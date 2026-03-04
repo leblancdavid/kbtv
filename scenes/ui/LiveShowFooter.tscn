@@ -1,7 +1,6 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/LiveShowFooter.cs" id="1"]
-[ext_resource type="PackedScene" path="res://scenes/ui/LiveShowPanel.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://scenes/ui/EndShowPanel.tscn" id="3"]
 
 [sub_resource type="StyleBoxFlat" id="PanelBackground"]
@@ -104,11 +103,12 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.2
 
-[node name="LiveShowPanel" parent="HBoxContainer" instance=ExtResource("2")]
+[node name="TranscriptSpacer" type="Control" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.6
+mouse_filter = 2
 
 [node name="OnAirPanel" type="Panel" parent="HBoxContainer"]
 layout_mode = 2

@@ -21,11 +21,11 @@ namespace KBTV.UI
         private SubViewport? _vernViewport;
         private Camera2D? _vernCamera;
         private TextureRect? _vernViewportTexture;
-        private Control? _vernTranscriptPanel;
         private ColorRect? _vernBackdrop;
         private Control? _vernRightPanel;
         private ColorRect? _vernRightOverlay;
         private Button? _vernCloseButton;
+        private TranscriptOverlay? _transcriptOverlay;
 
         private static readonly float VernCameraZoomScale = 1.15f;
         private static readonly Vector2I VernGridPosition = new Vector2I(5, 2);
@@ -181,18 +181,6 @@ namespace KBTV.UI
                 _vernStatView.SetAnchorsPreset(Control.LayoutPreset.FullRect);
                 _vernRightPanel.AddChild(_vernStatView);
 
-                var transcriptScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LiveShowPanel.tscn");
-                if (transcriptScene != null)
-                {
-                    _vernTranscriptPanel = transcriptScene.Instantiate<Control>();
-                    _vernTranscriptPanel.Name = "VernTranscriptPanel";
-                    _vernViewContainer.AddChild(_vernTranscriptPanel);
-                }
-                else
-                {
-                    Log.Error("CallerScreenerManager: Failed to load LiveShowPanel.tscn");
-                }
-
                 // -> button top-left (mirrors <- position in screener)
                 var forwardButton = new Button
                 {
@@ -201,10 +189,10 @@ namespace KBTV.UI
                     CustomMinimumSize = new Vector2(24, 18)
                 };
                 forwardButton.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
-                forwardButton.OffsetLeft = 12;
-                forwardButton.OffsetTop = 6;
-                forwardButton.OffsetRight = 36;
-                forwardButton.OffsetBottom = 24;
+                forwardButton.OffsetLeft = 4;
+                forwardButton.OffsetTop = 4;
+                forwardButton.OffsetRight = 28;
+                forwardButton.OffsetBottom = 22;
                 UITheme.ApplyButtonStyle(forwardButton);
                 forwardButton.Pressed += OnForwardRequested;
                 _vernViewContainer.AddChild(forwardButton);
@@ -217,10 +205,10 @@ namespace KBTV.UI
                     CustomMinimumSize = new Vector2(24, 18)
                 };
                 _vernCloseButton.SetAnchorsPreset(Control.LayoutPreset.TopRight);
-                _vernCloseButton.OffsetLeft = -36;
-                _vernCloseButton.OffsetTop = 6;
-                _vernCloseButton.OffsetRight = -12;
-                _vernCloseButton.OffsetBottom = 24;
+                _vernCloseButton.OffsetLeft = -28;
+                _vernCloseButton.OffsetTop = 4;
+                _vernCloseButton.OffsetRight = -4;
+                _vernCloseButton.OffsetBottom = 22;
                 UITheme.ApplyButtonStyle(_vernCloseButton);
                 _vernCloseButton.Pressed += OnCloseRequested;
                 _vernViewContainer.AddChild(_vernCloseButton);
@@ -232,6 +220,10 @@ namespace KBTV.UI
             {
                 Log.Error("CallerScreenerManager: Failed to load VernStatView.tscn");
             }
+
+            // Transcript overlay sits on canvas above all views (both screener and Vern stat view)
+            _transcriptOverlay = new TranscriptOverlay();
+            _canvas.AddChild(_transcriptOverlay);
 
             _canvas.Hide();
             IsOpen = false;
@@ -337,7 +329,6 @@ namespace KBTV.UI
             UpdateVernViewportSize();
             UpdateVernCameraZoom();
             UpdateVernCameraTarget();
-            UpdateVernTranscriptLayout();
 
             if (_vernViewContainer != null)
             {
@@ -439,32 +430,6 @@ namespace KBTV.UI
             var size = rootViewport.GetVisibleRect().Size;
             _vernViewContainer.CustomMinimumSize = size;
             _vernViewport.Size = new Vector2I((int)size.X, (int)size.Y);
-        }
-
-        private void UpdateVernTranscriptLayout()
-        {
-            if (_vernTranscriptPanel == null)
-            {
-                return;
-            }
-
-            var rootViewport = GetViewport();
-            if (rootViewport == null)
-            {
-                return;
-            }
-
-            var size = rootViewport.GetVisibleRect().Size;
-            var panelWidth = size.X * 0.6f;
-            var panelHeight = size.Y * 0.25f;
-            var left = (size.X - panelWidth) * 0.5f;
-            var top = size.Y - panelHeight;
-
-            _vernTranscriptPanel.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
-            _vernTranscriptPanel.OffsetLeft = left;
-            _vernTranscriptPanel.OffsetTop = top;
-            _vernTranscriptPanel.OffsetRight = left + panelWidth;
-            _vernTranscriptPanel.OffsetBottom = top + panelHeight;
         }
 
         private void UpdateVernCameraTarget()

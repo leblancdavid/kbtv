@@ -13,6 +13,9 @@
 - `scripts/ui/VernStatView.cs`
 - `scenes/ui/VernStatView.tscn`
 - `scripts/world/WorldRoom.cs`
+- `scripts/ui/components/TranscriptOverlay.cs` (new)
+- `scenes/ui/LiveShowPanel.tscn`
+- `scenes/ui/LiveShowFooter.tscn`
 
 **Work Done**:
 - Initialized new task for Vern stat view and screener navigation
@@ -21,9 +24,16 @@
 - Added screener back button and live show timer label above incoming queue
 - Wired view switching between screener and Vern stat view
 - Swapped placeholder background for SubViewport camera feed and transcript-only layout
+- Fixed 3 minor layout issues: button positions now use 4px margins matching screener, transcript panel has 4px bottom padding, Vern transcript font sizes reduced (SpeakerIcon/SpeakerName: 10, PhaseLabel: 8, DialogueLabel: 10)
+- Extracted reusable TranscriptOverlay component: loads LiveShowPanel.tscn, self-positions at bottom-center (60% width, 25% height, 4px bottom padding), handles viewport resize
+- Updated LiveShowPanel.tscn default font sizes to 10/8/10 (was 12/10/12)
+- Removed LiveShowPanel from LiveShowFooter.tscn; remaining 3 panels (AdBreak, EndShow, OnAir) redistributed to 33% each
+- Replaced two separate LiveShowPanel instances with single TranscriptOverlay on canvas, shared across screener and Vern stat views
+- Removed ApplyVernTranscriptFontOverrides() and UpdateVernTranscriptLayout() from CallerScreenerManager
+- Rearranged footer panels around transcript: AdBreak (20%), EndShow (20%), TranscriptSpacer (60%), OnAir (20%) — spacer leaves center clear for floating transcript overlay
 
 **Next Steps**:
-- Verify Vern stat view renders correctly and navigation works
+- Visual QA: confirm footer panels visible on left/right edges, transcript overlay in center, no overlap
 
 **Related Docs**:
 - `docs/ui/UI_DESIGN.md`
