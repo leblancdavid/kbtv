@@ -281,6 +281,9 @@ public partial class EvidenceModal : Control
 
     private void SetupModal()
     {
+        // Apply UITheme styling to all labels
+        ApplyThemeToLabels();
+
         // Initialize letter states
         InitializeLetterStates();
 
@@ -322,7 +325,7 @@ public partial class EvidenceModal : Control
             FitContent = true,
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        _currentInputDisplay.AddThemeFontSizeOverride("normal_font_size", 24);
+        _currentInputDisplay.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_SMALL);
         ApplyMonospaceFont(_currentInputDisplay);
         
         // Add to ScrollContainer content - FIXED: _guessHistory IS the ScrollContainer
@@ -337,6 +340,42 @@ public partial class EvidenceModal : Control
             GD.Print("ERROR: Could not find ScrollContainer content for terminal display!");
             GD.Print($"_guessHistory type: {_guessHistory?.GetType().Name}");
             GD.Print($"_guessHistory child count: {_guessHistory?.GetChildCount()}");
+        }
+    }
+
+    /// <summary>
+    /// Apply UITheme styling to scene-defined labels for consistent appearance.
+    /// </summary>
+    private void ApplyThemeToLabels()
+    {
+        // Title label - use larger size for header
+        if (_titleLabel != null)
+        {
+            _titleLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _titleLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_XL);
+            _titleLabel.AddThemeColorOverride("font_color", UITheme.TEXT_PRIMARY);
+        }
+
+        // Attempts label - show as secondary
+        if (_attemptsLabel != null)
+        {
+            _attemptsLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _attemptsLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
+            _attemptsLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+        }
+
+        // Description label
+        if (_descriptionLabel != null)
+        {
+            _descriptionLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _descriptionLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_BASE);
+            _descriptionLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+        }
+
+        // Apply button styling
+        if (_collectButton != null)
+        {
+            UITheme.ApplyButtonStyle(_collectButton);
         }
     }
 
@@ -448,7 +487,7 @@ public partial class EvidenceModal : Control
                         CustomMinimumSize = new Vector2(25, 25)
                     };
                     letterLabel.SizeFlagsVertical = Control.SizeFlags.Expand;
-                    letterLabel.AddThemeFontSizeOverride("normal_font_size", 20);
+                    letterLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
                     ApplyMonospaceFont(letterLabel);
                     rowContainer.AddChild(letterLabel);
                 }
@@ -809,7 +848,7 @@ public partial class EvidenceModal : Control
             FitContent = true,
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        guessLabel.AddThemeFontSizeOverride("normal_font_size", 24);
+        guessLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_SMALL);
         ApplyMonospaceFont(guessLabel);
         
         // Find the ScrollContainer and its content - FIXED node path
@@ -1071,7 +1110,7 @@ public partial class EvidenceModal : Control
             FitContent = true,
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        successLabel.AddThemeFontSizeOverride("normal_font_size", 20);
+        successLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
         ApplyMonospaceFont(successLabel);
         
         // Find the ScrollContainer content - FIXED node path
@@ -1095,7 +1134,7 @@ public partial class EvidenceModal : Control
             FitContent = true,
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        failureLabel.AddThemeFontSizeOverride("normal_font_size", 20);
+        failureLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
         ApplyMonospaceFont(failureLabel);
         
         // Find the ScrollContainer content - FIXED node path
@@ -1119,7 +1158,7 @@ public partial class EvidenceModal : Control
             FitContent = true,
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        messageLabel.AddThemeFontSizeOverride("normal_font_size", 20);
+        messageLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
         ApplyMonospaceFont(messageLabel);
         
         // Find the ScrollContainer content - FIXED node path
@@ -1143,7 +1182,7 @@ public partial class EvidenceModal : Control
             FitContent = true,
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        errorLabel.AddThemeFontSizeOverride("normal_font_size", 20);
+        errorLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
         ApplyMonospaceFont(errorLabel);
         
         // Find the ScrollContainer content - FIXED node path
@@ -1194,7 +1233,7 @@ public partial class EvidenceModal : Control
                 FitContent = true,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
-            _currentInputDisplay.AddThemeFontSizeOverride("normal_font_size", 24);
+        _currentInputDisplay.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
             ApplyMonospaceFont(_currentInputDisplay);
             guessHistoryContent.AddChild(_currentInputDisplay);
         }
@@ -1318,7 +1357,7 @@ public partial class EvidenceModal : Control
             FitContent = true,
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        discoveryLabel.AddThemeFontSizeOverride("normal_font_size", 20);
+        discoveryLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
         ApplyMonospaceFont(discoveryLabel);
         
         // Find the ScrollContainer content
