@@ -342,7 +342,7 @@ namespace KBTV.Dialogue
             }
 
             // Handle caller conversation completion
-            if (executable.Type == BroadcastItemType.Conversation)
+             if (executable.Type == BroadcastItemType.Conversation)
             {
                 
                 if (_stateManager._pendingBreakTransition)
@@ -350,11 +350,20 @@ namespace KBTV.Dialogue
                     return AsyncBroadcastState.Conversation; // Stay for break transition
                 }
 
-                 // Handle pending caller drop
-                 if (_stateManager._pendingCallerDropped)
+                 // Handle pending caller drop - only if it matches the current on-air caller
+                 var currentCaller = _callerRepository.OnAirCaller;
+                 if (_stateManager._pendingCallerDroppedCallerId != null && 
+                     currentCaller != null && 
+                     _stateManager._pendingCallerDroppedCallerId == currentCaller.Id)
                  {
-                     _stateManager._pendingCallerDropped = false;
+                     _stateManager._pendingCallerDroppedCallerId = null;
                      return AsyncBroadcastState.DroppedCaller;
+                 }
+                 else if (_stateManager._pendingCallerDroppedCallerId != null)
+                 {
+                     // Pending drop is for a different caller (already dropped), clear it
+                     Log.Debug($"BroadcastStateMachine: Clearing pending drop for caller {_stateManager._pendingCallerDroppedCallerId} - no longer on air");
+                     _stateManager._pendingCallerDroppedCallerId = null;
                  }
 
                  // Handle pending caller cursed (must check before normal completion logic)

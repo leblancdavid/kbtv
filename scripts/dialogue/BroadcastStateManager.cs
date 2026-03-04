@@ -73,7 +73,7 @@ namespace KBTV.Dialogue
         private bool _isShowActive = false;
         public bool _hasPlayedVernOpening = false;
         public bool _pendingBreakTransition = false;
-        public bool _pendingCallerDropped = false;
+        public string? _pendingCallerDroppedCallerId = null;
         public bool _pendingCallerCursed = false;
         public bool _pendingShowEndingTransition = false;
         public bool _showClosingStarted = false;
@@ -274,13 +274,15 @@ namespace KBTV.Dialogue
             }
             else if (interruptionEvent.Reason == BroadcastInterruptionReason.CallerDropped)
             {
-                Log.Debug($"BroadcastStateManager: Caller dropped interruption received - setting pending flag");
-                _pendingCallerDropped = true;  // Set flag instead of changing state
+                var callerId = interruptionEvent.Context as string;
+                Log.Debug($"BroadcastStateManager: Caller dropped interruption received - setting pending flag for caller: {callerId}");
+                _pendingCallerDroppedCallerId = callerId;
             }
             else if (interruptionEvent.Reason == BroadcastInterruptionReason.CallerCursed)
             {
                 Log.Debug($"BroadcastStateManager: Caller cursed interruption received - setting pending flag");
-                _pendingCallerCursed = true;  // Set flag instead of changing state
+                _pendingCallerCursed = true;
+                _pendingCallerDroppedCallerId = null; // Clear drop - already dropped as part of cursing
             }
             
             if (_currentState != previousState)
@@ -302,7 +304,7 @@ namespace KBTV.Dialogue
 
             // Reset flags for new show
             _pendingBreakTransition = false;
-            _pendingCallerDropped = false;
+            _pendingCallerDroppedCallerId = null;
             _pendingCallerCursed = false;
             _pendingShowEndingTransition = false;
             _showClosingStarted = false;

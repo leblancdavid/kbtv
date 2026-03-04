@@ -31,6 +31,7 @@ namespace KBTV.UI
         private bool _isCursingTimerActive = false;
         private float _cursingTimeRemaining = 0f;
         private const float CURSING_TIMER_DURATION = 20f;
+        private bool _callerDroppedDueToCursing = false;
 
         private float _previousAdBreakSeconds = -1f;
 
@@ -167,8 +168,9 @@ namespace KBTV.UI
         {
             if (_repository?.OnAirCaller != null && _asyncBroadcastLoop != null)
             {
+                var callerId = _repository.OnAirCaller.Id;
                 Log.Debug($"LiveShowFooter: Dropping caller {_repository.OnAirCaller.Name}");
-                _asyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.CallerDropped);
+                _asyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.CallerDropped, callerId);
 
                 // If cursing timer was active, stop it (successful drop)
                 if (_isCursingTimerActive)
@@ -222,6 +224,7 @@ namespace KBTV.UI
         {
             if (interruptionEvent.Reason == BroadcastInterruptionReason.CallerCursed)
             {
+                _callerDroppedDueToCursing = true;
                 StartCursingTimer();
             }
         }
@@ -275,11 +278,18 @@ namespace KBTV.UI
                 Log.Debug("LiveShowFooter: Applied $100 FCC fine");
             }
 
-            // Automatically drop the caller (same as manual drop)
-            if (_repository?.OnAirCaller != null && _asyncBroadcastLoop != null)
+            // Automatically drop the caller - but only if not already dropped due to cursing
+            // (the cursing flow already handles dropping the caller)
+            if (_callerDroppedDueToCursing)
             {
+                Log.Debug("LiveShowFooter: Caller already dropped due to cursing, skipping extra drop");
+                _callerDroppedDueToCursing = false; // Reset flag
+            }
+            else if (_repository?.OnAirCaller != null && _asyncBroadcastLoop != null)
+            {
+                var callerId = _repository.OnAirCaller.Id;
                 Log.Debug($"LiveShowFooter: Automatically dropping cursing caller {_repository.OnAirCaller.Name}");
-                _asyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.CallerDropped);
+                _asyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.CallerDropped, callerId);
             }
 
             if (_dropTimerLabel != null)

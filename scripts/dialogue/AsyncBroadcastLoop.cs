@@ -396,6 +396,14 @@ namespace KBTV.Dialogue
         /// </summary>
         public void InterruptBroadcast(BroadcastInterruptionReason reason)
         {
+            InterruptBroadcast(reason, null);
+        }
+
+        /// <summary>
+        /// Handle interruption from external events (breaks, show ending, etc.).
+        /// </summary>
+        public void InterruptBroadcast(BroadcastInterruptionReason reason, object? context)
+        {
             lock (_lock)
             {
                 if (!_isRunning) 
@@ -407,7 +415,7 @@ namespace KBTV.Dialogue
                 _lastInterruptionReason = reason;
                 
                 // Publish interruption event for UI and other components
-                EventBus.Publish(new BroadcastInterruptionEvent(reason));
+                EventBus.Publish(new BroadcastInterruptionEvent(reason, context));
                 
                 // Safety fallback: drop caller if BreakStarting and we have an on-air caller
                 if (reason == BroadcastInterruptionReason.BreakStarting)

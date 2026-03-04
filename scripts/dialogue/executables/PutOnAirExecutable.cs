@@ -38,6 +38,9 @@ namespace KBTV.Dialogue
             {
                 // Caller successfully put on air - broadcast continues normally
                 Log.Debug($"PutOnAirExecutable: Successfully put caller {result.Value.Name} on air");
+                
+                // Clear any stale pending drop flags - this is a new caller
+                _stateManager._pendingCallerDroppedCallerId = null;
             }
             else
             {

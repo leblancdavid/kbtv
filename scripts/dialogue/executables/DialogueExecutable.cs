@@ -202,10 +202,10 @@ namespace KBTV.Dialogue
                          }
 
                          // Check for pending caller drop (immediate interruption)
-                         if (_stateManager?._pendingCallerDropped == true)
-                         {
-                             break;
-                         }
+                          if (_stateManager?._pendingCallerDroppedCallerId != null)
+                          {
+                              break;
+                          }
 
                          // Check for pending caller cursed (immediate interruption)
                          if (_stateManager?._pendingCallerCursed == true)

@@ -81,32 +81,46 @@ namespace KBTV.Dialogue
                 return;
             }
 
-            // Create audio stream player in scene tree
-            _bleepPlayer = new AudioStreamPlayer();
-            _sceneTree.Root.AddChild(_bleepPlayer);
-
-            // Load bleep sound
-            var bleepStream = ResourceLoader.Load<AudioStream>("res://assets/audio/bleep.wav");
-            if (bleepStream == null)
+            try
             {
-                Log.Error("CursingDelayExecutable: Could not load bleep.wav - file may be missing or corrupted");
-                return;
+                // Create audio stream player in scene tree
+                _bleepPlayer = new AudioStreamPlayer();
+                _bleepPlayer.Name = "BleepPlayer";
+                _sceneTree.Root.AddChild(_bleepPlayer);
+
+                // Load bleep sound using GD.Load instead of ResourceLoader
+                var bleepPath = "res://assets/audio/bleep.wav";
+                var bleepStream = GD.Load<AudioStream>(bleepPath);
+                if (bleepStream == null)
+                {
+                    Log.Error($"CursingDelayExecutable: Could not load bleep.wav from {bleepPath}");
+                    return;
+                }
+
+                _bleepPlayer.Stream = bleepStream;
+                _bleepPlayer.VolumeDb = -6f;
+                _bleepPlayer.Bus = "Master";
+
+                // Verify setup
+                if (_bleepPlayer.Stream == null)
+                {
+                    Log.Error("CursingDelayExecutable: Stream not set on player after assignment");
+                    return;
+                }
+
+                _isBleeping = true;
+                
+                // Start playback
+                _bleepPlayer.Play();
+                Log.Debug("CursingDelayExecutable: Bleep playback started");
+                
+                // Start fade cycle
+                StartFadeCycle();
             }
-
-            _bleepPlayer.Stream = bleepStream;
-            _bleepPlayer.VolumeDb = -6f; // Start audible for testing (was -20f)
-            _bleepPlayer.Bus = "Master"; // Use master bus
-
-            // Verify setup
-            if (_bleepPlayer.Stream == null)
+            catch (Exception ex)
             {
-                Log.Error("CursingDelayExecutable: Stream not set on player after assignment");
-                return;
+                Log.Error($"CursingDelayExecutable: Exception starting bleep: {ex.Message}");
             }
-
-
-            _isBleeping = true;
-            StartFadeCycle();
         }
 
         private async void StartFadeCycle()
