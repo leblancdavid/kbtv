@@ -26,7 +26,7 @@ namespace KBTV.UI
         private int _breaksPerShow = AdConstants.DEFAULT_BREAKS_PER_SHOW;
         private int _slotsPerBreak = AdConstants.DEFAULT_SLOTS_PER_BREAK;
         private int _showDurationMinutes = 10;
-        private bool _disableBroadcastAudio = true;
+        private bool _disableBroadcastAudio = false;
 
         public Button StartShowButton => _startShowButton;
 
@@ -52,16 +52,16 @@ namespace KBTV.UI
             _gameStateManager = DependencyInjection.Get<GameStateManager>(this);
             _timeManager = DependencyInjection.Get<TimeManager>(this);
             _saveManager = DependencyInjection.Get<SaveManager>(this);
-            
+
             GD.Print($"[PreShowShowPanel] Dependencies resolved, topics count: {_availableTopics.Count}");
-            
+
             // Set the default topic (index 0) now that dependencies are ready
             if (_availableTopics.Count > 0)
             {
                 GD.Print("[PreShowShowPanel] Calling OnTopicSelected(0)");
                 OnTopicSelected(0);
             }
-            
+
             RefreshData();
             GD.Print("[PreShowShowPanel] Calling UpdateUI");
             UpdateUI();
@@ -117,7 +117,8 @@ namespace KBTV.UI
                 {
                     _showDurationMinutes = save.ShowDurationMinutes;
                 }
-                _disableBroadcastAudio = save.DisableBroadcastAudio;
+                //_disableBroadcastAudio = save.DisableBroadcastAudio;
+                save.DisableBroadcastAudio = _disableBroadcastAudio;
             }
         }
 
@@ -374,7 +375,7 @@ namespace KBTV.UI
             GD.Print($"[PreShowShowPanel] OnTopicSelected called with index: {index}");
             GD.Print($"  _availableTopics.Count: {_availableTopics.Count}");
             GD.Print($"  _gameStateManager: {_gameStateManager}");
-            
+
             if (index >= 0 && index < _availableTopics.Count)
             {
                 var selectedTopic = _availableTopics[(int)index];
@@ -445,13 +446,13 @@ namespace KBTV.UI
             GD.Print("[PreShowShowPanel] UpdateUI called");
             GD.Print($"  _gameStateManager: {_gameStateManager}");
             GD.Print($"  _startShowButton: {_startShowButton}");
-            
+
             // Enable button if topic is selected, regardless of current phase
             // (phase will be PreShow when show actually starts)
             if (_gameStateManager != null && _startShowButton != null)
             {
                 bool canStart = _gameStateManager.CanStartLiveShow();
-                
+
                 // If CanStartLiveShow is false due to phase, check if topic is selected
                 // This handles the case where UI is created during Loading phase
                 if (!canStart && _gameStateManager.SelectedTopic != null)

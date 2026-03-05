@@ -38,6 +38,7 @@ namespace KBTV.Dialogue
 
         // Off-topic remark tracking
         private bool _pendingOffTopicRemark = false;
+        private bool _skipBetweenAfterSpecialLine = false;
 
         public BroadcastStateMachine(
             ICallerRepository callerRepository,
@@ -193,20 +194,34 @@ namespace KBTV.Dialogue
                     newState = AsyncBroadcastState.Conversation;
                     break;
                 case AsyncBroadcastState.DeadAir:
-                    if (ShouldPlayBetweenCallers())
-                    {
-                        // Go directly to Conversation - no "between callers" transition needed
-                        // since we're coming from dead air, not from a previous caller
-                        newState = AsyncBroadcastState.Conversation;
-                    }
+                 if (ShouldPlayBetweenCallers())
+                 {
+                     if (_skipBetweenAfterSpecialLine)
+                     {
+                         _skipBetweenAfterSpecialLine = false;
+                         return AsyncBroadcastState.Conversation;
+                     }
+                     else
+                     {
+                         return AsyncBroadcastState.BetweenCallers;
+                     }
+                 }
                     // Else stay in DeadAir
                     break;
                 case AsyncBroadcastState.DroppedCaller:
                     // After dropped caller line plays, check if there are more callers
-                    if (ShouldPlayBetweenCallers())
-                    {
-                        newState = AsyncBroadcastState.BetweenCallers;
-                    }
+                 if (ShouldPlayBetweenCallers())
+                 {
+                     if (_skipBetweenAfterSpecialLine)
+                     {
+                         _skipBetweenAfterSpecialLine = false;
+                         return AsyncBroadcastState.Conversation;
+                     }
+                     else
+                     {
+                         return AsyncBroadcastState.BetweenCallers;
+                     }
+                 }
                     else
                     {
                         newState = AsyncBroadcastState.DeadAir;
@@ -214,10 +229,18 @@ namespace KBTV.Dialogue
                     break;
                  case AsyncBroadcastState.CallerCursed:
                      // After cursed caller response, check if there are more callers
-                     if (ShouldPlayBetweenCallers())
+                 if (ShouldPlayBetweenCallers())
+                 {
+                     if (_skipBetweenAfterSpecialLine)
                      {
-                         newState = AsyncBroadcastState.BetweenCallers;
+                         _skipBetweenAfterSpecialLine = false;
+                         return AsyncBroadcastState.Conversation;
                      }
+                     else
+                     {
+                         return AsyncBroadcastState.BetweenCallers;
+                     }
+                 }
                      else
                      {
                          newState = AsyncBroadcastState.DeadAir;
@@ -369,7 +392,8 @@ namespace KBTV.Dialogue
                  // Handle pending caller cursed (must check before normal completion logic)
                  if (_stateManager._pendingCallerCursed)
                  {
-                     _stateManager._pendingCallerCursed = false;
+                        _stateManager._pendingCallerCursed = false;
+                        _skipBetweenAfterSpecialLine = true;
                      return AsyncBroadcastState.CursingDelay;
                  }
  
@@ -407,10 +431,19 @@ namespace KBTV.Dialogue
                     return AsyncBroadcastState.Conversation;
                 }
                 
-                if (shouldPlayBetween)
-                {
-                    return AsyncBroadcastState.BetweenCallers;
-                }
+                     if (shouldPlayBetween)
+                     {
+                         if (_skipBetweenAfterSpecialLine)
+                         {
+                             // Skip the BetweenCallers transition for special lines
+                             _skipBetweenAfterSpecialLine = false;
+                             return AsyncBroadcastState.Conversation;
+                         }
+                         else
+                         {
+                             return AsyncBroadcastState.BetweenCallers;
+                         }
+                     }
                 else if (shouldPlayDead)
                 {
                     return AsyncBroadcastState.DeadAir;
@@ -422,10 +455,19 @@ namespace KBTV.Dialogue
             }
 
             // Fallback
-            if (ShouldPlayBetweenCallers())
-            {
-                return AsyncBroadcastState.BetweenCallers;
-            }
+                 if (ShouldPlayBetweenCallers())
+                 {
+                     if (_skipBetweenAfterSpecialLine)
+                     {
+                         // Skip the BetweenCallers transition
+                         _skipBetweenAfterSpecialLine = false;
+                         return AsyncBroadcastState.Conversation;
+                     }
+                     else
+                     {
+                         return AsyncBroadcastState.BetweenCallers;
+                     }
+                 }
             else if (ShouldPlayDeadAir())
             {
                 return AsyncBroadcastState.DeadAir;
@@ -465,6 +507,7 @@ namespace KBTV.Dialogue
             if (_pendingOffTopicRemark)
             {
                 _pendingOffTopicRemark = false;
+                 _skipBetweenAfterSpecialLine = true;
                 
                 // Get mood-appropriate remark
                 var vernStats = _gameStateManager?.VernStats;

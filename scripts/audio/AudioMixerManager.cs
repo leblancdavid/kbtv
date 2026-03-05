@@ -27,6 +27,8 @@ namespace KBTV.Audio
         private int _musicBusIndex = -1;
 
         // Effect indices within buses
+        private int _vernReverbIndex = -1;
+        private int _callerReverbIndex = -1;
         private int _callerLowPassIndex = -1;
         private int _callerHighPassIndex = -1;
         private int _callerDistortionIndex = -1;
@@ -49,7 +51,7 @@ namespace KBTV.Audio
         // Effect presets for each equipment level - CALLERS
         // Format: (lowPassHz, highPassHz, distortion, resonance)
         // Balanced phone effect
-        private static readonly (float lowPass, float highPass, float distortion, float resonance)[] CallerPresets = 
+        private static readonly (float lowPass, float highPass, float distortion, float resonance)[] CallerPresets =
         {
             (600f, 400f, 0.40f, 3.0f),   // Level 1: Bad phone - balanced
             (800f, 350f, 0.35f, 3.0f),   // Level 2: Improved
@@ -58,7 +60,7 @@ namespace KBTV.Audio
         };
 
         // Vern broadcast presets - VERN (should be clean)
-        private static readonly (float eqGain, float distortion)[] VernPresets = 
+        private static readonly (float eqGain, float distortion)[] VernPresets =
         {
             (1.0f, 0.0f),   // Level 1: Clean - no distortion
             (1.0f, 0.0f),   // Level 2: Clean
@@ -106,7 +108,7 @@ namespace KBTV.Audio
             GD.Print($"AudioMixerManager: Created Music bus at index {_musicBusIndex}");
 
             GD.Print($"AudioMixerManager: All buses created - Master: {_masterBusIndex}, Vern: {_vernBusIndex}, Caller: {_callerBusIndex}, Static: {_staticBusIndex}, Music: {_musicBusIndex}");
-            
+
             // Verify all buses exist
             for (int i = 0; i < AudioServer.BusCount; i++)
             {
@@ -120,8 +122,22 @@ namespace KBTV.Audio
         {
             // Vern should be clean - minimal processing
             // Just a highpass to remove rumble, nothing else
-            
+
             // Add HighPass filter (index 0) - remove rumble only
+
+            // Add reverb to Vern bus
+            var verReverb = new AudioEffectReverb();
+            verReverb.PredelayFeedback = 0.01f;
+            verReverb.PredelayMsec = 0.0f;
+            verReverb.RoomSize = 0.01f;
+            verReverb.Spread = 0.1f;
+            verReverb.Hipass = 0f;
+            verReverb.Damping = 0.95f;
+            verReverb.Dry = 0.99f;
+            verReverb.Wet = 0.01f;
+            AudioServer.AddBusEffect(_vernBusIndex, verReverb);
+            _vernReverbIndex = AudioServer.GetBusEffectCount(_vernBusIndex) - 1;
+
             var highPass = new AudioEffectHighPassFilter();
             highPass.CutoffHz = 80f;
             AudioServer.AddBusEffect(_vernBusIndex, highPass);
@@ -138,7 +154,7 @@ namespace KBTV.Audio
         private void ConfigureCallerBus()
         {
             GD.Print($"ConfigureCallerBus: Adding effects to bus index {_callerBusIndex}");
-            
+
             // Add LowPass filter (index 0) - simulates phone bandwidth
             // Start with Level 1 settings: 600Hz, resonance 3.0
             var lowPass = new AudioEffectLowPassFilter();
@@ -179,14 +195,19 @@ namespace KBTV.Audio
             _callerEqIndex = 4;
             GD.Print("AudioMixerManager: Added EQ to Caller bus");
 
-            // Add Chorus (index 5) - subtle warbly phone sound
-            var chorus = new AudioEffectChorus();
-            chorus.VoiceCount = 1;
-            chorus.Wet = 0.2f;  // 20% wet - subtle
-            chorus.SetVoiceDelayMs(0, 30f);
-            chorus.SetVoiceRateHz(0, 2f);
-            AudioServer.AddBusEffect(_callerBusIndex, chorus);
-            _callerChorusIndex = 5;
+            // Add reverb to caller bus
+            var callReverb = new AudioEffectReverb();
+            callReverb.PredelayFeedback = 0.05f;
+            callReverb.PredelayMsec = 0.0f;
+            callReverb.RoomSize = 0.03f;
+            callReverb.Spread = 0.2f;
+            callReverb.Hipass = 0f;
+            callReverb.Damping = 0.9f;
+            callReverb.Dry = 0.95f;
+            callReverb.Wet = 0.05f;
+            AudioServer.AddBusEffect(_callerBusIndex, callReverb);
+            _callerReverbIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
+
             GD.Print("AudioMixerManager: Added Chorus to Caller bus");
         }
 
@@ -303,11 +324,11 @@ namespace KBTV.Audio
         {
             _currentPhoneLineLevel = GetPhoneLineLevel();
             _currentBroadcastLevel = GetBroadcastLevel();
-            
+
             ApplyCallerEffects(_currentPhoneLineLevel);
             ApplyVernEffects(_currentBroadcastLevel);
             // Static volume is now controlled by caller's PhoneQuality, not equipment level
-            
+
             GD.Print($"AudioMixerManager: Updated quality - PhoneLine: {_currentPhoneLineLevel}, Broadcast: {_currentBroadcastLevel}");
         }
 
@@ -339,13 +360,13 @@ namespace KBTV.Audio
                 }
             }
 
-            // Update Distortion
-            if (_callerDistortionIndex >= 0)
+            // Update reverb wet mix based on phone line level
+            if (_callerReverbIndex >= 0)
             {
-                var effect = AudioServer.GetBusEffect(_callerBusIndex, _callerDistortionIndex);
-                if (effect is AudioEffectDistortion distortion)
+                var effect = AudioServer.GetBusEffect(_callerBusIndex, _callerReverbIndex);
+                if (effect is AudioEffectReverb rev)
                 {
-                    distortion.Drive = preset.distortion;
+                    rev.Wet = Math.Clamp(0.08f + (level - 1) * 0.02f, 0.08f, 0.15f);
                 }
             }
         }
@@ -355,13 +376,14 @@ namespace KBTV.Audio
             if (_vernBusIndex < 0) return;
 
             // Vern is always clean - no distortion, minimal EQ
-            // Update EQ - just band 3 for slight presence
-            if (_vernEqIndex >= 0)
+            // Update reverb wet mix based on broadcast level
+            if (_vernReverbIndex >= 0)
             {
-                var effect = AudioServer.GetBusEffect(_vernBusIndex, _vernEqIndex);
-                if (effect is AudioEffectEQ eq)
+                var effect = AudioServer.GetBusEffect(_vernBusIndex, _vernReverbIndex);
+                if (effect is AudioEffectReverb rev)
                 {
-                    eq.SetBandGainDb(3, 1f);  // ~1kHz - slight presence
+                    // increase wet mix with level
+                    rev.Wet = Math.Clamp(0.1f + (level - 1) * 0.05f, 0.1f, 0.3f);
                 }
             }
 
@@ -384,7 +406,7 @@ namespace KBTV.Audio
         public void PlayVern(AudioStream stream)
         {
             if (_vernPlayer == null) return;
-            
+
             _vernPlayer.Stream = stream;
             _vernPlayer.Play();
         }
@@ -395,10 +417,10 @@ namespace KBTV.Audio
         public void PlayCaller(AudioStream stream)
         {
             if (_callerPlayer == null) return;
-            
+
             _callerPlayer.Stream = stream;
             _callerPlayer.Play();
-            
+
             // Start static when caller is speaking
             _staticController?.StartStatic();
         }
@@ -431,7 +453,7 @@ namespace KBTV.Audio
         public void PlayMusic(AudioStream stream, bool loop = true)
         {
             if (_musicPlayer == null) return;
-            
+
             _musicPlayer.Stream = stream;
             _musicPlayer.Play();
         }
@@ -489,5 +511,6 @@ namespace KBTV.Audio
 
             return $"Phone: {phoneQuality}\nBroadcast: {broadcastQuality}";
         }
+
     }
 }
