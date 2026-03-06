@@ -99,7 +99,7 @@ namespace KBTV.Dialogue
 
                 _bleepPlayer.Stream = bleepStream;
                 _bleepPlayer.VolumeDb = -6f;
-                _bleepPlayer.Bus = "Master";
+                _bleepPlayer.Bus = "SFX";
 
                 // Verify setup
                 if (_bleepPlayer.Stream == null)

@@ -25,6 +25,7 @@ namespace KBTV.Audio
         private int _callerBusIndex = -1;
         private int _staticBusIndex = -1;
         private int _musicBusIndex = -1;
+        private int _sfxBusIndex = -1;
 
         // Effect indices within buses
 
@@ -52,6 +53,12 @@ namespace KBTV.Audio
         private int _staticHighPassIndex = -1;
         private int _staticDistortionIndex = -1;
         private int _staticMuffleLowPassIndex = -1; // Low-pass for muffling when player exits
+
+        // SFX effect indices (for UI sounds and bleep)
+        private int _sfxMuffleLowPassIndex = -1;
+
+        // Music effect indices
+        private int _musicMuffleLowPassIndex = -1;
 
         // Current equipment level
         private int _currentPhoneLineLevel = 1;
@@ -116,7 +123,14 @@ namespace KBTV.Audio
             ConfigureMusicBus();
             GD.Print($"AudioMixerManager: Created Music bus at index {_musicBusIndex}");
 
-            GD.Print($"AudioMixerManager: All buses created - Master: {_masterBusIndex}, Vern: {_vernBusIndex}, Caller: {_callerBusIndex}, Static: {_staticBusIndex}, Music: {_musicBusIndex}");
+            // Create SFX bus
+            _sfxBusIndex = AudioServer.BusCount;
+            AudioServer.AddBus(_sfxBusIndex);
+            AudioServer.SetBusName(_sfxBusIndex, "SFX");
+            ConfigureSFXBus();
+            GD.Print($"AudioMixerManager: Created SFX bus at index {_sfxBusIndex}");
+
+            GD.Print($"AudioMixerManager: All buses created - Master: {_masterBusIndex}, Vern: {_vernBusIndex}, Caller: {_callerBusIndex}, Static: {_staticBusIndex}, Music: {_musicBusIndex}, SFX: {_sfxBusIndex}");
 
             // Verify all buses exist
             for (int i = 0; i < AudioServer.BusCount; i++)
@@ -253,6 +267,13 @@ namespace KBTV.Audio
             eq.SetBandGainDb(3, -0.5f);  // Slight treble cut
             eq.SetBandGainDb(4, -1f);    // More treble cut
             AudioServer.AddBusEffect(_musicBusIndex, eq);
+
+            // Add a low-pass filter for muffling when player is outside
+            var muffleLowPass = new AudioEffectLowPassFilter();
+            muffleLowPass.CutoffHz = 20000f; // Initially transparent (very high)
+            muffleLowPass.Resonance = 1.0f;
+            AudioServer.AddBusEffect(_musicBusIndex, muffleLowPass);
+            _musicMuffleLowPassIndex = AudioServer.GetBusEffectCount(_musicBusIndex) - 1;
         }
 
         /// <summary>
@@ -283,6 +304,17 @@ namespace KBTV.Audio
             distortion.Drive = 0.15f;   // Light distortion
             AudioServer.AddBusEffect(_staticBusIndex, distortion);
             _staticDistortionIndex = 2;
+        }
+
+        private void ConfigureSFXBus()
+        {
+            // SFX bus handles UI sounds and bleep effects
+            // Add a low-pass filter for muffling when player is outside
+            var muffleLowPass = new AudioEffectLowPassFilter();
+            muffleLowPass.CutoffHz = 20000f; // Initially transparent (very high)
+            muffleLowPass.Resonance = 1.0f;
+            AudioServer.AddBusEffect(_sfxBusIndex, muffleLowPass);
+            _sfxMuffleLowPassIndex = AudioServer.GetBusEffectCount(_sfxBusIndex) - 1;
         }
 
         private void SetupAudioPlayers()
@@ -531,8 +563,8 @@ namespace KBTV.Audio
 
         /// <summary>
         /// Sets the muffled state for broadcast audio. When outside the control room,
-        /// a low-pass filter is applied to Vern, Caller, and Static buses to simulate
-        /// hearing the broadcast from another room.
+        /// a low-pass filter is applied to Vern, Caller, Static, Music, and SFX buses
+        /// to simulate hearing the broadcast from another room.
         /// </summary>
         public void SetMuffled(bool outside)
         {
@@ -562,6 +594,26 @@ namespace KBTV.Audio
             if (_staticMuffleLowPassIndex >= 0 && _staticBusIndex >= 0)
             {
                 var effect = AudioServer.GetBusEffect(_staticBusIndex, _staticMuffleLowPassIndex);
+                if (effect is AudioEffectLowPassFilter lowPass)
+                {
+                    lowPass.CutoffHz = cutoff;
+                }
+            }
+
+            // Update Music muffle filter
+            if (_musicMuffleLowPassIndex >= 0 && _musicBusIndex >= 0)
+            {
+                var effect = AudioServer.GetBusEffect(_musicBusIndex, _musicMuffleLowPassIndex);
+                if (effect is AudioEffectLowPassFilter lowPass)
+                {
+                    lowPass.CutoffHz = cutoff;
+                }
+            }
+
+            // Update SFX muffle filter
+            if (_sfxMuffleLowPassIndex >= 0 && _sfxBusIndex >= 0)
+            {
+                var effect = AudioServer.GetBusEffect(_sfxBusIndex, _sfxMuffleLowPassIndex);
                 if (effect is AudioEffectLowPassFilter lowPass)
                 {
                     lowPass.CutoffHz = cutoff;

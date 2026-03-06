@@ -103,6 +103,13 @@ public partial class ControlRoomBuilder : IRoomBuilder
 
 		CreateFloors();
 
+		// Set control room bounds for audio muffling detection
+		var roomState = ServiceRegistry.Instance?.Get<RoomStateManager>();
+		if (roomState != null)
+		{
+			roomState.SetControlRoomBounds(GetFloorBounds());
+		}
+
 		CreateSystems(world);
 		CreateLighting(world);
 		InitializeDebug();
@@ -360,8 +367,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			_playerInScreeningRange = true;
 			GD.Print("ControlRoomBuilder: Player entered screening trigger");
-			var roomState = ServiceRegistry.Instance?.Get<RoomStateManager>();
-			roomState?.OnPlayerEntered();
+			// Note: Room membership is now handled by bounds-based detection in RoomStateManager
 		}
 	}
 
@@ -371,8 +377,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			_playerInScreeningRange = false;
 			GD.Print("ControlRoomBuilder: Player exited screening trigger");
-			var roomState = ServiceRegistry.Instance?.Get<RoomStateManager>();
-			roomState?.OnPlayerExited();
+			// Note: Room membership is now handled by bounds-based detection in RoomStateManager
 		}
 	}
 
