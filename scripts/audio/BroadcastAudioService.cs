@@ -138,28 +138,36 @@ namespace KBTV.Audio
             {
                 GD.PrintErr("BroadcastAudioService: AudioMixerManager not found - audio effects disabled");
             }
-            else
-            {
-                GD.Print("BroadcastAudioService: Found AudioMixerManager");
-                // Subscribe to room state changes
-                var roomState = GetNode<RoomStateManager>("/root/RoomStateManager");
-                if (roomState != null)
-                {
-                    // Set initial muffle state
-                    _audioMixer.SetMuffled(!roomState.PlayerInRoom);
-                    // Subscribe to changes
-                    roomState.Connect("PlayerInRoomChanged", Callable.From((bool inRoom) =>
-                    {
-                        _audioMixer.SetMuffled(!inRoom);
-                    }));
-                }
-            }
-        }
+            	else
+            	{
+            		GD.Print("BroadcastAudioService: Found AudioMixerManager");
+            		// Subscribe to room state changes
+            		var roomState = GetNode<RoomStateManager>("/root/RoomStateManager");
+            		if (roomState != null)
+            		{
+            			// Set initial muffle state based on current location
+            			UpdateMuffleFromLocation(roomState.CurrentLocation);
 
-        /// <summary>
-        /// Plays audio from the specified path asynchronously.
-        /// Returns a task that completes when playback finishes.
-        /// </summary>
+            			// Subscribe to location changes
+            			roomState.Connect("PlayerLocationChanged", Callable.From((RoomStateManager.PlayerLocation location) =>
+            			{
+            				UpdateMuffleFromLocation(location);
+            			}));
+            		}
+            	}
+        	}
+
+        	private void UpdateMuffleFromLocation(RoomStateManager.PlayerLocation location)
+        	{
+        		bool muffleVern = location != RoomStateManager.PlayerLocation.InControlRoom;
+        		bool muffleOther = location == RoomStateManager.PlayerLocation.Outside;
+        		_audioMixer.SetMuffled(muffleVern, muffleOther);
+        	}
+
+        	/// <summary>
+        	/// Plays audio from the specified path asynchronously.
+        	/// Returns a task that completes when playback finishes.
+        	/// </summary>
         public async Task PlayAudioAsync(string audioPath, CancellationToken cancellationToken = default)
         {
             // Determine speaker based on audio path

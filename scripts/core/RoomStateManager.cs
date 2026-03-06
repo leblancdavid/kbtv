@@ -4,21 +4,40 @@ using KBTV.Core;
 namespace KBTV.Core
 {
 	/// <summary>
-	/// Tracks whether the player is inside the control room based on room boundaries.
-	/// Uses bounds-based detection instead of trigger areas for accurate room membership.
+	/// Tracks the player's location within the studio rooms (control room, studio, or outside).
+	/// Uses bounds-based detection for accurate room membership.
 	/// </summary>
 	[GlobalClass]
 	public partial class RoomStateManager : Node
 	{
 		/// <summary>
-		/// True when the player is inside the broadcast room.
+		/// Player location within the world.
+		/// </summary>
+		public enum PlayerLocation
+		{
+			Outside,
+			InControlRoom,
+			InStudio
+		}
+
+		/// <summary>
+		/// Emitted when the player's location changes.
 		/// </summary>
 		[Signal]
-		public delegate void PlayerInRoomChangedEventHandler(bool inRoom);
+		public delegate void PlayerLocationChangedEventHandler(PlayerLocation location);
 
-		public bool PlayerInRoom { get; private set; } = false;
+		/// <summary>
+		/// Current player location (read-only).
+		/// </summary>
+		public PlayerLocation CurrentLocation { get; private set; } = PlayerLocation.Outside;
+
+		/// <summary>
+		/// Convenience property for backward compatibility: true if in control room.
+		/// </summary>
+		public bool PlayerInRoom => CurrentLocation == PlayerLocation.InControlRoom;
 
 		private Rect2 _controlRoomBounds = new Rect2();
+		private Rect2 _studioBounds = new Rect2();
 		private Player? _player;
 
 		/// <summary>
@@ -33,7 +52,6 @@ namespace KBTV.Core
 		/// <summary>
 		/// Sets the boundary of the control room for bounds-based player detection.
 		/// </summary>
-		/// <param name="bounds">The rectangle representing the control room floor area</param>
 		public void SetControlRoomBounds(Rect2 bounds)
 		{
 			_controlRoomBounds = bounds;
@@ -41,11 +59,20 @@ namespace KBTV.Core
 		}
 
 		/// <summary>
-		/// Called every frame to check if player is inside the control room bounds.
+		/// Sets the boundary of the studio room for bounds-based player detection.
+		/// </summary>
+		public void SetStudioBounds(Rect2 bounds)
+		{
+			_studioBounds = bounds;
+			GD.Print($"RoomStateManager: Studio bounds set to {_studioBounds}");
+		}
+
+		/// <summary>
+		/// Called every frame to check if player is inside any room bounds.
 		/// </summary>
 		public override void _Process(double delta)
 		{
-			if (_controlRoomBounds == new Rect2())
+			if (_controlRoomBounds == new Rect2() && _studioBounds == new Rect2())
 				return;
 
 			// Find player if not cached
@@ -57,15 +84,21 @@ namespace KBTV.Core
 			}
 
 			var playerPos = _player.GlobalPosition;
-			var wasInRoom = PlayerInRoom;
-			PlayerInRoom = _controlRoomBounds.HasPoint(playerPos);
+			var wasInRoom = CurrentLocation;
+			var newLocation = PlayerLocation.Outside;
+
+			if (_controlRoomBounds.HasPoint(playerPos))
+				newLocation = PlayerLocation.InControlRoom;
+			else if (_studioBounds.HasPoint(playerPos))
+				newLocation = PlayerLocation.InStudio;
 
 			// Emit signal only when state changes
-			if (wasInRoom != PlayerInRoom)
+			if (wasInRoom != newLocation)
 			{
-				var status = PlayerInRoom ? "entered" : "exited";
-				GD.Print($"RoomStateManager: Player {status} control room (pos: {playerPos}, bounds: {_controlRoomBounds})");
-				EmitSignal(nameof(PlayerInRoomChanged), PlayerInRoom);
+				CurrentLocation = newLocation;
+				var locationName = newLocation.ToString();
+				GD.Print($"RoomStateManager: Player {locationName} (pos: {playerPos})");
+				EmitSignal(nameof(PlayerLocationChanged), Variant.From(CurrentLocation));
 			}
 		}
 	}

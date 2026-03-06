@@ -44,8 +44,7 @@ public partial class WorldRoom : Node2D
 
 	public override void _Ready()
 	{
-		PropSort = new Node2D { Name = "PropSort" };
-		PropSort.YSortEnabled = true;
+		PropSort = new Node2D { Name = "PropSort", YSortEnabled = true };
 		AddChild(PropSort);
 
 		_controlBuilder = new ControlRoomBuilder();
@@ -53,6 +52,14 @@ public partial class WorldRoom : Node2D
 
 		_studioBuilder = new StudioBuilder();
 		_studioBuilder.Build(this);
+
+		// Register bounds with RoomStateManager
+		var roomState = ServiceRegistry.Instance?.Get<RoomStateManager>();
+		if (roomState != null)
+		{
+			roomState.SetControlRoomBounds(_controlBuilder.GetFloorBounds());
+			roomState.SetStudioBounds(_studioBuilder.GetFloorBounds());
+		}
 	}
 
 	public override void _Input(InputEvent @event)

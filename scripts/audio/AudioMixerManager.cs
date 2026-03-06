@@ -569,13 +569,14 @@ namespace KBTV.Audio
         }
 
         /// <summary>
-        /// Sets the muffled state for broadcast audio. When outside the control room,
-        /// a low-pass filter is applied to Vern, Caller, Static, Music, and SFX buses
-        /// to simulate hearing the broadcast from another room.
+        /// Sets muffle filters independently for Vern and other audio buses.
         /// </summary>
-        public void SetMuffled(bool outside)
+        /// <param name="muffleVern">Whether to muffle Vern's voice</param>
+        /// <param name="muffleOther">Whether to muffle all other broadcast audio (Caller, Static, Music, SFX)</param>
+        public void SetMuffled(bool muffleVern, bool muffleOther)
         {
-            float cutoff = outside ? 200f : 20000f;
+            float vernCutoff = muffleVern ? 200f : 20000f;
+            float otherCutoff = muffleOther ? 200f : 20000f;
 
             // Update Vern muffle filter
             if (_vernMuffleLowPassIndex >= 0 && _vernBusIndex >= 0)
@@ -583,7 +584,7 @@ namespace KBTV.Audio
                 var effect = AudioServer.GetBusEffect(_vernBusIndex, _vernMuffleLowPassIndex);
                 if (effect is AudioEffectLowPassFilter lowPass)
                 {
-                    lowPass.CutoffHz = cutoff;
+                    lowPass.CutoffHz = vernCutoff;
                 }
             }
 
@@ -593,7 +594,7 @@ namespace KBTV.Audio
                 var effect = AudioServer.GetBusEffect(_callerBusIndex, _callerMuffleLowPassIndex);
                 if (effect is AudioEffectLowPassFilter lowPass)
                 {
-                    lowPass.CutoffHz = cutoff;
+                    lowPass.CutoffHz = otherCutoff;
                 }
             }
 
@@ -603,7 +604,7 @@ namespace KBTV.Audio
                 var effect = AudioServer.GetBusEffect(_staticBusIndex, _staticMuffleLowPassIndex);
                 if (effect is AudioEffectLowPassFilter lowPass)
                 {
-                    lowPass.CutoffHz = cutoff;
+                    lowPass.CutoffHz = otherCutoff;
                 }
             }
 
@@ -613,7 +614,7 @@ namespace KBTV.Audio
                 var effect = AudioServer.GetBusEffect(_musicBusIndex, _musicMuffleLowPassIndex);
                 if (effect is AudioEffectLowPassFilter lowPass)
                 {
-                    lowPass.CutoffHz = cutoff;
+                    lowPass.CutoffHz = otherCutoff;
                 }
             }
 
@@ -623,11 +624,11 @@ namespace KBTV.Audio
                 var effect = AudioServer.GetBusEffect(_sfxBusIndex, _sfxMuffleLowPassIndex);
                 if (effect is AudioEffectLowPassFilter lowPass)
                 {
-                    lowPass.CutoffHz = cutoff;
+                    lowPass.CutoffHz = otherCutoff;
                 }
             }
 
-            GD.Print($"AudioMixerManager: SetMuffled({outside}) - cutoff = {cutoff}Hz");
+            GD.Print($"AudioMixerManager: SetMuffled(Vern={muffleVern}, Other={muffleOther}) - Vern={vernCutoff}Hz, Other={otherCutoff}Hz");
         }
 
     }
