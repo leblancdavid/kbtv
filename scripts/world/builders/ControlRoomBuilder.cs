@@ -360,6 +360,8 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			_playerInScreeningRange = true;
 			GD.Print("ControlRoomBuilder: Player entered screening trigger");
+			var roomState = ServiceRegistry.Instance?.Get<RoomStateManager>();
+			roomState?.OnPlayerEntered();
 		}
 	}
 
@@ -369,6 +371,8 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			_playerInScreeningRange = false;
 			GD.Print("ControlRoomBuilder: Player exited screening trigger");
+			var roomState = ServiceRegistry.Instance?.Get<RoomStateManager>();
+			roomState?.OnPlayerExited();
 		}
 	}
 

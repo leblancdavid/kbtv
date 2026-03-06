@@ -27,8 +27,16 @@ namespace KBTV.Audio
         private int _musicBusIndex = -1;
 
         // Effect indices within buses
+
+        // Vern effect indices
         private int _vernReverbIndex = -1;
-        private int _callerReverbIndex = -1;
+        private int _vernHighPassIndex = -1;
+        private int _vernMuffleLowPassIndex = -1; // Low-pass for muffling when player exits
+        private int _vernCompressorIndex = -1;
+        private int _vernEqIndex = -1;
+        private int _vernDistortionIndex = -1;
+
+        // Caller effect indices
         private int _callerLowPassIndex = -1;
         private int _callerHighPassIndex = -1;
         private int _callerDistortionIndex = -1;
@@ -36,13 +44,14 @@ namespace KBTV.Audio
         private int _callerCompressorIndex = -1;
         private int _callerEqIndex = -1;
         private int _callerChorusIndex = -1;
+        private int _callerReverbIndex = -1;
+        private int _callerMuffleLowPassIndex = -1; // Additional low-pass for muffling
+
+        // Static effect indices
         private int _staticLowPassIndex = -1;
         private int _staticHighPassIndex = -1;
         private int _staticDistortionIndex = -1;
-        private int _vernHighPassIndex = -1;
-        private int _vernCompressorIndex = -1;
-        private int _vernEqIndex = -1;
-        private int _vernDistortionIndex = -1;
+        private int _staticMuffleLowPassIndex = -1; // Low-pass for muffling when player exits
 
         // Current equipment level
         private int _currentPhoneLineLevel = 1;
@@ -118,12 +127,12 @@ namespace KBTV.Audio
             }
         }
 
+
+
         private void ConfigureVernBus()
         {
             // Vern should be clean - minimal processing
             // Just a highpass to remove rumble, nothing else
-
-            // Add HighPass filter (index 0) - remove rumble only
 
             // Add reverb to Vern bus
             var verReverb = new AudioEffectReverb();
@@ -142,6 +151,13 @@ namespace KBTV.Audio
             highPass.CutoffHz = 80f;
             AudioServer.AddBusEffect(_vernBusIndex, highPass);
             _vernHighPassIndex = 0;
+
+            // Add a low-pass filter for muffling when player is outside
+            var muffleLowPass = new AudioEffectLowPassFilter();
+            muffleLowPass.CutoffHz = 20000f; // Initially transparent (very high)
+            muffleLowPass.Resonance = 1.0f;
+            AudioServer.AddBusEffect(_vernBusIndex, muffleLowPass);
+            _vernMuffleLowPassIndex = AudioServer.GetBusEffectCount(_vernBusIndex) - 1;
 
             // No compressor - makes Vern sound too processed
             // No EQ - keep Vern natural
@@ -208,6 +224,13 @@ namespace KBTV.Audio
             AudioServer.AddBusEffect(_callerBusIndex, callReverb);
             _callerReverbIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
 
+            // Add a low-pass filter for muffling when player is outside
+            var muffleLowPass = new AudioEffectLowPassFilter();
+            muffleLowPass.CutoffHz = 20000f; // Initially transparent (very high)
+            muffleLowPass.Resonance = 1.0f;
+            AudioServer.AddBusEffect(_callerBusIndex, muffleLowPass);
+            _callerMuffleLowPassIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
+
             GD.Print("AudioMixerManager: Added Chorus to Caller bus");
         }
 
@@ -231,6 +254,12 @@ namespace KBTV.Audio
             eq.SetBandGainDb(4, -1f);    // More treble cut
             AudioServer.AddBusEffect(_musicBusIndex, eq);
         }
+
+        /// <summary>
+        /// Sets the bus used for broadcast audio. The BroadcastAudioService will
+        /// route its players to this bus.
+        /// </summary>
+
 
         private void ConfigureStaticBus()
         {
@@ -425,13 +454,7 @@ namespace KBTV.Audio
             _staticController?.StartStatic();
         }
 
-        /// <summary>
-        /// Stops Vern playback.
-        /// </summary>
-        public void StopVern()
-        {
-            _vernPlayer?.Stop();
-        }
+
 
         /// <summary>
         /// Stops Caller playback and static.
@@ -458,13 +481,7 @@ namespace KBTV.Audio
             _musicPlayer.Play();
         }
 
-        /// <summary>
-        /// Stops Music playback.
-        /// </summary>
-        public void StopMusic()
-        {
-            _musicPlayer?.Stop();
-        }
+
 
         /// <summary>
         /// Checks if Vern is currently playing.
@@ -510,6 +527,48 @@ namespace KBTV.Audio
             };
 
             return $"Phone: {phoneQuality}\nBroadcast: {broadcastQuality}";
+        }
+
+        /// <summary>
+        /// Sets the muffled state for broadcast audio. When outside the control room,
+        /// a low-pass filter is applied to Vern, Caller, and Static buses to simulate
+        /// hearing the broadcast from another room.
+        /// </summary>
+        public void SetMuffled(bool outside)
+        {
+            float cutoff = outside ? 200f : 20000f;
+
+            // Update Vern muffle filter
+            if (_vernMuffleLowPassIndex >= 0 && _vernBusIndex >= 0)
+            {
+                var effect = AudioServer.GetBusEffect(_vernBusIndex, _vernMuffleLowPassIndex);
+                if (effect is AudioEffectLowPassFilter lowPass)
+                {
+                    lowPass.CutoffHz = cutoff;
+                }
+            }
+
+            // Update Caller muffle filter
+            if (_callerMuffleLowPassIndex >= 0 && _callerBusIndex >= 0)
+            {
+                var effect = AudioServer.GetBusEffect(_callerBusIndex, _callerMuffleLowPassIndex);
+                if (effect is AudioEffectLowPassFilter lowPass)
+                {
+                    lowPass.CutoffHz = cutoff;
+                }
+            }
+
+            // Update Static muffle filter
+            if (_staticMuffleLowPassIndex >= 0 && _staticBusIndex >= 0)
+            {
+                var effect = AudioServer.GetBusEffect(_staticBusIndex, _staticMuffleLowPassIndex);
+                if (effect is AudioEffectLowPassFilter lowPass)
+                {
+                    lowPass.CutoffHz = cutoff;
+                }
+            }
+
+            GD.Print($"AudioMixerManager: SetMuffled({outside}) - cutoff = {cutoff}Hz");
         }
 
     }

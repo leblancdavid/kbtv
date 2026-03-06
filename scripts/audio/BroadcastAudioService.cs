@@ -20,7 +20,7 @@ namespace KBTV.Audio
     public partial class BroadcastAudioService : Node, IBroadcastAudioService
     {
         private const int PLAYER_POOL_SIZE = 5;
-        
+
         private readonly List<AudioStreamPlayer> _availablePlayers = new();
         private readonly List<AudioStreamPlayer> _activePlayers = new();
         private readonly Dictionary<AudioStreamPlayer, TaskCompletionSource> _completionSources = new();
@@ -56,19 +56,19 @@ namespace KBTV.Audio
         /// </summary>
         public event System.Action<AudioCompletedEvent>? LineCompleted;
 
-    /// <summary>
-    /// Called when node enters the scene tree and is ready.
-    /// Makes services available to descendants.
-    /// </summary>
-    public void OnReady() => this.Provide();
+        /// <summary>
+        /// Called when node enters the scene tree and is ready.
+        /// Makes services available to descendants.
+        /// </summary>
+        public void OnReady() => this.Provide();
 
-    /// <summary>
-    /// Called when dependencies are resolved.
-    /// </summary>
-    public void OnResolved()
-    {
-        // No longer needed - using dependency injection instead of GetNode
-    }
+        /// <summary>
+        /// Called when dependencies are resolved.
+        /// </summary>
+        public void OnResolved()
+        {
+            // No longer needed - using dependency injection instead of GetNode
+        }
 
         /// <summary>
         /// Stop current playback if any.
@@ -115,14 +115,14 @@ namespace KBTV.Audio
 
             // Initialize audio mixer for effects
             InitializeAudioMixer();
-            
+
             // Subscribe to interruption events for static fade-out
             EventBus.Subscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
         }
-        
+
         private void OnBroadcastInterruption(BroadcastInterruptionEvent evt)
         {
-            if (evt.Reason == BroadcastInterruptionReason.CallerCursed || 
+            if (evt.Reason == BroadcastInterruptionReason.CallerCursed ||
                 evt.Reason == BroadcastInterruptionReason.CallerDropped)
             {
                 GD.Print($"BroadcastAudioService: Received interruption {evt.Reason}, fading out static");
@@ -141,6 +141,18 @@ namespace KBTV.Audio
             else
             {
                 GD.Print("BroadcastAudioService: Found AudioMixerManager");
+                // Subscribe to room state changes
+                var roomState = GetNode<RoomStateManager>("/root/RoomStateManager");
+                if (roomState != null)
+                {
+                    // Set initial muffle state
+                    _audioMixer.SetMuffled(!roomState.PlayerInRoom);
+                    // Subscribe to changes
+                    roomState.Connect("PlayerInRoomChanged", Callable.From((bool inRoom) =>
+                    {
+                        _audioMixer.SetMuffled(!inRoom);
+                    }));
+                }
             }
         }
 
@@ -154,7 +166,7 @@ namespace KBTV.Audio
             var detectedSpeaker = DetermineSpeakerFromPath(audioPath);
             _currentSpeaker = detectedSpeaker;
             GD.Print($"PlayAudioAsync: Set _currentSpeaker to {detectedSpeaker} from path {audioPath}");
-            
+
             if (IsAudioDisabled)
             {
                 await Task.Delay(4000, CancellationToken.None);
@@ -170,7 +182,7 @@ namespace KBTV.Audio
                     await Task.Delay(4000, cancellationToken);
                     return;
                 }
-                
+
                 float testLength = 0f;
                 if (testStream is AudioStreamMP3 mp3)
                 {
@@ -190,7 +202,7 @@ namespace KBTV.Audio
                     await Task.Delay(4000, cancellationToken);
                     return;
                 }
-                
+
                 if (testLength <= 0f)
                 {
                     Log.Debug($"CORRUPTION_CHECK: Invalid length {testLength}, skipping playback with 4-second delay");
@@ -250,7 +262,7 @@ namespace KBTV.Audio
             var detectedSpeaker = DetermineSpeakerFromPath(audioPath);
             _currentSpeaker = detectedSpeaker;
             GD.Print($"PlayAudioForDurationAsync: Set _currentSpeaker to {detectedSpeaker} from path {audioPath}");
-            
+
             if (IsAudioDisabled)
             {
                 await Task.Delay((int)(maxDuration * 1000), cancellationToken);
@@ -310,7 +322,7 @@ namespace KBTV.Audio
             player.Play();
 
             // Register cancellation to cancel the TCS
-            using var registration = cancellationToken.Register(() => 
+            using var registration = cancellationToken.Register(() =>
             {
                 tcs.TrySetCanceled(cancellationToken);
             });
@@ -385,7 +397,7 @@ namespace KBTV.Audio
             var detectedSpeaker = GetSpeakerFromBroadcastItemType(item.Type);
             _currentSpeaker = detectedSpeaker;
             GD.Print($"PlayAudioForBroadcastItemAsync: Set _currentSpeaker to {detectedSpeaker} from item.Type={item.Type}");
-            
+
             if (IsAudioDisabled)
             {
                 await Task.Delay(4000);
@@ -399,7 +411,7 @@ namespace KBTV.Audio
                 _currentBroadcastItem = null;
                 return;
             }
-            
+
             var audioStream = LoadAudioForBroadcastItem(item);
 
             // Validate loaded audio stream to prevent hangs on corrupted files
@@ -435,12 +447,12 @@ namespace KBTV.Audio
             _completionSources[player] = tcs;
 
             GD.Print($"PlayAudioStreamInternalAsync: _currentSpeaker={_currentSpeaker}, debugName={debugName}");
-            
+
             // Start static for caller audio
             GD.Print($"About to call HandleStaticForSpeaker with _currentSpeaker={_currentSpeaker}");
             HandleStaticForSpeaker(_currentSpeaker, true);
             GD.Print($"After HandleStaticForSpeaker call");
-            
+
             // Start duration-based static timer for caller audio
             if (_currentSpeaker == Speaker.Caller && _staticStopCts != null)
             {
@@ -456,7 +468,7 @@ namespace KBTV.Audio
             var timeoutTask = Task.Delay(timeoutMs);
 
             // Register cancellation to cancel the TCS
-            using var registration = cancellationToken.Register(() => 
+            using var registration = cancellationToken.Register(() =>
             {
                 player.CallDeferred("stop");
                 tcs.TrySetCanceled(cancellationToken);
@@ -479,7 +491,7 @@ namespace KBTV.Audio
                 player.CallDeferred("stop");
                 throw;
             }
-            
+
             // Normal completion - cleanup happens in OnPlayerFinished
         }
 
@@ -494,7 +506,7 @@ namespace KBTV.Audio
 
             // Start static for caller audio
             HandleStaticForSpeaker(_currentSpeaker, true);
-            
+
             // Start duration-based static timer for caller audio
             if (_currentSpeaker == Speaker.Caller && _staticStopCts != null)
             {
@@ -509,7 +521,7 @@ namespace KBTV.Audio
             var durationTask = Task.Delay(durationMs);
 
             // Register cancellation to cancel the TCS
-            using var registration = cancellationToken.Register(() => 
+            using var registration = cancellationToken.Register(() =>
             {
                 player.CallDeferred("stop");
                 tcs.TrySetCanceled(cancellationToken);
@@ -540,9 +552,11 @@ namespace KBTV.Audio
                 player.CallDeferred("stop");
                 throw;
             }
-            
+
             // Cleanup happens in OnPlayerFinished
         }
+
+
 
         private AudioStreamPlayer? GetAvailablePlayer()
         {
@@ -558,18 +572,20 @@ namespace KBTV.Audio
                 if (_currentSpeaker == Speaker.Caller)
                 {
                     player.Bus = "Caller";
-                    GD.Print("BroadcastAudioService: Assigned Caller bus to player for speaker: " + _currentSpeaker);
+                    GD.Print($"BroadcastAudioService: Assigned Caller bus to player for speaker: {_currentSpeaker}");
                 }
                 else
                 {
                     player.Bus = "Vern";
-                    GD.Print("BroadcastAudioService: Assigned Vern bus to player for speaker: " + _currentSpeaker);
+                    GD.Print($"BroadcastAudioService: Assigned Vern bus to player for speaker: {_currentSpeaker}");
                 }
 
                 return player;
             }
             return null;
         }
+
+
 
         /// <summary>
         /// Sets the caller's phone quality for static volume adjustment.
@@ -595,13 +611,13 @@ namespace KBTV.Audio
         private void OnPlayerFinished(AudioStreamPlayer player)
         {
             GD.Print($"OnPlayerFinished: player finished, _currentSpeaker={_currentSpeaker}");
-            
+
             if (_completionSources.TryGetValue(player, out var tcs))
             {
                 tcs.SetResult();
                 _completionSources.Remove(player);
             }
-            
+
             // Static is now stopped by StopStaticAfterDurationAsync() timer, not here
             // This is a safety check in case timer didn't fire
             if (_currentSpeaker == Speaker.Caller)
@@ -613,7 +629,7 @@ namespace KBTV.Audio
                     GD.Print($"OnPlayerFinished: SAFETY CHECK - Static still playing after {elapsed:F2}s, timer may have failed");
                 }
             }
-            
+
             // Publish AudioCompletedEvent if we have a current broadcast item
             if (_currentBroadcastItem != null)
             {
@@ -622,11 +638,11 @@ namespace KBTV.Audio
                 var completedEvent = new AudioCompletedEvent(_currentBroadcastItem.Id, speaker);
                 LineCompleted?.Invoke(completedEvent);
             }
-            
+
             // Reset speaker to Vern for next audio
             _currentSpeaker = Speaker.Vern;
             GD.Print("OnPlayerFinished: Reset _currentSpeaker to Vern");
-            
+
             ReturnPlayer(player);
         }
 
@@ -651,7 +667,7 @@ namespace KBTV.Audio
                             _staticStopCts.Cancel();
                         }
                         _staticStopCts = new CancellationTokenSource();
-                        
+
                         GD.Print("HandleStaticForSpeaker: Starting static");
                         staticController.StartStatic();
                         _staticStartTime = Time.GetTicksMsec() / 1000.0;
@@ -679,11 +695,11 @@ namespace KBTV.Audio
             // Add 0.1s buffer so static slightly outlasts audio
             double totalDuration = duration + 0.1;
             GD.Print($"StopStaticAfterDurationAsync: Will stop static after {totalDuration}s");
-            
+
             try
             {
                 await Task.Delay((int)(totalDuration * 1000), cancellationToken);
-                
+
                 // Check if static is still playing (not already stopped by interruption)
                 var staticController = _audioMixer?.GetStaticController();
                 if (staticController != null && staticController.IsPlaying)
@@ -742,11 +758,11 @@ namespace KBTV.Audio
         {
             if (string.IsNullOrEmpty(audioPath))
                 return Speaker.Vern;
-            
+
             // Check path for caller vs vern audio
             if (audioPath.Contains("/Callers/") || audioPath.Contains("\\Callers\\"))
                 return Speaker.Caller;
-            
+
             return Speaker.Vern;
         }
 
@@ -767,7 +783,7 @@ namespace KBTV.Audio
                 tcs.TrySetResult();
             }
             _completionSources.Clear();
-            
+
             base._ExitTree();
         }
 
@@ -921,7 +937,7 @@ namespace KBTV.Audio
         private string? GetArcIdFromMetadata(object? metadata)
         {
             if (metadata == null) return null;
-            
+
             // Try to extract ArcId from metadata object
             var metadataType = metadata.GetType();
             var arcIdProperty = metadataType.GetProperty("ArcId");
@@ -977,7 +993,7 @@ namespace KBTV.Audio
             string fileName = sponsorDir.GetNext();
             while (fileName != "")
             {
-                if (!fileName.StartsWith(".") && !fileName.EndsWith(".import") && 
+                if (!fileName.StartsWith(".") && !fileName.EndsWith(".import") &&
                     (fileName.EndsWith(".ogg") || fileName.EndsWith(".wav") || fileName.EndsWith(".mp3")))
                 {
                     audioFiles.Add(fileName);
@@ -994,7 +1010,7 @@ namespace KBTV.Audio
 
             var selectedFile = audioFiles[random.Next(audioFiles.Count)];
             var path = $"res://assets/audio/ads/{selectedSponsor}/{selectedFile}";
-            
+
             var audioStream = GD.Load<AudioStream>(path);
             if (audioStream == null)
             {
@@ -1044,7 +1060,7 @@ namespace KBTV.Audio
             string fileName = dir.GetNext();
             while (fileName != "")
             {
-                if (!fileName.StartsWith(".") && !fileName.EndsWith(".import") && 
+                if (!fileName.StartsWith(".") && !fileName.EndsWith(".import") &&
                     (fileName.EndsWith(".ogg") || fileName.EndsWith(".wav") || fileName.EndsWith(".mp3")))
                 {
                     if (string.IsNullOrEmpty(prefixFilter) || fileName.StartsWith(prefixFilter))

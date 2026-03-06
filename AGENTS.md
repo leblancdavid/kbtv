@@ -6,6 +6,245 @@ This document provides guidelines for AI agents working on the KBTV Godot projec
 
 **Avoid large responses**: When making edits that involve lots of text content (dialogue, large code blocks, etc.), break them into smaller chunks. Large JSON responses can cause parsing errors on the client side. Aim for edits under 100 lines when possible.
 
+## MCP Tools & Codebase Navigation
+
+This AI agent has access to **MCP (Model Context Protocol) tools** that enable efficient codebase exploration and task execution. These tools are essential for understanding the KBTV project structure and making precise changes.
+
+### Core File Operation Tools
+
+| Tool | Purpose | When to Use |
+|------|---------|-------------|
+| `read` | Read file/directory contents | Examine existing code, review documentation |
+| `edit` | Precise string replacement in files | Make targeted changes to specific code sections |
+| `write` | Create or overwrite files | Generate new files from scratch |
+| `glob` | Pattern-based file search | Find files by name pattern (`*.cs`, `**/dialogue/*.md`) |
+| `grep` | Content-based text search | Find usage of functions, classes, or keywords |
+
+**Example workflow:**
+```bash
+# Find all test files for a component
+glob "tests/unit/callers/*Tests.cs"
+
+# Search for where a method is called
+grep "StartScreening"
+
+# Read the implementation
+read scripts/screening/ScreeningController.cs
+```
+
+### Code Graph Analysis (codegraphcontext)
+
+The **codegraphcontext** MCP provides powerful code relationship queries. Use it to understand the codebase architecture before making changes.
+
+#### Key Query Types
+
+| Query | Purpose | Example |
+|-------|---------|---------|
+| `find_code` | Search for functions, classes, or keywords | `find_code("ScreeningController")` |
+| `analyze_code_relationships` | Find callers, callees, imports, class hierarchy | `find_callers` for "StartScreening" |
+| `find_dead_code` | Identify unused functions | Check for orphaned code before deletion |
+| `calculate_cyclomatic_complexity` | Measure function complexity | Find overly complex methods to refactor |
+| `find_most_complex_functions` | Identify refactoring candidates | Prioritize complexity reduction |
+| `visualize_graph_query` | Generate graph visualization URL | Understand relationships visually |
+| `watch_directory` | Auto-index file changes | Keep graph current during active development |
+
+**Relationship query types:**
+- `find_callers` - Who calls this function/class?
+- `find_callees` - What does this function call?
+- `find_all_callers` - All callers (transitive)
+- `find_all_callees` - All callees (transitive)
+- `find_importers` - Who imports this module?
+- `who_modifies` - Who modifies this variable?
+- `class_hierarchy` - Inheritance chain
+- `overrides` - Virtual method overrides
+- `dead_code` - Unused functions
+- `call_chain` - Call path between functions
+- `module_deps` - Module dependencies
+- `variable_scope` - Variable usage scope
+
+**Example usage:**
+```csharp
+// Before modifying ScreeningController.StartScreening:
+1. Find who calls it: codegraphcontext_analyze_code_relationships(query_type="find_callers", target="StartScreening")
+2. Check its dependencies: codegraphcontext_analyze_code_relationships(query_type="find_callees", target="StartScreening")
+3. Review implementation: read scripts/screening/ScreeningController.cs
+```
+
+### Task Agents (task)
+
+Use **task agents** for complex, multi-step exploration or execution that would benefit from parallelization or delegation.
+
+**When to spawn a task agent:**
+- Large-scale codebase searches across multiple patterns
+- Refactoring that touches many files
+- Comprehensive analysis (e.g., "find all UI components that poll ServiceRegistry")
+- Parallel file operations (reading many files at once)
+
+**Example:**
+```
+task: Find all files that use ServiceRegistry.Instance and list the services they access
+subagent_type: explore
+```
+
+### Web Fetch (webfetch)
+
+Retrieve documentation or reference materials from online sources.
+
+**When to use:**
+- Looking up API documentation (Godot, Chickensoft)
+- Checking package dependencies or version compatibility
+- Researching best practices or patterns
+
+### Recommended Workflow
+
+#### 1. **Understand a New Domain**
+```bash
+# Step 1: Search for key classes
+codegraphcontext_find_code("ScreeningController")
+codegraphcontext_find_code("CallerRepository")
+codegraphcontext_find_code("BroadcastCoordinator")
+
+# Step 2: Analyze relationships
+codegraphcontext_analyze_code_relationships(query_type="class_hierarchy", target="ScreeningController")
+codegraphcontext_analyze_code_relationships(query_type="find_callers", target="StartScreening")
+
+# Step 3: Read key files
+read scripts/screening/ScreeningController.cs
+read scripts/callers/CallerRepository.cs
+```
+
+#### 2. **Before Making Changes**
+```bash
+# Find all callers of the function you're modifying
+codegraphcontext_analyze_code_relationships(query_type="find_callers", target="MethodName")
+
+# Check for tests that cover this code
+glob "tests/**/*MethodName*Tests.cs"
+
+# Read the tests to understand expected behavior
+read tests/unit/[domain]/[Component]Tests.cs
+```
+
+#### 3. **When Refactoring**
+```bash
+# Find dead code first
+codegraphcontext_find_dead_code()
+
+# Check cyclomatic complexity to prioritize
+codegraphcontext_find_most_complex_functions(limit=10)
+codegraphcontext_calculate_cyclomatic_complexity(function_name="ComplexMethod", path="scripts/...")
+
+# Visualize relationships for complex dependencies
+codegraphcontext_visualize_graph_query(cypher_query="MATCH ...")
+```
+
+#### 4. **Finding Test Coverage**
+```bash
+# Find tests for a specific component
+glob "tests/**/*[Component]*Tests.cs"
+grep "MethodName" tests/unit/[domain]/[Component]Tests.cs
+
+# Run tests before/after changes
+bash: godot --run-tests --quit-on-finish
+```
+
+### Performance Tips
+
+1. **Use codegraphcontext over grep/glob for relationships** - Graph queries are optimized for understanding dependencies
+2. **Batch file reads** - Use parallel read tool calls to examine multiple files at once
+3. **Watch directories** - Start a `watch_directory` job when actively developing to keep the graph current
+4. **Limit search scope** - Use `context` parameter in queries to restrict to specific directories
+5. **Cache graph results** - The code graph persists across sessions; leverage it instead of re-exploring
+
+### Common Pitfalls to Avoid
+
+- **Direct grep without context**: Might miss dependencies; prefer graph queries for relationships
+- **Modifying without checking callers**: Always verify who uses a function before changing its signature
+- **Ignoring test files**: Tests often reveal expected behavior and edge cases
+- **Not running tests after changes**: Follow the testing workflow in TESTING.md (build → run tests → evaluate)
+- **Large monolithic edits**: Break into <100 line chunks to avoid parsing errors
+
+### Quick Reference: MCP Tool Quick Access
+
+**File Operations:**
+- `read filePath` - Read file (max 2000 lines, use offset for more)
+- `edit filePath oldString newString` - Replace exact text
+- `write filePath content` - Create/overwrite file
+- `glob pattern` - Find files by pattern
+- `grep pattern path include` - Search file contents
+
+**Code Graph:**
+- `codegraphcontext_find_code(query, fuzzy_search, edit_distance)` - Search code
+- `codegraphcontext_analyze_code_relationships(query_type, target, context)` - Relationships
+- `codegraphcontext_find_dead_code(exclude_decorated_with)` - Unused code
+- `codegraphcontext_calculate_cyclomatic_complexity(function_name, path)` - Complexity
+- `codegraphcontext_visualize_graph_query(cypher_query)` - Graph visualization URL
+- `codegraphcontext_watch_directory(path)` - Auto-index changes
+
+**Tasks & Web:**
+- `task description subagent_type` - Delegate to agent
+- `webfetch url format` - Fetch web content
+
+**Bash:**
+- `bash command description timeout workdir` - Run shell command
+
+### CGC Configuration & Management
+
+#### Initial Setup (One-Time)
+
+The code graph is automatically indexed when you first use it. For optimal performance:
+
+1. **Start watching the project directory** at the beginning of each development session:
+   ```bash
+   codegraphcontext_watch_directory(path="D:\\Dev\\Games\\kbtv")
+   ```
+
+2. **Index key dependencies** to enable framework navigation:
+   ```bash
+   codegraphcontext_add_package_to_graph(package_name="Chickensoft.GodotNodeInterfaces", language="csharp")
+   codegraphcontext_add_package_to_graph(package_name="Chickensoft.AutoInject", language="csharp")
+   codegraphcontext_add_package_to_graph(package_name="Chickensoft.GoDotTest", language="csharp")
+   ```
+
+#### Verifying Graph Status
+
+Check if the graph is ready:
+```bash
+codegraphcontext_list_indexed_repositories()
+codegraphcontext_list_watched_paths()
+```
+
+#### When to Re-index
+
+- **After large file operations**: Bulk moves/renames outside the editor
+- **Missing results**: If queries return incomplete data
+- **Dependency updates**: After NuGet package changes
+
+Simply restart watching:
+```bash
+# Stop existing watch (if any)
+codegraphcontext_unwatch_directory(path="D:\\Dev\\Games\\kbtv")
+# Start fresh
+codegraphcontext_watch_directory(path="D:\\Dev\\Games\\kbtv")
+```
+
+#### Dependencies Note
+
+The KBTV project uses Chickensoft packages (AutoInject, GoDotTest, etc.). These are automatically available through the C# compiler's reference assemblies. Explicit package indexing is optional - the graph will include all code you work with directly in `scripts/` and `scenes/`. For deep framework debugging, you can index source packages if available:
+
+```bash
+# Optional: Index Chickensoft framework packages
+codegraphcontext_add_package_to_graph(package_name="Chickensoft.GodotNodeInterfaces", language="csharp")
+# ...other packages
+```
+
+#### Project-Specific Notes
+
+- **Languages**: C# (primary), GDScript (minimal), Godot shaders (`.gdshader`)
+- **Graph exclusions**: Build outputs (`bin/`, `obj/`), Godot cache (`.godot/`), and `.git/` are automatically excluded
+- **Performance**: The graph persists between sessions; `watch_directory` only processes deltas
+- **Scope**: Focus on `scripts/` and `scenes/` directories for most queries
+
 ## Session Continuity
 
 Use `SESSION_LOG.md` to maintain context across sessions.

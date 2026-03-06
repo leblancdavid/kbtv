@@ -25,7 +25,9 @@ namespace KBTV.Core
             return _services.TryGetValue(typeof(T), out var service) ? service as T : null;
         }
 
-        public void Register<TInterface, TImplementation>(TImplementation instance) where TInterface : class where TImplementation : class, TInterface
+        public void Register<TInterface, TImplementation>(TImplementation instance)
+            where TInterface : class
+            where TImplementation : class, TInterface
         {
             _services[typeof(TInterface)] = instance;
         }
@@ -45,12 +47,12 @@ namespace KBTV.Core
             _services.Clear();
         }
 
-	// Convenience properties for common services
-	public IEvidenceAnalyzer? EvidenceAnalyzer => Get<IEvidenceAnalyzer>();
-	public IEvidenceCabinet? EvidenceCabinet => Get<IEvidenceCabinet>();
-	public IEvidenceWebsite? EvidenceWebsite => Get<IEvidenceWebsite>();
-	public EconomyManager? EconomyManager => Get<EconomyManager>();
-	public IListenerManager? ListenerManager => Get<IListenerManager>();
-	public VernStats? VernStats => Get<VernStats>();
+        // Convenience properties for common services
+        public IEvidenceAnalyzer? EvidenceAnalyzer => Get<IEvidenceAnalyzer>();
+        public IEvidenceCabinet? EvidenceCabinet => Get<IEvidenceCabinet>();
+        public IEvidenceWebsite? EvidenceWebsite => Get<IEvidenceWebsite>();
+        public EconomyManager? EconomyManager => Get<EconomyManager>();
+        public IListenerManager? ListenerManager => Get<IListenerManager>();
+        public VernStats? VernStats => Get<VernStats>();
     }
 }
