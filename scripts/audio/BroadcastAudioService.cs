@@ -157,12 +157,12 @@ namespace KBTV.Audio
             	}
         	}
 
-        	private void UpdateMuffleFromLocation(RoomStateManager.PlayerLocation location)
-        	{
-        		bool muffleVern = location != RoomStateManager.PlayerLocation.InControlRoom;
-        		bool muffleOther = location == RoomStateManager.PlayerLocation.Outside;
-        		_audioMixer.SetMuffled(muffleVern, muffleOther);
-        	}
+	private void UpdateMuffleFromLocation(RoomStateManager.PlayerLocation location)
+	{
+		bool muffleVern = location == RoomStateManager.PlayerLocation.Outside;
+		bool muffleOther = location != RoomStateManager.PlayerLocation.InControlRoom;
+		_audioMixer?.SetMuffled(muffleVern, muffleOther);
+	}
 
         	/// <summary>
         	/// Plays audio from the specified path asynchronously.
