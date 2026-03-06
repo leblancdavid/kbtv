@@ -582,6 +582,11 @@ namespace KBTV.Audio
                     player.Bus = "Caller";
                     GD.Print($"BroadcastAudioService: Assigned Caller bus to player for speaker: {_currentSpeaker}");
                 }
+                else if (_currentSpeaker == Speaker.Music)
+                {
+                    player.Bus = "Music";
+                    GD.Print($"BroadcastAudioService: Assigned Music bus to player for speaker: {_currentSpeaker}");
+                }
                 else
                 {
                     player.Bus = "Vern";
@@ -767,9 +772,14 @@ namespace KBTV.Audio
             if (string.IsNullOrEmpty(audioPath))
                 return Speaker.Vern;
 
-            // Check path for caller vs vern audio
+            // Check for caller audio
             if (audioPath.Contains("/Callers/") || audioPath.Contains("\\Callers\\"))
                 return Speaker.Caller;
+
+            // Check for music/bumper audio
+            if (audioPath.Contains("/bumpers/") || audioPath.Contains("\\bumpers\\") ||
+                audioPath.Contains("/Music/") || audioPath.Contains("\\Music\\"))
+                return Speaker.Music;
 
             return Speaker.Vern;
         }
