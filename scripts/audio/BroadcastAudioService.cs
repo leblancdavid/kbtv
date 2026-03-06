@@ -96,6 +96,16 @@ namespace KBTV.Audio
         /// </summary>
         public bool IsPlaying => _activePlayers.Count > 0;
 
+        /// <summary>
+        /// Sets the current speaker for audio routing. This determines which bus
+        /// the next audio playback will use.
+        /// </summary>
+        public void SetCurrentSpeaker(Speaker speaker)
+        {
+            _currentSpeaker = speaker;
+            GD.Print($"BroadcastAudioService: Set _currentSpeaker to {speaker}");
+        }
+
         public override void _Ready()
         {
             // Initialize player pool

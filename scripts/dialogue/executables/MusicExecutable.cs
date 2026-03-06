@@ -36,6 +36,12 @@ namespace KBTV.Dialogue
         {
             Log.Debug($"MusicExecutable: Playing music - {_description}");
 
+            // Set speaker to Music so audio routes to Music bus
+            if (_audioService is BroadcastAudioService bas)
+            {
+                bas.SetCurrentSpeaker(Speaker.Music);
+            }
+
             if (_loadedAudio != null)
             {
                 await _audioService.PlayAudioStreamAsync(_loadedAudio, cancellationToken);
