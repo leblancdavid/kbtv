@@ -304,6 +304,13 @@ namespace KBTV.Audio
             distortion.Drive = 0.15f;   // Light distortion
             AudioServer.AddBusEffect(_staticBusIndex, distortion);
             _staticDistortionIndex = 2;
+
+            // Add a low-pass filter for muffling when player is outside
+            var muffleLowPass = new AudioEffectLowPassFilter();
+            muffleLowPass.CutoffHz = 20000f; // Initially transparent (very high)
+            muffleLowPass.Resonance = 1.0f;
+            AudioServer.AddBusEffect(_staticBusIndex, muffleLowPass);
+            _staticMuffleLowPassIndex = AudioServer.GetBusEffectCount(_staticBusIndex) - 1;
         }
 
         private void ConfigureSFXBus()
