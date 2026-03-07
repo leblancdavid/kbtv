@@ -1,0 +1,125 @@
+{
+  "arcId": "ufo_astronaut",
+  "topic": "UFOs",
+  "legitimacy": "Compelling",
+  "screeningSummary": "Former NASA flight surgeon reports seeing object near Space Shuttle Columbia during STS-107",
+  "callerPersonality": "cold_factual",
+  "arcNotes": "Extremely credible source with classified NASA information about object during spacewalk",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_astronaut_vern_neutral_1", "text": "KBTV, Vern here. You're on with Vern.", "voiceText": "KBTV, Vern here. You're on with Vern.", "mood": "neutral"},
+        {"id": "ufos_compelling_astronaut_vern_tired_1", "text": "Alright, you're on.", "voiceText": "Alright, you're on.", "mood": "tired"},
+        {"id": "ufos_compelling_astronaut_vern_energized_1", "text": "YOU ARE ON KBTV! Let's hear it!", "voiceText": "YOU ARE ON KBTV! Let's hear it!", "mood": "energized"},
+        {"id": "ufos_compelling_astronaut_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_compelling_astronaut_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_compelling_astronaut_vern_amused_1", "text": "Oh, a caller! What's your story?", "voiceText": "Oh, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_compelling_astronaut_vern_focused_1", "text": "You're on the air. State your experience.", "voiceText": "You're on the air. State your experience.", "mood": "focused"},
+        {"id": "ufos_compelling_astronaut_vern_exhausted_1", "text": "... you're on.", "voiceText": "... you're on.", "mood": "exhausted"},
+        {"id": "ufos_compelling_astronaut_vern_depressed_1", "text": "KBTV, Vern here. What's your story?", "voiceText": "KBTV, Vern here. What's your story?", "mood": "depressed"},
+        {"id": "ufos_compelling_astronaut_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_compelling_astronaut_vern_frustrated_1", "text": "Ugh, you're on.", "voiceText": "Ugh, you're on.", "mood": "frustrated"},
+        {"id": "ufos_compelling_astronaut_vern_obsessive_1", "text": "You're on KBTV. This is important - tell me everything.", "voiceText": "You're on KBTV. This is important - tell me everything.", "mood": "obsessive"},
+        {"id": "ufos_compelling_astronaut_vern_manic_1", "text": "KBTV!!! GO!!!", "voiceText": "KBTV!!! GO!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_compelling_astronaut_caller_1", "text": "Vern, my name is Dr. Rick Moranis... no, not THAT Rick Moranis, that's a different guy. I'm a former flight surgeon with NASA. I worked at Johnson Space Center for twelve years.", "voiceText": "Vern, my name is Dr. Rick Moranis... no, not THAT Rick Moranis, that's a different guy. I'm a former flight surgeon with NASA. I worked at Johnson Space Center for twelve years."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_astronaut_vern_neutral_2", "text": "A flight surgeon. So you've worked with astronauts. What can you tell us?", "voiceText": "A flight surgeon. So you've worked with astronauts. What can you tell us?", "mood": "neutral"},
+        {"id": "ufos_compelling_astronaut_vern_tired_2", "text": "Flight surgeon... okay. What is it?", "voiceText": "Flight surgeon... okay. What is it?", "mood": "tired"},
+        {"id": "ufos_compelling_astronaut_vern_energized_2", "text": "A NASA FLIGHT SURGEON! This is HUGE! Tell us everything!", "voiceText": "A NASA FLIGHT SURGEON! This is HUGE! Tell us everything!", "mood": "energized"},
+        {"id": "ufos_compelling_astronaut_vern_irritated_2", "text": "Flight surgeon. Right. What do you want?", "voiceText": "Flight surgeon. Right. What do you want?", "mood": "irritated"},
+        {"id": "ufos_compelling_astronaut_vern_gruff_2", "text": "Flight surgeon. Go ahead.", "voiceText": "Flight surgeon. Go ahead.", "mood": "gruff"},
+        {"id": "ufos_compelling_astronaut_vern_amused_2", "text": "A flight surgeon! This is incredible! What's your story?", "voiceText": "A flight surgeon! This is incredible! What's your story?", "mood": "amused"},
+        {"id": "ufos_compelling_astronaut_vern_focused_2", "text": "Flight surgeon with NASA experience. Provide your testimony.", "voiceText": "Flight surgeon with NASA experience. Provide your testimony.", "mood": "focused"},
+        {"id": "ufos_compelling_astronaut_vern_exhausted_2", "text": "... flight surgeon. okay.", "voiceText": "... flight surgeon. okay.", "mood": "exhausted"},
+        {"id": "ufos_compelling_astronaut_vern_depressed_2", "text": "A flight surgeon. What's your story?", "voiceText": "A flight surgeon. What's your story?", "mood": "depressed"},
+        {"id": "ufos_compelling_astronaut_vern_angry_2", "text": "NASA FLIGHT SURGEON! WHAT DO YOU HAVE TO SAY?!", "voiceText": "NASA FLIGHT SURGEON! WHAT DO YOU HAVE TO SAY?!", "mood": "angry"},
+        {"id": "ufos_compelling_astronaut_vern_frustrated_2", "text": "Ugh, flight surgeon. What is it?", "voiceText": "Ugh, flight surgeon. What is it?", "mood": "frustrated"},
+        {"id": "ufos_compelling_astronaut_vern_obsessive_2", "text": "This is significant. What can you tell us about your NASA experience?", "voiceText": "This is significant. What can you tell us about your NASA experience?", "mood": "obsessive"},
+        {"id": "ufos_compelling_astronaut_vern_manic_2", "text": "NASA!!! TELL ME EVERYTHING!!!", "voiceText": "NASA!!! TELL ME EVERYTHING!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_compelling_astronaut_caller_2", "text": "In 2003, during the STS-107 mission... you remember that one? Columbia. There was an incident with debris during launch, obviously. But that's not what I'm calling about.", "voiceText": "In 2003, during the STS-107 mission... you remember that one? Columbia. There was an incident with debris during launch, obviously. But that's not what I'm calling about."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_astronaut_vern_neutral_3", "text": "What are you calling about?", "voiceText": "What are you calling about?", "mood": "neutral"},
+        {"id": "ufos_compelling_astronaut_vern_tired_3", "text": "What is it then?", "voiceText": "What is it then?", "mood": "tired"},
+        {"id": "ufos_compelling_astronaut_vern_energized_3", "text": "WHAT?! Tell us!", "voiceText": "WHAT?! Tell us!", "mood": "energized"},
+        {"id": "ufos_compelling_astronaut_vern_irritated_3", "text": "What is it?", "voiceText": "What is it?", "mood": "irritated"},
+        {"id": "ufos_compelling_astronaut_vern_gruff_3", "text": "What?", "voiceText": "What?", "mood": "gruff"},
+        {"id": "ufos_compelling_astronaut_vern_amused_3", "text": "Oh, this should be good! What is it?", "voiceText": "Oh, this should be good! What is it?", "mood": "amused"},
+        {"id": "ufos_compelling_astronaut_vern_focused_3", "text": "Please specify the nature of your testimony.", "voiceText": "Please specify the nature of your testimony.", "mood": "focused"},
+        {"id": "ufos_compelling_astronaut_vern_exhausted_3", "text": "... what is it?", "voiceText": "... what is it?", "mood": "exhausted"},
+        {"id": "ufos_compelling_astronaut_vern_depressed_3", "text": "What is it?", "voiceText": "What is it?", "mood": "depressed"},
+        {"id": "ufos_compelling_astronaut_vern_angry_3", "text": "WHAT IS IT?!", "voiceText": "WHAT IS IT?!", "mood": "angry"},
+        {"id": "ufos_compelling_astronaut_vern_frustrated_3", "text": "Ugh, what?", "voiceText": "Ugh, what?", "mood": "frustrated"},
+        {"id": "ufos_compelling_astronaut_vern_obsessive_3", "text": "This is critical. What are you calling about?", "voiceText": "This is critical. What are you calling about?", "mood": "obsessive"},
+        {"id": "ufos_compelling_astronaut_vern_manic_3", "text": "WHAT!!! TELL ME!!!", "voiceText": "WHAT!!! TELL ME!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_compelling_astronaut_caller_3", "text": "During the mission, one of the crew reported seeing something on EVA. During a spacewalk. Commander Husband reported a... an object, roughly thirty meters long, just... hovering near the cargo bay.", "voiceText": "During the mission, one of the crew reported seeing something on EVA. During a spacewalk. Commander Husband reported a... an object, roughly thirty meters long, just... hovering near the cargo bay."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_astronaut_vern_neutral_4", "text": "Commander Husband? On camera?", "voiceText": "Commander Husband? On camera?", "mood": "neutral"},
+        {"id": "ufos_compelling_astronaut_vern_tired_4", "text": "Commander Husband... on camera?", "voiceText": "Commander Husband... on camera?", "mood": "tired"},
+        {"id": "ufos_compelling_astronaut_vern_energized_4", "text": "COMMANDER HUSBAND! On a SPACEWALK! This is AMAZING!", "voiceText": "COMMANDER HUSBAND! On a SPACEWALK! This is AMAZING!", "mood": "energized"},
+        {"id": "ufos_compelling_astronaut_vern_irritated_4", "text": "Commander Husband. Right.", "voiceText": "Commander Husband. Right.", "mood": "irritated"},
+        {"id": "ufos_compelling_astronaut_vern_gruff_4", "text": "Commander Husband. Go on.", "voiceText": "Commander Husband. Go on.", "mood": "gruff"},
+        {"id": "ufos_compelling_astronaut_vern_amused_4", "text": "Commander Husband! On a spacewalk! This is incredible!", "voiceText": "Commander Husband! On a spacewalk! This is incredible!", "mood": "amused"},
+        {"id": "ufos_compelling_astronaut_vern_focused_4", "text": "Commander Husband reported this on helmet cam. Provide more details.", "voiceText": "Commander Husband reported this on helmet cam. Provide more details.", "mood": "focused"},
+        {"id": "ufos_compelling_astronaut_vern_exhausted_4", "text": "... commander husband. okay.", "voiceText": "... commander husband. okay.", "mood": "exhausted"},
+        {"id": "ufos_compelling_astronaut_vern_depressed_4", "text": "Commander Husband. What happened?", "voiceText": "Commander Husband. What happened?", "mood": "depressed"},
+        {"id": "ufos_compelling_astronaut_vern_angry_4", "text": "COMMANDER HUSBAND! ON CAMERA!", "voiceText": "COMMANDER HUSBAND! ON CAMERA!", "mood": "angry"},
+        {"id": "ufos_compelling_astronaut_vern_frustrated_4", "text": "Ugh, commander husband.", "voiceText": "Ugh, commander husband.", "mood": "frustrated"},
+        {"id": "ufos_compelling_astronaut_vern_obsessive_4", "text": "This is extremely significant. What were the details?", "voiceText": "This is extremely significant. What were the details?", "mood": "obsessive"},
+        {"id": "ufos_compelling_astronaut_vern_manic_4", "text": "SPACEWALK!!! HUSBAND!!!", "voiceText": "SPACEWALK!!! HUSBAND!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_compelling_astronaut_caller_4", "text": "Not on camera, it was on the helmet cam but it was recorded. Mission control saw it too. The transmission was... censored. I've seen the raw footage, Vern. It was no debris, no ice, no anything we've ever launched.", "voiceText": "Not on camera, it was on the helmet cam but it was recorded. Mission control saw it too. The transmission was... censored. I've seen the raw footage, Vern. It was no debris, no ice, no anything we've ever launched."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_astronaut_vern_neutral_5", "text": "And NASA just... what? Buried it?", "voiceText": "And NASA just... what? Buried it?", "mood": "neutral"},
+        {"id": "ufos_compelling_astronaut_vern_tired_5", "text": "NASA buried it... right.", "voiceText": "NASA buried it... right.", "mood": "tired"},
+        {"id": "ufos_compelling_astronaut_vern_energized_5", "text": "NASA CENSORED it?! This is MASSIVE!", "voiceText": "NASA CENSORED it?! This is MASSIVE!", "mood": "energized"},
+        {"id": "ufos_compelling_astronaut_vern_irritated_5", "text": "NASA buried it. Sure.", "voiceText": "NASA buried it. Sure.", "mood": "irritated"},
+        {"id": "ufos_compelling_astronaut_vern_gruff_5", "text": "Buried it. Go on.", "voiceText": "Buried it. Go on.", "mood": "gruff"},
+        {"id": "ufos_compelling_astronaut_vern_amused_5", "text": "Censored footage! This is incredible! What else?", "voiceText": "Censored footage! This is incredible! What else?", "mood": "amused"},
+        {"id": "ufos_compelling_astronaut_vern_focused_5", "text": "The footage was censored by NASA. This is significant documentation.", "voiceText": "The footage was censored by NASA. This is significant documentation.", "mood": "focused"},
+        {"id": "ufos_compelling_astronaut_vern_exhausted_5", "text": "... buried. okay.", "voiceText": "... buried. okay.", "mood": "exhausted"},
+        {"id": "ufos_compelling_astronaut_vern_depressed_5", "text": "NASA buried it. What else?", "voiceText": "NASA buried it. What else?", "mood": "depressed"},
+        {"id": "ufos_compelling_astronaut_vern_angry_5", "text": "NASA BURIED IT! THIS IS HUGE!", "voiceText": "NASA BURIED IT! THIS IS HUGE!", "mood": "angry"},
+        {"id": "ufos_compelling_astronaut_vern_frustrated_5", "text": "Ugh, buried it.", "voiceText": "Ugh, buried it.", "mood": "frustrated"},
+        {"id": "ufos_compelling_astronaut_vern_obsessive_5", "text": "This is critical. NASA suppressed this information. What else do you know?", "voiceText": "This is critical. NASA suppressed this information. What else do you know?", "mood": "obsessive"},
+        {"id": "ufos_compelling_astronaut_vern_manic_5", "text": "CENSORED!!! NASA COVER-UP!!!", "voiceText": "CENSORED!!! NASA COVER-UP!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

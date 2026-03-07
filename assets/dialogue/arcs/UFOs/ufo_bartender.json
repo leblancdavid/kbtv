@@ -1,0 +1,101 @@
+{
+  "arcId": "ufo_bartender",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Bartender recounts story from regular about UFO coming out of lake with rotating lights",
+  "callerPersonality": "charismatic_storyteller",
+  "arcNotes": "Bartender telling second-hand story from regular customer",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_bartender_vern_neutral_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "neutral"},
+        {"id": "ufos_questionable_bartender_vern_tired_1", "text": "Alright, you're on.", "voiceText": "Alright, you're on.", "mood": "tired"},
+        {"id": "ufos_questionable_bartender_vern_energized_1", "text": "YOU ARE ON KBTV!", "voiceText": "YOU ARE ON KBTV!", "mood": "energized"},
+        {"id": "ufos_questionable_bartender_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_questionable_bartender_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_questionable_bartender_vern_amused_1", "text": "Oh, a caller! What's your story?", "voiceText": "Oh, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_bartender_vern_focused_1", "text": "You're on the air.", "voiceText": "You're on the air.", "mood": "focused"},
+        {"id": "ufos_questionable_bartender_vern_exhausted_1", "text": "... you're on.", "voiceText": "... you're on.", "mood": "exhausted"},
+        {"id": "ufos_questionable_bartender_vern_depressed_1", "text": "KBTV. Go ahead.", "voiceText": "KBTV. Go ahead.", "mood": "depressed"},
+        {"id": "ufos_questionable_bartender_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_questionable_bartender_vern_frustrated_1", "text": "Ugh, you're on.", "voiceText": "Ugh, you're on.", "mood": "frustrated"},
+        {"id": "ufos_questionable_bartender_vern_obsessive_1", "text": "You're on KBTV. Tell me your experience.", "voiceText": "You're on KBTV. Tell me your experience.", "mood": "obsessive"},
+        {"id": "ufos_questionable_bartender_vern_manic_1", "text": "KBTV!!!", "voiceText": "KBTV!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_bartender_caller_1", "text": "Vern, this is Jake, I tend bar at the Rusty Nail. One of my regulars came in last Tuesday, right? Big guy, ex-military. He was shaking.", "voiceText": "Vern, this is Jake, I tend bar at the Rusty Nail. One of my regulars came in last Tuesday, right? Big guy, ex-military. He was shaking."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_bartender_vern_neutral_2", "text": "Shaking? What happened to him?", "voiceText": "Shaking? What happened to him?", "mood": "neutral"},
+        {"id": "ufos_questionable_bartender_vern_tired_2", "text": "Shaking... okay.", "voiceText": "Shaking... okay.", "mood": "tired"},
+        {"id": "ufos_questionable_bartender_vern_energized_2", "text": "He was SHAKING! This should be good!", "voiceText": "He was SHAKING! This should be good!", "mood": "energized"},
+        {"id": "ufos_questionable_bartender_vern_irritated_2", "text": "Shaking. Right.", "voiceText": "Shaking. Right.", "mood": "irritated"},
+        {"id": "ufos_questionable_bartender_vern_gruff_2", "text": "Shaking. Go on.", "voiceText": "Shaking. Go on.", "mood": "gruff"},
+        {"id": "ufos_questionable_bartender_vern_amused_2", "text": "He was shaking! This is great! What happened?", "voiceText": "He was shaking! This is great! What happened?", "mood": "amused"},
+        {"id": "ufos_questionable_bartender_vern_focused_2", "text": "Describe what occurred.", "voiceText": "Describe what occurred.", "mood": "focused"},
+        {"id": "ufos_questionable_bartender_vern_exhausted_2", "text": "... shaking. okay.", "voiceText": "... shaking. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_bartender_vern_depressed_2", "text": "Shaking. What happened?", "voiceText": "Shaking. What happened?", "mood": "depressed"},
+        {"id": "ufos_questionable_bartender_vern_angry_2", "text": "HE WAS SHAKING! WHAT HAPPENED?!", "voiceText": "HE WAS SHAKING! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_questionable_bartender_vern_frustrated_2", "text": "Ugh, shaking.", "voiceText": "Ugh, shaking.", "mood": "frustrated"},
+        {"id": "ufos_questionable_bartender_vern_obsessive_2", "text": "This is significant. What happened to him?", "voiceText": "This is significant. What happened to him?", "mood": "obsessive"},
+        {"id": "ufos_questionable_bartender_vern_manic_2", "text": "SHAKING!!!", "voiceText": "SHAKING!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_bartender_caller_2", "text": "He said he was fishing out on Miller Lake, about 3 AM, and this thing came out of the water. Just rose up out of the lake, hovering about fifty feet in the air.", "voiceText": "He said he was fishing out on Miller Lake, about 3 AM, and this thing came out of the water. Just rose up out of the lake, hovering about fifty feet in the air."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_bartender_vern_neutral_3", "text": "Came out of the water? Like a submarine?", "voiceText": "Came out of the water? Like a submarine?", "mood": "neutral"},
+        {"id": "ufos_questionable_bartender_vern_tired_3", "text": "Out of the water... okay.", "voiceText": "Out of the water... okay.", "mood": "tired"},
+        {"id": "ufos_questionable_bartender_vern_energized_3", "text": "OUT OF THE WATER! That's AMAZING!", "voiceText": "OUT OF THE WATER! That's AMAZING!", "mood": "energized"},
+        {"id": "ufos_questionable_bartender_vern_irritated_3", "text": "Out of the water. Right.", "voiceText": "Out of the water. Right.", "mood": "irritated"},
+        {"id": "ufos_questionable_bartender_vern_gruff_3", "text": "Out of the water. Go on.", "voiceText": "Out of the water. Go on.", "mood": "gruff"},
+        {"id": "ufos_questionable_bartender_vern_amused_3", "text": "Out of the lake! This is great! What happened?", "voiceText": "Out of the lake! This is great! What happened?", "mood": "amused"},
+        {"id": "ufos_questionable_bartender_vern_focused_3", "text": "Describe the emergence from the water.", "voiceText": "Describe the emergence from the water.", "mood": "focused"},
+        {"id": "ufos_questionable_bartender_vern_exhausted_3", "text": "... out of water. okay.", "voiceText": "... out of water. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_bartender_vern_depressed_3", "text": "Came out of the water. Like a submarine?", "voiceText": "Came out of the water. Like a submarine?", "mood": "depressed"},
+        {"id": "ufos_questionable_bartender_vern_angry_3", "text": "OUT OF THE WATER! WHAT HAPPENED?!", "voiceText": "OUT OF THE WATER! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_questionable_bartender_vern_frustrated_3", "text": "Ugh, out of the water.", "voiceText": "Ugh, out of the water.", "mood": "frustrated"},
+        {"id": "ufos_questionable_bartender_vern_obsessive_3", "text": "This is critical. Describe the aquatic emergence.", "voiceText": "This is critical. Describe the aquatic emergence.", "mood": "obsessive"},
+        {"id": "ufos_questionable_bartender_vern_manic_3", "text": "LAKE!!! UFO!!!", "voiceText": "LAKE!!! UFO!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_bartender_caller_3", "text": "No, no, it came UP out of the water, like it was floating. He said it had lights underneath, these rotating red and blue lights, and it was just... watching him. For ten minutes.", "voiceText": "No, no, it came UP out of the water, like it was floating. He said it had lights underneath, these rotating red and blue lights, and it was just... watching him. For ten minutes."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_bartender_vern_neutral_4", "text": "Ten minutes of just... hovering there?", "voiceText": "Ten minutes of just... hovering there?", "mood": "neutral"},
+        {"id": "ufos_questionable_bartender_vern_tired_4", "text": "Ten minutes... okay.", "voiceText": "Ten minutes... okay.", "mood": "tired"},
+        {"id": "ufos_questionable_bartender_vern_energized_4", "text": "TEN MINUTES! Watching him! This is INCREDIBLE!", "voiceText": "TEN MINUTES! Watching him! This is INCREDIBLE!", "mood": "energized"},
+        {"id": "ufos_questionable_bartender_vern_irritated_4", "text": "Ten minutes. Right.", "voiceText": "Ten minutes. Right.", "mood": "irritated"},
+        {"id": "ufos_questionable_bartender_vern_gruff_4", "text": "Ten minutes. Go on.", "voiceText": "Ten minutes. Go on.", "mood": "gruff"},
+        {"id": "ufos_questionable_bartender_vern_amused_4", "text": "Ten minutes! Watching him! This is amazing!", "voiceText": "Ten minutes! Watching him! This is amazing!", "mood": "amused"},
+        {"id": "ufos_questionable_bartender_vern_focused_4", "text": "Ten minutes of stationary observation. Describe the lights.", "voiceText": "Ten minutes of stationary observation. Describe the lights.", "mood": "focused"},
+        {"id": "ufos_questionable_bartender_vern_exhausted_4", "text": "... ten minutes. okay.", "voiceText": "... ten minutes. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_bartender_vern_depressed_4", "text": "Ten minutes of hovering.", "voiceText": "Ten minutes of hovering.", "mood": "depressed"},
+        {"id": "ufos_questionable_bartender_vern_angry_4", "text": "TEN MINUTES!!!", "voiceText": "TEN MINUTES!!!", "mood": "angry"},
+        {"id": "ufos_questionable_bartender_vern_frustrated_4", "text": "Ugh, ten minutes.", "voiceText": "Ugh, ten minutes.", "mood": "frustrated"},
+        {"id": "ufos_questionable_bartender_vern_obsessive_4", "text": "This is highly significant. Ten minutes of direct observation.", "voiceText": "This is highly significant. Ten minutes of direct observation.", "mood": "obsessive"},
+        {"id": "ufos_questionable_bartender_vern_manic_4", "text": "TEN MINUTES!!! WATCHING!!!", "voiceText": "TEN MINUTES!!! WATCHING!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

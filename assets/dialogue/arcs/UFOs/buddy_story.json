@@ -1,0 +1,77 @@
+{
+  "arcId": "buddy_story",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Caller recounts friend's experience with lights that followed his car on a rural highway",
+  "callerPersonality": "enthusiastic_convert",
+  "arcNotes": "Caller telling a friend's story, was skeptical but now a believer, excited to share",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_buddy_story_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_questionable_buddy_story_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_questionable_buddy_story_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_questionable_buddy_story_vern_irritated_1", "text": "You're on. What is it?", "voiceText": "You're on. What is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_buddy_story_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_buddy_story_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_buddy_story_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_questionable_buddy_story_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_questionable_buddy_story_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_questionable_buddy_story_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_questionable_buddy_story_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_questionable_buddy_story_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_buddy_story_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_buddy_story_caller_1", "text": "Okay, so this is my buddy's story, right? And I totally didn't believe him at first, like, I thought he was messing with me. But then he showed me the dashcam footage and I was like, whoa, this is real! So basically he's driving home from work on Route 12, right?", "voiceText": "Okay, so this is my buddy's story, right? And I totally didn't believe him at first, like, I thought he was messing with me. But then he showed me the dashcam footage and I was like, whoa, this is real! So basically he's driving home from work on Route 12, right?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_buddy_story_vern_neutral_2", "text": "Route 12. What happened?", "voiceText": "Route 12. What happened?", "mood": "neutral"},
+        {"id": "ufos_questionable_buddy_story_vern_tired_2", "text": "Route 12... okay, what happened?", "voiceText": "Route 12... okay, what happened?", "mood": "tired"},
+        {"id": "ufos_questionable_buddy_story_vern_energized_2", "text": "Route 12?! This is AMAZING! What happened?!", "voiceText": "Route 12?! This is AMAZING! What happened?!", "mood": "energized"},
+        {"id": "ufos_questionable_buddy_story_vern_irritated_2", "text": "Route 12. Of course it was. What happened?", "voiceText": "Route 12. Of course it was. What happened?", "mood": "irritated"},
+        {"id": "ufos_questionable_buddy_story_vern_gruff_2", "text": "Route 12. Fine, I'll listen. What happened?", "voiceText": "Route 12. Fine, I'll listen. What happened?", "mood": "gruff"},
+        {"id": "ufos_questionable_buddy_story_vern_amused_2", "text": "Route 12! This is fantastic! What happened?!", "voiceText": "Route 12! This is fantastic! What happened?!", "mood": "amused"},
+        {"id": "ufos_questionable_buddy_story_vern_focused_2", "text": "Describe what occurred on Route 12.", "voiceText": "Describe what occurred on Route 12.", "mood": "focused"},
+        {"id": "ufos_questionable_buddy_story_vern_exhausted_2", "text": "... route 12. what happened?", "voiceText": "... route 12. what happened?", "mood": "exhausted"},
+        {"id": "ufos_questionable_buddy_story_vern_depressed_2", "text": "Route 12. What happened?", "voiceText": "Route 12. What happened?", "mood": "depressed"},
+        {"id": "ufos_questionable_buddy_story_vern_angry_2", "text": "ROUTE 12! WHAT HAPPENED?!", "voiceText": "ROUTE 12! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_questionable_buddy_story_vern_frustrated_2", "text": "Ugh, route 12. what happened?", "voiceText": "Ugh, route 12. what happened?", "mood": "frustrated"},
+        {"id": "ufos_questionable_buddy_story_vern_obsessive_2", "text": "Route 12. What happened? You know what this means?", "voiceText": "Route 12. What happened? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_buddy_story_vern_manic_2", "text": "ROUTE 12. WHAT HAPPENED?!!!", "voiceText": "ROUTE 12. WHAT HAPPENED?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_buddy_story_caller_2", "text": "So he's driving, right? And this light comes out of nowhere and starts following him! Like, not a plane, not a helicopter, just this light! And it followed him for like five miles! He sped up and it matched his speed!", "voiceText": "So he's driving, right? And this light comes out of nowhere and starts following him! Like, not a plane, not a helicopter, just this light! And it followed him for like five miles! He sped up and it matched his speed!"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_buddy_story_vern_neutral_3", "text": "Five miles matching his speed. Could be a drone or a helicopter that was tracking him. Do you have the footage?", "voiceText": "Five miles matching his speed. Could be a drone or a helicopter that was tracking him. Do you have the footage?", "mood": "neutral"},
+        {"id": "ufos_questionable_buddy_story_vern_tired_3", "text": "Five miles matching speed. Could be a drone. You have footage?", "voiceText": "Five miles matching speed. Could be a drone. You have footage?", "mood": "tired"},
+        {"id": "ufos_questionable_buddy_story_vern_energized_3", "text": "FIVE MILES matching his speed?! That's INCREDIBLE! Do you have FOOTAGE?!", "voiceText": "FIVE MILES matching his speed?! That's INCREDIBLE! Do you have FOOTAGE?!", "mood": "energized"},
+        {"id": "ufos_questionable_buddy_story_vern_irritated_3", "text": "Five miles matching his speed. Of course it was. Is there footage?", "voiceText": "Five miles matching his speed. Of course it was. Is there footage?", "mood": "irritated"},
+        {"id": "ufos_questionable_buddy_story_vern_gruff_3", "text": "Five miles matching speed. Could be a drone. You got footage?", "voiceText": "Five miles matching speed. Could be a drone. You got footage?", "mood": "gruff"},
+        {"id": "ufos_questionable_buddy_story_vern_amused_3", "text": "FIVE MILES! This is TEXTBOOK! Do you have FOOTAGE?!", "voiceText": "FIVE MILES! This is TEXTBOOK! Do you have FOOTAGE?!", "mood": "amused"},
+        {"id": "ufos_questionable_buddy_story_vern_focused_3", "text": "Five miles at matching velocity. What is the nature of the available documentation?", "voiceText": "Five miles at matching velocity. What is the nature of the available documentation?", "mood": "focused"},
+        {"id": "ufos_questionable_buddy_story_vern_exhausted_3", "text": "... five miles matching his speed. could be a drone or a helicopter. do you have the footage?", "voiceText": "... five miles matching his speed. could be a drone or a helicopter. do you have the footage?", "mood": "exhausted"},
+        {"id": "ufos_questionable_buddy_story_vern_depressed_3", "text": "Five miles matching his speed. Could be a drone or a helicopter. Do you have the footage?", "voiceText": "Five miles matching his speed. Could be a drone or a helicopter. Do you have the footage?", "mood": "depressed"},
+        {"id": "ufos_questionable_buddy_story_vern_angry_3", "text": "FIVE MILES MATCHING HIS SPEED! COULD BE A DRONE OR A HELICOPTER! DO YOU HAVE THE FOOTAGE?!", "voiceText": "FIVE MILES MATCHING HIS SPEED! COULD BE A DRONE OR A HELICOPTER! DO YOU HAVE THE FOOTAGE?!", "mood": "angry"},
+        {"id": "ufos_questionable_buddy_story_vern_frustrated_3", "text": "Ugh, five miles matching his speed. could be a drone. do you have the footage?", "voiceText": "Ugh, five miles matching his speed. could be a drone. do you have the footage?", "mood": "frustrated"},
+        {"id": "ufos_questionable_buddy_story_vern_obsessive_3", "text": "Five miles matching his speed. Could be a drone or a helicopter. Do you have the footage? You know what this means?", "voiceText": "Five miles matching his speed. Could be a drone or a helicopter. Do you have the footage? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_buddy_story_vern_manic_3", "text": "FIVE MILES MATCHING HIS SPEED. COULD BE A DRONE. DO YOU HAVE THE FOOTAGE?!!!!", "voiceText": "FIVE MILES MATCHING HIS SPEED. COULD BE A DRONE. DO YOU HAVE THE FOOTAGE?!!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

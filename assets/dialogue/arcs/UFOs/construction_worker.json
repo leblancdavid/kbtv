@@ -1,0 +1,77 @@
+{
+  "arcId": "construction_worker",
+  "topic": "UFOs",
+  "legitimacy": "Credible",
+  "screeningSummary": "Construction worker reports seeing object land at job site, found physical evidence",
+  "callerPersonality": "gruff_experienced",
+  "arcNotes": "Experienced construction worker, knows what's normal on job sites, found unusual marks",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_construction_worker_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_credible_construction_worker_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_credible_construction_worker_vern_energized_1", "text": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!", "voiceText": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!", "mood": "energized"},
+        {"id": "ufos_credible_construction_worker_vern_irritated_1", "text": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?", "voiceText": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?", "mood": "irritated"},
+        {"id": "ufos_credible_construction_worker_vern_gruff_1", "text": "You're on. So what'd you see?", "voiceText": "You're on. So what'd you see?", "mood": "gruff"},
+        {"id": "ufos_credible_construction_worker_vern_amused_1", "text": "Oh good, a caller! What've you got for us tonight?", "voiceText": "Oh good, a caller! What've you got for us tonight?", "mood": "amused"},
+        {"id": "ufos_credible_construction_worker_vern_focused_1", "text": "You're on the air. Start with the basic facts.", "voiceText": "You're on the air. Start with the basic facts.", "mood": "focused"},
+        {"id": "ufos_credible_construction_worker_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_credible_construction_worker_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_credible_construction_worker_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_credible_construction_worker_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_credible_construction_worker_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_credible_construction_worker_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_credible_construction_worker_caller_1", "text": "I've been a construction foreman for twenty years, Vern. Two weeks ago, we're working on a building site, and around two in the afternoon, this object comes down. Lands right in the middle of the site. My guys thought it was a drone, but nothing we have does that.", "voiceText": "I've been a construction foreman for twenty years, Vern. Two weeks ago, we're working on a building site, and around two in the afternoon, this object comes down. Lands right in the middle of the site. My guys thought it was a drone, but nothing we have does that."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_construction_worker_vern_neutral_2", "text": "Lands in the middle of your job site at two in the afternoon. What did you see?", "voiceText": "Lands in the middle of your job site at two in the afternoon. What did you see?", "mood": "neutral"},
+        {"id": "ufos_credible_construction_worker_vern_tired_2", "text": "Lands at two in the afternoon... okay, what did you see?", "voiceText": "Lands at two in the afternoon... okay, what did you see?", "mood": "tired"},
+        {"id": "ufos_credible_construction_worker_vern_energized_2", "text": "LANDS in the middle of your JOB SITE at two in the AFTERNOON?! That's incredible! What did you see?!", "voiceText": "LANDS in the middle of your JOB SITE at two in the AFTERNOON?! That's incredible! What did you see?!", "mood": "energized"},
+        {"id": "ufos_credible_construction_worker_vern_irritated_2", "text": "Lands in the middle of your job site. Of course it was. What did you see?", "voiceText": "Lands in the middle of your job site. Of course it was. What did you see?", "mood": "irritated"},
+        {"id": "ufos_credible_construction_worker_vern_gruff_2", "text": "Lands in the middle of your site. Fine, I'll hear you out. What did you see?", "voiceText": "Lands in the middle of your site. Fine, I'll hear you out. What did you see?", "mood": "gruff"},
+        {"id": "ufos_credible_construction_worker_vern_amused_2", "text": "LANDS at two in the afternoon! That's amazing! What did you see?!", "voiceText": "LANDS at two in the afternoon! That's amazing! What did you see?!", "mood": "amused"},
+        {"id": "ufos_credible_construction_worker_vern_focused_2", "text": "Describe the object's characteristics during the landing.", "voiceText": "Describe the object's characteristics during the landing.", "mood": "focused"},
+        {"id": "ufos_credible_construction_worker_vern_exhausted_2", "text": "... lands in the middle of your job site at two in the afternoon. what did you see?", "voiceText": "... lands in the middle of your job site at two in the afternoon. what did you see?", "mood": "exhausted"},
+        {"id": "ufos_credible_construction_worker_vern_depressed_2", "text": "Lands in the middle of your job site at two in the afternoon. What did you see?", "voiceText": "Lands in the middle of your job site at two in the afternoon. What did you see?", "mood": "depressed"},
+        {"id": "ufos_credible_construction_worker_vern_angry_2", "text": "LANDS IN THE MIDDLE OF YOUR JOB SITE AT TWO IN THE AFTERNOON! WHAT DID YOU SEE?!", "voiceText": "LANDS IN THE MIDDLE OF YOUR JOB SITE AT TWO IN THE AFTERNOON! WHAT DID YOU SEE?!", "mood": "angry"},
+        {"id": "ufos_credible_construction_worker_vern_frustrated_2", "text": "Ugh, lands in the middle of your job site at two in the afternoon. what did you see?", "voiceText": "Ugh, lands in the middle of your job site at two in the afternoon. what did you see?", "mood": "frustrated"},
+        {"id": "ufos_credible_construction_worker_vern_obsessive_2", "text": "Lands in the middle of your job site at two in the afternoon. What did you see? You know what this means?", "voiceText": "Lands in the middle of your job site at two in the afternoon. What did you see? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_credible_construction_worker_vern_manic_2", "text": "LANDS IN THE MIDDLE OF YOUR JOB SITE AT TWO IN THE AFTERNOON. WHAT DID YOU SEE?!!!", "voiceText": "LANDS IN THE MIDDLE OF YOUR JOB SITE AT TWO IN THE AFTERNOON. WHAT DID YOU SEE?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_credible_construction_worker_caller_2", "text": "It sat there for maybe five minutes. No sound. Then it took off straight up. When it left, we found four circular imprints in the concrete. Fresh concrete that had just been poured. The circles were still warm. I couldn't believe what I was seeing.", "voiceText": "It sat there for maybe five minutes. No sound. Then it took off straight up. When it left, we found four circular imprints in the concrete. Fresh concrete that had just been poured. The circles were still warm. I couldn't believe what I was seeing."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_construction_worker_vern_neutral_3", "text": "Four circular imprints in fresh concrete, still warm. That's physical evidence. If you're telling me this as a twenty-year foreman, I believe you. Send us photos. This could be significant. Appreciate you calling in.", "voiceText": "Four circular imprints in fresh concrete, still warm. That's physical evidence. If you're telling me this as a twenty-year foreman, I believe you. Send us photos. This could be significant. Appreciate you calling in.", "mood": "neutral"},
+        {"id": "ufos_credible_construction_worker_vern_tired_3", "text": "Warm circular imprints. Okay, I believe you. Send photos. Thanks for calling.", "voiceText": "Warm circular imprints. Okay, I believe you. Send photos. Thanks for calling.", "mood": "tired"},
+        {"id": "ufos_credible_construction_worker_vern_energized_3", "text": "WARM CIRCULAR IMPRINTS in FRESH CONCRETE?! This is HISTORIC! Send us photos! You're part of something HUGE!", "voiceText": "WARM CIRCULAR IMPRINTS in FRESH CONCRETE?! This is HISTORIC! Send us photos! You're part of something HUGE!", "mood": "energized"},
+        {"id": "ufos_credible_construction_worker_vern_irritated_3", "text": "Warm circular imprints. Well, send photos if you want. We'll check. Next caller.", "voiceText": "Warm circular imprints. Well, send photos if you want. We'll check. Next caller.", "mood": "irritated"},
+        {"id": "ufos_credible_construction_worker_vern_gruff_3", "text": "Warm circular imprints. Send photos. We'll check it out. Thanks.", "voiceText": "Warm circular imprints. Send photos. We'll check it out. Thanks.", "mood": "gruff"},
+        {"id": "ufos_credible_construction_worker_vern_amused_3", "text": "WARM CIRCULAR IMPRINTS! In fresh concrete! This is PERFECT! Send us photos! We love this!", "voiceText": "WARM CIRCULAR IMPRINTS! In fresh concrete! This is PERFECT! Send us photos! We love this!", "mood": "amused"},
+        {"id": "ufos_credible_construction_worker_vern_focused_3", "text": "Physical evidence in fresh concrete. This is significant. Please submit photographic documentation. This could be historic.", "voiceText": "Physical evidence in fresh concrete. This is significant. Please submit photographic documentation. This could be historic.", "mood": "focused"},
+        {"id": "ufos_credible_construction_worker_vern_exhausted_3", "text": "... four circular imprints in fresh concrete, still warm. that's physical evidence. send us photos.", "voiceText": "... four circular imprints in fresh concrete, still warm. that's physical evidence. send us photos.", "mood": "exhausted"},
+        {"id": "ufos_credible_construction_worker_vern_depressed_3", "text": "Four circular imprints in fresh concrete, still warm. That's physical evidence. If you're telling me this as a twenty-year foreman, I believe you.", "voiceText": "Four circular imprints in fresh concrete, still warm. That's physical evidence. If you're telling me this as a twenty-year foreman, I believe you.", "mood": "depressed"},
+        {"id": "ufos_credible_construction_worker_vern_angry_3", "text": "FOUR CIRCULAR IMPRINTS IN FRESH CONCRETE, STILL WARM! THAT'S PHYSICAL EVIDENCE! SEND US PHOTOS!", "voiceText": "FOUR CIRCULAR IMPRINTS IN FRESH CONCRETE, STILL WARM! THAT'S PHYSICAL EVIDENCE! SEND US PHOTOS!", "mood": "angry"},
+        {"id": "ufos_credible_construction_worker_vern_frustrated_3", "text": "Ugh, four circular imprints in fresh concrete, still warm. that's physical evidence. send us photos.", "voiceText": "Ugh, four circular imprints in fresh concrete, still warm. that's physical evidence. send us photos.", "mood": "frustrated"},
+        {"id": "ufos_credible_construction_worker_vern_obsessive_3", "text": "Four circular imprints in fresh concrete, still warm. That's physical evidence. If you're telling me this as a twenty-year foreman, I believe you. Send us photos. You know what this means?", "voiceText": "Four circular imprints in fresh concrete, still warm. That's physical evidence. If you're telling me this as a twenty-year foreman, I believe you. Send us photos. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_credible_construction_worker_vern_manic_3", "text": "FOUR CIRCULAR IMPRINTS IN FRESH CONCRETE, STILL WARM! THAT'S PHYSICAL EVIDENCE! SEND US PHOTOS! APPRECIATE YOU CALLING IN.!!!", "voiceText": "FOUR CIRCULAR IMPRINTS IN FRESH CONCRETE, STILL WARM! THAT'S PHYSICAL EVIDENCE! SEND US PHOTOS! APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

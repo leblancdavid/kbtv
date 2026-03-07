@@ -1,0 +1,283 @@
+{
+  "arcId": "ufo_skywriter",
+  "topic": "UFOs",
+  "topicSwitched": false,
+  "legitimacy": "Fake",
+  "caller": {
+    "personality": "PokerFace",
+    "name": "Marty",
+    "description": "Calm, measured delivery, hard to read"
+  },
+  "arcLength": 5,
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufo_fake_skywriter_vern_neutral_1",
+          "text": "You're on KBTV, this is Vern, go ahead.",
+          "voiceText": "You're on KBTV, this is Vern, go ahead.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_tired_1",
+          "text": "Alright, you're on. What's your name?",
+          "voiceText": "Alright, you're on. What's your name?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_energized_1",
+          "text": "YOU'RE ON KBTV! Let's hear it!",
+          "voiceText": "YOU'RE ON KBTV! Let's hear it!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_irritated_1",
+          "text": "You're on. Make it quick, I've got a show to run.",
+          "voiceText": "You're on. Make it quick, I've got a show to run.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_gruff_1",
+          "text": "KBTV, go ahead.",
+          "voiceText": "KBTV, go ahead.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_amused_1",
+          "text": "Oh, we've got a caller! What've you got for me?",
+          "voiceText": "Oh, we've got a caller! What've you got for me?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_focused_1",
+          "text": "You're on the air. State your name and what you're calling about.",
+          "voiceText": "You're on the air. State your name and what you're calling about.",
+          "mood": "focused"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_exhausted_1",
+          "text": "... you're on. go ahead.",
+          "voiceText": "... you're on. go ahead.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_depressed_1",
+          "text": "You're on KBTV. What is it?",
+          "voiceText": "You're on KBTV. What is it?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_angry_1",
+          "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!",
+          "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_frustrated_1",
+          "text": "Ugh, you're on. What is it?",
+          "voiceText": "Ugh, you're on. What is it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_obsessive_1",
+          "text": "You're on KBTV. This is important - tell me everything.",
+          "voiceText": "You're on KBTV. This is important - tell me everything.",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_manic_1",
+          "text": "KBTV! GO AHEAD!!!",
+          "voiceText": "KBTV! GO AHEAD!!!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufo_fake_skywriter_caller_1",
+          "text": "Yeah, uh... I was up in my plane last Tuesday, and I saw this thing in the sky... like, writing something?",
+          "voiceText": "Yeah, uh... I was up in my plane last Tuesday, and I saw this thing in the sky... like, writing something?"
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufo_fake_skywriter_vern_neutral_2",
+          "text": "Writing? Like... letters?",
+          "voiceText": "Writing? Like... letters?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_tired_2",
+          "text": "Writing... okay. What kind of writing?",
+          "voiceText": "Writing... okay. What kind of writing?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_energized_2",
+          "text": "WRITING?! Like... in the SKY?! That's incredible!",
+          "voiceText": "WRITING?! Like... in the SKY?! That's incredible!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_irritated_2",
+          "text": "Right. Writing in the sky. Sure.",
+          "voiceText": "Right. Writing in the sky. Sure.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_gruff_2",
+          "text": "Writing. Go on.",
+          "voiceText": "Writing. Go on.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_amused_2",
+          "text": "Oh, this should be good! What did it say?",
+          "voiceText": "Oh, this should be good! What did it say?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_focused_2",
+          "text": "Aerial writing. Describe the formation in detail.",
+          "voiceText": "Aerial writing. Describe the formation in detail.",
+          "mood": "focused"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_exhausted_2",
+          "text": "... writing. okay.",
+          "voiceText": "... writing. okay.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_depressed_2",
+          "text": "Writing. What did it say?",
+          "voiceText": "Writing. What did it say?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_angry_2",
+          "text": "WRITING?! WHAT DID IT SAY?!",
+          "voiceText": "WRITING?! WHAT DID IT SAY?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_frustrated_2",
+          "text": "Writing... ugh. What did it say?",
+          "voiceText": "Writing... ugh. What did it say?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_obsessive_2",
+          "text": "Writing. This is significant. What did the message say?",
+          "voiceText": "Writing. This is significant. What did the message say?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_manic_2",
+          "text": "WRITING. IN THE SKY. TELL ME EVERY LETTER!!!",
+          "voiceText": "WRITING. IN THE SKY. TELL ME EVERY LETTER!!!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufo_fake_skywriter_caller_2",
+          "text": "Yeah, I know how it sounds... but it said 'BEWARE', Vern. Like... capital B, capital W.",
+          "voiceText": "Yeah, I know how it sounds... but it said 'BEWARE', Vern. Like... capital B, capital W."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufo_fake_skywriter_vern_neutral_3",
+          "text": "Uh-huh. And you're sure it wasn't just the, uh, contrail from that new billboard they're building?",
+          "voiceText": "Uh-huh. And you're sure it wasn't just the, uh, contrail from that new billboard they're building?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_tired_3",
+          "text": "Right. A skywriting plane. Happens all the time around here.",
+          "voiceText": "Right. A skywriting plane. Happens all the time around here.",
+          "mood": "tired"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_energized_3",
+          "text": "BEWARE?! That's a MESSAGE?! This is huge! Wait, how'd you rule out a plane?",
+          "voiceText": "BEWARE?! That's a MESSAGE?! This is huge! Wait, how'd you rule out a plane?",
+          "mood": "energized"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_irritated_3",
+          "text": "Beware. Right. Look, I've heard this before. Was it the billboard?",
+          "voiceText": "Beware. Right. Look, I've heard this before. Was it the billboard?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_gruff_3",
+          "text": "Beware. Sure it wasn't a contrail?",
+          "voiceText": "Beware. Sure it wasn't a contrail?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_amused_3",
+          "text": "Oh, 'BEWARE'! Classic! You check if there was a skywriting event scheduled?",
+          "voiceText": "Oh, 'BEWARE'! Classic! You check if there was a skywriting event scheduled?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_focused_3",
+          "text": "Did you check local aviation schedules for skywriting permits?",
+          "voiceText": "Did you check local aviation schedules for skywriting permits?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_exhausted_3",
+          "text": "... beware. right. billboard. sure.",
+          "voiceText": "... beware. right. billboard. sure.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_depressed_3",
+          "text": "Beware. Was it a plane?",
+          "voiceText": "Beware. Was it a plane?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_angry_3",
+          "text": "BEWARE! OF COURSE IT WAS A PLANE!",
+          "voiceText": "BEWARE! OF COURSE IT WAS A PLANE!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_frustrated_3",
+          "text": "Ugh, beware. Was it the billboard contrail or not?",
+          "voiceText": "Ugh, beware. Was it the billboard contrail or not?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_obsessive_3",
+          "text": "Beware. The word 'beware' is significant. But was it conventional aircraft?",
+          "voiceText": "Beware. The word 'beware' is significant. But was it conventional aircraft?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufo_fake_skywriter_vern_manic_3",
+          "text": "BEWARE!!! TELL ME YOU DOCUMENTED THIS!!!",
+          "voiceText": "BEWARE!!! TELL ME YOU DOCUMENTED THIS!!!",
+          "mood": "manic"
+        }
+      ]
+    }
+  ]
+}

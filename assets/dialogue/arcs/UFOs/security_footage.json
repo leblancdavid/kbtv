@@ -1,0 +1,53 @@
+{
+  "arcId": "security_footage",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Security guard shows blurry footage, unsure what they're seeing",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Nervous security guard with questionable footage",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_security_footage_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_questionable_security_footage_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_questionable_security_footage_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_questionable_security_footage_vern_irritated_1", "text": "You're on. What is it?", "voiceText": "You're on. What is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_security_footage_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_security_footage_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_security_footage_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_questionable_security_footage_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_questionable_security_footage_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_questionable_security_footage_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_questionable_security_footage_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_questionable_security_footage_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_security_footage_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_security_footage_caller_1", "text": "Okay, so I'm a security guard, right? And I was reviewing the footage from last night, and I saw this thing? But the quality is really bad, and I'm not really sure what I'm looking at? It might be a bird? Or maybe a drone? I don't know, it looked kind of weird?", "voiceText": "Okay, so I'm a security guard, right? And I was reviewing the footage from last night, and I saw this thing? But the quality is really bad, and I'm not really sure what I'm looking at? It might be a bird? Or maybe a drone? I don't know, it looked kind of weird?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_security_footage_vern_neutral_2", "text": "Blurry footage that might be a bird or drone. Send it in if you can. Could be anything.", "voiceText": "Blurry footage that might be a bird or drone. Send it in if you can. Could be anything.", "mood": "neutral"},
+        {"id": "ufos_questionable_security_footage_vern_tired_2", "text": "Blurry... might be a bird. Send it if you can.", "voiceText": "Blurry... might be a bird. Send it if you can.", "mood": "tired"},
+        {"id": "ufos_questionable_security_footage_vern_energized_2", "text": "BLURRY FOOTAGE that might be a bird or drone?! This is INTERESTING! Send it in!", "voiceText": "BLURRY FOOTAGE that might be a bird or drone?! This is INTERESTING! Send it in!", "mood": "energized"},
+        {"id": "ufos_questionable_security_footage_vern_irritated_2", "text": "Blurry footage. Might be a bird. Send it if you want.", "voiceText": "Blurry footage. Might be a bird. Send it if you want.", "mood": "irritated"},
+        {"id": "ufos_questionable_security_footage_vern_gruff_2", "text": "Might be a bird. Send footage if you have it.", "voiceText": "Might be a bird. Send footage if you have it.", "mood": "gruff"},
+        {"id": "ufos_questionable_security_footage_vern_amused_2", "text": "BLURRY FOOTAGE! This is great! Send it in!", "voiceText": "BLURRY FOOTAGE! This is great! Send it in!", "mood": "amused"},
+        {"id": "ufos_questionable_security_footage_vern_focused_2", "text": "Describe the unclear visual anomaly.", "voiceText": "Describe the unclear visual anomaly.", "mood": "focused"},
+        {"id": "ufos_questionable_security_footage_vern_exhausted_2", "text": "... blurry footage that might be a bird or drone. send it in if you can. thanks for calling.", "voiceText": "... blurry footage that might be a bird or drone. send it in if you can. thanks for calling.", "mood": "exhausted"},
+        {"id": "ufos_questionable_security_footage_vern_depressed_2", "text": "Blurry footage that might be a bird or drone. Send it in if you can.", "voiceText": "Blurry footage that might be a bird or drone. Send it in if you can.", "mood": "depressed"},
+        {"id": "ufos_questionable_security_footage_vern_angry_2", "text": "BLURRY FOOTAGE THAT MIGHT BE A BIRD OR DRONE?! SEND IT IN IF YOU CAN!", "voiceText": "BLURRY FOOTAGE THAT MIGHT BE A BIRD OR DRONE?! SEND IT IN IF YOU CAN!", "mood": "angry"},
+        {"id": "ufos_questionable_security_footage_vern_frustrated_2", "text": "Ugh, blurry footage that might be a bird or drone. send it in if you can.", "voiceText": "Ugh, blurry footage that might be a bird or drone. send it in if you can.", "mood": "frustrated"},
+        {"id": "ufos_questionable_security_footage_vern_obsessive_2", "text": "Blurry footage that might be a bird or drone. Send it in if you can. You know what this means?", "voiceText": "Blurry footage that might be a bird or drone. Send it in if you can. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_security_footage_vern_manic_2", "text": "BLURRY FOOTAGE THAT MIGHT BE A BIRD OR DRONE. SEND IT IN IF YOU CAN. APPRECIATE YOU CALLING IN.!!!", "voiceText": "BLURRY FOOTAGE THAT MIGHT BE A BIRD OR DRONE. SEND IT IN IF YOU CAN. APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "arcId": "pilot_friend",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Caller recounts friend's pilot story, friend is more skeptical than caller",
+  "callerPersonality": "enthusiastic_convert",
+  "arcNotes": "Telling a friend's story, friend is skeptical but caller is excited",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_pilot_friend_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_questionable_pilot_friend_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_questionable_pilot_friend_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_questionable_pilot_friend_vern_irritated_1", "text": "You're on. What is it?", "voiceText": "You're on. What is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_pilot_friend_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_pilot_friend_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_pilot_friend_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_questionable_pilot_friend_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_questionable_pilot_friend_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_questionable_pilot_friend_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_questionable_pilot_friend_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_questionable_pilot_friend_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_pilot_friend_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_pilot_friend_caller_1", "text": "Okay, so my buddy is a commercial pilot, right? And he told me this story about seeing something during a flight. He doesn't really believe in UFOs or anything, but he said he saw something that he couldn't explain. He was really hesitant to even tell me about it.", "voiceText": "Okay, so my buddy is a commercial pilot, right? And he told me this story about seeing something during a flight. He doesn't really believe in UFOs or anything, but he said he saw something that he couldn't explain. He was really hesitant to even tell me about it."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_pilot_friend_vern_neutral_2", "text": "A commercial pilot who doesn't believe in UFOs saw something he couldn't explain. What did he see?", "voiceText": "A commercial pilot who doesn't believe in UFOs saw something he couldn't explain. What did he see?", "mood": "neutral"},
+        {"id": "ufos_questionable_pilot_friend_vern_tired_2", "text": "A skeptical pilot... okay, what did he see?", "voiceText": "A skeptical pilot... okay, what did he see?", "mood": "tired"},
+        {"id": "ufos_questionable_pilot_friend_vern_energized_2", "text": "A COMMERCIAL PILOT who doesn't believe in UFOs saw something?! This is AMAZING! What did he see?!", "voiceText": "A COMMERCIAL PILOT who doesn't believe in UFOs saw something?! This is AMAZING! What did he see?!", "mood": "energized"},
+        {"id": "ufos_questionable_pilot_friend_vern_irritated_2", "text": "A skeptical pilot. Of course he did. What did he see?", "voiceText": "A skeptical pilot. Of course he did. What did he see?", "mood": "irritated"},
+        {"id": "ufos_questionable_pilot_friend_vern_gruff_2", "text": "A skeptical pilot. Fine, I'll listen. What did he see?", "voiceText": "A skeptical pilot. Fine, I'll listen. What did he see?", "mood": "gruff"},
+        {"id": "ufos_questionable_pilot_friend_vern_amused_2", "text": "A skeptical PILOT! This is fantastic! What did he see?!", "voiceText": "A skeptical PILOT! This is fantastic! What did he see?!", "mood": "amused"},
+        {"id": "ufos_questionable_pilot_friend_vern_focused_2", "text": "Describe what the skeptical pilot observed.", "voiceText": "Describe what the skeptical pilot observed.", "mood": "focused"},
+        {"id": "ufos_questionable_pilot_friend_vern_exhausted_2", "text": "... a commercial pilot who doesn't believe in ufos saw something he couldn't explain. what did he see?", "voiceText": "... a commercial pilot who doesn't believe in ufos saw something he couldn't explain. what did he see?", "mood": "exhausted"},
+        {"id": "ufos_questionable_pilot_friend_vern_depressed_2", "text": "A commercial pilot who doesn't believe in UFOs saw something he couldn't explain. What did he see?", "voiceText": "A commercial pilot who doesn't believe in UFOs saw something he couldn't explain. What did he see?", "mood": "depressed"},
+        {"id": "ufos_questionable_pilot_friend_vern_angry_2", "text": "A COMMERCIAL PILOT WHO DOESN'T BELIEVE IN UFOs SAW SOMETHING HE COULDN'T EXPLAIN! WHAT DID HE SEE?!", "voiceText": "A COMMERCIAL PILOT WHO DOESN'T BELIEVE IN UFOs SAW SOMETHING HE COULDN'T EXPLAIN! WHAT DID HE SEE?!", "mood": "angry"},
+        {"id": "ufos_questionable_pilot_friend_vern_frustrated_2", "text": "Ugh, a commercial pilot who doesn't believe in ufos saw something he couldn't explain. what did he see?", "voiceText": "Ugh, a commercial pilot who doesn't believe in ufos saw something he couldn't explain. what did he see?", "mood": "frustrated"},
+        {"id": "ufos_questionable_pilot_friend_vern_obsessive_2", "text": "A commercial pilot who doesn't believe in UFOs saw something he couldn't explain. What did he see? You know what this means?", "voiceText": "A commercial pilot who doesn't believe in UFOs saw something he couldn't explain. What did he see? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_pilot_friend_vern_manic_2", "text": "A SKEPTICAL PILOT SAW SOMETHING HE COULDN'T EXPLAIN. WHAT DID HE SEE?!!!", "voiceText": "A SKEPTICAL PILOT SAW SOMETHING HE COULDN'T EXPLAIN. WHAT DID HE SEE?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_pilot_friend_caller_2", "text": "He said he saw these lights that were just hovering, and then they took off at like supersonic speeds. But here's the thing - he's a skeptic, right? He kept saying it was probably just some classified military thing. But he couldn't explain how it was moving, you know?", "voiceText": "He said he saw these lights that were just hovering, and then they took off at like supersonic speeds. But here's the thing - he's a skeptic, right? He kept saying it was probably just some classified military thing. But he couldn't explain how it was moving, you know?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_pilot_friend_vern_neutral_3", "text": "Hovering lights taking off at supersonic speeds, even a skeptic can't explain. Interesting. Thanks for sharing.", "voiceText": "Hovering lights taking off at supersonic speeds, even a skeptic can't explain. Interesting. Thanks for sharing.", "mood": "neutral"},
+        {"id": "ufos_questionable_pilot_friend_vern_tired_3", "text": "Probably military. But cool. Thanks.", "voiceText": "Probably military. But cool. Thanks.", "mood": "tired"},
+        {"id": "ufos_questionable_pilot_friend_vern_energized_3", "text": "SKEPTICAL PILOT couldn't explain it! This is INTERESTING! Thanks for sharing!", "voiceText": "SKEPTICAL PILOT couldn't explain it! This is INTERESTING! Thanks for sharing!", "mood": "energized"},
+        {"id": "ufos_questionable_pilot_friend_vern_irritated_3", "text": "Probably military. Cool story though. Next.", "voiceText": "Probably military. Cool story though. Next.", "mood": "irritated"},
+        {"id": "ufos_questionable_pilot_friend_vern_gruff_3", "text": "Probably military. Interesting story. Thanks.", "voiceText": "Probably military. Interesting story. Thanks.", "mood": "gruff"},
+        {"id": "ufos_questionable_pilot_friend_vern_amused_3", "text": "A SKEPTICAL PILOT who couldn't explain it! This is PERFECT! Thanks for sharing!", "voiceText": "A SKEPTICAL PILOT who couldn't explain it! This is PERFECT! Thanks for sharing!", "mood": "amused"},
+        {"id": "ufos_questionable_pilot_friend_vern_focused_3", "text": "Even a skeptic couldn't explain it. This is valuable. Thank you.", "voiceText": "Even a skeptic couldn't explain it. This is valuable. Thank you.", "mood": "focused"},
+        {"id": "ufos_questionable_pilot_friend_vern_exhausted_3", "text": "... hovering lights taking off at supersonic speeds, even a skeptic can't explain. interesting. thanks for sharing.", "voiceText": "... hovering lights taking off at supersonic speeds, even a skeptic can't explain. interesting. thanks for sharing.", "mood": "exhausted"},
+        {"id": "ufos_questionable_pilot_friend_vern_depressed_3", "text": "Hovering lights taking off at supersonic speeds, even a skeptic can't explain. Interesting.", "voiceText": "Hovering lights taking off at supersonic speeds, even a skeptic can't explain. Interesting.", "mood": "depressed"},
+        {"id": "ufos_questionable_pilot_friend_vern_angry_3", "text": "HOVERING LIGHTS TAKING OFF AT SUPERSONIC SPEEDS! EVEN A SKEPTIC CAN'T EXPLAIN! INTERESTING!", "voiceText": "HOVERING LIGHTS TAKING OFF AT SUPERSONIC SPEEDS! EVEN A SKEPTIC CAN'T EXPLAIN! INTERESTING!", "mood": "angry"},
+        {"id": "ufos_questionable_pilot_friend_vern_frustrated_3", "text": "Ugh, hovering lights taking off at supersonic speeds, even a skeptic can't explain. interesting. thanks for sharing.", "voiceText": "Ugh, hovering lights taking off at supersonic speeds, even a skeptic can't explain. interesting. thanks for sharing.", "mood": "frustrated"},
+        {"id": "ufos_questionable_pilot_friend_vern_obsessive_3", "text": "Hovering lights taking off at supersonic speeds, even a skeptic can't explain. Interesting. You know what this means?", "voiceText": "Hovering lights taking off at supersonic speeds, even a skeptic can't explain. Interesting. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_pilot_friend_vern_manic_3", "text": "HOVERING LIGHTS TAKING OFF AT SUPERSONIC SPEEDS! APPRECIATE YOU CALLING IN.!!!", "voiceText": "HOVERING LIGHTS TAKING OFF AT SUPERSONIC SPEEDS! APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

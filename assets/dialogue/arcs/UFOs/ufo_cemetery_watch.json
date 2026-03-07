@@ -1,0 +1,101 @@
+{
+  "arcId": "ufo_cemetery_watch",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Night watchman at cemetery sees hovering lights over old Miller plot for three nights",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Nervous caller with classic UFO sighting, flashlight and radio failure adds interest",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_cemetery_watch_vern_neutral_1", "text": "KBTV, Vern here. What's your name and what's happening?", "voiceText": "KBTV, Vern here. What's your name and what's happening?", "mood": "neutral"},
+        {"id": "ufos_questionable_cemetery_watch_vern_tired_1", "text": "Alright, you're on. What's your name?", "voiceText": "Alright, you're on. What's your name?", "mood": "tired"},
+        {"id": "ufos_questionable_cemetery_watch_vern_energized_1", "text": "YOU ARE ON KBTV! Tell us what's happening!", "voiceText": "YOU ARE ON KBTV! Tell us what's happening!", "mood": "energized"},
+        {"id": "ufos_questionable_cemetery_watch_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_questionable_cemetery_watch_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_questionable_cemetery_watch_vern_amused_1", "text": "Oh, a caller! What's your story?", "voiceText": "Oh, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_cemetery_watch_vern_focused_1", "text": "You're on the air. State your name and experience.", "voiceText": "You're on the air. State your name and experience.", "mood": "focused"},
+        {"id": "ufos_questionable_cemetery_watch_vern_exhausted_1", "text": "... you're on. go ahead.", "voiceText": "... you're on. go ahead.", "mood": "exhausted"},
+        {"id": "ufos_questionable_cemetery_watch_vern_depressed_1", "text": "KBTV, Vern here. What's happening?", "voiceText": "KBTV, Vern here. What's happening?", "mood": "depressed"},
+        {"id": "ufos_questionable_cemetery_watch_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_questionable_cemetery_watch_vern_frustrated_1", "text": "Ugh, you're on. What is it?", "voiceText": "Ugh, you're on. What is it?", "mood": "frustrated"},
+        {"id": "ufos_questionable_cemetery_watch_vern_obsessive_1", "text": "You're on KBTV. This could be important - tell me everything.", "voiceText": "You're on KBTV. This could be important - tell me everything.", "mood": "obsessive"},
+        {"id": "ufos_questionable_cemetery_watch_vern_manic_1", "text": "KBTV!!! GO AHEAD!!!", "voiceText": "KBTV!!! GO AHEAD!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_cemetery_watch_caller_1", "text": "H-Harold, my name's Harold. I'm a night watchman over at Hillside Cemetery, and, um... I've been seeing things, Vern. For the past three nights.", "voiceText": "H-Harold, my name's Harold. I'm a night watchman over at Hillside Cemetery, and, um... I've been seeing things, Vern. For the past three nights."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_cemetery_watch_vern_neutral_2", "text": "What kind of things, Harold?", "voiceText": "What kind of things, Harold?", "mood": "neutral"},
+        {"id": "ufos_questionable_cemetery_watch_vern_tired_2", "text": "Things... okay. What kind?", "voiceText": "Things... okay. What kind?", "mood": "tired"},
+        {"id": "ufos_questionable_cemetery_watch_vern_energized_2", "text": "THINGS?! What kind of things?! Tell me!", "voiceText": "THINGS?! What kind of things?! Tell me!", "mood": "energized"},
+        {"id": "ufos_questionable_cemetery_watch_vern_irritated_2", "text": "Things. What things?", "voiceText": "Things. What things?", "mood": "irritated"},
+        {"id": "ufos_questionable_cemetery_watch_vern_gruff_2", "text": "What things?", "voiceText": "What things?", "mood": "gruff"},
+        {"id": "ufos_questionable_cemetery_watch_vern_amused_2", "text": "Oh, things! This should be good! What did you see?", "voiceText": "Oh, things! This should be good! What did you see?", "mood": "amused"},
+        {"id": "ufos_questionable_cemetery_watch_vern_focused_2", "text": "Specify what you observed over the past three nights.", "voiceText": "Specify what you observed over the past three nights.", "mood": "focused"},
+        {"id": "ufos_questionable_cemetery_watch_vern_exhausted_2", "text": "... things. okay.", "voiceText": "... things. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_cemetery_watch_vern_depressed_2", "text": "What things?", "voiceText": "What things?", "mood": "depressed"},
+        {"id": "ufos_questionable_cemetery_watch_vern_angry_2", "text": "WHAT THINGS?!", "voiceText": "WHAT THINGS?!", "mood": "angry"},
+        {"id": "ufos_questionable_cemetery_watch_vern_frustrated_2", "text": "Ugh, what things?", "voiceText": "Ugh, what things?", "mood": "frustrated"},
+        {"id": "ufos_questionable_cemetery_watch_vern_obsessive_2", "text": "This is significant. What did you observe?", "voiceText": "This is significant. What did you observe?", "mood": "obsessive"},
+        {"id": "ufos_questionable_cemetery_watch_vern_manic_2", "text": "THINGS!!! TELL ME EVERYTHING!!!", "voiceText": "THINGS!!! TELL ME EVERYTHING!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_cemetery_watch_caller_2", "text": "Lights. Hovering lights, right over the old Miller plot. They just... they don't move like any aircraft I've ever seen, and I've been doing this for fifteen years.", "voiceText": "Lights. Hovering lights, right over the old Miller plot. They just... they don't move like any aircraft I've ever seen, and I've been doing this for fifteen years."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_cemetery_watch_vern_neutral_3", "text": "And you've checked it out? Gone over to the plot yourself?", "voiceText": "And you've checked it out? Gone over to the plot yourself?", "mood": "neutral"},
+        {"id": "ufos_questionable_cemetery_watch_vern_tired_3", "text": "You check it out? Went over there?", "voiceText": "You check it out? Went over there?", "mood": "tired"},
+        {"id": "ufos_questionable_cemetery_watch_vern_energized_3", "text": "HOVERING LIGHTS! Did you investigate?!", "voiceText": "HOVERING LIGHTS! Did you investigate?!", "mood": "energized"},
+        {"id": "ufos_questionable_cemetery_watch_vern_irritated_3", "text": "You go check it out?", "voiceText": "You go check it out?", "mood": "irritated"},
+        {"id": "ufos_questionable_cemetery_watch_vern_gruff_3", "text": "You go over there?", "voiceText": "You go over there?", "mood": "gruff"},
+        {"id": "ufos_questionable_cemetery_watch_vern_amused_3", "text": "Hovering lights! Did you go investigate?", "voiceText": "Hovering lights! Did you go investigate?", "mood": "amused"},
+        {"id": "ufos_questionable_cemetery_watch_vern_focused_3", "text": "Did you conduct a physical investigation of the location?", "voiceText": "Did you conduct a physical investigation of the location?", "mood": "focused"},
+        {"id": "ufos_questionable_cemetery_watch_vern_exhausted_3", "text": "... you go over there. okay.", "voiceText": "... you go over there. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_cemetery_watch_vern_depressed_3", "text": "Did you go check it out?", "voiceText": "Did you go check it out?", "mood": "depressed"},
+        {"id": "ufos_questionable_cemetery_watch_vern_angry_3", "text": "DID YOU INVESTIGATE?!", "voiceText": "DID YOU INVESTIGATE?!", "mood": "angry"},
+        {"id": "ufos_questionable_cemetery_watch_vern_frustrated_3", "text": "Ugh, did you go check it?", "voiceText": "Ugh, did you go check it?", "mood": "frustrated"},
+        {"id": "ufos_questionable_cemetery_watch_vern_obsessive_3", "text": "This is critical. Did you approach the location?", "voiceText": "This is critical. Did you approach the location?", "mood": "obsessive"},
+        {"id": "ufos_questionable_cemetery_watch_vern_manic_3", "text": "HOVERING LIGHTS!!! DID YOU GO!!!", "voiceText": "HOVERING LIGHTS!!! DID YOU GO!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_cemetery_watch_caller_3", "text": "I-I tried. The first night, I got within about fifty yards and my flashlight died. Brand new batteries, Vern. And my radio, it just... static. Nothing but static.", "voiceText": "I-I tried. The first night, I got within about fifty yards and my flashlight died. Brand new batteries, Vern. And my radio, it just... static. Nothing but static."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_cemetery_watch_vern_neutral_4", "text": "Huh. Batteries dying, radio interference... that's interesting, Harold. You think you'll go back tonight?", "voiceText": "Huh. Batteries dying, radio interference... that's interesting, Harold. You think you'll go back tonight?", "mood": "neutral"},
+        {"id": "ufos_questionable_cemetery_watch_vern_tired_4", "text": "Batteries died, radio static. Interesting. Going back?", "voiceText": "Batteries died, radio static. Interesting. Going back?", "mood": "tired"},
+        {"id": "ufos_questionable_cemetery_watch_vern_energized_4", "text": "BATTERY FAILURE and RADIO INTERFERENCE! That's CLASSIC! Will you go back?!", "voiceText": "BATTERY FAILURE and RADIO INTERFERENCE! That's CLASSIC! Will you go back?!", "mood": "energized"},
+        {"id": "ufos_questionable_cemetery_watch_vern_irritated_4", "text": "Batteries died, static. Right. Going back?", "voiceText": "Batteries died, static. Right. Going back?", "mood": "irritated"},
+        {"id": "ufos_questionable_cemetery_watch_vern_gruff_4", "text": "Static. Batteries died. Going back?", "voiceText": "Static. Batteries died. Going back?", "mood": "gruff"},
+        {"id": "ufos_questionable_cemetery_watch_vern_amused_4", "text": "Classic equipment failure! That's the best part! Will you go back?", "voiceText": "Classic equipment failure! That's the best part! Will you go back?", "mood": "amused"},
+        {"id": "ufos_questionable_cemetery_watch_vern_focused_4", "text": "Electromagnetic interference is significant. Will you conduct a follow-up investigation?", "voiceText": "Electromagnetic interference is significant. Will you conduct a follow-up investigation?", "mood": "focused"},
+        {"id": "ufos_questionable_cemetery_watch_vern_exhausted_4", "text": "... battery failure, static. interesting. going back?", "voiceText": "... battery failure, static. interesting. going back?", "mood": "exhausted"},
+        {"id": "ufos_questionable_cemetery_watch_vern_depressed_4", "text": "Batteries died, radio static. Will you go back?", "voiceText": "Batteries died, radio static. Will you go back?", "mood": "depressed"},
+        {"id": "ufos_questionable_cemetery_watch_vern_angry_4", "text": "BATTERY FAILURE AND RADIO STATIC! WILL YOU GO BACK?!", "voiceText": "BATTERY FAILURE AND RADIO STATIC! WILL YOU GO BACK?!", "mood": "angry"},
+        {"id": "ufos_questionable_cemetery_watch_vern_frustrated_4", "text": "Ugh, static, dead batteries. Will you go back?", "voiceText": "Ugh, static, dead batteries. Will you go back?", "mood": "frustrated"},
+        {"id": "ufos_questionable_cemetery_watch_vern_obsessive_4", "text": "This is highly significant. The electromagnetic interference pattern. Will you return?", "voiceText": "This is highly significant. The electromagnetic interference pattern. Will you return?", "mood": "obsessive"},
+        {"id": "ufos_questionable_cemetery_watch_vern_manic_4", "text": "INTERFERENCE!!! GO BACK TONIGHT!!!", "voiceText": "INTERFERENCE!!! GO BACK TONIGHT!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

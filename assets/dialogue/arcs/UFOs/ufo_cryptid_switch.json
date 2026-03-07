@@ -1,0 +1,80 @@
+{
+  "arcId": "ufo_cryptid_switch",
+  "topic": "UFOs",
+  "claimedTopic": "UFOs",
+  "topicSwitched": true,
+  "actualTopic": "Cryptids",
+  "legitimacy": "Fake",
+  "screeningSummary": "Caller claims UFO but actually describes Bigfoot-like creature",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Topic-switcher - caller claims UFO during screening but describes creature",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_cryptid_switch_vern_neutral_1", "text": "KBTV, Vern here. What's your name and what's happening?", "voiceText": "KBTV, Vern here. What's your name and what's happening?", "mood": "neutral"},
+        {"id": "ufos_fake_cryptid_switch_vern_tired_1", "text": "Alright, you're on. What's your name?", "voiceText": "Alright, you're on. What's your name?", "mood": "tired"},
+        {"id": "ufos_fake_cryptid_switch_vern_energized_1", "text": "YOU ARE ON KBTV!", "voiceText": "YOU ARE ON KBTV!", "mood": "energized"},
+        {"id": "ufos_fake_cryptid_switch_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_fake_cryptid_switch_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_fake_cryptid_switch_vern_amused_1", "text": "Oh, a caller! What's your story?", "voiceText": "Oh, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_fake_cryptid_switch_vern_focused_1", "text": "You're on the air. State your name and experience.", "voiceText": "You're on the air. State your name and experience.", "mood": "focused"},
+        {"id": "ufos_fake_cryptid_switch_vern_exhausted_1", "text": "... you're on.", "voiceText": "... you're on.", "mood": "exhausted"},
+        {"id": "ufos_fake_cryptid_switch_vern_depressed_1", "text": "KBTV, Vern here. What's happening?", "voiceText": "KBTV, Vern here. What's happening?", "mood": "depressed"},
+        {"id": "ufos_fake_cryptid_switch_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_fake_cryptid_switch_vern_frustrated_1", "text": "Ugh, you're on.", "voiceText": "Ugh, you're on.", "mood": "frustrated"},
+        {"id": "ufos_fake_cryptid_switch_vern_obsessive_1", "text": "You're on KBTV. Tell me your experience.", "voiceText": "You're on KBTV. Tell me your experience.", "mood": "obsessive"},
+        {"id": "ufos_fake_cryptid_switch_vern_manic_1", "text": "KBTV!!!", "voiceText": "KBTV!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_cryptid_switch_caller_1", "text": "Uh, Vern, it's Earl. I saw one of them... you know, the things. In the woods behind my house. Big, like eight feet tall? With like, wings? Or maybe not wings, I don't know.", "voiceText": "Uh, Vern, it's Earl. I saw one of them... you know, the things. In the woods behind my house. Big, like eight feet tall? With like, wings? Or maybe not wings, I don't know."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_cryptid_switch_vern_neutral_2", "text": "Wings? You mean like a bird? Or more like... a bat?", "voiceText": "Wings? You mean like a bird? Or more like... a bat?", "mood": "neutral"},
+        {"id": "ufos_fake_cryptid_switch_vern_tired_2", "text": "Wings... okay. What kind?", "voiceText": "Wings... okay. What kind?", "mood": "tired"},
+        {"id": "ufos_fake_cryptid_switch_vern_energized_2", "text": "WINGS?! Like a bird?! Tell me more!", "voiceText": "WINGS?! Like a bird?! Tell me more!", "mood": "energized"},
+        {"id": "ufos_fake_cryptid_switch_vern_irritated_2", "text": "Wings. Right.", "voiceText": "Wings. Right.", "mood": "irritated"},
+        {"id": "ufos_fake_cryptid_switch_vern_gruff_2", "text": "Wings. Go on.", "voiceText": "Wings. Go on.", "mood": "gruff"},
+        {"id": "ufos_fake_cryptid_switch_vern_amused_2", "text": "Wings! What kind?", "voiceText": "Wings! What kind?", "mood": "amused"},
+        {"id": "ufos_fake_cryptid_switch_vern_focused_2", "text": "Describe the appendages in detail.", "voiceText": "Describe the appendages in detail.", "mood": "focused"},
+        {"id": "ufos_fake_cryptid_switch_vern_exhausted_2", "text": "... wings. okay.", "voiceText": "... wings. okay.", "mood": "exhausted"},
+        {"id": "ufos_fake_cryptid_switch_vern_depressed_2", "text": "Wings. What kind?", "voiceText": "Wings. What kind?", "mood": "depressed"},
+        {"id": "ufos_fake_cryptid_switch_vern_angry_2", "text": "WINGS! WHAT KIND?!", "voiceText": "WINGS! WHAT KIND?!", "mood": "angry"},
+        {"id": "ufos_fake_cryptid_switch_vern_frustrated_2", "text": "Ugh, wings.", "voiceText": "Ugh, wings.", "mood": "frustrated"},
+        {"id": "ufos_fake_cryptid_switch_vern_obsessive_2", "text": "This is significant. Describe the wings.", "voiceText": "This is significant. Describe the wings.", "mood": "obsessive"},
+        {"id": "ufos_fake_cryptid_switch_vern_manic_2", "text": "WINGS!!!", "voiceText": "WINGS!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_cryptid_switch_caller_2", "text": "No, no, it was like... fur? And it walked on two legs, but it had arms that dragged on the ground. And it made this noise, like a... a scream? It wasn't a bird, Vern, it was a monster.", "voiceText": "No, no, it was like... fur? And it walked on two legs, but it had arms that dragged on the ground. And it made this noise, like a... a scream? It wasn't a bird, Vern, it was a monster."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_cryptid_switch_vern_neutral_3", "text": "So this isn't a UFO story. This is a... Bigfoot type thing?", "voiceText": "So this isn't a UFO story. This is a... Bigfoot type thing?", "mood": "neutral"},
+        {"id": "ufos_fake_cryptid_switch_vern_tired_3", "text": "Monster... Bigfoot. Not UFO.", "voiceText": "Monster... Bigfoot. Not UFO.", "mood": "tired"},
+        {"id": "ufos_fake_cryptid_switch_vern_energized_3", "text": "A MONSTER! That's even BETTER! Not a UFO though!", "voiceText": "A MONSTER! That's even BETTER! Not a UFO though!", "mood": "energized"},
+        {"id": "ufos_fake_cryptid_switch_vern_irritated_3", "text": "Bigfoot, not UFO. Right.", "voiceText": "Bigfoot, not UFO. Right.", "mood": "irritated"},
+        {"id": "ufos_fake_cryptid_switch_vern_gruff_3", "text": "Monster. Okay.", "voiceText": "Monster. Okay.", "mood": "gruff"},
+        {"id": "ufos_fake_cryptid_switch_vern_amused_3", "text": "A monster! That's amazing! But not a UFO!", "voiceText": "A monster! That's amazing! But not a UFO!", "mood": "amused"},
+        {"id": "ufos_fake_cryptid_switch_vern_focused_3", "text": "This is actually a cryptid sighting, not a UFO.", "voiceText": "This is actually a cryptid sighting, not a UFO.", "mood": "focused"},
+        {"id": "ufos_fake_cryptid_switch_vern_exhausted_3", "text": "... monster. okay.", "voiceText": "... monster. okay.", "mood": "exhausted"},
+        {"id": "ufos_fake_cryptid_switch_vern_depressed_3", "text": "Bigfoot type thing. Not UFO.", "voiceText": "Bigfoot type thing. Not UFO.", "mood": "depressed"},
+        {"id": "ufos_fake_cryptid_switch_vern_angry_3", "text": "MONSTER! NOT UFO!", "voiceText": "MONSTER! NOT UFO!", "mood": "angry"},
+        {"id": "ufos_fake_cryptid_switch_vern_frustrated_3", "text": "Ugh, monster.", "voiceText": "Ugh, monster.", "mood": "frustrated"},
+        {"id": "ufos_fake_cryptid_switch_vern_obsessive_3", "text": "Topic shift from UFO to cryptid. Interesting.", "voiceText": "Topic shift from UFO to cryptid. Interesting.", "mood": "obsessive"},
+        {"id": "ufos_fake_cryptid_switch_vern_manic_3", "text": "BIGFOOT!!!", "voiceText": "BIGFOOT!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

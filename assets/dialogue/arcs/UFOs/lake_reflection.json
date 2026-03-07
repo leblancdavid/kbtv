@@ -1,0 +1,53 @@
+{
+  "arcId": "lake_reflection",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Caller saw strange lights over a lake, thinks it might have been their own flashlight reflection",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Nervous caller, honest about uncertainty, might be their own reflection",
+  "callerGender": "female",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_lake_reflection_vern_neutral_1", "text": "You're on the air. What did you witness?", "voiceText": "You're on the air. What did you witness?", "mood": "neutral"},
+        {"id": "ufos_questionable_lake_reflection_vern_tired_1", "text": "Alright, you're on. What'd you see?", "voiceText": "Alright, you're on. What'd you see?", "mood": "tired"},
+        {"id": "ufos_questionable_lake_reflection_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us what you witnessed!", "voiceText": "YOU ARE ON THE AIR! Tell us what you witnessed!", "mood": "energized"},
+        {"id": "ufos_questionable_lake_reflection_vern_irritated_1", "text": "You're on. Make it quick - what is it?", "voiceText": "You're on. Make it quick - what is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_lake_reflection_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_lake_reflection_vern_amused_1", "text": "Oh good, a caller! What did you see?", "voiceText": "Oh good, a caller! What did you see?", "mood": "amused"},
+        {"id": "ufos_questionable_lake_reflection_vern_focused_1", "text": "You're on. Describe what you observed from the beginning.", "voiceText": "You're on. Describe what you observed from the beginning.", "mood": "focused"},
+        {"id": "ufos_questionable_lake_reflection_vern_exhausted_1", "text": "... you're on the air. what did you witness?", "voiceText": "... you're on the air. what did you witness?", "mood": "exhausted"},
+        {"id": "ufos_questionable_lake_reflection_vern_depressed_1", "text": "You're on the air. What did you witness...", "voiceText": "You're on the air. What did you witness...", "mood": "depressed"},
+        {"id": "ufos_questionable_lake_reflection_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DID YOU WITNESS?!", "voiceText": "YOU'RE ON THE AIR! WHAT DID YOU WITNESS?!", "mood": "angry"},
+        {"id": "ufos_questionable_lake_reflection_vern_frustrated_1", "text": "Ugh, you're on the air. what did you witness?", "voiceText": "Ugh, you're on the air. what did you witness?", "mood": "frustrated"},
+        {"id": "ufos_questionable_lake_reflection_vern_obsessive_1", "text": "You're on the air. What did you witness? You know what this means?", "voiceText": "You're on the air. What did you witness? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_lake_reflection_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT DID YOU WITNESS?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT DID YOU WITNESS?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_lake_reflection_caller_1", "text": "Okay, so, um, I was at the lake last night, and I saw these lights? And I got really excited and called you? But then I realized I had my flashlight on, and I think it was just reflecting off the water? I'm, like, really embarrassed about this, honestly.", "voiceText": "Okay, so, um, I was at the lake last night, and I saw these lights? And I got really excited and called you? But then I realized I had my flashlight on, and I think it was just reflecting off the water? I'm, like, really embarrassed about this, honestly."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_lake_reflection_vern_neutral_2", "text": "Your flashlight reflecting off the water. That's actually a really common mistake. Good catch.", "voiceText": "Your flashlight reflecting off the water. That's actually a really common mistake. Good catch.", "mood": "neutral"},
+        {"id": "ufos_questionable_lake_reflection_vern_tired_2", "text": "Flashlight reflection... okay, good catch.", "voiceText": "Flashlight reflection... okay, good catch.", "mood": "tired"},
+        {"id": "ufos_questionable_lake_reflection_vern_energized_2", "text": "Your FLASHLIGHT reflecting off the water?! This is actually really COMMON! Good catch!!", "voiceText": "Your FLASHLIGHT reflecting off the water?! This is actually really COMMON! Good catch!!", "mood": "energized"},
+        {"id": "ufos_questionable_lake_reflection_vern_irritated_2", "text": "Flashlight reflection. Of course it was. Good catch.", "voiceText": "Flashlight reflection. Of course it was. Good catch.", "mood": "irritated"},
+        {"id": "ufos_questionable_lake_reflection_vern_gruff_2", "text": "Flashlight reflection. Fine, good catch.", "voiceText": "Flashlight reflection. Fine, good catch.", "mood": "gruff"},
+        {"id": "ufos_questionable_lake_reflection_vern_amused_2", "text": "Your FLASHLIGHT! This is great! Good catch!", "voiceText": "Your FLASHLIGHT! This is great! Good catch!", "mood": "amused"},
+        {"id": "ufos_questionable_lake_reflection_vern_focused_2", "text": "This is a well-documented optical phenomenon. Good catch on the self-identification.", "voiceText": "This is a well-documented optical phenomenon. Good catch on the self-identification.", "mood": "focused"},
+        {"id": "ufos_questionable_lake_reflection_vern_exhausted_2", "text": "... your flashlight reflecting off the water. that's actually a really common mistake. good catch.", "voiceText": "... your flashlight reflecting off the water. that's actually a really common mistake. good catch.", "mood": "exhausted"},
+        {"id": "ufos_questionable_lake_reflection_vern_depressed_2", "text": "Your flashlight reflecting off the water. That's actually a really common mistake. Good catch.", "voiceText": "Your flashlight reflecting off the water. That's actually a really common mistake. Good catch.", "mood": "depressed"},
+        {"id": "ufos_questionable_lake_reflection_vern_angry_2", "text": "YOUR FLASHLIGHT REFLECTING OFF THE WATER! THAT'S A REALLY COMMON MISTAKE! GOOD CATCH!", "voiceText": "YOUR FLASHLIGHT REFLECTING OFF THE WATER! THAT'S A REALLY COMMON MISTAKE! GOOD CATCH!", "mood": "angry"},
+        {"id": "ufos_questionable_lake_reflection_vern_frustrated_2", "text": "Ugh, your flashlight reflecting off the water. that's actually a really common mistake. good catch.", "voiceText": "Ugh, your flashlight reflecting off the water. that's actually a really common mistake. good catch.", "mood": "frustrated"},
+        {"id": "ufos_questionable_lake_reflection_vern_obsessive_2", "text": "Your flashlight reflecting off the water. That's actually a really common mistake. Good catch. You know what this means?", "voiceText": "Your flashlight reflecting off the water. That's actually a really common mistake. Good catch. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_lake_reflection_vern_manic_2", "text": "YOUR FLASHLIGHT REFLECTING OFF THE WATER. THAT'S A REALLY COMMON MISTAK. GOOD CATCH. APPRECIATE YOU CALLING IN.!!!", "voiceText": "YOUR FLASHLIGHT REFLECTING OFF THE WATER. THAT'S A REALLY COMMON MISTAK. GOOD CATCH. APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

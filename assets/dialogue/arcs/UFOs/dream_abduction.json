@@ -1,0 +1,77 @@
+{
+  "arcId": "dream_abduction",
+  "topic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Caller claims to have been abducted in a dream, describes classic abduction details",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Classic dream abduction story with hesitant caller, obvious fabrication",
+  "callerGender": "female",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_dream_abduction_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_fake_dream_abduction_vern_tired_1", "text": "Alright, you're on. Make it quick.", "voiceText": "Alright, you're on. Make it quick.", "mood": "tired"},
+        {"id": "ufos_fake_dream_abduction_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_fake_dream_abduction_vern_irritated_1", "text": "You're on. What's this about?", "voiceText": "You're on. What's this about?", "mood": "irritated"},
+        {"id": "ufos_fake_dream_abduction_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_fake_dream_abduction_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_fake_dream_abduction_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_fake_dream_abduction_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_fake_dream_abduction_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_fake_dream_abduction_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_fake_dream_abduction_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_fake_dream_abduction_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_dream_abduction_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_dream_abduction_caller_1", "text": "Okay, so, um, I think I was abducted last night? I mean, I was sleeping, right? And I woke up and I was in this room, and there were these beings, and they were doing tests on me? And I felt this really weird sensation, like, all over?", "voiceText": "Okay, so, um, I think I was abducted last night? I mean, I was sleeping, right? And I woke up and I was in this room, and there were these beings, and they were doing tests on me? And I felt this really weird sensation, like, all over?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_dream_abduction_vern_neutral_2", "text": "You were sleeping and woke up in a room with beings doing tests. Did you have any marks on your body?", "voiceText": "You were sleeping and woke up in a room with beings doing tests. Did you have any marks on your body?", "mood": "neutral"},
+        {"id": "ufos_fake_dream_abduction_vern_tired_2", "text": "Dream abduction... okay, any marks?", "voiceText": "Dream abduction... okay, any marks?", "mood": "tired"},
+        {"id": "ufos_fake_dream_abduction_vern_energized_2", "text": "You were ABDUCTED in your SLEEP?! This is AMAZING! Any marks?!", "voiceText": "You were ABDUCTED in your SLEEP?! This is AMAZING! Any marks?!", "mood": "energized"},
+        {"id": "ufos_fake_dream_abduction_vern_irritated_2", "text": "Dream abduction. Of course it was. Any marks?", "voiceText": "Dream abduction. Of course it was. Any marks?", "mood": "irritated"},
+        {"id": "ufos_fake_dream_abduction_vern_gruff_2", "text": "Dream abduction. Fine, I'll listen. Any marks?", "voiceText": "Dream abduction. Fine, I'll listen. Any marks?", "mood": "gruff"},
+        {"id": "ufos_fake_dream_abduction_vern_amused_2", "text": "ABDUCTED in your SLEEP! This is great! Any marks?!", "voiceText": "ABDUCTED in your SLEEP! This is great! Any marks?!", "mood": "amused"},
+        {"id": "ufos_fake_dream_abduction_vern_focused_2", "text": "Describe any physical evidence of this alleged abduction.", "voiceText": "Describe any physical evidence of this alleged abduction.", "mood": "focused"},
+        {"id": "ufos_fake_dream_abduction_vern_exhausted_2", "text": "... you were sleeping and woke up in a room with beings doing tests. did you have any marks on your body?", "voiceText": "... you were sleeping and woke up in a room with beings doing tests. did you have any marks on your body?", "mood": "exhausted"},
+        {"id": "ufos_fake_dream_abduction_vern_depressed_2", "text": "You were sleeping and woke up in a room with beings doing tests. Did you have any marks on your body?", "voiceText": "You were sleeping and woke up in a room with beings doing tests. Did you have any marks on your body?", "mood": "depressed"},
+        {"id": "ufos_fake_dream_abduction_vern_angry_2", "text": "YOU WERE SLEEPING AND WOKE UP IN A ROOM WITH BEINGS DOING TESTS! DID YOU HAVE ANY MARKS ON YOUR BODY?!", "voiceText": "YOU WERE SLEEPING AND WOKE UP IN A ROOM WITH BEINGS DOING TESTS! DID YOU HAVE ANY MARKS ON YOUR BODY?!", "mood": "angry"},
+        {"id": "ufos_fake_dream_abduction_vern_frustrated_2", "text": "Ugh, you were sleeping and woke up in a room with beings doing tests. did you have any marks on your body?", "voiceText": "Ugh, you were sleeping and woke up in a room with beings doing tests. did you have any marks on your body?", "mood": "frustrated"},
+        {"id": "ufos_fake_dream_abduction_vern_obsessive_2", "text": "You were sleeping and woke up in a room with beings doing tests. Did you have any marks on your body? You know what this means?", "voiceText": "You were sleeping and woke up in a room with beings doing tests. Did you have any marks on your body? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_dream_abduction_vern_manic_2", "text": "YOU WERE SLEEPING AND WOKE UP IN A ROOM WITH BEINGS DOING TESTS. DID YOU HAVE ANY MARKS ON YOUR BODY?!!!", "voiceText": "YOU WERE SLEEPING AND WOKE UP IN A ROOM WITH BEINGS DOING TESTS. DID YOU HAVE ANY MARKS ON YOUR BODY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_dream_abduction_caller_2", "text": "I, um, I think I have a mark on my arm? It's like a small circle? But I'm not sure if it's from the aliens or from, like, my watch? I don't know. I'm really confused about all this, you know?", "voiceText": "I, um, I think I have a mark on my arm? It's like a small circle? But I'm not sure if it's from the aliens or from, like, my watch? I don't know. I'm really confused about all this, you know?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_dream_abduction_vern_neutral_3", "text": "A mark from your watch. Look, you were dreaming. This is a common phenomenon. Next caller.", "voiceText": "A mark from your watch. Look, you were dreaming. This is a common phenomenon. Next caller.", "mood": "neutral"},
+        {"id": "ufos_fake_dream_abduction_vern_tired_3", "text": "Watch mark. You were dreaming. Classic. Next.", "voiceText": "Watch mark. You were dreaming. Classic. Next.", "mood": "tired"},
+        {"id": "ufos_fake_dream_abduction_vern_energized_3", "text": "A WATCH MARK?! This is INCREDIBLE! Wait, you were DREAMING! NEXT CALLER!", "voiceText": "A WATCH MARK?! This is INCREDIBLE! Wait, you were DREAMING! NEXT CALLER!", "mood": "energized"},
+        {"id": "ufos_fake_dream_abduction_vern_irritated_3", "text": "Watch mark. You were dreaming. Of course. Next caller.", "voiceText": "Watch mark. You were dreaming. Of course. Next caller.", "mood": "irritated"},
+        {"id": "ufos_fake_dream_abduction_vern_gruff_3", "text": "Watch mark. You were dreaming. That's the oldest story. Next.", "voiceText": "Watch mark. You were dreaming. That's the oldest story. Next.", "mood": "gruff"},
+        {"id": "ufos_fake_dream_abduction_vern_amused_3", "text": "A WATCH MARK! Classic DREAM ABDUCTION! I love this! NEXT!", "voiceText": "A WATCH MARK! Classic DREAM ABDUCTION! I love this! NEXT!", "mood": "amused"},
+        {"id": "ufos_fake_dream_abduction_vern_focused_3", "text": "This is a textbook example of a hypnopompic hallucination. Next caller.", "voiceText": "This is a textbook example of a hypnopompic hallucination. Next caller.", "mood": "focused"},
+        {"id": "ufos_fake_dream_abduction_vern_exhausted_3", "text": "... a mark from your watch. look, you were dreaming. this is a common phenomenon. next caller.", "voiceText": "... a mark from your watch. look, you were dreaming. this is a common phenomenon. next caller.", "mood": "exhausted"},
+        {"id": "ufos_fake_dream_abduction_vern_depressed_3", "text": "A mark from your watch. Look, you were dreaming. This is a common phenomenon. Next caller.", "voiceText": "A mark from your watch. Look, you were dreaming. This is a common phenomenon. Next caller.", "mood": "depressed"},
+        {"id": "ufos_fake_dream_abduction_vern_angry_3", "text": "A MARK FROM YOUR WATCH! YOU WERE DREAMING! THIS IS A COMMON PHENOMENON! NEXT CALLER!", "voiceText": "A MARK FROM YOUR WATCH! YOU WERE DREAMING! THIS IS A COMMON PHENOMENON! NEXT CALLER!", "mood": "angry"},
+        {"id": "ufos_fake_dream_abduction_vern_frustrated_3", "text": "Ugh, a mark from your watch. look, you were dreaming. next caller.", "voiceText": "Ugh, a mark from your watch. look, you were dreaming. next caller.", "mood": "frustrated"},
+        {"id": "ufos_fake_dream_abduction_vern_obsessive_3", "text": "A mark from your watch. Look, you were dreaming. This is a common phenomenon. Next caller. You know what this means?", "voiceText": "A mark from your watch. Look, you were dreaming. This is a common phenomenon. Next caller. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_dream_abduction_vern_manic_3", "text": "A MARK FROM YOUR WATCH! YOU WERE DREAMING! THIS IS A COMMON PHENOMENON! NEXT CALLER.!!!", "voiceText": "A MARK FROM YOUR WATCH! YOU WERE DREAMING! THIS IS A COMMON PHENOMENON! NEXT CALLER.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

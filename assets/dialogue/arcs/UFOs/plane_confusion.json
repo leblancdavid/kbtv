@@ -1,0 +1,53 @@
+{
+  "arcId": "plane_confusion",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Caller confused airplane landing lights for UFO, admits it might have been planes the whole time",
+  "callerPersonality": "cold_factual",
+  "arcNotes": "Caller presenting facts, realizes it might be planes, honest uncertainty",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_plane_confusion_vern_neutral_1", "text": "You're on the air. What did you witness?", "voiceText": "You're on the air. What did you witness?", "mood": "neutral"},
+        {"id": "ufos_questionable_plane_confusion_vern_tired_1", "text": "Alright, you're on. What'd you see?", "voiceText": "Alright, you're on. What'd you see?", "mood": "tired"},
+        {"id": "ufos_questionable_plane_confusion_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us what you witnessed!", "voiceText": "YOU ARE ON THE AIR! Tell us what you witnessed!", "mood": "energized"},
+        {"id": "ufos_questionable_plane_confusion_vern_irritated_1", "text": "You're on. Make it quick - what is it?", "voiceText": "You're on. Make it quick - what is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_plane_confusion_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_plane_confusion_vern_amused_1", "text": "Oh good, a caller! What did you see?", "voiceText": "Oh good, a caller! What did you see?", "mood": "amused"},
+        {"id": "ufos_questionable_plane_confusion_vern_focused_1", "text": "You're on. Describe what you observed from the beginning.", "voiceText": "You're on. Describe what you observed from the beginning.", "mood": "focused"},
+        {"id": "ufos_questionable_plane_confusion_vern_exhausted_1", "text": "... you're on the air. what did you witness?", "voiceText": "... you're on the air. what did you witness?", "mood": "exhausted"},
+        {"id": "ufos_questionable_plane_confusion_vern_depressed_1", "text": "You're on the air. What did you witness...", "voiceText": "You're on the air. What did you witness...", "mood": "depressed"},
+        {"id": "ufos_questionable_plane_confusion_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DID YOU WITNESS?!", "voiceText": "YOU'RE ON THE AIR! WHAT DID YOU WITNESS?!", "mood": "angry"},
+        {"id": "ufos_questionable_plane_confusion_vern_frustrated_1", "text": "Ugh, you're on the air. what did you witness?", "voiceText": "Ugh, you're on the air. what did you witness?", "mood": "frustrated"},
+        {"id": "ufos_questionable_plane_confusion_vern_obsessive_1", "text": "You're on the air. What did you witness? You know what this means?", "voiceText": "You're on the air. What did you witness? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_plane_confusion_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT DID YOU WITNESS?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT DID YOU WITNESS?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_plane_confusion_caller_1", "text": "I was stargazing last night around 9 PM. I saw two lights moving in unison, heading west. They were moving too slow to be satellites, too fast for a plane. But upon further analysis, I think they were aircraft on approach to the airport, approximately fifteen miles out.", "voiceText": "I was stargazing last night around 9 PM. I saw two lights moving in unison, heading west. They were moving too slow to be satellites, too fast for a plane. But upon further analysis, I think they were aircraft on approach to the airport, approximately fifteen miles out."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_plane_confusion_vern_neutral_2", "text": "Fifteen miles out on approach. That's probably what it was. Good catch on the second thought.", "voiceText": "Fifteen miles out on approach. That's probably what it was. Good catch on the second thought.", "mood": "neutral"},
+        {"id": "ufos_questionable_plane_confusion_vern_tired_2", "text": "Fifteen miles out... probably planes. Good you figured it out.", "voiceText": "Fifteen miles out... probably planes. Good you figured it out.", "mood": "tired"},
+        {"id": "ufos_questionable_plane_confusion_vern_energized_2", "text": "FIFTEEN MILES OUT! That's really interesting! But yeah, probably planes. Good analysis!", "voiceText": "FIFTEEN MILES OUT! That's really interesting! But yeah, probably planes. Good analysis!", "mood": "energized"},
+        {"id": "ufos_questionable_plane_confusion_vern_irritated_2", "text": "Fifteen miles out. Probably planes. Good you called back with the update.", "voiceText": "Fifteen miles out. Probably planes. Good you called back with the update.", "mood": "irritated"},
+        {"id": "ufos_questionable_plane_confusion_vern_gruff_2", "text": "Probably planes. Good you caught that. Thanks.", "voiceText": "Probably planes. Good you caught that. Thanks.", "mood": "gruff"},
+        {"id": "ufos_questionable_plane_confusion_vern_amused_2", "text": "FIFTEEN MILES OUT on approach! This is CUTE! Good you figured it out!", "voiceText": "FIFTEEN MILES OUT on approach! This is CUTE! Good you figured it out!", "mood": "amused"},
+        {"id": "ufos_questionable_plane_confusion_vern_focused_2", "text": "Aircraft on approach at fifteen miles. This is a common misidentification. Thank you for the follow-up analysis.", "voiceText": "Aircraft on approach at fifteen miles. This is a common misidentification. Thank you for the follow-up analysis.", "mood": "focused"},
+        {"id": "ufos_questionable_plane_confusion_vern_exhausted_2", "text": "... fifteen miles out on approach. that's probably what it was. good catch on the second thought.", "voiceText": "... fifteen miles out on approach. that's probably what it was. good catch on the second thought.", "mood": "exhausted"},
+        {"id": "ufos_questionable_plane_confusion_vern_depressed_2", "text": "Fifteen miles out on approach. That's probably what it was. Good catch on the second thought.", "voiceText": "Fifteen miles out on approach. That's probably what it was. Good catch on the second thought.", "mood": "depressed"},
+        {"id": "ufos_questionable_plane_confusion_vern_angry_2", "text": "FIFTEEN MILES OUT ON APPROACH! THAT'S PROBABLY WHAT IT WAS! GOOD CATCH ON THE SECOND THOUGHT!", "voiceText": "FIFTEEN MILES OUT ON APPROACH! THAT'S PROBABLY WHAT IT WAS! GOOD CATCH ON THE SECOND THOUGHT!", "mood": "angry"},
+        {"id": "ufos_questionable_plane_confusion_vern_frustrated_2", "text": "Ugh, fifteen miles out on approach. that's probably what it was. good catch on the second thought.", "voiceText": "Ugh, fifteen miles out on approach. that's probably what it was. good catch on the second thought.", "mood": "frustrated"},
+        {"id": "ufos_questionable_plane_confusion_vern_obsessive_2", "text": "Fifteen miles out on approach. That's probably what it was. Good catch on the second thought. You know what this means?", "voiceText": "Fifteen miles out on approach. That's probably what it was. Good catch on the second thought. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_plane_confusion_vern_manic_2", "text": "FIFTEEN MILES OUT ON APPROACH! THAT'S PROBABLY WHAT IT WAS! GOOD CATCH ON THE SECOND THOUGHT. APPRECIATE YOU CALLING IN.!!!", "voiceText": "FIFTEEN MILES OUT ON APPROACH! THAT'S PROBABLY WHAT IT WAS! GOOD CATCH ON THE SECOND THOUGHT. APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

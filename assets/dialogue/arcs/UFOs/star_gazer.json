@@ -1,0 +1,77 @@
+{
+  "arcId": "star_gazer",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Amateur astronomer excited about seeing satellite-like object making impossible maneuvers",
+  "callerPersonality": "enthusiastic_convert",
+  "arcNotes": "Enthusiastic amateur astronomer, probably a satellite or aircraft",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_star_gazer_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_questionable_star_gazer_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_questionable_star_gazer_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_questionable_star_gazer_vern_irritated_1", "text": "You're on. What is it?", "voiceText": "You're on. What is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_star_gazer_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_star_gazer_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_star_gazer_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_questionable_star_gazer_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_questionable_star_gazer_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_questionable_star_gazer_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_questionable_star_gazer_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_questionable_star_gazer_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_star_gazer_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_star_gazer_caller_1", "text": "Okay, so I'm an amateur astronomer, right? I've been doing this for fifteen years. Last night I was watching the sky and I saw this object that just moved... wrong. Like, it changed direction instantly. No satellites do that. No planes do that. I couldn't believe what I was seeing!", "voiceText": "Okay, so I'm an amateur astronomer, right? I've been doing this for fifteen years. Last night I was watching the sky and I saw this object that just moved... wrong. Like, it changed direction instantly. No satellites do that. No planes do that. I couldn't believe what I was seeing!"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_star_gazer_vern_neutral_2", "text": "Instant direction change. Could be a satellite or aircraft. How long did you watch it?", "voiceText": "Instant direction change. Could be a satellite or aircraft. How long did you watch it?", "mood": "neutral"},
+        {"id": "ufos_questionable_star_gazer_vern_tired_2", "text": "Instant direction change... okay, how long?", "voiceText": "Instant direction change... okay, how long?", "mood": "tired"},
+        {"id": "ufos_questionable_star_gazer_vern_energized_2", "text": "INSTANT DIRECTION CHANGE?! This is AMAZING! How long did you watch it?!", "voiceText": "INSTANT DIRECTION CHANGE?! This is AMAZING! How long did you watch it?!", "mood": "energized"},
+        {"id": "ufos_questionable_star_gazer_vern_irritated_2", "text": "Instant direction change. Of course it was. How long?", "voiceText": "Instant direction change. Of course it was. How long?", "mood": "irritated"},
+        {"id": "ufos_questionable_star_gazer_vern_gruff_2", "text": "Instant direction change. Fine, I'll listen. How long?", "voiceText": "Instant direction change. Fine, I'll listen. How long?", "mood": "gruff"},
+        {"id": "ufos_questionable_star_gazer_vern_amused_2", "text": "INSTANT DIRECTION CHANGE! This is fantastic! How long did you watch it?!", "voiceText": "INSTANT DIRECTION CHANGE! This is fantastic! How long did you watch it?!", "mood": "amused"},
+        {"id": "ufos_questionable_star_gazer_vern_focused_2", "text": "Describe the duration and trajectory of this anomalous object.", "voiceText": "Describe the duration and trajectory of this anomalous object.", "mood": "focused"},
+        {"id": "ufos_questionable_star_gazer_vern_exhausted_2", "text": "... instant direction change. could be a satellite or aircraft. how long did you watch it?", "voiceText": "... instant direction change. could be a satellite or aircraft. how long did you watch it?", "mood": "exhausted"},
+        {"id": "ufos_questionable_star_gazer_vern_depressed_2", "text": "Instant direction change. Could be a satellite or aircraft. How long did you watch it?", "voiceText": "Instant direction change. Could be a satellite or aircraft. How long did you watch it?", "mood": "depressed"},
+        {"id": "ufos_questionable_star_gazer_vern_angry_2", "text": "INSTANT DIRECTION CHANGE! COULD BE A SATELLITE OR AIRCRAFT! HOW LONG DID YOU WATCH IT?!", "voiceText": "INSTANT DIRECTION CHANGE! COULD BE A SATELLITE OR AIRCRAFT! HOW LONG DID YOU WATCH IT?!", "mood": "angry"},
+        {"id": "ufos_questionable_star_gazer_vern_frustrated_2", "text": "Ugh, instant direction change. could be a satellite or aircraft. how long did you watch it?", "voiceText": "Ugh, instant direction change. could be a satellite or aircraft. how long did you watch it?", "mood": "frustrated"},
+        {"id": "ufos_questionable_star_gazer_vern_obsessive_2", "text": "Instant direction change. Could be a satellite or aircraft. How long did you watch it? You know what this means?", "voiceText": "Instant direction change. Could be a satellite or aircraft. How long did you watch it? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_star_gazer_vern_manic_2", "text": "INSTANT DIRECTION CHANGE. COULD BE A SATELLITE. HOW LONG DID YOU WATCH IT?!!!", "voiceText": "INSTANT DIRECTION CHANGE. COULD BE A SATELLITE. HOW LONG DID YOU WATCH IT?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_star_gazer_caller_2", "text": "About twenty minutes? But now that you mention satellites, I looked it up after and there was a launch that night. It might have been a, like, a classified military satellite or something? But for twenty minutes, it was doing things I've never seen in all my years of stargazing!", "voiceText": "About twenty minutes? But now that you mention satellites, I looked it up after and there was a launch that night. It might have been a, like, a classified military satellite or something? But for twenty minutes, it was doing things I've never seen in all my years of stargazing!"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_star_gazer_vern_neutral_3", "text": "Satellite launch that night. Probably what you saw. Still cool though. Thanks for calling in.", "voiceText": "Satellite launch that night. Probably what you saw. Still cool though. Thanks for calling in.", "mood": "neutral"},
+        {"id": "ufos_questionable_star_gazer_vern_tired_3", "text": "Probably a satellite. But cool anyway. Thanks.", "voiceText": "Probably a satellite. But cool anyway. Thanks.", "mood": "tired"},
+        {"id": "ufos_questionable_star_gazer_vern_energized_3", "text": "SATELLITE LAUNCH that night! This is INTERESTING! Still cool! Thanks for calling!", "voiceText": "SATELLITE LAUNCH that night! This is INTERESTING! Still cool! Thanks for calling!", "mood": "energized"},
+        {"id": "ufos_questionable_star_gazer_vern_irritated_3", "text": "Probably a satellite. Cool sighting though. Next.", "voiceText": "Probably a satellite. Cool sighting though. Next.", "mood": "irritated"},
+        {"id": "ufos_questionable_star_gazer_vern_gruff_3", "text": "Probably a satellite. Cool sighting. Thanks.", "voiceText": "Probably a satellite. Cool sighting. Thanks.", "mood": "gruff"},
+        {"id": "ufos_questionable_star_gazer_vern_amused_3", "text": "SATELLITE LAUNCH! This is PERFECT! Cool sighting! Thanks for calling!", "voiceText": "SATELLITE LAUNCH! This is PERFECT! Cool sighting! Thanks for calling!", "mood": "amused"},
+        {"id": "ufos_questionable_star_gazer_vern_focused_3", "text": "Given the satellite launch, this is likely explainable. However, the observation is valuable. Thank you.", "voiceText": "Given the satellite launch, this is likely explainable. However, the observation is valuable. Thank you.", "mood": "focused"},
+        {"id": "ufos_questionable_star_gazer_vern_exhausted_3", "text": "... satellite launch that night. probably what you saw. still cool though. thanks for calling in.", "voiceText": "... satellite launch that night. probably what you saw. still cool though. thanks for calling in.", "mood": "exhausted"},
+        {"id": "ufos_questionable_star_gazer_vern_depressed_3", "text": "Satellite launch that night. Probably what you saw. Still cool though. Thanks for calling in.", "voiceText": "Satellite launch that night. Probably what you saw. Still cool though. Thanks for calling in.", "mood": "depressed"},
+        {"id": "ufos_questionable_star_gazer_vern_angry_3", "text": "SATELLITE LAUNCH THAT NIGHT! PROBABLY WHAT YOU SAW! STILL COOL! THANKS FOR CALLING IN!", "voiceText": "SATELLITE LAUNCH THAT NIGHT! PROBABLY WHAT YOU SAW! STILL COOL! THANKS FOR CALLING IN!", "mood": "angry"},
+        {"id": "ufos_questionable_star_gazer_vern_frustrated_3", "text": "Ugh, satellite launch that night. probably what you saw. still cool though. thanks for calling in.", "voiceText": "Ugh, satellite launch that night. probably what you saw. still cool though. thanks for calling in.", "mood": "frustrated"},
+        {"id": "ufos_questionable_star_gazer_vern_obsessive_3", "text": "Satellite launch that night. Probably what you saw. Still cool though. Thanks for calling in. You know what this means?", "voiceText": "Satellite launch that night. Probably what you saw. Still cool though. Thanks for calling in. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_star_gazer_vern_manic_3", "text": "SATELLITE LAUNCH THAT NIGHT! PROBABLY WHAT YOU SAW! STILL COOL! APPRECIATE YOU CALLING IN.!!!", "voiceText": "SATELLITE LAUNCH THAT NIGHT! PROBABLY WHAT YOU SAW! STILL COOL! APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "arcId": "newspaper_photo",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Caller found old newspaper photo with strange object in background, excited about discovery",
+  "callerPersonality": "enthusiastic_convert",
+  "arcNotes": "Enthusiastic caller with old photo, probably just a defect or common object",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_newspaper_photo_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_questionable_newspaper_photo_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_questionable_newspaper_photo_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_questionable_newspaper_photo_vern_irritated_1", "text": "You're on. What is it?", "voiceText": "You're on. What is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_newspaper_photo_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_newspaper_photo_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_newspaper_photo_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_questionable_newspaper_photo_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_questionable_newspaper_photo_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_questionable_newspaper_photo_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_questionable_newspaper_photo_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_questionable_newspaper_photo_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_newspaper_photo_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_newspaper_photo_caller_1", "text": "Okay, so I was going through my grandma's attic, right? And I found this old newspaper from 1987. And there's a photo of a parade in the background, and there's this object in the sky! It's like, disc-shaped! And nobody ever noticed this before! I scanned it and everything!", "voiceText": "Okay, so I was going through my grandma's attic, right? And I found this old newspaper from 1987. And there's a photo of a parade in the background, and there's this object in the sky! It's like, disc-shaped! And nobody ever noticed this before! I scanned it and everything!"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_newspaper_photo_vern_neutral_2", "text": "A disc-shaped object in a 1987 newspaper photo. Could be a lens flare or a photographic defect. What does it look like?", "voiceText": "A disc-shaped object in a 1987 newspaper photo. Could be a lens flare or a photographic defect. What does it look like?", "mood": "neutral"},
+        {"id": "ufos_questionable_newspaper_photo_vern_tired_2", "text": "Disc in an old photo... okay, could be a lens flare.", "voiceText": "Disc in an old photo... okay, could be a lens flare.", "mood": "tired"},
+        {"id": "ufos_questionable_newspaper_photo_vern_energized_2", "text": "A DISC-SHAPED OBJECT in a 1987 newspaper?! This is AMAZING! Could be a lens flare though!", "voiceText": "A DISC-SHAPED OBJECT in a 1987 newspaper?! This is AMAZING! Could be a lens flare though!", "mood": "energized"},
+        {"id": "ufos_questionable_newspaper_photo_vern_irritated_2", "text": "Disc-shaped object. Of course it was. Could be lens flare.", "voiceText": "Disc-shaped object. Of course it was. Could be lens flare.", "mood": "irritated"},
+        {"id": "ufos_questionable_newspaper_photo_vern_gruff_2", "text": "Disc-shaped object. Fine, could be lens flare.", "voiceText": "Disc-shaped object. Fine, could be lens flare.", "mood": "gruff"},
+        {"id": "ufos_questionable_newspaper_photo_vern_amused_2", "text": "A DISC in a 1987 newspaper! This is fantastic! Could be a lens flare!", "voiceText": "A DISC in a 1987 newspaper! This is fantastic! Could be a lens flare!", "mood": "amused"},
+        {"id": "ufos_questionable_newspaper_photo_vern_focused_2", "text": "Describe the object's characteristics in the photograph.", "voiceText": "Describe the object's characteristics in the photograph.", "mood": "focused"},
+        {"id": "ufos_questionable_newspaper_photo_vern_exhausted_2", "text": "... a disc-shaped object in a 1987 newspaper photo. could be a lens flare or a photographic defect.", "voiceText": "... a disc-shaped object in a 1987 newspaper photo. could be a lens flare or a photographic defect.", "mood": "exhausted"},
+        {"id": "ufos_questionable_newspaper_photo_vern_depressed_2", "text": "A disc-shaped object in a 1987 newspaper photo. Could be a lens flare or a photographic defect.", "voiceText": "A disc-shaped object in a 1987 newspaper photo. Could be a lens flare or a photographic defect.", "mood": "depressed"},
+        {"id": "ufos_questionable_newspaper_photo_vern_angry_2", "text": "A DISC-SHAPED OBJECT IN A 1987 NEWSPAPER PHOTO! COULD BE A LENS FLARE OR A PHOTOGRAPHIC DEFECT!", "voiceText": "A DISC-SHAPED OBJECT IN A 1987 NEWSPAPER PHOTO! COULD BE A LENS FLARE OR A PHOTOGRAPHIC DEFECT!", "mood": "angry"},
+        {"id": "ufos_questionable_newspaper_photo_vern_frustrated_2", "text": "Ugh, a disc-shaped object in a 1987 newspaper photo. could be a lens flare or a photographic defect.", "voiceText": "Ugh, a disc-shaped object in a 1987 newspaper photo. could be a lens flare or a photographic defect.", "mood": "frustrated"},
+        {"id": "ufos_questionable_newspaper_photo_vern_obsessive_2", "text": "A disc-shaped object in a 1987 newspaper photo. Could be a lens flare or a photographic defect. You know what this means?", "voiceText": "A disc-shaped object in a 1987 newspaper photo. Could be a lens flare or a photographic defect. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_newspaper_photo_vern_manic_2", "text": "A DISC-SHAPED OBJECT IN A 1987 NEWSPAPER PHOTO. COULD BE A LENS FLARE. APPRECIATE YOU CALLING IN.!!!", "voiceText": "A DISC-SHAPED OBJECT IN A 1987 NEWSPAPER PHOTO. COULD BE A LENS FLARE. APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_newspaper_photo_caller_2", "text": "I mean, now that you mention lens flare, it does kind of look like that? Like, I didn't even think about that possibility. Man, I've been so excited about this for like a week. I feel kind of silly now, honestly.", "voiceText": "I mean, now that you mention lens flare, it does kind of look like that? Like, I didn't even think about that possibility. Man, I've been so excited about this for like a week. I feel kind of silly now, honestly."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_newspaper_photo_vern_neutral_3", "text": "Lens flare. It happens. The excitement is the fun part though. Thanks for calling in.", "voiceText": "Lens flare. It happens. The excitement is the fun part though. Thanks for calling in.", "mood": "neutral"},
+        {"id": "ufos_questionable_newspaper_photo_vern_tired_3", "text": "Probably lens flare. Happens. Thanks.", "voiceText": "Probably lens flare. Happens. Thanks.", "mood": "tired"},
+        {"id": "ufos_questionable_newspaper_photo_vern_energized_3", "text": "It was probably a LENS FLARE! But the excitement was GREAT! Thanks for calling!", "voiceText": "It was probably a LENS FLARE! But the excitement was GREAT! Thanks for calling!", "mood": "energized"},
+        {"id": "ufos_questionable_newspaper_photo_vern_irritated_3", "text": "Lens flare. Classic. Happens. Next.", "voiceText": "Lens flare. Classic. Happens. Next.", "mood": "irritated"},
+        {"id": "ufos_questionable_newspaper_photo_vern_gruff_3", "text": "Probably lens flare. Happens. Thanks.", "voiceText": "Probably lens flare. Happens. Thanks.", "mood": "gruff"},
+        {"id": "ufos_questionable_newspaper_photo_vern_amused_3", "text": "It was LENS FLARE! But your EXCITEMENT was perfect! Thanks for calling!", "voiceText": "It was LENS FLARE! But your EXCITEMENT was perfect! Thanks for calling!", "mood": "amused"},
+        {"id": "ufos_questionable_newspaper_photo_vern_focused_3", "text": "This is a common photographic artifact. The enthusiasm for investigation is commendable though. Thank you.", "voiceText": "This is a common photographic artifact. The enthusiasm for investigation is commendable though. Thank you.", "mood": "focused"},
+        {"id": "ufos_questionable_newspaper_photo_vern_exhausted_3", "text": "... lens flare. it happens. the excitement is the fun part though. thanks for calling in.", "voiceText": "... lens flare. it happens. the excitement is the fun part though. thanks for calling in.", "mood": "exhausted"},
+        {"id": "ufos_questionable_newspaper_photo_vern_depressed_3", "text": "Lens flare. It happens. The excitement is the fun part though. Thanks for calling in.", "voiceText": "Lens flare. It happens. The excitement is the fun part though. Thanks for calling in.", "mood": "depressed"},
+        {"id": "ufos_questionable_newspaper_photo_vern_angry_3", "text": "LENS FLARE! IT HAPPENS! THE EXCITEMENT WAS THE FUN PART! THANKS FOR CALLING IN!", "voiceText": "LENS FLARE! IT HAPPENS! THE EXCITEMENT WAS THE FUN PART! THANKS FOR CALLING IN!", "mood": "angry"},
+        {"id": "ufos_questionable_newspaper_photo_vern_frustrated_3", "text": "Ugh, lens flare. it happens. the excitement is the fun part though. thanks for calling in.", "voiceText": "Ugh, lens flare. it happens. the excitement is the fun part though. thanks for calling in.", "mood": "frustrated"},
+        {"id": "ufos_questionable_newspaper_photo_vern_obsessive_3", "text": "Lens flare. It happens. The excitement is the fun part though. Thanks for calling in. You know what this means?", "voiceText": "Lens flare. It happens. The excitement is the fun part though. Thanks for calling in. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_newspaper_photo_vern_manic_3", "text": "LENS FLARE! IT HAPPENS! APPRECIATE YOU CALLING IN.!!!", "voiceText": "LENS FLARE! IT HAPPENS! APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

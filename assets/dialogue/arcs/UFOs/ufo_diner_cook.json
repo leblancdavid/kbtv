@@ -1,0 +1,77 @@
+{
+  "arcId": "ufo_diner_cook",
+  "topic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Diner cook sees mysterious light over dumpster",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Simple fake story with diner worker",
+  "callerGender": "female",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_diner_cook_vern_neutral_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "neutral"},
+        {"id": "ufos_fake_diner_cook_vern_tired_1", "text": "Alright, you're on.", "voiceText": "Alright, you're on.", "mood": "tired"},
+        {"id": "ufos_fake_diner_cook_vern_energized_1", "text": "YOU ARE ON KBTV!", "voiceText": "YOU ARE ON KBTV!", "mood": "energized"},
+        {"id": "ufos_fake_diner_cook_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_fake_diner_cook_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_fake_diner_cook_vern_amused_1", "text": "Oh, a caller! What's your story?", "voiceText": "Oh, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_fake_diner_cook_vern_focused_1", "text": "You're on the air.", "voiceText": "You're on the air.", "mood": "focused"},
+        {"id": "ufos_fake_diner_cook_vern_exhausted_1", "text": "... you're on.", "voiceText": "... you're on.", "mood": "exhausted"},
+        {"id": "ufos_fake_diner_cook_vern_depressed_1", "text": "KBTV. Go ahead.", "voiceText": "KBTV. Go ahead.", "mood": "depressed"},
+        {"id": "ufos_fake_diner_cook_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_fake_diner_cook_vern_frustrated_1", "text": "Ugh, you're on.", "voiceText": "Ugh, you're on.", "mood": "frustrated"},
+        {"id": "ufos_fake_diner_cook_vern_obsessive_1", "text": "You're on KBTV. Tell me your experience.", "voiceText": "You're on KBTV. Tell me your experience.", "mood": "obsessive"},
+        {"id": "ufos_fake_diner_cook_vern_manic_1", "text": "KBTV!!!", "voiceText": "KBTV!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_diner_cook_caller_1", "text": "This is Rosa. I work the late shift at Mel's Diner. You know that parking lot behind the diner? The one by the dumpsters?", "voiceText": "This is Rosa. I work the late shift at Mel's Diner. You know that parking lot behind the diner? The one by the dumpsters?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_diner_cook_vern_neutral_2", "text": "I know it. What about it?", "voiceText": "I know it. What about it?", "mood": "neutral"},
+        {"id": "ufos_fake_diner_cook_vern_tired_2", "text": "The parking lot. Okay.", "voiceText": "The parking lot. Okay.", "mood": "tired"},
+        {"id": "ufos_fake_diner_cook_vern_energized_2", "text": "The diner parking lot! Tell us what happened!", "voiceText": "The diner parking lot! Tell us what happened!", "mood": "energized"},
+        {"id": "ufos_fake_diner_cook_vern_irritated_2", "text": "The parking lot. Right. What?", "voiceText": "The parking lot. Right. What?", "mood": "irritated"},
+        {"id": "ufos_fake_diner_cook_vern_gruff_2", "text": "What about it?", "voiceText": "What about it?", "mood": "gruff"},
+        {"id": "ufos_fake_diner_cook_vern_amused_2", "text": "The parking lot! What's happening?", "voiceText": "The parking lot! What's happening?", "mood": "amused"},
+        {"id": "ufos_fake_diner_cook_vern_focused_2", "text": "Specify what occurred.", "voiceText": "Specify what occurred.", "mood": "focused"},
+        {"id": "ufos_fake_diner_cook_vern_exhausted_2", "text": "... parking lot. okay.", "voiceText": "... parking lot. okay.", "mood": "exhausted"},
+        {"id": "ufos_fake_diner_cook_vern_depressed_2", "text": "What about it?", "voiceText": "What about it?", "mood": "depressed"},
+        {"id": "ufos_fake_diner_cook_vern_angry_2", "text": "WHAT ABOUT IT?!", "voiceText": "WHAT ABOUT IT?!", "mood": "angry"},
+        {"id": "ufos_fake_diner_cook_vern_frustrated_2", "text": "Ugh, what?", "voiceText": "Ugh, what?", "mood": "frustrated"},
+        {"id": "ufos_fake_diner_cook_vern_obsessive_2", "text": "This could be significant. What happened?", "voiceText": "This could be significant. What happened?", "mood": "obsessive"},
+        {"id": "ufos_fake_diner_cook_vern_manic_2", "text": "PARKING LOT!!!", "voiceText": "PARKING LOT!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_diner_cook_caller_2", "text": "I went out to take out the trash and I saw this light, hovering right over the dumpster. I thought it was somebody's car headlights but there was no car. It just sat there for like five minutes.", "voiceText": "I went out to take out the trash and I saw this light, hovering right over the dumpster. I thought it was somebody's car headlights but there was no car. It just sat there for like five minutes."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_diner_cook_vern_neutral_3", "text": "And then it left?", "voiceText": "And then it left?", "mood": "neutral"},
+        {"id": "ufos_fake_diner_cook_vern_tired_3", "text": "It left?", "voiceText": "It left?", "mood": "tired"},
+        {"id": "ufos_fake_diner_cook_vern_energized_3", "text": "It LEFT?! Tell us more!", "voiceText": "It LEFT?! Tell us more!", "mood": "energized"},
+        {"id": "ufos_fake_diner_cook_vern_irritated_3", "text": "It left. Right.", "voiceText": "It left. Right.", "mood": "irritated"},
+        {"id": "ufos_fake_diner_cook_vern_gruff_3", "text": "And then?", "voiceText": "And then?", "mood": "gruff"},
+        {"id": "ufos_fake_diner_cook_vern_amused_3", "text": "A hovering light! What happened?", "voiceText": "A hovering light! What happened?", "mood": "amused"},
+        {"id": "ufos_fake_diner_cook_vern_focused_3", "text": "Describe the conclusion of the event.", "voiceText": "Describe the conclusion of the event.", "mood": "focused"},
+        {"id": "ufos_fake_diner_cook_vern_exhausted_3", "text": "... left. okay.", "voiceText": "... left. okay.", "mood": "exhausted"},
+        {"id": "ufos_fake_diner_cook_vern_depressed_3", "text": "And then it left?", "voiceText": "And then it left?", "mood": "depressed"},
+        {"id": "ufos_fake_diner_cook_vern_angry_3", "text": "IT LEFT?!", "voiceText": "IT LEFT?!", "mood": "angry"},
+        {"id": "ufos_fake_diner_cook_vern_frustrated_3", "text": "Ugh, it left.", "voiceText": "Ugh, it left.", "mood": "frustrated"},
+        {"id": "ufos_fake_diner_cook_vern_obsessive_3", "text": "This is significant. What was the conclusion?", "voiceText": "This is significant. What was the conclusion?", "mood": "obsessive"},
+        {"id": "ufos_fake_diner_cook_vern_manic_3", "text": "LEFT!!!", "voiceText": "LEFT!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

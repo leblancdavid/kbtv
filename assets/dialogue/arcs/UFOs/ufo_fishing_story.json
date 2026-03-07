@@ -1,0 +1,77 @@
+{
+  "arcId": "ufo_fishing_story",
+  "topic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Caller claims UFO abducted his fishing bobber at Miller's Pond",
+  "callerPersonality": "enthusiastic_convert",
+  "arcNotes": "Over-the-top fake story with excited caller and ridiculous bobber abduction claim",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_fishing_story_vern_neutral_1", "text": "KBTV, Vern here, you're on the air.", "voiceText": "KBTV, Vern here, you're on the air.", "mood": "neutral"},
+        {"id": "ufos_fake_fishing_story_vern_tired_1", "text": "Alright, you're on. What's your story?", "voiceText": "Alright, you're on. What's your story?", "mood": "tired"},
+        {"id": "ufos_fake_fishing_story_vern_energized_1", "text": "YOU ARE ON KBTV! Let's hear it!", "voiceText": "YOU ARE ON KBTV! Let's hear it!", "mood": "energized"},
+        {"id": "ufos_fake_fishing_story_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_fake_fishing_story_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_fake_fishing_story_vern_amused_1", "text": "Oh, a caller! What's your story?", "voiceText": "Oh, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_fake_fishing_story_vern_focused_1", "text": "You're on the air. State your experience.", "voiceText": "You're on the air. State your experience.", "mood": "focused"},
+        {"id": "ufos_fake_fishing_story_vern_exhausted_1", "text": "... you're on the air. go ahead.", "voiceText": "... you're on the air. go ahead.", "mood": "exhausted"},
+        {"id": "ufos_fake_fishing_story_vern_depressed_1", "text": "KBTV, Vern here. What's your story?", "voiceText": "KBTV, Vern here. What's your story?", "mood": "depressed"},
+        {"id": "ufos_fake_fishing_story_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_fake_fishing_story_vern_frustrated_1", "text": "Ugh, you're on. What is it?", "voiceText": "Ugh, you're on. What is it?", "mood": "frustrated"},
+        {"id": "ufos_fake_fishing_story_vern_obsessive_1", "text": "You're on KBTV. This could be important - tell me everything.", "voiceText": "You're on KBTV. This could be important - tell me everything.", "mood": "obsessive"},
+        {"id": "ufos_fake_fishing_story_vern_manic_1", "text": "KBTV!!! GO!!!", "voiceText": "KBTV!!! GO!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_fishing_story_caller_1", "text": "Vern! Oh my god, Vern, I was fishing at Miller's Pond last night and this thing came down, I'm talking RIGHT DOWN to the water, and it had like... beams!", "voiceText": "Vern! Oh my god, Vern, I was fishing at Miller's Pond last night and this thing came down, I'm talking RIGHT DOWN to the water, and it had like... beams!"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_fishing_story_vern_neutral_2", "text": "Beams? Like... tractor beams?", "voiceText": "Beams? Like... tractor beams?", "mood": "neutral"},
+        {"id": "ufos_fake_fishing_story_vern_tired_2", "text": "Beams... okay. Tractor beams?", "voiceText": "Beams... okay. Tractor beams?", "mood": "tired"},
+        {"id": "ufos_fake_fishing_story_vern_energized_2", "text": "BEAMS?! Like in the movies?! This is AMAZING!", "voiceText": "BEAMS?! Like in the movies?! This is AMAZING!", "mood": "energized"},
+        {"id": "ufos_fake_fishing_story_vern_irritated_2", "text": "Tractor beams. Right. Of course.", "voiceText": "Tractor beams. Right. Of course.", "mood": "irritated"},
+        {"id": "ufos_fake_fishing_story_vern_gruff_2", "text": "Beams. Go on.", "voiceText": "Beams. Go on.", "mood": "gruff"},
+        {"id": "ufos_fake_fishing_story_vern_amused_2", "text": "Oh, TRACTOR BEAMS! This is great! Go on!", "voiceText": "Oh, TRACTOR BEAMS! This is great! Go on!", "mood": "amused"},
+        {"id": "ufos_fake_fishing_story_vern_focused_2", "text": "Describe the beam characteristics and subsequent events.", "voiceText": "Describe the beam characteristics and subsequent events.", "mood": "focused"},
+        {"id": "ufos_fake_fishing_story_vern_exhausted_2", "text": "... beams. okay.", "voiceText": "... beams. okay.", "mood": "exhausted"},
+        {"id": "ufos_fake_fishing_story_vern_depressed_2", "text": "Tractor beams. What happened?", "voiceText": "Tractor beams. What happened?", "mood": "depressed"},
+        {"id": "ufos_fake_fishing_story_vern_angry_2", "text": "TRACTOR BEAMS! WHAT HAPPENED?!", "voiceText": "TRACTOR BEAMS! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_fake_fishing_story_vern_frustrated_2", "text": "Ugh, beams. What happened?", "voiceText": "Ugh, beams. What happened?", "mood": "frustrated"},
+        {"id": "ufos_fake_fishing_story_vern_obsessive_2", "text": "Tractor beams. This is significant. What happened next?", "voiceText": "Tractor beams. This is significant. What happened next?", "mood": "obsessive"},
+        {"id": "ufos_fake_fishing_story_vern_manic_2", "text": "BEAMS!!! TELL ME EVERYTHING!!!", "voiceText": "BEAMS!!! TELL ME EVERYTHING!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_fishing_story_caller_2", "text": "GREEN ones, Vern! Green beams! And my bobber, it just... it floated up, like... like it was being pulled, and then it disappeared!", "voiceText": "GREEN ones, Vern! Green beams! And my bobber, it just... it floated up, like... like it was being pulled, and then it disappeared!"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_fishing_story_vern_neutral_3", "text": "So let me get this straight... a UFO abducted your fishing bobber.", "voiceText": "So let me get this straight... a UFO abducted your fishing bobber.", "mood": "neutral"},
+        {"id": "ufos_fake_fishing_story_vern_tired_3", "text": "Right... green beams, abducted your bobber. Classic.", "voiceText": "Right... green beams, abducted your bobber. Classic.", "mood": "tired"},
+        {"id": "ufos_fake_fishing_story_vern_energized_3", "text": "A UFO ABDUCTED YOUR FISHING BOBBER! This is HILARIOUS! Next!", "voiceText": "A UFO ABDUCTED YOUR FISHING BOBBER! This is HILARIOUS! Next!", "mood": "energized"},
+        {"id": "ufos_fake_fishing_story_vern_irritated_3", "text": "A UFO took your bobber. Sure it did. Next caller.", "voiceText": "A UFO took your bobber. Sure it did. Next caller.", "mood": "irritated"},
+        {"id": "ufos_fake_fishing_story_vern_gruff_3", "text": "Abducted your bobber. That's a new one. Next.", "voiceText": "Abducted your bobber. That's a new one. Next.", "mood": "gruff"},
+        {"id": "ufos_fake_fishing_story_vern_amused_3", "text": "GREEN BEAMS and ABDUCTED BOBBERS! This is the best call tonight! NEXT!", "voiceText": "GREEN BEAMS and ABDUCTED BOBBERS! This is the best call tonight! NEXT!", "mood": "amused"},
+        {"id": "ufos_fake_fishing_story_vern_focused_3", "text": "A UFO abducted your fishing bobber using green tractor beams. This narrative lacks credibility. Next.", "voiceText": "A UFO abducted your fishing bobber using green tractor beams. This narrative lacks credibility. Next.", "mood": "focused"},
+        {"id": "ufos_fake_fishing_story_vern_exhausted_3", "text": "... abducted your bobber. right. next caller.", "voiceText": "... abducted your bobber. right. next caller.", "mood": "exhausted"},
+        {"id": "ufos_fake_fishing_story_vern_depressed_3", "text": "A UFO abducted your fishing bobber. Next caller.", "voiceText": "A UFO abducted your fishing bobber. Next caller.", "mood": "depressed"},
+        {"id": "ufos_fake_fishing_story_vern_angry_3", "text": "A UFO ABDUCTED YOUR BOBBER! NEXT CALLER!", "voiceText": "A UFO ABDUCTED YOUR BOBBER! NEXT CALLER!", "mood": "angry"},
+        {"id": "ufos_fake_fishing_story_vern_frustrated_3", "text": "Ugh, abducted bobber. next caller.", "voiceText": "Ugh, abducted bobber. next caller.", "mood": "frustrated"},
+        {"id": "ufos_fake_fishing_story_vern_obsessive_3", "text": "The abduction of fishing equipment by unknown craft. You know what this means? Next caller.", "voiceText": "The abduction of fishing equipment by unknown craft. You know what this means? Next caller.", "mood": "obsessive"},
+        {"id": "ufos_fake_fishing_story_vern_manic_3", "text": "GREEN BEAMS!!! ABDUCTED BOBBER!!! NEXT CALLER!!!", "voiceText": "GREEN BEAMS!!! ABDUCTED BOBBER!!! NEXT CALLER!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

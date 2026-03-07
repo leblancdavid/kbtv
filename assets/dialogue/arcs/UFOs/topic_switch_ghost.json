@@ -1,0 +1,78 @@
+{
+  "arcId": "topic_switch_ghost",
+  "topic": "Ghosts",
+  "claimedTopic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Caller claimed UFO sighting during screening but actually wants to talk about seeing a ghost in their house",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Topic-switcher: claimed UFOs but actually ghost sighting, nervous caller, admits the deception",
+  "callerGender": "female",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_topic_switch_ghost_vern_neutral_1", "text": "You're on. You said you had something about lights in the sky?", "voiceText": "You're on. You said you had something about lights in the sky?", "mood": "neutral"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_tired_1", "text": "Alright, you're on. Something about lights?", "voiceText": "Alright, you're on. Something about lights?", "mood": "tired"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us about those lights!", "voiceText": "YOU ARE ON THE AIR! Tell us about those lights!", "mood": "energized"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_irritated_1", "text": "You're on. What about lights in the sky?", "voiceText": "You're on. What about lights in the sky?", "mood": "irritated"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_gruff_1", "text": "You're on. So, lights?", "voiceText": "You're on. So, lights?", "mood": "gruff"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_amused_1", "text": "Oh good, a caller! What about lights?", "voiceText": "Oh good, a caller! What about lights?", "mood": "amused"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_focused_1", "text": "You're on. Describe the lights in the sky.", "voiceText": "You're on. Describe the lights in the sky.", "mood": "focused"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_exhausted_1", "text": "... you're on. you said you had something about lights in the sky?", "voiceText": "... you're on. you said you had something about lights in the sky?", "mood": "exhausted"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_depressed_1", "text": "You're on. You said you had something about lights in the sky...", "voiceText": "You're on. You said you had something about lights in the sky...", "mood": "depressed"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_angry_1", "text": "YOU'RE ON! WHAT ABOUT LIGHTS IN THE SKY?!", "voiceText": "YOU'RE ON! WHAT ABOUT LIGHTS IN THE SKY?!", "mood": "angry"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_frustrated_1", "text": "Ugh, you're on. you said you had something about lights in the sky?", "voiceText": "Ugh, you're on. you said you had something about lights in the sky?", "mood": "frustrated"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_obsessive_1", "text": "You're on. You said you had something about lights in the sky? You know what this means?", "voiceText": "You're on. You said you had something about lights in the sky? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_manic_1", "text": "YOU'RE ON. WHAT ABOUT LIGHTS IN THE SKY?!!!", "voiceText": "YOU'RE ON. WHAT ABOUT LIGHTS IN THE SKY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_topic_switch_ghost_caller_1", "text": "I... I said that to get through, Vern. That's not what I saw. It's actually way scarier. I've been seeing this figure in my hallway at night. Every night this week. It just stands there. Looking at me.", "voiceText": "I... I said that to get through, Vern. That's not what I saw. It's actually way scarier. I've been seeing this figure in my hallway at night. Every night this week. It just stands there. Looking at me."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_topic_switch_ghost_vern_neutral_2", "text": "So this is about a figure in your hallway. A ghost?", "voiceText": "So this is about a figure in your hallway. A ghost?", "mood": "neutral"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_tired_2", "text": "A figure in your hallway... okay, a ghost?", "voiceText": "A figure in your hallway... okay, a ghost?", "mood": "tired"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_energized_2", "text": "A FIGURE in your hallway?! This is AMAZING! A ghost?!", "voiceText": "A FIGURE in your hallway?! This is AMAZING! A ghost?!", "mood": "energized"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_irritated_2", "text": "A figure in your hallway. Of course it was. A ghost?", "voiceText": "A figure in your hallway. Of course it was. A ghost?", "mood": "irritated"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_gruff_2", "text": "A figure. Fine, I'll listen. A ghost?", "voiceText": "A figure. Fine, I'll listen. A ghost?", "mood": "gruff"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_amused_2", "text": "A FIGURE! This is fantastic! A ghost?!", "voiceText": "A FIGURE! This is fantastic! A ghost?!", "mood": "amused"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_focused_2", "text": "A figure in your hallway. Are you describing a paranormal entity?", "voiceText": "A figure in your hallway. Are you describing a paranormal entity?", "mood": "focused"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_exhausted_2", "text": "... so this is about a figure in your hallway. a ghost?", "voiceText": "... so this is about a figure in your hallway. a ghost?", "mood": "exhausted"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_depressed_2", "text": "So this is about a figure in your hallway. A ghost?", "voiceText": "So this is about a figure in your hallway. A ghost?", "mood": "depressed"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_angry_2", "text": "SO THIS IS ABOUT A FIGURE IN YOUR HALLWAY! A GHOST?!", "voiceText": "SO THIS IS ABOUT A FIGURE IN YOUR HALLWAY! A GHOST?!", "mood": "angry"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_frustrated_2", "text": "Ugh, so this is about a figure in your hallway. a ghost?", "voiceText": "Ugh, so this is about a figure in your hallway. a ghost?", "mood": "frustrated"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_obsessive_2", "text": "So this is about a figure in your hallway. A ghost? You know what this means?", "voiceText": "So this is about a figure in your hallway. A ghost? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_manic_2", "text": "SO THIS IS ABOUT A FIGURE IN YOUR HALLWAY. A GHOST?!!!", "voiceText": "SO THIS IS ABOUT A FIGURE IN YOUR HALLWAY. A GHOST?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_topic_switch_ghost_caller_2", "text": "I know, I know, I lied to get on the air. I'm sorry. But Vern, it's real. I have a camera in the hallway and I've got footage. It's not my imagination. Something is in my house.", "voiceText": "I know, I know, I lied to get on the air. I'm sorry. But Vern, it's real. I have a camera in the hallway and I've got footage. It's not my imagination. Something is in my house."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_topic_switch_ghost_vern_neutral_3", "text": "Look, you shouldn't have lied to get past screening. But if you've got footage, send it in. We cover ghosts on this show too. Just don't waste our time next time. Thanks for calling.", "voiceText": "Look, you shouldn't have lied to get past screening. But if you've got footage, send it in. We cover ghosts on this show too. Just don't waste our time next time. Thanks for calling.", "mood": "neutral"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_tired_3", "text": "Don't lie to get on the show. Send the footage if you have it. We do ghosts too. Thanks.", "voiceText": "Don't lie to get on the show. Send the footage if you have it. We do ghosts too. Thanks.", "mood": "tired"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_energized_3", "text": "You LIED to get on the show! But you have FOOTAGE?! Send it! We love this! NEXT TIME JUST BE HONEST!", "voiceText": "You LIED to get on the show! But you have FOOTAGE?! Send it! We love this! NEXT TIME JUST BE HONEST!", "mood": "energized"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_irritated_3", "text": "You lied to get on. Classic. If you have footage, send it. Next caller.", "voiceText": "You lied to get on. Classic. If you have footage, send it. Next caller.", "mood": "irritated"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_gruff_3", "text": "Don't lie to get on. Send footage if you have it. Thanks.", "voiceText": "Don't lie to get on. Send footage if you have it. Thanks.", "mood": "gruff"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_amused_3", "text": "You LIED! This is HILARIOUS! But you have footage! Send it! We love this!", "voiceText": "You LIED! This is HILARIOUS! But you have footage! Send it! We love this!", "mood": "amused"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_focused_3", "text": "Deception to access the show is problematic. However, if you have documented evidence, please submit it. We do cover multiple paranormal topics. Thank you.", "voiceText": "Deception to access the show is problematic. However, if you have documented evidence, please submit it. We do cover multiple paranormal topics. Thank you.", "mood": "focused"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_exhausted_3", "text": "... look, you shouldn't have lied to get past screening. but if you've got footage, send it in. thanks for calling.", "voiceText": "... look, you shouldn't have lied to get past screening. but if you've got footage, send it in. thanks for calling.", "mood": "exhausted"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_depressed_3", "text": "Look, you shouldn't have lied to get past screening. But if you've got footage, send it in. We cover ghosts too. Thanks for calling.", "voiceText": "Look, you shouldn't have lied to get past screening. But if you've got footage, send it in. We cover ghosts too. Thanks for calling.", "mood": "depressed"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_angry_3", "text": "YOU LIED TO GET ON THE SHOW! IF YOU'VE GOT FOOTAGE, SEND IT IN! WE COVER GHOSTS TOO! NEXT TIME DON'T WASTE OUR TIME!", "voiceText": "YOU LIED TO GET ON THE SHOW! IF YOU'VE GOT FOOTAGE, SEND IT IN! WE COVER GHOSTS TOO! NEXT TIME DON'T WASTE OUR TIME!", "mood": "angry"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_frustrated_3", "text": "Ugh, look, you shouldn't have lied to get past screening. but if you've got footage, send it in. thanks for calling.", "voiceText": "Ugh, look, you shouldn't have lied to get past screening. but if you've got footage, send it in. thanks for calling.", "mood": "frustrated"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_obsessive_3", "text": "Look, you shouldn't have lied to get past screening. But if you've got footage, send it in. We cover ghosts too. Just don't waste our time next time. You know what this means?", "voiceText": "Look, you shouldn't have lied to get past screening. But if you've got footage, send it in. We cover ghosts too. Just don't waste our time next time. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_topic_switch_ghost_vern_manic_3", "text": "YOU LIED TO GET ON THE SHOW! BUT IF YOU'VE GOT FOOTAGE, SEND IT IN! WE COVER GHOSTS TOO! DON'T WASTE OUR TIME NEXT TIME. APPRECIATE YOU CALLING IN.!!!", "voiceText": "YOU LIED TO GET ON THE SHOW! BUT IF YOU'VE GOT FOOTAGE, SEND IT IN! WE COVER GHOSTS TOO! DON'T WASTE OUR TIME NEXT TIME. APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

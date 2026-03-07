@@ -1,0 +1,77 @@
+{
+  "arcId": "hiking_couple",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Couple saw lights while hiking, one is excited, other is skeptical",
+  "callerPersonality": "enthusiastic_convert",
+  "arcNotes": "Couple hiking, one believer one skeptic, probably just lights",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_hiking_couple_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_questionable_hiking_couple_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_questionable_hiking_couple_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_questionable_hiking_couple_vern_irritated_1", "text": "You're on. What is it?", "voiceText": "You're on. What is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_hiking_couple_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_hiking_couple_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_hiking_couple_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_questionable_hiking_couple_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_questionable_hiking_couple_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_questionable_hiking_couple_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_questionable_hiking_couple_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_questionable_hiking_couple_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_hiking_couple_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_hiking_couple_caller_1", "text": "Okay, so me and my girlfriend were hiking last night, right? And we saw these three lights that were just hovering over the ridge. They were changing colors! My girlfriend thinks it was aliens but I'm thinking it was probably just drones or something.", "voiceText": "Okay, so me and my girlfriend were hiking last night, right? And we saw these three lights that were just hovering over the ridge. They were changing colors! My girlfriend thinks it was aliens but I'm thinking it was probably just drones or something."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_hiking_couple_vern_neutral_2", "text": "Three lights changing colors over a ridge. Could be drones or aircraft. How long were they there?", "voiceText": "Three lights changing colors over a ridge. Could be drones or aircraft. How long were they there?", "mood": "neutral"},
+        {"id": "ufos_questionable_hiking_couple_vern_tired_2", "text": "Three lights... okay, how long?", "voiceText": "Three lights... okay, how long?", "mood": "tired"},
+        {"id": "ufos_questionable_hiking_couple_vern_energized_2", "text": "THREE LIGHTS changing colors over a ridge?! This is AMAZING! How long were they there?!", "voiceText": "THREE LIGHTS changing colors over a ridge?! This is AMAZING! How long were they there?!", "mood": "energized"},
+        {"id": "ufos_questionable_hiking_couple_vern_irritated_2", "text": "Three lights. Of course it was. How long?", "voiceText": "Three lights. Of course it was. How long?", "mood": "irritated"},
+        {"id": "ufos_questionable_hiking_couple_vern_gruff_2", "text": "Three lights. Fine, I'll listen. How long?", "voiceText": "Three lights. Fine, I'll listen. How long?", "mood": "gruff"},
+        {"id": "ufos_questionable_hiking_couple_vern_amused_2", "text": "THREE LIGHTS! This is fantastic! How long were they there?!", "voiceText": "THREE LIGHTS! This is fantastic! How long were they there?!", "mood": "amused"},
+        {"id": "ufos_questionable_hiking_couple_vern_focused_2", "text": "Three lights changing colors. Describe the duration of observation.", "voiceText": "Three lights changing colors. Describe the duration of observation.", "mood": "focused"},
+        {"id": "ufos_questionable_hiking_couple_vern_exhausted_2", "text": "... three lights changing colors over a ridge. how long were they there?", "voiceText": "... three lights changing colors over a ridge. how long were they there?", "mood": "exhausted"},
+        {"id": "ufos_questionable_hiking_couple_vern_depressed_2", "text": "Three lights changing colors over a ridge. How long were they there?", "voiceText": "Three lights changing colors over a ridge. How long were they there?", "mood": "depressed"},
+        {"id": "ufos_questionable_hiking_couple_vern_angry_2", "text": "THREE LIGHTS CHANGING COLORS OVER A RIDGE! HOW LONG WERE THEY THERE?!", "voiceText": "THREE LIGHTS CHANGING COLORS OVER A RIDGE! HOW LONG WERE THEY THERE?!", "mood": "angry"},
+        {"id": "ufos_questionable_hiking_couple_vern_frustrated_2", "text": "Ugh, three lights changing colors over a ridge. how long were they there?", "voiceText": "Ugh, three lights changing colors over a ridge. how long were they there?", "mood": "frustrated"},
+        {"id": "ufos_questionable_hiking_couple_vern_obsessive_2", "text": "Three lights changing colors over a ridge. How long were they there? You know what this means?", "voiceText": "Three lights changing colors over a ridge. How long were they there? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_hiking_couple_vern_manic_2", "text": "THREE LIGHTS CHANGING COLORS OVER A RIDGE. HOW LONG WERE THEY THERE?!!!", "voiceText": "THREE LIGHTS CHANGING COLORS OVER A RIDGE. HOW LONG WERE THEY THERE?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_hiking_couple_caller_2", "text": "Maybe five minutes? And then they just took off really fast. Like, faster than any drone I've ever seen. But honestly, my girlfriend is way more excited about this than I am. She's already looking up UFO groups.", "voiceText": "Maybe five minutes? And then they just took off really fast. Like, faster than any drone I've ever seen. But honestly, my girlfriend is way more excited about this than I am. She's already looking up UFO groups."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_hiking_couple_vern_neutral_3", "text": "Probably drones, but cool sighting. Tell your girlfriend to send us any photos. Thanks for calling in.", "voiceText": "Probably drones, but cool sighting. Tell your girlfriend to send us any photos. Thanks for calling in.", "mood": "neutral"},
+        {"id": "ufos_questionable_hiking_couple_vern_tired_3", "text": "Probably drones. But cool. Thanks.", "voiceText": "Probably drones. But cool. Thanks.", "mood": "tired"},
+        {"id": "ufos_questionable_hiking_couple_vern_energized_3", "text": "FIVE MINUTES and then TOOK OFF FAST! This is INTERESTING! Tell your girlfriend to send photos!", "voiceText": "FIVE MINUTES and then TOOK OFF FAST! This is INTERESTING! Tell your girlfriend to send photos!", "mood": "energized"},
+        {"id": "ufos_questionable_hiking_couple_vern_irritated_3", "text": "Probably drones. Cool sighting though. Next.", "voiceText": "Probably drones. Cool sighting though. Next.", "mood": "irritated"},
+        {"id": "ufos_questionable_hiking_couple_vern_gruff_3", "text": "Probably drones. Cool sighting. Thanks.", "voiceText": "Probably drones. Cool sighting. Thanks.", "mood": "gruff"},
+        {"id": "ufos_questionable_hiking_couple_vern_amused_3", "text": "Tell your GIRLFRIEND to send us photos! This is CUTE! Thanks for calling!", "voiceText": "Tell your GIRLFRIEND to send us photos! This is CUTE! Thanks for calling!", "mood": "amused"},
+        {"id": "ufos_questionable_hiking_couple_vern_focused_3", "text": "Probably explainable as drones, but documentation is valuable. Thank you.", "voiceText": "Probably explainable as drones, but documentation is valuable. Thank you.", "mood": "focused"},
+        {"id": "ufos_questionable_hiking_couple_vern_exhausted_3", "text": "... probably drones, but cool sighting. tell your girlfriend to send us any photos. thanks for calling in.", "voiceText": "... probably drones, but cool sighting. tell your girlfriend to send us any photos. thanks for calling in.", "mood": "exhausted"},
+        {"id": "ufos_questionable_hiking_couple_vern_depressed_3", "text": "Probably drones, but cool sighting. Tell your girlfriend to send us any photos. Thanks for calling in.", "voiceText": "Probably drones, but cool sighting. Tell your girlfriend to send us any photos. Thanks for calling in.", "mood": "depressed"},
+        {"id": "ufos_questionable_hiking_couple_vern_angry_3", "text": "PROBABLY DRONES! BUT COOL SIGHTING! TELL YOUR GIRLFRIEND TO SEND US ANY PHOTOS!", "voiceText": "PROBABLY DRONES! BUT COOL SIGHTING! TELL YOUR GIRLFRIEND TO SEND US ANY PHOTOS!", "mood": "angry"},
+        {"id": "ufos_questionable_hiking_couple_vern_frustrated_3", "text": "Ugh, probably drones, but cool sighting. tell your girlfriend to send us any photos. thanks for calling in.", "voiceText": "Ugh, probably drones, but cool sighting. tell your girlfriend to send us any photos. thanks for calling in.", "mood": "frustrated"},
+        {"id": "ufos_questionable_hiking_couple_vern_obsessive_3", "text": "Probably drones, but cool sighting. Tell your girlfriend to send us any photos. You know what this means?", "voiceText": "Probably drones, but cool sighting. Tell your girlfriend to send us any photos. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_hiking_couple_vern_manic_3", "text": "PROBABLY DRONES! BUT COOL SIGHTING! APPRECIATE YOU CALLING IN.!!!", "voiceText": "PROBABLY DRONES! BUT COOL SIGHTING! APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

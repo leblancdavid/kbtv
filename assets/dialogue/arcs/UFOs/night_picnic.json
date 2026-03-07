@@ -1,0 +1,77 @@
+{
+  "arcId": "night_picnic",
+  "topic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Caller claims to have been abducted during a romantic picnic, classic story with plot holes",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Fake abduction story with nervous caller who keeps hesitating and second-guessing details",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_night_picnic_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_fake_night_picnic_vern_tired_1", "text": "Alright, you're on. Make it quick.", "voiceText": "Alright, you're on. Make it quick.", "mood": "tired"},
+        {"id": "ufos_fake_night_picnic_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_fake_night_picnic_vern_irritated_1", "text": "You're on. What's this about?", "voiceText": "You're on. What's this about?", "mood": "irritated"},
+        {"id": "ufos_fake_night_picnic_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_fake_night_picnic_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_fake_night_picnic_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_fake_night_picnic_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_fake_night_picnic_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_fake_night_picnic_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_fake_night_picnic_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_fake_night_picnic_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_night_picnic_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_night_picnic_caller_1", "text": "Okay, so, um, me and my girlfriend were having a picnic? Like, a romantic night out, you know? And then, uh, there was this light. Like, this really bright light.", "voiceText": "Okay, so, um, me and my girlfriend were having a picnic, like, a romantic night out, you know? And then, uh, there was this light. Like, this really bright light."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_night_picnic_vern_neutral_2", "text": "A light. Go on.", "voiceText": "A light. Go on.", "mood": "neutral"},
+        {"id": "ufos_fake_night_picnic_vern_tired_2", "text": "A light... okay, go on.", "voiceText": "A light... okay, go on.", "mood": "tired"},
+        {"id": "ufos_fake_night_picnic_vern_energized_2", "text": "A LIGHT?! This is AMAZING! Go on!!", "voiceText": "A LIGHT?! This is AMAZING! Go on!!", "mood": "energized"},
+        {"id": "ufos_fake_night_picnic_vern_irritated_2", "text": "A light. Of course there was. Go on.", "voiceText": "A light. Of course there was. Go on.", "mood": "irritated"},
+        {"id": "ufos_fake_night_picnic_vern_gruff_2", "text": "A light. Fine, go on.", "voiceText": "A light. Fine, go on.", "mood": "gruff"},
+        {"id": "ufos_fake_night_picnic_vern_amused_2", "text": "A light! This is great! Go on!", "voiceText": "A light! This is great! Go on!", "mood": "amused"},
+        {"id": "ufos_fake_night_picnic_vern_focused_2", "text": "Describe the light and subsequent events.", "voiceText": "Describe the light and subsequent events.", "mood": "focused"},
+        {"id": "ufos_fake_night_picnic_vern_exhausted_2", "text": "... a light. go on.", "voiceText": "... a light. go on.", "mood": "exhausted"},
+        {"id": "ufos_fake_night_picnic_vern_depressed_2", "text": "A light. Go on.", "voiceText": "A light. Go on.", "mood": "depressed"},
+        {"id": "ufos_fake_night_picnic_vern_angry_2", "text": "A LIGHT! GO ON!", "voiceText": "A LIGHT! GO ON!", "mood": "angry"},
+        {"id": "ufos_fake_night_picnic_vern_frustrated_2", "text": "Ugh, a light. go on.", "voiceText": "Ugh, a light. go on.", "mood": "frustrated"},
+        {"id": "ufos_fake_night_picnic_vern_obsessive_2", "text": "A light. Go on. You know what this means?", "voiceText": "A light. Go on. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_night_picnic_vern_manic_2", "text": "A LIGHT. GO ON.!!!", "voiceText": "A LIGHT. GO ON.!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_night_picnic_caller_2", "text": "And then, I mean, I don't really remember what happened next? Like, there was this beam? And then I woke up and my girlfriend was crying and, um, she said I was gone for like three hours? But I felt fine, so...", "voiceText": "And then, I mean, I don't really remember what happened next, um, like, there was this beam? And then I woke up and my girlfriend was crying and, uh, she said I was gone for like three hours? But I felt fine, so..."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_night_picnic_vern_neutral_3", "text": "Classic abduction story. You know, this has all the classic elements. Next caller.", "voiceText": "Classic abduction story. You know, this has all the classic elements. Next caller.", "mood": "neutral"},
+        {"id": "ufos_fake_night_picnic_vern_tired_3", "text": "Right... beam, three hours, felt fine. Classic. Next.", "voiceText": "Right... beam, three hours, felt fine. Classic. Next.", "mood": "tired"},
+        {"id": "ufos_fake_night_picnic_vern_energized_3", "text": "This is INCREDIBLE! A BEAM?! Next caller!", "voiceText": "This is INCREDIBLE! A BEAM?! Next caller!", "mood": "energized"},
+        {"id": "ufos_fake_night_picnic_vern_irritated_3", "text": "A beam and you were gone for three hours. Of course you were. Next caller.", "voiceText": "A beam and you were gone for three hours. Of course you were. Next caller.", "mood": "irritated"},
+        {"id": "ufos_fake_night_picnic_vern_gruff_3", "text": "Beam, three hours, felt fine. That's the oldest story in the book. Next.", "voiceText": "Beam, three hours, felt fine. That's the oldest story in the book. Next.", "mood": "gruff"},
+        {"id": "ufos_fake_night_picnic_vern_amused_3", "text": "A BEAM! Classic! I love this! NEXT!", "voiceText": "A BEAM! Classic! I love this! NEXT!", "mood": "amused"},
+        {"id": "ufos_fake_night_picnic_vern_focused_3", "text": "This narrative contains every conventional abduction trope. Next caller.", "voiceText": "This narrative contains every conventional abduction trope. Next caller.", "mood": "focused"},
+        {"id": "ufos_fake_night_picnic_vern_exhausted_3", "text": "... classic abduction story. this has all the classic elements. next caller.", "voiceText": "... classic abduction story. this has all the classic elements. next caller.", "mood": "exhausted"},
+        {"id": "ufos_fake_night_picnic_vern_depressed_3", "text": "Classic abduction story. This has all the classic elements. Next caller.", "voiceText": "Classic abduction story. This has all the classic elements. Next caller.", "mood": "depressed"},
+        {"id": "ufos_fake_night_picnic_vern_angry_3", "text": "CLASSIC ABDUCTION STORY! THIS HAS ALL THE CLASSIC ELEMENTS! NEXT CALLER!", "voiceText": "CLASSIC ABDUCTION STORY! THIS HAS ALL THE CLASSIC ELEMENTS! NEXT CALLER!", "mood": "angry"},
+        {"id": "ufos_fake_night_picnic_vern_frustrated_3", "text": "Ugh, classic abduction story. this has all the classic elements. next caller.", "voiceText": "Ugh, classic abduction story. this has all the classic elements. next caller.", "mood": "frustrated"},
+        {"id": "ufos_fake_night_picnic_vern_obsessive_3", "text": "Classic abduction story. You know, this has all the classic elements. Next caller. You know what this means?", "voiceText": "Classic abduction story. You know, this has all the classic elements. Next caller. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_night_picnic_vern_manic_3", "text": "CLASSIC ABDUCTION STORY. THIS HAS ALL THE CLASSIC ELEMENTS. NEXT CALLER.!!!", "voiceText": "CLASSIC ABDUCTION STORY. THIS HAS ALL THE CLASSIC ELEMENTS. NEXT CALLER.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

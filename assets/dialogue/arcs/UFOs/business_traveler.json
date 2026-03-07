@@ -1,0 +1,77 @@
+{
+  "arcId": "business_traveler",
+  "topic": "UFOs",
+  "legitimacy": "Credible",
+  "screeningSummary": "Frequent business traveler reports seeing metallic craft below his plane at 30,000 feet, pilot confirmed on radio",
+  "callerPersonality": "gruff_experienced",
+  "arcNotes": "Business traveler with commercial flight experience, saw object below his plane, pilot confirmed on radio",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_business_traveler_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_credible_business_traveler_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_credible_business_traveler_vern_energized_1", "text": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!", "voiceText": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!", "mood": "energized"},
+        {"id": "ufos_credible_business_traveler_vern_irritated_1", "text": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?", "voiceText": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?", "mood": "irritated"},
+        {"id": "ufos_credible_business_traveler_vern_gruff_1", "text": "You're on. So what'd you see?", "voiceText": "You're on. So what'd you see?", "mood": "gruff"},
+        {"id": "ufos_credible_business_traveler_vern_amused_1", "text": "Oh good, a caller! What've you got for us tonight?", "voiceText": "Oh good, a caller! What've you got for us tonight?", "mood": "amused"},
+        {"id": "ufos_credible_business_traveler_vern_focused_1", "text": "You're on the air. Start with the basic facts.", "voiceText": "You're on the air. Start with the basic facts.", "mood": "focused"},
+        {"id": "ufos_credible_business_traveler_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_credible_business_traveler_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_credible_business_traveler_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_credible_business_traveler_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_credible_business_traveler_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_credible_business_traveler_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_credible_business_traveler_caller_1", "text": "I've flown over two hundred flights in the last three years. I know what planes look like from above. Two nights ago, flying at thirty thousand feet, I looked down and saw a metallic craft below us, moving at our speed. The pilot confirmed on the radio - he saw it too.", "voiceText": "I've flown over two hundred flights in the last three years. I know what planes look like from above. Two nights ago, flying at thirty thousand feet, I looked down and saw a metallic craft below us, moving at our speed. The pilot confirmed on the radio - he saw it too."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_business_traveler_vern_neutral_2", "text": "The pilot confirmed on the radio. That's significant. What did the pilot say?", "voiceText": "The pilot confirmed on the radio. That's significant. What did the pilot say?", "mood": "neutral"},
+        {"id": "ufos_credible_business_traveler_vern_tired_2", "text": "Pilot confirmed... okay, what did he say?", "voiceText": "Pilot confirmed... okay, what did he say?", "mood": "tired"},
+        {"id": "ufos_credible_business_traveler_vern_energized_2", "text": "The PILOT CONFIRMED on the radio?! That's incredible! What did he say?!", "voiceText": "The PILOT CONFIRMED on the radio?! That's incredible! What did he say?!", "mood": "energized"},
+        {"id": "ufos_credible_business_traveler_vern_irritated_2", "text": "The pilot confirmed. Of course he did. What did he say?", "voiceText": "The pilot confirmed. Of course he did. What did he say?", "mood": "irritated"},
+        {"id": "ufos_credible_business_traveler_vern_gruff_2", "text": "Pilot confirmed. Fine, I'll hear you out. What did he say?", "voiceText": "Pilot confirmed. Fine, I'll hear you out. What did he say?", "mood": "gruff"},
+        {"id": "ufos_credible_business_traveler_vern_amused_2", "text": "The PILOT CONFIRMED! That's amazing! What did he say?!", "voiceText": "The PILOT CONFIRMED! That's amazing! What did he say?!", "mood": "amused"},
+        {"id": "ufos_credible_business_traveler_vern_focused_2", "text": "Pilot confirmation is significant. What was the pilot's statement?", "voiceText": "Pilot confirmation is significant. What was the pilot's statement?", "mood": "focused"},
+        {"id": "ufos_credible_business_traveler_vern_exhausted_2", "text": "... the pilot confirmed on the radio. that's significant. what did the pilot say?", "voiceText": "... the pilot confirmed on the radio. that's significant. what did the pilot say?", "mood": "exhausted"},
+        {"id": "ufos_credible_business_traveler_vern_depressed_2", "text": "The pilot confirmed on the radio. That's significant. What did the pilot say?", "voiceText": "The pilot confirmed on the radio. That's significant. What did the pilot say?", "mood": "depressed"},
+        {"id": "ufos_credible_business_traveler_vern_angry_2", "text": "THE PILOT CONFIRMED ON THE RADIO! THAT'S SIGNIFICANT! WHAT DID THE PILOT SAY?!", "voiceText": "THE PILOT CONFIRMED ON THE RADIO! THAT'S SIGNIFICANT! WHAT DID THE PILOT SAY?!", "mood": "angry"},
+        {"id": "ufos_credible_business_traveler_vern_frustrated_2", "text": "Ugh, the pilot confirmed on the radio. that's significant. what did the pilot say?", "voiceText": "Ugh, the pilot confirmed on the radio. that's significant. what did the pilot say?", "mood": "frustrated"},
+        {"id": "ufos_credible_business_traveler_vern_obsessive_2", "text": "The pilot confirmed on the radio. That's significant. What did the pilot say? You know what this means?", "voiceText": "The pilot confirmed on the radio. That's significant. What did the pilot say? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_credible_business_traveler_vern_manic_2", "text": "THE PILOT CONFIRMED ON THE RADIO! THAT'S SIGNIFICANT! WHAT DID THE PILOT SAY?!!!", "voiceText": "THE PILOT CONFIRMED ON THE RADIO! THAT'S SIGNIFICANT! WHAT DID THE PILOT SAY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_credible_business_traveler_caller_2", "text": "He said, and I quote, 'Unidentified traffic at eleven o'clock, five thousand feet below, matching our altitude and heading.' Then the controller asked if we wanted to deviate, and we said yes. It was still there for another minute before it peeled off.", "voiceText": "He said, and I quote, Unidentified traffic at eleven o'clock, five thousand feet below, matching our altitude and heading. Then the controller asked if we wanted to deviate, and we said yes. It was still there for another minute before it peeled off."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_business_traveler_vern_neutral_3", "text": "Unidentified traffic matching altitude and heading. The pilot wanted to deviate. If you're telling me this as a frequent flier, I believe you. That's not normal. Thanks for calling in.", "voiceText": "Unidentified traffic matching altitude and heading. The pilot wanted to deviate. If you're telling me this as a frequent flier, I believe you. That's not normal. Thanks for calling in.", "mood": "neutral"},
+        {"id": "ufos_credible_business_traveler_vern_tired_3", "text": "Unidentified traffic. Pilot wanted to deviate. Okay, I believe you. Thanks for calling.", "voiceText": "Unidentified traffic. Pilot wanted to deviate. Okay, I believe you. Thanks for calling.", "mood": "tired"},
+        {"id": "ufos_credible_business_traveler_vern_energized_3", "text": "UNIDENTIFIED TRAFFIC matching altitude and heading?! The pilot wanted to DEVIATE?! This is INCREDIBLE! I believe you! Thanks for calling in!", "voiceText": "UNIDENTIFIED TRAFFIC matching altitude and heading?! The pilot wanted to DEVIATE?! This is INCREDIBLE! I believe you! Thanks for calling in!", "mood": "energized"},
+        {"id": "ufos_credible_business_traveler_vern_irritated_3", "text": "Unidentified traffic. Pilot wanted to deviate. Fine, I believe you. Next caller.", "voiceText": "Unidentified traffic. Pilot wanted to deviate. Fine, I believe you. Next caller.", "mood": "irritated"},
+        {"id": "ufos_credible_business_traveler_vern_gruff_3", "text": "Unidentified traffic. Pilot wanted to deviate. I believe you. Thanks for calling.", "voiceText": "Unidentified traffic. Pilot wanted to deviate. I believe you. Thanks for calling.", "mood": "gruff"},
+        {"id": "ufos_credible_business_traveler_vern_amused_3", "text": "UNIDENTIFIED TRAFFIC! The pilot wanted to DEVIATE! This is TEXTBOOK! I believe you! Thanks!", "voiceText": "UNIDENTIFIED TRAFFIC! The pilot wanted to DEVIATE! This is TEXTBOOK! I believe you! Thanks!", "mood": "amused"},
+        {"id": "ufos_credible_business_traveler_vern_focused_3", "text": "Unidentified traffic matching altitude and heading. The pilot requested deviation. This is consistent with a genuine unidentified aerial phenomenon. I believe your account. Thank you.", "voiceText": "Unidentified traffic matching altitude and heading. The pilot requested deviation. This is consistent with a genuine unidentified aerial phenomenon. I believe your account. Thank you.", "mood": "focused"},
+        {"id": "ufos_credible_business_traveler_vern_exhausted_3", "text": "... unidentified traffic matching altitude and heading. the pilot wanted to deviate. if you're telling me this as a frequent flier, i believe you. thanks for calling in.", "voiceText": "... unidentified traffic matching altitude and heading. the pilot wanted to deviate. if you're telling me this as a frequent flier, i believe you. thanks for calling in.", "mood": "exhausted"},
+        {"id": "ufos_credible_business_traveler_vern_depressed_3", "text": "Unidentified traffic matching altitude and heading. The pilot wanted to deviate. If you're telling me this as a frequent flier, I believe you. Thanks for calling in.", "voiceText": "Unidentified traffic matching altitude and heading. The pilot wanted to deviate. If you're telling me this as a frequent flier, I believe you. Thanks for calling in.", "mood": "depressed"},
+        {"id": "ufos_credible_business_traveler_vern_angry_3", "text": "UNIDENTIFIED TRAFFIC MATCHING ALTITUDE AND HEADING! THE PILOT WANTED TO DEVIATE! I BELIEVE YOU! THANKS FOR CALLING IN!", "voiceText": "UNIDENTIFIED TRAFFIC MATCHING ALTITUDE AND HEADING! THE PILOT WANTED TO DEVIATE! I BELIEVE YOU! THANKS FOR CALLING IN!", "mood": "angry"},
+        {"id": "ufos_credible_business_traveler_vern_frustrated_3", "text": "Ugh, unidentified traffic matching altitude and heading. the pilot wanted to deviate. i believe you. thanks for calling in.", "voiceText": "Ugh, unidentified traffic matching altitude and heading. the pilot wanted to deviate. i believe you. thanks for calling in.", "mood": "frustrated"},
+        {"id": "ufos_credible_business_traveler_vern_obsessive_3", "text": "Unidentified traffic matching altitude and heading. The pilot wanted to deviate. If you're telling me this as a frequent flier, I believe you. Thanks for calling in. You know what this means?", "voiceText": "Unidentified traffic matching altitude and heading. The pilot wanted to deviate. If you're telling me this as a frequent flier, I believe you. Thanks for calling in. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_credible_business_traveler_vern_manic_3", "text": "UNIDENTIFIED TRAFFIC MATCHING ALTITUDE AND HEADING! THE PILOT WANTED TO DEVIATE! I BELIEVE YOU! THANKS FOR CALLING IN.!!!", "voiceText": "UNIDENTIFIED TRAFFIC MATCHING ALTITUDE AND HEADING! THE PILOT WANTED TO DEVIATE! I BELIEVE YOU! THANKS FOR CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "arcId": "ufo_police_chase",
+  "topic": "UFOs",
+  "legitimacy": "Credible",
+  "screeningSummary": "Sheriff's deputy with lidar reading of object at 3000 mph, visual contact, silent craft, dashboard failure",
+  "callerPersonality": "cold_factual",
+  "arcNotes": "Law enforcement caller with radar evidence, methodical delivery, extremely credible account",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_police_chase_vern_neutral_1", "text": "You're on KBTV with Vern. Go ahead.", "voiceText": "You're on KBTV with Vern. Go ahead.", "mood": "neutral"},
+        {"id": "ufos_credible_police_chase_vern_tired_1", "text": "Alright, you're on. What's your report?", "voiceText": "Alright, you're on. What's your report?", "mood": "tired"},
+        {"id": "ufos_credible_police_chase_vern_energized_1", "text": "YOU ARE ON KBTV! Let's hear it!", "voiceText": "YOU ARE ON KBTV! Let's hear it!", "mood": "energized"},
+        {"id": "ufos_credible_police_chase_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_credible_police_chase_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_credible_police_chase_vern_amused_1", "text": "Oh, a caller! What's your story?", "voiceText": "Oh, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_credible_police_chase_vern_focused_1", "text": "You're on the air. State your experience.", "voiceText": "You're on the air. State your experience.", "mood": "focused"},
+        {"id": "ufos_credible_police_chase_vern_exhausted_1", "text": "... you're on. go ahead.", "voiceText": "... you're on. go ahead.", "mood": "exhausted"},
+        {"id": "ufos_credible_police_chase_vern_depressed_1", "text": "You're on KBTV. What's your report?", "voiceText": "You're on KBTV. What's your report?", "mood": "depressed"},
+        {"id": "ufos_credible_police_chase_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_credible_police_chase_vern_frustrated_1", "text": "Ugh, you're on. What is it?", "voiceText": "Ugh, you're on. What is it?", "mood": "frustrated"},
+        {"id": "ufos_credible_police_chase_vern_obsessive_1", "text": "You're on KBTV. This could be significant - give me the details.", "voiceText": "You're on KBTV. This could be significant - give me the details.", "mood": "obsessive"},
+        {"id": "ufos_credible_police_chase_vern_manic_1", "text": "KBTV!!! GO AHEAD!!!", "voiceText": "KBTV!!! GO AHEAD!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_credible_police_chase_caller_1", "text": "Vern, this is Officer Denny Withers, County Sheriff. I'm calling off the record here, but I need to report something that happened last night on Highway 9.", "voiceText": "Vern, this is Officer Denny Withers, County Sheriff. I'm calling off the record here, but I need to report something that happened last night on Highway 9."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_police_chase_vern_neutral_2", "text": "Off the record? Alright, I'm listening. What happened?", "voiceText": "Off the record? Alright, I'm listening. What happened?", "mood": "neutral"},
+        {"id": "ufos_credible_police_chase_vern_tired_2", "text": "Off the record... okay. What happened?", "voiceText": "Off the record... okay. What happened?", "mood": "tired"},
+        {"id": "ufos_credible_police_chase_vern_energized_2", "text": "OFF THE RECORD?! This should be good! What happened?!", "voiceText": "OFF THE RECORD?! This should be good! What happened?!", "mood": "energized"},
+        {"id": "ufos_credible_police_chase_vern_irritated_2", "text": "Off the record. Right. What happened?", "voiceText": "Off the record. Right. What happened?", "mood": "irritated"},
+        {"id": "ufos_credible_police_chase_vern_gruff_2", "text": "Off the record. Go ahead.", "voiceText": "Off the record. Go ahead.", "mood": "gruff"},
+        {"id": "ufos_credible_police_chase_vern_amused_2", "text": "Off the record! This is interesting! What happened?", "voiceText": "Off the record! This is interesting! What happened?", "mood": "amused"},
+        {"id": "ufos_credible_police_chase_vern_focused_2", "text": "You're off the record. Provide the details of your experience.", "voiceText": "You're off the record. Provide the details of your experience.", "mood": "focused"},
+        {"id": "ufos_credible_police_chase_vern_exhausted_2", "text": "... off the record. okay.", "voiceText": "... off the record. okay.", "mood": "exhausted"},
+        {"id": "ufos_credible_police_chase_vern_depressed_2", "text": "Off the record. What happened?", "voiceText": "Off the record. What happened?", "mood": "depressed"},
+        {"id": "ufos_credible_police_chase_vern_angry_2", "text": "OFF THE RECORD! WHAT HAPPENED?!", "voiceText": "OFF THE RECORD! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_credible_police_chase_vern_frustrated_2", "text": "Ugh, off the record. What happened?", "voiceText": "Ugh, off the record. What happened?", "mood": "frustrated"},
+        {"id": "ufos_credible_police_chase_vern_obsessive_2", "text": "Off the record. This is critical. What occurred?", "voiceText": "Off the record. This is critical. What occurred?", "mood": "obsessive"},
+        {"id": "ufos_credible_police_chase_vern_manic_2", "text": "OFF THE RECORD!!! TELL ME EVERYTHING!!!", "voiceText": "OFF THE RECORD!!! TELL ME EVERYTHING!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_credible_police_chase_caller_2", "text": "I was running radar on Miller's Curve around 2 AM and I picked up something on my lidar. Speed was showing... impossible. Three thousand miles per hour. Then it just stopped.", "voiceText": "I was running radar on Miller's Curve around 2 AM and I picked up something on my lidar. Speed was showing... impossible. Three thousand miles per hour. Then it just stopped."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_police_chase_vern_neutral_3", "text": "Three thousand? That's... that's not a plane. That's not even a missile.", "voiceText": "Three thousand? That's... that's not a plane. That's not even a missile.", "mood": "neutral"},
+        {"id": "ufos_credible_police_chase_vern_tired_3", "text": "Three thousand... okay. That's not a plane.", "voiceText": "Three thousand... okay. That's not a plane.", "mood": "tired"},
+        {"id": "ufos_credible_police_chase_vern_energized_3", "text": "THREE THOUSAND MILES PER HOUR?! That's IMPOSSIBLE!", "voiceText": "THREE THOUSAND MILES PER HOUR?! That's IMPOSSIBLE!", "mood": "energized"},
+        {"id": "ufos_credible_police_chase_vern_irritated_3", "text": "Three thousand. Sure. What else?", "voiceText": "Three thousand. Sure. What else?", "mood": "irritated"},
+        {"id": "ufos_credible_police_chase_vern_gruff_3", "text": "Three thousand. That's fast. Go on.", "voiceText": "Three thousand. That's fast. Go on.", "mood": "gruff"},
+        {"id": "ufos_credible_police_chase_vern_amused_3", "text": "Three thousand miles per hour! This is incredible! What happened?", "voiceText": "Three thousand miles per hour! This is incredible! What happened?", "mood": "amused"},
+        {"id": "ufos_credible_police_chase_vern_focused_3", "text": "3000 mph is well beyond any conventional aircraft. Describe the subsequent events.", "voiceText": "3000 mph is well beyond any conventional aircraft. Describe the subsequent events.", "mood": "focused"},
+        {"id": "ufos_credible_police_chase_vern_exhausted_3", "text": "... three thousand. okay.", "voiceText": "... three thousand. okay.", "mood": "exhausted"},
+        {"id": "ufos_credible_police_chase_vern_depressed_3", "text": "Three thousand. That's not a plane.", "voiceText": "Three thousand. That's not a plane.", "mood": "depressed"},
+        {"id": "ufos_credible_police_chase_vern_angry_3", "text": "THREE THOUSAND MILES PER HOUR! WHAT ELSE HAPPENED?!", "voiceText": "THREE THOUSAND MILES PER HOUR! WHAT ELSE HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_credible_police_chase_vern_frustrated_3", "text": "Ugh, three thousand. What happened?", "voiceText": "Ugh, three thousand. What happened?", "mood": "frustrated"},
+        {"id": "ufos_credible_police_chase_vern_obsessive_3", "text": "3000 mph. This is significant. What occurred next?", "voiceText": "3000 mph. This is significant. What occurred next?", "mood": "obsessive"},
+        {"id": "ufos_credible_police_chase_vern_manic_3", "text": "3000 MPH!!! TELL ME EVERYTHING!!!", "voiceText": "3000 MPH!!! TELL ME EVERYTHING!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_credible_police_chase_caller_3", "text": "That's what I thought. So I got in my cruiser and started driving toward where it was. I had visual within about ninety seconds. It was... Vern, it was absolutely silent.", "voiceText": "That's what I thought. So I got in my cruiser and started driving toward where it was. I had visual within about ninety seconds. It was... Vern, it was absolutely silent."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_police_chase_vern_neutral_4", "text": "Silent? At three thousand miles per hour?", "voiceText": "Silent? At three thousand miles per hour?", "mood": "neutral"},
+        {"id": "ufos_credible_police_chase_vern_tired_4", "text": "Silent... right. At that speed.", "voiceText": "Silent... right. At that speed.", "mood": "tired"},
+        {"id": "ufos_credible_police_chase_vern_energized_4", "text": "SILENT?! At 3000 MPH?! That's IMPOSSIBLE!", "voiceText": "SILENT?! At 3000 MPH?! That's IMPOSSIBLE!", "mood": "energized"},
+        {"id": "ufos_credible_police_chase_vern_irritated_4", "text": "Silent. Of course. What else?", "voiceText": "Silent. Of course. What else?", "mood": "irritated"},
+        {"id": "ufos_credible_police_chase_vern_gruff_4", "text": "Silent. Go on.", "voiceText": "Silent. Go on.", "mood": "gruff"},
+        {"id": "ufos_credible_police_chase_vern_amused_4", "text": "Silent! At that speed! This is fantastic! What happened?", "voiceText": "Silent! At that speed! This is fantastic! What happened?", "mood": "amused"},
+        {"id": "ufos_credible_police_chase_vern_focused_4", "text": "No sound at Mach 4. Describe what you observed.", "voiceText": "No sound at Mach 4. Describe what you observed.", "mood": "focused"},
+        {"id": "ufos_credible_police_chase_vern_exhausted_4", "text": "... silent. okay.", "voiceText": "... silent. okay.", "mood": "exhausted"},
+        {"id": "ufos_credible_police_chase_vern_depressed_4", "text": "Silent. What happened?", "voiceText": "Silent. What happened?", "mood": "depressed"},
+        {"id": "ufos_credible_police_chase_vern_angry_4", "text": "SILENT! WHAT HAPPENED?!", "voiceText": "SILENT! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_credible_police_chase_vern_frustrated_4", "text": "Ugh, silent. What happened?", "voiceText": "Ugh, silent. What happened?", "mood": "frustrated"},
+        {"id": "ufos_credible_police_chase_vern_obsessive_4", "text": "Silent. This is critical. What did you observe?", "voiceText": "Silent. This is critical. What did you observe?", "mood": "obsessive"},
+        {"id": "ufos_credible_police_chase_vern_manic_4", "text": "SILENT!!! TELL ME EVERYTHING!!!", "voiceText": "SILENT!!! TELL ME EVERYTHING!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_credible_police_chase_caller_4", "text": "Dead silent. No engine noise, no wind. Just... a shape. Metallic, about the size of a basketball court. I tried to follow it but it took off, straight up, and my dashboard went dark.", "voiceText": "Dead silent. No engine noise, no wind. Just... a shape. Metallic, about the size of a basketball court. I tried to follow it but it took off, straight up, and my dashboard went dark."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_police_chase_vern_neutral_5", "text": "And your dash went dead. Did you report this to anyone, Denny?", "voiceText": "And your dash went dead. Did you report this to anyone, Denny?", "mood": "neutral"},
+        {"id": "ufos_credible_police_chase_vern_tired_5", "text": "Dashboard went dark. Did you report it?", "voiceText": "Dashboard went dark. Did you report it?", "mood": "tired"},
+        {"id": "ufos_credible_police_chase_vern_energized_5", "text": "DASHBOARD FAILURE! This is HUGE! Did you report it?!", "voiceText": "DASHBOARD FAILURE! This is HUGE! Did you report it?!", "mood": "energized"},
+        {"id": "ufos_credible_police_chase_vern_irritated_5", "text": "Dashboard went dark. Did you report it?", "voiceText": "Dashboard went dark. Did you report it?", "mood": "irritated"},
+        {"id": "ufos_credible_police_chase_vern_gruff_5", "text": "Dashboard dead. Report it?", "voiceText": "Dashboard dead. Report it?", "mood": "gruff"},
+        {"id": "ufos_credible_police_chase_vern_amused_5", "text": "Classic dashboard failure! Did anyone official know about this?", "voiceText": "Classic dashboard failure! Did anyone official know about this?", "mood": "amused"},
+        {"id": "ufos_credible_police_chase_vern_focused_5", "text": "Dashboard electrical failure after visual contact. Was this reported through official channels?", "voiceText": "Dashboard electrical failure after visual contact. Was this reported through official channels?", "mood": "focused"},
+        {"id": "ufos_credible_police_chase_vern_exhausted_5", "text": "... dashboard dark. did you report?", "voiceText": "... dashboard dark. did you report?", "mood": "exhausted"},
+        {"id": "ufos_credible_police_chase_vern_depressed_5", "text": "Dashboard went dark. Did you report this?", "voiceText": "Dashboard went dark. Did you report this?", "mood": "depressed"},
+        {"id": "ufos_credible_police_chase_vern_angry_5", "text": "DASHBOARD FAILURE! DID YOU REPORT IT?!", "voiceText": "DASHBOARD FAILURE! DID YOU REPORT IT?!", "mood": "angry"},
+        {"id": "ufos_credible_police_chase_vern_frustrated_5", "text": "Ugh, dashboard dark. Report it?", "voiceText": "Ugh, dashboard dark. Report it?", "mood": "frustrated"},
+        {"id": "ufos_credible_police_chase_vern_obsessive_5", "text": "This is critical. The dashboard failure - was it reported?", "voiceText": "This is critical. The dashboard failure - was it reported?", "mood": "obsessive"},
+        {"id": "ufos_credible_police_chase_vern_manic_5", "text": "DASHBOARD!!! DID YOU REPORT IT!!!", "voiceText": "DASHBOARD!!! DID YOU REPORT IT!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

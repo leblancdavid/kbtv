@@ -1,0 +1,77 @@
+{
+  "arcId": "bonfire_joke",
+  "topic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Caller tells an elaborate story about being abducted by aliens who made him dance for their entertainment",
+  "callerPersonality": "charismatic_storyteller",
+  "arcNotes": "Over-the-top fake story with dramatic flair, caller breaks character and laughs at the end",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_bonfire_joke_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_fake_bonfire_joke_vern_tired_1", "text": "Alright, you're on. Make it quick.", "voiceText": "Alright, you're on. Make it quick.", "mood": "tired"},
+        {"id": "ufos_fake_bonfire_joke_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_fake_bonfire_joke_vern_irritated_1", "text": "You're on. What's this about?", "voiceText": "You're on. What's this about?", "mood": "irritated"},
+        {"id": "ufos_fake_bonfire_joke_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_fake_bonfire_joke_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_fake_bonfire_joke_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_fake_bonfire_joke_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_fake_bonfire_joke_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_fake_bonfire_joke_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_fake_bonfire_joke_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_fake_bonfire_joke_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_bonfire_joke_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_bonfire_joke_caller_1", "text": "Okay, so picture this, right? It's three in the morning, I'm sitting around a bonfire with my buddies, and suddenly this silver saucer comes down. And these little gray guys? They start dancing. And then they look at me and point, and I'm like, oh no...", "voiceText": "Okay, so picture this, right? It's three in the morning, I'm sitting around a bonfire with my buddies, and suddenly this silver saucer comes down. And these little gray guys? They start dancing. And then they look at me and point, and I'm like, oh no..."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_bonfire_joke_vern_neutral_2", "text": "They pointed at you. What happened?", "voiceText": "They pointed at you. What happened?", "mood": "neutral"},
+        {"id": "ufos_fake_bonfire_joke_vern_tired_2", "text": "They pointed at you... okay, what happened?", "voiceText": "They pointed at you... okay, what happened?", "mood": "tired"},
+        {"id": "ufos_fake_bonfire_joke_vern_energized_2", "text": "They POINTED at you?! This is AMAZING! What happened?!", "voiceText": "They POINTED at you?! This is AMAZING! What happened?!", "mood": "energized"},
+        {"id": "ufos_fake_bonfire_joke_vern_irritated_2", "text": "They pointed at you. Of course they did. What happened?", "voiceText": "They pointed at you. Of course they did. What happened?", "mood": "irritated"},
+        {"id": "ufos_fake_bonfire_joke_vern_gruff_2", "text": "They pointed at you. Fine, I'll listen. What happened?", "voiceText": "They pointed at you. Fine, I'll listen. What happened?", "mood": "gruff"},
+        {"id": "ufos_fake_bonfire_joke_vern_amused_2", "text": "They pointed at you! This is fantastic! What happened?!", "voiceText": "They pointed at you! This is fantastic! What happened?!", "mood": "amused"},
+        {"id": "ufos_fake_bonfire_joke_vern_focused_2", "text": "Describe what occurred after being selected.", "voiceText": "Describe what occurred after being selected.", "mood": "focused"},
+        {"id": "ufos_fake_bonfire_joke_vern_exhausted_2", "text": "... they pointed at you. what happened?", "voiceText": "... they pointed at you. what happened?", "mood": "exhausted"},
+        {"id": "ufos_fake_bonfire_joke_vern_depressed_2", "text": "They pointed at you. What happened?", "voiceText": "They pointed at you. What happened?", "mood": "depressed"},
+        {"id": "ufos_fake_bonfire_joke_vern_angry_2", "text": "THEY POINTED AT YOU! WHAT HAPPENED?!", "voiceText": "THEY POINTED AT YOU! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_fake_bonfire_joke_vern_frustrated_2", "text": "Ugh, they pointed at you. what happened?", "voiceText": "Ugh, they pointed at you. what happened?", "mood": "frustrated"},
+        {"id": "ufos_fake_bonfire_joke_vern_obsessive_2", "text": "They pointed at you. What happened? You know what this means?", "voiceText": "They pointed at you. What happened? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_bonfire_joke_vern_manic_2", "text": "THEY POINTED AT YOU. WHAT HAPPENED?!!!", "voiceText": "THEY POINTED AT YOU. WHAT HAPPENED?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_bonfire_joke_caller_2", "text": "They made me do the twist! For an hour! My buddies still have the video! They were laughing so hard, they almost dropped the phone! And the aliens? They were loving it! One of them did the robot!", "voiceText": "They made me do the twist! For an hour! My buddies still have the video! They were laughing so hard, they almost dropped the phone! And the aliens? They were loving it! One of them did the robot!"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_bonfire_joke_vern_neutral_3", "text": "An alien did the robot. I'm done. Next caller.", "voiceText": "An alien did the robot. I'm done. Next caller.", "mood": "neutral"},
+        {"id": "ufos_fake_bonfire_joke_vern_tired_3", "text": "The robot. Sure. Next.", "voiceText": "The robot. Sure. Next.", "mood": "tired"},
+        {"id": "ufos_fake_bonfire_joke_vern_energized_3", "text": "AN ALIEN DID THE ROBOT?! This is the best story EVER! NEXT!", "voiceText": "AN ALIEN DID THE ROBOT?! This is the best story EVER! NEXT!", "mood": "energized"},
+        {"id": "ufos_fake_bonfire_joke_vern_irritated_3", "text": "The twist and the robot. I'm calling next caller.", "voiceText": "The twist and the robot. I'm calling next caller.", "mood": "irritated"},
+        {"id": "ufos_fake_bonfire_joke_vern_gruff_3", "text": "Made you dance for an hour. Classic. Next.", "voiceText": "Made you dance for an hour. Classic. Next.", "mood": "gruff"},
+        {"id": "ufos_fake_bonfire_joke_vern_amused_3", "text": "THE TWIST! THE ROBOT! This is PERFECT! NEXT!", "voiceText": "THE TWIST! THE ROBOT! This is PERFECT! NEXT!", "mood": "amused"},
+        {"id": "ufos_fake_bonfire_joke_vern_focused_3", "text": "This is clearly fabricated. Next caller.", "voiceText": "This is clearly fabricated. Next caller.", "mood": "focused"},
+        {"id": "ufos_fake_bonfire_joke_vern_exhausted_3", "text": "... an alien did the robot. i'm done. next caller.", "voiceText": "... an alien did the robot. i'm done. next caller.", "mood": "exhausted"},
+        {"id": "ufos_fake_bonfire_joke_vern_depressed_3", "text": "An alien did the robot. I'm done. Next caller.", "voiceText": "An alien did the robot. I'm done. Next caller.", "mood": "depressed"},
+        {"id": "ufos_fake_bonfire_joke_vern_angry_3", "text": "AN ALIEN DID THE ROBOT! I'M DONE! NEXT CALLER!", "voiceText": "AN ALIEN DID THE ROBOT! I'M DONE! NEXT CALLER!", "mood": "angry"},
+        {"id": "ufos_fake_bonfire_joke_vern_frustrated_3", "text": "Ugh, an alien did the robot. i'm done. next caller.", "voiceText": "Ugh, an alien did the robot. i'm done. next caller.", "mood": "frustrated"},
+        {"id": "ufos_fake_bonfire_joke_vern_obsessive_3", "text": "An alien did the robot. I'm done. Next caller. You know what this means?", "voiceText": "An alien did the robot. I'm done. Next caller. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_bonfire_joke_vern_manic_3", "text": "AN ALIEN DID THE ROBOT. I'M DONE. NEXT CALLER.!!!", "voiceText": "AN ALIEN DID THE ROBOT. I'M DONE. NEXT CALLER.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

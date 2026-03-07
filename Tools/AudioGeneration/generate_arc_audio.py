@@ -18,26 +18,78 @@ def get_topic_from_arc_id(arc_id):
 def get_arc_folder_name(arc_id):
     """Get the actual folder name used for this arc"""
     folder_name_map = {
+        # Conspiracies
         'conspiracies_credible_govt_contractor': 'govt_contractor',
         'conspiracies_compelling_whistleblower': 'whistleblower',
         'conspiracies_questionable_patterns': 'patterns',
         'conspiracies_fake_tinfoil': 'tinfoil',
+        # Ghosts
         'ghosts_credible_old_house': 'old_house',
         'ghosts_compelling_investigator': 'investigator',
         'ghosts_fake_halloween': 'halloween',
         'ghosts_questionable_footsteps': 'footsteps',
+        # Cryptids
         'cryptids_credible_forest_hiker': 'forest_hiker',
         'cryptids_compelling_biologist': 'biologist',
         'cryptids_fake_costume': 'costume',
         'cryptids_questionable_shadow': 'shadow',
         'cryptids_credible_claims_ufos': 'claims_ufos',
+        # UFOs - legacy mappings
         'ufos_credible_dashcam_trucker': 'dashcam_trucker',
         'ufos_compelling_pilot': 'pilot',
         'ufos_fake_prankster': 'prankster',
-        'ufos_questionable_lights': 'lights'
+        'ufos_questionable_lights': 'lights',
+        # UFOs - simple names (use as-is)
+        'cowboy_witness': 'cowboy_witness',
+        'pilot_friend': 'pilot_friend',
+        'truck_driver': 'truck_driver',
+        'hiking_couple': 'hiking_couple',
+        'gov_contractor': 'gov_contractor',
+        'grain_silo_worker': 'grain_silo_worker',
+        'rural_teacher': 'rural_teacher',
+        'amateur_astronomer': 'amateur_astronomer',
+        'telephone_technician': 'telephone_technician',
+        'security_footage': 'security_footage',
+        'party_confession': 'party_confession',
+        'atmospheric_scientist': 'atmospheric_scientist',
+        'construction_worker': 'construction_worker',
+        'star_gazer': 'star_gazer',
+        'topic_switch_cryptid': 'topic_switch_cryptid',
+        'military_physicist': 'military_physicist',
+        'electrical_phenomenon': 'electrical_phenomenon',
+        'railroad_worker': 'railroad_worker',
+        'newspaper_photo': 'newspaper_photo',
+        'lake_reflection': 'lake_reflection',
+        'movie_hoax': 'movie_hoax',
+        'dream_abduction': 'dream_abduction',
+        'rancher_encounter': 'rancher_encounter',
+        'drone_sighting': 'drone_sighting',
+        'camping_prank': 'camping_prank',
+        'air_traffic_contact': 'air_traffic_contact',
+        'business_traveler': 'business_traveler',
+        'plane_confusion': 'plane_confusion',
+        'topic_switch_ghost': 'topic_switch_ghost',
+        'physicist_observation': 'physicist_observation',
+        'radar_operator': 'radar_operator',
+        'night_watchman': 'night_watchman',
+        'chemist_witness': 'chemist_witness',
+        'buddy_story': 'buddy_story',
+        'neighbor_lights': 'neighbor_lights',
+        'bonfire_joke': 'bonfire_joke',
+        'night_picnic': 'night_picnic',
+        'ufo_cryptid_switch': 'ufo_cryptid_switch',
     }
 
-    return folder_name_map.get(arc_id, arc_id.split('_')[-1])
+    # Check if mapped
+    if arc_id in folder_name_map:
+        return folder_name_map[arc_id]
+
+    # Handle ufo_ prefix - if arc_id is like "ufo_skywriter", use as-is
+    if arc_id.startswith('ufo_'):
+        return arc_id
+
+    # Default: use last part after splitting
+    return arc_id.split('_')[-1]
 
 def get_caller_voice_for_arc(arc_id, line_index):
     """

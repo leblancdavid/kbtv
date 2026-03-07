@@ -1,0 +1,77 @@
+{
+  "arcId": "electrical_phenomenon",
+  "topic": "UFOs",
+  "legitimacy": "Compelling",
+  "screeningSummary": "Electrician reports object interfering with electrical systems, caused widespread outage in area",
+  "callerPersonality": "cold_factual",
+  "arcNotes": "Electrician with documented power outage correlation, technical evidence",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_electrical_phenomenon_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_energized_1", "text": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!", "voiceText": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!", "mood": "energized"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_irritated_1", "text": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?", "voiceText": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?", "mood": "irritated"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_gruff_1", "text": "You're on. So what'd you see?", "voiceText": "You're on. So what'd you see?", "mood": "gruff"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_amused_1", "text": "Oh good, a caller! What've you got for us tonight?", "voiceText": "Oh good, a caller! What've you got for us tonight?", "mood": "amused"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_focused_1", "text": "You're on the air. Start with the basic facts.", "voiceText": "You're on the air. Start with the basic facts.", "mood": "focused"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_compelling_electrical_phenomenon_caller_1", "text": "I'm a licensed electrician with fifteen years experience. Two weeks ago, I was responding to a power outage call. When I got there, residents reported seeing a disc-shaped object hovering over the substation. The power was out for six blocks. All the surge protectors in the area were fried.", "voiceText": "I'm a licensed electrician with fifteen years experience. Two weeks ago, I was responding to a power outage call. When I got there, residents reported seeing a disc-shaped object hovering over the substation. The power was out for six blocks. All the surge protectors in the area were fried."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_electrical_phenomenon_vern_neutral_2", "text": "Disc-shaped object over the substation, six-block outage, fried surge protectors. What happened next?", "voiceText": "Disc-shaped object over the substation, six-block outage, fried surge protectors. What happened next?", "mood": "neutral"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_tired_2", "text": "Disc, six-block outage... okay, what happened?", "voiceText": "Disc, six-block outage... okay, what happened?", "mood": "tired"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_energized_2", "text": "DISC-SHAPED OBJECT over the substation?! Six-block outage?! That's incredible! What happened?!", "voiceText": "DISC-SHAPED OBJECT over the substation?! Six-block outage?! That's incredible! What happened?!", "mood": "energized"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_irritated_2", "text": "Disc-shaped object. Of course it was. What happened?", "voiceText": "Disc-shaped object. Of course it was. What happened?", "mood": "irritated"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_gruff_2", "text": "Disc over the substation. Fine, I'll hear you out. What happened?", "voiceText": "Disc over the substation. Fine, I'll hear you out. What happened?", "mood": "gruff"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_amused_2", "text": "DISC over the substation! That's amazing! What happened?!", "voiceText": "DISC over the substation! That's amazing! What happened?!", "mood": "amused"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_focused_2", "text": "Describe the correlation between the object and the electrical anomalies.", "voiceText": "Describe the correlation between the object and the electrical anomalies.", "mood": "focused"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_exhausted_2", "text": "... disc-shaped object over the substation, six-block outage, fried surge protectors. what happened next?", "voiceText": "... disc-shaped object over the substation, six-block outage, fried surge protectors. what happened next?", "mood": "exhausted"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_depressed_2", "text": "Disc-shaped object over the substation, six-block outage, fried surge protectors. What happened next?", "voiceText": "Disc-shaped object over the substation, six-block outage, fried surge protectors. What happened next?", "mood": "depressed"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_angry_2", "text": "DISC-SHAPED OBJECT OVER THE SUBSTATION! SIX-BLOCK OUTAGE! FRIED SURGE PROTECTORS! WHAT HAPPENED?!", "voiceText": "DISC-SHAPED OBJECT OVER THE SUBSTATION! SIX-BLOCK OUTAGE! FRIED SURGE PROTECTORS! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_frustrated_2", "text": "Ugh, disc-shaped object over the substation, six-block outage. what happened?", "voiceText": "Ugh, disc-shaped object over the substation, six-block outage. what happened?", "mood": "frustrated"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_obsessive_2", "text": "Disc-shaped object over the substation, six-block outage, fried surge protectors. What happened next? You know what this means?", "voiceText": "Disc-shaped object over the substation, six-block outage, fried surge protectors. What happened next? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_manic_2", "text": "DISC-SHAPED OBJECT OVER THE SUBSTATION! SIX-BLOCK OUTAGE! WHAT HAPPENED?!!!", "voiceText": "DISC-SHAPED OBJECT OVER THE SUBSTATION! SIX-BLOCK OUTAGE! WHAT HAPPENED?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_compelling_electrical_phenomenon_caller_2", "text": "As soon as the object left, power came back on. But the surge damage was consistent with an electromagnetic pulse. I've seen a lot of electrical work in fifteen years. This was not normal. I documented everything. The utility company has no explanation.", "voiceText": "As soon as the object left, power came back on. But the surge damage was consistent with an electromagnetic pulse. I've seen a lot of electrical work in fifteen years. This was not normal. I documented everything. The utility company has no explanation."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_electrical_phenomenon_vern_neutral_3", "text": "EMP-consistent damage, power restored when object left, no explanation from the utility. Send us your documentation. This is exactly what our researchers want. Appreciate you calling in.", "voiceText": "EMP-consistent damage, power restored when object left, no explanation from the utility. Send us your documentation. This is exactly what our researchers want. Appreciate you calling in.", "mood": "neutral"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_tired_3", "text": "EMP damage, power restored. Send the docs. Thanks for calling.", "voiceText": "EMP damage, power restored. Send the docs. Thanks for calling.", "mood": "tired"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_energized_3", "text": "EMP-CONSISTENT DAMAGE?! Power restored when the object left?! This is HISTORIC! Send us your docs! You're part of something HUGE!", "voiceText": "EMP-CONSISTENT DAMAGE?! Power restored when the object left?! This is HISTORIC! Send us your docs! You're part of something HUGE!", "mood": "energized"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_irritated_3", "text": "EMP damage. Well, send the docs in. We'll check. Next caller.", "voiceText": "EMP damage. Well, send the docs in. We'll check. Next caller.", "mood": "irritated"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_gruff_3", "text": "EMP damage. Send the docs. We'll check it out. Thanks.", "voiceText": "EMP damage. Send the docs. We'll check it out. Thanks.", "mood": "gruff"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_amused_3", "text": "EMP-CONSISTENT DAMAGE! Power restored when it left! This is PERFECT! Send us your docs! We love this!", "voiceText": "EMP-CONSISTENT DAMAGE! Power restored when it left! This is PERFECT! Send us your docs! We love this!", "mood": "amused"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_focused_3", "text": "EMP-consistent damage with immediate power restoration. This is significant technical evidence. Please submit your documentation. This could be historic.", "voiceText": "EMP-consistent damage with immediate power restoration. This is significant technical evidence. Please submit your documentation. This could be historic.", "mood": "focused"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_exhausted_3", "text": "... emp-consistent damage, power restored when object left, no explanation from the utility. send us your documentation.", "voiceText": "... emp-consistent damage, power restored when object left, no explanation from the utility. send us your documentation.", "mood": "exhausted"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_depressed_3", "text": "EMP-consistent damage, power restored when object left, no explanation from the utility. Send us your documentation.", "voiceText": "EMP-consistent damage, power restored when object left, no explanation from the utility. Send us your documentation.", "mood": "depressed"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_angry_3", "text": "EMP-CONSISTENT DAMAGE! POWER RESTORED WHEN OBJECT LEFT! SEND US YOUR DOCUMENTATION! THIS COULD BE HISTORIC!", "voiceText": "EMP-CONSISTENT DAMAGE! POWER RESTORED WHEN OBJECT LEFT! SEND US YOUR DOCUMENTATION! THIS COULD BE HISTORIC!", "mood": "angry"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_frustrated_3", "text": "Ugh, emp-consistent damage, power restored when object left. send us your documentation. appreciate you calling in.", "voiceText": "Ugh, emp-consistent damage, power restored when object left. send us your documentation. appreciate you calling in.", "mood": "frustrated"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_obsessive_3", "text": "EMP-consistent damage, power restored when object left, no explanation from the utility. Send us your documentation. You know what this means?", "voiceText": "EMP-consistent damage, power restored when object left, no explanation from the utility. Send us your documentation. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_compelling_electrical_phenomenon_vern_manic_3", "text": "EMP-CONSISTENT DAMAGE! POWER RESTORED WHEN OBJECT LEFT! SEND US YOUR DOCUMENTATION! APPRECIATE YOU CALLING IN.!!!", "voiceText": "EMP-CONSISTENT DAMAGE! POWER RESTORED WHEN OBJECT LEFT! SEND US YOUR DOCUMENTATION! APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

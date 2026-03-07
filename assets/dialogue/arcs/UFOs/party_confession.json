@@ -1,0 +1,77 @@
+{
+  "arcId": "party_confession",
+  "topic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Caller admits their UFO story was made up to impress someone at a party",
+  "callerPersonality": "charismatic_storyteller",
+  "arcNotes": "Fun admission of fabrication, entertaining story about trying to impress someone",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_party_confession_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_fake_party_confession_vern_tired_1", "text": "Alright, you're on. Make it quick.", "voiceText": "Alright, you're on. Make it quick.", "mood": "tired"},
+        {"id": "ufos_fake_party_confession_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_fake_party_confession_vern_irritated_1", "text": "You're on. What's this about?", "voiceText": "You're on. What's this about?", "mood": "irritated"},
+        {"id": "ufos_fake_party_confession_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_fake_party_confession_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_fake_party_confession_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_fake_party_confession_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_fake_party_confession_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_fake_party_confession_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_fake_party_confession_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_fake_party_confession_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_party_confession_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_party_confession_caller_1", "text": "Okay, so, I called in a few weeks ago with that story about seeing a UFO, right? Well, I made the whole thing up. I was at a party and there was this really cute girl who was really into UFOs and I wanted to impress her. So I made up this totally elaborate story.", "voiceText": "Okay, so, I called in a few weeks ago with that story about seeing a UFO, right? Well, I made the whole thing up. I was at a party and there was this really cute girl who was really into UFOs and I wanted to impress her. So I made up this totally elaborate story."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_party_confession_vern_neutral_2", "text": "You made up the whole thing to impress a girl. Go on.", "voiceText": "You made up the whole thing to impress a girl. Go on.", "mood": "neutral"},
+        {"id": "ufos_fake_party_confession_vern_tired_2", "text": "Made up to impress a girl... okay, go on.", "voiceText": "Made up to impress a girl... okay, go on.", "mood": "tired"},
+        {"id": "ufos_fake_party_confession_vern_energized_2", "text": "You MADE IT UP to impress a GIRL?! This is AMAZING! Go on!!", "voiceText": "You MADE IT UP to impress a GIRL?! This is AMAZING! Go on!!", "mood": "energized"},
+        {"id": "ufos_fake_party_confession_vern_irritated_2", "text": "Made up to impress a girl. Of course you did. Go on.", "voiceText": "Made up to impress a girl. Of course you did. Go on.", "mood": "irritated"},
+        {"id": "ufos_fake_party_confession_vern_gruff_2", "text": "Made up. Fine, go on.", "voiceText": "Made up. Fine, go on.", "mood": "gruff"},
+        {"id": "ufos_fake_party_confession_vern_amused_2", "text": "You MADE IT UP! This is great! Go on!", "voiceText": "You MADE IT UP! This is great! Go on!", "mood": "amused"},
+        {"id": "ufos_fake_party_confession_vern_focused_2", "text": "Continue describing your fabricated story.", "voiceText": "Continue describing your fabricated story.", "mood": "focused"},
+        {"id": "ufos_fake_party_confession_vern_exhausted_2", "text": "... you made up the whole thing to impress a girl. go on.", "voiceText": "... you made up the whole thing to impress a girl. go on.", "mood": "exhausted"},
+        {"id": "ufos_fake_party_confession_vern_depressed_2", "text": "You made up the whole thing to impress a girl. Go on.", "voiceText": "You made up the whole thing to impress a girl. Go on.", "mood": "depressed"},
+        {"id": "ufos_fake_party_confession_vern_angry_2", "text": "YOU MADE UP THE WHOLE THING TO IMPRESS A GIRL! GO ON!", "voiceText": "YOU MADE UP THE WHOLE THING TO IMPRESS A GIRL! GO ON!", "mood": "angry"},
+        {"id": "ufos_fake_party_confession_vern_frustrated_2", "text": "Ugh, you made up the whole thing to impress a girl. go on.", "voiceText": "Ugh, you made up the whole thing to impress a girl. go on.", "mood": "frustrated"},
+        {"id": "ufos_fake_party_confession_vern_obsessive_2", "text": "You made up the whole thing to impress a girl. Go on. You know what this means?", "voiceText": "You made up the whole thing to impress a girl. Go on. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_party_confession_vern_manic_2", "text": "YOU MADE UP THE WHOLE THING TO IMPRESS A GIRL. GO ON.!!!", "voiceText": "YOU MADE UP THE WHOLE THING TO IMPRESS A GIRL. GO ON.!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_party_confession_caller_2", "text": "And here's the thing - it worked! She was super impressed! We dated for like two weeks until she found out I was full of it. She was really mad. But hey, I got her number, right? It was totally worth it!", "voiceText": "And here's the thing - it worked! She was super impressed! We dated for like two weeks until she found out I was full of it. She was really mad. But hey, I got her number, right? It was totally worth it!"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_party_confession_vern_neutral_3", "text": "You got her number with a fake UFO story, dated for two weeks. Classic. Next caller.", "voiceText": "You got her number with a fake UFO story, dated for two weeks. Classic. Next caller.", "mood": "neutral"},
+        {"id": "ufos_fake_party_confession_vern_tired_3", "text": "Got her number. Dated for two weeks. Classic. Next.", "voiceText": "Got her number. Dated for two weeks. Classic. Next.", "mood": "tired"},
+        {"id": "ufos_fake_party_confession_vern_energized_3", "text": "You got her NUMBER with a FAKE UFO STORY?! This is the BEST STORY EVER! NEXT!", "voiceText": "You got her NUMBER with a FAKE UFO STORY?! This is the BEST STORY EVER! NEXT!", "mood": "energized"},
+        {"id": "ufos_fake_party_confession_vern_irritated_3", "text": "Got her number. Dated for two weeks. Classic. Next caller.", "voiceText": "Got her number. Dated for two weeks. Classic. Next caller.", "mood": "irritated"},
+        {"id": "ufos_fake_party_confession_vern_gruff_3", "text": "Got her number. Two weeks. Classic. Next.", "voiceText": "Got her number. Two weeks. Classic. Next.", "mood": "gruff"},
+        {"id": "ufos_fake_party_confession_vern_amused_3", "text": "You got her NUMBER! This is PERFECT! NEXT!", "voiceText": "You got her NUMBER! This is PERFECT! NEXT!", "mood": "amused"},
+        {"id": "ufos_fake_party_confession_vern_focused_3", "text": "This is clearly fabricated. Next caller.", "voiceText": "This is clearly fabricated. Next caller.", "mood": "focused"},
+        {"id": "ufos_fake_party_confession_vern_exhausted_3", "text": "... you got her number with a fake ufo story. next caller.", "voiceText": "... you got her number with a fake ufo story. next caller.", "mood": "exhausted"},
+        {"id": "ufos_fake_party_confession_vern_depressed_3", "text": "You got her number with a fake UFO story, dated for two weeks. Classic. Next caller.", "voiceText": "You got her number with a fake UFO story, dated for two weeks. Classic. Next caller.", "mood": "depressed"},
+        {"id": "ufos_fake_party_confession_vern_angry_3", "text": "YOU GOT HER NUMBER WITH A FAKE UFO STORY! NEXT CALLER!", "voiceText": "YOU GOT HER NUMBER WITH A FAKE UFO STORY! NEXT CALLER!", "mood": "angry"},
+        {"id": "ufos_fake_party_confession_vern_frustrated_3", "text": "Ugh, you got her number with a fake ufo story. next caller.", "voiceText": "Ugh, you got her number with a fake ufo story. next caller.", "mood": "frustrated"},
+        {"id": "ufos_fake_party_confession_vern_obsessive_3", "text": "You got her number with a fake UFO story. Classic. Next caller. You know what this means?", "voiceText": "You got her number with a fake UFO story. Classic. Next caller. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_party_confession_vern_manic_3", "text": "YOU GOT HER NUMBER WITH A FAKE UFO STORY. NEXT CALLER.!!!", "voiceText": "YOU GOT HER NUMBER WITH A FAKE UFO STORY. NEXT CALLER.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

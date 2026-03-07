@@ -1,0 +1,77 @@
+{
+  "arcId": "telephone_technician",
+  "topic": "UFOs",
+  "legitimacy": "Credible",
+  "screeningSummary": "Telephone technician reports interference from unknown source during line repairs",
+  "callerPersonality": "cold_factual",
+  "arcNotes": "Technician with technical background, experienced unexplained interference",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_telephone_technician_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_credible_telephone_technician_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_credible_telephone_technician_vern_energized_1", "text": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!", "voiceText": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!", "mood": "energized"},
+        {"id": "ufos_credible_telephone_technician_vern_irritated_1", "text": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?", "voiceText": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?", "mood": "irritated"},
+        {"id": "ufos_credible_telephone_technician_vern_gruff_1", "text": "You're on. So what'd you see?", "voiceText": "You're on. So what'd you see?", "mood": "gruff"},
+        {"id": "ufos_credible_telephone_technician_vern_amused_1", "text": "Oh good, a caller! What've you got for us tonight?", "voiceText": "Oh good, a caller! What've you got for us tonight?", "mood": "amused"},
+        {"id": "ufos_credible_telephone_technician_vern_focused_1", "text": "You're on the air. Start with the basic facts.", "voiceText": "You're on the air. Start with the basic facts.", "mood": "focused"},
+        {"id": "ufos_credible_telephone_technician_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_credible_telephone_technician_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_credible_telephone_technician_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_credible_telephone_technician_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_credible_telephone_technician_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_credible_telephone_technician_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_credible_telephone_technician_caller_1", "text": "I'm a telephone technician with twenty-two years experience. I was doing repairs on a rural line when my equipment started picking up interference that shouldn't exist. It was coming from above, and it was affecting the line. I've never seen interference like this.", "voiceText": "I'm a telephone technician with twenty-two years experience. I was doing repairs on a rural line when my equipment started picking up interference that shouldn't exist. It was coming from above, and it was affecting the line. I've never seen interference like this."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_telephone_technician_vern_neutral_2", "text": "Interference coming from above, affecting the line. What did you see?", "voiceText": "Interference coming from above, affecting the line. What did you see?", "mood": "neutral"},
+        {"id": "ufos_credible_telephone_technician_vern_tired_2", "text": "Interference from above... okay, what did you see?", "voiceText": "Interference from above... okay, what did you see?", "mood": "tired"},
+        {"id": "ufos_credible_telephone_technician_vern_energized_2", "text": "INTERFERENCE from above?! That's incredible! What did you see?!", "voiceText": "INTERFERENCE from above?! That's incredible! What did you see?!", "mood": "energized"},
+        {"id": "ufos_credible_telephone_technician_vern_irritated_2", "text": "Interference from above. Of course there was. What did you see?", "voiceText": "Interference from above. Of course there was. What did you see?", "mood": "irritated"},
+        {"id": "ufos_credible_telephone_technician_vern_gruff_2", "text": "Interference from above. Fine, I'll hear you out. What did you see?", "voiceText": "Interference from above. Fine, I'll hear you out. What did you see?", "mood": "gruff"},
+        {"id": "ufos_credible_telephone_technician_vern_amused_2", "text": "INTERFERENCE from above! That's amazing! What did you see?!", "voiceText": "INTERFERENCE from above! That's amazing! What did you see?!", "mood": "amused"},
+        {"id": "ufos_credible_telephone_technician_vern_focused_2", "text": "Describe the anomalous interference pattern.", "voiceText": "Describe the anomalous interference pattern.", "mood": "focused"},
+        {"id": "ufos_credible_telephone_technician_vern_exhausted_2", "text": "... interference coming from above, affecting the line. what did you see?", "voiceText": "... interference coming from above, affecting the line. what did you see?", "mood": "exhausted"},
+        {"id": "ufos_credible_telephone_technician_vern_depressed_2", "text": "Interference coming from above, affecting the line. What did you see?", "voiceText": "Interference coming from above, affecting the line. What did you see?", "mood": "depressed"},
+        {"id": "ufos_credible_telephone_technician_vern_angry_2", "text": "INTERFERENCE COMING FROM ABOVE! AFFECTING THE LINE! WHAT DID YOU SEE?!", "voiceText": "INTERFERENCE COMING FROM ABOVE! AFFECTING THE LINE! WHAT DID YOU SEE?!", "mood": "angry"},
+        {"id": "ufos_credible_telephone_technician_vern_frustrated_2", "text": "Ugh, interference coming from above, affecting the line. what did you see?", "voiceText": "Ugh, interference coming from above, affecting the line. what did you see?", "mood": "frustrated"},
+        {"id": "ufos_credible_telephone_technician_vern_obsessive_2", "text": "Interference coming from above, affecting the line. What did you see? You know what this means?", "voiceText": "Interference coming from above, affecting the line. What did you see? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_credible_telephone_technician_vern_manic_2", "text": "INTERFERENCE COMING FROM ABOVE. AFFECTING THE LINE. WHAT DID YOU SEE?!!!", "voiceText": "INTERFERENCE COMING FROM ABOVE. AFFECTING THE LINE. WHAT DID YOU SEE?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_credible_telephone_technician_caller_2", "text": "I looked up and there was this object hovering above the lines. It was silent, metallic, and it was affecting my equipment. I've been doing this for twenty-two years. I've never seen anything like it. When it left, the interference stopped immediately.", "voiceText": "I looked up and there was this object hovering above the lines. It was silent, metallic, and it was affecting my equipment. I've been doing this for twenty-two years. I've never seen anything like it. When it left, the interference stopped immediately."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_credible_telephone_technician_vern_neutral_3", "text": "Silent metallic object affecting your equipment, twenty-two years experience. If you're telling me this, I believe you. Send us your documentation. This could be significant. Appreciate you calling in.", "voiceText": "Silent metallic object affecting your equipment, twenty-two years experience. If you're telling me this, I believe you. Send us your documentation. This could be significant. Appreciate you calling in.", "mood": "neutral"},
+        {"id": "ufos_credible_telephone_technician_vern_tired_3", "text": "Silent metallic object. Okay, I believe you. Send docs. Thanks for calling.", "voiceText": "Silent metallic object. Okay, I believe you. Send docs. Thanks for calling.", "mood": "tired"},
+        {"id": "ufos_credible_telephone_technician_vern_energized_3", "text": "SILENT METALLIC OBJECT affecting equipment! This is HISTORIC! Send us your docs! You're part of something HUGE!", "voiceText": "SILENT METALLIC OBJECT affecting equipment! This is HISTORIC! Send us your docs! You're part of something HUGE!", "mood": "energized"},
+        {"id": "ufos_credible_telephone_technician_vern_irritated_3", "text": "Silent metallic object. Well, send the docs in. We'll check. Next caller.", "voiceText": "Silent metallic object. Well, send the docs in. We'll check. Next caller.", "mood": "irritated"},
+        {"id": "ufos_credible_telephone_technician_vern_gruff_3", "text": "Silent metallic object. Send the docs. We'll check it out. Thanks.", "voiceText": "Silent metallic object. Send the docs. We'll check it out. Thanks.", "mood": "gruff"},
+        {"id": "ufos_credible_telephone_technician_vern_amused_3", "text": "SILENT METALLIC OBJECT! This is PERFECT! Send us your docs! We love this!", "voiceText": "SILENT METALLIC OBJECT! This is PERFECT! Send us your docs! We love this!", "mood": "amused"},
+        {"id": "ufos_credible_telephone_technician_vern_focused_3", "text": "Equipment-affecting silent metallic object. This is significant technical evidence. Please submit your documentation. Thank you.", "voiceText": "Equipment-affecting silent metallic object. This is significant technical evidence. Please submit your documentation. Thank you.", "mood": "focused"},
+        {"id": "ufos_credible_telephone_technician_vern_exhausted_3", "text": "... silent metallic object affecting your equipment, twenty-two years experience. send us your documentation.", "voiceText": "... silent metallic object affecting your equipment, twenty-two years experience. send us your documentation.", "mood": "exhausted"},
+        {"id": "ufos_credible_telephone_technician_vern_depressed_3", "text": "Silent metallic object affecting your equipment, twenty-two years experience. Send us your documentation.", "voiceText": "Silent metallic object affecting your equipment, twenty-two years experience. Send us your documentation.", "mood": "depressed"},
+        {"id": "ufos_credible_telephone_technician_vern_angry_3", "text": "SILENT METALLIC OBJECT AFFECTING YOUR EQUIPMENT! SEND US YOUR DOCUMENTATION!", "voiceText": "SILENT METALLIC OBJECT AFFECTING YOUR EQUIPMENT! SEND US YOUR DOCUMENTATION!", "mood": "angry"},
+        {"id": "ufos_credible_telephone_technician_vern_frustrated_3", "text": "Ugh, silent metallic object affecting your equipment. send us your documentation. appreciate you calling in.", "voiceText": "Ugh, silent metallic object affecting your equipment. send us your documentation. appreciate you calling in.", "mood": "frustrated"},
+        {"id": "ufos_credible_telephone_technician_vern_obsessive_3", "text": "Silent metallic object affecting your equipment, twenty-two years experience. Send us your documentation. You know what this means?", "voiceText": "Silent metallic object affecting your equipment, twenty-two years experience. Send us your documentation. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_credible_telephone_technician_vern_manic_3", "text": "SILENT METALLIC OBJECT AFFECTING YOUR EQUIPMENT! SEND US YOUR DOCUMENTATION! APPRECIATE YOU CALLING IN.!!!", "voiceText": "SILENT METALLIC OBJECT AFFECTING YOUR EQUIPMENT! SEND US YOUR DOCUMENTATION! APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

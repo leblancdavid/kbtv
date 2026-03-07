@@ -1,0 +1,101 @@
+{
+  "arcId": "ufo_truck_driver",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Trucker sees triangle UFO formation in Nevada desert with figure inside",
+  "callerPersonality": "gruff_experienced",
+  "arcNotes": "Trucker with classic triangle formation sighting, questionable but detailed",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_truck_driver_vern_neutral_1", "text": "KBTV, Vern here. Go ahead.", "voiceText": "KBTV, Vern here. Go ahead.", "mood": "neutral"},
+        {"id": "ufos_questionable_truck_driver_vern_tired_1", "text": "Alright, you're on.", "voiceText": "Alright, you're on.", "mood": "tired"},
+        {"id": "ufos_questionable_truck_driver_vern_energized_1", "text": "YOU ARE ON KBTV!", "voiceText": "YOU ARE ON KBTV!", "mood": "energized"},
+        {"id": "ufos_questionable_truck_driver_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_questionable_truck_driver_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_questionable_truck_driver_vern_amused_1", "text": "Oh, a caller! What's your story?", "voiceText": "Oh, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_truck_driver_vern_focused_1", "text": "You're on the air. Go ahead.", "voiceText": "You're on the air. Go ahead.", "mood": "focused"},
+        {"id": "ufos_questionable_truck_driver_vern_exhausted_1", "text": "... you're on.", "voiceText": "... you're on.", "mood": "exhausted"},
+        {"id": "ufos_questionable_truck_driver_vern_depressed_1", "text": "KBTV, Vern here. Go ahead.", "voiceText": "KBTV, Vern here. Go ahead.", "mood": "depressed"},
+        {"id": "ufos_questionable_truck_driver_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_questionable_truck_driver_vern_frustrated_1", "text": "Ugh, you're on.", "voiceText": "Ugh, you're on.", "mood": "frustrated"},
+        {"id": "ufos_questionable_truck_driver_vern_obsessive_1", "text": "You're on KBTV. Tell me your experience.", "voiceText": "You're on KBTV. Tell me your experience.", "mood": "obsessive"},
+        {"id": "ufos_questionable_truck_driver_vern_manic_1", "text": "KBTV!!!", "voiceText": "KBTV!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_truck_driver_caller_1", "text": "Vern, this is Big Jim, I run the I-80 corridor out west. I gotta tell you something that happened to me about six months back.", "voiceText": "Vern, this is Big Jim, I run the I-80 corridor out west. I gotta tell you something that happened to me about six months back."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_truck_driver_vern_neutral_2", "text": "Go ahead, Jim. What happened?", "voiceText": "Go ahead, Jim. What happened?", "mood": "neutral"},
+        {"id": "ufos_questionable_truck_driver_vern_tired_2", "text": "What happened?", "voiceText": "What happened?", "mood": "tired"},
+        {"id": "ufos_questionable_truck_driver_vern_energized_2", "text": "Tell us what happened!", "voiceText": "Tell us what happened!", "mood": "energized"},
+        {"id": "ufos_questionable_truck_driver_vern_irritated_2", "text": "What is it?", "voiceText": "What is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_truck_driver_vern_gruff_2", "text": "Go ahead.", "voiceText": "Go ahead.", "mood": "gruff"},
+        {"id": "ufos_questionable_truck_driver_vern_amused_2", "text": "Big Jim! What's your story?", "voiceText": "Big Jim! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_truck_driver_vern_focused_2", "text": "Describe your experience.", "voiceText": "Describe your experience.", "mood": "focused"},
+        {"id": "ufos_questionable_truck_driver_vern_exhausted_2", "text": "... what happened?", "voiceText": "... what happened?", "mood": "exhausted"},
+        {"id": "ufos_questionable_truck_driver_vern_depressed_2", "text": "What happened?", "voiceText": "What happened?", "mood": "depressed"},
+        {"id": "ufos_questionable_truck_driver_vern_angry_2", "text": "WHAT HAPPENED?!", "voiceText": "WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_questionable_truck_driver_vern_frustrated_2", "text": "Ugh, what?", "voiceText": "Ugh, what?", "mood": "frustrated"},
+        {"id": "ufos_questionable_truck_driver_vern_obsessive_2", "text": "This could be significant. What happened?", "voiceText": "This could be significant. What happened?", "mood": "obsessive"},
+        {"id": "ufos_questionable_truck_driver_vern_manic_2", "text": "TELL ME!!!", "voiceText": "TELL ME!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_truck_driver_caller_2", "text": "I was coming through the Nevada desert, about 2 AM, middle of nowhere. And I see these three lights in the sky, in formation. Triangle formation.", "voiceText": "I was coming through the Nevada desert, about 2 AM, middle of nowhere. And I see these three lights in the sky, in formation. Triangle formation."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_truck_driver_vern_neutral_3", "text": "Triangle formation. Military?", "voiceText": "Triangle formation. Military?", "mood": "neutral"},
+        {"id": "ufos_questionable_truck_driver_vern_tired_3", "text": "Triangle... military?", "voiceText": "Triangle... military?", "mood": "tired"},
+        {"id": "ufos_questionable_truck_driver_vern_energized_3", "text": "TRIANGLE FORMATION! Military or ALIEN?!", "voiceText": "TRIANGLE FORMATION! Military or ALIEN?!", "mood": "energized"},
+        {"id": "ufos_questionable_truck_driver_vern_irritated_3", "text": "Triangle. Right.", "voiceText": "Triangle. Right.", "mood": "irritated"},
+        {"id": "ufos_questionable_truck_driver_vern_gruff_3", "text": "Triangle. Go on.", "voiceText": "Triangle. Go on.", "mood": "gruff"},
+        {"id": "ufos_questionable_truck_driver_vern_amused_3", "text": "Triangle formation! Classic! What happened?", "voiceText": "Triangle formation! Classic! What happened?", "mood": "amused"},
+        {"id": "ufos_questionable_truck_driver_vern_focused_3", "text": "Describe the formation in detail.", "voiceText": "Describe the formation in detail.", "mood": "focused"},
+        {"id": "ufos_questionable_truck_driver_vern_exhausted_3", "text": "... triangle. okay.", "voiceText": "... triangle. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_truck_driver_vern_depressed_3", "text": "Triangle formation. Military?", "voiceText": "Triangle formation. Military?", "mood": "depressed"},
+        {"id": "ufos_questionable_truck_driver_vern_angry_3", "text": "TRIANGLE! MILITARY OR NOT?!", "voiceText": "TRIANGLE! MILITARY OR NOT?!", "mood": "angry"},
+        {"id": "ufos_questionable_truck_driver_vern_frustrated_3", "text": "Ugh, triangle.", "voiceText": "Ugh, triangle.", "mood": "frustrated"},
+        {"id": "ufos_questionable_truck_driver_vern_obsessive_3", "text": "This is significant. The triangle formation - military or unknown?", "voiceText": "This is significant. The triangle formation - military or unknown?", "mood": "obsessive"},
+        {"id": "ufos_questionable_truck_driver_vern_manic_3", "text": "TRIANGLE!!!", "voiceText": "TRIANGLE!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_truck_driver_caller_3", "text": "That's what I thought. So I pulled over to watch. And then the middle one... it moved. It came straight toward my truck. Right at my window. I could see... something in that light. Looking at me.", "voiceText": "That's what I thought. So I pulled over to watch. And then the middle one... it moved. It came straight toward my truck. Right at my window. I could see... something in that light. Looking at me."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_truck_driver_vern_neutral_4", "text": "You could see something inside?", "voiceText": "You could see something inside?", "mood": "neutral"},
+        {"id": "ufos_questionable_truck_driver_vern_tired_4", "text": "Something inside... okay.", "voiceText": "Something inside... okay.", "mood": "tired"},
+        {"id": "ufos_questionable_truck_driver_vern_energized_4", "text": "SOMETHING IN THE LIGHT! This is INCREDIBLE!", "voiceText": "SOMETHING IN THE LIGHT! This is INCREDIBLE!", "mood": "energized"},
+        {"id": "ufos_questionable_truck_driver_vern_irritated_4", "text": "Something inside. Right.", "voiceText": "Something inside. Right.", "mood": "irritated"},
+        {"id": "ufos_questionable_truck_driver_vern_gruff_4", "text": "Something inside. Go on.", "voiceText": "Something inside. Go on.", "mood": "gruff"},
+        {"id": "ufos_questionable_truck_driver_vern_amused_4", "text": "Something looking at you! That's amazing! What did you see?", "voiceText": "Something looking at you! That's amazing! What did you see?", "mood": "amused"},
+        {"id": "ufos_questionable_truck_driver_vern_focused_4", "text": "Describe what you observed inside the craft.", "voiceText": "Describe what you observed inside the craft.", "mood": "focused"},
+        {"id": "ufos_questionable_truck_driver_vern_exhausted_4", "text": "... something inside. okay.", "voiceText": "... something inside. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_truck_driver_vern_depressed_4", "text": "Something inside. What was it?", "voiceText": "Something inside. What was it?", "mood": "depressed"},
+        {"id": "ufos_questionable_truck_driver_vern_angry_4", "text": "SOMETHING INSIDE! WHAT DID YOU SEE?!", "voiceText": "SOMETHING INSIDE! WHAT DID YOU SEE?!", "mood": "angry"},
+        {"id": "ufos_questionable_truck_driver_vern_frustrated_4", "text": "Ugh, something inside.", "voiceText": "Ugh, something inside.", "mood": "frustrated"},
+        {"id": "ufos_questionable_truck_driver_vern_obsessive_4", "text": "This is critical. What did you observe inside?", "voiceText": "This is critical. What did you observe inside?", "mood": "obsessive"},
+        {"id": "ufos_questionable_truck_driver_vern_manic_4", "text": "INSIDE!!! WHAT WAS IT!!!", "voiceText": "INSIDE!!! WHAT WAS IT!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

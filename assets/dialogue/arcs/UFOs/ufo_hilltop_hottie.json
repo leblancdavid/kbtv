@@ -1,0 +1,101 @@
+{
+  "arcId": "ufo_hilltop_hottie",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Caller claims UFO encounter at Lovers' Leap with paralyzed boyfriend and silhouette figure",
+  "callerPersonality": "emotional_wreck",
+  "arcNotes": "Flirtatious caller with dramatic story of paralysis and alien figure, questionable credibility",
+  "callerGender": "female",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_hilltop_hottie_vern_neutral_1", "text": "You're on KBTV, this is Vern. What's your name and what's going on?", "voiceText": "You're on KBTV, this is Vern. What's your name and what's going on?", "mood": "neutral"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_tired_1", "text": "Alright, you're on. What's your name?", "voiceText": "Alright, you're on. What's your name?", "mood": "tired"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_energized_1", "text": "YOU'RE ON KBTV! Tell us what's happening!", "voiceText": "YOU'RE ON KBTV! Tell us what's happening!", "mood": "energized"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_amused_1", "text": "Oh, we've got a caller! What's your story?", "voiceText": "Oh, we've got a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_focused_1", "text": "You're on the air. State your name and experience.", "voiceText": "You're on the air. State your name and experience.", "mood": "focused"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_exhausted_1", "text": "... you're on. go ahead.", "voiceText": "... you're on. go ahead.", "mood": "exhausted"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_depressed_1", "text": "You're on KBTV. What happened?", "voiceText": "You're on KBTV. What happened?", "mood": "depressed"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_frustrated_1", "text": "Ugh, you're on. What is it?", "voiceText": "Ugh, you're on. What is it?", "mood": "frustrated"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_obsessive_1", "text": "You're on KBTV. This could be significant - tell me everything.", "voiceText": "You're on KBTV. This could be significant - tell me everything.", "mood": "obsessive"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_manic_1", "text": "KBTV!!! GO AHEAD!!!", "voiceText": "KBTV!!! GO AHEAD!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_hilltop_hottie_caller_1", "text": "It's Tiffany, Vern. And I know this is gonna sound crazy, but... I was up on Lovers' Leap last night, you know, with my boyfriend...", "voiceText": "It's Tiffany, Vern. And I know this is gonna sound crazy, but... I was up on Lovers' Leap last night, you know, with my boyfriend..."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_hilltop_hottie_vern_neutral_2", "text": "Wait, Lovers' Leap? That's the overlook past the reservoir, right?", "voiceText": "Wait, Lovers' Leap? That's the overlook past the reservoir, right?", "mood": "neutral"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_tired_2", "text": "Lovers' Leap... right. What happened?", "voiceText": "Lovers' Leap... right. What happened?", "mood": "tired"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_energized_2", "text": "LOVERS' LEAP! That's a famous spot! What happened?!", "voiceText": "LOVERS' LEAP! That's a famous spot! What happened?!", "mood": "energized"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_irritated_2", "text": "Lovers' Leap. Right. What happened?", "voiceText": "Lovers' Leap. Right. What happened?", "mood": "irritated"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_gruff_2", "text": "Lovers' Leap. Go on.", "voiceText": "Lovers' Leap. Go on.", "mood": "gruff"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_amused_2", "text": "Oh, Lovers' Leap! That's romantic! What happened?", "voiceText": "Oh, Lovers' Leap! That's romantic! What happened?", "mood": "amused"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_focused_2", "text": "Lovers' Leap - that's the overlook. Describe what occurred.", "voiceText": "Lovers' Leap - that's the overlook. Describe what occurred.", "mood": "focused"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_exhausted_2", "text": "... lovers' leap. okay.", "voiceText": "... lovers' leap. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_depressed_2", "text": "Lovers' Leap. What happened?", "voiceText": "Lovers' Leap. What happened?", "mood": "depressed"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_angry_2", "text": "LOVERS' LEAP! WHAT HAPPENED?!", "voiceText": "LOVERS' LEAP! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_frustrated_2", "text": "Ugh, lovers' leap. What happened?", "voiceText": "Ugh, lovers' leap. What happened?", "mood": "frustrated"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_obsessive_2", "text": "Lovers' Leap. This is significant. What happened?", "voiceText": "Lovers' Leap. This is significant. What happened?", "mood": "obsessive"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_manic_2", "text": "LOVERS' LEAP!!! TELL ME EVERYTHING!!!", "voiceText": "LOVERS' LEAP!!! TELL ME EVERYTHING!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_hilltop_hottie_caller_2", "text": "Yeah, yeah, so we're up there and this light comes down, right? Like, super slow, and it's HUGE, and my boyfriend... he just froze, Vern. He couldn't move.", "voiceText": "Yeah, yeah, so we're up there and this light comes down, right? Like, super slow, and it's HUGE, and my boyfriend... he just froze, Vern. He couldn't move."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_hilltop_hottie_vern_neutral_3", "text": "He froze? Like... paralysis?", "voiceText": "He froze? Like... paralysis?", "mood": "neutral"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_tired_3", "text": "He froze... okay. Paralysis?", "voiceText": "He froze... okay. Paralysis?", "mood": "tired"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_energized_3", "text": "PARALYSIS?! That's intense! What happened next?!", "voiceText": "PARALYSIS?! That's intense! What happened next?!", "mood": "energized"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_irritated_3", "text": "He froze. Of course he did. What happened?", "voiceText": "He froze. Of course he did. What happened?", "mood": "irritated"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_gruff_3", "text": "He froze. Go on.", "voiceText": "He froze. Go on.", "mood": "gruff"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_amused_3", "text": "He froze! That's dramatic! What happened next?", "voiceText": "He froze! That's dramatic! What happened next?", "mood": "amused"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_focused_3", "text": "Describe the paralysis event and subsequent observations.", "voiceText": "Describe the paralysis event and subsequent observations.", "mood": "focused"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_exhausted_3", "text": "... he froze. okay.", "voiceText": "... he froze. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_depressed_3", "text": "He froze. What happened?", "voiceText": "He froze. What happened?", "mood": "depressed"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_angry_3", "text": "HE FROZE! WHAT HAPPENED?!", "voiceText": "HE FROZE! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_frustrated_3", "text": "Ugh, he froze. What happened?", "voiceText": "Ugh, he froze. What happened?", "mood": "frustrated"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_obsessive_3", "text": "He froze. This is significant. What did you observe?", "voiceText": "He froze. This is significant. What did you observe?", "mood": "obsessive"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_manic_3", "text": "FROZEN!!! TELL ME EVERYTHING!!!", "voiceText": "FROZEN!!! TELL ME EVERYTHING!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_hilltop_hottie_caller_3", "text": "Completely frozen. And I could see... there was like, a figure in the light? Like a silhouette? And it was looking right at me, Vern. Right at me.", "voiceText": "Completely frozen. And I could see... there was like, a figure in the light? Like a silhouette? And it was looking right at me, Vern. Right at me."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_hilltop_hottie_vern_neutral_4", "text": "And then what happened? Did it leave?", "voiceText": "And then what happened? Did it leave?", "mood": "neutral"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_tired_4", "text": "And then? It left?", "voiceText": "And then? It left?", "mood": "tired"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_energized_4", "text": "A SILHOUETTE! This is AMAZING! What happened next?!", "voiceText": "A SILHOUETTE! This is AMAZING! What happened next?!", "mood": "energized"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_irritated_4", "text": "A figure. Right. And then?", "voiceText": "A figure. Right. And then?", "mood": "irritated"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_gruff_4", "text": "And then? Go on.", "voiceText": "And then? Go on.", "mood": "gruff"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_amused_4", "text": "A silhouette looking at you! This is great! What happened?", "voiceText": "A silhouette looking at you! This is great! What happened?", "mood": "amused"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_focused_4", "text": "Describe the figure's appearance and subsequent events.", "voiceText": "Describe the figure's appearance and subsequent events.", "mood": "focused"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_exhausted_4", "text": "... and then. okay.", "voiceText": "... and then. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_depressed_4", "text": "And then what happened?", "voiceText": "And then what happened?", "mood": "depressed"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_angry_4", "text": "AND THEN WHAT?!", "voiceText": "AND THEN WHAT?!", "mood": "angry"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_frustrated_4", "text": "Ugh, and then?", "voiceText": "Ugh, and then?", "mood": "frustrated"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_obsessive_4", "text": "The figure. This is critical. What happened next?", "voiceText": "The figure. This is critical. What happened next?", "mood": "obsessive"},
+        {"id": "ufos_questionable_hilltop_hottie_vern_manic_4", "text": "SILHOUETTE!!! WHAT HAPPENED NEXT!!!", "voiceText": "SILHOUETTE!!! WHAT HAPPENED NEXT!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

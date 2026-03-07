@@ -1,0 +1,77 @@
+{
+  "arcId": "neighbor_lights",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Nervous caller claims to have seen strange lights in neighbor's backyard for three nights in a row",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Nervous caller, not sure what they saw, hesitant about making claims",
+  "callerGender": "female",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_neighbor_lights_vern_neutral_1", "text": "You're on the air. What did you witness?", "voiceText": "You're on the air. What did you witness?", "mood": "neutral"},
+        {"id": "ufos_questionable_neighbor_lights_vern_tired_1", "text": "Alright, you're on. What'd you see?", "voiceText": "Alright, you're on. What'd you see?", "mood": "tired"},
+        {"id": "ufos_questionable_neighbor_lights_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us what you witnessed!", "voiceText": "YOU ARE ON THE AIR! Tell us what you witnessed!", "mood": "energized"},
+        {"id": "ufos_questionable_neighbor_lights_vern_irritated_1", "text": "You're on. Make it quick - what is it?", "voiceText": "You're on. Make it quick - what is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_neighbor_lights_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_neighbor_lights_vern_amused_1", "text": "Oh good, a caller! What did you see?", "voiceText": "Oh good, a caller! What did you see?", "mood": "amused"},
+        {"id": "ufos_questionable_neighbor_lights_vern_focused_1", "text": "You're on. Describe what you observed from the beginning.", "voiceText": "You're on. Describe what you observed from the beginning.", "mood": "focused"},
+        {"id": "ufos_questionable_neighbor_lights_vern_exhausted_1", "text": "... you're on the air. what did you witness?", "voiceText": "... you're on the air. what did you witness?", "mood": "exhausted"},
+        {"id": "ufos_questionable_neighbor_lights_vern_depressed_1", "text": "You're on the air. What did you witness...", "voiceText": "You're on the air. What did you witness...", "mood": "depressed"},
+        {"id": "ufos_questionable_neighbor_lights_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DID YOU WITNESS?!", "voiceText": "YOU'RE ON THE AIR! WHAT DID YOU WITNESS?!", "mood": "angry"},
+        {"id": "ufos_questionable_neighbor_lights_vern_frustrated_1", "text": "Ugh, you're on the air. what did you witness?", "voiceText": "Ugh, you're on the air. what did you witness?", "mood": "frustrated"},
+        {"id": "ufos_questionable_neighbor_lights_vern_obsessive_1", "text": "You're on the air. What did you witness? You know what this means?", "voiceText": "You're on the air. What did you witness? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_neighbor_lights_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT DID YOU WITNESS?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT DID YOU WITNESS?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_neighbor_lights_caller_1", "text": "Okay, so, um, this is gonna sound crazy, but I've been seeing these lights? In my neighbor's backyard? For like, three nights now? They're like, orange? And they just hover there and I don't know what to think anymore, you know?", "voiceText": "Okay, so, um, this is gonna sound crazy, but I've been seeing these lights? In my neighbor's backyard? For like, three nights now? They're like, orange? And they just hover there and I don't know what to think anymore, you know?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_neighbor_lights_vern_neutral_2", "text": "Three nights in a row. What time are you seeing these lights?", "voiceText": "Three nights in a row. What time are you seeing these lights?", "mood": "neutral"},
+        {"id": "ufos_questionable_neighbor_lights_vern_tired_2", "text": "Three nights... okay, what time?", "voiceText": "Three nights... okay, what time?", "mood": "tired"},
+        {"id": "ufos_questionable_neighbor_lights_vern_energized_2", "text": "THREE NIGHTS?! This is AMAZING! What time?!", "voiceText": "THREE NIGHTS?! This is AMAZING! What time?!", "mood": "energized"},
+        {"id": "ufos_questionable_neighbor_lights_vern_irritated_2", "text": "Three nights. Of course it was. What time?", "voiceText": "Three nights. Of course it was. What time?", "mood": "irritated"},
+        {"id": "ufos_questionable_neighbor_lights_vern_gruff_2", "text": "Three nights. Fine, I'll listen. What time?", "voiceText": "Three nights. Fine, I'll listen. What time?", "mood": "gruff"},
+        {"id": "ufos_questionable_neighbor_lights_vern_amused_2", "text": "THREE NIGHTS! This is fantastic! What time?!", "voiceText": "THREE NIGHTS! This is fantastic! What time?!", "mood": "amused"},
+        {"id": "ufos_questionable_neighbor_lights_vern_focused_2", "text": "Three consecutive nights. What was the time of observation?", "voiceText": "Three consecutive nights. What was the time of observation?", "mood": "focused"},
+        {"id": "ufos_questionable_neighbor_lights_vern_exhausted_2", "text": "... three nights in a row. what time?", "voiceText": "... three nights in a row. what time?", "mood": "exhausted"},
+        {"id": "ufos_questionable_neighbor_lights_vern_depressed_2", "text": "Three nights in a row. What time...", "voiceText": "Three nights in a row. What time...", "mood": "depressed"},
+        {"id": "ufos_questionable_neighbor_lights_vern_angry_2", "text": "THREE NIGHTS IN A ROW! WHAT TIME?!", "voiceText": "THREE NIGHTS IN A ROW! WHAT TIME?!", "mood": "angry"},
+        {"id": "ufos_questionable_neighbor_lights_vern_frustrated_2", "text": "Ugh, three nights in a row. what time?", "voiceText": "Ugh, three nights in a row. what time?", "mood": "frustrated"},
+        {"id": "ufos_questionable_neighbor_lights_vern_obsessive_2", "text": "Three nights in a row. What time? You know what this means?", "voiceText": "Three nights in a row. What time? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_neighbor_lights_vern_manic_2", "text": "THREE NIGHTS IN A ROW. WHAT TIME?!!!", "voiceText": "THREE NIGHTS IN A ROW. WHAT TIME?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_neighbor_lights_caller_2", "text": "Like, around ten, ten-thirty? And they're just there for like twenty minutes? And my neighbor, like, he's not home a lot? And I'm not saying it's aliens, I swear, I'm just saying it's weird, you know?", "voiceText": "Like, around ten, ten-thirty? And they're just there for like twenty minutes? And my neighbor, like, he's not home a lot? And I'm not saying it's aliens, I swear, I'm just saying it's weird, you know?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_neighbor_lights_vern_neutral_3", "text": "Look, it could be your neighbor doing something. Have you tried talking to them? Could be a heat lamp, grow lights, anything. But thanks for calling in.", "voiceText": "Look, it could be your neighbor doing something. Have you tried talking to them? Could be a heat lamp, grow lights, anything. But thanks for calling in.", "mood": "neutral"},
+        {"id": "ufos_questionable_neighbor_lights_vern_tired_3", "text": "It's probably your neighbor. Have you asked them? Thanks for calling.", "voiceText": "It's probably your neighbor. Have you asked them? Thanks for calling.", "mood": "tired"},
+        {"id": "ufos_questionable_neighbor_lights_vern_energized_3", "text": "This is INTERESTING! Could be your neighbor! Ask them! Thanks for calling!", "voiceText": "This is INTERESTING! Could be your neighbor! Ask them! Thanks for calling!", "mood": "energized"},
+        {"id": "ufos_questionable_neighbor_lights_vern_irritated_3", "text": "It's probably your neighbor's grow lights. Have you tried asking? Next.", "voiceText": "It's probably your neighbor's grow lights. Have you tried asking? Next.", "mood": "irritated"},
+        {"id": "ufos_questionable_neighbor_lights_vern_gruff_3", "text": "Could be your neighbor. Could be lights. Have you talked to them? Thanks.", "voiceText": "Could be your neighbor. Could be lights. Have you talked to them? Thanks.", "mood": "gruff"},
+        {"id": "ufos_questionable_neighbor_lights_vern_amused_3", "text": "This is CUTE! Maybe ask your neighbor! Thanks for calling!", "voiceText": "This is CUTE! Maybe ask your neighbor! Thanks for calling!", "mood": "amused"},
+        {"id": "ufos_questionable_neighbor_lights_vern_focused_3", "text": "This could have multiple explanations including legal agricultural lighting. I recommend direct observation and documentation. Thank you.", "voiceText": "This could have multiple explanations including legal agricultural lighting. I recommend direct observation and documentation. Thank you.", "mood": "focused"},
+        {"id": "ufos_questionable_neighbor_lights_vern_exhausted_3", "text": "... look, it could be your neighbor doing something. have you tried talking to them? thanks for calling in.", "voiceText": "... look, it could be your neighbor doing something. have you tried talking to them? thanks for calling in.", "mood": "exhausted"},
+        {"id": "ufos_questionable_neighbor_lights_vern_depressed_3", "text": "Look, it could be your neighbor doing something. Have you tried talking to them? But thanks for calling in.", "voiceText": "Look, it could be your neighbor doing something. Have you tried talking to them? But thanks for calling in.", "mood": "depressed"},
+        {"id": "ufos_questionable_neighbor_lights_vern_angry_3", "text": "LOOK, IT COULD BE YOUR NEIGHBOR DOING SOMETHING! HAVE YOU TRIED TALKING TO THEM?! THANKS FOR CALLING IN!", "voiceText": "LOOK, IT COULD BE YOUR NEIGHBOR DOING SOMETHING! HAVE YOU TRIED TALKING TO THEM?! THANKS FOR CALLING IN!", "mood": "angry"},
+        {"id": "ufos_questionable_neighbor_lights_vern_frustrated_3", "text": "Ugh, look, it could be your neighbor doing something. have you tried talking to them? thanks for calling in.", "voiceText": "Ugh, look, it could be your neighbor doing something. have you tried talking to them? thanks for calling in.", "mood": "frustrated"},
+        {"id": "ufos_questionable_neighbor_lights_vern_obsessive_3", "text": "Look, it could be your neighbor doing something. Have you tried talking to them? But thanks for calling in. You know what this means?", "voiceText": "Look, it could be your neighbor doing something. Have you tried talking to them? But thanks for calling in. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_neighbor_lights_vern_manic_3", "text": "LOOK, IT COULD BE YOUR NEIGHBOR DOING SOMETHING. HAVE YOU TRIED TALKING TO THEM?! THANKS FOR CALLING IN.!!!", "voiceText": "LOOK, IT COULD BE YOUR NEIGHBOR DOING SOMETHING. HAVE YOU TRIED TALKING TO THEM?! THANKS FOR CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

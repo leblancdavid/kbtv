@@ -1,0 +1,569 @@
+{
+  "arcId": "ufo_retired_colonel",
+  "topic": "UFOs",
+  "legitimacy": "Compelling",
+  "callerGender": "male",
+  "screeningSummary": "Retired Air Force Colonel with 26 years experience, 15 in intelligence, witnessed object entering US airspace at mach 9, slowing to 200 knots, scrambled F-15s, object accelerated to mach 25 and vanished",
+  "callerPersonality": "official",
+  "arcNotes": "Military intelligence background, March 1987, multiple radar sources, F-15 visual confirmation, object accelerated from 200 knots to mach 25 in under 2 seconds, classified incident",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_vern_neutral_1",
+          "text": "KBTV, you're on with Vern.",
+          "voiceText": "KBTV, you're on with Vern.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_tired_1",
+          "text": "You're on. What's your story?",
+          "voiceText": "You're on. What's your story?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_energized_1",
+          "text": "YOU'RE ON THE AIR! A retired Colonel! This is gonna be good!",
+          "voiceText": "YOU'RE ON THE AIR! A retired Colonel! This is gonna be good!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_irritated_1",
+          "text": "You're on. Make it quick.",
+          "voiceText": "You're on. Make it quick.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_gruff_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_amused_1",
+          "text": "Oh, a retired Air Force Colonel! This is exactly the call I've been waiting for! What's your story?",
+          "voiceText": "Oh, a retired Air Force Colonel! This is exactly the call I've been waiting for! What's your story?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_focused_1",
+          "text": "KBTV, you're on. What happened?",
+          "voiceText": "KBTV, you're on. What happened?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_exhausted_1",
+          "text": "... you're on. go ahead.",
+          "voiceText": "... you're on. go ahead.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_depressed_1",
+          "text": "KBTV, you're on with Vern.",
+          "voiceText": "KBTV, you're on with Vern.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_angry_1",
+          "text": "KBTV! YOU'RE ON THE AIR! WHAT'S YOUR STORY?!",
+          "voiceText": "KBTV! YOU'RE ON THE AIR! WHAT'S YOUR STORY?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_frustrated_1",
+          "text": "Ugh, you're on. What is it?",
+          "voiceText": "Ugh, you're on. What is it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_obsessive_1",
+          "text": "KBTV, you're on. You know what this means?",
+          "voiceText": "KBTV, you're on. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_manic_1",
+          "text": "KBTV!!! RETIRED COLONEL!!! YOU'RE ON!!!",
+          "voiceText": "KBTV!!! RETIRED COLONEL!!! YOU'RE ON!!!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_caller_1",
+          "text": "Vern, this is Colonel William Harris, retired. I spent twenty-six years in the Air Force, fifteen of those in intelligence. I'm calling about something I witnessed in 1987.",
+          "voiceText": "Vern, this is Colonel William Harris, retired. I spent twenty-six years in the Air Force, fifteen of those in intelligence. I'm calling about something I witnessed in 1987."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_vern_neutral_2",
+          "text": "1987. What happened?",
+          "voiceText": "1987. What happened?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_tired_2",
+          "text": "1987. Alright, I'm listening. What happened?",
+          "voiceText": "1987. Alright, I'm listening. What happened?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_energized_2",
+          "text": "1987! Twenty-six years of Air Force experience! This is gonna be HUGE!",
+          "voiceText": "1987! Twenty-six years of Air Force experience! This is gonna be HUGE!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_irritated_2",
+          "text": "1987. Let me guess - you saw something you couldn't explain?",
+          "voiceText": "1987. Let me guess - you saw something you couldn't explain?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_gruff_2",
+          "text": "1987. What's the story?",
+          "voiceText": "1987. What's the story?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_amused_2",
+          "text": "A military intelligence officer from 1987! This is exactly what we need! What happened?",
+          "voiceText": "A military intelligence officer from 1987! This is exactly what we need! What happened?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_focused_2",
+          "text": "1987. Military intelligence background. What did you witness?",
+          "voiceText": "1987. Military intelligence background. What did you witness?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_exhausted_2",
+          "text": "... 1987. what happened?",
+          "voiceText": "... 1987. what happened?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_depressed_2",
+          "text": "1987. What happened?",
+          "voiceText": "1987. What happened?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_angry_2",
+          "text": "1987! WHAT HAPPENED?!",
+          "voiceText": "1987! WHAT HAPPENED?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_frustrated_2",
+          "text": "Ugh, 1987. what happened?",
+          "voiceText": "Ugh, 1987. what happened?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_obsessive_2",
+          "text": "1987. You know what this means?",
+          "voiceText": "1987. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_manic_2",
+          "text": "1987!!! WHAT HAPPENED?!",
+          "voiceText": "1987!!! WHAT HAPPENED?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_caller_2",
+          "text": "I was stationed at Norton AFB in California. On March 11th, we had a situation. An object had been tracked entering US airspace over the Pacific. It was heading inland.",
+          "voiceText": "I was stationed at Norton AFB in California. On March 11th, we had a situation. An object had been tracked entering US airspace over the Pacific. It was heading inland."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_vern_neutral_3",
+          "text": "Tracked by radar?",
+          "voiceText": "Tracked by radar?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_tired_3",
+          "text": "An object tracked entering US airspace. What were the details?",
+          "voiceText": "An object tracked entering US airspace. What were the details?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_energized_3",
+          "text": "AN OBJECT ENTERING US AIRSPACE! This is serious! What happened next?!",
+          "voiceText": "AN OBJECT ENTERING US AIRSPACE! This is serious! What happened next?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_irritated_3",
+          "text": "Something on radar. Right. What was it?",
+          "voiceText": "Something on radar. Right. What was it?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_gruff_3",
+          "text": "Go on.",
+          "voiceText": "Go on.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_amused_3",
+          "text": "Something entering US airspace over the Pacific! This is exactly the kind of call we need!",
+          "voiceText": "Something entering US airspace over the Pacific! This is exactly the kind of call we need!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_focused_3",
+          "text": "Object entering US airspace. What was the track data? Speed? Heading?",
+          "voiceText": "Object entering US airspace. What was the track data? Speed? Heading?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_exhausted_3",
+          "text": "... tracked by radar?",
+          "voiceText": "... tracked by radar?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_depressed_3",
+          "text": "Tracked by radar?",
+          "voiceText": "Tracked by radar?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_angry_3",
+          "text": "TRACKED BY RADAR?! WHAT WAS IT?!",
+          "voiceText": "TRACKED BY RADAR?! WHAT WAS IT?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_frustrated_3",
+          "text": "Ugh, what was it?",
+          "voiceText": "Ugh, what was it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_obsessive_3",
+          "text": "Tracked by radar. You know what this means?",
+          "voiceText": "Tracked by radar. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_manic_3",
+          "text": "ENTERING US AIRSPACE!!! WHAT WAS IT?!",
+          "voiceText": "ENTERING US AIRSPACE!!! WHAT WAS IT?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_caller_3",
+          "text": "Multiple radar sources. Military, FAA, even a civilian station in Nevada. It was moving at mach 9. That's nine times the speed of sound. Then it slowed. To about 200 knots.",
+          "voiceText": "Multiple radar sources. Military, FAA, even a civilian station in Nevada. It was moving at mach 9. That's nine times the speed of sound. Then it slowed. To about 200 knots."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_vern_neutral_4",
+          "text": "Mach 9 to 200 knots. That's a massive speed change.",
+          "voiceText": "Mach 9 to 200 knots. That's a massive speed change.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_tired_4",
+          "text": "Mach 9 down to 200 knots. That's... quite a slowdown.",
+          "voiceText": "Mach 9 down to 200 knots. That's... quite a slowdown.",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_energized_4",
+          "text": "MACH 9 to 200 KNOTS! That's IMPOSSIBLE for any aircraft! What happened next?!",
+          "voiceText": "MACH 9 to 200 KNOTS! That's IMPOSSIBLE for any aircraft! What happened next?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_irritated_4",
+          "text": "Mach 9 to 200 knots. Sure. What happened?",
+          "voiceText": "Mach 9 to 200 knots. Sure. What happened?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_gruff_4",
+          "text": "Massive speed change. Go on.",
+          "voiceText": "Massive speed change. Go on.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_amused_4",
+          "text": "Mach 9 slowing to 200 knots! This is incredible! What did you do next?!",
+          "voiceText": "Mach 9 slowing to 200 knots! This is incredible! What did you do next?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_focused_4",
+          "text": "Mach 9 to 200 knots. What was the deceleration profile? How close did it get to the base?",
+          "voiceText": "Mach 9 to 200 knots. What was the deceleration profile? How close did it get to the base?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_exhausted_4",
+          "text": "... mach 9 to 200 knots. that's a massive speed change.",
+          "voiceText": "... mach 9 to 200 knots. that's a massive speed change.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_depressed_4",
+          "text": "Mach 9 to 200 knots. That's a massive speed change.",
+          "voiceText": "Mach 9 to 200 knots. That's a massive speed change.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_angry_4",
+          "text": "MACH 9 to 200 KNOTS! THAT'S A MASSIVE SPEED CHANGE!",
+          "voiceText": "MACH 9 to 200 KNOTS! THAT'S A MASSIVE SPEED CHANGE!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_frustrated_4",
+          "text": "Ugh, massive speed change. then what?",
+          "voiceText": "Ugh, massive speed change. then what?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_obsessive_4",
+          "text": "Mach 9 to 200 knots. That's a massive speed change. You know what this means?",
+          "voiceText": "Mach 9 to 200 knots. That's a massive speed change. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_manic_4",
+          "text": "MACH 9!!! TO 200 KNOTS!!! HOW IS THAT POSSIBLE?!",
+          "voiceText": "MACH 9!!! TO 200 KNOTS!!! HOW IS THAT POSSIBLE?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_caller_4",
+          "text": "We scrambled two F-15s from George Air Force Base. The pilots reported visual contact. An object, roughly thirty meters in diameter, metallic, dome-shaped. No visible propulsion system.",
+          "voiceText": "We scrambled two F-15s from George Air Force Base. The pilots reported visual contact. An object, roughly thirty meters in diameter, metallic, dome-shaped. No visible propulsion system."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_vern_neutral_5",
+          "text": "What happened next?",
+          "voiceText": "What happened next?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_tired_5",
+          "text": "F-15s made visual contact. Then what?",
+          "voiceText": "F-15s made visual contact. Then what?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_energized_5",
+          "text": "F-15s! Visual contact! A thirty-meter metallic dome! This is TEXTBOOK! What happened next?!",
+          "voiceText": "F-15s! Visual contact! A thirty-meter metallic dome! This is TEXTBOOK! What happened next?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_irritated_5",
+          "text": "F-15s saw it. Then what?",
+          "voiceText": "F-15s saw it. Then what?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_gruff_5",
+          "text": "Then what?",
+          "voiceText": "Then what?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_amused_5",
+          "text": "Military jets intercepting a craft! This is the best call ever! What happened?!",
+          "voiceText": "Military jets intercepting a craft! This is the best call ever! What happened?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_focused_5",
+          "text": "F-15 visual confirmation. What was the final interaction before the object departed?",
+          "voiceText": "F-15 visual confirmation. What was the final interaction before the object departed?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_exhausted_5",
+          "text": "... what happened next?",
+          "voiceText": "... what happened next?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_depressed_5",
+          "text": "What happened next?",
+          "voiceText": "What happened next?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_angry_5",
+          "text": "WHAT HAPPENED NEXT?!",
+          "voiceText": "WHAT HAPPENED NEXT?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_frustrated_5",
+          "text": "Ugh, then what?",
+          "voiceText": "Ugh, then what?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_obsessive_5",
+          "text": "What happened next? You know what this means?",
+          "voiceText": "What happened next? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_manic_5",
+          "text": "WHAT HAPPENED NEXT?! TELL ME!",
+          "voiceText": "WHAT HAPPENED NEXT?! TELL ME!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_caller_5",
+          "text": "The object turned to face the fighters. Then it accelerated. From 200 knots to mach 25 in under two seconds. It was gone before we could react. We lost all track data.",
+          "voiceText": "The object turned to face the fighters. Then it accelerated. From 200 knots to mach 25 in under two seconds. It was gone before we could react. We lost all track data."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_vern_neutral_6",
+          "text": "Mach 25. And what did your superiors say?",
+          "voiceText": "Mach 25. And what did your superiors say?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_tired_6",
+          "text": "Mach 25. That's incredible. What was the official response?",
+          "voiceText": "Mach 25. That's incredible. What was the official response?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_energized_6",
+          "text": "MACH 25! That's 25 times the speed of sound! GONE! This is the most credible call we've ever had!",
+          "voiceText": "MACH 25! That's 25 times the speed of sound! GONE! This is the most credible call we've ever had!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_irritated_6",
+          "text": "Mach 25. Right. So they buried it, I'm guessing?",
+          "voiceText": "Mach 25. Right. So they buried it, I'm guessing?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_gruff_6",
+          "text": "What did your superiors say?",
+          "voiceText": "What did your superiors say?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_amused_6",
+          "text": "This is absolutely incredible! Thank you for coming forward with this!",
+          "voiceText": "This is absolutely incredible! Thank you for coming forward with this!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_focused_6",
+          "text": "Mach 25 acceleration, total track loss. What classification did they assign to this incident?",
+          "voiceText": "Mach 25 acceleration, total track loss. What classification did they assign to this incident?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_exhausted_6",
+          "text": "... mach 25. and what did your superiors say?",
+          "voiceText": "... mach 25. and what did your superiors say?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_depressed_6",
+          "text": "Mach 25. And what did your superiors say?",
+          "voiceText": "Mach 25. And what did your superiors say?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_angry_6",
+          "text": "MACH 25! AND WHAT DID YOUR SUPERIORS SAY?!",
+          "voiceText": "MACH 25! AND WHAT DID YOUR SUPERIORS SAY?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_frustrated_6",
+          "text": "Ugh, what did they say?",
+          "voiceText": "Ugh, what did they say?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_obsessive_6",
+          "text": "Mach 25. You know what this means?",
+          "voiceText": "Mach 25. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_retired_colonel_vern_manic_6",
+          "text": "MACH 25!!! WHAT DID THEY SAY?!",
+          "voiceText": "MACH 25!!! WHAT DID THEY SAY?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_retired_colonel_caller_6",
+          "text": "They classified it. Told us to forget about it. But I spent fifteen years in intelligence, Vern. I know what we saw wasn't any aircraft. It was something else entirely. And it's been happening ever since.",
+          "voiceText": "They classified it. Told us to forget about it. But I spent fifteen years in intelligence, Vern. I know what we saw wasn't any aircraft. It was something else entirely. And it's been happening ever since."
+        }
+      ]
+    }
+  ]
+}

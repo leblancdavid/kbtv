@@ -1,0 +1,77 @@
+{
+  "arcId": "movie_hoax",
+  "topic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Caller claims to have proof of aliens but admits it's from a movie effect studio",
+  "callerPersonality": "charismatic_storyteller",
+  "arcNotes": "Caller has elaborate fake footage, clearly a prank, entertainment-focused",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_movie_hoax_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_fake_movie_hoax_vern_tired_1", "text": "Alright, you're on. Make it quick.", "voiceText": "Alright, you're on. Make it quick.", "mood": "tired"},
+        {"id": "ufos_fake_movie_hoax_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_fake_movie_hoax_vern_irritated_1", "text": "You're on. What's this about?", "voiceText": "You're on. What's this about?", "mood": "irritated"},
+        {"id": "ufos_fake_movie_hoax_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_fake_movie_hoax_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_fake_movie_hoax_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_fake_movie_hoax_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_fake_movie_hoax_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_fake_movie_hoax_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_fake_movie_hoax_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_fake_movie_hoax_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_movie_hoax_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_movie_hoax_caller_1", "text": "Okay, Vern, I've got the proof everyone's been waiting for. I've got actual footage of a spaceship landing. I've got beings coming out. I've got the whole thing, and I'm ready to release it to the world. This is it. This is the moment.", "voiceText": "Okay, Vern, I've got the proof everyone's been waiting for. I've got actual footage of a spaceship landing. I've got beings coming out. I've got the whole thing, and I'm ready to release it to the world. This is it. This is the moment."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_movie_hoax_vern_neutral_2", "text": "You've got footage of a spaceship landing. Do tell.", "voiceText": "You've got footage of a spaceship landing. Do tell.", "mood": "neutral"},
+        {"id": "ufos_fake_movie_hoax_vern_tired_2", "text": "Footage of a spaceship... okay, do tell.", "voiceText": "Footage of a spaceship... okay, do tell.", "mood": "tired"},
+        {"id": "ufos_fake_movie_hoax_vern_energized_2", "text": "FOOTAGE OF A SPACESHIP LANDING?! This is AMAZING! Do tell!!", "voiceText": "FOOTAGE OF A SPACESHIP LANDING?! This is AMAZING! Do tell!!", "mood": "energized"},
+        {"id": "ufos_fake_movie_hoax_vern_irritated_2", "text": "Footage of a spaceship. Of course you do. Do tell.", "voiceText": "Footage of a spaceship. Of course you do. Do tell.", "mood": "irritated"},
+        {"id": "ufos_fake_movie_hoax_vern_gruff_2", "text": "Footage. Fine, do tell.", "voiceText": "Footage. Fine, do tell.", "mood": "gruff"},
+        {"id": "ufos_fake_movie_hoax_vern_amused_2", "text": "FOOTAGE OF A SPACESHIP! This is great! Do tell!", "voiceText": "FOOTAGE OF A SPACESHIP! This is great! Do tell!", "mood": "amused"},
+        {"id": "ufos_fake_movie_hoax_vern_focused_2", "text": "Present your evidence.", "voiceText": "Present your evidence.", "mood": "focused"},
+        {"id": "ufos_fake_movie_hoax_vern_exhausted_2", "text": "... you've got footage of a spaceship landing. do tell.", "voiceText": "... you've got footage of a spaceship landing. do tell.", "mood": "exhausted"},
+        {"id": "ufos_fake_movie_hoax_vern_depressed_2", "text": "You've got footage of a spaceship landing. Do tell.", "voiceText": "You've got footage of a spaceship landing. Do tell.", "mood": "depressed"},
+        {"id": "ufos_fake_movie_hoax_vern_angry_2", "text": "YOU'VE GOT FOOTAGE OF A SPACESHIP LANDING! DO TELL!", "voiceText": "YOU'VE GOT FOOTAGE OF A SPACESHIP LANDING! DO TELL!", "mood": "angry"},
+        {"id": "ufos_fake_movie_hoax_vern_frustrated_2", "text": "Ugh, you've got footage of a spaceship landing. do tell.", "voiceText": "Ugh, you've got footage of a spaceship landing. do tell.", "mood": "frustrated"},
+        {"id": "ufos_fake_movie_hoax_vern_obsessive_2", "text": "You've got footage of a spaceship landing. Do tell. You know what this means?", "voiceText": "You've got footage of a spaceship landing. Do tell. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_movie_hoax_vern_manic_2", "text": "YOU'VE GOT FOOTAGE OF A SPACESHIP LANDING. DO TELL.!!!", "voiceText": "YOU'VE GOT FOOTAGE OF A SPACESHIP LANDING. DO TELL.!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_movie_hoax_caller_2", "text": "The thing is, Vern, I work at Spectral Visual Effects. We make movies. And I made this footage using the same technology we use for big budget sci-fi films. It's completely fake. I'm sorry, I just had to see if you'd actually fall for it!", "voiceText": "The thing is, Vern, I work at Spectral Visual Effects. We make movies. And I made this footage using the same technology we use for big budget sci-fi films. It's completely fake. I'm sorry, I just had to see if you'd actually fall for it!"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_movie_hoax_vern_neutral_3", "text": "You're a VFX artist who made fake footage to see if I'd fall for it. You got me. Classic prank. Next caller.", "voiceText": "You're a VFX artist who made fake footage to see if I'd fall for it. You got me. Classic prank. Next caller.", "mood": "neutral"},
+        {"id": "ufos_fake_movie_hoax_vern_tired_3", "text": "VFX artist, fake footage. You got me. Next.", "voiceText": "VFX artist, fake footage. You got me. Next.", "mood": "tired"},
+        {"id": "ufos_fake_movie_hoax_vern_energized_3", "text": "You WORK IN VFX and made FAKE FOOTAGE?! This is the BEST PRANK EVER! I love it! NEXT!", "voiceText": "You WORK IN VFX and made FAKE FOOTAGE?! This is the BEST PRANK EVER! I love it! NEXT!", "mood": "energized"},
+        {"id": "ufos_fake_movie_hoax_vern_irritated_3", "text": "VFX fake footage. Of course. Next caller.", "voiceText": "VFX fake footage. Of course. Next caller.", "mood": "irritated"},
+        {"id": "ufos_fake_movie_hoax_vern_gruff_3", "text": "VFX fake footage. Got me. Next.", "voiceText": "VFX fake footage. Got me. Next.", "mood": "gruff"},
+        {"id": "ufos_fake_movie_hoax_vern_amused_3", "text": "VFX ARTIST made FAKE FOOTAGE! I love this! You got me! NEXT!", "voiceText": "VFX ARTIST made FAKE FOOTAGE! I love this! You got me! NEXT!", "mood": "amused"},
+        {"id": "ufos_fake_movie_hoax_vern_focused_3", "text": "This is clearly a fabricated hoax using professional VFX techniques. Next caller.", "voiceText": "This is clearly a fabricated hoax using professional VFX techniques. Next caller.", "mood": "focused"},
+        {"id": "ufos_fake_movie_hoax_vern_exhausted_3", "text": "... you're a vfx artist who made fake footage to see if i'd fall for it. you got me. next caller.", "voiceText": "... you're a vfx artist who made fake footage to see if i'd fall for it. you got me. next caller.", "mood": "exhausted"},
+        {"id": "ufos_fake_movie_hoax_vern_depressed_3", "text": "You're a VFX artist who made fake footage to see if I'd fall for it. You got me. Classic prank. Next caller.", "voiceText": "You're a VFX artist who made fake footage to see if I'd fall for it. You got me. Classic prank. Next caller.", "mood": "depressed"},
+        {"id": "ufos_fake_movie_hoax_vern_angry_3", "text": "YOU'RE A VFX ARTIST WHO MADE FAKE FOOTAGE! YOU GOT ME! NEXT CALLER!", "voiceText": "YOU'RE A VFX ARTIST WHO MADE FAKE FOOTAGE! YOU GOT ME! NEXT CALLER!", "mood": "angry"},
+        {"id": "ufos_fake_movie_hoax_vern_frustrated_3", "text": "Ugh, you're a vfx artist who made fake footage to see if i'd fall for it. you got me. next caller.", "voiceText": "Ugh, you're a vfx artist who made fake footage to see if i'd fall for it. you got me. next caller.", "mood": "frustrated"},
+        {"id": "ufos_fake_movie_hoax_vern_obsessive_3", "text": "You're a VFX artist who made fake footage to see if I'd fall for it. You got me. Classic prank. Next caller. You know what this means?", "voiceText": "You're a VFX artist who made fake footage to see if I'd fall for it. You got me. Classic prank. Next caller. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_movie_hoax_vern_manic_3", "text": "YOU'RE A VFX ARTIST WHO MADE FAKE FOOTAGE! YOU GOT ME! NEXT CALLER.!!!", "voiceText": "YOU'RE A VFX ARTIST WHO MADE FAKE FOOTAGE! YOU GOT ME! NEXT CALLER.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

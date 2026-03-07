@@ -1,0 +1,78 @@
+{
+  "arcId": "topic_switch_cryptid",
+  "topic": "Cryptids",
+  "claimedTopic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Caller claimed UFO during screening but actually wants to talk about creature in woods",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Topic-switcher: claimed UFO but actually cryptid sighting",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_topic_switch_cryptid_vern_neutral_1", "text": "You're on. You said you had something about lights in the sky?", "voiceText": "You're on. You said you had something about lights in the sky?", "mood": "neutral"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_tired_1", "text": "Alright, you're on. Something about lights?", "voiceText": "Alright, you're on. Something about lights?", "mood": "tired"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us about those lights!", "voiceText": "YOU ARE ON THE AIR! Tell us about those lights!", "mood": "energized"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_irritated_1", "text": "You're on. What about lights in the sky?", "voiceText": "You're on. What about lights in the sky?", "mood": "irritated"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_gruff_1", "text": "You're on. So, lights?", "voiceText": "You're on. So, lights?", "mood": "gruff"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_amused_1", "text": "Oh good, a caller! What about lights?", "voiceText": "Oh good, a caller! What about lights?", "mood": "amused"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_focused_1", "text": "You're on. Describe the lights in the sky.", "voiceText": "You're on. Describe the lights in the sky.", "mood": "focused"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_exhausted_1", "text": "... you're on. you said you had something about lights in the sky?", "voiceText": "... you're on. you said you had something about lights in the sky?", "mood": "exhausted"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_depressed_1", "text": "You're on. You said you had something about lights in the sky...", "voiceText": "You're on. You said you had something about lights in the sky...", "mood": "depressed"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_angry_1", "text": "YOU'RE ON! WHAT ABOUT LIGHTS IN THE SKY?!", "voiceText": "YOU'RE ON! WHAT ABOUT LIGHTS IN THE SKY?!", "mood": "angry"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_frustrated_1", "text": "Ugh, you're on. you said you had something about lights in the sky?", "voiceText": "Ugh, you're on. you said you had something about lights in the sky?", "mood": "frustrated"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_obsessive_1", "text": "You're on. You said you had something about lights in the sky? You know what this means?", "voiceText": "You're on. You said you had something about lights in the sky? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_manic_1", "text": "YOU'RE ON. WHAT ABOUT LIGHTS IN THE SKY?!!!", "voiceText": "YOU'RE ON. WHAT ABOUT LIGHTS IN THE SKY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_topic_switch_cryptid_caller_1", "text": "I... I said that to get through screening, Vern. I'm sorry. It's actually something I saw in the woods behind my house. It wasn't lights. It was a creature. Like, seven feet tall, bipedal, covered in dark fur. It was standing right there, looking at me.", "voiceText": "I... I said that to get through screening, Vern. I'm sorry. It's actually something I saw in the woods behind my house. It wasn't lights. It was a creature. Like, seven feet tall, bipedal, covered in dark fur. It was standing right there, looking at me."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_topic_switch_cryptid_vern_neutral_2", "text": "So this is about a creature in the woods. A Bigfoot type thing?", "voiceText": "So this is about a creature in the woods. A Bigfoot type thing?", "mood": "neutral"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_tired_2", "text": "A creature in the woods... okay, Bigfoot?", "voiceText": "A creature in the woods... okay, Bigfoot?", "mood": "tired"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_energized_2", "text": "A CREATURE in the woods?! Seven feet tall?! This is AMAZING! Bigfoot?!", "voiceText": "A CREATURE in the woods?! Seven feet tall?! This is AMAZING! Bigfoot?!", "mood": "energized"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_irritated_2", "text": "A creature in the woods. Of course it was. Bigfoot?", "voiceText": "A creature in the woods. Of course it was. Bigfoot?", "mood": "irritated"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_gruff_2", "text": "A creature. Fine, I'll listen. Bigfoot?", "voiceText": "A creature. Fine, I'll listen. Bigfoot?", "mood": "gruff"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_amused_2", "text": "A CREATURE! Seven feet tall! This is fantastic! Bigfoot?!", "voiceText": "A CREATURE! Seven feet tall! This is fantastic! Bigfoot?!", "mood": "amused"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_focused_2", "text": "A seven-foot bipedal creature in the woods. Are you describing a cryptid?", "voiceText": "A seven-foot bipedal creature in the woods. Are you describing a cryptid?", "mood": "focused"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_exhausted_2", "text": "... so this is about a creature in the woods. a bigfoot type thing?", "voiceText": "... so this is about a creature in the woods. a bigfoot type thing?", "mood": "exhausted"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_depressed_2", "text": "So this is about a creature in the woods. A Bigfoot type thing?", "voiceText": "So this is about a creature in the woods. A Bigfoot type thing?", "mood": "depressed"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_angry_2", "text": "SO THIS IS ABOUT A CREATURE IN THE WOODS! BIGFOOT?!", "voiceText": "SO THIS IS ABOUT A CREATURE IN THE WOODS! BIGFOOT?!", "mood": "angry"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_frustrated_2", "text": "Ugh, so this is about a creature in the woods. a bigfoot type thing?", "voiceText": "Ugh, so this is about a creature in the woods. a bigfoot type thing?", "mood": "frustrated"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_obsessive_2", "text": "So this is about a creature in the woods. A Bigfoot type thing? You know what this means?", "voiceText": "So this is about a creature in the woods. A Bigfoot type thing? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_manic_2", "text": "SO THIS IS ABOUT A CREATURE IN THE WOODS. BIGFOOT?!!!", "voiceText": "SO THIS IS ABOUT A CREATURE IN THE WOODS. BIGFOOT?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_topic_switch_cryptid_caller_2", "text": "I know, I know, I lied. But Vern, it's real. I have video from my trail camera. It shows something walking on two legs, something that shouldn't be out there. I'm not crazy. Something is in those woods.", "voiceText": "I know, I know, I lied. But Vern, it's real. I have video from my trail camera. It shows something walking on two legs, something that shouldn't be out there. I'm not crazy. Something is in those woods."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_topic_switch_cryptid_vern_neutral_3", "text": "Look, you shouldn't have lied to get past screening. But if you've got trail camera footage, send it in. We cover cryptids too. Just don't waste our time next time. Thanks for calling.", "voiceText": "Look, you shouldn't have lied to get past screening. But if you've got trail camera footage, send it in. We cover cryptids too. Just don't waste our time next time. Thanks for calling.", "mood": "neutral"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_tired_3", "text": "Don't lie to get on the show. Send the footage if you have it. We do cryptids too. Thanks.", "voiceText": "Don't lie to get on the show. Send the footage if you have it. We do cryptids too. Thanks.", "mood": "tired"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_energized_3", "text": "You LIED to get on the show! But you have TRAIL CAMERA FOOTAGE?! Send it! We love this! NEXT TIME JUST BE HONEST!", "voiceText": "You LIED to get on the show! But you have TRAIL CAMERA FOOTAGE?! Send it! We love this! NEXT TIME JUST BE HONEST!", "mood": "energized"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_irritated_3", "text": "You lied to get on. Classic. If you have footage, send it. Next caller.", "voiceText": "You lied to get on. Classic. If you have footage, send it. Next caller.", "mood": "irritated"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_gruff_3", "text": "Don't lie to get on. Send footage if you have it. Thanks.", "voiceText": "Don't lie to get on. Send footage if you have it. Thanks.", "mood": "gruff"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_amused_3", "text": "You LIED! This is HILARIOUS! But you have footage! Send it! We love this!", "voiceText": "You LIED! This is HILARIOUS! But you have footage! Send it! We love this!", "mood": "amused"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_focused_3", "text": "Deception to access the show is problematic. However, if you have documented evidence, please submit it. We do cover cryptids. Thank you.", "voiceText": "Deception to access the show is problematic. However, if you have documented evidence, please submit it. We do cover cryptids. Thank you.", "mood": "focused"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_exhausted_3", "text": "... look, you shouldn't have lied to get past screening. but if you've got trail camera footage, send it in. thanks for calling.", "voiceText": "... look, you shouldn't have lied to get past screening. but if you've got trail camera footage, send it in. thanks for calling.", "mood": "exhausted"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_depressed_3", "text": "Look, you shouldn't have lied to get past screening. But if you've got trail camera footage, send it in. We cover cryptids too. Thanks for calling.", "voiceText": "Look, you shouldn't have lied to get past screening. But if you've got trail camera footage, send it in. We cover cryptids too. Thanks for calling.", "mood": "depressed"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_angry_3", "text": "YOU LIED TO GET ON THE SHOW! IF YOU'VE GOT FOOTAGE, SEND IT IN! WE COVER CRYPTIDS TOO! NEXT TIME DON'T WASTE OUR TIME!", "voiceText": "YOU LIED TO GET ON THE SHOW! IF YOU'VE GOT FOOTAGE, SEND IT IN! WE COVER CRYPTIDS TOO! NEXT TIME DON'T WASTE OUR TIME!", "mood": "angry"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_frustrated_3", "text": "Ugh, look, you shouldn't have lied to get past screening. but if you've got trail camera footage, send it in. thanks for calling.", "voiceText": "Ugh, look, you shouldn't have lied to get past screening. but if you've got trail camera footage, send it in. thanks for calling.", "mood": "frustrated"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_obsessive_3", "text": "Look, you shouldn't have lied to get past screening. But if you've got trail camera footage, send it in. We cover cryptids too. Just don't waste our time next time. You know what this means?", "voiceText": "Look, you shouldn't have lied to get past screening. But if you've got trail camera footage, send it in. We cover cryptids too. Just don't waste our time next time. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_topic_switch_cryptid_vern_manic_3", "text": "YOU LIED TO GET ON THE SHOW! BUT IF YOU'VE GOT FOOTAGE, SEND IT IN! WE COVER CRYPTIDS TOO! DON'T WASTE OUR TIME NEXT TIME. APPRECIATE YOU CALLING IN.!!!", "voiceText": "YOU LIED TO GET ON THE SHOW! BUT IF YOU'VE GOT FOOTAGE, SEND IT IN! WE COVER CRYPTIDS TOO! DON'T WASTE OUR TIME NEXT TIME. APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

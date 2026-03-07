@@ -1,0 +1,18 @@
+assets\\audio\\voice\\Vern\\ConversationArcs\\UFOs:
+air_traffic_contact    military_physicist    ufo_cemetery_watch
+amateur_astronomer     neighbor_lights	     ufo_construction_foreman
+atmospheric_scientist  night_watchman	     ufo_diner_cook
+bonfire_joke	       party_confession      ufo_electrician
+buddy_story	       pilot		     ufo_fishing_story
+chemist_witness        pilot_friend	     ufo_golf_course
+construction_worker    plane_confusion	     ufo_hilltop_hottie
+cowboy_witness	       prankster	     ufo_midwife
+dashcam_trucker        radar_operator	     ufo_night_shift
+dream_abduction        railroad_worker	     ufo_police_chase
+drone_sighting	       rancher_encounter     ufo_retired_colonel
+electrical_phenomenon  rural_teacher	     ufo_skeptic_convert
+gov_contractor	       security_footage      ufo_skywriter
+grain_silo_worker      star_gazer	     ufo_topic_ghost
+hiking_couple	       telephone_technician  ufo_truck_driver
+lake_reflection        ufo_astronaut
+lights		       ufo_bartender

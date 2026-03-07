@@ -1,0 +1,77 @@
+{
+  "arcId": "ufo_golf_course",
+  "topic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Skeptic caller explains UFO sightings are just drones from the golf course",
+  "callerPersonality": "cold_factual",
+  "arcNotes": "Skeptic caller debunking UFO sightings with rational explanation",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_golf_course_vern_neutral_1", "text": "KBTV, Vern here. Go ahead.", "voiceText": "KBTV, Vern here. Go ahead.", "mood": "neutral"},
+        {"id": "ufos_fake_golf_course_vern_tired_1", "text": "Alright, you're on.", "voiceText": "Alright, you're on.", "mood": "tired"},
+        {"id": "ufos_fake_golf_course_vern_energized_1", "text": "YOU ARE ON KBTV!", "voiceText": "YOU ARE ON KBTV!", "mood": "energized"},
+        {"id": "ufos_fake_golf_course_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_fake_golf_course_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_fake_golf_course_vern_amused_1", "text": "Oh, a caller! What's your story?", "voiceText": "Oh, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_fake_golf_course_vern_focused_1", "text": "You're on the air. Go ahead.", "voiceText": "You're on the air. Go ahead.", "mood": "focused"},
+        {"id": "ufos_fake_golf_course_vern_exhausted_1", "text": "... you're on.", "voiceText": "... you're on.", "mood": "exhausted"},
+        {"id": "ufos_fake_golf_course_vern_depressed_1", "text": "KBTV, Vern here. Go ahead.", "voiceText": "KBTV, Vern here. Go ahead.", "mood": "depressed"},
+        {"id": "ufos_fake_golf_course_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_fake_golf_course_vern_frustrated_1", "text": "Ugh, you're on.", "voiceText": "Ugh, you're on.", "mood": "frustrated"},
+        {"id": "ufos_fake_golf_course_vern_obsessive_1", "text": "You're on KBTV. Tell me your perspective.", "voiceText": "You're on KBTV. Tell me your perspective.", "mood": "obsessive"},
+        {"id": "ufos_fake_golf_course_vern_manic_1", "text": "KBTV!!!", "voiceText": "KBTV!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_golf_course_caller_1", "text": "Hey Vern, this is Gary. I gotta say, I been listening to some of these UFO calls and, I mean... you really believe this stuff?", "voiceText": "Hey Vern, this is Gary. I gotta say, I been listening to some of these UFO calls and, I mean... you really believe this stuff?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_golf_course_vern_neutral_2", "text": "I'm just the host, Gary. I let callers tell their stories. Why, you got something to add?", "voiceText": "I'm just the host, Gary. I let callers tell their stories. Why, you got something to add?", "mood": "neutral"},
+        {"id": "ufos_fake_golf_course_vern_tired_2", "text": "I just host the show. You got something to say?", "voiceText": "I just host the show. You got something to say?", "mood": "tired"},
+        {"id": "ufos_fake_golf_course_vern_energized_2", "text": "I love hearing from skeptics! What's your take?!", "voiceText": "I love hearing from skeptics! What's your take?!", "mood": "energized"},
+        {"id": "ufos_fake_golf_course_vern_irritated_2", "text": "I'm the host. What do you want?", "voiceText": "I'm the host. What do you want?", "mood": "irritated"},
+        {"id": "ufos_fake_golf_course_vern_gruff_2", "text": "What's your point?", "voiceText": "What's your point?", "mood": "gruff"},
+        {"id": "ufos_fake_golf_course_vern_amused_2", "text": "Oh, a skeptic! This should be fun! What's your take?", "voiceText": "Oh, a skeptic! This should be fun! What's your take?", "mood": "amused"},
+        {"id": "ufos_fake_golf_course_vern_focused_2", "text": "I facilitate the discussion. What is your perspective?", "voiceText": "I facilitate the discussion. What is your perspective?", "mood": "focused"},
+        {"id": "ufos_fake_golf_course_vern_exhausted_2", "text": "... just the host. go ahead.", "voiceText": "... just the host. go ahead.", "mood": "exhausted"},
+        {"id": "ufos_fake_golf_course_vern_depressed_2", "text": "I let callers tell their stories. What's your point?", "voiceText": "I let callers tell their stories. What's your point?", "mood": "depressed"},
+        {"id": "ufos_fake_golf_course_vern_angry_2", "text": "I'M THE HOST! WHAT DO YOU WANT?!", "voiceText": "I'M THE HOST! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_fake_golf_course_vern_frustrated_2", "text": "Ugh, what do you want?", "voiceText": "Ugh, what do you want?", "mood": "frustrated"},
+        {"id": "ufos_fake_golf_course_vern_obsessive_2", "text": "This is significant. What is your perspective on these sightings?", "voiceText": "This is significant. What is your perspective on these sightings?", "mood": "obsessive"},
+        {"id": "ufos_fake_golf_course_vern_manic_2", "text": "SKEPTIC!!! TELL ME YOUR TAKE!!!", "voiceText": "SKEPTIC!!! TELL ME YOUR TAKE!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_golf_course_caller_2", "text": "Yeah, I saw one of those 'UFOs' last week. Turned out to be the golf course's new drone they use for aerating. Guy had it out at 6 AM, looked weird in the fog. That's all this stuff is. Misidentification.", "voiceText": "Yeah, I saw one of those 'UFOs' last week. Turned out to be the golf course's new drone they use for aerating. Guy had it out at 6 AM, looked weird in the fog. That's all this stuff is. Misidentification."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_golf_course_vern_neutral_3", "text": "I'm sure that's true for a lot of sightings, Gary. Thanks for calling in.", "voiceText": "I'm sure that's true for a lot of sightings, Gary. Thanks for calling in.", "mood": "neutral"},
+        {"id": "ufos_fake_golf_course_vern_tired_3", "text": "Right. Drone. Thanks for calling.", "voiceText": "Right. Drone. Thanks for calling.", "mood": "tired"},
+        {"id": "ufos_fake_golf_course_vern_energized_3", "text": "A DRONE! Of course it was! Thanks for the reality check!", "voiceText": "A DRONE! Of course it was! Thanks for the reality check!", "mood": "energized"},
+        {"id": "ufos_fake_golf_course_vern_irritated_3", "text": "Sure. A drone. Thanks.", "voiceText": "Sure. A drone. Thanks.", "mood": "irritated"},
+        {"id": "ufos_fake_golf_course_vern_gruff_3", "text": "Misidentification. Thanks.", "voiceText": "Misidentification. Thanks.", "mood": "gruff"},
+        {"id": "ufos_fake_golf_course_vern_amused_3", "text": "Classic drone explanation! I love it! Thanks Gary!", "voiceText": "Classic drone explanation! I love it! Thanks Gary!", "mood": "amused"},
+        {"id": "ufos_fake_golf_course_vern_focused_3", "text": "A common misidentification scenario. Thank you for your input.", "voiceText": "A common misidentification scenario. Thank you for your input.", "mood": "focused"},
+        {"id": "ufos_fake_golf_course_vern_exhausted_3", "text": "... drone. thanks.", "voiceText": "... drone. thanks.", "mood": "exhausted"},
+        {"id": "ufos_fake_golf_course_vern_depressed_3", "text": "Misidentification. Thanks for calling.", "voiceText": "Misidentification. Thanks for calling.", "mood": "depressed"},
+        {"id": "ufos_fake_golf_course_vern_angry_3", "text": "DRONE!!! OF COURSE IT WAS A DRONE!!!", "voiceText": "DRONE!!! OF COURSE IT WAS A DRONE!!!", "mood": "angry"},
+        {"id": "ufos_fake_golf_course_vern_frustrated_3", "text": "Ugh, drone. Thanks.", "voiceText": "Ugh, drone. Thanks.", "mood": "frustrated"},
+        {"id": "ufos_fake_golf_course_vern_obsessive_3", "text": "This is an important perspective. Misidentification accounts for many sightings. Thank you.", "voiceText": "This is an important perspective. Misidentification accounts for many sightings. Thank you.", "mood": "obsessive"},
+        {"id": "ufos_fake_golf_course_vern_manic_3", "text": "DRONE!!! THANKS FOR CALLING!!!", "voiceText": "DRONE!!! THANKS FOR CALLING!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

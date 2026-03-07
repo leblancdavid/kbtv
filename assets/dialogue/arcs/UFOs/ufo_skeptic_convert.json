@@ -1,0 +1,476 @@
+{
+  "arcId": "ufo_skeptic_convert",
+  "topic": "UFOs",
+  "legitimacy": "Credible",
+  "callerGender": "male",
+  "screeningSummary": "Former skeptic who used to mock the show, now a believer after witnessing craft next to his plane at 35,000 feet, flight crew knew what it was",
+  "callerPersonality": "skeptic",
+  "arcNotes": "Former skeptic and heckler, red-eye flight at 35,000 feet, craft kept pace with plane, flight crew told passengers not to look, experienced dramatic conversion",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_skeptic_convert_vern_neutral_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_tired_1",
+          "text": "You're on. What's your story?",
+          "voiceText": "You're on. What's your story?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_energized_1",
+          "text": "YOU'RE ON THE AIR! A skeptic! This is gonna be good!",
+          "voiceText": "YOU'RE ON THE AIR! A skeptic! This is gonna be good!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_irritated_1",
+          "text": "You're on. Make it quick.",
+          "voiceText": "You're on. Make it quick.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_gruff_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_amused_1",
+          "text": "Oh, a skeptic! I don't get many of these! What's your story?",
+          "voiceText": "Oh, a skeptic! I don't get many of these! What's your story?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_focused_1",
+          "text": "KBTV, you're on. What happened?",
+          "voiceText": "KBTV, you're on. What happened?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_exhausted_1",
+          "text": "... you're on. go ahead.",
+          "voiceText": "... you're on. go ahead.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_depressed_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_angry_1",
+          "text": "KBTV! YOU'RE ON THE AIR! WHAT'S YOUR STORY?!",
+          "voiceText": "KBTV! YOU'RE ON THE AIR! WHAT'S YOUR STORY?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_frustrated_1",
+          "text": "Ugh, you're on. What is it?",
+          "voiceText": "Ugh, you're on. What is it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_obsessive_1",
+          "text": "KBTV, Vern here. Go ahead. You know what this means?",
+          "voiceText": "KBTV, Vern here. Go ahead. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_manic_1",
+          "text": "KBTV!!! SKEPTIC!!! YOU'RE ON!!!",
+          "voiceText": "KBTV!!! SKEPTIC!!! YOU'RE ON!!!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_skeptic_convert_caller_1",
+          "text": "Vern, my name is Frank. I've been a skeptic my whole life. I used to make fun of people who called in here. I was that guy. I called people crazy.",
+          "voiceText": "Vern, my name is Frank. I've been a skeptic my whole life. I used to make fun of people who called in here. I was that guy. I called people crazy."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_skeptic_convert_vern_neutral_2",
+          "text": "Used to? What changed?",
+          "voiceText": "Used to? What changed?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_tired_2",
+          "text": "A skeptic. What made you change your mind?",
+          "voiceText": "A skeptic. What made you change your mind?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_energized_2",
+          "text": "A FORMER SKEPTIC! This is AMAZING! What happened to change your mind?!",
+          "voiceText": "A FORMER SKEPTIC! This is AMAZING! What happened to change your mind?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_irritated_2",
+          "text": "You were a skeptic. Let me guess - you saw something?",
+          "voiceText": "You were a skeptic. Let me guess - you saw something?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_gruff_2",
+          "text": "What changed?",
+          "voiceText": "What changed?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_amused_2",
+          "text": "Oh man, a skeptic who used to heckle the show! This is incredible! What happened?!",
+          "voiceText": "Oh man, a skeptic who used to heckle the show! This is incredible! What happened?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_focused_2",
+          "text": "Former skeptic. What was the pivotal experience?",
+          "voiceText": "Former skeptic. What was the pivotal experience?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_exhausted_2",
+          "text": "... used to? what changed?",
+          "voiceText": "... used to? what changed?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_depressed_2",
+          "text": "Used to? What changed?",
+          "voiceText": "Used to? What changed?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_angry_2",
+          "text": "USED TO?! WHAT CHANGED?!",
+          "voiceText": "USED TO?! WHAT CHANGED?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_frustrated_2",
+          "text": "Ugh, what changed?",
+          "voiceText": "Ugh, what changed?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_obsessive_2",
+          "text": "Used to. You know what this means?",
+          "voiceText": "Used to. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_manic_2",
+          "text": "SKEPTIC!!! WHAT CHANGED YOUR MIND?!",
+          "voiceText": "SKEPTIC!!! WHAT CHANGED YOUR MIND?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_skeptic_convert_caller_2",
+          "text": "Two months ago. I was flying back from Denver, red-eye flight. About 2 AM, I'm looking out the window, and I see this thing next to the plane. Just... floating there.",
+          "voiceText": "Two months ago. I was flying back from Denver, red-eye flight. About 2 AM, I'm looking out the window, and I see this thing next to the plane. Just... floating there."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_skeptic_convert_vern_neutral_3",
+          "text": "Next to the plane? At that altitude?",
+          "voiceText": "Next to the plane? At that altitude?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_tired_3",
+          "text": "Next to the plane at 2 AM. What was it?",
+          "voiceText": "Next to the plane at 2 AM. What was it?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_energized_3",
+          "text": "NEXT TO THE PLANE! At altitude! This is INCREDIBLE! What did it look like?!",
+          "voiceText": "NEXT TO THE PLANE! At altitude! This is INCREDIBLE! What did it look like?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_irritated_3",
+          "text": "Next to the plane. Sure. What was it?",
+          "voiceText": "Next to the plane. Sure. What was it?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_gruff_3",
+          "text": "Go on.",
+          "voiceText": "Go on.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_amused_3",
+          "text": "Something next to your plane at 2 AM! This is fantastic! What did you see?!",
+          "voiceText": "Something next to your plane at 2 AM! This is fantastic! What did you see?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_focused_3",
+          "text": "Next to the aircraft at cruise altitude. What was the distance? What was the physical description?",
+          "voiceText": "Next to the aircraft at cruise altitude. What was the distance? What was the physical description?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_exhausted_3",
+          "text": "... next to the plane? at that altitude?",
+          "voiceText": "... next to the plane? at that altitude?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_depressed_3",
+          "text": "Next to the plane? At that altitude?",
+          "voiceText": "Next to the plane? At that altitude?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_angry_3",
+          "text": "NEXT TO THE PLANE?! AT THAT ALTITUDE?! WHAT WAS IT?!",
+          "voiceText": "NEXT TO THE PLANE?! AT THAT ALTITUDE?! WHAT WAS IT?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_frustrated_3",
+          "text": "Ugh, what was it?",
+          "voiceText": "Ugh, what was it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_obsessive_3",
+          "text": "Next to the plane. At that altitude. You know what this means?",
+          "voiceText": "Next to the plane. At that altitude. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_manic_3",
+          "text": "NEXT TO THE PLANE!!! AT 35000 FEET!!! WHAT IS THAT THING?!",
+          "voiceText": "NEXT TO THE PLANE!!! AT 35000 FEET!!! WHAT IS THAT THING?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_skeptic_convert_caller_3",
+          "text": "35,000 feet. No plane can hover at 35,000 feet. It was keeping pace with us. I could see it clearly. Smooth surface, no windows, no wings. About the size of a school bus.",
+          "voiceText": "35,000 feet. No plane can hover at 35,000 feet. It was keeping pace with us. I could see it clearly. Smooth surface, no windows, no wings. About the size of a school bus."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_skeptic_convert_vern_neutral_4",
+          "text": "And the pilot didn't say anything?",
+          "voiceText": "And the pilot didn't say anything?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_tired_4",
+          "text": "The pilot didn't say anything. What happened?",
+          "voiceText": "The pilot didn't say anything. What happened?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_energized_4",
+          "text": "The PILOT knew! This is HUGE! What did they do?!",
+          "voiceText": "The PILOT knew! This is HUGE! What did they do?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_irritated_4",
+          "text": "The pilot stayed quiet. Right. Then what?",
+          "voiceText": "The pilot stayed quiet. Right. Then what?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_gruff_4",
+          "text": "The pilot knew. What happened?",
+          "voiceText": "The pilot knew. What happened?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_amused_4",
+          "text": "The pilot stayed quiet! Of course they did! What happened next?!",
+          "voiceText": "The pilot stayed quiet! Of course they did! What happened next?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_focused_4",
+          "text": "The flight crew didn't announce anything. What was the crew's behavior?",
+          "voiceText": "The flight crew didn't announce anything. What was the crew's behavior?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_exhausted_4",
+          "text": "... and the pilot didn't say anything?",
+          "voiceText": "... and the pilot didn't say anything?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_depressed_4",
+          "text": "And the pilot didn't say anything?",
+          "voiceText": "And the pilot didn't say anything?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_angry_4",
+          "text": "THE PILOT DIDN'T SAY ANYTHING?! WHAT HAPPENED?!",
+          "voiceText": "THE PILOT DIDN'T SAY ANYTHING?! WHAT HAPPENED?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_frustrated_4",
+          "text": "Ugh, what happened?",
+          "voiceText": "Ugh, what happened?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_obsessive_4",
+          "text": "The pilot didn't say anything. You know what this means?",
+          "voiceText": "The pilot didn't say anything. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_manic_4",
+          "text": "THE PILOT KNEW!!! WHAT DID THEY DO?!",
+          "voiceText": "THE PILOT KNEW!!! WHAT DID THEY DO?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_skeptic_convert_caller_4",
+          "text": "That's the thing. The cockpit door opened and the first mate came back. She was pale. She whispered to the passengers, don't look, don't look out the windows. That was it. No announcement.",
+          "voiceText": "That's the thing. The cockpit door opened and the first mate came back. She was pale. She whispered to the passengers, don't look, don't look out the windows. That was it. No announcement."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_skeptic_convert_vern_neutral_5",
+          "text": "The flight crew knew. They knew what it was.",
+          "voiceText": "The flight crew knew. They knew what it was.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_tired_5",
+          "text": "The flight crew knew. They knew what it was.",
+          "voiceText": "The flight crew knew. They knew what it was.",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_energized_5",
+          "text": "The FLIGHT CREW KNEW! They told passengers NOT TO LOOK! This is MASSIVE!",
+          "voiceText": "The FLIGHT CREW KNEW! They told passengers NOT TO LOOK! This is MASSIVE!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_irritated_5",
+          "text": "The crew knew. Of course they did.",
+          "voiceText": "The crew knew. Of course they did.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_gruff_5",
+          "text": "They knew what it was.",
+          "voiceText": "They knew what it was.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_amused_5",
+          "text": "This is the best call I've ever had! A skeptic converted by experience! Thank you!",
+          "voiceText": "This is the best call I've ever had! A skeptic converted by experience! Thank you!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_focused_5",
+          "text": "The flight crew was aware and deliberately minimized passenger exposure. This suggests institutional knowledge.",
+          "voiceText": "The flight crew was aware and deliberately minimized passenger exposure. This suggests institutional knowledge.",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_exhausted_5",
+          "text": "... the flight crew knew. they knew what it was.",
+          "voiceText": "... the flight crew knew. they knew what it was.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_depressed_5",
+          "text": "The flight crew knew. They knew what it was.",
+          "voiceText": "The flight crew knew. They knew what it was.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_angry_5",
+          "text": "THE FLIGHT CREW KNEW! THEY KNEW WHAT IT WAS!",
+          "voiceText": "THE FLIGHT CREW KNEW! THEY KNEW WHAT IT WAS!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_frustrated_5",
+          "text": "Ugh, they knew. what else happened?",
+          "voiceText": "Ugh, they knew. what else happened?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_obsessive_5",
+          "text": "The flight crew knew. You know what this means?",
+          "voiceText": "The flight crew knew. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_skeptic_convert_vern_manic_5",
+          "text": "THEY KNEW!!! THEY TOLD PEOPLE NOT TO LOOK!!!",
+          "voiceText": "THEY KNEW!!! THEY TOLD PEOPLE NOT TO LOOK!!!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_skeptic_convert_caller_5",
+          "text": "After that flight, I haven't been the same. I used to laugh at people like you, Vern. I was wrong. There's something out there, and they don't want us to know.",
+          "voiceText": "After that flight, I haven't been the same. I used to laugh at people like you, Vern. I was wrong. There's something out there, and they don't want us to know."
+        }
+      ]
+    }
+  ]
+}

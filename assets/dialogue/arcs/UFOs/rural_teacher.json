@@ -1,0 +1,77 @@
+{
+  "arcId": "rural_teacher",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Nervous teacher saw strange lights near school, worried about student's safety",
+  "callerPersonality": "nervous_hesitant",
+  "arcNotes": "Nervous teacher, probably just lights or planes, honest uncertainty",
+  "callerGender": "female",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_rural_teacher_vern_neutral_1", "text": "You're on the air. What did you witness?", "voiceText": "You're on the air. What did you witness?", "mood": "neutral"},
+        {"id": "ufos_questionable_rural_teacher_vern_tired_1", "text": "Alright, you're on. What'd you see?", "voiceText": "Alright, you're on. What'd you see?", "mood": "tired"},
+        {"id": "ufos_questionable_rural_teacher_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us what you witnessed!", "voiceText": "YOU ARE ON THE AIR! Tell us what you witnessed!", "mood": "energized"},
+        {"id": "ufos_questionable_rural_teacher_vern_irritated_1", "text": "You're on. Make it quick - what is it?", "voiceText": "You're on. Make it quick - what is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_rural_teacher_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_rural_teacher_vern_amused_1", "text": "Oh good, a caller! What did you see?", "voiceText": "Oh good, a caller! What did you see?", "mood": "amused"},
+        {"id": "ufos_questionable_rural_teacher_vern_focused_1", "text": "You're on. Describe what you observed from the beginning.", "voiceText": "You're on. Describe what you observed from the beginning.", "mood": "focused"},
+        {"id": "ufos_questionable_rural_teacher_vern_exhausted_1", "text": "... you're on the air. what did you witness?", "voiceText": "... you're on the air. what did you witness?", "mood": "exhausted"},
+        {"id": "ufos_questionable_rural_teacher_vern_depressed_1", "text": "You're on the air. What did you witness...", "voiceText": "You're on the air. What did you witness...", "mood": "depressed"},
+        {"id": "ufos_questionable_rural_teacher_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DID YOU WITNESS?!", "voiceText": "YOU'RE ON THE AIR! WHAT DID YOU WITNESS?!", "mood": "angry"},
+        {"id": "ufos_questionable_rural_teacher_vern_frustrated_1", "text": "Ugh, you're on the air. what did you witness?", "voiceText": "Ugh, you're on the air. what did you witness?", "mood": "frustrated"},
+        {"id": "ufos_questionable_rural_teacher_vern_obsessive_1", "text": "You're on the air. What did you witness? You know what this means?", "voiceText": "You're on the air. What did you witness? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_rural_teacher_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT DID YOU WITNESS?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT DID YOU WITNESS?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_rural_teacher_caller_1", "text": "Okay, so, um, I'm a teacher at a rural school, right? And last night I was doing evening supervision and I saw these lights? Over the playground? They were like, hovering? And I got really worried because my students are there during the day, you know?", "voiceText": "Okay, so, um, I'm a teacher at a rural school, right? And last night I was doing evening supervision and I saw these lights? Over the playground? They were like, hovering? And I got really worried because my students are there during the day, you know?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_rural_teacher_vern_neutral_2", "text": "Lights over the playground. Could be planes or drones. How long were they there?", "voiceText": "Lights over the playground. Could be planes or drones. How long were they there?", "mood": "neutral"},
+        {"id": "ufos_questionable_rural_teacher_vern_tired_2", "text": "Lights over the playground... okay, how long?", "voiceText": "Lights over the playground... okay, how long?", "mood": "tired"},
+        {"id": "ufos_questionable_rural_teacher_vern_energized_2", "text": "LIGHTS over the playground?! This is INTERESTING! How long were they there?!", "voiceText": "LIGHTS over the playground?! This is INTERESTING! How long were they there?!", "mood": "energized"},
+        {"id": "ufos_questionable_rural_teacher_vern_irritated_2", "text": "Lights over the playground. Of course there were. How long?", "voiceText": "Lights over the playground. Of course there were. How long?", "mood": "irritated"},
+        {"id": "ufos_questionable_rural_teacher_vern_gruff_2", "text": "Lights over the playground. Fine, I'll listen. How long?", "voiceText": "Lights over the playground. Fine, I'll listen. How long?", "mood": "gruff"},
+        {"id": "ufos_questionable_rural_teacher_vern_amused_2", "text": "LIGHTS over the playground! This is CUTE! How long were they there?!", "voiceText": "LIGHTS over the playground! This is CUTE! How long were they there?!", "mood": "amused"},
+        {"id": "ufos_questionable_rural_teacher_vern_focused_2", "text": "Describe the duration and characteristics of these lights.", "voiceText": "Describe the duration and characteristics of these lights.", "mood": "focused"},
+        {"id": "ufos_questionable_rural_teacher_vern_exhausted_2", "text": "... lights over the playground. could be planes or drones. how long were they there?", "voiceText": "... lights over the playground. could be planes or drones. how long were they there?", "mood": "exhausted"},
+        {"id": "ufos_questionable_rural_teacher_vern_depressed_2", "text": "Lights over the playground. Could be planes or drones. How long were they there?", "voiceText": "Lights over the playground. Could be planes or drones. How long were they there?", "mood": "depressed"},
+        {"id": "ufos_questionable_rural_teacher_vern_angry_2", "text": "LIGHTS OVER THE PLAYGROUND! COULD BE PLANES OR DRONES! HOW LONG WERE THEY THERE?!", "voiceText": "LIGHTS OVER THE PLAYGROUND! COULD BE PLANES OR DRONES! HOW LONG WERE THEY THERE?!", "mood": "angry"},
+        {"id": "ufos_questionable_rural_teacher_vern_frustrated_2", "text": "Ugh, lights over the playground. could be planes or drones. how long?", "voiceText": "Ugh, lights over the playground. could be planes or drones. how long?", "mood": "frustrated"},
+        {"id": "ufos_questionable_rural_teacher_vern_obsessive_2", "text": "Lights over the playground. Could be planes or drones. How long were they there? You know what this means?", "voiceText": "Lights over the playground. Could be planes or drones. How long were they there? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_rural_teacher_vern_manic_2", "text": "LIGHTS OVER THE PLAYGROUND. COULD BE PLANES OR DRONES. HOW LONG WERE THEY THERE?!!!", "voiceText": "LIGHTS OVER THE PLAYGROUND. COULD BE PLANES OR DRONES. HOW LONG WERE THEY THERE?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_rural_teacher_caller_2", "text": "Maybe like five minutes? But here's the thing - there's an airport about ten miles away? And now I'm thinking maybe it was just, like, planes on approach or something? I don't know. I was just really worried about my students, you know?", "voiceText": "Maybe like five minutes? But here's the thing - there's an airport about ten miles away? And now I'm thinking maybe it was just, like, planes on approach or something? I don't know. I was just really worried about my students, you know?"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_rural_teacher_vern_neutral_3", "text": "Airport ten miles away. Probably planes on approach. Good instinct to be concerned about the students. Thanks for calling in.", "voiceText": "Airport ten miles away. Probably planes on approach. Good instinct to be concerned about the students. Thanks for calling in.", "mood": "neutral"},
+        {"id": "ufos_questionable_rural_teacher_vern_tired_3", "text": "Probably planes. Good concern for the students. Thanks.", "voiceText": "Probably planes. Good concern for the students. Thanks.", "mood": "tired"},
+        {"id": "ufos_questionable_rural_teacher_vern_energized_3", "text": "AIRPORT ten miles away! This is INTERESTING! Good concern for the students! Thanks for calling!", "voiceText": "AIRPORT ten miles away! This is INTERESTING! Good concern for the students! Thanks for calling!", "mood": "energized"},
+        {"id": "ufos_questionable_rural_teacher_vern_irritated_3", "text": "Probably planes. Good concern though. Next.", "voiceText": "Probably planes. Good concern though. Next.", "mood": "irritated"},
+        {"id": "ufos_questionable_rural_teacher_vern_gruff_3", "text": "Probably planes. Good concern for students. Thanks.", "voiceText": "Probably planes. Good concern for students. Thanks.", "mood": "gruff"},
+        {"id": "ufos_questionable_rural_teacher_vern_amused_3", "text": "AIRPORT ten miles away! This is PERFECT! Good concern for students! Thanks for calling!", "voiceText": "AIRPORT ten miles away! This is PERFECT! Good concern for students! Thanks for calling!", "mood": "amused"},
+        {"id": "ufos_questionable_rural_teacher_vern_focused_3", "text": "Given the proximity to an airport, this is likely explainable as aircraft on approach. The concern for student safety is commendable. Thank you.", "voiceText": "Given the proximity to an airport, this is likely explainable as aircraft on approach. The concern for student safety is commendable. Thank you.", "mood": "focused"},
+        {"id": "ufos_questionable_rural_teacher_vern_exhausted_3", "text": "... airport ten miles away. probably planes on approach. good instinct to be concerned about the students. thanks for calling in.", "voiceText": "... airport ten miles away. probably planes on approach. good instinct to be concerned about the students. thanks for calling in.", "mood": "exhausted"},
+        {"id": "ufos_questionable_rural_teacher_vern_depressed_3", "text": "Airport ten miles away. Probably planes on approach. Good instinct to be concerned about the students. Thanks for calling in.", "voiceText": "Airport ten miles away. Probably planes on approach. Good instinct to be concerned about the students. Thanks for calling in.", "mood": "depressed"},
+        {"id": "ufos_questionable_rural_teacher_vern_angry_3", "text": "AIRPORT TEN MILES AWAY! PROBABLY PLANES ON APPROACH! GOOD INSTINCT TO BE CONCERNED ABOUT THE STUDENTS! THANKS FOR CALLING IN!", "voiceText": "AIRPORT TEN MILES AWAY! PROBABLY PLANES ON APPROACH! GOOD INSTINCT TO BE CONCERNED ABOUT THE STUDENTS! THANKS FOR CALLING IN!", "mood": "angry"},
+        {"id": "ufos_questionable_rural_teacher_vern_frustrated_3", "text": "Ugh, airport ten miles away. probably planes on approach. good instinct to be concerned about the students. thanks for calling in.", "voiceText": "Ugh, airport ten miles away. probably planes on approach. good instinct to be concerned about the students. thanks for calling in.", "mood": "frustrated"},
+        {"id": "ufos_questionable_rural_teacher_vern_obsessive_3", "text": "Airport ten miles away. Probably planes on approach. Good instinct to be concerned about the students. Thanks for calling in. You know what this means?", "voiceText": "Airport ten miles away. Probably planes on approach. Good instinct to be concerned about the students. Thanks for calling in. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_rural_teacher_vern_manic_3", "text": "AIRPORT TEN MILES AWAY! PROBABLY PLANES ON APPROACH! APPRECIATE YOU CALLING IN.!!!", "voiceText": "AIRPORT TEN MILES AWAY! PROBABLY PLANES ON APPROACH! APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

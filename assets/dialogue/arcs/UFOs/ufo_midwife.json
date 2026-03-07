@@ -1,0 +1,569 @@
+{
+  "arcId": "ufo_midwife",
+  "topic": "UFOs",
+  "legitimacy": "Compelling",
+  "callerGender": "female",
+  "screeningSummary": "Retired midwife witnessed craft hovering over farm with colored lights, beam of light opened barn and lifted being with wrong proportions",
+  "callerPersonality": "professional",
+  "arcNotes": "73-year-old midwife, 41-year career, 2000+ deliveries, 1978 encounter with craft over farm, beam abduction of being with elongated arms and large head",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_vern_neutral_1",
+          "text": "KBTV, you're on with Vern.",
+          "voiceText": "KBTV, you're on with Vern.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_tired_1",
+          "text": "You're on. What's your story?",
+          "voiceText": "You're on. What's your story?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_energized_1",
+          "text": "YOU'RE ON THE AIR! A midwife! This is gonna be something different!",
+          "voiceText": "YOU'RE ON THE AIR! A midwife! This is gonna be something different!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_irritated_1",
+          "text": "You're on. Make it quick.",
+          "voiceText": "You're on. Make it quick.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_gruff_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_amused_1",
+          "text": "Oh, a midwife! I don't get many of these! What's your story?",
+          "voiceText": "Oh, a midwife! I don't get many of these! What's your story?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_focused_1",
+          "text": "KBTV, you're on. What happened?",
+          "voiceText": "KBTV, you're on. What happened?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_exhausted_1",
+          "text": "... you're on. go ahead.",
+          "voiceText": "... you're on. go ahead.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_depressed_1",
+          "text": "KBTV, you're on with Vern.",
+          "voiceText": "KBTV, you're on with Vern.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_angry_1",
+          "text": "KBTV! YOU'RE ON THE AIR! WHAT'S YOUR STORY?!",
+          "voiceText": "KBTV! YOU'RE ON THE AIR! WHAT'S YOUR STORY?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_frustrated_1",
+          "text": "Ugh, you're on. What is it?",
+          "voiceText": "Ugh, you're on. What is it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_obsessive_1",
+          "text": "KBTV, you're on. You know what this means?",
+          "voiceText": "KBTV, you're on. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_manic_1",
+          "text": "KBTV!!! MIDWIFE!!! YOU'RE ON!!!",
+          "voiceText": "KBTV!!! MIDWIFE!!! YOU'RE ON!!!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_caller_1",
+          "text": "My name is Margaret Hensley. I'm seventy-three years old and I was a licensed midwife for forty-one years. I delivered over two thousand babies.",
+          "voiceText": "My name is Margaret Hensley. I'm seventy-three years old and I was a licensed midwife for forty-one years. I delivered over two thousand babies."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_vern_neutral_2",
+          "text": "That's quite a career, Margaret. What can I help you with tonight?",
+          "voiceText": "That's quite a career, Margaret. What can I help you with tonight?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_tired_2",
+          "text": "Forty-one years. That's impressive. What do you want to talk about?",
+          "voiceText": "Forty-one years. That's impressive. What do you want to talk about?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_energized_2",
+          "text": "TWO THOUSAND BABIES! That's incredible! What brings you to call in tonight?!",
+          "voiceText": "TWO THOUSAND BABIES! That's incredible! What brings you to call in tonight?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_irritated_2",
+          "text": "Forty-one years. Okay. What's your point?",
+          "voiceText": "Forty-one years. Okay. What's your point?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_gruff_2",
+          "text": "Two thousand deliveries. What is it?",
+          "voiceText": "Two thousand deliveries. What is it?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_amused_2",
+          "text": "Forty-one years and two thousand babies! That's amazing! What's your story?",
+          "voiceText": "Forty-one years and two thousand babies! That's amazing! What's your story?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_focused_2",
+          "text": "Forty-one years of professional experience. What do you want to share?",
+          "voiceText": "Forty-one years of professional experience. What do you want to share?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_exhausted_2",
+          "text": "... that's quite a career. what can I help you with?",
+          "voiceText": "... that's quite a career. what can I help you with?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_depressed_2",
+          "text": "That's quite a career, Margaret. What can I help you with tonight?",
+          "voiceText": "That's quite a career, Margaret. What can I help you with tonight?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_angry_2",
+          "text": "FORTY-ONE YEARS! TWO THOUSAND BABIES! WHAT DO YOU WANT TO TALK ABOUT?!",
+          "voiceText": "FORTY-ONE YEARS! TWO THOUSAND BABIES! WHAT DO YOU WANT TO TALK ABOUT?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_frustrated_2",
+          "text": "Ugh, forty-one years. what is it?",
+          "voiceText": "Ugh, forty-one years. what is it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_obsessive_2",
+          "text": "That's quite a career, Margaret. You know what this means?",
+          "voiceText": "That's quite a career, Margaret. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_manic_2",
+          "text": "TWO THOUSAND BABIES!!! FORTY-ONE YEARS!!! WHAT'S YOUR STORY?!",
+          "voiceText": "TWO THOUSAND BABIES!!! FORTY-ONE YEARS!!! WHAT'S YOUR STORY?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_caller_2",
+          "text": "In 1978, I delivered a baby out at the Howell farm. It was a difficult birth, took most of the night. At about 4 AM, I stepped outside for some air.",
+          "voiceText": "In 1978, I delivered a baby out at the Howell farm. It was a difficult birth, took most of the night. At about 4 AM, I stepped outside for some air."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_vern_neutral_3",
+          "text": "1978. That's a long time to remember.",
+          "voiceText": "1978. That's a long time to remember.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_tired_3",
+          "text": "1978. That's a lot of years ago. What happened?",
+          "voiceText": "1978. That's a lot of years ago. What happened?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_energized_3",
+          "text": "1978! That's decades ago! What happened at 4 AM at the Howell farm?!",
+          "voiceText": "1978! That's decades ago! What happened at 4 AM at the Howell farm?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_irritated_3",
+          "text": "1978. Let me guess - you saw something?",
+          "voiceText": "1978. Let me guess - you saw something?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_gruff_3",
+          "text": "1978. Go on.",
+          "voiceText": "1978. Go on.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_amused_3",
+          "text": "1978 at the Howell farm! This is getting interesting! What did you see?!",
+          "voiceText": "1978 at the Howell farm! This is getting interesting! What did you see?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_focused_3",
+          "text": "1978. A difficult delivery, you stepped outside at 4 AM. What did you observe?",
+          "voiceText": "1978. A difficult delivery, you stepped outside at 4 AM. What did you observe?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_exhausted_3",
+          "text": "... 1978. that's a long time to remember.",
+          "voiceText": "... 1978. that's a long time to remember.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_depressed_3",
+          "text": "1978. That's a long time to remember.",
+          "voiceText": "1978. That's a long time to remember.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_angry_3",
+          "text": "1978! THAT'S A LONG TIME AGO! WHAT HAPPENED?!",
+          "voiceText": "1978! THAT'S A LONG TIME AGO! WHAT HAPPENED?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_frustrated_3",
+          "text": "Ugh, 1978. what happened?",
+          "voiceText": "Ugh, 1978. what happened?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_obsessive_3",
+          "text": "1978. That's a long time to remember. You know what this means?",
+          "voiceText": "1978. That's a long time to remember. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_manic_3",
+          "text": "1978!!! AT 4 AM!!! WHAT DID YOU SEE?!",
+          "voiceText": "1978!!! AT 4 AM!!! WHAT DID YOU SEE?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_caller_3",
+          "text": "I remember because it was the first time I ever saw one. A craft, hovering over the north field. About forty feet across, perfectly silent. It had lights around the rim, different colors.",
+          "voiceText": "I remember because it was the first time I ever saw one. A craft, hovering over the north field. About forty feet across, perfectly silent. It had lights around the rim, different colors."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_vern_neutral_4",
+          "text": "What did you do?",
+          "voiceText": "What did you do?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_tired_4",
+          "text": "You saw a craft. What did you do?",
+          "voiceText": "You saw a craft. What did you do?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_energized_4",
+          "text": "A CRAFT! With COLORED LIGHTS! This is HUGE! What happened next?!",
+          "voiceText": "A CRAFT! With COLORED LIGHTS! This is HUGE! What happened next?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_irritated_4",
+          "text": "You saw a craft. And then?",
+          "voiceText": "You saw a craft. And then?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_gruff_4",
+          "text": "A craft. Then what?",
+          "voiceText": "A craft. Then what?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_amused_4",
+          "text": "Forty feet across with colored lights! This is fantastic! What did you do?!",
+          "voiceText": "Forty feet across with colored lights! This is fantastic! What did you do?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_focused_4",
+          "text": "Forty-foot craft, silent, colored rim lights. What was your response?",
+          "voiceText": "Forty-foot craft, silent, colored rim lights. What was your response?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_exhausted_4",
+          "text": "... what did you do?",
+          "voiceText": "... what did you do?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_depressed_4",
+          "text": "What did you do?",
+          "voiceText": "What did you do?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_angry_4",
+          "text": "WHAT DID YOU DO?!",
+          "voiceText": "WHAT DID YOU DO?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_frustrated_4",
+          "text": "Ugh, what happened?",
+          "voiceText": "Ugh, what happened?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_obsessive_4",
+          "text": "What did you do? You know what this means?",
+          "voiceText": "What did you do? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_manic_4",
+          "text": "WHAT DID YOU DO?! WHAT HAPPENED NEXT?!",
+          "voiceText": "WHAT DID YOU DO?! WHAT HAPPENED NEXT?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_caller_4",
+          "text": "I watched it. It stayed there for about twenty minutes. And then a beam of light came down, right onto the barn. I could see the barn door open, and... something came out. Something walked toward the light.",
+          "voiceText": "I watched it. It stayed there for about twenty minutes. And then a beam of light came down, right onto the barn. I could see the barn door open, and... something came out. Something walked toward the light."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_vern_neutral_5",
+          "text": "Walked? Like a person?",
+          "voiceText": "Walked? Like a person?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_tired_5",
+          "text": "Something walked. Like a person?",
+          "voiceText": "Something walked. Like a person?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_energized_5",
+          "text": "A BEAM OF LIGHT! And SOMETHING WALKED! This is INCREDIBLE! What did it look like?!",
+          "voiceText": "A BEAM OF LIGHT! And SOMETHING WALKED! This is INCREDIBLE! What did it look like?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_irritated_5",
+          "text": "Something walked. Right. What else?",
+          "voiceText": "Something walked. Right. What else?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_gruff_5",
+          "text": "Something walked. Describe it.",
+          "voiceText": "Something walked. Describe it.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_amused_5",
+          "text": "A beam of light and something walking! This is exactly what we need to hear! What did it look like?!",
+          "voiceText": "A beam of light and something walking! This is exactly what we need to hear! What did it look like?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_focused_5",
+          "text": "A beam of light from the craft, something emerged and walked toward it. What were the physical characteristics?",
+          "voiceText": "A beam of light from the craft, something emerged and walked toward it. What were the physical characteristics?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_exhausted_5",
+          "text": "... walked? like a person?",
+          "voiceText": "... walked? like a person?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_depressed_5",
+          "text": "Walked? Like a person?",
+          "voiceText": "Walked? Like a person?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_angry_5",
+          "text": "WALKED?! LIKE A PERSON?! WHAT DID IT LOOK LIKE?!",
+          "voiceText": "WALKED?! LIKE A PERSON?! WHAT DID IT LOOK LIKE?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_frustrated_5",
+          "text": "Ugh, walked. like a person?",
+          "voiceText": "Ugh, walked. like a person?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_obsessive_5",
+          "text": "Walked? Like a person? You know what this means?",
+          "voiceText": "Walked? Like a person? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_manic_5",
+          "text": "WALKED!!! LIKE A PERSON!!! WHAT DID IT LOOK LIKE?!",
+          "voiceText": "WALKED!!! LIKE A PERSON!!! WHAT DID IT LOOK LIKE?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_caller_5",
+          "text": "That's the thing, Vern. It walked like a person, but the proportions were wrong. Arms too long. Head too large. And then the beam lifted it up, into the craft. The door closed, and it took off.",
+          "voiceText": "That's the thing, Vern. It walked like a person, but the proportions were wrong. Arms too long. Head too large. And then the beam lifted it up, into the craft. The door closed, and it took off."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_vern_neutral_6",
+          "text": "Did you ever find out what happened at the Howell farm that night?",
+          "voiceText": "Did you ever find out what happened at the Howell farm that night?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_tired_6",
+          "text": "Arms too long, head too large. Did you ever learn more about that?",
+          "voiceText": "Arms too long, head too large. Did you ever learn more about that?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_energized_6",
+          "text": "WRONG PROPORTIONS! BEAM ABDUCTION! This is TEXTBOOK! Thank you for sharing this!",
+          "voiceText": "WRONG PROPORTIONS! BEAM ABDUCTION! This is TEXTBOOK! Thank you for sharing this!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_irritated_6",
+          "text": "Right, wrong proportions. So what happened after?",
+          "voiceText": "Right, wrong proportions. So what happened after?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_gruff_6",
+          "text": "Did you find out anything else?",
+          "voiceText": "Did you find out anything else?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_amused_6",
+          "text": "This is absolutely incredible! Thank you for coming forward with this after all these years!",
+          "voiceText": "This is absolutely incredible! Thank you for coming forward with this after all these years!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_focused_6",
+          "text": "The beam abducted the being back into the craft. Did you document this or speak with the farm owners afterward?",
+          "voiceText": "The beam abducted the being back into the craft. Did you document this or speak with the farm owners afterward?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_exhausted_6",
+          "text": "... did you ever find out what happened?",
+          "voiceText": "... did you ever find out what happened?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_depressed_6",
+          "text": "Did you ever find out what happened at the Howell farm that night?",
+          "voiceText": "Did you ever find out what happened at the Howell farm that night?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_angry_6",
+          "text": "DID YOU EVER FIND OUT WHAT HAPPENED AT THAT FARM?!",
+          "voiceText": "DID YOU EVER FIND OUT WHAT HAPPENED AT THAT FARM?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_frustrated_6",
+          "text": "Ugh, did you find out anything else?",
+          "voiceText": "Ugh, did you find out anything else?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_obsessive_6",
+          "text": "Did you ever find out what happened? You know what this means?",
+          "voiceText": "Did you ever find out what happened? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_midwife_vern_manic_6",
+          "text": "WHAT HAPPENED AFTER?! DID YOU FIND OUT ANYTHING?!",
+          "voiceText": "WHAT HAPPENED AFTER?! DID YOU FIND OUT ANYTHING?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_midwife_caller_6",
+          "text": "I never told anyone until now. The Howells sold the farm a few years later. I always wondered if they knew what I saw. Thank you for giving me the chance to finally talk about it.",
+          "voiceText": "I never told anyone until now. The Howells sold the farm a few years later. I always wondered if they knew what I saw. Thank you for giving me the chance to finally talk about it."
+        }
+      ]
+    }
+  ]
+}

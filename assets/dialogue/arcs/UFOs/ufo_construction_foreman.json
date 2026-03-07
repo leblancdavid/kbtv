@@ -1,0 +1,476 @@
+{
+  "arcId": "ufo_construction_foreman",
+  "topic": "UFOs",
+  "legitimacy": "Credible",
+  "callerGender": "male",
+  "screeningSummary": "Construction foreman discovered warm underground structure with geometric patterns at building site",
+  "callerPersonality": "practical",
+  "arcNotes": "Blue-collar foreman, found smooth underground surface with ruler-straight grooves, county archaeologist confirmed 40-foot deep structure",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_construction_foreman_vern_neutral_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_tired_1",
+          "text": "Yeah, you're on. What's up?",
+          "voiceText": "Yeah, you're on. What's up?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_energized_1",
+          "text": "KBTV! You're on the air! What's your story?!",
+          "voiceText": "KBTV! You're on the air! What's your story?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_irritated_1",
+          "text": "You're on. Make it quick.",
+          "voiceText": "You're on. Make it quick.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_gruff_1",
+          "text": "KBTV, Vern here. What do you got?",
+          "voiceText": "KBTV, Vern here. What do you got?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_amused_1",
+          "text": "Oh, a construction guy! This should be good. What's happening on the job?",
+          "voiceText": "Oh, a construction guy! This should be good. What's happening on the job?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_focused_1",
+          "text": "KBTV, you're on. What happened at the site?",
+          "voiceText": "KBTV, you're on. What happened at the site?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_exhausted_1",
+          "text": "... you're on. go ahead.",
+          "voiceText": "... you're on. go ahead.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_depressed_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_angry_1",
+          "text": "KBTV! YOU'RE ON THE AIR! WHAT'S YOUR STORY?!",
+          "voiceText": "KBTV! YOU'RE ON THE AIR! WHAT'S YOUR STORY?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_frustrated_1",
+          "text": "Ugh, you're on. What is it?",
+          "voiceText": "Ugh, you're on. What is it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_obsessive_1",
+          "text": "KBTV, Vern here. Go ahead. You know what this could mean?",
+          "voiceText": "KBTV, Vern here. Go ahead. You know what this could mean?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_manic_1",
+          "text": "KBTV!!! YOU'RE ON!!! WHAT'S HAPPENING?!",
+          "voiceText": "KBTV!!! YOU'RE ON!!! WHAT'S HAPPENING?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_construction_foreman_caller_1",
+          "text": "Hey Vern, this is Sal Benedetto. I'm a foreman over at the Summit Ridge development. I gotta tell you something weird happened on the job last week.",
+          "voiceText": "Hey Vern, this is Sal Benedetto. I'm a foreman over at the Summit Ridge development. I gotta tell you something weird happened on the job last week."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_construction_foreman_vern_neutral_2",
+          "text": "Summit Ridge? That's the new subdivision up by the old quarry, right?",
+          "voiceText": "Summit Ridge? That's the new subdivision up by the old quarry, right?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_tired_2",
+          "text": "Summit Ridge, huh? What happened?",
+          "voiceText": "Summit Ridge, huh? What happened?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_energized_2",
+          "text": "SUMMIT RIDGE! I know that area! What'd you find?!",
+          "voiceText": "SUMMIT RIDGE! I know that area! What'd you find?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_irritated_2",
+          "text": "Yeah, I know where that is. What about it?",
+          "voiceText": "Yeah, I know where that is. What about it?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_gruff_2",
+          "text": "Summit Ridge. Go on.",
+          "voiceText": "Summit Ridge. Go on.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_amused_2",
+          "text": "Oh, construction site mysteries! I've been waiting for a call like this! Tell me everything!",
+          "voiceText": "Oh, construction site mysteries! I've been waiting for a call like this! Tell me everything!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_focused_2",
+          "text": "Summit Ridge development. What did your crew uncover?",
+          "voiceText": "Summit Ridge development. What did your crew uncover?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_exhausted_2",
+          "text": "... summit ridge. that's up by the old quarry, right?",
+          "voiceText": "... summit ridge. that's up by the old quarry, right?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_depressed_2",
+          "text": "Summit Ridge. That's the new subdivision. What happened?",
+          "voiceText": "Summit Ridge. That's the new subdivision. What happened?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_angry_2",
+          "text": "SUMMIT RIDGE! THAT'S THE NEW SUBDIVISION UP BY THE OLD QUARRY! WHAT HAPPENED?!",
+          "voiceText": "SUMMIT RIDGE! THAT'S THE NEW SUBDIVISION UP BY THE OLD QUARRY! WHAT HAPPENED?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_frustrated_2",
+          "text": "Ugh, summit ridge. what happened?",
+          "voiceText": "Ugh, summit ridge. what happened?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_obsessive_2",
+          "text": "Summit Ridge. That's up by the old quarry. You know what this could mean?",
+          "voiceText": "Summit Ridge. That's up by the old quarry. You know what this could mean?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_manic_2",
+          "text": "SUMMIT RIDGE!!! THAT'S THE NEW PLACE!!! WHAT'D YOU FIND?!",
+          "voiceText": "SUMMIT RIDGE!!! THAT'S THE NEW PLACE!!! WHAT'D YOU FIND?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_construction_foreman_caller_2",
+          "text": "That's the one. We were doing foundation work on lot twelve, and my guy's excavator hit something. Not rock. Something solid but it wasn't concrete or metal. It was... warm.",
+          "voiceText": "That's the one. We were doing foundation work on lot twelve, and my guy's excavator hit something. Not rock. Something solid but it wasn't concrete or metal. It was... warm."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_construction_foreman_vern_neutral_3",
+          "text": "Warm? Like... machinery warm? Or something else?",
+          "voiceText": "Warm? Like... machinery warm? Or something else?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_tired_3",
+          "text": "Warm? That's... unusual. What do you mean?",
+          "voiceText": "Warm? That's... unusual. What do you mean?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_energized_3",
+          "text": "WARM?! Like... biologically warm?! That's incredible!",
+          "voiceText": "WARM?! Like... biologically warm?! That's incredible!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_irritated_3",
+          "text": "Warm. Sure. What else?",
+          "voiceText": "Warm. Sure. What else?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_gruff_3",
+          "text": "Warm. Elaborate.",
+          "voiceText": "Warm. Elaborate.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_amused_3",
+          "text": "Warm?! That's fantastic! What did you do next?",
+          "voiceText": "Warm?! That's fantastic! What did you do next?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_focused_3",
+          "text": "Thermal signature? Did you document the temperature? What was the exact feel?",
+          "voiceText": "Thermal signature? Did you document the temperature? What was the exact feel?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_exhausted_3",
+          "text": "... warm. like machinery warm, or something else?",
+          "voiceText": "... warm. like machinery warm, or something else?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_depressed_3",
+          "text": "Warm. Like machinery warm. Or something else.",
+          "voiceText": "Warm. Like machinery warm. Or something else.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_angry_3",
+          "text": "WARM?! LIKE MACHINERY WARM?! OR SOMETHING ELSE?!",
+          "voiceText": "WARM?! LIKE MACHINERY WARM?! OR SOMETHING ELSE?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_frustrated_3",
+          "text": "Ugh, warm. what does that mean?",
+          "voiceText": "Ugh, warm. what does that mean?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_obsessive_3",
+          "text": "Warm. Like machinery warm. Or something else. You know what this means?",
+          "voiceText": "Warm. Like machinery warm. Or something else. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_manic_3",
+          "text": "WARM!!! LIKE... WARM!!! WHAT DOES THAT MEAN?!",
+          "voiceText": "WARM!!! LIKE... WARM!!! WHAT DOES THAT MEAN?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_construction_foreman_caller_3",
+          "text": "More like body temperature. Like something alive underneath there. We dug down a bit and found a surface, smooth as glass, with these grooves in it. Regular as ruler marks.",
+          "voiceText": "More like body temperature. Like something alive underneath there. We dug down a bit and found a surface, smooth as glass, with these grooves in it. Regular as ruler marks."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_construction_foreman_vern_neutral_4",
+          "text": "Grooves? Like writing? Or just... patterns?",
+          "voiceText": "Grooves? Like writing? Or just... patterns?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_tired_4",
+          "text": "Smooth surface with grooves. Okay...",
+          "voiceText": "Smooth surface with grooves. Okay...",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_energized_4",
+          "text": "GLASS-SMOOTH with GROOVES?! Like... engineered?! This is huge!",
+          "voiceText": "GLASS-SMOOTH with GROOVES?! Like... engineered?! This is huge!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_irritated_4",
+          "text": "Grooves. Right. And then what?",
+          "voiceText": "Grooves. Right. And then what?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_gruff_4",
+          "text": "Go on.",
+          "voiceText": "Go on.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_amused_4",
+          "text": "Body-temperature smooth glass with grooves! This is exactly the kind of story I love! What happened next?!",
+          "voiceText": "Body-temperature smooth glass with grooves! This is exactly the kind of story I love! What happened next?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_focused_4",
+          "text": "Regular geometric grooves. Like precision machining. Did you document this? What was the spacing?",
+          "voiceText": "Regular geometric grooves. Like precision machining. Did you document this? What was the spacing?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_exhausted_4",
+          "text": "... grooves. like writing, or just patterns?",
+          "voiceText": "... grooves. like writing, or just patterns?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_depressed_4",
+          "text": "Grooves. Like writing. Or just patterns.",
+          "voiceText": "Grooves. Like writing. Or just patterns.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_angry_4",
+          "text": "GROOVES?! LIKE WRITING?! OR JUST... PATTERNS?!",
+          "voiceText": "GROOVES?! LIKE WRITING?! OR JUST... PATTERNS?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_frustrated_4",
+          "text": "Ugh, grooves. what does that mean?",
+          "voiceText": "Ugh, grooves. what does that mean?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_obsessive_4",
+          "text": "Grooves. Like writing. Or just patterns. You know what this means?",
+          "voiceText": "Grooves. Like writing. Or just patterns. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_manic_4",
+          "text": "GROOVES!!! LIKE... GROOVES!!! WHAT DOES THAT MEAN?!",
+          "voiceText": "GROOVES!!! LIKE... GROOVES!!! WHAT DOES THAT MEAN?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_construction_foreman_caller_4",
+          "text": "Patterns. Geometric. My guy called the county archaeologist and they came out, did some scans. You know what they found? A structure about forty feet down. Perfectly preserved.",
+          "voiceText": "Patterns. Geometric. My guy called the county archaeologist and they came out, did some scans. You know what they found? A structure about forty feet down. Perfectly preserved."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_construction_foreman_vern_neutral_5",
+          "text": "Forty feet down? And nobody's talking about this?",
+          "voiceText": "Forty feet down? And nobody's talking about this?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_tired_5",
+          "text": "Forty feet. That's quite deep. What did the archaeologist say?",
+          "voiceText": "Forty feet. That's quite deep. What did the archaeologist say?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_energized_5",
+          "text": "FORTY FEET DOWN?! A PRESERVED STRUCTURE?! This is MASSIVE! Why isn't this on the news?!",
+          "voiceText": "FORTY FEET DOWN?! A PRESERVED STRUCTURE?! This is MASSIVE! Why isn't this on the news?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_irritated_5",
+          "text": "Forty feet. So they just buried it again, I assume?",
+          "voiceText": "Forty feet. So they just buried it again, I assume?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_gruff_5",
+          "text": "Forty feet down. And the archaeologist confirmed it?",
+          "voiceText": "Forty feet down. And the archaeologist confirmed it?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_amused_5",
+          "text": "A forty-foot-deep perfectly preserved structure! This is the best call I've had all week! Thank you, Sal!",
+          "voiceText": "A forty-foot-deep perfectly preserved structure! This is the best call I've had all week! Thank you, Sal!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_focused_5",
+          "text": "Forty feet of overburden, perfectly preserved structure. What were the scan results? What was the construction?",
+          "voiceText": "Forty feet of overburden, perfectly preserved structure. What were the scan results? What was the construction?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_exhausted_5",
+          "text": "... forty feet down. and nobody's talking about this?",
+          "voiceText": "... forty feet down. and nobody's talking about this?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_depressed_5",
+          "text": "Forty feet down. And nobody's talking about this.",
+          "voiceText": "Forty feet down. And nobody's talking about this.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_angry_5",
+          "text": "FORTY FEET DOWN?! AND NOBODY'S TALKING ABOUT THIS?!",
+          "voiceText": "FORTY FEET DOWN?! AND NOBODY'S TALKING ABOUT THIS?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_frustrated_5",
+          "text": "Ugh, forty feet. and nobody's talking about this?",
+          "voiceText": "Ugh, forty feet. and nobody's talking about this?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_obsessive_5",
+          "text": "Forty feet down. And nobody's talking about this. You know what this means?",
+          "voiceText": "Forty feet down. And nobody's talking about this. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_construction_foreman_vern_manic_5",
+          "text": "FORTY FEET!!! PRESERVED STRUCTURE!!! WHY ISN'T THIS EVERYWHERE?!",
+          "voiceText": "FORTY FEET!!! PRESERVED STRUCTURE!!! WHY ISN'T THIS EVERYWHERE?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_construction_foreman_caller_5",
+          "text": "They shut down the site. Told us it was a archaeological sensitive area. But I know what I felt, Vern. That wasn't ancient. That was warm. Like something that's still there.",
+          "voiceText": "They shut down the site. Told us it was a archaeological sensitive area. But I know what I felt, Vern. That wasn't ancient. That was warm. Like something that's still there."
+        }
+      ]
+    }
+  ]
+}

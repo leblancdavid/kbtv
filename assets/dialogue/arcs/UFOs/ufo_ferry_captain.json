@@ -1,0 +1,569 @@
+{
+  "arcId": "ufo_ferry_captain",
+  "topic": "UFOs",
+  "legitimacy": "Compelling",
+  "callerGender": "male",
+  "screeningSummary": "Experienced ferry captain with 23 years on Lake Vernon, witnessed craft hovering and shadowing his vessel for six minutes",
+  "callerPersonality": "professional",
+  "arcNotes": "Maritime captain, radar and visual confirmation, craft matched his heading exactly for six minutes, extremely credible witness",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_vern_neutral_1",
+          "text": "KBTV, Vern here. You're on the air.",
+          "voiceText": "KBTV, Vern here. You're on the air.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_tired_1",
+          "text": "You're on. What's your story?",
+          "voiceText": "You're on. What's your story?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_energized_1",
+          "text": "YOU'RE ON THE AIR! A ferry captain! This is gonna be good!",
+          "voiceText": "YOU'RE ON THE AIR! A ferry captain! This is gonna be good!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_irritated_1",
+          "text": "You're on. Make it quick.",
+          "voiceText": "You're on. Make it quick.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_gruff_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_amused_1",
+          "text": "Oh, a ferry captain! I can't wait to hear this! What's your story?",
+          "voiceText": "Oh, a ferry captain! I can't wait to hear this! What's your story?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_focused_1",
+          "text": "KBTV, you're on. What happened on the water?",
+          "voiceText": "KBTV, you're on. What happened on the water?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_exhausted_1",
+          "text": "... you're on. go ahead.",
+          "voiceText": "... you're on. go ahead.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_depressed_1",
+          "text": "KBTV, Vern here. You're on the air.",
+          "voiceText": "KBTV, Vern here. You're on the air.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_angry_1",
+          "text": "KBTV! YOU'RE ON THE AIR! WHAT HAPPENED?!",
+          "voiceText": "KBTV! YOU'RE ON THE AIR! WHAT HAPPENED?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_frustrated_1",
+          "text": "Ugh, you're on. What is it?",
+          "voiceText": "Ugh, you're on. What is it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_obsessive_1",
+          "text": "KBTV, Vern here. You're on the air. You know what this means?",
+          "voiceText": "KBTV, Vern here. You're on the air. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_manic_1",
+          "text": "KBTV!!! FERRY CAPTAIN!!! YOU'RE ON!!!",
+          "voiceText": "KBTV!!! FERRY CAPTAIN!!! YOU'RE ON!!!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_caller_1",
+          "text": "Vern, this is Captain Lou Markham. I've been running the Lake Vernon ferry for twenty-three years. I need to report something that happened three nights ago.",
+          "voiceText": "Vern, this is Captain Lou Markham. I've been running the Lake Vernon ferry for twenty-three years. I need to report something that happened three nights ago."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_vern_neutral_2",
+          "text": "Twenty-three years, huh? That's a lot of time on the water. What happened?",
+          "voiceText": "Twenty-three years, huh? That's a lot of time on the water. What happened?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_tired_2",
+          "text": "Twenty-three years. Alright, I'm listening. What happened?",
+          "voiceText": "Twenty-three years. Alright, I'm listening. What happened?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_energized_2",
+          "text": "TWENTY-THREE YEARS on Lake Vernon! And you're calling in about something! This is HUGE!",
+          "voiceText": "TWENTY-THREE YEARS on Lake Vernon! And you're calling in about something! This is HUGE!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_irritated_2",
+          "text": "Twenty-three years. Let me guess - you saw something?",
+          "voiceText": "Twenty-three years. Let me guess - you saw something?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_gruff_2",
+          "text": "Twenty-three years. What's the story?",
+          "voiceText": "Twenty-three years. What's the story?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_amused_2",
+          "text": "Twenty-three years of experience and something finally got your attention! This is fantastic!",
+          "voiceText": "Twenty-three years of experience and something finally got your attention! This is fantastic!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_focused_2",
+          "text": "Twenty-three years of maritime experience. What did you encounter?",
+          "voiceText": "Twenty-three years of maritime experience. What did you encounter?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_exhausted_2",
+          "text": "... twenty-three years. that's a lot of time on the water. what happened?",
+          "voiceText": "... twenty-three years. that's a lot of time on the water. what happened?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_depressed_2",
+          "text": "Twenty-three years. That's a lot of time on the water. What happened?",
+          "voiceText": "Twenty-three years. That's a lot of time on the water. What happened?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_angry_2",
+          "text": "TWENTY-THREE YEARS?! WHAT HAPPENED?!",
+          "voiceText": "TWENTY-THREE YEARS?! WHAT HAPPENED?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_frustrated_2",
+          "text": "Ugh, twenty-three years. what happened?",
+          "voiceText": "Ugh, twenty-three years. what happened?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_obsessive_2",
+          "text": "Twenty-three years. That's a lot of time on the water. You know what this means?",
+          "voiceText": "Twenty-three years. That's a lot of time on the water. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_manic_2",
+          "text": "TWENTY-THREE YEARS!!! WHAT HAPPENED?!",
+          "voiceText": "TWENTY-THREE YEARS!!! WHAT HAPPENED?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_caller_2",
+          "text": "It was around 1:30 AM, crossing from the east dock. Clear night, no fog. My radar picked up something at two thousand yards, moving at about fifteen knots.",
+          "voiceText": "It was around 1:30 AM, crossing from the east dock. Clear night, no fog. My radar picked up something at two thousand yards, moving at about fifteen knots."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_vern_neutral_3",
+          "text": "Fifteen knots. That's slow for a boat.",
+          "voiceText": "Fifteen knots. That's slow for a boat.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_tired_3",
+          "text": "Fifteen knots. That's pretty slow. What was it?",
+          "voiceText": "Fifteen knots. That's pretty slow. What was it?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_energized_3",
+          "text": "FIFTEEN KNOTS on radar! That's slow for a boat but... wait, what could move that slow on the water?",
+          "voiceText": "FIFTEEN KNOTS on radar! That's slow for a boat but... wait, what could move that slow on the water?",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_irritated_3",
+          "text": "Fifteen knots. Sure. What'd it turn out to be?",
+          "voiceText": "Fifteen knots. Sure. What'd it turn out to be?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_gruff_3",
+          "text": "Fifteen knots. Go on.",
+          "voiceText": "Fifteen knots. Go on.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_amused_3",
+          "text": "Fifteen knots! That's weird - too slow for a boat, not slow enough for drift. This is getting interesting!",
+          "voiceText": "Fifteen knots! That's weird - too slow for a boat, not slow enough for drift. This is getting interesting!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_focused_3",
+          "text": "Fifteen knots at two thousand yards. What was the radar return like? Size estimate?",
+          "voiceText": "Fifteen knots at two thousand yards. What was the radar return like? Size estimate?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_exhausted_3",
+          "text": "... fifteen knots. that's slow for a boat.",
+          "voiceText": "... fifteen knots. that's slow for a boat.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_depressed_3",
+          "text": "Fifteen knots. That's slow for a boat.",
+          "voiceText": "Fifteen knots. That's slow for a boat.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_angry_3",
+          "text": "FIFTEEN KNOTS! THAT'S SLOW FOR A BOAT!",
+          "voiceText": "FIFTEEN KNOTS! THAT'S SLOW FOR A BOAT!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_frustrated_3",
+          "text": "Ugh, fifteen knots. what was it?",
+          "voiceText": "Ugh, fifteen knots. what was it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_obsessive_3",
+          "text": "Fifteen knots. That's slow for a boat. You know what this means?",
+          "voiceText": "Fifteen knots. That's slow for a boat. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_manic_3",
+          "text": "FIFTEEN KNOTS!!! THAT'S... SLOW!!! WHAT WAS IT?!",
+          "voiceText": "FIFTEEN KNOTS!!! THAT'S... SLOW!!! WHAT WAS IT?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_caller_3",
+          "text": "That's what I thought. I assumed it was a fisherman. But when I got my binoculars on it... Vern, it wasn't on the water. It was about six feet above it. Hovering.",
+          "voiceText": "That's what I thought. I assumed it was a fisherman. But when I got my binoculars on it... Vern, it wasn't on the water. It was about six feet above it. Hovering."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_vern_neutral_4",
+          "text": "Six feet above the water. Hovering.",
+          "voiceText": "Six feet above the water. Hovering.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_tired_4",
+          "text": "Six feet above the water. Hovering. Okay...",
+          "voiceText": "Six feet above the water. Hovering. Okay...",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_energized_4",
+          "text": "SIX FEET ABOVE THE WATER! HOVERING! That's not possible! What did it look like?!",
+          "voiceText": "SIX FEET ABOVE THE WATER! HOVERING! That's not possible! What did it look like?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_irritated_4",
+          "text": "Hovering. Right. And?",
+          "voiceText": "Hovering. Right. And?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_gruff_4",
+          "text": "Six feet up. Hovering. Describe it.",
+          "voiceText": "Six feet up. Hovering. Describe it.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_amused_4",
+          "text": "Six feet above the water, hovering! This is exactly why I love this show! What did it look like?!",
+          "voiceText": "Six feet above the water, hovering! This is exactly why I love this show! What did it look like?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_focused_4",
+          "text": "Six feet above the water, stationary. No visible propulsion. What was the physical description?",
+          "voiceText": "Six feet above the water, stationary. No visible propulsion. What was the physical description?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_exhausted_4",
+          "text": "... six feet above the water. hovering.",
+          "voiceText": "... six feet above the water. hovering.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_depressed_4",
+          "text": "Six feet above the water. Hovering.",
+          "voiceText": "Six feet above the water. Hovering.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_angry_4",
+          "text": "SIX FEET ABOVE THE WATER! HOVERING! WHAT DID IT LOOK LIKE?!",
+          "voiceText": "SIX FEET ABOVE THE WATER! HOVERING! WHAT DID IT LOOK LIKE?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_frustrated_4",
+          "text": "Ugh, six feet above the water, hovering. what was it?",
+          "voiceText": "Ugh, six feet above the water, hovering. what was it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_obsessive_4",
+          "text": "Six feet above the water. Hovering. You know what this means?",
+          "voiceText": "Six feet above the water. Hovering. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_manic_4",
+          "text": "SIX FEET!!! ABOVE WATER!!! HOVERING!!! WHAT IS THAT THING?!",
+          "voiceText": "SIX FEET!!! ABOVE WATER!!! HOVERING!!! WHAT IS THAT THING?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_caller_4",
+          "text": "Elliptical shape, about the size of a pickup truck. No lights, no engine sound. And then... it started moving. Not away from me. Toward me. At speed.",
+          "voiceText": "Elliptical shape, about the size of a pickup truck. No lights, no engine sound. And then... it started moving. Not away from me. Toward me. At speed."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_vern_neutral_5",
+          "text": "Toward you? What did you do?",
+          "voiceText": "Toward you? What did you do?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_tired_5",
+          "text": "Toward you? What happened next?",
+          "voiceText": "Toward you? What happened next?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_energized_5",
+          "text": "TOWARD YOU?! That's intense! What did you do?!",
+          "voiceText": "TOWARD YOU?! That's intense! What did you do?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_irritated_5",
+          "text": "Toward you. Let me guess - it chased you?",
+          "voiceText": "Toward you. Let me guess - it chased you?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_gruff_5",
+          "text": "It came at you. Then what?",
+          "voiceText": "It came at you. Then what?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_amused_5",
+          "text": "Toward you! Oh man, I would have panicked! What did you do?!",
+          "voiceText": "Toward you! Oh man, I would have panicked! What did you do?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_focused_5",
+          "text": "It approached your vessel. What was the closing speed? What maneuver did you attempt?",
+          "voiceText": "It approached your vessel. What was the closing speed? What maneuver did you attempt?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_exhausted_5",
+          "text": "... toward you. what did you do?",
+          "voiceText": "... toward you. what did you do?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_depressed_5",
+          "text": "Toward you. What did you do?",
+          "voiceText": "Toward you. What did you do?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_angry_5",
+          "text": "TOWARD YOU?! WHAT DID YOU DO?!",
+          "voiceText": "TOWARD YOU?! WHAT DID YOU DO?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_frustrated_5",
+          "text": "Ugh, toward you. what happened?",
+          "voiceText": "Ugh, toward you. what happened?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_obsessive_5",
+          "text": "Toward you. You know what this means?",
+          "voiceText": "Toward you. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_manic_5",
+          "text": "TOWARD YOU!!! WHAT DID YOU DO?!",
+          "voiceText": "TOWARD YOU!!! WHAT DID YOU DO?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_caller_5",
+          "text": "I altered course, tried to maintain distance. It matched my heading exactly. Every turn I made, it made the same turn. For six minutes, Vern. Six minutes of this thing shadowing my ferry.",
+          "voiceText": "I altered course, tried to maintain distance. It matched my heading exactly. Every turn I made, it made the same turn. For six minutes, Vern. Six minutes of this thing shadowing my ferry."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_vern_neutral_6",
+          "text": "And then?",
+          "voiceText": "And then?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_tired_6",
+          "text": "Six minutes of shadowing. Then what happened?",
+          "voiceText": "Six minutes of shadowing. Then what happened?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_energized_6",
+          "text": "SIX MINUTES! Matching your every move! This is TEXTBOOK behavior! What happened next?!",
+          "voiceText": "SIX MINUTES! Matching your every move! This is TEXTBOOK behavior! What happened next?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_irritated_6",
+          "text": "Six minutes. Okay, and then it left?",
+          "voiceText": "Six minutes. Okay, and then it left?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_gruff_6",
+          "text": "Six minutes. Then what?",
+          "voiceText": "Six minutes. Then what?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_amused_6",
+          "text": "Six minutes of shadowing! This is incredible! How did it end?!",
+          "voiceText": "Six minutes of shadowing! This is incredible! How did it end?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_focused_6",
+          "text": "Six minutes of coordinated movement. What was the final interaction before it departed?",
+          "voiceText": "Six minutes of coordinated movement. What was the final interaction before it departed?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_exhausted_6",
+          "text": "... and then?",
+          "voiceText": "... and then?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_depressed_6",
+          "text": "And then?",
+          "voiceText": "And then?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_angry_6",
+          "text": "AND THEN?!",
+          "voiceText": "AND THEN?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_frustrated_6",
+          "text": "Ugh, and then what?",
+          "voiceText": "Ugh, and then what?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_obsessive_6",
+          "text": "And then? You know what this means?",
+          "voiceText": "And then? You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_compelling_ferry_captain_vern_manic_6",
+          "text": "AND THEN?! WHAT HAPPENED?!",
+          "voiceText": "AND THEN?! WHAT HAPPENED?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_compelling_ferry_captain_caller_6",
+          "text": "Six minutes exactly, and then it accelerated. Straight up. Gone in a second. Left no wake, no trace. I've been sailing these waters for twenty-three years, Vern. I know what I saw. And I know that wasn't any boat or aircraft I've ever encountered.",
+          "voiceText": "Six minutes exactly, and then it accelerated. Straight up. Gone in a second. Left no wake, no trace. I've been sailing these waters for twenty-three years, Vern. I know what I saw. And I know that wasn't any boat or aircraft I've ever encountered."
+        }
+      ]
+    }
+  ]
+}

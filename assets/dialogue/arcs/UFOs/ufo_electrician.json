@@ -1,0 +1,101 @@
+{
+  "arcId": "ufo_electrician",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Electrician sees disc-shaped craft while working on a pole, tools started buzzing",
+  "callerPersonality": "gruff_experienced",
+  "arcNotes": "Practical electrician with electrical interference and visual sighting",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_electrician_vern_neutral_1", "text": "KBTV, Vern here. What's your name?", "voiceText": "KBTV, Vern here. What's your name?", "mood": "neutral"},
+        {"id": "ufos_questionable_electrician_vern_tired_1", "text": "Alright, you're on.", "voiceText": "Alright, you're on.", "mood": "tired"},
+        {"id": "ufos_questionable_electrician_vern_energized_1", "text": "YOU ARE ON KBTV!", "voiceText": "YOU ARE ON KBTV!", "mood": "energized"},
+        {"id": "ufos_questionable_electrician_vern_irritated_1", "text": "You're on. Make it quick.", "voiceText": "You're on. Make it quick.", "mood": "irritated"},
+        {"id": "ufos_questionable_electrician_vern_gruff_1", "text": "KBTV, go ahead.", "voiceText": "KBTV, go ahead.", "mood": "gruff"},
+        {"id": "ufos_questionable_electrician_vern_amused_1", "text": "Oh, a caller! What's your story?", "voiceText": "Oh, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_electrician_vern_focused_1", "text": "You're on the air. Go ahead.", "voiceText": "You're on the air. Go ahead.", "mood": "focused"},
+        {"id": "ufos_questionable_electrician_vern_exhausted_1", "text": "... you're on.", "voiceText": "... you're on.", "mood": "exhausted"},
+        {"id": "ufos_questionable_electrician_vern_depressed_1", "text": "KBTV, Vern here. What's your name?", "voiceText": "KBTV, Vern here. What's your name?", "mood": "depressed"},
+        {"id": "ufos_questionable_electrician_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "voiceText": "YOU'RE ON THE AIR! WHAT DO YOU WANT?!", "mood": "angry"},
+        {"id": "ufos_questionable_electrician_vern_frustrated_1", "text": "Ugh, you're on.", "voiceText": "Ugh, you're on.", "mood": "frustrated"},
+        {"id": "ufos_questionable_electrician_vern_obsessive_1", "text": "You're on KBTV. Tell me your experience.", "voiceText": "You're on KBTV. Tell me your experience.", "mood": "obsessive"},
+        {"id": "ufos_questionable_electrician_vern_manic_1", "text": "KBTV!!!", "voiceText": "KBTV!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_electrician_caller_1", "text": "Walt. I'm an electrician. Been doing this for thirty years. Last week I was working on a farm out past Millbrook, and I saw something weird in the sky.", "voiceText": "Walt. I'm an electrician. Been doing this for thirty years. Last week I was working on a farm out past Millbrook, and I saw something weird in the sky."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_electrician_vern_neutral_2", "text": "Weird how?", "voiceText": "Weird how?", "mood": "neutral"},
+        {"id": "ufos_questionable_electrician_vern_tired_2", "text": "Weird... okay.", "voiceText": "Weird... okay.", "mood": "tired"},
+        {"id": "ufos_questionable_electrician_vern_energized_2", "text": "WEIRD?! Tell me more!", "voiceText": "WEIRD?! Tell me more!", "mood": "energized"},
+        {"id": "ufos_questionable_electrician_vern_irritated_2", "text": "Weird. Right.", "voiceText": "Weird. Right.", "mood": "irritated"},
+        {"id": "ufos_questionable_electrician_vern_gruff_2", "text": "Weird. Go on.", "voiceText": "Weird. Go on.", "mood": "gruff"},
+        {"id": "ufos_questionable_electrician_vern_amused_2", "text": "Weird! What did you see?", "voiceText": "Weird! What did you see?", "mood": "amused"},
+        {"id": "ufos_questionable_electrician_vern_focused_2", "text": "Describe the anomaly.", "voiceText": "Describe the anomaly.", "mood": "focused"},
+        {"id": "ufos_questionable_electrician_vern_exhausted_2", "text": "... weird. okay.", "voiceText": "... weird. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_electrician_vern_depressed_2", "text": "Weird how?", "voiceText": "Weird how?", "mood": "depressed"},
+        {"id": "ufos_questionable_electrician_vern_angry_2", "text": "WEIRD! WHAT HAPPENED?!", "voiceText": "WEIRD! WHAT HAPPENED?!", "mood": "angry"},
+        {"id": "ufos_questionable_electrician_vern_frustrated_2", "text": "Ugh, weird.", "voiceText": "Ugh, weird.", "mood": "frustrated"},
+        {"id": "ufos_questionable_electrician_vern_obsessive_2", "text": "This is significant. Describe what you observed.", "voiceText": "This is significant. Describe what you observed.", "mood": "obsessive"},
+        {"id": "ufos_questionable_electrician_vern_manic_2", "text": "WEIRD!!!", "voiceText": "WEIRD!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_electrician_caller_2", "text": "I was up on a pole, and all of a sudden every piece of metal on me, my tools, my belt, they started buzzing. Not humming, buzzing. Like they were charged with something.", "voiceText": "I was up on a pole, and all of a sudden every piece of metal on me, my tools, my belt, they started buzzing. Not humming, buzzing. Like they were charged with something."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_electrician_vern_neutral_3", "text": "Static electricity?", "voiceText": "Static electricity?", "mood": "neutral"},
+        {"id": "ufos_questionable_electrician_vern_tired_3", "text": "Static... okay.", "voiceText": "Static... okay.", "mood": "tired"},
+        {"id": "ufos_questionable_electrician_vern_energized_3", "text": "BUZZING METAL! That's CLASSIC!", "voiceText": "BUZZING METAL! That's CLASSIC!", "mood": "energized"},
+        {"id": "ufos_questionable_electrician_vern_irritated_3", "text": "Static. Right.", "voiceText": "Static. Right.", "mood": "irritated"},
+        {"id": "ufos_questionable_electrician_vern_gruff_3", "text": "Static. Go on.", "voiceText": "Static. Go on.", "mood": "gruff"},
+        {"id": "ufos_questionable_electrician_vern_amused_3", "text": "Buzzing metal! That's the best part! What happened?", "voiceText": "Buzzing metal! That's the best part! What happened?", "mood": "amused"},
+        {"id": "ufos_questionable_electrician_vern_focused_3", "text": "Electromagnetic interference. Describe the source.", "voiceText": "Electromagnetic interference. Describe the source.", "mood": "focused"},
+        {"id": "ufos_questionable_electrician_vern_exhausted_3", "text": "... static. okay.", "voiceText": "... static. okay.", "mood": "exhausted"},
+        {"id": "ufos_questionable_electrician_vern_depressed_3", "text": "Static electricity. What happened?", "voiceText": "Static electricity. What happened?", "mood": "depressed"},
+        {"id": "ufos_questionable_electrician_vern_angry_3", "text": "BUZZING METAL! WHAT WAS IT?!", "voiceText": "BUZZING METAL! WHAT WAS IT?!", "mood": "angry"},
+        {"id": "ufos_questionable_electrician_vern_frustrated_3", "text": "Ugh, static.", "voiceText": "Ugh, static.", "mood": "frustrated"},
+        {"id": "ufos_questionable_electrician_vern_obsessive_3", "text": "This is critical. The electromagnetic signature - what was the source?", "voiceText": "This is critical. The electromagnetic signature - what was the source?", "mood": "obsessive"},
+        {"id": "ufos_questionable_electrician_vern_manic_3", "text": "BUZZING!!!", "voiceText": "BUZZING!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_electrician_caller_3", "text": "That's what I thought. So I looked up, and there it was. A disc shape, maybe sixty feet across, hovering about a hundred feet above the field. Silver, smooth, no windows, no seams.", "voiceText": "That's what I thought. So I looked up, and there it was. A disc shape, maybe sixty feet across, hovering about a hundred feet above the field. Silver, smooth, no windows, no seams."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_electrician_vern_neutral_4", "text": "And then what happened?", "voiceText": "And then what happened?", "mood": "neutral"},
+        {"id": "ufos_questionable_electrician_vern_tired_4", "text": "And then?", "voiceText": "And then?", "mood": "tired"},
+        {"id": "ufos_questionable_electrician_vern_energized_4", "text": "A DISC! This is AMAZING! What happened next?!", "voiceText": "A DISC! This is AMAZING! What happened next?!", "mood": "energized"},
+        {"id": "ufos_questionable_electrician_vern_irritated_4", "text": "A disc. Right. And then?", "voiceText": "A disc. Right. And then?", "mood": "irritated"},
+        {"id": "ufos_questionable_electrician_vern_gruff_4", "text": "And then?", "voiceText": "And then?", "mood": "gruff"},
+        {"id": "ufos_questionable_electrician_vern_amused_4", "text": "A silver disc! This is great! What happened?", "voiceText": "A silver disc! This is great! What happened?", "mood": "amused"},
+        {"id": "ufos_questionable_electrician_vern_focused_4", "text": "Describe the subsequent events.", "voiceText": "Describe the subsequent events.", "mood": "focused"},
+        {"id": "ufos_questionable_electrician_vern_exhausted_4", "text": "... and then.", "voiceText": "... and then.", "mood": "exhausted"},
+        {"id": "ufos_questionable_electrician_vern_depressed_4", "text": "And then what happened?", "voiceText": "And then what happened?", "mood": "depressed"},
+        {"id": "ufos_questionable_electrician_vern_angry_4", "text": "AND THEN WHAT?!", "voiceText": "AND THEN WHAT?!", "mood": "angry"},
+        {"id": "ufos_questionable_electrician_vern_frustrated_4", "text": "Ugh, and then?", "voiceText": "Ugh, and then?", "mood": "frustrated"},
+        {"id": "ufos_questionable_electrician_vern_obsessive_4", "text": "This is critical. What occurred after visual contact?", "voiceText": "This is critical. What occurred after visual contact?", "mood": "obsessive"},
+        {"id": "ufos_questionable_electrician_vern_manic_4", "text": "DISC!!! WHAT HAPPENED!!!", "voiceText": "DISC!!! WHAT HAPPENED!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

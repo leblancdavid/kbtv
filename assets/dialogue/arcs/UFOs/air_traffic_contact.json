@@ -1,0 +1,77 @@
+{
+  "arcId": "air_traffic_contact",
+  "topic": "UFOs",
+  "legitimacy": "Compelling",
+  "screeningSummary": "Former air traffic controller presents detailed case of multiple aircraft reporting same unknown contact",
+  "callerPersonality": "cold_factual",
+  "arcNotes": "Former ATC with multiple confirmed aircraft sightings, detailed timeline, highly credible",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_air_traffic_contact_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_energized_1", "text": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!", "voiceText": "YOU ARE ON THE AIR! Finally, someone with a good story - tell us everything!", "mood": "energized"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_irritated_1", "text": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?", "voiceText": "You're on. Look, I've heard a lot of stories tonight - why should I believe yours?", "mood": "irritated"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_gruff_1", "text": "You're on. So what'd you see?", "voiceText": "You're on. So what'd you see?", "mood": "gruff"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_amused_1", "text": "Oh good, a caller! What've you got for us tonight?", "voiceText": "Oh good, a caller! What've you got for us tonight?", "mood": "amused"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_focused_1", "text": "You're on the air. Start with the basic facts.", "voiceText": "You're on the air. Start with the basic facts.", "mood": "focused"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_compelling_air_traffic_contact_caller_1", "text": "I'm a retired air traffic controller with twenty-three years experience. On June 15th of last year, I handled a situation where three separate aircraft in the same airspace reported the same unknown contact. Three different crews, three independent reports, same object.", "voiceText": "I'm a retired air traffic controller with twenty-three years experience. On June 15th of last year, I handled a situation where three separate aircraft in the same airspace reported the same unknown contact. Three different crews, three independent reports, same object."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_air_traffic_contact_vern_neutral_2", "text": "Three independent reports. What did they all describe?", "voiceText": "Three independent reports. What did they all describe?", "mood": "neutral"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_tired_2", "text": "Three reports... okay, what did they describe?", "voiceText": "Three reports... okay, what did they describe?", "mood": "tired"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_energized_2", "text": "THREE INDEPENDENT REPORTS?! That's incredible! What did they describe?!", "voiceText": "THREE INDEPENDENT REPORTS?! That's incredible! What did they describe?!", "mood": "energized"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_irritated_2", "text": "Three reports. Of course they did. What did they describe?", "voiceText": "Three reports. Of course they did. What did they describe?", "mood": "irritated"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_gruff_2", "text": "Three reports. Fine, I'll hear you out. What did they describe?", "voiceText": "Three reports. Fine, I'll hear you out. What did they describe?", "mood": "gruff"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_amused_2", "text": "THREE INDEPENDENT REPORTS! That's amazing! What did they describe?!", "voiceText": "THREE INDEPENDENT REPORTS! That's amazing! What did they describe?!", "mood": "amused"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_focused_2", "text": "Three independent reports. Describe the consistent characteristics.", "voiceText": "Three independent reports. Describe the consistent characteristics.", "mood": "focused"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_exhausted_2", "text": "... three independent reports. what did they all describe?", "voiceText": "... three independent reports. what did they all describe?", "mood": "exhausted"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_depressed_2", "text": "Three independent reports. What did they all describe?", "voiceText": "Three independent reports. What did they all describe?", "mood": "depressed"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_angry_2", "text": "THREE INDEPENDENT REPORTS! WHAT DID THEY ALL DESCRIBE?!", "voiceText": "THREE INDEPENDENT REPORTS! WHAT DID THEY ALL DESCRIBE?!", "mood": "angry"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_frustrated_2", "text": "Ugh, three independent reports. what did they all describe?", "voiceText": "Ugh, three independent reports. what did they all describe?", "mood": "frustrated"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_obsessive_2", "text": "Three independent reports. What did they all describe? You know what this means?", "voiceText": "Three independent reports. What did they all describe? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_manic_2", "text": "THREE INDEPENDENT REPORTS. WHAT DID THEY ALL DESCRIBE?!!!", "voiceText": "THREE INDEPENDENT REPORTS. WHAT DID THEY ALL DESCRIBE?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_compelling_air_traffic_contact_caller_2", "text": "A metallic object, approximately thirty feet in diameter, with no transponder, no flight plan, and it was flying at nine thousand feet in controlled airspace. The FAA never identified it. I've filed a Freedom of Information Act request and they have no record of what it was.", "voiceText": "A metallic object, approximately thirty feet in diameter, with no transponder, no flight plan, and it was flying at nine thousand feet in controlled airspace. The FAA never identified it. I've filed a Freedom of Information Act request and they have no record of what it was."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_compelling_air_traffic_contact_vern_neutral_3", "text": "No transponder, no flight plan, FAA has no record. This is exactly what our researchers want to see. Send us your documentation. This could be historic. Appreciate you calling in.", "voiceText": "No transponder, no flight plan, FAA has no record. This is exactly what our researchers want to see. Send us your documentation. This could be historic. Appreciate you calling in.", "mood": "neutral"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_tired_3", "text": "No FAA record. Send the docs in. Thanks for calling.", "voiceText": "No FAA record. Send the docs in. Thanks for calling.", "mood": "tired"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_energized_3", "text": "NO FAA RECORD?! This is HISTORIC! Send us your documentation! You're part of something HUGE!", "voiceText": "NO FAA RECORD?! This is HISTORIC! Send us your documentation! You're part of something HUGE!", "mood": "energized"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_irritated_3", "text": "No FAA record. Well, send the docs in. We'll check. Next caller.", "voiceText": "No FAA record. Well, send the docs in. We'll check. Next caller.", "mood": "irritated"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_gruff_3", "text": "No FAA record. Send the docs in. We'll check it out. Thanks.", "voiceText": "No FAA record. Send the docs in. We'll check it out. Thanks.", "mood": "gruff"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_amused_3", "text": "NO FAA RECORD! This is PERFECT! Send us your documentation! We love this!", "voiceText": "NO FAA RECORD! This is PERFECT! Send us your documentation! We love this!", "mood": "amused"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_focused_3", "text": "No transponder, no flight plan, unidentifiable by the FAA. This is exactly what peer-reviewed research needs. Please submit your documentation. This could be historic.", "voiceText": "No transponder, no flight plan, unidentifiable by the FAA. This is exactly what peer-reviewed research needs. Please submit your documentation. This could be historic.", "mood": "focused"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_exhausted_3", "text": "... no transponder, no flight plan, faa has no record. this is exactly what our researchers want to see. send us your documentation.", "voiceText": "... no transponder, no flight plan, faa has no record. this is exactly what our researchers want to see. send us your documentation.", "mood": "exhausted"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_depressed_3", "text": "No transponder, no flight plan, FAA has no record. This is exactly what our researchers want to see. Send us your documentation.", "voiceText": "No transponder, no flight plan, FAA has no record. This is exactly what our researchers want to see. Send us your documentation.", "mood": "depressed"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_angry_3", "text": "NO TRANSPONDER! NO FLIGHT PLAN! FAA HAS NO RECORD! SEND US YOUR DOCUMENTATION! THIS COULD BE HISTORIC!", "voiceText": "NO TRANSPONDER! NO FLIGHT PLAN! FAA HAS NO RECORD! SEND US YOUR DOCUMENTATION! THIS COULD BE HISTORIC!", "mood": "angry"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_frustrated_3", "text": "Ugh, no transponder, no flight plan, faa has no record. send us your documentation. appreciate you calling in.", "voiceText": "Ugh, no transponder, no flight plan, faa has no record. send us your documentation. appreciate you calling in.", "mood": "frustrated"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_obsessive_3", "text": "No transponder, no flight plan, FAA has no record. This is exactly what our researchers want to see. Send us your documentation. You know what this means?", "voiceText": "No transponder, no flight plan, FAA has no record. This is exactly what our researchers want to see. Send us your documentation. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_compelling_air_traffic_contact_vern_manic_3", "text": "NO TRANSPONDER! NO FLIGHT PLAN! FAA HAS NO RECORD! SEND US YOUR DOCUMENTATION! THIS COULD BE HISTORIC. APPRECIATE YOU CALLING IN.!!!", "voiceText": "NO TRANSPONDER! NO FLIGHT PLAN! FAA HAS NO RECORD! SEND US YOUR DOCUMENTATION! THIS COULD BE HISTORIC. APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

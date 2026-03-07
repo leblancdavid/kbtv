@@ -1,0 +1,476 @@
+{
+  "arcId": "ufo_night_shift",
+  "topic": "UFOs",
+  "legitimacy": "Credible",
+  "callerGender": "female",
+  "screeningSummary": "Hospital night nurse witnessed craft hovering over parking lot, then every patient in psychiatric ward reported hearing the same voice in their heads",
+  "callerPersonality": "tired",
+  "arcNotes": "Night nurse at County General, 12 years experience, craft moved toward psychiatric ward, all patients heard same voice simultaneously",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_night_shift_vern_neutral_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_tired_1",
+          "text": "You're on. What's your story?",
+          "voiceText": "You're on. What's your story?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_energized_1",
+          "text": "YOU'RE ON THE AIR! A hospital nurse! This is gonna be good!",
+          "voiceText": "YOU'RE ON THE AIR! A hospital nurse! This is gonna be good!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_irritated_1",
+          "text": "You're on. Make it quick.",
+          "voiceText": "You're on. Make it quick.",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_gruff_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_amused_1",
+          "text": "Oh, a hospital nurse! What's happening at the hospital?",
+          "voiceText": "Oh, a hospital nurse! What's happening at the hospital?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_focused_1",
+          "text": "KBTV, you're on. What happened?",
+          "voiceText": "KBTV, you're on. What happened?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_exhausted_1",
+          "text": "... you're on. go ahead.",
+          "voiceText": "... you're on. go ahead.",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_depressed_1",
+          "text": "KBTV, Vern here. Go ahead.",
+          "voiceText": "KBTV, Vern here. Go ahead.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_angry_1",
+          "text": "KBTV! YOU'RE ON THE AIR! WHAT HAPPENED?!",
+          "voiceText": "KBTV! YOU'RE ON THE AIR! WHAT HAPPENED?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_frustrated_1",
+          "text": "Ugh, you're on. What is it?",
+          "voiceText": "Ugh, you're on. What is it?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_obsessive_1",
+          "text": "KBTV, Vern here. Go ahead. You know what this means?",
+          "voiceText": "KBTV, Vern here. Go ahead. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_manic_1",
+          "text": "KBTV!!! NURSE!!! YOU'RE ON!!!",
+          "voiceText": "KBTV!!! NURSE!!! YOU'RE ON!!!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_night_shift_caller_1",
+          "text": "Vern, this is Maria. I'm a nurse at County General. I've been working night shift for twelve years. I'm calling about something I saw from the roof garden last week.",
+          "voiceText": "Vern, this is Maria. I'm a nurse at County General. I've been working night shift for twelve years. I'm calling about something I saw from the roof garden last week."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_night_shift_vern_neutral_2",
+          "text": "The roof garden? That's on the sixth floor, right?",
+          "voiceText": "The roof garden? That's on the sixth floor, right?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_tired_2",
+          "text": "Roof garden on sixth floor. What did you see?",
+          "voiceText": "Roof garden on sixth floor. What did you see?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_energized_2",
+          "text": "THE ROOF GARDEN! That's up high! What did you see from there?!",
+          "voiceText": "THE ROOF GARDEN! That's up high! What did you see from there?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_irritated_2",
+          "text": "Sixth floor roof. Let me guess - you saw something in the sky?",
+          "voiceText": "Sixth floor roof. Let me guess - you saw something in the sky?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_gruff_2",
+          "text": "Roof garden. Go on.",
+          "voiceText": "Roof garden. Go on.",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_amused_2",
+          "text": "The roof garden! That's a great vantage point! What did you see?",
+          "voiceText": "The roof garden! That's a great vantage point! What did you see?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_focused_2",
+          "text": "The sixth floor roof garden. What did you observe?",
+          "voiceText": "The sixth floor roof garden. What did you observe?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_exhausted_2",
+          "text": "... the roof garden. that's on the sixth floor, right?",
+          "voiceText": "... the roof garden. that's on the sixth floor, right?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_depressed_2",
+          "text": "The roof garden. That's on the sixth floor, right?",
+          "voiceText": "The roof garden. That's on the sixth floor, right?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_angry_2",
+          "text": "THE ROOF GARDEN! THAT'S ON THE SIXTH FLOOR! WHAT DID YOU SEE?!",
+          "voiceText": "THE ROOF GARDEN! THAT'S ON THE SIXTH FLOOR! WHAT DID YOU SEE?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_frustrated_2",
+          "text": "Ugh, roof garden. what did you see?",
+          "voiceText": "Ugh, roof garden. what did you see?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_obsessive_2",
+          "text": "The roof garden. That's on the sixth floor. You know what this means?",
+          "voiceText": "The roof garden. That's on the sixth floor. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_manic_2",
+          "text": "ROOF GARDEN!!! SIXTH FLOOR!!! WHAT DID YOU SEE?!",
+          "voiceText": "ROOF GARDEN!!! SIXTH FLOOR!!! WHAT DID YOU SEE?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_night_shift_caller_2",
+          "text": "That's right. I go up there to get some air around 3 AM. I saw a craft, hovering over the parking lot. It was silent, roughly the size of a car, with a domed top.",
+          "voiceText": "That's right. I go up there to get some air around 3 AM. I saw a craft, hovering over the parking lot. It was silent, roughly the size of a car, with a domed top."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_night_shift_vern_neutral_3",
+          "text": "Hovering over the parking lot. How long was it there?",
+          "voiceText": "Hovering over the parking lot. How long was it there?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_tired_3",
+          "text": "Hovering over the parking lot. How long?",
+          "voiceText": "Hovering over the parking lot. How long?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_energized_3",
+          "text": "OVER THE PARKING LOT! A DOMED CRAFT! This is great! How long was it there?!",
+          "voiceText": "OVER THE PARKING LOT! A DOMED CRAFT! This is great! How long was it there?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_irritated_3",
+          "text": "Hovering. Okay. How long?",
+          "voiceText": "Hovering. Okay. How long?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_gruff_3",
+          "text": "How long?",
+          "voiceText": "How long?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_amused_3",
+          "text": "A domed craft over the parking lot! This is fantastic! How long did it stay?",
+          "voiceText": "A domed craft over the parking lot! This is fantastic! How long did it stay?",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_focused_3",
+          "text": "Silent, car-sized, domed top. How long did it hover?",
+          "voiceText": "Silent, car-sized, domed top. How long did it hover?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_exhausted_3",
+          "text": "... hovering over the parking lot. how long was it there?",
+          "voiceText": "... hovering over the parking lot. how long was it there?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_depressed_3",
+          "text": "Hovering over the parking lot. How long was it there?",
+          "voiceText": "Hovering over the parking lot. How long was it there?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_angry_3",
+          "text": "HOVERING OVER THE PARKING LOT! HOW LONG WAS IT THERE?!",
+          "voiceText": "HOVERING OVER THE PARKING LOT! HOW LONG WAS IT THERE?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_frustrated_3",
+          "text": "Ugh, how long was it there?",
+          "voiceText": "Ugh, how long was it there?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_obsessive_3",
+          "text": "Hovering over the parking lot. You know what this means?",
+          "voiceText": "Hovering over the parking lot. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_manic_3",
+          "text": "HOW LONG?! HOW LONG WAS IT THERE?!",
+          "voiceText": "HOW LONG?! HOW LONG WAS IT THERE?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_night_shift_caller_3",
+          "text": "About fifteen minutes. Then it moved. Not away, but down. It went toward the east wing, where the psychiatric unit is. And then... my pager went crazy.",
+          "voiceText": "About fifteen minutes. Then it moved. Not away, but down. It went toward the east wing, where the psychiatric unit is. And then... my pager went crazy."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_night_shift_vern_neutral_4",
+          "text": "Your pager went crazy?",
+          "voiceText": "Your pager went crazy?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_tired_4",
+          "text": "Your pager went crazy. What happened?",
+          "voiceText": "Your pager went crazy. What happened?",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_energized_4",
+          "text": "TOWARD THE PSYCHIATRIC UNIT! And your pager went crazy! What was happening?!",
+          "voiceText": "TOWARD THE PSYCHIATRIC UNIT! And your pager went crazy! What was happening?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_irritated_4",
+          "text": "The psych ward. Right. What happened with your pager?",
+          "voiceText": "The psych ward. Right. What happened with your pager?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_gruff_4",
+          "text": "What happened?",
+          "voiceText": "What happened?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_amused_4",
+          "text": "It went toward the psych unit and your pager went crazy! This is wild! What was happening?!",
+          "voiceText": "It went toward the psych unit and your pager went crazy! This is wild! What was happening?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_focused_4",
+          "text": "It moved toward the psychiatric unit. What was the nature of the page alerts?",
+          "voiceText": "It moved toward the psychiatric unit. What was the nature of the page alerts?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_exhausted_4",
+          "text": "... your pager went crazy?",
+          "voiceText": "... your pager went crazy?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_depressed_4",
+          "text": "Your pager went crazy?",
+          "voiceText": "Your pager went crazy?",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_angry_4",
+          "text": "YOUR PAGER WENT CRAZY?! WHAT WAS HAPPENING?!",
+          "voiceText": "YOUR PAGER WENT CRAZY?! WHAT WAS HAPPENING?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_frustrated_4",
+          "text": "Ugh, what happened?",
+          "voiceText": "Ugh, what happened?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_obsessive_4",
+          "text": "Your pager went crazy. You know what this means?",
+          "voiceText": "Your pager went crazy. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_manic_4",
+          "text": "WHAT WAS HAPPENING?! WHAT DID THE PAGER SAY?!",
+          "voiceText": "WHAT WAS HAPPENING?! WHAT DID THE PAGER SAY?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_night_shift_caller_4",
+          "text": "Every patient in the psych ward was awake. Every single one. And they were all saying the same thing. They all heard a voice. In their heads. Telling them... things.",
+          "voiceText": "Every patient in the psych ward was awake. Every single one. And they were all saying the same thing. They all heard a voice. In their heads. Telling them... things."
+        }
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {
+          "id": "ufos_credible_night_shift_vern_neutral_5",
+          "text": "They all heard the same voice?",
+          "voiceText": "They all heard the same voice?",
+          "mood": "neutral"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_tired_5",
+          "text": "Every patient heard the same voice. That's... something.",
+          "voiceText": "Every patient heard the same voice. That's... something.",
+          "mood": "tired"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_energized_5",
+          "text": "EVERY PATIENT HEARD THE SAME VOICE! IN THEIR HEADS! This is MASSIVE! What were they saying?!",
+          "voiceText": "EVERY PATIENT HEARD THE SAME VOICE! IN THEIR HEADS! This is MASSIVE! What were they saying?!",
+          "mood": "energized"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_irritated_5",
+          "text": "They all heard a voice. Right. What did it say?",
+          "voiceText": "They all heard a voice. Right. What did it say?",
+          "mood": "irritated"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_gruff_5",
+          "text": "What was the voice saying?",
+          "voiceText": "What was the voice saying?",
+          "mood": "gruff"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_amused_5",
+          "text": "Mass telepathic event at a hospital! This is exactly why I do this show! What were they hearing?!",
+          "voiceText": "Mass telepathic event at a hospital! This is exactly why I do this show! What were they hearing?!",
+          "mood": "amused"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_focused_5",
+          "text": "Simultaneous auditory hallucination across an entire psychiatric ward. What was the content of the voice?",
+          "voiceText": "Simultaneous auditory hallucination across an entire psychiatric ward. What was the content of the voice?",
+          "mood": "focused"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_exhausted_5",
+          "text": "... they all heard the same voice?",
+          "voiceText": "... they all heard the same voice?",
+          "mood": "exhausted"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_depressed_5",
+          "text": "They all heard the same voice.",
+          "voiceText": "They all heard the same voice.",
+          "mood": "depressed"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_angry_5",
+          "text": "THEY ALL HEARD THE SAME VOICE?! WHAT WAS IT SAYING?!",
+          "voiceText": "THEY ALL HEARD THE SAME VOICE?! WHAT WAS IT SAYING?!",
+          "mood": "angry"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_frustrated_5",
+          "text": "Ugh, what was the voice saying?",
+          "voiceText": "Ugh, what was the voice saying?",
+          "mood": "frustrated"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_obsessive_5",
+          "text": "They all heard the same voice. You know what this means?",
+          "voiceText": "They all heard the same voice. You know what this means?",
+          "mood": "obsessive"
+        },
+        {
+          "id": "ufos_credible_night_shift_vern_manic_5",
+          "text": "EVERYONE HEARD THE SAME VOICE!!! IN THEIR HEADS!!! WHAT WAS IT SAYING?!",
+          "voiceText": "EVERYONE HEARD THE SAME VOICE!!! IN THEIR HEADS!!! WHAT WAS IT SAYING?!",
+          "mood": "manic"
+        }
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {
+          "id": "ufos_credible_night_shift_caller_5",
+          "text": "That's the thing, Vern. I talked to several of them afterward. They all described the same thing. A voice telling them... we're not alone. And that was it. The craft left, and the patients calmed down.",
+          "voiceText": "That's the thing, Vern. I talked to several of them afterward. They all described the same thing. A voice telling them... we're not alone. And that was it. The craft left, and the patients calmed down."
+        }
+      ]
+    }
+  ]
+}

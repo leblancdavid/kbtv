@@ -1,0 +1,77 @@
+{
+  "arcId": "camping_prank",
+  "topic": "UFOs",
+  "legitimacy": "Fake",
+  "screeningSummary": "Caller claims aliens told them the Earth's core was made of cheese during camping trip",
+  "callerPersonality": "charismatic_storyteller",
+  "arcNotes": "Over-the-top ridiculous story, caller is playful and breaks character",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_camping_prank_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_fake_camping_prank_vern_tired_1", "text": "Alright, you're on. Make it quick.", "voiceText": "Alright, you're on. Make it quick.", "mood": "tired"},
+        {"id": "ufos_fake_camping_prank_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_fake_camping_prank_vern_irritated_1", "text": "You're on. What's this about?", "voiceText": "You're on. What's this about?", "mood": "irritated"},
+        {"id": "ufos_fake_camping_prank_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_fake_camping_prank_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_fake_camping_prank_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_fake_camping_prank_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_fake_camping_prank_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_fake_camping_prank_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_fake_camping_prank_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_fake_camping_prank_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_camping_prank_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_camping_prank_caller_1", "text": "Okay, so picture this - I'm camping in the woods, right? And I see this bright light descending. And I'm thinking, okay, this is it. This is the moment. And then this alien steps out and goes, 'Dude, you're not gonna believe this, but the Earth's core is actually made of cheese.'", "voiceText": "Okay, so picture this - I'm camping in the woods, right? And I see this bright light descending. And I'm thinking, okay, this is it. This is the moment. And then this alien steps out and goes, Dude, you're not gonna believe this, but the Earth's core is actually made of cheese."}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_camping_prank_vern_neutral_2", "text": "The Earth's core is made of cheese. Go on.", "voiceText": "The Earth's core is made of cheese. Go on.", "mood": "neutral"},
+        {"id": "ufos_fake_camping_prank_vern_tired_2", "text": "Cheese... okay, go on.", "voiceText": "Cheese... okay, go on.", "mood": "tired"},
+        {"id": "ufos_fake_camping_prank_vern_energized_2", "text": "The Earth's core is MADE OF CHEESE?! This is AMAZING! Go on!!", "voiceText": "The Earth's core is MADE OF CHEESE?! This is AMAZING! Go on!!", "mood": "energized"},
+        {"id": "ufos_fake_camping_prank_vern_irritated_2", "text": "The Earth's core is cheese. Of course it was. Go on.", "voiceText": "The Earth's core is cheese. Of course it was. Go on.", "mood": "irritated"},
+        {"id": "ufos_fake_camping_prank_vern_gruff_2", "text": "Cheese. Fine, go on.", "voiceText": "Cheese. Fine, go on.", "mood": "gruff"},
+        {"id": "ufos_fake_camping_prank_vern_amused_2", "text": "MADE OF CHEESE! This is great! Go on!", "voiceText": "MADE OF CHEESE! This is great! Go on!", "mood": "amused"},
+        {"id": "ufos_fake_camping_prank_vern_focused_2", "text": "Continue describing the alleged cheese-based planetary core.", "voiceText": "Continue describing the alleged cheese-based planetary core.", "mood": "focused"},
+        {"id": "ufos_fake_camping_prank_vern_exhausted_2", "text": "... the earth's core is made of cheese. go on.", "voiceText": "... the earth's core is made of cheese. go on.", "mood": "exhausted"},
+        {"id": "ufos_fake_camping_prank_vern_depressed_2", "text": "The Earth's core is made of cheese. Go on.", "voiceText": "The Earth's core is made of cheese. Go on.", "mood": "depressed"},
+        {"id": "ufos_fake_camping_prank_vern_angry_2", "text": "THE EARTH'S CORE IS MADE OF CHEESE! GO ON!", "voiceText": "THE EARTH'S CORE IS MADE OF CHEESE! GO ON!", "mood": "angry"},
+        {"id": "ufos_fake_camping_prank_vern_frustrated_2", "text": "Ugh, the earth's core is made of cheese. go on.", "voiceText": "Ugh, the earth's core is made of cheese. go on.", "mood": "frustrated"},
+        {"id": "ufos_fake_camping_prank_vern_obsessive_2", "text": "The Earth's core is made of cheese. Go on. You know what this means?", "voiceText": "The Earth's core is made of cheese. Go on. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_camping_prank_vern_manic_2", "text": "THE EARTH'S CORE IS MADE OF CHEESE. GO ON.!!!", "voiceText": "THE EARTH'S CORE IS MADE OF CHEESE. GO ON.!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_fake_camping_prank_caller_2", "text": "And then he showed me his interdimensional cheese cave and everything! But then my buddy woke me up and I realized I'd fallen asleep by the fire. I was just dreaming about aliens. Sorry Vern, you got pranked! I couldn't resist!", "voiceText": "And then he showed me his interdimensional cheese cave and everything! But then my buddy woke me up and I realized I'd fallen asleep by the fire. I was just dreaming about aliens. Sorry Vern, you got pranked! I couldn't resist!"}
+      ]
+    },
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_fake_camping_prank_vern_neutral_3", "text": "Interdimensional cheese cave. You got me. Classic prank. Next caller.", "voiceText": "Interdimensional cheese cave. You got me. Classic prank. Next caller.", "mood": "neutral"},
+        {"id": "ufos_fake_camping_prank_vern_tired_3", "text": "Cheese cave. You got me. Next.", "voiceText": "Cheese cave. You got me. Next.", "mood": "tired"},
+        {"id": "ufos_fake_camping_prank_vern_energized_3", "text": "INTERDIMENSIONAL CHEESE CAVE! This is the BEST PRANK EVER! I love it! NEXT!", "voiceText": "INTERDIMENSIONAL CHEESE CAVE! This is the BEST PRANK EVER! I love it! NEXT!", "mood": "energized"},
+        {"id": "ufos_fake_camping_prank_vern_irritated_3", "text": "Cheese cave. Of course. Next caller.", "voiceText": "Cheese cave. Of course. Next caller.", "mood": "irritated"},
+        {"id": "ufos_fake_camping_prank_vern_gruff_3", "text": "Cheese cave. Got me. Next.", "voiceText": "Cheese cave. Got me. Next.", "mood": "gruff"},
+        {"id": "ufos_fake_camping_prank_vern_amused_3", "text": "INTERDIMENSIONAL CHEESE CAVE! I love this! You got me! NEXT!", "voiceText": "INTERDIMENSIONAL CHEESE CAVE! I love this! You got me! NEXT!", "mood": "amused"},
+        {"id": "ufos_fake_camping_prank_vern_focused_3", "text": "This is clearly a fabricated prank. Next caller.", "voiceText": "This is clearly a fabricated prank. Next caller.", "mood": "focused"},
+        {"id": "ufos_fake_camping_prank_vern_exhausted_3", "text": "... interdimensional cheese cave. you got me. next caller.", "voiceText": "... interdimensional cheese cave. you got me. next caller.", "mood": "exhausted"},
+        {"id": "ufos_fake_camping_prank_vern_depressed_3", "text": "Interdimensional cheese cave. You got me. Classic prank. Next caller.", "voiceText": "Interdimensional cheese cave. You got me. Classic prank. Next caller.", "mood": "depressed"},
+        {"id": "ufos_fake_camping_prank_vern_angry_3", "text": "INTERDIMENSIONAL CHEESE CAVE! YOU GOT ME! NEXT CALLER!", "voiceText": "INTERDIMENSIONAL CHEESE CAVE! YOU GOT ME! NEXT CALLER!", "mood": "angry"},
+        {"id": "ufos_fake_camping_prank_vern_frustrated_3", "text": "Ugh, interdimensional cheese cave. you got me. next caller.", "voiceText": "Ugh, interdimensional cheese cave. you got me. next caller.", "mood": "frustrated"},
+        {"id": "ufos_fake_camping_prank_vern_obsessive_3", "text": "Interdimensional cheese cave. You got me. Classic prank. Next caller. You know what this means?", "voiceText": "Interdimensional cheese cave. You got me. Classic prank. Next caller. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_fake_camping_prank_vern_manic_3", "text": "INTERDIMENSIONAL CHEESE CAVE! YOU GOT ME! NEXT CALLER.!!!", "voiceText": "INTERDIMENSIONAL CHEESE CAVE! YOU GOT ME! NEXT CALLER.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "arcId": "drone_sighting",
+  "topic": "UFOs",
+  "legitimacy": "Questionable",
+  "screeningSummary": "Caller excited about seeing advanced drone during a camping trip, believes it's extraterrestrial",
+  "callerPersonality": "enthusiastic_convert",
+  "arcNotes": "Enthusiastic caller, convinced it was alien tech, probably just a drone",
+  "callerGender": "male",
+  "arcLines": [
+    {
+      "speaker": "vern",
+      "lines": [
+        {"id": "ufos_questionable_drone_sighting_vern_neutral_1", "text": "You're on the air. What's your story?", "voiceText": "You're on the air. What's your story?", "mood": "neutral"},
+        {"id": "ufos_questionable_drone_sighting_vern_tired_1", "text": "Alright, you're on. What's this about?", "voiceText": "Alright, you're on. What's this about?", "mood": "tired"},
+        {"id": "ufos_questionable_drone_sighting_vern_energized_1", "text": "YOU ARE ON THE AIR! Tell us your story!", "voiceText": "YOU ARE ON THE AIR! Tell us your story!", "mood": "energized"},
+        {"id": "ufos_questionable_drone_sighting_vern_irritated_1", "text": "You're on. What is it?", "voiceText": "You're on. What is it?", "mood": "irritated"},
+        {"id": "ufos_questionable_drone_sighting_vern_gruff_1", "text": "You're on. So?", "voiceText": "You're on. So?", "mood": "gruff"},
+        {"id": "ufos_questionable_drone_sighting_vern_amused_1", "text": "Oh good, a caller! What's your story?", "voiceText": "Oh good, a caller! What's your story?", "mood": "amused"},
+        {"id": "ufos_questionable_drone_sighting_vern_focused_1", "text": "You're on. State your experience concisely.", "voiceText": "You're on. State your experience concisely.", "mood": "focused"},
+        {"id": "ufos_questionable_drone_sighting_vern_exhausted_1", "text": "... you're on the air. what's your story?", "voiceText": "... you're on the air. what's your story?", "mood": "exhausted"},
+        {"id": "ufos_questionable_drone_sighting_vern_depressed_1", "text": "You're on the air. What's your story...", "voiceText": "You're on the air. What's your story...", "mood": "depressed"},
+        {"id": "ufos_questionable_drone_sighting_vern_angry_1", "text": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "voiceText": "YOU'RE ON THE AIR! WHAT'S YOUR STORY?!", "mood": "angry"},
+        {"id": "ufos_questionable_drone_sighting_vern_frustrated_1", "text": "Ugh, you're on the air. what's your story?", "voiceText": "Ugh, you're on the air. what's your story?", "mood": "frustrated"},
+        {"id": "ufos_questionable_drone_sighting_vern_obsessive_1", "text": "You're on the air. What's your story? You know what this means?", "voiceText": "You're on the air. What's your story? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_drone_sighting_vern_manic_1", "text": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "voiceText": "YOU'RE ON THE AIR. WHAT'S YOUR STORY?!!!", "mood": "manic"}
+      ]
+    },
+    {
+      "speaker": "caller",
+      "lines": [
+        {"id": "ufos_questionable_drone_sighting_caller_1", "text": "Okay, so this is gonna sound crazy, but I was camping last weekend and I saw this drone, right? But it wasn't like any drone I've ever seen! It was completely silent, and it just hovered there for like ten minutes! And then it shot off at like a hundred miles an hour!", "voiceText": "Okay, so this is gonna sound crazy, but I was camping last weekend and I saw this drone, right? But it wasn't like any drone I've ever seen! It was completely silent, and it just hovered there for like ten minutes! And then it shot off at like a hundred miles an hour!"}
+      ]
+    },
+    {"speaker": "vern", "lines": [
+        {"id": "ufos_questionable_drone_sighting_vern_neutral_2", "text": "Silent hover, hundred miles an hour. Could be military drone. Where were you camping?", "voiceText": "Silent hover, hundred miles an hour. Could be military drone. Where were you camping?", "mood": "neutral"},
+        {"id": "ufos_questionable_drone_sighting_vern_tired_2", "text": "Silent hover, hundred mph. Could be military. Where were you?", "voiceText": "Silent hover, hundred mph. Could be military. Where were you?", "mood": "tired"},
+        {"id": "ufos_questionable_drone_sighting_vern_energized_2", "text": "SILENT HOVER! Hundred miles an hour?! That's AMAZING! Where were you camping?!", "voiceText": "SILENT HOVER! Hundred miles an hour?! That's AMAZING! Where were you camping?!", "mood": "energized"},
+        {"id": "ufos_questionable_drone_sighting_vern_irritated_2", "text": "Silent hover. Of course it was. Where were you?", "voiceText": "Silent hover. Of course it was. Where were you?", "mood": "irritated"},
+        {"id": "ufos_questionable_drone_sighting_vern_gruff_2", "text": "Silent hover. Fine, I'll listen. Where?", "voiceText": "Silent hover. Fine, I'll listen. Where?", "mood": "gruff"},
+        {"id": "ufos_questionable_drone_sighting_vern_amused_2", "text": "SILENT HOVER! Hundred miles an hour! This is fantastic! Where were you?!", "voiceText": "SILENT HOVER! Hundred miles an hour! This is fantastic! Where were you?!", "mood": "amused"},
+        {"id": "ufos_questionable_drone_sighting_vern_focused_2", "text": "Silent hover with high-speed departure. What was your geographic location?", "voiceText": "Silent hover with high-speed departure. What was your geographic location?", "mood": "focused"},
+        {"id": "ufos_questionable_drone_sighting_vern_exhausted_2", "text": "... silent hover, hundred miles an hour. could be military drone. where were you camping?", "voiceText": "... silent hover, hundred miles an hour. could be military drone. where were you camping?", "mood": "exhausted"},
+        {"id": "ufos_questionable_drone_sighting_vern_depressed_2", "text": "Silent hover, hundred miles an hour. Could be military drone. Where were you camping?", "voiceText": "Silent hover, hundred miles an hour. Could be military drone. Where were you camping?", "mood": "depressed"},
+        {"id": "ufos_questionable_drone_sighting_vern_angry_2", "text": "SILENT HOVER! HUNDRED MILES AN HOUR! COULD BE MILITARY DRONE! WHERE WERE YOU CAMPING?!", "voiceText": "SILENT HOVER! HUNDRED MILES AN HOUR! COULD BE MILITARY DRONE! WHERE WERE YOU CAMPING?!", "mood": "angry"},
+        {"id": "ufos_questionable_drone_sighting_vern_frustrated_2", "text": "Ugh, silent hover, hundred miles an hour. could be military drone. where were you camping?", "voiceText": "Ugh, silent hover, hundred miles an hour. could be military drone. where were you camping?", "mood": "frustrated"},
+        {"id": "ufos_questionable_drone_sighting_vern_obsessive_2", "text": "Silent hover, hundred miles an hour. Could be military drone. Where were you camping? You know what this means?", "voiceText": "Silent hover, hundred miles an hour. Could be military drone. Where were you camping? You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_drone_sighting_vern_manic_2", "text": "SILENT HOVER! HUNDRED MILES AN HOUR. COULD BE MILITARY DRONE. WHERE WERE YOU CAMPING?!!!", "voiceText": "SILENT HOVER! HUNDRED MILES AN HOUR. COULD BE MILITARY DRONE. WHERE WERE YOU CAMPING?!!!", "mood": "manic"}
+      ]
+    },
+    {"speaker": "caller", "lines": [
+        {"id": "ufos_questionable_drone_sighting_caller_2", "text": "I was like thirty miles from a military base! I hadn't even thought about that! Oh my god, Vern, do you think I actually saw something from the base?! Like, actual alien tech or something?! This is insane!", "voiceText": "I was like thirty miles from a military base! I hadn't even thought about that! Oh my god, Vern, do you think I actually saw something from the base?! Like, actual alien tech or something?! This is insane!"}
+      ]
+    },
+    {"speaker": "vern", "lines": [
+        {"id": "ufos_questionable_drone_sighting_vern_neutral_3", "text": "It's probably just military tech, but yeah, that's a possibility. Either way, cool sighting. Thanks for calling in.", "voiceText": "It's probably just military tech, but yeah, that's a possibility. Either way, cool sighting. Thanks for calling in.", "mood": "neutral"},
+        {"id": "ufos_questionable_drone_sighting_vern_tired_3", "text": "Probably military. But cool anyway. Thanks.", "voiceText": "Probably military. But cool anyway. Thanks.", "mood": "tired"},
+        {"id": "ufos_questionable_drone_sighting_vern_energized_3", "text": "THIRTY MILES FROM A MILITARY BASE! This is INTERESTING! Could be alien tech! Thanks for calling!", "voiceText": "THIRTY MILES FROM A MILITARY BASE! This is INTERESTING! Could be alien tech! Thanks for calling!", "mood": "energized"},
+        {"id": "ufos_questionable_drone_sighting_vern_irritated_3", "text": "Probably military. Cool sighting though. Next.", "voiceText": "Probably military. Cool sighting though. Next.", "mood": "irritated"},
+        {"id": "ufos_questionable_drone_sighting_vern_gruff_3", "text": "Probably military. Cool sighting. Thanks.", "voiceText": "Probably military. Cool sighting. Thanks.", "mood": "gruff"},
+        {"id": "ufos_questionable_drone_sighting_vern_amused_3", "text": "THIRTY MILES FROM A MILITARY BASE! This is PERFECT! Cool sighting! Thanks for calling!", "voiceText": "THIRTY MILES FROM A MILITARY BASE! This is PERFECT! Cool sighting! Thanks for calling!", "mood": "amused"},
+        {"id": "ufos_questionable_drone_sighting_vern_focused_3", "text": "Given the proximity to a military installation, experimental drone technology is the most likely explanation. However, documentation is valuable. Thank you.", "voiceText": "Given the proximity to a military installation, experimental drone technology is the most likely explanation. However, documentation is valuable. Thank you.", "mood": "focused"},
+        {"id": "ufos_questionable_drone_sighting_vern_exhausted_3", "text": "... it's probably just military tech, but yeah, that's a possibility. either way, cool sighting. thanks for calling in.", "voiceText": "... it's probably just military tech, but yeah, that's a possibility. either way, cool sighting. thanks for calling in.", "mood": "exhausted"},
+        {"id": "ufos_questionable_drone_sighting_vern_depressed_3", "text": "It's probably just military tech, but yeah, that's a possibility. Either way, cool sighting. Thanks for calling in.", "voiceText": "It's probably just military tech, but yeah, that's a possibility. Either way, cool sighting. Thanks for calling in.", "mood": "depressed"},
+        {"id": "ufos_questionable_drone_sighting_vern_angry_3", "text": "IT'S PROBABLY JUST MILITARY TECH! BUT YEAH, THAT'S A POSSIBILITY! EITHER WAY, COOL SIGHTING! THANKS FOR CALLING IN!", "voiceText": "IT'S PROBABLY JUST MILITARY TECH! BUT YEAH, THAT'S A POSSIBILITY! EITHER WAY, COOL SIGHTING! THANKS FOR CALLING IN!", "mood": "angry"},
+        {"id": "ufos_questionable_drone_sighting_vern_frustrated_3", "text": "Ugh, it's probably just military tech, but yeah, that's a possibility. either way, cool sighting. thanks for calling in.", "voiceText": "Ugh, it's probably just military tech, but yeah, that's a possibility. either way, cool sighting. thanks for calling in.", "mood": "frustrated"},
+        {"id": "ufos_questionable_drone_sighting_vern_obsessive_3", "text": "It's probably just military tech, but yeah, that's a possibility. Either way, cool sighting. Thanks for calling in. You know what this means?", "voiceText": "It's probably just military tech, but yeah, that's a possibility. Either way, cool sighting. Thanks for calling in. You know what this means?", "mood": "obsessive"},
+        {"id": "ufos_questionable_drone_sighting_vern_manic_3", "text": "IT'S PROBABLY JUST MILITARY TECH! BUT YEAH, THAT'S A POSSIBILITY! EITHER WAY, COOL SIGHTING! APPRECIATE YOU CALLING IN.!!!", "voiceText": "IT'S PROBABLY JUST MILITARY TECH! BUT YEAH, THAT'S A POSSIBILITY! EITHER WAY, COOL SIGHTING! APPRECIATE YOU CALLING IN.!!!", "mood": "manic"}
+      ]
+    }
+  ]
+}
