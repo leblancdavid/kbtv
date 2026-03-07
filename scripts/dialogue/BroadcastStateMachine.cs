@@ -609,7 +609,9 @@ namespace KBTV.Dialogue
 
         private BroadcastExecutable CreateBetweenCallersExecutable()
         {
-            var betweenCallers = _vernDialogue.GetBetweenCallers();
+            var vernStats = _gameStateManager?.VernStats;
+            var mood = vernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+            var betweenCallers = _vernDialogue.GetBetweenCallers(mood);
             if (betweenCallers != null)
             {
                 var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{betweenCallers.Id}.mp3";
