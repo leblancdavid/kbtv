@@ -30,7 +30,6 @@ namespace KBTV.Audio
         // Effect indices within buses
 
         // Vern effect indices
-        private int _vernReverbIndex = -1;
         private int _vernHighPassIndex = -1;
         private int _vernMuffleLowPassIndex = -1; // Low-pass for muffling when player exits
         private int _vernCompressorIndex = -1;
@@ -45,7 +44,6 @@ namespace KBTV.Audio
         private int _callerCompressorIndex = -1;
         private int _callerEqIndex = -1;
         private int _callerChorusIndex = -1;
-        private int _callerReverbIndex = -1;
         private int _callerMuffleLowPassIndex = -1; // Additional low-pass for muffling
 
         // Static effect indices
@@ -83,6 +81,19 @@ namespace KBTV.Audio
             (1.0f, 0.0f),   // Level 3: Clean
             (1.0f, 0.0f)    // Level 4: Clean - broadcast quality
         };
+
+        // Audio normalization compressor/limiter settings (tunable)
+        private const float VERN_COMPRESSOR_THRESHOLD = -20f;
+        private const float VERN_COMPRESSOR_RATIO = 3f;
+        private const float VERN_COMPRESSOR_ATTACK_MS = 10f;
+        private const float VERN_COMPRESSOR_RELEASE_MS = 100f;
+        private const float VERN_COMPRESSOR_GAIN = 2f; // makeup gain
+
+        private const float CALLER_COMPRESSOR_THRESHOLD = -18f;
+        private const float CALLER_COMPRESSOR_RATIO = 4f;
+        private const float CALLER_COMPRESSOR_ATTACK_MS = 15f;
+        private const float CALLER_COMPRESSOR_RELEASE_MS = 150f;
+        private const float CALLER_COMPRESSOR_GAIN = 3f; // makeup gain
 
         public override void _Ready()
         {
@@ -148,19 +159,6 @@ namespace KBTV.Audio
             // Vern should be clean - minimal processing
             // Just a highpass to remove rumble, nothing else
 
-            // Add reverb to Vern bus
-            var verReverb = new AudioEffectReverb();
-            verReverb.PredelayFeedback = 0.01f;
-            verReverb.PredelayMsec = 0.0f;
-            verReverb.RoomSize = 0.01f;
-            verReverb.Spread = 0.1f;
-            verReverb.Hipass = 0f;
-            verReverb.Damping = 0.95f;
-            verReverb.Dry = 0.99f;
-            verReverb.Wet = 0.01f;
-            AudioServer.AddBusEffect(_vernBusIndex, verReverb);
-            _vernReverbIndex = AudioServer.GetBusEffectCount(_vernBusIndex) - 1;
-
             var highPass = new AudioEffectHighPassFilter();
             highPass.CutoffHz = 80f;
             AudioServer.AddBusEffect(_vernBusIndex, highPass);
@@ -173,10 +171,17 @@ namespace KBTV.Audio
             AudioServer.AddBusEffect(_vernBusIndex, muffleLowPass);
             _vernMuffleLowPassIndex = AudioServer.GetBusEffectCount(_vernBusIndex) - 1;
 
-            // No compressor - makes Vern sound too processed
-            // No EQ - keep Vern natural
-            // No distortion - keep Vern clean
-            _vernCompressorIndex = -1;
+            // Add compressor for volume normalization
+            var vernCompressor = new AudioEffectCompressor();
+            vernCompressor.Threshold = VERN_COMPRESSOR_THRESHOLD;
+            vernCompressor.Gain = VERN_COMPRESSOR_GAIN;
+            vernCompressor.Ratio = VERN_COMPRESSOR_RATIO;
+            vernCompressor.AttackUs = VERN_COMPRESSOR_ATTACK_MS * 1000; // Convert ms to microseconds
+            vernCompressor.ReleaseMs = VERN_COMPRESSOR_RELEASE_MS;
+            AudioServer.AddBusEffect(_vernBusIndex, vernCompressor);
+            _vernCompressorIndex = AudioServer.GetBusEffectCount(_vernBusIndex) - 1;
+
+            // Keep Vern clean - no EQ or distortion
             _vernEqIndex = -1;
             _vernDistortionIndex = -1;
         }
@@ -225,18 +230,15 @@ namespace KBTV.Audio
             _callerEqIndex = 4;
             GD.Print("AudioMixerManager: Added EQ to Caller bus");
 
-            // Add reverb to caller bus
-            var callReverb = new AudioEffectReverb();
-            callReverb.PredelayFeedback = 0.05f;
-            callReverb.PredelayMsec = 0.0f;
-            callReverb.RoomSize = 0.03f;
-            callReverb.Spread = 0.2f;
-            callReverb.Hipass = 0f;
-            callReverb.Damping = 0.9f;
-            callReverb.Dry = 0.95f;
-            callReverb.Wet = 0.05f;
-            AudioServer.AddBusEffect(_callerBusIndex, callReverb);
-            _callerReverbIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
+            // Add compressor for volume normalization
+            var callerCompressor = new AudioEffectCompressor();
+            callerCompressor.Threshold = CALLER_COMPRESSOR_THRESHOLD;
+            callerCompressor.Gain = CALLER_COMPRESSOR_GAIN;
+            callerCompressor.Ratio = CALLER_COMPRESSOR_RATIO;
+            callerCompressor.AttackUs = CALLER_COMPRESSOR_ATTACK_MS * 1000; // Convert ms to microseconds
+            callerCompressor.ReleaseMs = CALLER_COMPRESSOR_RELEASE_MS;
+            AudioServer.AddBusEffect(_callerBusIndex, callerCompressor);
+            _callerCompressorIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
 
             // Add a low-pass filter for muffling when player is outside
             var muffleLowPass = new AudioEffectLowPassFilter();
@@ -244,8 +246,6 @@ namespace KBTV.Audio
             muffleLowPass.Resonance = 1.0f;
             AudioServer.AddBusEffect(_callerBusIndex, muffleLowPass);
             _callerMuffleLowPassIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
-
-            GD.Print("AudioMixerManager: Added Chorus to Caller bus");
         }
 
         private void ConfigureMusicBus()
@@ -427,16 +427,6 @@ namespace KBTV.Audio
                     highPass.CutoffHz = preset.highPass;
                 }
             }
-
-            // Update reverb wet mix based on phone line level
-            if (_callerReverbIndex >= 0)
-            {
-                var effect = AudioServer.GetBusEffect(_callerBusIndex, _callerReverbIndex);
-                if (effect is AudioEffectReverb rev)
-                {
-                    rev.Wet = Math.Clamp(0.08f + (level - 1) * 0.02f, 0.08f, 0.15f);
-                }
-            }
         }
 
         private void ApplyVernEffects(int level)
@@ -444,18 +434,7 @@ namespace KBTV.Audio
             if (_vernBusIndex < 0) return;
 
             // Vern is always clean - no distortion, minimal EQ
-            // Update reverb wet mix based on broadcast level
-            if (_vernReverbIndex >= 0)
-            {
-                var effect = AudioServer.GetBusEffect(_vernBusIndex, _vernReverbIndex);
-                if (effect is AudioEffectReverb rev)
-                {
-                    // increase wet mix with level
-                    rev.Wet = Math.Clamp(0.1f + (level - 1) * 0.05f, 0.1f, 0.3f);
-                }
-            }
-
-            // No distortion for Vern - disabled
+            // No reverb applied to Vern
         }
 
         /// <summary>
