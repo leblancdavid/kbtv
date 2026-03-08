@@ -219,8 +219,10 @@ namespace KBTV.Dialogue
                     _pendingBreakTransition = true;
                     break;
                 case BroadcastTimingEventType.Break5Seconds:
-                    // T5 timing handled by interruption events now - no direct state change
-                    Log.Debug($"BroadcastStateManager: T5 timing event received, current state: {_currentState}");
+                    Log.Debug($"BroadcastStateManager: T5 timing event received - interrupting for break transition, current state: {_currentState}");
+                    // Interrupt current dialogue to play Vern's break transition
+                    _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakImminent));
+                    _pendingBreakTransition = true;
                     break;
                  case BroadcastTimingEventType.Break0Seconds:
                      // T0 event removed - caller dropping now handled by WaitForBreakExecutable completion
