@@ -126,6 +126,17 @@ namespace KBTV.Ads
                 return;
             }
 
+            // Reset state for new show
+            _currentBreakIndex = -1;
+            _breaksPlayed = 0;
+            _breakActive = false;
+            _isInBreakWindow = false;
+            _isQueued = false;
+            _queuedCountdown = 0f;
+            _breakQueueStatus = BreakQueueStatus.NotQueued;
+            _isLastSegment = false;
+            _breakTransitionCompleted = false;
+
             _schedule = schedule;
             _showDuration = showDuration;
             _isActive = true;
@@ -140,13 +151,20 @@ namespace KBTV.Ads
                 Log.Debug($"AdManager: Generated break schedule with {_schedule.Breaks.Count} breaks");
             }
 
+            // Validate break count matches expected BreaksPerShow
+            if (_schedule.Breaks.Count != _schedule.BreaksPerShow)
+            {
+                Log.Error($"AdManager: Schedule break count mismatch! Expected {_schedule.BreaksPerShow}, got {_schedule.Breaks.Count}. Using generated count.");
+            }
+
+            Log.Debug($"AdManager: Initialized with {_schedule.BreaksPerShow} breaks requested, {_schedule.Breaks.Count} breaks scheduled, {schedule.SlotsPerBreak} slots per break (event-driven)");
+
             // Schedule event-driven timers
             ScheduleBreakTimers();
 
             // Set initial countdown values for immediate UI display
             UpdateCountdownValues();
 
-            Log.Debug($"AdManager: Initialized with {schedule.BreaksPerShow} breaks × {schedule.SlotsPerBreak} slots (event-driven)");
             OnInitialized?.Invoke();
         }
 
@@ -154,14 +172,14 @@ namespace KBTV.Ads
         {
             if (_schedule == null || _schedule.Breaks.Count == 0)
             {
-                Log.Debug($"AdManager: Initialized with 0 breaks (show will end immediately) - schedule: {_schedule}, breaks: {_schedule?.Breaks.Count ?? 0}");
+                Log.Debug($"AdManager: ScheduleBreakTimers - 0 breaks in schedule - schedule: {_schedule}, breaks: {_schedule?.Breaks.Count ?? 0}");
                 return;
             }
 
             int nextBreakIndex = _currentBreakIndex + 1;
             if (nextBreakIndex >= _schedule.Breaks.Count)
             {
-                Log.Debug($"AdManager: All breaks completed - current: {_currentBreakIndex}, total: {_schedule.Breaks.Count}");
+                Log.Debug($"AdManager: ScheduleBreakTimers - All breaks completed (current: {_currentBreakIndex}, total: {_schedule.Breaks.Count})");
                 return;
             }
 
@@ -170,15 +188,18 @@ namespace KBTV.Ads
             float currentTime = TimeManager?.ElapsedTime ?? 0f;
             float timeUntilBreak = nextBreakTime - currentTime;
 
+            Log.Debug($"AdManager: ScheduleBreakTimers - Next break #{nextBreakIndex + 1} at show time {nextBreakTime:F1}s (current: {currentTime:F1}s, wait: {timeUntilBreak:F1}s)");
+
             if (timeUntilBreak > 0)
             {
                 // Schedule timing events directly with BroadcastTimer to avoid EventBus timing issues
                 var broadcastTimer = DependencyInjection.Get<BroadcastTimer>(this);
                 broadcastTimer.ScheduleBreakWarnings(timeUntilBreak);
+                Log.Debug($"AdManager: Scheduled break warnings for {timeUntilBreak:F1}s from now");
             }
             else
             {
-                Log.Debug($"AdManager: Warning - next break time {nextBreakTime:F1} is in the past (current: {currentTime:F1})");
+                Log.Warning($"AdManager: ScheduleBreakTimers - Next break time {nextBreakTime:F1} is in the past (current: {currentTime:F1}) - break will be triggered immediately!");
             }
         }
 
@@ -190,15 +211,33 @@ namespace KBTV.Ads
             switch (timingEvent.Type)
             {
                 case BroadcastTimingEventType.Break20Seconds:
-                    // Open break window for queue button
-                    _isInBreakWindow = true;
-                    UpdateCountdownValues();
-                    OnBreakWindowOpened?.Invoke(_timeUntilNextBreak);
+                    // Only open break window if there are remaining breaks
+                    if (_schedule != null && _currentBreakIndex + 1 < _schedule.Breaks.Count)
+                    {
+                        _isInBreakWindow = true;
+                        UpdateCountdownValues();
+                        OnBreakWindowOpened?.Invoke(_timeUntilNextBreak);
+                        Log.Debug($"AdManager: Break window opened (T-20s). Next break index: {_currentBreakIndex + 1}, total breaks: {_schedule.Breaks.Count}");
+                    }
+                    else
+                    {
+                        Log.Debug("AdManager: T-20s event but no remaining breaks. Skipping window open.");
+                    }
                     break;
                 case BroadcastTimingEventType.Break0Seconds:
                     // Break starts now - StartBreak() moved to AdBreak state initialization
                     // _currentBreakIndex++ moved to HandleBroadcastTimingEvent for immediate update
+                    int oldIndex = _currentBreakIndex;
+                    
+                    // Guard against incrementing beyond scheduled breaks
+                    if (oldIndex + 1 >= _schedule?.Breaks.Count)
+                    {
+                        Log.Warning($"AdManager: T-0s event but already at or beyond last break (index={oldIndex}, total={_schedule?.Breaks.Count ?? 0}). Not incrementing.");
+                        break;
+                    }
+                    
                     _currentBreakIndex++;
+                    Log.Debug($"AdManager: T-0s event - incrementing break index from {oldIndex} to {_currentBreakIndex} (total scheduled: {_schedule?.Breaks.Count ?? 0})");
                     break;
             }
         }
@@ -207,6 +246,17 @@ namespace KBTV.Ads
         {
             if (_breakActive)
             {
+                Log.Warning($"AdManager.StartBreak: Called but break already active (index {_currentBreakIndex})");
+                return;
+            }
+
+            Log.Debug($"AdManager.StartBreak: Starting break at index {_currentBreakIndex}, total breaks: {_schedule?.Breaks.Count ?? 0}");
+
+            // Validate break index before proceeding
+            if (_currentBreakIndex < 0 || _currentBreakIndex >= (_schedule?.Breaks.Count ?? 0))
+            {
+                Log.Error($"AdManager.StartBreak: Invalid break index {_currentBreakIndex} (total: {_schedule?.Breaks.Count ?? 0}). Ending break immediately.");
+                EndAdBreak();
                 return;
             }
 
@@ -224,24 +274,18 @@ namespace KBTV.Ads
             // Update break scheduler with new index
             _breakScheduler.UpdateCurrentBreakIndex(_currentBreakIndex);
 
-            if (_currentBreakIndex >= _schedule.Breaks.Count)
-            {
-                Log.Debug("AdManager.StartBreak: No more breaks in schedule, ending");
-                EndAdBreak();
-                return;
-            }
-
             var currentBreak = _schedule.Breaks[_currentBreakIndex];
             int slotsInBreak = currentBreak.SlotsPerBreak;
             currentBreak.HasPlayed = true;
 
-            Log.Debug($"AdManager.StartBreak: Current break has {slotsInBreak} slots");
+            Log.Debug($"AdManager.StartBreak: Break {_currentBreakIndex + 1}/{_schedule.Breaks.Count} has {slotsInBreak} ad slots");
 
             // Apply mood penalty if not queued
             bool wasQueued = (_breakQueueStatus == BreakQueueStatus.Queued);
             if (!wasQueued)
             {
                 ApplyMoodPenalty();
+                Log.Debug("AdManager.StartBreak: Applied unqueued mood penalty");
             }
 
             // Reset queue status for next break
@@ -280,10 +324,16 @@ namespace KBTV.Ads
         /// </summary>
         public void EndAdBreak()
         {
-            if (!_breakActive) return;
+            if (!_breakActive) 
+            {
+                Log.Warning($"AdManager.EndAdBreak: Called but no break active (breaksPlayed: {_breaksPlayed})");
+                return;
+            }
 
             _breakActive = false;
             _breaksPlayed++;
+
+            Log.Debug($"AdManager.EndAdBreak: Completed break {_breaksPlayed}/{_schedule.Breaks.Count}");
 
             // Reset transition completed flag for next break
             _breakTransitionCompleted = false;
@@ -292,6 +342,8 @@ namespace KBTV.Ads
             int currentListeners = ListenerManager?.CurrentListeners ?? 0;
             float revenue = CalculateBreakRevenue(currentListeners);
             AwardRevenue(revenue);
+
+            Log.Debug($"AdManager.EndAdBreak: Awarded ${revenue:F2} revenue from {currentListeners} listeners");
 
             // Restore listeners
             RestoreListeners();
@@ -308,10 +360,15 @@ namespace KBTV.Ads
 
             if (_breaksPlayed >= _schedule.Breaks.Count)
             {
+                Log.Debug($"AdManager.EndAdBreak: All {_schedule.Breaks.Count} breaks completed! Setting last segment. breaksPlayed={_breaksPlayed}, count={_schedule.Breaks.Count}");
                 _isLastSegment = true;
                 LastSegmentStarted?.Invoke();
                 _isActive = false;
                 OnShowEnded?.Invoke();
+            }
+            else
+            {
+                Log.Debug($"AdManager.EndAdBreak: {_schedule.Breaks.Count - _breaksPlayed} breaks remaining");
             }
 
             OnBreakEnded?.Invoke(revenue);

@@ -192,9 +192,10 @@ namespace KBTV.Dialogue
             switch (timingEvent.Type)
             {
                 case BroadcastTimingEventType.ShowEnd:
-                    _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.ShowEnding));
-                    SetState(AsyncBroadcastState.ShowEnding);
-                    break;
+                     _pendingBreakTransition = false; // Clear any pending break transition
+                     _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.ShowEnding));
+                     SetState(AsyncBroadcastState.ShowEnding);
+                     break;
                 case BroadcastTimingEventType.ShowEnd20Seconds:
                     Log.Debug($"BroadcastStateManager: T-20s fired - setting pending show ending transition (current state: {_currentState})");
                     _pendingShowEndingTransition = true;
@@ -215,14 +216,30 @@ namespace KBTV.Dialogue
                     // Just opens break window - no broadcast action needed
                     break;
                 case BroadcastTimingEventType.Break10Seconds:
-                    // Set pending break transition for grace period - will be handled in GetNextExecutable
-                    _pendingBreakTransition = true;
+                    // Set pending break transition only if there are remaining breaks
+                    if (_adManager.BreaksRemaining > 0)
+                    {
+                        Log.Debug($"BroadcastStateManager: T10 timing event received - setting pending break transition (breaks remaining: {_adManager.BreaksRemaining}, current state: {_currentState})");
+                        _pendingBreakTransition = true;
+                    }
+                    else
+                    {
+                        Log.Debug("BroadcastStateManager: T10 event but no more breaks remaining. Skipping.");
+                    }
                     break;
                 case BroadcastTimingEventType.Break5Seconds:
-                    Log.Debug($"BroadcastStateManager: T5 timing event received - interrupting for break transition, current state: {_currentState}");
-                    // Interrupt current dialogue to play Vern's break transition
-                    _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakImminent));
-                    _pendingBreakTransition = true;
+                    Log.Debug($"BroadcastStateManager: T5 timing event received - checking breaks remaining: {_adManager.BreaksRemaining}");
+                    if (_adManager.BreaksRemaining > 0)
+                    {
+                        Log.Debug($"BroadcastStateManager: T5 timing event received - interrupting for break transition, current state: {_currentState}");
+                        // Interrupt current dialogue to play Vern's break transition
+                        _eventBus.Publish(new BroadcastInterruptionEvent(BroadcastInterruptionReason.BreakImminent));
+                        _pendingBreakTransition = true;
+                    }
+                    else
+                    {
+                        Log.Debug("BroadcastStateManager: T5 event but no more breaks remaining. Skipping.");
+                    }
                     break;
                  case BroadcastTimingEventType.Break0Seconds:
                      // T0 event removed - caller dropping now handled by WaitForBreakExecutable completion

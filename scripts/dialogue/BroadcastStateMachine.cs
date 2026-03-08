@@ -282,9 +282,18 @@ namespace KBTV.Dialogue
                            newState = AsyncBroadcastState.Conversation;  // Fallback for other executables
                        }
                        break;
-                  case AsyncBroadcastState.WaitingForBreak:
-                      newState = AsyncBroadcastState.AdBreak;
-                      break;
+                    case AsyncBroadcastState.WaitingForBreak:
+                        // Only transition to AdBreak if there are remaining breaks
+                        if (_adManager.IsActive)
+                        {
+                            newState = AsyncBroadcastState.AdBreak;
+                        }
+                        else
+                        {
+                            Log.Warning("BroadcastStateMachine: WaitingForBreak but AdManager inactive. Transitioning to ShowEnding.");
+                            newState = AsyncBroadcastState.ShowEnding;
+                        }
+                        break;
                    case AsyncBroadcastState.WaitingForShowEnd:
                        newState = AsyncBroadcastState.ShowEnding;
                        break;
@@ -536,16 +545,16 @@ namespace KBTV.Dialogue
                 }
             }
 
-             if (_stateManager._pendingBreakTransition && !_stateManager._pendingShowEndingTransition)
-             {
-                 var breakTransition = _vernDialogue.GetBreakTransition();
-                 if (breakTransition != null)
-                 {
-                     var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{breakTransition.Id}.mp3";
-                     audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_BreakTransition");
-                      return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, _stateManager, _statTracker);
-                 }
-             }
+            if (_stateManager._pendingBreakTransition && !_stateManager._pendingShowEndingTransition && _adManager.IsActive)
+            {
+                var breakTransition = _vernDialogue.GetBreakTransition();
+                if (breakTransition != null)
+                {
+                    var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{breakTransition.Id}.mp3";
+                    audioPath = ValidateAudioPath(audioPath, "CreateConversationExecutable_BreakTransition");
+                     return new DialogueExecutable("break_transition", breakTransition.Text, "Vern", _eventBus, _audioService, audioPath, VernLineType.BreakTransition, _stateManager, _statTracker);
+                }
+            }
 
             if (_stateManager._pendingShowEndingTransition)
             {
