@@ -89,7 +89,7 @@ public partial class WorldRoom : Node2D
 	{
 		if (Player == null) return;
 
-		var sprite = Player.GetNodeOrNull<Sprite2D>("Sprite2D");
+		var sprite = Player.GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
 		if (sprite == null) return;
 
 		var playerPos = Player.GlobalPosition;

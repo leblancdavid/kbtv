@@ -561,7 +561,7 @@ namespace KBTV.Audio
                     {
                         player.CallDeferred("stop");
                     }
-                    tcs.SetResult(); // Signal completion
+                    tcs.TrySetResult(); // Signal completion
                 }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -637,7 +637,7 @@ namespace KBTV.Audio
 
             if (_completionSources.TryGetValue(player, out var tcs))
             {
-                tcs.SetResult();
+tcs.TrySetResult();
                 _completionSources.Remove(player);
             }
 

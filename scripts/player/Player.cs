@@ -6,7 +6,7 @@ public partial class Player : CharacterBody2D
 {
     [Export] private float _speed = 150.0f;
 
-    private Sprite2D _sprite;
+    private AnimatedSprite2D _sprite;
     private World? _world;
     private CanvasLayer? _callerTabLayer;
     private CallerScreenerManager? _callerScreenerManager;
@@ -19,11 +19,77 @@ public partial class Player : CharacterBody2D
         CacheCallerTabLayer();
         SubscribeToScreener();
 
-        _sprite = GetNodeOrNull<Sprite2D>("Sprite2D");
+        _sprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
         if (_sprite != null)
         {
-            var size = _sprite.Texture?.GetSize() ?? Vector2.Zero;
-            _sprite.Position = new Vector2(0, -(size.Y * 0.5f));
+            SetupSpriteFrames();
+        }
+        else
+        {
+            GD.PrintErr("Player: AnimatedSprite2D node not found!");
+        }
+    }
+
+    private void SetupSpriteFrames()
+    {
+        if (_sprite == null) return;
+
+        var frames = new SpriteFrames();
+        
+        // Load textures for each direction
+        string[] directions = { "south", "east", "north", "west" };
+        foreach (var dir in directions)
+        {
+            var animationName = $"walk_{dir}";
+            var frameTextures = new Texture2D[6];
+            
+            for (int i = 0; i < 6; i++)
+            {
+                var path = $"res://assets/sprites/characters/player/walk_{dir}_{i}.png";
+                var texture = ResourceLoader.Load<Texture2D>(path);
+                if (texture == null)
+                {
+                    GD.PrintErr($"Player: Failed to load texture: {path}");
+                }
+                frameTextures[i] = texture;
+            }
+            
+            frames.AddAnimation(animationName);
+            frames.SetAnimationSpeed(animationName, 10.0f);
+            frames.SetAnimationLoop(animationName, true);
+            
+            for (int i = 0; i < 6; i++)
+            {
+                if (frameTextures[i] != null)
+                {
+                    frames.AddFrame(animationName, frameTextures[i]);
+                }
+            }
+        }
+        
+        _sprite.SpriteFrames = frames;
+        _sprite.Animation = "walk_south";
+        GD.Print("Player: SpriteFrames setup complete with " + frames.GetAnimationNames().Length + " animations");
+    }
+
+    private void SetDirectionAnimation(Vector2 direction)
+    {
+        if (_sprite == null) return;
+
+        string animName = "walk_south"; // default
+
+        if (direction.X > 0)
+            animName = "walk_east";
+        else if (direction.X < 0)
+            animName = "walk_west";
+        else if (direction.Y < 0)
+            animName = "walk_north";
+        else
+            animName = "walk_south";
+
+        if (_sprite.Animation != animName)
+        {
+            _sprite.Play(animName);
         }
     }
 
@@ -122,6 +188,21 @@ public partial class Player : CharacterBody2D
 
         Velocity = velocity * _speed;
         MoveAndSlide();
+
+        // Update animation based on movement direction
+        if (_sprite != null)
+        {
+            if (velocity != Vector2.Zero)
+            {
+                SetDirectionAnimation(velocity);
+                _sprite.Play();
+            }
+            else
+            {
+                _sprite.Pause();
+                _sprite.Frame = 0;
+            }
+        }
     }
 
     public void SetMovementLocked(bool locked)

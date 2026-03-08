@@ -13,14 +13,18 @@ public partial class World : Node2D
 		Player = GetNode<Player>("Player");
 		WorldRoom = GetNode<WorldRoom>("WorldRoom");
 
+		GD.Print($"World: Player found: {Player != null}, WorldRoom found: {WorldRoom != null}");
+
 		Player.SetWorld(this);
 		WorldRoom.SetPlayer(Player);
 
-		var playerSprite = Player.GetNode<Sprite2D>("Sprite2D");
-		if (playerSprite != null)
+		// Load a texture for shadow creation using south-facing sprite
+		var playerTexture = GD.Load<Texture2D>("res://assets/sprites/characters/player/south.png");
+		GD.Print($"World: Loaded south.png texture: {playerTexture != null}");
+		if (playerTexture != null)
 		{
-			WorldRoom.ControlShadows.CreateShadowForObject(Player, playerSprite.Texture);
-			WorldRoom.StudioShadows.CreateShadowForObject(Player, playerSprite.Texture);
+			WorldRoom.ControlShadows.CreateShadowForObject(Player, playerTexture);
+			WorldRoom.StudioShadows.CreateShadowForObject(Player, playerTexture);
 		}
 	}
 }

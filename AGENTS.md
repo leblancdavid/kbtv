@@ -188,6 +188,11 @@ bash: godot --run-tests --quit-on-finish
 **Bash:**
 - `bash command description timeout workdir` - Run shell command
 
+**External MCP Integrations:**
+- `pixellab_generate` - Generate pixel art assets (see PixelLab MCP Guide)
+- `pixellab_list_styles` - List available PixelLab styles
+- `pixellab_check_status` - Check PixelLab server status
+
 ### CGC Configuration & Management
 
 #### Initial Setup (One-Time)
@@ -284,6 +289,8 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [GAME_DESIGN.md](docs/design/GAME_DESIGN.md) | Game design document - core mechanics, characters, game loop, and features |
 | [TECHNICAL_SPEC.md](docs/technical/TECHNICAL_SPEC.md) | Architecture, systems design, and technical requirements |
 | [ART_STYLE.md](docs/art/ART_STYLE.md) | Visual direction, color palette, and asset guidelines |
+| [PIXEL_ART_PROMPTS.md](docs/art/PIXEL_ART_PROMPTS.md) | AI pixel art generation prompts and workflow (100+ prompts) |
+| [PIXELLAB_MCP_GUIDE.md](docs/art/PIXELLAB_MCP_GUIDE.md) | PixelLab MCP setup, configuration, and usage |
 | [AUDIO_DESIGN.md](docs/audio/AUDIO_DESIGN.md) | Sound design, music, and audio technical specs |
 | [ROADMAP.md](docs/design/ROADMAP.md) | Development milestones and feature backlog |
 | [CI_CD_SETUP.md](docs/technical/CI_CD_SETUP.md) | Build and export setup for Godot (CI/CD not currently implemented) |
