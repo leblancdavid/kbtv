@@ -1,6 +1,7 @@
 using Godot;
 using KBTV.UI;
 using KBTV.Core;
+using System.Collections.Generic;
 
 public partial class Player : CharacterBody2D
 {
@@ -10,6 +11,8 @@ public partial class Player : CharacterBody2D
     private World? _world;
     private CanvasLayer? _callerTabLayer;
     private CallerScreenerManager? _callerScreenerManager;
+    private string _lastAnimation = "walk_south";
+    private Dictionary<string, Texture2D[]> _animationFrames = new();
 
     public override void _Ready()
     {
@@ -35,6 +38,7 @@ public partial class Player : CharacterBody2D
         if (_sprite == null) return;
 
         var frames = new SpriteFrames();
+        _animationFrames.Clear();
         
         // Load textures for each direction
         string[] directions = { "south", "east", "north", "west" };
@@ -54,6 +58,9 @@ public partial class Player : CharacterBody2D
                 frameTextures[i] = texture;
             }
             
+            // Store in dictionary for later retrieval (shadow updates)
+            _animationFrames[animationName] = frameTextures;
+            
             frames.AddAnimation(animationName);
             frames.SetAnimationSpeed(animationName, 10.0f);
             frames.SetAnimationLoop(animationName, true);
@@ -69,6 +76,15 @@ public partial class Player : CharacterBody2D
         
         _sprite.SpriteFrames = frames;
         _sprite.Animation = "walk_south";
+        
+        // Position sprite so feet are at root origin (center horizontally, bottom at Y=0)
+        var firstFrame = _animationFrames["walk_south"][0];
+        if (firstFrame != null)
+        {
+            var size = firstFrame.GetSize();
+            _sprite.Position = new Vector2(0, -size.Y * 0.5f);  // Center vertically, feet at origin
+        }
+        
         GD.Print("Player: SpriteFrames setup complete with " + frames.GetAnimationNames().Length + " animations");
     }
 
@@ -90,6 +106,31 @@ public partial class Player : CharacterBody2D
         if (_sprite.Animation != animName)
         {
             _sprite.Play(animName);
+            _lastAnimation = animName;
+        }
+    }
+
+    private void UpdateShadowFrame()
+    {
+        if (_sprite == null) return;
+
+        // Find the shadow sprite from ShadowPivot
+        var shadowPivot = GetNodeOrNull<Node2D>("ShadowPivot");
+        if (shadowPivot == null) return;
+
+        if (shadowPivot.GetChild(0) is Sprite2D shadowSprite)
+        {
+            // Get current frame texture from our dictionary
+            var currentAnim = _sprite.Animation;
+            var frameIdx = _sprite.Frame;
+            if (_animationFrames.TryGetValue(currentAnim, out var frames) && frameIdx >= 0 && frameIdx < frames.Length)
+            {
+                var frameTexture = frames[frameIdx];
+                if (frameTexture != null && shadowSprite.Texture != frameTexture)
+                {
+                    shadowSprite.Texture = frameTexture;
+                }
+            }
         }
     }
 
@@ -156,6 +197,7 @@ public partial class Player : CharacterBody2D
     public override void _Process(double delta)
     {
         ZIndex = (int)GlobalPosition.Y;
+        UpdateShadowFrame();
     }
 
     public override void _PhysicsProcess(double delta)

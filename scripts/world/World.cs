@@ -23,8 +23,10 @@ public partial class World : Node2D
 		GD.Print($"World: Loaded south.png texture: {playerTexture != null}");
 		if (playerTexture != null)
 		{
-			WorldRoom.ControlShadows.CreateShadowForObject(Player, playerTexture);
-			WorldRoom.StudioShadows.CreateShadowForObject(Player, playerTexture);
+			// Use offset to shift shadow anchor up 8px to compensate for texture padding
+			var shadowOffset = new Vector2(0, -6);
+			WorldRoom.ControlShadows.CreateShadowForObject(Player, playerTexture, offset: shadowOffset, createOvalBase: true);
+			WorldRoom.StudioShadows.CreateShadowForObject(Player, playerTexture, offset: shadowOffset, createOvalBase: true);
 		}
 	}
 }

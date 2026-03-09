@@ -105,7 +105,7 @@ public partial class CastShadowSystem : Node
 			_baseShadowMaterial.SetShaderParameter("room_bounds", roomBounds);
 	}
 
-	public void CreateShadowForObject(Node2D root, Texture2D texture, Vector2? offset = null)
+	public void CreateShadowForObject(Node2D root, Texture2D texture, Vector2? offset = null, bool createOvalBase = false)
 	{
 		var spriteSize = texture.GetSize();
 		var pivotOffset = offset ?? new Vector2(0, -3);
@@ -116,7 +116,11 @@ public partial class CastShadowSystem : Node
 
 		var material = _shadowMaterial?.Duplicate() as ShaderMaterial;
 		if (material != null)
+		{
 			material.SetShaderParameter("sprite_world_position", root.GlobalPosition);
+			// Disable gradient fade for player shadows (keep blur)
+			material.SetShaderParameter("gradient_fade_height", 0.0f);
+		}
 
 		var shadowSprite = new Sprite2D
 		{
@@ -131,7 +135,10 @@ public partial class CastShadowSystem : Node
 		shadowPivot.AddChild(shadowSprite);
 		_pivotToShadowSprite[shadowPivot] = shadowSprite;
 
-		CreateBaseShadowForObject(root, texture);
+		if (createOvalBase)
+			CreateOvalBaseShadow(root, texture, pivotOffset);
+		else
+			CreateBaseShadowForObject(root, texture);
 	}
 
 	public void CreateBaseShadowForObject(Node2D root, Texture2D texture)
@@ -151,6 +158,78 @@ public partial class CastShadowSystem : Node
 			Texture = bottomTexture,
 			Material = material,
 			Position = new Vector2(0, -2),
+			FlipV = false,
+			Modulate = new Color(0, 0, 0, ShadowOpacity),
+			ZAsRelative = false,
+			ZIndex = 1
+		};
+		root.AddChild(baseShadowSprite);
+		_baseShadowSprites.Add(baseShadowSprite);
+	}
+
+	private Texture2D CreateOvalShadowTexture(int width, int height)
+	{
+		// Add padding for blur to avoid edge clipping
+		const int padding = 4;
+		int texWidth = width + padding * 2;
+		int texHeight = height + padding * 2;
+		
+		var img = Image.Create(texWidth, texHeight, false, Image.Format.Rgba8);
+		img.Fill(new Color(0, 0, 0, 0)); // transparent background
+		
+		float centerX = texWidth / 2f;
+		float centerY = texHeight / 2f;
+		float radiusX = width / 2f;
+		float radiusY = height / 2f;
+		
+		for (int y = 0; y < texHeight; y++)
+		{
+			for (int x = 0; x < texWidth; x++)
+			{
+				float dx = (x - centerX) / radiusX;
+				float dy = (y - centerY) / radiusY;
+				float dist = dx*dx + dy*dy;
+				if (dist <= 1.0f)
+				{
+					// Solid black with uniform ShadowOpacity
+					img.SetPixel(x, y, new Color(0, 0, 0, ShadowOpacity));
+				}
+			}
+		}
+		
+		var texture = ImageTexture.CreateFromImage(img);
+		return texture;
+	}
+
+	private void CreateOvalBaseShadow(Node2D root, Texture2D referenceTexture, Vector2 pivotOffset)
+	{
+		var refSize = referenceTexture.GetSize();
+		int ovalWidth = (int)(refSize.X * 0.28f); // keep width
+		int ovalHeight = (int)(refSize.Y * 0.15f); // more oval (taller)
+		// Ensure minimum size
+		ovalWidth = Mathf.Max(ovalWidth, 8);
+		ovalHeight = Mathf.Max(ovalHeight, 4);
+		
+		var ovalTexture = CreateOvalShadowTexture(ovalWidth, ovalHeight);
+		
+		var material = _baseShadowMaterial?.Duplicate() as ShaderMaterial;
+		if (material != null)
+		{
+			material.SetShaderParameter("sprite_world_position", root.GlobalPosition);
+			// Disable gradient fade for player shadows (keep blur)
+			material.SetShaderParameter("gradient_fade_height", 0.0f);
+		}
+		
+		// Position: base shadow sits on ground at the foot line (pivotOffset.Y)
+		// The top of the oval should be at the foot line, so the shadow extends downward.
+		// center = top + ovalHeight/2 = pivotOffset.Y + ovalHeight/2
+		// Add a small extra offset (1px) to move it slightly lower.
+		Vector2 basePos = new Vector2(0, pivotOffset.Y + ovalHeight * 0.5f + 1);
+		var baseShadowSprite = new Sprite2D
+		{
+			Texture = ovalTexture,
+			Material = material,
+			Position = basePos,
 			FlipV = false,
 			Modulate = new Color(0, 0, 0, ShadowOpacity),
 			ZAsRelative = false,
@@ -191,7 +270,11 @@ public partial class CastShadowSystem : Node
 
 			if (_pivotToShadowSprite.TryGetValue(pivot, out var shadowSprite))
 			{
-				shadowSprite.FlipH = pivotWorldPos.Y > lightPos.Y;
+				// Determine if horizontal flip is needed for south‑cast shadows
+				bool flipH = pivotWorldPos.Y > lightPos.Y;   // true when shadow points south
+
+				// Keep sprite unflipped; we'll handle it in the shader only
+				shadowSprite.FlipH = false;
 
 				var material = shadowSprite.Material as ShaderMaterial;
 				if (material != null && shadowSprite.Texture != null)
@@ -200,7 +283,8 @@ public partial class CastShadowSystem : Node
 					material.SetShaderParameter("shadow_scale", shadowSprite.GlobalScale);
 					material.SetShaderParameter("shadow_rotation", shadowSprite.GlobalRotation);
 					material.SetShaderParameter("shadow_texture_size", shadowSprite.Texture.GetSize());
-					material.SetShaderParameter("shadow_flip_h", shadowSprite.FlipH);
+					// Apply conditional flip via shader uniform
+					material.SetShaderParameter("shadow_flip_h", flipH);
 				}
 			}
 		}
