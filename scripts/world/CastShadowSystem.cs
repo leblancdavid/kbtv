@@ -138,8 +138,6 @@ public partial class CastShadowSystem : Node
 			material = _shadowMaterial.Duplicate() as ShaderMaterial;
 		}
 
-		GD.Print($"CreateShadowForObject: isPlayer={isPlayer}, material shader: {material?.Shader?.ResourcePath}");
-
 		if (material != null)
 		{
 			material.SetShaderParameter("sprite_world_position", root.GlobalPosition);
@@ -248,7 +246,6 @@ public partial class CastShadowSystem : Node
 		// Position: base shadow sits on ground directly under the player.
 		// Texture has 4px padding; place top-left at -4 so visible oval starts at Y=0.
 		Vector2 basePos = new Vector2(0, -4);
-		GD.Print($"CreateOvalBaseShadow: basePos={basePos}, ovalSize=({ovalWidth},{ovalHeight}), rootPos={root.GlobalPosition}");
 		var baseShadowSprite = new Sprite2D
 		{
 			Texture = ovalTexture,
@@ -278,7 +275,9 @@ public partial class CastShadowSystem : Node
 
 			var pivotWorldPos = pivot.GlobalPosition;
 
-			if (!_shadowRoomBounds.HasPoint(pivotWorldPos))
+			// Skip bounds check for player shadows (update in any room)
+			bool isPlayerShadow = pivot.GetParent() is Player;
+			if (!isPlayerShadow && !_shadowRoomBounds.HasPoint(pivotWorldPos))
 				continue;
 			var lightToPivot = pivotWorldPos - lightPos;
 			var distance = lightToPivot.Length();
@@ -294,10 +293,9 @@ public partial class CastShadowSystem : Node
 
 			if (_pivotToShadowSprite.TryGetValue(pivot, out var shadowSprite))
 			{
-				// Flip when shadow points south (player below light) to match desired orientation
-				bool shouldFlip = pivotWorldPos.Y > lightPos.Y;
-				GD.Print($"CastShadowSystem: PivotY={pivotWorldPos.Y}, LightY={lightPos.Y}, FlipH={shouldFlip}");
-				shadowSprite.FlipH = shouldFlip;
+			// Flip when shadow points south (player below light) to match desired orientation
+			bool shouldFlip = pivotWorldPos.Y > lightPos.Y;
+			shadowSprite.FlipH = shouldFlip;
 
 				var material = shadowSprite.Material as ShaderMaterial;
 				if (material != null && shadowSprite.Texture != null)
