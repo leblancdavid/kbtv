@@ -12,6 +12,7 @@ public partial class Player : CharacterBody2D
     private CanvasLayer? _callerTabLayer;
     private CallerScreenerManager? _callerScreenerManager;
     private string _lastAnimation = "walk_south";
+    private string _currentDirection = "south";
     private Dictionary<string, Texture2D[]> _animationFrames = new();
 
     public override void _Ready()
@@ -74,11 +75,33 @@ public partial class Player : CharacterBody2D
             }
         }
         
+        // Load idle sprites (single frame animations)
+        string[] idleDirections = { "south", "east", "north", "west" };
+        foreach (var dir in idleDirections)
+        {
+            var animationName = $"idle_{dir}";
+            var path = $"res://assets/sprites/characters/player/{dir}.png";
+            var texture = ResourceLoader.Load<Texture2D>(path);
+            
+            if (texture != null)
+            {
+                frames.AddAnimation(animationName);
+                frames.SetAnimationSpeed(animationName, 0); // Static, no animation
+                frames.AddFrame(animationName, texture);
+                _animationFrames[animationName] = new Texture2D[] { texture };
+            }
+            else
+            {
+                GD.PrintErr($"Player: Failed to load idle texture: {path}");
+            }
+        }
+        
         _sprite.SpriteFrames = frames;
-        _sprite.Animation = "walk_south";
+        _sprite.Animation = "idle_south";
+        _currentDirection = "south";
         
         // Position sprite so feet are at root origin (center horizontally, bottom at Y=0)
-        var firstFrame = _animationFrames["walk_south"][0];
+        var firstFrame = _animationFrames["idle_south"][0];
         if (firstFrame != null)
         {
             var size = firstFrame.GetSize();
@@ -107,6 +130,11 @@ public partial class Player : CharacterBody2D
         {
             _sprite.Play(animName);
             _lastAnimation = animName;
+            // Extract direction from animation name (e.g., "walk_north" -> "north")
+            if (animName.StartsWith("walk_"))
+            {
+                _currentDirection = animName.Substring(5);
+            }
         }
     }
 
@@ -241,8 +269,12 @@ public partial class Player : CharacterBody2D
             }
             else
             {
-                _sprite.Pause();
-                _sprite.Frame = 0;
+                // When stopped, play idle animation for current direction
+                string idleAnim = $"idle_{_currentDirection}";
+                if (_sprite.Animation != idleAnim)
+                {
+                    _sprite.Play(idleAnim);
+                }
             }
         }
     }

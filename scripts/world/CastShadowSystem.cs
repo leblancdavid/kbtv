@@ -119,6 +119,13 @@ public partial class CastShadowSystem : Node
 
 	public void CreateShadowForObject(Node2D root, Texture2D texture, Vector2? offset = null, bool createOvalBase = false)
 	{
+		// Check if root already has a shadow - remove it first to prevent duplicates
+		var existingPivot = root.GetNodeOrNull<Node2D>("ShadowPivot");
+		if (existingPivot != null)
+		{
+			RemoveShadowForObject(root);
+		}
+
 		var spriteSize = texture.GetSize();
 		var pivotOffset = offset ?? new Vector2(0, -3);
 
@@ -336,5 +343,47 @@ public partial class CastShadowSystem : Node
 		{
 			_depthShadowMaterial.SetShaderParameter("light_position", _lightSource.GlobalPosition);
 		}
+	}
+
+	public void RemoveShadowForObject(Node2D root)
+	{
+		// Find all shadow pivots that belong to this root by scanning dictionary
+		var pivotsToRemove = new List<Node2D>();
+		foreach (var kvp in _pivotToShadowSprite)
+		{
+			if (kvp.Key.GetParent() == root)
+			{
+				pivotsToRemove.Add(kvp.Key);
+			}
+		}
+
+		// Remove each pivot from parent and dictionary, then queue for deletion
+		foreach (var pivot in pivotsToRemove)
+		{
+			// Remove from dictionary first
+			_pivotToShadowSprite.Remove(pivot);
+			// Detach from parent immediately to prevent naming conflicts
+			if (pivot.GetParent() != null)
+			{
+				pivot.GetParent().RemoveChild(pivot);
+			}
+			// Queue for deletion
+			pivot.QueueFree();
+		}
+
+		// Remove associated base shadow sprites that belong to this root
+		_baseShadowSprites.RemoveAll(sprite =>
+		{
+			if (!IsInstanceValid(sprite) || sprite.GetParent() != root)
+				return false;
+
+			// Detach and queue for deletion
+			if (sprite.GetParent() != null)
+			{
+				sprite.GetParent().RemoveChild(sprite);
+			}
+			sprite.QueueFree();
+			return true;
+		});
 	}
 }
