@@ -25,7 +25,7 @@ public partial class World : Node2D
 		{
 			// Use offset to shift shadow anchor up 8px to compensate for texture padding
 			var shadowOffset = new Vector2(0, -6);
-			WorldRoom.ControlShadows.CreateShadowForObject(Player, playerTexture, offset: shadowOffset, createOvalBase: true);
+			// Only create shadows in the studio system (player should not cast in control room)
 			WorldRoom.StudioShadows.CreateShadowForObject(Player, playerTexture, offset: shadowOffset, createOvalBase: true);
 		}
 	}

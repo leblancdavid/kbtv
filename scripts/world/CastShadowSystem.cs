@@ -17,6 +17,7 @@ public partial class CastShadowSystem : Node
 	private PointLight2D _lightSource;
 	private ShaderMaterial _depthShadowMaterial;
 	private ShaderMaterial _shadowMaterial;
+	private ShaderMaterial _playerShadowMaterial;
 	private ShaderMaterial _baseShadowMaterial;
 	private Rect2 _shadowRoomBounds;
 
@@ -87,6 +88,17 @@ public partial class CastShadowSystem : Node
 			_baseShadowMaterial.SetShaderParameter("gradient_fade_height", GradientFadeHeight);
 			_baseShadowMaterial.SetShaderParameter("gradient_at_top", true);
 		}
+
+		var playerShadowShader = GD.Load<Shader>("res://shaders/shadow_blur_player.gdshader");
+		if (playerShadowShader != null)
+		{
+			_playerShadowMaterial = new ShaderMaterial();
+			_playerShadowMaterial.Shader = playerShadowShader;
+			_playerShadowMaterial.SetShaderParameter("blur_amount", BlurAmount);
+			_playerShadowMaterial.SetShaderParameter("shadow_color", new Color(0, 0, 0, ShadowOpacity));
+			_playerShadowMaterial.SetShaderParameter("gradient_fade_height", GradientFadeHeight);
+			// gradient_at_top defaults to false in shader; keep as false for player
+		}
 	}
 
 	private void SetShadowRoomBounds()
@@ -114,12 +126,24 @@ public partial class CastShadowSystem : Node
 		shadowPivot.AddToGroup("shadow_pivots");
 		root.AddChild(shadowPivot);
 
-		var material = _shadowMaterial?.Duplicate() as ShaderMaterial;
+		// Choose material: use player-specific for Player root, else default
+		ShaderMaterial? material = null;
+		bool isPlayer = root.GetType().Name == "Player";
+		if (isPlayer && _playerShadowMaterial != null)
+		{
+			material = _playerShadowMaterial.Duplicate() as ShaderMaterial;
+		}
+		else if (_shadowMaterial != null)
+		{
+			material = _shadowMaterial.Duplicate() as ShaderMaterial;
+		}
+
+		GD.Print($"CreateShadowForObject: isPlayer={isPlayer}, material shader: {material?.Shader?.ResourcePath}");
+
 		if (material != null)
 		{
 			material.SetShaderParameter("sprite_world_position", root.GlobalPosition);
-			// Disable gradient fade for player shadows (keep blur)
-			material.SetShaderParameter("gradient_fade_height", 0.0f);
+			// gradient_fade_height is already set in the materials; player material has clamp in shader
 		}
 
 		var shadowSprite = new Sprite2D
@@ -173,22 +197,22 @@ public partial class CastShadowSystem : Node
 		const int padding = 4;
 		int texWidth = width + padding * 2;
 		int texHeight = height + padding * 2;
-		
+
 		var img = Image.Create(texWidth, texHeight, false, Image.Format.Rgba8);
 		img.Fill(new Color(0, 0, 0, 0)); // transparent background
-		
+
 		float centerX = texWidth / 2f;
 		float centerY = texHeight / 2f;
 		float radiusX = width / 2f;
 		float radiusY = height / 2f;
-		
+
 		for (int y = 0; y < texHeight; y++)
 		{
 			for (int x = 0; x < texWidth; x++)
 			{
 				float dx = (x - centerX) / radiusX;
 				float dy = (y - centerY) / radiusY;
-				float dist = dx*dx + dy*dy;
+				float dist = dx * dx + dy * dy;
 				if (dist <= 1.0f)
 				{
 					// Solid black with uniform ShadowOpacity
@@ -196,7 +220,7 @@ public partial class CastShadowSystem : Node
 				}
 			}
 		}
-		
+
 		var texture = ImageTexture.CreateFromImage(img);
 		return texture;
 	}
@@ -206,25 +230,25 @@ public partial class CastShadowSystem : Node
 		var refSize = referenceTexture.GetSize();
 		int ovalWidth = (int)(refSize.X * 0.28f); // keep width
 		int ovalHeight = (int)(refSize.Y * 0.15f); // more oval (taller)
-		// Ensure minimum size
+												   // Ensure minimum size
 		ovalWidth = Mathf.Max(ovalWidth, 8);
 		ovalHeight = Mathf.Max(ovalHeight, 4);
-		
+
 		var ovalTexture = CreateOvalShadowTexture(ovalWidth, ovalHeight);
-		
+
 		var material = _baseShadowMaterial?.Duplicate() as ShaderMaterial;
 		if (material != null)
 		{
 			material.SetShaderParameter("sprite_world_position", root.GlobalPosition);
-			// Disable gradient fade for player shadows (keep blur)
+			// Disable gradient fade completely for base shadow: solid oval
 			material.SetShaderParameter("gradient_fade_height", 0.0f);
+			material.SetShaderParameter("gradient_at_top", false);
 		}
-		
-		// Position: base shadow sits on ground at the foot line (pivotOffset.Y)
-		// The top of the oval should be at the foot line, so the shadow extends downward.
-		// center = top + ovalHeight/2 = pivotOffset.Y + ovalHeight/2
-		// Add a small extra offset (1px) to move it slightly lower.
-		Vector2 basePos = new Vector2(0, pivotOffset.Y + ovalHeight * 0.5f + 1);
+
+		// Position: base shadow sits on ground directly under the player.
+		// Texture has 4px padding; place top-left at -4 so visible oval starts at Y=0.
+		Vector2 basePos = new Vector2(0, -4);
+		GD.Print($"CreateOvalBaseShadow: basePos={basePos}, ovalSize=({ovalWidth},{ovalHeight}), rootPos={root.GlobalPosition}");
 		var baseShadowSprite = new Sprite2D
 		{
 			Texture = ovalTexture,
@@ -270,11 +294,10 @@ public partial class CastShadowSystem : Node
 
 			if (_pivotToShadowSprite.TryGetValue(pivot, out var shadowSprite))
 			{
-				// Determine if horizontal flip is needed for south‑cast shadows
-				bool flipH = pivotWorldPos.Y > lightPos.Y;   // true when shadow points south
-
-				// Keep sprite unflipped; we'll handle it in the shader only
-				shadowSprite.FlipH = false;
+				// Flip when shadow points south (player below light) to match desired orientation
+				bool shouldFlip = pivotWorldPos.Y > lightPos.Y;
+				GD.Print($"CastShadowSystem: PivotY={pivotWorldPos.Y}, LightY={lightPos.Y}, FlipH={shouldFlip}");
+				shadowSprite.FlipH = shouldFlip;
 
 				var material = shadowSprite.Material as ShaderMaterial;
 				if (material != null && shadowSprite.Texture != null)
@@ -283,10 +306,10 @@ public partial class CastShadowSystem : Node
 					material.SetShaderParameter("shadow_scale", shadowSprite.GlobalScale);
 					material.SetShaderParameter("shadow_rotation", shadowSprite.GlobalRotation);
 					material.SetShaderParameter("shadow_texture_size", shadowSprite.Texture.GetSize());
-					// Apply conditional flip via shader uniform
-					material.SetShaderParameter("shadow_flip_h", flipH);
-				}
+					// Disable shader flip to avoid double flip (CPU already flipped)
+					material.SetShaderParameter("shadow_flip_h", false);
 			}
+		}
 		}
 
 		foreach (var baseSprite in _baseShadowSprites)
