@@ -81,6 +81,17 @@ namespace KBTV.Audio
             }
         }
 
+        public override void _ExitTree()
+        {
+            // Disconnect Finished signal to prevent callbacks during shutdown
+            if (_staticPlayer != null)
+            {
+                _staticPlayer.Finished -= OnStaticFinished;
+                _staticPlayer.Stop();
+                _staticPlayer.QueueFree();
+            }
+        }
+
         /// <summary>
         /// Sets the caller's phone quality for static volume adjustment.
         /// Worse quality = more static, better quality = less static.

@@ -134,7 +134,7 @@ public partial class StudioBuilder : IRoomBuilder
 		};
 		world.AddChild(_wallSystem);
 
-		_shadows = new CastShadowSystem { LightRadius = CeilingLightRadius };
+		_shadows = new CastShadowSystem { LightRadius = CeilingLightRadius, GroupName = "shadow_pivots_studio" };
 		world.AddChild(_shadows);
 
 		_debug = new RoomDebug { DebugEnabled = false, ZIndex = 2000 };

@@ -7,6 +7,7 @@ public partial class CastShadowSystem : Node
 	[Export] public float ShadowLerpFactor = 0.12f;
 	[Export] public float LightRadius = 450f;
 	[Export] public float ShadowOpacity = 0.3f;
+	[Export] public string GroupName = "shadow_pivots";
 
 	[ExportGroup("Shader Parameters")]
 	[Export] public float BlurAmount = 0.3f;
@@ -46,9 +47,25 @@ public partial class CastShadowSystem : Node
 		var floorLayer = roomSection.FloorLayer;
 		var gridOffset = roomSection.GridOffset;
 
-		var roomOrigin = floorLayer.MapToLocal(new Vector2I(-1, -1)) + gridOffset;
-		var roomWidth = (gridWidth + 1) * RoomBase.TileSize;
-		var roomHeight = (gridHeight + 1) * RoomBase.TileSize;
+		// Calculate bounds based on actual wall positions, centered on wall bottoms
+		// Walls are at: north y=-1, south y=gridHeight, west x=-1, east x=gridWidth
+		// Add half-tile (8px) to go past the wall into the room
+		const float pastWall = 8f;
+		const float margin = 4f;
+
+		// North wall bottom center (y=-1 grid row, shift up by pastWall into room)
+		var northWallBottom = floorLayer.MapToLocal(new Vector2I(0, -1)) + gridOffset + new Vector2(0, -pastWall);
+		// South wall bottom center (y=gridHeight grid row, shift up by pastWall into room)
+		var southWallBottom = floorLayer.MapToLocal(new Vector2I(0, gridHeight)) + gridOffset + new Vector2(0, -pastWall);
+		// West wall right edge (x=-1 grid column, shift right by pastWall into room)
+		var westWallRight = floorLayer.MapToLocal(new Vector2I(-1, 0)) + gridOffset + new Vector2(pastWall, 0);
+		// East wall left edge (x=gridWidth grid column, shift left by pastWall into room)
+		var eastWallLeft = floorLayer.MapToLocal(new Vector2I(gridWidth, 0)) + gridOffset + new Vector2(-pastWall, 0);
+
+		// Apply margin
+		var roomOrigin = new Vector2(westWallRight.X - margin, northWallBottom.Y - margin);
+		var roomWidth = (eastWallLeft.X - westWallRight.X) + margin * 2;
+		var roomHeight = (southWallBottom.Y - northWallBottom.Y) + margin * 2;
 
 		_shadowRoomBounds = new Rect2(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
 
@@ -58,6 +75,8 @@ public partial class CastShadowSystem : Node
 			_shadowMaterial.SetShaderParameter("room_bounds", roomBounds);
 		if (_baseShadowMaterial != null)
 			_baseShadowMaterial.SetShaderParameter("room_bounds", roomBounds);
+		if (_playerShadowMaterial != null)
+			_playerShadowMaterial.SetShaderParameter("room_bounds", roomBounds);
 	}
 
 	private void LoadShaders()
@@ -103,9 +122,30 @@ public partial class CastShadowSystem : Node
 
 	private void SetShadowRoomBounds()
 	{
-		var roomOrigin = _room.GridToWorld(new Vector2I(-1, -1));
-		var roomWidth = (_room.GridWidth + 1) * RoomBase.TileSize;
-		var roomHeight = (_room.GridHeight + 1) * RoomBase.TileSize;
+		// Calculate bounds based on actual wall positions, centered on wall bottoms
+		// Walls are at: north y=-1, south y=gridHeight, west x=-1, east x=gridWidth
+		// Add half-tile (8px) to go past the wall into the room
+		const float pastWall = 8f;
+		const float margin = 4f;
+
+		var floorLayer = _room.FloorLayer;
+		var gridOffset = _room.GridOffset;
+		var gridWidth = _room.GridWidth;
+		var gridHeight = _room.GridHeight;
+
+		// North wall bottom center (y=-1 grid row, shift up by pastWall into room)
+		var northWallBottom = floorLayer.MapToLocal(new Vector2I(0, -1)) + gridOffset + new Vector2(0, -pastWall);
+		// South wall bottom center (y=gridHeight grid row, shift up by pastWall into room)
+		var southWallBottom = floorLayer.MapToLocal(new Vector2I(0, gridHeight)) + gridOffset + new Vector2(0, -pastWall);
+		// West wall right edge (x=-1 grid column, shift right by pastWall into room)
+		var westWallRight = floorLayer.MapToLocal(new Vector2I(-1, 0)) + gridOffset + new Vector2(pastWall, 0);
+		// East wall left edge (x=gridWidth grid column, shift left by pastWall into room)
+		var eastWallLeft = floorLayer.MapToLocal(new Vector2I(gridWidth, 0)) + gridOffset + new Vector2(-pastWall, 0);
+
+		// Apply margin
+		var roomOrigin = new Vector2(westWallRight.X - margin, northWallBottom.Y - margin);
+		var roomWidth = (eastWallLeft.X - westWallRight.X) + margin * 2;
+		var roomHeight = (southWallBottom.Y - northWallBottom.Y) + margin * 2;
 
 		_shadowRoomBounds = new Rect2(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
 
@@ -115,9 +155,11 @@ public partial class CastShadowSystem : Node
 			_shadowMaterial.SetShaderParameter("room_bounds", roomBounds);
 		if (_baseShadowMaterial != null)
 			_baseShadowMaterial.SetShaderParameter("room_bounds", roomBounds);
+		if (_playerShadowMaterial != null)
+			_playerShadowMaterial.SetShaderParameter("room_bounds", roomBounds);
 	}
 
-	public void CreateShadowForObject(Node2D root, Texture2D texture, Vector2? offset = null, bool createOvalBase = false)
+	public void CreateShadowForObject(Node2D root, Texture2D texture, Vector2? offset = null, bool createOvalBase = false, int? zIndex = null)
 	{
 		// Check if root already has a shadow - remove it first to prevent duplicates
 		var existingPivot = root.GetNodeOrNull<Node2D>("ShadowPivot");
@@ -130,7 +172,7 @@ public partial class CastShadowSystem : Node
 		var pivotOffset = offset ?? new Vector2(0, -3);
 
 		var shadowPivot = new Node2D { Name = "ShadowPivot", Position = pivotOffset };
-		shadowPivot.AddToGroup("shadow_pivots");
+		shadowPivot.AddToGroup(GroupName);
 		root.AddChild(shadowPivot);
 
 		// Choose material: use player-specific for Player root, else default
@@ -147,8 +189,16 @@ public partial class CastShadowSystem : Node
 
 		if (material != null)
 		{
-			material.SetShaderParameter("sprite_world_position", root.GlobalPosition);
-			// gradient_fade_height is already set in the materials; player material has clamp in shader
+			material.SetShaderParameter("shadow_world_position", root.GlobalPosition);
+
+			// Set room bounds for shader clipping
+			var roomBoundsVec = new Vector4(
+				_shadowRoomBounds.Position.X,
+				_shadowRoomBounds.Position.Y,
+				_shadowRoomBounds.Size.X,
+				_shadowRoomBounds.Size.Y
+			);
+			material.SetShaderParameter("room_bounds", roomBoundsVec);
 		}
 
 		var shadowSprite = new Sprite2D
@@ -158,19 +208,19 @@ public partial class CastShadowSystem : Node
 			Position = new Vector2(0, -spriteSize.Y * 0.5f),
 			FlipV = false,
 			Modulate = new Color(0, 0, 0, ShadowOpacity),
-			ZAsRelative = false,
-			ZIndex = 1
+			ZAsRelative = true,
+			ZIndex = -1
 		};
 		shadowPivot.AddChild(shadowSprite);
 		_pivotToShadowSprite[shadowPivot] = shadowSprite;
 
 		if (createOvalBase)
-			CreateOvalBaseShadow(root, texture, pivotOffset);
+			CreateOvalBaseShadow(root, texture, pivotOffset, zIndex);
 		else
-			CreateBaseShadowForObject(root, texture);
+			CreateBaseShadowForObject(root, texture, zIndex);
 	}
 
-	public void CreateBaseShadowForObject(Node2D root, Texture2D texture)
+	public void CreateBaseShadowForObject(Node2D root, Texture2D texture, int? zIndex = null)
 	{
 		var originalImage = texture.GetImage();
 		var regionHeight = 8;
@@ -178,19 +228,32 @@ public partial class CastShadowSystem : Node
 		var bottomImage = originalImage.GetRegion(region);
 		var bottomTexture = ImageTexture.CreateFromImage(bottomImage);
 
+		Vector2 shadowSpritePos = new Vector2(0, -2);
+
 		var material = _baseShadowMaterial?.Duplicate() as ShaderMaterial;
 		if (material != null)
-			material.SetShaderParameter("sprite_world_position", root.GlobalPosition);
+		{
+			// Account for sprite's local position to get actual world position
+			material.SetShaderParameter("shadow_world_position", root.GlobalPosition + shadowSpritePos);
+
+			var roomBoundsVec = new Vector4(
+				_shadowRoomBounds.Position.X,
+				_shadowRoomBounds.Position.Y,
+				_shadowRoomBounds.Size.X,
+				_shadowRoomBounds.Size.Y
+			);
+			material.SetShaderParameter("room_bounds", roomBoundsVec);
+		}
 
 		var baseShadowSprite = new Sprite2D
 		{
 			Texture = bottomTexture,
 			Material = material,
-			Position = new Vector2(0, -2),
+			Position = shadowSpritePos,
 			FlipV = false,
 			Modulate = new Color(0, 0, 0, ShadowOpacity),
-			ZAsRelative = false,
-			ZIndex = 1
+			ZAsRelative = true,
+			ZIndex = -1
 		};
 		root.AddChild(baseShadowSprite);
 		_baseShadowSprites.Add(baseShadowSprite);
@@ -230,7 +293,7 @@ public partial class CastShadowSystem : Node
 		return texture;
 	}
 
-	private void CreateOvalBaseShadow(Node2D root, Texture2D referenceTexture, Vector2 pivotOffset)
+	private void CreateOvalBaseShadow(Node2D root, Texture2D referenceTexture, Vector2 pivotOffset, int? zIndex = null)
 	{
 		var refSize = referenceTexture.GetSize();
 		int ovalWidth = (int)(refSize.X * 0.28f); // keep width
@@ -241,18 +304,28 @@ public partial class CastShadowSystem : Node
 
 		var ovalTexture = CreateOvalShadowTexture(ovalWidth, ovalHeight);
 
+		// Position: base shadow sits on ground directly under the player.
+		// Texture has 4px padding; place top-left at -4 so visible oval starts at Y=0.
+		Vector2 basePos = new Vector2(0, -4);
+
 		var material = _baseShadowMaterial?.Duplicate() as ShaderMaterial;
 		if (material != null)
 		{
-			material.SetShaderParameter("sprite_world_position", root.GlobalPosition);
+			// Account for sprite's local position to get actual world position
+			material.SetShaderParameter("shadow_world_position", root.GlobalPosition + basePos);
+
+			var roomBoundsVec = new Vector4(
+				_shadowRoomBounds.Position.X,
+				_shadowRoomBounds.Position.Y,
+				_shadowRoomBounds.Size.X,
+				_shadowRoomBounds.Size.Y
+			);
+			material.SetShaderParameter("room_bounds", roomBoundsVec);
 			// Disable gradient fade completely for base shadow: solid oval
 			material.SetShaderParameter("gradient_fade_height", 0.0f);
 			material.SetShaderParameter("gradient_at_top", false);
 		}
 
-		// Position: base shadow sits on ground directly under the player.
-		// Texture has 4px padding; place top-left at -4 so visible oval starts at Y=0.
-		Vector2 basePos = new Vector2(0, -4);
 		var baseShadowSprite = new Sprite2D
 		{
 			Texture = ovalTexture,
@@ -260,8 +333,8 @@ public partial class CastShadowSystem : Node
 			Position = basePos,
 			FlipV = false,
 			Modulate = new Color(0, 0, 0, ShadowOpacity),
-			ZAsRelative = false,
-			ZIndex = 1
+			ZAsRelative = true,
+			ZIndex = -1
 		};
 		root.AddChild(baseShadowSprite);
 		_baseShadowSprites.Add(baseShadowSprite);
@@ -273,7 +346,7 @@ public partial class CastShadowSystem : Node
 			return;
 
 		var lightPos = _lightSource.GlobalPosition;
-		var shadowPivots = GetTree().GetNodesInGroup("shadow_pivots");
+		var shadowPivots = GetTree().GetNodesInGroup(GroupName);
 
 		foreach (Node node in shadowPivots)
 		{
@@ -308,8 +381,8 @@ public partial class CastShadowSystem : Node
 				if (material != null && shadowSprite.Texture != null)
 				{
 					material.SetShaderParameter("shadow_world_position", shadowSprite.GlobalPosition);
-					material.SetShaderParameter("shadow_scale", shadowSprite.GlobalScale);
-					material.SetShaderParameter("shadow_rotation", shadowSprite.GlobalRotation);
+					material.SetShaderParameter("shadow_scale", pivot.Scale);
+					material.SetShaderParameter("shadow_rotation", pivot.Rotation);
 					material.SetShaderParameter("shadow_texture_size", shadowSprite.Texture.GetSize());
 					// Disable shader flip to avoid double flip (CPU already flipped)
 					material.SetShaderParameter("shadow_flip_h", false);

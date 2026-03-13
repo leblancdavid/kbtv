@@ -145,7 +145,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		};
 		world.AddChild(_wallSystem);
 
-		_shadows = new CastShadowSystem { LightRadius = CeilingLightRadius };
+		_shadows = new CastShadowSystem { LightRadius = CeilingLightRadius, GroupName = "shadow_pivots_control" };
 		world.AddChild(_shadows);
 
 		_debug = new RoomDebug { DebugEnabled = false, ZIndex = 2000 };
@@ -321,10 +321,10 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/storage_shelf.png",
 				new Vector2I(4, 10), new Vector2(0, -16), true, new Vector2(48, 32),
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask, createCastShadow: false);
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/storage_shelf.png",
 				new Vector2I(10, 10), new Vector2(0, -16), true, new Vector2(48, 32),
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask, createCastShadow: false);
 		}
 
 		if (PlaceChair)

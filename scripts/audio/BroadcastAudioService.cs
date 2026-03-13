@@ -800,6 +800,9 @@ tcs.TrySetResult();
 
         public override void _ExitTree()
         {
+            // Unsubscribe from EventBus events
+            EventBus.Unsubscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
+
             // Stop all audio playback and unsubscribe from player events
             foreach (var player in _availablePlayers.Concat(_activePlayers).ToList())
             {

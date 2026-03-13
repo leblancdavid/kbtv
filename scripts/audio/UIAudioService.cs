@@ -127,6 +127,18 @@ namespace KBTV.Audio
             Log.Debug($"UIAudioService: Preloaded {_sfxCache.Count}/{SfxPaths.Count} sound effects");
         }
 
+        public override void _ExitTree()
+        {
+            // Stop all pooled audio players
+            foreach (var player in _playerPool)
+            {
+                player.Stop();
+                player.QueueFree();
+            }
+            _playerPool.Clear();
+            _sfxCache.Clear();
+        }
+
         /// <summary>
         /// Play a UI sound effect by enum.
         /// </summary>

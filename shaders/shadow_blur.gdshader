@@ -75,19 +75,22 @@ void fragment() {
     vec4 color = vec4(shadow_color.rgb, shadow_color.a * blurred_alpha);
     
     // Calculate world position using transform matrix
+    // Use the flipped UV if shadow_flip_h is true
+    vec2 uv_for_bounds = shadow_flip_h ? vec2(1.0 - uv.x, uv.y) : uv;
+    
     float c = cos(shadow_rotation);
     float s = sin(shadow_rotation);
     mat2 rot = mat2(vec2(c, s), vec2(-s, c));
     
-    vec2 centered_uv = uv - 0.5;
+    vec2 centered_uv = uv_for_bounds - 0.5;
     vec2 scaled_uv = centered_uv * shadow_scale;
     vec2 rotated_uv = rot * scaled_uv;
     vec2 world_pos = shadow_world_position + rotated_uv * shadow_texture_size;
     
     // Check bounds at the very end
     if (room_bounds.z > 0.0 && room_bounds.w > 0.0) {
-        if (world_pos.x < room_bounds.x || world_pos.x > room_bounds.x + room_bounds.z ||
-            world_pos.y < room_bounds.y || world_pos.y > room_bounds.y + room_bounds.w) {
+        if (world_pos.x <= room_bounds.x || world_pos.x >= room_bounds.x + room_bounds.z ||
+            world_pos.y <= room_bounds.y || world_pos.y >= room_bounds.y + room_bounds.w) {
             discard;
         }
     }

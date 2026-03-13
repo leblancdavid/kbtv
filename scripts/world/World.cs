@@ -24,7 +24,17 @@ public partial class World : Node2D
 		Player.SetWorld(this);
 		WorldRoom.SetPlayer(Player);
 
-		// Cache RoomStateManager and subscribe to location changes
+		// Defer full initialization until all nodes have completed _Ready()
+		CallDeferred(nameof(DeferredInitialize));
+	}
+
+	private void DeferredInitialize()
+	{
+		// Load player texture once
+		_playerTexture = GD.Load<Texture2D>("res://assets/sprites/characters/player/south.png");
+		GD.Print($"World: Loaded south.png texture: {_playerTexture != null}");
+
+		// Cache RoomStateManager (should be available now that all _Ready() calls have completed)
 		_roomStateManager = ServiceRegistry.Instance?.Get<RoomStateManager>();
 		if (_roomStateManager != null)
 		{
@@ -33,15 +43,12 @@ public partial class World : Node2D
 		}
 		else
 		{
-			GD.PrintErr("World: RoomStateManager not available!");
+			GD.PrintErr("World: RoomStateManager not available after deferred init!");
+			return;
 		}
 
-		// Load player texture once
-		_playerTexture = GD.Load<Texture2D>("res://assets/sprites/characters/player/south.png");
-		GD.Print($"World: Loaded south.png texture: {_playerTexture != null}");
-
-		// Defer initial shadow creation to ensure RoomStateManager has performed first bounds check
-		CallDeferred(nameof(CreateInitialShadow));
+		// Create initial shadow based on current room location
+		CreateInitialShadow();
 	}
 
 	private void CreateInitialShadow()
@@ -49,34 +56,33 @@ public partial class World : Node2D
 		if (_playerTexture == null || Player == null)
 			return;
 
-		// Determine initial shadow system based on current location
-		CastShadowSystem? targetSystem = null;
-		if (_roomStateManager != null)
-		{
-			switch (_roomStateManager.CurrentLocation)
-			{
-				case RoomStateManager.PlayerLocation.InStudio:
-					targetSystem = WorldRoom.StudioShadows;
-					break;
-				case RoomStateManager.PlayerLocation.InControlRoom:
-					targetSystem = WorldRoom.ControlShadows;
-					break;
-				case RoomStateManager.PlayerLocation.Outside:
-					// If starting outside (doorway), default to studio as it's the main game area
-					targetSystem = WorldRoom.StudioShadows;
-					break;
-			}
-		}
+		// Compute initial location using room bounds (RoomStateManager hasn't updated yet)
+		// Use ShadowRoomBounds from each system which were set during builder initialization
+		var controlBounds = WorldRoom.ControlShadows?.ShadowRoomBounds ?? new Rect2();
+		var studioBounds = WorldRoom.StudioShadows?.ShadowRoomBounds ?? new Rect2();
+		var playerPos = Player.GlobalPosition;
 
-		// Fallback to studio if no manager
-		targetSystem ??= WorldRoom.StudioShadows;
+		CastShadowSystem? targetSystem;
+		if (studioBounds != new Rect2() && studioBounds.HasPoint(playerPos))
+		{
+			targetSystem = WorldRoom.StudioShadows;
+		}
+		else if (controlBounds != new Rect2() && controlBounds.HasPoint(playerPos))
+		{
+			targetSystem = WorldRoom.ControlShadows;
+		}
+		else
+		{
+			// Default to studio if neither bound contains player (e.g., starting position in doorway)
+			targetSystem = WorldRoom.StudioShadows;
+		}
 
 		// Create initial shadow
 		targetSystem.CreateShadowForObject(Player, _playerTexture, offset: new Vector2(0, ShadowOffsetY), createOvalBase: true);
 		_currentShadowSystem = targetSystem;
 		_initialShadowCreated = true;
 
-		GD.Print($"World: Initial shadow created in {(targetSystem == WorldRoom.StudioShadows ? "Studio" : "ControlRoom")} system (location: {_roomStateManager?.CurrentLocation})");
+		GD.Print($"World: Initial shadow created in {(targetSystem == WorldRoom.StudioShadows ? "Studio" : "ControlRoom")} system (player at {playerPos})");
 	}
 
 	private void OnPlayerLocationChanged(RoomStateManager.PlayerLocation location)

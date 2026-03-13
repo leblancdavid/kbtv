@@ -12,7 +12,8 @@ public static partial class PropBuilder
 		CastShadowSystem shadowSystem,
 		ShaderMaterial depthShadowMaterial,
 		Vector2 worldPosition,
-		int lightMask = 1
+		int lightMask = 1,
+		bool createCastShadow = true
 	)
 	{
 		var texture = GD.Load<Texture2D>(texturePath);
@@ -37,8 +38,15 @@ public static partial class PropBuilder
 
 		root.AddChild(sprite);
 
+		root.ZIndex = (int)root.GlobalPosition.Y;
+
 		if (shadowSystem != null)
-			shadowSystem.CreateShadowForObject(root, texture);
+		{
+			if (createCastShadow)
+				shadowSystem.CreateShadowForObject(root, texture);
+			else
+				shadowSystem.CreateBaseShadowForObject(root, texture);
+		}
 
 		if (collidable && root is StaticBody2D body)
 		{
@@ -49,7 +57,6 @@ public static partial class PropBuilder
 			body.AddChild(collision);
 		}
 
-		root.ZIndex = (int)root.GlobalPosition.Y;
 		parent.AddChild(root);
 
 		return root;
@@ -65,11 +72,12 @@ public static partial class PropBuilder
 		CastShadowSystem shadowSystem,
 		ShaderMaterial depthShadowMaterial,
 		RoomBase room,
-		int lightMask = 1
+		int lightMask = 1,
+		bool createCastShadow = true
 	)
 	{
 		var worldPos = room.GridToWorld(gridCoords) + pixelOffset;
-		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos, lightMask);
+		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos, lightMask, createCastShadow);
 	}
 
 	public static Node2D CreateProp(
@@ -82,11 +90,12 @@ public static partial class PropBuilder
 		CastShadowSystem shadowSystem,
 		ShaderMaterial depthShadowMaterial,
 		IRoomSection roomSection,
-		int lightMask = 1
+		int lightMask = 1,
+		bool createCastShadow = true
 	)
 	{
 		var worldPos = roomSection.GridToWorld(gridCoords) + pixelOffset;
-		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos, lightMask);
+		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos, lightMask, createCastShadow);
 	}
 
 	public static Node2D CreateProp(
@@ -98,11 +107,12 @@ public static partial class PropBuilder
 		Vector2 colliderSize,
 		CastShadowSystem shadowSystem,
 		ShaderMaterial depthShadowMaterial,
-		IRoomSection roomSection
+		IRoomSection roomSection,
+		bool createCastShadow = true
 	)
 	{
 		var worldPos = roomSection.GridToWorld(gridCoords) + pixelOffset;
-		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos);
+		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos, 1, createCastShadow);
 	}
 
 	public static Node2D CreateTableGroup(
@@ -165,6 +175,8 @@ public static partial class PropBuilder
 
 		group.AddChild(tableSprite);
 
+		group.ZIndex = (int)group.GlobalPosition.Y;
+
 		if (shadowSystem != null)
 			shadowSystem.CreateBaseShadowForObject(group, tableTexture);
 
@@ -175,8 +187,6 @@ public static partial class PropBuilder
 		tableCollision.AddToGroup("debug_prop_collision");
 		tableBody.AddChild(tableCollision);
 		group.AddChild(tableBody);
-
-		group.ZIndex = (int)group.GlobalPosition.Y;
 
 		foreach (var (texturePath, offset) in tabletops)
 		{

@@ -52,6 +52,30 @@ namespace KBTV.UI
             }
         }
 
+        public override void _ExitTree()
+        {
+            UnsubscribeFromBeliefLevelChanges();
+            base._ExitTree();
+        }
+
+        private void UnsubscribeFromBeliefLevelChanges()
+        {
+            try
+            {
+                var topicManager = DependencyInjection.Get<TopicManager>(this);
+                if (topicManager == null) return;
+                
+                foreach (var topicXP in topicManager.GetAllTopicXPs())
+                {
+                    topicXP.OnLevelChanged -= OnTopicLevelChanged;
+                }
+            }
+            catch (Exception ex)
+            {
+                GD.PrintErr($"TopicTab: Failed to unsubscribe from belief level changes - {ex.Message}");
+            }
+        }
+
         private void OnTopicLevelChanged(int oldLevel, int newLevel)
         {
             UpdateBeliefLevelDisplay();

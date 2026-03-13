@@ -610,5 +610,54 @@ namespace KBTV.Audio
             GD.Print($"AudioMixerManager: SetMuffled(Vern={muffleVern}, Other={muffleOther}) - Vern={vernCutoff}Hz, Other={otherCutoff}Hz");
         }
 
+        public override void _ExitTree()
+        {
+            // Stop all audio players
+            if (_vernPlayer != null)
+            {
+                _vernPlayer.Stop();
+                _vernPlayer.QueueFree();
+            }
+            if (_callerPlayer != null)
+            {
+                _callerPlayer.Stop();
+                _callerPlayer.QueueFree();
+            }
+            if (_musicPlayer != null)
+            {
+                _musicPlayer.Stop();
+                _musicPlayer.QueueFree();
+            }
+            if (_staticController != null)
+            {
+                _staticController.QueueFree();
+            }
+
+            // Remove custom audio buses that were added
+            // Remove in reverse order (highest index first)
+            RemoveBusIfValid(_sfxBusIndex);
+            RemoveBusIfValid(_musicBusIndex);
+            RemoveBusIfValid(_staticBusIndex);
+            RemoveBusIfValid(_callerBusIndex);
+            RemoveBusIfValid(_vernBusIndex);
+
+            GD.Print("AudioMixerManager: Cleanup complete");
+        }
+
+        private void RemoveBusIfValid(int busIndex)
+        {
+            if (busIndex >= 0 && busIndex < AudioServer.BusCount)
+            {
+                try
+                {
+                    AudioServer.RemoveBus(busIndex);
+                }
+                catch (Exception ex)
+                {
+                    GD.PrintErr($"AudioMixerManager: Failed to remove bus {busIndex}: {ex.Message}");
+                }
+            }
+        }
+
     }
 }
