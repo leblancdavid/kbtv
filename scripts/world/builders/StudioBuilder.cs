@@ -478,15 +478,22 @@ public partial class StudioBuilder : IRoomBuilder
 	{
 		var tablePos = new Vector2I(6, 4);
 
+		var tableTexture = GD.Load<Texture2D>("res://assets/tiles/props/round_table.png");
 		var tableGroup = CreatePropWithCollision(
 			"res://assets/tiles/props/round_table.png",
 			tablePos,
 			Vector2.Zero,
-			new Vector2(48, 48)
+			new Vector2(48, 48),
+			false
 		);
 		if (tableGroup == null) return;
 
 		tableGroup.Name = "RoundTableGroup";
+
+		if (_shadows != null && tableTexture != null)
+		{
+			_shadows.CreateBaseShadowForObject(tableGroup, tableTexture);
+		}
 	}
 
 	private void CreateVernChairGroup()
@@ -506,7 +513,8 @@ public partial class StudioBuilder : IRoomBuilder
 
 		if (_shadows != null)
 		{
-			_shadows.CreateShadowForObject(body, vernTexture);
+			var shadowOffset = new Vector2(0, -20);
+			_shadows.CreateShadowForObject(body, vernTexture, shadowOffset);
 		}
 
 		var shape = new RectangleShape2D { Size = new Vector2(32, 32) };
