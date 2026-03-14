@@ -476,7 +476,7 @@ public partial class StudioBuilder : IRoomBuilder
 
 	private void CreateRoundTableGroup()
 	{
-		var tablePos = new Vector2I(7, 2);
+		var tablePos = new Vector2I(6, 4);
 
 		var tableGroup = CreatePropWithCollision(
 			"res://assets/tiles/props/round_table.png",
@@ -487,37 +487,26 @@ public partial class StudioBuilder : IRoomBuilder
 		if (tableGroup == null) return;
 
 		tableGroup.Name = "RoundTableGroup";
-
-		CreateTabletopSprite(tableGroup, "res://assets/tiles/props/boom_mic.png", new Vector2(-12, -32), LightMask);
 	}
 
 	private void CreateVernChairGroup()
 	{
-		var chairTexture = GD.Load<Texture2D>("res://assets/tiles/props/vern_chair.png");
-		var vernTexture = GD.Load<Texture2D>("res://assets/tiles/props/vern.png");
+		var vernTexture = GD.Load<Texture2D>("res://assets/sprites/characters/vern/vern.png");
 
-		if (chairTexture == null || vernTexture == null)
+		if (vernTexture == null)
 		{
-			GD.PrintErr("StudioBuilder: Missing vern chair or vern texture");
+			GD.PrintErr("StudioBuilder: Missing vern texture");
 			return;
 		}
 
-		var chairPos = new Vector2I(5, 2);
+		var chairPos = new Vector2I(6, 3);
 
 		var body = new StaticBody2D { Name = "VernChairGroup" };
 		body.Position = GridToWorld(chairPos);
 
-		var chairSprite = new Sprite2D
-		{
-			Texture = chairTexture,
-			Position = new Vector2(0, -chairTexture.GetSize().Y * 0.5f)
-		};
-		chairSprite.Set("light_mask", LightMask);
-		body.AddChild(chairSprite);
-
 		if (_shadows != null)
 		{
-			_shadows.CreateShadowForObject(body, chairTexture);
+			_shadows.CreateShadowForObject(body, vernTexture);
 		}
 
 		var shape = new RectangleShape2D { Size = new Vector2(32, 32) };
@@ -529,7 +518,8 @@ public partial class StudioBuilder : IRoomBuilder
 		var vernSprite = new Sprite2D
 		{
 			Texture = vernTexture,
-			Position = new Vector2(0, -vernTexture.GetSize().Y * 0.5f)
+			Position = new Vector2(0, -vernTexture.GetSize().Y * 0.5f),
+			Scale = new Vector2(0.75f, 0.75f)
 		};
 		vernSprite.Set("light_mask", LightMask);
 		body.AddChild(vernSprite);
