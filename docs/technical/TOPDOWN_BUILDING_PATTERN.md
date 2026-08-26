@@ -155,6 +155,62 @@ private RoomSection CreateRoomSection(Vector2 gridAnchor, int width, int height)
 - **Any sprite taller than 32px extends upward only**.
 - **Collisions are placed at the bottom of the sprite** (not centered).
 
+### Tight Base Collider (Auto-Derived)
+
+For oblique/cabinet-projection props, the **visible floor footprint** is the bottom band of the sprite (the base/feet where the prop touches the floor). KBTV uses an alpha-scan helper (`PropBuilder.GetBaseFootprint`) that reads the bottom `floorScanHeight` rows of the sprite's alpha channel and returns a tight bounding box of non-transparent pixels.
+
+The collider is positioned so its bottom edge sits at the sprite's bottom-anchor (the floor). For a pixel at image coords `(px, py)` on a bottom-anchored sprite (`sprite.Position = (0, -textureHeight/2)`), the root-relative offset is `(px - W/2, py - H)`. The collider CENTER is therefore placed at the corresponding center of the footprint:
+
+```
+centerX = footprint.minX + footprint.width / 2  - textureWidth / 2
+centerY = footprint.minY + footprint.height / 2 - textureHeight
+```
+
+See `PropBuilder.FootprintToCollisionCenter` for the reference implementation. The result is that the collider's bottom edge aligns with the prop's visible base — if the sprite has a transparent margin at the bottom, the collider ends slightly above the floor (which matches the topdown 2.5D convention where you can see "under" objects).
+
+**Why tight colliders matter:**
+
+- Player can walk right up to the prop base instead of being blocked by an arbitrary 24×16 box that doesn't match the visual
+- The collider matches the visible sprite footprint rather than a hand-tuned guess
+- Per-prop tuning is still possible via the `colliderOverride` Vector4 parameter (sprite-local x, y, w, h)
+
+**Usage:**
+
+```csharp
+// Default: auto-derive from bottom 16px band
+PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/speaker_stand.png",
+    new Vector2I(2, 0), Vector2.Zero,
+    _shadows, _shadows.DepthShadowMaterial, _section, LightMask,
+    floorScanHeight: 12);
+
+// Tables need a taller scan band to capture the full top surface
+PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/round_table.png",
+    new Vector2I(6, 1), Vector2.Zero,
+    _shadows, _shadows.DepthShadowMaterial, _section, LightMask,
+    floorScanHeight: 24);
+
+// Custom override (e.g. surface-only collider for a walk-behind table)
+PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/studio_table.png",
+    new Vector2I(6, 1), Vector2.Zero,
+    _shadows, _shadows.DepthShadowMaterial, _section, LightMask,
+    colliderOverride: new Vector4(-62, -5, 124, 10));
+```
+
+**`floorScanHeight` guidelines per prop category:**
+
+| Category | Recommended scan height | Rationale |
+|---|---|---|
+| Speaker stand, audio cabinet, storage shelf, bookcase | 8–12 px | Captures just the feet/base strip so the player can walk close to the prop |
+| Round table, studio table | 20–32 px | Captures the full visible footprint of the horizontal surface |
+| Tall standing furniture (filing cabinet, cabinet_tall) | 8–12 px | Same as speaker stand |
+| Wall-mounted items (clock, poster) | N/A | Use `CreateProp` with `collidable=false` |
+
+**When to use the `colliderOverride`:**
+
+- Surface-only colliders (e.g. the studio_table's 124×10 surface strip that lets the player walk behind the table)
+- Asymmetric collision shapes
+- When the alpha scan produces unexpected results (rare — usually the prop sprite is missing a clear base band)
+
 ## Grid Alignment
 
 - **Place walls and props on grid coordinates only**.

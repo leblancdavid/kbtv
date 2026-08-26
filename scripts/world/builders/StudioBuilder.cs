@@ -347,18 +347,18 @@ public partial class StudioBuilder : IRoomBuilder
 
 	private void CreateBookcases()
 	{
-		CreatePropWithCollision(
+		CreatePropAutoCollider(
 			"res://assets/tiles/props/bookcase.png",
 			new Vector2I(1, 1),
 			Vector2.Zero,
-			new Vector2(48, 32)
+			floorScanHeight: 8
 		);
 
-		CreatePropWithCollision(
+		CreatePropAutoCollider(
 			"res://assets/tiles/props/bookcase.png",
 			new Vector2I(12, 1),
 			Vector2.Zero,
-			new Vector2(48, 32)
+			floorScanHeight: 8
 		);
 	}
 
@@ -440,6 +440,29 @@ public partial class StudioBuilder : IRoomBuilder
 		return body;
 	}
 
+	private Node2D CreatePropAutoCollider(
+		string texturePath,
+		Vector2I gridCoords,
+		Vector2 pixelOffset,
+		bool createShadow = true,
+		int floorScanHeight = 16,
+		Vector4? colliderOverride = null)
+	{
+		return PropBuilder.CreatePropAutoCollider(
+			_propSort,
+			texturePath,
+			gridCoords,
+			pixelOffset,
+			_shadows,
+			_shadows.DepthShadowMaterial,
+			_section,
+			LightMask,
+			createShadow,
+			floorScanHeight,
+			colliderOverride
+		);
+	}
+
 	private Node2D CreatePropNoCollision(string texturePath, Vector2I gridCoords, Vector2 pixelOffset)
 	{
 		var texture = GD.Load<Texture2D>(texturePath);
@@ -473,12 +496,12 @@ public partial class StudioBuilder : IRoomBuilder
 	{
 		var tablePos = new Vector2I(6, 4);
 
-		var tableGroup = CreatePropWithCollision(
+		var tableGroup = CreatePropAutoCollider(
 			"res://assets/tiles/props/round_table.png",
 			tablePos,
 			Vector2.Zero,
-			new Vector2(80, 48),
-			false
+			floorScanHeight: 24,
+			createShadow: false
 		);
 		if (tableGroup == null) return;
 

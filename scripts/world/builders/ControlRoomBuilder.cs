@@ -291,12 +291,14 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	{
 		if (PlaceSpeakerStands)
 		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/speaker_stand.png",
-				new Vector2I(2, 0), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/speaker_stand.png",
-				new Vector2I(10, 0), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
+			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/speaker_stand.png",
+				new Vector2I(2, 0), Vector2.Zero,
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
+				floorScanHeight: 12);
+			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/speaker_stand.png",
+				new Vector2I(10, 0), Vector2.Zero,
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
+				floorScanHeight: 12);
 		}
 
 		if (PlaceTableGroup)
@@ -312,19 +314,22 @@ public partial class ControlRoomBuilder : IRoomBuilder
 
 		if (PlaceAudioCabinet)
 		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/audio_cabinet.png",
-				new Vector2I(12, 1), Vector2.Zero, true, new Vector2(24, 16),
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
+			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/audio_cabinet.png",
+				new Vector2I(12, 1), Vector2.Zero,
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
+				floorScanHeight: 12);
 		}
 
 		if (PlaceStorageShelves)
 		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/storage_shelf.png",
-				new Vector2I(4, 10), new Vector2(0, -16), true, new Vector2(48, 32),
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask, createCastShadow: false);
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/storage_shelf.png",
-				new Vector2I(10, 10), new Vector2(0, -16), true, new Vector2(48, 32),
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask, createCastShadow: false);
+			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/storage_shelf.png",
+				new Vector2I(4, 10), new Vector2(0, -16),
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
+				floorScanHeight: 8, createCastShadow: false);
+			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/storage_shelf.png",
+				new Vector2I(10, 10), new Vector2(0, -16),
+				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
+				floorScanHeight: 8, createCastShadow: false);
 		}
 
 		if (PlaceChair)

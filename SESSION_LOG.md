@@ -1,13 +1,41 @@
 ## Current Session
 
-**Branch**: `develop`
+**Branch**: `feature/tight-prop-colliders`
 
-**Task**: Switch props from isometric to oblique/cabinet projection + wire desk.png into control room
+**Task**: Auto-derive tight prop collision boxes from sprite alpha + adjust studio_table collider
 
 **Status**: Completed
 
 **Files Modified**:
+- `scripts/world/PropBuilder.cs` (new `GetBaseFootprint` alpha-scan helper, `ImageFootprintToSpriteLocal` + `FootprintToCollisionCenter` converters, `CreatePropAutoCollider` overload with `floorScanHeight` + `Vector4? colliderOverride`; studio_table collider narrowed 124→92 and shifted up 1 tile)
+- `scripts/world/builders/ControlRoomBuilder.cs` (speaker_stand, audio_cabinet, storage_shelf switched to `CreatePropAutoCollider`)
+- `scripts/world/builders/StudioBuilder.cs` (bookcase, round_table switched to `CreatePropAutoCollider`; added `CreatePropAutoCollider` helper)
+- `tests/unit/world/PropBuilderTests.cs` (new — 16 tests for alpha-scan + collision-position math)
+- `docs/technical/TOPDOWN_BUILDING_PATTERN.md` (new "Tight Base Collider (Auto-Derived)" subsection)
+- `docs/art/ART_STYLE.md` (new "Tight Collider Per-Prop Footprint" reference table)
 - `SESSION_LOG.md`
+
+**Work Done**:
+- **Alpha-scan tight collider**: replaced hand-tuned collider sizes (e.g. 24×16 for speaker_stand) with auto-derived bounding boxes computed by scanning the bottom `floorScanHeight` rows of each prop sprite's alpha channel. The visible footprint on the floor matches the actual base of each oblique/cabinet-projection sprite, so the player can walk right up to the prop without being blocked by an arbitrary box.
+- **Per-prop `floorScanHeight` tuning**: 8–12px for tall standing furniture (captures just the feet/base strip so the player can approach closely), 24px for the round_table (wraps the oval surface).
+- **`Vector4 colliderOverride` escape hatch**: still allows hardcoded colliders for special cases (e.g. the studio_table's surface-only strip via `CreateTableGroup`).
+- **Bug fix during dev**: initial implementation had the collision-position math wrong (was using the rect's left edge as the center and subtracting half-height instead of adding), which left colliders floating ~12px above the floor. Extracted the correct math into `FootprintToCollisionCenter` helper and added regression tests for the speaker_stand, audio_cabinet, storage_shelf, round_table, asymmetric footprint, and the bottom-edge formula.
+- **Studio_table collider tweak**: 124×10 strip narrowed to 92×10 (1 tile = 16px narrower on each side) and shifted up by 1 tile (`RoomBase.TileSize`) so the player can approach the table from below more closely.
+- **Tests**: 16 new `PropBuilderTests` covering null/transparent/all-opaque/opaque-in-bottom/floor-scan-clamping/single-row/triangle/alpha-threshold paths, plus 6 `FootprintToCollisionCenter_*` position tests verifying the bottom edge lands at the floor for bottom-anchored sprites.
+- `dotnet build`: 0 errors, same 9 pre-existing warnings
+- `godot --run-tests`: all 16 `PropBuilderTests` pass cleanly. Other test suite failures are pre-existing (`FileAccess.GetAsText` API incompatibility with installed Godot 4.5.1, unrelated to this change).
+
+**Next Steps**:
+- Open in Godot and toggle `RoomDebug` (`ui_select`) to visualize the new tight colliders vs the previous hand-tuned values
+- Verify the storage_shelf / bookcase thin-feet strip collider doesn't let the player feel like they're "missing" the shelves (may need to bump `floorScanHeight` from 8 to 12 if player gets stuck on invisible geometry)
+- Optional: re-tighten the round_table collider further if the player can walk too far under the table (current is 52×18 wrapped around the oval, leaving a small visible gap)
+
+**Related Docs**:
+- `docs/technical/TOPDOWN_BUILDING_PATTERN.md` (new "Tight Base Collider (Auto-Derived)" subsection under Bottom-Anchor Rule)
+- `docs/art/ART_STYLE.md` (new "Tight Collider Per-Prop Footprint" reference table)
+
+**Blockers**:
+- None.
 - `docs/art/ART_STYLE.md` (corrected "Prop Visual Style" section from "Isometric" to **"Oblique/Cabinet Projection Standard"** with ASCII diagram, exact rules, exception table, rejection criteria)
 - `docs/art/PIXELLAB_MCP_GUIDE.md` (added `view` parameter guidance, KBTV oblique prompt template, palette swatch generator snippet, corrected base64 truncation limit from "~10KB" to "**~600-800 chars**")
 - `scripts/world/builders/ControlRoomBuilder.cs` (added `PlaceDesk` export + `DeskGridPosition` export + `PropBuilder.CreateProp` for `desk.png` at grid `(10, 4)` with 28×14 collider, light mask applied)

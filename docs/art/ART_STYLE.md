@@ -304,6 +304,34 @@ Items are NOT all 32×32! Compute offsets based on each item's actual height:
 
 ---
 
+## Tight Collider Per-Prop Footprint
+
+For oblique/cabinet-projection props, KBTV uses **alpha-derived tight colliders** instead of hand-tuned box sizes. `PropBuilder.CreatePropAutoCollider` scans the bottom `floorScanHeight` rows of the sprite's alpha channel and wraps the non-transparent pixels with a `CollisionShape2D`.
+
+**Per-prop reference** (current build values):
+
+| Prop | Sprite | `floorScanHeight` | Auto-derived collider (w×h) | Notes |
+|---|---|---|---|---|
+| `speaker_stand.png` | 32×64 | 12 | ~23×12 | Tight to the visible stand base |
+| `audio_cabinet.png` | 32×56 | 12 | ~28×12 | Tight to the cabinet base |
+| `storage_shelf.png` | 64×64 | 8 | ~40×8 | Thin strip at the feet; player can walk close to the shelf |
+| `bookcase.png` | 48×64 | 8 | ~28×8 | Same as storage shelf |
+| `round_table.png` | 80×48 | 24 | ~44×24 | Wraps the visible oval surface |
+| `studio_table.png` | 128×48 | override | 124×10 (sprite-local `-62, -5`) | Surface-only — player walks behind the table |
+| `computer_chair.png` | 32×40 | N/A | none (`collidable=false`) | Decorative only |
+| `desk.png` | 32×32 | TBD | TBD | (Not yet wired in `ControlRoomBuilder.cs`) |
+
+**Design rule:** the collider's bottom edge aligns with the prop's visible floor line. The width matches the actual visible base in the sprite's bottom band — NOT the full sprite width (which often includes oblique depth extending upward).
+
+**When to override:** the `Vector4 colliderOverride` parameter (sprite-local x, y, w, h) skips the alpha scan. Use it for:
+- Surface-only colliders (player walks behind the prop)
+- Asymmetric shapes where the alpha-derived bbox is too loose
+- Props whose sprite lacks a clear base band (rare)
+
+**When NOT to use auto-derive:** tabletop items (phone, coffee mug, papers, ashtray, boom_mic) — these are non-collidable decorations that sit on top of `CreateTableGroup` and have no collision.
+
+---
+
 ## Asset Specifications
 
 ### File Format
