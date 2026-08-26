@@ -20,7 +20,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	[ExportGroup("Lighting")]
 	[Export] private bool EnableCeilingLight = true;
 	[Export] private Color CeilingLightColor = new(1f, 0.95f, 0.9f);
-	[Export] private float CeilingLightEnergy = 1.2f;
+	[Export] private float CeilingLightEnergy = 1.6f;
 	[Export] private float CeilingLightRadius = 1000f;
 	[Export] private bool CeilingLightShadows = true;
 
@@ -37,7 +37,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	[Export] private float DeskLampRadius = 60f;
 
 	[ExportGroup("Ambient")]
-	[Export] private Color AmbientColor = new(0.15f, 0.15f, 0.20f);
+	[Export] private Color AmbientColor = new(0.18f, 0.19f, 0.22f);
 
 	[ExportGroup("Props")]
 	[Export] private bool PlaceSpeakerStands = true;
@@ -303,9 +303,9 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			PropBuilder.CreateTableGroup(_propSort, new Vector2I(6, 1),
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				("res://assets/tiles/props/phone_line.png", new Vector2(-32, -26)),
-				("res://assets/tiles/props/sound_board.png", new Vector2(0, -26)),
-				("res://assets/tiles/props/computer_station.png", new Vector2(32, -38))
+				("res://assets/tiles/props/phone_line.png", new Vector2(-32, -38)),
+				("res://assets/tiles/props/sound_board.png", new Vector2(0, -38)),
+				("res://assets/tiles/props/computer_station.png", new Vector2(32, -54))
 			);
 			CreateScreeningTrigger();
 		}

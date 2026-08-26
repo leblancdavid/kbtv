@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://ib5tojifmfsk"]
+[gd_scene load_steps=5 format=3 uid="uid://ib5tojifmfsk"]
 
 [ext_resource type="Script" uid="uid://bpjhqjvacdtwu" path="res://scripts/Main.cs" id="1"]
 [ext_resource type="Script" uid="uid://bxi206n0mswws" path="res://scripts/core/ServiceProviderRoot.cs" id="2"]
 [ext_resource type="PackedScene" uid="uid://world_scene" path="res://scenes/world/World.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/NoirPost.tscn" id="4"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1")
@@ -20,6 +21,8 @@ color = Color(0.15, 0.15, 0.15, 1)
 script = ExtResource("2")
 
 [node name="World" parent="." instance=ExtResource("3")]
+
+[node name="NoirPost" parent="." instance=ExtResource("4")]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(960, 540)

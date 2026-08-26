@@ -27,27 +27,35 @@ This document contains comprehensive AI prompts for generating pixel art assets 
 pixel art, [dimension], [view], limited palette, [lighting], clean edges, game asset, transparent background, 8-bit retro style, crisp pixels, no anti-aliasing, high contrast
 ```
 
-### KBTV Color Palette Reference
+### KBTV Color Palette Reference (Noir Edition)
 
-Use these hex codes in prompts for color consistency:
+The palette was restricted to support the late-night noir aesthetic. Use these hex codes in prompts — avoid fully saturated primaries.
 
-**Environment:**
-- Dark background: `#1a1a2a` (deep blue-black)
-- Floor dark: `#3a3a3a` (charcoal)
-- Floor carpet: `#2d4a2d` (dark green)
-- Walls: `#5a4a3a to #6a5a4a` (browns)
+**Primary (cool, dark):**
+- Void: `#0d0d12`
+- Charcoal: `#1f1f26`
+- Cool Shadow: `#2a2d36`
+- Slate: `#3a3d48`
 
-**Accent Colors:**
-- Monitor glow green: `#00ff44` (bright green)
-- Monitor glow red: `#ff4444` (alert red)
-- Neon accent: `#00ffff` (cyan)
-- Warning: `#ffaa00` (amber)
+**Secondary (warm muted):**
+- Warm Shadow: `#2a221b`
+- Wood Mid: `#5a5340`
+- Wood Highlight: `#7a6f55`
+
+**Accents (rare, high contrast):**
+- Cool Phosphor Green: `#3a8a78` (CRT glow — NOT `#00ff44`)
+- Noir Red: `#a23a3a` (on-air sign, alert LED — NOT `#ff4444`)
+- Cool Cyan: `#5fa8a8`
+- Warm Rim: `#c89a5a`
 
 **UI Colors:**
-- Panel background: `#2a2a3a`
-- Text primary: `#ffffff`
-- Button normal: `#4a4a5a`
-- Button hover: `#5a5a6a`
+- Panel Background: `#1a1a22`
+- Text Primary: `#e8e8e8` (off-white)
+- Button Normal: `#2a2d36`
+- Button Hover: `#3a3d48`
+- CRT Accent: `#3a8a78`
+
+**Rule:** Cap each asset at 8–10 colors. Light comes from screens. Saturation stays under 30%.
 
 ### Dimension Standards
 
@@ -222,26 +230,26 @@ table depth sprite, pixel art, 64x48, conference table, tall leg, front/top face
 
 ### Vern - Portrait Series
 
-**Base Portrait Prompt:**
+**Base Portrait Prompt (Noir / Art Bell inspired):**
 ```
-radio host portrait, pixel art, 64x64, mid-30s male, dark beard, warm skin tones, DSLR close-up, noir lighting, expressive eyes, charismatic, retro aesthetic
+late-night radio host portrait, pixel art, 64x64, silver swept-back hair, wire-frame glasses, light grey stubble, deep-set tired eyes, dark suit jacket over black collared shirt, warm rim light from off-screen CRT, dim charcoal ambient, expressive, retro aesthetic, noir palette only
 ```
 
 #### Mood Variants
 
 **Neutral/Broadcast Standard:**
 ```
-Vern neutral portrait, pixel art, 64x64, calm expression, slight smile, radio host, studio lighting #00ff44 glow on face, professional demeanor
+Vern neutral portrait, pixel art, 64x64, calm expression, slight smile, late-night radio host, dim cool phosphor #3a8a78 rim light on face, professional demeanor, noir palette
 ```
 
 **Tired/Sleepy:**
 ```
-Vern tired portrait, pixel art, 64x64, heavy eyelids, dark circles, exhausted, 3am broadcast, muted colors, unshaven
+Vern tired portrait, pixel art, 64x64, heavy eyelids, dark circles, exhausted, 3am broadcast, muted colors, more stubble, noir palette
 ```
 
 **Focused/Intense:**
 ```
-Vern focused portrait, pixel art, 64x64, sharp gaze, leaning forward, dramatic shadows, determined, serious investigative tone
+Vern focused portrait, pixel art, 64x64, sharp gaze, leaning forward, dramatic shadows, glasses catching screen glow, determined, serious investigative tone
 ```
 
 **Confused/Curious:**
@@ -251,7 +259,7 @@ Vern confused portrait, pixel art, 64x64, raised eyebrows, puzzled expression, h
 
 **Stressed/Panicked:**
 ```
-Vern stressed portrait, pixel art, 64x64, wide eyes, furrowed brow, sweating, panic situation, high contrast lighting
+Vern stressed portrait, pixel art, 64x64, wide eyes, furrowed brow, sweat on temple, panic situation, high contrast noir lighting
 ```
 
 **Suspicious:**
@@ -261,62 +269,63 @@ Vern suspicious portrait, pixel art, 64x64, narrowed eyes, skeptical look, purse
 
 **Happy/Pleased:**
 ```
-Vern happy portrait, pixel art, 64x64, genuine smile, warm glow, satisfied, breakthrough moment
+Vern happy portrait, pixel art, 64x64, genuine smile, warm glow from CRT on face, satisfied, breakthrough moment
 ```
 
 **Angry/Frustrated:**
 ```
-Vern angry portrait, pixel art, 64x64, clenched jaw, intense stare, red accent lighting, heated emotion
+Vern angry portrait, pixel art, 64x64, clenched jaw, intense stare, faint noir red #a23a3a accent lighting, heated emotion
 ```
 
 **Scared/Nervous:**
 ```
-Vern scared portrait, pixel art, 64x64, fearful eyes, trembling, cold sweat, terror, dark shadows
+Vern scared portrait, pixel art, 64x64, fearful eyes, trembling, cold sweat, terror, deep noir shadows
 ```
 
 **Eureka/Moment:**
 ```
-Vern eureka portrait, pixel art, 64x64, eyes wide with realization, lightbulb moment, bright accent #00ffff, epiphany expression
+Vern eureka portrait, pixel art, 64x64, eyes wide with realization behind glasses, bright accent #5fa8a8, epiphany expression
 ```
 
 ### Vern - In-Game Sprite
 
-**Standing Pose:**
+**Standing Pose (Art Bell inspired, current style):**
 ```
-isometric character, radio host Vern, standing pose, pixel art, 32x48, dark jacket, office clothes, top-down view, ready to walk, noir atmosphere
-```
-
-**Walking Animation Frames (4 directions):**
-
-*Walking Down (3 frames):*
-```
-Vern walking down frame 1, pixel art, 32x48, left foot forward, slight bob, office clothes
-```
-```
-Vern walking down frame 2, pixel art, 32x48, standing pose, neutral, centered weight
-```
-```
-Vern walking down frame 3, pixel art, 32x48, right foot forward, opposite arm swing
+isometric character, late-night radio host Vern, standing behind a desk, pixel art, 80x80 canvas, silver swept-back hair, wire-frame glasses, dark suit jacket, top-down low angle, noir atmosphere, dim charcoal ambient, cool phosphor rim light, transparent background
 ```
 
-*Walking Up/Down/Left/Right:*
+**Idle animation frames (6):**
+- Frame 0: neutral standing
+- Frame 1: subtle head tilt
+- Frame 2: eyes blink
+- Frame 3: shoulders settle
+- Frame 4: hand moves toward coffee mug
+- Frame 5: weight shifts, looking slightly down
+
+**Drinking animation frames (6):**
+- Frame 0: reaches for coffee mug
+- Frame 1: lifts mug
+- Frame 2: mug to lips
+- Frame 3: drinking
+- Frame 4: lowers mug
+- Frame 5: mug back on desk, slight exhale
+
+**Walking animation frames (per direction, 6 each):**
+*Art Bell's late-night host shouldn't walk much — but if needed:*
 ```
-Vern walking up frame 1, pixel art, 32x48, back view, reduced visible detail
-```
-```
-Vern walking left frame 1, pixel art, 32x48, side view, profile, three-quarter angle
+Vern walking south frame 1, pixel art, 80x80, silver hair visible from behind, suit jacket sways, slow deliberate step, noir palette
 ```
 
 ### Vern - Body Variations (for different moods in-game)
 
 **Tired Body Language:**
 ```
-Vern tired posture, pixel art, 32x48, slumped shoulders, head down, slow walk, drooping arms
+Vern tired posture, pixel art, 80x80, slumped shoulders, head down, slow walk, drooping arms, glasses sliding down nose
 ```
 
 **Energetic Body Language:**
 ```
-Vern energetic pose, pixel art, 32x48, upright posture, confident stride, animated arms
+Vern energetic pose, pixel art, 80x80, upright posture, confident stride, animated arm gesture toward microphone
 ```
 
 ---

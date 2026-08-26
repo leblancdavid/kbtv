@@ -24,14 +24,14 @@ public partial class StudioBuilder : IRoomBuilder
 	[ExportGroup("Lighting")]
 	[Export] private bool EnableCeilingLight = true;
 	[Export] private Color CeilingLightColor = new(1f, 0.95f, 0.9f);
-	[Export] private float CeilingLightEnergy = 0.8f;
+	[Export] private float CeilingLightEnergy = 1.1f;
 	[Export] private float CeilingLightRadius = 450f;
 	[Export] private bool CeilingLightShadows = true;
 
 
 
 	[ExportGroup("Ambient")]
-	[Export] private Color AmbientColor = new(0.15f, 0.15f, 0.20f);
+	[Export] private Color AmbientColor = new(0.18f, 0.19f, 0.22f);
 
 	[ExportGroup("Smoke")]
 	[Export] private bool EnableSmoke = true;
@@ -423,11 +423,6 @@ public partial class StudioBuilder : IRoomBuilder
 		};
 		sprite.Set("light_mask", LightMask);
 
-		if (_shadows != null && createShadow)
-		{
-			_shadows.CreateShadowForObject(body, texture);
-		}
-
 		body.AddChild(sprite);
 
 		if (colliderSize != Vector2.Zero)
@@ -478,22 +473,16 @@ public partial class StudioBuilder : IRoomBuilder
 	{
 		var tablePos = new Vector2I(6, 4);
 
-		var tableTexture = GD.Load<Texture2D>("res://assets/tiles/props/round_table.png");
 		var tableGroup = CreatePropWithCollision(
 			"res://assets/tiles/props/round_table.png",
 			tablePos,
 			Vector2.Zero,
-			new Vector2(48, 48),
+			new Vector2(80, 48),
 			false
 		);
 		if (tableGroup == null) return;
 
 		tableGroup.Name = "RoundTableGroup";
-
-		if (_shadows != null && tableTexture != null)
-		{
-			_shadows.CreateBaseShadowForObject(tableGroup, tableTexture);
-		}
 	}
 
 	private void CreateVernChairGroup()

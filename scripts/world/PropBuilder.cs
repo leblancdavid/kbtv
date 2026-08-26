@@ -40,14 +40,6 @@ public static partial class PropBuilder
 
 		root.ZIndex = (int)root.GlobalPosition.Y;
 
-		if (shadowSystem != null)
-		{
-			if (createCastShadow)
-				shadowSystem.CreateShadowForObject(root, texture);
-			else
-				shadowSystem.CreateBaseShadowForObject(root, texture);
-		}
-
 		if (collidable && root is StaticBody2D body)
 		{
 			var shape = new RectangleShape2D { Size = colliderSize };
@@ -177,11 +169,8 @@ public static partial class PropBuilder
 
 		group.ZIndex = (int)group.GlobalPosition.Y;
 
-		if (shadowSystem != null)
-			shadowSystem.CreateBaseShadowForObject(group, tableTexture);
-
 		var tableBody = new StaticBody2D();
-		var tableShape = new RectangleShape2D { Size = new Vector2(92, 14) };
+		var tableShape = new RectangleShape2D { Size = new Vector2(124, 10) };
 		var tableCollision = new CollisionShape2D { Shape = tableShape };
 		tableCollision.Position = new Vector2(0, -(tableShape.Size.Y * 0.5f));
 		tableCollision.AddToGroup("debug_prop_collision");
@@ -190,13 +179,13 @@ public static partial class PropBuilder
 
 		foreach (var (texturePath, offset) in tabletops)
 		{
-			CreateTabletopSprite(group, texturePath, offset, lightMask);
+			CreateTabletopSprite(group, texturePath, offset, lightMask, depthShadowMaterial);
 		}
 
 		return group;
 	}
 
-	public static void CreateTabletopSprite(Node2D parent, string texturePath, Vector2 offset, int lightMask = 1)
+	public static void CreateTabletopSprite(Node2D parent, string texturePath, Vector2 offset, int lightMask = 1, ShaderMaterial? material = null)
 	{
 		var texture = GD.Load<Texture2D>(texturePath);
 		if (texture == null)
@@ -211,6 +200,8 @@ public static partial class PropBuilder
 			Position = offset
 		};
 		sprite.Set("light_mask", lightMask);
+		if (material != null)
+			sprite.Material = material;
 		parent.AddChild(sprite);
 	}
 }

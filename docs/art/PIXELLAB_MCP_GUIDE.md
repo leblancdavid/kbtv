@@ -2,490 +2,466 @@
 
 ## Overview
 
-This guide covers how to connect and use the PixelLab MCP server with opencode for AI-powered pixel art generation in the KBTV project.
+This guide covers how to use the PixelLab MCP server with opencode for AI-powered pixel art generation in the KBTV project. It is the **practical companion** to [`docs/art/ART_STYLE.md`](ART_STYLE.md) — read that first for the visual rules, then come here for the workflow.
+
+---
 
 ## What is PixelLab MCP?
 
-PixelLab MCP is a Model Context Protocol server that provides AI image generation capabilities. It connects opencode to PixelLab's AI services, allowing you to generate pixel art assets directly from your chat interface.
+PixelLab MCP is a Model Context Protocol server providing AI image generation. opencode connects to it via MCP and exposes its tools as native tool calls.
 
 ---
 
-## Prerequisites
+## Available Tools (Actual MCP Surface)
 
-1. **PixelLab Account**: Sign up at [pixellab.app](https://pixellab.app)
-2. **API Key**: Obtain from your PixelLab account settings
-3. **MCP Server**: Installed and running (see installation section)
-4. **opencode**: Latest version with MCP support
+These are the tools actually available in our MCP connection. Use these — older docs may reference `pixellab_generate` / `pixellab_refine` which **do not exist** in this MCP version.
 
----
+### Image Generation
 
-## Installation & Configuration
+| Tool | Cost | Use for |
+|------|------|---------|
+| `pixellab_create_image_pixflux` | 1 gen | **Default for KBTV props.** Takes explicit `width` and `height` for non-square targets. ~10-40s. |
+| `pixellab_create_image_pixen` | 1 gen | Cleaner small sprites (≤32px). Strict 256×256 area cap. |
+| `pixellab_create_image_pro` | 20-40 gen | Multiple candidates (4-64). Use only when you need variations. |
+| `pixellab_edit_image` | 20-40 gen | Edit an existing PNG with text instruction. |
+| `pixellab_edit_image_pixen` | 1 gen | Cheaper single-frame edit, 256×256 max. |
+| `pixellab_inpaint_image` | 20-40 gen | Repair a specific region (white mask). |
 
-### Step 1: Install PixelLab MCP Server
+### Object / Character / Tileset Generation
 
-Depending on your setup:
+| Tool | Cost | Use for |
+|------|------|---------|
+| `pixellab_create_1_direction_object` | 20-40 gen | Single-view props with style chaining. **Square only.** |
+| `pixellab_create_8_direction_object` | 20-40 gen | Rotatable characters/objects. **Square only.** |
+| `pixellab_create_map_object` | varies | Props matching a map's art style. Requires existing map. |
+| `pixellab_create_character` | 1-40 gen | Characters with multiple directions. v3 mode rotates a reference sprite. |
+| `pixellab_create_tiles_pro` | varies | Hex/isometric/oblique tiles. |
+| `pixellab_create_topdown_tileset` | varies | Wang tileset for top-down maps. |
+| `pixellab_create_building_kit` | varies | Wall/floor/doorway vocabulary for buildings. |
 
-**Option A: Using npm (Node.js)**
-```bash
-npm install -g @pixellab/mcp-server
-```
+### Animation
 
-**Option B: Python (if using our custom server)**
-```bash
-cd Tools/ArtGeneration
-pip install -r requirements.txt
-```
+| Tool | Cost | Use for |
+|------|------|---------|
+| `pixellab_animate_character` | scales | Add walk/idle/etc to a character. |
+| `pixellab_animate_object` | scales | Add animation to an object. |
+| `pixellab_animate_image` | scales | Animate any loose PNG sprite. |
 
-**Option C: Standalone executable**
-Download from the PixelLab MCP releases page and place in your PATH.
+### Utility / Quality
 
-### Step 2: Configure opencode.jsonc
-
-Open your opencode configuration file:
-
-**Location:**
-- Linux/macOS: `~/.config/opencode/opencode.jsonc`
-- Windows: `%APPDATA%\opencode\opencode.jsonc` or `C:\Users\<User>\.config\opencode\opencode.jsonc`
-- Project-local: `.opencode.jsonc` in project root
-
-**Add the MCP server configuration:**
-
-```jsonc
-{
-  "mcpServers": {
-    "pixellab": {
-      "command": "npx",  // or "python", or direct path
-      "args": ["@pixellab/mcp-server"],
-      "env": {
-        "PIXELLAB_API_KEY": "your_api_key_here"
-      }
-    }
-  }
-}
-```
-
-**Alternative configurations:**
-
-*If using Python:*
-```jsonc
-{
-  "mcpServers": {
-    "pixellab": {
-      "command": "python",
-      "args": ["Tools/ArtGeneration/pixel_art_mcp_server.py"],
-      "env": {
-        "LEONARDO_API_KEY": "your_leonardo_key",  // if using Leonardo
-        "PIXELLAB_API_KEY": "your_pixellab_key"
-      }
-    }
-  }
-}
-```
-
-*If using direct executable:*
-```jsonc
-{
-  "mcpServers": {
-    "pixellab": {
-      "command": "pixel-lab-mcp",
-      "args": ["--port", "8080"],
-      "env": {
-        "PIXELLAB_BEARER_TOKEN": "your_token"
-      }
-    }
-  }
-}
-```
-
-**Important Notes:**
-- `command` must be in your system PATH, or use absolute path
-- The `env` block passes environment variables to the MCP server process
-- Never commit your API keys to version control! Use environment variables or a `.env` file
-
-### Step 3: Restart opencode
-
-After saving `opencode.jsonc`, restart opencode to load the new MCP server. You should see a notification that the `pixellab` server connected.
+| Tool | Cost | Use for |
+|------|------|---------|
+| `pixellab_correct_pixelart` | 0.1 gen | Sharpen pixel grid, fix edges. |
+| `pixellab_unzoom_image` | 0.1 gen | Downscale upscaled pixel art back to native size. |
+| `pixellab_reduce_colors` | 0.1 gen | Quantize to a target palette. Use to enforce palette across a set. |
+| `pixellab_image_to_pixelart` | 1 gen | Convert non-pixel source art to pixel art. |
+| `pixellab_get_balance` | free | Check generation credits remaining. |
+| `pixellab_get_image` | free | Poll a queued job for results. |
+| `pixellab_get_character` / `get_object` | free | Inspect generated assets. |
 
 ---
 
-## Using PixelLab MCP
+## PixelLab Restrictions & Quirks (CRITICAL — read before generating)
 
-Once connected, you can use the PixelLab tools directly in your chat with opencode.
+These are real restrictions we hit. **Skip at your own risk** — credits will burn.
 
-### Tool: `pixellab_generate`
+### 1. Base64 Truncation (the #1 silent failure)
 
-Generate pixel art assets using AI.
-
-**Parameters:**
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `prompt` | string | Yes | Text description of the image to generate |
-| `width` | number | No | Image width in pixels (default: 32) |
-| `height` | number | No | Image height in pixels (default: 32) |
-| `style` | string | No | Art style preset (default: "pixel-art") |
-| `palette` | string | No | Color palette reference (e.g., "kbtv") |
-| `output` | string | No | Output file path relative to `assets/` |
-| `variations` | number | No | Number of variants to generate (1-5) |
-
-**Example usage:**
-
-```bash
-Generate a floor tile for KBTV:
-prompt: "dark carpet tile, 16x16, seamless, muted green #2d4a2d, top-down, pixel art"
-width: 16
-height: 16
-output: "tiles/floor/floor_tile_01.png"
+**The MCP client silently truncates inline base64 strings at ~600-800 chars.** Any `*_base64` parameter over that length gets cut off mid-stream, returning:
+```
+Image data looks incomplete — N base64 chars did not decode, but they START 
+with a valid image header. This almost always means the value was TRUNCATED 
+in transit
 ```
 
-```bash
-Generate Vern's portrait:
-prompt: "radio host portrait, mid-30s male, dark beard, noir lighting, 64x64, pixel art"
-width: 64
-height: 64
-output: "sprites/characters/vern_portrait_neutral.png"
-style: "portrait"
-```
+**Measured limits:**
+- 6008-char base64 (`storage_shelf.png`, 4.5KB PNG) → **truncated, corrupted**
+- 1084-char base64 (`cabinet_tall.png`, 1.6KB PNG) → **truncated to ~812 bytes, corrupted**
+- 264-char base64 (16×16 palette swatch, 196 bytes PNG) → **survives intact**
 
-### Tool: `pixellab_list_styles`
+**Workarounds (in priority order):**
+1. **Use a tiny palette swatch (≤300 chars base64).** Generate a 16×16 PNG with just the KBTV noir palette colors, base64-encode it (~264 chars), pass as `color_image_base64` to `create_image_pixflux`. The model samples colors from this swatch instead of inventing saturated primaries. **This is the only reliable way to lock the palette.**
+2. **Prefer URL parameters** when available (`color_image_url`, `style_image_url`). But you need a publicly accessible URL — there is no built-in upload tool in this MCP.
+3. **Do NOT rely on `style_image_base64` with realistic-sized PNGs.** The KBTV anchor props (cabinet_tall 1.6KB, storage_shelf 4.5KB) all exceed the truncation limit as base64.
 
-List available art style presets.
+**Generation script for the palette swatch** (run once, save the file, reuse the base64 string forever):
 
-**Example:**
-```
-What pixel art styles does PixelLab support?
-> Use MCP tool: pixellab_list_styles
-```
-
-Returns:
-```json
-{
-  "styles": [
-    {"id": "pixel-art", "name": "Pixel Art", "description": "Classic 8-bit style"},
-    {"id": "8bit", "name": "8-bit", "description": "NES-era retro"},
-    {"id": "16bit", "name": "16-bit", "description": "SNES-era detailed"},
-    {"id": "isometric", "name": "Isometric", "description": "Top-down depth view"}
-  ]
+```powershell
+# PowerShell — KBTV noir palette swatch (16x16, ~264 chars base64)
+Add-Type -AssemblyName System.Drawing
+$bmp = New-Object System.Drawing.Bitmap 16, 16
+$colors = @(
+    [System.Drawing.Color]::FromArgb(255, 0x0d, 0x0d, 0x12),  # void
+    [System.Drawing.Color]::FromArgb(255, 0x1f, 0x1f, 0x26),  # charcoal
+    [System.Drawing.Color]::FromArgb(255, 0x2a, 0x2d, 0x36),  # cool shadow
+    [System.Drawing.Color]::FromArgb(255, 0x3a, 0x3d, 0x48),  # slate
+    [System.Drawing.Color]::FromArgb(255, 0x2a, 0x22, 0x1b),  # warm shadow
+    [System.Drawing.Color]::FromArgb(255, 0x5a, 0x53, 0x40),  # wood mid
+    [System.Drawing.Color]::FromArgb(255, 0x7a, 0x6f, 0x55),  # wood highlight
+    [System.Drawing.Color]::FromArgb(255, 0x3a, 0x8a, 0x78),  # phosphor green
+    [System.Drawing.Color]::FromArgb(255, 0xa2, 0x3a, 0x3a),  # noir red
+    [System.Drawing.Color]::FromArgb(255, 0xc8, 0x9a, 0x5a)   # warm rim
+)
+$idx = 0
+for ($y = 0; $y -lt 16; $y++) {
+    for ($x = 0; $x -lt 16; $x++) {
+        $bmp.SetPixel($x, $y, $colors[$idx % $colors.Length])
+        $idx++
+    }
 }
+$bmp.Save("kbtv_palette_swatch.png", [System.Drawing.Imaging.ImageFormat]::Png)
+$bmp.Dispose()
+$bytes = [System.IO.File]::ReadAllBytes("kbtv_palette_swatch.png")
+$b64 = [Convert]::ToBase64String($bytes)
+# Use $b64 as color_image_base64 parameter value
 ```
 
-### Tool: `pixellab_check_status`
-
-Check the PixelLab MCP server status and your API quota.
-
-**Example:**
+The 264-char base64 string of this swatch (stable across regenerations):
 ```
-Check my PixelLab quota
-> Use MCP tool: pixellab_check_status
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABZSURBVDhPY+DlFfovL6/2X0vX7L+Vrcd/LSXp/1HBDv+r8kP/W3VV/F9kZfX/xKyo/7jUMRCrEJc6BmIV4lLHQKxCXOoYiFWISx0DsQpxqRsNxNFAHByBCABw+NZc4D+vIwAAAABJRU5ErkJggg==
 ```
 
-Returns:
-```json
-{
-  "status": "connected",
-  "api_quota_remaining": 145,
-  "generated_today": 5,
-  "server_version": "1.2.0"
-}
+### 2. View Parameter: Pick the Right One
+
+`pixellab_create_image_pixflux` exposes three `view` enum values:
+
+| `view` value | What you get | KBTV use? |
+|--------------|--------------|------------|
+| `"side"` | Eye-level flat-front elevation. Good base for **oblique/cabinet** when combined with oblique keywords. | ✅ Use for **cabinets, shelves, audio racks** |
+| `"high top-down"` | Steeper top-down (~35° above horizon). Shows TOP SURFACE prominently. | ✅ Use for **TABLES** (need visible top surface) |
+| `"low top-down"` | Gentler top-down (~20°). 3/4 view, all faces angled. | ❌ Avoid — produces isometric, not oblique |
+
+**Bottom line:**
+- Cabinets/shelves: `view: "side"` (flat front face)
+- Tables: `view: "high top-down"` (visible top surface for items to sit on)
+
+### 3. Aspect Ratio & Canvas Size
+
+| Tool | Min | Max | Aspect |
+|------|-----|-----|--------|
+| `create_image_pixflux` | 16px | 400×400 or 16:9 (688×384) | Square or 16:9 OK |
+| `create_image_pixen` | 16px | 256×256 (area ≤65,536px) | Strict, square preferred |
+| `create_image_pro` | 16px | 512×512 / 688×384 | Aspect-gated |
+| `create_1_direction_object` | 16px | 256×256 | **Square only** |
+| `create_8_direction_object` | 24px | 168×168 | **Square only** |
+
+**Pitfalls:**
+- **Square tools rotate/stretch non-square content.** `create_1_direction_object` with a "32×56 cabinet" prompt → square sprite, AI rotates/curves the cabinet to fit. Use `create_image_pixflux` for non-square targets instead.
+- **Generate OVERSIZE then crop/resize.** Target 32×56 → generate at 64×112 → resize DOWN with nearest-neighbor. Never upscale AI output — pixel art loses its grid.
+- **3:1+ aspect ratios are unreliable.** Stick to roughly 1:1, 2:1, or 3:2.
+
+### 4. Generation Cost Reality Check
+
+| Tool | Cost | Notes |
+|------|------|-------|
+| `create_image_pixflux` | **1 generation** | Fast (~10-40s). Default choice. |
+| `create_image_pixen` | **1 generation** | Slightly better quality on small sprites. |
+| `create_image_pro` | **20-40 generations** | Returns 4-64 candidates. Expensive. |
+| `create_1_direction_object` ≤42px | **64 candidates** | Review mode — pick frames. ≤85px: 16. |
+| `create_8_direction_object` | **20-40 generations** | Always 8 directions. |
+| `correct_pixelart` / `unzoom_image` / `reduce_colors` | **0.1 generation** | Essentially free. |
+
+**Default strategy:** Use `create_image_pixflux` (1 gen) + the KBTV prompt template + `color_image_base64` palette swatch. Re-roll until acceptable. Don't jump to `create_image_pro` unless you need multiple candidates to pick from.
+
+### 5. Common Failure Modes & Fixes
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| Result is **isometric** when you wanted oblique | `view: "low top-down"` or `view: "high top-down"` | Switch to `view: "side"` + oblique keywords in prompt |
+| Result has **saturated colors** (bright green/red) | Palette not enforced | Pass the 16×16 palette swatch as `color_image_base64` |
+| Result has **baked-in shadow** underneath | AI default behavior | Add explicit `NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, the area beneath is pure transparent nothing` to prompt |
+| **Subject rotated 90°** to fit canvas | Aspect ratio too extreme | Use square, or use `create_image_pro` with explicit `width`/`height` |
+| **Outlines missing or doubled** | `outline` param is soft guidance | Specify "single color black outline" in description text too, not just the parameter |
+| **Truncated base64 corruption** | MCP client cut off your base64 | Switch to `color_image_base64` (≤300 chars), or upload to public URL |
+| **"No candidates match my style"** | Style reference too different | Loosen `style_copy` array, use a closer anchor, or drop the style reference |
+| **Background not transparent** | Default behavior | Pass `no_background=true` |
+| **Subject too small in canvas** | Prompt didn't emphasize scale | Add "subject fills entire canvas with minimal transparent padding, edges touch edges of canvas" |
+| **Front face has diagonals** | AI drew an isometric/3/4 view | Add "FLAT front face, NO diagonals on front face, only horizontal and vertical edges on the face that points at the camera" |
+| **Studio table has long legs** | AI rendered full-height furniture legs | Add "very short stubby legs about half the size of a person, NOT long, NOT tall, NOT skinny" |
+
+---
+
+## KBTV Prompt Templates by Prop Type
+
+**Use these verbatim.** Swap the `{subject}` portion for your specific prop. The trailing suffix does all the style enforcement.
+
+### Cabinet / Shelf / Audio Rack (vertical furniture)
+
+**`view: "side"` + this prompt:**
+
 ```
+{subject}, cabinet projection, oblique projection, 2.5D pixel art, 
+Stardew Valley style, flat front face, 45 degree depth lines going back, 
+subject fills entire canvas with minimal transparent padding, 
+dark noir palette, charcoal black outlines, transparent background, 
+NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
+NO ambient occlusion, NO brown shadow gradient beneath, 
+single color black outline, crisp pixels, no anti-aliasing, pixel art, 
+16-bit retro game asset
+```
+
+**Example — tall audio cabinet:**
+```
+tall audio equipment rack with two columns of audio gear side by side, 
+audio mixer on top, equalizer with sliders, power amplifier with VU meters, 
+phosphor green LED indicators, dark charcoal metal rack chassis with vent slots, 
+cabinet projection, oblique projection, 2.5D pixel art, Stardew Valley style, 
+flat front face, 45 degree depth lines going back, 
+subject fills entire canvas with minimal transparent padding, 
+dark noir palette, charcoal black outlines, transparent background, 
+NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
+NO ambient occlusion, NO brown shadow gradient beneath, 
+single color black outline, crisp pixels, no anti-aliasing, pixel art, 
+16-bit retro game asset
+```
+
+### Table (horizontal furniture — different!)
+
+**`view: "high top-down"` + this prompt:**
+
+```
+{subject}, viewed from slightly above showing both TOP SURFACE and FRONT FACE clearly, 
+the wide flat top takes up the upper portion as a flat horizontal plane items sit on, 
+narrow front face visible below with only horizontal and vertical edges, 
+four charcoal metal legs at corners, 
+the legs are VERY SHORT STUBBY legs about half the size of a person, 
+NOT long, NOT tall, NOT skinny legs, the table overall is LOW and SHORT, 
+dark charcoal monochrome metal, 
+cabinet projection, oblique projection, 2.5D pixel art, Stardew Valley style, 
+subject fills entire canvas with minimal transparent padding, 
+dark noir palette, charcoal black outlines, transparent background, 
+NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
+NO ambient occlusion, NO brown shadow gradient beneath, 
+NO oval blob, NO ground beneath, NO floor visible, 
+the bottom of the legs is the actual bottom edge, not a shadow fade, 
+single color black outline, crisp pixels, no anti-aliasing, pixel art, 
+16-bit retro game asset
+```
+
+**Example — studio broadcast table:**
+```
+long wide broadcast control table, viewed from slightly above showing both 
+TOP SURFACE and FRONT FACE clearly, the wide flat dark charcoal metal top 
+takes up the upper portion as a flat horizontal plane where items sit, 
+narrow front face visible below, four short stubby charcoal legs at corners, 
+legs only about 20 pixels tall, the table overall is LOW and SHORT not tall, 
+dark charcoal monochrome metal, NO wood texture, NO warm brown colors, 
+cabinet projection, oblique projection, 2.5D pixel art, Stardew Valley style, 
+subject fills entire canvas with minimal transparent padding, 
+dark noir palette, charcoal black outlines, transparent background, 
+NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
+NO ambient occlusion, NO brown shadow gradient beneath, 
+NO oval blob, NO ground beneath, NO floor visible, 
+single color black outline, crisp pixels, no anti-aliasing, pixel art, 
+16-bit retro game asset
+```
+
+### Computer Station (CRT + peripherals)
+
+**`view: "high top-down"` + this prompt:**
+
+```
+{subject} with phosphor green CRT monitor screen, mechanical keyboard with 
+visible keys, computer mouse, and charcoal metal desktop tower, 
+all visible from slightly above, viewed from above showing the CRT top edge, 
+subject fills entire canvas with minimal transparent padding, 
+dark charcoal monochrome (NO wood texture, NO warm brown colors), 
+dark noir palette, charcoal black outlines, transparent background, 
+NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
+NO ambient occlusion, single color black outline, crisp pixels, no anti-aliasing, 
+pixel art, 16-bit retro game asset
+```
+
+### Wall-Mounted Items (poster, clock, sign)
+
+**`view: "side"` + this prompt** (face-on is fine for these):
+
+```
+{subject}, flat face-on view, dark noir palette, charcoal black outlines, 
+subject fills entire canvas with minimal transparent padding, 
+transparent background, NO shadows, NO ground shadow, NO drop shadow, 
+NO contact shadow underneath, single color black outline, 
+crisp pixels, no anti-aliasing, pixel art, 16-bit retro game asset
+```
+
+---
+
+## KBTV Generation Workflow (Step by Step)
+
+Use this exact workflow for any prop regeneration. Skipping steps wastes credits.
+
+1. **Pick the right template** from §"KBTV Prompt Templates by Prop Type" based on prop category (cabinet / table / computer / wall item).
+
+2. **Customize the `{subject}` portion** with the specific prop description (1-2 sentences). Include key visual features:
+   - Wood grain texture for wood props (or explicit "NO wood texture" for tables/computer)
+   - Number of features (handles, drawers, screens, columns of gear)
+   - Accent colors (phosphor green LEDs, noir red eye)
+
+3. **Match view parameter to prop type:**
+   - Cabinet/shelf/rack: `view: "side"`
+   - Table: `view: "high top-down"`
+   - Computer station: `view: "high top-down"`
+
+4. **Always pass these parameters:**
+   - `width`, `height` — explicit dimensions, 2× the target size for better quality
+   - `no_background: true`
+   - `view` (per step 3)
+   - `outline: "single color outline"`
+   - `shading: "basic shading"`
+   - `detail: "medium detail"`
+   - `text_guidance_scale: 10-12` (higher = more literal prompt following)
+   - `color_image_base64`: the 264-char KBTV palette swatch
+   - `seed`: any integer (different seeds give different results)
+
+5. **Submit and wait** with `pixellab_get_image(job_id=...)`. Typically 10-40 seconds.
+
+6. **Download the result** via the returned URL and inspect visually:
+   ```
+   Invoke-WebRequest -Uri "<url>" -OutFile "<path>" -UseBasicParsing
+   ```
+
+7. **Check against acceptance criteria** (visual review):
+   - Front face is flat? Depth at 45°? Fill canvas? No shadows? Noir palette?
+   - If NO → adjust prompt (add more emphasis on missing criteria) and re-roll
+   - If YES → resize to target dimensions and save
+
+8. **Resize to target** with nearest-neighbor (2x downsample gives best detail retention):
+   ```powershell
+   & resize.ps1 -SourcePath "tmp/source.png" -TargetWidth 32 -TargetHeight 56 -DestPath "assets/tiles/props/prop.png"
+   ```
+
+9. **Wire into code** (PropBuilder.CreateProp or table group).
+
+10. **Verify build** with `dotnet build` and visually check in Godot.
+
+---
+
+## Style Consistency Across a Set
+
+To make multiple props look like the same artist drew them all:
+
+1. **Use the SAME prompt template** for every prop — only swap the `{subject}` portion.
+2. **Lock palette with `color_image_base64`** — the 264-char KBTV swatch (see §1).
+3. **Generate at 2× target size and step-downsample** — better detail than generating at target.
+4. **Match lighting direction** — every prompt specifies "above-front-left" light source.
+5. **Keep descriptions parallel** — same style suffix, only swap subject.
+6. **Don't mix views** within one furniture category — all cabinets use `view: "side"`, all tables use `view: "high top-down"`.
+
+---
+
+## Prompt Keywords Reference
+
+### Required Keywords (always include)
+
+**For oblique/cabinet projection:**
+- `cabinet projection` OR `oblique projection`
+- `flat front face`
+- `45 degree depth lines going back`
+- `2.5D pixel art` OR `Stardew Valley style`
+
+**For no shadows (always include):**
+- `NO shadows`
+- `NO ground shadow`
+- `NO drop shadow`
+- `NO contact shadow underneath`
+
+**For canvas fill:**
+- `subject fills entire canvas with minimal transparent padding`
+- For tables specifically: `edges touch edges of canvas`, `the area beneath is pure transparent nothing`
+
+**For pixel art quality:**
+- `crisp pixels`, `no anti-aliasing`
+- `single color black outline`
+- `transparent background`
+
+### Forbidden Keywords (will produce wrong style)
+
+- ❌ `isometric` — triggers isometric/30° depth
+- � `top-down` / `low top-down` / `high top-down` — but the `view` parameter can still be one of these!
+- ❌ `3D` — too generic
+- ❌ `axonometric` / `rotated cube` — triggers iso
+- ❌ `bright` / `vibrant` / `saturated` — palette enforcement breaks
+- ❌ Saturated color hex codes (`#00ff44`, `#ff4444`) — model may use them as anchors
 
 ---
 
 ## Common Workflows
 
-### Generate a Complete Asset Set
+### Regenerate one prop with a known issue
 
-```bash
-# 1. Floor tiles (3 variants)
-Generate 3 floor tile variations:
-prompt: "dark carpet tile pattern, 16x16, subtle variation, seamless, office flooring"
-width: 16
-height: 16
-output: "tiles/floor/floor_tile_{n}.png"
-variations: 3
+1. Look up the prop in §"Common Prop Targets" in `ART_STYLE.md`
+2. Pick the template for its category (cabinet / table / etc.)
+3. Fill in `{subject}` describing what's wrong with the current version + what's wanted
+4. Run with the right `view` and dimensions
+5. Resize to target
 
-# 2. Wall textures
-Generate wall tile:
-prompt: "wall texture, isometric side view, 16x64, brown tones #5a4a3a, concrete surface"
-width: 16
-height: 64
-output: "tiles/wall_north.png"
+### Bulk-regenerate a whole set (e.g., "redo all the wall items")
 
-# 3. Furniture
-Generate monitor console:
-prompt: "retro computer console, monitor+keyboard+phone, 64x64, glowing CRT #00ff44"
-width: 64
-height: 64
-output: "furniture/desk/monitor_console.png"
-```
+1. Pick ONE anchor prop to validate the template (e.g., the wall clock)
+2. Generate it, iterate until perfect
+3. Run the same template with only `{subject}` swapped for each remaining prop
+4. Use different seeds to get natural variation while keeping style consistent
+5. Resize each to its target dimensions
 
-### Batch Generation from Prompt Library
+### Style-match a new prop to existing KBTV style
 
-Refer to `docs/art/PIXEL_ART_PROMPTS.md` for 100+ pre-written prompts.
-
-**Workflow:**
-1. Open `PIXEL_ART_PROMPTS.md`
-2. Copy a prompt for your needed asset
-3. Use `pixellab_generate` with that prompt
-4. Adjust dimensions if needed
-5.Repeat for variants
-
-### Iterative Refinement
-
-```bash
-# First generation
-Generate asset:
-prompt: "monitor console, dark wood, retro, 64x64, pixel art"
-output: "furniture/desk/monitor_console_v1.png"
-
-# Review result, then refine
-Generate asset (img2img if supported):
-prompt: "same as before but add glowing green screen #00ff44, more detail on keyboard"
-base_image: "assets/furniture/desk/monitor_console_v1.png"
-output: "furniture/desk/monitor_console_v2.png"
-```
-
----
-
-## KBTV-Specific Settings
-
-### Color Palette
-
-Reference the KBTV palette in your prompts:
-
-```json
-{
-  "palette": {
-    "bg_dark": "#1a1a2a",
-    "floor_carpet": "#2d4a2d",
-    "walls": "#5a4a3a",
-    "accent_green": "#00ff44",
-    "accent_red": "#ff4444",
-    "accent_cyan": "#00ffff",
-    "accent_amber": "#ffaa00"
-  }
-}
-```
-
-Use in prompts:
-```
-prompt: "dark atmosphere, accent glow #00ff44, noir lighting, palette #1a1a2a, #2d4a2d, #5a4a3a"
-```
-
-### Recommended Dimensions
-
-From `docs/art/ART_STYLE.md`:
-
-| Asset Type | Size | Use |
-|------------|------|-----|
-| Floor tiles | 16x16 | TileMap floor layer |
-| Wall strips | 16x64 | Vertical walls |
-| Furniture | 32-64px | Props and decor |
-| Portraits | 64x64 | UI conversation display |
-| Icons | 16-24px | UI indicators |
-| Character sprites | 32x48 | In-game player/caller |
-
----
-
-## Troubleshooting
-
-### "MCP server not responding"
-- Check that the command in `opencode.jsonc` is correct and in PATH
-- Ensure API key is set in `env` block
-- Test the server manually: `pixel-lab-mcp --test` or `python pixel_art_mcp_server.py --health`
-
-### "Invalid API key" or "401 Unauthorized"
-- Verify your PixelLab API key is correct
-- Check if the key has expired or quota exceeded
-- Ensure the `env` variable name matches what the server expects (often `PIXELLAB_API_KEY` or `BEARER_TOKEN`)
-
-### "Generation failed" with no output
-- The MCP server may have crashed; check its logs
-- API quota may be exceeded
-- Prompt may be rejected by content filter; simplify or rephrase
-
-### Generated images are not pixel-perfect
-- Add "pixel art", "crisp pixels", "no anti-aliasing" to prompt
-- Specify exact dimensions (width/height parameters)
-- Post-process in Aseprite/Pyxel Edit to clean up edges
-- Generate multiple variations and select best
-
-### "Command not found" on startup
-- Use absolute path in `command` instead of just executable name
-- Example: `"command": "C:\\path\\to\\pixel-lab-mcp.exe"`
-- Or add the directory to your system PATH
-
----
-
-## Advanced Usage
-
-### Using Custom Style Presets
-
-If your PixelLab MCP supports custom styles:
-
-```jsonc
-{
-  "mcpServers": {
-    "pixellab": {
-      "command": "npx",
-      "args": ["@pixellab/mcp-server", "--styles", "~/pixellab-styles.json"]
-    }
-  }
-}
-```
-
-Create `~/pixellab-styles.json`:
-```json
-{
-  "kbtv-pixel": {
-    "prompt_prefix": "pixel art, isometric top-down, limited palette",
-    "negative_prompt": "blurry, anti-aliased, smooth, photo-realistic",
-    "cfg_scale": 7.0,
-    "steps": 30
-  }
-}
-```
-
-Then use: `style: "kbtv-pixel"` in your tool calls.
-
-### Image-to-Image (Refinement)
-
-If supported, you can refine existing assets:
-
-```bash
-Refine floor tile:
-prompt: "same style but add coffee stain, more worn"
-base_image: "assets/tiles/floor/floor_tile_clean.png"
-strength: 0.6
-output: "assets/tiles/floor/floor_tile_stain.png"
-```
-
----
-
-## Integration with KBTV Workflow
-
-### Phase 1: Critical Assets
-
-Generate in this order:
-
-1. **Environment**
-   - `floor_tile_clean` (16x16)
-   - `wall_north`, `wall_south` (16x64)
-   - `corner_piece` (16x64)
-
-2. **Key Furniture**
-   - `monitor_console` (64x64)
-   - `monitor_screen` (32x32, with glow variants)
-   - `filing_cabinet` (32x48)
-
-3. **Characters**
-   - `vern_portrait_neutral` (64x64)
-   - `caller_silhouette_male` (32x48)
-
-4. **UI**
-   - `panel_background` (200x28)
-   - `button_default`, `button_hover`, `button_pressed` (80x28)
-   - `indicator_onair` (32x16)
-
-See `docs/art/PIXEL_ART_PROMPTS.md` for exact prompts for each asset.
-
-### Phase 2: Post-Processing
-
-After generation:
-
-1. Open in Aseprite or Pyxel Edit
-2. Remove anti-aliasing (should be crisp pixels only)
-3. Adjust colors to match KBTV palette exactly
-4. Check transparency (alpha 0 or 255 only)
-5. Test import in Godot (Filter: Nearest)
-6. Add to TileSet or Sprite2D
-
----
-
-## MCP Tool Reference
-
-All available tools from the PixelLab MCP server:
-
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `pixellab_generate` | Generate an image from text prompt | `prompt`, `width`, `height`, `style`, `output`, `variations` |
-| `pixellab_refine` | Refine existing image (img2img) | `prompt`, `base_image`, `strength`, `output` |
-| `pixellab_list_styles` | List available style presets | None |
-| `pixellab_check_status` | Check server and quota status | None |
-| `pixellab_upload` | Upload a reference image for style matching | `image_path`, `name` |
-| `pixellab_create_tileset` | Generate seamless tileset | `base_prompt`, `count`, `size` |
-
----
-
-## Environment Variables Reference
-
-| Variable | Purpose | Example |
-|----------|---------|---------|
-| `PIXELLAB_API_KEY` | Main API authentication | `"sk-123456..."` |
-| `PIXELLAB_BEARER_TOKEN` | Alternative auth format | `"Bearer sk-..."` |
-| `PIXELLAB_MODEL` | Override default model | `"pixel-art-v3"` |
-| `PIXELLAB_STYLES_PATH` | Path to custom styles file | `"./styles.json"` |
-| `LEONARDO_API_KEY` | If using Leonardo.ai backend | `"your-key"` |
-| `OPENAI_API_KEY` | If using DALL-E 3 fallback | `"sk-..."` |
+1. Identify the prop category (cabinet / table / wall / etc.)
+2. Look at the closest existing anchor asset:
+   - Cabinets/shelves: `cabinet_tall.png`, `storage_shelf.png`, `filing_cabinet.png`
+   - Tables: `studio_table.png`, `round_table.png`
+   - Audio gear: `audio_cabinet.png`
+3. Describe the new prop in terms that match (same materials, same accent colors, same scale)
 
 ---
 
 ## Security Best Practices
 
-1. **Never commit API keys** - Use environment variables or `.env` files (gitignored)
-2. **Rotate keys periodically** - Regenerate API keys every few months
-3. **Monitor usage** - Check PixelLab dashboard for unexpected usage
-4. **Use minimal scopes** - If possible, limit API key to image generation only
-5. **Project-specific keys** - Don't reuse keys across projects
-
----
-
-## Next Steps
-
-1. **Test the connection**: Use `pixellab_check_status` to verify MCP is working
-2. **Generate critical assets**: Start with the priority list in `PIXEL_ART_PROMPTS.md`
-3. **Iterate on prompts**: Refine based on output quality
-4. **Build asset library**: Generate all needed assets by category
-5. **Integrate into Godot**: Import with Nearest filter, create TileSets
-
----
-
-## Support & Resources
-
-- **PixelLab MCP Docs**: Check the MCP server's `--help` or README
-- **KBTV Art Style**: See `docs/art/ART_STYLE.md`
-- **Prompt Library**: See `docs/art/PIXEL_ART_PROMPTS.md`
-- **MCP Specification**: https://modelcontextprotocol.io/
-- **opencode MCP Support**: `/help` in opencode
+1. **Never commit API keys** — use environment variables or `.env` file (gitignored)
+2. **Rotate keys periodically** — regenerate every few months
+3. **Monitor usage** — check PixelLab dashboard for unexpected consumption
+4. **Use minimal scopes** — limit API key to image generation if possible
+5. **Project-specific keys** — don't reuse keys across projects
 
 ---
 
 ## Quick Reference Card
 
 ```
-# Test MCP connection
-> Use MCP tool: pixellab_check_status
+# Default KBTV prop generation
+tool: pixellab_create_image_pixflux
+view: "side" (cabinets) OR "high top-down" (tables)
+width/height: 2x target size
+no_background: true
+text_guidance_scale: 10-12
+color_image_base64: <KBTV swatch, 264 chars>
+outline: "single color outline"
+shading: "basic shading"
+detail: "medium detail"
+seed: <any integer>
+prompt: <template + {subject}>
 
-# Generate floor tile
-> Use MCP tool: pixellab_generate
-{
-  "prompt": "dark carpet tile, 16x16, seamless, #2d4a2d, pixel art",
-  "width": 16,
-  "height": 16,
-  "output": "tiles/floor/floor_tile_01.png"
-}
+# Required keywords in prompt:
+- cabinet projection OR oblique projection
+- flat front face
+- 45 degree depth lines
+- NO shadows, NO ground shadow, NO drop shadow, NO contact shadow
+- subject fills entire canvas with minimal transparent padding
+- transparent background
+- crisp pixels, no anti-aliasing
 
-# Generate with style preset
-> Use MCP tool: pixellab_generate
-{
-  "prompt": "Vern portrait, noir lighting",
-  "width": 64,
-  "height": 64,
-  "style": "portrait",
-  "output": "sprites/characters/vern_portrait.png"
-}
+# Forbidden keywords:
+- isometric, top-down (in prompt text), 3D, axonometric
+
+# After generation:
+1. Download via the returned URL
+2. Inspect for: flat front, 45° depth, full canvas, no shadows, noir palette
+3. Resize to target with nearest-neighbor (2x downsample)
+4. Save to assets/tiles/props/
+5. Wire into code via PropBuilder.CreateProp
+6. Build + visually verify in Godot
 ```
 
 ---
 
-*Last updated: 2026-03-08*
+*Last updated: 2026-08-26 — Consolidated KBTV PixelLab workflow after iterative prop art sessions.*
 *KBTV Project - AI-Assisted Pixel Art Pipeline*
