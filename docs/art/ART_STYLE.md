@@ -186,16 +186,52 @@ Reject and regenerate if the result has:
 
 Different prop categories need slightly different prompts and treatment. Use the right category template from `PIXELLAB_MCP_GUIDE.md` §"KBTV Prompt Templates by Prop Type".
 
-### Cabinets & Shelves (oblique — flat front + 45° depth)
+### The Universal Standard: "Front-Facing with Vertical Top-Down Perspective"
 
-- Use `view: "side"` in `pixellab_create_image_pixflux`
-- Standard oblique prompt template
-- Front face dominates; depth on right side
-- Examples: `cabinet_tall.png`, `storage_shelf.png`, `filing_cabinet.png`, `audio_cabinet.png`
+**ALL KBTV props use the same projection style:**
+- **Front-facing** — we always see the front of the object (the face that "faces the player" in a top-down world)
+- **Vertical top-down perspective** — viewed from slightly above, so the top surface of the object is visible as a thin sliver/parallelogram at the top of the sprite
+- The FRONT FACE dominates the sprite — it's where the most readable detail (shelves, drawers, dials, screens) lives
+- The TOP SURFACE shows as a thin band at the top of the sprite, indicating the object has depth/bulk without taking up too much space
 
-### Tables (different from cabinets!)
+This is **NOT** isometric (no 30° angle on the front face) and **NOT** pure face-on (we still see the top). It's a hybrid: mostly front view with a hint of top-down depth.
 
-Tables are **horizontally-oriented** — they need a visible **TOP SURFACE** where items can sit, not just a vertical front face. This is the single most common mistake when generating KBTV tables.
+**For ALL props except tables and chair:**
+- Use `view: "high top-down"` in `pixellab_create_image_pixflux`
+- The FRONT FACE is the dominant feature (60-80% of the sprite height)
+- A thin TOP SLIVER is visible at the top (10-20% of sprite height)
+- A small BASE/FOOTER may be visible at the bottom (5-15% of sprite height)
+
+```
+┌─────────────────────────────┐
+│ ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔ │  ← thin TOP sliver (10-20%)
+├─────────────────────────────�
+│                             │
+│                             │
+│       FRONT FACE             │  ← dominant FRONT (60-80%)
+│       (shelves, drawers,     │
+│        dials, screens,       │
+│        books, controls)      │
+│                             │
+│                             │
+├─────────────────────────────�
+│ ▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁ │  ← thin BASE/FOOTER (5-15%)
+└─────────────────────────────┘
+```
+
+### Cabinets & Bookcases (use the universal standard above)
+
+Bookcases, filing cabinets, audio racks — all use the universal standard. The front face shows the visible storage/equipment; the top sliver shows depth.
+
+- **Use `view: "high top-down"`** with the universal prompt template
+- FRONT FACE is dominant (shelves, books, drawers, equipment)
+- TOP SLIVER visible (showing the top of the cabinet/bookcase)
+- BASE may have small feet or sit directly on floor
+- Examples: `cabinet_tall.png`, `storage_shelf.png`, `filing_cabinet.png`, `audio_cabinet.png`, `bookcase.png`
+
+### Tables (different emphasis from other furniture)
+
+Tables are **horizontally-oriented** — they need a more prominent **TOP SURFACE** where items can sit, not just a thin top sliver. They still use the universal "front-facing with vertical top-down perspective" but with the TOP more dominant.
 
 **Required treatment:**
 - **Use `view: "high top-down"` in `pixellab_create_image_pixflux`** (NOT `"side"`)
@@ -205,30 +241,26 @@ Tables are **horizontally-oriented** — they need a visible **TOP SURFACE** whe
 - **Short legs are critical** — long legs make tables look like they're floating high above the floor
 - Material: dark charcoal monochrome (NOT wood for studio tables; wood is OK for homey props)
 
-**Prompt keywords for tables:**
-```
-{subject}, view from slightly above showing both TOP SURFACE and FRONT FACE clearly, 
-the wide flat top takes up the top portion as a flat plane, narrow front face below, 
-four charcoal metal legs at corners, NO wood texture for studio/professional tables, 
-dark charcoal monochrome metal, cabinet projection, oblique projection, 2.5D pixel art, 
-flat front face, 45 degree depth lines, dark noir palette, transparent background, 
-NO shadows, NO ground shadow, NO drop shadow, NO contact shadow, charcoal black outlines, 
-crisp pixels, no anti-aliasing, pixel art
-```
-
 ### Computer Stations & CRT Items
 
-- Show the CRT monitor with phosphor green screen prominently
+- Show the CRT monitor with phosphor green screen prominently on the front face
 - Include keyboard, mouse, and desktop tower as visible elements
 - The computer_station at 32×32 is small — every pixel counts
 - Avoid wood textures for these (dark gray/charcoal preferred)
 
 ### Audio Equipment (tall racks)
 
-- Show TWO COLUMNS of audio devices side by side (mixer, equalizer, tape deck, amplifier)
+- Show TWO COLUMNS of audio devices side by side on the front face
 - Phosphor green LEDs visible on the equipment
-- Rack chassis with vent slots at top, rack ears at corners
+- Rack chassis with vent slots at top (the thin top sliver), rack ears at corners
 - The 32×56 aspect ratio is correct for a tall rack
+
+### Speakers (on stands)
+
+- Bookshelf studio monitor style: dark charcoal rectangular box with circular speaker cone visible on the front face
+- Speaker sits ON a vertical stand/pole
+- Both speaker box and stand use the universal "front-facing with top-down perspective" treatment
+- Speaker cone is the most prominent feature on the speaker box front
 
 ### Wall-Mounted Items
 
@@ -236,6 +268,14 @@ crisp pixels, no anti-aliasing, pixel art
 - Must still obey the "no shadows" and "fill canvas" rules
 - Poster: dark frame with noir eye/conspiracy art
 - Clock: wall clock face with roman numerals
+
+### Chair (north-facing back view)
+
+- View from BEHIND the chair — show the BACK of the chair (the side opposite the seat front)
+- Office chair with wheels: 5-star base with casters, tall backrest
+- Backrest is the dominant feature (showing the rear of the chair back)
+- Use `view: "high top-down"` with a slight tilt to see the top of the backrest
+- Wheels visible at the base (5-star wheeled base)
 
 ### Tabletop Item Positioning (for code, not art)
 
@@ -250,7 +290,8 @@ When placing items on a table sprite, the math:
 | Item | Dimensions |
 |------|-----------|
 | `phone_line.png` | 24×16 |
-| `sound_board.png` | 28×16 |
+| `phone_board.png` | TBD (multi-line switchboard) |
+| `sound_board.png` | TBD (larger console with knobs) |
 | `computer_station.png` | 32×32 |
 | `boom_mic.png` | 24×24 |
 

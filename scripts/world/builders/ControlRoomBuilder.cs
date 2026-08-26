@@ -292,10 +292,10 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		if (PlaceSpeakerStands)
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/speaker_stand.png",
-				new Vector2I(2, 1), Vector2.Zero, true, new Vector2(24, 16),
+				new Vector2I(2, 0), Vector2.Zero, true, new Vector2(24, 16),
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/speaker_stand.png",
-				new Vector2I(10, 1), Vector2.Zero, true, new Vector2(24, 16),
+				new Vector2I(10, 0), Vector2.Zero, true, new Vector2(24, 16),
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 		}
 
@@ -303,9 +303,9 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		{
 			PropBuilder.CreateTableGroup(_propSort, new Vector2I(6, 1),
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				("res://assets/tiles/props/phone_line.png", new Vector2(-32, -38)),
-				("res://assets/tiles/props/sound_board.png", new Vector2(0, -38)),
-				("res://assets/tiles/props/computer_station.png", new Vector2(32, -54))
+				("res://assets/tiles/props/phone_board.png", new Vector2(-34, -40)),
+				("res://assets/tiles/props/sound_board.png", new Vector2(4, -44)),
+				("res://assets/tiles/props/computer_station.png", new Vector2(36, -48))
 			);
 			CreateScreeningTrigger();
 		}
@@ -330,7 +330,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		if (PlaceChair)
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/computer_chair.png",
-				new Vector2I(6, 2), Vector2.Zero, false, Vector2.Zero,
+				new Vector2I(6, 2), new Vector2(0, -8), false, Vector2.Zero,
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 		}
 

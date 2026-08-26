@@ -127,13 +127,17 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
 
 | `view` value | What you get | KBTV use? |
 |--------------|--------------|------------|
-| `"side"` | Eye-level flat-front elevation. Good base for **oblique/cabinet** when combined with oblique keywords. | ✅ Use for **cabinets, shelves, audio racks** |
-| `"high top-down"` | Steeper top-down (~35° above horizon). Shows TOP SURFACE prominently. | ✅ Use for **TABLES** (need visible top surface) |
+| `"side"` | Eye-level flat-front elevation. Good base for **oblique/cabinet** when combined with oblique keywords. | ❌ Avoid — produces isometric/oblique, NOT what we want |
+| `"high top-down"` | Steeper top-down (~35° above horizon). Shows TOP SURFACE prominently. | ✅ **Use for ALL KBTV props** — front face dominant with top sliver visible |
 | `"low top-down"` | Gentler top-down (~20°). 3/4 view, all faces angled. | ❌ Avoid — produces isometric, not oblique |
 
 **Bottom line:**
-- Cabinets/shelves: `view: "side"` (flat front face)
-- Tables: `view: "high top-down"` (visible top surface for items to sit on)
+- **ALL KBTV props use `view: "high top-down"`** — this is the universal standard
+- The result is a **front-facing** view (we see the front of the object) with **vertical top-down perspective** (we also see a thin sliver of the top)
+- The FRONT FACE is the dominant feature (where the readable detail lives)
+- A thin TOP SLIVER shows depth/bulk without taking up much of the sprite
+- For tables, the top is more prominent (because items sit on tables)
+- For other furniture (cabinets, bookcases, racks), the front face dominates and the top is a thin sliver
 
 ### 3. Aspect Ratio & Canvas Size
 
@@ -167,17 +171,21 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| Result is **isometric** when you wanted oblique | `view: "low top-down"` or `view: "high top-down"` | Switch to `view: "side"` + oblique keywords in prompt |
-| Result has **saturated colors** (bright green/red) | Palette not enforced | Pass the 16×16 palette swatch as `color_image_base64` |
+| Result is **isometric** (all 3 axes angled) when you wanted front-facing with top-down | `view: "low top-down"` | Use `view: "high top-down"` |
+| Result is **oblique/cabinet** with side depth (like the old style) when you wanted front-facing | `view: "side"` | Switch to `view: "high top-down"` with the universal standard prompt |
+| Result is a **side view** (eye-level) | `view: "side"` | Use `view: "high top-down"` |
+| **Front face has diagonals** (the face that points at the camera is rotated/slanted) | AI drew an isometric or 3/4 view | Add explicit "FLAT front face, NO diagonals on the front face, only horizontal and vertical edges on the face that points at the camera" |
+| **Bookcase looks like a cabinet** (depth on the right side) | Used cabinet template instead of universal front-facing template | Use the Cabinet / Shelf / Audio Rack / Bookcase template with `view: "high top-down"` and emphasize "FRONT FACE is dominant, a thin TOP SLIVER is visible at the top" |
+| **Table has long legs** (extends way below) | AI rendered full-height furniture legs | Add "very short stubby legs about half the size of a person, NOT long, NOT tall, NOT skinny" |
 | Result has **baked-in shadow** underneath | AI default behavior | Add explicit `NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, the area beneath is pure transparent nothing` to prompt |
+| Result has **saturated colors** (bright green/red) | Palette not enforced | Pass the 16×16 palette swatch as `color_image_base64` |
 | **Subject rotated 90°** to fit canvas | Aspect ratio too extreme | Use square, or use `create_image_pro` with explicit `width`/`height` |
 | **Outlines missing or doubled** | `outline` param is soft guidance | Specify "single color black outline" in description text too, not just the parameter |
 | **Truncated base64 corruption** | MCP client cut off your base64 | Switch to `color_image_base64` (≤300 chars), or upload to public URL |
 | **"No candidates match my style"** | Style reference too different | Loosen `style_copy` array, use a closer anchor, or drop the style reference |
 | **Background not transparent** | Default behavior | Pass `no_background=true` |
 | **Subject too small in canvas** | Prompt didn't emphasize scale | Add "subject fills entire canvas with minimal transparent padding, edges touch edges of canvas" |
-| **Front face has diagonals** | AI drew an isometric/3/4 view | Add "FLAT front face, NO diagonals on front face, only horizontal and vertical edges on the face that points at the camera" |
-| **Studio table has long legs** | AI rendered full-height furniture legs | Add "very short stubby legs about half the size of a person, NOT long, NOT tall, NOT skinny" |
+| **Top surface not visible** | Used `view: "side"` instead of `view: "high top-down"` | Switch to `view: "high top-down"` and emphasize "thin TOP SLIVER visible at the top" |
 
 ---
 
@@ -185,13 +193,14 @@ iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
 
 **Use these verbatim.** Swap the `{subject}` portion for your specific prop. The trailing suffix does all the style enforcement.
 
-### Cabinet / Shelf / Audio Rack (vertical furniture)
+### Cabinet / Shelf / Audio Rack / Bookcase (vertical furniture)
 
-**`view: "side"` + this prompt:**
+**`view: "high top-down"` + this prompt** (universal standard for vertical furniture):
 
 ```
-{subject}, cabinet projection, oblique projection, 2.5D pixel art, 
-Stardew Valley style, flat front face, 45 degree depth lines going back, 
+{subject}, front-facing view from slightly above with vertical top-down perspective, 
+the FRONT FACE is dominant showing the main details with only horizontal and vertical edges no diagonals, 
+a thin TOP SLIVER is visible at the top showing the top surface with 45 degree depth lines, 
 subject fills entire canvas with minimal transparent padding, 
 dark noir palette, charcoal black outlines, transparent background, 
 NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
@@ -202,11 +211,28 @@ single color black outline, crisp pixels, no anti-aliasing, pixel art,
 
 **Example — tall audio cabinet:**
 ```
-tall audio equipment rack with two columns of audio gear side by side, 
+tall audio equipment rack with two columns of audio gear side by side on the front face, 
 audio mixer on top, equalizer with sliders, power amplifier with VU meters, 
-phosphor green LED indicators, dark charcoal metal rack chassis with vent slots, 
-cabinet projection, oblique projection, 2.5D pixel art, Stardew Valley style, 
-flat front face, 45 degree depth lines going back, 
+phosphor green LED indicators, dark charcoal metal rack chassis with vent slots at top, 
+front-facing view from slightly above with vertical top-down perspective, 
+the FRONT FACE is dominant showing the equipment with only horizontal and vertical edges, 
+a thin TOP SLIVER is visible at the top showing the top of the rack, 
+subject fills entire canvas with minimal transparent padding, 
+dark noir palette, charcoal black outlines, transparent background, 
+NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
+NO ambient occlusion, NO brown shadow gradient beneath, 
+single color black outline, crisp pixels, no anti-aliasing, pixel art, 
+16-bit retro game asset
+```
+
+**Example — bookcase:**
+```
+tall wooden bookcase with 4 horizontal shelves each holding rows of small books 
+in dark noir wood tones and muted accent colors, 
+front-facing view from slightly above with vertical top-down perspective, 
+the FRONT FACE is dominant showing all the shelves and books clearly, 
+a thin TOP SLIVER is visible at the top showing the top of the bookcase, 
+no diagonal lines on the front face, only horizontal and vertical edges, 
 subject fills entire canvas with minimal transparent padding, 
 dark noir palette, charcoal black outlines, transparent background, 
 NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
@@ -274,7 +300,7 @@ pixel art, 16-bit retro game asset
 
 ### Wall-Mounted Items (poster, clock, sign)
 
-**`view: "side"` + this prompt** (face-on is fine for these):
+**`view: "high top-down"` + this prompt** (face-on is fine for these):
 
 ```
 {subject}, flat face-on view, dark noir palette, charcoal black outlines, 
@@ -282,6 +308,89 @@ subject fills entire canvas with minimal transparent padding,
 transparent background, NO shadows, NO ground shadow, NO drop shadow, 
 NO contact shadow underneath, single color black outline, 
 crisp pixels, no anti-aliasing, pixel art, 16-bit retro game asset
+```
+
+### Speaker on Stand (bookshelf studio monitor)
+
+**`view: "high top-down"` + this prompt:**
+
+```
+bookshelf studio monitor speaker on a vertical stand, 
+dark charcoal rectangular speaker box with a circular speaker cone visible on the FRONT FACE, 
+the FRONT FACE is dominant showing the speaker cone grille clearly, 
+a thin TOP SLIVER is visible at the top of the speaker box showing its top, 
+vertical charcoal metal stand pole below the speaker with a small weighted base, 
+front-facing view from slightly above with vertical top-down perspective, 
+no diagonal lines on the front face of the speaker, only horizontal and vertical edges, 
+subject fills entire canvas with minimal transparent padding, 
+dark noir palette, charcoal black outlines, transparent background, 
+NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
+NO ambient occlusion, NO brown shadow gradient beneath, 
+single color black outline, crisp pixels, no anti-aliasing, pixel art, 
+16-bit retro game asset
+```
+
+### Office Chair (back view, with wheels)
+
+**`view: "high top-down"` + this prompt:**
+
+```
+back view of an office chair, viewed from BEHIND showing the BACK of the chair, 
+tall charcoal mesh backrest with lumbar support curve, 
+the BACKREST is the dominant feature of the sprite, 
+five-star wheeled base with small caster wheels visible at the bottom, 
+charcoal metal post connecting backrest to base, 
+front-facing view from slightly above with vertical top-down perspective, 
+the FRONT FACE (which here means the BACK of the chair as the viewer sees it) is dominant, 
+a thin TOP SLIVER visible at the top showing the top edge of the backrest, 
+NO armrests, just the backrest and wheeled base, 
+subject fills entire canvas with minimal transparent padding, 
+dark noir palette, charcoal black outlines, transparent background, 
+NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
+NO ambient occlusion, NO brown shadow gradient beneath, 
+single color black outline, crisp pixels, no anti-aliasing, pixel art, 
+16-bit retro game asset
+```
+
+### Sound Board (broadcast mixing console with knobs)
+
+**`view: "high top-down"` + this prompt:**
+
+```
+large broadcast studio sound mixing console, charcoal metal console chassis, 
+the FRONT FACE is dominant showing rows of rotary knobs and VU meters, 
+multiple rows of dark circular knobs arranged in a grid, 
+small phosphor green LED indicator lights on the meters, 
+faders at the bottom of the console front, 
+a thin TOP SLIVER visible at the top showing the top of the console chassis, 
+front-facing view from slightly above with vertical top-down perspective, 
+no diagonal lines on the front face, only horizontal and vertical edges, 
+subject fills entire canvas with minimal transparent padding, 
+dark noir palette, charcoal black outlines, transparent background, 
+NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
+NO ambient occlusion, NO brown shadow gradient beneath, 
+single color black outline, crisp pixels, no anti-aliasing, pixel art, 
+16-bit retro game asset
+```
+
+### Phone Board (multi-line switchboard)
+
+**`view: "high top-down"` + this prompt:**
+
+```
+large multi-line telephone switchboard panel, charcoal metal panel chassis, 
+the FRONT FACE is dominant showing multiple rows of line buttons and indicator lights, 
+many small square buttons arranged in a grid pattern for multiple phone lines, 
+small phosphor green LED lights indicating active lines, 
+a thin TOP SLIVER visible at the top showing the top of the switchboard, 
+front-facing view from slightly above with vertical top-down perspective, 
+no diagonal lines on the front face, only horizontal and vertical edges, 
+subject fills entire canvas with minimal transparent padding, 
+dark noir palette, charcoal black outlines, transparent background, 
+NO shadows, NO ground shadow, NO drop shadow, NO contact shadow underneath, 
+NO ambient occlusion, NO brown shadow gradient beneath, 
+single color black outline, crisp pixels, no anti-aliasing, pixel art, 
+16-bit retro game asset
 ```
 
 ---
