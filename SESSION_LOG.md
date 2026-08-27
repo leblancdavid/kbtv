@@ -2,37 +2,36 @@
 
 **Branch**: `feature/tight-prop-colliders`
 
-**Task**: Auto-derive tight prop collision boxes from sprite alpha + adjust studio_table collider
+**Task**: Regenerate Vern's seated studio sprite to resemble Art Bell + add a seated idle breathing animation
 
-**Status**: Completed
+**Status**: In Progress (sprite + idle animation wired; awaiting in-editor visual verification)
 
 **Files Modified**:
-- `scripts/world/PropBuilder.cs` (new `GetBaseFootprint` alpha-scan helper, `ImageFootprintToSpriteLocal` + `FootprintToCollisionCenter` converters, `CreatePropAutoCollider` overload with `floorScanHeight` + `Vector4? colliderOverride`; studio_table collider narrowed 124→92 and shifted up 1 tile)
-- `scripts/world/builders/ControlRoomBuilder.cs` (speaker_stand, audio_cabinet, storage_shelf switched to `CreatePropAutoCollider`)
-- `scripts/world/builders/StudioBuilder.cs` (bookcase, round_table switched to `CreatePropAutoCollider`; added `CreatePropAutoCollider` helper)
-- `tests/unit/world/PropBuilderTests.cs` (new — 16 tests for alpha-scan + collision-position math)
-- `docs/technical/TOPDOWN_BUILDING_PATTERN.md` (new "Tight Base Collider (Auto-Derived)" subsection)
-- `docs/art/ART_STYLE.md` (new "Tight Collider Per-Prop Footprint" reference table)
+- `assets/sprites/characters/vern/vern.png` (overwritten with new 80×80 Art Bell-style seated Vern — frame_4 from PixelLab, palette-reduced to 12 colors, edge-corrected; original saved as `vern.old.png`)
+- `assets/sprites/characters/vern/vern_idle.png` (new 720×80 horizontal atlas — 9×80×80 cells of the `seated_idle` breathing animation, 12-color palette)
+- `scripts/world/builders/StudioBuilder.cs` (`CreateVernChairGroup` — replaced static `Sprite2D` with `AnimatedSprite2D` + `SpriteFrames` `seated_idle` animation from the atlas; shadow still sourced from the 80×80 `vern.png` base so the 720-wide atlas doesn't distort the cast shadow)
 - `SESSION_LOG.md`
 
 **Work Done**:
-- **Alpha-scan tight collider**: replaced hand-tuned collider sizes (e.g. 24×16 for speaker_stand) with auto-derived bounding boxes computed by scanning the bottom `floorScanHeight` rows of each prop sprite's alpha channel. The visible footprint on the floor matches the actual base of each oblique/cabinet-projection sprite, so the player can walk right up to the prop without being blocked by an arbitrary box.
-- **Per-prop `floorScanHeight` tuning**: 8–12px for tall standing furniture (captures just the feet/base strip so the player can approach closely), 24px for the round_table (wraps the oval surface).
-- **`Vector4 colliderOverride` escape hatch**: still allows hardcoded colliders for special cases (e.g. the studio_table's surface-only strip via `CreateTableGroup`).
-- **Bug fix during dev**: initial implementation had the collision-position math wrong (was using the rect's left edge as the center and subtracting half-height instead of adding), which left colliders floating ~12px above the floor. Extracted the correct math into `FootprintToCollisionCenter` helper and added regression tests for the speaker_stand, audio_cabinet, storage_shelf, round_table, asymmetric footprint, and the bottom-edge formula.
-- **Studio_table collider tweak**: 124×10 strip narrowed to 92×10 (1 tile = 16px narrower on each side) and shifted up by 1 tile (`RoomBase.TileSize`) so the player can approach the table from below more closely.
-- **Tests**: 16 new `PropBuilderTests` covering null/transparent/all-opaque/opaque-in-bottom/floor-scan-clamping/single-row/triangle/alpha-threshold paths, plus 6 `FootprintToCollisionCenter_*` position tests verifying the bottom edge lands at the floor for bottom-anchored sprites.
-- `dotnet build`: 0 errors, same 9 pre-existing warnings
-- `godot --run-tests`: all 16 `PropBuilderTests` pass cleanly. Other test suite failures are pre-existing (`FileAccess.GetAsText` API incompatibility with installed Godot 4.5.1, unrelated to this change).
+- Researched existing Vern setup: only `vern.png` (80×80) is actually used, as a static `Sprite2D` in `CreateVernChairGroup` (`StudioBuilder.cs:513`). The `idle_*`/`drinking_*` frames and `vern_portrait.png` are legacy/unused.
+- Generated a 16-candidate PixelLab pack (`create_1_direction_object`, 80×80, front-facing seated in office chair). User selected **frame_4** as the favorite.
+- Post-processing: `reduce_colors` to 12 colors (KBTV noir palette spirit), then `correct_pixelart` (strength 0.1) to sharpen edges. Verified transparent bg + content bbox x[17..61] y[5..79].
+- Overwrote `vern.png` with the finalized sprite (original backed up at `vern.old.png`). Same file path/size → no code change needed for the base swap.
+- Generated `seated_idle` breathing animation via `animate_object` (v3, 9 frames: 8 generated + reference), promoted group `733883d6-13e6-4458-8619-4097b4e695f1`.
+- Reduced all 9 idle frames to a shared 12-color palette using the direct `https` frame URLs (inline base64 kept truncating through the MCP layer, as documented in `PIXELLAB_MCP_GUIDE.md`).
+- Assembled the 9 frames into a 720×80 horizontal atlas (`vern_idle.png`) and wired `CreateVernChairGroup` to use an `AnimatedSprite2D` playing `seated_idle` at 3.0 fps, looping, scale 0.75, following the existing `SpriteFrames`+`AtlasTexture` pattern from the smoke system.
+- Fixed a shadow bug: passing the 720-wide atlas to `CreateShadowForObject` would have produced a huge/misplaced shadow — so the shadow still sources from the 80×80 `vern.png` base.
+- `dotnet build`: 0 errors (same 9 pre-existing warnings). New PNGs will re-import in Godot on next editor open (`.import` regenerated automatically).
 
 **Next Steps**:
-- Open in Godot and toggle `RoomDebug` (`ui_select`) to visualize the new tight colliders vs the previous hand-tuned values
-- Verify the storage_shelf / bookcase thin-feet strip collider doesn't let the player feel like they're "missing" the shelves (may need to bump `floorScanHeight` from 8 to 12 if player gets stuck on invisible geometry)
-- Optional: re-tighten the round_table collider further if the player can walk too far under the table (current is 52×18 wrapped around the oval, leaving a small visible gap)
+- Open Godot and verify the new seated Vern renders correctly behind the round table (grid 6,3) at scale 0.75 with proper ZIndex and correct cast shadow.
+- Confirm the idle breathing animation plays smoothly (may tune `SetAnimationSpeed` — currently 3.0 fps).
+- Optional future work: talking/mouth animation synced to Vern's broadcast audio (requires wiring to broadcast events); the current scope was idle-only per user.
+- Consider deleting legacy unused `vern` sprites (`idle_*`, `drinking_*`, `vern_portrait.png`) in a cleanup pass.
 
 **Related Docs**:
-- `docs/technical/TOPDOWN_BUILDING_PATTERN.md` (new "Tight Base Collider (Auto-Derived)" subsection under Bottom-Anchor Rule)
-- `docs/art/ART_STYLE.md` (new "Tight Collider Per-Prop Footprint" reference table)
+- `docs/art/ART_STYLE.md` (noir palette; Vern is the warm accent — black turtleneck + warm skin)
+- `docs/art/PIXELLAB_MCP_GUIDE.md` (base64 truncation limit ~600-800 chars — used URL variants instead)
 
 **Blockers**:
 - None.

@@ -510,11 +510,12 @@ public partial class StudioBuilder : IRoomBuilder
 
 	private void CreateVernChairGroup()
 	{
-		var vernTexture = GD.Load<Texture2D>("res://assets/sprites/characters/vern/vern.png");
+		var vernIdleAtlas = GD.Load<Texture2D>("res://assets/sprites/characters/vern/vern_idle.png");
+		var vernBaseTexture = GD.Load<Texture2D>("res://assets/sprites/characters/vern/vern.png");
 
-		if (vernTexture == null)
+		if (vernIdleAtlas == null || vernBaseTexture == null)
 		{
-			GD.PrintErr("StudioBuilder: Missing vern texture");
+			GD.PrintErr("StudioBuilder: Missing vern id texture");
 			return;
 		}
 
@@ -526,7 +527,7 @@ public partial class StudioBuilder : IRoomBuilder
 		if (_shadows != null)
 		{
 			var shadowOffset = new Vector2(0, -20);
-			_shadows.CreateShadowForObject(body, vernTexture, shadowOffset);
+			_shadows.CreateShadowForObject(body, vernBaseTexture, shadowOffset);
 		}
 
 		var shape = new RectangleShape2D { Size = new Vector2(32, 32) };
@@ -535,13 +536,29 @@ public partial class StudioBuilder : IRoomBuilder
 		collision.AddToGroup("debug_prop_collision");
 		body.AddChild(collision);
 
-		var vernSprite = new Sprite2D
+		var idleFrames = new SpriteFrames();
+		var frameSize = new Vector2I(80, 80);
+		for (int i = 0; i < 9; i++)
 		{
-			Texture = vernTexture,
-			Position = new Vector2(0, -vernTexture.GetSize().Y * 0.5f),
-			Scale = new Vector2(0.75f, 0.75f)
+			var region = new Rect2I(new Vector2I(i * frameSize.X, 0), frameSize);
+			var frame = new AtlasTexture
+			{
+				Atlas = vernIdleAtlas,
+				Region = region
+			};
+			idleFrames.AddFrame("default", frame);
+		}
+		idleFrames.SetAnimationSpeed("default", 3.0f);
+		idleFrames.SetAnimationLoop("default", true);
+
+		var vernSprite = new AnimatedSprite2D
+		{
+			SpriteFrames = idleFrames,
+			Position = new Vector2(0, -0.5f * vernIdleAtlas.GetSize().Y * 0.5f),
+			Scale = new Vector2(0.5f, 0.5f)
 		};
 		vernSprite.Set("light_mask", LightMask);
+		vernSprite.Play("default");
 		body.AddChild(vernSprite);
 
 		body.ZIndex = (int)body.GlobalPosition.Y;
