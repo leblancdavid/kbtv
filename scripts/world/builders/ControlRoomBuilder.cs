@@ -4,7 +4,7 @@ using KBTV.UI;
 public partial class ControlRoomBuilder : IRoomBuilder
 {
 	[ExportGroup("Grid Settings")]
-	[Export] public Vector2 GridAnchor = new(0, 500);
+	[Export] public Vector2 GridAnchor = new(0, 1000);
 	[Export] public int GridWidth = 14;
 	[Export] public int GridHeight = 10;
 	[Export] public int LightMask = 1;
@@ -21,20 +21,20 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	[Export] private bool EnableCeilingLight = true;
 	[Export] private Color CeilingLightColor = new(1f, 0.95f, 0.9f);
 	[Export] private float CeilingLightEnergy = 1.6f;
-	[Export] private float CeilingLightRadius = 1000f;
+	[Export] private float CeilingLightRadius = 2000f;
 	[Export] private bool CeilingLightShadows = true;
 
 	[ExportGroup("Monitor Light")]
 	[Export] private bool EnableMonitorLight = true;
 	[Export] private Color MonitorLightColor = new(0f, 1f, 0.27f);
 	[Export] private float MonitorLightEnergy = 0.3f;
-	[Export] private float MonitorLightRadius = 80f;
+	[Export] private float MonitorLightRadius = 160f;
 
 	[ExportGroup("Desk Lamp")]
 	[Export] private bool EnableDeskLampLight = true;
 	[Export] private Color DeskLampColor = new(1f, 0.67f, 0.27f);
 	[Export] private float DeskLampEnergy = 0.25f;
-	[Export] private float DeskLampRadius = 60f;
+	[Export] private float DeskLampRadius = 120f;
 
 	[ExportGroup("Ambient")]
 	[Export] private Color AmbientColor = new(0.18f, 0.19f, 0.22f);
@@ -168,13 +168,13 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		if (EnableCeilingLight)
 		{
 			_ceilingLight = CreatePointLightWithTexture(
-				new Vector2(center.X, center.Y - 32),
+				new Vector2(center.X, center.Y - 64),
 				CeilingLightColor,
 				CeilingLightEnergy,
 				CeilingLightRadius,
 				CeilingLightShadows,
-				256,
-				256,
+				512,
+				512,
 				LightMask
 			);
 			world.AddChild(_ceilingLight);
@@ -185,7 +185,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		if (EnableMonitorLight)
 		{
 			_monitorLight = CreatePointLightWithTexture(
-				tablePosition + new Vector2(32, -38),
+				tablePosition + new Vector2(64, -76),
 				MonitorLightColor,
 				MonitorLightEnergy,
 				MonitorLightRadius,
@@ -201,7 +201,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		if (EnableDeskLampLight)
 		{
 			_deskLampLight = CreatePointLightWithTexture(
-				tablePosition + new Vector2(-32, -35),
+				tablePosition + new Vector2(-64, -70),
 				DeskLampColor,
 				DeskLampEnergy,
 				DeskLampRadius,
@@ -294,20 +294,20 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/speaker_stand.png",
 				new Vector2I(2, 0), Vector2.Zero,
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				floorScanHeight: 12);
+				floorScanHeight: 24);
 			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/speaker_stand.png",
 				new Vector2I(10, 0), Vector2.Zero,
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				floorScanHeight: 12);
+				floorScanHeight: 24);
 		}
 
 		if (PlaceTableGroup)
 		{
 			PropBuilder.CreateTableGroup(_propSort, new Vector2I(6, 1),
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				("res://assets/tiles/props/phone_board.png", new Vector2(-34, -40)),
-				("res://assets/tiles/props/sound_board.png", new Vector2(4, -44)),
-				("res://assets/tiles/props/computer_station.png", new Vector2(36, -48))
+				("res://assets/tiles/props/phone_board.png", new Vector2(-68, -80)),
+				("res://assets/tiles/props/sound_board.png", new Vector2(8, -88)),
+				("res://assets/tiles/props/computer_station.png", new Vector2(72, -96))
 			);
 			CreateScreeningTrigger();
 		}
@@ -317,25 +317,25 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/audio_cabinet.png",
 				new Vector2I(12, 1), Vector2.Zero,
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				floorScanHeight: 12);
+				floorScanHeight: 24);
 		}
 
 		if (PlaceStorageShelves)
 		{
 			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/storage_shelf.png",
-				new Vector2I(4, 10), new Vector2(0, -16),
+				new Vector2I(4, 10), new Vector2(0, -32),
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				floorScanHeight: 8, createCastShadow: false);
+				floorScanHeight: 16, createCastShadow: false);
 			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/storage_shelf.png",
-				new Vector2I(10, 10), new Vector2(0, -16),
+				new Vector2I(10, 10), new Vector2(0, -32),
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				floorScanHeight: 8, createCastShadow: false);
+				floorScanHeight: 16, createCastShadow: false);
 		}
 
 		if (PlaceChair)
 		{
 			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/computer_chair.png",
-				new Vector2I(6, 2), new Vector2(0, -8), false, Vector2.Zero,
+				new Vector2I(6, 2), new Vector2(0, -16), false, Vector2.Zero,
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 		}
 
@@ -350,11 +350,11 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		}
 
 		var trigger = new Area2D { Name = "ScreeningTrigger" };
-		var shape = new RectangleShape2D { Size = new Vector2(120, 50) };
+		var shape = new RectangleShape2D { Size = new Vector2(240, 100) };
 		var collision = new CollisionShape2D { Shape = shape };
 
 		trigger.AddChild(collision);
-		trigger.Position = _section.GridToWorld(new Vector2I(6, 2)) + new Vector2(0, 8);
+		trigger.Position = _section.GridToWorld(new Vector2I(6, 2)) + new Vector2(0, 16);
 		trigger.Monitoring = true;
 		trigger.Monitorable = true;
 
@@ -397,13 +397,13 @@ public partial class ControlRoomBuilder : IRoomBuilder
 
 		// Position: above door, shifted up 64px from wall bottom
 		// Wall bottom is at GridAnchor.y + 8 = 508, shift up 64 = 444
-		var signPos = GridAnchor + new Vector2(16, -56);
+		var signPos = GridAnchor + new Vector2(32, -112);
 
 		var onAirSign = new Sprite2D
 		{
 			Texture = onAirTexture,
 			Position = signPos,
-			Scale = new Vector2(0.375f, 0.5f),
+			Scale = new Vector2(0.75f, 1.0f),
 			Offset = new Vector2(0, -0),
 			ZIndex = 1001
 		};
@@ -414,10 +414,10 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			signPos,
 			new Color(1f, 0.1f, 0.1f),
 			0.5f,
-			60f,
+			120f,
 			false,
-			32,
-			32,
+			64,
+			64,
 			LightMask
 		);
 		onAirLight.ZIndex = 1002;

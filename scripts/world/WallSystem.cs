@@ -24,7 +24,7 @@ public partial class WallSystem : Node
 	[Export] public bool EnableOnAirSign = false;
 	[Export] public Color OnAirSignColor = new(1f, 0.1f, 0.1f);
 	[Export] public float OnAirLightEnergy = 0.4f;
-	[Export] public float OnAirLightRadius = 80f;
+	[Export] public float OnAirLightRadius = 160f;
 	[Export] public float OnAirBlinkSpeed = 3f;
 	[Export] public float OnAirBlinkAmount = 0.2f;
 
@@ -51,8 +51,8 @@ public partial class WallSystem : Node
 	[Export] public Texture2D CustomNorthDoorTexture;
 
 	[ExportGroup("Wall Dimensions")]
-	[Export] public float WallThickness = 8.0f;
-	[Export] public float WallStripWidth = 16.0f;
+	[Export] public float WallThickness = 16.0f;
+	[Export] public float WallStripWidth = 32.0f;
 
 	private RoomBase _room;
 	private Node2D _propSort;
@@ -487,7 +487,7 @@ public partial class WallSystem : Node
 		{
 			Texture = texture,
 			Position = position,
-			Offset = new Vector2(0, -24),
+			Offset = new Vector2(0, -48),
 			Hframes = 4,
 			Vframes = 1,
 			Frame = atlasCoords.X,
@@ -512,7 +512,7 @@ public partial class WallSystem : Node
 		{
 			Texture = texture,
 			Position = position,
-			Offset = new Vector2(0, -24),
+			Offset = new Vector2(0, -48),
 			Hframes = 2,
 			Vframes = 1,
 			Frame = doorColumnIndex,
@@ -541,8 +541,8 @@ public partial class WallSystem : Node
 		{
 			Texture = signTexture,
 			Position = position,
-			Offset = new Vector2(0, -6),
-			Scale = new Vector2(0.375f, 0.5f),
+			Offset = new Vector2(0, -12),
+			Scale = new Vector2(0.75f, 1.0f),
 			ZIndex = (int)position.Y
 		};
 		_onAirSign.Set("light_mask", NorthWallLightMask);
@@ -571,7 +571,7 @@ public partial class WallSystem : Node
 		{
 			Texture = texture,
 			Position = position,
-			Offset = new Vector2(0, -24),
+			Offset = new Vector2(0, -48),
 			Hframes = 1,
 			Vframes = 1,
 			Frame = 0,
@@ -593,7 +593,7 @@ public partial class WallSystem : Node
 		{
 			Texture = texture,
 			Position = position,
-			Offset = new Vector2(0, -24),
+			Offset = new Vector2(0, -48),
 			Hframes = 7,
 			Vframes = 1,
 			Frame = frame,

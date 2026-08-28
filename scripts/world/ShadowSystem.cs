@@ -4,8 +4,8 @@ using System.Collections.Generic;
 [GlobalClass]
 public partial class ShadowSystem : Node
 {
-	[Export] public float HeightScale = 0.02f;
-	[Export] public float DistanceScale = 400f;
+	[Export] public float HeightScale = 0.01f;
+	[Export] public float DistanceScale = 800f;
 	[Export] public float LerpFactor = 0.12f;
 	[Export] public float Opacity = 0.8f;
 	[Export] public int BaseZIndex = 10;

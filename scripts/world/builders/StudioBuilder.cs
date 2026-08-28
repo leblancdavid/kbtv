@@ -5,7 +5,7 @@ using KBTV.Data;
 public partial class StudioBuilder : IRoomBuilder
 {
 	[ExportGroup("Grid Settings")]
-	[Export] public Vector2 GridAnchor = new(0, 388);
+	[Export] public Vector2 GridAnchor = new(0, 776);
 	[Export] public int GridWidth = 14;
 	[Export] public int GridHeight = 6;
 	[Export] public int LightMask = 2;
@@ -25,7 +25,7 @@ public partial class StudioBuilder : IRoomBuilder
 	[Export] private bool EnableCeilingLight = true;
 	[Export] private Color CeilingLightColor = new(1f, 0.95f, 0.9f);
 	[Export] private float CeilingLightEnergy = 1.1f;
-	[Export] private float CeilingLightRadius = 450f;
+	[Export] private float CeilingLightRadius = 900f;
 	[Export] private bool CeilingLightShadows = true;
 
 
@@ -157,13 +157,13 @@ public partial class StudioBuilder : IRoomBuilder
 		if (EnableCeilingLight)
 		{
 			_ceilingLight = CreatePointLightWithTexture(
-				new Vector2(center.X, center.Y - 16),
+				new Vector2(center.X, center.Y - 32),
 				CeilingLightColor,
 				CeilingLightEnergy,
 				CeilingLightRadius,
 				CeilingLightShadows,
-				256,
-				256,
+				512,
+				512,
 				LightMask
 			);
 			world.AddChild(_ceilingLight);
@@ -351,14 +351,14 @@ public partial class StudioBuilder : IRoomBuilder
 			"res://assets/tiles/props/bookcase.png",
 			new Vector2I(1, 1),
 			Vector2.Zero,
-			floorScanHeight: 8
+			floorScanHeight: 16
 		);
 
 		CreatePropAutoCollider(
 			"res://assets/tiles/props/bookcase.png",
 			new Vector2I(12, 1),
 			Vector2.Zero,
-			floorScanHeight: 8
+			floorScanHeight: 16
 		);
 	}
 
@@ -371,13 +371,13 @@ public partial class StudioBuilder : IRoomBuilder
 			return;
 		}
 
-		var signPos = GridAnchor + new Vector2(112, -56);
+		var signPos = GridAnchor + new Vector2(224, -112);
 
 		var onAirSign = new Sprite2D
 		{
 			Texture = onAirTexture,
 			Position = signPos,
-			Scale = new Vector2(0.375f, 0.5f),
+			Scale = new Vector2(0.75f, 1.0f),
 			ZIndex = 1001
 		};
 		onAirSign.Set("light_mask", LightMask);
@@ -387,10 +387,10 @@ public partial class StudioBuilder : IRoomBuilder
 			signPos,
 			new Color(1f, 0.1f, 0.1f),
 			0.5f,
-			60f,
+			120f,
 			false,
-			32,
-			32,
+			64,
+			64,
 			LightMask
 		);
 		onAirLight.ZIndex = 1002;
@@ -500,7 +500,7 @@ public partial class StudioBuilder : IRoomBuilder
 			"res://assets/tiles/props/round_table.png",
 			tablePos,
 			Vector2.Zero,
-			floorScanHeight: 24,
+			floorScanHeight: 48,
 			createShadow: false
 		);
 		if (tableGroup == null) return;
@@ -526,11 +526,11 @@ public partial class StudioBuilder : IRoomBuilder
 
 		if (_shadows != null)
 		{
-			var shadowOffset = new Vector2(0, -20);
+			var shadowOffset = new Vector2(0, -40);
 			_shadows.CreateShadowForObject(body, vernBaseTexture, shadowOffset);
 		}
 
-		var shape = new RectangleShape2D { Size = new Vector2(32, 32) };
+		var shape = new RectangleShape2D { Size = new Vector2(64, 64) };
 		var collision = new CollisionShape2D { Shape = shape };
 		collision.Position = new Vector2(0, -(shape.Size.Y * 0.5f));
 		collision.AddToGroup("debug_prop_collision");
@@ -554,8 +554,8 @@ public partial class StudioBuilder : IRoomBuilder
 		var vernSprite = new AnimatedSprite2D
 		{
 			SpriteFrames = idleFrames,
-			Position = new Vector2(0, -0.5f * vernIdleAtlas.GetSize().Y * 0.5f),
-			Scale = new Vector2(0.5f, 0.5f)
+			Position = new Vector2(0, -0.5f * vernIdleAtlas.GetSize().Y),
+			Scale = new Vector2(1.0f, 1.0f)
 		};
 		vernSprite.Set("light_mask", LightMask);
 		vernSprite.Play("default");

@@ -4,10 +4,10 @@ using Godot;
 public abstract partial class RoomBase : Node2D
 {
 	[ExportGroup("Grid Settings")]
-	[Export] public Vector2 GridAnchor = new(320, 180);
+	[Export] public Vector2 GridAnchor = new(640, 360);
 	[Export] public int GridWidth = 14;
 	[Export] public int GridHeight = 10;
-	[Export] public float SouthWallHideOffset = 8.0f;
+	[Export] public float SouthWallHideOffset = 16.0f;
 
 	[ExportGroup("TileMap")]
 	[Export] public int FloorSourceId = 0;
@@ -20,7 +20,7 @@ public abstract partial class RoomBase : Node2D
 	public Node2D Player;
 	public Vector2 GridOffset = Vector2.Zero;
 
-	public const float TileSize = 16.0f;
+	public const float TileSize = 32.0f;
 
 	public static readonly Vector2I AtlasCoordsLeft = new(0, 0);
 	public static readonly Vector2I AtlasCoordsMid = new(1, 0);

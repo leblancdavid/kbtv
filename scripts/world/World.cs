@@ -3,7 +3,7 @@ using KBTV.Core;
 
 public partial class World : Node2D
 {
-	[Export] public float TileSize = 16f;
+	[Export] public float TileSize = 32f;
 
 	public WorldRoom WorldRoom { get; private set; } = null!;
 	public Player Player { get; private set; } = null!;
@@ -12,7 +12,7 @@ public partial class World : Node2D
 	private CastShadowSystem? _currentShadowSystem;
 	private Texture2D? _playerTexture;
 	private bool _initialShadowCreated = false;
-	private const float ShadowOffsetY = -6f;
+	private const float ShadowOffsetY = -12f;
 
 	public override void _Ready()
 	{

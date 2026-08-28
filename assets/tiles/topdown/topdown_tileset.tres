@@ -16,7 +16,7 @@ texture = ExtResource("1")
 
 [sub_resource type="TileSetAtlasSource" id="wall_north_source"]
 texture = ExtResource("2")
-texture_region_size = Vector2i(16, 64)
+texture_region_size = Vector2i(32, 128)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -24,7 +24,7 @@ texture_region_size = Vector2i(16, 64)
 
 [sub_resource type="TileSetAtlasSource" id="wall_south_source"]
 texture = ExtResource("3")
-texture_region_size = Vector2i(16, 64)
+texture_region_size = Vector2i(32, 128)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -32,14 +32,14 @@ texture_region_size = Vector2i(16, 64)
 
 [sub_resource type="TileSetAtlasSource" id="wall_west_source"]
 texture = ExtResource("5")
-texture_region_size = Vector2i(16, 64)
+texture_region_size = Vector2i(32, 128)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="wall_east_source"]
 texture = ExtResource("5")
-texture_region_size = Vector2i(16, 64)
+texture_region_size = Vector2i(32, 128)
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -47,7 +47,7 @@ texture_region_size = Vector2i(16, 64)
 
 [sub_resource type="TileSetAtlasSource" id="wall_south_strip_source"]
 texture = ExtResource("6")
-texture_region_size = Vector2i(16, 64)
+texture_region_size = Vector2i(32, 128)
 0:0/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="grid_debug_source"]
@@ -56,11 +56,12 @@ texture = ExtResource("7")
 
 [sub_resource type="TileSetAtlasSource" id="wall_north_door_source"]
 texture = ExtResource("8")
-texture_region_size = Vector2i(16, 64)
+texture_region_size = Vector2i(32, 128)
 0:0/0 = 0
 1:0/0 = 0
 
 [resource]
+tile_size = Vector2i(32, 32)
 sources/0 = SubResource("floor_source")
 sources/1 = SubResource("wall_north_source")
 sources/2 = SubResource("wall_south_source")

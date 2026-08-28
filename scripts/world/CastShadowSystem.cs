@@ -5,7 +5,7 @@ public partial class CastShadowSystem : Node
 {
 	[ExportGroup("Shadow Settings")]
 	[Export] public float ShadowLerpFactor = 0.12f;
-	[Export] public float LightRadius = 450f;
+	[Export] public float LightRadius = 900f;
 	[Export] public float ShadowOpacity = 0.3f;
 	[Export] public string GroupName = "shadow_pivots";
 
@@ -49,9 +49,9 @@ public partial class CastShadowSystem : Node
 
 		// Calculate bounds based on actual wall positions, centered on wall bottoms
 		// Walls are at: north y=-1, south y=gridHeight, west x=-1, east x=gridWidth
-		// Add half-tile (8px) to go past the wall into the room
-		const float pastWall = 8f;
-		const float margin = 4f;
+		// Add half-tile (16px) to go past the wall into the room
+		const float pastWall = 16f;
+		const float margin = 8f;
 
 		// North wall bottom center (y=-1 grid row, shift up by pastWall into room)
 		var northWallBottom = floorLayer.MapToLocal(new Vector2I(0, -1)) + gridOffset + new Vector2(0, -pastWall);
@@ -124,9 +124,9 @@ public partial class CastShadowSystem : Node
 	{
 		// Calculate bounds based on actual wall positions, centered on wall bottoms
 		// Walls are at: north y=-1, south y=gridHeight, west x=-1, east x=gridWidth
-		// Add half-tile (8px) to go past the wall into the room
-		const float pastWall = 8f;
-		const float margin = 4f;
+		// Add half-tile (16px) to go past the wall into the room
+		const float pastWall = 16f;
+		const float margin = 8f;
 
 		var floorLayer = _room.FloorLayer;
 		var gridOffset = _room.GridOffset;

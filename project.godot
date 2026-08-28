@@ -26,8 +26,8 @@ RoomStateManager="*res://scripts/core/RoomStateManager.cs"
 
 [display]
 
-window/size/viewport_width=640
-window/size/viewport_height=360
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/size/mode=2
 window/stretch/mode="canvas_items"
 window/stretch/scale_mode="integer"

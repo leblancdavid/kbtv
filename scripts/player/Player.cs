@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public partial class Player : CharacterBody2D
 {
-    [Export] private float _speed = 150.0f;
+    [Export] private float _speed = 300.0f;
 
     private AnimatedSprite2D _sprite;
     private World? _world;
