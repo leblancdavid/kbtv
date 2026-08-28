@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
 """
+DEPRECATED — do not use for new art.
+
+This batch generator targets Leonardo.ai / DALL-E and hard-codes prompt
+styles that violate the current rules (saturated hexes, "top-down isometric",
+"side" views). Art generation now goes through the PixelLab MCP workflow;
+see `docs/art/PIXELLAB_PROMPT_RULES.md` (authoritative) and
+`docs/art/PIXELLAB_MCP_GUIDE.md` (tool mechanics). Retained for reference only.
+
 KBTV Pixel Art Batch Generator
 Generates pixel art assets using AI image generation APIs.
 
@@ -30,7 +38,7 @@ from abc import ABC, abstractmethod
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 ASSETS_DIR = PROJECT_ROOT / "assets"
-PROMPTS_FILE = PROJECT_ROOT / "docs" / "art" / "PIXEL_ART_PROMPTS.md"
+PROMPTS_FILE = PROJECT_ROOT / "docs" / "art" / "PIXELLAB_PROMPT_RULES.md"
 
 # AI Service API Keys (set via environment variables)
 LEONARDO_API_KEY = os.environ.get("LEONARDO_API_KEY", "")
@@ -70,7 +78,7 @@ class GenerationResult:
 # ============================================================================
 
 class PromptParser:
-    """Parses the PIXEL_ART_PROMPTS.md file to extract asset specifications."""
+    """Parses prompt specs (legacy: PIXELLAB_PROMPT_RULES.md no longer carries asset specs)."""
 
     def __init__(self, prompts_file: Path):
         self.prompts_file = prompts_file

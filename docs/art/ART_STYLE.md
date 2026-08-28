@@ -1,5 +1,7 @@
 # KBTV - Art Style Guide
 
+> **Prompt rules are NOT in this doc.** For generating art with PixelLab (templates, tool choice, iteration budget) see **[`PIXELLAB_PROMPT_RULES.md`](PIXELLAB_PROMPT_RULES.md)**. This doc defines what the art must look like; that doc defines how to get it out of the generator.
+
 ## Visual Direction
 
 **Pixel Art Style** - Retro 2D aesthetic with a **late-night noir** overlay. The radio station should feel like a 3 AM broadcast: dim, desaturated, lit by screens and the warm red of an on-air sign.
@@ -184,7 +186,7 @@ Reject and regenerate if the result has:
 
 ## Prop Category-Specific Guidelines
 
-Different prop categories need slightly different prompts and treatment. Use the right category template from `PIXELLAB_MCP_GUIDE.md` §"KBTV Prompt Templates by Prop Type".
+Different prop categories need slightly different prompts and treatment. Use the right category template from `PIXELLAB_PROMPT_RULES.md` §"Prompt Templates".
 
 ### The Universal Standard: "Front-Facing with Vertical Top-Down Perspective"
 

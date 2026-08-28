@@ -6,7 +6,7 @@ This document outlines the design for integrating KBTV's pixel art generation to
 
 ## Current Status
 
-- ✅ Pixel art prompt library created: `docs/art/PIXEL_ART_PROMPTS.md`
+- ✅ Authoritative prompt rules: `docs/art/PIXELLAB_PROMPT_RULES.md` (replaces the deleted `docs/art/PIXEL_ART_PROMPTS.md`)
 - ✅ Batch generator script: `Tools/ArtGeneration/generate_pixel_art.py`
 - ✅ **PixelLab MCP connected** - User has external PixelLab MCP server configured
 - 📖 Usage guide: See `PIXELLAB_MCP_GUIDE.md`
@@ -333,7 +333,7 @@ The results will appear in your tool response, and files will be created in `ass
 ## Implementation Steps
 
 ### Phase 1: Already Complete
-- [x] Prompt library (PIXEL_ART_PROMPTS.md)
+- [x] Prompt rules (PIXELLAB_PROMPT_RULES.md, replaces PIXEL_ART_PROMPTS.md)
 - [x] Batch generator (generate_pixel_art.py)
 - [x] CLI interface
 - [x] Leonardo and DALL-E integrations

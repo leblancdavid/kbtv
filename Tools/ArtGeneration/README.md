@@ -129,7 +129,9 @@ AI-generated pixel art needs cleanup. After generation:
 5. **Test in Godot** - Import and verify sharp rendering
 6. **Add to TileSet** - For tiles, add to `topdown_tileset.tres`
 
-See `docs/art/PIXEL_ART_PROMPTS.md` for complete style guidelines and post-processing steps.
+> **DEPRECATED**: This generator targets Leonardo.ai / DALL-E with out-of-date prompt rules. New art is generated through the PixelLab MCP workflow — see `docs/art/PIXELLAB_PROMPT_RULES.md` (authoritative prompt rules) and `docs/art/PIXELLAB_MCP_GUIDE.md` (tool mechanics).
+
+See `docs/art/PIXELLAB_PROMPT_RULES.md` for complete style guidelines and post-processing steps.
 
 ## Command Reference
 
@@ -247,7 +249,7 @@ The `PromptParser` class in `generate_pixel_art.py` defines asset specifications
 2. Add `AssetSpec` entries with name, prompt, dimensions
 3. Run `--list-assets` to verify
 
-Alternatively, modify the parser to read from `PIXEL_ART_PROMPTS.md` directly for a data-driven approach.
+Alternatively, modify the parser to read from `PIXELLAB_PROMPT_RULES.md` directly for a data-driven approach.
 
 ### Adding New AI Services
 
@@ -269,7 +271,7 @@ Add to CLI `--service` choices and instantiate in `main()`.
 
 - `generate_pixel_art.py` - Main CLI tool
 - `requirements.txt` - Python dependencies
-- `docs/art/PIXEL_ART_PROMPTS.md` - Complete prompt library (reference)
+- `docs/art/PIXELLAB_PROMPT_RULES.md` - Authoritative prompt rules (replaces the deleted PIXEL_ART_PROMPTS.md)
 - `docs/art/ART_STYLE.md` - Art style guidelines
 
 ## Credits

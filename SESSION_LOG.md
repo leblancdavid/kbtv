@@ -1,5 +1,41 @@
 ## Current Session
 
+**Branch**: feature working tree (control-room QA fixes)
+
+**Task**: Control-room fixes — (1) desk must fit the window width so all three boards (phone/sound/computer) sit on it; (2) speakers were not appearing at all.
+
+**Status**: Completed — desk accepted; pro method set as default for all future prop generation
+
+### Work Done
+- **USER DIRECTIVE (adopted)**: `create_image_pro` is now the DEFAULT for every prop; 1-gen tools are a quick-proxy fallback only. Codified across `PIXELLAB_PROMPT_RULES.md` §1 matrix, §2 pro-method block, §6 protocol (pro = step 1, two-batch cap), §7 failure rows, §9 budget summary.
+- **Speakers missing — ROOT CAUSE + FIX**: `speaker_stand.png` content ended 32px above canvas bottom; `GetBaseFootprint` (bottom-24px band) found nothing → `CreatePropAutoCollider` returned null → prop never created. Fixed by cropping sprite to content bbox (96×192 → 45×132). Anchor math auto-adapts (`sprite.Position = (0, -texH/2)`), visible position shifts ~2.5px. Deleted stale `.import`.
+- **Desk too narrow — ROOT CAUSE**: visible desktop was only 156px wide (256×96 canvas, 49px+52px empty) while the three boards span ~214px → boards hung off both sides. Window = 7 columns (224px). Required wider art; no code-only fix.
+- **Window slat bug found**: `wall_window_atlas.png` 128px with `Hframes=7` → each column drew an 18.3px slice at 32px spacing (7 thin slats, gaps). Regenerated atlas 224×128 (7×32px frames) — matches `Hframes=7` exactly, no code change.
+- **Desk regeneration** (hero prop → pro batch, template 3b, palette swatch, seed 4117, job `45eab85b`, 20 gen): desktop now spans full 256px canvas (255px content). Two pixflux alternates (seeds 9001/9002) generated but rejected (214/224px wide → no overhang). User picked pro seed 4117.
+- **Processing** (rule 4): `reduce_colors` with KBTV palette swatch on desk (job `0119b80b`) + window (job `d6fd6a8b`), 0.1 gen each. Wired both over `studio_table.png` / `wall_window_atlas.png`, deleted stale `.import`.
+- Verified: desk content x[0..254] w=255; window 224×128 content 216 wide. `dotnet build` passes (0 warnings / 0 errors).
+- Docs updated: `PIXELLAB_PROMPT_RULES.md` §4 dims table (studio_table now 256×96@final) + wired-dims note (speaker_stand 45×132, window atlas 224×128) + §4 note (wide flat assets generated at final, not 2×).
+
+- **Desk rework — bare + transparent (user feedback R2)**: user approved pro style but objected to (a) items baked on the tabletop and (b) a white border around the desk.
+  - Diagnosis: pro candidate carried 5305 near-white px (default white pixel-art rim); `reduce_colors` snapped them to a light palette tone so the rim still read as a border.
+  - Attempt A (rejected): 2 pixflux bare re-rolls (seeds 9101/9102, 0 near-white) came back narrow (216/202px) → locally mirror-tiled the edge band to 256px. **User rejected — mirror-tiling banded; "use pro style instead".** Rule added: never locally widen art.
+  - Attempt B (**accepted**): `create_image_pro` seed 4759/4760 — first (4759) 0-white but only 176px wide ("bare + no white" shrank the subject); second (**4760**, re-added LED strip + hard edge-to-edge clause) = 256px wide, 0 near-white, 70% ink, base at y91. Palette-locked via `reduce_colors` (job `c2366b23`, 0.1 gen). Wired over `assets/tiles/props/studio_table.png`, `.import` removed.
+  - Repro: pro | 256×96 | style swatch (color_palette) | seed 4760 | desc = 3b + EMPTY + LED strip + edge-to-edge + NO-white clamp | job `0f81dd41` | accepted.
+  - Candidates kept in `assets/props_samples/studio_table_pro_bare_seed4759/4760_256x96.png`; prior artifacts (`studio_table_bare_seed910x`, `_prevWired_proReduced`) retained for reference.
+
+**Next Steps**:
+1. User visually confirmed desk ✓. 
+2. Next prop/sprite generations use the **pro method** (user directive) — §6 protocol.
+3. Speakers + solid window from the earlier fix still pending a final in-game look (both already wired; no known issues).
+
+**Related Docs**: `docs/art/PIXELLAB_PROMPT_RULES.md` (templates 3b/§4/§6), `docs/art/ART_STYLE.md`, `scripts/world/PropBuilder.cs` (`GetBaseFootprint`/`CreatePropAutoCollider`), `scripts/world/WallSystem.cs` (`CreateWindow`, Hframes=7).
+
+**Blockers**: This model cannot receive image input — all visual QA must be done by the user; programmatic checks only (dims, alpha bbox/corners).
+
+---
+
+## Previous Session
+
 **Branch**: feature working tree (2× migration + control-room prop rework)
 
 **Task**: (A) Migrate world from 16px/640×360 to 32px/1280×720 so full-res 2× art renders 1:1. (B) Rework control-room props per user feedback: plain table, studio speakers, north-facing chair with no white border, larger audio cabinet.
