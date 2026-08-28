@@ -1,6 +1,6 @@
 # Topdown Scene Building Pattern - Godot 4
 
-> **Note:** For new room development, see [Room Component Architecture](../AGENTS.md#room-component-architecture) in AGENTS.md. The components (`RoomBase`, `WallSystem`, `RoomLighting`, `CastShadowSystem`) handle most of this automatically.
+> **Note:** For new room development, see [Room Component Architecture](../AGENTS.md#room-component-architecture) in AGENTS.md. The shared components (`common/RoomBase`, `common/WallSystem`, `common/RoomLightingBuilder`, `common/CastShadowSystem`, plus the per-room builders and `props/` files) handle most of this automatically.
 
 ## Overview
 
@@ -31,22 +31,38 @@ Rooms are positioned using grid anchors - world coordinates where each room's gr
 
 ### Creating a New Room
 
-1. Create a new RoomBuilder class in `scripts/world/builders/`
+1. Create a new room folder `scripts/world/<room>/` containing a builder (`<Room>Builder.cs`), a layout (`<Room>Layout.cs`) and a `props/` directory
 2. Implement `IRoomBuilder` interface
 3. Add the builder to WorldRoom
 4. Configure exports for grid, lighting, props
 
 ### Room Builder Pattern
 
-KBTV uses the **Room Builder pattern** to encapsulate each room's logic. Each room has its own builder class that handles all setup:
+KBTV uses the **Room Builder pattern** to encapsulate each room's logic. Each room has its own builder class that handles all setup, with shared infrastructure in `common/` and one file per prop:
 
 ```
 scripts/world/
-├── WorldRoom.cs              # Orchestrator - delegates to builders
-├── builders/
-│   ├── IRoomBuilder.cs       # Interface all builders implement
-│   ├── ControlRoomBuilder.cs # Control room specific logic
-│   └── StudioBuilder.cs      # Studio specific logic
+├── common/                          # Shared infrastructure
+│   ├── IRoomBuilder.cs              # Interface all builders implement
+│   ├── IRoomSection.cs
+│   ├── RoomBase.cs
+│   ├── RoomSection.cs
+│   ├── WallSystem.cs
+│   ├── CastShadowSystem.cs
+│   ├── RoomLightingBuilder.cs
+│   ├── RoomDebug.cs
+│   ├── PropBuilder.cs
+│   ├── layout/RoomLayoutTypes.cs    # GridPlacement, PropSpec, BoardSpec
+│   └── props/OnAirSignProp.cs       # Shared prop (ON AIR sign)
+├── control_room/
+│   ├── ControlRoomBuilder.cs        # Control room specific logic
+│   ├── ControlRoomLayout.cs         # Room-level facts (grid, ceiling light, sign tuning)
+│   └── props/                       # One file per prop (desk, stands, cabinet, shelves, chair)
+└── studio/
+    ├── StudioBuilder.cs             # Studio specific logic
+    ├── StudioLayout.cs
+    ├── StudioSmoke.cs               # Ambient smoke effect
+    └── props/                       # One file per prop (bookcases, round table, Vern's chair)
 ```
 
 #### IRoomBuilder Interface
@@ -325,16 +341,27 @@ private void UpdateSouthWallVisibility()
 scripts/world/
 ├── WorldRoom.tscn            # Single scene with all rooms
 ├── WorldRoom.cs              # Main world coordinator (~65 lines)
-├── RoomSection.cs            # Individual room grid manager
-├── builders/
+├── common/                   # Shared infrastructure
 │   ├── IRoomBuilder.cs       # Interface for room builders
+│   ├── IRoomSection.cs
+│   ├── RoomBase.cs
+│   ├── RoomSection.cs        # Individual room grid manager
+│   ├── WallSystem.cs         # Wall/door/window management
+│   ├── CastShadowSystem.cs   # Shadow rendering
+│   ├── RoomLightingBuilder.cs
+│   ├── RoomDebug.cs
+│   ├── PropBuilder.cs        # Static helper for props
+│   ├── layout/RoomLayoutTypes.cs
+│   └── props/OnAirSignProp.cs
+├── control_room/
 │   ├── ControlRoomBuilder.cs # Control room logic
-│   └── StudioBuilder.cs      # Studio logic
-├── WallSystem.cs            # Wall/door/window management
-├── CastShadowSystem.cs      # Shadow rendering
-├── PropBuilder.cs           # Static helper for props
-└── ControlRoom.cs          # Legacy standalone room (kept for testing)
-└── StudioRoom.cs           # Legacy standalone room (kept for testing)
+│   ├── ControlRoomLayout.cs
+│   └── props/                # Desk, speaker stands, audio cabinet, shelves, chair
+└── studio/
+    ├── StudioBuilder.cs      # Studio logic
+    ├── StudioLayout.cs
+    ├── StudioSmoke.cs
+    └── props/                # Bookcases, round table, Vern's chair group
 ```
 
 The WorldRoom uses the topdown tileset and the layering rules above for wall placement, door visibility, and south wall occlusion. Each room builder manages its own:

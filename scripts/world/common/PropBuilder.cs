@@ -312,10 +312,11 @@ public static partial class PropBuilder
 		ShaderMaterial depthShadowMaterial,
 		RoomBase room,
 		int lightMask = 1,
-		params (string texture, Vector2 offset)[] tabletops
+		Vector2 pixelOffset = default,
+		params BoardSpec[] tabletops
 	)
 	{
-		var worldPos = room.GridToWorld(gridCoords);
+		var worldPos = room.GridToWorld(gridCoords) + pixelOffset;
 		return CreateTableGroupInternal(parent, worldPos, shadowSystem, depthShadowMaterial, lightMask, tabletops);
 	}
 
@@ -326,10 +327,11 @@ public static partial class PropBuilder
 		ShaderMaterial depthShadowMaterial,
 		IRoomSection roomSection,
 		int lightMask = 1,
-		params (string texture, Vector2 offset)[] tabletops
+		Vector2 pixelOffset = default,
+		params BoardSpec[] tabletops
 	)
 	{
-		var worldPos = roomSection.GridToWorld(gridCoords);
+		var worldPos = roomSection.GridToWorld(gridCoords) + pixelOffset;
 		return CreateTableGroupInternal(parent, worldPos, shadowSystem, depthShadowMaterial, lightMask, tabletops);
 	}
 
@@ -339,7 +341,7 @@ public static partial class PropBuilder
 		CastShadowSystem shadowSystem,
 		ShaderMaterial depthShadowMaterial,
 		int lightMask,
-		params (string texture, Vector2 offset)[] tabletops
+		params BoardSpec[] tabletops
 	)
 	{
 		var group = new Node2D { Name = "TableGroup" };
@@ -377,9 +379,9 @@ public static partial class PropBuilder
 		tableBody.AddChild(tableCollision);
 		group.AddChild(tableBody);
 
-		foreach (var (texturePath, offset) in tabletops)
+		foreach (var board in tabletops)
 		{
-			CreateTabletopSprite(group, texturePath, offset, lightMask, depthShadowMaterial);
+			CreateTabletopSprite(group, board.TexturePath, board.Offset, lightMask, depthShadowMaterial);
 		}
 
 		return group;

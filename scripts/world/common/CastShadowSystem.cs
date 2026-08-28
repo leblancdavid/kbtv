@@ -410,9 +410,19 @@ public partial class CastShadowSystem : Node
 		}
 	}
 
+	public override void _Process(double delta)
+	{
+		// Keep the depth-shadow shader's light origin synced to the real light every frame.
+		// The shader dims each prop's sprite by its Y distance from this point, so if it is
+		// stale or missing (e.g. hardcoded default `(320,180)`), low-lying rooms like the
+		// control room render every floor prop at ~20-60% brightness while the walls and
+		// floor (which use no shader) stay fully lit.
+		UpdateDepthShadowLightPosition();
+	}
+
 	public void UpdateDepthShadowLightPosition()
 	{
-		if (_lightSource != null && _depthShadowMaterial != null)
+		if (_lightSource != null && _lightSource.IsInsideTree() && _depthShadowMaterial != null)
 		{
 			_depthShadowMaterial.SetShaderParameter("light_position", _lightSource.GlobalPosition);
 		}

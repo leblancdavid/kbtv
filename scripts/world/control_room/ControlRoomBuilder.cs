@@ -39,6 +39,9 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	[ExportGroup("Ambient")]
 	[Export] private Color AmbientColor = new(0.18f, 0.19f, 0.22f);
 
+	/// <summary>Single source of truth for where everything in this room is placed.</summary>
+	private readonly ControlRoomLayout _layout = new();
+
 	[ExportGroup("Props")]
 	[Export] private bool PlaceSpeakerStands = true;
 	[Export] private bool PlaceTableGroup = true;
@@ -161,125 +164,58 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		_canvasModulate = new CanvasModulate { Color = AmbientColor, Name = "ControlAmbient" };
 		world.AddChild(_canvasModulate);
 
-		var centerX = GridWidth / 2f;
-		var centerY = GridHeight / 2f;
-		var center = GridToWorld(new Vector2I((int)centerX, (int)centerY));
+		var center = GridToWorld(new Vector2I((int)(GridWidth / 2f), (int)(GridHeight / 2f)));
 
 		if (EnableCeilingLight)
 		{
-			_ceilingLight = CreatePointLightWithTexture(
-				new Vector2(center.X, center.Y - 64),
+			_ceilingLight = RoomLightingBuilder.MakeCeilingLight(
+				new Vector2(center.X, center.Y - _layout.CeilingLightOffsetY),
 				CeilingLightColor,
 				CeilingLightEnergy,
 				CeilingLightRadius,
 				CeilingLightShadows,
-				512,
-				512,
-				LightMask
+				LightMask,
+				_layout.CeilingLightTextureSize,
+				_layout.CeilingLightTextureScale
 			);
 			world.AddChild(_ceilingLight);
 		}
 
-		var tablePosition = GridToWorld(new Vector2I(6, 1));
+		// The table group's origin, including the downward drop so the lights track the desk.
+		var tablePosition = ControlTableGroupProp.GetTablePosition(_section);
 
 		if (EnableMonitorLight)
 		{
-			_monitorLight = CreatePointLightWithTexture(
-				tablePosition + new Vector2(64, -76),
+			_monitorLight = RoomLightingBuilder.MakeLight(
+				tablePosition + ControlTableGroupProp.MonitorLightOffset,
 				MonitorLightColor,
 				MonitorLightEnergy,
 				MonitorLightRadius,
 				false,
-				0,
-				0,
 				LightMask
 			);
-			_monitorLight.TextureScale = 1.0f;
 			world.AddChild(_monitorLight);
 		}
 
 		if (EnableDeskLampLight)
 		{
-			_deskLampLight = CreatePointLightWithTexture(
-				tablePosition + new Vector2(-64, -70),
+			_deskLampLight = RoomLightingBuilder.MakeLight(
+				tablePosition + ControlTableGroupProp.DeskLampLightOffset,
 				DeskLampColor,
 				DeskLampEnergy,
 				DeskLampRadius,
 				false,
-				0,
-				0,
 				LightMask
 			);
-			_deskLampLight.TextureScale = 1.0f;
 			world.AddChild(_deskLampLight);
 		}
 
 		_shadows.Initialize(_section, _ceilingLight);
+		// Set the depth-shadow shader's light origin to the ceiling light's real position.
+		// Deferred so the just-added light's global transform is settled before we read it
+		// (CastShadowSystem._Process also keeps it fresh every frame).
+		_shadows.CallDeferred(nameof(CastShadowSystem.UpdateDepthShadowLightPosition));
 		_flickerTime = 0f;
-	}
-
-	private PointLight2D CreatePointLightWithTexture(Vector2 position, Color color, float energy, float radius, bool shadows, int textureWidth = 0, int textureHeight = 0, int itemCullMask = 1)
-	{
-		var light = new PointLight2D
-		{
-			Position = position,
-			Color = color,
-			Energy = energy,
-			ShadowEnabled = shadows,
-			ShadowColor = new Color(0, 0, 0, 0.3f),
-			ZIndex = 10
-		};
-		light.Set("range_item_cull_mask", itemCullMask);
-
-		var texture = CreateOvalGradientTexture(textureWidth, textureHeight, radius);
-		light.Texture = texture;
-		light.TextureScale = 1.0f;
-		light.Set("range", radius);
-
-		return light;
-	}
-
-	private ImageTexture CreateOvalGradientTexture(int width, int height, float radius)
-	{
-		var sizeX = width > 0 ? width : (int)(radius);
-		var sizeY = height > 0 ? height : (int)(radius);
-		sizeX = Mathf.Max(sizeX, 48);
-		sizeY = Mathf.Max(sizeY, 48);
-
-		var image = Image.Create(sizeX, sizeY, false, Image.Format.Rgba8);
-
-		var centerX = sizeX / 2f;
-		var centerY = sizeY / 2f;
-
-		for (int y = 0; y < sizeY; y++)
-		{
-			for (int x = 0; x < sizeX; x++)
-			{
-				var dx = (x - centerX) / centerX;
-				var dy = (y - centerY) / centerY;
-				var dist = Mathf.Sqrt(dx * dx + dy * dy);
-
-				byte alpha;
-				if (dist < 0.2f)
-				{
-					alpha = 255;
-				}
-				else if (dist < 1.0f)
-				{
-					var t = (dist - 0.2f) / 0.8f;
-					t = t * t * t;
-					alpha = (byte)(255 * (1f - t));
-				}
-				else
-				{
-					alpha = 0;
-				}
-
-				image.SetPixel(x, y, new Color(1, 1, 1, alpha / 255f));
-			}
-		}
-
-		return ImageTexture.CreateFromImage(image);
 	}
 
 	private void InitializeDebug()
@@ -291,55 +227,59 @@ public partial class ControlRoomBuilder : IRoomBuilder
 	{
 		if (PlaceSpeakerStands)
 		{
-			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/speaker_stand.png",
-				new Vector2I(2, 0), Vector2.Zero,
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				floorScanHeight: 24);
-			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/speaker_stand.png",
-				new Vector2I(10, 0), Vector2.Zero,
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				floorScanHeight: 24);
+			foreach (var spec in SpeakerStandsProp.Specs)
+			{
+				CreateProp(spec, SpeakerStandsProp.TexturePath);
+			}
 		}
 
 		if (PlaceTableGroup)
 		{
-			PropBuilder.CreateTableGroup(_propSort, new Vector2I(6, 1),
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				("res://assets/tiles/props/phone_board.png", new Vector2(-68, -80)),
-				("res://assets/tiles/props/sound_board.png", new Vector2(8, -88)),
-				("res://assets/tiles/props/computer_station.png", new Vector2(72, -96))
-			);
+			ControlTableGroupProp.CreateTableGroup(_propSort, _shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 			CreateScreeningTrigger();
 		}
 
 		if (PlaceAudioCabinet)
 		{
-			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/audio_cabinet.png",
-				new Vector2I(12, 1), Vector2.Zero,
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				floorScanHeight: 24);
+			CreateProp(AudioCabinetProp.Spec, AudioCabinetProp.TexturePath);
 		}
 
 		if (PlaceStorageShelves)
 		{
-			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/storage_shelf.png",
-				new Vector2I(4, 10), new Vector2(0, -32),
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				floorScanHeight: 16, createCastShadow: false);
-			PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/storage_shelf.png",
-				new Vector2I(10, 10), new Vector2(0, -32),
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-				floorScanHeight: 16, createCastShadow: false);
+			foreach (var spec in StorageShelvesProp.Specs)
+			{
+				CreateProp(spec, StorageShelvesProp.TexturePath);
+			}
 		}
 
 		if (PlaceChair)
 		{
-			PropBuilder.CreateProp(_propSort, "res://assets/tiles/props/computer_chair.png",
-				new Vector2I(6, 2), new Vector2(0, -16), false, Vector2.Zero,
+			// The chair is walk-through, so place it via the non-collidable CreateProp overload.
+			PropBuilder.CreateProp(_propSort, ControlChairProp.TexturePath,
+				ControlChairProp.Placement.Cell, ControlChairProp.Placement.Offset, false, Vector2.Zero,
 				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 		}
 
-		CreateOnAirSign();
+		OnAirSignProp.Create(_propSort, GridAnchor + _layout.OnAirSignFromAnchor, _layout.OnAirSignScale,
+			_layout.OnAirSignLightColor, _layout.OnAirSignLightEnergy, _layout.OnAirSignLightRadius, LightMask);
+	}
+
+	/// <summary>Applies a <see cref="PropSpec"/> (anchor cell + offset + collider) via <see cref="PropBuilder"/>.</summary>
+	private Node2D CreateProp(PropSpec spec, string texturePath)
+	{
+		return PropBuilder.CreatePropAutoCollider(
+			_propSort,
+			texturePath,
+			spec.Cell,
+			spec.Offset,
+			_shadows,
+			_shadows.DepthShadowMaterial,
+			_section,
+			LightMask,
+			spec.CreateCastShadow,
+			spec.FloorScanHeight,
+			spec.ColliderOverride
+		);
 	}
 
 	private void CreateScreeningTrigger()
@@ -350,11 +290,11 @@ public partial class ControlRoomBuilder : IRoomBuilder
 		}
 
 		var trigger = new Area2D { Name = "ScreeningTrigger" };
-		var shape = new RectangleShape2D { Size = new Vector2(240, 100) };
+		var shape = new RectangleShape2D { Size = ControlTableGroupProp.ScreeningTriggerSize };
 		var collision = new CollisionShape2D { Shape = shape };
 
 		trigger.AddChild(collision);
-		trigger.Position = _section.GridToWorld(new Vector2I(6, 2)) + new Vector2(0, 16);
+		trigger.Position = ControlTableGroupProp.ScreeningTrigger.ToWorld(_section);
 		trigger.Monitoring = true;
 		trigger.Monitorable = true;
 
@@ -384,44 +324,6 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			GD.Print("ControlRoomBuilder: Player exited screening trigger");
 			// Note: Room membership is now handled by bounds-based detection in RoomStateManager
 		}
-	}
-
-	private void CreateOnAirSign()
-	{
-		var onAirTexture = GD.Load<Texture2D>("res://assets/tiles/props/on_air_sign.png");
-		if (onAirTexture == null)
-		{
-			GD.PrintErr("ControlRoomBuilder: Missing on_air_sign.png texture");
-			return;
-		}
-
-		// Position: above door, shifted up 64px from wall bottom
-		// Wall bottom is at GridAnchor.y + 8 = 508, shift up 64 = 444
-		var signPos = GridAnchor + new Vector2(32, -112);
-
-		var onAirSign = new Sprite2D
-		{
-			Texture = onAirTexture,
-			Position = signPos,
-			Scale = new Vector2(0.75f, 1.0f),
-			Offset = new Vector2(0, -0),
-			ZIndex = 1001
-		};
-		_propSort.AddChild(onAirSign);
-
-		// Light - use helper to create texture so it's visible
-		var onAirLight = CreatePointLightWithTexture(
-			signPos,
-			new Color(1f, 0.1f, 0.1f),
-			0.5f,
-			120f,
-			false,
-			64,
-			64,
-			LightMask
-		);
-		onAirLight.ZIndex = 1002;
-		_propSort.AddChild(onAirLight);
 	}
 
 	public void SetPlayer(CharacterBody2D player)

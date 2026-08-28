@@ -1,10 +1,102 @@
 ## Current Session
 
+**Branch**: feature working tree (world/ reorg)
+
+**Task**: Reorganize `scripts/world/` into per-room folders (`control_room/`, `studio/`) + shared `common/` with per-prop files; update AGENTS.md + TOPDOWN_BUILDING_PATTERN.md; update this log.
+
+**Status**: Completed — reorg done, `dotnet build` green (0 new warnings), runtime world smoke test passed (both rooms built + populated, player entered control room). Docs updated.
+
+### Work Done (this session — world/ reorganization)
+- **New structure**:
+  ```
+  scripts/world/
+  ├── common/                       # Shared infra (moved RoomBase, RoomSection, IRoomSection,
+  │   ├── IRoomBuilder.cs           #   IRoomBuilder, WallSystem, CastShadowSystem, ShadowSystem,
+  │   ├── IRoomSection.cs           #   RoomLightingBuilder, RoomDebug, PropBuilder)
+  │   ├── RoomBase.cs
+  │   ├── RoomSection.cs
+  │   ├── WallSystem.cs
+  │   ├── CastShadowSystem.cs
+  │   ├── ShadowSystem.cs
+  │   ├── RoomLightingBuilder.cs
+  │   ├── RoomDebug.cs
+  │   ├── PropBuilder.cs
+  │   ├── layout/RoomLayoutTypes.cs     # GridPlacement, PropSpec, BoardSpec
+  │   └── props/OnAirSignProp.cs        # Shared ON AIR sign + key light
+  ├── control_room/
+  │   ├── ControlRoomBuilder.cs
+  │   ├── ControlRoomLayout.cs          # Room-level facts only (ceiling light, sign, LightMask)
+  │   └── props/                        # SpeakerStands, AudioCabinet, StorageShelves,
+  │                                     #   ControlChair, ControlTableGroup (desk+boards+lights+trigger)
+  └── studio/
+      ├── StudioBuilder.cs
+      ├── StudioLayout.cs               # Room-level facts only (+ smoke anchor)
+      ├── StudioSmoke.cs                # Smoke effect extracted from builder
+      └── props/                        # Bookcases, RoundTable, VernChairGroup
+  ```
+- **Prop files = data + placement code** (static classes, global namespace): `ControlTableGroupProp` (desk group: boards, monitor/desk-light offsets, screening trigger — `GetTablePosition(IRoomSection)` feeds `CreateLighting`), `SpeakerStandsProp` (PropSpec[]), `AudioCabinetProp`, `StorageShelvesProp`, `ControlChairProp`, `BookcasesProp`, `RoundTableProp.Create` (CreatePropAutoCollider, `createCastShadow:false`, `floorScanHeight:48`), `VernChairGroupProp.Build` (static body "VernChairGroup" + 9-frame AnimatedSprite2D), `OnAirSignProp.Create(parent, pos, scale, color, energy, radius, mask)`.
+- **StudioSmoke**: `Initialize(Node2D propSort, Vector2 smokePosition, int maxParticles, float decayTime, int lightMask)` + `Update(VernStats?)`; constants in-file (smoke_sheet.png, 3 scatter layers, RootZIndex 480, 256px/5×5 grid). Builder delegates via exports (`EnableSmoke`, `SmokeMaxParticles`, `SmokeDecayTime`).
+- **Builders thinned**: duplicated `CreateOnAirSign` removed from both; studio dead code deleted (`CreatePropWithCollision`/`CreatePropAutoCollider`/`CreatePropNoCollision`/`CreateRoundTableGroup`/`CreateVernChairGroup`/`CreateTabletopSprite`, old smoke methods); `using System;` dropped from StudioBuilder.
+- **Moves included `.cs.uid` sidecars**; `scenes/world/World.tscn` UID refs unchanged; builders aren't autoloads → no `project.godot` edits. `StackWalkAnalyzer` build warnings all pre-existing.
+- Two compile errors found+fixed during reorg: `RoundTableProp` `createShadow:` → `createCastShadow:` (CS1739); `StudioSmoke.RootZIndex` `const float` → `const int` (CS0266). `dotnet build` green after.
+- **Docs updated**: AGENTS.md File Structure + Room Component Architecture (Component Files table, world/ tree, Per-Prop File Pattern, Prop Data Sources, Creating a New Room example using `RoomLightingBuilder`); TOPDOWN_BUILDING_PATTERN.md note, Creating a New Room, builder-pattern tree, Example Setup tree.
+
+**Next Steps**:
+1. User runs the game in Godot to confirm visuals are unchanged (no position/shadow/light regressions in either room).
+2. When the test runner is fixed, run `PropBuilderTests` to confirm the prop pipeline survived the reorg.
+3. Optional: `SESSION_LOG.md` cleanup — old sections retained below; can be pruned as they age.
+
+**Related Docs**: AGENTS.md ("Room Component Architecture"), `docs/technical/TOPDOWN_BUILDING_PATTERN.md`, `tests/unit/world/PropBuilderTests.cs`.
+
+**Blocker**: Test runner broken in this environment — pre-existing `System.MissingMethodException: Godot.FileAccess.GetAsText()` in `ArcRepository.Initialize()` (stale Godot C# glue / removed API). `godot --run-tests` launches the game instead of tests and never completes (killed after ~600s). Unrelated to this reorg; game world itself built + ran with zero errors from reorganized code.
+
+---
+
+## Previous Session (room layout refactor)
+
 **Branch**: feature working tree (control-room QA fixes)
 
-**Task**: Control-room fixes — (1) desk must fit the window width so all three boards (phone/sound/computer) sit on it; (2) speakers were not appearing at all.
+**Task**: Control-room fixes — (1) desk + boards placement, colliders, and (2) control-room props not illuminated.
 
-**Status**: Completed — desk accepted; pro method set as default for all future prop generation
+**Status**: In Progress — lighting fix + room-layout refactor both DONE (build 0w/0e); awaiting user visual verification of desk/boards move, collider width, and prop illumination.
+
+### Lighting (props not illuminated) — ROOT CAUSE + FIX
+- **ROOT CAUSE = TWO independent problems** (both must be fixed; either alone leaves the props dark):
+  1. **Depth-shadow shader dims props (`light_position` never updated)**: every prop renders through `shaders/depth_shadow.gdshader`, which computes brightness from `y_distance = MODEL_MATRIX[3].y - light_position.y` / `light_radius`. It used the hardcoded default `light_position = (320,180)`, so a prop's brightness was derived from distance to that fixed point. Control-room props at world Y≈1024–1160 → brightness clamped to `1 - shadow_factor` ≈ **0.2** → props render at ~20% while walls/floor (no shader) stay lit. (Studio props Y≈800 mild ~0.44, so it looked fine.)
+  2. **Ceiling-light coverage too small to reach the floor**: docs confirm with a texture set, `range` is IGNORED and reach = `texture_size × texture_scale`. At `TextureScale 1.0` the 512×512 texture covers only ~ ±256px and its alpha fades out past the central ~51px disk → the light center sits at Y≈1016, so everything below Y≈1100 (most of the floor + the player at Y≈1240) falls in the fade-out → floor + props look unlit. The tall control room (160px) exposes this; the short studio doesn't.
+- **FIX**:
+  1. `scripts/world/CastShadowSystem.cs` now has `_Process()` that calls `UpdateDepthShadowLightPosition()` EVERY FRAME (sets shader `light_position` = `_lightSource.GlobalPosition`, guarded by `IsInsideTree()`). Removes all timing/binding doubt; also auto-fixes the studio.
+  2. `ControlRoomBuilder.CreateLighting()` sets `_ceilingLight.TextureScale = 2.4f` (was implicitly 1.0) → light box ~1230px, fully-lit region covers the whole room + player area. Kept the existing deferred call too (harmless).
+  3. `CastShadowSystem.UpdateDepthShadowLightPosition()` adds `_lightSource.IsInsideTree()` guard.
+- **NOTE**: after fix, props brightness ≈1.0 AND the PointLight2D reaches the whole floor → props + floor fully lit. If the user still sees dark after a FRESH rebuild, it was a stale build (two prior attempts were the same single-mechanism fix on a possibly-unrebuilt client).
+
+### Desk/boards/colliders (from prior working-tree state)
+- `PropBuilder.CreateTableGroup` gained optional `Vector2 pixelOffset` (passed into `group.Position`); control room passes `(0, TableDropPixels=10)` to drop desk+boards ~10px.
+- Monitor/desk-lamp lights track the desk (`tablePosition` gets the +10px drop; light Y offsets −76→−66 / −70→−60).
+- `colliderOverride` widened on speaker_stand (45 wide), audio_cabinet (128), storage_shelf (128) to span each prop's visual width.
+- **Build passes (0 errors)** — done via `dotnet build`.
+
+**Next Steps**:
+1. User rebuilds + runs: verify (a) desk+boards sit ~10px lower, (b) green `ui_select` debug colliders span prop widths, (c) **props are now fully lit** (they were 0.2-bright), (d) refactor is behavior-neutral in-game (no position/shadow/light regressions in control room or studio).
+2. If studio props also look dim, they already get the same `UpdateDepthShadowLightPosition` (applied in `StudioBuilder.CreateLighting`) — confirm via fresh build.
+3. Optional: unit test for the width-matched collider override (currently a passthrough, no new math).
+
+**Related Docs**: `shaders/depth_shadow.gdshader` (`light_position`/`light_radius`/`shadow_factor`), `scripts/world/CastShadowSystem.cs` (`UpdateDepthShadowLightPosition`, `LightRadius`), `scripts/world/builders/ControlRoomBuilder.cs` (`CreateLighting`, `CreateProps`), `docs/technical/TOPDOWN_BUILDING_PATTERN.md`.
+
+**Blocker**: Test runner is broken in this environment — pre-existing `System.MissingMethodException: Godot.FileAccess.GetAsText()` in `ArcRepository.Initialize()` (stale Godot C# glue / removed API) crashes on startup, so `godot --run-tests` won't complete. Game also crashes on that error, so no in-engine visual capture is possible here; visual QA must be done by the user.
+
+### Work Done (this session — lights + layout refactor)
+- **Refactor — per-room strongly-typed layout classes** (user chose: "Per-room layout class" + "Grid cell + named offsets"). All new files in the **global namespace** (project style); deliberately avoided a `namespace KBTV.World.*` because that collides with the existing `World` type in `scripts/core/GameStateManager.cs:44`.
+  - **New `scripts/world/layout/RoomLayoutTypes.cs`**: `GridPlacement(Cell, Offset)` (`.ToWorld(IRoomSection)`, implicit tuple), `BoardSpec(TexturePath, Offset)`, `PropSpec(Cell, Offset, FloorScanHeight, CreateCastShadow, ColliderOverride)`. Dropped the `IRoomLayout`/`IInvariantLayout` interfaces after the refactor — builders hold concrete `ControlRoomLayout`/`StudioLayout` and the interface was an unused abstraction (YAGNI).
+  - **New `scripts/world/layout/ControlRoomLayout.cs`**: `TableGroup=(6,1)`, `TableDropPixels=10`, `Boards[]` (phone_board/sound_board/computer_station), `CeilingLightOffsetY=64`, `CeilingLightTextureSize=512`, `CeilingLightTextureScale=2.4`, monitor/desk-lamp offsets, `SpeakerStands[]` ((2,0)/(10,0)), `AudioCabinet` ((12,1)), `StorageShelves[]` ((4,10)/(10,10)), `Chair=GridPlacement(6,2,(0,-16))`, `ScreeningTrigger` (6,2+(0,16) 240×100), `OnAirSignFromAnchor=(32,-112)` / `OnAirSignScale=(0.75,1.0)`, on-air light facts, `LightMask=1`.
+  - **New `scripts/world/layout/StudioLayout.cs`**: `RoundTable=(6,4)`, `VernChairCell=(6,3)`, `VernShadowOffset=(0,-40)`, `VernColliderSize=(64,64)`, `CeilingLightOffsetY=32` / `TextureScale=1.0`, `Bookcases[]` ((1,1)/(12,1)), `SmokeColumn=7` / `SmokeRowsFromBottom=3`, `OnAirSignFromAnchor=(224,-112)` / `Scale=(0.75,1.0)`, on-air light facts, `LightMask=2`.
+  - **New `scripts/world/RoomLightingBuilder.cs`** (shared helper): `MakeLight(...)` (Position/Color/Energy/radius/shadows/cullMask/textureWidth/Height/TextureScale), `MakeCeilingLight(...)`, `OvalGradient(w,h,radius,falloffRadius,radiusScale)`, `LightZIndex=10`. Class doc explains the texture×scale coverage gotcha. Replaces the per-builder `CreatePointLightWithTexture`/`CreateOvalGradientTexture` duplicates (both deleted).
+  - **ControlRoomBuilder**: `_layout` field; `CreateLighting` uses `RoomLightingBuilder.MakeCeilingLight` + `_layout.CeilingLightTextureScale=2.4`; `CreateProps`/`CreateTableGroup`/`CreateScreeningTrigger`/`CreateOnAirSign` read layout facts; chair still routes through the **non-collidable** `PropBuilder.CreateProp` (it's walk-through — not `CreatePropAutoCollider`). Added `CreateProp(PropSpec, string)` helper.
+  - **PropBuilder**: `CreateTableGroup` (RoomBase + IRoomSection overloads) changed param from `params (string,Vector2)[] tabletops` → `params BoardSpec[]` so the layout's typed boards flow straight through.
+  - **StudioBuilder**: `_layout` field; `CreateLighting` now uses `MakeCeilingLight` (also applies the `UpdateDepthShadowLightPosition` deferred call — same shader fix as the control room so studio props stay full-bright); deleted its private `CreatePointLightWithTexture`/`CreateOvalGradientTexture`; `CreateBookcases`/`CreateRoundTableGroup`/`CreateVernChairGroup`/`CreateSmoke`/`CreateOnAirSign` read layout facts; on-air sign uses shared `MakeLight`.
+  - Behavior is preserved except the intentional ceiling-light `TextureScale=2.4` fix. Left pre-existing dead helpers (`CreatePropWithCollision`/`CreatePropNoCollision`/`CreateTabletopSprite` in StudioBuilder) untouched — out of scope.
+  - `dotnet build` passes with **0 warnings / 0 errors**.
+- **Lighting fix from earlier this session still holds** (root cause above): `CastShadowSystem._Process()` updates `light_position` every frame + `IsInsideTree()` guard; control-room ceiling light `TextureScale=2.4`.
 
 ### Work Done
 - **USER DIRECTIVE (adopted)**: `create_image_pro` is now the DEFAULT for every prop; 1-gen tools are a quick-proxy fallback only. Codified across `PIXELLAB_PROMPT_RULES.md` §1 matrix, §2 pro-method block, §6 protocol (pro = step 1, two-batch cap), §7 failure rows, §9 budget summary.
@@ -34,7 +126,7 @@
 
 ---
 
-## Previous Session
+## Previous Session (migration + prop rework)
 
 **Branch**: feature working tree (2× migration + control-room prop rework)
 
