@@ -11,9 +11,9 @@ public static class BookcasesProp
 
 	public static GridPlacement[] Placements { get; } =
 	{
-		(new Vector2I(1, 1), Vector2.Zero),
-		(new Vector2I(12, 1), Vector2.Zero),
+		(new Vector2I(1, 0), new Vector2(0, 16)),
+		(new Vector2I(12, 0), new Vector2(0, 16)),
 	};
 
-	public static int FloorScanHeight { get; } = 16;
+	public static int FloorScanHeight { get; } = 32;
 }

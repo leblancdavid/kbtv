@@ -5,7 +5,7 @@ public enum WallDirection { North, South, West, East, Strip, Window }
 
 public partial class WallSystem : Node
 {
-[ExportGroup("Wall Settings")]
+	[ExportGroup("Wall Settings")]
 	[Export] public int DoorRow = 3;
 	[Export] public int DoorHeightTiles = 2;
 	[Export] public int WindowStartColumn = 3;
@@ -180,7 +180,7 @@ public partial class WallSystem : Node
 			_northWallSprites.Add(sprite);
 			_propSort.AddChild(sprite);
 
-			var stripSprite = CreateStripSprite(southStripTexture, gridPos);
+			var stripSprite = CreateStripSprite(southStripTexture, new Vector2I(x, gridHeight + 1));
 			_northWallStripSprites.Add(stripSprite);
 			stripSprite.Visible = false;
 			_propSort.AddChild(stripSprite);
@@ -209,13 +209,13 @@ public partial class WallSystem : Node
 			if (!EnableSouthWall)
 				continue;
 
-		var atlas = ResolveHorizontalAtlas(x, gridWidth);
+			var atlas = ResolveHorizontalAtlas(x, gridWidth);
 			var gridPos = new Vector2I(x, gridHeight);
 			var sprite = CreateWallSprite(southTexture, atlas, gridPos, WallDirection.South);
 			_southWallSprites.Add(sprite);
 			_propSort.AddChild(sprite);
 
-			var stripSprite = CreateStripSprite(southStripTexture, gridPos);
+			var stripSprite = CreateStripSprite(southStripTexture, new Vector2I(x, gridHeight + 1));
 			_southWallStripSprites.Add(stripSprite);
 			_propSort.AddChild(stripSprite);
 		}
