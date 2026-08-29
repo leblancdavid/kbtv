@@ -47,7 +47,7 @@ texture_region_size = Vector2i(32, 128)
 
 [sub_resource type="TileSetAtlasSource" id="wall_south_strip_source"]
 texture = ExtResource("6")
-texture_region_size = Vector2i(32, 128)
+texture_region_size = Vector2i(64, 64)
 0:0/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="grid_debug_source"]

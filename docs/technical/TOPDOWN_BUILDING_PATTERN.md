@@ -190,27 +190,27 @@ See `PropBuilder.FootprintToCollisionCenter` for the reference implementation. T
 - The collider matches the visible sprite footprint rather than a hand-tuned guess
 - Per-prop tuning is still possible via the `colliderOverride` Vector4 parameter (sprite-local x, y, w, h)
 
-**Usage:**
+**Usage** (settings are authored in the prop's file, which calls `PropBuilder`):
 
 ```csharp
-// Default: auto-derive from bottom 16px band
-PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/speaker_stand.png",
-    new Vector2I(2, 0), Vector2.Zero,
-    _shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-    floorScanHeight: 12);
+// SpeakerStandsProp.cs — specs own the cell, offset, scan height and collider override
+public static PropSpec[] Specs { get; } =
+{
+    new(new Vector2I(2, 0), Vector2.Zero, FloorScanHeight: 24, ColliderOverride: new Vector4(0, -4, 36, 16)),
+    new(new Vector2I(10, 0), Vector2.Zero, FloorScanHeight: 24, ColliderOverride: new Vector4(0, -4, 36, 16)),
+};
 
-// Tables need a taller scan band to capture the full top surface
-PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/round_table.png",
-    new Vector2I(6, 1), Vector2.Zero,
-    _shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-    floorScanHeight: 24);
+// RoundTableProp.cs — a custom Create joins the group to PropBuilder
+var group = PropBuilder.CreatePropAutoCollider(
+    parent, TexturePath, Placement.Cell, Placement.Offset,
+    shadowSystem, depthShadowMaterial, roomSection, lightMask,
+    createCastShadow: false, floorScanHeight: FloorScanHeight);
 
-// Custom override (e.g. surface-only collider for a walk-behind table)
-PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/studio_table.png",
-    new Vector2I(6, 1), Vector2.Zero,
-    _shadows, _shadows.DepthShadowMaterial, _section, LightMask,
-    colliderOverride: new Vector4(-62, -5, 124, 10));
+// ControlTableGroupProp.cs — desk collider authored inline (size + lift) in CreateTableGroup
+var tableShape = new RectangleShape2D { Size = ColliderSize };
 ```
+
+The builder side is always thin: `foreach (var spec in SpeakerStandsProp.Specs) CreateProp(spec, SpeakerStandsProp.TexturePath);`.
 
 **`floorScanHeight` guidelines per prop category:**
 
@@ -227,11 +227,17 @@ PropBuilder.CreatePropAutoCollider(_propSort, "res://assets/tiles/props/studio_t
 - Asymmetric collision shapes
 - When the alpha scan produces unexpected results (rare — usually the prop sprite is missing a clear base band)
 
+> **Prop-file ownership:** `floorScanHeight`, `colliderOverride`, `createCastShadow` and the anchor
+> cell / offset are all **per-prop settings** and must be authored in the prop's own file under
+> `props/` (see the *Prop File Ownership Rule* in AGENTS.md), not inline in a builder. A prop's file
+> exposes either a `Create(...)` method or a `Specs`/`Placements` array, and builders just call it.
+
 ## Grid Alignment
 
-- **Place walls and props on grid coordinates only**.
-- **Avoid per-prop pixel offsets** except for tabletop items that must sit on a surface.
-- When in doubt, adjust grid coordinates, not pixel offsets.
+- **Place walls and props on grid coordinates first** (anchor cell in the prop file).
+- **Small pixel offsets are fine** for fine-tuning a prop's landing spot (e.g. shelves raised off
+  the floor), but that offset lives in the prop's file, never in the builder or layout.
+- When in doubt, adjust the anchor cell or the offset in the prop file.
 
 ## Layering Strategy (Player vs Props)
 

@@ -21,6 +21,13 @@ public static class RoomLightingBuilder
 	public const float DefaultFalloffRadius = 0.2f;
 
 	/// <summary>
+	/// Upper z-reach for room lights (relative to the light's own z). Must comfortably exceed the
+	/// highest <c>ZIndex = GlobalPosition.Y</c> a player/y-sorted prop can reach within a room.
+	/// 4096 covers several rooms' worth of world-space Y.
+	/// </summary>
+	public const int LightZRange = 4096;
+
+	/// <summary>
 	/// Builds a configured <see cref="PointLight2D"/> with an oval gradient texture.
 	/// When <paramref name="textureWidth"/>/<paramref name="textureHeight"/> are 0 the texture is
 	/// sized from <paramref name="radius"/> (control room and studio use different scalings).
@@ -44,14 +51,23 @@ public static class RoomLightingBuilder
 			Energy = energy,
 			ShadowEnabled = shadows,
 			ShadowColor = new Color(0, 0, 0, 0.3f),
-			ZIndex = LightZIndex
+			ZIndex = LightZIndex,
+			// The player and y-sorted props run at ZIndex = GlobalPosition.Y (Player.cs:_Process),
+			// which climbs high above the light's own ZIndex. A Light2D only illuminates canvas
+			// items whose z falls inside range_z_min/max (relative to the light's z), so without a
+			// wide range the player is sorted into a z-band the light never reaches and stays dark.
+			// Symmetric so the floor (which can sit below the light's z) and the player (above it)
+			// are both covered; per-room light masks still keep rooms from bleeding into each other.
+			RangeZMin = -LightZRange,
+			RangeZMax = LightZRange
 		};
 		light.Set("range_item_cull_mask", itemCullMask);
 
 		var texture = OvalGradient(textureWidth, textureHeight, radius);
 		light.Texture = texture;
 		light.TextureScale = textureScale;
-		light.Set("range", radius);
+		// NOTE: PointLight2D has no `range` property — its reach is texture_size x texture_scale.
+		// Do NOT try to control a room light's coverage via "range"; raise textureSize/textureScale instead.
 
 		return light;
 	}

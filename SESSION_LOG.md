@@ -2,6 +2,33 @@
 
 **Branch**: feature working tree (world/ reorg)
 
+**Task**: Fix three props — (1) mirror right control-room speaker so it points at the table, (2) revert the ON-AIR sign to the correct texture, (3) shrink Vern's round table ~25%.
+
+**Status**: Completed — right speaker uses `FlipH` (left→right mirror, points inward toward the desk); `on_air_sign.png` restored to the 64×24 version from `09ca15c3` (reimported, ctex regenerated); `RoundTableProp.SpriteScale = 0.75f`; `dotnet build` green (0 errors), `--run-tests` exit 0 with no prop errors (only pre-existing `FileAccess.GetAsText()` MissingMethodException in ArcRepository). Needs user visual confirmation in-editor.
+
+### Prop fixes
+- **Right speaker** (`SpeakerStandsProp.Specs`, cell `(10,0)`): the two speakers flank the desk and share one sprite whose grill faces sideways. The left speaker already points inward; the right one pointed away. Corrected with sprite `FlipH = true` (horizontal mirror) — NOT my first attempt `FlipV` (vertical flip), which wouldn't change which way the grill points. `PropSpec` + all three `PropBuilder.CreatePropAutoCollider` overloads gained `bool FlipH = false` (previous `FlipV` param kept for future use).
+- **ON-AIR sign**: current `on_air_sign.png` was a 128×48 sheet of two sign sprites side by side (from `8b905580`), rendered wrong. Restored the 64×24 blob from `09ca15c3` via `git cat-file blob`. `.import` has no dimension metadata; Godot reimported automatically (ctex regenerated 10:21 after png replaced 10:18). `OnAirSignProp` code unchanged (its `Scale (0.75, 1.0)` matches the old texture).
+- **Round table** (`RoundTableProp`): added `SpriteScale = 0.75f`, passed `scale: new Vector2(SpriteScale, SpriteScale)` into `CreatePropAutoCollider`; collider scales around sprite center.
+- **FILES**: `scripts/world/common/layout/RoomLayoutTypes.cs` (PropSpec `FlipH`/`FlipV`/`Scale`), `scripts/world/common/PropBuilder.cs` (flip/scale on sprite + scaled collider), `scripts/world/control_room/props/SpeakerStandsProp.cs` (`FlipH: true`), `scripts/world/studio/props/RoundTableProp.cs` (`SpriteScale 0.75f`), `assets/tiles/props/on_air_sign.png` (restored).
+- **Note**: `godot` not on PATH — console binary at `C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64_console.exe`; restore a binary via `cmd /c git cat-file blob <sha> > file` (PowerShell `>` corrupts).
+- Next: user confirms in-editor that the sign reads correctly and the right speaker now faces the desk.
+
+## Previous Session
+
+### Control-room lighting — ROOT CAUSE + FIX (the "light is in a different room" bug)
+- **SYMPTOM**: ceiling light dot is correctly centered (debug overlay shows it), yet the player is **not illuminated** in the control room — while the SAME player lights up when walking into the studio. Felt like "the light is in a different room" / "its z is under the floor."
+- **ROOT CAUSE = Light2D z-range vs the manual y-sort.** `Player._Process()` sets `ZIndex = GlobalPosition.Y` every frame (`Player.cs:227`), so in the control room (grid anchor Y 1000) the player z ≈ **1240**. A `PointLight2D` only lights items inside its `range_z_min/max` — **relative to the light's own z**. Control room built into a plain Node2D at z 0 → light z 10, default range cap ~1034 → **misses the player at z 1240**. Studio worked only by luck: `RoomBase` puts the room at `ZIndex=1001` z_as_relative=false (`RoomBase.cs:111`), so the studio light sat at z ~1011 and its default ±1024 happened to cover the player (~800-900). No reach/position/mask problem at all.
+- **FIX**: in `RoomLightingBuilder.MakeLight` (all room lights: ceiling/monitor/desk/on-air) set `RangeZMin = -LightZRange`, `RangeZMax = LightZRange` (`LightZRange = 4096`). Wide symmetric range covers the y-sorted player/props above and the floor below the light. Per-room `light_mask` (control=1, studio=2) still stops cross-room bleed.
+- **LESSON (this TODO):** don't inflate `texture_scale` to chase a "light doesn't reach" bug — that was a **z-range** problem and the 2.4 scale only over-brightened the room. Reach = `texture_size × texture_scale` is separate from z-range culling.
+- **BRIGHTNESS REVERT**: `ControlRoomLayout.CeilingLightTextureScale` **2.4 → 1.0** (back to original), now that the z-range fix is what actually covers the player. Removed the no-op `light.Set("range", ...)` from `RoomLightingBuilder.MakeLight` (PointLight2D has no `range` property).
+- **FILES**: `scripts/world/common/RoomLightingBuilder.cs` (RangeZMin/Max, LightZRange const, removed no-op range set), `scripts/world/control_room/ControlRoomLayout.cs` (scale 1.0), `docs/technical/LIGHTING_SETUP.md` (new section: "Light2D z-range vs the manual y-sort").
+- User confirmed: player now lit while walking the control room ✓. Next: user confirms the 1.0 brightness looks right (not too bright, south half not fading).
+
+## Previous Session (world/ reorganization)
+
+**Branch**: feature working tree (world/ reorg)
+
 **Task**: Reorganize `scripts/world/` into per-room folders (`control_room/`, `studio/`) + shared `common/` with per-prop files; update AGENTS.md + TOPDOWN_BUILDING_PATTERN.md; update this log.
 
 **Status**: Completed — reorg done, `dotnet build` green (0 new warnings), runtime world smoke test passed (both rooms built + populated, player entered control room). Docs updated.

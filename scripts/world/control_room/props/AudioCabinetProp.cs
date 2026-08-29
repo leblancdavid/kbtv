@@ -10,5 +10,5 @@ public static class AudioCabinetProp
 	public const string TexturePath = "res://assets/tiles/props/audio_cabinet.png";
 
 	public static PropSpec Spec { get; } =
-		new(new Vector2I(12, 1), Vector2.Zero, FloorScanHeight: 24, ColliderOverride: new Vector4(-64, -6, 128, 12));
+		new(new Vector2I(12, 1), Vector2.Zero, FloorScanHeight: 24, ColliderOverride: new Vector4(0, -18, 96, 16));
 }

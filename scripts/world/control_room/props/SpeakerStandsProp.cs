@@ -11,7 +11,7 @@ public static class SpeakerStandsProp
 
 	public static PropSpec[] Specs { get; } =
 	{
-		new(new Vector2I(2, 0), Vector2.Zero, FloorScanHeight: 24, ColliderOverride: new Vector4(-22.5f, -4, 45, 8)),
-		new(new Vector2I(10, 0), Vector2.Zero, FloorScanHeight: 24, ColliderOverride: new Vector4(-22.5f, -4, 45, 8)),
+		new(new Vector2I(2, 0), Vector2.Zero, FloorScanHeight: 24, ColliderOverride: new Vector4(0, -4, 36, 16)),
+		new(new Vector2I(10, 0), Vector2.Zero, FloorScanHeight: 24, ColliderOverride: new Vector4(0, -4, 36, 16), FlipH: true),
 	};
 }

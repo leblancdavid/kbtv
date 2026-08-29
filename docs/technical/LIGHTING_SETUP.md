@@ -216,6 +216,74 @@ occluder.Occluder = polygon;
 parent.AddChild(occluder);
 ```
 
+## Critical: Light2D Z-Range vs the Manual Y-Sort
+
+**Symptom:** A `PointLight2D` sits correctly in the middle of a room (its position is right, and the
+debug overlay draws the dot there) yet the **player is not illuminated**, while the *same* player
+lights up normally when entering a neighboring room. Reads like "the light is in a different room"
+or "the light's z is under the floor."
+
+### Root Cause
+
+KBTV uses a **manual y-sort**: `Player._Process()` sets `ZIndex = (int)GlobalPosition.Y` every
+frame (see `ZINDEX_Y_SORT_PATTERN.md`), and static props do the same once. In a multi-room world
+the player's `ZIndex` is therefore large in absolute terms (e.g. ~1240 in the control room, whose
+grid anchor sits at world Y 1000).
+
+A `Light2D` only illuminates canvas items whose z falls inside its `range_z_min` / `range_z_max`.
+**These are relative to the light's own z** (including the parent chain). The default range is
+`±1024`, so a light parked on a low-z node (e.g. a `WorldRoom` at z 0) with `ZIndex = 10` has an
+effective ceiling around z **1034** — *below* the y-sorted player at z ~1240. The player is sorted
+into a z-band the light never reaches, so the light "misses" them even though they're physically
+underneath it.
+
+It looked room-dependent because the two rooms set z differently:
+- **Studio** (`RoomBase`-based): `RoomBase._Ready()` sets the room `ZIndex = 1001` with
+  `ZAsRelative = false` on every layer. The studio ceiling light (ZIndex 10, relative) lands at
+  effective z ~1011, so the default `±1024` range happens to cover the player (~800-900). It worked
+  by luck of the z offset.
+- **Control room** (`WorldRoom` + `IRoomSection`): built into a plain Node2D at z 0, so the light
+  sits at effective z 10 and the default range misses the high-z player.
+
+### Fix
+
+Give room lights a wide z-range in the shared factory so they illuminate the y-sorted player/props
+regardless of how high `ZIndex` climbs. In `RoomLightingBuilder.MakeLight` (used by ceiling,
+monitor, desk, and on-air lights):
+
+```csharp
+var light = new PointLight2D
+{
+    /* ... */
+    RangeZMin = -LightZRange,
+    RangeZMax = LightZRange,   // LightZRange = 4096
+};
+```
+
+`RangeZMin` must also be negative (not 0): the floor can sit *below* the light's z (e.g. studio
+floor at 1001 vs light at 1011), so a min of 0 would stop the light reaching the floor.
+
+Rooms still don't leak into each other because each room's light has its own `light_mask`
+(control = 1, studio = 2) which culls items by mask in addition to z-range.
+
+### Lesson / Gotcha
+
+- **Reach ≠ brightness.** When a `PointLight2D.texture` is set, the `range` property is ignored;
+  reach is `texture_size × texture_scale`. Don't inflate `texture_scale` to make a light "reach"
+  a dark player — the real culprit may be z-range culling, and inflating scale just over-brightens
+  the whole room. (This is exactly what happened: a `2.4` texture scale was added chasing a "reach"
+  bug that was actually a z-range bug, and it made the room too bright once the z-range was fixed.)
+- A dim player under a visible, well-positioned light is a **z-range** problem, not a position or
+  reach problem.
+
+### Files
+
+- `scripts/world/common/RoomLightingBuilder.cs` — `MakeLight` sets `RangeZMin`/`RangeZMax`
+  (`LightZRange = 4096`); `OvalGradient` produces the light texture.
+- `scripts/player/Player.cs:227` — `ZIndex = (int)GlobalPosition.Y` (the high-z source).
+- `scripts/world/common/RoomBase.cs:111` — room `ZIndex = 1001`, `ZAsRelative = false` (why the
+  studio z-band was higher).
+
 ## Critical: Lighting Initialization Order
 
 **IMPORTANT**: When setting up rooms programmatically, lights MUST be created before shadows are initialized. This is handled automatically by WorldRoom's `_Ready()` method:

@@ -10,9 +10,12 @@ public static class RoundTableProp
 	/// <summary>Sprite used by the round table.</summary>
 	public const string TexturePath = "res://assets/tiles/props/round_table.png";
 
-	public static GridPlacement Placement { get; } = (new Vector2I(6, 4), Vector2.Zero);
+	public static GridPlacement Placement { get; } = (new Vector2I(6, 4), new Vector2(0, -16));
 
 	public static int FloorScanHeight { get; } = 48;
+
+	/// <summary>Uniform scale so the table reads 25% smaller on stage.</summary>
+	public static float SpriteScale { get; } = 0.75f;
 
 	public static Node2D? Create(
 		Node2D parent,
@@ -32,7 +35,8 @@ public static class RoundTableProp
 			roomSection,
 			lightMask,
 			createCastShadow: false,
-			floorScanHeight: FloorScanHeight
+			floorScanHeight: FloorScanHeight,
+			scale: new Vector2(SpriteScale, SpriteScale)
 		);
 		if (group == null)
 		{

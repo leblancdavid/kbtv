@@ -7,13 +7,13 @@ using Godot;
 public static class VernChairGroupProp
 {
 	/// <summary>Vern's chair cell (he sits in front of his console).</summary>
-	public static Vector2I VernChairCell { get; } = new(6, 3);
+	public static Vector2I VernChairCell { get; } = new(5, 2);
 
 	/// <summary>Offset from the chair cell used when placing Vern's cast shadow.</summary>
 	public static Vector2 VernShadowOffset { get; } = new(0, -40);
 
 	/// <summary>Vern's chair collider.</summary>
-	public static Vector2 VernColliderSize { get; } = new(64, 64);
+	public static Vector2 VernColliderSize { get; } = new(32, 32);
 
 	public static StaticBody2D? Build(
 		Node2D parent,

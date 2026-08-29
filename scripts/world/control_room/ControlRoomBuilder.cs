@@ -235,7 +235,7 @@ public partial class ControlRoomBuilder : IRoomBuilder
 
 		if (PlaceTableGroup)
 		{
-			ControlTableGroupProp.CreateTableGroup(_propSort, _shadows, _shadows.DepthShadowMaterial, _section, LightMask);
+			ControlTableGroupProp.CreateTableGroup(_propSort, _shadows.DepthShadowMaterial, _section, LightMask);
 			CreateScreeningTrigger();
 		}
 
@@ -254,14 +254,10 @@ public partial class ControlRoomBuilder : IRoomBuilder
 
 		if (PlaceChair)
 		{
-			// The chair is walk-through, so place it via the non-collidable CreateProp overload.
-			PropBuilder.CreateProp(_propSort, ControlChairProp.TexturePath,
-				ControlChairProp.Placement.Cell, ControlChairProp.Placement.Offset, false, Vector2.Zero,
-				_shadows, _shadows.DepthShadowMaterial, _section, LightMask);
+			ControlChairProp.Create(_propSort, _shadows, _shadows.DepthShadowMaterial, _section, LightMask);
 		}
 
-		OnAirSignProp.Create(_propSort, GridAnchor + _layout.OnAirSignFromAnchor, _layout.OnAirSignScale,
-			_layout.OnAirSignLightColor, _layout.OnAirSignLightEnergy, _layout.OnAirSignLightRadius, LightMask);
+		OnAirSignProp.Create(_propSort, OnAirSignProp.ControlRoom, GridAnchor, LightMask);
 	}
 
 	/// <summary>Applies a <see cref="PropSpec"/> (anchor cell + offset + collider) via <see cref="PropBuilder"/>.</summary>
@@ -278,7 +274,10 @@ public partial class ControlRoomBuilder : IRoomBuilder
 			LightMask,
 			spec.CreateCastShadow,
 			spec.FloorScanHeight,
-			spec.ColliderOverride
+			spec.ColliderOverride,
+			spec.FlipV,
+			spec.FlipH,
+			spec.Scale
 		);
 	}
 

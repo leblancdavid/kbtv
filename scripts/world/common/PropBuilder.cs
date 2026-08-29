@@ -107,7 +107,10 @@ public static partial class PropBuilder
 		int lightMask = 1,
 		bool createCastShadow = true,
 		int floorScanHeight = 16,
-		Vector4? colliderOverride = null
+		Vector4? colliderOverride = null,
+		bool flipV = false,
+		bool flipH = false,
+		Vector2? scale = null
 	)
 	{
 		var texture = GD.Load<Texture2D>(texturePath);
@@ -120,10 +123,16 @@ public static partial class PropBuilder
 		var textureSize = texture.GetSize();
 		var root = new StaticBody2D { Position = worldPosition };
 
+		var spriteCenter = new Vector2(0, -textureSize.Y * 0.5f);
+		var spriteScale = scale ?? Vector2.One;
+
 		var sprite = new Sprite2D
 		{
 			Texture = texture,
-			Position = new Vector2(0, -textureSize.Y * 0.5f)
+			Position = spriteCenter,
+			Scale = spriteScale,
+			FlipV = flipV,
+			FlipH = flipH
 		};
 		sprite.Set("light_mask", lightMask);
 
@@ -136,12 +145,14 @@ public static partial class PropBuilder
 
 		RectangleShape2D shape;
 		Vector2 collisionPos;
+		Vector2 colliderSize;
+		Vector2 colliderCenter;
 
 		if (colliderOverride.HasValue)
 		{
 			var ov = colliderOverride.Value;
-			shape = new RectangleShape2D { Size = new Vector2(ov.Z, ov.W) };
-			collisionPos = new Vector2(ov.X, ov.Y);
+			colliderSize = new Vector2(ov.Z, ov.W);
+			colliderCenter = new Vector2(ov.X, ov.Y);
 		}
 		else
 		{
@@ -151,9 +162,16 @@ public static partial class PropBuilder
 				GD.PrintErr($"PropBuilder: No opaque pixels found in floor band for {texturePath}");
 				return null;
 			}
-			shape = new RectangleShape2D { Size = footprint.Size };
-			collisionPos = FootprintToCollisionCenter(footprint, textureSize);
+			colliderSize = footprint.Size;
+			colliderCenter = FootprintToCollisionCenter(footprint, textureSize);
 		}
+
+		// Scale the collider around the sprite's center so it stays glued to the visible prop.
+		shape = new RectangleShape2D { Size = new Vector2(colliderSize.X * spriteScale.X, colliderSize.Y * spriteScale.Y) };
+		collisionPos = new Vector2(
+			colliderCenter.X * spriteScale.X,
+			(colliderCenter.Y - spriteCenter.Y) * spriteScale.Y + spriteCenter.Y
+		);
 
 		var collision = new CollisionShape2D { Shape = shape, Position = collisionPos };
 		collision.AddToGroup("debug_prop_collision");
@@ -175,11 +193,14 @@ public static partial class PropBuilder
 		int lightMask = 1,
 		bool createCastShadow = true,
 		int floorScanHeight = 16,
-		Vector4? colliderOverride = null
+		Vector4? colliderOverride = null,
+		bool flipV = false,
+		bool flipH = false,
+		Vector2? scale = null
 	)
 	{
 		var worldPos = roomSection.GridToWorld(gridCoords) + pixelOffset;
-		return CreatePropAutoCollider(parent, texturePath, gridCoords, pixelOffset, shadowSystem, depthShadowMaterial, worldPos, lightMask, createCastShadow, floorScanHeight, colliderOverride);
+		return CreatePropAutoCollider(parent, texturePath, gridCoords, pixelOffset, shadowSystem, depthShadowMaterial, worldPos, lightMask, createCastShadow, floorScanHeight, colliderOverride, flipV, flipH, scale);
 	}
 
 	public static Node2D CreatePropAutoCollider(
@@ -193,11 +214,14 @@ public static partial class PropBuilder
 		int lightMask = 1,
 		bool createCastShadow = true,
 		int floorScanHeight = 16,
-		Vector4? colliderOverride = null
+		Vector4? colliderOverride = null,
+		bool flipV = false,
+		bool flipH = false,
+		Vector2? scale = null
 	)
 	{
 		var worldPos = room.GridToWorld(gridCoords) + pixelOffset;
-		return CreatePropAutoCollider(parent, texturePath, gridCoords, pixelOffset, shadowSystem, depthShadowMaterial, worldPos, lightMask, createCastShadow, floorScanHeight, colliderOverride);
+		return CreatePropAutoCollider(parent, texturePath, gridCoords, pixelOffset, shadowSystem, depthShadowMaterial, worldPos, lightMask, createCastShadow, floorScanHeight, colliderOverride, flipV, flipH, scale);
 	}
 
 	public static Node2D CreateProp(
@@ -303,88 +327,6 @@ public static partial class PropBuilder
 	{
 		var worldPos = roomSection.GridToWorld(gridCoords) + pixelOffset;
 		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos, 1, createCastShadow);
-	}
-
-	public static Node2D CreateTableGroup(
-		Node2D parent,
-		Vector2I gridCoords,
-		CastShadowSystem shadowSystem,
-		ShaderMaterial depthShadowMaterial,
-		RoomBase room,
-		int lightMask = 1,
-		Vector2 pixelOffset = default,
-		params BoardSpec[] tabletops
-	)
-	{
-		var worldPos = room.GridToWorld(gridCoords) + pixelOffset;
-		return CreateTableGroupInternal(parent, worldPos, shadowSystem, depthShadowMaterial, lightMask, tabletops);
-	}
-
-	public static Node2D CreateTableGroup(
-		Node2D parent,
-		Vector2I gridCoords,
-		CastShadowSystem shadowSystem,
-		ShaderMaterial depthShadowMaterial,
-		IRoomSection roomSection,
-		int lightMask = 1,
-		Vector2 pixelOffset = default,
-		params BoardSpec[] tabletops
-	)
-	{
-		var worldPos = roomSection.GridToWorld(gridCoords) + pixelOffset;
-		return CreateTableGroupInternal(parent, worldPos, shadowSystem, depthShadowMaterial, lightMask, tabletops);
-	}
-
-	private static Node2D CreateTableGroupInternal(
-		Node2D parent,
-		Vector2 worldPos,
-		CastShadowSystem shadowSystem,
-		ShaderMaterial depthShadowMaterial,
-		int lightMask,
-		params BoardSpec[] tabletops
-	)
-	{
-		var group = new Node2D { Name = "TableGroup" };
-		group.Position = worldPos;
-		parent.AddChild(group);
-
-		var tableTexture = GD.Load<Texture2D>("res://assets/tiles/props/studio_table.png");
-		if (tableTexture == null)
-		{
-			GD.PrintErr("PropBuilder: Missing table texture");
-			return group;
-		}
-
-		var tableSprite = new Sprite2D
-		{
-			Texture = tableTexture,
-			Position = new Vector2(0, -tableTexture.GetSize().Y * 0.5f)
-		};
-		tableSprite.Set("light_mask", lightMask);
-
-		if (depthShadowMaterial != null)
-			tableSprite.Material = depthShadowMaterial;
-
-		group.AddChild(tableSprite);
-
-		group.ZIndex = (int)group.GlobalPosition.Y;
-
-		var tableBody = new StaticBody2D();
-		// Surface strip: 92 wide (1 tile narrower on each side than the 128px sprite),
-		// 10 tall, sitting 1 tile above the floor so the player can walk close to the table.
-		var tableShape = new RectangleShape2D { Size = new Vector2(108, 10) };
-		var tableCollision = new CollisionShape2D { Shape = tableShape };
-		tableCollision.Position = new Vector2(0, -(tableShape.Size.Y * 0.5f) - 10);
-		tableCollision.AddToGroup("debug_prop_collision");
-		tableBody.AddChild(tableCollision);
-		group.AddChild(tableBody);
-
-		foreach (var board in tabletops)
-		{
-			CreateTabletopSprite(group, board.TexturePath, board.Offset, lightMask, depthShadowMaterial);
-		}
-
-		return group;
 	}
 
 	public static void CreateTabletopSprite(Node2D parent, string texturePath, Vector2 offset, int lightMask = 1, ShaderMaterial? material = null)

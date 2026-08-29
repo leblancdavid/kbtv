@@ -1033,11 +1033,27 @@ via `PropBuilder.CreatePropAutoCollider(...)`.
 | Prop | Data lives in |
 |------|---------------|
 | Desk group (boards, monitoring/desk lights, screening trigger) | `control_room/props/ControlTableGroupProp.cs` |
+| Speaker stands, audio cabinet, shelves, chair | `control_room/props/` |
 | Round table, bookcases, Vern's chair group | `studio/props/` |
-| ON AIR sign | `common/props/OnAirSignProp.cs` (room layout keeps position/scale/light tuning) |
+| ON AIR sign (incl. per-room position/scale/light tuning) | `common/props/OnAirSignProp.cs` |
 
-**Keep room layouts for room-level facts only** (grid anchor, ceiling light geometry, smoke anchor,
-on-air sign position/scale). Anything tied to a specific prop belongs in that prop's file.
+**Prop File Ownership Rule (READ BEFORE CREATING A PROP):**
+
+Every prop-related property belongs in the prop's own file under `props/`. That includes:
+- **Sprite / texture path** and **z-index**
+- **Position**: anchor cell + pixel offset (and per-room placements / variants)
+- **Scale**
+- **Collider**: size, position/offset, shape override (`ColliderOverride`), or "no collider"
+- **Collision/floor scan settings**: `FloorScanHeight`, `CreateCastShadow`
+- **Anything else tied to that prop** (lights, effects, trigger shapes it owns)
+
+Room layouts hold **room-level facts only** (grid anchor, ceiling light geometry, smoke anchor). Room
+builders hold only plumbing (shadows, materials, sections, light masks) and call the prop's own
+`Create(...)` method or iterate its specs. If you find yourself tuning a sprite/collider/position in a
+builder or layout, stop — move it into the prop file instead.
+
+**Keep room layouts for room-level facts only** (grid anchor, ceiling light geometry, smoke anchor).
+Anything tied to a specific prop belongs in that prop's file.
 
 **Creating a New Room:**
 

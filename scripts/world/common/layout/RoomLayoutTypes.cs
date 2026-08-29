@@ -27,5 +27,8 @@ public readonly record struct PropSpec(
 	Vector2 Offset,
 	int FloorScanHeight = 16,
 	bool CreateCastShadow = true,
-	Vector4? ColliderOverride = null
+	Vector4? ColliderOverride = null,
+	bool FlipV = false,
+	bool FlipH = false,
+	Vector2? Scale = null
 );

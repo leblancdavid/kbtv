@@ -11,7 +11,7 @@ public static class StorageShelvesProp
 
 	public static PropSpec[] Specs { get; } =
 	{
-		new(new Vector2I(4, 10), new Vector2(0, -32), FloorScanHeight: 16, CreateCastShadow: false, ColliderOverride: new Vector4(-64, -6, 128, 12)),
-		new(new Vector2I(10, 10), new Vector2(0, -32), FloorScanHeight: 16, CreateCastShadow: false, ColliderOverride: new Vector4(-64, -6, 128, 12)),
+		new(new Vector2I(4, 10), new Vector2(0, -32), FloorScanHeight: 16, CreateCastShadow: false, ColliderOverride: new Vector4(0, -4, 64, 16)),
+		new(new Vector2I(10, 10), new Vector2(0, -32), FloorScanHeight: 16, CreateCastShadow: false, ColliderOverride: new Vector4(0, -4, 64, 16)),
 	};
 }

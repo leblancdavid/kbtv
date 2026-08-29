@@ -196,8 +196,7 @@ public partial class StudioBuilder : IRoomBuilder
 			);
 		}
 
-		OnAirSignProp.Create(_propSort, GridAnchor + _layout.OnAirSignFromAnchor, _layout.OnAirSignScale,
-			_layout.OnAirSignLightColor, _layout.OnAirSignLightEnergy, _layout.OnAirSignLightRadius, LightMask);
+		OnAirSignProp.Create(_propSort, OnAirSignProp.Studio, GridAnchor, LightMask);
 
 		if (PlaceRoundTable)
 		{
