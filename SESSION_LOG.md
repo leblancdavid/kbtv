@@ -1,5 +1,31 @@
 ## Current Session
 
+**Branch**: feature working tree (world/ refactor)
+
+**Task**: Refactor room building so each room is a self-contained `RoomBase` node (`ControlRoom`, `StudioRoom`) that code-builds and owns its full subtree, with a thin `WorldRoom` host — replacing `ControlRoomBuilder`/`StudioBuilder` + `IRoomSection`/`RoomSection` + `ControlRoomLayout`/`StudioLayout`.
+
+**Status**: All 5 phases complete — `dotnet build` green (0 errors) after every phase; new `RoomBaseTests` added (compiles; test runner itself still broken in this env). Editor startup errors ("Cannot open file ... ControlRoomBuilder/ControlRoomLayout/StudioBuilder.cs" from `script_editor_plugin.cpp`) fixed by cleaning stale editor cache (`editor_layout.cfg` `open_scripts` + `recent_files`) + regenerating Godot glue; verified headless editor exit 0. Studio ceiling light regression fixed — `StudioRoom.CreateLighting` was missing `AddChild(_ceilingLight)`. Pending user visual regression check in-editor.
+
+### Work Done
+- **Phase 1** — unify shared systems on `IRoomSection`: `WallSystem` exports `GridWidthOverride`/`GridHeightOverride` removed + `Initialize(RoomBase)` dropped; `CastShadowSystem.Initialize(RoomBase,…)` and `SetShadowRoomBounds()` removed; `RoomDebug` takes `IRoomSection` and toggles `GridDebugLayer`; `PropBuilder` `RoomBase` overloads removed. Build green.
+- **Phase 2** — rewrote `scripts/world/common/RoomBase.cs` as `[GlobalClass] public abstract partial class RoomBase : Node2D, IRoomSection`: creates FloorLayer (z=0 + LightMask), DoorLayer (z=1000), GridDebugLayer (hidden), PropSort (YSortEnabled); sets `GridOffset = GridAnchor`; paints floor via `CreateFloor()` (`AtlasCoordsLeft`); hooks `ConfigureRoom`/`OnRoomReady`/`OnRoomProcess(delta)`; `GridToWorld`/`WorldToGrid`/`GetFloorBounds`; `Shadows` (protected set), `DebugNode` (protected), `SetPlayer`, `ToggleDebug()`. Kept constants (`TileSize`, `AtlasCoords*`, `DefaultTileSetPath`).
+- **Phase 3a** — new `ControlRoom.cs` (anchor `(0,1000)` 14×10 LightMask 1): walls, `Shadows` (GroupName `shadow_pivots_control`), debug, ambient, ceiling (offset 64)/monitor/desk lights (lights track `ControlTableGroupProp.GetTablePosition`), props (stands/table+boards/audio cabinet/shelves/chair/ON-AIR), screening trigger (F during `GamePhase.LiveShow` → `ScreeningRequestedEvent`), self-registers `SetControlRoomBounds`, per-frame wall visibility + light flicker + shadow/debug updates.
+- **Phase 3b** — new `StudioRoom.cs` (anchor `(0,776)` 14×6 LightMask 2): walls (south disabled), `shadow_pivots_studio`, debug, ambient, ceiling (offset 32), smoke (`StudioSmoke.Initialize`, anchor `(7, GridHeight-3)`, feeds on `GetVernStats()`), bookcases/ON-AIR/round table (`SpriteScale 0.75`)/Vern chair group, self-registers `SetStudioBounds`, per-frame updates.
+- **Phase 4** — `WorldRoom.cs` → thin host (AddChild rooms) keeping the cross-room API `ControlShadows`/`StudioShadows`/`SetPlayer`/`ControlRoomGridToWorld`/`StudioGridToWorld`/`GetStudioBounds` + `_Input` debug toggle (`ui_select` → each room's `ToggleDebug()`) + `UpdatePlayerLightMask`. Deleted `IRoomBuilder.cs`, `RoomSection.cs`, `ControlRoomBuilder.cs`, `ControlRoomLayout.cs`, `StudioBuilder.cs`, `StudioLayout.cs` + all 6 `.uid` sidecars (kept `StudioSmoke.cs.uid`). Build green.
+- **Phase 5** — added `tests/unit/world/RoomBaseTests.cs` (layer creation, GridOffset==anchor, floor bounds size/position, tile-step `GridToWorld`, `WorldToGrid`↔`GridToWorld` round-trip, `SetPlayer`, debug toggle). Updated AGENTS.md Room Component Architecture + file structure + new-room example; rewrote `docs/technical/TOPDOWN_BUILDING_PATTERN.md` architecture sections; fixed stale builder references in `docs/art/PIXELLAB_PROMPT_RULES.md` and `docs/art/ART_STYLE.md`.
+- **FILES**: `RoomBase.cs`, `WallSystem.cs`, `CastShadowSystem.cs`, `RoomDebug.cs`, `PropBuilder.cs`, `IRoomSection.cs` (P1) · `ControlRoom.cs`, `StudioRoom.cs` (new) · `WorldRoom.cs` (rewritten) · `RoomBaseTests.cs` (new) · `AGENTS.md`, `docs/technical/TOPDOWN_BUILDING_PATTERN.md`, `docs/art/{PIXELLAB_PROMPT_RULES,ART_STYLE}.md`.
+- **Note**: Layout constants now live in the room classes (control ceiling offset 64 / studio 32 / smoke anchor) instead of the deleted `*Layout.cs` files. `godot` console binary not on PATH (`C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64_console.exe`) — no in-engine run here; verification = `dotnet build`.
+- **Editor cache fix (after user reported startup errors)**: deleted `.godot/editor/script_editor_cache.cfg`, `.godot/mono/temp/` (stale source-gen glue), `.godot/uid_cache.bin`; removed `ControlRoomBuilder.cs`/`ControlRoomLayout.cs`/`StudioBuilder.cs` from `.godot/editor/editor_layout.cfg` `[ScriptEditor] open_scripts` and `project_metadata.cfg` `[recent_files] scripts`; rebuilt via `dotnet build` (regenerates Godot glue) then `godot --headless --editor --quit` (exit 0, no errors) to refresh filesystem/UID caches. "RoomSection" still matched in `KBTV.dll`/caches is a substring false positive (e.g. `IRoomSection`, `StatusSection`).
+- **Studio light fix (user: "light in the studio is no longer visible")**: `StudioRoom.CreateLighting()` created `_ceilingLight` via `RoomLightingBuilder.MakeCeilingLight` but never added it to the tree (old `StudioBuilder` did `world.AddChild(_ceilingLight)`), so the studio had no ceiling light/illumination. Added `AddChild(_ceilingLight);` after construction (matches `ControlRoom.cs:179`). Build green.
+
+**Next Steps**:
+1. User opens the game in Godot and visually verifies no regressions vs the old builders: wall-hide, props vs player z-order, door layer, shadows, light masks, smoke, screening trigger, debug toggle (`ui_select`).
+2. When the test runner is fixed, run `RoomBaseTests` + `PropBuilderTests`.
+
+---
+
+## Previous Session (prop fixes)
+
 **Branch**: feature working tree (world/ reorg)
 
 **Task**: Fix three props — (1) mirror right control-room speaker so it points at the table, (2) revert the ON-AIR sign to the correct texture, (3) shrink Vern's round table ~25%.

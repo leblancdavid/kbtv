@@ -296,7 +296,7 @@ Order matters: finish what exists before minting new art.
 
 ### Tier 0 — Wire existing candidates (0 generations)
 
-Contact sheets already in `assets/props_samples/`. User picks a winner from the contact sheet; wire the file into `ControlRoomBuilder.cs` / `StudioBuilder.cs`.
+Contact sheets already in `assets/props_samples/`. User picks a winner from the contact sheet; wire the file into `ControlRoom.cs` / `StudioRoom.cs`.
 
 | Asset | Candidates | Wired to | Template |
 |-------|-----------|----------|----------|

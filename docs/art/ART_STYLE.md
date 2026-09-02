@@ -321,7 +321,7 @@ For oblique/cabinet-projection props, KBTV uses **alpha-derived tight colliders*
 | `round_table.png` | 80×48 | 24 | ~44×24 | Wraps the visible oval surface |
 | `studio_table.png` | 128×48 | override | 124×10 (sprite-local `-62, -5`) | Surface-only — player walks behind the table |
 | `computer_chair.png` | 32×40 | N/A | none (`collidable=false`) | Decorative only |
-| `desk.png` | 32×32 | TBD | TBD | (Not yet wired in `ControlRoomBuilder.cs`) |
+| `desk.png` | 32×32 | TBD | TBD | (Not yet wired in `ControlRoom.cs`) |
 
 **Design rule:** the collider's bottom edge aligns with the prop's visible floor line. The width matches the actual visible base in the sprite's bottom band — NOT the full sprite width (which often includes oblique depth extending upward).
 

@@ -14,7 +14,6 @@ public partial class CastShadowSystem : Node
 	[Export] public float BaseBlurAmount = 0.5f;
 	[Export] public float GradientFadeHeight = 0.4f;
 
-	private RoomBase _room;
 	private PointLight2D _lightSource;
 	private ShaderMaterial _depthShadowMaterial;
 	private ShaderMaterial _shadowMaterial;
@@ -27,15 +26,6 @@ public partial class CastShadowSystem : Node
 
 	public ShaderMaterial DepthShadowMaterial => _depthShadowMaterial;
 	public Rect2 ShadowRoomBounds => _shadowRoomBounds;
-
-	public void Initialize(RoomBase room, PointLight2D lightSource)
-	{
-		_room = room;
-		_lightSource = lightSource;
-
-		LoadShaders();
-		SetShadowRoomBounds();
-	}
 
 	public void Initialize(IRoomSection roomSection, PointLight2D lightSource)
 	{
@@ -118,45 +108,6 @@ public partial class CastShadowSystem : Node
 			_playerShadowMaterial.SetShaderParameter("gradient_fade_height", GradientFadeHeight);
 			// gradient_at_top defaults to false in shader; keep as false for player
 		}
-	}
-
-	private void SetShadowRoomBounds()
-	{
-		// Calculate bounds based on actual wall positions, centered on wall bottoms
-		// Walls are at: north y=-1, south y=gridHeight, west x=-1, east x=gridWidth
-		// Add half-tile (16px) to go past the wall into the room
-		const float pastWall = 16f;
-		const float margin = 8f;
-
-		var floorLayer = _room.FloorLayer;
-		var gridOffset = _room.GridOffset;
-		var gridWidth = _room.GridWidth;
-		var gridHeight = _room.GridHeight;
-
-		// North wall bottom center (y=-1 grid row, shift up by pastWall into room)
-		var northWallBottom = floorLayer.MapToLocal(new Vector2I(0, -1)) + gridOffset + new Vector2(0, -pastWall);
-		// South wall bottom center (y=gridHeight grid row, shift up by pastWall into room)
-		var southWallBottom = floorLayer.MapToLocal(new Vector2I(0, gridHeight)) + gridOffset + new Vector2(0, -pastWall);
-		// West wall right edge (x=-1 grid column, shift right by pastWall into room)
-		var westWallRight = floorLayer.MapToLocal(new Vector2I(-1, 0)) + gridOffset + new Vector2(pastWall, 0);
-		// East wall left edge (x=gridWidth grid column, shift left by pastWall into room)
-		var eastWallLeft = floorLayer.MapToLocal(new Vector2I(gridWidth, 0)) + gridOffset + new Vector2(-pastWall, 0);
-
-		// Apply margin
-		var roomOrigin = new Vector2(westWallRight.X - margin, northWallBottom.Y - margin);
-		var roomWidth = (eastWallLeft.X - westWallRight.X) + margin * 2;
-		var roomHeight = (southWallBottom.Y - northWallBottom.Y) + margin * 2;
-
-		_shadowRoomBounds = new Rect2(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
-
-		var roomBounds = new Vector4(roomOrigin.X, roomOrigin.Y, roomWidth, roomHeight);
-
-		if (_shadowMaterial != null)
-			_shadowMaterial.SetShaderParameter("room_bounds", roomBounds);
-		if (_baseShadowMaterial != null)
-			_baseShadowMaterial.SetShaderParameter("room_bounds", roomBounds);
-		if (_playerShadowMaterial != null)
-			_playerShadowMaterial.SetShaderParameter("room_bounds", roomBounds);
 	}
 
 	public void CreateShadowForObject(Node2D root, Texture2D texture, Vector2? offset = null, bool createOvalBase = false, int? zIndex = null)

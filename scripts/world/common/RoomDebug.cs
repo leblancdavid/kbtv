@@ -5,7 +5,7 @@ public partial class RoomDebug : Node2D
 {
 	[Export] public bool DebugEnabled = false;
 
-	private RoomBase _room;
+	private IRoomSection _section;
 	private WallSystem _wallSystem;
 	private CastShadowSystem _shadowSystem;
 	private Node2D _player;
@@ -23,22 +23,9 @@ public partial class RoomDebug : Node2D
 	public List<Rect2> DebugPropRects => _debugPropRects;
 	public List<Vector2> DebugPropPivots => _debugPropPivots;
 
-	public void Initialize(RoomBase room, WallSystem wallSystem, CastShadowSystem shadowSystem, PointLight2D ceilingLight = null, PointLight2D monitorLight = null, PointLight2D deskLampLight = null)
-	{
-		_room = room;
-		_wallSystem = wallSystem;
-		_shadowSystem = shadowSystem;
-		_player = room.Player;
-		_ceilingLight = ceilingLight;
-		_monitorLight = monitorLight;
-		_deskLampLight = deskLampLight;
-
-		Visible = DebugEnabled;
-		_debugVisible = DebugEnabled;
-	}
-
 	public void Initialize(IRoomSection roomSection, WallSystem wallSystem, CastShadowSystem shadowSystem, PointLight2D ceilingLight = null, PointLight2D monitorLight = null, PointLight2D deskLampLight = null)
 	{
+		_section = roomSection;
 		_wallSystem = wallSystem;
 		_shadowSystem = shadowSystem;
 		_player = roomSection.Player;
@@ -54,10 +41,10 @@ public partial class RoomDebug : Node2D
 	{
 		_debugVisible = !_debugVisible;
 		Visible = _debugVisible;
-		if (_room != null)
+		if (_section != null)
 		{
-			_room.GetNode<TileMapLayer>("GridDebugLayer").Visible = _debugVisible;
-			_room.QueueRedraw();
+			_section.GridDebugLayer.Visible = _debugVisible;
+			QueueRedraw();
 		}
 	}
 

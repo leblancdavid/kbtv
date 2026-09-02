@@ -1,22 +1,22 @@
 # Topdown Scene Building Pattern - Godot 4
 
-> **Note:** For new room development, see [Room Component Architecture](../AGENTS.md#room-component-architecture) in AGENTS.md. The shared components (`common/RoomBase`, `common/WallSystem`, `common/RoomLightingBuilder`, `common/CastShadowSystem`, plus the per-room builders and `props/` files) handle most of this automatically.
+> **Note:** For new room development, see [Room Component Architecture](../AGENTS.md#room-component-architecture) in AGENTS.md. Each room is a self-contained `RoomBase` node (`ControlRoom`, `StudioRoom`) that builds and owns its subtree; the shared components (`common/RoomBase`, `common/WallSystem`, `common/RoomLightingBuilder`, `common/CastShadowSystem`, plus the `props/` files) handle most of this automatically. `WorldRoom` is a thin host that adds the rooms and forwards a small cross-room API.
 
 ## Overview
 
-KBTV uses a single **WorldRoom** scene that contains multiple room sections (Control Room, Studio, etc.) in one unified world. This document defines the grid, wall, and layering standards for building rooms programmatically in Godot 4 using C#.
+KBTV uses a single **WorldRoom** node that contains multiple room sections (Control Room, Studio, etc.) in one unified world. This document defines the grid, wall, and layering standards for building rooms programmatically in Godot 4 using C#.
 
 ## WorldRoom Architecture
 
-KBTV uses a **single world scene** approach where multiple rooms exist in one `WorldRoom` scene. Each room is a `RoomSection` child that manages its own grid, walls, lighting, and props.
+KBTV uses a **single world scene** approach where multiple rooms exist under one `WorldRoom` node. Each room is a `RoomBase` child that builds and manages its own grid, walls, lighting, and props.
 
 ### Key Concepts
 
 | Concept | Description |
 |---------|-------------|
-| **WorldRoom** | Single scene containing all rooms |
-| **RoomSection** | Manages one room's grid, walls, lighting |
-| **GridAnchor** | Offset position for each room's grid in world space |
+| **WorldRoom** | Thin host node containing all rooms; forwards player assignment, grid translation, shadow access |
+| **RoomBase** | Abstract `Node2D` each room extends; creates the floor/door/grid layers and `PropSort`, exposes lifecycle hooks |
+| **GridAnchor** | Offset position for each room's grid in world space (`GridOffset`) |
 | **TileMapLayer** | Floor, door, and debug layers per room |
 
 ### Grid Anchors
@@ -25,137 +25,70 @@ Rooms are positioned using grid anchors - world coordinates where each room's gr
 
 ```csharp
 [ExportGroup("Grid Settings")]
-[Export] public Vector2 ControlRoomGridAnchor = new(0, 0);    // Origin
-[Export] public Vector2 StudioGridAnchor = new(0, -160);      // 160px above (Y increases down)
+[Export] public Vector2 GridAnchor = new(640, 360);   // World-space top-left of this room's grid
 ```
+
+Current rooms override this in `ConfigureRoom()`: ControlRoom anchors at `(0, 1000)` (14×10, light mask 1) and StudioRoom at `(0, 776)` (14×6, light mask 2).
 
 ### Creating a New Room
 
-1. Create a new room folder `scripts/world/<room>/` containing a builder (`<Room>Builder.cs`), a layout (`<Room>Layout.cs`) and a `props/` directory
-2. Implement `IRoomBuilder` interface
-3. Add the builder to WorldRoom
-4. Configure exports for grid, lighting, props
+1. Create a new room folder `scripts/world/<room>/` containing a `RoomBase` subclass (`<Room>Room.cs`) and a `props/` directory (one file per prop)
+2. Override `ConfigureRoom()` (grid anchor, width/height, light mask) and `OnRoomReady()` (walls, shadows, lighting, props, bounds)
+3. Add the room as a child of `WorldRoom` in its `_Ready()`
+4. Configure exports for grid, doors, lighting, props
 
-### Room Builder Pattern
-
-KBTV uses the **Room Builder pattern** to encapsulate each room's logic. Each room has its own builder class that handles all setup, with shared infrastructure in `common/` and one file per prop:
-
-```
-scripts/world/
-├── common/                          # Shared infrastructure
-│   ├── IRoomBuilder.cs              # Interface all builders implement
-│   ├── IRoomSection.cs
-│   ├── RoomBase.cs
-│   ├── RoomSection.cs
-│   ├── WallSystem.cs
-│   ├── CastShadowSystem.cs
-│   ├── RoomLightingBuilder.cs
-│   ├── RoomDebug.cs
-│   ├── PropBuilder.cs
-│   ├── layout/RoomLayoutTypes.cs    # GridPlacement, PropSpec, BoardSpec
-│   └── props/OnAirSignProp.cs       # Shared prop (ON AIR sign)
-├── control_room/
-│   ├── ControlRoomBuilder.cs        # Control room specific logic
-│   ├── ControlRoomLayout.cs         # Room-level facts (grid, ceiling light, sign tuning)
-│   └── props/                       # One file per prop (desk, stands, cabinet, shelves, chair)
-└── studio/
-    ├── StudioBuilder.cs             # Studio specific logic
-    ├── StudioLayout.cs
-    ├── StudioSmoke.cs               # Ambient smoke effect
-    └── props/                       # One file per prop (bookcases, round table, Vern's chair)
-```
-
-#### IRoomBuilder Interface
+### RoomBase Lifecycle Hooks
 
 ```csharp
-public interface IRoomBuilder
-{
-    void Build(WorldRoom world);
-    void SetPlayer(CharacterBody2D player);
-    Vector2 GridToWorld(Vector2I gridPos);
-    CastShadowSystem GetShadows();
-}
+protected override void ConfigureRoom()    // grid facts + light mask (called first)
+protected override void OnRoomReady()      // build walls/shadows/lights/props (layers + floor exist)
+protected override void OnRoomProcess(double delta)  // per-frame updates (wall visibility, flicker)
 ```
 
-#### Creating a New Room Builder
+`RoomBase._Ready()` calls `ConfigureRoom()`, creates and parents `FloorLayer` (z=0, `LightMask`), `DoorLayer` (z=1000), `GridDebugLayer` (hidden) and `PropSort` (YSortEnabled), sets `GridOffset = GridAnchor`, paints the floor, then calls `OnRoomReady()`. `_Process()` forwards to `OnRoomProcess(delta)`.
 
-1. Create a new class extending the pattern
-2. Add exports for all room configuration (grid, doors, lighting, props)
-3. Implement Build(), SetPlayer(), GridToWorld(), GetShadows(), Update(), ToggleDebug()
+#### Room Responsibilities
 
-```csharp
-public partial class MyRoomBuilder : IRoomBuilder
-{
-    [ExportGroup("Grid Settings")]
-    [Export] public Vector2 GridAnchor = new(0, -320);
-    [Export] public int GridWidth = 14;
-    [Export] public int GridHeight = 8;
+Each room handles:
+- **TileMapLayers**: Floor, door, debug layers (created by RoomBase)
+- **WallSystem**: Walls, doors, windows setup
+- **CastShadowSystem**: Shadow rendering (assign the room's `Shadows` property)
+- **Lighting**: CanvasModulate, PointLights (room-specific)
+- **Props**: All room props via PropBuilder
+- **Debug**: RoomDebug initialization (assign to `DebugNode`) and `ToggleDebug()`
+- **Bounds**: self-register with `RoomStateManager` in `OnRoomReady()`
 
-    // Add exports for doors, windows, lighting, props...
-
-    public void Build(WorldRoom world)
-    {
-        // 1. Create TileMapLayers
-        // 2. Create RoomSection
-        // 3. Create WallSystem
-        // 4. Create CastShadowSystem
-        // 5. Create lighting
-        // 6. Create props
-    }
-
-    // Implement other interface members...
-}
-```
-
-#### Adding a Room to WorldRoom
+### Adding a Room to WorldRoom
 
 ```csharp
 public partial class WorldRoom : Node2D
 {
-    private MyRoomBuilder _myRoomBuilder = null!;
+    private ControlRoom _controlRoom = null!;
 
     public override void _Ready()
     {
-        PropSort = new Node2D { Name = "PropSort" };
-        PropSort.YSortEnabled = true;
-        AddChild(PropSort);
+        _controlRoom = new ControlRoom { Name = "ControlRoom" };
+        AddChild(_controlRoom);
 
-        _myRoomBuilder = new MyRoomBuilder();
-        _myRoomBuilder.Build(this);
-    }
-
-    public override void _Process(double delta)
-    {
-        _myRoomBuilder.Update(this, delta);
+        // ...studio, and any future rooms
     }
 }
 ```
 
-#### Room Builder Responsibilities
+### WorldRoom Cross-Room API
 
-Each builder handles:
-- **TileMapLayers**: Floor, door, debug layers
-- **WallSystem**: Walls, doors, windows setup
-- **CastShadowSystem**: Shadow rendering
-- **Lighting**: CanvasModulate, PointLights (room-specific)
-- **Props**: All room props via PropBuilder
-- **Debug**: RoomDebug initialization and toggling
-
-### Room Section Setup
+WorldRoom keeps the small public surface the rest of the game uses:
 
 ```csharp
-private RoomSection CreateRoomSection(Vector2 gridAnchor, int width, int height)
-{
-    var section = new RoomSection
-    {
-        GridAnchor = gridAnchor,
-        GridWidth = width,
-        GridHeight = height
-    };
-    AddChild(section);
-    return section;
-}
+public CastShadowSystem ControlShadows => _controlRoom.Shadows;
+public CastShadowSystem StudioShadows => _studioRoom.Shadows;
+public void SetPlayer(CharacterBody2D player);
+public Vector2 ControlRoomGridToWorld(Vector2I gridPos);
+public Vector2 StudioGridToWorld(Vector2I gridPos);
+public Rect2 GetStudioBounds();
 ```
+
+`CallerScreenerManager` walks `Main/World/WorldRoom` and uses `StudioGridToWorld`/`GetStudioBounds`; `World` uses `SetPlayer`, `ControlShadows` and `StudioShadows`; `WorldRoom._Input` toggles each room's debug overlay on `ui_select`.
 
 ## Tile Specs
 
@@ -210,7 +143,7 @@ var group = PropBuilder.CreatePropAutoCollider(
 var tableShape = new RectangleShape2D { Size = ColliderSize };
 ```
 
-The builder side is always thin: `foreach (var spec in SpeakerStandsProp.Specs) CreateProp(spec, SpeakerStandsProp.TexturePath);`.
+The room side is always thin: `foreach (var spec in SpeakerStandsProp.Specs) CreateProp(spec, SpeakerStandsProp.TexturePath);`.
 
 **`floorScanHeight` guidelines per prop category:**
 
@@ -229,14 +162,14 @@ The builder side is always thin: `foreach (var spec in SpeakerStandsProp.Specs) 
 
 > **Prop-file ownership:** `floorScanHeight`, `colliderOverride`, `createCastShadow` and the anchor
 > cell / offset are all **per-prop settings** and must be authored in the prop's own file under
-> `props/` (see the *Prop File Ownership Rule* in AGENTS.md), not inline in a builder. A prop's file
-> exposes either a `Create(...)` method or a `Specs`/`Placements` array, and builders just call it.
+> `props/` (see the *Prop File Ownership Rule* in AGENTS.md), not inline in a room class. A prop's file
+> exposes either a `Create(...)` method or a `Specs`/`Placements` array, and rooms just call it.
 
 ## Grid Alignment
 
 - **Place walls and props on grid coordinates first** (anchor cell in the prop file).
 - **Small pixel offsets are fine** for fine-tuning a prop's landing spot (e.g. shelves raised off
-  the floor), but that offset lives in the prop's file, never in the builder or layout.
+  the floor), but that offset lives in the prop's file, never in the room class.
 - When in doubt, adjust the anchor cell or the offset in the prop file.
 
 ## Layering Strategy (Player vs Props)
@@ -266,7 +199,7 @@ Use a dedicated debug TileMapLayer with a grid tile for layout verification:
 
 - Tile: `assets/tiles/topdown/grid_debug.png` (16x16)
 - Layer: `GridDebugLayer` (set `visible=false` by default)
-- Toggle in `ControlRoom` using `ui_select`
+- Toggle via `WorldRoom._Input` on `ui_select` (calls each room's `ToggleDebug()`)
 
 ## Tabletop Offsets
 
@@ -335,6 +268,87 @@ private void UpdateSouthWallVisibility()
 - **Wall atlases**: `assets/tiles/topdown/wall_*_atlas.png`
 - **South strip**: `assets/tiles/topdown/wall_south_strip.png`
 
+## Wall Texture System
+
+### Texture Atlas Structure
+
+KBTV uses horizontal atlas textures with 4 frames (left, mid-left, mid-right, right corners):
+
+| Texture | Size | Frames | Purpose |
+|---------|------|--------|---------|
+| `studio_north_atlas.png` | 128×128 | 4 × 32×32 | Standard wall texture (north/south/east/west) |
+| `wall_south_atlas.png` | 128×128 | 4 × 32×32 | South-facing brick wall |
+| `wall_west_atlas.png` | 32×32 | 1 | West wall (exterior brick) |
+| `wall_east_atlas.png` | 32×32 | 1 | East wall (interior wall) |
+| `wall_east_door_atlas.png` | 64×32 | 2 × 32×32 | East door frame |
+| `wall_south_strip.png` | 32×32 | 1 | South wall strip (when player hides wall) |
+
+### Standard Wall Pattern
+
+All rooms use the same texture for consistency:
+
+| Wall Direction | Texture | Transform | Notes |
+|---------------|---------|----------|-------|
+| North | `studio_north_atlas.png` | Default | Standard wall |
+| South | `wall_south_atlas.png` | Default | Brick-facing exterior |
+| West | `studio_north_atlas.png` | Rotate 90°, Scale Y=0.25 | Brick exterior |
+| East | `studio_north_atlas.png` | Rotate 90°, Scale Y=0.25 | Interior wall |
+
+### Setting Wall Textures in Room Setup
+
+```csharp
+_wallSystem = new WallSystem
+{
+    CustomSouthWallTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_atlas.png"),
+    CustomEastWallTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/studio_north_atlas.png")
+};
+```
+
+### Door Textures
+
+East doors use sprite-based textures:
+- `CustomEastDoorTexture`: Wood door frame (2-frame horizontal atlas)
+
+### Sprite Creation: `CreateRotatedWallSprite`
+
+WallSystem provides a `CreateRotatedWallSprite` helper method for creating properly aligned rotated wall sprites:
+
+```csharp
+private Sprite2D CreateRotatedWallSprite(
+    Texture2D texture,
+    int hFrames,
+    Vector2I atlasCoords,
+    Vector2I gridCoords,
+    WallDirection direction,
+    float rotationDegrees)
+```
+
+**Key implementation details:**
+
+1. **Offset = (0, 0)**: The sprite's center is used as the transformation origin
+2. **Position = grid-to-world coordinate**: The sprite's position matches the tile grid
+3. **Scale applied first, then rotation**: Godot's transformation pipeline applies scale before rotation
+4. **No manual position adjustments**: Using center offset (0,0) means no arbitrary pixel offsets are needed
+
+**Usage:**
+```csharp
+// West wall: rotate 90°, scale Y by 0.25 to compress 128px to 32px
+var sprite = CreateRotatedWallSprite(southTexture, 4, atlasY, new Vector2I(-1, y), WallDirection.West, 90);
+
+// East wall: same transformation
+var sprite = CreateRotatedWallSprite(eastTexture, 4, Vector2I.Zero, gridPos, WallDirection.East, 90);
+```
+
+### Why Rotate & Scale?
+
+The studio wall atlas is 128×128 (4 frames × 32px). For east/west walls:
+1. **Scale Y by 0.25** → compresses 128px height to 32px (one tile)
+2. **Rotate 90°** → reorients the texture for vertical wall visibility
+
+This creates a consistent vertical brick strip that matches the horizontal wall texture style.
+
+**Why offset matters:** When you scale then rotate a sprite, the visual center shifts. Using `Offset = (0, 0)` (sprite center as origin) and positioning via `Position` keeps the sprite visually aligned with grid coordinates without arbitrary adjustments.
+
 ## Resolution & Scaling
 
 - Internal viewport: **640x360**
@@ -345,13 +359,10 @@ private void UpdateSouthWallVisibility()
 
 ```
 scripts/world/
-├── WorldRoom.tscn            # Single scene with all rooms
-├── WorldRoom.cs              # Main world coordinator (~65 lines)
+├── WorldRoom.cs              # Thin host: adds rooms (+ ~65 lines of cross-room API)
 ├── common/                   # Shared infrastructure
-│   ├── IRoomBuilder.cs       # Interface for room builders
 │   ├── IRoomSection.cs
-│   ├── RoomBase.cs
-│   ├── RoomSection.cs        # Individual room grid manager
+│   ├── RoomBase.cs           # Abstract self-building room: layers, grid, floor, lifecycle hooks
 │   ├── WallSystem.cs         # Wall/door/window management
 │   ├── CastShadowSystem.cs   # Shadow rendering
 │   ├── RoomLightingBuilder.cs
@@ -360,19 +371,18 @@ scripts/world/
 │   ├── layout/RoomLayoutTypes.cs
 │   └── props/OnAirSignProp.cs
 ├── control_room/
-│   ├── ControlRoomBuilder.cs # Control room logic
-│   ├── ControlRoomLayout.cs
+│   ├── ControlRoom.cs        # Self-contained control room: walls, lighting, props, screening trigger
 │   └── props/                # Desk, speaker stands, audio cabinet, shelves, chair
 └── studio/
-    ├── StudioBuilder.cs      # Studio logic
-    ├── StudioLayout.cs
+    ├── StudioRoom.cs         # Self-contained studio: walls, lighting, smoke, props
     ├── StudioSmoke.cs
     └── props/                # Bookcases, round table, Vern's chair group
 ```
 
-The WorldRoom uses the topdown tileset and the layering rules above for wall placement, door visibility, and south wall occlusion. Each room builder manages its own:
-- TileMapLayers (floor, door, debug)
+The WorldRoom uses the topdown tileset and the layering rules above for wall placement, door visibility, and south wall occlusion. Each `RoomBase` subclass manages its own:
+- TileMapLayers (floor, door, debug — created by RoomBase)
 - WallSystem (walls, doors, windows)
 - Lighting (ceiling, monitor, desk lamp)
-- CastShadowSystem (shadow casting)
+- CastShadowSystem (shadow casting, assigned to the room's `Shadows`)
 - Props (via PropBuilder)
+- Per-frame updates (wall visibility, light flicker) via `OnRoomProcess(delta)`

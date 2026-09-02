@@ -1,4 +1,4 @@
-[gd_resource type="TileSet" load_steps=15 format=3 uid="uid://7h5w5ev5n5d6"]
+[gd_resource type="TileSet" load_steps=17 format=3 uid="uid://7h5w5ev5n5d6"]
 
 [ext_resource type="Texture2D" uid="uid://bx53vwkkrj2cp" path="res://assets/tiles/topdown/floor_atlas.png" id="1"]
 [ext_resource type="Texture2D" uid="uid://bin0cke1mawc3" path="res://assets/tiles/topdown/control_room_north_atlas.png" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://buawl7ty1k41f" path="res://assets/tiles/topdown/wall_south_strip.png" id="6"]
 [ext_resource type="Texture2D" uid="uid://bm0s0j3naexee" path="res://assets/tiles/topdown/grid_debug.png" id="7"]
 [ext_resource type="Texture2D" uid="uid://cnorthdoor123" path="res://assets/tiles/topdown/wall_north_door_atlas.png" id="8"]
+[ext_resource type="Texture2D" uid="uid://f704xps2odby" path="res://assets/tiles/topdown/floor_beige.png" id="9"]
 
 [sub_resource type="TileSetAtlasSource" id="floor_source"]
 texture = ExtResource("1")
@@ -60,6 +61,14 @@ texture_region_size = Vector2i(32, 128)
 0:0/0 = 0
 1:0/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="floor_beige_source"]
+texture = ExtResource("9")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+
 [resource]
 tile_size = Vector2i(32, 32)
 sources/0 = SubResource("floor_source")
@@ -71,3 +80,4 @@ sources/5 = SubResource("wall_south_strip_source")
 sources/6 = SubResource("grid_debug_source")
 sources/7 = SubResource("wall_south_strip_source")
 sources/8 = SubResource("wall_north_door_source")
+sources/9 = SubResource("floor_beige_source")

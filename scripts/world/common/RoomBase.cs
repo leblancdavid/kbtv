@@ -1,60 +1,90 @@
 using Godot;
 
 [GlobalClass]
-public abstract partial class RoomBase : Node2D
+public abstract partial class RoomBase : Node2D, IRoomSection
 {
 	[ExportGroup("Grid Settings")]
 	[Export] public Vector2 GridAnchor = new(640, 360);
-	[Export] public int GridWidth = 14;
-	[Export] public int GridHeight = 10;
+	[Export] public int GridWidth { get; set; } = 14;
+	[Export] public int GridHeight { get; set; } = 10;
+	[Export] public int LightMask = 1;
 	[Export] public float SouthWallHideOffset = 16.0f;
 
 	[ExportGroup("TileMap")]
 	[Export] public int FloorSourceId = 0;
 	[Export] public int GridDebugSourceId = 6;
-
-	public TileMapLayer FloorLayer;
-	public TileMapLayer DoorLayer;
-	public TileMapLayer GridDebugLayer;
-	public Node2D PropSort;
-	public Node2D Player;
-	public Vector2 GridOffset = Vector2.Zero;
+	[Export] public TileSet RoomTileSet;
 
 	public const float TileSize = 32.0f;
+	public const string DefaultTileSetPath = "res://assets/tiles/topdown/topdown_tileset.tres";
 
 	public static readonly Vector2I AtlasCoordsLeft = new(0, 0);
 	public static readonly Vector2I AtlasCoordsMid = new(1, 0);
 	public static readonly Vector2I AtlasCoordsRight = new(2, 0);
 
-	public void SetPlayer(CharacterBody2D player)
+	public TileMapLayer FloorLayer { get; private set; } = null!;
+	public TileMapLayer DoorLayer { get; private set; } = null!;
+	public TileMapLayer GridDebugLayer { get; private set; } = null!;
+	public Node2D PropSort { get; private set; } = null!;
+	public Vector2 GridOffset { get; private set; }
+	public CharacterBody2D Player { get; set; } = null!;
+
+	public CastShadowSystem Shadows { get; protected set; } = null!;
+
+	protected RoomDebug? DebugNode { get; set; }
+
+	public void SetPlayer(CharacterBody2D player) => Player = player;
+
+	public void ToggleDebug() => DebugNode?.Toggle();
+
+	public Vector2 GridToWorld(Vector2I gridPos) => FloorLayer.MapToLocal(gridPos) + GridOffset;
+
+	public Vector2I WorldToGrid(Vector2 worldPos) => FloorLayer.LocalToMap(worldPos - GridOffset);
+
+	public Rect2 GetFloorBounds()
 	{
-		Player = player;
+		var topLeft = GridToWorld(new Vector2I(0, 0));
+		return new Rect2(topLeft.X, topLeft.Y, GridWidth * TileSize, GridHeight * TileSize);
 	}
 
-	public Vector2 GridToWorld(Vector2I gridPos)
+	protected virtual void ConfigureRoom() { }
+	protected virtual void OnRoomReady() { }
+	protected virtual void OnRoomProcess(double delta) { }
+
+	public override void _Ready()
 	{
-		return FloorLayer.MapToLocal(gridPos) + GridOffset;
+		ConfigureRoom();
+
+		var tileSet = RoomTileSet ?? GD.Load<TileSet>(DefaultTileSetPath);
+		if (tileSet == null)
+		{
+			GD.PrintErr($"{GetClass()}: Failed to load tileset");
+			return;
+		}
+
+		FloorLayer = new TileMapLayer { Name = "FloorLayer", TileSet = tileSet, ZIndex = 0, LightMask = LightMask };
+		DoorLayer = new TileMapLayer { Name = "DoorLayer", TileSet = tileSet, ZIndex = 1000 };
+		GridDebugLayer = new TileMapLayer { Name = "GridDebugLayer", TileSet = tileSet, Visible = false };
+		PropSort = new Node2D { Name = "PropSort", YSortEnabled = true };
+
+		AddChild(FloorLayer);
+		AddChild(DoorLayer);
+		AddChild(GridDebugLayer);
+		AddChild(PropSort);
+
+		GridOffset = GridAnchor;
+		FloorLayer.Position = GridOffset;
+		DoorLayer.Position = GridOffset;
+		GridDebugLayer.Position = GridOffset;
+
+		CreateFloor();
+
+		OnRoomReady();
 	}
 
-	public Vector2I WorldToGrid(Vector2 worldPos)
+	public override void _Process(double delta)
 	{
-		return FloorLayer.LocalToMap(worldPos - GridOffset);
-	}
-
-	protected Vector2 AutoCenterFloor()
-	{
-		var topLeft = FloorLayer.MapToLocal(new Vector2I(0, 0));
-		var topRight = FloorLayer.MapToLocal(new Vector2I(GridWidth - 1, 0));
-		var bottomLeft = FloorLayer.MapToLocal(new Vector2I(0, GridHeight - 1));
-		var bottomRight = FloorLayer.MapToLocal(new Vector2I(GridWidth - 1, GridHeight - 1));
-
-		var minX = Mathf.Min(Mathf.Min(topLeft.X, topRight.X), Mathf.Min(bottomLeft.X, bottomRight.X));
-		var maxX = Mathf.Max(Mathf.Max(topLeft.X, topRight.X), Mathf.Max(bottomLeft.X, bottomRight.X));
-		var minY = Mathf.Min(Mathf.Min(topLeft.Y, topRight.Y), Mathf.Min(bottomLeft.Y, bottomRight.Y));
-		var maxY = Mathf.Max(Mathf.Max(topLeft.Y, topRight.Y), Mathf.Max(bottomLeft.Y, bottomRight.Y));
-
-		var center = new Vector2((minX + maxX) * 0.5f, (minY + maxY) * 0.5f);
-		return GridAnchor - center;
+		OnRoomProcess(delta);
 	}
 
 	protected void CreateFloor()
@@ -63,69 +93,11 @@ public abstract partial class RoomBase : Node2D
 		{
 			for (int x = 0; x < GridWidth; x++)
 			{
-				FloorLayer.SetCell(new Vector2I(x, y), FloorSourceId, AtlasCoordsLeft);
+				// Stamp the floor atlas as a 2x2 pattern so 64x64 sources (e.g. floor_beige)
+				// reconstruct at native scale instead of repeating only their first tile.
+				var atlas = new Vector2I(x % 2, y % 2);
+				FloorLayer.SetCell(new Vector2I(x, y), FloorSourceId, atlas);
 			}
 		}
-	}
-
-	protected void CreateDebugGrid()
-	{
-		GridDebugLayer.Clear();
-		for (int y = 0; y < GridHeight; y++)
-		{
-			for (int x = 0; x < GridWidth; x++)
-			{
-				GridDebugLayer.SetCell(new Vector2I(x, y), GridDebugSourceId, AtlasCoordsLeft);
-			}
-		}
-	}
-
-	protected virtual void OnRoomReady() { }
-	protected virtual void OnRoomProcess(double delta) { }
-
-	public override void _Ready()
-	{
-		FloorLayer = GetNode<TileMapLayer>("FloorLayer");
-		if (FloorLayer == null)
-		{
-			GD.PrintErr($"{GetClass()}: FloorLayer not found!");
-			return;
-		}
-
-		DoorLayer = GetNode<TileMapLayer>("DoorLayer");
-		if (DoorLayer == null)
-		{
-			GD.PrintErr($"{GetClass()}: DoorLayer not found!");
-			return;
-		}
-
-		GridDebugLayer = GetNode<TileMapLayer>("GridDebugLayer");
-		if (GridDebugLayer == null)
-		{
-			GD.PrintErr($"{GetClass()}: GridDebugLayer not found!");
-			return;
-		}
-
-		PropSort = GetNode<Node2D>("PropSort");
-
-		ZIndex = 1001;
-		ZAsRelative = false;
-		FloorLayer.ZAsRelative = false;
-		DoorLayer.ZAsRelative = false;
-		GridDebugLayer.ZAsRelative = false;
-		PropSort.ZAsRelative = false;
-
-		CreateFloor();
-		GridOffset = GridAnchor;
-		FloorLayer.Position = GridOffset;
-		DoorLayer.Position = GridOffset;
-		GridDebugLayer.Position = GridOffset;
-
-		OnRoomReady();
-	}
-
-	public override void _Process(double delta)
-	{
-		OnRoomProcess(delta);
 	}
 }

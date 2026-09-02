@@ -1,100 +1,76 @@
 using Godot;
-using KBTV.Data;
 using KBTV.Core;
 
+/// <summary>
+/// Thin host for the world's rooms. Each room is a self-contained <see cref="RoomBase"/> node
+/// (code-built in its own <c>_Ready</c>) that registers its own bounds with
+/// <see cref="RoomStateManager"/>. This node only adds the rooms and forwards a small
+/// cross-room API (player assignment, coordinate translation, shadow systems).
+/// </summary>
 public partial class WorldRoom : Node2D
 {
-	[ExportGroup("Grid Settings")]
-	[Export] public int GridWidth = 14;
+	public CastShadowSystem ControlShadows => _controlRoom.Shadows;
+	public CastShadowSystem StudioShadows => _studioRoom.Shadows;
 
-	[ExportGroup("TileMap")]
-	[Export] public int FloorSourceId = 0;
-	[Export] public int GridDebugSourceId = 6;
-
-	public Node2D PropSort = null!;
-	public CharacterBody2D Player = null!;
-
-	public CastShadowSystem ControlShadows => _controlBuilder.GetShadows();
-	public CastShadowSystem StudioShadows => _studioBuilder.GetShadows();
-
-	private ControlRoomBuilder _controlBuilder = null!;
-	private StudioBuilder _studioBuilder = null!;
+	private CharacterBody2D _player = null!;
+	private ControlRoom _controlRoom = null!;
+	private StudioRoom _studioRoom = null!;
 
 	public void SetPlayer(CharacterBody2D player)
 	{
-		Player = player;
-		_controlBuilder.SetPlayer(player);
-		_studioBuilder.SetPlayer(player);
+		_player = player;
+		_controlRoom.SetPlayer(player);
+		_studioRoom.SetPlayer(player);
 	}
 
 	public Vector2 ControlRoomGridToWorld(Vector2I gridPos)
 	{
-		return _controlBuilder.GridToWorld(gridPos);
+		return _controlRoom.GridToWorld(gridPos);
 	}
 
 	public Vector2 StudioGridToWorld(Vector2I gridPos)
 	{
-		return _studioBuilder.GridToWorld(gridPos);
+		return _studioRoom.GridToWorld(gridPos);
 	}
 
 	public Rect2 GetStudioBounds()
 	{
-		return _studioBuilder.GetFloorBounds();
+		return _studioRoom.GetFloorBounds();
 	}
 
 	public override void _Ready()
 	{
-		PropSort = new Node2D { Name = "PropSort", YSortEnabled = true };
-		AddChild(PropSort);
+		_controlRoom = new ControlRoom { Name = "ControlRoom" };
+		AddChild(_controlRoom);
 
-		_controlBuilder = new ControlRoomBuilder();
-		_controlBuilder.Build(this);
-
-		_studioBuilder = new StudioBuilder();
-		_studioBuilder.Build(this);
-
-		// Register bounds with RoomStateManager
-		var roomState = ServiceRegistry.Instance?.Get<RoomStateManager>();
-		if (roomState != null)
-		{
-			roomState.SetControlRoomBounds(_controlBuilder.GetFloorBounds());
-			roomState.SetStudioBounds(_studioBuilder.GetFloorBounds());
-		}
+		_studioRoom = new StudioRoom { Name = "StudioRoom" };
+		AddChild(_studioRoom);
 	}
 
 	public override void _Input(InputEvent @event)
 	{
 		if (@event.IsActionPressed("ui_select"))
 		{
-			_controlBuilder.ToggleDebug();
-			_studioBuilder.ToggleDebug();
+			_controlRoom.ToggleDebug();
+			_studioRoom.ToggleDebug();
 		}
 	}
 
 	public override void _Process(double delta)
 	{
-		var vernStats = GetVernStats();
-		_controlBuilder.Update(this, delta);
-		_studioBuilder.Update(this, delta, vernStats);
-
 		UpdatePlayerLightMask();
-	}
-
-	private VernStats? GetVernStats()
-	{
-		return ServiceRegistry.Instance?.VernStats;
 	}
 
 	private void UpdatePlayerLightMask()
 	{
-		if (Player == null) return;
+		if (_player == null) return;
 
-		var sprite = Player.GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
+		var sprite = _player.GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");
 		if (sprite == null) return;
 
-		var playerPos = Player.GlobalPosition;
-		var studioBounds = _studioBuilder.GetFloorBounds();
-		var controlBounds = _controlBuilder.GetFloorBounds();
+		var playerPos = _player.GlobalPosition;
+		var studioBounds = _studioRoom.GetFloorBounds();
+		var controlBounds = _controlRoom.GetFloorBounds();
 
 		int targetMask;
 		if (studioBounds.HasPoint(playerPos))

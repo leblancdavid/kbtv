@@ -944,22 +944,21 @@ When refactoring large scripts (>500 lines), break them into focused modules usi
 
 ### Room Component Architecture
 
-KBTV uses a **component-based architecture** for room scenes. Shared infrastructure (grid, walls,
-lighting, shadows, prop building) lives in `scripts/world/common/`. Each room gets its own folder
-(`control_room/`, `studio/`) containing a **builder** (orchestrates setup), a **layout** (room-level
-facts: grid anchor, ceiling light, on-air sign tuning) and a `props/` folder with **one file per
-prop** (prop data + placement code together). Props shared by multiple rooms live once in
-`common/props/`. Everything stays in the global C# namespace, so prop class names are globally
-unique (e.g. `OnAirSignProp`, `ControlChairProp`, `RoundTableProp`).
+KBTV uses a **component-based architecture** for room scenes. Each room is a self-contained
+`RoomBase` node (`ControlRoom`, `StudioRoom`) that code-builds and *owns* its full subtree
+(floor/door/grid layers, walls, lighting, shadows, debug overlay, props). Shared infrastructure
+in `scripts/world/common/`; each room gets its own folder (`control_room/`, `studio/`) holding the
+`RoomBase` subclass plus a `props/` folder with **one file per prop** (prop data + placement code
+together). Props shared by multiple rooms live once in `common/props/`. Everything stays in the
+global C# namespace, so prop class names are globally unique (e.g. `OnAirSignProp`,
+`ControlChairProp`, `RoundTableProp`).
 
 **Component Files:**
 
 | File | Purpose |
 |------|---------|
-| `common/RoomBase.cs` | Abstract base class - grid/floor management, coordinate utilities |
-| `common/RoomSection.cs` | Mutable per-room state (layers, grid offset) implementing `IRoomSection` |
-| `common/IRoomSection.cs` | Interface rooms/builders use to translate grid coords and place nodes |
-| `common/IRoomBuilder.cs` | Interface every room builder implements |
+| `common/RoomBase.cs` | Abstract base room - creates layers, grid/floor management, coordinate utilities, lifecycle hooks |
+| `common/IRoomSection.cs` | Interface rooms/systems use to translate grid coords and place nodes |
 | `common/WallSystem.cs` | Wall/door/window creation and visibility toggling |
 | `common/CastShadowSystem.cs` | Shader-based cast shadows and base shadows |
 | `common/ShadowSystem.cs` | Single-prop shadow helper |
@@ -974,10 +973,8 @@ unique (e.g. `OnAirSignProp`, `ControlChairProp`, `RoundTableProp`).
 ```
 scripts/world/
 ├── common/                          # Shared infrastructure (grid, walls, lighting, shadows, props)
-│   ├── IRoomBuilder.cs
 │   ├── IRoomSection.cs
 │   ├── RoomBase.cs
-│   ├── RoomSection.cs
 │   ├── WallSystem.cs
 │   ├── CastShadowSystem.cs
 │   ├── ShadowSystem.cs
@@ -989,8 +986,7 @@ scripts/world/
 │   └── props/
 │       └── OnAirSignProp.cs         # Shared prop example
 ├── control_room/                    # Control room (Vern's desk, screening)
-│   ├── ControlRoomBuilder.cs
-│   ├── ControlRoomLayout.cs
+│   ├── ControlRoom.cs
 │   └── props/
 │       ├── ControlTableGroupProp.cs  # Desk group (boards + monitoring lights + screening trigger)
 │       ├── SpeakerStandsProp.cs
@@ -998,8 +994,7 @@ scripts/world/
 │       ├── StorageShelvesProp.cs
 │       └── ControlChairProp.cs
 └── studio/                          # Studio (on-stage Vern group)
-    ├── StudioBuilder.cs
-    ├── StudioLayout.cs
+    ├── StudioRoom.cs
     ├── StudioSmoke.cs               # Ambient smoke effect keyed to latest cigarette
     └── props/
         ├── BookcasesProp.cs
@@ -1009,8 +1004,8 @@ scripts/world/
 
 **Per-Prop File Pattern:**
 
-Each prop file is a `static class` holding its placement data and a build method. Room builders
-stay thin and just call the props:
+Each prop file is a `static class` holding its placement data and a build method. Rooms stay
+thin and just call the props from their `OnRoomReady()`:
 
 ```csharp
 public static class SpeakerStandsProp
@@ -1025,7 +1020,7 @@ public static class SpeakerStandsProp
 }
 ```
 
-The builder then does `foreach (var spec in SpeakerStandsProp.Specs) CreateProp(spec, SpeakerStandsProp.TexturePath);`
+The room then does `foreach (var spec in SpeakerStandsProp.Specs) CreateProp(spec, SpeakerStandsProp.TexturePath);`
 via `PropBuilder.CreatePropAutoCollider(...)`.
 
 **Prop Data Sources:**
@@ -1047,88 +1042,86 @@ Every prop-related property belongs in the prop's own file under `props/`. That 
 - **Collision/floor scan settings**: `FloorScanHeight`, `CreateCastShadow`
 - **Anything else tied to that prop** (lights, effects, trigger shapes it owns)
 
-Room layouts hold **room-level facts only** (grid anchor, ceiling light geometry, smoke anchor). Room
-builders hold only plumbing (shadows, materials, sections, light masks) and call the prop's own
-`Create(...)` method or iterate its specs. If you find yourself tuning a sprite/collider/position in a
-builder or layout, stop — move it into the prop file instead.
+Room classes hold **room-level facts only** (grid anchor, ceiling light geometry, smoke anchor). Room
+subclasses hold only plumbing (shadows, materials, layers, light masks) and call each prop's own
+`Create(...)` method or iterate its specs from `OnRoomReady()`. If you find yourself tuning a
+sprite/collider/position in a room class, stop — move it into the prop file instead.
 
-**Keep room layouts for room-level facts only** (grid anchor, ceiling light geometry, smoke anchor).
+**Keep room classes for room-level facts only** (grid anchor, ceiling light geometry, smoke anchor).
 Anything tied to a specific prop belongs in that prop's file.
 
 **Creating a New Room:**
 
-New rooms live in their own folder (`scripts/world/<room>/`) as a builder + layout + `props/`
-directory, reusing the shared systems in `common/`. The builder pattern:
+New rooms live in their own folder (`scripts/world/<room>/`) as a `RoomBase` subclass + `props/`
+directory, reusing the shared systems in `common/`. The subclass pattern:
 
 ```csharp
-public partial class StudioRoom : RoomBase
+public sealed partial class OfficeRoom : RoomBase
 {
     [ExportGroup("Door Settings")]
     [Export] private int DoorRow = 3;
     [Export] private int DoorHeightTiles = 2;
-
-    [ExportGroup("Props")]
-    [Export] private bool PlaceRecordingBooth = true;
+    [Export] private float CeilingLightRadius = 900f;
 
     private WallSystem _wallSystem;
-    private RoomLightingBuilder _lighting;
-    private CastShadowSystem _shadows;
+    private PointLight2D _ceilingLight;
 
-    public override void _Ready()
+    protected override void ConfigureRoom()
     {
-        // Configure grid
-        GridWidth = 18;
-        GridHeight = 12;
+        // Room-level facts: grid anchor/size and light mask for the floor layer
+        GridAnchor = new Vector2(0, 400);
+        GridWidth = 14;
+        GridHeight = 6;
+        LightMask = 2;
+    }
 
-        base._Ready();
-
-        // Initialize components
+    protected override void OnRoomReady()
+    {
+        // Walls + shadows + lighting + props, built once layers exist
         _wallSystem = new WallSystem { DoorRow = DoorRow, DoorHeightTiles = DoorHeightTiles };
-        _lighting = new RoomLightingBuilder { EnableCeilingLight = true };
-        _shadows = new CastShadowSystem { LightRadius = 450f };
-
         AddChild(_wallSystem);
-        AddChild(_lighting);
-        AddChild(_shadows);
 
-        // IMPORTANT: Create lighting BEFORE initializing shadows
+        Shadows = new CastShadowSystem { LightRadius = CeilingLightRadius };
+        AddChild(Shadows);
+
+        _ceilingLight = RoomLightingBuilder.MakeCeilingLight(
+            GridToWorld(new Vector2I(GridWidth / 2, GridHeight / 2)) + new Vector2(0, -32),
+            new Color(1f, 0.95f, 0.9f), 1.1f, CeilingLightRadius, true, LightMask, 512, 1f);
+        AddChild(_ceilingLight);
+
         _wallSystem.Initialize(this);
-        _lighting.Initialize(this);
-        var tablePos = GridToWorld(new Vector2I(6, 1));
-        _lighting.CreateLighting(tablePos);
-        _shadows.Initialize(this, _lighting.CeilingLight);
-
         _wallSystem.CreateWalls();
         _wallSystem.CreateWallColliders();
+        Shadows.Initialize(this, _ceilingLight);
 
         CreateProps();
     }
 
     private void CreateProps()
     {
-        if (PlaceRecordingBooth)
-        {
-            PropBuilder.CreateProp(PropSort, "res://...",
-                new Vector2I(8, 4), Vector2.Zero, true, new Vector2(32, 24),
-                _shadows, _shadows.DepthShadowMaterial, this);
-        }
+        // Prop data lives in props/; the room just places it
+        PropBuilder.CreateProp(PropSort, "res://...",
+            new Vector2I(8, 4), Vector2.Zero, true, new Vector2(32, 24),
+            Shadows, Shadows.DepthShadowMaterial, this);
     }
 }
 ```
 
 **Key Points:**
-- Always call `_lighting.CreateLighting()` **before** `_shadows.Initialize()` to avoid null light reference
-- Use `PropBuilder.CreateProp()` for props with shadows
-- Wall visibility is handled automatically by `WallSystem.UpdateVisibility(player)`
-- Components handle their own `_Process()` updates - call them from the room's `_Process()`
+- Override `ConfigureRoom()` (grid facts, light mask) — called first by `RoomBase._Ready()`
+- Override `OnRoomReady()` — layers/floor already created; set up walls, shadows, lights, props, debug
+- Assign `Shadows` so subclasses get the concrete `CastShadowSystem` hosted by the room
+- Always call `Shadows.Initialize(room, lightSource)` **after** adding the light (null light reference errors)
+- `_Process()` runs `OnRoomProcess(delta)` — put per-frame updates there (wall visibility, flicker)
+- `ToggleDebug()` toggles the room's debug overlay (used by `WorldRoom` on `ui_select`)
+- Rooms register their own bounds: `ServiceRegistry.Get<RoomStateManager>()` → `SetControlRoomBounds/SetStudioBounds`
 
 **Exports Available:**
 
 | Component | Key Exports |
 |-----------|-------------|
-| RoomBase | `GridAnchor`, `GridWidth`, `GridHeight`, `SouthWallHideOffset` |
-| WallSystem | `DoorRow`, `DoorHeightTiles`, `WindowStartColumn`, `WindowEndColumn` |
-| RoomLightingBuilder | `EnableCeilingLight`, `CeilingLightColor`, `CeilingLightRadius`, `EnableMonitorLight`, `EnableDeskLampLight` |
+| RoomBase | `GridAnchor`, `GridWidth`, `GridHeight`, `LightMask`, `SouthWallHideOffset` |
+| WallSystem | `DoorRow`, `DoorHeightTiles`, `WindowStartColumn`, `WindowEndColumn`, `EnableSouthWall`, `EnableSouthDoor` |
 | CastShadowSystem | `ShadowLerpFactor`, `LightRadius`, `ShadowOpacity` |
 
 ## Project Overview

@@ -1,0 +1,29 @@
+<Project Sdk="Godot.NET.Sdk/4.5.1">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <Nullable>enable</Nullable>
+    <NoWarn>$(NoWarn);CS0618;CS8618;CS8625;CS8600;CS8601;CS8602;CS8603;CS8604;CS8714;CS1998</NoWarn>
+    <WarningsAsErrors>CS9057</WarningsAsErrors>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
+
+   <ItemGroup Condition=" '$(Configuration)' != 'ExportRelease' ">
+      <PackageReference Include="Chickensoft.GoDotTest" Version="2.0.28" />
+      <PackageReference Include="LightMock.Generator" Version="1.2.3" />
+      <PackageReference Include="Chickensoft.GodotTestDriver" Version="3.0.0" />
+      <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'ExportRelease' ">
+    <DefaultItemExcludes>$(DefaultItemExcludes);test/**/*;tests/**/*</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <!-- Coverage Thresholds (enforced in CI) -->
+  <PropertyGroup>
+    <CoverageThreshold>80</CoverageThreshold>
+    <CoverageThresholdFail>true</CoverageThresholdFail>
+  </PropertyGroup>
+
+</Project>

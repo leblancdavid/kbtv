@@ -203,27 +203,6 @@ public static partial class PropBuilder
 		return CreatePropAutoCollider(parent, texturePath, gridCoords, pixelOffset, shadowSystem, depthShadowMaterial, worldPos, lightMask, createCastShadow, floorScanHeight, colliderOverride, flipV, flipH, scale);
 	}
 
-	public static Node2D CreatePropAutoCollider(
-		Node2D parent,
-		string texturePath,
-		Vector2I gridCoords,
-		Vector2 pixelOffset,
-		CastShadowSystem shadowSystem,
-		ShaderMaterial depthShadowMaterial,
-		RoomBase room,
-		int lightMask = 1,
-		bool createCastShadow = true,
-		int floorScanHeight = 16,
-		Vector4? colliderOverride = null,
-		bool flipV = false,
-		bool flipH = false,
-		Vector2? scale = null
-	)
-	{
-		var worldPos = room.GridToWorld(gridCoords) + pixelOffset;
-		return CreatePropAutoCollider(parent, texturePath, gridCoords, pixelOffset, shadowSystem, depthShadowMaterial, worldPos, lightMask, createCastShadow, floorScanHeight, colliderOverride, flipV, flipH, scale);
-	}
-
 	public static Node2D CreateProp(
 		Node2D parent,
 		string texturePath,
@@ -274,24 +253,6 @@ public static partial class PropBuilder
 		parent.AddChild(root);
 
 		return root;
-	}
-
-	public static Node2D CreateProp(
-		Node2D parent,
-		string texturePath,
-		Vector2I gridCoords,
-		Vector2 pixelOffset,
-		bool collidable,
-		Vector2 colliderSize,
-		CastShadowSystem shadowSystem,
-		ShaderMaterial depthShadowMaterial,
-		RoomBase room,
-		int lightMask = 1,
-		bool createCastShadow = true
-	)
-	{
-		var worldPos = room.GridToWorld(gridCoords) + pixelOffset;
-		return CreateProp(parent, texturePath, gridCoords, pixelOffset, collidable, colliderSize, shadowSystem, depthShadowMaterial, worldPos, lightMask, createCastShadow);
 	}
 
 	public static Node2D CreateProp(
