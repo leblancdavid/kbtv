@@ -6,8 +6,6 @@ public partial class StudioRoom3D : Node3D
 {
 	[Export] public Vector3 PlayerStartPosition = new(0f, 0.5f, -3f);
 
-	private Player3D? _player;
-
 	public override void _Ready()
 	{
 		Visible = true;
@@ -15,8 +13,7 @@ public partial class StudioRoom3D : Node3D
 
 	public void SetPlayer(Player3D player)
 	{
-		_player = player;
-		_player.SetRoomAnchor(PlayerStartPosition);
+		player.SetRoomAnchor(PlayerStartPosition);
 	}
 
 	public void ShowRoom()

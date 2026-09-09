@@ -11,6 +11,20 @@ size = Vector3(14, 0.2, 10)
 [sub_resource type="BoxMesh" id="BoxMesh_wall"]
 size = Vector3(14, 3, 0.2)
 
+[sub_resource type="BoxMesh" id="BoxMesh_table"]
+size = Vector3(2, 0.8, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_sidewall"]
+size = Vector3(0.2, 3, 10)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
+radius = 0.35
+height = 1.0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.35
+height = 1.0
+
 [node name="World3D" type="Node3D"]
 script = ExtResource("1")
 
@@ -25,19 +39,69 @@ current = true
 
 [node name="ControlRoom3D" type="Node3D" parent="."]
 script = ExtResource("2")
+position = Vector3(-8, 0, 0)
 
 [node name="Floor" type="MeshInstance3D" parent="ControlRoom3D"]
 mesh = SubResource("BoxMesh_floor")
 
+[node name="NorthWall" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(0, 1.5, -5)
+mesh = SubResource("BoxMesh_wall")
+
+[node name="SouthWall" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(0, 1.5, 5)
+mesh = SubResource("BoxMesh_wall")
+
+[node name="WestWall" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(-7, 1.5, 0)
+rotation_degrees = Vector3(0, 90, 0)
+mesh = SubResource("BoxMesh_sidewall")
+
+[node name="EastWall" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(7, 1.5, 0)
+rotation_degrees = Vector3(0, 90, 0)
+mesh = SubResource("BoxMesh_sidewall")
+
+[node name="DeskPlaceholder" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(0, 0.4, 1)
+mesh = SubResource("BoxMesh_table")
+
 [node name="StudioRoom3D" type="Node3D" parent="."]
 script = ExtResource("3")
+position = Vector3(8, 0, 0)
 
 [node name="Floor" type="MeshInstance3D" parent="StudioRoom3D"]
 mesh = SubResource("BoxMesh_floor")
 
+[node name="NorthWall" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(0, 1.5, -5)
+mesh = SubResource("BoxMesh_wall")
+
+[node name="SouthWall" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(0, 1.5, 5)
+mesh = SubResource("BoxMesh_wall")
+
+[node name="WestWall" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(-7, 1.5, 0)
+rotation_degrees = Vector3(0, 90, 0)
+mesh = SubResource("BoxMesh_sidewall")
+
+[node name="EastWall" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(7, 1.5, 0)
+rotation_degrees = Vector3(0, 90, 0)
+mesh = SubResource("BoxMesh_sidewall")
+
+[node name="RoundTablePlaceholder" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(0, 0.4, 0)
+mesh = SubResource("BoxMesh_table")
+
 [node name="Player3D" type="CharacterBody3D" parent="."]
 script = ExtResource("4")
 
-[node name="Camera3D" type="Camera3D" parent="Player3D"]
-position = Vector3(0, 1.6, 0)
-current = false
+[node name="Visual" type="MeshInstance3D" parent="Player3D"]
+position = Vector3(0, 0.7, 0)
+mesh = SubResource("CapsuleMesh_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player3D"]
+position = Vector3(0, 0.7, 0)
+shape = SubResource("CapsuleShape3D_player")
