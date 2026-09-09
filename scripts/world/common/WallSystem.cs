@@ -14,6 +14,7 @@ public partial class WallSystem : Node
 	[Export] public bool EnableSouthDoor = false;
 	[Export] public int SouthDoorRow = 3;
 	[Export] public bool EnableEastDoor = false;
+	[Export] public bool EnableWestDoor = false;
 
 	[ExportGroup("North Door")]
 	[Export] public bool EnableNorthDoor = false;
@@ -48,7 +49,7 @@ public partial class WallSystem : Node
 	[Export] public Texture2D CustomNorthDoorTexture;
 	[Export] public Texture2D CustomWestWallTexture;
 	[Export] public Texture2D CustomEastWallTexture;
-	[Export] public Texture2D CustomEastDoorTexture;
+	[Export] public Texture2D CustomSideDoorTexture;
 
 	[ExportGroup("Wall Dimensions")]
 	[Export] public float WallThickness = 16.0f;
@@ -106,12 +107,38 @@ public partial class WallSystem : Node
 	private readonly List<Sprite2D> _windowSprites = new();
 	private readonly List<Sprite2D> _northDoorSprites = new();
 	private Sprite2D _onAirSign;
+
+	private enum DoorAnimationState { Closed, Opening, Open, Closing }
+	private DoorAnimationState _eastDoorState = DoorAnimationState.Closed;
+	private DoorAnimationState _westDoorState = DoorAnimationState.Closed;
+	private double _eastDoorAnimTime;
+	private double _westDoorAnimTime;
+	private float _eastDoorScale;
+	private float _westDoorScale;
+	private const float DOOR_MIN_SCALE = 0.1f;
+	private const float DOOR_MAX_SCALE = 1.0f;
+	private const float DOOR_ANIM_DURATION = 0.3f;
+	private const float DOOR_OPEN_DELAY = 0.5f;
+	private double _eastDoorOpenTimer;
+	private double _westDoorOpenTimer;
+	private bool _playerInsideEastDoor;
+	private bool _playerInsideWestDoor;
+	private double _eastDoorCloseDelayTimer;
+	private double _westDoorCloseDelayTimer;
+	private const float DOOR_CLOSE_DELAY = 0.5f;
+
+	private Sprite2D _eastDoorSprite1;
+	private Sprite2D _westDoorSprite1;
 	private PointLight2D _onAirLight;
 	private float _onAirBlinkTime;
 
 	public List<Rect2> DebugWallRects => _debugWallRects;
 	public Rect2 DebugDoorRect => _debugDoorRect;
 	public Rect2 DebugSouthDoorRect => _debugSouthDoorRect;
+	public Rect2 EastDoorBounds => _eastDoorBounds;
+	public Rect2 WestDoorBounds => _westDoorBounds;
+	private Rect2 _eastDoorBounds;
+	private Rect2 _westDoorBounds;
 
 	public void Initialize(IRoomSection roomSection)
 	{
@@ -132,7 +159,7 @@ public partial class WallSystem : Node
 		var sideTexture = CustomSideWallTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/studio_north_atlas.png");
 		var westTexture = CustomWestWallTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/wall_west_atlas.png");
 		var eastTexture = CustomEastWallTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/studio_north_atlas.png");
-		var eastDoorTexture = CustomEastDoorTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/wall_east_door_atlas.png");
+		var sideDoorTexture = CustomSideDoorTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/wall_side_door_single.png");
 		var southStripTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_strip.png");
 		var windowTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_window_atlas.png");
 
@@ -211,10 +238,20 @@ public partial class WallSystem : Node
 
 		for (int y = -1; y < gridHeight; y++)
 		{
+			if (EnableWestDoor && y >= doorY && y < doorY + DoorHeightTiles)
+			{
+				var gridPos = new Vector2I(-1, doorY);
+				var doorSprite = CreateSingleDoorSprite(sideDoorTexture, DOOR_MIN_SCALE, gridPos, true, DoorHeightTiles);
+				_westWallSprites.Add(doorSprite);
+				_propSort.AddChild(doorSprite);
+				_westDoorSprite1 = doorSprite;
+				break;
+			}
+
 			var atlasY = ResolveVerticalAtlas(y, gridHeight);
-			var sprite = CreateRotatedWallSprite(southTexture, 4, atlasY, new Vector2I(-1, y), WallDirection.West, 90);
-			_westWallSprites.Add(sprite);
-			_propSort.AddChild(sprite);
+			var wallSprite = CreateRotatedWallSprite(southTexture, 4, atlasY, new Vector2I(-1, y), WallDirection.West, 90);
+			_westWallSprites.Add(wallSprite);
+			_propSort.AddChild(wallSprite);
 
 			var capSprite = CreateWallCapSprite(new Vector2I(-1, y), WallDirection.West);
 			_westWallSprites.Add(capSprite);
@@ -227,10 +264,12 @@ public partial class WallSystem : Node
 
 			if (EnableEastDoor && y >= doorY && y < doorY + DoorHeightTiles)
 			{
-				int doorFrame = y - doorY;
-				var sprite = CreateEastDoorSprite(eastDoorTexture, doorFrame, gridPos);
+				var gridPosDoor = new Vector2I(gridWidth, doorY);
+				var sprite = CreateSingleDoorSprite(sideDoorTexture, DOOR_MIN_SCALE, gridPosDoor, false, DoorHeightTiles);
 				_eastWallSprites.Add(sprite);
 				_propSort.AddChild(sprite);
+				_eastDoorSprite1 = sprite;
+				break;
 			}
 			else
 			{
@@ -261,6 +300,7 @@ public partial class WallSystem : Node
 		var gridHeight = GetGridHeight();
 		var floorLayer = GetFloorLayer();
 		var gridOffset = GetGridOffset();
+		var doorY = Mathf.Clamp(DoorRow, 0, gridHeight - 1);
 
 		_wallColliderBody = new StaticBody2D { Name = "WallColliders", Position = gridOffset };
 		AddChild(_wallColliderBody);
@@ -305,6 +345,9 @@ public partial class WallSystem : Node
 
 		for (int y = 0; y < gridHeight; y++)
 		{
+			if (EnableWestDoor && y >= doorY && y < doorY + DoorHeightTiles)
+				continue;
+
 			var cellPos = floorLayer.MapToLocal(new Vector2I(-1, y));
 			AddWallCollider(new Rect2(
 				cellPos.X - WallStripWidth * 0.5f,
@@ -322,7 +365,6 @@ public partial class WallSystem : Node
 			RoomBase.TileSize
 		));
 
-		var doorY = Mathf.Clamp(DoorRow, 0, gridHeight - 1);
 		for (int y = 0; y < gridHeight; y++)
 		{
 			var cellPos = floorLayer.MapToLocal(new Vector2I(gridWidth, y));
@@ -371,6 +413,15 @@ public partial class WallSystem : Node
 		_debugDoorRect = new Rect2(
 			_wallColliderBody.ToGlobal(new Vector2(doorCellPos.X - RoomBase.TileSize * 0.5f, doorTop)),
 			new Vector2(WallStripWidth, doorBottom - doorTop)
+		);
+		_eastDoorBounds = _debugDoorRect;
+
+		var westDoorCellPos = floorLayer.MapToLocal(new Vector2I(-1, doorY));
+		var westDoorTop = westDoorCellPos.Y - RoomBase.TileSize * 0.5f;
+		var westDoorBottom = westDoorTop + (DoorHeightTiles * RoomBase.TileSize);
+		_westDoorBounds = new Rect2(
+			_wallColliderBody.ToGlobal(new Vector2(westDoorCellPos.X - RoomBase.TileSize * 0.5f, westDoorTop)),
+			new Vector2(WallStripWidth, westDoorBottom - westDoorTop)
 		);
 
 		if (EnableSouthDoor)
@@ -441,6 +492,170 @@ public partial class WallSystem : Node
 		_onAirLight.Energy = OnAirLightEnergy + blink;
 	}
 
+	public void UpdateDoorAnimations(double delta)
+	{
+		UpdateEastDoorAnimation(delta);
+		UpdateWestDoorAnimation(delta);
+	}
+
+	public void TriggerEastDoorAnimation()
+	{
+		if (_eastDoorState == DoorAnimationState.Closed)
+		{
+			_eastDoorState = DoorAnimationState.Opening;
+			_eastDoorAnimTime = 0;
+		}
+		else if (_eastDoorState == DoorAnimationState.Closing)
+		{
+			_eastDoorState = DoorAnimationState.Open;
+			_eastDoorScale = DOOR_MAX_SCALE;
+			SetEastDoorScale(_eastDoorScale);
+		}
+	}
+
+	public void TriggerEastDoorClose()
+	{
+		if (_eastDoorState == DoorAnimationState.Open)
+		{
+			_eastDoorCloseDelayTimer = DOOR_CLOSE_DELAY;
+		}
+	}
+
+	public void TriggerWestDoorAnimation()
+	{
+		if (_westDoorState == DoorAnimationState.Closed)
+		{
+			_westDoorState = DoorAnimationState.Opening;
+			_westDoorAnimTime = 0;
+		}
+		else if (_westDoorState == DoorAnimationState.Closing)
+		{
+			_westDoorState = DoorAnimationState.Open;
+			_westDoorScale = DOOR_MAX_SCALE;
+			SetWestDoorScale(_westDoorScale);
+		}
+	}
+
+	public void TriggerWestDoorClose()
+	{
+		if (_westDoorState == DoorAnimationState.Open)
+		{
+			_westDoorCloseDelayTimer = DOOR_CLOSE_DELAY;
+		}
+	}
+
+	private void UpdateEastDoorAnimation(double delta)
+	{
+		if (!EnableEastDoor || _eastDoorSprite1 == null)
+			return;
+
+		switch (_eastDoorState)
+		{
+			case DoorAnimationState.Opening:
+				_eastDoorAnimTime += delta;
+				float openProgress = (float)(_eastDoorAnimTime / DOOR_ANIM_DURATION);
+				_eastDoorScale = Mathf.Lerp(DOOR_MIN_SCALE, DOOR_MAX_SCALE, openProgress);
+				SetEastDoorScale(_eastDoorScale);
+				if (_eastDoorAnimTime >= DOOR_ANIM_DURATION)
+				{
+					_eastDoorState = DoorAnimationState.Open;
+					_eastDoorScale = DOOR_MAX_SCALE;
+					SetEastDoorScale(_eastDoorScale);
+				}
+				break;
+			case DoorAnimationState.Open:
+				if (_eastDoorCloseDelayTimer > 0)
+				{
+					_eastDoorCloseDelayTimer -= delta;
+					if (_eastDoorCloseDelayTimer <= 0)
+					{
+						_eastDoorState = DoorAnimationState.Closing;
+						_eastDoorAnimTime = 0;
+					}
+				}
+				break;
+			case DoorAnimationState.Closing:
+				_eastDoorAnimTime += delta;
+				float closeProgress = 1.0f - (float)(_eastDoorAnimTime / DOOR_ANIM_DURATION);
+				_eastDoorScale = Mathf.Lerp(DOOR_MIN_SCALE, DOOR_MAX_SCALE, closeProgress);
+				SetEastDoorScale(_eastDoorScale);
+				if (_eastDoorAnimTime >= DOOR_ANIM_DURATION)
+				{
+					_eastDoorState = DoorAnimationState.Closed;
+					_eastDoorScale = DOOR_MIN_SCALE;
+					SetEastDoorScale(_eastDoorScale);
+				}
+				break;
+		}
+	}
+
+	private void UpdateWestDoorAnimation(double delta)
+	{
+		if (!EnableWestDoor || _westDoorSprite1 == null)
+			return;
+
+		switch (_westDoorState)
+		{
+			case DoorAnimationState.Opening:
+				_westDoorAnimTime += delta;
+				float openProgress = (float)(_westDoorAnimTime / DOOR_ANIM_DURATION);
+				_westDoorScale = Mathf.Lerp(DOOR_MIN_SCALE, DOOR_MAX_SCALE, openProgress);
+				SetWestDoorScale(_westDoorScale);
+				if (_westDoorAnimTime >= DOOR_ANIM_DURATION)
+				{
+					_westDoorState = DoorAnimationState.Open;
+					_westDoorScale = DOOR_MAX_SCALE;
+					SetWestDoorScale(_westDoorScale);
+				}
+				break;
+			case DoorAnimationState.Open:
+				if (_westDoorCloseDelayTimer > 0)
+				{
+					_westDoorCloseDelayTimer -= delta;
+					if (_westDoorCloseDelayTimer <= 0)
+					{
+						_westDoorState = DoorAnimationState.Closing;
+						_westDoorAnimTime = 0;
+					}
+				}
+				break;
+			case DoorAnimationState.Closing:
+				_westDoorAnimTime += delta;
+				float closeProgress = 1.0f - (float)(_westDoorAnimTime / DOOR_ANIM_DURATION);
+				_westDoorScale = Mathf.Lerp(DOOR_MIN_SCALE, DOOR_MAX_SCALE, closeProgress);
+				SetWestDoorScale(_westDoorScale);
+				if (_westDoorAnimTime >= DOOR_ANIM_DURATION)
+				{
+					_westDoorState = DoorAnimationState.Closed;
+					_westDoorScale = DOOR_MIN_SCALE;
+					SetWestDoorScale(_westDoorScale);
+				}
+				break;
+		}
+	}
+
+	private void SetEastDoorScale(float scale)
+	{
+		float doorWidth = 48.0f;
+		float offsetX = (doorWidth * scale / 2.0f);
+		float doorHeight = DoorHeightTiles * RoomBase.TileSize;
+		if (_eastDoorSprite1 != null) {
+			_eastDoorSprite1.Scale = new Vector2(scale, _eastDoorSprite1.Scale.Y);
+			_eastDoorSprite1.Offset = new Vector2(offsetX, -(doorHeight * 0.5f));
+		}
+	}
+
+	private void SetWestDoorScale(float scale)
+	{
+		float doorWidth = 48.0f;
+		float offsetX = -(doorWidth * scale / 2.0f);
+		float doorHeight = DoorHeightTiles * RoomBase.TileSize;
+		if (_westDoorSprite1 != null) {
+			_westDoorSprite1.Scale = new Vector2(scale, _westDoorSprite1.Scale.Y);
+			_westDoorSprite1.Offset = new Vector2(offsetX, -(doorHeight * 0.5f));
+		}
+	}
+
 	private void ClearWallSprites()
 	{
 		foreach (var sprite in _northWallSprites) sprite.QueueFree();
@@ -460,6 +675,13 @@ public partial class WallSystem : Node
 		_eastWallSprites.Clear();
 		_southCornerSprites.Clear();
 		_northDoorSprites.Clear();
+
+		_eastDoorSprite1 = null;
+		_westDoorSprite1 = null;
+		_eastDoorState = DoorAnimationState.Closed;
+		_westDoorState = DoorAnimationState.Closed;
+		_eastDoorScale = DOOR_MIN_SCALE;
+		_westDoorScale = DOOR_MIN_SCALE;
 
 		if (_onAirSign != null)
 		{
@@ -552,18 +774,24 @@ public partial class WallSystem : Node
 		return sprite;
 	}
 
-	private Sprite2D CreateEastDoorSprite(Texture2D texture, int frame, Vector2I gridCoords)
+	private Sprite2D CreateSingleDoorSprite(Texture2D texture, float scaleX, Vector2I gridCoords, bool flipH, int doorHeightTiles)
 	{
 		var position = GetGridToWorld(gridCoords);
+
+		float textureHeight = texture.GetHeight();
+		float targetHeight = doorHeightTiles * RoomBase.TileSize;
+		float scaleY = targetHeight / textureHeight;
 
 		var sprite = new Sprite2D
 		{
 			Texture = texture,
 			Position = position,
-			Offset = new Vector2(0, -48),
-			Hframes = 2,
+			Offset = new Vector2(0, -(targetHeight * 0.5f)),
+			Hframes = 1,
 			Vframes = 1,
-			Frame = frame,
+			Frame = 0,
+			FlipH = flipH,
+			Scale = new Vector2(scaleX, scaleY),
 			ZIndex = (int)position.Y
 		};
 		sprite.Set("light_mask", LightMask);

@@ -15,6 +15,8 @@ public partial class WorldRoom : Node2D
 	private CharacterBody2D _player = null!;
 	private ControlRoom _controlRoom = null!;
 	private StudioRoom _studioRoom = null!;
+	private bool _wasPlayerInEastDoor;
+	private bool _wasPlayerInWestDoor;
 
 	public void SetPlayer(CharacterBody2D player)
 	{
@@ -59,6 +61,7 @@ public partial class WorldRoom : Node2D
 	public override void _Process(double delta)
 	{
 		UpdatePlayerLightMask();
+		UpdateDoorAnimations(delta);
 	}
 
 	private void UpdatePlayerLightMask()
@@ -87,5 +90,49 @@ public partial class WorldRoom : Node2D
 		}
 
 		sprite.Set("light_mask", targetMask);
+	}
+
+	private void UpdateDoorAnimations(double delta)
+	{
+		if (_player == null) return;
+
+		_controlRoom.UpdateDoorAnimations(delta);
+		_studioRoom.UpdateDoorAnimations(delta);
+
+		var playerCollision = _player.GetNodeOrNull<CollisionShape2D>("CollisionShape2D");
+		if (playerCollision?.Shape is not RectangleShape2D playerShape)
+			return;
+
+		var playerSize = playerShape.Size;
+		var playerRect = new Rect2(
+			playerCollision.GlobalPosition - (playerSize * 0.5f),
+			playerSize
+		);
+
+		var eastBounds = _controlRoom.EastDoorBounds;
+		bool isPlayerInEastDoor = eastBounds != new Rect2(0, 0, 0, 0) && eastBounds.Intersects(playerRect);
+
+		if (isPlayerInEastDoor && !_wasPlayerInEastDoor)
+		{
+			_controlRoom.TriggerEastDoorAnimation();
+		}
+		else if (!isPlayerInEastDoor && _wasPlayerInEastDoor)
+		{
+			_controlRoom.TriggerEastDoorClose();
+		}
+		_wasPlayerInEastDoor = isPlayerInEastDoor;
+
+		var westBounds = _studioRoom.WestDoorBounds;
+		bool isPlayerInWestDoor = westBounds != new Rect2(0, 0, 0, 0) && westBounds.Intersects(playerRect);
+
+		if (isPlayerInWestDoor && !_wasPlayerInWestDoor)
+		{
+			_studioRoom.TriggerWestDoorAnimation();
+		}
+		else if (!isPlayerInWestDoor && _wasPlayerInWestDoor)
+		{
+			_studioRoom.TriggerWestDoorClose();
+		}
+		_wasPlayerInWestDoor = isPlayerInWestDoor;
 	}
 }

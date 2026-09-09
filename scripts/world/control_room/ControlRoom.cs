@@ -15,7 +15,7 @@ public sealed partial class ControlRoom : RoomBase
 
 	[ExportGroup("Door Settings")]
 	[Export] public int DoorRow = 3;
-	[Export] public int DoorHeightTiles = 2;
+	[Export] public int DoorHeightTiles = 3;
 
 	[ExportGroup("Window Settings")]
 	[Export] public int WindowStartColumn = 3;
@@ -114,6 +114,7 @@ public sealed partial class ControlRoom : RoomBase
 
 		Shadows.Update(delta);
 		_wallSystem.UpdateOnAirSign(delta);
+		_wallSystem.UpdateDoorAnimations(delta);
 		_debug.UpdatePlayerRect();
 		_debug.UpdatePropRects();
 
@@ -127,6 +128,16 @@ public sealed partial class ControlRoom : RoomBase
 			HandleScreeningRequest();
 		}
 	}
+
+	public Rect2 EastDoorBounds => _wallSystem.EastDoorBounds;
+	public Rect2 WestDoorBounds => _wallSystem.WestDoorBounds;
+
+	public void TriggerEastDoorAnimation() => _wallSystem.TriggerEastDoorAnimation();
+	public void TriggerEastDoorClose() => _wallSystem.TriggerEastDoorClose();
+	public void TriggerWestDoorAnimation() => _wallSystem.TriggerWestDoorAnimation();
+	public void TriggerWestDoorClose() => _wallSystem.TriggerWestDoorClose();
+
+	public void UpdateDoorAnimations(double delta) => _wallSystem.UpdateDoorAnimations(delta);
 
 	private void CreateSystems()
 	{
@@ -146,7 +157,7 @@ public sealed partial class ControlRoom : RoomBase
 			EnableEastDoor = true,
 			CustomSouthWallTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_atlas.png"),
 			CustomEastWallTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/studio_north_atlas.png"),
-			CustomEastDoorTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_east_door_atlas.png")
+			CustomSideDoorTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_side_door_single.png")
 		};
 		AddChild(_wallSystem);
 

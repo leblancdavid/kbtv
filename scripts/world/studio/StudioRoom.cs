@@ -94,9 +94,20 @@ public sealed partial class StudioRoom : RoomBase
 		_smoke.Update(ServiceRegistry.Instance?.VernStats);
 
 		Shadows.Update(delta);
+		_wallSystem.UpdateDoorAnimations(delta);
 		_debug.UpdatePlayerRect();
 		_debug.UpdatePropRects();
 	}
+
+	public Rect2 EastDoorBounds => _wallSystem.EastDoorBounds;
+	public Rect2 WestDoorBounds => _wallSystem.WestDoorBounds;
+
+	public void TriggerEastDoorAnimation() => _wallSystem.TriggerEastDoorAnimation();
+	public void TriggerEastDoorClose() => _wallSystem.TriggerEastDoorClose();
+	public void TriggerWestDoorAnimation() => _wallSystem.TriggerWestDoorAnimation();
+	public void TriggerWestDoorClose() => _wallSystem.TriggerWestDoorClose();
+
+	public void UpdateDoorAnimations(double delta) => _wallSystem.UpdateDoorAnimations(delta);
 
 	private void CreateSystems()
 	{

@@ -12,9 +12,11 @@ If a fresh discovery invalidates a rule here, update THIS file (and SESSION_LOG)
 
 ## 1. Tool Decision Matrix
 
+**Art Consistency Priority:** Always use `pixellab_create_image_pro` for props and game assets. The 1-gen tools (`pixellab_create_image_pixflux`, `pixellab_create_image_pixen`) produce inconsistent results and should only be used for tiny sprites (≤32px) or budget-critical placeholders. Pro ensures consistent style across all assets.
+
 | I need this asset | Use this tool | Cost | Notes |
 |---|---|---|---|
-| Single prop, any aspect | `pixellab_create_image_pro` | 20-40 gen | **DEFAULT for every prop (user directive 2026-08-28 — pro render quality).** Palette-locked via style swatch (§6). Use `pixellab_create_image_pixflux` (1 gen) only for cheap quick-proxies or tiny sprites when budget is tight. |
+| Single prop, any aspect | `pixellab_create_image_pro` | 20-40 gen | **STANDARD for all props.** Always use pro for consistency — do NOT use pixflux as a "quick check" first. Pixflux only for ≤32px sprites or budget-critical placeholders. |
 | Hero prop / wide flat prop | `pixellab_create_image_pro` | 20-40 gen | Full-width clause mandatory for wide flats (see §7). Returns 64/16/4/**1** candidate(s) by size — wide flats (>170px long side) return a single image. |
 | Small sprite (≤32px final) | `pixellab_create_image_pixen` | 1 gen | Cleaner on tiny sprites. |
 | Character (directional / animated) | `pixellab_create_character` (+ `animate_character`) | varies | Only for in-world NPCs, not props. |
@@ -234,7 +236,7 @@ Hard caps per asset. This is the rule that stops re-roll spirals.
 | 3 | Diagnose via §7, edit the `{subject}` / add the clause, then ONE more pro batch | 20-40 gen |
 | 4 | Two failed pro batches in a sitting → **STOP SPENDING.** Defer the asset (placeholder) and move on. | 0 |
 
-The 1-gen tools are now the **quick-proxy fallback**, not step 1: use `pixellab_create_image_pixflux` to sanity-check a subject/wording before committing a 20-40 gen pro batch on it. Pixen stays for ≤32px sprites.
+**Always use pro for consistency.** Do NOT use pixflux as a "quick sanity check" first — pixflux is only for ≤32px sprites or budget-critical placeholders. Pixen stays for ≤32px sprites.
 
 ### Hard rules
 1. **No 3× consecutive 1-gen re-rolls with the same prompt.** A new seed fixes minor glitches only; it never fixes a structural failure (wrong view, baked shadows, saturated palette).
