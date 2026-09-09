@@ -4,10 +4,10 @@ namespace KBTV.World3D;
 
 public partial class ControlRoom3D : Node3D
 {
-	[Export] public Vector3 PlayerStartPosition = new(0f, 0f, 3.2f);
-	private const float HalfWidth = 7f;
-	private const float HalfDepth = 5f;
-	private const float DoorHalfWidth = 2f;
+	[Export] public Vector3 PlayerStartPosition = new(0f, 0f, 2.2f);
+	private const float HalfWidth = 5f;
+	private const float HalfDepth = 4f;
+	private const float DoorHalfWidth = 1.4f;
 
 	public override void _Ready()
 	{
@@ -33,7 +33,7 @@ public partial class ControlRoom3D : Node3D
 	public bool IsPlayerAtDoor(Vector3 playerPosition)
 	{
 		return Visible
-			&& playerPosition.Z < GlobalPosition.Z - 3.8f
+			&& playerPosition.Z < GlobalPosition.Z - 2.8f
 			&& playerPosition.Z > GlobalPosition.Z - HalfDepth - 0.5f
 			&& Mathf.Abs(playerPosition.X - GlobalPosition.X) < DoorHalfWidth;
 	}
@@ -52,13 +52,14 @@ public partial class ControlRoom3D : Node3D
 		var root = new Node3D { Name = "GeneratedColliders" };
 		AddChild(root);
 
-		AddStaticBox(root, "FloorCollider", new Vector3(0f, -0.1f, 0f), new Vector3(14f, 0.2f, 10f));
-		AddStaticBox(root, "NorthWallWestCollider", new Vector3(-4.5f, 0.55f, -5f), new Vector3(5f, 1.1f, 0.2f));
-		AddStaticBox(root, "NorthWallEastCollider", new Vector3(4.5f, 0.55f, -5f), new Vector3(5f, 1.1f, 0.2f));
-		AddStaticBox(root, "SouthWallCollider", new Vector3(0f, 0.55f, 5f), new Vector3(14f, 1.1f, 0.2f));
-		AddStaticBox(root, "WestWallCollider", new Vector3(-6.6f, 0.55f, 0f), new Vector3(0.2f, 1.1f, 10f));
-		AddStaticBox(root, "EastWallCollider", new Vector3(6.6f, 0.55f, 0f), new Vector3(0.2f, 1.1f, 10f));
-		AddStaticBox(root, "DeskCollider", new Vector3(0f, 0.4f, 1.2f), new Vector3(2f, 0.8f, 1f));
+		AddStaticBox(root, "FloorCollider", new Vector3(0f, -0.1f, 0f), new Vector3(10f, 0.2f, 8f));
+		AddStaticBox(root, "NorthWallWestCollider", new Vector3(-3.2f, 0.55f, -4f), new Vector3(3.6f, 1.1f, 0.2f));
+		AddStaticBox(root, "NorthWallEastCollider", new Vector3(3.2f, 0.55f, -4f), new Vector3(3.6f, 1.1f, 0.2f));
+		AddStaticBox(root, "SouthWallCollider", new Vector3(0f, 0.55f, 4f), new Vector3(10f, 1.1f, 0.2f));
+		AddStaticBox(root, "WestWallCollider", new Vector3(-4.9f, 0.55f, 0f), new Vector3(0.2f, 1.1f, 8f));
+		AddStaticBox(root, "EastWallNorthCollider", new Vector3(4.9f, 0.55f, -1.4f), new Vector3(0.2f, 1.1f, 5.2f));
+		AddStaticBox(root, "EastWallSouthCollider", new Vector3(4.9f, 0.55f, 3.7f), new Vector3(0.2f, 1.1f, 0.6f));
+		AddStaticBox(root, "DeskCollider", new Vector3(0f, 0.4f, 1f), new Vector3(1.6f, 0.8f, 0.8f));
 	}
 
 	private static void AddStaticBox(Node3D parent, string name, Vector3 position, Vector3 size)

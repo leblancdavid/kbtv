@@ -2,22 +2,70 @@
 
 **Branch**: 3d-migration
 
-**Task**: Review and document the rough Excalidraw station layout draft for the 3D level workflow.
+**Task**: Clean up the 3D station greybox wall grid, corners, and door openings.
 
 **Status**: Completed
 
 ### Work Done
-- Inspected the user's rough Excalidraw update, including the whole-station layout and the detailed control-room/studio sketch.
-- Updated `station-layout-notes.md` to summarize the directional concept, broadcast core, circulation read, strengths, concerns, greybox implications, and open questions.
+- Started first expanded greybox modeling pass based on `docs/design/station-layout-notes.md`.
+- Added generated support-room greybox geometry for hallway, equipment room, kitchen / break room, and bathroom.
+- Opened the control-room east wall so the player can leave the broadcast core into the new hallway.
+- Added support-room labels, simple placeholder props, colliders, and floor threshold markers.
+- Expanded camera X/Z bounds and status-label room detection to cover the new spaces.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+- Playtest feedback: collisions work, camera is too high, control room and studio are too large, support rooms are too small, and several rough-draft rooms are missing.
+- Lowered the camera pitch from steep top-down toward a more perspective-heavy angle and added subtle yaw for an isometric-like view.
+- Shrank the control room and studio footprint from the initial oversized blockout.
+- Enlarged support rooms and rebuilt the generated station greybox around the rough Excalidraw room list.
+- Added greybox spaces for document/archive, office, lobby/front desk, parking lot, backyard, toolshed, walkway, and ladder to roof.
+- Re-ran `dotnet build`; build passes with existing warnings.
+- New playtest feedback: camera yaw is too strong, room sizes are improved, but the station layout must be rearranged to match the supplied rough plan.
+- Reduced camera yaw from 12 degrees to 6 degrees while keeping the lower perspective angle.
+- Rebuilt the greybox layout to follow the supplied sketch: backyard/toolshed west, equipment/studio/control stack left, hallway spine center, document/archive, office, kitchen, bathroom and lobby east, parking lot farther east, walkway and roof ladder south.
+- Split right-side hallway walls and studio/control divider walls around intended door openings.
+- Opened the studio east wall toward the hallway.
+- Re-ran `dotnet build`; build passes with existing warnings.
+- New feedback: corrected topology is closer, but some walls/doors are missing, lobby/front desk placement needs adjustment, and the camera should move lower.
+- Lowered camera height and reduced pitch again for a more grounded view while preserving the subtle 6-degree yaw.
+- Split front desk and lobby into separate top-right zones matching the sketch: front desk above, lobby below.
+- Added missing wall segments around archive, office, kitchen, bathroom, front desk, lobby, and parking-lot boundary.
+- Added door markers for archive/front-desk and kitchen/bathroom connections.
+- Added a hallway-to-lobby connector floor so the central open passage matches the sketch better.
+- Re-ran `dotnet build`; build passes with existing warnings.
+- New feedback: remove yaw, reduce camera pitch, add missing office wall, keep lobby empty, and replace the lobby/front-desk divider with one long counter.
+- Set camera yaw to 0 degrees and centered the camera X offset.
+- Reduced camera pitch from -48 degrees to -42 degrees for a lower, more straight-on view.
+- Added the missing office north wall.
+- Removed the wall-like lobby/front-desk divider and replaced it with one long counter.
+- Removed the extra front-desk block so the lobby reads as empty except for the counter relationship.
+- Re-ran `dotnet build`; build passes with existing warnings.
+- New feedback: reduce pitch to -35, fix the bathroom south wall protrusion, and add north/south outside doors from the middle hallway.
+- Set camera pitch to -35 degrees in both `World3D.cs` and `World3D.tscn`.
+- Split the main building north and south walls around the central hallway to create exterior door gaps.
+- Added north and south exterior door floor markers.
+- Shortened/nudged the bathroom south wall so it no longer reads as protruding beyond the building.
+- Re-ran `dotnet build`; build passes with existing warnings.
+- New feedback: the bathroom south wall still extends too far to the right in runtime.
+- Trimmed `MainBuildingSouthEast` from an 18m-wide wall segment down to the 8m bathroom/right-support-room edge.
+- Re-ran `dotnet build`; build passes with existing warnings.
+- New feedback: general layout is roughly correct; clean walls so they are straight, connected at 90-degree corners, and use consistent door openings.
+- Replaced the hand-tuned wall list with helper-driven horizontal and vertical wall segments so corners and openings snap to straight 90-degree geometry.
+- Added consistent `DoorGap` spacing and wall helper methods for rectilinear segments.
+- Re-ran `dotnet build`; build passes with existing warnings.
 
 ### Files Modified
 - `SESSION_LOG.md`
-- `docs/design/station-layout-notes.md`
+- `scenes/world3d/World3D.tscn`
+- `scripts/world3d/World3D.cs`
+- `scripts/world3d/ControlRoom3D.cs`
+- `scripts/world3d/StationGreybox3D.cs`
+- `scripts/world3d/StationGreybox3D.cs.uid`
+- `scripts/world3d/StudioRoom3D.cs`
 
 ### Next Steps
-1. Add door labels, studio window placement, player console position, route arrows, event-zone markers, and a rough scale key to the Excalidraw plan.
-2. Use the documented first playable slice for greybox planning: control room, studio, hallway, equipment room, kitchen / break room, and bathroom.
-3. Keep exact dimensions unresolved until the floorplan is playtested.
+1. Playtest the rectilinear wall cleanup for any remaining misplaced openings.
+2. Tune specific room proportions only after the wall grid reads cleanly.
 
 ---
 

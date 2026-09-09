@@ -5,15 +5,16 @@ namespace KBTV.World3D;
 public partial class World3D : Node3D
 {
 	[Export] public NodePath? PlayerPath { get; set; }
-	[Export] public Vector3 CameraOffset { get; set; } = new(0f, 20f, 12f);
+	[Export] public Vector3 CameraOffset { get; set; } = new(0f, 11.5f, 13f);
 	[Export] public float CameraFollowSpeed { get; set; } = 8f;
-	[Export] public Vector2 CameraXBounds { get; set; } = new(-4f, 4f);
-	[Export] public Vector2 CameraZBounds { get; set; } = new(4f, 20f);
+	[Export] public Vector2 CameraXBounds { get; set; } = new(-8f, 34f);
+	[Export] public Vector2 CameraZBounds { get; set; } = new(0f, 24f);
 
 	private Camera3D _camera = null!;
 	private Label? _status_label;
 	private ControlRoom3D _control_room = null!;
 	private StudioRoom3D _studio_room = null!;
+	private StationGreybox3D? _station_greybox;
 	private Player3D? _player;
 	private bool _player_at_connection;
 
@@ -23,6 +24,7 @@ public partial class World3D : Node3D
 		_status_label = GetNodeOrNull<Label>("StatusLayer/StatusPanel/StatusLabel");
 		_control_room = GetNode<ControlRoom3D>("ControlRoom3D");
 		_studio_room = GetNode<StudioRoom3D>("StudioRoom3D");
+		_station_greybox = GetNodeOrNull<StationGreybox3D>("StationGreybox3D");
 
 		if (PlayerPath != null && !PlayerPath.IsEmpty)
 		{
@@ -91,6 +93,14 @@ public partial class World3D : Node3D
 		{
 			UpdateStatusLabel("CONTROL ROOM");
 		}
+		else
+		{
+			var stationRoom = _station_greybox?.GetRoomName(playerPosition);
+			if (stationRoom != null)
+			{
+				UpdateStatusLabel(stationRoom);
+			}
+		}
 	}
 
 	private void UpdateStatusLabel(string roomName)
@@ -122,6 +132,6 @@ public partial class World3D : Node3D
 			_camera.GlobalPosition = _camera.GlobalPosition.Lerp(target, weight);
 		}
 
-		_camera.RotationDegrees = new Vector3(-68f, 0f, 0f);
+		_camera.RotationDegrees = new Vector3(-35f, 0f, 0f);
 	}
 }
