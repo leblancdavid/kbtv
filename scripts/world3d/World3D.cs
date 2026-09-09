@@ -5,14 +5,17 @@ namespace KBTV.World3D;
 public partial class World3D : Node3D
 {
 	[Export] public NodePath? PlayerPath { get; set; }
+	[Export] public Vector3 CameraOffset { get; set; } = new(0f, 20f, 12f);
+	[Export] public float CameraFollowSpeed { get; set; } = 8f;
+	[Export] public Vector2 CameraXBounds { get; set; } = new(-4f, 4f);
+	[Export] public Vector2 CameraZBounds { get; set; } = new(4f, 20f);
 
 	private Camera3D _camera = null!;
 	private Label? _status_label;
 	private ControlRoom3D _control_room = null!;
 	private StudioRoom3D _studio_room = null!;
 	private Player3D? _player;
-	private bool _player_in_control_door;
-	private bool _player_in_studio_door;
+	private bool _player_at_connection;
 
 	public override void _Ready()
 	{
@@ -33,67 +36,36 @@ public partial class World3D : Node3D
 
 		if (_player != null)
 		{
-			_control_room.SetPlayer(_player);
-			_studio_room.SetPlayer(_player);
+			_player.SetRoomAnchor(_control_room.GlobalPosition + _control_room.PlayerStartPosition);
+			UpdateCamera(0.0, true);
 		}
 
-		ShowControlRoom();
+		_control_room.ShowRoom();
+		_studio_room.ShowRoom();
+		UpdateStatusLabel("CONTROL ROOM");
 	}
 
 	public void SetPlayer(Player3D player)
 	{
 		_player = player;
-		ShowControlRoom();
-	}
-
-	public void ShowControlRoom()
-	{
-		_control_room.ShowRoom();
-		_studio_room.HideRoom();
-		SetCameraForRoom(_control_room.Position.X);
-		UpdateStatusLabel("CONTROL ROOM");
-		GD.Print("World3D: Showing control room");
-
-		if (_player != null)
-		{
-			_control_room.SetPlayer(_player);
-		}
-	}
-
-	public void ShowStudioRoom()
-	{
-		_control_room.HideRoom();
-		_studio_room.ShowRoom();
-		SetCameraForRoom(_studio_room.Position.X);
-		UpdateStatusLabel("STUDIO");
-		GD.Print("World3D: Showing studio room");
-
-		if (_player != null)
-		{
-			_studio_room.SetPlayer(_player);
-		}
+		_player.SetRoomAnchor(_control_room.GlobalPosition + _control_room.PlayerStartPosition);
+		UpdateCamera(0.0, true);
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (!Input.IsActionJustPressed("interact"))
+		if (!Input.IsActionJustPressed("interact") || !_player_at_connection)
 		{
 			return;
 		}
 
-		if (_player_in_control_door)
-		{
-			ShowStudioRoom();
-		}
-		else if (_player_in_studio_door)
-		{
-			ShowControlRoom();
-		}
+		GD.Print("World3D: Player is at the control room / studio doorway");
 	}
 
 	public override void _Process(double delta)
 	{
 		_UpdatePlayerRoomState();
+		UpdateCamera(delta);
 	}
 
 
@@ -105,21 +77,51 @@ public partial class World3D : Node3D
 		}
 
 		var playerPosition = _player.GlobalPosition;
-		_player_in_control_door = _control_room.IsPlayerAtDoor(playerPosition);
-		_player_in_studio_door = _studio_room.IsPlayerAtDoor(playerPosition);
+		_player_at_connection = _control_room.IsPlayerAtDoor(playerPosition) || _studio_room.IsPlayerAtDoor(playerPosition);
+
+		if (_player_at_connection)
+		{
+			UpdateStatusLabel("DOORWAY");
+		}
+		else if (_studio_room.ContainsPlayer(playerPosition))
+		{
+			UpdateStatusLabel("STUDIO");
+		}
+		else if (_control_room.ContainsPlayer(playerPosition))
+		{
+			UpdateStatusLabel("CONTROL ROOM");
+		}
 	}
 
 	private void UpdateStatusLabel(string roomName)
 	{
 		if (_status_label != null)
 		{
-			_status_label.Text = $"KBTV 3D BLOCKOUT | {roomName} | interact at doorway";
+			_status_label.Text = $"KBTV 3D BLOCKOUT | {roomName} | connected floorplan";
 		}
 	}
 
-	private void SetCameraForRoom(float roomX)
+	private void UpdateCamera(double delta, bool immediate = false)
 	{
-		_camera.Position = new Vector3(roomX, 20f, 12f);
+		if (_player == null)
+		{
+			return;
+		}
+
+		var target = _player.GlobalPosition + CameraOffset;
+		target.X = Mathf.Clamp(target.X, CameraXBounds.X, CameraXBounds.Y);
+		target.Z = Mathf.Clamp(target.Z, CameraZBounds.X, CameraZBounds.Y);
+
+		if (immediate)
+		{
+			_camera.GlobalPosition = target;
+		}
+		else
+		{
+			var weight = 1f - Mathf.Exp(-CameraFollowSpeed * (float)delta);
+			_camera.GlobalPosition = _camera.GlobalPosition.Lerp(target, weight);
+		}
+
 		_camera.RotationDegrees = new Vector3(-68f, 0f, 0f);
 	}
 }

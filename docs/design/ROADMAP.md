@@ -236,7 +236,9 @@ Features to consider for future development:
 ### Planned
 - [ ] 3D world presentation pass
   - Keep current UI menus
+  - Design approved station floorplan in Excalidraw before expanding the 3D greybox
   - Rebuild control room in 3D
   - Rebuild studio in 3D
   - Preserve screening, doorway transitions, and room-state behavior
   - See [3D Migration Plan](../technical/THREED_MIGRATION_PLAN.md)
+  - See [Station Layout Workflow](STATION_LAYOUT_WORKFLOW.md)

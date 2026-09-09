@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scripts/world3d/World3D.cs" id="1"]
 [ext_resource type="Script" path="res://scripts/world3d/ControlRoom3D.cs" id="2"]
@@ -10,6 +10,9 @@ size = Vector3(14, 0.2, 10)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wall"]
 size = Vector3(14, 1.1, 0.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wall_segment"]
+size = Vector3(5, 1.1, 0.2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_table"]
 size = Vector3(2, 0.8, 1)
@@ -56,6 +59,12 @@ emission_energy_multiplier = 0.8
 [sub_resource type="BoxMesh" id="BoxMesh_sidewall"]
 size = Vector3(0.2, 1.1, 10)
 
+[sub_resource type="BoxMesh" id="BoxMesh_sidewall_segment"]
+size = Vector3(0.2, 1.1, 2.9)
+
+[sub_resource type="BoxMesh" id="BoxMesh_threshold"]
+size = Vector3(4, 0.08, 0.8)
+
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_player"]
 radius = 0.35
 height = 1.0
@@ -65,10 +74,10 @@ radius = 0.35
 height = 1.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_control_door"]
-size = Vector3(2, 2, 1)
+size = Vector3(4, 2, 2)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_studio_door"]
-size = Vector3(2, 2, 1)
+size = Vector3(4, 2, 2)
 
 [node name="World3D" type="Node3D"]
 script = ExtResource("1")
@@ -86,15 +95,20 @@ current = true
 
 [node name="ControlRoom3D" type="Node3D" parent="."]
 script = ExtResource("2")
-position = Vector3(-7, 0, 0)
+position = Vector3(0, 0, 5)
 
 [node name="Floor" type="MeshInstance3D" parent="ControlRoom3D"]
 mesh = SubResource("BoxMesh_floor")
 material_override = SubResource("StandardMaterial3D_room_dark")
 
-[node name="NorthWall" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(0, 0.55, -5)
-mesh = SubResource("BoxMesh_wall")
+[node name="NorthWallWest" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(-4.5, 0.55, -5)
+mesh = SubResource("BoxMesh_wall_segment")
+material_override = SubResource("StandardMaterial3D_control_desk")
+
+[node name="NorthWallEast" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(4.5, 0.55, -5)
+mesh = SubResource("BoxMesh_wall_segment")
 material_override = SubResource("StandardMaterial3D_control_desk")
 
 [node name="SouthWall" type="MeshInstance3D" parent="ControlRoom3D"]
@@ -104,13 +118,16 @@ material_override = SubResource("StandardMaterial3D_control_desk")
 
 [node name="WestWall" type="MeshInstance3D" parent="ControlRoom3D"]
 position = Vector3(-6.6, 0.55, 0)
-rotation_degrees = Vector3(0, 90, 0)
 mesh = SubResource("BoxMesh_sidewall")
 material_override = SubResource("StandardMaterial3D_control_desk")
 
+[node name="StudioThreshold" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(0, 0.04, -5)
+mesh = SubResource("BoxMesh_threshold")
+material_override = SubResource("StandardMaterial3D_accent")
+
 [node name="EastWall" type="MeshInstance3D" parent="ControlRoom3D"]
 position = Vector3(6.6, 0.55, 0)
-rotation_degrees = Vector3(0, 90, 0)
 mesh = SubResource("BoxMesh_sidewall")
 material_override = SubResource("StandardMaterial3D_control_desk")
 
@@ -150,14 +167,14 @@ text = "CONTROL"
 billboard = 1
 
 [node name="StudioDoorTrigger" type="Area3D" parent="ControlRoom3D"]
-position = Vector3(5.75, 0.8, 0)
+position = Vector3(0, 0.8, -4.75)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ControlRoom3D/StudioDoorTrigger"]
 shape = SubResource("BoxShape3D_control_door")
 
 [node name="StudioRoom3D" type="Node3D" parent="."]
 script = ExtResource("3")
-position = Vector3(7, 0, 0)
+position = Vector3(0, 0, -5)
 
 [node name="Floor" type="MeshInstance3D" parent="StudioRoom3D"]
 mesh = SubResource("BoxMesh_floor")
@@ -168,20 +185,13 @@ position = Vector3(0, 0.55, -5)
 mesh = SubResource("BoxMesh_wall")
 material_override = SubResource("StandardMaterial3D_studio_wood")
 
-[node name="SouthWall" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(0, 0.55, 5)
-mesh = SubResource("BoxMesh_wall")
-material_override = SubResource("StandardMaterial3D_studio_wood")
-
 [node name="WestWall" type="MeshInstance3D" parent="StudioRoom3D"]
 position = Vector3(-6.6, 0.55, 0)
-rotation_degrees = Vector3(0, 90, 0)
 mesh = SubResource("BoxMesh_sidewall")
 material_override = SubResource("StandardMaterial3D_studio_wood")
 
 [node name="EastWall" type="MeshInstance3D" parent="StudioRoom3D"]
 position = Vector3(6.6, 0.55, 0)
-rotation_degrees = Vector3(0, 90, 0)
 mesh = SubResource("BoxMesh_sidewall")
 material_override = SubResource("StandardMaterial3D_studio_wood")
 
@@ -216,7 +226,7 @@ text = "STUDIO"
 billboard = 1
 
 [node name="ControlDoorTrigger" type="Area3D" parent="StudioRoom3D"]
-position = Vector3(-5.75, 0.8, 0)
+position = Vector3(0, 0.8, 4.75)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StudioRoom3D/ControlDoorTrigger"]
 shape = SubResource("BoxShape3D_studio_door")

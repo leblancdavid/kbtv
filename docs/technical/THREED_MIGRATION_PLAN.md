@@ -32,6 +32,8 @@ Use a **stylized 2.5D 3D setup**:
 
 This gives the team a controlled migration path without forcing a simultaneous redesign of the UI or game systems.
 
+Before expanding the 3D layout, use the Excalidraw-first process in [Station Layout Workflow](../design/STATION_LAYOUT_WORKFLOW.md). The editable floorplan and notes live under `docs/design/` and should be approved before greybox production continues.
+
 ## Migration Phases
 
 ### Phase 1: 3D Foundation
@@ -58,6 +60,8 @@ Deliverables:
 - Basic room lighting
 - Player placement and navigation inside the room
 
+Prerequisite: confirm the control-room relationship to the rest of the station in [Station Floorplan Brief](../design/STATION_FLOORPLAN_BRIEF.md).
+
 ### Phase 3: Studio Blockout
 
 Rebuild the studio in 3D with matching scale and layout.
@@ -69,6 +73,20 @@ Deliverables:
 - Round table placeholder
 - Smoke or atmosphere placeholder
 - Basic lighting and transitions
+
+Prerequisite: confirm studio visibility, locked-door behavior, and Vern drop-off path in the approved floorplan notes.
+
+### Phase 3.5: Expanded Station Greybox
+
+Add the first non-studio station spaces after the control-room/studio relationship is approved.
+
+Deliverables:
+
+- Hallway circulation spine
+- Equipment room route
+- Kitchen / supply route
+- Bathroom or compact scare-space route
+- Route timing pass against the targets in [Greybox Level Workflow](../design/GREYBOX_LEVEL_WORKFLOW.md)
 
 ### Phase 4: Interaction Parity
 

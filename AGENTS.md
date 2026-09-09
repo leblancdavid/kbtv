@@ -293,6 +293,9 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [PIXELLAB_MCP_GUIDE.md](docs/art/PIXELLAB_MCP_GUIDE.md) | PixelLab MCP setup, configuration, and usage |
 | [AUDIO_DESIGN.md](docs/audio/AUDIO_DESIGN.md) | Sound design, music, and audio technical specs |
 | [ROADMAP.md](docs/design/ROADMAP.md) | Development milestones and feature backlog |
+| [STATION_LAYOUT_WORKFLOW.md](docs/design/STATION_LAYOUT_WORKFLOW.md) | Excalidraw-first station layout workflow and OpenCode review loop |
+| [STATION_FLOORPLAN_BRIEF.md](docs/design/STATION_FLOORPLAN_BRIEF.md) | Design brief for room relationships, routes, visibility, and event zones |
+| [GREYBOX_LEVEL_WORKFLOW.md](docs/design/GREYBOX_LEVEL_WORKFLOW.md) | Godot/HammerForge greybox handoff, scale assumptions, and review checklist |
 | [CI_CD_SETUP.md](docs/technical/CI_CD_SETUP.md) | Build and export setup for Godot (CI/CD not currently implemented) |
 | [TOPDOWN_BUILDING_PATTERN.md](docs/technical/TOPDOWN_BUILDING_PATTERN.md) | Topdown room building pattern - tile specs, wall layers, and south wall hiding |
 | [UI_DESIGN.md](docs/ui/UI_DESIGN.md) | UI design document - layout, panels, typography, and interaction design |

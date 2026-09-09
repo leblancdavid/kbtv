@@ -32,6 +32,8 @@ The main scene (`scenes/Main.tscn`) contains:
 
 KBTV is currently implemented as a 2D game, but the preferred migration path for future world work is a **3D presentation layer** focused on the current UI menus, control room, and studio. See [3D Migration Plan](THREED_MIGRATION_PLAN.md) for the proposed scene structure and rollout phases.
 
+Station layout design should happen in `docs/design/station-layout.excalidraw` before 3D production changes. See [Station Layout Workflow](../design/STATION_LAYOUT_WORKFLOW.md), [Station Floorplan Brief](../design/STATION_FLOORPLAN_BRIEF.md), and [Greybox Level Workflow](../design/GREYBOX_LEVEL_WORKFLOW.md).
+
 ### File Structure
 ```
 scripts/
