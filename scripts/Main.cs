@@ -21,6 +21,9 @@ namespace KBTV
             
             Log.Debug("Main: ServiceProviderRoot initialized successfully");
             
+            var gameScenePath = ProjectSettings.GetSetting("application/run/main_scene", "res://scenes/Game.tscn").AsString();
+            Log.Debug($"Main: Using main scene path {gameScenePath}");
+
             // Add loading screen after services are initialized
             var loadingScreenScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/LoadingScreen.tscn");
             var loadingScreen = loadingScreenScene.Instantiate<CanvasLayer>();
