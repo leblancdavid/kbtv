@@ -3,7 +3,7 @@
 ## Overview
 **Genre**: Simulation / Management / Tycoon-style
 **Setting**: Paranormal/conspiracy talk radio station (inspired by Coast to Coast AM)
-**Platform**: 2D Godot game
+**Platform**: Godot game with a planned 3D world presentation layer
 
 ## Premise
 Player acts as the managing producer of KBTV, a paranormal/conspiracy talk radio station. The goal is to grow the show's credibility and popularity by exposing the truth about paranormal topics (aliens, government conspiracies, supernatural phenomena).
@@ -45,6 +45,10 @@ The combination of all stats affects VIBE (Vibrancy, Interest, Broadcast Enterta
 - "Go to bed" → next night
 
 ## Environment / Locations
+
+### Migration Target
+
+The near-term migration target is to keep the current UI and core gameplay systems while rebuilding only the control room and studio as 3D spaces.
 
 ### Studio (Broadcast Room)
 - Where Vern broadcasts (locked during live shows)

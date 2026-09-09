@@ -2,6 +2,8 @@
 
 > **Note:** For new room development, see [Room Component Architecture](../AGENTS.md#room-component-architecture) in AGENTS.md. Each room is a self-contained `RoomBase` node (`ControlRoom`, `StudioRoom`) that builds and owns its subtree; the shared components (`common/RoomBase`, `common/WallSystem`, `common/RoomLightingBuilder`, `common/CastShadowSystem`, plus the `props/` files) handle most of this automatically. `WorldRoom` is a thin host that adds the rooms and forwards a small cross-room API.
 
+> **Note:** The 2D top-down world remains the current implementation, but the preferred future direction is the 3D migration plan in [THREED_MIGRATION_PLAN.md](THREED_MIGRATION_PLAN.md) for the UI, control room, and studio.
+
 ## Overview
 
 KBTV uses a single **WorldRoom** node that contains multiple room sections (Control Room, Studio, etc.) in one unified world. This document defines the grid, wall, and layering standards for building rooms programmatically in Godot 4 using C#.

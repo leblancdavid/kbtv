@@ -228,3 +228,15 @@ Features to consider for future development:
 ### TODO
 - [ ] CI/CD setup for automated builds (see docs/technical/CI_CD_SETUP.md)
 - [ ] Steam deployment pipeline (requires Steamworks account)
+
+---
+
+## World Presentation Migration
+
+### Planned
+- [ ] 3D world presentation pass
+  - Keep current UI menus
+  - Rebuild control room in 3D
+  - Rebuild studio in 3D
+  - Preserve screening, doorway transitions, and room-state behavior
+  - See [3D Migration Plan](../technical/THREED_MIGRATION_PLAN.md)

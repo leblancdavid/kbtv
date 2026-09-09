@@ -28,6 +28,10 @@ The main scene (`scenes/Main.tscn`) contains:
 - **Bootstrap**: Main scene (`scenes/Main.tscn`) creates ServiceProviderRoot with all managers at startup
 - **Data**: Godot Resources for configuration (Topics, Items, VernStats)
 
+## Presentation Direction
+
+KBTV is currently implemented as a 2D game, but the preferred migration path for future world work is a **3D presentation layer** focused on the current UI menus, control room, and studio. See [3D Migration Plan](THREED_MIGRATION_PLAN.md) for the proposed scene structure and rollout phases.
+
 ### File Structure
 ```
 scripts/
@@ -47,6 +51,7 @@ scripts/
 
 scenes/
 ├── Main.tscn              # Main game scene
+├── Game3D.tscn            # Planned 3D game scene
 └── ui/                    # UI panel scenes
     ├── TabContainerUI.tscn
     ├── ScreeningPanel.tscn
