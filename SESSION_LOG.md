@@ -4,7 +4,7 @@
 
 **Task**: Plan the migration from the current 2D top-down presentation to a 3D presentation focused on the current UI menus, control room, and studio.
 
-**Status**: In progress — the 3D path is now the default launch target and the blockout has a working room-switch loop. Next step is to replace the placeholder blockout pieces with room-specific landmarks and verify the launch path in-editor.
+**Status**: In progress — the 3D path is now the default launch target and the blockout has a working room-switch loop. The camera framing has been tightened toward an angled top-down view and the room proportions were adjusted; next step is in-editor verification and any remaining landmark placement cleanup.
 
 ### Work Done
 - Added `docs/technical/THREED_MIGRATION_PLAN.md` covering scope, what stays, phased rollout, suggested scene structure, room requirements, UI strategy, asset strategy, risks, and first-definition-of-done.
@@ -15,6 +15,7 @@
 - Added `scenes/Game3D.tscn`, `scenes/world3d/World3D.tscn`, and `scripts/world3d/*` for the first 3D scaffold.
 - Switched `project.godot` to launch `res://scenes/Game3D.tscn` by default.
 - Added a basic 3D room switch loop with `interact` doorway checks and a visible player blockout.
+- Tightened the 3D camera toward a more angled top-down framing and nudged room spacing/proportions closer to a flatter layout.
 
 ### Files Modified
 - `docs/technical/THREED_MIGRATION_PLAN.md`
@@ -32,6 +33,6 @@
 - `SESSION_LOG.md`
 
 ### Next Steps
-1. Replace the placeholder blockout meshes with room-specific landmarks for the control room and studio.
-2. Add a more deliberate camera framing pass for the active room.
-3. Verify the launch path in-editor and document any controls or entry-scene changes.
+1. Verify the updated camera and room proportions in-editor.
+2. Replace any remaining placeholder blockout meshes with room-specific landmarks for the control room and studio.
+3. Document any controls or entry-scene changes once the layout is confirmed.

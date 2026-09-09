@@ -50,8 +50,7 @@ public partial class World3D : Node3D
 	{
 		_control_room.ShowRoom();
 		_studio_room.HideRoom();
-		_camera.Position = new Vector3(_control_room.Position.X, 8f, 12f);
-		_camera.LookAt(new Vector3(_control_room.Position.X, 0f, 0f));
+		SetCameraForRoom(_control_room.Position.X);
 		UpdateStatusLabel("CONTROL ROOM");
 		GD.Print("World3D: Showing control room");
 
@@ -65,8 +64,7 @@ public partial class World3D : Node3D
 	{
 		_control_room.HideRoom();
 		_studio_room.ShowRoom();
-		_camera.Position = new Vector3(_studio_room.Position.X, 8f, 12f);
-		_camera.LookAt(new Vector3(_studio_room.Position.X, 0f, 0f));
+		SetCameraForRoom(_studio_room.Position.X);
 		UpdateStatusLabel("STUDIO");
 		GD.Print("World3D: Showing studio room");
 
@@ -117,5 +115,11 @@ public partial class World3D : Node3D
 		{
 			_status_label.Text = $"KBTV 3D BLOCKOUT | {roomName} | interact at doorway";
 		}
+	}
+
+	private void SetCameraForRoom(float roomX)
+	{
+		_camera.Position = new Vector3(roomX, 20f, 12f);
+		_camera.RotationDegrees = new Vector3(-68f, 0f, 0f);
 	}
 }
