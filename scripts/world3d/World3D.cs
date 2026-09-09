@@ -6,13 +6,18 @@ public partial class World3D : Node3D
 {
 	[Export] public NodePath? PlayerPath { get; set; }
 
+	private Camera3D _camera = null!;
+	private Label? _status_label;
 	private ControlRoom3D _control_room = null!;
 	private StudioRoom3D _studio_room = null!;
 	private Player3D? _player;
-	private bool _showing_control_room = true;
+	private bool _player_in_control_door;
+	private bool _player_in_studio_door;
 
 	public override void _Ready()
 	{
+		_camera = GetNode<Camera3D>("WorldCamera");
+		_status_label = GetNodeOrNull<Label>("StatusLayer/StatusPanel/StatusLabel");
 		_control_room = GetNode<ControlRoom3D>("ControlRoom3D");
 		_studio_room = GetNode<StudioRoom3D>("StudioRoom3D");
 
@@ -38,47 +43,79 @@ public partial class World3D : Node3D
 	public void SetPlayer(Player3D player)
 	{
 		_player = player;
-		_control_room.SetPlayer(player);
-		_studio_room.SetPlayer(player);
 		ShowControlRoom();
 	}
 
 	public void ShowControlRoom()
 	{
-		_showing_control_room = true;
 		_control_room.ShowRoom();
 		_studio_room.HideRoom();
+		_camera.Position = new Vector3(_control_room.Position.X, 8f, 12f);
+		_camera.LookAt(new Vector3(_control_room.Position.X, 0f, 0f));
+		UpdateStatusLabel("CONTROL ROOM");
+		GD.Print("World3D: Showing control room");
 
 		if (_player != null)
 		{
-			_player.SetRoomAnchor(_control_room.PlayerStartPosition);
+			_control_room.SetPlayer(_player);
 		}
 	}
 
 	public void ShowStudioRoom()
 	{
-		_showing_control_room = false;
 		_control_room.HideRoom();
 		_studio_room.ShowRoom();
+		_camera.Position = new Vector3(_studio_room.Position.X, 8f, 12f);
+		_camera.LookAt(new Vector3(_studio_room.Position.X, 0f, 0f));
+		UpdateStatusLabel("STUDIO");
+		GD.Print("World3D: Showing studio room");
 
 		if (_player != null)
 		{
-			_player.SetRoomAnchor(_studio_room.PlayerStartPosition);
+			_studio_room.SetPlayer(_player);
 		}
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (@event.IsActionPressed("ui_select"))
+		if (!Input.IsActionJustPressed("interact"))
 		{
-			if (_showing_control_room)
-			{
-				ShowStudioRoom();
-			}
-			else
-			{
-				ShowControlRoom();
-			}
+			return;
+		}
+
+		if (_player_in_control_door)
+		{
+			ShowStudioRoom();
+		}
+		else if (_player_in_studio_door)
+		{
+			ShowControlRoom();
+		}
+	}
+
+	public override void _Process(double delta)
+	{
+		_UpdatePlayerRoomState();
+	}
+
+
+	private void _UpdatePlayerRoomState()
+	{
+		if (_player == null)
+		{
+			return;
+		}
+
+		var playerPosition = _player.GlobalPosition;
+		_player_in_control_door = _control_room.IsPlayerAtDoor(playerPosition);
+		_player_in_studio_door = _studio_room.IsPlayerAtDoor(playerPosition);
+	}
+
+	private void UpdateStatusLabel(string roomName)
+	{
+		if (_status_label != null)
+		{
+			_status_label.Text = $"KBTV 3D BLOCKOUT | {roomName} | interact at doorway";
 		}
 	}
 }

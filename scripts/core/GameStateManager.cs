@@ -41,7 +41,7 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
         private IBroadcastAudioService AudioPlayer => DependencyInjection.Get<IBroadcastAudioService>(this);
         private ListenerManager ListenerManager => DependencyInjection.Get<ListenerManager>(this);
         private EventBus EventBus => DependencyInjection.Get<EventBus>(this);
-        private World? _world;
+		private Node? _world;
 
 		private GamePhase _currentPhase = GamePhase.Loading;
         private VernStats _vernStats;
@@ -372,43 +372,49 @@ public partial class GameStateManager : Node, IGameStateManager, IProvide<GameSt
             UpdateWorldVisibility();
         }
 
-        private void CacheWorldReference()
-        {
-            var tree = GetTree();
-            _world = tree?.CurrentScene?.GetNodeOrNull<World>("World");
-        }
+		private void CacheWorldReference()
+		{
+			var tree = GetTree();
+			_world = tree?.CurrentScene?.GetNodeOrNull<Node>("World");
+		}
 
-        private void UpdateWorldVisibility()
-        {
-            if (_world == null)
-            {
-                CacheWorldReference();
+		private void UpdateWorldVisibility()
+		{
+			if (_world == null)
+			{
+				CacheWorldReference();
             }
 
-            if (_world == null)
-            {
-                return;
-            }
+			if (_world == null)
+			{
+				return;
+			}
 
-            if (_currentPhase == GamePhase.Loading)
-            {
-                _world.Hide();
-                return;
-            }
+			if (_world is not CanvasItem worldCanvas)
+			{
+				// 3D launch scenes keep their own camera/visibility flow.
+				return;
+			}
 
-            switch (_currentPhase)
-            {
-                case GamePhase.PreShow:
-                    _world.Hide();
-                    break;
-                case GamePhase.LiveShow:
-                    _world.Show();
-                    break;
-                case GamePhase.PostShow:
-                    _world.Hide();
-                    break;
-            }
-        }
+			if (_currentPhase == GamePhase.Loading)
+			{
+				worldCanvas.Hide();
+				return;
+			}
+
+			switch (_currentPhase)
+			{
+				case GamePhase.PreShow:
+					worldCanvas.Hide();
+					break;
+				case GamePhase.LiveShow:
+					worldCanvas.Show();
+					break;
+				case GamePhase.PostShow:
+					worldCanvas.Hide();
+					break;
+			}
+		}
 
 		public override void _ExitTree()
 		{

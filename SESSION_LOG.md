@@ -4,7 +4,7 @@
 
 **Task**: Plan the migration from the current 2D top-down presentation to a 3D presentation focused on the current UI menus, control room, and studio.
 
-**Status**: In progress — added a dedicated 3D migration plan doc and linked it from the roadmap, technical spec, game design doc, and topdown building notes. Next step is to define the first concrete 3D scene skeleton and implementation order.
+**Status**: In progress — the 3D path is now the default launch target and the blockout has a working room-switch loop. Next step is to replace the placeholder blockout pieces with room-specific landmarks and verify the launch path in-editor.
 
 ### Work Done
 - Added `docs/technical/THREED_MIGRATION_PLAN.md` covering scope, what stays, phased rollout, suggested scene structure, room requirements, UI strategy, asset strategy, risks, and first-definition-of-done.
@@ -12,6 +12,9 @@
 - Updated `docs/design/ROADMAP.md` with a new `World Presentation Migration` section.
 - Updated `docs/design/GAME_DESIGN.md` to reflect the planned 3D world presentation layer.
 - Updated `docs/technical/TOPDOWN_BUILDING_PATTERN.md` to direct readers to the 3D migration plan.
+- Added `scenes/Game3D.tscn`, `scenes/world3d/World3D.tscn`, and `scripts/world3d/*` for the first 3D scaffold.
+- Switched `project.godot` to launch `res://scenes/Game3D.tscn` by default.
+- Added a basic 3D room switch loop with `interact` doorway checks and a visible player blockout.
 
 ### Files Modified
 - `docs/technical/THREED_MIGRATION_PLAN.md`
@@ -19,9 +22,16 @@
 - `docs/design/ROADMAP.md`
 - `docs/design/GAME_DESIGN.md`
 - `docs/technical/TOPDOWN_BUILDING_PATTERN.md`
+- `project.godot`
+- `scenes/Game3D.tscn`
+- `scenes/world3d/World3D.tscn`
+- `scripts/world3d/World3D.cs`
+- `scripts/world3d/ControlRoom3D.cs`
+- `scripts/world3d/StudioRoom3D.cs`
+- `scripts/world3d/Player3D.cs`
 - `SESSION_LOG.md`
 
 ### Next Steps
-1. Decide the first concrete 3D scene contract (`World3D`, `ControlRoom3D`, `StudioRoom3D`, `Player3D`).
-2. Choose the first-pass presentation style: placeholder meshes, imported art, or hybrid.
-3. Start implementing the 3D bootstrap once the scene contract is confirmed.
+1. Replace the placeholder blockout meshes with room-specific landmarks for the control room and studio.
+2. Add a more deliberate camera framing pass for the active room.
+3. Verify the launch path in-editor and document any controls or entry-scene changes.

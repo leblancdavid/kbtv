@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/world3d/World3D.cs" id="1"]
 [ext_resource type="Script" path="res://scripts/world3d/ControlRoom3D.cs" id="2"]
@@ -14,6 +14,45 @@ size = Vector3(14, 3, 0.2)
 [sub_resource type="BoxMesh" id="BoxMesh_table"]
 size = Vector3(2, 0.8, 1)
 
+[sub_resource type="BoxMesh" id="BoxMesh_board"]
+size = Vector3(3, 1.2, 0.15)
+
+[sub_resource type="BoxMesh" id="BoxMesh_stage"]
+size = Vector3(4, 0.5, 2.4)
+
+[sub_resource type="BoxMesh" id="BoxMesh_monitor"]
+size = Vector3(0.9, 0.6, 0.15)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_mic"]
+top_radius = 0.08
+bottom_radius = 0.08
+height = 1.1
+
+[sub_resource type="SphereMesh" id="SphereMesh_light"]
+radius = 0.15
+height = 0.3
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_room_dark"]
+albedo_color = Color(0.12, 0.12, 0.14, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_control_desk"]
+albedo_color = Color(0.22, 0.18, 0.14, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_control_green"]
+albedo_color = Color(0.05, 0.35, 0.12, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_studio_wood"]
+albedo_color = Color(0.2, 0.16, 0.12, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_studio_red"]
+albedo_color = Color(0.45, 0.12, 0.12, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_accent"]
+albedo_color = Color(0.8, 0.8, 0.85, 1)
+emission_enabled = true
+emission = Color(0.9, 0.9, 0.9, 1)
+emission_energy_multiplier = 0.8
+
 [sub_resource type="BoxMesh" id="BoxMesh_sidewall"]
 size = Vector3(0.2, 3, 10)
 
@@ -24,6 +63,12 @@ height = 1.0
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
 radius = 0.35
 height = 1.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_control_door"]
+size = Vector3(2, 2, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_studio_door"]
+size = Vector3(2, 2, 1)
 
 [node name="World3D" type="Node3D"]
 script = ExtResource("1")
@@ -43,28 +88,70 @@ position = Vector3(-8, 0, 0)
 
 [node name="Floor" type="MeshInstance3D" parent="ControlRoom3D"]
 mesh = SubResource("BoxMesh_floor")
+material_override = SubResource("StandardMaterial3D_room_dark")
 
 [node name="NorthWall" type="MeshInstance3D" parent="ControlRoom3D"]
 position = Vector3(0, 1.5, -5)
 mesh = SubResource("BoxMesh_wall")
+material_override = SubResource("StandardMaterial3D_control_desk")
 
 [node name="SouthWall" type="MeshInstance3D" parent="ControlRoom3D"]
 position = Vector3(0, 1.5, 5)
 mesh = SubResource("BoxMesh_wall")
+material_override = SubResource("StandardMaterial3D_control_desk")
 
 [node name="WestWall" type="MeshInstance3D" parent="ControlRoom3D"]
 position = Vector3(-7, 1.5, 0)
 rotation_degrees = Vector3(0, 90, 0)
 mesh = SubResource("BoxMesh_sidewall")
+material_override = SubResource("StandardMaterial3D_control_desk")
 
 [node name="EastWall" type="MeshInstance3D" parent="ControlRoom3D"]
 position = Vector3(7, 1.5, 0)
 rotation_degrees = Vector3(0, 90, 0)
 mesh = SubResource("BoxMesh_sidewall")
+material_override = SubResource("StandardMaterial3D_control_desk")
 
 [node name="DeskPlaceholder" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(0, 0.4, 1)
+position = Vector3(0, 0.4, 1.2)
 mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_control_desk")
+
+[node name="OnAirSign" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(0, 2.15, -5.05)
+mesh = SubResource("BoxMesh_monitor")
+material_override = SubResource("StandardMaterial3D_control_green")
+
+[node name="MonitorLeft" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(-0.75, 1.05, 0.55)
+mesh = SubResource("BoxMesh_monitor")
+material_override = SubResource("StandardMaterial3D_control_green")
+
+[node name="MonitorRight" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(0.75, 1.05, 0.55)
+mesh = SubResource("BoxMesh_monitor")
+material_override = SubResource("StandardMaterial3D_control_green")
+
+[node name="MicStand" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(0.2, 0.8, 2.2)
+mesh = SubResource("CylinderMesh_mic")
+material_override = SubResource("StandardMaterial3D_accent")
+
+[node name="BoardWall" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(-1.8, 1.95, -4.7)
+mesh = SubResource("BoxMesh_board")
+material_override = SubResource("StandardMaterial3D_control_green")
+
+[node name="RoomLabel" type="Label3D" parent="ControlRoom3D"]
+position = Vector3(0, 2.4, 0)
+text = "CONTROL"
+billboard = 1
+
+[node name="StudioDoorTrigger" type="Area3D" parent="ControlRoom3D"]
+position = Vector3(5.75, 0.8, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ControlRoom3D/StudioDoorTrigger"]
+shape = SubResource("BoxShape3D_control_door")
 
 [node name="StudioRoom3D" type="Node3D" parent="."]
 script = ExtResource("3")
@@ -72,28 +159,65 @@ position = Vector3(8, 0, 0)
 
 [node name="Floor" type="MeshInstance3D" parent="StudioRoom3D"]
 mesh = SubResource("BoxMesh_floor")
+material_override = SubResource("StandardMaterial3D_room_dark")
 
 [node name="NorthWall" type="MeshInstance3D" parent="StudioRoom3D"]
 position = Vector3(0, 1.5, -5)
 mesh = SubResource("BoxMesh_wall")
+material_override = SubResource("StandardMaterial3D_studio_wood")
 
 [node name="SouthWall" type="MeshInstance3D" parent="StudioRoom3D"]
 position = Vector3(0, 1.5, 5)
 mesh = SubResource("BoxMesh_wall")
+material_override = SubResource("StandardMaterial3D_studio_wood")
 
 [node name="WestWall" type="MeshInstance3D" parent="StudioRoom3D"]
 position = Vector3(-7, 1.5, 0)
 rotation_degrees = Vector3(0, 90, 0)
 mesh = SubResource("BoxMesh_sidewall")
+material_override = SubResource("StandardMaterial3D_studio_wood")
 
 [node name="EastWall" type="MeshInstance3D" parent="StudioRoom3D"]
 position = Vector3(7, 1.5, 0)
 rotation_degrees = Vector3(0, 90, 0)
 mesh = SubResource("BoxMesh_sidewall")
+material_override = SubResource("StandardMaterial3D_studio_wood")
 
 [node name="RoundTablePlaceholder" type="MeshInstance3D" parent="StudioRoom3D"]
 position = Vector3(0, 0.4, 0)
 mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_studio_red")
+
+[node name="ChairLeft" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(-1.0, 0.35, 0.9)
+mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_studio_wood")
+
+[node name="ChairRight" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(1.0, 0.35, 0.9)
+mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_studio_wood")
+
+[node name="StageBlock" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(0, 0.25, -2.7)
+mesh = SubResource("BoxMesh_stage")
+material_override = SubResource("StandardMaterial3D_studio_red")
+
+[node name="VernStandIn" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(0, 1.2, -2.6)
+mesh = SubResource("SphereMesh_light")
+material_override = SubResource("StandardMaterial3D_accent")
+
+[node name="RoomLabel" type="Label3D" parent="StudioRoom3D"]
+position = Vector3(0, 2.4, 0)
+text = "STUDIO"
+billboard = 1
+
+[node name="ControlDoorTrigger" type="Area3D" parent="StudioRoom3D"]
+position = Vector3(-5.75, 0.8, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="StudioRoom3D/ControlDoorTrigger"]
+shape = SubResource("BoxShape3D_studio_door")
 
 [node name="Player3D" type="CharacterBody3D" parent="."]
 script = ExtResource("4")
@@ -105,3 +229,18 @@ mesh = SubResource("CapsuleMesh_player")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player3D"]
 position = Vector3(0, 0.7, 0)
 shape = SubResource("CapsuleShape3D_player")
+
+[node name="StatusLayer" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="StatusPanel" type="PanelContainer" parent="StatusLayer"]
+anchors_preset = 1
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 420.0
+offset_bottom = 56.0
+
+[node name="StatusLabel" type="Label" parent="StatusLayer/StatusPanel"]
+text = "KBTV 3D BLOCKOUT"

@@ -13,7 +13,7 @@ public partial class StudioRoom3D : Node3D
 
 	public void SetPlayer(Player3D player)
 	{
-		player.SetRoomAnchor(PlayerStartPosition);
+		player.SetRoomAnchor(GlobalPosition + PlayerStartPosition);
 	}
 
 	public void ShowRoom()
@@ -24,5 +24,10 @@ public partial class StudioRoom3D : Node3D
 	public void HideRoom()
 	{
 		Visible = false;
+	}
+
+	public bool IsPlayerAtDoor(Vector3 playerPosition)
+	{
+		return Visible && playerPosition.X < GlobalPosition.X - 4.8f && Mathf.Abs(playerPosition.Z - GlobalPosition.Z) < 1.4f;
 	}
 }
