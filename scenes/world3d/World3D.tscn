@@ -89,7 +89,7 @@ light_energy = 1.0
 
 [node name="WorldCamera" type="Camera3D" parent="."]
 projection = 1
-size = 12.5
+size = 10.5
 position = Vector3(0, 11.5, 13)
 rotation_degrees = Vector3(-35, 0, 0)
 current = true
@@ -102,45 +102,14 @@ position = Vector3(0, 0, 4)
 mesh = SubResource("BoxMesh_floor")
 material_override = SubResource("StandardMaterial3D_room_dark")
 
-[node name="NorthWallWest" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(-3.2, 0.55, -4)
-mesh = SubResource("BoxMesh_wall_segment")
-material_override = SubResource("StandardMaterial3D_control_desk")
-
-[node name="NorthWallEast" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(3.2, 0.55, -4)
-mesh = SubResource("BoxMesh_wall_segment")
-material_override = SubResource("StandardMaterial3D_control_desk")
-
-[node name="SouthWall" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(0, 0.55, 4)
-mesh = SubResource("BoxMesh_wall")
-material_override = SubResource("StandardMaterial3D_control_desk")
-
-[node name="WestWall" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(-4.9, 0.55, 0)
-mesh = SubResource("BoxMesh_sidewall")
-material_override = SubResource("StandardMaterial3D_control_desk")
-
 [node name="StudioThreshold" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(0, 0.04, -4)
+position = Vector3(-3.35, 0.04, -4)
 mesh = SubResource("BoxMesh_threshold")
 material_override = SubResource("StandardMaterial3D_accent")
 
-[node name="EastWallNorth" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(4.9, 0.55, -1.4)
-scale = Vector3(1, 1, 0.65)
-mesh = SubResource("BoxMesh_sidewall")
-material_override = SubResource("StandardMaterial3D_control_desk")
-
-[node name="EastWallSouth" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(4.9, 0.55, 3.7)
-scale = Vector3(1, 1, 0.075)
-mesh = SubResource("BoxMesh_sidewall")
-material_override = SubResource("StandardMaterial3D_control_desk")
-
 [node name="DeskPlaceholder" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(0, 0.2, 1)
+position = Vector3(0.6, 0.2, -3.55)
+scale = Vector3(3, 1, 0.7)
 mesh = SubResource("BoxMesh_table")
 material_override = SubResource("StandardMaterial3D_control_desk")
 
@@ -149,25 +118,70 @@ position = Vector3(0, 0.9, -4.05)
 mesh = SubResource("BoxMesh_monitor")
 material_override = SubResource("StandardMaterial3D_control_green")
 
-[node name="MonitorLeft" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(-0.75, 0.55, 0.55)
+[node name="PhoneBoard" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(-1.25, 0.72, -3.65)
+scale = Vector3(0.9, 0.55, 0.7)
 mesh = SubResource("BoxMesh_monitor")
 material_override = SubResource("StandardMaterial3D_control_green")
 
-[node name="MonitorRight" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(0.75, 0.55, 0.55)
+[node name="SoundBoard" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(0.25, 0.72, -3.65)
+scale = Vector3(1.25, 0.55, 0.7)
 mesh = SubResource("BoxMesh_monitor")
 material_override = SubResource("StandardMaterial3D_control_green")
 
-[node name="MicStand" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(0.2, 0.55, 2.2)
-mesh = SubResource("CylinderMesh_mic")
+[node name="Computer" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(1.55, 0.82, -3.7)
+rotation_degrees = Vector3(-18, 0, 0)
+mesh = SubResource("BoxMesh_monitor")
 material_override = SubResource("StandardMaterial3D_accent")
 
 [node name="BoardWall" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(-1.8, 0.85, -3.7)
+position = Vector3(0.6, 1.15, -3.92)
 mesh = SubResource("BoxMesh_board")
 material_override = SubResource("StandardMaterial3D_control_green")
+
+[node name="OfficeChair" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(0.3, 0.2, -2.45)
+scale = Vector3(0.55, 1, 0.55)
+mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_control_desk")
+
+[node name="SpeakerLeft" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(-2.75, 0.75, -3.55)
+rotation_degrees = Vector3(0, 45, 0)
+mesh = SubResource("BoxMesh_monitor")
+material_override = SubResource("StandardMaterial3D_accent")
+
+[node name="SpeakerRight" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(3.75, 0.75, -3.55)
+rotation_degrees = Vector3(0, -45, 0)
+mesh = SubResource("BoxMesh_monitor")
+material_override = SubResource("StandardMaterial3D_accent")
+
+[node name="AudioCabinet" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(3.9, 0.45, -2.45)
+scale = Vector3(1.4, 1.4, 1)
+mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_studio_wood")
+
+[node name="ShelfLeft" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(-2.8, 0.45, 2.45)
+scale = Vector3(1, 1.8, 0.9)
+mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_studio_wood")
+
+[node name="ShelfCenter" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(0, 0.45, 2.45)
+scale = Vector3(1, 1.8, 0.9)
+mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_studio_wood")
+
+[node name="ShelfRight" type="MeshInstance3D" parent="ControlRoom3D"]
+position = Vector3(2.8, 0.45, 2.45)
+scale = Vector3(1, 1.8, 0.9)
+mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_studio_wood")
 
 [node name="RoomLabel" type="Label3D" parent="ControlRoom3D"]
 position = Vector3(0, 2.4, 0)
@@ -175,7 +189,7 @@ text = "CONTROL"
 billboard = 1
 
 [node name="StudioDoorTrigger" type="Area3D" parent="ControlRoom3D"]
-position = Vector3(0, 0.8, -3.75)
+position = Vector3(-3.35, 0.8, -3.75)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ControlRoom3D/StudioDoorTrigger"]
 shape = SubResource("BoxShape3D_control_door")
@@ -188,51 +202,44 @@ position = Vector3(0, 0, -4)
 mesh = SubResource("BoxMesh_floor")
 material_override = SubResource("StandardMaterial3D_room_dark")
 
-[node name="NorthWall" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(0, 0.55, -4)
-mesh = SubResource("BoxMesh_wall")
-material_override = SubResource("StandardMaterial3D_studio_wood")
-
-[node name="WestWall" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(-4.9, 0.55, 0)
-mesh = SubResource("BoxMesh_sidewall")
-material_override = SubResource("StandardMaterial3D_studio_wood")
-
-[node name="EastWallNorth" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(4.9, 0.55, -2.9)
-scale = Vector3(1, 1, 0.275)
-mesh = SubResource("BoxMesh_sidewall")
-material_override = SubResource("StandardMaterial3D_studio_wood")
-
-[node name="EastWallSouth" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(4.9, 0.55, 2.9)
-scale = Vector3(1, 1, 0.275)
-mesh = SubResource("BoxMesh_sidewall")
-material_override = SubResource("StandardMaterial3D_studio_wood")
-
 [node name="RoundTablePlaceholder" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(0, 0.2, 0.3)
+position = Vector3(0.65, 0.2, 1.15)
+scale = Vector3(2.5, 1, 1.15)
 mesh = SubResource("BoxMesh_table")
 material_override = SubResource("StandardMaterial3D_studio_red")
 
 [node name="ChairLeft" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(-1.2, 0.2, 1.0)
+position = Vector3(-0.85, 0.2, 0.55)
+scale = Vector3(0.7, 1, 0.7)
 mesh = SubResource("BoxMesh_table")
 material_override = SubResource("StandardMaterial3D_studio_wood")
 
 [node name="ChairRight" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(1.2, 0.2, 1.0)
+position = Vector3(1.05, 0.2, 0.7)
+scale = Vector3(0.55, 1, 0.55)
 mesh = SubResource("BoxMesh_table")
 material_override = SubResource("StandardMaterial3D_studio_wood")
 
-[node name="StageBlock" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(0, 0.1, -2.5)
-mesh = SubResource("BoxMesh_stage")
-material_override = SubResource("StandardMaterial3D_studio_red")
-
 [node name="VernStandIn" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(0, 0.55, -2.4)
+position = Vector3(-0.85, 0.75, 0.45)
 mesh = SubResource("SphereMesh_light")
+material_override = SubResource("StandardMaterial3D_accent")
+
+[node name="BookcaseLeft" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(-2.6, 0.65, -3.1)
+scale = Vector3(1.8, 2.1, 0.7)
+mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_studio_wood")
+
+[node name="BookcaseRight" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(2.6, 0.65, -3.1)
+scale = Vector3(1.8, 2.1, 0.7)
+mesh = SubResource("BoxMesh_table")
+material_override = SubResource("StandardMaterial3D_studio_wood")
+
+[node name="StudioMicStand" type="MeshInstance3D" parent="StudioRoom3D"]
+position = Vector3(0.95, 0.75, 0.65)
+mesh = SubResource("CylinderMesh_mic")
 material_override = SubResource("StandardMaterial3D_accent")
 
 [node name="RoomLabel" type="Label3D" parent="StudioRoom3D"]
@@ -241,7 +248,7 @@ text = "STUDIO"
 billboard = 1
 
 [node name="ControlDoorTrigger" type="Area3D" parent="StudioRoom3D"]
-position = Vector3(0, 0.8, 3.75)
+position = Vector3(-3.35, 0.8, 3.75)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StudioRoom3D/ControlDoorTrigger"]
 shape = SubResource("BoxShape3D_studio_door")

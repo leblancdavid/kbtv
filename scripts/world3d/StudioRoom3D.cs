@@ -8,6 +8,7 @@ public partial class StudioRoom3D : Node3D
 	private const float HalfWidth = 5f;
 	private const float HalfDepth = 4f;
 	private const float DoorHalfWidth = 1.4f;
+	private const float DoorCenterX = -3.35f;
 
 	public override void _Ready()
 	{
@@ -35,7 +36,7 @@ public partial class StudioRoom3D : Node3D
 		return Visible
 			&& playerPosition.Z > GlobalPosition.Z + 2.8f
 			&& playerPosition.Z < GlobalPosition.Z + HalfDepth + 0.5f
-			&& Mathf.Abs(playerPosition.X - GlobalPosition.X) < DoorHalfWidth;
+			&& Mathf.Abs(playerPosition.X - (GlobalPosition.X + DoorCenterX)) < DoorHalfWidth;
 	}
 
 	public bool ContainsPlayer(Vector3 playerPosition)
@@ -53,12 +54,11 @@ public partial class StudioRoom3D : Node3D
 		AddChild(root);
 
 		AddStaticBox(root, "FloorCollider", new Vector3(0f, -0.1f, 0f), new Vector3(10f, 0.2f, 8f));
-		AddStaticBox(root, "NorthWallCollider", new Vector3(0f, 0.55f, -4f), new Vector3(10f, 1.1f, 0.2f));
-		AddStaticBox(root, "WestWallCollider", new Vector3(-4.9f, 0.55f, 0f), new Vector3(0.2f, 1.1f, 8f));
-		AddStaticBox(root, "EastWallNorthCollider", new Vector3(4.9f, 0.55f, -2.9f), new Vector3(0.2f, 1.1f, 2.2f));
-		AddStaticBox(root, "EastWallSouthCollider", new Vector3(4.9f, 0.55f, 2.9f), new Vector3(0.2f, 1.1f, 2.2f));
-		AddStaticBox(root, "RoundTableCollider", new Vector3(0f, 0.4f, 0.3f), new Vector3(1.6f, 0.8f, 0.8f));
-		AddStaticBox(root, "StageCollider", new Vector3(0f, 0.25f, -2.5f), new Vector3(3f, 0.5f, 1.8f));
+		AddStaticBox(root, "RoundTableCollider", new Vector3(0.65f, 0.35f, 1.15f), new Vector3(3.2f, 0.7f, 0.9f));
+		AddStaticBox(root, "VernChairCollider", new Vector3(-0.85f, 0.35f, 0.55f), new Vector3(0.9f, 0.7f, 0.7f));
+		AddStaticBox(root, "GuestChairCollider", new Vector3(1.05f, 0.35f, 0.7f), new Vector3(0.75f, 0.7f, 0.65f));
+		AddStaticBox(root, "BookcaseLeftCollider", new Vector3(-2.6f, 0.7f, -3.1f), new Vector3(1.6f, 1.4f, 0.7f));
+		AddStaticBox(root, "BookcaseRightCollider", new Vector3(2.6f, 0.7f, -3.1f), new Vector3(1.6f, 1.4f, 0.7f));
 	}
 
 	private static void AddStaticBox(Node3D parent, string name, Vector3 position, Vector3 size)

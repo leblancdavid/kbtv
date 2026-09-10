@@ -2,6 +2,68 @@
 
 **Branch**: 3d-migration
 
+**Task**: Correct the 3D greybox control room desk, chair, wall, doorway, window, and camera framing.
+
+**Status**: Completed
+
+### Work Done
+- Started control/studio correction pass from latest playtest feedback.
+- Increased generated greybox wall height and changed wall helper placement so corners meet flush instead of visually doubling up.
+- Closed the control/studio west wall connection and moved the control-to-studio doorway to the upper-left side of the shared wall.
+- Added a larger control/studio half-wall window frame aligned with the control desk.
+- Pushed the control desk against the north wall and moved the phoneboard, soundboard, computer, wall board, and speakers onto/against the desk area.
+- Removed the control chair collider and added gentle proximity-based chair movement so it moves out of the player's way without blocking navigation.
+- Zoomed the 3D camera in by reducing orthographic size from 12.5 to 10.5.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scenes/world3d/World3D.tscn`
+- `scripts/world3d/ControlRoom3D.cs`
+- `scripts/world3d/StudioRoom3D.cs`
+- `scripts/world3d/StationGreybox3D.cs`
+
+### Next Steps
+1. Playtest the control room to confirm the upper-left studio doorway and window frame read correctly from the new camera framing.
+2. Tune prop spacing if the desk-top items overlap visually in the editor.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
+**Task**: Rework the 3D greybox control room and studio layout from the supplied sketch.
+
+**Status**: Completed
+
+### Work Done
+- Started a 3D-only control room / studio greybox layout pass.
+- Confirmed active work is in `scenes/world3d/World3D.tscn` plus `scripts/world3d/ControlRoom3D.cs`, `scripts/world3d/StudioRoom3D.cs`, and `scripts/world3d/StationGreybox3D.cs`.
+- Removed duplicate room-local visible wall meshes from `ControlRoom3D` and `StudioRoom3D` in the 3D scene so the generated station greybox owns the visible wall grid.
+- Removed old room-local wall colliders from `ControlRoom3D.cs` and `StudioRoom3D.cs`; kept floor and prop colliders aligned to the new layout.
+- Repositioned the control room greybox: desk on the north side, boards/computer on the desk, chair below it, speakers flanking it, audio cabinet at the upper right, shelves along the lower wall.
+- Repositioned the studio greybox: bookcases on the north wall, table and Vern group in the lower-middle, mic stand near the table, and a control-window marker on the studio/control boundary.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scenes/world3d/World3D.tscn`
+- `scripts/world3d/ControlRoom3D.cs`
+- `scripts/world3d/StudioRoom3D.cs`
+
+### Next Steps
+1. Playtest the 3D greybox to confirm the room-local wall duplicates are gone and movement has no invisible blockers.
+2. Tune individual prop positions after reviewing the camera framing in-editor.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
 **Task**: Clean up the 3D station greybox wall grid, corners, and door openings.
 
 **Status**: Completed

@@ -8,15 +8,30 @@ public partial class ControlRoom3D : Node3D
 	private const float HalfWidth = 5f;
 	private const float HalfDepth = 4f;
 	private const float DoorHalfWidth = 1.4f;
+	private const float DoorCenterX = -3.35f;
+	private const float ChairPushRadius = 1.1f;
+	private const float ChairMaxDisplacement = 0.8f;
+	private const float ChairMoveSpeed = 6f;
+	private MeshInstance3D? _officeChair;
+	private Player3D? _player;
+	private Vector3 _officeChairHome;
 
 	public override void _Ready()
 	{
 		Visible = true;
+		_officeChair = GetNodeOrNull<MeshInstance3D>("OfficeChair");
+		_officeChairHome = _officeChair?.Position ?? Vector3.Zero;
 		CreateColliders();
+	}
+
+	public override void _Process(double delta)
+	{
+		UpdateOfficeChair(delta);
 	}
 
 	public void SetPlayer(Player3D player)
 	{
+		_player = player;
 		player.SetRoomAnchor(GlobalPosition + PlayerStartPosition);
 	}
 
@@ -35,7 +50,7 @@ public partial class ControlRoom3D : Node3D
 		return Visible
 			&& playerPosition.Z < GlobalPosition.Z - 2.8f
 			&& playerPosition.Z > GlobalPosition.Z - HalfDepth - 0.5f
-			&& Mathf.Abs(playerPosition.X - GlobalPosition.X) < DoorHalfWidth;
+			&& Mathf.Abs(playerPosition.X - (GlobalPosition.X + DoorCenterX)) < DoorHalfWidth;
 	}
 
 	public bool ContainsPlayer(Vector3 playerPosition)
@@ -53,13 +68,40 @@ public partial class ControlRoom3D : Node3D
 		AddChild(root);
 
 		AddStaticBox(root, "FloorCollider", new Vector3(0f, -0.1f, 0f), new Vector3(10f, 0.2f, 8f));
-		AddStaticBox(root, "NorthWallWestCollider", new Vector3(-3.2f, 0.55f, -4f), new Vector3(3.6f, 1.1f, 0.2f));
-		AddStaticBox(root, "NorthWallEastCollider", new Vector3(3.2f, 0.55f, -4f), new Vector3(3.6f, 1.1f, 0.2f));
-		AddStaticBox(root, "SouthWallCollider", new Vector3(0f, 0.55f, 4f), new Vector3(10f, 1.1f, 0.2f));
-		AddStaticBox(root, "WestWallCollider", new Vector3(-4.9f, 0.55f, 0f), new Vector3(0.2f, 1.1f, 8f));
-		AddStaticBox(root, "EastWallNorthCollider", new Vector3(4.9f, 0.55f, -1.4f), new Vector3(0.2f, 1.1f, 5.2f));
-		AddStaticBox(root, "EastWallSouthCollider", new Vector3(4.9f, 0.55f, 3.7f), new Vector3(0.2f, 1.1f, 0.6f));
-		AddStaticBox(root, "DeskCollider", new Vector3(0f, 0.4f, 1f), new Vector3(1.6f, 0.8f, 0.8f));
+		AddStaticBox(root, "DeskCollider", new Vector3(0.6f, 0.4f, -3.55f), new Vector3(4.8f, 0.8f, 0.6f));
+		AddStaticBox(root, "SpeakerLeftCollider", new Vector3(-2.75f, 0.45f, -3.55f), new Vector3(0.8f, 0.9f, 0.8f));
+		AddStaticBox(root, "SpeakerRightCollider", new Vector3(3.75f, 0.45f, -3.55f), new Vector3(0.8f, 0.9f, 0.8f));
+		AddStaticBox(root, "AudioCabinetCollider", new Vector3(3.9f, 0.55f, -2.45f), new Vector3(1.4f, 1.1f, 0.8f));
+		AddStaticBox(root, "ShelfLeftCollider", new Vector3(-2.8f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
+		AddStaticBox(root, "ShelfCenterCollider", new Vector3(0f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
+		AddStaticBox(root, "ShelfRightCollider", new Vector3(2.8f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
+	}
+
+	private void UpdateOfficeChair(double delta)
+	{
+		if (_officeChair == null)
+		{
+			return;
+		}
+
+		_player ??= GetParent()?.GetNodeOrNull<Player3D>("Player3D");
+		var target = _officeChairHome;
+
+		if (_player != null)
+		{
+			var playerLocal = ToLocal(_player.GlobalPosition);
+			var away = new Vector3(_officeChairHome.X - playerLocal.X, 0f, _officeChairHome.Z - playerLocal.Z);
+			var distance = away.Length();
+
+			if (distance > 0.001f && distance < ChairPushRadius)
+			{
+				var strength = 1f - distance / ChairPushRadius;
+				target += away.Normalized() * ChairMaxDisplacement * strength;
+			}
+		}
+
+		var weight = 1f - Mathf.Exp(-ChairMoveSpeed * (float)delta);
+		_officeChair.Position = _officeChair.Position.Lerp(target, weight);
 	}
 
 	private static void AddStaticBox(Node3D parent, string name, Vector3 position, Vector3 size)

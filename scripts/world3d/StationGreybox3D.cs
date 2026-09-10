@@ -4,9 +4,10 @@ namespace KBTV.World3D;
 
 public partial class StationGreybox3D : Node3D
 {
-	private const float WallHeight = 1.1f;
+	private const float WallHeight = 2.3f;
 	private const float WallThickness = 0.2f;
 	private const float DoorGap = 2f;
+	private const float WallCenterY = WallHeight / 2f;
 
 	private readonly Rect2 _hallway = new(new Vector2(5f, -14f), new Vector2(3f, 22f));
 	private readonly Rect2 _equipmentRoom = new(new Vector2(-5f, -14f), new Vector2(10f, 6f));
@@ -97,8 +98,8 @@ public partial class StationGreybox3D : Node3D
 		AddHorizontalWall("SouthWallEast", 7.5f, 16f, 8f);
 
 		AddVerticalWall("WestWallEquipment", -5f, -14f, -8f);
-		AddVerticalWall("WestWallStudioNorth", -5f, -8f, -1f);
-		AddVerticalWall("WestWallControlSouth", -5f, 1f, 8f);
+		AddVerticalWall("WestWallStudio", -5f, -8f, 0f);
+		AddVerticalWall("WestWallControl", -5f, 0f, 8f);
 		AddVerticalWall("HallEquipmentWallNorth", 5f, -14f, -12f);
 		AddVerticalWall("HallEquipmentWallSouth", 5f, -10f, -8f);
 		AddVerticalWall("HallStudioWallNorth", 5f, -8f, -5f);
@@ -107,8 +108,10 @@ public partial class StationGreybox3D : Node3D
 		AddVerticalWall("HallControlWallSouth", 5f, 6f, 8f);
 
 		AddHorizontalWall("EquipmentStudioDivider", -5f, 5f, -8f);
-		AddHorizontalWall("StudioControlDividerWest", -5f, -1f, 0f);
-		AddHorizontalWall("StudioControlDividerEast", 1f, 5f, 0f);
+		AddHorizontalWall("StudioControlDoorJambWest", -5f, -4.35f, 0f);
+		AddHorizontalWall("StudioControlDoorJambEast", -2.35f, -1.7f, 0f);
+		AddHorizontalWall("StudioControlEastWall", 2.9f, 5f, 0f);
+		AddControlStudioWindow();
 
 		AddVerticalWall("ArchiveHallWallNorth", 8f, -14f, -12f);
 		AddVerticalWall("ArchiveHallWallSouth", 8f, -10f, -8f);
@@ -164,6 +167,7 @@ public partial class StationGreybox3D : Node3D
 	private void BuildRouteMarkers()
 	{
 		AddBox("ControlToHallThreshold", new Vector3(5f, 0.04f, 5.4f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false);
+		AddBox("ControlStudioDoorMarker", new Vector3(-3.35f, 0.04f, 0f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false);
 		AddBox("StudioToHallThreshold", new Vector3(5f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false);
 		AddBox("EquipmentDoorMarker", new Vector3(5f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false);
 		AddBox("NorthExteriorDoorMarker", new Vector3(6.5f, 0.04f, -14f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false);
@@ -194,22 +198,42 @@ public partial class StationGreybox3D : Node3D
 		AddBox(name, position, size, _wallMaterial, true);
 	}
 
+	private void AddControlStudioWindow()
+	{
+		AddBox("ControlStudioWindowHalfWall", new Vector3(0.6f, 0.3f, 0f), new Vector3(4.6f, 0.6f, WallThickness), _wallMaterial, true);
+		AddBox("ControlStudioWindowLeftFrame", new Vector3(-1.7f, 1.25f, 0f), new Vector3(WallThickness, 1.9f, WallThickness), _wallMaterial, false);
+		AddBox("ControlStudioWindowRightFrame", new Vector3(2.9f, 1.25f, 0f), new Vector3(WallThickness, 1.9f, WallThickness), _wallMaterial, false);
+		AddBox("ControlStudioWindowTopFrame", new Vector3(0.6f, 2.15f, 0f), new Vector3(4.6f, WallThickness, WallThickness), _wallMaterial, false);
+	}
+
 	private void AddHorizontalWall(string name, float x1, float x2, float z)
 	{
 		var left = Mathf.Min(x1, x2);
 		var right = Mathf.Max(x1, x2);
+		left += WallThickness * 0.5f;
+		right -= WallThickness * 0.5f;
 		var width = right - left;
+		if (width <= 0f)
+		{
+			return;
+		}
 		var centerX = left + width / 2f;
-		AddWall(name, new Vector3(centerX, 0.55f, z), new Vector3(width, WallHeight, WallThickness));
+		AddWall(name, new Vector3(centerX, WallCenterY, z), new Vector3(width, WallHeight, WallThickness));
 	}
 
 	private void AddVerticalWall(string name, float x, float z1, float z2)
 	{
 		var near = Mathf.Min(z1, z2);
 		var far = Mathf.Max(z1, z2);
+		near += WallThickness * 0.5f;
+		far -= WallThickness * 0.5f;
 		var depth = far - near;
+		if (depth <= 0f)
+		{
+			return;
+		}
 		var centerZ = near + depth / 2f;
-		AddWall(name, new Vector3(x, 0.55f, centerZ), new Vector3(WallThickness, WallHeight, depth));
+		AddWall(name, new Vector3(x, WallCenterY, centerZ), new Vector3(WallThickness, WallHeight, depth));
 	}
 
 	private void AddLabel(string text, Vector3 position)
