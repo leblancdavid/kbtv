@@ -2,6 +2,69 @@
 
 **Branch**: 3d-migration
 
+**Task**: Make studio room haze visibly foggy and controllable while keeping cigarette puffs.
+
+**Status**: Completed
+
+### Work Done
+- Started implementation pass for a persistent smoky 3D studio.
+- Confirmed active main scene is `Game3D.tscn`, so smoke belongs in `StudioRoom3D` rather than the older 2D `StudioSmoke` path.
+- Added `StudioSmoke3D`, a procedural 3D billboard-smoke node with persistent ambient haze and periodic cigarette puff bursts.
+- Wired `StudioRoom3D` to create the smoke node with exported tuning values for density, opacity, puff timing, drift, origin, and room extents.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Started visibility pass after `AmbientSmokeOpacity` changes were not visibly affecting the studio haze.
+- Added broad non-puffy studio fog veils as a visible orthographic fallback, driven by the same `AmbientSmokeOpacity` knob as the local `FogVolume`.
+- Raised `AmbientSmokeOpacity` default to `0.16` in both `StudioRoom3D` and `StudioSmoke3D` so the active room passes a visible value at runtime.
+- Lightened the fog color and flattened the `FogVolume` falloff so the haze reads more like cigarette smoke in the whole room.
+- Kept Vern's local cigarette puff behavior unchanged.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Started fog-only revision after playtest showed the room smoke cloud billboards still read as unnatural isolated puffs.
+- Removed the whole-room billboard cloud layer and its exports (`RoomCloudCount`, `RoomCloudOpacity`).
+- Tuned the local studio `FogVolume` to carry the room smoke: `AmbientSmokeOpacity` now defaults to `0.085`, with flatter `HeightFalloff` and softer `EdgeFade`.
+- Kept cigarette puff behavior and opacity unchanged.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Started room-fog visibility pass after playtest confirmed puffs look good but the overall studio smoke is not noticeable enough.
+- Raised studio-only `FogVolume` density via `AmbientSmokeOpacity` from `0.022` to `0.048`.
+- Raised full-room smoke cloud layer from `7` to `9` clouds and `RoomCloudOpacity` from `0.045` to `0.07`.
+- Kept cigarette puff opacity/timing unchanged because the puff effect is already reading well.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+- Started iteration after playtest showed the first-pass billboard quads render as visible blocky rectangles.
+- Replaced the ambient billboard field with a studio-local `FogVolume` using a low-density cool grey `FogMaterial`.
+- Reworked cigarette puffs to use procedural soft/noisy alpha textures on billboard quads, avoiding visible rectangular cards.
+- Fixed the Godot C# fog shape enum to `RenderingServer.FogVolumeShape.Box`.
+- Enabled volumetric fog globally at zero density in `StationLighting3D` so local `FogVolume` nodes can render without adding world-wide haze.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Started tuning pass after playtest confirmed the improved smoke shape works but should be subtler, with a separate whole-room smoky cloud.
+- Lowered default studio smoke intensity: `AmbientSmokeOpacity` from `0.105` to `0.022`, puff opacity from `0.24` to `0.16`.
+- Added `RoomCloudCount` and `RoomCloudOpacity` exports to drive a separate subtle whole-room smoke cloud layer.
+- Added slow oversized procedural smoke cloud billboards across the studio volume, separate from the local fog volume and cigarette puffs.
+- Removed the unused ambient smoke count export from the 3D smoke implementation.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/StudioSmoke3D.cs`
+- `scripts/world3d/StudioSmoke3D.cs.uid`
+- `scripts/world3d/StudioRoom3D.cs`
+- `scripts/world3d/StationLighting3D.cs`
+
+### Next Steps
+1. Playtest the studio haze and tune only `AmbientSmokeOpacity` first; it now drives both local `FogVolume` density and the visible broad haze veil.
+2. If the veil is too screen-like, replace it with a custom shader clipped to the studio floor/walls after the baseline density is approved.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
 **Task**: Fix fluorescent shadow halting in the rest of the world.
 
 **Status**: Completed

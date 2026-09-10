@@ -90,6 +90,8 @@ public partial class StationLighting3D : Node3D
 			AmbientLightSource = Environment.AmbientSource.Color,
 			AmbientLightColor = AmbientColor,
 			AmbientLightEnergy = 0.8f,
+			VolumetricFogEnabled = true,
+			VolumetricFogDensity = 0.0f,
 			TonemapMode = Environment.ToneMapper.Filmic,
 			TonemapExposure = 1.05f,
 			TonemapWhite = 1.6f
