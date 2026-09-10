@@ -95,10 +95,12 @@ script = ExtResource("2")
 position = Vector3(0, 0, 4)
 
 [node name="Floor" type="MeshInstance3D" parent="ControlRoom3D"]
+cast_shadow = 0
 mesh = SubResource("BoxMesh_floor")
 material_override = SubResource("StandardMaterial3D_room_dark")
 
 [node name="StudioThreshold" type="MeshInstance3D" parent="ControlRoom3D"]
+cast_shadow = 0
 position = Vector3(-4.15, 0.04, -4)
 mesh = SubResource("BoxMesh_threshold")
 material_override = SubResource("StandardMaterial3D_accent")
@@ -191,6 +193,7 @@ script = ExtResource("3")
 position = Vector3(0, 0, -4)
 
 [node name="Floor" type="MeshInstance3D" parent="StudioRoom3D"]
+cast_shadow = 0
 mesh = SubResource("BoxMesh_floor")
 material_override = SubResource("StandardMaterial3D_room_dark")
 

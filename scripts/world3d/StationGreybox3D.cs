@@ -225,7 +225,7 @@ public partial class StationGreybox3D : Node3D
 		AddRoom("ParkingLot", _parkingLot, _exteriorMaterial, "PARKING LOT AREA", StationLighting3D.ExteriorLayer);
 		AddRoom("Backyard", _backyard, _exteriorMaterial, "BACKYARD AREA", StationLighting3D.ExteriorLayer);
 		AddRoom("Toolshed", _toolshed, _supportMaterial, "TOOLSHED", StationLighting3D.ExteriorLayer);
-		AddBox("Walkway", new Vector3(5.5f, -0.08f, 10f), new Vector3(21f, 0.1f, 3f), _hallMaterial, true, StationLighting3D.ExteriorLayer);
+		AddBox("Walkway", new Vector3(5.5f, -0.08f, 10f), new Vector3(21f, 0.1f, 3f), _hallMaterial, true, StationLighting3D.ExteriorLayer, false);
 		AddBox("LadderToRoof", new Vector3(-1f, 0.8f, 8.7f), new Vector3(1.6f, 0.25f, 0.4f), _equipmentMaterial, true, StationLighting3D.ExteriorLayer);
 		AddLabel("WALKWAY", new Vector3(5.5f, 1.1f, 10f));
 		AddLabel("LADDER TO ROOF", new Vector3(-1f, 1.4f, 8.7f));
@@ -233,19 +233,19 @@ public partial class StationGreybox3D : Node3D
 
 	private void BuildRouteMarkers()
 	{
-		AddBox("ControlToHallThreshold", new Vector3(5f, 0.04f, 5.4f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false);
-		AddBox("ControlStudioDoorMarker", new Vector3(-4.15f, 0.04f, 0f), new Vector3(1.2f, 0.08f, 0.8f), _equipmentMaterial, false);
-		AddBox("StudioToHallThreshold", new Vector3(5f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false);
-		AddBox("EquipmentDoorMarker", new Vector3(5f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false);
-		AddBox("NorthExteriorDoorMarker", new Vector3(6.5f, 0.04f, -14f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false);
-		AddBox("ArchiveDoorMarker", new Vector3(8f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.6f), _officeMaterial, false);
-		AddBox("OfficeDoorMarker", new Vector3(8f, 0.04f, -2.5f), new Vector3(0.8f, 0.08f, 1.6f), _officeMaterial, false);
-		AddBox("KitchenDoorMarker", new Vector3(8f, 0.04f, 2.5f), new Vector3(0.8f, 0.08f, 1.8f), _supplyMaterial, false);
-		AddBox("BathroomDoorMarker", new Vector3(8f, 0.04f, 6.5f), new Vector3(0.8f, 0.08f, 1.6f), _bathroomMaterial, false);
-		AddBox("SouthExteriorDoorMarker", new Vector3(6.5f, 0.04f, 8f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false);
-		AddBox("ArchiveFrontDeskDoorMarker", new Vector3(16f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.6f), _officeMaterial, false);
-		AddBox("KitchenBathroomDoorMarker", new Vector3(13f, 0.04f, 5f), new Vector3(1.6f, 0.08f, 0.8f), _bathroomMaterial, false);
-		AddBox("LobbyExitMarker", new Vector3(26f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.9f), _equipmentMaterial, false);
+		AddBox("ControlToHallThreshold", new Vector3(5f, 0.04f, 5.4f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false, castShadow: false);
+		AddBox("ControlStudioDoorMarker", new Vector3(-4.15f, 0.04f, 0f), new Vector3(1.2f, 0.08f, 0.8f), _equipmentMaterial, false, castShadow: false);
+		AddBox("StudioToHallThreshold", new Vector3(5f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false, castShadow: false);
+		AddBox("EquipmentDoorMarker", new Vector3(5f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false, castShadow: false);
+		AddBox("NorthExteriorDoorMarker", new Vector3(6.5f, 0.04f, -14f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false, castShadow: false);
+		AddBox("ArchiveDoorMarker", new Vector3(8f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.6f), _officeMaterial, false, castShadow: false);
+		AddBox("OfficeDoorMarker", new Vector3(8f, 0.04f, -2.5f), new Vector3(0.8f, 0.08f, 1.6f), _officeMaterial, false, castShadow: false);
+		AddBox("KitchenDoorMarker", new Vector3(8f, 0.04f, 2.5f), new Vector3(0.8f, 0.08f, 1.8f), _supplyMaterial, false, castShadow: false);
+		AddBox("BathroomDoorMarker", new Vector3(8f, 0.04f, 6.5f), new Vector3(0.8f, 0.08f, 1.6f), _bathroomMaterial, false, castShadow: false);
+		AddBox("SouthExteriorDoorMarker", new Vector3(6.5f, 0.04f, 8f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false, castShadow: false);
+		AddBox("ArchiveFrontDeskDoorMarker", new Vector3(16f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.6f), _officeMaterial, false, castShadow: false);
+		AddBox("KitchenBathroomDoorMarker", new Vector3(13f, 0.04f, 5f), new Vector3(1.6f, 0.08f, 0.8f), _bathroomMaterial, false, castShadow: false);
+		AddBox("LobbyExitMarker", new Vector3(26f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.9f), _equipmentMaterial, false, castShadow: false);
 
 		AddSingleDoor("ControlToHallDoor", new Vector3(5f, 0f, 5.4f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical, "Control", "Station");
 		AddSingleDoor("ControlStudioDoor", new Vector3(-4.15f, 0f, 0f), SingleDoorWidth, 1.2f, DoorOrientation.Horizontal, "Control", "Studio");
@@ -387,7 +387,7 @@ public partial class StationGreybox3D : Node3D
 	private void AddRoom(string name, Rect2 rect, Material material, string label, uint layerMask)
 	{
 		var center = GetCenter(rect);
-		AddBox($"{name}Floor", new Vector3(center.X, -0.1f, center.Y), new Vector3(rect.Size.X, 0.2f, rect.Size.Y), material, true, layerMask);
+		AddBox($"{name}Floor", new Vector3(center.X, -0.1f, center.Y), new Vector3(rect.Size.X, 0.2f, rect.Size.Y), material, true, layerMask, false);
 		AddLabel(label, new Vector3(center.X, 1.3f, center.Y));
 	}
 
@@ -527,7 +527,7 @@ public partial class StationGreybox3D : Node3D
 		return (horizontallyAligned && inFrontOfPlayer) || veryClose;
 	}
 
-	private MeshInstance3D AddBox(string name, Vector3 position, Vector3 size, Material material, bool collider, uint layerMask = StationLighting3D.AllInteriorLayers)
+	private MeshInstance3D AddBox(string name, Vector3 position, Vector3 size, Material material, bool collider, uint layerMask = StationLighting3D.AllInteriorLayers, bool castShadow = true)
 	{
 		var mesh = new MeshInstance3D
 		{
@@ -535,7 +535,8 @@ public partial class StationGreybox3D : Node3D
 			Position = position,
 			Mesh = new BoxMesh { Size = size },
 			MaterialOverride = material,
-			Layers = layerMask
+			Layers = layerMask,
+			CastShadow = castShadow ? GeometryInstance3D.ShadowCastingSetting.On : GeometryInstance3D.ShadowCastingSetting.Off
 		};
 		AddChild(mesh);
 

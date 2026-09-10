@@ -2,6 +2,44 @@
 
 **Branch**: 3d-migration
 
+**Task**: Fix fluorescent shadow halting in the rest of the world.
+
+**Status**: Completed
+
+### Work Done
+- Started shadow-system pass for fluorescent lights and stuck-looking shadows.
+- Found fluorescent wash/fill lights had `ShadowEnabled = false`.
+- Found flat generated 3D floor/route-marker meshes use default mesh shadow casting, which can create fixed ground shadows.
+- Found 2D `PropBuilder` accepts `createCastShadow` but never creates the shadow.
+- Enabled shadows on fluorescent wash spotlights while leaving broad fill lights non-shadowed.
+- Disabled mesh shadow casting on generated floors, walkway, route markers, and scene-authored 3D floor/threshold meshes.
+- Wired 2D prop cast-shadow creation in `PropBuilder` for both auto-collider and explicit-collider paths.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+- User confirmed the halting/stuck-looking shadow issue still appears under the rest-of-world fluorescent lights.
+- Changed station fluorescents so all wash/fill lights still illuminate, but only the nearest fluorescent wash spotlight casts shadows each frame.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/StationLighting3D.cs`
+- `scripts/world3d/StationGreybox3D.cs`
+- `scripts/world/common/PropBuilder.cs`
+- `scenes/world3d/World3D.tscn`
+- `scripts/world3d/World3D.cs`
+
+### Next Steps
+1. Playtest the hallway/rest-of-world fluorescents and confirm the player shadow no longer appears to halt or leave fixed duplicates behind.
+2. If the nearest-light handoff is too abrupt, add a small distance hysteresis before switching fluorescent shadow casters.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
 **Task**: Fix 3D control room window frame aliasing and stray green object.
 
 **Status**: Completed

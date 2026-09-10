@@ -20,6 +20,7 @@ public partial class StationLighting3D : Node3D
 	private readonly Godot.Collections.Array<Light3D> _studioLights = new();
 	private readonly Godot.Collections.Array<Light3D> _equipmentLights = new();
 	private readonly Godot.Collections.Array<Light3D> _stationLights = new();
+	private readonly Godot.Collections.Array<SpotLight3D> _fluorescentShadowLights = new();
 	private readonly Godot.Collections.Dictionary<string, Godot.Collections.Array<Light3D>> _doorSpillLights = new();
 
 	public void Build()
@@ -56,6 +57,27 @@ public partial class StationLighting3D : Node3D
 		foreach (var child in node.GetChildren())
 		{
 			ApplyLayerToTree(child, layerMask);
+		}
+	}
+
+	public void UpdateFluorescentShadowCaster(Vector3 playerPosition)
+	{
+		SpotLight3D? closestLight = null;
+		var closestDistanceSquared = float.MaxValue;
+
+		foreach (var light in _fluorescentShadowLights)
+		{
+			var distanceSquared = light.GlobalPosition.DistanceSquaredTo(playerPosition);
+			if (distanceSquared < closestDistanceSquared)
+			{
+				closestDistanceSquared = distanceSquared;
+				closestLight = light;
+			}
+		}
+
+		foreach (var light in _fluorescentShadowLights)
+		{
+			light.ShadowEnabled = light == closestLight;
 		}
 	}
 
@@ -153,7 +175,9 @@ public partial class StationLighting3D : Node3D
 	private void AddFluorescent(Node3D root, string name, Vector3 position, float energy, float range)
 	{
 		_stationLights.Add(AddOmni(root, $"{name}Fill", position + new Vector3(0f, -0.35f, 0f), Fluorescent, energy * 1.85f, range * 1.15f, false));
-		_stationLights.Add(AddOverheadSpot(root, $"{name}Wash", position, Fluorescent, energy * 0.8f, range * 1.25f, 88f, false));
+		var wash = AddOverheadSpot(root, $"{name}Wash", position, Fluorescent, energy * 0.8f, range * 1.25f, 88f, false);
+		_stationLights.Add(wash);
+		_fluorescentShadowLights.Add(wash);
 	}
 
 	private static SpotLight3D AddOverheadSpot(Node3D root, string name, Vector3 position, Color color, float energy, float range, float angle, bool shadows)

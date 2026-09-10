@@ -82,6 +82,10 @@ public partial class World3D : Node3D
 	public override void _Process(double delta)
 	{
 		_UpdatePlayerRoomState();
+		if (_player != null)
+		{
+			_station_lighting?.UpdateFluorescentShadowCaster(_player.GlobalPosition);
+		}
 		UpdateCamera(delta);
 	}
 

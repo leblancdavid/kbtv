@@ -179,6 +179,11 @@ public static partial class PropBuilder
 
 		parent.AddChild(root);
 
+		if (createCastShadow && shadowSystem != null)
+		{
+			shadowSystem.CreateShadowForObject(root, texture);
+		}
+
 		return root;
 	}
 
@@ -251,6 +256,11 @@ public static partial class PropBuilder
 		}
 
 		parent.AddChild(root);
+
+		if (createCastShadow && shadowSystem != null)
+		{
+			shadowSystem.CreateShadowForObject(root, texture);
+		}
 
 		return root;
 	}
