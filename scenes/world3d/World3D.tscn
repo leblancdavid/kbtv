@@ -136,11 +136,6 @@ rotation_degrees = Vector3(-18, 0, 0)
 mesh = SubResource("BoxMesh_monitor")
 material_override = SubResource("StandardMaterial3D_accent")
 
-[node name="BoardWall" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(0.6, 1.15, -3.92)
-mesh = SubResource("BoxMesh_board")
-material_override = SubResource("StandardMaterial3D_control_green")
-
 [node name="OfficeChair" type="MeshInstance3D" parent="ControlRoom3D"]
 position = Vector3(0.3, 0.2, -2.45)
 scale = Vector3(0.55, 1, 0.55)
@@ -160,8 +155,8 @@ mesh = SubResource("BoxMesh_monitor")
 material_override = SubResource("StandardMaterial3D_accent")
 
 [node name="AudioCabinet" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(3.9, 0.45, -2.45)
-scale = Vector3(1.4, 1.4, 1)
+position = Vector3(4.45, 0.45, -2.3)
+scale = Vector3(0.95, 1.4, 1)
 mesh = SubResource("BoxMesh_table")
 material_override = SubResource("StandardMaterial3D_studio_wood")
 

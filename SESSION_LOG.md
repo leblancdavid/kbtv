@@ -2,6 +2,37 @@
 
 **Branch**: 3d-migration
 
+**Task**: Polish the 3D greybox control-room artifact, cabinet placement, wall corners, and wall fading.
+
+**Status**: Completed
+
+### Work Done
+- Started greybox polish pass from latest playtest feedback.
+- Removed the green board behind/next to the control/studio window; it was the `BoardWall` mesh in `World3D.tscn`.
+- Moved the audio cabinet farther right against the control room east wall and updated its collider.
+- Added explicit wall corner posts to fill the square gaps created by trimmed wall segments at L/T junctions.
+- Added per-wall material instances and player-proximity wall fading for generated greybox walls.
+- Wired `World3D` to pass the player to `StationGreybox3D` for wall fading, with a fallback lookup in the greybox.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scenes/world3d/World3D.tscn`
+- `scripts/world3d/ControlRoom3D.cs`
+- `scripts/world3d/StationGreybox3D.cs`
+- `scripts/world3d/World3D.cs`
+
+### Next Steps
+1. Playtest wall fading in-editor and tune `WallFadeAlpha`, fade distance, or whether vertical side walls should fade more/less aggressively.
+2. Add more corner posts if playtest reveals gaps in support-room wall junctions outside the current visible route.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
 **Task**: Correct the 3D greybox control room desk, chair, wall, doorway, window, and camera framing.
 
 **Status**: Completed

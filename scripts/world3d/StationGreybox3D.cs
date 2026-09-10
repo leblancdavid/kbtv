@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 
 namespace KBTV.World3D;
 
@@ -8,6 +9,9 @@ public partial class StationGreybox3D : Node3D
 	private const float WallThickness = 0.2f;
 	private const float DoorGap = 2f;
 	private const float WallCenterY = WallHeight / 2f;
+	private const float WallOpaqueAlpha = 1f;
+	private const float WallFadeAlpha = 0.32f;
+	private const float WallFadeSpeed = 8f;
 
 	private readonly Rect2 _hallway = new(new Vector2(5f, -14f), new Vector2(3f, 22f));
 	private readonly Rect2 _equipmentRoom = new(new Vector2(-5f, -14f), new Vector2(10f, 6f));
@@ -30,6 +34,16 @@ public partial class StationGreybox3D : Node3D
 	private StandardMaterial3D _bathroomMaterial = null!;
 	private StandardMaterial3D _officeMaterial = null!;
 	private StandardMaterial3D _exteriorMaterial = null!;
+	private readonly List<WallFadeTarget> _wallFadeTargets = new();
+	private Player3D? _player;
+
+	private sealed class WallFadeTarget
+	{
+		public required MeshInstance3D Mesh { get; init; }
+		public required StandardMaterial3D Material { get; init; }
+		public required Vector3 Position { get; init; }
+		public required Vector3 Size { get; init; }
+	}
 
 	public override void _Ready()
 	{
@@ -37,6 +51,16 @@ public partial class StationGreybox3D : Node3D
 		BuildStationInterior();
 		BuildExteriorHooks();
 		BuildRouteMarkers();
+	}
+
+	public override void _Process(double delta)
+	{
+		UpdateWallFades(delta);
+	}
+
+	public void SetPlayer(Player3D player)
+	{
+		_player = player;
 	}
 
 	public string? GetRoomName(Vector3 playerPosition)
@@ -112,6 +136,7 @@ public partial class StationGreybox3D : Node3D
 		AddHorizontalWall("StudioControlDoorJambEast", -2.35f, -1.7f, 0f);
 		AddHorizontalWall("StudioControlEastWall", 2.9f, 5f, 0f);
 		AddControlStudioWindow();
+		AddWallCornerPosts();
 
 		AddVerticalWall("ArchiveHallWallNorth", 8f, -14f, -12f);
 		AddVerticalWall("ArchiveHallWallSouth", 8f, -10f, -8f);
@@ -195,7 +220,39 @@ public partial class StationGreybox3D : Node3D
 
 	private void AddWall(string name, Vector3 position, Vector3 size)
 	{
-		AddBox(name, position, size, _wallMaterial, true);
+		var material = MakeWallMaterial();
+		var mesh = AddBox(name, position, size, material, true);
+		_wallFadeTargets.Add(new WallFadeTarget { Mesh = mesh, Material = material, Position = position, Size = size });
+	}
+
+	private StandardMaterial3D MakeWallMaterial()
+	{
+		var material = (StandardMaterial3D)_wallMaterial.Duplicate();
+		material.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
+		material.AlbedoColor = new Color(material.AlbedoColor.R, material.AlbedoColor.G, material.AlbedoColor.B, WallOpaqueAlpha);
+		return material;
+	}
+
+	private void AddWallCornerPosts()
+	{
+		AddWallCornerPost("CornerPostNorthWest", -5f, -14f);
+		AddWallCornerPost("CornerPostNorthHallWest", 5f, -14f);
+		AddWallCornerPost("CornerPostNorthHallEast", 8f, -14f);
+		AddWallCornerPost("CornerPostArchiveFrontDesk", 16f, -14f);
+		AddWallCornerPost("CornerPostFrontDeskParking", 26f, -14f);
+		AddWallCornerPost("CornerPostEquipmentStudioWest", -5f, -8f);
+		AddWallCornerPost("CornerPostStudioControlWest", -5f, 0f);
+		AddWallCornerPost("CornerPostStudioControlHall", 5f, 0f);
+		AddWallCornerPost("CornerPostSouthWest", -5f, 8f);
+		AddWallCornerPost("CornerPostSouthHallWest", 5f, 8f);
+		AddWallCornerPost("CornerPostSouthHallEast", 8f, 8f);
+		AddWallCornerPost("CornerPostSupportEast", 16f, 8f);
+		AddWallCornerPost("CornerPostLobbyEastSouth", 26f, 0f);
+	}
+
+	private void AddWallCornerPost(string name, float x, float z)
+	{
+		AddWall(name, new Vector3(x, WallCenterY, z), new Vector3(WallThickness, WallHeight, WallThickness));
 	}
 
 	private void AddControlStudioWindow()
@@ -248,7 +305,41 @@ public partial class StationGreybox3D : Node3D
 		AddChild(label);
 	}
 
-	private void AddBox(string name, Vector3 position, Vector3 size, Material material, bool collider)
+	private void UpdateWallFades(double delta)
+	{
+		_player ??= GetParent()?.GetNodeOrNull<Player3D>("Player3D");
+		if (_player == null)
+		{
+			return;
+		}
+
+		var player = _player.GlobalPosition;
+		var weight = 1f - Mathf.Exp(-WallFadeSpeed * (float)delta);
+
+		foreach (var target in _wallFadeTargets)
+		{
+			var targetAlpha = ShouldFadeWall(target, player) ? WallFadeAlpha : WallOpaqueAlpha;
+			var color = target.Material.AlbedoColor;
+			color.A = Mathf.Lerp(color.A, targetAlpha, weight);
+			target.Material.AlbedoColor = color;
+		}
+	}
+
+	private static bool ShouldFadeWall(WallFadeTarget wall, Vector3 player)
+	{
+		var minX = wall.Position.X - wall.Size.X * 0.5f - 0.8f;
+		var maxX = wall.Position.X + wall.Size.X * 0.5f + 0.8f;
+		var minZ = wall.Position.Z - wall.Size.Z * 0.5f;
+		var maxZ = wall.Position.Z + wall.Size.Z * 0.5f;
+
+		var horizontallyAligned = player.X >= minX && player.X <= maxX;
+		var inFrontOfPlayer = minZ >= player.Z - 0.2f && minZ <= player.Z + 3.2f;
+		var veryClose = player.X >= minX && player.X <= maxX && player.Z >= minZ - 0.7f && player.Z <= maxZ + 0.7f;
+
+		return (horizontallyAligned && inFrontOfPlayer) || veryClose;
+	}
+
+	private MeshInstance3D AddBox(string name, Vector3 position, Vector3 size, Material material, bool collider)
 	{
 		var mesh = new MeshInstance3D
 		{
@@ -261,11 +352,12 @@ public partial class StationGreybox3D : Node3D
 
 		if (!collider)
 		{
-			return;
+			return mesh;
 		}
 
 		var body = new StaticBody3D { Name = $"{name}Collider", Position = position };
 		body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size } });
 		AddChild(body);
+		return mesh;
 	}
 }

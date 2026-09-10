@@ -39,6 +39,7 @@ public partial class World3D : Node3D
 		if (_player != null)
 		{
 			_player.SetRoomAnchor(_control_room.GlobalPosition + _control_room.PlayerStartPosition);
+			_station_greybox?.SetPlayer(_player);
 			UpdateCamera(0.0, true);
 		}
 
@@ -50,6 +51,7 @@ public partial class World3D : Node3D
 	public void SetPlayer(Player3D player)
 	{
 		_player = player;
+		_station_greybox?.SetPlayer(_player);
 		_player.SetRoomAnchor(_control_room.GlobalPosition + _control_room.PlayerStartPosition);
 		UpdateCamera(0.0, true);
 	}
