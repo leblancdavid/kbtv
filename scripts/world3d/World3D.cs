@@ -17,6 +17,7 @@ public partial class World3D : Node3D
 	private StationGreybox3D? _station_greybox;
 	private Player3D? _player;
 	private bool _player_at_connection;
+	private Node3D? _station_lighting;
 
 	public override void _Ready()
 	{
@@ -25,6 +26,8 @@ public partial class World3D : Node3D
 		_control_room = GetNode<ControlRoom3D>("ControlRoom3D");
 		_studio_room = GetNode<StudioRoom3D>("StudioRoom3D");
 		_station_greybox = GetNodeOrNull<StationGreybox3D>("StationGreybox3D");
+		_station_lighting = StationLighting3D.Build();
+		AddChild(_station_lighting);
 
 		if (PlayerPath != null && !PlayerPath.IsEmpty)
 		{

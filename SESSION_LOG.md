@@ -2,6 +2,65 @@
 
 **Branch**: 3d-migration
 
+**Task**: Correct first-pass 3D lighting readability and fluorescent behavior.
+
+**Status**: Completed
+
+### Work Done
+- Started a correction pass after playtest showed the noir rooms were too dark and fluorescent fixtures were visible without useful light.
+- Raised the dark ambient environment and exposure enough to keep unlit geometry readable.
+- Broadened and brightened the control/studio overhead spots while keeping shadows only on the main noir practicals.
+- Changed fluorescent fixtures from shadowed spotlights into broad no-shadow omni fill plus a soft downward wash.
+- Disabled shadow casting on decorative light fixtures so light bars, pendant shades, cords, and bulbs do not block their own lights.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/StationLighting3D.cs`
+- `scripts/world3d/StationLighting3D.cs.uid`
+- `scripts/world3d/World3D.cs`
+- `scenes/world3d/World3D.tscn`
+
+### Next Steps
+1. Playtest readability in Godot and tune `StationLighting3D` light energy/range if any room is still too dark or too flat.
+2. Do the separate 3D player/prop shadow policy pass after the lighting baseline feels right.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
+**Task**: Add first-pass 3D noir and fluorescent lighting.
+
+**Status**: Completed
+
+### Work Done
+- Started the first 3D lighting pass for dark noir control/studio rooms and cooler fluorescent station spaces.
+- Added `StationLighting3D`, which builds a dark `WorldEnvironment`, warm overhead spotlights with visible pendant fixtures for the control room and studio, accent glows, and cooler fluorescent station lighting.
+- Wired `StationLighting3D` into `World3D._Ready()`.
+- Removed the old broad `DirectionalLight3D` from `World3D.tscn` so practical lights define the mood.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/StationLighting3D.cs`
+- `scripts/world3d/World3D.cs`
+- `scenes/world3d/World3D.tscn`
+
+### Next Steps
+1. Playtest the room readability and tune light energy/range/positions in `StationLighting3D`.
+2. Do a separate 3D shadow pass for explicit player/prop shadow policy and bias/contact-shadow tuning.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
 **Task**: Tune double doors and move the control/studio doorway left to avoid speaker overlap.
 
 **Status**: Completed
