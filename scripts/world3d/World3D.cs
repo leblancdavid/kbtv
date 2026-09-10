@@ -17,7 +17,8 @@ public partial class World3D : Node3D
 	private StationGreybox3D? _station_greybox;
 	private Player3D? _player;
 	private bool _player_at_connection;
-	private Node3D? _station_lighting;
+	private StationLighting3D? _station_lighting;
+	private uint _player_light_layer = StationLighting3D.ControlLayer;
 
 	public override void _Ready()
 	{
@@ -26,8 +27,15 @@ public partial class World3D : Node3D
 		_control_room = GetNode<ControlRoom3D>("ControlRoom3D");
 		_studio_room = GetNode<StudioRoom3D>("StudioRoom3D");
 		_station_greybox = GetNodeOrNull<StationGreybox3D>("StationGreybox3D");
-		_station_lighting = StationLighting3D.Build();
+		_station_lighting = new StationLighting3D();
+		_station_lighting.Build();
 		AddChild(_station_lighting);
+		if (_station_greybox != null)
+		{
+			_station_greybox.DoorLightLinkChanged += OnDoorLightLinkChanged;
+		}
+		StationLighting3D.ApplyLayerToTree(_control_room, StationLighting3D.ControlLayer);
+		StationLighting3D.ApplyLayerToTree(_studio_room, StationLighting3D.StudioLayer);
 
 		if (PlayerPath != null && !PlayerPath.IsEmpty)
 		{
@@ -42,6 +50,7 @@ public partial class World3D : Node3D
 		if (_player != null)
 		{
 			_player.SetRoomAnchor(_control_room.GlobalPosition + _control_room.PlayerStartPosition);
+			StationLighting3D.ApplyLayerToTree(_player, StationLighting3D.ControlLayer);
 			_station_greybox?.SetPlayer(_player);
 			UpdateCamera(0.0, true);
 		}
@@ -56,6 +65,7 @@ public partial class World3D : Node3D
 		_player = player;
 		_station_greybox?.SetPlayer(_player);
 		_player.SetRoomAnchor(_control_room.GlobalPosition + _control_room.PlayerStartPosition);
+		StationLighting3D.ApplyLayerToTree(_player, StationLighting3D.ControlLayer);
 		UpdateCamera(0.0, true);
 	}
 
@@ -88,14 +98,17 @@ public partial class World3D : Node3D
 
 		if (_player_at_connection)
 		{
+			SetPlayerLightLayer(StationLighting3D.AllInteriorLayers);
 			UpdateStatusLabel("DOORWAY");
 		}
 		else if (_studio_room.ContainsPlayer(playerPosition))
 		{
+			SetPlayerLightLayer(StationLighting3D.StudioLayer);
 			UpdateStatusLabel("STUDIO");
 		}
 		else if (_control_room.ContainsPlayer(playerPosition))
 		{
+			SetPlayerLightLayer(StationLighting3D.ControlLayer);
 			UpdateStatusLabel("CONTROL ROOM");
 		}
 		else
@@ -103,9 +116,26 @@ public partial class World3D : Node3D
 			var stationRoom = _station_greybox?.GetRoomName(playerPosition);
 			if (stationRoom != null)
 			{
+				SetPlayerLightLayer(stationRoom == "EQUIPMENT" ? StationLighting3D.EquipmentLayer : StationLighting3D.StationLayer);
 				UpdateStatusLabel(stationRoom);
 			}
 		}
+	}
+
+	private void SetPlayerLightLayer(uint layerMask)
+	{
+		if (_player == null || _player_light_layer == layerMask)
+		{
+			return;
+		}
+
+		_player_light_layer = layerMask;
+		StationLighting3D.ApplyLayerToTree(_player, layerMask);
+	}
+
+	private void OnDoorLightLinkChanged(string roomA, string roomB, bool isOpen)
+	{
+		_station_lighting?.SetDoorLightLink(roomA, roomB, isOpen);
 	}
 
 	private void UpdateStatusLabel(string roomName)

@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 
 namespace KBTV.World3D;
@@ -46,6 +47,7 @@ public partial class StationGreybox3D : Node3D
 	private readonly List<Doorway> _doorways = new();
 	private readonly HashSet<Vector2> _wallCornerPostPositions = new();
 	private Player3D? _player;
+	public event Action<string, string, bool>? DoorLightLinkChanged;
 
 	private enum DoorOrientation
 	{
@@ -58,7 +60,10 @@ public partial class StationGreybox3D : Node3D
 		public readonly List<DoorLeaf> Leaves = new();
 		public required Vector3 Center { get; init; }
 		public required DoorOrientation Orientation { get; init; }
+		public string? RoomA { get; init; }
+		public string? RoomB { get; init; }
 		public bool IsDoubleDoor { get; init; }
+		public bool WasOpen { get; set; }
 		public int PlayerOverlapCount { get; set; }
 	}
 
@@ -135,15 +140,15 @@ public partial class StationGreybox3D : Node3D
 
 	private void BuildStationInterior()
 	{
-		AddRoom("Hallway", _hallway, _hallMaterial, "HALLWAY");
-		AddRoom("Equipment", _equipmentRoom, _supportMaterial, "EQUIPMENT ROOM");
-		AddRoom("Archive", _archive, _officeMaterial, "DOCUMENT / ARCHIVE");
-		AddRoom("LobbyConnector", _lobbyConnector, _hallMaterial, "HALLWAY");
-		AddRoom("Office", _office, _officeMaterial, "OFFICE");
-		AddRoom("Kitchen", _kitchen, _supportMaterial, "KITCHEN / BREAK");
-		AddRoom("Bathroom", _bathroom, _bathroomMaterial, "BATHROOM");
-		AddRoom("FrontDesk", _frontDesk, _supportMaterial, "FRONT DESK");
-		AddRoom("Lobby", _lobby, _supportMaterial, "LOBBY");
+		AddRoom("Hallway", _hallway, _hallMaterial, "HALLWAY", StationLighting3D.StationLayer);
+		AddRoom("Equipment", _equipmentRoom, _supportMaterial, "EQUIPMENT ROOM", StationLighting3D.EquipmentLayer);
+		AddRoom("Archive", _archive, _officeMaterial, "DOCUMENT / ARCHIVE", StationLighting3D.StationLayer);
+		AddRoom("LobbyConnector", _lobbyConnector, _hallMaterial, "HALLWAY", StationLighting3D.StationLayer);
+		AddRoom("Office", _office, _officeMaterial, "OFFICE", StationLighting3D.StationLayer);
+		AddRoom("Kitchen", _kitchen, _supportMaterial, "KITCHEN / BREAK", StationLighting3D.StationLayer);
+		AddRoom("Bathroom", _bathroom, _bathroomMaterial, "BATHROOM", StationLighting3D.StationLayer);
+		AddRoom("FrontDesk", _frontDesk, _supportMaterial, "FRONT DESK", StationLighting3D.StationLayer);
+		AddRoom("Lobby", _lobby, _supportMaterial, "LOBBY", StationLighting3D.StationLayer);
 
 		AddInteriorDividers();
 		AddInteriorProps();
@@ -198,28 +203,28 @@ public partial class StationGreybox3D : Node3D
 		AddVerticalWall("LobbyParkingWallSouth", 26f, -3f, 0f);
 		AddHorizontalWall("LobbySouthWall", 16f, 26f, 0f);
 		AddWallCornerPosts();
-		AddBox("FrontDeskLongCounter", new Vector3(21f, 0.45f, -9f), new Vector3(9f, 0.9f, 0.55f), _supplyMaterial, true);
+		AddBox("FrontDeskLongCounter", new Vector3(21f, 0.45f, -9f), new Vector3(9f, 0.9f, 0.55f), _supplyMaterial, true, StationLighting3D.StationLayer);
 	}
 
 	private void AddInteriorProps()
 	{
-		AddBox("EquipmentRackA", new Vector3(-2f, 0.45f, -12.4f), new Vector3(1.2f, 0.9f, 0.6f), _equipmentMaterial, true);
-		AddBox("EquipmentRackB", new Vector3(2.5f, 0.45f, -10f), new Vector3(1.2f, 0.9f, 0.6f), _equipmentMaterial, true);
-		AddBox("ArchiveShelves", new Vector3(10f, 0.65f, -11f), new Vector3(0.8f, 1.3f, 2.8f), _officeMaterial, true);
-		AddBox("OfficeDesk", new Vector3(12f, 0.35f, -2.5f), new Vector3(2f, 0.7f, 0.9f), _officeMaterial, true);
-		AddBox("CoffeeCounter", new Vector3(13.8f, 0.35f, 2.1f), new Vector3(2.8f, 0.7f, 0.65f), _supplyMaterial, true);
-		AddBox("SupplyFridge", new Vector3(15.2f, 0.75f, 3.8f), new Vector3(0.8f, 1.5f, 0.7f), _supplyMaterial, true);
-		AddBox("BathroomSink", new Vector3(12.8f, 0.35f, 5.8f), new Vector3(0.8f, 0.7f, 0.5f), _bathroomMaterial, true);
-		AddBox("BathroomStall", new Vector3(12.6f, 0.5f, 7f), new Vector3(1.2f, 1f, 0.9f), _bathroomMaterial, true);
+		AddBox("EquipmentRackA", new Vector3(-2f, 0.45f, -12.4f), new Vector3(1.2f, 0.9f, 0.6f), _equipmentMaterial, true, StationLighting3D.EquipmentLayer);
+		AddBox("EquipmentRackB", new Vector3(2.5f, 0.45f, -10f), new Vector3(1.2f, 0.9f, 0.6f), _equipmentMaterial, true, StationLighting3D.EquipmentLayer);
+		AddBox("ArchiveShelves", new Vector3(10f, 0.65f, -11f), new Vector3(0.8f, 1.3f, 2.8f), _officeMaterial, true, StationLighting3D.StationLayer);
+		AddBox("OfficeDesk", new Vector3(12f, 0.35f, -2.5f), new Vector3(2f, 0.7f, 0.9f), _officeMaterial, true, StationLighting3D.StationLayer);
+		AddBox("CoffeeCounter", new Vector3(13.8f, 0.35f, 2.1f), new Vector3(2.8f, 0.7f, 0.65f), _supplyMaterial, true, StationLighting3D.StationLayer);
+		AddBox("SupplyFridge", new Vector3(15.2f, 0.75f, 3.8f), new Vector3(0.8f, 1.5f, 0.7f), _supplyMaterial, true, StationLighting3D.StationLayer);
+		AddBox("BathroomSink", new Vector3(12.8f, 0.35f, 5.8f), new Vector3(0.8f, 0.7f, 0.5f), _bathroomMaterial, true, StationLighting3D.StationLayer);
+		AddBox("BathroomStall", new Vector3(12.6f, 0.5f, 7f), new Vector3(1.2f, 1f, 0.9f), _bathroomMaterial, true, StationLighting3D.StationLayer);
 	}
 
 	private void BuildExteriorHooks()
 	{
-		AddRoom("ParkingLot", _parkingLot, _exteriorMaterial, "PARKING LOT AREA");
-		AddRoom("Backyard", _backyard, _exteriorMaterial, "BACKYARD AREA");
-		AddRoom("Toolshed", _toolshed, _supportMaterial, "TOOLSHED");
-		AddBox("Walkway", new Vector3(5.5f, -0.08f, 10f), new Vector3(21f, 0.1f, 3f), _hallMaterial, true);
-		AddBox("LadderToRoof", new Vector3(-1f, 0.8f, 8.7f), new Vector3(1.6f, 0.25f, 0.4f), _equipmentMaterial, true);
+		AddRoom("ParkingLot", _parkingLot, _exteriorMaterial, "PARKING LOT AREA", StationLighting3D.ExteriorLayer);
+		AddRoom("Backyard", _backyard, _exteriorMaterial, "BACKYARD AREA", StationLighting3D.ExteriorLayer);
+		AddRoom("Toolshed", _toolshed, _supportMaterial, "TOOLSHED", StationLighting3D.ExteriorLayer);
+		AddBox("Walkway", new Vector3(5.5f, -0.08f, 10f), new Vector3(21f, 0.1f, 3f), _hallMaterial, true, StationLighting3D.ExteriorLayer);
+		AddBox("LadderToRoof", new Vector3(-1f, 0.8f, 8.7f), new Vector3(1.6f, 0.25f, 0.4f), _equipmentMaterial, true, StationLighting3D.ExteriorLayer);
 		AddLabel("WALKWAY", new Vector3(5.5f, 1.1f, 10f));
 		AddLabel("LADDER TO ROOF", new Vector3(-1f, 1.4f, 8.7f));
 	}
@@ -240,10 +245,10 @@ public partial class StationGreybox3D : Node3D
 		AddBox("KitchenBathroomDoorMarker", new Vector3(13f, 0.04f, 5f), new Vector3(1.6f, 0.08f, 0.8f), _bathroomMaterial, false);
 		AddBox("LobbyExitMarker", new Vector3(26f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.9f), _equipmentMaterial, false);
 
-		AddSingleDoor("ControlToHallDoor", new Vector3(5f, 0f, 5.4f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical);
-		AddSingleDoor("ControlStudioDoor", new Vector3(-4.15f, 0f, 0f), SingleDoorWidth, 1.2f, DoorOrientation.Horizontal);
-		AddSingleDoor("StudioToHallDoor", new Vector3(5f, 0f, -4f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical);
-		AddSingleDoor("EquipmentDoor", new Vector3(5f, 0f, -11f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical);
+		AddSingleDoor("ControlToHallDoor", new Vector3(5f, 0f, 5.4f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical, "Control", "Station");
+		AddSingleDoor("ControlStudioDoor", new Vector3(-4.15f, 0f, 0f), SingleDoorWidth, 1.2f, DoorOrientation.Horizontal, "Control", "Studio");
+		AddSingleDoor("StudioToHallDoor", new Vector3(5f, 0f, -4f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical, "Studio", "Station");
+		AddSingleDoor("EquipmentDoor", new Vector3(5f, 0f, -11f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical, "Equipment", "Station");
 		AddDoubleDoor("NorthExteriorDoor", new Vector3(6.5f, 0f, -14f), DoubleDoorWidth, 1.8f, DoorOrientation.Horizontal, -1f);
 		AddSingleDoor("ArchiveDoor", new Vector3(8f, 0f, -11f), SingleDoorWidth, 1.6f, DoorOrientation.Vertical);
 		AddSingleDoor("OfficeDoor", new Vector3(8f, 0f, -2.5f), SingleDoorWidth, 1.6f, DoorOrientation.Vertical);
@@ -255,9 +260,9 @@ public partial class StationGreybox3D : Node3D
 		AddDoubleDoor("LobbyExitDoor", new Vector3(26f, 0f, -4f), DoubleDoorWidth, 1.9f, DoorOrientation.Vertical, 1f);
 	}
 
-	private void AddSingleDoor(string name, Vector3 center, float width, float triggerWidth, DoorOrientation orientation)
+	private void AddSingleDoor(string name, Vector3 center, float width, float triggerWidth, DoorOrientation orientation, string? roomA = null, string? roomB = null)
 	{
-		var doorway = AddDoorTrigger(name, center, triggerWidth, orientation, false);
+		var doorway = AddDoorTrigger(name, center, triggerWidth, orientation, false, roomA, roomB);
 		var hinge = orientation == DoorOrientation.Horizontal
 			? center + new Vector3(-width * 0.5f, 0f, 0f)
 			: center + new Vector3(0f, 0f, -width * 0.5f);
@@ -282,9 +287,9 @@ public partial class StationGreybox3D : Node3D
 		}
 	}
 
-	private Doorway AddDoorTrigger(string name, Vector3 center, float width, DoorOrientation orientation, bool isDoubleDoor)
+	private Doorway AddDoorTrigger(string name, Vector3 center, float width, DoorOrientation orientation, bool isDoubleDoor, string? roomA = null, string? roomB = null)
 	{
-		var doorway = new Doorway { Center = center, Orientation = orientation, IsDoubleDoor = isDoubleDoor };
+		var doorway = new Doorway { Center = center, Orientation = orientation, IsDoubleDoor = isDoubleDoor, RoomA = roomA, RoomB = roomB };
 		var triggerSize = orientation == DoorOrientation.Horizontal
 			? new Vector3(width + DoorTriggerPadding, DoorHeight, 2.0f)
 			: new Vector3(2.0f, DoorHeight, width + DoorTriggerPadding);
@@ -327,7 +332,8 @@ public partial class StationGreybox3D : Node3D
 			Name = "Panel",
 			Position = new Vector3(localCenterX, DoorHeight * 0.5f, 0f),
 			Mesh = new BoxMesh { Size = leafSize },
-			MaterialOverride = _doorMaterial
+			MaterialOverride = _doorMaterial,
+			Layers = StationLighting3D.AllInteriorLayers
 		};
 		hinge.AddChild(mesh);
 		return new DoorLeaf { Hinge = hinge, ClosedRotationDegrees = closedRotationDegrees, OpenRotationDegrees = openRotationDegrees, SideSign = sideSign };
@@ -340,6 +346,12 @@ public partial class StationGreybox3D : Node3D
 		foreach (var doorway in _doorways)
 		{
 			var isOpen = doorway.PlayerOverlapCount > 0;
+			if (doorway.RoomA != null && doorway.RoomB != null && isOpen != doorway.WasOpen)
+			{
+				doorway.WasOpen = isOpen;
+				DoorLightLinkChanged?.Invoke(doorway.RoomA, doorway.RoomB, isOpen);
+			}
+
 			foreach (var leaf in doorway.Leaves)
 			{
 				var target = ShouldOpenDoorLeaf(doorway, leaf, isOpen) ? leaf.OpenRotationDegrees : leaf.ClosedRotationDegrees;
@@ -370,10 +382,10 @@ public partial class StationGreybox3D : Node3D
 		return Mathf.Abs(offset) <= DoubleDoorMiddleZone || Mathf.Sign(offset) == Mathf.Sign(leaf.SideSign);
 	}
 
-	private void AddRoom(string name, Rect2 rect, Material material, string label)
+	private void AddRoom(string name, Rect2 rect, Material material, string label, uint layerMask)
 	{
 		var center = GetCenter(rect);
-		AddBox($"{name}Floor", new Vector3(center.X, -0.1f, center.Y), new Vector3(rect.Size.X, 0.2f, rect.Size.Y), material, true);
+		AddBox($"{name}Floor", new Vector3(center.X, -0.1f, center.Y), new Vector3(rect.Size.X, 0.2f, rect.Size.Y), material, true, layerMask);
 		AddLabel(label, new Vector3(center.X, 1.3f, center.Y));
 	}
 
@@ -385,7 +397,7 @@ public partial class StationGreybox3D : Node3D
 	private void AddWall(string name, Vector3 position, Vector3 size)
 	{
 		var material = MakeWallMaterial();
-		var mesh = AddBox(name, position, size, material, true);
+		var mesh = AddBox(name, position, size, material, true, StationLighting3D.AllInteriorLayers);
 		_wallFadeTargets.Add(new WallFadeTarget { Mesh = mesh, Material = material, Position = position, Size = size });
 	}
 
@@ -413,10 +425,10 @@ public partial class StationGreybox3D : Node3D
 
 	private void AddControlStudioWindow()
 	{
-		AddBox("ControlStudioWindowHalfWall", new Vector3(0.6f, 0.3f, 0f), new Vector3(4.6f, 0.6f, WallThickness), _wallMaterial, true);
-		AddBox("ControlStudioWindowLeftFrame", new Vector3(-1.7f, 1.25f, 0f), new Vector3(WallThickness, 1.9f, WallThickness), _wallMaterial, false);
-		AddBox("ControlStudioWindowRightFrame", new Vector3(2.9f, 1.25f, 0f), new Vector3(WallThickness, 1.9f, WallThickness), _wallMaterial, false);
-		AddBox("ControlStudioWindowTopFrame", new Vector3(0.6f, 2.15f, 0f), new Vector3(4.6f, WallThickness, WallThickness), _wallMaterial, false);
+		AddBox("ControlStudioWindowHalfWall", new Vector3(0.6f, 0.3f, 0f), new Vector3(4.6f, 0.6f, WallThickness), _wallMaterial, true, StationLighting3D.ControlLayer | StationLighting3D.StudioLayer);
+		AddBox("ControlStudioWindowLeftFrame", new Vector3(-1.7f, 1.25f, 0f), new Vector3(WallThickness, 1.9f, WallThickness), _wallMaterial, false, StationLighting3D.ControlLayer | StationLighting3D.StudioLayer);
+		AddBox("ControlStudioWindowRightFrame", new Vector3(2.9f, 1.25f, 0f), new Vector3(WallThickness, 1.9f, WallThickness), _wallMaterial, false, StationLighting3D.ControlLayer | StationLighting3D.StudioLayer);
+		AddBox("ControlStudioWindowTopFrame", new Vector3(0.6f, 2.15f, 0f), new Vector3(4.6f, WallThickness, WallThickness), _wallMaterial, false, StationLighting3D.ControlLayer | StationLighting3D.StudioLayer);
 	}
 
 	private void AddHorizontalWall(string name, float x1, float x2, float z)
@@ -465,6 +477,7 @@ public partial class StationGreybox3D : Node3D
 			Name = $"{text.Replace(" / ", "_").Replace(' ', '_')}Label",
 			Text = text,
 			Position = position,
+			Layers = StationLighting3D.AllInteriorLayers | StationLighting3D.ExteriorLayer,
 			Billboard = BaseMaterial3D.BillboardModeEnum.Enabled
 		};
 		AddChild(label);
@@ -504,14 +517,15 @@ public partial class StationGreybox3D : Node3D
 		return (horizontallyAligned && inFrontOfPlayer) || veryClose;
 	}
 
-	private MeshInstance3D AddBox(string name, Vector3 position, Vector3 size, Material material, bool collider)
+	private MeshInstance3D AddBox(string name, Vector3 position, Vector3 size, Material material, bool collider, uint layerMask = StationLighting3D.AllInteriorLayers)
 	{
 		var mesh = new MeshInstance3D
 		{
 			Name = name,
 			Position = position,
 			Mesh = new BoxMesh { Size = size },
-			MaterialOverride = material
+			MaterialOverride = material,
+			Layers = layerMask
 		};
 		AddChild(mesh);
 

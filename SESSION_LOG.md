@@ -2,6 +2,66 @@
 
 **Branch**: 3d-migration
 
+**Task**: Change door-open lighting to localized doorway spill.
+
+**Status**: Completed
+
+### Work Done
+- Started a refinement pass so open doors create localized doorway light spill instead of lighting the whole adjacent room.
+- Removed open-door whole-room light mask widening from `StationLighting3D`.
+- Kept primary control, studio, equipment, and station lights permanently isolated to their own visual layers.
+- Added disabled-by-default doorway spill lights for Control/Studio, Control/Station, Studio/Station, and Equipment/Station links.
+- Door-open events now toggle only the localized short-range spill lights for the matching doorway.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/StationLighting3D.cs`
+
+### Next Steps
+1. Playtest open doors and tune doorway spill `LightEnergy`, `OmniRange`, and `OmniAttenuation` in `StationLighting3D` if the glow is too wide or too subtle.
+2. If omnidirectional spill still feels too round, replace specific doorway spills with directional spot spill lights aimed through each opening.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
+**Task**: Add room-isolated 3D lighting with door-open light spill.
+
+**Status**: Completed
+
+### Work Done
+- Started a lighting isolation pass to prevent light bleed through walls while letting open doors link light between adjacent rooms.
+- Converted `StationLighting3D` into a stateful node that tracks control, studio, equipment, and station light groups.
+- Added visual/light layer constants and cull-mask refresh logic so each room's lights affect only that room by default.
+- Added door-open light links for Control/Studio, Control/Station, Studio/Station, and Equipment/Station doors.
+- Assigned generated station floors/props to room-specific visual layers, with shared walls/doors on interior layers.
+- Assigned scene-authored control/studio meshes and the player visual to the correct lighting layers, including multi-room player lighting at thresholds.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/StationLighting3D.cs`
+- `scripts/world3d/StationGreybox3D.cs`
+- `scripts/world3d/World3D.cs`
+
+### Next Steps
+1. Playtest closed doors between control/studio/hall/equipment to confirm light no longer bleeds across floors/props.
+2. Playtest opening those doors to confirm adjacent-room light spill appears only while the door trigger is active.
+3. If walls still look too globally lit, split shared wall meshes into per-room visual layers in a follow-up pass.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
 **Task**: Tune 3D lighting with centered room lamps and hidden brighter fluorescents.
 
 **Status**: Completed
