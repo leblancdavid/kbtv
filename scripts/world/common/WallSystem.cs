@@ -50,10 +50,13 @@ public partial class WallSystem : Node
 	[Export] public Texture2D CustomWestWallTexture;
 	[Export] public Texture2D CustomEastWallTexture;
 	[Export] public Texture2D CustomSideDoorTexture;
+	[Export] public Texture2D CustomWindowTexture;
 
 	[ExportGroup("Wall Dimensions")]
 	[Export] public float WallThickness = 16.0f;
 	[Export] public float WallStripWidth = 32.0f;
+	[Export] public int WindowFrameCount = 7;
+	[Export] public float WindowOffsetY = -48.0f;
 
 	private TileMapLayer _floorLayer;
 	private TileMapLayer _doorLayer;
@@ -161,7 +164,7 @@ public partial class WallSystem : Node
 		var eastTexture = CustomEastWallTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/studio_north_atlas.png");
 		var sideDoorTexture = CustomSideDoorTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/wall_side_door_single.png");
 		var southStripTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_strip.png");
-		var windowTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_window_atlas.png");
+		var windowTexture = CustomWindowTexture ?? GD.Load<Texture2D>("res://assets/tiles/topdown/wall_window_atlas.png");
 
 		var gridHeight = GetGridHeight();
 		var gridWidth = GetGridWidth();
@@ -882,14 +885,14 @@ public partial class WallSystem : Node
 		var gridPos = new Vector2I(column, -1);
 		var position = GetGridToWorld(gridPos);
 
-		int frame = column - WindowStartColumn;
+		int frame = Mathf.Clamp(column - WindowStartColumn, 0, WindowFrameCount - 1);
 
 		var sprite = new Sprite2D
 		{
 			Texture = texture,
 			Position = position,
-			Offset = new Vector2(0, -48),
-			Hframes = 7,
+			Offset = new Vector2(0, WindowOffsetY),
+			Hframes = WindowFrameCount,
 			Vframes = 1,
 			Frame = frame,
 			ZIndex = (int)position.Y

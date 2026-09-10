@@ -18,8 +18,8 @@ public sealed partial class ControlRoom : RoomBase
 	[Export] public int DoorHeightTiles = 3;
 
 	[ExportGroup("Window Settings")]
-	[Export] public int WindowStartColumn = 3;
-	[Export] public int WindowEndColumn = 9;
+	[Export] public int WindowStartColumn = 6;
+	[Export] public int WindowEndColumn = 7;
 
 	[ExportGroup("Lighting")]
 	[Export] public bool EnableCeilingLight = true;
@@ -147,6 +147,8 @@ public sealed partial class ControlRoom : RoomBase
 			DoorHeightTiles = DoorHeightTiles,
 			WindowStartColumn = WindowStartColumn,
 			WindowEndColumn = WindowEndColumn,
+			WindowFrameCount = 2,
+			WindowOffsetY = -16.0f,
 			LightMask = 0,
 			NorthWallLightMask = LightMask,
 			EnableNorthDoor = true,
@@ -155,6 +157,8 @@ public sealed partial class ControlRoom : RoomBase
 			WallNorthDoorSourceId = 8,
 			EnableOnAirSign = false,
 			EnableEastDoor = true,
+			CustomNorthWallTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/control_room_north_atlas.png"),
+			CustomWindowTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/control_room_north_window_atlas.png"),
 			CustomSouthWallTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_south_atlas.png"),
 			CustomEastWallTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/studio_north_atlas.png"),
 			CustomSideDoorTexture = GD.Load<Texture2D>("res://assets/tiles/topdown/wall_side_door_single.png")

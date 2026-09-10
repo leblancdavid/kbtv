@@ -110,6 +110,7 @@ mesh = SubResource("BoxMesh_table")
 material_override = SubResource("StandardMaterial3D_control_desk")
 
 [node name="OnAirSign" type="MeshInstance3D" parent="ControlRoom3D"]
+visible = false
 position = Vector3(0, 0.9, -4.05)
 mesh = SubResource("BoxMesh_monitor")
 material_override = SubResource("StandardMaterial3D_control_green")

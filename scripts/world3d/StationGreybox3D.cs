@@ -20,6 +20,8 @@ public partial class StationGreybox3D : Node3D
 	private const float DoubleDoorWidth = SingleDoorWidth * 2f;
 	private const float DoorTriggerPadding = 0.9f;
 	private const float DoubleDoorMiddleZone = 0.28f;
+	private const float WindowFrameDepth = WallThickness;
+	private const float WindowFrameZ = 0f;
 
 	private readonly Rect2 _hallway = new(new Vector2(5f, -14f), new Vector2(3f, 22f));
 	private readonly Rect2 _equipmentRoom = new(new Vector2(-5f, -14f), new Vector2(10f, 6f));
@@ -173,8 +175,8 @@ public partial class StationGreybox3D : Node3D
 
 		AddHorizontalWall("EquipmentStudioDivider", -5f, 5f, -8f);
 		AddHorizontalWall("StudioControlDoorJambWest", -5f, -4.75f, 0f);
-		AddHorizontalWall("StudioControlDoorJambEast", -3.55f, -1.7f, 0f);
-		AddHorizontalWall("StudioControlEastWall", 2.9f, 5f, 0f);
+		AddHorizontalWall("StudioControlDoorJambEast", -3.55f, -1.7f, 0f, registerRightPost: false);
+		AddHorizontalWall("StudioControlEastWall", 2.9f, 5f, 0f, registerLeftPost: false);
 		AddControlStudioWindow();
 
 		AddVerticalWall("ArchiveHallWallNorth", 8f, -14f, -11.65f);
@@ -425,18 +427,26 @@ public partial class StationGreybox3D : Node3D
 
 	private void AddControlStudioWindow()
 	{
-		AddBox("ControlStudioWindowHalfWall", new Vector3(0.6f, 0.3f, 0f), new Vector3(4.6f, 0.6f, WallThickness), _wallMaterial, true, StationLighting3D.ControlLayer | StationLighting3D.StudioLayer);
-		AddBox("ControlStudioWindowLeftFrame", new Vector3(-1.7f, 1.25f, 0f), new Vector3(WallThickness, 1.9f, WallThickness), _wallMaterial, false, StationLighting3D.ControlLayer | StationLighting3D.StudioLayer);
-		AddBox("ControlStudioWindowRightFrame", new Vector3(2.9f, 1.25f, 0f), new Vector3(WallThickness, 1.9f, WallThickness), _wallMaterial, false, StationLighting3D.ControlLayer | StationLighting3D.StudioLayer);
-		AddBox("ControlStudioWindowTopFrame", new Vector3(0.6f, 2.15f, 0f), new Vector3(4.6f, WallThickness, WallThickness), _wallMaterial, false, StationLighting3D.ControlLayer | StationLighting3D.StudioLayer);
+		var positionZ = WindowFrameZ;
+		var layerMask = StationLighting3D.ControlLayer | StationLighting3D.StudioLayer;
+		AddBox("ControlStudioWindowHalfWall", new Vector3(0.6f, 0.3f, positionZ), new Vector3(4.6f, 0.6f, WindowFrameDepth), _wallMaterial, true, layerMask);
+		AddBox("ControlStudioWindowLeftFrame", new Vector3(-1.7f, 1.25f, positionZ), new Vector3(WallThickness, 1.9f, WindowFrameDepth), _wallMaterial, false, layerMask);
+		AddBox("ControlStudioWindowRightFrame", new Vector3(2.9f, 1.25f, positionZ), new Vector3(WallThickness, 1.9f, WindowFrameDepth), _wallMaterial, false, layerMask);
+		AddBox("ControlStudioWindowTopFrame", new Vector3(0.6f, 2.15f, positionZ), new Vector3(4.6f, WallThickness, WindowFrameDepth), _wallMaterial, false, layerMask);
 	}
 
-	private void AddHorizontalWall(string name, float x1, float x2, float z)
+	private void AddHorizontalWall(string name, float x1, float x2, float z, bool registerLeftPost = true, bool registerRightPost = true)
 	{
 		var left = Mathf.Min(x1, x2);
 		var right = Mathf.Max(x1, x2);
-		RegisterWallCornerPost(left, z);
-		RegisterWallCornerPost(right, z);
+		if (registerLeftPost)
+		{
+			RegisterWallCornerPost(left, z);
+		}
+		if (registerRightPost)
+		{
+			RegisterWallCornerPost(right, z);
+		}
 		left += WallThickness * 0.5f;
 		right -= WallThickness * 0.5f;
 		var width = right - left;

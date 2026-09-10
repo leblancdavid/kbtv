@@ -2,6 +2,45 @@
 
 **Branch**: 3d-migration
 
+**Task**: Fix 3D control room window frame aliasing and stray green object.
+
+**Status**: Completed
+
+### Work Done
+- Started a focused pass on the 2D control room north wall/window rendering.
+- Identified that `WallSystem` hardcodes the generic `wall_window_atlas.png`, which contains the visible green object.
+- Identified unused control-room-specific assets: `control_room_north_atlas.png` and `control_room_north_window_atlas.png`.
+- Added configurable window texture, frame count, and offset settings to `WallSystem` while preserving the old generic defaults.
+- Configured `ControlRoom` to use `control_room_north_atlas.png` and `control_room_north_window_atlas.png`.
+- Reduced the control room visual window span from columns `3..9` to `6..7` to match the 2-frame control room window asset.
+- Verified with `dotnet build`; build passes with existing warnings.
+- User provided a screenshot showing the artifact is in the 3D control room, not the 2D wall system.
+- Identified the scene-authored `OnAirSign` mesh at world `z ~= -0.05`, directly behind/on the generated control/studio window plane.
+- Identified the generated 3D window half-wall and frame pieces share the same `z = 0` plane/depth as adjacent wall geometry, making z-fighting likely.
+- Restored the generated 3D control/studio window half-wall and frame pieces to the wall centerline/full wall depth so they remain part of the wall.
+- Hid the scene-authored green `OnAirSign` placeholder in `World3D.tscn` so it no longer renders inside the window.
+- Corrected the initial 3D offset approach after playtest showed the trim no longer lined up with the wall.
+- Removed duplicate generated corner posts at the control/studio window jambs so the window frames themselves fill those wall endpoints without overlapping extra wall blocks.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world/common/WallSystem.cs`
+- `scripts/world/control_room/ControlRoom.cs`
+- `scripts/world3d/StationGreybox3D.cs`
+- `scenes/world3d/World3D.tscn`
+
+### Next Steps
+1. Playtest the 3D control room and confirm the window frame no longer flickers/aliases.
+2. Replace the hidden placeholder `OnAirSign` with a real red sign on a non-window wall when signage art/layout is ready.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
 **Task**: Change door-open lighting to localized doorway spill.
 
 **Status**: Completed
