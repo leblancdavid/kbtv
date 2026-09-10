@@ -2,7 +2,7 @@
 
 **Branch**: 3d-migration
 
-**Task**: Make studio room haze visibly foggy and controllable while keeping cigarette puffs.
+**Task**: Remove rectangular haze veil artifacts and rely on true room-filling studio fog.
 
 **Status**: Completed
 
@@ -11,6 +11,40 @@
 - Confirmed active main scene is `Game3D.tscn`, so smoke belongs in `StudioRoom3D` rather than the older 2D `StudioSmoke` path.
 - Added `StudioSmoke3D`, a procedural 3D billboard-smoke node with persistent ambient haze and periodic cigarette puff bursts.
 - Wired `StudioRoom3D` to create the smoke node with exported tuning values for density, opacity, puff timing, drift, origin, and room extents.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Removed the three `StudioFogVeil` billboard fallback planes after playtest showed them as distinct fog rectangles.
+- Removed obsolete haze texture/shader generation and `HazeSwirlSpeed` / `HazeSwirlStrength` exports.
+- Raised the actual studio-local `FogVolume` density default via `AmbientSmokeOpacity` from `0.24` to `0.45` so the fog fills the room without visible cards.
+- Kept Vern puffs and continuous door-leak smoke behavior intact.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Lowered true studio `FogVolume` density default from `0.45` to `0.38` after playtest showed the no-rectangle fog looked good but too dense.
+- Added `FogMotionSpeed` and `FogMotionStrength` exports that subtly animate true fog density, position, and X/Z size so the room haze breathes without reintroducing haze-card rectangles.
+- Set default fog motion to `FogMotionSpeed = 0.24` and `FogMotionStrength = 0.08`.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Increased true fog motion visibility after playtest showed the movement was still hard to notice.
+- Raised `FogMotionSpeed` from `0.24` to `0.55` and `FogMotionStrength` from `0.08` to `0.22`.
+- Widened fog density pulsing and increased fog volume position/size modulation while keeping the effect on the real `FogVolume` only.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Started follow-up after playtest showed haze swirl was not noticeable and door smoke should continuously leak while doors are open.
+- Increased haze animation defaults: `HazeSwirlSpeed` to `0.11`, `HazeSwirlStrength` to `0.46`, and added more visible slow veil position/scale movement.
+- Lowered door leak opacity to `0.045` and added `DoorLeakInterval` so door wisps emit sparsely and continuously while a studio door is open.
+- Replaced the one-shot player-transition leak trigger with door-state-driven leak activation from `DoorLightLinkChanged` for the control/studio and studio/hall doors.
+- Added separate state/timers for each studio door leak so either studio exit can leak independently while open.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Raised default studio haze opacity from `0.16` to `0.24` in `StudioRoom3D` and `StudioSmoke3D` after playtest feedback that the fog was not visible enough.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Started animation pass after the broad haze read better but still felt too flat/static.
+- Replaced the haze veil standard material with a small shader that slowly drifts and blends two haze texture samples for subtle swirl/movement.
+- Added `HazeSwirlSpeed` and `HazeSwirlStrength` exports on `StudioRoom3D` and `StudioSmoke3D`.
+- Added a separate door-leak smoke pool and `EmitDoorLeak` method for subtle outward wisps at studio exits.
+- Added `StudioRoom3D.EmitDoorSmokeLeak(...)` and wired `World3D` to trigger it once when the player leaves `STUDIO` for any other resolved room/doorway.
+- Kept Vern's existing cigarette puff behavior unchanged.
 - Verified with `dotnet build`; build passes with existing warnings.
 - Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
 - Started visibility pass after `AmbientSmokeOpacity` changes were not visibly affecting the studio haze.
@@ -56,8 +90,9 @@
 - `scripts/world3d/StationLighting3D.cs`
 
 ### Next Steps
-1. Playtest the studio haze and tune only `AmbientSmokeOpacity` first; it now drives both local `FogVolume` density and the visible broad haze veil.
-2. If the veil is too screen-like, replace it with a custom shader clipped to the studio floor/walls after the baseline density is approved.
+1. Playtest true `FogVolume` visibility at `AmbientSmokeOpacity = 0.38`.
+2. Tune `FogMotionSpeed` / `FogMotionStrength` if the haze motion is still too subtle or becomes distracting.
+3. Playtest both studio exits and tune `DoorLeakSmokeOpacity` / `DoorLeakInterval` if the continuous leak is too visible or too sparse.
 
 ---
 

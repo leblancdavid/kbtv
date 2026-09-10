@@ -9,6 +9,10 @@ public partial class World3D : Node3D
 	[Export] public float CameraFollowSpeed { get; set; } = 8f;
 	[Export] public Vector2 CameraXBounds { get; set; } = new(-8f, 34f);
 	[Export] public Vector2 CameraZBounds { get; set; } = new(0f, 24f);
+	private static readonly Vector3 ControlStudioDoorPosition = new(-4.15f, 0f, 0f);
+	private static readonly Vector3 StudioHallDoorPosition = new(5f, 0f, -4f);
+	private static readonly Vector3 ControlStudioLeakDirection = Vector3.Back;
+	private static readonly Vector3 StudioHallLeakDirection = Vector3.Right;
 
 	private Camera3D _camera = null!;
 	private Label? _status_label;
@@ -99,21 +103,22 @@ public partial class World3D : Node3D
 
 		var playerPosition = _player.GlobalPosition;
 		_player_at_connection = _control_room.IsPlayerAtDoor(playerPosition) || _studio_room.IsPlayerAtDoor(playerPosition);
+		string? nextRoomName = null;
 
 		if (_player_at_connection)
 		{
 			SetPlayerLightLayer(StationLighting3D.AllInteriorLayers);
-			UpdateStatusLabel("DOORWAY");
+			nextRoomName = "DOORWAY";
 		}
 		else if (_studio_room.ContainsPlayer(playerPosition))
 		{
 			SetPlayerLightLayer(StationLighting3D.StudioLayer);
-			UpdateStatusLabel("STUDIO");
+			nextRoomName = "STUDIO";
 		}
 		else if (_control_room.ContainsPlayer(playerPosition))
 		{
 			SetPlayerLightLayer(StationLighting3D.ControlLayer);
-			UpdateStatusLabel("CONTROL ROOM");
+			nextRoomName = "CONTROL ROOM";
 		}
 		else
 		{
@@ -121,9 +126,16 @@ public partial class World3D : Node3D
 			if (stationRoom != null)
 			{
 				SetPlayerLightLayer(stationRoom == "EQUIPMENT" ? StationLighting3D.EquipmentLayer : StationLighting3D.StationLayer);
-				UpdateStatusLabel(stationRoom);
+				nextRoomName = stationRoom;
 			}
 		}
+
+		if (nextRoomName == null)
+		{
+			return;
+		}
+
+		UpdateStatusLabel(nextRoomName);
 	}
 
 	private void SetPlayerLightLayer(uint layerMask)
@@ -140,6 +152,29 @@ public partial class World3D : Node3D
 	private void OnDoorLightLinkChanged(string roomA, string roomB, bool isOpen)
 	{
 		_station_lighting?.SetDoorLightLink(roomA, roomB, isOpen);
+		SetStudioDoorSmokeLeak(roomA, roomB, isOpen);
+	}
+
+	private void SetStudioDoorSmokeLeak(string roomA, string roomB, bool isOpen)
+	{
+		if (!IsDoorLink(roomA, roomB, "Control", "Studio") && !IsDoorLink(roomA, roomB, "Studio", "Station"))
+		{
+			return;
+		}
+
+		if (IsDoorLink(roomA, roomB, "Control", "Studio"))
+		{
+			_studio_room.SetDoorSmokeLeakActive("ControlStudio", ControlStudioDoorPosition, ControlStudioLeakDirection, isOpen);
+		}
+		else
+		{
+			_studio_room.SetDoorSmokeLeakActive("StudioHall", StudioHallDoorPosition, StudioHallLeakDirection, isOpen);
+		}
+	}
+
+	private static bool IsDoorLink(string roomA, string roomB, string expectedA, string expectedB)
+	{
+		return (roomA == expectedA && roomB == expectedB) || (roomA == expectedB && roomB == expectedA);
 	}
 
 	private void UpdateStatusLabel(string roomName)
