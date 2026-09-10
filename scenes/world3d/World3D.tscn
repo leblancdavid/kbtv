@@ -103,7 +103,7 @@ mesh = SubResource("BoxMesh_floor")
 material_override = SubResource("StandardMaterial3D_room_dark")
 
 [node name="StudioThreshold" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(-3.35, 0.04, -4)
+position = Vector3(-4.15, 0.04, -4)
 mesh = SubResource("BoxMesh_threshold")
 material_override = SubResource("StandardMaterial3D_accent")
 
@@ -155,8 +155,8 @@ mesh = SubResource("BoxMesh_monitor")
 material_override = SubResource("StandardMaterial3D_accent")
 
 [node name="AudioCabinet" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(4.45, 0.45, -2.3)
-scale = Vector3(0.95, 1.4, 1)
+position = Vector3(4.1, 0.45, -2.3)
+scale = Vector3(0.7, 1.2, 0.8)
 mesh = SubResource("BoxMesh_table")
 material_override = SubResource("StandardMaterial3D_studio_wood")
 
@@ -184,7 +184,7 @@ text = "CONTROL"
 billboard = 1
 
 [node name="StudioDoorTrigger" type="Area3D" parent="ControlRoom3D"]
-position = Vector3(-3.35, 0.8, -3.75)
+position = Vector3(-4.15, 0.8, -3.75)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ControlRoom3D/StudioDoorTrigger"]
 shape = SubResource("BoxShape3D_control_door")
@@ -243,7 +243,7 @@ text = "STUDIO"
 billboard = 1
 
 [node name="ControlDoorTrigger" type="Area3D" parent="StudioRoom3D"]
-position = Vector3(-3.35, 0.8, 3.75)
+position = Vector3(-4.15, 0.8, 3.75)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StudioRoom3D/ControlDoorTrigger"]
 shape = SubResource("BoxShape3D_studio_door")

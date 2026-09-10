@@ -2,6 +2,146 @@
 
 **Branch**: 3d-migration
 
+**Task**: Tune double doors and move the control/studio doorway left to avoid speaker overlap.
+
+**Status**: Completed
+
+### Work Done
+- Started a follow-up pass to make double doors twice the regular door size, open one/both leaves based on player position, and shift the control/studio doorway left.
+- Changed double doors to use `SingleDoorWidth * 2f` while keeping regular doors narrow.
+- Expanded exterior double-door wall gaps back out to fit the larger two-leaf doors.
+- Added per-door center/orientation and per-leaf side signs so double doors open one side when the player is off-center and both sides when the player is near the split.
+- Kept double-door leaves swinging outward by retaining explicit per-leaf open rotations.
+- Moved the control/studio doorway left in generated greybox markers, generated door placement, room doorway checks, and scene trigger/threshold nodes.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/StationGreybox3D.cs`
+- `scripts/world3d/ControlRoom3D.cs`
+- `scripts/world3d/StudioRoom3D.cs`
+- `scenes/world3d/World3D.tscn`
+
+### Next Steps
+1. Playtest each double door by entering on left/right/center to confirm one-leaf vs two-leaf behavior feels correct.
+2. Check the moved control/studio doorway against the left speaker and wall jambs in-editor.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
+**Task**: Tune 3D greybox doors after playtest: narrower doors, no player collision, and outward double-door swing.
+
+**Status**: Completed
+
+### Work Done
+- Started a door tuning pass from playtest feedback.
+- Reduced generated door panel widths to about half the previous size.
+- Tightened generated wall gaps around door openings so the narrower greybox doors fit better visually.
+- Removed temporary `StaticBody3D` collision from generated door panels so they no longer block or snag the player.
+- Changed double exterior doors to store explicit per-leaf open rotations so both leaves swing toward the outside.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/StationGreybox3D.cs`
+
+### Next Steps
+1. Playtest in Godot to confirm the tightened wall gaps still leave comfortable player clearance.
+2. Check each exterior double door from camera view to verify its outward swing reads correctly.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
+**Task**: Add 3D greybox doors at marked level openings with fixed-direction hinge animation and auto-close triggers.
+
+**Status**: Completed
+
+### Work Done
+- Started a focused pass on 3D greybox doors using the existing marked threshold locations in `StationGreybox3D`.
+- Added generated greybox door leaves for every marked threshold in `BuildRouteMarkers()`.
+- Added single-door generation for interior openings and double-door generation for exterior openings.
+- Added `Area3D` trigger volumes per doorway; doors open while the player overlaps the trigger and close after the player exits.
+- Kept hinge rotation fixed per doorway so doors do not flip direction based on approach side.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/StationGreybox3D.cs`
+
+### Next Steps
+1. Playtest the 3D scene in Godot to confirm each door swings to the expected side and does not snag the player capsule.
+2. If any door feels too tight, widen that doorway trigger or disable temporary panel collision for greybox traversal.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
+**Task**: Add automatic 3D greybox wall corner caps across the full layout and document the pattern.
+
+**Status**: Completed
+
+### Work Done
+- Started a focused pass to make corner caps a generated wall-layout rule instead of a manually patched exception.
+- Replaced the partial hardcoded cap list in `StationGreybox3D` with endpoint-driven cap generation for all horizontal/vertical generated wall segments.
+- Added a shared wall-corner-post position set so each wall endpoint receives one deduplicated wall-height cap/post.
+- Documented the 3D greybox wall construction pattern in `docs/technical/THREED_MIGRATION_PLAN.md`: trim wall segments, fill L/T/cross seams with explicit posts, and avoid arbitrary wall extension.
+- Added the 3D migration plan to `AGENTS.md` referenced docs so future agents check the greybox wall rules.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `AGENTS.md`
+- `docs/technical/THREED_MIGRATION_PLAN.md`
+- `scripts/world3d/StationGreybox3D.cs`
+
+### Next Steps
+1. Playtest the full station layout to confirm the generated endpoint caps fill every visible wall seam without over-framing door openings.
+2. If any doorway cap reads too chunky, add a small rule to skip caps for selected door threshold endpoints.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
+**Task**: Fix the 3D greybox control-room audio cabinet clipping through the east wall.
+
+**Status**: Completed
+
+### Work Done
+- Started a focused audio cabinet fit pass after playtest showed it clipping through the right wall.
+- Moved `AudioCabinet` inward from the east wall and reduced its width/depth scale so it fits within the control room.
+- Updated `AudioCabinetCollider` to match the smaller cabinet.
+- Verified with `dotnet build`; build passes with existing warnings.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scenes/world3d/World3D.tscn`
+- `scripts/world3d/ControlRoom3D.cs`
+
+### Next Steps
+1. Playtest the cabinet against the east wall and tune another small nudge if it still visually touches the wall from the camera angle.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
 **Task**: Polish the 3D greybox control-room artifact, cabinet placement, wall corners, and wall fading.
 
 **Status**: Completed

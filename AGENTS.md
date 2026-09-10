@@ -297,6 +297,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [STATION_FLOORPLAN_BRIEF.md](docs/design/STATION_FLOORPLAN_BRIEF.md) | Design brief for room relationships, routes, visibility, and event zones |
 | [GREYBOX_LEVEL_WORKFLOW.md](docs/design/GREYBOX_LEVEL_WORKFLOW.md) | Godot/HammerForge greybox handoff, scale assumptions, and review checklist |
 | [CI_CD_SETUP.md](docs/technical/CI_CD_SETUP.md) | Build and export setup for Godot (CI/CD not currently implemented) |
+| [THREED_MIGRATION_PLAN.md](docs/technical/THREED_MIGRATION_PLAN.md) | 3D presentation migration plan and greybox wall construction rules |
 | [TOPDOWN_BUILDING_PATTERN.md](docs/technical/TOPDOWN_BUILDING_PATTERN.md) | Topdown room building pattern - tile specs, wall layers, and south wall hiding |
 | [UI_DESIGN.md](docs/ui/UI_DESIGN.md) | UI design document - layout, panels, typography, and interaction design |
 | [UI_IMPLEMENTATION.md](docs/ui/UI_IMPLEMENTATION.md) | UI implementation pattern - uGUI Canvas, phase-based UI, creating panels |

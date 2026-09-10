@@ -164,6 +164,18 @@ Recommended approach for the first pass:
 
 This minimizes the number of game systems that need to change at once.
 
+## Greybox Wall Construction Pattern
+
+Use trimmed wall segments plus explicit corner caps for every generated 3D greybox wall layout.
+
+- Horizontal and vertical wall runs should stop at the inside face of junctions, not overlap through each other.
+- Every generated wall endpoint should receive a small wall-height corner cap/post sized to the wall thickness.
+- Corner caps are the standard way to fill L, T, and cross-junction seams created by trimmed walls.
+- Do not fix corner holes by arbitrarily extending one wall into another wall; that recreates double-thick overlaps and inconsistent collision.
+- Door jambs may also use these caps, which helps openings read as intentional framed gaps.
+
+In code, prefer endpoint-driven cap generation over hand-authored cap lists. `StationGreybox3D` records endpoints when `AddHorizontalWall` and `AddVerticalWall` are called, then adds corner posts for all recorded endpoints after the wall plan is defined.
+
 ## UI Strategy
 
 The current UI should remain the default UI layer.

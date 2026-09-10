@@ -12,6 +12,13 @@ public partial class StationGreybox3D : Node3D
 	private const float WallOpaqueAlpha = 1f;
 	private const float WallFadeAlpha = 0.32f;
 	private const float WallFadeSpeed = 8f;
+	private const float DoorHeight = 1.9f;
+	private const float DoorThickness = 0.12f;
+	private const float DoorOpenSpeed = 9f;
+	private const float SingleDoorWidth = 0.95f;
+	private const float DoubleDoorWidth = SingleDoorWidth * 2f;
+	private const float DoorTriggerPadding = 0.9f;
+	private const float DoubleDoorMiddleZone = 0.28f;
 
 	private readonly Rect2 _hallway = new(new Vector2(5f, -14f), new Vector2(3f, 22f));
 	private readonly Rect2 _equipmentRoom = new(new Vector2(-5f, -14f), new Vector2(10f, 6f));
@@ -34,8 +41,34 @@ public partial class StationGreybox3D : Node3D
 	private StandardMaterial3D _bathroomMaterial = null!;
 	private StandardMaterial3D _officeMaterial = null!;
 	private StandardMaterial3D _exteriorMaterial = null!;
+	private StandardMaterial3D _doorMaterial = null!;
 	private readonly List<WallFadeTarget> _wallFadeTargets = new();
+	private readonly List<Doorway> _doorways = new();
+	private readonly HashSet<Vector2> _wallCornerPostPositions = new();
 	private Player3D? _player;
+
+	private enum DoorOrientation
+	{
+		Horizontal,
+		Vertical
+	}
+
+	private sealed class Doorway
+	{
+		public readonly List<DoorLeaf> Leaves = new();
+		public required Vector3 Center { get; init; }
+		public required DoorOrientation Orientation { get; init; }
+		public bool IsDoubleDoor { get; init; }
+		public int PlayerOverlapCount { get; set; }
+	}
+
+	private sealed class DoorLeaf
+	{
+		public required Node3D Hinge { get; init; }
+		public required float ClosedRotationDegrees { get; init; }
+		public required float OpenRotationDegrees { get; init; }
+		public float SideSign { get; init; }
+	}
 
 	private sealed class WallFadeTarget
 	{
@@ -56,6 +89,7 @@ public partial class StationGreybox3D : Node3D
 	public override void _Process(double delta)
 	{
 		UpdateWallFades(delta);
+		UpdateDoors(delta);
 	}
 
 	public void SetPlayer(Player3D player)
@@ -91,6 +125,7 @@ public partial class StationGreybox3D : Node3D
 		_bathroomMaterial = MakeMaterial(new Color(0.15f, 0.18f, 0.2f));
 		_officeMaterial = MakeMaterial(new Color(0.14f, 0.12f, 0.18f));
 		_exteriorMaterial = MakeMaterial(new Color(0.08f, 0.11f, 0.09f));
+		_doorMaterial = MakeMaterial(new Color(0.44f, 0.44f, 0.46f));
 	}
 
 	private static StandardMaterial3D MakeMaterial(Color color)
@@ -124,38 +159,37 @@ public partial class StationGreybox3D : Node3D
 		AddVerticalWall("WestWallEquipment", -5f, -14f, -8f);
 		AddVerticalWall("WestWallStudio", -5f, -8f, 0f);
 		AddVerticalWall("WestWallControl", -5f, 0f, 8f);
-		AddVerticalWall("HallEquipmentWallNorth", 5f, -14f, -12f);
-		AddVerticalWall("HallEquipmentWallSouth", 5f, -10f, -8f);
-		AddVerticalWall("HallStudioWallNorth", 5f, -8f, -5f);
-		AddVerticalWall("HallStudioWallSouth", 5f, -3f, 0f);
-		AddVerticalWall("HallControlWallNorth", 5f, 0f, 4f);
-		AddVerticalWall("HallControlWallSouth", 5f, 6f, 8f);
+		AddVerticalWall("HallEquipmentWallNorth", 5f, -14f, -11.65f);
+		AddVerticalWall("HallEquipmentWallSouth", 5f, -10.35f, -8f);
+		AddVerticalWall("HallStudioWallNorth", 5f, -8f, -4.65f);
+		AddVerticalWall("HallStudioWallSouth", 5f, -3.35f, 0f);
+		AddVerticalWall("HallControlWallNorth", 5f, 0f, 4.75f);
+		AddVerticalWall("HallControlWallSouth", 5f, 6.05f, 8f);
 
 		AddHorizontalWall("EquipmentStudioDivider", -5f, 5f, -8f);
-		AddHorizontalWall("StudioControlDoorJambWest", -5f, -4.35f, 0f);
-		AddHorizontalWall("StudioControlDoorJambEast", -2.35f, -1.7f, 0f);
+		AddHorizontalWall("StudioControlDoorJambWest", -5f, -4.75f, 0f);
+		AddHorizontalWall("StudioControlDoorJambEast", -3.55f, -1.7f, 0f);
 		AddHorizontalWall("StudioControlEastWall", 2.9f, 5f, 0f);
 		AddControlStudioWindow();
-		AddWallCornerPosts();
 
-		AddVerticalWall("ArchiveHallWallNorth", 8f, -14f, -12f);
-		AddVerticalWall("ArchiveHallWallSouth", 8f, -10f, -8f);
-		AddVerticalWall("OfficeHallWallNorth", 8f, -5f, -3.5f);
-		AddVerticalWall("OfficeHallWallSouth", 8f, -1.5f, 0f);
-		AddVerticalWall("KitchenHallWallNorth", 8f, 0f, 1.5f);
-		AddVerticalWall("KitchenHallWallSouth", 8f, 3.5f, 5f);
-		AddVerticalWall("BathroomHallWallNorth", 8f, 5f, 5.5f);
-		AddVerticalWall("BathroomHallWallSouth", 8f, 7.5f, 8f);
+		AddVerticalWall("ArchiveHallWallNorth", 8f, -14f, -11.65f);
+		AddVerticalWall("ArchiveHallWallSouth", 8f, -10.35f, -8f);
+		AddVerticalWall("OfficeHallWallNorth", 8f, -5f, -3.1f);
+		AddVerticalWall("OfficeHallWallSouth", 8f, -1.9f, 0f);
+		AddVerticalWall("KitchenHallWallNorth", 8f, 0f, 1.9f);
+		AddVerticalWall("KitchenHallWallSouth", 8f, 3.1f, 5f);
+		AddVerticalWall("BathroomHallWallNorth", 8f, 5f, 5.9f);
+		AddVerticalWall("BathroomHallWallSouth", 8f, 7.1f, 8f);
 
 		AddHorizontalWall("ArchiveSouthWall", 8f, 16f, -8f);
 		AddHorizontalWall("OfficeNorthWall", 8f, 16f, -5f);
 		AddHorizontalWall("OfficeKitchenDivider", 8f, 16f, 0f);
-		AddHorizontalWall("KitchenBathroomDividerWest", 8f, 12f, 5f);
-		AddHorizontalWall("KitchenBathroomDividerEast", 14f, 16f, 5f);
+		AddHorizontalWall("KitchenBathroomDividerWest", 8f, 12.4f, 5f);
+		AddHorizontalWall("KitchenBathroomDividerEast", 13.6f, 16f, 5f);
 		AddHorizontalWall("BathroomSouthWall", 8f, 16f, 8f);
 
-		AddVerticalWall("ArchiveFrontDeskWallNorth", 16f, -14f, -12f);
-		AddVerticalWall("ArchiveFrontDeskWallSouth", 16f, -10f, -8f);
+		AddVerticalWall("ArchiveFrontDeskWallNorth", 16f, -14f, -11.65f);
+		AddVerticalWall("ArchiveFrontDeskWallSouth", 16f, -10.35f, -8f);
 		AddVerticalWall("OfficeEastWall", 16f, -5f, 0f);
 		AddVerticalWall("KitchenEastWall", 16f, 0f, 5f);
 		AddVerticalWall("BathroomEastWall", 16f, 5f, 8f);
@@ -163,6 +197,7 @@ public partial class StationGreybox3D : Node3D
 		AddVerticalWall("LobbyParkingWallNorth", 26f, -9f, -5f);
 		AddVerticalWall("LobbyParkingWallSouth", 26f, -3f, 0f);
 		AddHorizontalWall("LobbySouthWall", 16f, 26f, 0f);
+		AddWallCornerPosts();
 		AddBox("FrontDeskLongCounter", new Vector3(21f, 0.45f, -9f), new Vector3(9f, 0.9f, 0.55f), _supplyMaterial, true);
 	}
 
@@ -192,7 +227,7 @@ public partial class StationGreybox3D : Node3D
 	private void BuildRouteMarkers()
 	{
 		AddBox("ControlToHallThreshold", new Vector3(5f, 0.04f, 5.4f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false);
-		AddBox("ControlStudioDoorMarker", new Vector3(-3.35f, 0.04f, 0f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false);
+		AddBox("ControlStudioDoorMarker", new Vector3(-4.15f, 0.04f, 0f), new Vector3(1.2f, 0.08f, 0.8f), _equipmentMaterial, false);
 		AddBox("StudioToHallThreshold", new Vector3(5f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false);
 		AddBox("EquipmentDoorMarker", new Vector3(5f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false);
 		AddBox("NorthExteriorDoorMarker", new Vector3(6.5f, 0.04f, -14f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false);
@@ -203,7 +238,136 @@ public partial class StationGreybox3D : Node3D
 		AddBox("SouthExteriorDoorMarker", new Vector3(6.5f, 0.04f, 8f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false);
 		AddBox("ArchiveFrontDeskDoorMarker", new Vector3(16f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.6f), _officeMaterial, false);
 		AddBox("KitchenBathroomDoorMarker", new Vector3(13f, 0.04f, 5f), new Vector3(1.6f, 0.08f, 0.8f), _bathroomMaterial, false);
-		AddBox("LobbyExitMarker", new Vector3(26f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.6f), _equipmentMaterial, false);
+		AddBox("LobbyExitMarker", new Vector3(26f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.9f), _equipmentMaterial, false);
+
+		AddSingleDoor("ControlToHallDoor", new Vector3(5f, 0f, 5.4f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical);
+		AddSingleDoor("ControlStudioDoor", new Vector3(-4.15f, 0f, 0f), SingleDoorWidth, 1.2f, DoorOrientation.Horizontal);
+		AddSingleDoor("StudioToHallDoor", new Vector3(5f, 0f, -4f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical);
+		AddSingleDoor("EquipmentDoor", new Vector3(5f, 0f, -11f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical);
+		AddDoubleDoor("NorthExteriorDoor", new Vector3(6.5f, 0f, -14f), DoubleDoorWidth, 1.8f, DoorOrientation.Horizontal, -1f);
+		AddSingleDoor("ArchiveDoor", new Vector3(8f, 0f, -11f), SingleDoorWidth, 1.6f, DoorOrientation.Vertical);
+		AddSingleDoor("OfficeDoor", new Vector3(8f, 0f, -2.5f), SingleDoorWidth, 1.6f, DoorOrientation.Vertical);
+		AddSingleDoor("KitchenDoor", new Vector3(8f, 0f, 2.5f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical);
+		AddSingleDoor("BathroomDoor", new Vector3(8f, 0f, 6.5f), SingleDoorWidth, 1.6f, DoorOrientation.Vertical);
+		AddDoubleDoor("SouthExteriorDoor", new Vector3(6.5f, 0f, 8f), DoubleDoorWidth, 1.8f, DoorOrientation.Horizontal, 1f);
+		AddSingleDoor("ArchiveFrontDeskDoor", new Vector3(16f, 0f, -11f), SingleDoorWidth, 1.6f, DoorOrientation.Vertical);
+		AddSingleDoor("KitchenBathroomDoor", new Vector3(13f, 0f, 5f), SingleDoorWidth, 1.6f, DoorOrientation.Horizontal);
+		AddDoubleDoor("LobbyExitDoor", new Vector3(26f, 0f, -4f), DoubleDoorWidth, 1.9f, DoorOrientation.Vertical, 1f);
+	}
+
+	private void AddSingleDoor(string name, Vector3 center, float width, float triggerWidth, DoorOrientation orientation)
+	{
+		var doorway = AddDoorTrigger(name, center, triggerWidth, orientation, false);
+		var hinge = orientation == DoorOrientation.Horizontal
+			? center + new Vector3(-width * 0.5f, 0f, 0f)
+			: center + new Vector3(0f, 0f, -width * 0.5f);
+		var closedRotation = orientation == DoorOrientation.Horizontal ? 0f : -90f;
+		doorway.Leaves.Add(AddDoorLeaf($"{name}Leaf", hinge, width, closedRotation, closedRotation + 90f, true, 0f));
+	}
+
+	private void AddDoubleDoor(string name, Vector3 center, float width, float triggerWidth, DoorOrientation orientation, float outsideDirection)
+	{
+		var doorway = AddDoorTrigger(name, center, triggerWidth, orientation, true);
+		var leafWidth = width * 0.5f;
+
+		if (orientation == DoorOrientation.Horizontal)
+		{
+			doorway.Leaves.Add(AddDoorLeaf($"{name}LeftLeaf", center + new Vector3(-width * 0.5f, 0f, 0f), leafWidth, 0f, -90f * outsideDirection, true, -1f));
+			doorway.Leaves.Add(AddDoorLeaf($"{name}RightLeaf", center + new Vector3(width * 0.5f, 0f, 0f), leafWidth, 0f, 90f * outsideDirection, false, 1f));
+		}
+		else
+		{
+			doorway.Leaves.Add(AddDoorLeaf($"{name}NearLeaf", center + new Vector3(0f, 0f, -width * 0.5f), leafWidth, -90f, -90f + 90f * outsideDirection, true, -1f));
+			doorway.Leaves.Add(AddDoorLeaf($"{name}FarLeaf", center + new Vector3(0f, 0f, width * 0.5f), leafWidth, -90f, -90f - 90f * outsideDirection, false, 1f));
+		}
+	}
+
+	private Doorway AddDoorTrigger(string name, Vector3 center, float width, DoorOrientation orientation, bool isDoubleDoor)
+	{
+		var doorway = new Doorway { Center = center, Orientation = orientation, IsDoubleDoor = isDoubleDoor };
+		var triggerSize = orientation == DoorOrientation.Horizontal
+			? new Vector3(width + DoorTriggerPadding, DoorHeight, 2.0f)
+			: new Vector3(2.0f, DoorHeight, width + DoorTriggerPadding);
+		var trigger = new Area3D { Name = $"{name}Trigger", Position = new Vector3(center.X, DoorHeight * 0.5f, center.Z) };
+		trigger.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = triggerSize } });
+		trigger.BodyEntered += body =>
+		{
+			if (body is Player3D)
+			{
+				doorway.PlayerOverlapCount++;
+			}
+		};
+		trigger.BodyExited += body =>
+		{
+			if (body is Player3D)
+			{
+				doorway.PlayerOverlapCount = Mathf.Max(0, doorway.PlayerOverlapCount - 1);
+			}
+		};
+
+		AddChild(trigger);
+		_doorways.Add(doorway);
+		return doorway;
+	}
+
+	private DoorLeaf AddDoorLeaf(string name, Vector3 hingePosition, float width, float closedRotationDegrees, float openRotationDegrees, bool extendsPositive, float sideSign)
+	{
+		var hinge = new Node3D
+		{
+			Name = name,
+			Position = hingePosition,
+			RotationDegrees = new Vector3(0f, closedRotationDegrees, 0f)
+		};
+		AddChild(hinge);
+
+		var localCenterX = (extendsPositive ? 1f : -1f) * width * 0.5f;
+		var leafSize = new Vector3(width, DoorHeight, DoorThickness);
+		var mesh = new MeshInstance3D
+		{
+			Name = "Panel",
+			Position = new Vector3(localCenterX, DoorHeight * 0.5f, 0f),
+			Mesh = new BoxMesh { Size = leafSize },
+			MaterialOverride = _doorMaterial
+		};
+		hinge.AddChild(mesh);
+		return new DoorLeaf { Hinge = hinge, ClosedRotationDegrees = closedRotationDegrees, OpenRotationDegrees = openRotationDegrees, SideSign = sideSign };
+	}
+
+	private void UpdateDoors(double delta)
+	{
+		_player ??= GetParent()?.GetNodeOrNull<Player3D>("Player3D");
+		var weight = 1f - Mathf.Exp(-DoorOpenSpeed * (float)delta);
+		foreach (var doorway in _doorways)
+		{
+			var isOpen = doorway.PlayerOverlapCount > 0;
+			foreach (var leaf in doorway.Leaves)
+			{
+				var target = ShouldOpenDoorLeaf(doorway, leaf, isOpen) ? leaf.OpenRotationDegrees : leaf.ClosedRotationDegrees;
+				var rotation = leaf.Hinge.RotationDegrees;
+				rotation.Y = Mathf.LerpAngle(Mathf.DegToRad(rotation.Y), Mathf.DegToRad(target), weight) * 180f / Mathf.Pi;
+				leaf.Hinge.RotationDegrees = rotation;
+			}
+		}
+	}
+
+	private bool ShouldOpenDoorLeaf(Doorway doorway, DoorLeaf leaf, bool isOpen)
+	{
+		if (!isOpen || _player == null)
+		{
+			return false;
+		}
+
+		if (!doorway.IsDoubleDoor)
+		{
+			return true;
+		}
+
+		var playerPosition = _player.GlobalPosition;
+		var offset = doorway.Orientation == DoorOrientation.Horizontal
+			? playerPosition.X - doorway.Center.X
+			: playerPosition.Z - doorway.Center.Z;
+
+		return Mathf.Abs(offset) <= DoubleDoorMiddleZone || Mathf.Sign(offset) == Mathf.Sign(leaf.SideSign);
 	}
 
 	private void AddRoom(string name, Rect2 rect, Material material, string label)
@@ -235,19 +399,11 @@ public partial class StationGreybox3D : Node3D
 
 	private void AddWallCornerPosts()
 	{
-		AddWallCornerPost("CornerPostNorthWest", -5f, -14f);
-		AddWallCornerPost("CornerPostNorthHallWest", 5f, -14f);
-		AddWallCornerPost("CornerPostNorthHallEast", 8f, -14f);
-		AddWallCornerPost("CornerPostArchiveFrontDesk", 16f, -14f);
-		AddWallCornerPost("CornerPostFrontDeskParking", 26f, -14f);
-		AddWallCornerPost("CornerPostEquipmentStudioWest", -5f, -8f);
-		AddWallCornerPost("CornerPostStudioControlWest", -5f, 0f);
-		AddWallCornerPost("CornerPostStudioControlHall", 5f, 0f);
-		AddWallCornerPost("CornerPostSouthWest", -5f, 8f);
-		AddWallCornerPost("CornerPostSouthHallWest", 5f, 8f);
-		AddWallCornerPost("CornerPostSouthHallEast", 8f, 8f);
-		AddWallCornerPost("CornerPostSupportEast", 16f, 8f);
-		AddWallCornerPost("CornerPostLobbyEastSouth", 26f, 0f);
+		var index = 0;
+		foreach (var position in _wallCornerPostPositions)
+		{
+			AddWallCornerPost($"CornerPost{index++}", position.X, position.Y);
+		}
 	}
 
 	private void AddWallCornerPost(string name, float x, float z)
@@ -267,6 +423,8 @@ public partial class StationGreybox3D : Node3D
 	{
 		var left = Mathf.Min(x1, x2);
 		var right = Mathf.Max(x1, x2);
+		RegisterWallCornerPost(left, z);
+		RegisterWallCornerPost(right, z);
 		left += WallThickness * 0.5f;
 		right -= WallThickness * 0.5f;
 		var width = right - left;
@@ -282,6 +440,8 @@ public partial class StationGreybox3D : Node3D
 	{
 		var near = Mathf.Min(z1, z2);
 		var far = Mathf.Max(z1, z2);
+		RegisterWallCornerPost(x, near);
+		RegisterWallCornerPost(x, far);
 		near += WallThickness * 0.5f;
 		far -= WallThickness * 0.5f;
 		var depth = far - near;
@@ -291,6 +451,11 @@ public partial class StationGreybox3D : Node3D
 		}
 		var centerZ = near + depth / 2f;
 		AddWall(name, new Vector3(x, WallCenterY, centerZ), new Vector3(WallThickness, WallHeight, depth));
+	}
+
+	private void RegisterWallCornerPost(float x, float z)
+	{
+		_wallCornerPostPositions.Add(new Vector2(x, z));
 	}
 
 	private void AddLabel(string text, Vector3 position)

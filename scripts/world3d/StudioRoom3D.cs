@@ -8,7 +8,7 @@ public partial class StudioRoom3D : Node3D
 	private const float HalfWidth = 5f;
 	private const float HalfDepth = 4f;
 	private const float DoorHalfWidth = 1.4f;
-	private const float DoorCenterX = -3.35f;
+	private const float DoorCenterX = -4.15f;
 
 	public override void _Ready()
 	{

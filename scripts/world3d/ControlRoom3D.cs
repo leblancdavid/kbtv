@@ -8,7 +8,7 @@ public partial class ControlRoom3D : Node3D
 	private const float HalfWidth = 5f;
 	private const float HalfDepth = 4f;
 	private const float DoorHalfWidth = 1.4f;
-	private const float DoorCenterX = -3.35f;
+	private const float DoorCenterX = -4.15f;
 	private const float ChairPushRadius = 1.1f;
 	private const float ChairMaxDisplacement = 0.8f;
 	private const float ChairMoveSpeed = 6f;
@@ -71,7 +71,7 @@ public partial class ControlRoom3D : Node3D
 		AddStaticBox(root, "DeskCollider", new Vector3(0.6f, 0.4f, -3.55f), new Vector3(4.8f, 0.8f, 0.6f));
 		AddStaticBox(root, "SpeakerLeftCollider", new Vector3(-2.75f, 0.45f, -3.55f), new Vector3(0.8f, 0.9f, 0.8f));
 		AddStaticBox(root, "SpeakerRightCollider", new Vector3(3.75f, 0.45f, -3.55f), new Vector3(0.8f, 0.9f, 0.8f));
-		AddStaticBox(root, "AudioCabinetCollider", new Vector3(4.45f, 0.55f, -2.3f), new Vector3(0.9f, 1.1f, 0.8f));
+		AddStaticBox(root, "AudioCabinetCollider", new Vector3(4.1f, 0.5f, -2.3f), new Vector3(0.7f, 1f, 0.65f));
 		AddStaticBox(root, "ShelfLeftCollider", new Vector3(-2.8f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
 		AddStaticBox(root, "ShelfCenterCollider", new Vector3(0f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
 		AddStaticBox(root, "ShelfRightCollider", new Vector3(2.8f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
