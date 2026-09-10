@@ -2,6 +2,35 @@
 
 **Branch**: 3d-migration
 
+**Task**: Tune 3D lighting with centered room lamps and hidden brighter fluorescents.
+
+**Status**: Completed
+
+### Work Done
+- Started a lighting tune to simplify control/studio/equipment lighting to one centered overhead lamp per room and make fluorescents brighter, whiter, and hidden.
+- Replaced the two-light control room setup with one centered overhead pendant/spot.
+- Replaced the two-light studio setup with one centered overhead pendant/spot.
+- Added one centered overhead pendant/spot for the equipment room.
+- Changed fluorescent hue closer to white, increased fill/wash strength, and stopped rendering visible fluorescent fixture bars.
+- Raised ambient energy slightly to keep the noir mood readable.
+- Verified with `dotnet build`; build passes with existing warnings.
+- Ran `git diff --check`; no whitespace errors reported, only existing line-ending warnings.
+- Attempted `godot --check-only project.godot`, but the `godot` executable is not on PATH in this shell.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/StationLighting3D.cs`
+
+### Next Steps
+1. Playtest the latest lighting pass in Godot and tune brightness/range if needed.
+2. Do the separate 3D player/prop shadow policy pass after the lighting baseline is approved.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+
 **Task**: Correct first-pass 3D lighting readability and fluorescent behavior.
 
 **Status**: Completed
