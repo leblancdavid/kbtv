@@ -1,6 +1,53 @@
 ## Current Session
 
 **Branch**: 3d-migration
+**Task**: Document the GPT-assisted Blender 3D prop workflow for future development.
+**Status**: Completed
+
+### Work Done
+- Reworked `docs/art/3D_ASSET_WORKFLOW.md` from a trial-result note into a reusable developer workflow.
+- Documented toolchain requirements, folder conventions, GPT prompt template, generator pattern, validation checklist, Godot placement checklist, accepted trial assets, and troubleshooting.
+- Preserved the audio cabinet and microphone stand dimensions/placement as concrete examples for future props.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `docs/art/3D_ASSET_WORKFLOW.md`
+
+### Next Steps
+1. Use this workflow for the next one or two simple props before scaling production.
+2. If the workflow continues to hold up, add a small Godot review scene or automated prop placement helper.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+**Task**: Import generated 3D prop GLBs into the world scene.
+**Status**: Completed
+
+### Work Done
+- Started placement pass for `audio_cabinet.glb` and `microphone_stand.glb` in `World3D.tscn`.
+- Preserving existing generated collision boxes while replacing only placeholder visuals.
+- Added both GLBs as external packed-scene resources in `World3D.tscn`.
+- Replaced the control-room audio cabinet placeholder visual with `audio_cabinet.glb` at bottom-origin room-local position `(4.1, 0, -2.3)`.
+- Replaced the studio mic cylinder visual with `microphone_stand.glb` at room-local position `(0.95, 0.2, 0.65)`.
+- Rotated both models 180 degrees around Y so their generated fronts face back toward the room/gameplay camera.
+- Verified with `dotnet build`; build passes.
+- Ran Godot 4.6.3 headless project check; GLBs imported without new model-reference errors. Existing unrelated invalid UID warning remains in `scenes/world/World.tscn`.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scenes/world3d/World3D.tscn`
+
+### Next Steps
+1. Playtest `Game3D.tscn` and check scale/readability under actual station lighting.
+2. Tune positions/rotations if the cabinet or mic face the wrong direction in the gameplay camera.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
 **Task**: Restore 3D room-based audio (control = full audio, studio = Vern only, else muffled) and fix the broken GoDotTest test toolchain.
 **Status**: In Progress
 
@@ -41,19 +88,27 @@
 
 **Branch**: 3d-migration
 **Task**: Generate first Blender-authored 3D props: audio cabinet and microphone stand.
-**Status**: In Progress
+**Status**: Completed
 
 ### Work Done
 - Confirmed clean working tree and selected reproducible Blender Python to GLB workflow.
 - Targeting meter-scale, bottom-center origins, and Godot-facing negative Z.
+- Generated both GLBs, editable Blender sources, neutral-lit previews, and validation reports.
+- Fixed degenerate bevel geometry before export and verified both GLBs by clean re-import.
+- Inspected both preview images; documented generation and Godot placement workflow.
 
 ### Files Modified
 - `SESSION_LOG.md`
+- `AGENTS.md`
+- `Tools/modelgen/` (Python generators and editable `.blend` sources)
+- `assets/models3d/props/audio_cabinet.glb`
+- `assets/models3d/props/microphone_stand.glb`
+- `docs/art/3D_ASSET_WORKFLOW.md`
+- `docs/art/model_previews/` (PNG previews and JSON validation reports)
 
 ### Next Steps
-1. Generate both models, editable Blender sources, and previews.
-2. Re-import GLBs to validate dimensions, materials, and geometry.
-3. Document regeneration and Godot placement.
+1. Import/place trial props in Godot and review under station lighting.
+2. Tune silhouette and small details based on gameplay-camera feedback.
 
 ---
 

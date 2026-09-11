@@ -1,0 +1,27 @@
+{
+  "asset": "audio_cabinet",
+  "validation": "passed",
+  "blender_version": "5.2.1 LTS",
+  "authoring_axes": "Z up, +Y front; GLB Y up, -Z front",
+  "file_bytes": 889836,
+  "reimported_blender_stats": {
+    "meshes": 1,
+    "triangles": 12876,
+    "materials": 7,
+    "bounds_min": [
+      -0.3499999940395355,
+      -0.33250001072883606,
+      0.0
+    ],
+    "bounds_max": [
+      0.3499999940395355,
+      0.32580000162124634,
+      0.9999999403953552
+    ],
+    "dimensions": [
+      0.699999988079071,
+      0.6583000123500824,
+      0.9999999403953552
+    ]
+  }
+}

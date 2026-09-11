@@ -289,6 +289,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [GAME_DESIGN.md](docs/design/GAME_DESIGN.md) | Game design document - core mechanics, characters, game loop, and features |
 | [TECHNICAL_SPEC.md](docs/technical/TECHNICAL_SPEC.md) | Architecture, systems design, and technical requirements |
 | [ART_STYLE.md](docs/art/ART_STYLE.md) | Visual direction, color palette, and asset guidelines |
+| [3D_ASSET_WORKFLOW.md](docs/art/3D_ASSET_WORKFLOW.md) | Blender prop generation, GLB export, previews, and Godot placement conventions |
 | [PIXELLAB_PROMPT_RULES.md](docs/art/PIXELLAB_PROMPT_RULES.md) | Authoritative PixelLab prompt rules - tool selection, canonical templates, iteration budget protocol, generation plan |
 | [PIXELLAB_MCP_GUIDE.md](docs/art/PIXELLAB_MCP_GUIDE.md) | PixelLab MCP setup, configuration, and usage |
 | [AUDIO_DESIGN.md](docs/audio/AUDIO_DESIGN.md) | Sound design, music, and audio technical specs |

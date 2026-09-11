@@ -1,0 +1,27 @@
+{
+  "asset": "microphone_stand",
+  "validation": "passed",
+  "blender_version": "5.2.1 LTS",
+  "authoring_axes": "Z up, +Y front; GLB Y up, -Z front",
+  "file_bytes": 296888,
+  "reimported_blender_stats": {
+    "meshes": 1,
+    "triangles": 4296,
+    "materials": 5,
+    "bounds_min": [
+      -0.17499999701976776,
+      -0.17499999701976776,
+      0.0
+    ],
+    "bounds_max": [
+      0.17499999701976776,
+      0.17499999701976776,
+      1.1999999284744263
+    ],
+    "dimensions": [
+      0.3499999940395355,
+      0.3499999940395355,
+      1.1999999284744263
+    ]
+  }
+}

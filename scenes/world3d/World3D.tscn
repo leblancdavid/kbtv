@@ -1,10 +1,12 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="Script" path="res://scripts/world3d/World3D.cs" id="1"]
 [ext_resource type="Script" path="res://scripts/world3d/ControlRoom3D.cs" id="2"]
 [ext_resource type="Script" path="res://scripts/world3d/StudioRoom3D.cs" id="3"]
 [ext_resource type="Script" path="res://scripts/world3d/Player3D.cs" id="4"]
 [ext_resource type="Script" path="res://scripts/world3d/StationGreybox3D.cs" id="5"]
+[ext_resource type="PackedScene" path="res://assets/models3d/props/audio_cabinet.glb" id="6"]
+[ext_resource type="PackedScene" path="res://assets/models3d/props/microphone_stand.glb" id="7"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(10, 0.2, 8)
@@ -153,11 +155,9 @@ rotation_degrees = Vector3(0, -45, 0)
 mesh = SubResource("BoxMesh_monitor")
 material_override = SubResource("StandardMaterial3D_accent")
 
-[node name="AudioCabinet" type="MeshInstance3D" parent="ControlRoom3D"]
-position = Vector3(4.1, 0.45, -2.3)
-scale = Vector3(0.7, 1.2, 0.8)
-mesh = SubResource("BoxMesh_table")
-material_override = SubResource("StandardMaterial3D_studio_wood")
+[node name="AudioCabinet" parent="ControlRoom3D" instance=ExtResource("6")]
+position = Vector3(4.1, 0, -2.3)
+rotation_degrees = Vector3(0, 180, 0)
 
 [node name="ShelfLeft" type="MeshInstance3D" parent="ControlRoom3D"]
 position = Vector3(-2.8, 0.45, 2.45)
@@ -232,10 +232,9 @@ scale = Vector3(1.8, 2.1, 0.7)
 mesh = SubResource("BoxMesh_table")
 material_override = SubResource("StandardMaterial3D_studio_wood")
 
-[node name="StudioMicStand" type="MeshInstance3D" parent="StudioRoom3D"]
-position = Vector3(0.95, 0.75, 0.65)
-mesh = SubResource("CylinderMesh_mic")
-material_override = SubResource("StandardMaterial3D_accent")
+[node name="StudioMicStand" parent="StudioRoom3D" instance=ExtResource("7")]
+position = Vector3(0.95, 0.2, 0.65)
+rotation_degrees = Vector3(0, 180, 0)
 
 [node name="RoomLabel" type="Label3D" parent="StudioRoom3D"]
 position = Vector3(0, 2.4, 0)
