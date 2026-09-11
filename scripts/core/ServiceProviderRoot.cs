@@ -1,3 +1,6 @@
+using System;
+using System.Linq.Expressions;
+using System.Reflection;
 using Godot;
 using KBTV.Managers;
 using KBTV.Economy;
@@ -124,6 +127,40 @@ namespace KBTV.Core
     {
         Log.Debug("ServiceProviderRoot: Starting two-phase service initialization...");
         InitializeServices();
+        RegisterGlobalResolvers();
+    }
+
+    /// <summary>
+    /// Registers every provided service as a global DependencyInjection resolver
+    /// so nodes outside this provider's subtree (e.g. the 3D world's terminal
+    /// SubViewport UI) can resolve services too. Returns the same singletons.
+    /// </summary>
+    private void RegisterGlobalResolvers()
+    {
+        foreach (var iface in GetType().GetInterfaces())
+        {
+            if (!iface.IsGenericType || iface.GetGenericTypeDefinition() != typeof(IProvide<>))
+            {
+                continue;
+            }
+
+            var serviceType = iface.GetGenericArguments()[0];
+            var valueMethod = iface.GetMethod(nameof(IProvide<object>.Value));
+            if (valueMethod == null)
+            {
+                continue;
+            }
+
+            var funcType = typeof(Func<,>).MakeGenericType(typeof(Node), serviceType);
+            var param = System.Linq.Expressions.Expression.Parameter(typeof(Node), "_");
+            var call = System.Linq.Expressions.Expression.Call(System.Linq.Expressions.Expression.Constant(this), valueMethod);
+            var resolver = System.Linq.Expressions.Expression.Lambda(funcType, call, param).Compile();
+
+            typeof(DependencyInjection)
+                .GetMethod(nameof(DependencyInjection.Register))!
+                .MakeGenericMethod(serviceType)
+                .Invoke(null, new object[] { resolver });
+        }
     }
 
     private void InitializeServices()

@@ -1,20 +1,25 @@
 ## Current Session
 
 **Branch**: 3d-migration
-**Task**: Complete the control-room Blender prop and World3D visual pass.
-**Status**: In Progress
+**Task**: Fix zoomed-in computer view - caller screening UI on the monitor + framing shows the CRT.
+**Status**: Completed
 
 ### Work Done
-- Confirmed clean working tree; reusing accepted audio cabinet.
+- Root cause of blank monitor: `CallerTab._Ready` resolves `ICallerRepository`/`IScreeningController`/`TimeManager` via tree-scoped `DependencyInjection.Get`; the only provider (`ServiceProviderRoot`) is a sibling of `World`, and the global `DependencyInjection.Register` resolvers were never populated, so `_Ready` threw and the SubViewport rendered near-black.
+- Added `ServiceProviderRoot.RegisterGlobalResolvers()` (reflection over all `IProvide<T>` interfaces, typed `Func<Node,T>` via `System.Linq.Expressions` + `DependencyInjection.Register<T>`), called at end of `Initialize()`. UI hosted anywhere (incl. the 3D terminal SubViewport) now resolves services; 2D path unaffected.
+- Second bug (runtime): `Expression.Lambda(...)` result must be `.Compile()`d before `Register<T>` — fixed (ServiceProviderRoot.cs:157).
+- Third bug: terminal SubViewport still rendered black with no errors - it never got a World2D (Godot 4 has no OwnWorld2D; viewports render to the `world_2d` property). Assigned a dedicated `World2D = new World2D()` in `EnsureTerminalViewport()` + added a dark `ColorRect` backdrop behind `CallerTab`.
+- Fixed zoom framing in `World3D.cs`: `TerminalFramingWidth` 1.05 -> 1.6 (fits the full housing/base stack, ortho half-height 0.45); terminal camera pos -> `screenPos + (0,-0.02,1.5)`, look target -> `screenPos + (0,-0.12,0)` so the whole CRT (not just the screen) is centered.
+- Screen input was already forwarded via raycast->SubViewport `PushInput`; with UI now rendering, on-screen buttons should be clickable (to verify in-editor).
+- `dotnet build`: 0 errors. Tests: 487 passed / 13 failed = unchanged pre-existing baseline.
 
 ### Todo / Next Steps
-- [ ] Inspect generator, scene, room scripts, and workflow guidance.
-- [ ] Generate modular props, Blender sources, previews, and validation reports.
-- [ ] Inspect previews and integrate supported, correctly oriented scene placements.
-- [ ] Verify build, tests, Godot 4.6 import/runtime; document results and placements.
+- [ ] In-editor verify: open terminal -> UI visible on monitor, full CRT in frame, Approve/Reject/X/<- clickable, Esc closes (GLB swap-back at zoom-out start), player re-shown at zoom-out end.
 
 ### Files Modified
 - `SESSION_LOG.md`
+- `scripts/core/ServiceProviderRoot.cs`
+- `scripts/world3d/World3D.cs`
 
 ---
 

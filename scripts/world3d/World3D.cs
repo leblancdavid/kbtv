@@ -18,7 +18,7 @@ public partial class World3D : Node3D
 	private static readonly Vector3 StudioHallLeakDirection = Vector3.Right;
 
 	private const float TerminalZoomSpeed = 3.2f;
-	private const float TerminalFramingWidth = 1.05f;
+	private const float TerminalFramingWidth = 1.6f;
 
 	private enum TerminalViewState
 	{
@@ -326,9 +326,9 @@ public partial class World3D : Node3D
 		var viewportSize = GetViewport()?.GetVisibleRect().Size ?? new Vector2(1280f, 720f);
 		var aspect = viewportSize.X / Mathf.Max(1f, viewportSize.Y);
 		_terminalCameraSize = TerminalFramingWidth / (2f * aspect);
-		_terminalCameraPos = screenPos + new Vector3(0f, 0.12f, 1.35f);
+		_terminalCameraPos = screenPos + new Vector3(0f, -0.02f, 1.5f);
 
-		var lookTarget = screenPos + new Vector3(0f, -0.08f, 0f);
+		var lookTarget = screenPos + new Vector3(0f, -0.12f, 0f);
 		var transform = new Transform3D(Basis.Identity, _terminalCameraPos).LookingAt(lookTarget, Vector3.Up);
 		_terminalCameraBasis = transform.Basis;
 
@@ -422,7 +422,8 @@ public partial class World3D : Node3D
 			return;
 		}
 
-		if (hit["collider"].As<StaticBody3D>() != _computerTerminal.ScreenBody)
+		if (hit["collider"].AsGodotObject() is not StaticBody3D colliderBody
+			|| colliderBody != _computerTerminal.ScreenBody)
 		{
 			return;
 		}
@@ -471,10 +472,20 @@ public partial class World3D : Node3D
 			TransparentBg = false,
 			RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
 			Disable3D = true,
+			World2D = new World2D(),
 			OwnWorld3D = false,
 			Size = new Vector2I(960, 640)
 		};
 		AddChild(_terminalViewport);
+
+		var backdrop = new ColorRect
+		{
+			Name = "ComputerScreenBackdrop",
+			Color = new Color(0.05f, 0.05f, 0.05f, 1f),
+			MouseFilter = Control.MouseFilterEnum.Ignore
+		};
+		backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		_terminalViewport.AddChild(backdrop);
 
 		var callerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerTab.tscn");
 		if (callerScene != null)
