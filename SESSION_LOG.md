@@ -1,6 +1,26 @@
 ## Current Session
 
 **Branch**: 3d-migration
+**Task**: Generate first Blender-authored 3D props: audio cabinet and microphone stand.
+**Status**: In Progress
+
+### Work Done
+- Confirmed clean working tree and selected reproducible Blender Python to GLB workflow.
+- Targeting meter-scale, bottom-center origins, and Godot-facing negative Z.
+
+### Files Modified
+- `SESSION_LOG.md`
+
+### Next Steps
+1. Generate both models, editable Blender sources, and previews.
+2. Re-import GLBs to validate dimensions, materials, and geometry.
+3. Document regeneration and Godot placement.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
 
 **Task**: Remove rectangular haze veil artifacts and rely on true room-filling studio fog.
 

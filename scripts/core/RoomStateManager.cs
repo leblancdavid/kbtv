@@ -39,6 +39,7 @@ namespace KBTV.Core
 		private Rect2 _controlRoomBounds = new Rect2();
 		private Rect2 _studioBounds = new Rect2();
 		private Player? _player;
+		private bool _manualLocation;
 
 		/// <summary>
 		/// Called when the node enters the scene tree.
@@ -68,10 +69,29 @@ namespace KBTV.Core
 		}
 
 		/// <summary>
+		/// Sets the player's location manually (used by the 3D world's own room detection).
+		/// Emits <see cref="PlayerLocationChanged"/> only when the location actually changes.
+		/// Once called, the 2D bounds-based detection in <see cref="_Process"/> is disabled.
+		/// </summary>
+		public void SetPlayerLocation(PlayerLocation location)
+		{
+			_manualLocation = true;
+			if (CurrentLocation == location)
+				return;
+
+			CurrentLocation = location;
+			GD.Print($"RoomStateManager: Player {location} (manual)");
+			EmitSignal(nameof(PlayerLocationChanged), Variant.From(CurrentLocation));
+		}
+
+		/// <summary>
 		/// Called every frame to check if player is inside any room bounds.
 		/// </summary>
 		public override void _Process(double delta)
 		{
+			if (_manualLocation)
+				return;
+
 			if (_controlRoomBounds == new Rect2() && _studioBounds == new Rect2())
 				return;
 

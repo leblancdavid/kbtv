@@ -1,4 +1,5 @@
 using Godot;
+using KBTV.Core;
 
 namespace KBTV.World3D;
 
@@ -23,6 +24,7 @@ public partial class World3D : Node3D
 	private bool _player_at_connection;
 	private StationLighting3D? _station_lighting;
 	private uint _player_light_layer = StationLighting3D.ControlLayer;
+	private RoomStateManager? _roomStateManager;
 
 	public override void _Ready()
 	{
@@ -40,6 +42,7 @@ public partial class World3D : Node3D
 		}
 		StationLighting3D.ApplyLayerToTree(_control_room, StationLighting3D.ControlLayer);
 		StationLighting3D.ApplyLayerToTree(_studio_room, StationLighting3D.StudioLayer);
+		_roomStateManager = GetNodeOrNull<RoomStateManager>("/root/RoomStateManager");
 
 		if (PlayerPath != null && !PlayerPath.IsEmpty)
 		{
@@ -103,6 +106,25 @@ public partial class World3D : Node3D
 
 		var playerPosition = _player.GlobalPosition;
 		_player_at_connection = _control_room.IsPlayerAtDoor(playerPosition) || _studio_room.IsPlayerAtDoor(playerPosition);
+
+		// Audio location: control room = full audio, studio = Vern only, everywhere else muffled.
+		var location = RoomStateManager.PlayerLocation.Outside;
+		if (_control_room.ContainsPlayer(playerPosition))
+		{
+			location = RoomStateManager.PlayerLocation.InControlRoom;
+		}
+		else if (_studio_room.ContainsPlayer(playerPosition))
+		{
+			location = RoomStateManager.PlayerLocation.InStudio;
+		}
+		else if (_control_room.IsPlayerAtDoor(playerPosition))
+		{
+			// Control room ↔ studio connection doorway: keep full audio while passing through.
+			location = RoomStateManager.PlayerLocation.InControlRoom;
+		}
+
+		_roomStateManager?.SetPlayerLocation(location);
+
 		string? nextRoomName = null;
 
 		if (_player_at_connection)
