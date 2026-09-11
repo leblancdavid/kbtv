@@ -1,5 +1,7 @@
+using System;
 using Godot;
 using KBTV.Core;
+using KBTV.UI;
 
 namespace KBTV.World3D;
 
@@ -15,6 +17,17 @@ public partial class World3D : Node3D
 	private static readonly Vector3 ControlStudioLeakDirection = Vector3.Back;
 	private static readonly Vector3 StudioHallLeakDirection = Vector3.Right;
 
+	private const float TerminalZoomSpeed = 3.2f;
+	private const float TerminalFramingWidth = 1.05f;
+
+	private enum TerminalViewState
+	{
+		None,
+		ZoomingIn,
+		Open,
+		ZoomingOut
+	}
+
 	private Camera3D _camera = null!;
 	private Label? _status_label;
 	private ControlRoom3D _control_room = null!;
@@ -25,6 +38,18 @@ public partial class World3D : Node3D
 	private StationLighting3D? _station_lighting;
 	private uint _player_light_layer = StationLighting3D.ControlLayer;
 	private RoomStateManager? _roomStateManager;
+	private ComputerTerminal3D? _computerTerminal;
+	private TerminalViewState _terminalViewState = TerminalViewState.None;
+	private float _zoomProgress;
+	private Vector3 _normalCameraPos;
+	private float _normalCameraSize;
+	private Basis _normalCameraBasis;
+	private Vector3 _terminalCameraPos;
+	private float _terminalCameraSize;
+	private Basis _terminalCameraBasis;
+	private SubViewport? _terminalViewport;
+	private CallerTab? _terminalTab;
+	private StandardMaterial3D? _screenLiveMaterial;
 
 	public override void _Ready()
 	{
@@ -43,6 +68,7 @@ public partial class World3D : Node3D
 		StationLighting3D.ApplyLayerToTree(_control_room, StationLighting3D.ControlLayer);
 		StationLighting3D.ApplyLayerToTree(_studio_room, StationLighting3D.StudioLayer);
 		_roomStateManager = GetNodeOrNull<RoomStateManager>("/root/RoomStateManager");
+		_computerTerminal = _control_room.ComputerTerminal;
 
 		if (PlayerPath != null && !PlayerPath.IsEmpty)
 		{
@@ -78,12 +104,37 @@ public partial class World3D : Node3D
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (!Input.IsActionJustPressed("interact") || !_player_at_connection)
+		if (@event is InputEventKey key && key.Pressed && key.Keycode == Key.Escape
+			&& _terminalViewState != TerminalViewState.None)
+		{
+			CloseTerminalView();
+			GetViewport().SetInputAsHandled();
+			return;
+		}
+
+		if (_terminalViewState == TerminalViewState.Open && @event is InputEventMouse mouse)
+		{
+			ForwardTerminalMouse(mouse);
+			return;
+		}
+
+		if (!Input.IsActionJustPressed("interact"))
 		{
 			return;
 		}
 
-		GD.Print("World3D: Player is at the control room / studio doorway");
+		if (_computerTerminal != null && _computerTerminal.IsPlayerInRange
+			&& _terminalViewState == TerminalViewState.None)
+		{
+			OpenTerminalView();
+			GetViewport().SetInputAsHandled();
+			return;
+		}
+
+		if (_player_at_connection)
+		{
+			GD.Print("World3D: Player is at the control room / studio doorway");
+		}
 	}
 
 	public override void _Process(double delta)
@@ -93,7 +144,17 @@ public partial class World3D : Node3D
 		{
 			_station_lighting?.UpdateFluorescentShadowCaster(_player.GlobalPosition);
 		}
-		UpdateCamera(delta);
+
+		if (_terminalViewState == TerminalViewState.None)
+		{
+			UpdateCamera(delta);
+		}
+		else
+		{
+			UpdateTerminalCamera(delta);
+		}
+
+		UpdateComputerHint();
 	}
 
 
@@ -229,5 +290,238 @@ public partial class World3D : Node3D
 		}
 
 		_camera.RotationDegrees = new Vector3(-35f, 0f, 0f);
+	}
+
+	private void UpdateComputerHint()
+	{
+		if (_status_label == null || _terminalViewState != TerminalViewState.None)
+		{
+			return;
+		}
+
+		if (_computerTerminal != null && _computerTerminal.IsPlayerInRange)
+		{
+			if (_status_label.Text.EndsWith("| PRESS F TO USE COMPUTER"))
+			{
+				return;
+			}
+			_status_label.Text += " | PRESS F TO USE COMPUTER";
+		}
+	}
+
+	private void OpenTerminalView()
+	{
+		if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
+		{
+			return;
+		}
+
+		_player?.SetMovementLocked(true);
+
+		_normalCameraPos = _camera.GlobalPosition;
+		_normalCameraSize = _camera.Size;
+		_normalCameraBasis = _camera.GlobalTransform.Basis;
+
+		var screenPos = _computerTerminal.ScreenCenter;
+		var viewportSize = GetViewport()?.GetVisibleRect().Size ?? new Vector2(1280f, 720f);
+		var aspect = viewportSize.X / Mathf.Max(1f, viewportSize.Y);
+		_terminalCameraSize = TerminalFramingWidth / (2f * aspect);
+		_terminalCameraPos = screenPos + new Vector3(0f, 0.12f, 1.35f);
+
+		var lookTarget = screenPos + new Vector3(0f, -0.08f, 0f);
+		var transform = new Transform3D(Basis.Identity, _terminalCameraPos).LookingAt(lookTarget, Vector3.Up);
+		_terminalCameraBasis = transform.Basis;
+
+		_zoomProgress = 0f;
+		_terminalViewState = TerminalViewState.ZoomingIn;
+	}
+
+	private void CloseTerminalView()
+	{
+		if (_terminalViewState is TerminalViewState.None or TerminalViewState.ZoomingOut)
+		{
+			return;
+		}
+
+		_terminalViewState = TerminalViewState.ZoomingOut;
+		DetachScreenTexture();
+		_computerTerminal.Visible = false;
+		_control_room.ComputerGlb.Visible = true;
+		_control_room.SetComputerCollidersEnabled(true);
+		_player?.SetMovementLocked(false);
+	}
+
+	private void UpdateTerminalCamera(double delta)
+	{
+		if (_terminalViewState == TerminalViewState.ZoomingIn)
+		{
+			_zoomProgress = Mathf.MoveToward(_zoomProgress, 1f, TerminalZoomSpeed * (float)delta);
+		}
+		else if (_terminalViewState == TerminalViewState.ZoomingOut)
+		{
+			_zoomProgress = Mathf.MoveToward(_zoomProgress, 0f, TerminalZoomSpeed * (float)delta);
+		}
+		else
+		{
+			return;
+		}
+
+		var smooth = _zoomProgress * _zoomProgress * (3f - 2f * _zoomProgress);
+		_camera.GlobalPosition = _normalCameraPos.Lerp(_terminalCameraPos, smooth);
+		_camera.Size = Mathf.Lerp(_normalCameraSize, _terminalCameraSize, smooth);
+		_camera.GlobalTransform = new Transform3D(
+			_normalCameraBasis.Slerp(_terminalCameraBasis, smooth),
+			_camera.GlobalPosition);
+
+		if (_terminalViewState == TerminalViewState.ZoomingIn && _zoomProgress >= 1f)
+		{
+			_terminalViewState = TerminalViewState.Open;
+			_control_room.SetComputerCollidersEnabled(false);
+			_control_room.ComputerGlb.Visible = false;
+			_computerTerminal.Visible = true;
+			if (_player != null)
+			{
+				_player.Visible = false;
+			}
+			AttachScreenTexture();
+		}
+		else if (_terminalViewState == TerminalViewState.ZoomingOut && _zoomProgress <= 0f)
+		{
+			_terminalViewState = TerminalViewState.None;
+			_player?.SetMovementLocked(false);
+			if (_player != null)
+			{
+				_player.Visible = true;
+			}
+			UpdateCamera(0.0, true);
+		}
+	}
+
+	private void ForwardTerminalMouse(InputEventMouse mouse)
+	{
+		if (_terminalViewport == null || _computerTerminal == null)
+		{
+			return;
+		}
+
+		var camera = GetViewport().GetCamera3D();
+		if (camera == null)
+		{
+			return;
+		}
+
+		var from = camera.ProjectRayOrigin(mouse.Position);
+		var to = from + camera.ProjectRayNormal(mouse.Position) * 60f;
+
+		var query = PhysicsRayQueryParameters3D.Create(from, to);
+		query.CollideWithBodies = true;
+		query.CollideWithAreas = false;
+		var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
+		if (hit.Count == 0)
+		{
+			return;
+		}
+
+		if (hit["collider"].As<StaticBody3D>() != _computerTerminal.ScreenBody)
+		{
+			return;
+		}
+
+		var point = hit["position"].As<Vector3>();
+		var local = _computerTerminal.ScreenBody.GlobalTransform.AffineInverse() * point;
+		var u = Mathf.Clamp(local.X / ComputerTerminal3D.ScreenWidth + 0.5f, 0f, 1f);
+		var v = Mathf.Clamp(0.5f - local.Y / ComputerTerminal3D.ScreenHeight, 0f, 1f);
+		var viewportPosition = new Vector2(_terminalViewport.Size.X * u, _terminalViewport.Size.Y * v);
+
+		_terminalViewport.PushInput(new InputEventMouseMotion
+		{
+			Position = viewportPosition,
+			GlobalPosition = viewportPosition
+		});
+
+		if (mouse is InputEventMouseButton button)
+		{
+			_terminalViewport.PushInput(new InputEventMouseButton
+			{
+				ButtonIndex = button.ButtonIndex,
+				Pressed = button.Pressed,
+				Position = viewportPosition,
+				GlobalPosition = viewportPosition
+			});
+		}
+
+		GetViewport().SetInputAsHandled();
+	}
+
+	private void OnTerminalViewRequested()
+	{
+		CloseTerminalView();
+	}
+
+	private void EnsureTerminalViewport()
+	{
+		if (_terminalViewport != null)
+		{
+			return;
+		}
+
+		_terminalViewport = new SubViewport
+		{
+			Name = "ComputerScreenViewport",
+			TransparentBg = false,
+			RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
+			Disable3D = true,
+			OwnWorld3D = false,
+			Size = new Vector2I(960, 640)
+		};
+		AddChild(_terminalViewport);
+
+		var callerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerTab.tscn");
+		if (callerScene != null)
+		{
+			_terminalTab = callerScene.Instantiate<CallerTab>();
+			_terminalTab.Name = "ComputerCallerTab";
+			_terminalTab.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+			_terminalViewport.AddChild(_terminalTab);
+			_terminalTab.CloseRequested += OnTerminalViewRequested;
+			_terminalTab.BackRequested += OnTerminalViewRequested;
+		}
+
+		_screenLiveMaterial = new StandardMaterial3D
+		{
+			EmissionEnabled = true,
+			Emission = new Color(1f, 1f, 1f, 1f),
+			EmissionEnergyMultiplier = 1.4f,
+			AlbedoColor = new Color(0.05f, 0.05f, 0.06f, 1f)
+		};
+	}
+
+	private void AttachScreenTexture()
+	{
+		if (_computerTerminal == null)
+		{
+			return;
+		}
+
+		EnsureTerminalViewport();
+		if (_terminalViewport == null || _screenLiveMaterial == null)
+		{
+			return;
+		}
+
+		var texture = _terminalViewport.GetTexture();
+		_screenLiveMaterial.AlbedoTexture = texture;
+		_screenLiveMaterial.EmissionTexture = texture;
+		_computerTerminal.ScreenMesh.MaterialOverride = _screenLiveMaterial;
+	}
+
+	private void DetachScreenTexture()
+	{
+		if (_computerTerminal == null)
+		{
+			return;
+		}
+
+		_computerTerminal.ScreenMesh.MaterialOverride = null;
 	}
 }

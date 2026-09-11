@@ -5,9 +5,21 @@ namespace KBTV.World3D;
 public partial class Player3D : CharacterBody3D
 {
 	[Export] private float _speed = 4.5f;
+	private bool _movementLocked;
 
 	public override void _Ready()
 	{
+		AddToGroup("player");
+	}
+
+	public void SetMovementLocked(bool locked)
+	{
+		_movementLocked = locked;
+		if (locked)
+		{
+			Velocity = Vector3.Zero;
+		}
+		SetPhysicsProcess(!locked);
 	}
 
 	public void SetRoomAnchor(Vector3 roomAnchor)

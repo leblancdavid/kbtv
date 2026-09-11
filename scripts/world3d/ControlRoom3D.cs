@@ -16,12 +16,53 @@ public partial class ControlRoom3D : Node3D
 	private Player3D? _player;
 	private Vector3 _officeChairHome;
 
+	public ComputerTerminal3D ComputerTerminal { get; private set; } = null!;
+	public Node3D ComputerGlb { get; private set; } = null!;
+
 	public override void _Ready()
 	{
 		Visible = true;
 		_officeChair = GetNodeOrNull<Node3D>("OfficeChair");
 		_officeChairHome = _officeChair?.Position ?? Vector3.Zero;
 		CreateColliders();
+		ComputerGlb = GetNode<Node3D>("Computer");
+		ComputerTerminal = new ComputerTerminal3D
+		{
+			Name = "ComputerTerminal",
+			Position = new Vector3(1.55f, 0.85f, -3.55f)
+		};
+		ComputerTerminal.Visible = false;
+		AddChild(ComputerTerminal);
+	}
+
+	public void SetComputerCollidersEnabled(bool enabled)
+	{
+		ToggleColliders(ComputerGlb, enabled);
+	}
+
+	private static void ToggleColliders(Node node, bool enabled)
+	{
+		foreach (var child in node.GetChildren())
+		{
+			if (child is CollisionObject3D collisionObject)
+			{
+				if (enabled)
+				{
+					var layer = (uint)(long)child.GetMeta("_saved_collision_layer", 0L);
+					var mask = (uint)(long)child.GetMeta("_saved_collision_mask", 0L);
+					collisionObject.CollisionLayer = layer;
+					collisionObject.CollisionMask = mask;
+				}
+				else if (collisionObject.CollisionLayer != 0u)
+				{
+					child.SetMeta("_saved_collision_layer", (long)collisionObject.CollisionLayer);
+					child.SetMeta("_saved_collision_mask", (long)collisionObject.CollisionMask);
+					collisionObject.CollisionLayer = 0u;
+					collisionObject.CollisionMask = 0u;
+				}
+			}
+			ToggleColliders(child, enabled);
+		}
 	}
 
 	public override void _Process(double delta)
