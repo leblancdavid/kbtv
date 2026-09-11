@@ -8,16 +8,23 @@ KBTV uses **GoDotTest** as its primary testing framework for unit and integratio
 
 ### Godot Setup
 
-**Godot Installation Path:** `C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe`
+> **⚠️ IMPORTANT — Engine version:** The project targets **Godot 4.6** (`config/features`
+> includes `"4.6"` in `project.godot`). The engine in this repo's common install locations
+> (`C:\Program Files\Godot\...`, `D:\Software\Godot\...`, or the `GODOT` env var) is frequently
+> **4.5.1**, which **cannot run this project's tests** — it boots the game scene instead of the
+> GoDotTest harness and **hangs** (it also throws `FileAccess.GetAsText()` `MissingMethodException`
+> because that API doesn't exist in 4.5.1). Always run tests through `run-tests.ps1`, which
+> auto-detects a Godot 4.6 mono console build.
 
-Set the `GODOT` environment variable to run tests from command line:
+**Godot Installation Path:** use a **Godot 4.6 mono** build (e.g. `Godot_v4.6.x-stable_mono_win64`).
+Point `GODOT` at the 4.6 console executable if you set the env var:
 ```bash
-set GODOT=C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe
+set GODOT=C:\Path\To\Godot_v4.6.x-stable_mono_win64_console.exe
 ```
 
-Or run tests directly:
+Or skip the env var entirely and let the script find a 4.6 build:
 ```bash
-"C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
+pwsh -NoProfile -File run-tests.ps1
 ```
 
 ### NuGet Packages
@@ -79,25 +86,30 @@ tests/
 
 1. Open Godot Editor
 2. Press `F5` or click Play to run the game
-3. Tests run automatically if `--run-tests` is passed
+3. To run the test suite in-editor, set the main scene to `res://test/Tests.tscn` (Project → Project Settings → Run → Main Scene) and press `F5` with `--run-tests` in the editor run command line — or just run `run-tests.ps1` from a terminal (recommended)
 
 ### From Command Line
 
+> Do **not** run `godot --run-tests` directly. `--run-tests` is only honored when the GoDotTest
+> scene (`res://test/Tests.tscn`) is launched; the project's main scene is the game
+> (`Game3D.tscn`), so the bare flag boots the game and hangs. `run-tests.ps1` launches the
+> test scene explicitly and exits non-zero if any test fails.
+
 ```bash
-# Run all tests (using GODOT env var)
-godot --run-tests --quit-on-finish
+# Run all tests (auto-detects a Godot 4.6 mono build)
+pwsh -NoProfile -File run-tests.ps1
 
-# Run all tests (using full path)
-"C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
+# Run a specific test suite
+pwsh -NoProfile -File run-tests.ps1 -Filter ResultTests
 
-# Run specific test suite
-godot --run-tests=ResultTests --quit-on-finish
-
-# Run single test method
-godot --run-tests=ResultTests.Ok_CreatesSuccessfulResult --quit-on-finish
+# Run a single test method
+pwsh -NoProfile -File run-tests.ps1 -Filter "ResultTests.Ok_CreatesSuccessfulResult"
 
 # Run with coverage (for report generation)
-godot --run-tests --coverage --quit-on-finish
+pwsh -NoProfile -File run-tests.ps1 -Coverage
+
+# Pin an explicit Godot binary
+pwsh -NoProfile -File run-tests.ps1 -Godot "C:\Path\To\Godot_v4.6.x-stable_mono_win64_console.exe"
 ```
 
 ### From VS Code
@@ -126,7 +138,7 @@ godot --run-tests --coverage --quit-on-finish
 dotnet build
 
 # Run Godot tests (using full path)
-"C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
+pwsh -NoProfile -File run-tests.ps1
 ```
 
 ## Writing Tests
@@ -238,7 +250,7 @@ public class ScreeningPanelTests : TestClass
 
 1. **Run existing tests to establish a baseline:**
    ```bash
-   "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
+   pwsh -NoProfile -File run-tests.ps1
    ```
 
 2. **Note any pre-existing failures** in your commit message or task notes
@@ -257,7 +269,7 @@ public class ScreeningPanelTests : TestClass
 
 2. **Run tests related to your changes:**
    ```bash
-   "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
+   pwsh -NoProfile -File run-tests.ps1
    ```
 
 3. **Evaluate test results:**
@@ -290,7 +302,7 @@ public class ScreeningPanelTests : TestClass
 - New code should maintain **>= 80%** coverage
 - Check coverage with:
   ```bash
-  "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --coverage --quit-on-finish
+  pwsh -NoProfile -File run-tests.ps1 -Coverage
   ```
 
 ## Test Maintenance
@@ -301,7 +313,7 @@ When modifying production code:
 
 1. **Run existing tests** to identify failures:
    ```bash
-   "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --quit-on-finish
+   pwsh -NoProfile -File run-tests.ps1
    ```
 
 2. **Fix failing tests** that expose bugs in your changes
@@ -509,10 +521,10 @@ public class TestCallerRepositoryObserver : ICallerRepositoryObserver
 
 ```bash
 # Windows (using full path)
-"C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe" --run-tests --coverage --quit-on-finish
+pwsh -NoProfile -File run-tests.ps1 -Coverage
 
-# Or using report-tests.bat
-report-tests.bat --godot "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe"
+# Or using report-tests.bat (collects coverage + generates HTML report)
+report-tests.bat --godot "C:\Path\To\Godot_v4.6.x-stable_mono_win64_console.exe"
 
 # Linux/macOS
 ./report-tests.sh --godot /path/to/godot
@@ -574,21 +586,21 @@ jobs:
       - name: Setup Godot
         uses: barrel-db/godot-action@master
         with:
-          godot-version: 4.5.1
+          godot-version: 4.6.0
           dotnet-version: 8.0
 
       - name: Build
         run: dotnet build
 
       - name: Run Tests
+        shell: pwsh
         run: |
-          $godot = "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe"
-          & $godot --run-tests --quit-on-finish
+          .\run-tests.ps1
 
       - name: Coverage
+        shell: pwsh
         run: |
-          $godot = "C:\Program Files\Godot\Godot_v4.5.1-stable_mono_win64\Godot_v4.5.1-stable_mono_win64.exe"
-          ./report-tests.bat --godot $godot
+          .\run-tests.ps1 -Coverage
 
       - name: Check Coverage
         run: |

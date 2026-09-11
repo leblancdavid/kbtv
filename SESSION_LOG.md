@@ -1,6 +1,45 @@
 ## Current Session
 
 **Branch**: 3d-migration
+**Task**: Restore 3D room-based audio (control = full audio, studio = Vern only, else muffled) and fix the broken GoDotTest test toolchain.
+**Status**: In Progress
+
+### Work Done
+- Diagnosed why all audio was muffled after the 3D migration: `RoomStateManager._Process()` looks up the player via `GetTree().GetFirstNodeInGroup("player") as Player` (2D `Player` type); `Player3D : CharacterBody3D` is never added to the `"player"` group, so the lookup always fails and `CurrentLocation` stays `Outside` forever; `BroadcastAudioService` then initializes everything muffled and `PlayerLocationChanged` never fires. The 3D world also never registered room bounds (`SetControlRoomBounds`/`SetStudioBounds`) — only the 2D rooms did.
+- Added `RoomStateManager.SetPlayerLocation(PlayerLocation)` (-manual reporting API with a `_manualLocation` guard so 2D bounds detection cannot fight it); emits `PlayerLocationChanged` only on change.
+- Wired `World3D._UpdatePlayerRoomState()` to report `InControlRoom` (room or control-room doorway), `InStudio` (studio), else `Outside` to `RoomStateManager` every frame via the cached `/root/RoomStateManager` autoload.
+- Added `using KBTV.Core;` to `World3D.cs` to fix `CS0246: RoomStateManager could not be found`.
+- Added `tests/unit/core/RoomStateManagerTests.cs` (3 tests: updates location, emits only on change, disables bounds detection in `_Process`).
+- Root-caused the "tests hang" issue: `--run-tests` was never honored because the main scene is the game (`Game3D.tscn`); no harness checks the flag. GoDotTest must be launched with the test scene explicitly (`res://test/Tests.tscn`). The `godot` CLI binary was also not on PATH and the documented engine was the wrong version (4.5.1) — running the 4.6 project with 4.5.1 throws `FileAccess.GetAsText()` `MissingMethodException`.
+- Added `run-tests.ps1`: auto-detects a Godot 4.6 mono console build (ignores a wrong-version `GODOT` env var with a warning), launches `test/Tests.tscn` via `--main-scene`/scene arg, parses the GoDotTest summary, and exits non-zero when any test fails.
+- Copied the Godot 4.6.3 mono install from `opencode\godot463` (temp) into `D:\Software\Godot\Godot_v4.6.3-stable_mono_win64` so the toolchain is stable (Temp gets cleaned).
+- Updated `report-tests.bat`, `run_tests_quick.bat`, `run_tests_capture.bat` (fixed `TestRunner.tscn` → `Tests.tscn`) and report-tests.sh to the 4.6 engine / correct args.
+- Updated `AGENTS.md` and `docs/testing/TESTING.md`: replace `godot --run-tests` with `pwsh -NoProfile -File run-tests.ps1`, correct engine version notes, fix the CI example.
+- Verified: `dotnet build` passes; full suite runs via `run-tests.ps1` → **Passed: 487 | Failed: 13 | Skipped: 0**. All 13 failures are pre-existing (AutoInject providers missing in tests: `No provider found for service GameStateManager/EventBus/TimeManager`, etc.) and unrelated to this work. The 3 new `RoomStateManagerTests` pass.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/core/RoomStateManager.cs`
+- `scripts/world3d/World3D.cs`
+- `tests/unit/core/RoomStateManagerTests.cs` (new)
+- `run-tests.ps1` (new)
+- `report-tests.bat`
+- `report-tests.sh`
+- `run_tests_quick.bat`
+- `run_tests_capture.bat`
+- `AGENTS.md`
+- `docs/testing/TESTING.md`
+
+### Next Steps
+1. Playtest audio in 3D: control room = full audio, studio = Vern only, corridors/equipment = muffled.
+2. Optionally fix the 13 pre-existing test failures (missing AutoInject providers) in a follow-up pass.
+3. Consider making the temp/`GODOT` env var point at the new stable 4.6.3 engine path (currently auto-detected).
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
 **Task**: Generate first Blender-authored 3D props: audio cabinet and microphone stand.
 **Status**: In Progress
 

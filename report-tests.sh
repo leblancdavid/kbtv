@@ -18,7 +18,7 @@ mkdir -p "$OUTPUT_DIR"
 echo "Running tests with coverage..."
 coverlet "./.godot/mono/temp/bin/Debug/KBTV.dll" \
   --target "$GODOT_PATH" \
-  --targetargs "--run-tests --coverage --quit-on-finish" \
+  --targetargs "--main-scene res://test/Tests.tscn --run-tests --coverage --quit-on-finish" \
   --format "opencover" \
   --output "$COVERAGE_FILE" \
   --exclude-by-file "**/test/**/*.cs" \

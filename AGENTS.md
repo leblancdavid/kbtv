@@ -145,7 +145,7 @@ glob "tests/**/*[Component]*Tests.cs"
 grep "MethodName" tests/unit/[domain]/[Component]Tests.cs
 
 # Run tests before/after changes
-bash: godot --run-tests --quit-on-finish
+bash: pwsh -NoProfile -File run-tests.ps1
 ```
 
 ### Performance Tips
@@ -1234,9 +1234,13 @@ NuGet packages are already configured in `KBTV.csproj`:
 - Chickensoft.GodotTestDriver (v3.0.0)
 
 **Running Tests:**
-- **Editor**: Run with `--run-tests` flag or use VS Code "Debug Tests" launch config
-- **CLI**: `godot --run-tests --quit-on-finish`
-- **With Coverage**: `godot --run-tests --coverage --quit-on-finish`
+> **IMPORTANT**: The project targets **Godot 4.6**. The engine commonly found in `Program Files`
+> (and often set as the `GODOT` env var) is **4.5.1**, which cannot run this project's tests —
+> it boots the game scene instead of the GoDotTest harness and **hangs**. Always run tests through
+> `run-tests.ps1`, which locates a Godot 4.6 mono build automatically. Never run `godot --run-tests` directly.
+- **CLI**: `pwsh -NoProfile -File run-tests.ps1` (auto-detects a Godot 4.6 mono engine)
+- **Single suite**: `pwsh -NoProfile -File run-tests.ps1 -Filter RoomStateManagerTests`
+- **With Coverage**: `pwsh -NoProfile -File run-tests.ps1 -Coverage`
 
 **Test Structure:**
 ```
@@ -1258,7 +1262,7 @@ When modifying code, AI agents MUST follow these testing guidelines:
 
 1. **Run existing tests to establish a baseline:**
    ```bash
-   godot --run-tests --quit-on-finish
+   pwsh -NoProfile -File run-tests.ps1
    ```
 
 2. **Note any pre-existing failures** - Document these at the start of your work
@@ -1277,7 +1281,7 @@ When modifying code, AI agents MUST follow these testing guidelines:
 
 2. **Run tests related to your changes:**
    ```bash
-   godot --run-tests --quit-on-finish
+   pwsh -NoProfile -File run-tests.ps1
    ```
 
 3. **Evaluate test results:**
@@ -1301,7 +1305,7 @@ When modifying code, AI agents MUST follow these testing guidelines:
 #### Coverage Requirement
 
 - New code should maintain **>= 80%** coverage
-- Check coverage with: `godot --run-tests --coverage --quit-on-finish`
+- Check coverage with: `pwsh -NoProfile -File run-tests.ps1 -Coverage`
 
 #### Test File Locations
 

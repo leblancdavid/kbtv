@@ -1,12 +1,12 @@
 @echo off
 REM Test Coverage Report Script for Windows
 REM Usage: report-tests.bat [godot_path]
-REM Default Godot path: D:\Software\Godot\Godot_v4.5.1-stable_mono_win64.exe
+REM Default Godot path: D:\Software\Godot\Godot_v4.6.3-stable_mono_win64\Godot_v4.6.3-stable_mono_win64_console.exe
 
 setlocal
 
 set GODOT_PATH=%~1
-if "%GODOT_PATH%"=="" set GODOT_PATH=D:\Software\Godot\Godot_v4.5.1-stable_mono_win64.exe
+if "%GODOT_PATH%"=="" set GODOT_PATH=D:\Software\Godot\Godot_v4.6.3-stable_mono_win64\Godot_v4.6.3-stable_mono_win64_console.exe
 
 set OUTPUT_DIR=.\coverage
 set COVERAGE_FILE=%OUTPUT_DIR%\coverage.xml
@@ -21,7 +21,7 @@ REM Run tests with coverage using coverlet
 echo Running tests with coverage...
 dotnet tool run coverlet ./godot/mono/temp/bin/Debug/KBTV.dll ^
   --target "%GODOT_PATH%" ^
-  --targetargs "--run-tests --coverage --quit-on-finish" ^
+  --targetargs "--main-scene res://test/Tests.tscn --run-tests --coverage --quit-on-finish" ^
   --format "opencover" ^
   --output "%COVERAGE_FILE%" ^
   --exclude-by-file "**/test/**/*" ^
