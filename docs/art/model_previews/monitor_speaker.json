@@ -1,0 +1,27 @@
+{
+  "asset": "monitor_speaker",
+  "validation": "passed",
+  "blender_version": "5.2.1 LTS",
+  "authoring_axes": "Z up, +Y front; GLB Y up, -Z front",
+  "file_bytes": 172800,
+  "reimported_blender_stats": {
+    "meshes": 1,
+    "triangles": 2576,
+    "materials": 5,
+    "bounds_min": [
+      -0.25,
+      -0.23999999463558197,
+      0.0
+    ],
+    "bounds_max": [
+      0.25,
+      0.23999999463558197,
+      0.8999999761581421
+    ],
+    "dimensions": [
+      0.5,
+      0.47999998927116394,
+      0.8999999761581421
+    ]
+  }
+}

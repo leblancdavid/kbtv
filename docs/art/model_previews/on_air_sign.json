@@ -1,0 +1,27 @@
+{
+  "asset": "on_air_sign",
+  "validation": "passed",
+  "blender_version": "5.2.1 LTS",
+  "authoring_axes": "Z up, +Y front; GLB Y up, -Z front",
+  "file_bytes": 27916,
+  "reimported_blender_stats": {
+    "meshes": 1,
+    "triangles": 468,
+    "materials": 3,
+    "bounds_min": [
+      -0.44999998807907104,
+      -0.03999999910593033,
+      0.0
+    ],
+    "bounds_max": [
+      0.44999998807907104,
+      0.051500026136636734,
+      0.30000001192092896
+    ],
+    "dimensions": [
+      0.8999999761581421,
+      0.09150002524256706,
+      0.30000001192092896
+    ]
+  }
+}

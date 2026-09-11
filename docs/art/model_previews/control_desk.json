@@ -1,0 +1,27 @@
+{
+  "asset": "control_desk",
+  "validation": "passed",
+  "blender_version": "5.2.1 LTS",
+  "authoring_axes": "Z up, +Y front; GLB Y up, -Z front",
+  "file_bytes": 193120,
+  "reimported_blender_stats": {
+    "meshes": 1,
+    "triangles": 2700,
+    "materials": 4,
+    "bounds_min": [
+      -2.4000000953674316,
+      -0.30000001192092896,
+      0.0
+    ],
+    "bounds_max": [
+      2.4000000953674316,
+      0.30000001192092896,
+      0.800000011920929
+    ],
+    "dimensions": [
+      4.800000190734863,
+      0.6000000238418579,
+      0.800000011920929
+    ]
+  }
+}

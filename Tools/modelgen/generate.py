@@ -1,5 +1,7 @@
 """Run: blender --background --python Tools/modelgen/generate.py"""
 import json
+import argparse
+import importlib
 import sys
 from pathlib import Path
 import bpy
@@ -10,8 +12,10 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 import common
-import audio_cabinet
-import microphone_stand
+
+CONTROL_PROPS = ('control_desk', 'phone_board', 'soundboard', 'crt_computer',
+                 'office_chair', 'monitor_speaker', 'storage_shelf', 'on_air_sign')
+ASSETS = ('audio_cabinet', 'microphone_stand') + CONTROL_PROPS
 
 
 def stats():
@@ -38,19 +42,26 @@ def preview(path):
     scene.render.resolution_y = 640
     scene.render.resolution_percentage = 100
     scene.world.color = (0.22, 0.22, 0.22)
-    bpy.ops.object.camera_add(location=(1.65, 2.5, 1.65))
+    bounds = stats()
+    center = Vector([(a + b) / 2 for a, b in zip(bounds['bounds_min'], bounds['bounds_max'])])
+    span = max(bounds['dimensions'])
+    bpy.ops.object.camera_add(location=center + Vector((1.65, 2.5, 1.65)) * span)
     camera = bpy.context.object
-    common.aim(camera, (0, 0, 0.6))
+    common.aim(camera, center)
     camera.data.type = 'ORTHO'
-    camera.data.ortho_scale = 1.65
+    corners = [o.matrix_world @ Vector(v) for o in scene.objects if o.type == 'MESH' for v in o.bound_box]
+    view_rotation = camera.rotation_euler.to_matrix().transposed()
+    projected = [view_rotation @ (v - center) for v in corners]
+    camera.data.ortho_scale = max(max(v[i] for v in projected) - min(v[i] for v in projected)
+                                 for i in (0, 1)) * 1.2
     scene.camera = camera
     for position, energy, size in [((1, 2, 3), 350, 2), ((-2, 1, 1.5), 200, 2), ((0, -2, 2), 400, 1.5)]:
-        bpy.ops.object.light_add(type='AREA', location=position)
+        bpy.ops.object.light_add(type='AREA', location=center + Vector(position) * span)
         light = bpy.context.object
-        light.data.energy = energy
+        light.data.energy = energy * span * span
         light.data.shape = 'DISK'
-        light.data.size = size
-        common.aim(light, (0, 0, 0.6))
+        light.data.size = size * span
+        common.aim(light, center)
     scene.render.image_settings.file_format = 'PNG'
     scene.render.filepath = str(path)
     bpy.ops.render.render(write_still=True)
@@ -107,5 +118,10 @@ def generate(name, builder):
     print('VALIDATED ' + json.dumps(report))
 
 
-for asset_name, module in [('audio_cabinet', audio_cabinet), ('microphone_stand', microphone_stand)]:
-    generate(asset_name, module)
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Generate selected reproducible station props.')
+    parser.add_argument('--assets', nargs='+', choices=ASSETS)
+    parser.add_argument('--control-room', action='store_true', help='Only new control-room props; reuse accepted assets.')
+    args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else [])
+    for asset_name in args.assets or (CONTROL_PROPS if args.control_room else ASSETS):
+        generate(asset_name, importlib.import_module(asset_name))

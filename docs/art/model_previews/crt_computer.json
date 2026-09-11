@@ -1,0 +1,27 @@
+{
+  "asset": "crt_computer",
+  "validation": "passed",
+  "blender_version": "5.2.1 LTS",
+  "authoring_axes": "Z up, +Y front; GLB Y up, -Z front",
+  "file_bytes": 386116,
+  "reimported_blender_stats": {
+    "meshes": 1,
+    "triangles": 5536,
+    "materials": 5,
+    "bounds_min": [
+      -0.3050000071525574,
+      -0.24949999153614044,
+      0.0
+    ],
+    "bounds_max": [
+      0.3050000071525574,
+      0.2750000059604645,
+      0.5
+    ],
+    "dimensions": [
+      0.6100000143051147,
+      0.5244999974966049,
+      0.5
+    ]
+  }
+}

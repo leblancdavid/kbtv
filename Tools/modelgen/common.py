@@ -59,3 +59,30 @@ def rod(name, start, end, radius, mat):
 
 def aim(obj, point):
     obj.rotation_euler = (Vector(point) - obj.location).to_track_quat('-Z', 'Y').to_euler()
+
+
+def station_palette():
+    """Shared restrained PBR palette for the control-room production props."""
+    return dict(shell=material('Charcoal powdercoat', '3a3d48', 0.25),
+                black=material('Recesses and rubber', '11131a'),
+                metal=material('Worn slate metal', '697078', 0.55, 0.5),
+                wood=material('Worn walnut laminate', '5a5340'),
+                cream=material('Aged labels', 'b4a98b'),
+                green=material('Cool phosphor', '3a8a78', emission=0.7),
+                red=material('Oxblood indicator', 'a23a3a', emission=0.35))
+
+
+def label(name, text, location, size, mat):
+    """Mesh lettering facing authoring +Y (Godot -Z)."""
+    bpy.ops.object.text_add(location=location, rotation=(math.pi / 2, 0, math.pi))
+    obj = bpy.context.object
+    obj.name = name
+    obj.data.body = text
+    obj.data.align_x = 'CENTER'
+    obj.data.align_y = 'CENTER'
+    obj.data.size = size
+    obj.data.extrude = 0.0005
+    obj.data.resolution_u = 2
+    obj.data.materials.append(mat)
+    bpy.ops.object.convert(target='MESH')
+    return bpy.context.object

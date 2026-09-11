@@ -12,14 +12,14 @@ public partial class ControlRoom3D : Node3D
 	private const float ChairPushRadius = 1.1f;
 	private const float ChairMaxDisplacement = 0.8f;
 	private const float ChairMoveSpeed = 6f;
-	private MeshInstance3D? _officeChair;
+	private Node3D? _officeChair;
 	private Player3D? _player;
 	private Vector3 _officeChairHome;
 
 	public override void _Ready()
 	{
 		Visible = true;
-		_officeChair = GetNodeOrNull<MeshInstance3D>("OfficeChair");
+		_officeChair = GetNodeOrNull<Node3D>("OfficeChair");
 		_officeChairHome = _officeChair?.Position ?? Vector3.Zero;
 		CreateColliders();
 	}

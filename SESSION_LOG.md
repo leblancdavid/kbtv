@@ -1,6 +1,26 @@
 ## Current Session
 
 **Branch**: 3d-migration
+**Task**: Complete the control-room Blender prop and World3D visual pass.
+**Status**: In Progress
+
+### Work Done
+- Confirmed clean working tree; reusing accepted audio cabinet.
+
+### Todo / Next Steps
+- [ ] Inspect generator, scene, room scripts, and workflow guidance.
+- [ ] Generate modular props, Blender sources, previews, and validation reports.
+- [ ] Inspect previews and integrate supported, correctly oriented scene placements.
+- [ ] Verify build, tests, Godot 4.6 import/runtime; document results and placements.
+
+### Files Modified
+- `SESSION_LOG.md`
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
 **Task**: Document the GPT-assisted Blender 3D prop workflow for future development.
 **Status**: Completed
 

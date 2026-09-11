@@ -1,0 +1,27 @@
+{
+  "asset": "office_chair",
+  "validation": "passed",
+  "blender_version": "5.2.1 LTS",
+  "authoring_axes": "Z up, +Y front; GLB Y up, -Z front",
+  "file_bytes": 206508,
+  "reimported_blender_stats": {
+    "meshes": 1,
+    "triangles": 3040,
+    "materials": 3,
+    "bounds_min": [
+      -0.3125,
+      -0.3033064007759094,
+      -1.1175870895385742e-08
+    ],
+    "bounds_max": [
+      0.3299999535083771,
+      0.3033064007759094,
+      1.0199999809265137
+    ],
+    "dimensions": [
+      0.6424999535083771,
+      0.6066128015518188,
+      1.0199999921023846
+    ]
+  }
+}

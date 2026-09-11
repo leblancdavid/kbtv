@@ -1,0 +1,27 @@
+{
+  "asset": "storage_shelf",
+  "validation": "passed",
+  "blender_version": "5.2.1 LTS",
+  "authoring_axes": "Z up, +Y front; GLB Y up, -Z front",
+  "file_bytes": 175600,
+  "reimported_blender_stats": {
+    "meshes": 1,
+    "triangles": 2436,
+    "materials": 5,
+    "bounds_min": [
+      -0.5999999642372131,
+      -0.4000000059604645,
+      0.0
+    ],
+    "bounds_max": [
+      0.5999999642372131,
+      0.3999999761581421,
+      1.100000023841858
+    ],
+    "dimensions": [
+      1.1999999284744263,
+      0.7999999821186066,
+      1.100000023841858
+    ]
+  }
+}
