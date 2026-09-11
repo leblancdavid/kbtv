@@ -50,6 +50,8 @@ public partial class World3D : Node3D
 	private SubViewport? _terminalViewport;
 	private CallerTab? _terminalTab;
 	private StandardMaterial3D? _screenLiveMaterial;
+	private TextureRect? _screenDebugPreview;
+	private int _debugSampleTicks = -1;
 
 	public override void _Ready()
 	{
@@ -155,6 +157,7 @@ public partial class World3D : Node3D
 		}
 
 		UpdateComputerHint();
+		UpdateDebugSample();
 	}
 
 
@@ -478,6 +481,21 @@ public partial class World3D : Node3D
 		};
 		AddChild(_terminalViewport);
 
+		var screenLayer = new CanvasLayer
+		{
+			Name = "ComputerScreenCanvas",
+			Layer = 1
+		};
+		_terminalViewport.AddChild(screenLayer);
+
+		var screenRoot = new Control
+		{
+			Name = "ComputerScreenRoot",
+			MouseFilter = Control.MouseFilterEnum.Ignore
+		};
+		screenRoot.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		screenLayer.AddChild(screenRoot);
+
 		var backdrop = new ColorRect
 		{
 			Name = "ComputerScreenBackdrop",
@@ -485,26 +503,30 @@ public partial class World3D : Node3D
 			MouseFilter = Control.MouseFilterEnum.Ignore
 		};
 		backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-		_terminalViewport.AddChild(backdrop);
+		screenRoot.AddChild(backdrop);
 
 		var callerScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/CallerTab.tscn");
 		if (callerScene != null)
 		{
 			_terminalTab = callerScene.Instantiate<CallerTab>();
 			_terminalTab.Name = "ComputerCallerTab";
+			_terminalTab.MouseFilter = Control.MouseFilterEnum.Ignore;
 			_terminalTab.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-			_terminalViewport.AddChild(_terminalTab);
+			screenRoot.AddChild(_terminalTab);
 			_terminalTab.CloseRequested += OnTerminalViewRequested;
 			_terminalTab.BackRequested += OnTerminalViewRequested;
 		}
 
 		_screenLiveMaterial = new StandardMaterial3D
 		{
+			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
 			EmissionEnabled = true,
 			Emission = new Color(1f, 1f, 1f, 1f),
 			EmissionEnergyMultiplier = 1.4f,
 			AlbedoColor = new Color(0.05f, 0.05f, 0.06f, 1f)
 		};
+
+		GD.Print($"EnsureTerminalViewport: viewport={_terminalViewport.Size} tab={_terminalTab != null}");
 	}
 
 	private void AttachScreenTexture()
@@ -521,9 +543,13 @@ public partial class World3D : Node3D
 		}
 
 		var texture = _terminalViewport.GetTexture();
-		_screenLiveMaterial.AlbedoTexture = texture;
 		_screenLiveMaterial.EmissionTexture = texture;
 		_computerTerminal.ScreenMesh.MaterialOverride = _screenLiveMaterial;
+		_addedScreenMaterial = true;
+
+		SetupScreenDebugPreview();
+		ScheduleDebugSample();
+		GD.Print($"AttachScreenTexture: texture={texture.GetWidth()}x{texture.GetHeight()} applied");
 	}
 
 	private void DetachScreenTexture()
@@ -534,5 +560,94 @@ public partial class World3D : Node3D
 		}
 
 		_computerTerminal.ScreenMesh.MaterialOverride = null;
+		_addedScreenMaterial = false;
+		HideScreenDebugPreview();
+	}
+
+	private bool _addedScreenMaterial;
+
+	private void SetupScreenDebugPreview()
+	{
+		if (_screenDebugPreview != null || _terminalViewport == null)
+		{
+			return;
+		}
+
+		var panel = new PanelContainer
+		{
+			Name = "TerminalScreenPreview",
+			MouseFilter = Control.MouseFilterEnum.Ignore,
+			Position = new Vector2(16f, 64f)
+		};
+		var preview = new TextureRect
+		{
+			Texture = _terminalViewport.GetTexture(),
+			StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+			CustomMinimumSize = new Vector2(320f, 213f),
+			MouseFilter = Control.MouseFilterEnum.Ignore
+		};
+		panel.AddChild(preview);
+		_status_label?.GetParent()?.GetParent()?.AddChild(panel);
+		_screenDebugPreview = preview;
+	}
+
+	private void HideScreenDebugPreview()
+	{
+		if (_screenDebugPreview == null)
+		{
+			return;
+		}
+
+		var panel = _screenDebugPreview.GetParent();
+		_screenDebugPreview = null;
+		panel?.QueueFree();
+	}
+
+	private void ScheduleDebugSample()
+	{
+		if (_debugSampleTicks < 0)
+		{
+			_debugSampleTicks = 30;
+		}
+	}
+
+	private void UpdateDebugSample()
+	{
+		if (_debugSampleTicks < 0 || _terminalViewport == null)
+		{
+			return;
+		}
+
+		if (_debugSampleTicks-- > 0)
+		{
+			return;
+		}
+
+		_debugSampleTicks = -1;
+		var viewportTexture = _terminalViewport.GetTexture();
+		var image = viewportTexture.GetImage();
+		if (image == null)
+		{
+			GD.Print("ScreenDebug: unable to read viewport image");
+			return;
+		}
+
+		var nonBlack = 0;
+		var total = 0;
+		var size = image.GetSize();
+		var data = image.GetData();
+		for (var i = 0; i < data.Length; i += 4)
+		{
+			var r = data[i];
+			var g = data[i + 1];
+			var b = data[i + 2];
+			total++;
+			if (r > 24 || g > 24 || b > 24)
+			{
+				nonBlack++;
+			}
+		}
+
+		GD.Print($"ScreenDebug: {size.X}x{size.Y}, non-black pixels={nonBlack}/{total} ({(total == 0 ? 0 : nonBlack * 100 / total)}%), materialApplied={_addedScreenMaterial}");
 	}
 }

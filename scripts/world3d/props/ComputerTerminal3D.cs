@@ -21,7 +21,7 @@ public partial class ComputerTerminal3D : Node3D
 
 	public Vector3 ScreenCenter => ScreenMesh.GlobalPosition;
 
-	private const float ScreenZOffset = 0.071f;
+	private const float ScreenZOffset = 0.10f;
 	private const float ScreenCenterY = 0.35f;
 
 	private static readonly Color MonitorColor = new(0.16f, 0.16f, 0.18f);

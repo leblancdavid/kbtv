@@ -2,23 +2,27 @@
 
 **Branch**: 3d-migration
 **Task**: Fix zoomed-in computer view - caller screening UI on the monitor + framing shows the CRT.
-**Status**: Completed
+**Status**: In Progress
 
 ### Work Done
-- Root cause of blank monitor: `CallerTab._Ready` resolves `ICallerRepository`/`IScreeningController`/`TimeManager` via tree-scoped `DependencyInjection.Get`; the only provider (`ServiceProviderRoot`) is a sibling of `World`, and the global `DependencyInjection.Register` resolvers were never populated, so `_Ready` threw and the SubViewport rendered near-black.
-- Added `ServiceProviderRoot.RegisterGlobalResolvers()` (reflection over all `IProvide<T>` interfaces, typed `Func<Node,T>` via `System.Linq.Expressions` + `DependencyInjection.Register<T>`), called at end of `Initialize()`. UI hosted anywhere (incl. the 3D terminal SubViewport) now resolves services; 2D path unaffected.
-- Second bug (runtime): `Expression.Lambda(...)` result must be `.Compile()`d before `Register<T>` — fixed (ServiceProviderRoot.cs:157).
-- Third bug: terminal SubViewport still rendered black with no errors - it never got a World2D (Godot 4 has no OwnWorld2D; viewports render to the `world_2d` property). Assigned a dedicated `World2D = new World2D()` in `EnsureTerminalViewport()` + added a dark `ColorRect` backdrop behind `CallerTab`.
-- Fixed zoom framing in `World3D.cs`: `TerminalFramingWidth` 1.05 -> 1.6 (fits the full housing/base stack, ortho half-height 0.45); terminal camera pos -> `screenPos + (0,-0.02,1.5)`, look target -> `screenPos + (0,-0.12,0)` so the whole CRT (not just the screen) is centered.
-- Screen input was already forwarded via raycast->SubViewport `PushInput`; with UI now rendering, on-screen buttons should be clickable (to verify in-editor).
-- `dotnet build`: 0 errors. Tests: 487 passed / 13 failed = unchanged pre-existing baseline.
+- Playtest exposed the real failure: interaction + zoom work, but the monitor screen mesh renders black. Prior "Completed" was optimistic (never in-editor verified).
+- Root-cause analysis: (1) screen plane at z=`0.071` vs housing front face at z=`+0.070` (housing depth 0.14, centered 0) — effectively coplanar, housing wins z-buffer → black screen (primary). (2) `EnsureTerminalViewport()` used `Disable3D=true` + a fresh `World2D` with bare Controls, unlike the proven `CallerScreenerManager.EnsureVernViewport` pattern.
+- Fixed occlusion: `ComputerTerminal3D.ScreenZOffset` 0.071 → 0.10 (clear 3cm in front of housing front face).
+- Restructured `EnsureTerminalViewport()` in `World3D.cs`: controls now live under a `CanvasLayer`("ComputerScreenCanvas", Layer 1) → full-rect root `Control` → backdrop `ColorRect` + `CallerTab` (MouseFilter Ignore), keeping the isolated `World2D = new World2D()`, `Disable3D=true`, `UpdateMode.Always`, 960x640.
+- Fixed material: `StandardMaterial3D` now `ShadingMode.Unshaded`, `Emission=white`, `EmissionTexture` only (dropped the `AlbedoTexture` binding that double-darkened), `EmissionEnergyMultiplier=1.4`.
+- Added diagnostics: `SetupScreenDebugPreview()` shows a live 320x213 TextureRect of the SubViewport texture on the StatusLayer (only when the terminal opens); single-shot `UpdateDebugSample()` reads the viewport image ~30 frames after attach and prints non-black pixel ratio + whether the material is applied — decisively splits "occlusion" vs "empty texture" without needing eyes on screen.
+- Also `DetachScreenTexture()` now hides the debug preview.
+- `dotnet build`: 0 errors (10 pre-existing warnings). Tests: 487 passed / 13 failed = unchanged pre-existing baseline.
 
 ### Todo / Next Steps
-- [ ] In-editor verify: open terminal -> UI visible on monitor, full CRT in frame, Approve/Reject/X/<- clickable, Esc closes (GLB swap-back at zoom-out start), player re-shown at zoom-out end.
+- [ ] In-editor verify: walk to computer → F → zoom → monitor shows CallerTab/ScreeningPanel (expect `ScreenDebug: ... non-black pixels=N` log to confirm texture is populated).
+- [ ] If the log shows ~0% non-black, the SubViewport isn't populating → mirror `CallerScreenerManager` more exactly (shared root viewport World2D + Camera2D).
+- [ ] Confirm Approve/Reject/X/<- clickable, Esc closes (GLB swap-back at zoom-out start), player re-shown at zoom-out end.
+- [ ] Remove debug preview + sampling once verified.
 
 ### Files Modified
 - `SESSION_LOG.md`
-- `scripts/core/ServiceProviderRoot.cs`
+- `scripts/world3d/props/ComputerTerminal3D.cs`
 - `scripts/world3d/World3D.cs`
 
 ---
