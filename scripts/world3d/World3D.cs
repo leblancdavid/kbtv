@@ -18,7 +18,7 @@ public partial class World3D : Node3D
 	private static readonly Vector3 StudioHallLeakDirection = Vector3.Right;
 
 	private const float TerminalZoomSpeed = 3.2f;
-	private const float TerminalFramingWidth = 1.6f;
+	private const float TerminalFramingWidth = 1.0f;
 
 	private enum TerminalViewState
 	{
@@ -49,9 +49,28 @@ public partial class World3D : Node3D
 	private Basis _terminalCameraBasis;
 	private SubViewport? _terminalViewport;
 	private CallerTab? _terminalTab;
+	private TerminalOverlay? _terminalOverlay;
 	private StandardMaterial3D? _screenLiveMaterial;
 	private TextureRect? _screenDebugPreview;
 	private int _debugSampleTicks = -1;
+
+	private double _lastTerminalLogTime = -1.0;
+	private int _terminalPushCount;
+	private int _terminalMissCount;
+	private bool _terminalLeftPressed;
+	private bool _terminalRightPressed;
+	private bool _terminalMiddlePressed;
+
+	private void LogTerminalMouse(string line)
+	{
+		var now = Time.GetTicksMsec() / 1000.0;
+		if (now - _lastTerminalLogTime < 0.25)
+		{
+			return;
+		}
+		_lastTerminalLogTime = now;
+		GD.Print($"[TerminalMouse] {line}");
+	}
 
 	public override void _Ready()
 	{
@@ -92,6 +111,9 @@ public partial class World3D : Node3D
 
 		_control_room.ShowRoom();
 		_studio_room.ShowRoom();
+		_terminalOverlay = new TerminalOverlay { Name = "TerminalOverlay" };
+		_terminalOverlay.CloseRequested += OnTerminalViewRequested;
+		AddChild(_terminalOverlay);
 		UpdateStatusLabel("CONTROL ROOM");
 	}
 
@@ -104,19 +126,23 @@ public partial class World3D : Node3D
 		UpdateCamera(0.0, true);
 	}
 
-	public override void _UnhandledInput(InputEvent @event)
+	public override void _Input(InputEvent @event)
 	{
 		if (@event is InputEventKey key && key.Pressed && key.Keycode == Key.Escape
 			&& _terminalViewState != TerminalViewState.None)
 		{
 			CloseTerminalView();
 			GetViewport().SetInputAsHandled();
-			return;
 		}
+	}
 
-		if (_terminalViewState == TerminalViewState.Open && @event is InputEventMouse mouse)
+	public override void _UnhandledInput(InputEvent @event)
+	{
+		if (_terminalViewState != TerminalViewState.None
+			&& Input.IsActionJustPressed("interact"))
 		{
-			ForwardTerminalMouse(mouse);
+			CloseTerminalView();
+			GetViewport().SetInputAsHandled();
 			return;
 		}
 
@@ -158,6 +184,7 @@ public partial class World3D : Node3D
 
 		UpdateComputerHint();
 		UpdateDebugSample();
+		UpdateTerminalOverlayBounds();
 	}
 
 
@@ -347,6 +374,7 @@ public partial class World3D : Node3D
 		}
 
 		_terminalViewState = TerminalViewState.ZoomingOut;
+		_terminalOverlay?.HideTerminal();
 		DetachScreenTexture();
 		_computerTerminal.Visible = false;
 		_control_room.ComputerGlb.Visible = true;
@@ -382,11 +410,23 @@ public partial class World3D : Node3D
 			_control_room.SetComputerCollidersEnabled(false);
 			_control_room.ComputerGlb.Visible = false;
 			_computerTerminal.Visible = true;
+
+			var screenBody = _computerTerminal.ScreenBody.GlobalTransform.Origin;
+			var camPos = _camera.GlobalPosition;
+			var visRect = GetViewport().GetVisibleRect().Size;
+			var vpDesc = _terminalViewport == null ? "null" : $"{_terminalViewport.Size} guiDisable={_terminalViewport.GuiDisableInput} kids={_terminalViewport.GetChildCount()}";
+			GD.Print($"[Terminal] OPEN win={DisplayServer.WindowGetSize()} visibleRect={visRect} " +
+				$"stretch={ProjectSettings.GetSetting("display/window/stretch/mode")} " +
+				$"camProjection={_camera.Projection} camSize={_camera.Size:N3} camPos=({camPos.X:N3},{camPos.Y:N3},{camPos.Z:N3}) " +
+				$"screen=({screenBody.X:N3},{screenBody.Y:N3},{screenBody.Z:N3}) screenSize={ComputerTerminal3D.ScreenWidth}x{ComputerTerminal3D.ScreenHeight} " +
+				$"subViewport={vpDesc}");
+			_terminalPushCount = 0;
+			_terminalMissCount = 0;
 			if (_player != null)
 			{
 				_player.Visible = false;
 			}
-			AttachScreenTexture();
+			ShowTerminalOverlay();
 		}
 		else if (_terminalViewState == TerminalViewState.ZoomingOut && _zoomProgress <= 0f)
 		{
@@ -402,45 +442,21 @@ public partial class World3D : Node3D
 
 	private void ForwardTerminalMouse(InputEventMouse mouse)
 	{
-		if (_terminalViewport == null || _computerTerminal == null)
+		if (!TryGetTerminalViewportPosition(mouse.Position, true, out var viewportPosition))
 		{
 			return;
 		}
 
-		var camera = GetViewport().GetCamera3D();
-		if (camera == null)
-		{
-			return;
-		}
+		var buttonMask = mouse is InputEventMouseMotion motion ? motion.ButtonMask : (MouseButtonMask)0;
 
-		var from = camera.ProjectRayOrigin(mouse.Position);
-		var to = from + camera.ProjectRayNormal(mouse.Position) * 60f;
-
-		var query = PhysicsRayQueryParameters3D.Create(from, to);
-		query.CollideWithBodies = true;
-		query.CollideWithAreas = false;
-		var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
-		if (hit.Count == 0)
-		{
-			return;
-		}
-
-		if (hit["collider"].AsGodotObject() is not StaticBody3D colliderBody
-			|| colliderBody != _computerTerminal.ScreenBody)
-		{
-			return;
-		}
-
-		var point = hit["position"].As<Vector3>();
-		var local = _computerTerminal.ScreenBody.GlobalTransform.AffineInverse() * point;
-		var u = Mathf.Clamp(local.X / ComputerTerminal3D.ScreenWidth + 0.5f, 0f, 1f);
-		var v = Mathf.Clamp(0.5f - local.Y / ComputerTerminal3D.ScreenHeight, 0f, 1f);
-		var viewportPosition = new Vector2(_terminalViewport.Size.X * u, _terminalViewport.Size.Y * v);
+		_terminalPushCount++;
+		LogTerminalMouse($"PUSH #{_terminalPushCount} type={mouse.GetType().Name} mouse={mouse.Position} vpPos={viewportPosition} mask={buttonMask}");
 
 		_terminalViewport.PushInput(new InputEventMouseMotion
 		{
 			Position = viewportPosition,
-			GlobalPosition = viewportPosition
+			GlobalPosition = viewportPosition,
+			ButtonMask = buttonMask
 		});
 
 		if (mouse is InputEventMouseButton button)
@@ -455,6 +471,193 @@ public partial class World3D : Node3D
 		}
 
 		GetViewport().SetInputAsHandled();
+	}
+
+	private void ShowTerminalOverlay()
+	{
+		ApplyTerminalScreenGlow();
+		UpdateTerminalOverlayBounds();
+		_terminalOverlay?.ShowTerminal();
+	}
+
+	private void ApplyTerminalScreenGlow()
+	{
+		if (_computerTerminal == null)
+		{
+			return;
+		}
+
+		_screenLiveMaterial ??= new StandardMaterial3D
+		{
+			ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+			EmissionEnabled = true,
+			Emission = new Color(0.10f, 0.48f, 0.38f, 1f),
+			EmissionEnergyMultiplier = 0.35f,
+			AlbedoColor = new Color(0.015f, 0.03f, 0.025f, 1f)
+		};
+
+		_computerTerminal.ScreenMesh.MaterialOverride = _screenLiveMaterial;
+		_addedScreenMaterial = true;
+	}
+
+	private void UpdateTerminalOverlayBounds()
+	{
+		if (_terminalViewState != TerminalViewState.Open || _terminalOverlay == null
+			|| _computerTerminal == null)
+		{
+			return;
+		}
+
+		var points = ProjectTerminalScreenCorners();
+		var viewportSize = GetViewport().GetVisibleRect().Size;
+		_terminalOverlay.SetScreenBounds(points, viewportSize);
+	}
+
+	private Vector2[] ProjectTerminalScreenCorners()
+	{
+		var transform = _computerTerminal!.ScreenBody.GlobalTransform;
+		var halfWidth = ComputerTerminal3D.ScreenWidth * 0.5f;
+		var halfHeight = ComputerTerminal3D.ScreenHeight * 0.5f;
+		var corners = new[]
+		{
+			transform * new Vector3(-halfWidth, halfHeight, 0f),
+			transform * new Vector3(halfWidth, halfHeight, 0f),
+			transform * new Vector3(-halfWidth, -halfHeight, 0f),
+			transform * new Vector3(halfWidth, -halfHeight, 0f)
+		};
+
+		var points = new Vector2[corners.Length];
+		for (var i = 0; i < corners.Length; i++)
+		{
+			points[i] = _camera.UnprojectPosition(corners[i]);
+		}
+		return points;
+	}
+
+	private void PollTerminalMouse()
+	{
+		if (_terminalViewState != TerminalViewState.Open || _terminalViewport == null)
+		{
+			_terminalLeftPressed = false;
+			_terminalRightPressed = false;
+			_terminalMiddlePressed = false;
+			return;
+		}
+
+		var mousePosition = GetViewport().GetMousePosition();
+		if (!TryGetTerminalViewportPosition(mousePosition, false, out var viewportPosition))
+		{
+			UpdateTerminalDebugStatus("mouse off screen");
+			return;
+		}
+
+		var buttonMask = GetPolledMouseButtonMask();
+		_terminalViewport.PushInput(new InputEventMouseMotion
+		{
+			Position = viewportPosition,
+			GlobalPosition = viewportPosition,
+			ButtonMask = buttonMask
+		});
+
+		PushPolledButton(MouseButton.Left, ref _terminalLeftPressed, viewportPosition);
+		PushPolledButton(MouseButton.Right, ref _terminalRightPressed, viewportPosition);
+		PushPolledButton(MouseButton.Middle, ref _terminalMiddlePressed, viewportPosition);
+		UpdateTerminalDebugStatus($"mouse {viewportPosition.X:N0},{viewportPosition.Y:N0} mask={buttonMask}");
+	}
+
+	private bool TryGetTerminalViewportPosition(Vector2 mousePosition, bool logFailures, out Vector2 viewportPosition)
+	{
+		viewportPosition = Vector2.Zero;
+		if (_terminalViewport == null || _computerTerminal == null)
+		{
+			if (logFailures)
+			{
+				LogTerminalMouse($"EARLY: viewport null (vp={_terminalViewport != null}, term={_computerTerminal != null})");
+			}
+			return false;
+		}
+
+		var camera = GetViewport().GetCamera3D();
+		if (camera == null)
+		{
+			if (logFailures)
+			{
+				LogTerminalMouse("EARLY: camera null");
+			}
+			return false;
+		}
+
+		var from = camera.ProjectRayOrigin(mousePosition);
+		var to = from + camera.ProjectRayNormal(mousePosition) * 60f;
+
+		var query = PhysicsRayQueryParameters3D.Create(from, to);
+		query.CollideWithBodies = true;
+		query.CollideWithAreas = false;
+		var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
+		if (hit.Count == 0)
+		{
+			_terminalMissCount++;
+			if (logFailures)
+			{
+				var p = camera.ProjectRayNormal(mousePosition);
+				LogTerminalMouse($"RAY MISS ({_terminalMissCount}) mouse={mousePosition} origin={from} dir=({p.X:N3},{p.Y:N3},{p.Z:N3})");
+			}
+			return false;
+		}
+
+		if (hit["collider"].AsGodotObject() is not StaticBody3D colliderBody
+			|| colliderBody != _computerTerminal.ScreenBody)
+		{
+			_terminalMissCount++;
+			if (logFailures)
+			{
+				var queued = hit["collider"].AsGodotObject();
+				LogTerminalMouse($"WRONG COLLIDER ({_terminalMissCount}) hit='{queued}' want='{_computerTerminal.ScreenBody}' at {hit["position"].As<Vector3>()}");
+			}
+			return false;
+		}
+
+		var point = hit["position"].As<Vector3>();
+		var local = _computerTerminal.ScreenBody.GlobalTransform.AffineInverse() * point;
+		var u = Mathf.Clamp(local.X / ComputerTerminal3D.ScreenWidth + 0.5f, 0f, 1f);
+		var v = Mathf.Clamp(0.5f - local.Y / ComputerTerminal3D.ScreenHeight, 0f, 1f);
+		viewportPosition = new Vector2(_terminalViewport.Size.X * u, _terminalViewport.Size.Y * v);
+		return true;
+	}
+
+	private static MouseButtonMask GetPolledMouseButtonMask()
+	{
+		var mask = (MouseButtonMask)0;
+		if (Input.IsMouseButtonPressed(MouseButton.Left)) mask |= MouseButtonMask.Left;
+		if (Input.IsMouseButtonPressed(MouseButton.Right)) mask |= MouseButtonMask.Right;
+		if (Input.IsMouseButtonPressed(MouseButton.Middle)) mask |= MouseButtonMask.Middle;
+		return mask;
+	}
+
+	private void PushPolledButton(MouseButton button, ref bool wasPressed, Vector2 viewportPosition)
+	{
+		var isPressed = Input.IsMouseButtonPressed(button);
+		if (isPressed == wasPressed)
+		{
+			return;
+		}
+
+		wasPressed = isPressed;
+		_terminalViewport?.PushInput(new InputEventMouseButton
+		{
+			ButtonIndex = button,
+			Pressed = isPressed,
+			Position = viewportPosition,
+			GlobalPosition = viewportPosition
+		});
+	}
+
+	private void UpdateTerminalDebugStatus(string detail)
+	{
+		if (_status_label != null)
+		{
+			_status_label.Text = $"KBTV 3D BLOCKOUT | TERMINAL | {detail}";
+		}
 	}
 
 	private void OnTerminalViewRequested()
@@ -477,7 +680,7 @@ public partial class World3D : Node3D
 			Disable3D = true,
 			World2D = new World2D(),
 			OwnWorld3D = false,
-			Size = new Vector2I(960, 640)
+			Size = new Vector2I(1152, 640)
 		};
 		AddChild(_terminalViewport);
 
@@ -490,8 +693,7 @@ public partial class World3D : Node3D
 
 		var screenRoot = new Control
 		{
-			Name = "ComputerScreenRoot",
-			MouseFilter = Control.MouseFilterEnum.Ignore
+			Name = "ComputerScreenRoot"
 		};
 		screenRoot.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		screenLayer.AddChild(screenRoot);
@@ -510,7 +712,6 @@ public partial class World3D : Node3D
 		{
 			_terminalTab = callerScene.Instantiate<CallerTab>();
 			_terminalTab.Name = "ComputerCallerTab";
-			_terminalTab.MouseFilter = Control.MouseFilterEnum.Ignore;
 			_terminalTab.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 			screenRoot.AddChild(_terminalTab);
 			_terminalTab.CloseRequested += OnTerminalViewRequested;

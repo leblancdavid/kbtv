@@ -1,24 +1,48 @@
 ## Current Session
 
 **Branch**: 3d-migration
-**Task**: Fix zoomed-in computer view - caller screening UI on the monitor + framing shows the CRT.
+**Task**: Computer view fix round 4 - projected screen-space CRT overlay for reliable native UI input.
 **Status**: In Progress
 
 ### Work Done
-- Playtest exposed the real failure: interaction + zoom work, but the monitor screen mesh renders black. Prior "Completed" was optimistic (never in-editor verified).
-- Root-cause analysis: (1) screen plane at z=`0.071` vs housing front face at z=`+0.070` (housing depth 0.14, centered 0) — effectively coplanar, housing wins z-buffer → black screen (primary). (2) `EnsureTerminalViewport()` used `Disable3D=true` + a fresh `World2D` with bare Controls, unlike the proven `CallerScreenerManager.EnsureVernViewport` pattern.
-- Fixed occlusion: `ComputerTerminal3D.ScreenZOffset` 0.071 → 0.10 (clear 3cm in front of housing front face).
-- Restructured `EnsureTerminalViewport()` in `World3D.cs`: controls now live under a `CanvasLayer`("ComputerScreenCanvas", Layer 1) → full-rect root `Control` → backdrop `ColorRect` + `CallerTab` (MouseFilter Ignore), keeping the isolated `World2D = new World2D()`, `Disable3D=true`, `UpdateMode.Always`, 960x640.
-- Fixed material: `StandardMaterial3D` now `ShadingMode.Unshaded`, `Emission=white`, `EmissionTexture` only (dropped the `AlbedoTexture` binding that double-darkened), `EmissionEnergyMultiplier=1.4`.
-- Added diagnostics: `SetupScreenDebugPreview()` shows a live 320x213 TextureRect of the SubViewport texture on the StatusLayer (only when the terminal opens); single-shot `UpdateDebugSample()` reads the viewport image ~30 frames after attach and prints non-black pixel ratio + whether the material is applied — decisively splits "occlusion" vs "empty texture" without needing eyes on screen.
-- Also `DetachScreenTexture()` now hides the debug preview.
-- `dotnet build`: 0 errors (10 pre-existing warnings). Tests: 487 passed / 13 failed = unchanged pre-existing baseline.
+- Round 1 (completed, in-editor verified): occlusion + viewport fixes landed. UI was visible on the monitor but user reported the text was unreadable/tiny and clicks didn't register.
+- Diagnosed root cause: the CallerTab UI was authored for a 1280x720 window but rendered into a 960x640 (1.5:1) SubViewport drawn on a 0.9 x 0.5 (1.8:1) screen plane. At `TerminalFramingWidth=1.6` the monitor footprint is only ~720x400 screen px → text ~6px on screen, 1.2x horizontal stretch (aspect mismatch), buttons sub-5px (un-clickable in practice).
+- Plan approved: keep monitor texture (Option A). Fix = zoom so footprint is ~1152x640 (1:1 with viewport → fonts at native design size), make viewport 1152x640 (1.8:1 = plane aspect, kills stretch), harden `ForwardTerminalMouse` (ButtonMask on hover motion; ensure wheel/scroll passthrough), `TerminalFramingWidth 1.6 → 1.0`.
+- Implemented all three World3D.cs changes: `TerminalFramingWidth 1.6 → 1.0` (line 21); SubViewport size (960,640) → (1152,640) — now 1.8:1 = plane aspect (kills the 1.2x stretch); `ForwardTerminalMouse` now forwards `ButtonMask` from motion events (via `(MouseButtonMask)0` default since `MouseButtonMask.None` doesn't exist in Godot) and keeps `InputEventMouseButton` passthrough for wheel/scroll.
+- User reported (post round-2) "no hover, clicks do nothing" on the monitor UI. Investigated the full input chain: OS mouse → `_UnhandledInput` → raycast to `ScreenBody` → `PushInput` → CallerTab GUI in the SubViewport. Strongest static suspect: `EnsureTerminalViewport()` set `MouseFilter.Ignore` on both `screenRoot` AND `_terminalTab` (Godot 4 `MOUSE_FILTER_IGNORE` can make the root + subtree transparent to mouse → exactly the symptom). The working 2D path (`CallerScreenerManager`) leaves the same CallerTab at default Stop.
+- Step 1 applied: removed the `MouseFilter.Ignore` overrides on `screenRoot` and `_terminalTab` in `EnsureTerminalViewport()` (backdrop keeps Ignore; it's a pass-through leaf under the tab).
+- `dotnet clean && dotnet build`: 0 errors, 10 pre-existing warnings. `run-tests.ps1`: **487 passed / 13 failed = unchanged pre-existing baseline**.
+- **User verification after Step 1: still can't click on the screen.** MouseFilter was NOT the (only) cause.
+- **User diagnostic run #1 hit an NRE** at `UpdateTerminalCamera` (World3D.cs:404): my OPEN print referenced `_terminalViewport.Size`/`GuiDisableInput`, but the viewport is lazily created by `EnsureTerminalViewport()` — which only runs later from `AttachScreenTexture()` (line ~578). On first open the viewport is still null. **Fixed**: OPEN print now builds a null-safe `vpDesc` ("null" or size/guiDisable/kids); `EnsureTerminalViewport` already logs its own viewport-size line afterward.
+- User's diagnostic run reported "no logs at all" (not just no mouse logs). Since telemetry was build-green after the NRE fix, no logs means `ForwardTerminalMouse` never runs → events never reach `_UnhandledInput`.
+- **Root cause FOUND (static):** `GameStateManager.FinishLoading()` lands in `GamePhase.PreShow` (GameStateManager.cs:127), and UIManager shows the PreShow layer in that phase. `PreShowUIManager.CreateTabSystem()` (PreShowUIManager.cs:83-92) builds a **full-rect anchored `MarginContainer` with default `MouseFilter.Stop`** covering the whole window. Godot 4 input order is `_input` (all nodes) → GUI `_gui_input` (or `_shortcut_input`) → `_unhandled_input`, so that STOP container consumes every mouse event before `_UnhandledInput` while the 3D game is in PreShow. Key events still pass through (no GUI focus) — exactly why `E` opens the terminal / Esc closes it but mouse never logs and hover/click never works. `StatusPanel` (top-left 420x56) and CallerScreener canvas (hidden) are not the blocker.
+- **Fix applied (Step 3):** moved terminal mouse handling from `_UnhandledInput` to `World3D._Input()` — `_input` is dispatched to all nodes *before* GUI processing, so it bypasses the full-screen STOP container. While `_terminalViewState == Open`, mouse events now go straight to `ForwardTerminalMouse` + `GetViewport().SetInputAsHandled()` (also blocks the background pre-show buttons from receiving phantom clicks). Esc-to-close also moved to `_Input`; `E`-to-close while open and `E`-to-open (when in range + closed) kept in `_UnhandledInput`. Keys deliberately left out of `_Input` so the pre-show UI behaves normally when the terminal is closed.
+- `dotnet build` after Step 3: **0 errors, 10 pre-existing warnings** (unchanged baseline). Tests not re-run (input routing change, no test coverage for World3D input; baseline 487 pass / 13 fail).
+- **Pending user verification:** in-editor run → hover (buttons highlight), left-click (Approve/Reject/X/caller rows), scroll, and Esc. Telemetry (`[TerminalMouse]`) should now show `PUSH #N` lines.
+- User reported after rebuild: still no logs at all. Treating event callback logging as unreliable/blocked in-editor. Next fix: add `_Process()` polling fallback that forwards hover and button transitions directly from `GetViewport().GetMousePosition()` / `Input.IsMouseButtonPressed()` while terminal is open, plus status-label diagnostics so feedback is visible even if console output is absent.
+- Step 4 implemented in `World3D.cs`: terminal mouse hover/left/right/middle click now forward from `_Process()` polling while terminal is open; `_Input()` now keeps only wheel scroll forwarding to avoid duplicate click events; shared raycast-to-viewport mapping extracted; status label shows `TERMINAL | mouse x,y mask=...` or `mouse off screen` while open.
+- `dotnet build`: 0 errors, 10 pre-existing warnings.
+- User confirmed mouse inputs still do not work correctly. New approach approved: stop using interactive 3D SubViewport/raycast forwarding and create a normal `CanvasLayer` UI overlay projected onto the CRT screen bounds, preserving diegetic monitor look while using native Godot mouse input.
+- Added `scripts/world3d/TerminalOverlay.cs`: high-layer `CanvasLayer` with clipped projected screen frame, native `CallerTab` instance, phosphor tint, glow, scanlines, and vignette. `CloseRequested`/`BackRequested` route back to terminal close.
+- Wired `World3D.cs` to create the overlay, show it when terminal zoom reaches `Open`, hide it on close, and update its bounds by unprojecting the procedural CRT screen's four 3D corners each frame. Removed the mouse-swallowing `_Input()` branch so native overlay controls receive mouse events directly.
+- Terminal screen mesh now gets a simple dark green emissive glow while the overlay is open instead of relying on an interactive viewport texture.
+- `dotnet build`: 0 errors, 10 pre-existing warnings.
+- User hit two first-run overlay errors: `CallerTab` initialized before global DI resolvers were registered, and projected screen bounds could exceed the viewport causing an invalid `Mathf.Clamp` range. Fixed by lazily instantiating `CallerTab` in `TerminalOverlay.ShowTerminal()` and capping overlay size to the available viewport before clamping. `dotnet build`: 0 errors, 10 pre-existing warnings.
 
 ### Todo / Next Steps
-- [ ] In-editor verify: walk to computer → F → zoom → monitor shows CallerTab/ScreeningPanel (expect `ScreenDebug: ... non-black pixels=N` log to confirm texture is populated).
-- [ ] If the log shows ~0% non-black, the SubViewport isn't populating → mirror `CallerScreenerManager` more exactly (shared root viewport World2D + Camera2D).
-- [ ] Confirm Approve/Reject/X/<- clickable, Esc closes (GLB swap-back at zoom-out start), player re-shown at zoom-out end.
-- [ ] Remove debug preview + sampling once verified.
+- [x] `TerminalFramingWidth` 1.6 → 1.0.
+- [x] SubViewport size (960,640) → (1152,640).
+- [x] `ForwardTerminalMouse`: ButtonMask forwarded on motion; InputEventMouseButton passthrough kept (covers wheel).
+- [x] Build + tests (baseline 487 pass / 13 fail).
+- [x] Step 1: remove `MouseFilter.Ignore` on `screenRoot` + `_terminalTab` (build/tests green). User verified: still broken.
+- [x] Step 2: add bounded telemetry (build green). User diagnostic: no logs at all.
+- [x] Step 3: root-caused the PreShow full-rect `MouseFilter.Stop` GUI swallowing mouse; moved terminal mouse + Esc to `World3D._Input()` (pre-GUI). Build green.
+- [ ] User verification of Step 3 (hover/click/scroll/Esc works).
+- [x] Step 4: process-based mouse hover/click fallback + on-screen debug status (build green).
+- [x] Step 5: projected CRT overlay with native UI input (build green).
+- [ ] In-editor verify: overlay appears aligned to CRT, CallerTab hover/click/scroll works, Esc/X/<- close returns to zoomed-out game.
+- [ ] If hover still dead after the event reaches the SubViewport: structural fix (drop inner CanvasLayer, controls directly under SubViewport).
+- [ ] Remove telemetry + debug preview + `ScreenDebug` sampling once confirmed.
 
 ### Files Modified
 - `SESSION_LOG.md`
