@@ -1,10 +1,69 @@
 ## Current Session
 
 **Branch**: 3d-migration
-**Task**: Computer view polish - soften CRT UI edges and rounded corners.
-**Status**: In Progress
+**Task**: Implement the soundboard supporting classes + wiring so `World3D` compiles and runs. **Status: In Progress — code complete + tested; needs in-editor verification**
+
+- Completed this pass (uncommitted): `docs/systems/SOUNDBOARD_DESIGN.md` written; `CallerTab` nav surgery + `CallerScreenerManager`/`TerminalOverlay` de-wiring; `ScreenNavOverlay` (CanvasLayer 121); `World3D.cs` view-state machine + soundboard plumbing.
+- THIS SESSION (completed): created `SoundboardKnobState`, `SoundboardTargetGenerator`, `SoundboardMixerDriver`, `SoundboardOverlay`, `SoundboardMonitor`; added `AudioMixerManager.ApplySoundboard` + re-apply in `UpdateAudioQuality`; added `Caller.SpeakingVolume` + `CallerGenerator` seeding; wired driver/monitor into `World3D._Ready` (L155-161: `_soundboardMonitor` field, `SetDriver(_soundboardOverlay.Driver)`, `_soundboardOverlay.SetMonitor(...)`, `AddChild`); fixed broadcast of build errors; added 18 unit tests. **`dotnet build`: 0 errors. Full `run-tests.ps1`: 505 passed / 13 failed — the 13 failures are the same pre-existing baseline (AdManager/LoadingScreen/GameStateManager/AudioDialoguePlayer/BroadcastStateManager/TranscriptManager DI-provider + NRE issues), none touching soundboard code; 18 new soundboard tests all pass.**
+- NOTE: working tree carries uncommitted prior-session changes (`TerminalOverlay.cs`, `ComputerTerminal3D.cs`, `shaders/crt_output_feather.gdshader*`, `CallerTab.cs`, `CallerScreenerManager.cs`, `ScreenNavOverlay.cs`, `World3D.cs`, `SOUNDBOARD_DESIGN.md`) — build on them, do not lose.
+- Key facts re-confirmed: `AudioMixerManager` is autoload at `/root/AudioMixerManager` (project.godot L24); buses = Master/Vern/Caller/Static/Music/SFX (no Ads bus); `DomainMonitor` resolves `_repository = CallerRepository` in `OnResolved` via `_Notification` (NOT triggered by manual `_Ready()` in tests → also add test hooks `BindRepository`/`BindVernStats`/`SetDriver`); `DependencyInjection.Get<T>` throws `InvalidOperationException` with no provider → overlay resolves `AdManager` in try/catch; `CallerRepository.NotifyObservers` fires `OnCallerOnAir`/`OnCallerOnAirEnded`; `Caller` gains `SpeakingVolume` as property (seeded 0.2-0.8 in generator); `tests/unit/audio/` created.
 
 ### Work Done
+- Read: `SOUNDBOARD_DESIGN.md`, `DomainMonitor.cs`, `CallerGenerator.cs`, `ICallerRepository.cs`, `VernStats.cs`, `Stat.cs`, `AudioMixerManager.cs`, `SoundboardMixerDriver.cs`, `SoundboardTargetGenerator.cs`, `SoundboardKnobState.cs`, `World3D.cs` (soundboard regions), `CallerRepository.cs` (PutOnAir/EndOnAir), `CallerMonitorTests.cs` (test pattern).
+- Full code (all named above) + World3D wiring + 18 tests written. Build clean; tests green for the new feature; pre-existing 13-failure baseline unchanged.
+
+### Todo / Next Steps
+- [x] Write `docs/systems/SOUNDBOARD_DESIGN.md`.
+- [x] `ScreenNavOverlay` (CanvasLayer 121).
+- [x] CallerTab surgery + de-wiring (`CallerScreenerManager`, `TerminalOverlay`).
+- [x] `SoundboardViewState` in World3D + AABB framing + proximity + overlay show/hide.
+- [x] `Caller.SpeakingVolume` + seed in `CallerGenerator`.
+- [x] `SoundboardKnobState` (knob fields + `Neutral()` + `NormalizedDelta`).
+- [x] `SoundboardTargetGenerator` (pure band computation; `SoundboardBand` + `GetCallerBands` + `IsOffPerfect` + `GetWorstBand`).
+- [x] `SoundboardMixerDriver` (holds knob state; `Apply()`/`ResetToNeutral` → `AudioMixerManager.ApplySoundboard`; `ComputeEffectSettings` pure fn).
+- [x] `AudioMixerManager.ApplySoundboard` + re-apply in `UpdateAudioQuality` (guarded on -1 indices).
+- [x] `SoundboardOverlay` (CanvasLayer 122; VERN locked-green, CALLER live, ADS/BUMPER, master fader + worst-of LED, drain label GRACE/DRAIN/MIXED PERFECT/OFF AIR; resolves `/root/AudioMixerManager` + DI `AdManager` in try/catch).
+- [x] `SoundboardMonitor` (10s grace + stepped Emotional/Mental drain capped 3/s, reset on OnCallerOnAirEnded; exposes `IsCallerOnAir`/`GraceRemaining`/`IsDraining`/`CurrentDrainRate`/`CallerBands`/`OverallBand`; test hooks `SetDriver`/`BindRepository`/`BindVernStats`).
+- [x] Wire in World3D: monitor created, `SetDriver(_soundboardOverlay.Driver)`, `_soundboardOverlay.SetMonitor(...)`, `AddChild`.
+- [x] `dotnet build KBTV.csproj` 0 errors (fixed Aabb.Transform/Transformed API mismatch via manual basis transform; `VisualInstance3D.GetAabb`; BuildChannelRow out-param order; `KnobKind.None` for missing knobs; PanelContainer→custom StyleBox).
+- [x] Tests added: `tests/unit/audio/SoundboardTargetGeneratorTests.cs` (7), `SoundboardMixerDriverTests.cs` (5), `tests/unit/monitors/SoundboardMonitorTests.cs` (6); `pwsh -NoProfile -File run-tests.ps1` → 505 pass / 13 pre-existing fail.
+- [ ] In-editor verification: stand near control-room soundboard prop → E opens panel; VERN row locked green; CALLER LEDs live; ADS dims unless ad break; MASTER fader + worst LED; drain label transitions GRACE→DRAIN when knobs off-perfect with a caller on air; Esc closes.
+- [ ] Optional follow-ups: dedupe 13 pre-existing test failures (missing AutoInject providers); commit wave once visually verified.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `docs/systems/SOUNDBOARD_DESIGN.md` (new)
+- `scripts/audio/SoundboardKnobState.cs` (new)
+- `scripts/audio/SoundboardTargetGenerator.cs` (new)
+- `scripts/audio/SoundboardMixerDriver.cs` (new)
+- `scripts/audio/AudioMixerManager.cs`
+- `scripts/monitors/SoundboardMonitor.cs` (new)
+- `scripts/ui/SoundboardOverlay.cs` (new)
+- `scripts/ui/ScreenNavOverlay.cs` (new)
+- `scripts/ui/CallerTab.cs`
+- `scripts/ui/CallerScreenerManager.cs`
+- `scripts/world3d/TerminalOverlay.cs`
+- `scripts/world3d/World3D.cs`
+- `scripts/world3d/props/ComputerTerminal3D.cs`
+- `scripts/callers/Caller.cs`
+- `scripts/callers/CallerGenerator.cs`
+- `tests/unit/audio/` (new: SoundboardTargetGeneratorTests.cs, SoundboardMixerDriverTests.cs)
+- `tests/unit/monitors/SoundboardMonitorTests.cs` (new)
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+**Task**: Fix `affine_invert` (Transform2D det==0) error flood at boot. **Status: Completed**
+- **Root cause found**: `TerminalOverlay._screenFrame` (SubViewportContainer) was created with `Stretch = true` but no explicit size, so at boot it force-resized child `ProjectedCrtViewport` (Shows 1152x640 Size2DOverride) to raw (0,0) → SubViewport `_set_size` clamp reports `size=(2,2)` but the override-stretch `stretch_transform` is computed from the raw (0,0) size → `final det = 0.000000` (singular). Engine inverts that transform every frame (passive-hover/picking path) → ~66-465 `affine_invert` errors over a 7s run, starting ~0:00:01.475.
+- Confirmed via disposable probe (`ZeroScaleProbe.cs`, now removed): only `ProjectedCrtViewport` had `final det=0.000000`; root and `VernSubViewport` were fine. Minimal empty project reproduced 0 errors → kbtv content was the trigger, not engine/display settings. `get_mouse_position()` in 4.6 has its own det-guard (not the source); `_make_input_local()` (viewport.cpp:1436) and `_process_picking` (line 890) are unguarded inverts.
+- **Fix**: removed `Stretch = true` from `_screenFrame` boot config in `BuildUi()`; it is now enabled only in `SetScreenBounds()` (after Position/Size/Scale/Rotation are applied), so the container only stretches once the terminal opens with real bounds. At boot the SubViewport keeps its explicit 1152x640 size → `final det = 1.0`.
+- Verified on clean tree (probe + `Main.cs` AddChild removed, `dotnet build` 0 errors/0 warnings): non-minimized no-mouse run → **0 affine_invert, 0 ERROR lines** (was 465/7s); mouse-over-window run (original repro) → **0 affine_invert**.
+- Note: `rg` is not on PATH in the shell; use `Select-String` or the grep tool for engine-source greps.
+
+### Work Done
+- Current follow-up: investigate pale composed-screen borders and rasterized UI. Keep approved 3D lighting; correct premultiplied output blending, narrow feather to 16 logical pixels, remove obsolete 2D glow, and render at display density with a logical viewport override. Verification pending.
 - Started edge integration polish: soften the sharp rectangular CallerTab boundary with top-layer CRT-colored feathering and rounded glass corner masks.
 - Reworked `TerminalOverlay.DrawVignette()` from a few hard edge bands into a denser soft phosphor-colored edge feather, then added rounded corner cutout polygons with a light feather so the rectangular UI blends into the CRT glass.
 - `dotnet build`: 0 errors, 10 pre-existing warnings.
@@ -20,6 +79,7 @@
 - User reported the UI itself looked smoother but the overlaid CRT/effect box still looked sharp. Root cause likely Godot `CanvasItem.UseParentMaterial` defaulting false, so `_screenFrame.Material` did not automatically shade descendant CanvasItems. Applied `_frameMaterial` directly to `_glow`, added `UseFrameMaterialForDescendants(...)` helper to set `UseParentMaterial=true` recursively under `_screenFrame`, and explicitly set `ProjectedCallerTab.UseParentMaterial=true` after lazy instantiation. `dotnet build`: 0 errors, 10 pre-existing warnings. Needs in-editor verification that bg/UI/effects all share the feather mask.
 - User reported that pass was wrong: glow was constrained to the UI mask instead of scaling up, and feathering looked broken. Correction applied: `_glow` now uses its own `_glowMaterial` with larger bounds (`GlowPadding=72`, `corner_radius=86`, `edge_feather=96`) and no longer shares the exact UI mask; `_frameMaterial` remains for the UI/effects subtree. `crt_screen_feather.gdshader` now uses fragment `VERTEX` screen coordinates instead of `SCREEN_UV * viewport_size`, so nested UI controls and top CRT effect CanvasItems evaluate the same mask in actual screen space. `dotnet build`: 0 errors, 10 pre-existing warnings. Needs in-editor verification.
 - User confirmed the shader/material-inheritance direction was worse and asked for better organization plus physical monitor glow. Rolled `TerminalOverlay` back to the stable layered overlay: removed `_frameMaterial`, `_glowMaterial`, `GlowPadding`, recursive `UseParentMaterial`, shader uniform updates, and deleted the unused `crt_screen_feather.gdshader` resources. Kept the earlier draw-order fix (`ProjectedCallerTab` moved to index 1 above the phosphor background and below CRT effects). Added real 3D CRT illumination to `ComputerTerminal3D`: new hidden `OmniLight3D ScreenLight` near the screen surface (`LightColor 0.10,0.85,0.62`, `Energy 0.75`, `Range 1.9`, attenuation 2.4, no shadows) and `SetScreenLightEnabled(bool)`. `World3D` enables it when terminal view opens / texture attaches and disables it on close / detach. `dotnet build`: 0 errors, 10 pre-existing warnings. Next visual pass should use a composed-screen boundary if we revisit feathering, not descendant material inheritance.
+- User approved composed-screen approach and asked to cool/dim the monitor light. Refactored `TerminalOverlay` so the projected UI/effects stack renders inside a single `SubViewport` (`ProjectedCrtViewport`, 1152x640) hosted by `SubViewportContainer ProjectedCrtScreen`; phosphor background, lazy `CallerTab`, and CRT tint/scanlines/dust/glass/vignette now live under `ProjectedCrtRoot` inside that viewport. Added new final-output shader `shaders/crt_output_feather.gdshader` only on the `SubViewportContainer`, so feathering applies once to the composed image instead of recursively to nested controls. Shader defaults: `corner_radius=26`, `edge_feather=42`, `overall_alpha=0.96`; `screen_size` uniform updated in `SetScreenBounds()`. Tuned `ComputerTerminal3D.ScreenLight` to cool CRT white-blue (`0.72,0.86,1.0`), `Energy 0.38`, `Range 1.5`, attenuation `2.8`. `dotnet build`: 0 errors, 10 pre-existing warnings. Needs in-editor verification, especially mouse input through the `SubViewportContainer` and edge softness.
 - Round 1 (completed, in-editor verified): occlusion + viewport fixes landed. UI was visible on the monitor but user reported the text was unreadable/tiny and clicks didn't register.
 - Diagnosed root cause: the CallerTab UI was authored for a 1280x720 window but rendered into a 960x640 (1.5:1) SubViewport drawn on a 0.9 x 0.5 (1.8:1) screen plane. At `TerminalFramingWidth=1.6` the monitor footprint is only ~720x400 screen px → text ~6px on screen, 1.2x horizontal stretch (aspect mismatch), buttons sub-5px (un-clickable in practice).
 - Plan approved: keep monitor texture (Option A). Fix = zoom so footprint is ~1152x640 (1:1 with viewport → fonts at native design size), make viewport 1152x640 (1.8:1 = plane aspect, kills stretch), harden `ForwardTerminalMouse` (ButtonMask on hover motion; ensure wheel/scroll passthrough), `TerminalFramingWidth 1.6 → 1.0`.

@@ -14,8 +14,6 @@ namespace KBTV.UI
 {
     public partial class CallerTab : Control, ICallerActions
     {
-        public event Action? CloseRequested;
-        public event Action? BackRequested;
         [ExportGroup("Node References")]
         [Export]
         private VBoxContainer? _incomingPanel;
@@ -31,8 +29,6 @@ namespace KBTV.UI
         private CallerTabManager _tabManager = null!;
         private CallerListAdapter _incomingAdapter = null!;
         private ReactiveListPanel<Caller>? _reactiveListPanel;
-        private Button? _closeButton;
-        private Button? _backButton;
         private Label? _showTimerLabel;
         private TimeManager _timeManager = null!;
 
@@ -98,29 +94,11 @@ namespace KBTV.UI
                     child.QueueFree();
                 }
 
-                if (_backButton != null)
-                {
-                    _backButton.Pressed -= OnBackPressed;
-                    _backButton.QueueFree();
-                    _backButton = null;
-                }
-
                 var topRow = new HBoxContainer
                 {
                     SizeFlagsHorizontal = SizeFlags.ExpandFill
                 };
                 topRow.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
-
-                _backButton = new Button
-                {
-                    Text = "<-",
-                    CustomMinimumSize = new Vector2(24, 18),
-                    SizeFlagsHorizontal = SizeFlags.ShrinkBegin
-                };
-                _backButton.AddThemeFontSizeOverride("font_size", 9);
-                UITheme.ApplyButtonStyle(_backButton);
-                _backButton.Pressed += OnBackPressed;
-                topRow.AddChild(_backButton);
 
                 _showTimerLabel = new Label
                 {
@@ -211,24 +189,6 @@ namespace KBTV.UI
                 child.QueueFree();
             }
 
-            if (_closeButton != null)
-            {
-                _closeButton.Pressed -= OnClosePressed;
-                _closeButton.QueueFree();
-                _closeButton = null;
-            }
-
-            _closeButton = new Button
-            {
-                Text = "X",
-                CustomMinimumSize = new Vector2(24, 18),
-                SizeFlagsHorizontal = SizeFlags.ShrinkEnd
-            };
-            _closeButton.AddThemeFontSizeOverride("font_size", 9);
-            UITheme.ApplyButtonStyle(_closeButton);
-            _closeButton.Pressed += OnClosePressed;
-            _onHoldPanel.AddChild(_closeButton);
-
             var header = new Label
             {
                 Text = "ON HOLD",
@@ -280,16 +240,6 @@ namespace KBTV.UI
                 emptyLabel.AddThemeColorOverride("font_color", UIColors.TEXT_DISABLED);
                 listContainer.AddChild(emptyLabel);
             }
-        }
-
-        private void OnClosePressed()
-        {
-            CloseRequested?.Invoke();
-        }
-
-        private void OnBackPressed()
-        {
-            BackRequested?.Invoke();
         }
 
         private void TrackStateForRefresh()
@@ -386,19 +336,6 @@ namespace KBTV.UI
             if (!result.IsSuccess)
             {
                 Log.Error($"CallerTab: Failed to reject caller: {result.ErrorCode}: {result.ErrorMessage}");
-            }
-        }
-
-        public override void _ExitTree()
-        {
-            if (_closeButton != null)
-            {
-                _closeButton.Pressed -= OnClosePressed;
-            }
-
-            if (_backButton != null)
-            {
-                _backButton.Pressed -= OnBackPressed;
             }
         }
     }

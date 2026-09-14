@@ -60,11 +60,11 @@ public partial class ComputerTerminal3D : Node3D
 		{
 			Name = "ScreenLight",
 			Position = new Vector3(0f, ScreenCenterY, ScreenZOffset + ScreenLightZOffset),
-			LightColor = new Color(0.10f, 0.85f, 0.62f),
-			LightEnergy = 0.75f,
+			LightColor = new Color(0.72f, 0.86f, 1.0f),
+			LightEnergy = 0.38f,
 			LightIndirectEnergy = 0f,
-			OmniRange = 1.9f,
-			OmniAttenuation = 2.4f,
+			OmniRange = 1.5f,
+			OmniAttenuation = 2.8f,
 			ShadowEnabled = false,
 			Visible = false
 		};

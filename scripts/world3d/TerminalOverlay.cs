@@ -10,11 +10,15 @@ public partial class TerminalOverlay : CanvasLayer
 	private const float MinHeight = 68f;
 	private const float ScreenInsetScale = 0.67f;
 	private const float ScreenAspect = 16f / 9f;
+	private const string OutputFeatherShaderPath = "res://shaders/crt_output_feather.gdshader";
+	private static readonly Vector2I ScreenViewportSize = new(1152, 640);
 	private static readonly Vector2 ScreenFitOffset = new(0f, 48f);
 
 	private Control _root = null!;
-	private Control _screenFrame = null!;
-	private ColorRect _glow = null!;
+	private SubViewportContainer _screenFrame = null!;
+	private SubViewport _screenViewport = null!;
+	private Control _screenRoot = null!;
+	private ShaderMaterial? _outputMaterial;
 	private CallerTab? _callerTab;
 
 	public event Action? CloseRequested;
@@ -63,13 +67,22 @@ public partial class TerminalOverlay : CanvasLayer
 		}
 
 		var angle = (topRight - topLeft).Angle();
+		var logicalSize = new Vector2I(Mathf.CeilToInt(width), Mathf.CeilToInt(height));
+		// Allocate enough texels for the final window, not just design-space pixels.
+		// Use the root transform to avoid feeding the output's inverse scale back in.
+		var pixelTransform = GetViewport().GetStretchTransform() * _root.GetGlobalTransformWithCanvas();
+		var density = Mathf.Max(1f, Mathf.Max(pixelTransform.X.Length(), pixelTransform.Y.Length()));
+		var renderSize = new Vector2(Mathf.Ceil(width * density), Mathf.Ceil(height * density));
+		if (_screenViewport.Size2DOverride != logicalSize)
+		{
+			_screenViewport.Size2DOverride = logicalSize;
+		}
 		_screenFrame.Position = topLeft;
-		_screenFrame.Size = new Vector2(width, height);
+		_screenFrame.Size = renderSize;
+		_screenFrame.Scale = new Vector2(width, height) / renderSize;
 		_screenFrame.Rotation = angle;
-
-		_glow.Position = topLeft;
-		_glow.Size = new Vector2(width, height);
-		_glow.Rotation = angle;
+		_screenFrame.Stretch = true;
+		_outputMaterial?.SetShaderParameter("screen_size", new Vector2(width, height));
 	}
 
 	private void BuildUi()
@@ -82,21 +95,49 @@ public partial class TerminalOverlay : CanvasLayer
 		_root.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		AddChild(_root);
 
-		_glow = new ColorRect
-		{
-			Name = "CrtGlow",
-			Color = new Color(0.06f, 0.58f, 0.42f, 0.055f),
-			MouseFilter = Control.MouseFilterEnum.Ignore
-		};
-		_root.AddChild(_glow);
-
-		_screenFrame = new Control
+		_screenFrame = new SubViewportContainer
 		{
 			Name = "ProjectedCrtScreen",
 			ClipContents = true,
-			MouseFilter = Control.MouseFilterEnum.Ignore
+			MouseFilter = Control.MouseFilterEnum.Ignore,
+			TextureFilter = CanvasItem.TextureFilterEnum.Linear
 		};
 		_root.AddChild(_screenFrame);
+
+		_screenViewport = new SubViewport
+		{
+			Name = "ProjectedCrtViewport",
+			TransparentBg = true,
+			RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
+			Disable3D = true,
+			World2D = new World2D(),
+			Size2DOverride = ScreenViewportSize,
+			Size2DOverrideStretch = true,
+			Size = ScreenViewportSize
+		};
+		_screenFrame.AddChild(_screenViewport);
+
+		var screenLayer = new CanvasLayer
+		{
+			Name = "ProjectedCrtCanvas",
+			Layer = 1
+		};
+		_screenViewport.AddChild(screenLayer);
+
+		_screenRoot = new Control
+		{
+			Name = "ProjectedCrtRoot",
+			MouseFilter = Control.MouseFilterEnum.Pass
+		};
+		_screenRoot.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		screenLayer.AddChild(_screenRoot);
+
+		var outputShader = ResourceLoader.Load<Shader>(OutputFeatherShaderPath);
+		if (outputShader != null)
+		{
+			_outputMaterial = new ShaderMaterial { Shader = outputShader };
+			_screenFrame.Material = _outputMaterial;
+		}
 
 		var background = new ColorRect
 		{
@@ -105,7 +146,7 @@ public partial class TerminalOverlay : CanvasLayer
 			MouseFilter = Control.MouseFilterEnum.Ignore
 		};
 		background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-		_screenFrame.AddChild(background);
+		_screenRoot.AddChild(background);
 
 		AddCrtEffects();
 	}
@@ -128,10 +169,8 @@ public partial class TerminalOverlay : CanvasLayer
 		_callerTab.Name = "ProjectedCallerTab";
 		_callerTab.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		_callerTab.Modulate = new Color(0.74f, 1.0f, 0.9f, 1f);
-		_callerTab.CloseRequested += RequestClose;
-		_callerTab.BackRequested += RequestClose;
-		_screenFrame.AddChild(_callerTab);
-		_screenFrame.MoveChild(_callerTab, 1);
+		_screenRoot.AddChild(_callerTab);
+		_screenRoot.MoveChild(_callerTab, 1);
 	}
 
 	private void AddCrtEffects()
@@ -143,7 +182,7 @@ public partial class TerminalOverlay : CanvasLayer
 			MouseFilter = Control.MouseFilterEnum.Ignore
 		};
 		tint.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-		_screenFrame.AddChild(tint);
+		_screenRoot.AddChild(tint);
 
 		var scanlines = new Control
 		{
@@ -152,7 +191,7 @@ public partial class TerminalOverlay : CanvasLayer
 		};
 		scanlines.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		scanlines.Draw += () => DrawScanlines(scanlines);
-		_screenFrame.AddChild(scanlines);
+		_screenRoot.AddChild(scanlines);
 
 		var dust = new Control
 		{
@@ -161,7 +200,7 @@ public partial class TerminalOverlay : CanvasLayer
 		};
 		dust.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		dust.Draw += () => DrawDust(dust);
-		_screenFrame.AddChild(dust);
+		_screenRoot.AddChild(dust);
 
 		var glass = new Control
 		{
@@ -170,7 +209,7 @@ public partial class TerminalOverlay : CanvasLayer
 		};
 		glass.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		glass.Draw += () => DrawGlass(glass);
-		_screenFrame.AddChild(glass);
+		_screenRoot.AddChild(glass);
 
 		var vignette = new Control
 		{
@@ -179,7 +218,7 @@ public partial class TerminalOverlay : CanvasLayer
 		};
 		vignette.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		vignette.Draw += () => DrawVignette(vignette);
-		_screenFrame.AddChild(vignette);
+		_screenRoot.AddChild(vignette);
 	}
 
 	private static void DrawScanlines(Control control)

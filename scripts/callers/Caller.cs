@@ -44,6 +44,7 @@ namespace KBTV.Callers
         private CallerState _state;
         private float _patience;
         private float _quality;
+        private float _speakingVolume;
 
         // Reveal order tracking (random sequence for property revelation)
         private int[] _revealOrder;
@@ -73,6 +74,17 @@ namespace KBTV.Callers
         public CallerState State => _state;
         public float Patience => _patience;
         public float Quality => _quality;
+
+        /// <summary>
+        /// Stable per-caller vocal variance (0..1) used by the soundboard minigame
+        /// to jitter the CALLER channel's ideal knob position. Seeded by the
+        /// CallerGenerator; defaults to 0.5 (no jitter).
+        /// </summary>
+        public float SpeakingVolume
+        {
+            get => _speakingVolume;
+            set => _speakingVolume = Godot.Mathf.Clamp(value, 0f, 1f);
+        }
 
         /// <summary>
         /// Gets the audio level modifier based on phone quality.

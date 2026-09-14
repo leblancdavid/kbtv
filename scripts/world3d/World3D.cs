@@ -1,6 +1,7 @@
 using System;
 using Godot;
 using KBTV.Core;
+using KBTV.Monitors;
 using KBTV.UI;
 
 namespace KBTV.World3D;
@@ -17,10 +18,24 @@ public partial class World3D : Node3D
 	private static readonly Vector3 ControlStudioLeakDirection = Vector3.Back;
 	private static readonly Vector3 StudioHallLeakDirection = Vector3.Right;
 
-	private const float TerminalZoomSpeed = 3.2f;
+private const float TerminalZoomSpeed = 3.2f;
 	private const float TerminalFramingWidth = 1.85f;
 
+	private const float SoundboardZoomSpeed = 3.2f;
+	private const float SoundboardFramingWidth = 1.8f;
+	private const float SoundboardCameraDistance = 1.15f;
+	private const float SoundboardLookPivotHeight = 0.06f;
+	private const float SoundboardInteractRadius = 1.4f;
+
 	private enum TerminalViewState
+	{
+		None,
+		ZoomingIn,
+		Open,
+		ZoomingOut
+	}
+
+	private enum SoundboardViewState
 	{
 		None,
 		ZoomingIn,
@@ -41,13 +56,28 @@ public partial class World3D : Node3D
 	private RoomStateManager? _roomStateManager;
 	private ComputerTerminal3D? _computerTerminal;
 	private TerminalViewState _terminalViewState = TerminalViewState.None;
+	private SoundboardViewState _soundboardViewState = SoundboardViewState.None;
 	private float _zoomProgress;
 	private Vector3 _normalCameraPos;
 	private float _normalCameraSize;
 	private Basis _normalCameraBasis;
+	private Vector3 _transitionFromPos;
+	private float _transitionFromSize;
+	private Basis _transitionFromBasis;
+	private Vector3 _transitionToPos;
+	private float _transitionToSize;
+	private Basis _transitionToBasis;
 	private Vector3 _terminalCameraPos;
 	private float _terminalCameraSize;
 	private Basis _terminalCameraBasis;
+	private Vector3 _soundboardCameraPos;
+	private float _soundboardCameraSize;
+	private Basis _soundboardCameraBasis;
+	private bool _cameraHomeCaptured;
+	private ScreenNavOverlay? _screenNavOverlay;
+	private SoundboardOverlay? _soundboardOverlay;
+	private SoundboardMonitor? _soundboardMonitor;
+	private Node3D? _soundBoardProp;
 	private SubViewport? _terminalViewport;
 	private CallerTab? _terminalTab;
 	private TerminalOverlay? _terminalOverlay;
@@ -111,12 +141,28 @@ public partial class World3D : Node3D
 			UpdateCamera(0.0, true);
 		}
 
-		_control_room.ShowRoom();
-		_studio_room.ShowRoom();
-		_terminalOverlay = new TerminalOverlay { Name = "TerminalOverlay" };
-		_terminalOverlay.CloseRequested += OnTerminalViewRequested;
-		AddChild(_terminalOverlay);
-		UpdateStatusLabel("CONTROL ROOM");
+_control_room.ShowRoom();
+	_studio_room.ShowRoom();
+	_terminalOverlay = new TerminalOverlay { Name = "TerminalOverlay" };
+	_terminalOverlay.CloseRequested += OnTerminalViewRequested;
+	AddChild(_terminalOverlay);
+
+	_soundBoardProp = _control_room.GetNodeOrNull<Node3D>("SoundBoard");
+
+	_screenNavOverlay = new ScreenNavOverlay { Name = "ScreenNavOverlay" };
+	_screenNavOverlay.BackRequested += OnNavBackRequested;
+	_screenNavOverlay.CloseRequested += OnNavCloseRequested;
+	AddChild(_screenNavOverlay);
+
+	_soundboardOverlay = new SoundboardOverlay { Name = "SoundboardOverlay" };
+	AddChild(_soundboardOverlay);
+
+	_soundboardMonitor = new SoundboardMonitor { Name = "SoundboardMonitor" };
+	_soundboardMonitor.SetDriver(_soundboardOverlay.Driver);
+	_soundboardOverlay.SetMonitor(_soundboardMonitor);
+	AddChild(_soundboardMonitor);
+
+	UpdateStatusLabel("CONTROL ROOM");
 	}
 
 	public void SetPlayer(Player3D player)
@@ -128,22 +174,22 @@ public partial class World3D : Node3D
 		UpdateCamera(0.0, true);
 	}
 
-	public override void _Input(InputEvent @event)
+public override void _Input(InputEvent @event)
 	{
 		if (@event is InputEventKey key && key.Pressed && key.Keycode == Key.Escape
-			&& _terminalViewState != TerminalViewState.None)
+			&& IsAnyScreenViewActive())
 		{
-			CloseTerminalView();
+			CloseActiveView();
 			GetViewport().SetInputAsHandled();
 		}
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
 	{
-		if (_terminalViewState != TerminalViewState.None
+		if (IsAnyScreenViewActive()
 			&& Input.IsActionJustPressed("interact"))
 		{
-			CloseTerminalView();
+			CloseActiveView();
 			GetViewport().SetInputAsHandled();
 			return;
 		}
@@ -154,9 +200,17 @@ public partial class World3D : Node3D
 		}
 
 		if (_computerTerminal != null && _computerTerminal.IsPlayerInRange
-			&& _terminalViewState == TerminalViewState.None)
+			&& !IsAnyScreenViewActive())
 		{
 			OpenTerminalView();
+			GetViewport().SetInputAsHandled();
+			return;
+		}
+
+		if (IsPlayerNearSoundBoard()
+			&& !IsAnyScreenViewActive())
+		{
+			OpenSoundboardView();
 			GetViewport().SetInputAsHandled();
 			return;
 		}
@@ -177,7 +231,14 @@ public partial class World3D : Node3D
 
 		if (_terminalViewState == TerminalViewState.None)
 		{
-			UpdateCamera(delta);
+			if (_soundboardViewState == SoundboardViewState.None)
+			{
+				UpdateCamera(delta);
+			}
+			else
+			{
+				UpdateSoundboardCamera(delta);
+			}
 		}
 		else
 		{
@@ -326,7 +387,7 @@ public partial class World3D : Node3D
 
 	private void UpdateComputerHint()
 	{
-		if (_status_label == null || _terminalViewState != TerminalViewState.None)
+		if (_status_label == null || IsAnyScreenViewActive())
 		{
 			return;
 		}
@@ -343,16 +404,20 @@ public partial class World3D : Node3D
 
 	private void OpenTerminalView()
 	{
-		if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
+if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 		{
 			return;
 		}
 
-		_player?.SetMovementLocked(true);
+		if (!_cameraHomeCaptured)
+		{
+			_normalCameraPos = _camera.GlobalPosition;
+			_normalCameraSize = _camera.Size;
+			_normalCameraBasis = _camera.GlobalTransform.Basis;
+			_cameraHomeCaptured = true;
+		}
 
-		_normalCameraPos = _camera.GlobalPosition;
-		_normalCameraSize = _camera.Size;
-		_normalCameraBasis = _camera.GlobalTransform.Basis;
+		_player?.SetMovementLocked(true);
 
 		var screenPos = _computerTerminal.ScreenCenter;
 		var viewportSize = GetViewport()?.GetVisibleRect().Size ?? new Vector2(1280f, 720f);
@@ -365,6 +430,12 @@ public partial class World3D : Node3D
 		_terminalCameraBasis = transform.Basis;
 
 		_zoomProgress = 0f;
+		_transitionFromPos = _camera.GlobalPosition;
+		_transitionFromSize = _camera.Size;
+		_transitionFromBasis = _camera.GlobalTransform.Basis;
+		_transitionToPos = _terminalCameraPos;
+		_transitionToSize = _terminalCameraSize;
+		_transitionToBasis = _terminalCameraBasis;
 		_terminalViewState = TerminalViewState.ZoomingIn;
 	}
 
@@ -376,39 +447,47 @@ public partial class World3D : Node3D
 		}
 
 		_terminalViewState = TerminalViewState.ZoomingOut;
+		_zoomProgress = 0f;
+		_transitionFromPos = _camera.GlobalPosition;
+		_transitionFromSize = _camera.Size;
+		_transitionFromBasis = _camera.GlobalTransform.Basis;
+		_transitionToPos = _normalCameraPos;
+		_transitionToSize = _normalCameraSize;
+		_transitionToBasis = _normalCameraBasis;
 		if (_statusLayer != null)
 		{
 			_statusLayer.Visible = true;
 		}
 		_terminalOverlay?.HideTerminal();
+		TeardownTerminalScreen();
+		_player?.SetMovementLocked(false);
+		_screenNavOverlay?.HideOverlay();
+	}
+
+	private void TeardownTerminalScreen()
+	{
 		DetachScreenTexture();
 		_computerTerminal?.SetScreenLightEnabled(false);
 		_computerTerminal.Visible = false;
 		_control_room.ComputerGlb.Visible = true;
 		_control_room.SetComputerCollidersEnabled(true);
-		_player?.SetMovementLocked(false);
 	}
 
 	private void UpdateTerminalCamera(double delta)
 	{
-		if (_terminalViewState == TerminalViewState.ZoomingIn)
-		{
-			_zoomProgress = Mathf.MoveToward(_zoomProgress, 1f, TerminalZoomSpeed * (float)delta);
-		}
-		else if (_terminalViewState == TerminalViewState.ZoomingOut)
-		{
-			_zoomProgress = Mathf.MoveToward(_zoomProgress, 0f, TerminalZoomSpeed * (float)delta);
-		}
-		else
+		if (_terminalViewState is not (TerminalViewState.ZoomingIn or TerminalViewState.ZoomingOut))
 		{
 			return;
 		}
 
+		_zoomProgress = Mathf.MoveToward(_zoomProgress, 1f, TerminalZoomSpeed * (float)delta);
+
 		var smooth = _zoomProgress * _zoomProgress * (3f - 2f * _zoomProgress);
-		_camera.GlobalPosition = _normalCameraPos.Lerp(_terminalCameraPos, smooth);
-		_camera.Size = Mathf.Lerp(_normalCameraSize, _terminalCameraSize, smooth);
+		_camera.GlobalPosition = _transitionFromPos.Lerp(_transitionToPos, smooth);
+		_camera.Size = Mathf.Lerp(_transitionFromSize, _transitionToSize, smooth);
+
 		_camera.GlobalTransform = new Transform3D(
-			_normalCameraBasis.Slerp(_terminalCameraBasis, smooth),
+			_transitionFromBasis.Slerp(_transitionToBasis, smooth),
 			_camera.GlobalPosition);
 
 		if (_terminalViewState == TerminalViewState.ZoomingIn && _zoomProgress >= 1f)
@@ -436,9 +515,10 @@ public partial class World3D : Node3D
 			}
 			ShowTerminalOverlay();
 		}
-		else if (_terminalViewState == TerminalViewState.ZoomingOut && _zoomProgress <= 0f)
+		else if (_terminalViewState == TerminalViewState.ZoomingOut && _zoomProgress >= 1f)
 		{
 			_terminalViewState = TerminalViewState.None;
+			_cameraHomeCaptured = false;
 			_player?.SetMovementLocked(false);
 			if (_player != null)
 			{
@@ -446,6 +526,56 @@ public partial class World3D : Node3D
 			}
 			UpdateCamera(0.0, true);
 		}
+	}
+
+	private void UpdateSoundboardCamera(double delta)
+	{
+		if (_soundboardViewState is not (SoundboardViewState.ZoomingIn or SoundboardViewState.ZoomingOut))
+		{
+			return;
+		}
+
+		_zoomProgress = Mathf.MoveToward(_zoomProgress, 1f, SoundboardZoomSpeed * (float)delta);
+		var smooth = _zoomProgress * _zoomProgress * (3f - 2f * _zoomProgress);
+
+		_camera.GlobalPosition = _transitionFromPos.Lerp(_transitionToPos, smooth);
+		_camera.Size = Mathf.Lerp(_transitionFromSize, _transitionToSize, smooth);
+		_camera.GlobalTransform = new Transform3D(
+			_transitionFromBasis.Slerp(_transitionToBasis, smooth),
+			_camera.GlobalPosition);
+
+		if (_soundboardViewState == SoundboardViewState.ZoomingIn && _zoomProgress >= 1f)
+		{
+			_soundboardViewState = SoundboardViewState.Open;
+			if (_player != null)
+			{
+				_player.Visible = false;
+			}
+			ShowSoundboardOverlay();
+			_screenNavOverlay?.ShowOverlay("CRT", true);
+		}
+		else if (_soundboardViewState == SoundboardViewState.ZoomingOut && _zoomProgress >= 1f)
+		{
+			_soundboardViewState = SoundboardViewState.None;
+			_cameraHomeCaptured = false;
+			HideSoundboardOverlay();
+			_screenNavOverlay?.HideOverlay();
+			_player?.SetMovementLocked(false);
+			if (_player != null)
+			{
+				_player.Visible = true;
+			}
+			UpdateCamera(0.0, true);
+		}
+	}
+
+	private void ShowSoundboardOverlay()
+	{
+		if (_statusLayer != null)
+		{
+			_statusLayer.Visible = false;
+		}
+		_soundboardOverlay?.ShowSoundboard();
 	}
 
 	private void ForwardTerminalMouse(InputEventMouse mouse)
@@ -487,9 +617,157 @@ public partial class World3D : Node3D
 		{
 			_statusLayer.Visible = false;
 		}
-		UpdateTerminalOverlayBounds();
+UpdateTerminalOverlayBounds();
 		_terminalOverlay?.ShowTerminal();
+		_screenNavOverlay?.ShowOverlay("BOARD", true);
 	}
+
+	private void HideSoundboardOverlay()
+	{
+		_soundboardOverlay?.HideSoundboard();
+	}
+
+	private void ComputeSoundboardFrame()
+	{
+		if (_soundBoardProp == null)
+		{
+			return;
+		}
+
+		var aabb = new Aabb();
+		if (_soundBoardProp is VisualInstance3D visual)
+		{
+			aabb = visual.GetAabb();
+		}
+
+		var center = _soundBoardProp.GlobalPosition + new Vector3(0f, 0.3f, 0f);
+		var size = new Vector2(1.6f, 0.6f);
+		if (aabb.Size.LengthSquared() > 0.0001f)
+		{
+			var sbTransform = _soundBoardProp.GlobalTransform;
+			center = sbTransform * (aabb.Position + 0.5f * aabb.Size);
+			float worldWidth = Mathf.Abs(sbTransform.Basis.X.X) * aabb.Size.X + Mathf.Abs(sbTransform.Basis.X.Y) * aabb.Size.Y;
+			float worldHeight = Mathf.Abs(sbTransform.Basis.Y.Y) * aabb.Size.Y;
+			size = new Vector2(Mathf.Max(worldWidth, 1.5f), Mathf.Max(worldHeight, 0.6f));
+		}
+
+		var viewportSize = GetViewport()?.GetVisibleRect().Size ?? new Vector2(1280f, 720f);
+		var aspect = viewportSize.X / Mathf.Max(1f, viewportSize.Y);
+		_soundboardCameraSize = Mathf.Max(size.X, SoundboardFramingWidth) / (2f * aspect);
+		_soundboardCameraPos = center + new Vector3(0f, 0.02f, SoundboardCameraDistance);
+
+		var lookTarget = center + new Vector3(0f, SoundboardLookPivotHeight, 0f);
+		var transform = new Transform3D(Basis.Identity, _soundboardCameraPos).LookingAt(lookTarget, Vector3.Up);
+		_soundboardCameraBasis = transform.Basis;
+	}
+
+	private void OpenSoundboardView()
+	{
+		if (_soundboardViewState != SoundboardViewState.None || _soundBoardProp == null)
+		{
+			return;
+		}
+
+		if (!_cameraHomeCaptured)
+		{
+			_normalCameraPos = _camera.GlobalPosition;
+			_normalCameraSize = _camera.Size;
+			_normalCameraBasis = _camera.GlobalTransform.Basis;
+			_cameraHomeCaptured = true;
+		}
+
+		_player?.SetMovementLocked(true);
+
+		ComputeSoundboardFrame();
+
+		_zoomProgress = 0f;
+		_transitionFromPos = _camera.GlobalPosition;
+		_transitionFromSize = _camera.Size;
+		_transitionFromBasis = _camera.GlobalTransform.Basis;
+		_transitionToPos = _soundboardCameraPos;
+		_transitionToSize = _soundboardCameraSize;
+		_transitionToBasis = _soundboardCameraBasis;
+		_soundboardViewState = SoundboardViewState.ZoomingIn;
+	}
+
+	private void CloseSoundboardView()
+	{
+		if (_soundboardViewState is SoundboardViewState.None or SoundboardViewState.ZoomingOut)
+		{
+			return;
+		}
+
+		_soundboardViewState = SoundboardViewState.ZoomingOut;
+		_zoomProgress = 0f;
+		_transitionFromPos = _camera.GlobalPosition;
+		_transitionFromSize = _camera.Size;
+		_transitionFromBasis = _camera.GlobalTransform.Basis;
+		_transitionToPos = _normalCameraPos;
+		_transitionToSize = _normalCameraSize;
+		_transitionToBasis = _normalCameraBasis;
+		if (_statusLayer != null)
+		{
+			_statusLayer.Visible = true;
+		}
+		HideSoundboardOverlay();
+		_screenNavOverlay?.HideOverlay();
+		_player?.SetMovementLocked(false);
+	}
+
+	private bool IsPlayerNearSoundBoard()
+	{
+		if (_soundBoardProp == null || _player == null)
+		{
+			return false;
+		}
+
+		var playerPos = _player.GlobalPosition;
+		var boardPos = _soundBoardProp.GlobalPosition;
+		var horizontal = new Vector2(playerPos.X - boardPos.X, playerPos.Z - boardPos.Z).Length();
+		return horizontal < SoundboardInteractRadius;
+	}
+
+	private void CloseActiveView()
+	{
+		switch (_terminalViewState)
+		{
+			case not TerminalViewState.None:
+				CloseTerminalView();
+				return;
+		}
+
+		switch (_soundboardViewState)
+		{
+			case not SoundboardViewState.None:
+				CloseSoundboardView();
+				return;
+		}
+	}
+
+	private bool IsAnyScreenViewActive()
+	{
+		return _terminalViewState != TerminalViewState.None
+			|| _soundboardViewState != SoundboardViewState.None;
+	}
+
+	private void OnNavBackRequested()
+	{
+		if (_terminalViewState != TerminalViewState.None)
+		{
+			_terminalViewState = TerminalViewState.None;
+			_terminalOverlay?.HideTerminal();
+			TeardownTerminalScreen();
+			OpenSoundboardView();
+		}
+		else if (_soundboardViewState != SoundboardViewState.None)
+		{
+			_soundboardViewState = SoundboardViewState.None;
+			HideSoundboardOverlay();
+			OpenTerminalView();
+		}
+	}
+
+	private void OnNavCloseRequested() => CloseActiveView();
 
 	private void ApplyTerminalScreenGlow()
 	{
@@ -726,8 +1004,6 @@ public partial class World3D : Node3D
 			_terminalTab.Name = "ComputerCallerTab";
 			_terminalTab.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 			screenRoot.AddChild(_terminalTab);
-			_terminalTab.CloseRequested += OnTerminalViewRequested;
-			_terminalTab.BackRequested += OnTerminalViewRequested;
 		}
 
 		_screenLiveMaterial = new StandardMaterial3D

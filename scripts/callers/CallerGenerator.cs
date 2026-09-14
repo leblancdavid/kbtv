@@ -392,6 +392,9 @@ namespace KBTV.Callers
                 caller.SetOffTopic(true);
             }
 
+            // Per-caller vocal variance for the soundboard minigame (stable jitter source).
+            caller.SpeakingVolume = (float)GD.RandRange(0.2f, 0.8f);
+
             return caller;
         }
 

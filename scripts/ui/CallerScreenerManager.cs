@@ -74,8 +74,6 @@ namespace KBTV.UI
                 _callerTab.Name = "LiveShowCallerPanel";
                 _callerTab.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
                 _callerTab.SizeFlagsStretchRatio = 3;
-                _callerTab.CloseRequested += OnCloseRequested;
-                _callerTab.BackRequested += OnBackRequested;
                 mainLayout.AddChild(_callerTab);
             }
             else
@@ -374,11 +372,6 @@ namespace KBTV.UI
             Hide();
         }
 
-        private void OnBackRequested()
-        {
-            ShowVernStatView();
-        }
-
         private void OnForwardRequested()
         {
             ShowCallersTab();
@@ -492,12 +485,6 @@ namespace KBTV.UI
             if (_eventBus != null)
             {
                 _eventBus.Unsubscribe<ScreeningRequestedEvent>(HandleScreeningRequested);
-            }
-
-            if (_callerTab != null)
-            {
-                _callerTab.CloseRequested -= OnCloseRequested;
-                _callerTab.BackRequested -= OnBackRequested;
             }
 
             if (_vernCloseButton != null)

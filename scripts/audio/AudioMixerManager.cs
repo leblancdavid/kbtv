@@ -62,6 +62,9 @@ namespace KBTV.Audio
         private int _currentPhoneLineLevel = 1;
         private int _currentBroadcastLevel = 1;
 
+        // Last soundboard knob position, re-applied after equipment level changes.
+        private SoundboardKnobState? _soundboardState;
+
         // Effect presets for each equipment level - CALLERS
         // Format: (lowPassHz, highPassHz, distortion, resonance)
         // Balanced phone effect
@@ -397,6 +400,13 @@ namespace KBTV.Audio
             ApplyVernEffects(_currentBroadcastLevel);
             // Static volume is now controlled by caller's PhoneQuality, not equipment level
 
+            // Re-apply the soundboard knob offsets on top of the new presets so
+            // equipment upgrades don't wipe knob positions.
+            if (_soundboardState != null)
+            {
+                ApplySoundboard(_soundboardState);
+            }
+
             GD.Print($"AudioMixerManager: Updated quality - PhoneLine: {_currentPhoneLineLevel}, Broadcast: {_currentBroadcastLevel}");
         }
 
@@ -429,12 +439,109 @@ namespace KBTV.Audio
             }
         }
 
-        private void ApplyVernEffects(int level)
+private void ApplyVernEffects(int level)
         {
             if (_vernBusIndex < 0) return;
 
             // Vern is always clean - no distortion, minimal EQ
             // No reverb applied to Vern
+        }
+
+        /// <summary>
+        /// Applies soundboard knob deltas on top of the equipment presets.
+        /// Passing a state stores it so <see cref="UpdateAudioQuality"/> re-applies
+        /// it after equipment upgrades. No-op when no buses exist (e.g. headless tests).
+        /// </summary>
+        public void ApplySoundboard(SoundboardKnobState state)
+        {
+            if (state == null)
+            {
+                return;
+            }
+
+            _soundboardState = state;
+            var preset = GetCallerPresetInfo(_currentPhoneLineLevel);
+            var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
+
+            SetCallerLowPass(settings.CallerLowPassHz);
+            SetCallerHighPass(settings.CallerHighPassHz);
+            SetCallerDistortion(settings.CallerDrive);
+            SetCallerAmplify(settings.CallerAmplifyDb);
+            SetBusVolumeDb(_vernBusIndex, settings.VernGainDb);
+
+            // No dedicated Ads/Bumper bus yet - ADS gain uses the SFX bus as a placeholder.
+            SetBusVolumeDb(_sfxBusIndex, settings.AdsGainDb);
+            SetBusVolumeDb(_musicBusIndex, settings.MusicFaderDb);
+            SetBusVolumeDb(_masterBusIndex, settings.MasterFaderDb);
+        }
+
+        private SoundboardPresetInfo GetCallerPresetInfo(int level)
+        {
+            int presetIndex = Mathf.Clamp(level - 1, 0, CallerPresets.Length - 1);
+            var preset = CallerPresets[presetIndex];
+            return new SoundboardPresetInfo(preset.lowPass, preset.highPass, preset.distortion);
+        }
+
+        private void SetCallerLowPass(float cutoffHz)
+        {
+            if (_callerBusIndex < 0 || _callerLowPassIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_callerBusIndex, _callerLowPassIndex) is AudioEffectLowPassFilter lowPass)
+            {
+                lowPass.CutoffHz = cutoffHz;
+            }
+        }
+
+        private void SetCallerHighPass(float cutoffHz)
+        {
+            if (_callerBusIndex < 0 || _callerHighPassIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_callerBusIndex, _callerHighPassIndex) is AudioEffectHighPassFilter highPass)
+            {
+                highPass.CutoffHz = cutoffHz;
+            }
+        }
+
+        private void SetCallerDistortion(float drive)
+        {
+            if (_callerBusIndex < 0 || _callerDistortionIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_callerBusIndex, _callerDistortionIndex) is AudioEffectDistortion distortion)
+            {
+                distortion.Drive = drive;
+            }
+        }
+
+        private void SetCallerAmplify(float volumeDb)
+        {
+            if (_callerBusIndex < 0 || _callerAmplifyIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_callerBusIndex, _callerAmplifyIndex) is AudioEffectAmplify amplify)
+            {
+                amplify.VolumeDb = volumeDb;
+            }
+        }
+
+        private void SetBusVolumeDb(int busIndex, float volumeDb)
+        {
+            if (busIndex < 0 || busIndex >= AudioServer.BusCount)
+            {
+                return;
+            }
+
+            AudioServer.SetBusVolumeDb(busIndex, volumeDb);
         }
 
         /// <summary>
