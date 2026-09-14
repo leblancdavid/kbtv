@@ -18,7 +18,7 @@ public partial class World3D : Node3D
 	private static readonly Vector3 StudioHallLeakDirection = Vector3.Right;
 
 	private const float TerminalZoomSpeed = 3.2f;
-	private const float TerminalFramingWidth = 1.0f;
+	private const float TerminalFramingWidth = 1.85f;
 
 	private enum TerminalViewState
 	{
@@ -29,6 +29,7 @@ public partial class World3D : Node3D
 	}
 
 	private Camera3D _camera = null!;
+	private CanvasLayer? _statusLayer;
 	private Label? _status_label;
 	private ControlRoom3D _control_room = null!;
 	private StudioRoom3D _studio_room = null!;
@@ -75,6 +76,7 @@ public partial class World3D : Node3D
 	public override void _Ready()
 	{
 		_camera = GetNode<Camera3D>("WorldCamera");
+		_statusLayer = GetNodeOrNull<CanvasLayer>("StatusLayer");
 		_status_label = GetNodeOrNull<Label>("StatusLayer/StatusPanel/StatusLabel");
 		_control_room = GetNode<ControlRoom3D>("ControlRoom3D");
 		_studio_room = GetNode<StudioRoom3D>("StudioRoom3D");
@@ -356,9 +358,9 @@ public partial class World3D : Node3D
 		var viewportSize = GetViewport()?.GetVisibleRect().Size ?? new Vector2(1280f, 720f);
 		var aspect = viewportSize.X / Mathf.Max(1f, viewportSize.Y);
 		_terminalCameraSize = TerminalFramingWidth / (2f * aspect);
-		_terminalCameraPos = screenPos + new Vector3(0f, -0.02f, 1.5f);
+		_terminalCameraPos = screenPos + new Vector3(0.09f, 0.12f, 1.42f);
 
-		var lookTarget = screenPos + new Vector3(0f, -0.12f, 0f);
+		var lookTarget = screenPos + new Vector3(-0.02f, -0.08f, 0f);
 		var transform = new Transform3D(Basis.Identity, _terminalCameraPos).LookingAt(lookTarget, Vector3.Up);
 		_terminalCameraBasis = transform.Basis;
 
@@ -374,6 +376,10 @@ public partial class World3D : Node3D
 		}
 
 		_terminalViewState = TerminalViewState.ZoomingOut;
+		if (_statusLayer != null)
+		{
+			_statusLayer.Visible = true;
+		}
 		_terminalOverlay?.HideTerminal();
 		DetachScreenTexture();
 		_computerTerminal.Visible = false;
@@ -408,7 +414,7 @@ public partial class World3D : Node3D
 		{
 			_terminalViewState = TerminalViewState.Open;
 			_control_room.SetComputerCollidersEnabled(false);
-			_control_room.ComputerGlb.Visible = false;
+			_control_room.ComputerGlb.Visible = true;
 			_computerTerminal.Visible = true;
 
 			var screenBody = _computerTerminal.ScreenBody.GlobalTransform.Origin;
@@ -475,7 +481,10 @@ public partial class World3D : Node3D
 
 	private void ShowTerminalOverlay()
 	{
-		ApplyTerminalScreenGlow();
+		if (_statusLayer != null)
+		{
+			_statusLayer.Visible = false;
+		}
 		UpdateTerminalOverlayBounds();
 		_terminalOverlay?.ShowTerminal();
 	}

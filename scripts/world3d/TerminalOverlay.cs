@@ -6,9 +6,11 @@ namespace KBTV.World3D;
 
 public partial class TerminalOverlay : CanvasLayer
 {
-	private const float MinWidth = 640f;
-	private const float MinHeight = 360f;
-	private const float Padding = 10f;
+	private const float MinWidth = 120f;
+	private const float MinHeight = 68f;
+	private const float ScreenInsetScale = 0.67f;
+	private const float ScreenAspect = 16f / 9f;
+	private static readonly Vector2 ScreenFitOffset = new(0f, 48f);
 
 	private Control _root = null!;
 	private Control _screenFrame = null!;
@@ -40,41 +42,34 @@ public partial class TerminalOverlay : CanvasLayer
 
 	public void SetScreenBounds(Vector2[] points, Vector2 viewportSize)
 	{
-		if (points.Length == 0)
+		if (points.Length < 4)
 		{
 			return;
 		}
 
-		var min = points[0];
-		var max = points[0];
-		foreach (var point in points)
+		var center = (points[0] + points[1] + points[2] + points[3]) * 0.25f + ScreenFitOffset;
+		var topLeft = center + (points[0] - center) * ScreenInsetScale;
+		var topRight = center + (points[1] - center) * ScreenInsetScale;
+		var bottomLeft = center + (points[2] - center) * ScreenInsetScale;
+
+		var width = Mathf.Max(MinWidth, topLeft.DistanceTo(topRight));
+		var height = Mathf.Max(MinHeight, topLeft.DistanceTo(bottomLeft));
+		var aspectHeight = width / ScreenAspect;
+		if (aspectHeight < height)
 		{
-			min = new Vector2(Mathf.Min(min.X, point.X), Mathf.Min(min.Y, point.Y));
-			max = new Vector2(Mathf.Max(max.X, point.X), Mathf.Max(max.Y, point.Y));
+			var yAxis = (bottomLeft - topLeft).Normalized();
+			height = aspectHeight;
+			bottomLeft = topLeft + yAxis * height;
 		}
 
-		var size = max - min;
-		if (size.X < MinWidth || size.Y < MinHeight)
-		{
-			var center = (min + max) * 0.5f;
-			size = new Vector2(Mathf.Max(size.X, MinWidth), Mathf.Max(size.Y, MinHeight));
-			min = center - size * 0.5f;
-		}
+		var angle = (topRight - topLeft).Angle();
+		_screenFrame.Position = topLeft;
+		_screenFrame.Size = new Vector2(width, height);
+		_screenFrame.Rotation = angle;
 
-		var availableSize = new Vector2(
-			Mathf.Max(64f, viewportSize.X - Padding * 2f),
-			Mathf.Max(64f, viewportSize.Y - Padding * 2f));
-		size = new Vector2(
-			Mathf.Min(size.X - Padding * 2f, availableSize.X),
-			Mathf.Min(size.Y - Padding * 2f, availableSize.Y));
-		min += new Vector2(Padding, Padding);
-		min.X = Mathf.Clamp(min.X, 0f, Mathf.Max(0f, viewportSize.X - size.X));
-		min.Y = Mathf.Clamp(min.Y, 0f, Mathf.Max(0f, viewportSize.Y - size.Y));
-
-		_screenFrame.Position = min;
-		_screenFrame.Size = size;
-		_glow.Position = min - new Vector2(8f, 8f);
-		_glow.Size = size + new Vector2(16f, 16f);
+		_glow.Position = topLeft;
+		_glow.Size = new Vector2(width, height);
+		_glow.Rotation = angle;
 	}
 
 	private void BuildUi()
@@ -90,7 +85,7 @@ public partial class TerminalOverlay : CanvasLayer
 		_glow = new ColorRect
 		{
 			Name = "CrtGlow",
-			Color = new Color(0.05f, 0.45f, 0.35f, 0.16f),
+			Color = new Color(0.06f, 0.58f, 0.42f, 0.055f),
 			MouseFilter = Control.MouseFilterEnum.Ignore
 		};
 		_root.AddChild(_glow);
@@ -143,7 +138,7 @@ public partial class TerminalOverlay : CanvasLayer
 		var tint = new ColorRect
 		{
 			Name = "CrtTint",
-			Color = new Color(0.0f, 0.22f, 0.16f, 0.12f),
+			Color = new Color(0.0f, 0.20f, 0.15f, 0.10f),
 			MouseFilter = Control.MouseFilterEnum.Ignore
 		};
 		tint.SetAnchorsPreset(Control.LayoutPreset.FullRect);
@@ -158,24 +153,134 @@ public partial class TerminalOverlay : CanvasLayer
 		scanlines.Draw += () => DrawScanlines(scanlines);
 		_screenFrame.AddChild(scanlines);
 
-		var vignette = new Panel
+		var dust = new Control
+		{
+			Name = "CrtDust",
+			MouseFilter = Control.MouseFilterEnum.Ignore
+		};
+		dust.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		dust.Draw += () => DrawDust(dust);
+		_screenFrame.AddChild(dust);
+
+		var glass = new Control
+		{
+			Name = "CrtGlassOverlay",
+			MouseFilter = Control.MouseFilterEnum.Ignore
+		};
+		glass.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		glass.Draw += () => DrawGlass(glass);
+		_screenFrame.AddChild(glass);
+
+		var vignette = new Control
 		{
 			Name = "CrtGlassVignette",
-			MouseFilter = Control.MouseFilterEnum.Ignore,
-			Modulate = new Color(0f, 0f, 0f, 0.28f)
+			MouseFilter = Control.MouseFilterEnum.Ignore
 		};
 		vignette.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		vignette.Draw += () => DrawVignette(vignette);
 		_screenFrame.AddChild(vignette);
 	}
 
 	private static void DrawScanlines(Control control)
 	{
 		var size = control.Size;
-		var color = new Color(0f, 0f, 0f, 0.24f);
+		var dark = new Color(0f, 0f, 0f, 0.18f);
+		var bright = new Color(0.18f, 0.70f, 0.52f, 0.055f);
 		for (var y = 1f; y < size.Y; y += 4f)
 		{
-			control.DrawLine(new Vector2(0f, y), new Vector2(size.X, y), color, 1f);
+			control.DrawLine(new Vector2(0f, y), new Vector2(size.X, y), dark, 1f);
+			control.DrawLine(new Vector2(0f, y + 1f), new Vector2(size.X, y + 1f), bright, 1f);
 		}
+	}
+
+	private static void DrawDust(Control control)
+	{
+		var size = control.Size;
+		var dustColor = new Color(0.78f, 0.92f, 0.82f, 0.10f);
+		var shadowColor = new Color(0f, 0f, 0f, 0.16f);
+		for (var i = 0; i < 36; i++)
+		{
+			var edge = i % 4;
+			var t = ((i * 37) % 100) / 100f;
+			var jitter = ((i * 19) % 17) - 8f;
+			var pos = edge switch
+			{
+				0 => new Vector2(t * size.X, 4f + Mathf.Abs(jitter) * 0.7f),
+				1 => new Vector2(size.X - 5f - Mathf.Abs(jitter) * 0.8f, t * size.Y),
+				2 => new Vector2(t * size.X, size.Y - 5f - Mathf.Abs(jitter) * 0.7f),
+				_ => new Vector2(5f + Mathf.Abs(jitter) * 0.8f, t * size.Y)
+			};
+			var radius = 0.7f + (i % 3) * 0.45f;
+			control.DrawCircle(pos, radius, dustColor);
+		}
+
+		control.DrawRect(new Rect2(Vector2.Zero, new Vector2(size.X, 10f)), shadowColor);
+		control.DrawRect(new Rect2(new Vector2(0f, size.Y - 12f), new Vector2(size.X, 12f)), shadowColor);
+		control.DrawRect(new Rect2(Vector2.Zero, new Vector2(12f, size.Y)), shadowColor);
+		control.DrawRect(new Rect2(new Vector2(size.X - 12f, 0f), new Vector2(12f, size.Y)), shadowColor);
+	}
+
+	private static void DrawGlass(Control control)
+	{
+		var size = control.Size;
+		var softGlare = new Color(0.82f, 1.0f, 0.88f, 0.055f);
+		var hardGlare = new Color(0.92f, 1.0f, 0.94f, 0.085f);
+		var scratch = new Color(0.82f, 0.98f, 0.88f, 0.075f);
+		var smudge = new Color(0.52f, 0.78f, 0.64f, 0.045f);
+
+		var topBand = new Vector2[]
+		{
+			new(0f, size.Y * 0.03f),
+			new(size.X, size.Y * 0.0f),
+			new(size.X, size.Y * 0.07f),
+			new(0f, size.Y * 0.11f)
+		};
+		control.DrawColoredPolygon(topBand, softGlare);
+
+		var diagonalBand = new Vector2[]
+		{
+			new(size.X * 0.06f, 0f),
+			new(size.X * 0.22f, 0f),
+			new(size.X * 0.04f, size.Y),
+			new(0f, size.Y)
+		};
+		control.DrawColoredPolygon(diagonalBand, new Color(0.72f, 1.0f, 0.84f, 0.035f));
+
+		control.DrawLine(new Vector2(8f, 7f), new Vector2(size.X - 12f, 3f), hardGlare, 1f);
+		control.DrawLine(new Vector2(6f, size.Y - 8f), new Vector2(size.X - 10f, size.Y - 5f), new Color(0f, 0f, 0f, 0.12f), 1f);
+
+		for (var i = 0; i < 14; i++)
+		{
+			var x = ((i * 83) % 100) / 100f * size.X;
+			var y = ((i * 47) % 100) / 100f * size.Y;
+			var length = 8f + (i % 5) * 4f;
+			control.DrawLine(new Vector2(x, y), new Vector2(Mathf.Min(size.X, x + length), y + 1f), scratch, 1f);
+		}
+
+		control.DrawCircle(new Vector2(size.X * 0.18f, size.Y * 0.32f), 9f, smudge);
+		control.DrawCircle(new Vector2(size.X * 0.82f, size.Y * 0.72f), 11f, new Color(0.52f, 0.78f, 0.64f, 0.025f));
+	}
+
+	private static void DrawVignette(Control control)
+	{
+		var size = control.Size;
+		for (var i = 0; i < 5; i++)
+		{
+			var alpha = 0.20f - i * 0.032f;
+			var thickness = 4f + i * 5f;
+			var edge = new Color(0f, 0f, 0f, alpha);
+			control.DrawRect(new Rect2(Vector2.Zero, new Vector2(size.X, thickness)), edge);
+			control.DrawRect(new Rect2(new Vector2(0f, size.Y - thickness), new Vector2(size.X, thickness)), edge);
+			control.DrawRect(new Rect2(Vector2.Zero, new Vector2(thickness, size.Y)), edge);
+			control.DrawRect(new Rect2(new Vector2(size.X - thickness, 0f), new Vector2(thickness, size.Y)), edge);
+		}
+
+		var mask = new Color(0.0f, 0.01f, 0.009f, 0.72f);
+		var r = Mathf.Min(26f, Mathf.Min(size.X, size.Y) * 0.075f);
+		control.DrawColoredPolygon(new[] { Vector2.Zero, new Vector2(r, 0f), Vector2.Zero + new Vector2(0f, r) }, mask);
+		control.DrawColoredPolygon(new[] { new Vector2(size.X, 0f), new Vector2(size.X - r, 0f), new Vector2(size.X, r) }, mask);
+		control.DrawColoredPolygon(new[] { new Vector2(0f, size.Y), new Vector2(0f, size.Y - r), new Vector2(r, size.Y) }, mask);
+		control.DrawColoredPolygon(new[] { size, new Vector2(size.X - r, size.Y), new Vector2(size.X, size.Y - r) }, mask);
 	}
 
 	private void RequestClose()
