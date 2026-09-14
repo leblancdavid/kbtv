@@ -14,12 +14,14 @@ public partial class ComputerTerminal3D : Node3D
 	public Area3D InteractionArea { get; private set; } = null!;
 	public MeshInstance3D ScreenMesh { get; private set; } = null!;
 	public StaticBody3D ScreenBody { get; private set; } = null!;
+	public OmniLight3D ScreenLight { get; private set; } = null!;
 	public bool IsPlayerInRange { get; private set; }
 
 	public Vector3 ScreenCenter => ScreenMesh.GlobalPosition;
 
 	private const float ScreenZOffset = 0.105f;
 	private const float ScreenCenterY = 0.385f;
+	private const float ScreenLightZOffset = 0.24f;
 
 	private static readonly Color ScreenOffColor = new(0.02f, 0.03f, 0.04f);
 
@@ -54,7 +56,29 @@ public partial class ComputerTerminal3D : Node3D
 		ScreenBody.AddChild(shapeNode);
 		root.AddChild(ScreenBody);
 
+		ScreenLight = new OmniLight3D
+		{
+			Name = "ScreenLight",
+			Position = new Vector3(0f, ScreenCenterY, ScreenZOffset + ScreenLightZOffset),
+			LightColor = new Color(0.10f, 0.85f, 0.62f),
+			LightEnergy = 0.75f,
+			LightIndirectEnergy = 0f,
+			OmniRange = 1.9f,
+			OmniAttenuation = 2.4f,
+			ShadowEnabled = false,
+			Visible = false
+		};
+		root.AddChild(ScreenLight);
+
 		AddChild(root);
+	}
+
+	public void SetScreenLightEnabled(bool enabled)
+	{
+		if (ScreenLight != null)
+		{
+			ScreenLight.Visible = enabled;
+		}
 	}
 
 	private void BuildInteractionArea()

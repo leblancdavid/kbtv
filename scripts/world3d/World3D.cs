@@ -382,6 +382,7 @@ public partial class World3D : Node3D
 		}
 		_terminalOverlay?.HideTerminal();
 		DetachScreenTexture();
+		_computerTerminal?.SetScreenLightEnabled(false);
 		_computerTerminal.Visible = false;
 		_control_room.ComputerGlb.Visible = true;
 		_control_room.SetComputerCollidersEnabled(true);
@@ -416,6 +417,7 @@ public partial class World3D : Node3D
 			_control_room.SetComputerCollidersEnabled(false);
 			_control_room.ComputerGlb.Visible = true;
 			_computerTerminal.Visible = true;
+			_computerTerminal.SetScreenLightEnabled(true);
 
 			var screenBody = _computerTerminal.ScreenBody.GlobalTransform.Origin;
 			var camPos = _camera.GlobalPosition;
@@ -506,6 +508,7 @@ public partial class World3D : Node3D
 		};
 
 		_computerTerminal.ScreenMesh.MaterialOverride = _screenLiveMaterial;
+		_computerTerminal.SetScreenLightEnabled(true);
 		_addedScreenMaterial = true;
 	}
 
@@ -770,6 +773,7 @@ public partial class World3D : Node3D
 		}
 
 		_computerTerminal.ScreenMesh.MaterialOverride = null;
+		_computerTerminal.SetScreenLightEnabled(false);
 		_addedScreenMaterial = false;
 		HideScreenDebugPreview();
 	}

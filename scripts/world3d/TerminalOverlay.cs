@@ -131,6 +131,7 @@ public partial class TerminalOverlay : CanvasLayer
 		_callerTab.CloseRequested += RequestClose;
 		_callerTab.BackRequested += RequestClose;
 		_screenFrame.AddChild(_callerTab);
+		_screenFrame.MoveChild(_callerTab, 1);
 	}
 
 	private void AddCrtEffects()
@@ -264,23 +265,68 @@ public partial class TerminalOverlay : CanvasLayer
 	private static void DrawVignette(Control control)
 	{
 		var size = control.Size;
-		for (var i = 0; i < 5; i++)
+		for (var i = 0; i < 14; i++)
 		{
-			var alpha = 0.20f - i * 0.032f;
-			var thickness = 4f + i * 5f;
-			var edge = new Color(0f, 0f, 0f, alpha);
+			var t = i / 13f;
+			var alpha = Mathf.Lerp(0.18f, 0.010f, t);
+			var thickness = 2f + i * 2.6f;
+			var edge = new Color(0.0f, 0.012f, 0.01f, alpha);
 			control.DrawRect(new Rect2(Vector2.Zero, new Vector2(size.X, thickness)), edge);
 			control.DrawRect(new Rect2(new Vector2(0f, size.Y - thickness), new Vector2(size.X, thickness)), edge);
 			control.DrawRect(new Rect2(Vector2.Zero, new Vector2(thickness, size.Y)), edge);
 			control.DrawRect(new Rect2(new Vector2(size.X - thickness, 0f), new Vector2(thickness, size.Y)), edge);
 		}
 
-		var mask = new Color(0.0f, 0.01f, 0.009f, 0.72f);
-		var r = Mathf.Min(26f, Mathf.Min(size.X, size.Y) * 0.075f);
-		control.DrawColoredPolygon(new[] { Vector2.Zero, new Vector2(r, 0f), Vector2.Zero + new Vector2(0f, r) }, mask);
-		control.DrawColoredPolygon(new[] { new Vector2(size.X, 0f), new Vector2(size.X - r, 0f), new Vector2(size.X, r) }, mask);
-		control.DrawColoredPolygon(new[] { new Vector2(0f, size.Y), new Vector2(0f, size.Y - r), new Vector2(r, size.Y) }, mask);
-		control.DrawColoredPolygon(new[] { size, new Vector2(size.X - r, size.Y), new Vector2(size.X, size.Y - r) }, mask);
+		var radius = Mathf.Min(34f, Mathf.Min(size.X, size.Y) * 0.11f);
+		for (var i = 2; i >= 0; i--)
+		{
+			var cornerRadius = radius + i * 5f;
+			var alpha = i == 0 ? 0.18f : 0.055f - i * 0.015f;
+			var mask = new Color(0.0f, 0.012f, 0.01f, alpha);
+			DrawCornerCutout(control, size, cornerRadius, 0, mask);
+			DrawCornerCutout(control, size, cornerRadius, 1, mask);
+			DrawCornerCutout(control, size, cornerRadius, 2, mask);
+			DrawCornerCutout(control, size, cornerRadius, 3, mask);
+		}
+	}
+
+	private static void DrawCornerCutout(Control control, Vector2 size, float radius, int corner, Color color)
+	{
+		const int Steps = 8;
+		var points = new Vector2[Steps + 3];
+		var center = corner switch
+		{
+			0 => new Vector2(radius, radius),
+			1 => new Vector2(size.X - radius, radius),
+			2 => new Vector2(size.X - radius, size.Y - radius),
+			_ => new Vector2(radius, size.Y - radius)
+		};
+
+		var cornerPoint = corner switch
+		{
+			0 => Vector2.Zero,
+			1 => new Vector2(size.X, 0f),
+			2 => size,
+			_ => new Vector2(0f, size.Y)
+		};
+
+		var startAngle = corner switch
+		{
+			0 => -Mathf.Pi / 2f,
+			1 => 0f,
+			2 => Mathf.Pi / 2f,
+			_ => Mathf.Pi
+		};
+
+		points[0] = cornerPoint;
+		for (var i = 0; i <= Steps; i++)
+		{
+			var angle = startAngle + i * Mathf.Pi / (2f * Steps);
+			points[i + 1] = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+		}
+		points[^1] = cornerPoint;
+
+		control.DrawColoredPolygon(points, color);
 	}
 
 	private void RequestClose()
