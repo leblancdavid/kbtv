@@ -34,48 +34,22 @@ namespace KBTV.UI.Components
 
         public override void _Ready()
         {
-            // Set up panel styling
-            var panelStyle = new StyleBoxFlat
-            {
-                BgColor = new Color(0f, 0f, 0f, 1f),
-                BorderColor = new Color(0.5f, 0.5f, 0.5f, 1f),
-                BorderWidthLeft = 1,
-                BorderWidthRight = 1,
-                BorderWidthTop = 1,
-                BorderWidthBottom = 1,
-                CornerRadiusTopLeft = 0,
-                CornerRadiusTopRight = 0,
-                CornerRadiusBottomLeft = 0,
-                CornerRadiusBottomRight = 0,
-                ContentMarginLeft = 4,
-                ContentMarginRight = 4,
-                ContentMarginTop = 2,
-                ContentMarginBottom = 2
-            };
-            AddThemeStyleboxOverride("panel", panelStyle);
+            // Outer control draws no box - the border lives on the inner stats
+            // box so the evidence row renders above the panel.
+            AddThemeStyleboxOverride("panel", new StyleBoxEmpty());
 
-            // Create inner layout (compact, single row)
-            var rootRow = new HBoxContainer();
-            rootRow.AddThemeConstantOverride("separation", 6);
-            rootRow.SizeFlagsVertical = SizeFlags.ShrinkBegin;
-            AddChild(rootRow);
+            // Create inner layout: evidence row on top of the stat box
+            var rootColumn = new VBoxContainer();
+            rootColumn.AddThemeConstantOverride("separation", 4);
+            rootColumn.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+            AddChild(rootColumn);
 
-            _statsContainer = new HBoxContainer();
-            _statsContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            _statsContainer.SizeFlagsVertical = SizeFlags.ShrinkBegin;
-            _statsContainer.AddThemeConstantOverride("separation", 8);
-            rootRow.AddChild(_statsContainer);
-
-            var evidenceWrap = new HBoxContainer();
-            evidenceWrap.AddThemeConstantOverride("separation", 6);
-            evidenceWrap.Alignment = BoxContainer.AlignmentMode.End;
-            rootRow.AddChild(evidenceWrap);
-
-            // Evidence container (label + button)
+            // Evidence container (label + button) - sits above the stat box, centered
             _evidenceContainer = new HBoxContainer();
             _evidenceContainer.AddThemeConstantOverride("separation", 6);
+            _evidenceContainer.Alignment = BoxContainer.AlignmentMode.Center;
             _evidenceContainer.Visible = false;
-            evidenceWrap.AddChild(_evidenceContainer);
+            rootColumn.AddChild(_evidenceContainer);
 
             // Evidence Found label
             var evidenceLabel = new Label
@@ -95,6 +69,37 @@ namespace KBTV.UI.Components
             _evidenceFoundButton.AddThemeFontSizeOverride("font_size", 12);
             _evidenceFoundButton.Pressed += OnEvidenceFoundPressed;
             _evidenceContainer.AddChild(_evidenceFoundButton);
+
+            // Stat box - carries the gray border around the stat change row
+            var statsBox = new PanelContainer
+            {
+                SizeFlagsVertical = SizeFlags.ShrinkBegin
+            };
+            var panelStyle = new StyleBoxFlat
+            {
+                BgColor = new Color(0f, 0f, 0f, 1f),
+                BorderColor = new Color(0.5f, 0.5f, 0.5f, 1f),
+                BorderWidthLeft = 1,
+                BorderWidthRight = 1,
+                BorderWidthTop = 1,
+                BorderWidthBottom = 1,
+                CornerRadiusTopLeft = 0,
+                CornerRadiusTopRight = 0,
+                CornerRadiusBottomLeft = 0,
+                CornerRadiusBottomRight = 0,
+                ContentMarginLeft = 4,
+                ContentMarginRight = 4,
+                ContentMarginTop = 2,
+                ContentMarginBottom = 2
+            };
+            statsBox.AddThemeStyleboxOverride("panel", panelStyle);
+            rootColumn.AddChild(statsBox);
+
+            _statsContainer = new HBoxContainer();
+            _statsContainer.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+            _statsContainer.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+            _statsContainer.AddThemeConstantOverride("separation", 8);
+            statsBox.AddChild(_statsContainer);
 
             // No data label (shown when nothing is revealed)
             _noDataLabel = new Label
@@ -412,11 +417,11 @@ namespace KBTV.UI.Components
         /// </summary>
         private Label CreateStatLabel(StatType statType, float amount)
         {
+            var abbreviation = GetStatAbbreviation(statType);
             var fullName = GetStatFullName(statType);
 
-            // Format: "Patience +5" or "Spirit -3"
-            var signText = amount >= 0 ? "+" : "";
-            var text = $"{fullName}: {signText}{amount:F0}";
+            // Compact format: "P++", "E---", "M+" based on magnitude bins
+            var text = $"{abbreviation}{BuildMagnitudeSymbols(amount, 6, 12)}";
 
             var label = new Label { Text = text };
 
@@ -426,6 +431,7 @@ namespace KBTV.UI.Components
             label.AddThemeFontSizeOverride("font_size", 12);
 
             // Tooltip with full stat name
+            var signText = amount >= 0 ? "+" : "";
             label.TooltipText = $"{fullName}: {signText}{amount:F1}";
 
             return label;
@@ -468,6 +474,40 @@ namespace KBTV.UI.Components
         }
 
         /// <summary>
+        /// Get compact display abbreviation for a stat type.
+        /// </summary>
+        private static string GetStatAbbreviation(StatType statType)
+        {
+            return statType switch
+            {
+                StatType.Physical => "P",
+                StatType.Emotional => "E",
+                StatType.Mental => "M",
+                StatType.Caffeine => "C",
+                StatType.Nicotine => "N",
+                _ => "?"
+            };
+        }
+
+        /// <summary>
+        /// Build a run of + or - characters proportional to the magnitude,
+        /// capped at 3 per direction.
+        /// Stats scale: |1-6| -> 1, |7-12| -> 2, |13+| -> 3.
+        /// XP scale (3x): |1-18| -> 1, |19-36| -> 2, |37+| -> 3.
+        /// </summary>
+        private static string BuildMagnitudeSymbols(float amount, int max1Symbol, int max2Symbol)
+        {
+            int magnitude = Mathf.RoundToInt(Mathf.Abs(amount));
+            int count;
+            if (magnitude > max2Symbol) count = 3;
+            else if (magnitude > max1Symbol) count = 2;
+            else if (magnitude >= 1) count = 1;
+            else return string.Empty;
+
+            return new string(amount >= 0 ? '+' : '-', count);
+        }
+
+        /// <summary>
         /// Calculate XP impact from revealed properties.
         /// </summary>
         private float CalculateXPImpact()
@@ -486,13 +526,13 @@ namespace KBTV.UI.Components
         /// </summary>
         private Label CreateXPLabel(float xpImpact)
         {
-            var signText = xpImpact >= 0 ? "+" : "";
-            var text = $"XP {signText}{xpImpact:F0}";
+            var text = $"XP{BuildMagnitudeSymbols(xpImpact, 18, 36)}";
 
             var label = new Label { Text = text };
             var color = xpImpact >= 0 ? UIColors.StatEffect.Positive : UIColors.StatEffect.Negative;
             label.AddThemeColorOverride("font_color", color);
             label.AddThemeFontSizeOverride("font_size", 12);
+            var signText = xpImpact >= 0 ? "+" : "";
             label.TooltipText = $"Topic Belief: {signText}{xpImpact:F1}";
 
             return label;

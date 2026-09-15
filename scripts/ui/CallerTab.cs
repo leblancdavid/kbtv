@@ -29,7 +29,6 @@ namespace KBTV.UI
         private CallerTabManager _tabManager = null!;
         private CallerListAdapter _incomingAdapter = null!;
         private ReactiveListPanel<Caller>? _reactiveListPanel;
-        private Label? _currentCallerNameLabel;
         private Label? _currentCallerPhoneLabel;
 
         private string? _previousScreeningCallerId;
@@ -213,15 +212,6 @@ namespace KBTV.UI
             var currentCallerHeader = CreateSectionHeader("CURRENT CALLER");
             _onHoldPanel.AddChild(currentCallerHeader);
 
-            _currentCallerNameLabel = new Label
-            {
-                Text = "Name: ???"
-            };
-            _currentCallerNameLabel.AddThemeFontSizeOverride("font_size", 12);
-            _currentCallerNameLabel.AddThemeFontOverride("font", UITheme.MonoFont);
-            _currentCallerNameLabel.AddThemeColorOverride("font_color", UIColors.Screening.HeaderText);
-            _onHoldPanel.AddChild(_currentCallerNameLabel);
-
             _currentCallerPhoneLabel = new Label
             {
                 Text = "Phone: ---"
@@ -264,25 +254,13 @@ namespace KBTV.UI
 
         private void UpdateCurrentCallerDisplay()
         {
-            if (_currentCallerNameLabel == null || _currentCallerPhoneLabel == null)
+            if (_currentCallerPhoneLabel == null)
             {
                 return;
             }
 
             var caller = _repository.CurrentScreening;
-            if (caller == null)
-            {
-                _currentCallerNameLabel.Text = "Name: N/A";
-                _currentCallerPhoneLabel.Text = "Phone: N/A";
-                return;
-            }
-
-            var nameProperty = caller.ScreenableProperties
-                .FirstOrDefault(p => p.PropertyKey == "Name");
-            bool nameRevealed = nameProperty != null && nameProperty.IsRevealed;
-
-            _currentCallerNameLabel.Text = $"Name: {(nameRevealed ? caller.Name : "???")}";
-            _currentCallerPhoneLabel.Text = $"Phone: {caller.PhoneNumber}";
+            _currentCallerPhoneLabel.Text = caller == null ? "Phone: N/A" : $"Phone: {caller.PhoneNumber}";
         }
 
         private void TrackStateForRefresh()

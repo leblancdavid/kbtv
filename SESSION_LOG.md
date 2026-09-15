@@ -1,6 +1,67 @@
 ## Current Session
 
 **Branch**: 3d-migration
+**Task**: Screening UI polish follow-up #2: widen the stat +/- symbol scale, make approve/reject span the middle column, bottom-align the stat panel + buttons, and show the evidence button above the stat panel. **Status: Completed — build green, full suite 514/13 baseline unchanged**
+
+- **Wider symbol bins** (`StatSummaryPanel.cs`): `BuildMagnitudeSymbols` is now threshold-parameterized — stats `|1-6|→1, |7-12|→2, |13+|→3`; XP uses 3x `|1-18|→1, |19-36|→2, |37+|→3` (user choice). Callers: `CreateStatLabel(amount, 6, 12)`, `CreateXPLabel(xpImpact, 18, 36)`. Tooltips still show exact amounts.
+- **Evidence above the stat panel, centered** (`StatSummaryPanel.cs` `_Ready`): the gray border `StyleBoxFlat` moved from the outer `PanelContainer` onto a new inner `statsBox` (`PanelContainer`) that wraps only the stats row; outer control gets `StyleBoxEmpty`. `_evidenceContainer` is now the first row of the outer VBox → renders above the box, centered (`Alignment = Center`). Evidence wiring untouched.
+- **Buttons span the middle column** (`ScreeningPanel.tscn`): deleted the `ButtonCenter` `CenterContainer`; `ButtonRow` (HBox) is now a direct child heading the root VBox; `RejectButton`/`ApproveButton` → `size_flags_horizontal = 3` (Fill|Expand) splitting the full width; height `custom_minimum_size (0, 26)`.
+- **Bottom alignment** (`ScreeningPanel.tscn`): removed the unused `NotificationContainer` (40px empty Panel, zero code refs); VBox is now TopRow / CallerInfoScroll(expand) / ImpactRow / ButtonRow → stat panel + buttons sit flush at the bottom.
+- **FIXED node paths** (`ScreeningPanel.cs` `EnsureNodesInitialized`): buttons moved from `ButtonCenter/HBoxContainer/...` to `ButtonRow/...` (this path change would otherwise cause the same NRE seen earlier).
+- Files: `scripts/ui/components/StatSummaryPanel.cs`, `scenes/ui/ScreeningPanel.tscn`, `scripts/ui/ScreeningPanel.cs`, `SESSION_LOG.md`.
+- **`dotnet build`: 0 errors** (10 pre-existing warnings). **Full `run-tests.ps1`: Passed 514 | Failed 13 — baseline unchanged; no tests reference the changed symbols.**
+
+### Todo / Next Steps
+- [x] Parameterize `BuildMagnitudeSymbols` (stats 6/12, XP 18/36) per user's 1-6/7-12/13+ and 3x XP scale.
+- [x] Evidence row above the stat box (inner PanelContainer for the border), centered.
+- [x] REJECT/APPROVE full-width of the middle column (`size_flags_horizontal = 3`), taller (26px).
+- [x] Remove unused `NotificationContainer`; stat panel + buttons bottom-aligned.
+- [x] Update `ScreeningPanel.cs` button node paths; `dotnet build` 0 errors; full suite 514/13.
+- [ ] Verify in-game: symbol distribution, button sizing/positioning, evidence button above the box.
+
+### Files Modified
+- `scripts/ui/components/StatSummaryPanel.cs`
+- `scenes/ui/ScreeningPanel.tscn`
+- `scripts/ui/ScreeningPanel.cs`
+- `SESSION_LOG.md`
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+**Task**: Follow-up UI refinements on the DOS screening UI: remove duplicate name header, center bottom approve/reject, abbreviate stat changes (P/E/M/C/N/XP with ± count, 3 bins), evidence button above stat change. **Status: Completed — build green, full suite 514/13 baseline unchanged**
+
+- **Removed the name header**: `ScreeningPanel.cs` — deleted `_headerRow` field/`[Export]`, its node lookup, `UpdateForNoCaller`/`UpdateForCaller` writes, and the now-dead `GetCallerDisplayName` method (Name now shown only via its screenable property row). Removed `HeaderRow` node from `ScreeningPanel.tscn` and the unused `using System.Linq;`.
+- **Removed CURRENT CALLER name line**: `CallerTab.cs` — deleted `_currentCallerNameLabel` field, creation block, and its Update logic; `UpdateCurrentCallerDisplay` now shows only `Phone: …`.
+- **Bottom-middle buttons**: `ScreeningPanel.tscn` — wrapped the approve/reject `HBoxContainer` in a `CenterContainer` (`ButtonCenter`); buttons now `size_flags_horizontal = 0` (shrink to content, centered) directly under the stat/evidence block.
+- **Stat abbreviation** (`StatSummaryPanel.cs`): `CreateStatLabel` → `P++/E---/M+` via `GetStatAbbreviation` (P/E/M/C/N) + new `BuildMagnitudeSymbols` (|1-3|→1, |4-6|→2, |7+|→3, `+`/`-`); `CreateXPLabel` → `XP++` style. Tooltips keep full name + exact amount. Green/red colors unchanged.
+- **Evidence button above stat change**: restructured `StatSummaryPanel` layout from one `HBoxContainer` (stats | evidence) to a `VBoxContainer` with the evidence row (centered) on top and the stats row below; all evidence visibility/flash/UX logic unchanged.
+- Out of scope per user: `LiveShowFooter` "NONE" on-air display (footer not currently shown).
+- Files: `scripts/ui/ScreeningPanel.cs`, `scenes/ui/ScreeningPanel.tscn`, `scripts/ui/CallerTab.cs`, `scripts/ui/components/StatSummaryPanel.cs`, `SESSION_LOG.md`.
+- **`dotnet build`: 0 errors** (only the 10 pre-existing warnings). **Full `run-tests.ps1`: Passed 514 | Failed 13 — identical to baseline; no UI symbols referenced by tests (grep).**
+
+### Todo / Next Steps
+- [x] Remove `HeaderRow` (ScreeningPanel.cs/.tscn) — name shows only as property row.
+- [x] Remove CURRENT CALLER `Name:` line (CallerTab.cs).
+- [x] Center approve/reject at bottom (CenterContainer in ScreeningPanel.tscn).
+- [x] Abbreviate stats (`P++/E---/M+`, `XP++`, 3 bins) in StatSummaryPanel.
+- [x] Evidence button row above the stat change (VBox layout).
+- [x] `dotnet build` 0 errors; full suite 514/13 (baseline unchanged).
+- [ ] Optional follow-ups (carried): in-game visual pass; document 13 pre-existing hard failures + Result `Fail` arg-order bug; commit wave once visually verified.
+
+### Files Modified
+- `scripts/ui/ScreeningPanel.cs`
+- `scenes/ui/ScreeningPanel.tscn`
+- `scripts/ui/CallerTab.cs`
+- `scripts/ui/components/StatSummaryPanel.cs`
+- `SESSION_LOG.md`
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
 **Task**: Retro DOS/BIOS terminal restyle of the caller screening UI, make caller name a hidden screenable property, and switch queue phone numbers to `+1XXXXXXXXXX`. **Status: Completed — code done, build green, tests verified**
 
 - Converted the screening/caller UI to a DOS terminal look: pure black backgrounds, gray borders, corner radius 0, monospace (`AcPlus_IBM_VGA_8x16.ttf`) text at 12–18px, character-based headers/dividers (`=`, `-`, `|`), hidden scrollbars (`vertical_scroll_mode = 3`), and a CURRENT CALLER box. Green `+`/red `-` stat accents preserved in `StatSummaryPanel`.

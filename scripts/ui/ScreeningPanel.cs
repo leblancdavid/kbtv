@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using KBTV.Callers;
@@ -14,9 +13,6 @@ namespace KBTV.UI
 	public partial class ScreeningPanel : Control
 	{
 		[ExportGroup("Node References")]
-		[Export]
-		private Label _headerRow = null!;
-
 		[Export]
 		private Control _propertiesContainer = null!;
 
@@ -47,14 +43,14 @@ namespace KBTV.UI
 		private Caller? _previousCaller;
 		private float _previousProgressPercent = -1f;
 
-        // Property rows for animated reveal
-        private List<ScreenablePropertyRow> _propertyRows = new();
+		// Property rows for animated reveal
+		private List<ScreenablePropertyRow> _propertyRows = new();
 
-        // Stat summary panel for aggregated effects
-        private StatSummaryPanel? _statSummaryPanel;
+		// Stat summary panel for aggregated effects
+		private StatSummaryPanel? _statSummaryPanel;
 
-        // Pending properties for deferred stat summary update
-        private ScreenableProperty[]? _pendingProperties;
+		// Pending properties for deferred stat summary update
+		private ScreenableProperty[]? _pendingProperties;
 
 		public override void _Notification(int what) => this.Notify(what);
 
@@ -86,10 +82,9 @@ namespace KBTV.UI
 		/// </summary>
 		private void EnsureNodesInitialized()
 		{
-			_headerRow ??= GetNodeOrNull<Label>("ContentMargin/VBoxContainer/CallerInfoScroll/InfoMargin/InfoVBox/HeaderRow");
 			_propertiesContainer ??= GetNodeOrNull<Control>("ContentMargin/VBoxContainer/CallerInfoScroll/InfoMargin/InfoVBox/PropertiesContainer");
-			_approveButton ??= GetNodeOrNull<Button>("ContentMargin/VBoxContainer/HBoxContainer/ApproveButton");
-			_rejectButton ??= GetNodeOrNull<Button>("ContentMargin/VBoxContainer/HBoxContainer/RejectButton");
+			_approveButton ??= GetNodeOrNull<Button>("ContentMargin/VBoxContainer/ButtonRow/ApproveButton");
+			_rejectButton ??= GetNodeOrNull<Button>("ContentMargin/VBoxContainer/ButtonRow/RejectButton");
 			_patienceTextLabel ??= GetNodeOrNull<Label>("ContentMargin/VBoxContainer/TopRow/PatienceRight/PatienceTextLabel");
 			_statSummaryContainer ??= GetNodeOrNull<Control>("ContentMargin/VBoxContainer/ImpactRow");
 			_screeningLabel ??= GetNodeOrNull<Label>("ContentMargin/VBoxContainer/TopRow/ScreeningLabel");
@@ -110,48 +105,48 @@ namespace KBTV.UI
 			}
 		}
 
-        public async void SetPendingCaller(Caller caller)
-        {
-            if (caller == null)
-            {
-                Log.Error("ScreeningPanel.SetPendingCaller: caller is null");
-                return;
-            }
+		public async void SetPendingCaller(Caller caller)
+		{
+			if (caller == null)
+			{
+				Log.Error("ScreeningPanel.SetPendingCaller: caller is null");
+				return;
+			}
 
-            // If we have a pending caller that's different, clear current state and stat summary
-            if (_pendingCaller != null && _pendingCaller != caller)
-            {
-                ClearCurrentState();
-                // Clear stat summary to show "No caller data" briefly when switching callers
-                if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel))
-                {
-                    _statSummaryPanel.SetProperties(null);
-                }
-            }
+			// If we have a pending caller that's different, clear current state and stat summary
+			if (_pendingCaller != null && _pendingCaller != caller)
+			{
+				ClearCurrentState();
+				// Clear stat summary to show "No caller data" briefly when switching callers
+				if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel))
+				{
+					_statSummaryPanel.SetProperties(null);
+				}
+			}
 
-            // Set the new pending caller
-            _pendingCaller = caller;
+			// Set the new pending caller
+			_pendingCaller = caller;
 
-            // Get properties for this caller (will create rows if needed)
-            var properties = caller.ScreenableProperties ?? Array.Empty<ScreenableProperty>();
-            _pendingProperties = properties;
+			// Get properties for this caller (will create rows if needed)
+			var properties = caller.ScreenableProperties ?? Array.Empty<ScreenableProperty>();
+			_pendingProperties = properties;
 
-            // Clear existing rows and create new ones
-            ClearPropertyRows();
-            foreach (var property in properties)
-            {
-                var row = CreatePropertyRow(property);
-                _propertiesContainer.AddChild(row);
-                _propertyRows.Add(row);
-            }
+			// Clear existing rows and create new ones
+			ClearPropertyRows();
+			foreach (var property in properties)
+			{
+				var row = CreatePropertyRow(property);
+				_propertiesContainer.AddChild(row);
+				_propertyRows.Add(row);
+			}
 
-            // Add stat summary panel and set properties after a brief delay to show the clear state
-            EnsureStatSummaryPanel();
-            if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel))
-            {
-                CallDeferred(nameof(SetPendingStatSummary));
-            }
-        }
+			// Add stat summary panel and set properties after a brief delay to show the clear state
+			EnsureStatSummaryPanel();
+			if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel))
+			{
+				CallDeferred(nameof(SetPendingStatSummary));
+			}
+		}
 
 		/// <summary>
 		/// Set the current caller for screening (alias for SetPendingCaller for compatibility).
@@ -173,7 +168,6 @@ namespace KBTV.UI
 		/// </summary>
 		private void UpdateForNoCaller()
 		{
-			_headerRow.Text = string.Empty;
 			if (_screeningLabel != null)
 			{
 				_screeningLabel.Text = "Waiting for callers...";
@@ -207,8 +201,6 @@ namespace KBTV.UI
 			var caller = _controller.CurrentCaller!;
 			var progress = _controller.Progress;
  
-			// Update header
-			_headerRow.Text = $"Name: {GetCallerDisplayName(caller)}";
 			if (_screeningLabel != null)
 			{
 				_screeningLabel.Text = $"Screening: {caller.PhoneNumber}";
@@ -217,7 +209,7 @@ namespace KBTV.UI
 			// Enable/disable buttons based on screening phase
 			// Enable buttons during Gathering and Deciding phases
 			bool canInteract = _controller.Phase == ScreeningPhase.Gathering || 
-			                   _controller.Phase == ScreeningPhase.Deciding;
+							   _controller.Phase == ScreeningPhase.Deciding;
 			_approveButton.Disabled = !canInteract;
 			_rejectButton.Disabled = !canInteract;
 
@@ -272,27 +264,27 @@ namespace KBTV.UI
 			return row;
 		}
 
-        /// <summary>
-        /// Ensure the stat summary panel exists in the summary container.
-        /// </summary>
+		/// <summary>
+		/// Ensure the stat summary panel exists in the summary container.
+		/// </summary>
 		private void EnsureStatSummaryPanel()
 		{
-            // Only create if doesn't exist
-            if (_statSummaryPanel == null || !IsInstanceValid(_statSummaryPanel))
-            {
-                if (_statSummaryContainer == null)
-                {
-                    Log.Error("ScreeningPanel: _statSummaryContainer is null");
-                    return;
-                }
-                
+			// Only create if doesn't exist
+			if (_statSummaryPanel == null || !IsInstanceValid(_statSummaryPanel))
+			{
+				if (_statSummaryContainer == null)
+				{
+					Log.Error("ScreeningPanel: _statSummaryContainer is null");
+					return;
+				}
+				
 				_statSummaryPanel = new StatSummaryPanel();
 				_statSummaryPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
 				_statSummaryPanel.SizeFlagsVertical = SizeFlags.ShrinkBegin;
 				_statSummaryPanel.CustomMinimumSize = new Vector2(0, 18);
-                
-                _statSummaryContainer.AddChild(_statSummaryPanel);
-                
+				
+				_statSummaryContainer.AddChild(_statSummaryPanel);
+				
 				// CRITICAL: Manually trigger OnResolved() for dynamic IDependent nodes
 				if (_statSummaryPanel is IDependent dependent)
 				{
@@ -356,47 +348,39 @@ namespace KBTV.UI
 			}
 		}
 
-        /// <summary>
-        /// Handle reject button press.
-        /// </summary>
-        private void OnRejectPressed()
-        {
-            if (_controller.CurrentCaller == null)
-            {
-                return;
-            }
+		/// <summary>
+		/// Handle reject button press.
+		/// </summary>
+		private void OnRejectPressed()
+		{
+			if (_controller.CurrentCaller == null)
+			{
+				return;
+			}
 
-            var result = _controller.Reject();
-            if (!result.IsSuccess)
-            {
-                Log.Error($"ScreeningPanel: Reject failed - {result.ErrorCode}: {result.ErrorMessage}");
-            }
-        }
+			var result = _controller.Reject();
+			if (!result.IsSuccess)
+			{
+				Log.Error($"ScreeningPanel: Reject failed - {result.ErrorCode}: {result.ErrorMessage}");
+			}
+		}
 
-        /// <summary>
-        /// Set the pending stat summary properties (called via CallDeferred).
-        /// </summary>
-        private void SetPendingStatSummary()
-        {
-            if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel) && _pendingProperties != null)
-            {
-                _statSummaryPanel.SetProperties(_pendingProperties);
-                _pendingProperties = null; // Clear after use
-            }
-        }
+		/// <summary>
+		/// Set the pending stat summary properties (called via CallDeferred).
+		/// </summary>
+		private void SetPendingStatSummary()
+		{
+			if (_statSummaryPanel != null && IsInstanceValid(_statSummaryPanel) && _pendingProperties != null)
+			{
+				_statSummaryPanel.SetProperties(_pendingProperties);
+				_pendingProperties = null; // Clear after use
+			}
+		}
 
-        private string BuildPatienceBar(float ratio, int width = 14)
-        {
-            int filled = Mathf.RoundToInt(Mathf.Clamp(ratio, 0f, 1f) * width);
-            return "[" + new string('|', filled) + new string('.', width - filled) + "]";
-        }
-
-        private string GetCallerDisplayName(Caller caller)
-        {
-            if (caller?.ScreenableProperties == null) return "???";
-            var nameProperty = caller.ScreenableProperties
-                .FirstOrDefault(p => p.PropertyKey == "Name");
-            return (nameProperty != null && nameProperty.IsRevealed) ? caller.Name : "???";
-        }
-    }
+		private string BuildPatienceBar(float ratio, int width = 14)
+		{
+			int filled = Mathf.RoundToInt(Mathf.Clamp(ratio, 0f, 1f) * width);
+			return "[" + new string('|', filled) + new string('.', width - filled) + "]";
+		}
+	}
 }
