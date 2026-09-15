@@ -13,9 +13,11 @@ namespace KBTV.UI
     {
         private CanvasLayer _canvas;
         private EventBus? _eventBus;
+        private GameStateManager? _gameStateManager;
         private ColorRect? _background;
         private CallerTab? _callerTab;
         private Control? _liveShowFooter;
+        private CanvasLayer? _transcriptCanvas;
         private TranscriptOverlay? _transcriptOverlay;
 
         public bool IsOpen { get; private set; }
@@ -34,6 +36,7 @@ namespace KBTV.UI
             CreateUI();
             RegisterWithUIManager();
             SubscribeToEvents();
+            SubscribeToPhaseChanges();
         }
 
         private void CreateUI()
@@ -84,9 +87,17 @@ namespace KBTV.UI
                 Log.Error("CallerScreenerManager: Failed to load LiveShowFooter.tscn");
             }
 
-            // Transcript overlay sits on canvas above all views
+            _transcriptCanvas = new CanvasLayer
+            {
+                Name = "TranscriptCanvasLayer",
+                Layer = 101
+            };
+            AddChild(_transcriptCanvas);
+
+            // Transcript overlay is independent from the caller screener canvas.
             _transcriptOverlay = new TranscriptOverlay();
-            _canvas.AddChild(_transcriptOverlay);
+            _transcriptCanvas.AddChild(_transcriptOverlay);
+            _transcriptCanvas.Hide();
 
             _canvas.Hide();
             IsOpen = false;
@@ -181,6 +192,41 @@ namespace KBTV.UI
             _eventBus.Subscribe<ScreeningRequestedEvent>(HandleScreeningRequested);
         }
 
+        private void SubscribeToPhaseChanges()
+        {
+            _gameStateManager = DependencyInjection.Get<GameStateManager>(this);
+            if (_gameStateManager == null)
+            {
+                Log.Error("CallerScreenerManager: GameStateManager not available");
+                return;
+            }
+
+            _gameStateManager.OnPhaseChanged += HandlePhaseChanged;
+            UpdateTranscriptVisibility(_gameStateManager.CurrentPhase);
+        }
+
+        private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
+        {
+            UpdateTranscriptVisibility(newPhase);
+        }
+
+        private void UpdateTranscriptVisibility(GamePhase phase)
+        {
+            if (_transcriptCanvas == null)
+            {
+                return;
+            }
+
+            if (phase == GamePhase.LiveShow)
+            {
+                _transcriptCanvas.Show();
+            }
+            else
+            {
+                _transcriptCanvas.Hide();
+            }
+        }
+
         private void HandleScreeningRequested(ScreeningRequestedEvent @event)
         {
             GD.Print("CallerScreenerManager: ScreeningRequestedEvent received");
@@ -192,6 +238,11 @@ namespace KBTV.UI
             if (_eventBus != null)
             {
                 _eventBus.Unsubscribe<ScreeningRequestedEvent>(HandleScreeningRequested);
+            }
+
+            if (_gameStateManager != null)
+            {
+                _gameStateManager.OnPhaseChanged -= HandlePhaseChanged;
             }
         }
     }

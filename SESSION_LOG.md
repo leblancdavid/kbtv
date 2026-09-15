@@ -1,6 +1,28 @@
 ## Current Session
 
 **Branch**: 3d-migration
+**Task**: Transcript overlay — bottom-screen live show overlay with left picture section, right typewriter transcript, and a real 3D Vern studio camera feed. **Status: Completed — build green, full suite still 13 known failures**
+
+- Plan: keep the existing event-driven `LiveShowPanel`/typewriter path, rework its layout into a bottom overlay, add a `World3D` SubViewport camera aimed at `StudioRoom3D/VernStandIn`, and show the transcript layer only during `LiveShow` without reopening the full caller screener.
+- Implemented: `World3D` now adds itself to group `world3d`, creates an always-updating `VernCameraViewport` + `VernStudioCamera`, and exposes `GetVernCameraTexture()` for UI. `CallerScreenerManager` now owns a separate `TranscriptCanvasLayer` (layer 101) and shows it only during `GamePhase.LiveShow`, avoiding the full caller screener/background. `TranscriptOverlay` is tuned to a bottom-center strip. `LiveShowPanel.tscn` is now a two-column overlay: left picture frame, right transcript. `LiveShowPanel.cs` keeps existing `BroadcastItemStartedEvent` + typewriter behavior and switches the left frame between live Vern feed, caller placeholder, and ad/bumper/system cards.
+- Verification: `dotnet build` 0 errors (6 existing warnings). Full `pwsh -NoProfile -File run-tests.ps1`: Passed 489 | Failed 13 — same known baseline after 2D cleanup.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/world3d/World3D.cs`
+- `scripts/ui/LiveShowPanel.cs`
+- `scenes/ui/LiveShowPanel.tscn`
+- `scripts/ui/components/TranscriptOverlay.cs`
+- `scripts/ui/CallerScreenerManager.cs`
+
+### Next Steps
+- [ ] In-editor visual pass: start a show, verify the overlay appears at the bottom, typewriter timing still feels right, caller/ad/bumper states switch, and Vern's 3D camera framing catches `VernStandIn` cleanly.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
 **Task**: 2D cleanup — delete all 2D world/player code, scenes, tests, shaders, and `assets/tiles` + `assets/sprites/characters/player` from the 3D migration. **Status: Completed — build green, full suite still 13 known failures**
 
 - Plan approved (9 steps). Tag `pre-2d-cleanup` set as recovery point.

@@ -1,18 +1,31 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/LiveShowPanel.cs" id="1"]
+[ext_resource type="FontFile" path="res://assets/fonts/AcPlus_IBM_VGA_8x16.ttf" id="2"]
 
 [sub_resource type="StyleBoxFlat" id="PanelStyle"]
-bg_color = Color(0.12, 0.12, 0.15, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.4, 0.3, 0.2, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0, 0, 0, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.55, 0.55, 0.55, 1)
+
+[sub_resource type="StyleBoxFlat" id="PictureStyle"]
+bg_color = Color(0.025, 0.025, 0.025, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.32, 0.32, 0.32, 1)
+
+[sub_resource type="StyleBoxFlat" id="DialogueStyle"]
+bg_color = Color(0.015, 0.015, 0.015, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.18, 0.18, 0.18, 1)
 
 [node name="LiveShowPanel" type="PanelContainer"]
 anchors_preset = 15
@@ -23,52 +36,27 @@ grow_vertical = 2
 theme_override_styles/panel = SubResource("PanelStyle")
 script = ExtResource("1")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
-[node name="HeaderContainer" type="HBoxContainer" parent="VBoxContainer"]
+[node name="RootRow" type="HBoxContainer" parent="MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
-[node name="SpeakerIcon" type="Label" parent="VBoxContainer/HeaderContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(64, 0)
+[node name="PicturePanel" type="PanelContainer" parent="MarginContainer/RootRow"]
+custom_minimum_size = Vector2(176, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
-theme_override_font_sizes/font_size = 10
-text = "VERN"
-horizontal_alignment = 1
-vertical_alignment = 1
+theme_override_styles/panel = SubResource("PictureStyle")
 
-[node name="SpeakerName" type="Label" parent="VBoxContainer/HeaderContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 0)
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 10
-text = "Vern Tell"
-vertical_alignment = 1
-
-[node name="PhaseLabel" type="Label" parent="VBoxContainer/HeaderContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(80, 0)
-layout_mode = 2
-size_flags_horizontal = 8
-theme_override_colors/font_color = Color(0.5, 0.8, 0.5, 1)
-theme_override_font_sizes/font_size = 8
-text = "ON AIR"
-horizontal_alignment = 2
-vertical_alignment = 1
-
-[node name="DialogueContainer" type="Panel" parent="VBoxContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 48)
+[node name="PictureStack" type="Control" parent="MarginContainer/RootRow/PicturePanel"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="DialogueLabel" type="RichTextLabel" parent="VBoxContainer/DialogueContainer"]
+[node name="SpeakerPicture" type="TextureRect" parent="MarginContainer/RootRow/PicturePanel/PictureStack"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -76,17 +64,82 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/default_color = Color(0.9, 0.9, 0.85, 1)
-theme_override_font_sizes/normal_font_size = 10
+expand_mode = 1
+stretch_mode = 6
+
+[node name="PictureLabel" type="Label" parent="MarginContainer/RootRow/PicturePanel/PictureStack"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.75, 0.75, 0.75, 1)
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 14
+text = "STUDIO\nCAM"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TranscriptColumn" type="VBoxContainer" parent="MarginContainer/RootRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="HeaderContainer" type="HBoxContainer" parent="MarginContainer/RootRow/TranscriptColumn"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SpeakerIcon" type="Label" parent="MarginContainer/RootRow/TranscriptColumn/HeaderContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 14
+text = "WAITING"
+vertical_alignment = 1
+
+[node name="SpeakerName" type="Label" parent="MarginContainer/RootRow/TranscriptColumn/HeaderContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.55, 0.55, 0.55, 1)
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 12
+text = "Broadcast transcript"
+vertical_alignment = 1
+
+[node name="PhaseLabel" type="Label" parent="MarginContainer/RootRow/TranscriptColumn/HeaderContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.55, 0.55, 1)
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 12
+text = "ON AIR"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="DialogueContainer" type="PanelContainer" parent="MarginContainer/RootRow/TranscriptColumn"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("DialogueStyle")
+
+[node name="DialogueLabel" type="RichTextLabel" parent="MarginContainer/RootRow/TranscriptColumn/DialogueContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/default_color = Color(0.9, 0.9, 0.9, 1)
+theme_override_fonts/normal_font = ExtResource("2")
+theme_override_font_sizes/normal_font_size = 14
 bbcode_enabled = true
 fit_content = true
 scroll_active = false
 
-[node name="ProgressBar" type="ProgressBar" parent="VBoxContainer"]
+[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/RootRow/TranscriptColumn"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 4)
+custom_minimum_size = Vector2(0, 3)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
 show_percentage = false

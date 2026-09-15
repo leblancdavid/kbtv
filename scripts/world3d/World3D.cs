@@ -86,12 +86,15 @@ private const float TerminalZoomSpeed = 3.2f;
 	private SoundboardOverlay? _soundboardOverlay;
 	private SoundboardMonitor? _soundboardMonitor;
 	private Node3D? _soundBoardProp;
+	private SubViewport? _vernCameraViewport;
+	private Camera3D? _vernCamera;
 	private SubViewport? _terminalViewport;
 	private CallerTab? _terminalTab;
 	private TerminalOverlay? _terminalOverlay;
 	private StandardMaterial3D? _screenLiveMaterial;
 	private TextureRect? _screenDebugPreview;
 	private int _debugSampleTicks = -1;
+	private static readonly Vector2I VernCameraViewportSize = new(320, 180);
 
 	private double _lastTerminalLogTime = -1.0;
 	private int _terminalPushCount;
@@ -113,6 +116,7 @@ private const float TerminalZoomSpeed = 3.2f;
 
 	public override void _Ready()
 	{
+		AddToGroup("world3d");
 		_camera = GetNode<Camera3D>("WorldCamera");
 		_statusLayer = GetNodeOrNull<CanvasLayer>("StatusLayer");
 		_status_label = GetNodeOrNull<Label>("StatusLayer/StatusPanel/StatusLabel");
@@ -149,8 +153,9 @@ private const float TerminalZoomSpeed = 3.2f;
 			UpdateCamera(0.0, true);
 		}
 
-_control_room.ShowRoom();
-	_studio_room.ShowRoom();
+		_control_room.ShowRoom();
+		_studio_room.ShowRoom();
+	EnsureVernCameraFeed();
 	_terminalOverlay = new TerminalOverlay { Name = "TerminalOverlay" };
 	_terminalOverlay.CloseRequested += OnTerminalViewRequested;
 	AddChild(_terminalOverlay);
@@ -176,6 +181,45 @@ _control_room.ShowRoom();
 	_soundboard3D.HideHandles();
 
 	UpdateStatusLabel("CONTROL ROOM");
+	}
+
+	public Texture2D? GetVernCameraTexture()
+	{
+		return _vernCameraViewport?.GetTexture();
+	}
+
+	private void EnsureVernCameraFeed()
+	{
+		if (_vernCameraViewport != null)
+		{
+			return;
+		}
+
+		_vernCameraViewport = new SubViewport
+		{
+			Name = "VernCameraViewport",
+			Size = VernCameraViewportSize,
+			TransparentBg = false,
+			RenderTargetUpdateMode = SubViewport.UpdateMode.Always,
+			OwnWorld3D = false,
+			Disable3D = false,
+			Msaa3D = Viewport.Msaa.Msaa2X
+		};
+		AddChild(_vernCameraViewport);
+
+		_vernCamera = new Camera3D
+		{
+			Name = "VernStudioCamera",
+			Current = true,
+			Fov = 38f,
+			Near = 0.05f,
+			Far = 80f
+		};
+		_vernCamera.LookAtFromPosition(
+			_studio_room.GlobalPosition + new Vector3(-2.15f, 1.55f, 2.3f),
+			_studio_room.GlobalPosition + new Vector3(-0.85f, 0.85f, 0.45f),
+			Vector3.Up);
+		_vernCameraViewport.AddChild(_vernCamera);
 	}
 
 	public void SetPlayer(Player3D player)

@@ -5,7 +5,7 @@ namespace KBTV.UI
     /// <summary>
     /// Reusable transcript overlay that loads LiveShowPanel.tscn and
     /// positions itself at bottom-center of the viewport.
-    /// Width: 60% of viewport, Height: 25% of viewport, 4px bottom padding.
+    /// Width: 78% of viewport, Height: 22% of viewport, 18px bottom padding.
     /// </summary>
     public partial class TranscriptOverlay : Control
     {
@@ -45,10 +45,12 @@ namespace KBTV.UI
             if (viewport == null) return;
 
             var size = viewport.GetVisibleRect().Size;
-            var panelWidth = size.X * 0.6f;
-            var panelHeight = size.Y * 0.25f;
+            var panelWidth = Mathf.Max(720f, size.X * 0.78f);
+            var panelHeight = Mathf.Max(150f, size.Y * 0.22f);
+            panelWidth = Mathf.Min(panelWidth, size.X - 32f);
+            panelHeight = Mathf.Min(panelHeight, size.Y * 0.35f);
             var left = (size.X - panelWidth) * 0.5f;
-            var top = size.Y - panelHeight - 4;
+            var top = size.Y - panelHeight - 18;
 
             _panel.SetAnchorsPreset(LayoutPreset.TopLeft);
             _panel.OffsetLeft = left;

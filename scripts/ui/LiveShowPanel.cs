@@ -18,6 +18,8 @@ namespace KBTV.UI
         [Export] private Label? _phaseLabel;
         [Export] private RichTextLabel? _dialogueLabel;
         [Export] private ProgressBar? _progressBar;
+        [Export] private TextureRect? _speakerPicture;
+        [Export] private Label? _pictureLabel;
 
     private BroadcastItem? _currentBroadcastItem;
     private GameStateManager? _gameStateManager;
@@ -42,6 +44,8 @@ namespace KBTV.UI
         
         // Separate typewriter duration for quick reveals
         private float _typewriterDuration = 0f;
+        private Texture2D? _vernCameraTexture;
+        private Texture2D? _callerPlaceholderTexture;
 
         public override void _EnterTree()
         {
@@ -77,8 +81,14 @@ namespace KBTV.UI
             _speakerIcon = GetNode<Label>("%SpeakerIcon");
             _speakerName = GetNode<Label>("%SpeakerName");
             _phaseLabel = GetNode<Label>("%PhaseLabel");
-            _dialogueLabel = GetNode<RichTextLabel>("%DialogueContainer/DialogueLabel");
+            _dialogueLabel = GetNode<RichTextLabel>("%DialogueLabel");
             _progressBar = GetNode<ProgressBar>("%ProgressBar");
+            _speakerPicture = GetNode<TextureRect>("%SpeakerPicture");
+            _pictureLabel = GetNode<Label>("%PictureLabel");
+
+            _callerPlaceholderTexture = ResourceLoader.Load<Texture2D>("res://assets/sprites/characters/callers/mysterious_caller.png");
+            TryResolveVernCameraTexture();
+            DeferredUpdateWaitingDisplay();
         }
 
         // Event-driven line handling using BroadcastEvent system
@@ -215,6 +225,7 @@ namespace KBTV.UI
             _phaseLabel.Text = string.Empty;
             _dialogueLabel?.Clear();
             _progressBar?.Hide();
+            SetPicture(null, "STANDBY\nCAM");
         }
 
         private void DeferredUpdateInterruptedDisplay()
@@ -229,6 +240,7 @@ namespace KBTV.UI
             _phaseLabel.Text = string.Empty;
             _dialogueLabel?.Clear();
             _progressBar?.Hide();
+            SetPicture(null, "SIGNAL\nLOST");
         }
 
         private void DeferredResetToWaitingDisplay()
@@ -243,6 +255,7 @@ namespace KBTV.UI
             _phaseLabel.Text = string.Empty;
             _dialogueLabel?.Clear();
             _progressBar?.Hide();
+            SetPicture(null, "STANDBY\nCAM");
         }
 
         private void DeferredDisplaySystemNotification(string message)
@@ -261,10 +274,10 @@ namespace KBTV.UI
             _phaseLabel.Text = "";
             _dialogueLabel.Text = message;
             _progressBar?.Hide();
+            SetPicture(null, "SYSTEM");
             
             // Start auto-hide timer
-            var timer = GetNode<Timer>("Timer");
-            timer.Start();
+            _notificationTimer?.Start();
         }
 
         private string GetVernDisplayName()
@@ -306,34 +319,43 @@ namespace KBTV.UI
                 _speakerIcon.Text = "AD BREAK";
                 // For ads, show the sponsor information in speaker name
                 _speakerName.Text = item.Text;
+                SetPicture(null, "PAID\nPROGRAM");
             }
             else if (item.Type == BroadcastItemType.Music)
             {
                 _speakerIcon.Text = "MUSIC";
+                _speakerName.Text = "Bumper / station audio";
+                SetPicture(null, "BUMPER\nAUDIO");
             }
             else if (item.Type == BroadcastItemType.Conversation)
             {
                 _speakerIcon.Text = "ON AIR";
+                SetPicture(_callerPlaceholderTexture, "CALLER");
             }
             else if (item.Type == BroadcastItemType.VernLine)
             {
                 _speakerIcon.Text = GetVernDisplayName();
+                SetPicture(GetVernCameraTexture(), "STUDIO\nCAM");
             }
             else if (item.Type == BroadcastItemType.CallerLine)
             {
                 _speakerIcon.Text = "CALLER";
+                SetPicture(_callerPlaceholderTexture, "CALLER");
             }
             else if (item.Type == BroadcastItemType.DeadAir)
             {
                 _speakerIcon.Text = GetVernDisplayName();
+                SetPicture(GetVernCameraTexture(), "STUDIO\nCAM");
             }
             else if (item.Type == BroadcastItemType.CursingDelay)
             {
                 _speakerIcon.Text = isFccViolation ? "SYSTEM" : "PENALTY";
+                SetPicture(null, isFccViolation ? "FCC\nALERT" : "DELAY");
             }
             else
             {
                 _speakerIcon.Text = "SYSTEM"; // Fallback for transitions, etc.
+                SetPicture(null, "SYSTEM");
             }
 
             // Apply red styling for FCC violations
@@ -381,6 +403,38 @@ namespace KBTV.UI
             if (_dialogueLabel != null)
             {
                 _dialogueLabel.Clear();
+            }
+        }
+
+        private Texture2D? GetVernCameraTexture()
+        {
+            if (_vernCameraTexture != null)
+            {
+                return _vernCameraTexture;
+            }
+
+            TryResolveVernCameraTexture();
+            return _vernCameraTexture;
+        }
+
+        private void TryResolveVernCameraTexture()
+        {
+            var world = GetTree()?.GetFirstNodeInGroup("world3d") as KBTV.World3D.World3D;
+            _vernCameraTexture = world?.GetVernCameraTexture();
+        }
+
+        private void SetPicture(Texture2D? texture, string fallbackText)
+        {
+            if (_speakerPicture != null)
+            {
+                _speakerPicture.Texture = texture;
+                _speakerPicture.Visible = texture != null;
+            }
+
+            if (_pictureLabel != null)
+            {
+                _pictureLabel.Text = fallbackText;
+                _pictureLabel.Visible = texture == null;
             }
         }
 
