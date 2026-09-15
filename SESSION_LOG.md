@@ -1,6 +1,20 @@
 ## Current Session
 
 **Branch**: 3d-migration
+**Task**: 2D cleanup — delete all 2D world/player code, scenes, tests, shaders, and `assets/tiles` + `assets/sprites/characters/player` from the 3D migration. **Status: Completed — build green, full suite still 13 known failures**
+
+- Plan approved (9 steps). Tag `pre-2d-cleanup` set as recovery point.
+- Deletion: `scripts/world/`, `scripts/player/Player.cs`, `scripts/components/Occluder.cs`, `scenes/world/` (World.tscn, Player.tscn), `scenes/Game.tscn`, `scenes/NoirPost.tscn`, `scenes/Main.tscn` + `.backup`, `tests/unit/world/`, 5 2D shaders (keep `crt_output_feather`), `assets/tiles/`, `assets/sprites/characters/player/`.
+- Kept (unimplemented-feature/reference value per user): `assets/sprites/characters/vern/` + `callers/` (Vern portrait + caller art, ROADMAP Art pass / mood portraits TODO), `assets/props_samples/` (2D→3D prop reference), all other asset dirs.
+- Edits: `RoomStateManager.cs` (drop 2D bounds API, keep manual `SetPlayerLocation`), `CallerScreenerManager.cs` (drop dead Vern sub-viewport block w/ `WorldRoom` refs), `Main.cs:24` fallback → `Game3D.tscn`, `RoomStateManagerTests.cs`, `LoadingScreenTests.cs`.
+- Runtime reference sweep: no deleted 2D classes/assets/scenes remain in `scripts/`, `scenes/`, or `project.godot` (the only `scenes/world` match is `scenes/world3d`).
+- **`dotnet build`: 0 errors** (6 pre-existing warnings). **Full `run-tests.ps1`: Passed 489 | Failed 13** — same known failure count; pass count dropped because 2D world tests were removed.
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
 **Task**: Screening UI polish follow-up #2: widen the stat +/- symbol scale, make approve/reject span the middle column, bottom-align the stat panel + buttons, show the evidence button above the stat panel, and stop the stat panel from shifting 1px when evidence appears. **Status: Completed — build green, full suite 514/13 baseline unchanged**
 
 - **Fixed stat-panel shift on evidence popup** (`StatSummaryPanel.cs`): the evidence row used to collapse its slot when hidden (invisible children are skipped by containers + the 4px VBox separation), shifting the stats box down ~a pixel when evidence appeared. The `_evidenceContainer` is now always visible with a fixed `CustomMinimumSize (0, 24)` + `MouseFilter.Ignore`, and `UpdateEvidenceButton` toggles only `_evidenceLabel.Visible` / `_evidenceFoundButton.Visible` (new `_evidenceLabel` field). Extra stats-height safety margin (24 > ~22px button) guarantees no growth when shown.

@@ -16,19 +16,7 @@ namespace KBTV.UI
         private ColorRect? _background;
         private CallerTab? _callerTab;
         private Control? _liveShowFooter;
-        private Control? _vernStatView;
-        private Control? _vernViewContainer;
-        private SubViewport? _vernViewport;
-        private Camera2D? _vernCamera;
-        private TextureRect? _vernViewportTexture;
-        private ColorRect? _vernBackdrop;
-        private Control? _vernRightPanel;
-        private ColorRect? _vernRightOverlay;
-        private Button? _vernCloseButton;
         private TranscriptOverlay? _transcriptOverlay;
-
-        private static readonly float VernCameraZoomScale = 1.15f;
-        private static readonly Vector2I VernGridPosition = new Vector2I(5, 2);
 
         public bool IsOpen { get; private set; }
         public event Action? Opened;
@@ -96,130 +84,7 @@ namespace KBTV.UI
                 Log.Error("CallerScreenerManager: Failed to load LiveShowFooter.tscn");
             }
 
-            var vernScene = ResourceLoader.Load<PackedScene>("res://scenes/ui/VernStatView.tscn");
-            if (vernScene != null)
-            {
-                EnsureVernViewport();
-
-                _vernViewContainer = new Control();
-                _vernViewContainer.Name = "VernStatContainer";
-                _vernViewContainer.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-
-                _vernBackdrop = new ColorRect
-                {
-                    Name = "VernBackdrop",
-                    Color = new Color(0.02f, 0.02f, 0.02f, 1f)
-                };
-                _vernBackdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-                _vernBackdrop.MouseFilter = Control.MouseFilterEnum.Ignore;
-                _vernViewContainer.AddChild(_vernBackdrop);
-
-                // Viewport texture MUST be added before the right panel so stats draw on top
-                _vernViewportTexture = new TextureRect
-                {
-                    Name = "VernViewportTexture",
-                    StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered
-                };
-                _vernViewportTexture.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-                _vernViewportTexture.MouseFilter = Control.MouseFilterEnum.Ignore;
-                if (_vernViewport != null)
-                {
-                    _vernViewportTexture.Texture = _vernViewport.GetTexture();
-                }
-                _vernViewContainer.AddChild(_vernViewportTexture);
-
-                _vernRightPanel = new Control
-                {
-                    Name = "VernRightPanel",
-                    SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-                    SizeFlagsVertical = Control.SizeFlags.ExpandFill
-                };
-                _vernRightPanel.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-                _vernRightPanel.AnchorLeft = 0.5f;
-                _vernViewContainer.AddChild(_vernRightPanel);
-
-                _vernRightOverlay = new ColorRect
-                {
-                    Name = "VernRightOverlay",
-                    Color = new Color(0f, 0f, 0f, 0.7f)
-                };
-                _vernRightOverlay.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-                _vernRightOverlay.MouseFilter = Control.MouseFilterEnum.Ignore;
-                _vernRightPanel.AddChild(_vernRightOverlay);
-
-                // Gradient fade on the left edge of the dark overlay for a smooth transition
-                var gradient = new Gradient();
-                gradient.SetColor(0, new Color(0f, 0f, 0f, 0f));
-                gradient.SetColor(1, new Color(0f, 0f, 0f, 0.7f));
-                var gradientTexture = new GradientTexture2D
-                {
-                    Gradient = gradient,
-                    Width = 32,
-                    Height = 1,
-                    Fill = GradientTexture2D.FillEnum.Linear,
-                    FillFrom = new Vector2(0f, 0f),
-                    FillTo = new Vector2(1f, 0f)
-                };
-                var gradientRect = new TextureRect
-                {
-                    Name = "VernOverlayGradient",
-                    Texture = gradientTexture,
-                    StretchMode = TextureRect.StretchModeEnum.Scale
-                };
-                gradientRect.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-                gradientRect.AnchorLeft = 0.5f;
-                gradientRect.AnchorRight = 0.5f;
-                gradientRect.OffsetLeft = -32;
-                gradientRect.OffsetRight = 0;
-                gradientRect.MouseFilter = Control.MouseFilterEnum.Ignore;
-                _vernViewContainer.AddChild(gradientRect);
-
-                _vernStatView = vernScene.Instantiate<Control>();
-                _vernStatView.Name = "VernStatView";
-                _vernStatView.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-                _vernRightPanel.AddChild(_vernStatView);
-
-                // -> button top-left (mirrors <- position in screener)
-                var forwardButton = new Button
-                {
-                    Name = "ForwardButton",
-                    Text = "->",
-                    CustomMinimumSize = new Vector2(24, 18)
-                };
-                forwardButton.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
-                forwardButton.OffsetLeft = 4;
-                forwardButton.OffsetTop = 4;
-                forwardButton.OffsetRight = 28;
-                forwardButton.OffsetBottom = 22;
-                UITheme.ApplyButtonStyle(forwardButton);
-                forwardButton.Pressed += OnForwardRequested;
-                _vernViewContainer.AddChild(forwardButton);
-
-                // X button top-right (mirrors X position in screener)
-                _vernCloseButton = new Button
-                {
-                    Name = "VernCloseButton",
-                    Text = "X",
-                    CustomMinimumSize = new Vector2(24, 18)
-                };
-                _vernCloseButton.SetAnchorsPreset(Control.LayoutPreset.TopRight);
-                _vernCloseButton.OffsetLeft = -28;
-                _vernCloseButton.OffsetTop = 4;
-                _vernCloseButton.OffsetRight = -4;
-                _vernCloseButton.OffsetBottom = 22;
-                UITheme.ApplyButtonStyle(_vernCloseButton);
-                _vernCloseButton.Pressed += OnCloseRequested;
-                _vernViewContainer.AddChild(_vernCloseButton);
-
-                _vernViewContainer.Hide();
-                _canvas.AddChild(_vernViewContainer);
-            }
-            else
-            {
-                Log.Error("CallerScreenerManager: Failed to load VernStatView.tscn");
-            }
-
-            // Transcript overlay sits on canvas above all views (both screener and Vern stat view)
+            // Transcript overlay sits on canvas above all views
             _transcriptOverlay = new TranscriptOverlay();
             _canvas.AddChild(_transcriptOverlay);
 
@@ -254,10 +119,6 @@ namespace KBTV.UI
                 {
                     _background.Show();
                 }
-                if (_vernViewContainer != null)
-                {
-                    _vernViewContainer.Hide();
-                }
 
                 if (_callerTab != null)
                 {
@@ -280,10 +141,6 @@ namespace KBTV.UI
             if (_canvas != null)
             {
                 _canvas.Hide();
-                if (_vernViewContainer != null)
-                {
-                    _vernViewContainer.Hide();
-                }
 
                 if (_callerTab != null)
                 {
@@ -299,43 +156,6 @@ namespace KBTV.UI
                 Closed?.Invoke();
                 GetTree()?.CallGroup("player", "SetMovementLocked", false);
             }
-        }
-
-        private void ShowVernStatView()
-        {
-            if (_canvas == null)
-            {
-                return;
-            }
-
-            _canvas.Show();
-            if (_background != null)
-            {
-                _background.Hide();
-            }
-            if (_callerTab != null)
-            {
-                _callerTab.Hide();
-            }
-
-            if (_liveShowFooter != null)
-            {
-                _liveShowFooter.Hide();
-            }
-
-            EnsureVernViewport();
-            UpdateVernViewportSize();
-            UpdateVernCameraZoom();
-            UpdateVernCameraTarget();
-
-            if (_vernViewContainer != null)
-            {
-                _vernViewContainer.Show();
-            }
-
-            IsOpen = true;
-            Opened?.Invoke();
-            GetTree()?.CallGroup("player", "SetMovementLocked", true);
         }
 
         public void Show()
@@ -367,129 +187,11 @@ namespace KBTV.UI
             Show();
         }
 
-        private void OnCloseRequested()
-        {
-            Hide();
-        }
-
-        private void OnForwardRequested()
-        {
-            ShowCallersTab();
-        }
-
-        private void EnsureVernViewport()
-        {
-            if (_vernViewport != null)
-            {
-                return;
-            }
-
-            _vernViewport = new SubViewport
-            {
-                Name = "VernSubViewport",
-                TransparentBg = true,
-                RenderTargetUpdateMode = SubViewport.UpdateMode.Always
-            };
-
-            var rootViewport = GetViewport();
-            if (rootViewport != null)
-            {
-                _vernViewport.World2D = rootViewport.World2D;
-            }
-
-            _vernCamera = new Camera2D
-            {
-                Name = "VernCamera"
-            };
-
-            AddChild(_vernViewport);
-            _vernViewport.AddChild(_vernCamera);
-            _vernCamera.CallDeferred("make_current");
-        }
-
-        private void UpdateVernViewportSize()
-        {
-            if (_vernViewport == null)
-            {
-                return;
-            }
-
-            var rootViewport = GetViewport();
-            if (rootViewport == null)
-            {
-                return;
-            }
-
-            var size = rootViewport.GetVisibleRect().Size;
-            _vernViewContainer.CustomMinimumSize = size;
-            _vernViewport.Size = new Vector2I((int)size.X, (int)size.Y);
-        }
-
-        private void UpdateVernCameraTarget()
-        {
-            if (_vernCamera == null)
-            {
-                return;
-            }
-
-            var worldRoom = GetTree()?.Root?.GetNodeOrNull<global::WorldRoom>("Main/World/WorldRoom");
-            if (worldRoom == null)
-            {
-                return;
-            }
-
-            var target = worldRoom.StudioGridToWorld(VernGridPosition);
-            var viewportSize = GetViewport()?.GetVisibleRect().Size ?? Vector2.Zero;
-            var zoom = _vernCamera.Zoom;
-            var worldWidth = zoom.X > 0 ? viewportSize.X / zoom.X : 0f;
-            var offsetX = worldWidth * 0.25f;
-            // Shift camera RIGHT so Vern appears at 25% from the left edge
-            _vernCamera.GlobalPosition = new Vector2(target.X + offsetX, target.Y);
-        }
-
-        private void UpdateVernCameraZoom()
-        {
-            if (_vernCamera == null)
-            {
-                return;
-            }
-
-            var rootViewport = GetViewport();
-            if (rootViewport == null)
-            {
-                return;
-            }
-
-            var worldRoom = GetTree()?.Root?.GetNodeOrNull<global::WorldRoom>("Main/World/WorldRoom");
-            if (worldRoom == null)
-            {
-                return;
-            }
-
-            var studioBounds = worldRoom.GetStudioBounds();
-            if (studioBounds.Size.X <= 0f || studioBounds.Size.Y <= 0f)
-            {
-                return;
-            }
-
-            var viewportSize = rootViewport.GetVisibleRect().Size;
-            var zoomX = viewportSize.X / studioBounds.Size.X;
-            var zoomY = viewportSize.Y / studioBounds.Size.Y;
-            var baseZoom = Mathf.Min(zoomX, zoomY);
-            var zoom = baseZoom * VernCameraZoomScale;
-            _vernCamera.Zoom = new Vector2(zoom, zoom);
-        }
-
         public override void _ExitTree()
         {
             if (_eventBus != null)
             {
                 _eventBus.Unsubscribe<ScreeningRequestedEvent>(HandleScreeningRequested);
-            }
-
-            if (_vernCloseButton != null)
-            {
-                _vernCloseButton.Pressed -= OnCloseRequested;
             }
         }
     }

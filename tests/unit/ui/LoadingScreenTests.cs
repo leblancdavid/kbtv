@@ -18,16 +18,6 @@ namespace KBTV.Tests.Unit.UI
         }
 
         [Test]
-        public void Constructor_SetsDefaultGameScenePath()
-        {
-            var loadingScreen = new LoadingScreen();
-            var field = typeof(LoadingScreen).GetField("GameScenePath", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            var value = field?.GetValue(loadingScreen) as string;
-
-            AssertThat(value == "res://scenes/Game.tscn");
-        }
-
-        [Test]
         public void Constructor_CreatesBackgroundPanel()
         {
             var background = _loadingScreen.GetNodeOrNull<Panel>("Background");

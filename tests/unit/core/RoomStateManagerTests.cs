@@ -34,19 +34,4 @@ public class RoomStateManagerTests : KBTVTestClass
         AssertAreEqual(2, changeCount);
     }
 
-    [Test]
-    public void SetPlayerLocation_DisablesBoundsDetectionInProcess()
-    {
-        var roomState = new RoomStateManager();
-        roomState.SetControlRoomBounds(new Rect2(0, 0, 10, 10));
-        roomState.SetStudioBounds(new Rect2(20, 20, 10, 10));
-
-        roomState.SetPlayerLocation(RoomStateManager.PlayerLocation.InControlRoom);
-        roomState.SetPlayerLocation(RoomStateManager.PlayerLocation.InStudio);
-
-        // Bounds would resolve to InControlRoom, but manual reporting must win.
-        roomState._Process(0.016);
-
-        AssertThat(roomState.CurrentLocation == RoomStateManager.PlayerLocation.InStudio);
-    }
 }

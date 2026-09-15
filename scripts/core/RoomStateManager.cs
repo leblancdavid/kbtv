@@ -5,7 +5,7 @@ namespace KBTV.Core
 {
 	/// <summary>
 	/// Tracks the player's location within the studio rooms (control room, studio, or outside).
-	/// Uses bounds-based detection for accurate room membership.
+	/// Location is set manually by the 3D world's own room detection.
 	/// </summary>
 	[GlobalClass]
 	public partial class RoomStateManager : Node
@@ -36,11 +36,6 @@ namespace KBTV.Core
 		/// </summary>
 		public bool PlayerInRoom => CurrentLocation == PlayerLocation.InControlRoom;
 
-		private Rect2 _controlRoomBounds = new Rect2();
-		private Rect2 _studioBounds = new Rect2();
-		private Player? _player;
-		private bool _manualLocation;
-
 		/// <summary>
 		/// Called when the node enters the scene tree.
 		/// Registers itself with the ServiceRegistry.
@@ -51,75 +46,17 @@ namespace KBTV.Core
 		}
 
 		/// <summary>
-		/// Sets the boundary of the control room for bounds-based player detection.
-		/// </summary>
-		public void SetControlRoomBounds(Rect2 bounds)
-		{
-			_controlRoomBounds = bounds;
-			GD.Print($"RoomStateManager: Control room bounds set to {_controlRoomBounds}");
-		}
-
-		/// <summary>
-		/// Sets the boundary of the studio room for bounds-based player detection.
-		/// </summary>
-		public void SetStudioBounds(Rect2 bounds)
-		{
-			_studioBounds = bounds;
-			GD.Print($"RoomStateManager: Studio bounds set to {_studioBounds}");
-		}
-
-		/// <summary>
 		/// Sets the player's location manually (used by the 3D world's own room detection).
 		/// Emits <see cref="PlayerLocationChanged"/> only when the location actually changes.
-		/// Once called, the 2D bounds-based detection in <see cref="_Process"/> is disabled.
 		/// </summary>
 		public void SetPlayerLocation(PlayerLocation location)
 		{
-			_manualLocation = true;
 			if (CurrentLocation == location)
 				return;
 
 			CurrentLocation = location;
 			GD.Print($"RoomStateManager: Player {location} (manual)");
 			EmitSignal(nameof(PlayerLocationChanged), Variant.From(CurrentLocation));
-		}
-
-		/// <summary>
-		/// Called every frame to check if player is inside any room bounds.
-		/// </summary>
-		public override void _Process(double delta)
-		{
-			if (_manualLocation)
-				return;
-
-			if (_controlRoomBounds == new Rect2() && _studioBounds == new Rect2())
-				return;
-
-			// Find player if not cached
-			if (_player == null)
-			{
-				_player = GetTree().GetFirstNodeInGroup("player") as Player;
-				if (_player == null)
-					return;
-			}
-
-			var playerPos = _player.GlobalPosition;
-			var wasInRoom = CurrentLocation;
-			var newLocation = PlayerLocation.Outside;
-
-			if (_controlRoomBounds.HasPoint(playerPos))
-				newLocation = PlayerLocation.InControlRoom;
-			else if (_studioBounds.HasPoint(playerPos))
-				newLocation = PlayerLocation.InStudio;
-
-			// Emit signal only when state changes
-			if (wasInRoom != newLocation)
-			{
-				CurrentLocation = newLocation;
-				var locationName = newLocation.ToString();
-				GD.Print($"RoomStateManager: Player {locationName} (pos: {playerPos})");
-				EmitSignal(nameof(PlayerLocationChanged), Variant.From(CurrentLocation));
-			}
 		}
 	}
 }
