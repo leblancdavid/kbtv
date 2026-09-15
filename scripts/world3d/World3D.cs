@@ -215,11 +215,12 @@ private const float TerminalZoomSpeed = 3.2f;
 			Near = 0.05f,
 			Far = 80f
 		};
-		_vernCamera.LookAtFromPosition(
-			_studio_room.GlobalPosition + new Vector3(-2.15f, 1.55f, 2.3f),
-			_studio_room.GlobalPosition + new Vector3(-0.85f, 0.85f, 0.45f),
-			Vector3.Up);
 		_vernCameraViewport.AddChild(_vernCamera);
+		var lookTarget = _studio_room.GetNode<Marker3D>("VernStation/Vern/LookTarget");
+		_vernCamera.LookAtFromPosition(
+			lookTarget.GlobalPosition + new Vector3(-1.3f, 0.3f, 2.8f),
+			lookTarget.GlobalPosition,
+			Vector3.Up);
 	}
 
 	public void SetPlayer(Player3D player)

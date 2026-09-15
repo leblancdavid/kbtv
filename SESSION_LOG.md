@@ -1,5 +1,35 @@
 ## Current Session
 
+**Branch**: develop
+**Task**: Build, rig, export and integrate seated Vern in the 3D studio. **Status: In Progress**
+
+- User approved model production from the saved brief and supplied Art Bell reference.
+- Plan: procedural Blender character with neutral rig and held seated action; separate existing chair; preview/re-import validation, studio integration and build/tests.
+- Files Modified: `SESSION_LOG.md`; model and integration outputs pending.
+- Next Steps: baseline tests, create character generator, inspect renders, export and verify Godot placement.
+- Related Docs: `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `docs/testing/TESTING.md`.
+- Blockers: none.
+
+---
+
+## Previous Session
+
+**Branch**: develop
+**Task**: Prepare GPT-6 Astra production brief for Art Bell-inspired seated Vern, matching existing 3D props. **Status: Completed**
+
+- User direction: Vern and chair separate; static seated presentation initially, future animation; slightly cartoony is welcome but match current props.
+- Reviewed studio placement/camera, office-chair generator, shared materials, and chair/audio-cabinet previews. Existing prop exporter joins static meshes and rejects armatures; character needs a separate export path.
+- Files Modified: `SESSION_LOG.md`, `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `AGENTS.md`.
+- Work Done: saved style references/palette, separate chair assembly, neutral rig with held seated clip, measured seat height, floor/camera corrections, output paths, acceptance checks and copyable Astra prompt.
+- Verification: reviewed technical values against scene/generator sources and documentation diff; `git diff --check` passed. Documentation-only change; no build/tests required.
+- Next Steps: use brief and reattach reference photograph for Astra's model production pass; review silhouette and chair fit first.
+- Related Docs: `docs/art/3D_ASSET_WORKFLOW.md`, `docs/art/ART_STYLE.md`, `docs/technical/THREED_MIGRATION_PLAN.md`.
+- Blockers: supplied photograph is available in conversation; no repository image path has been established for a future session.
+
+---
+
+## Previous Session
+
 **Branch**: 3d-migration
 **Task**: Transcript overlay — bottom-screen live show overlay with left picture section, right typewriter transcript, and a real 3D Vern studio camera feed. **Status: Completed — build green, full suite still 13 known failures**
 

@@ -4,6 +4,10 @@ This workflow covers GPT-assisted Blender generation for simple KBTV 3D props.
 Use it for low-risk props during the 3D migration visual pass, not for room
 layout, collision design, character animation, or final hero assets.
 
+For Vern's character-specific workflow and GPT-6 Astra handoff, see
+[Vern 3D Model Brief](VERN_3D_MODEL_BRIEF.md). It defines matching prop style,
+separate character/chair assets, and a rig-aware export path.
+
 ## Current toolchain
 
 - Blender 5.2.1 LTS, available as `blender` on PATH.
