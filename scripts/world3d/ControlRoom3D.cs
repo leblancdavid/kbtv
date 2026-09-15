@@ -33,7 +33,6 @@ public partial class ControlRoom3D : Node3D
 			Name = "ComputerTerminal",
 			Position = new Vector3(1.55f, 0.85f, -3.55f)
 		};
-		ComputerTerminal.Visible = false;
 		AddChild(ComputerTerminal);
 
 		SoundBoard3D = new Soundboard3D

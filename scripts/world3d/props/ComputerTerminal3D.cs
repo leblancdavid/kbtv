@@ -23,12 +23,61 @@ public partial class ComputerTerminal3D : Node3D
 	private const float ScreenCenterY = 0.385f;
 	private const float ScreenLightZOffset = 0.24f;
 
-	private static readonly Color ScreenOffColor = new(0.02f, 0.03f, 0.04f);
+private static readonly Color ScreenOffColor = new(0.02f, 0.03f, 0.04f);
+
+	[ExportGroup("CRT Flicker")]
+	[Export] public bool EnableCrtFlicker { get; set; } = true;
+	[Export] public float FlickerBaseEnergy { get; set; } = 0.11f;
+	[Export] public float FlickerVariation { get; set; } = 0.055f;
+	[Export] public float FlickerInterval { get; set; } = 0.07f;
+	[Export] public float FlickerSmoothSpeed { get; set; } = 6f;
+	[Export] public float DipChancePerSecond { get; set; } = 0.04f;
+	[Export] public float DipDuration { get; set; } = 0.16f;
+	[Export] public float DipLevel { get; set; } = 0.4f;
+
+	private readonly System.Random _random = new();
+	private double _flickerTime;
+	private double _nextFlickerChange;
+	private float _currentLevel = 1f;
+	private float _targetLevel = 1f;
+	private float _dipRemaining = -1f;
 
 	public override void _Ready()
 	{
 		BuildMesh();
 		BuildInteractionArea();
+	}
+
+	public override void _Process(double delta)
+	{
+		if (!EnableCrtFlicker || ScreenLight == null)
+		{
+			return;
+		}
+
+		_flickerTime += delta;
+
+		if (_flickerTime >= _nextFlickerChange)
+		{
+			_targetLevel = 1f - (float)_random.NextDouble() * FlickerVariation;
+			_nextFlickerChange = _flickerTime + FlickerInterval * (0.5f + (float)_random.NextDouble());
+		}
+
+		_currentLevel = Mathf.MoveToward(_currentLevel, _targetLevel, FlickerSmoothSpeed * (float)delta);
+
+		if (_dipRemaining < 0f && _random.NextDouble() < DipChancePerSecond * delta)
+		{
+			_dipRemaining = DipDuration;
+		}
+
+		var level = _currentLevel;
+		if (_dipRemaining >= 0f)
+		{
+			_dipRemaining -= (float)delta;
+			level = Mathf.Min(level, DipLevel);
+		}
+
+		ScreenLight.LightEnergy = FlickerBaseEnergy * level;
 	}
 
 	private void BuildMesh()
@@ -56,17 +105,17 @@ public partial class ComputerTerminal3D : Node3D
 		ScreenBody.AddChild(shapeNode);
 		root.AddChild(ScreenBody);
 
-		ScreenLight = new OmniLight3D
+ScreenLight = new OmniLight3D
 		{
 			Name = "ScreenLight",
 			Position = new Vector3(0f, ScreenCenterY, ScreenZOffset + ScreenLightZOffset),
 			LightColor = new Color(0.72f, 0.86f, 1.0f),
-			LightEnergy = 0.38f,
+			LightEnergy = FlickerBaseEnergy,
 			LightIndirectEnergy = 0f,
 			OmniRange = 1.5f,
-			OmniAttenuation = 2.8f,
+			OmniAttenuation = 3.2f,
 			ShadowEnabled = false,
-			Visible = false
+			Visible = true
 		};
 		root.AddChild(ScreenLight);
 

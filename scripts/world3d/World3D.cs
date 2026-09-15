@@ -485,8 +485,6 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 	private void TeardownTerminalScreen()
 	{
 		DetachScreenTexture();
-		_computerTerminal?.SetScreenLightEnabled(false);
-		_computerTerminal.Visible = false;
 		_control_room.ComputerGlb.Visible = true;
 		_control_room.SetComputerCollidersEnabled(true);
 	}
@@ -1162,8 +1160,8 @@ private void UpdateTerminalDebugStatus(string detail)
 			return;
 		}
 
-		_computerTerminal.ScreenMesh.MaterialOverride = null;
-		_computerTerminal.SetScreenLightEnabled(false);
+_computerTerminal.ScreenMesh.MaterialOverride = null;
+		_computerTerminal.SetScreenLightEnabled(true);
 		_addedScreenMaterial = false;
 		HideScreenDebugPreview();
 	}
