@@ -47,6 +47,33 @@ namespace KBTV.Core
 		}
 
 		/// <summary>
+		/// Attempt to get a service without throwing. Returns false if no provider is available yet.
+		/// </summary>
+		public static bool TryGet<TService>(Node node, out TService? service) where TService : class
+		{
+			service = null;
+
+			if (_resolvers.TryGetValue(typeof(TService), out var resolver))
+			{
+				service = (TService)resolver(node);
+				return true;
+			}
+
+			var current = node;
+			while (current != null)
+			{
+				if (current is IProvide<TService> provider)
+				{
+					service = provider.Value();
+					return true;
+				}
+				current = current.GetParent();
+			}
+
+			return false;
+		}
+
+		/// <summary>
 		/// Extension method to provide DependOn<T>() functionality for any Node.
 		/// </summary>
 		public static TService DependOn<TService>(this Node node) where TService : class

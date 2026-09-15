@@ -11,6 +11,11 @@ public partial class TerminalOverlay : CanvasLayer
 	private const float ScreenInsetScale = 0.68f;
 	private const float ScreenAspect = 16f / 9f;
 	private const int ContentMargin = 24;
+	private const float ScanlineScrollSpeed = 5f;
+	private const float ScanlineMinSpeed = 2f;
+	private const float ScanlineMaxSpeed = 12f;
+	private const float ScanlineSpeedChangeInterval = 1.2f;
+	private const float ScanlineSpeedSmoothing = 5f;
 	private const string OutputFeatherShaderPath = "res://shaders/crt_output_feather.gdshader";
 	private static readonly Vector2I ScreenViewportSize = new(1152, 640);
 	private static readonly Vector2 ScreenFitOffset = new(0f, 48f);
@@ -22,6 +27,12 @@ public partial class TerminalOverlay : CanvasLayer
 	private MarginContainer _contentHost = null!;
 	private ShaderMaterial? _outputMaterial;
 	private CallerTab? _callerTab;
+	private Control? _scanlines;
+	private float _overlayTime;
+	private double _nextSpeedChange;
+	private float _scanlinePhase;
+	private float _scanlineSpeed = ScanlineScrollSpeed;
+	private float _scanlineSpeedTarget = ScanlineScrollSpeed;
 
 	public event Action? CloseRequested;
 
@@ -44,6 +55,28 @@ public partial class TerminalOverlay : CanvasLayer
 	{
 		Visible = false;
 		_screenFrame.MouseFilter = Control.MouseFilterEnum.Ignore;
+	}
+
+	public override void _Process(double delta)
+	{
+		if (!Visible || _scanlines == null)
+		{
+			return;
+		}
+
+		var dt = (float)delta;
+		_overlayTime += dt;
+
+		if (_overlayTime >= _nextSpeedChange)
+		{
+			_scanlineSpeedTarget = ScanlineMinSpeed + GD.Randf() * (ScanlineMaxSpeed - ScanlineMinSpeed);
+			_nextSpeedChange = _overlayTime + ScanlineSpeedChangeInterval * (0.5f + GD.Randf());
+		}
+
+		_scanlineSpeed = Mathf.MoveToward(_scanlineSpeed, _scanlineSpeedTarget, ScanlineSpeedSmoothing * dt);
+		_scanlinePhase = (_scanlinePhase + _scanlineSpeed * dt) % 4f;
+
+		_scanlines.QueueRedraw();
 	}
 
 	public void SetScreenBounds(Vector2[] points, Vector2 viewportSize)
@@ -207,6 +240,7 @@ public partial class TerminalOverlay : CanvasLayer
 		scanlines.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		scanlines.Draw += () => DrawScanlines(scanlines);
 		_screenRoot.AddChild(scanlines);
+		_scanlines = scanlines;
 
 		var dust = new Control
 		{
@@ -236,12 +270,16 @@ public partial class TerminalOverlay : CanvasLayer
 		_screenRoot.AddChild(vignette);
 	}
 
-	private static void DrawScanlines(Control control)
+	private void DrawScanlines(Control control)
 	{
 		var size = control.Size;
-		var dark = new Color(0f, 0f, 0f, 0.18f);
-		var bright = new Color(0.18f, 0.70f, 0.52f, 0.055f);
-		for (var y = 1f; y < size.Y; y += 4f)
+		var flicker = Mathf.Clamp(
+			1f + 0.22f * Mathf.Sin(_overlayTime * 43f) + 0.07f * (GD.Randf() * 2f - 1f),
+			0.6f, 1.5f);
+		var dark = new Color(0f, 0f, 0f, 0.18f * flicker);
+		var bright = new Color(0.18f, 0.70f, 0.52f, 0.055f * flicker);
+		var row = (int)Mathf.Floor(_scanlinePhase);
+		for (var y = row - 4f; y < size.Y; y += 4f)
 		{
 			control.DrawLine(new Vector2(0f, y), new Vector2(size.X, y), dark, 1f);
 			control.DrawLine(new Vector2(0f, y + 1f), new Vector2(size.X, y + 1f), bright, 1f);

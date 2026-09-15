@@ -22,19 +22,45 @@ namespace KBTV.Monitors
         public override void _Notification(int what) => this.Notify(what);
 
         protected ICallerRepository? _repository;
+        private bool _dependenciesReady;
 
-        protected ICallerRepository CallerRepository => DependencyInjection.Get<ICallerRepository>(this);
+        /// <summary>
+        /// Attempts to resolve this monitor's required services. Returns true once
+        /// all dependencies are available. Subclasses override to resolve their own
+        /// services but MUST return false (not throw) when a required service is not
+        /// yet available — monitors may be instantiated before
+        /// ServiceProviderRoot.Initialize() has run (e.g. World3D creates
+        /// SoundboardMonitor in _Ready, before Main._Ready).
+        /// </summary>
+        protected virtual bool ResolveDependencies()
+        {
+            if (_repository == null)
+            {
+                DependencyInjection.TryGet<ICallerRepository>(this, out _repository);
+            }
+
+            return _repository != null;
+        }
 
         public virtual void OnResolved()
         {
-            _repository = CallerRepository;
+            if (_dependenciesReady)
+            {
+                return;
+            }
+
+            _dependenciesReady = ResolveDependencies();
         }
 
         public override void _Process(double delta)
         {
-            if (_repository == null)
+            if (!_dependenciesReady)
             {
-                return;
+                _dependenciesReady = ResolveDependencies();
+                if (!_dependenciesReady)
+                {
+                    return;
+                }
             }
 
             OnUpdate((float)delta);

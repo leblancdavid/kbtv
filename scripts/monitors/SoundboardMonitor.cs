@@ -70,13 +70,38 @@ namespace KBTV.Monitors
         /// <summary>The mixer driver the monitor grades against.</summary>
         public SoundboardMixerDriver? Driver => _driver;
 
-        private GameStateManager GameStateManager => DependencyInjection.Get<GameStateManager>(this);
-
         /// <summary>
         /// Supplies the knob state the monitor grades. Usually set by World3D after
         /// creating the overlay (the overlay owns the driver).
         /// </summary>
         public void SetDriver(SoundboardMixerDriver driver) => _driver = driver;
+
+        /// <summary>
+        /// Resolves the caller repository and Vern's stats. Returns true once both
+        /// are available; called again from <see cref="DomainMonitor._Process"/> until
+        /// they are (services may not be initialized when World3D creates this monitor).
+        /// </summary>
+        protected override bool ResolveDependencies()
+        {
+            base.ResolveDependencies();
+
+            if (_repository != null && !_subscribed)
+            {
+                BindRepository(_repository);
+            }
+
+            if (_gameState == null)
+            {
+                DependencyInjection.TryGet<GameStateManager>(this, out _gameState);
+            }
+
+            if (_gameState != null && _vernStats == null)
+            {
+                _vernStats = _gameState.VernStats;
+            }
+
+            return _repository != null && _vernStats != null;
+        }
 
         /// <summary>
         /// Binds a repository directly (used by tests; game path resolves via DI in
@@ -100,14 +125,6 @@ namespace KBTV.Monitors
 
         /// <summary>Binds Vern's stats directly (used by tests; game path resolves via DI).</summary>
         public void BindVernStats(VernStats vernStats) => _vernStats = vernStats;
-
-        public override void OnResolved()
-        {
-            base.OnResolved();
-            BindRepository(_repository);
-            _gameState = GameStateManager;
-            _vernStats = _gameState?.VernStats;
-        }
 
         public override void _ExitTree()
         {
