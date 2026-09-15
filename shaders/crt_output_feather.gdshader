@@ -3,7 +3,7 @@ render_mode unshaded, blend_premul_alpha;
 
 uniform vec2 screen_size = vec2(1152.0, 640.0);
 uniform float corner_radius = 26.0;
-uniform float edge_feather = 16.0;
+uniform float edge_feather = 10.0;
 uniform float overall_alpha = 1.0;
 
 float sd_round_box(vec2 p, vec2 b, float r) {

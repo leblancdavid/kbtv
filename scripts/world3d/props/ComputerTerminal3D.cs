@@ -81,6 +81,33 @@ public partial class ComputerTerminal3D : Node3D
 		}
 	}
 
+	public static void ConfigureGlassMaterial(Node3D model)
+	{
+		// The exported CRT is merged by material, not split into named glass nodes.
+		// Override only the phosphor surface on this instance, never the shared GLB.
+		var matched = false;
+		foreach (var node in model.FindChildren("*", "MeshInstance3D", true, false))
+		{
+			if (node is not MeshInstance3D mesh || mesh.Mesh == null) continue;
+			for (var surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+			{
+				if (mesh.GetActiveMaterial(surface) is not StandardMaterial3D source
+					|| !source.ResourceName.StartsWith("Cool phosphor", System.StringComparison.Ordinal)) continue;
+
+				var glass = (StandardMaterial3D)source.Duplicate();
+				glass.ResourceName = "CRT dark phosphor glass";
+				glass.AlbedoColor = new Color(0.012f, 0.020f, 0.018f);
+				glass.EmissionEnabled = false;
+				glass.Metallic = 0f;
+				glass.MetallicSpecular = 0.05f;
+				glass.Roughness = 0.8f;
+				mesh.SetSurfaceOverrideMaterial(surface, glass);
+				matched = true;
+			}
+		}
+		if (!matched) GD.PushWarning("CRT: no Cool phosphor surface found for dark glass treatment.");
+	}
+
 	private void BuildInteractionArea()
 	{
 		InteractionArea = new Area3D

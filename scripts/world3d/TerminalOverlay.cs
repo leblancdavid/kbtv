@@ -10,6 +10,7 @@ public partial class TerminalOverlay : CanvasLayer
 	private const float MinHeight = 68f;
 	private const float ScreenInsetScale = 0.67f;
 	private const float ScreenAspect = 16f / 9f;
+	private const int ContentMargin = 24;
 	private const string OutputFeatherShaderPath = "res://shaders/crt_output_feather.gdshader";
 	private static readonly Vector2I ScreenViewportSize = new(1152, 640);
 	private static readonly Vector2 ScreenFitOffset = new(0f, 48f);
@@ -18,6 +19,7 @@ public partial class TerminalOverlay : CanvasLayer
 	private SubViewportContainer _screenFrame = null!;
 	private SubViewport _screenViewport = null!;
 	private Control _screenRoot = null!;
+	private MarginContainer _contentHost = null!;
 	private ShaderMaterial? _outputMaterial;
 	private CallerTab? _callerTab;
 
@@ -148,6 +150,18 @@ public partial class TerminalOverlay : CanvasLayer
 		background.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		_screenRoot.AddChild(background);
 
+		_contentHost = new MarginContainer
+		{
+			Name = "CrtContentSafeArea",
+			MouseFilter = Control.MouseFilterEnum.Pass
+		};
+		foreach (var side in new[] { "left", "top", "right", "bottom" })
+		{
+			_contentHost.AddThemeConstantOverride($"margin_{side}", ContentMargin);
+		}
+		_contentHost.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		_screenRoot.AddChild(_contentHost);
+
 		AddCrtEffects();
 	}
 
@@ -169,8 +183,9 @@ public partial class TerminalOverlay : CanvasLayer
 		_callerTab.Name = "ProjectedCallerTab";
 		_callerTab.SetAnchorsPreset(Control.LayoutPreset.FullRect);
 		_callerTab.Modulate = new Color(0.74f, 1.0f, 0.9f, 1f);
-		_screenRoot.AddChild(_callerTab);
-		_screenRoot.MoveChild(_callerTab, 1);
+		_callerTab.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+		_callerTab.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
+		_contentHost.AddChild(_callerTab);
 	}
 
 	private void AddCrtEffects()
@@ -263,8 +278,8 @@ public partial class TerminalOverlay : CanvasLayer
 	private static void DrawGlass(Control control)
 	{
 		var size = control.Size;
-		var softGlare = new Color(0.82f, 1.0f, 0.88f, 0.055f);
-		var hardGlare = new Color(0.92f, 1.0f, 0.94f, 0.085f);
+		var softGlare = new Color(0.82f, 1.0f, 0.88f, 0.025f);
+		var hardGlare = new Color(0.92f, 1.0f, 0.94f, 0.04f);
 		var scratch = new Color(0.82f, 0.98f, 0.88f, 0.075f);
 		var smudge = new Color(0.52f, 0.78f, 0.64f, 0.045f);
 
@@ -277,14 +292,21 @@ public partial class TerminalOverlay : CanvasLayer
 		};
 		control.DrawColoredPolygon(topBand, softGlare);
 
-		var diagonalBand = new Vector2[]
+		// Non-overlapping strips soften both sides without accumulating opacity.
+		const int ReflectionStrips = 32;
+		for (var i = 0; i < ReflectionStrips; i++)
 		{
-			new(size.X * 0.06f, 0f),
-			new(size.X * 0.22f, 0f),
-			new(size.X * 0.04f, size.Y),
-			new(0f, size.Y)
-		};
-		control.DrawColoredPolygon(diagonalBand, new Color(0.72f, 1.0f, 0.84f, 0.035f));
+			var left = i / (float)ReflectionStrips;
+			var right = (i + 1f) / ReflectionStrips;
+			var strength = Mathf.Pow(Mathf.Sin((left + right) * 0.5f * Mathf.Pi), 2f);
+			control.DrawColoredPolygon(new Vector2[]
+			{
+				new(size.X * Mathf.Lerp(0.06f, 0.22f, left), 0f),
+				new(size.X * Mathf.Lerp(0.06f, 0.22f, right), 0f),
+				new(size.X * 0.04f * right, size.Y),
+				new(size.X * 0.04f * left, size.Y)
+			}, new Color(0.72f, 1.0f, 0.84f, strength * 0.014f));
+		}
 
 		control.DrawLine(new Vector2(8f, 7f), new Vector2(size.X - 12f, 3f), hardGlare, 1f);
 		control.DrawLine(new Vector2(6f, size.Y - 8f), new Vector2(size.X - 10f, size.Y - 5f), new Color(0f, 0f, 0f, 0.12f), 1f);
@@ -304,68 +326,16 @@ public partial class TerminalOverlay : CanvasLayer
 	private static void DrawVignette(Control control)
 	{
 		var size = control.Size;
-		for (var i = 0; i < 14; i++)
+		// A shallow inner-bezel shadow: strongest above the glass, lighter elsewhere.
+		for (var i = 0; i < 24; i++)
 		{
-			var t = i / 13f;
-			var alpha = Mathf.Lerp(0.18f, 0.010f, t);
-			var thickness = 2f + i * 2.6f;
-			var edge = new Color(0.0f, 0.012f, 0.01f, alpha);
-			control.DrawRect(new Rect2(Vector2.Zero, new Vector2(size.X, thickness)), edge);
-			control.DrawRect(new Rect2(new Vector2(0f, size.Y - thickness), new Vector2(size.X, thickness)), edge);
-			control.DrawRect(new Rect2(Vector2.Zero, new Vector2(thickness, size.Y)), edge);
-			control.DrawRect(new Rect2(new Vector2(size.X - thickness, 0f), new Vector2(thickness, size.Y)), edge);
+			var fade = 1f - Mathf.SmoothStep(0f, 1f, i / 23f);
+			control.DrawRect(new Rect2(0f, i, size.X, 1f), new Color(0f, 0.008f, 0.006f, fade * 0.28f));
+			var edge = new Color(0f, 0.008f, 0.006f, fade * 0.12f);
+			control.DrawRect(new Rect2(0f, size.Y - i - 1f, size.X, 1f), edge);
+			control.DrawRect(new Rect2(i, 0f, 1f, size.Y), edge);
+			control.DrawRect(new Rect2(size.X - i - 1f, 0f, 1f, size.Y), edge);
 		}
-
-		var radius = Mathf.Min(34f, Mathf.Min(size.X, size.Y) * 0.11f);
-		for (var i = 2; i >= 0; i--)
-		{
-			var cornerRadius = radius + i * 5f;
-			var alpha = i == 0 ? 0.18f : 0.055f - i * 0.015f;
-			var mask = new Color(0.0f, 0.012f, 0.01f, alpha);
-			DrawCornerCutout(control, size, cornerRadius, 0, mask);
-			DrawCornerCutout(control, size, cornerRadius, 1, mask);
-			DrawCornerCutout(control, size, cornerRadius, 2, mask);
-			DrawCornerCutout(control, size, cornerRadius, 3, mask);
-		}
-	}
-
-	private static void DrawCornerCutout(Control control, Vector2 size, float radius, int corner, Color color)
-	{
-		const int Steps = 8;
-		var points = new Vector2[Steps + 3];
-		var center = corner switch
-		{
-			0 => new Vector2(radius, radius),
-			1 => new Vector2(size.X - radius, radius),
-			2 => new Vector2(size.X - radius, size.Y - radius),
-			_ => new Vector2(radius, size.Y - radius)
-		};
-
-		var cornerPoint = corner switch
-		{
-			0 => Vector2.Zero,
-			1 => new Vector2(size.X, 0f),
-			2 => size,
-			_ => new Vector2(0f, size.Y)
-		};
-
-		var startAngle = corner switch
-		{
-			0 => -Mathf.Pi / 2f,
-			1 => 0f,
-			2 => Mathf.Pi / 2f,
-			_ => Mathf.Pi
-		};
-
-		points[0] = cornerPoint;
-		for (var i = 0; i <= Steps; i++)
-		{
-			var angle = startAngle + i * Mathf.Pi / (2f * Steps);
-			points[i + 1] = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
-		}
-		points[^1] = cornerPoint;
-
-		control.DrawColoredPolygon(points, color);
 	}
 
 	private void RequestClose()

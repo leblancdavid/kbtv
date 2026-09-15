@@ -27,6 +27,7 @@ public partial class ControlRoom3D : Node3D
 		_officeChairHome = _officeChair?.Position ?? Vector3.Zero;
 		CreateColliders();
 		ComputerGlb = GetNode<Node3D>("Computer");
+		ComputerTerminal3D.ConfigureGlassMaterial(ComputerGlb);
 		ComputerTerminal = new ComputerTerminal3D
 		{
 			Name = "ComputerTerminal",
