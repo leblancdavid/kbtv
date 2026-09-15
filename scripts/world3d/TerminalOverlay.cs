@@ -8,7 +8,7 @@ public partial class TerminalOverlay : CanvasLayer
 {
 	private const float MinWidth = 120f;
 	private const float MinHeight = 68f;
-	private const float ScreenInsetScale = 0.67f;
+	private const float ScreenInsetScale = 0.68f;
 	private const float ScreenAspect = 16f / 9f;
 	private const int ContentMargin = 24;
 	private const string OutputFeatherShaderPath = "res://shaders/crt_output_feather.gdshader";

@@ -108,7 +108,7 @@ public partial class StationLighting3D : Node3D
 	{
 		_controlLights.Add(AddOverheadSpot(root, "ControlRoomOverhead", new Vector3(0f, 3.25f, 4f), WarmNoir, 10.0f, 100.0f, 80f, true));
 		AddPendantFixture(root, "ControlRoomPendant", new Vector3(0f, 3.12f, 4f), WarmNoir);
-		_controlLights.Add(AddOmni(root, "ControlEquipmentGlow", new Vector3(1.0f, 1.0f, 0.35f), new Color(0.05f, 0.7f, 0.28f), 0.45f, 3.1f, false));
+		_controlLights.Add(AddOmni(root, "ControlEquipmentGlow", new Vector3(1.0f, 1.0f, 0.35f), new Color(0.05f, 0.7f, 0.28f), 0f, 3.1f, false)); // TODO: temp off to inspect scene
 		_controlLights.Add(AddOmni(root, "ControlOnAirRedGlow", new Vector3(0f, 1.4f, -0.1f), OnAirRed, 0.55f, 2.6f, false));
 	}
 
