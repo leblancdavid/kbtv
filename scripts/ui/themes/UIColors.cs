@@ -20,15 +20,16 @@ namespace KBTV.UI.Themes
         public static readonly Color TEXT_SECONDARY = new(0.7f, 0.7f, 0.7f);
         public static readonly Color TEXT_DISABLED = new(0.5f, 0.5f, 0.5f);
 
-        // Screening UI colors
+        // Screening UI colors (DOS/BIOS terminal)
         public static class Screening
         {
-            public static readonly Color Background = new(0.15f, 0.15f, 0.15f);
-            public static readonly Color Selected = new(0.2f, 0.5f, 0.2f);
-            public static readonly Color Default = new(0.2f, 0.2f, 0.2f);
-            public static readonly Color SelectedText = new(0.9f, 0.9f, 0.9f);
-            public static readonly Color DefaultText = new(0.7f, 0.7f, 0.7f);
-            public static readonly Color HeaderText = new(0f, 1f, 0f);
+            public static readonly Color Background = new(0f, 0f, 0f);          // Pure black screen
+            public static readonly Color Selected = new(0.9f, 0.9f, 0.9f);      // Inverted (white bg)
+            public static readonly Color Default = new(0f, 0f, 0f);             // Black bg
+            public static readonly Color SelectedText = new(0f, 0f, 0f);        // Black text on inverted
+            public static readonly Color DefaultText = new(0.9f, 0.9f, 0.9f);   // White text
+            public static readonly Color HeaderText = new(0.9f, 0.9f, 0.9f);    // White header
+            public static readonly Color DimText = new(0.55f, 0.55f, 0.55f);    // Faint gray text
         }
 
         // Patience indicator colors
@@ -40,14 +41,14 @@ namespace KBTV.UI.Themes
             public static readonly Color Critical = new(1f, 0f, 0f);
         }
 
-        // Queue state colors
+        // Queue state colors (DOS - all white, differentiated by labels)
         public static class Queue
         {
-            public static readonly Color Incoming = new(1f, 0.7f, 0f);
-            public static readonly Color OnHold = new(0f, 0.7f, 1f);
-            public static readonly Color OnAir = new(0.2f, 0.8f, 0.2f);
-            public static readonly Color Rejected = new(0.8f, 0.2f, 0.2f);
-            public static readonly Color Screening = new(0.2f, 0.5f, 0.2f);
+            public static readonly Color Incoming = new(0.9f, 0.9f, 0.9f);
+            public static readonly Color OnHold = new(0.9f, 0.9f, 0.9f);
+            public static readonly Color OnAir = new(0.9f, 0.9f, 0.9f);
+            public static readonly Color Rejected = new(0.9f, 0.9f, 0.9f);
+            public static readonly Color Screening = new(0.9f, 0.9f, 0.9f);
         }
 
         // Button colors
@@ -87,7 +88,7 @@ namespace KBTV.UI.Themes
         // Property display colors (for screening property rows)
         public static class Property
         {
-            public static readonly Color Name = new(0f, 0.7f, 1f);           // Cyan for property names
+            public static readonly Color Name = new(0.95f, 0.95f, 0.95f);         // White property names
             public static readonly Color Value = TEXT_PRIMARY;                // White for values
         }
 

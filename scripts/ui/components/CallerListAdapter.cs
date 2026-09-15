@@ -73,11 +73,14 @@ namespace KBTV.UI.Components
                 statusIndicator.QueueRedraw();
             }
 
-            var styleBox = new StyleBoxFlat();
-            styleBox.CornerRadiusTopLeft = 4;
-            styleBox.CornerRadiusTopRight = 4;
-            styleBox.CornerRadiusBottomRight = 4;
-            styleBox.CornerRadiusBottomLeft = 4;
+            var styleBox = new StyleBoxFlat
+            {
+                BgColor = UIColors.Screening.Default,
+                CornerRadiusTopLeft = 0,
+                CornerRadiusTopRight = 0,
+                CornerRadiusBottomRight = 0,
+                CornerRadiusBottomLeft = 0
+            };
 
             var repository = _repository;
             bool isScreening = repository?.CurrentScreening == caller;
@@ -99,10 +102,10 @@ namespace KBTV.UI.Components
             var styleBox = new StyleBoxFlat
             {
                 BgColor = UIColors.Screening.Default,
-                CornerRadiusTopLeft = 4,
-                CornerRadiusTopRight = 4,
-                CornerRadiusBottomRight = 4,
-                CornerRadiusBottomLeft = 4
+                CornerRadiusTopLeft = 0,
+                CornerRadiusTopRight = 0,
+                CornerRadiusBottomRight = 0,
+                CornerRadiusBottomLeft = 0
             };
             panel.AddThemeStyleboxOverride("panel", styleBox);
 
@@ -116,10 +119,12 @@ namespace KBTV.UI.Components
 
             var nameLabel = new Label
             {
-                Text = caller?.Name ?? "",
+                Text = caller?.PhoneNumber ?? "---",
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
                 VerticalAlignment = VerticalAlignment.Center
             };
+            nameLabel.AddThemeFontSizeOverride("font_size", 12);
+            nameLabel.AddThemeFontOverride("font", UITheme.MonoFont);
             nameLabel.AddThemeColorOverride("font_color", UIColors.Screening.DefaultText);
             hbox.AddChild(nameLabel);
 

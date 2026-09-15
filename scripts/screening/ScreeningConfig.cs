@@ -20,8 +20,9 @@ namespace KBTV.Screening
         /// </summary>
         public static class BaseDurations
         {
-            // Tier 1 - Easy to reveal (11s total)
+            // Tier 1 - Easy to reveal (15s total)
             // Surface-level observations, quick to assess
+            public const float Name = 4f;
             public const float AudioQuality = 3f;
             public const float EmotionalState = 4f;
             public const float CurseRisk = 4f;
@@ -52,6 +53,7 @@ namespace KBTV.Screening
             float baseDuration = propertyKey switch
             {
                 // Tier 1 - Easy
+                "Name" => BaseDurations.Name,
                 "AudioQuality" => BaseDurations.AudioQuality,
                 "EmotionalState" => BaseDurations.EmotionalState,
                 "CurseRisk" => BaseDurations.CurseRisk,
@@ -83,7 +85,7 @@ namespace KBTV.Screening
         /// <returns>Total baseline time in seconds (60s at multiplier 1.0).</returns>
         public static float GetTotalBaselineTime()
         {
-            return (BaseDurations.AudioQuality + BaseDurations.EmotionalState + BaseDurations.CurseRisk +
+            return (                BaseDurations.Name + BaseDurations.AudioQuality + BaseDurations.EmotionalState + BaseDurations.CurseRisk +
                     BaseDurations.Summary + BaseDurations.Personality + BaseDurations.BeliefLevel +
                     BaseDurations.Evidence + BaseDurations.Urgency +
                     BaseDurations.Topic + BaseDurations.Legitimacy + BaseDurations.Coherence)

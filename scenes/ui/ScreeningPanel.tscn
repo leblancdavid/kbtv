@@ -1,16 +1,10 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/ScreeningPanel.cs" id="1"]
+[ext_resource type="FontFile" path="res://assets/fonts/AcPlus_IBM_VGA_8x16.ttf" id="2"]
 
 [sub_resource type="StyleBoxFlat" id="ControlBackground"]
-bg_color = Color(0.15, 0.15, 0.15, 1)
-
-[sub_resource type="StyleBoxFlat" id="PatienceBarBackground"]
-bg_color = Color(0.1, 0.1, 0.1, 1)
-corner_radius_top_left = 2
-corner_radius_top_right = 2
-corner_radius_bottom_left = 2
-corner_radius_bottom_right = 2
+bg_color = Color(0, 0, 0, 1)
 
 [node name="ScreeningPanel" type="Control"]
 layout_mode = 1
@@ -63,7 +57,9 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Screening: --"
 horizontal_alignment = 0
-theme_override_font_sizes/font_size = 10
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 
 [node name="PatienceRight" type="HBoxContainer" parent="ContentMargin/VBoxContainer/TopRow"]
 layout_mode = 2
@@ -73,15 +69,25 @@ theme_override_constants/separation = 4
 
 [node name="PatienceLabel" type="Label" parent="ContentMargin/VBoxContainer/TopRow/PatienceRight"]
 layout_mode = 2
-text = "Patience"
+text = "PATIENCE"
 horizontal_alignment = 2
-theme_override_font_sizes/font_size = 9
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
+
+[node name="PatienceTextLabel" type="Label" parent="ContentMargin/VBoxContainer/TopRow/PatienceRight"]
+layout_mode = 2
+text = "[...............] --%"
+horizontal_alignment = 2
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 
 [node name="CallerInfoScroll" type="ScrollContainer" parent="ContentMargin/VBoxContainer"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
-vertical_scroll_mode = 1
+vertical_scroll_mode = 3
 theme_override_constants/scrollbar_margin_right = 4
 
 [node name="InfoMargin" type="MarginContainer" parent="ContentMargin/VBoxContainer/CallerInfoScroll"]
@@ -101,18 +107,11 @@ size_flags_vertical = 3
 [node name="HeaderRow" type="Label" parent="ContentMargin/VBoxContainer/CallerInfoScroll/InfoMargin/InfoVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Name: --  |  Phone: --  |  Location: --  |  Topic: --"
+text = "Name: --"
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 9
-
-[node name="PatienceProgressBar" type="ProgressBar" parent="ContentMargin/VBoxContainer/TopRow/PatienceRight"]
-layout_mode = 2
-size_flags_horizontal = 0
-custom_minimum_size = Vector2(50, 12)
-max_value = 100.0
-value = 100.0
-show_percentage = false
-theme_override_styles/background = SubResource("PatienceBarBackground")
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.9, 0.9, 0.9, 1)
 
 [node name="PropertiesContainer" type="VBoxContainer" parent="ContentMargin/VBoxContainer/CallerInfoScroll/InfoMargin/InfoVBox"]
 layout_mode = 2
@@ -138,7 +137,8 @@ size_flags_stretch_ratio = 1.0
 text = "REJECT"
 horizontal_alignment = 1
 custom_minimum_size = Vector2(0, 20)
-theme_override_font_sizes/font_size = 9
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 12
 
 [node name="ApproveButton" type="Button" parent="ContentMargin/VBoxContainer/HBoxContainer"]
 layout_mode = 2
@@ -147,7 +147,8 @@ size_flags_stretch_ratio = 1.0
 text = "APPROVE"
 horizontal_alignment = 1
 custom_minimum_size = Vector2(0, 20)
-theme_override_font_sizes/font_size = 9
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 12
 
 [node name="NotificationContainer" type="Panel" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2

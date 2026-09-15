@@ -77,8 +77,8 @@ namespace KBTV.UI
         {
             if (_nameLabel != null)
             {
-                _nameLabel.Text = caller?.Name ?? "";
-                _nameLabel.AddThemeColorOverride("font_color", new Color(0.7f, 0.7f, 0.7f));
+                _nameLabel.Text = caller?.PhoneNumber ?? "---";
+                _nameLabel.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 0.9f));
             }
             UpdateVisualSelection();
         }
@@ -199,10 +199,10 @@ namespace KBTV.UI
 
             var style = new StyleBoxFlat
             {
-                CornerRadiusTopLeft = 4,
-                CornerRadiusTopRight = 4,
-                CornerRadiusBottomRight = 4,
-                CornerRadiusBottomLeft = 4,
+                CornerRadiusTopLeft = 0,
+                CornerRadiusTopRight = 0,
+                CornerRadiusBottomRight = 0,
+                CornerRadiusBottomLeft = 0,
                 BgColor = isScreening ? UIColors.Screening.Selected : UIColors.Screening.Default
             };
 

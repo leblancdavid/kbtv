@@ -37,13 +37,13 @@ namespace KBTV.UI
         // Global scale
         public const float SCALE = 1.0f;
 
-        // Typography (scaled)
-        public static int FONT_TINY => ScaleInt(10);
-        public static int FONT_SMALL => ScaleInt(11);
-        public static int FONT_BASE => ScaleInt(12);
-        public static int FONT_MEDIUM => ScaleInt(13);
-        public static int FONT_LARGE => ScaleInt(14);
-        public static int FONT_XL => ScaleInt(16);
+        // Typography (DOS/BIOS scale - larger for readability)
+        public static int FONT_TINY => ScaleInt(12);
+        public static int FONT_SMALL => ScaleInt(12);
+        public static int FONT_BASE => ScaleInt(13);
+        public static int FONT_MEDIUM => ScaleInt(14);
+        public static int FONT_LARGE => ScaleInt(16);
+        public static int FONT_XL => ScaleInt(18);
 
         // Dimensions (in pixels)
         public static float HEADER_HEIGHT => Scale(24f);

@@ -192,6 +192,7 @@ namespace KBTV.Callers
             {
                 // Priority properties (shown first in display order)
                 // Reveal durations come from ScreeningConfig (60s baseline total)
+                CreateScreenableProperty("Name", "Name", _name),
                 CreateScreenableProperty("Topic", "Topic", _claimedTopic),
                 CreateScreenableProperty("Summary", "Summary", _screeningSummary),
                 CreateScreenableProperty("AudioQuality", "Audio Quality", _phoneQuality),

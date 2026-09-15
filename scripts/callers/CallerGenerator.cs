@@ -267,8 +267,7 @@ namespace KBTV.Callers
             string lastName = LastNames[(int)(GD.Randi() % LastNames.Length)];
             string name = $"{firstName} {lastName}";
 
-            string areaCode = "555"; // Simple placeholder
-            string phoneNumber = $"{areaCode}-{GD.Randi() % 900 + 100}-{GD.Randi() % 9000 + 1000}";
+            string phoneNumber = $"+1{GD.Randi() % 900 + 100}{GD.Randi() % 10000000:D7}";
 
             string location = Locations[(int)(GD.Randi() % Locations.Length)];
 

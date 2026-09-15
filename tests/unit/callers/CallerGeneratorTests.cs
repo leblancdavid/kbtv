@@ -57,7 +57,8 @@ namespace KBTV.Tests.Unit.Callers
             var caller = _generator.GenerateTestCaller();
 
             AssertThat(!string.IsNullOrEmpty(caller.PhoneNumber));
-            AssertThat(caller.PhoneNumber.Contains("-"));
+            AssertThat(caller.PhoneNumber.Length == 12);
+            AssertThat(caller.PhoneNumber.StartsWith("+1"));
         }
 
         [Test]

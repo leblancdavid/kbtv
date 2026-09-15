@@ -1,6 +1,51 @@
 ## Current Session
 
 **Branch**: 3d-migration
+**Task**: Retro DOS/BIOS terminal restyle of the caller screening UI, make caller name a hidden screenable property, and switch queue phone numbers to `+1XXXXXXXXXX`. **Status: Completed — code done, build green, tests verified**
+
+- Converted the screening/caller UI to a DOS terminal look: pure black backgrounds, gray borders, corner radius 0, monospace (`AcPlus_IBM_VGA_8x16.ttf`) text at 12–18px, character-based headers/dividers (`=`, `-`, `|`), hidden scrollbars (`vertical_scroll_mode = 3`), and a CURRENT CALLER box. Green `+`/red `-` stat accents preserved in `StatSummaryPanel`.
+- Made caller `Name` a screenable property (`Caller.cs` `InitializeScreenableProperties`, first property; `ScreeningConfig.BaseDurations.Name = 4f`, Tier 1 → 11 properties / 64s baseline). Name masked in queue/ScreeningPanel (`???` until revealed); `ScreeningPanel.GetCallerDisplayName` shows phone when name hidden.
+- Phone format: `CallerGenerator.GenerateRandomCaller()` now emits `$"+1{3-digit}{7-digit pad}"` (e.g. `+17421234565`); incoming/on-hold queues show phone only.
+- Files: `Caller.cs`, `CallerGenerator.cs`, `ScreeningConfig.cs`, `UIColors.cs`, `UITheme.cs`, `CallerTab.cs/.tscn`, `CallerQueueItem.cs/.tscn`, `CallerListAdapter.cs`, `ScreeningPanel.cs/.tscn`, `ScreenablePropertyRow.cs`, `StatSummaryPanel.cs`.
+- **`dotnet build`: 0 errors** (only 10 pre-existing warnings). **Full `run-tests.ps1`: Passed 514 | Failed 13 — identical to the pre-change baseline; the 13 are pre-existing hard failures (AdManager x4, AudioDialoguePlayer x3, BroadcastStateManager x1, GameStateManager x1, LoadingScreen x2, TranscriptManager x2), none touch modified symbols.**
+- Test harness nuance (critical for interpreting results): `tests/KBTVTestClass.cs` `AssertThat`/`AssertAreEqual` are SOFT assertions — they `RecordFailure` without throwing, so GoDotTest counts the test as "passed" while printing `Test assertion failed` + a suite-level `Test suite had N failure(s)`. The `Passed/Failed` summary counts only hard (exception) failures. Verified per-suite in isolation:
+  - `CallerTests` 43: 0 soft / 0 hard ✅ (do NOT edit — `Length == 11` assertions now satisfied).
+  - `CallerGeneratorTests` 11: had 1 soft failure (`Contains("-")` against new hyphen-less phone) — **fixed test** to assert `+1` prefix, length 12, no hyphen → now 0 soft / 0 hard ✅.
+  - `ScreenablePropertyTests` 12: 0 soft / 0 hard ✅.
+  - `ScreeningControllerTests` 17 (`ErrorCode == "NO_SESSION"` x2 soft) and `ScreeningControllerEventsTests` 10 (`ErrorCode == "NO_REPOSITORY"/"NO_SCREENING"` x2 + `PatienceExpired` x1 soft) — all **pre-existing**: `Result<T>.Fail("CODE","msg")` passes args (errorMessage, errorCode) so the code token lands in `ErrorMessage`; and `Caller.State` defaults to `Incoming` (never set to `Screening` in the test) so patience never decays. Untouched by this work.
+- `CallerStatEffectsTests` (66 soft) + `PersonalityStatEffectsTests` (53 soft) call pure static `GetStatEffects(key, enum)` with no `Caller` instance — pre-existing, unaffected by the added Name property.
+
+### Todo / Next Steps
+- [x] DOS restyle of CallerTab, CallerQueueItem, ScreeningPanel, ScreenablePropertyRow, StatSummaryPanel (+ theme/colors).
+- [x] Name as hidden screenable property + ScreeningConfig duration.
+- [x] Phone format `+1XXXXXXXXXX` + hide name in queues/header/CURRENT CALLER.
+- [x] `dotnet build` 0 errors; full suite 514/13 (pre-existing baseline unchanged).
+- [x] Fixed `CallerGeneratorTests` phone assertion (new format) → suite clean.
+- [ ] Optional follow-ups: in-game visual pass of the DOS styling; document the 13 pre-existing hard failures + Result `Fail` arg-order bug; commit wave once visually verified.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `scripts/callers/Caller.cs`
+- `scripts/callers/CallerGenerator.cs`
+- `scripts/screening/ScreeningConfig.cs`
+- `scripts/ui/themes/UIColors.cs`
+- `scripts/ui/UITheme.cs`
+- `scripts/ui/CallerTab.cs`
+- `scenes/ui/CallerTab.tscn`
+- `scripts/ui/CallerQueueItem.cs`
+- `scenes/ui/CallerQueueItem.tscn`
+- `scripts/ui/components/CallerListAdapter.cs`
+- `scripts/ui/ScreeningPanel.cs`
+- `scenes/ui/ScreeningPanel.tscn`
+- `scripts/ui/components/ScreenablePropertyRow.cs`
+- `scripts/ui/components/StatSummaryPanel.cs`
+- `tests/unit/callers/CallerGeneratorTests.cs`
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
 **Task**: Make the soundboard a 3D model with animated, interactable faders/knobs (mirror the computer-terminal pattern), reachable via the diegetic zoom. **Status: Code complete + tested; in-editor fit pass pending**
 
 - Direction (user-confirmed): reuse `soundboard.glb` body + simple box/cylinder handle models; status LEDs as 3D emissive dots (only drain text stays 2D); click-to-select a channel then drag to adjust. Camera zooms to ~35°-down framing so the board + desk/room around it are visible.

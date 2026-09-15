@@ -37,16 +37,16 @@ namespace KBTV.UI.Components
             // Set up panel styling
             var panelStyle = new StyleBoxFlat
             {
-                BgColor = new Color(0.1f, 0.1f, 0.12f, 0.9f),
-                BorderColor = new Color(0.3f, 0.5f, 0.3f, 0.8f),
+                BgColor = new Color(0f, 0f, 0f, 1f),
+                BorderColor = new Color(0.5f, 0.5f, 0.5f, 1f),
                 BorderWidthLeft = 1,
                 BorderWidthRight = 1,
                 BorderWidthTop = 1,
                 BorderWidthBottom = 1,
-                CornerRadiusTopLeft = 4,
-                CornerRadiusTopRight = 4,
-                CornerRadiusBottomLeft = 4,
-                CornerRadiusBottomRight = 4,
+                CornerRadiusTopLeft = 0,
+                CornerRadiusTopRight = 0,
+                CornerRadiusBottomLeft = 0,
+                CornerRadiusBottomRight = 0,
                 ContentMarginLeft = 4,
                 ContentMarginRight = 4,
                 ContentMarginTop = 2,
@@ -83,16 +83,16 @@ namespace KBTV.UI.Components
                 Text = "Evidence Found: "
             };
             evidenceLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            evidenceLabel.AddThemeFontSizeOverride("font_size", 9);
+            evidenceLabel.AddThemeFontSizeOverride("font_size", 12);
             _evidenceContainer.AddChild(evidenceLabel);
 
             // Evidence Found button
             _evidenceFoundButton = new Button
             {
-                Text = "Examine",
-                CustomMinimumSize = new Vector2(66, 16)
+                Text = "[EXAMINE]",
+                CustomMinimumSize = new Vector2(88, 18)
             };
-            _evidenceFoundButton.AddThemeFontSizeOverride("font_size", 9);
+            _evidenceFoundButton.AddThemeFontSizeOverride("font_size", 12);
             _evidenceFoundButton.Pressed += OnEvidenceFoundPressed;
             _evidenceContainer.AddChild(_evidenceFoundButton);
 
@@ -250,10 +250,10 @@ namespace KBTV.UI.Components
             var style = new StyleBoxFlat
             {
                 BgColor = UIColors.Accent.Green,
-                CornerRadiusTopLeft = 6,
-                CornerRadiusTopRight = 6,
-                CornerRadiusBottomLeft = 6,
-                CornerRadiusBottomRight = 6,
+                CornerRadiusTopLeft = 0,
+                CornerRadiusTopRight = 0,
+                CornerRadiusBottomLeft = 0,
+                CornerRadiusBottomRight = 0,
                 ContentMarginLeft = 6,
                 ContentMarginRight = 6,
                 ContentMarginTop = 3,
@@ -277,10 +277,10 @@ namespace KBTV.UI.Components
             var style = new StyleBoxFlat
             {
                 BgColor = UIColors.BG_DISABLED,
-                CornerRadiusTopLeft = 6,
-                CornerRadiusTopRight = 6,
-                CornerRadiusBottomLeft = 6,
-                CornerRadiusBottomRight = 6,
+                CornerRadiusTopLeft = 0,
+                CornerRadiusTopRight = 0,
+                CornerRadiusBottomLeft = 0,
+                CornerRadiusBottomRight = 0,
                 ContentMarginLeft = 6,
                 ContentMarginRight = 6,
                 ContentMarginTop = 3,
@@ -307,10 +307,10 @@ namespace KBTV.UI.Components
             var style = new StyleBoxFlat
             {
                 BgColor = bgColor,
-                CornerRadiusTopLeft = 6,
-                CornerRadiusTopRight = 6,
-                CornerRadiusBottomLeft = 6,
-                CornerRadiusBottomRight = 6,
+                CornerRadiusTopLeft = 0,
+                CornerRadiusTopRight = 0,
+                CornerRadiusBottomLeft = 0,
+                CornerRadiusBottomRight = 0,
                 ContentMarginLeft = 6,
                 ContentMarginRight = 6,
                 ContentMarginTop = 3,
@@ -423,7 +423,7 @@ namespace KBTV.UI.Components
             // Color based on positive/negative
             var color = amount >= 0 ? UIColors.StatEffect.Positive : UIColors.StatEffect.Negative;
             label.AddThemeColorOverride("font_color", color);
-            label.AddThemeFontSizeOverride("font_size", 9);
+            label.AddThemeFontSizeOverride("font_size", 12);
 
             // Tooltip with full stat name
             label.TooltipText = $"{fullName}: {signText}{amount:F1}";
@@ -447,7 +447,7 @@ namespace KBTV.UI.Components
                 HorizontalAlignment = HorizontalAlignment.Center
             };
             _noDataLabel.AddThemeColorOverride("font_color", UIColors.Placeholder.Text);
-            _noDataLabel.AddThemeFontSizeOverride("font_size", 9);
+            _noDataLabel.AddThemeFontSizeOverride("font_size", 12);
             _statsContainer.AddChild(_noDataLabel);
         }
 
@@ -492,7 +492,7 @@ namespace KBTV.UI.Components
             var label = new Label { Text = text };
             var color = xpImpact >= 0 ? UIColors.StatEffect.Positive : UIColors.StatEffect.Negative;
             label.AddThemeColorOverride("font_color", color);
-            label.AddThemeFontSizeOverride("font_size", 9);
+            label.AddThemeFontSizeOverride("font_size", 12);
             label.TooltipText = $"Topic Belief: {signText}{xpImpact:F1}";
 
             return label;

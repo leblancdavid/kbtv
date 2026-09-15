@@ -48,7 +48,7 @@ namespace KBTV.UI.Components
 
             // Apply mono pixel font
             _contentLabel.AddThemeFontOverride("normal_font", UITheme.MonoFont);
-            _contentLabel.AddThemeFontSizeOverride("normal_font_size", 9);
+            _contentLabel.AddThemeFontSizeOverride("normal_font_size", 12);
 
             // Try to get audio service for reveal sounds
             try

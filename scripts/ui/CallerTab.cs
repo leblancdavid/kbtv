@@ -29,13 +29,12 @@ namespace KBTV.UI
         private CallerTabManager _tabManager = null!;
         private CallerListAdapter _incomingAdapter = null!;
         private ReactiveListPanel<Caller>? _reactiveListPanel;
-        private Label? _showTimerLabel;
-        private TimeManager _timeManager = null!;
+        private Label? _currentCallerNameLabel;
+        private Label? _currentCallerPhoneLabel;
 
         private string? _previousScreeningCallerId;
         private int _previousIncomingCount;
         private int _previousOnHoldCount;
-        private string _previousTimerText = "--:--";
 
         public override void _Ready()
         {
@@ -46,7 +45,6 @@ namespace KBTV.UI
 
             TrackStateForRefresh();
             RefreshTabContent(); // Ensure initial visibility is set correctly
-            UpdateShowTimer();
         }
 
         private void InitializeNodeReferences()
@@ -62,7 +60,6 @@ namespace KBTV.UI
             _repository = DependencyInjection.Get<ICallerRepository>(this);
             _screeningController = DependencyInjection.Get<IScreeningController>(this);
             _incomingAdapter = new CallerListAdapter(_repository);
-            _timeManager = DependencyInjection.Get<TimeManager>(this);
         }
 
         private void CreateTabManager()
@@ -94,35 +91,10 @@ namespace KBTV.UI
                     child.QueueFree();
                 }
 
-                var topRow = new HBoxContainer
-                {
-                    SizeFlagsHorizontal = SizeFlags.ExpandFill
-                };
-                topRow.AddThemeConstantOverride("separation", UITheme.SPACING_SMALL);
-
-                _showTimerLabel = new Label
-                {
-                    Text = _timeManager?.RemainingTimeFormatted ?? "--:--",
-                    HorizontalAlignment = HorizontalAlignment.Left,
-                    SizeFlagsHorizontal = SizeFlags.ExpandFill
-                };
-                _showTimerLabel.AddThemeFontSizeOverride("font_size", 9);
-                _showTimerLabel.AddThemeFontOverride("font", UITheme.MonoFont);
-                topRow.AddChild(_showTimerLabel);
-
-                _incomingPanel.AddChild(topRow);
-
-                var header = new Label
-                {
-                    Text = "INCOMING CALLERS",
-                    HorizontalAlignment = HorizontalAlignment.Center,
-                    CustomMinimumSize = new Vector2(0, UITheme.BUTTON_HEIGHT)
-                };
-                header.AddThemeFontSizeOverride("font_size", 10);
-                header.AddThemeConstantOverride("margin_left", 4);
-                header.AddThemeConstantOverride("margin_right", 4);
-                header.AddThemeColorOverride("font_color", UIColors.Queue.Incoming);
+                var header = CreateSectionHeader("INCOMING CALLERS");
                 _incomingPanel.AddChild(header);
+
+                _incomingPanel.AddChild(CreateDivider());
 
                 var spacer = new Control
                 {
@@ -189,23 +161,16 @@ namespace KBTV.UI
                 child.QueueFree();
             }
 
-            var header = new Label
-            {
-                Text = "ON HOLD",
-                HorizontalAlignment = HorizontalAlignment.Center,
-                CustomMinimumSize = new Vector2(0, UITheme.BUTTON_HEIGHT)
-            };
-                header.AddThemeFontSizeOverride("font_size", 10);
-                header.AddThemeConstantOverride("margin_left", 4);
-                header.AddThemeConstantOverride("margin_right", 4);
-            header.AddThemeColorOverride("font_color", UIColors.Queue.OnHold);
+            var header = CreateSectionHeader("ON HOLD");
             _onHoldPanel.AddChild(header);
 
-                var spacer = new Control
-                {
-                    CustomMinimumSize = new Vector2(0, UITheme.SPACING_SMALL),
-                    SizeFlagsVertical = SizeFlags.ShrinkEnd
-                };
+            _onHoldPanel.AddChild(CreateDivider());
+
+            var spacer = new Control
+            {
+                CustomMinimumSize = new Vector2(0, UITheme.SPACING_SMALL),
+                SizeFlagsVertical = SizeFlags.ShrinkEnd
+            };
             _onHoldPanel.AddChild(spacer);
 
             var listContainer = new VBoxContainer
@@ -222,10 +187,11 @@ namespace KBTV.UI
                 {
                     var callerLabel = new Label
                     {
-                        Text = $"• {caller.Name} - {caller.Location}"
+                        Text = $"  {caller.Name}  {caller.PhoneNumber}"
                     };
-                    callerLabel.AddThemeFontSizeOverride("font_size", 9);
-                    callerLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+                    callerLabel.AddThemeFontSizeOverride("font_size", 12);
+                    callerLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+                    callerLabel.AddThemeColorOverride("font_color", UIColors.Screening.DefaultText);
                     listContainer.AddChild(callerLabel);
                 }
             }
@@ -233,13 +199,90 @@ namespace KBTV.UI
             {
                 var emptyLabel = new Label
                 {
-                    Text = "None",
+                    Text = "  NONE",
                     HorizontalAlignment = HorizontalAlignment.Center
                 };
-                emptyLabel.AddThemeFontSizeOverride("font_size", 9);
-                emptyLabel.AddThemeColorOverride("font_color", UIColors.TEXT_DISABLED);
+                emptyLabel.AddThemeFontSizeOverride("font_size", 12);
+                emptyLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+                emptyLabel.AddThemeColorOverride("font_color", UIColors.Screening.DimText);
                 listContainer.AddChild(emptyLabel);
             }
+
+            _onHoldPanel.AddChild(CreateDivider());
+
+            var currentCallerHeader = CreateSectionHeader("CURRENT CALLER");
+            _onHoldPanel.AddChild(currentCallerHeader);
+
+            _currentCallerNameLabel = new Label
+            {
+                Text = "Name: ???"
+            };
+            _currentCallerNameLabel.AddThemeFontSizeOverride("font_size", 12);
+            _currentCallerNameLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _currentCallerNameLabel.AddThemeColorOverride("font_color", UIColors.Screening.HeaderText);
+            _onHoldPanel.AddChild(_currentCallerNameLabel);
+
+            _currentCallerPhoneLabel = new Label
+            {
+                Text = "Phone: ---"
+            };
+            _currentCallerPhoneLabel.AddThemeFontSizeOverride("font_size", 12);
+            _currentCallerPhoneLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _currentCallerPhoneLabel.AddThemeColorOverride("font_color", UIColors.Screening.HeaderText);
+            _onHoldPanel.AddChild(_currentCallerPhoneLabel);
+
+            UpdateCurrentCallerDisplay();
+        }
+
+        private Label CreateSectionHeader(string title)
+        {
+            var header = new Label
+            {
+                Text = title,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                CustomMinimumSize = new Vector2(0, 16)
+            };
+            header.AddThemeFontSizeOverride("font_size", 13);
+            header.AddThemeFontOverride("font", UITheme.MonoFont);
+            header.AddThemeColorOverride("font_color", UIColors.Screening.HeaderText);
+            return header;
+        }
+
+        private Label CreateDivider()
+        {
+            var divider = new Label
+            {
+                Text = string.Concat(Enumerable.Repeat("=", 30)),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                CustomMinimumSize = new Vector2(0, 12)
+            };
+            divider.AddThemeFontSizeOverride("font_size", 12);
+            divider.AddThemeFontOverride("font", UITheme.MonoFont);
+            divider.AddThemeColorOverride("font_color", UIColors.Screening.DimText);
+            return divider;
+        }
+
+        private void UpdateCurrentCallerDisplay()
+        {
+            if (_currentCallerNameLabel == null || _currentCallerPhoneLabel == null)
+            {
+                return;
+            }
+
+            var caller = _repository.CurrentScreening;
+            if (caller == null)
+            {
+                _currentCallerNameLabel.Text = "Name: N/A";
+                _currentCallerPhoneLabel.Text = "Phone: N/A";
+                return;
+            }
+
+            var nameProperty = caller.ScreenableProperties
+                .FirstOrDefault(p => p.PropertyKey == "Name");
+            bool nameRevealed = nameProperty != null && nameProperty.IsRevealed;
+
+            _currentCallerNameLabel.Text = $"Name: {(nameRevealed ? caller.Name : "???")}";
+            _currentCallerPhoneLabel.Text = $"Phone: {caller.PhoneNumber}";
         }
 
         private void TrackStateForRefresh()
@@ -247,7 +290,6 @@ namespace KBTV.UI
             _previousScreeningCallerId = _repository.CurrentScreening?.Id;
             _previousIncomingCount = _repository.IncomingCallers.Count;
             _previousOnHoldCount = _repository.OnHoldCallers.Count;
-            _previousTimerText = _timeManager?.RemainingTimeFormatted ?? "--:--";
         }
 
         public override void _Process(double delta)
@@ -257,20 +299,18 @@ namespace KBTV.UI
             var screeningCallerId = _repository.CurrentScreening?.Id;
             var incomingCount = _repository.IncomingCallers.Count;
             var onHoldCount = _repository.OnHoldCallers.Count;
-            var timerText = _timeManager?.RemainingTimeFormatted ?? "--:--";
 
             if (screeningCallerId != _previousScreeningCallerId ||
                 incomingCount != _previousIncomingCount ||
-                onHoldCount != _previousOnHoldCount ||
-                timerText != _previousTimerText)
+                onHoldCount != _previousOnHoldCount)
             {
                 RefreshTabContent();
-                UpdateShowTimer();
                 _previousScreeningCallerId = screeningCallerId;
                 _previousIncomingCount = incomingCount;
                 _previousOnHoldCount = onHoldCount;
-                _previousTimerText = timerText;
             }
+
+            UpdateCurrentCallerDisplay();
         }
 
         private void RefreshTabContent()
@@ -283,31 +323,6 @@ namespace KBTV.UI
             if (_screeningPanel != null)
             {
                 _screeningPanel.Visible = true;
-            }
-        }
-
-        private void UpdateShowTimer()
-        {
-            if (_timeManager == null || _showTimerLabel == null)
-            {
-                return;
-            }
-
-            var remainingText = _timeManager.RemainingTimeFormatted ?? "--:--";
-            _showTimerLabel.Text = remainingText;
-
-            var remainingSeconds = _timeManager.RemainingTime;
-            if (remainingSeconds <= 30f)
-            {
-                _showTimerLabel.AddThemeColorOverride("font_color", Colors.Red);
-            }
-            else if (remainingSeconds <= 60f)
-            {
-                _showTimerLabel.AddThemeColorOverride("font_color", Colors.Yellow);
-            }
-            else
-            {
-                _showTimerLabel.AddThemeColorOverride("font_color", Colors.White);
             }
         }
 

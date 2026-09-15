@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 using KBTV.Callers;
@@ -36,7 +37,7 @@ namespace KBTV.UI
 
 		[ExportGroup("Optional UI")]
 		[Export]
-		private ProgressBar? _patienceProgressBar;
+		private Label? _patienceTextLabel;
 
 		private IScreeningController _controller = null!;
 		private ICallerRepository? _callerRepository;
@@ -89,7 +90,7 @@ namespace KBTV.UI
 			_propertiesContainer ??= GetNodeOrNull<Control>("ContentMargin/VBoxContainer/CallerInfoScroll/InfoMargin/InfoVBox/PropertiesContainer");
 			_approveButton ??= GetNodeOrNull<Button>("ContentMargin/VBoxContainer/HBoxContainer/ApproveButton");
 			_rejectButton ??= GetNodeOrNull<Button>("ContentMargin/VBoxContainer/HBoxContainer/RejectButton");
-			_patienceProgressBar ??= GetNodeOrNull<ProgressBar>("ContentMargin/VBoxContainer/TopRow/PatienceRight/PatienceProgressBar");
+			_patienceTextLabel ??= GetNodeOrNull<Label>("ContentMargin/VBoxContainer/TopRow/PatienceRight/PatienceTextLabel");
 			_statSummaryContainer ??= GetNodeOrNull<Control>("ContentMargin/VBoxContainer/ImpactRow");
 			_screeningLabel ??= GetNodeOrNull<Label>("ContentMargin/VBoxContainer/TopRow/ScreeningLabel");
 			_impactRow ??= GetNodeOrNull<Control>("ContentMargin/VBoxContainer/ImpactRow");
@@ -180,9 +181,10 @@ namespace KBTV.UI
 			_approveButton.Disabled = true;
 			_rejectButton.Disabled = true;
 
-			if (_patienceProgressBar != null)
+			if (_patienceTextLabel != null)
 			{
-				_patienceProgressBar.Value = 0f;
+				_patienceTextLabel.Text = "[...............] --%";
+				_patienceTextLabel.AddThemeColorOverride("font_color", UIColors.Screening.DimText);
 			}
 
 			// Clear property rows when no caller
@@ -206,10 +208,10 @@ namespace KBTV.UI
 			var progress = _controller.Progress;
  
 			// Update header
-			_headerRow.Text = string.Empty;
+			_headerRow.Text = $"Name: {GetCallerDisplayName(caller)}";
 			if (_screeningLabel != null)
 			{
-				_screeningLabel.Text = $"Screening: {caller.Name}";
+				_screeningLabel.Text = $"Screening: {caller.PhoneNumber}";
 			}
 
 			// Enable/disable buttons based on screening phase
@@ -219,11 +221,14 @@ namespace KBTV.UI
 			_approveButton.Disabled = !canInteract;
 			_rejectButton.Disabled = !canInteract;
 
-			// Update patience progress bar if available
-			if (_patienceProgressBar != null && caller.ScreeningPatience > 0)
+			// Update text-based patience display
+			if (_patienceTextLabel != null && caller.ScreeningPatience > 0)
 			{
-				_patienceProgressBar.MaxValue = caller.ScreeningPatience;
-				_patienceProgressBar.Value = caller.ScreeningPatience - progress.ElapsedTime;
+				float remaining = Mathf.Max(caller.ScreeningPatience - progress.ElapsedTime, 0f);
+				float ratio = Mathf.Clamp(remaining / caller.ScreeningPatience, 0f, 1f);
+				int percent = (int)(ratio * 100f);
+				_patienceTextLabel.Text = $"{BuildPatienceBar(ratio)} {percent}%";
+				_patienceTextLabel.AddThemeColorOverride("font_color", UIColors.GetPatienceColor(ratio));
 			}
 
 			// Only update stat summary panel if properties have changed (performance optimization)
@@ -378,6 +383,20 @@ namespace KBTV.UI
                 _statSummaryPanel.SetProperties(_pendingProperties);
                 _pendingProperties = null; // Clear after use
             }
+        }
+
+        private string BuildPatienceBar(float ratio, int width = 14)
+        {
+            int filled = Mathf.RoundToInt(Mathf.Clamp(ratio, 0f, 1f) * width);
+            return "[" + new string('|', filled) + new string('.', width - filled) + "]";
+        }
+
+        private string GetCallerDisplayName(Caller caller)
+        {
+            if (caller?.ScreenableProperties == null) return "???";
+            var nameProperty = caller.ScreenableProperties
+                .FirstOrDefault(p => p.PropertyKey == "Name");
+            return (nameProperty != null && nameProperty.IsRevealed) ? caller.Name : "???";
         }
     }
 }

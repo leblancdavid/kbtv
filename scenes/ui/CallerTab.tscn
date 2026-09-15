@@ -31,7 +31,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 1.0
 horizontal_scroll_mode = 0
-vertical_scroll_mode = 1
+vertical_scroll_mode = 3
 theme_override_constants/scrollbar_margin_right = 4
 
 [node name="IncomingMargin" type="MarginContainer" parent="HBoxContainer/IncomingScroll"]
@@ -70,7 +70,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 1.0
 horizontal_scroll_mode = 0
-vertical_scroll_mode = 1
+vertical_scroll_mode = 3
 theme_override_constants/scrollbar_margin_right = 4
 
 [node name="OnHoldMargin" type="MarginContainer" parent="HBoxContainer/OnHoldScroll"]
