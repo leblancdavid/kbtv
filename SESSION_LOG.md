@@ -1,7 +1,40 @@
 ## Current Session
 
 **Branch**: 3d-migration
-**Task**: Implement the soundboard supporting classes + wiring so `World3D` compiles and runs. **Status: In Progress — code complete + tested; needs in-editor verification**
+**Task**: Make the soundboard a 3D model with animated, interactable faders/knobs (mirror the computer-terminal pattern), reachable via the diegetic zoom. **Status: Code complete + tested; in-editor fit pass pending**
+
+- Direction (user-confirmed): reuse `soundboard.glb` body + simple box/cylinder handle models; status LEDs as 3D emissive dots (only drain text stays 2D); click-to-select a channel then drag to adjust. Camera zooms to ~35°-down framing so the board + desk/room around it are visible.
+- THIS SESSION (completed): wrote `scripts/audio/SoundboardControlApplier.cs` (pure `enum SoundboardControl { None, CallerGain, CallerLowPass, CallerHighPass, VernGain, AdsGain, Master }` + `ValueFromDrag`/`ClampValue`/`Apply`/`CurrentValue`); wrote `scripts/world3d/Soundboard3D.cs` (child of `ControlRoom3D` at `(0.25, 0.9, -3.55)` rot Y 180, name `Soundboard3D`; code-built fader BoxMesh + knob CylinderMesh handles on `CoverZ = -0.09`, oversized tap colliders on `HitLayer = 1u<<20` at `ColliderZ = -0.16`, 3D emissive LEDs from `SoundboardMonitor.CallerBands` / `AdManager.IsAdBreakActive`; `ShowHandles`/`HideHandles` toggle root `Visible`, `ShowHandles` resets driver to neutral + applies; removed `SetVisualsEnabled`; simplified `UpdateLeds` dropping a buggy cached `_callerBands` field); wired `ControlRoom3D.cs` (new `SoundBoard3D` property + `AddChild` in `_Ready`); wired `World3D.cs` (constants `SoundboardFramingWidth = 3.2`, `SoundboardCameraDistance = 2.0`, `SoundboardElevationDeg = 35`, `SoundboardLookPivotHeight = 0.06`, `SoundboardDragPixelsPerUnit = 220`; fields `_soundboard3D`, `_boardLeftWasPressed`, `_boardDragging`, `_boardSelected`, `_boardLastDragScreenY`; `_Ready` wires driver + monitor + `HideHandles`; `_Process` calls `PollSoundboardMouse()` when view open; 35°-elevation framing; `ShowHandles`/`HideHandles` in zoom-in/out completions and `OnNavBackRequested` soundboard→terminal branch; click-to-select-then-drag with per-frame incremental rebase via `SoundboardControlApplier.ValueFromDrag`); rewrote `scripts/ui/SoundboardOverlay.cs` to a mouse-transparent (`MouseFilterEnum.Ignore`), top-center, drain-status-only label (OFF AIR / GRACE n s / DRAIN -x/s / MIXED PERFECT) keeping `Driver`/`SetMonitor`/`ShowSoundboard`(ResetToNeutral+Apply)/`HideSoundboard`; wrote `tests/unit/audio/SoundboardControlApplierTests.cs` (8 tests).
+- **`dotnet build KBTV.csproj`: 0 errors** (fixed two compile errors: 3-tuple deconstruct in `UpdateControls` -> `(control, _, _)`; `LayoutPreset.TopCenter` -> `CenterTop`). **Full `run-tests.ps1`: 513 passed / 13 failed — the 13 are the same pre-existing baseline; all 8 new soundboard-applier tests pass.**
+- NOTE: still uncommitted along with the prior passes listed in the Previous Session — build on them, do not lose.
+
+### Todo / Next Steps
+- [x] `SoundboardControlApplier` (pure drag->state mapper) + tests.
+- [x] `Soundboard3D` (handles, LEDs, tap colliders, show/hide, reset-to-neutral on open).
+- [x] `ControlRoom3D.SoundBoard3D` wiring.
+- [x] World3D: `PollSoundboardMouse`/`RaycastBoardControl`/`ResetSoundboardInput`, 35° framing, show/hide in zoom transitions + nav-back.
+- [x] Overlay strip to drain-status-only + mouse-transparent.
+- [x] `dotnet build` 0 errors; `run-tests.ps1` 513/13 (8 new tests green; 13 baseline failures untouched).
+- [x] Docs: `docs/systems/SOUNDBOARD_DESIGN.md` section 7 "3D Soundboard Presentation (Shipped)" + renumbered Files/Tuning References.
+- [ ] In-editor fit pass: verify 6 handles sit on the GLB face (tune slot X / `SlotCenterY` / rotation), knob/fader travel, `SoundboardDragPixelsPerUnit` 220, LED positions, 35° pitch + framing width 3.2; Esc closes; drain label transitions GRACE→DRAIN.
+- [ ] Optional: dedupe 13 pre-existing test failures (missing AutoInject providers); commit wave once visually verified.
+
+### Files Modified
+- `SESSION_LOG.md`
+- `docs/systems/SOUNDBOARD_DESIGN.md`
+- `scripts/audio/SoundboardControlApplier.cs` (new)
+- `scripts/world3d/Soundboard3D.cs` (new)
+- `scripts/world3d/ControlRoom3D.cs`
+- `scripts/world3d/World3D.cs`
+- `scripts/ui/SoundboardOverlay.cs`
+- `tests/unit/audio/SoundboardControlApplierTests.cs` (new)
+
+---
+
+## Previous Session
+
+**Branch**: 3d-migration
+**Task**: Implement the soundboard supporting classes + wiring so `World3D` compiles and runs. **Status: Completed — code complete + tested; needs in-editor verification**
 
 - Completed this pass (uncommitted): `docs/systems/SOUNDBOARD_DESIGN.md` written; `CallerTab` nav surgery + `CallerScreenerManager`/`TerminalOverlay` de-wiring; `ScreenNavOverlay` (CanvasLayer 121); `World3D.cs` view-state machine + soundboard plumbing.
 - THIS SESSION (completed): created `SoundboardKnobState`, `SoundboardTargetGenerator`, `SoundboardMixerDriver`, `SoundboardOverlay`, `SoundboardMonitor`; added `AudioMixerManager.ApplySoundboard` + re-apply in `UpdateAudioQuality`; added `Caller.SpeakingVolume` + `CallerGenerator` seeding; wired driver/monitor into `World3D._Ready` (L155-161: `_soundboardMonitor` field, `SetDriver(_soundboardOverlay.Driver)`, `_soundboardOverlay.SetMonitor(...)`, `AddChild`); fixed broadcast of build errors; added 18 unit tests. **`dotnet build`: 0 errors. Full `run-tests.ps1`: 505 passed / 13 failed — the 13 failures are the same pre-existing baseline (AdManager/LoadingScreen/GameStateManager/AudioDialoguePlayer/BroadcastStateManager/TranscriptManager DI-provider + NRE issues), none touching soundboard code; 18 new soundboard tests all pass.**

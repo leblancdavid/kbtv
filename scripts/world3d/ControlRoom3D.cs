@@ -18,6 +18,7 @@ public partial class ControlRoom3D : Node3D
 
 	public ComputerTerminal3D ComputerTerminal { get; private set; } = null!;
 	public Node3D ComputerGlb { get; private set; } = null!;
+	public Soundboard3D SoundBoard3D { get; private set; } = null!;
 
 	public override void _Ready()
 	{
@@ -33,6 +34,14 @@ public partial class ControlRoom3D : Node3D
 		};
 		ComputerTerminal.Visible = false;
 		AddChild(ComputerTerminal);
+
+		SoundBoard3D = new Soundboard3D
+		{
+			Name = "Soundboard3D",
+			Position = new Vector3(0.25f, 0.9f, -3.55f),
+			RotationDegrees = new Vector3(0f, 180f, 0f)
+		};
+		AddChild(SoundBoard3D);
 	}
 
 	public void SetComputerCollidersEnabled(bool enabled)

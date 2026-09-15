@@ -154,9 +154,74 @@ Knob deltas are stacked **on top of** `AudioEffectsProcessor` presets:
 - Verifies target band via the same `SoundboardTargetGenerator` so monitor and
   UI cannot disagree.
 
-## 7. Files
+## 7. 3D Soundboard Presentation (Shipped)
+
+The interactive surface is a **diegetic 3D board** (branch `3d-migration`),
+replacing the 2D `VSlider` overlay. Interaction mirrors the computer-terminal
+pattern: fixed ortho camera → click-to-select → drag to adjust.
+
+### Placement & Visuals
+
+- `scripts/world3d/Soundboard3D.cs` (KBTV.World3D) is built by
+  `ControlRoom3D._Ready` at local `(0.25, 0.9, -3.55)` rot `(0, 180, 0)`,
+  name `"Soundboard3D"` — mirrors the `SoundBoard` GLB node transform
+  (`soundboard.glb`).
+- The GLB provides the box/face; faders (`BoxMesh`) and knobs
+  (`CylinderMesh`) are code-built and set slightly in front of the face
+  (`CoverZ = -0.09`) so the GLB internals stay opaque. Handle alignment is a
+  manual in-editor fit pass.
+
+### Control Slots (built left → right)
+
+| Slot X | Control | Type |
+|--------|---------|------|
+| -0.60 | CallerGain | fader |
+| -0.36 | CallerLowPass | knob |
+| -0.12 | CallerHighPass | knob |
+| 0.12 | VernGain | fader |
+| 0.36 | AdsGain | fader |
+| 0.60 | Master | fader |
+
+- Fader thumb Y: `FaderLocalY(value) = (value - 0.5f) * 2f * FaderTravel`.
+- Knob rotation: `KnobRotationDeg(value) = (value - 0.5f) * 2f * KnobTurnDeg`.
+- LEDs: 3D emissive quads above each slot. Caller LED reads
+  `SoundboardMonitor.CallerBands`; Vern = green; Ads = green while
+  `AdManager.IsAdBreakActive` else dim; Master = worst caller band.
+
+### Interaction (World3D)
+
+- Each handle has an oversized tap collider on `Soundboard3D.HitLayer`
+  (`1u << 20`, `CollisionMask = 0`) so only the board raycast hits.
+- `World3D.PollSoundboardMouse()` runs while `SoundboardViewState.Open`:
+  click raycasts (`PhysicsRayQueryParameters3D`, mask = `HitLayer`), selects
+  the control, then incremental vertical drag rebases each frame from
+  `CurrentValue`.
+- `SoundboardControlApplier.ValueFromDrag(start, dragDeltaScreenY,
+  SoundboardDragPixelsPerUnit)` — drag **up** increases; result clamped to
+  0..1; zero-ppu falls back to a unit step. Pure + unit-tested
+  (`tests/unit/audio/SoundboardControlApplierTests.cs`).
+- Show/hide: `ShowHandles()` (reset driver to neutral + apply, `Visible =
+  true`) / `HideHandles()` (`Visible = false`, bodies disabled), driven by the
+  zoom transitions and `OnNavBackRequested`.
+
+### Camera
+
+- `SoundboardFramingWidth = 3.2f`, `SoundboardCameraDistance = 2.0f`,
+  `SoundboardElevationDeg = 35f`; camera pos = board center +
+  `(0, tan(35°)·dist, dist)`, look target = center + `(0, 0.06, 0)`.
+
+### Overlay
+
+- `SoundboardOverlay` now renders only the drain-status label (OFF AIR /
+  `GRACE n s` / `DRAIN -x/s` / `MIXED PERFECT`), `MouseFilterEnum.Ignore`,
+  top-center, so it never blocks the 3D board raycast. Keeps `Driver`,
+  `SetMonitor`, `ShowSoundboard`, `HideSoundboard`.
+
+## 8. Files
 
 **New**
+- `scripts/audio/SoundboardControlApplier.cs`
+- `scripts/world3d/Soundboard3D.cs`
 - `scripts/ui/ScreenNavOverlay.cs`
 - `scripts/world3d/SoundboardTrigger3D.cs`
 - `scripts/audio/SoundboardKnobState.cs`
@@ -167,20 +232,23 @@ Knob deltas are stacked **on top of** `AudioEffectsProcessor` presets:
 - `docs/systems/SOUNDBOARD_DESIGN.md`
 
 **Modified**
-- `scripts/ui/CallerTab.cs` — remove `BackRequested`/`CloseRequested`, `_backButton`, `_closeButton` (keep show-timer row + ON HOLD header).
-- `scripts/ui/CallerScreenerManager.cs` — remove `CallerTab` nav subscriptions; owns close via other paths.
-- `scripts/world3d/TerminalOverlay.cs` — remove `CallerTab` nav wiring; nav now global.
-- `scripts/world3d/World3D.cs` — `SoundboardViewState`, view switching, AABB framing, nav overlay ownership.
-- `scripts/world3d/ControlRoom3D.cs` — expose `SoundBoard` reference (name match).
-- `scripts/audio/AudioMixerManager.cs` — `ApplySoundboard`, re-apply in `UpdateAudioQuality`.
-- `scripts/callers/Caller.cs`, `scripts/callers/CallerGenerator.cs` — `SpeakingVolume`.
+- `scripts/ui/SoundboardOverlay.cs` - drain-status-only label, mouse-transparent.
+- `scripts/ui/CallerTab.cs` - remove `BackRequested`/`CloseRequested`, `_backButton`, `_closeButton` (keep show-timer row + ON HOLD header).
+- `scripts/ui/CallerScreenerManager.cs` - remove `CallerTab` nav subscriptions; owns close via other paths.
+- `scripts/ui/TerminalOverlay.cs` - remove `CallerTab` nav wiring; nav now global.
+- `scripts/world3d/World3D.cs` - `SoundboardViewState`, view switching, AABB framing, nav overlay ownership, `PollSoundboardMouse`/`RaycastBoardControl`.
+- `scripts/world3d/ControlRoom3D.cs` - expose `SoundBoard` reference + build `Soundboard3D`.
+- `scripts/world3d/Soundboard3D.cs` - new (see section 7).
+- `scripts/audio/AudioMixerManager.cs` - `ApplySoundboard`, re-apply in `UpdateAudioQuality`.
+- `scripts/callers/Caller.cs`, `scripts/callers/CallerGenerator.cs` - `SpeakingVolume`.
 
 **Tests** (`tests/unit/audio/`, `tests/unit/monitors/`)
+- `SoundboardControlApplierTests.cs`
 - `SoundboardTargetGeneratorTests.cs`
 - `SoundboardMixerDriverTests.cs`
 - `SoundboardMonitorTests.cs`
 
-## 8. Tuning References
+## 9. Tuning References
 
 - Terminal pattern: `TerminalViewState` enum, `TerminalZoomSpeed = 3.2f`,
   `TerminalFramingWidth = 1.85f`, camera offset `(0.09, 0.12, 1.42)`,

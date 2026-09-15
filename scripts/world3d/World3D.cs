@@ -1,5 +1,6 @@
 using System;
 using Godot;
+using KBTV.Audio;
 using KBTV.Core;
 using KBTV.Monitors;
 using KBTV.UI;
@@ -22,10 +23,12 @@ private const float TerminalZoomSpeed = 3.2f;
 	private const float TerminalFramingWidth = 1.85f;
 
 	private const float SoundboardZoomSpeed = 3.2f;
-	private const float SoundboardFramingWidth = 1.8f;
-	private const float SoundboardCameraDistance = 1.15f;
+	private const float SoundboardFramingWidth = 3.2f;
+	private const float SoundboardCameraDistance = 2.0f;
+	private const float SoundboardElevationDeg = 35f;
 	private const float SoundboardLookPivotHeight = 0.06f;
 	private const float SoundboardInteractRadius = 1.4f;
+	private const float SoundboardDragPixelsPerUnit = 220f;
 
 	private enum TerminalViewState
 	{
@@ -73,6 +76,11 @@ private const float TerminalZoomSpeed = 3.2f;
 	private Vector3 _soundboardCameraPos;
 	private float _soundboardCameraSize;
 	private Basis _soundboardCameraBasis;
+	private Soundboard3D? _soundboard3D;
+	private bool _boardLeftWasPressed;
+	private bool _boardDragging;
+	private SoundboardControl _boardSelected = SoundboardControl.None;
+	private float _boardLastDragScreenY;
 	private bool _cameraHomeCaptured;
 	private ScreenNavOverlay? _screenNavOverlay;
 	private SoundboardOverlay? _soundboardOverlay;
@@ -162,6 +170,11 @@ _control_room.ShowRoom();
 	_soundboardOverlay.SetMonitor(_soundboardMonitor);
 	AddChild(_soundboardMonitor);
 
+	_soundboard3D = _control_room.SoundBoard3D;
+	_soundboard3D.AttachDriver(_soundboardOverlay.Driver);
+	_soundboard3D.SetMonitor(_soundboardMonitor);
+	_soundboard3D.HideHandles();
+
 	UpdateStatusLabel("CONTROL ROOM");
 	}
 
@@ -245,9 +258,14 @@ public override void _Input(InputEvent @event)
 			UpdateTerminalCamera(delta);
 		}
 
-		UpdateComputerHint();
+UpdateComputerHint();
 		UpdateDebugSample();
 		UpdateTerminalOverlayBounds();
+
+		if (_soundboardViewState == SoundboardViewState.Open)
+		{
+			PollSoundboardMouse();
+		}
 	}
 
 
@@ -553,6 +571,7 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 			}
 			ShowSoundboardOverlay();
 			_screenNavOverlay?.ShowOverlay("CRT", true);
+			_soundboard3D?.ShowHandles();
 		}
 		else if (_soundboardViewState == SoundboardViewState.ZoomingOut && _zoomProgress >= 1f)
 		{
@@ -560,6 +579,8 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 			_cameraHomeCaptured = false;
 			HideSoundboardOverlay();
 			_screenNavOverlay?.HideOverlay();
+			_soundboard3D?.HideHandles();
+			ResetSoundboardInput();
 			_player?.SetMovementLocked(false);
 			if (_player != null)
 			{
@@ -654,7 +675,9 @@ UpdateTerminalOverlayBounds();
 		var viewportSize = GetViewport()?.GetVisibleRect().Size ?? new Vector2(1280f, 720f);
 		var aspect = viewportSize.X / Mathf.Max(1f, viewportSize.Y);
 		_soundboardCameraSize = Mathf.Max(size.X, SoundboardFramingWidth) / (2f * aspect);
-		_soundboardCameraPos = center + new Vector3(0f, 0.02f, SoundboardCameraDistance);
+
+		var elevation = Mathf.DegToRad(SoundboardElevationDeg);
+		_soundboardCameraPos = center + new Vector3(0f, Mathf.Tan(elevation) * SoundboardCameraDistance, SoundboardCameraDistance);
 
 		var lookTarget = center + new Vector3(0f, SoundboardLookPivotHeight, 0f);
 		var transform = new Transform3D(Basis.Identity, _soundboardCameraPos).LookingAt(lookTarget, Vector3.Up);
@@ -763,6 +786,8 @@ UpdateTerminalOverlayBounds();
 		{
 			_soundboardViewState = SoundboardViewState.None;
 			HideSoundboardOverlay();
+			_soundboard3D?.HideHandles();
+			ResetSoundboardInput();
 			OpenTerminalView();
 		}
 	}
@@ -942,12 +967,101 @@ UpdateTerminalOverlayBounds();
 		});
 	}
 
-	private void UpdateTerminalDebugStatus(string detail)
+private void UpdateTerminalDebugStatus(string detail)
 	{
 		if (_status_label != null)
 		{
 			_status_label.Text = $"KBTV 3D BLOCKOUT | TERMINAL | {detail}";
 		}
+	}
+
+	private void ResetSoundboardInput()
+	{
+		_boardLeftWasPressed = false;
+		_boardDragging = false;
+		_boardSelected = SoundboardControl.None;
+		_boardLastDragScreenY = 0f;
+	}
+
+	private void PollSoundboardMouse()
+	{
+		if (_soundboard3D == null)
+		{
+			return;
+		}
+
+		var leftHeld = Input.IsMouseButtonPressed(MouseButton.Left);
+		var leftJustPressed = leftHeld && !_boardLeftWasPressed;
+
+		if (GetViewport()?.GuiGetHoveredControl() != null)
+		{
+			_boardLeftWasPressed = leftHeld;
+			_boardDragging = false;
+			return;
+		}
+
+		var mousePosition = GetViewport().GetMousePosition();
+
+		if (leftJustPressed)
+		{
+			var control = RaycastBoardControl(mousePosition);
+			if (control != SoundboardControl.None)
+			{
+				_boardSelected = control;
+				_boardDragging = true;
+				_boardLastDragScreenY = mousePosition.Y;
+				_soundboard3D.SelectControl(control);
+			}
+			else
+			{
+				_boardSelected = SoundboardControl.None;
+				_boardDragging = false;
+				_soundboard3D.SelectControl(SoundboardControl.None);
+			}
+		}
+
+		if (_boardSelected != SoundboardControl.None && _boardDragging)
+		{
+			var deltaY = _boardLastDragScreenY - mousePosition.Y;
+			if (Mathf.Abs(deltaY) > 0.5f)
+			{
+				var current = SoundboardControlApplier.CurrentValue(_soundboardOverlay.Driver.State, _boardSelected);
+				var next = SoundboardControlApplier.ValueFromDrag(current, deltaY, SoundboardDragPixelsPerUnit);
+				_soundboard3D.SetControlValue(_boardSelected, next);
+				_boardLastDragScreenY = mousePosition.Y;
+			}
+		}
+
+		if (!leftHeld)
+		{
+			_boardDragging = false;
+		}
+
+		_boardLeftWasPressed = leftHeld;
+	}
+
+	private SoundboardControl RaycastBoardControl(Vector2 mousePosition)
+	{
+		var from = _camera.ProjectRayOrigin(mousePosition);
+		var to = from + _camera.ProjectRayNormal(mousePosition) * 60f;
+
+		var query = PhysicsRayQueryParameters3D.Create(from, to);
+		query.CollideWithBodies = true;
+		query.CollideWithAreas = false;
+		query.CollisionMask = Soundboard3D.HitLayer;
+
+		var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
+		if (hit.Count == 0 || _soundboard3D == null)
+		{
+			return SoundboardControl.None;
+		}
+
+		if (hit["collider"].AsGodotObject() is not StaticBody3D body)
+		{
+			return SoundboardControl.None;
+		}
+
+		return _soundboard3D.ControlFromBody(body);
 	}
 
 	private void OnTerminalViewRequested()
