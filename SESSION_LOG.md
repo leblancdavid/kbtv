@@ -1,7 +1,9 @@
 ## Current Session
 
 **Branch**: 3d-migration
-**Task**: Screening UI polish follow-up #2: widen the stat +/- symbol scale, make approve/reject span the middle column, bottom-align the stat panel + buttons, and show the evidence button above the stat panel. **Status: Completed — build green, full suite 514/13 baseline unchanged**
+**Task**: Screening UI polish follow-up #2: widen the stat +/- symbol scale, make approve/reject span the middle column, bottom-align the stat panel + buttons, show the evidence button above the stat panel, and stop the stat panel from shifting 1px when evidence appears. **Status: Completed — build green, full suite 514/13 baseline unchanged**
+
+- **Fixed stat-panel shift on evidence popup** (`StatSummaryPanel.cs`): the evidence row used to collapse its slot when hidden (invisible children are skipped by containers + the 4px VBox separation), shifting the stats box down ~a pixel when evidence appeared. The `_evidenceContainer` is now always visible with a fixed `CustomMinimumSize (0, 24)` + `MouseFilter.Ignore`, and `UpdateEvidenceButton` toggles only `_evidenceLabel.Visible` / `_evidenceFoundButton.Visible` (new `_evidenceLabel` field). Extra stats-height safety margin (24 > ~22px button) guarantees no growth when shown.
 
 - **Wider symbol bins** (`StatSummaryPanel.cs`): `BuildMagnitudeSymbols` is now threshold-parameterized — stats `|1-6|→1, |7-12|→2, |13+|→3`; XP uses 3x `|1-18|→1, |19-36|→2, |37+|→3` (user choice). Callers: `CreateStatLabel(amount, 6, 12)`, `CreateXPLabel(xpImpact, 18, 36)`. Tooltips still show exact amounts.
 - **Evidence above the stat panel, centered** (`StatSummaryPanel.cs` `_Ready`): the gray border `StyleBoxFlat` moved from the outer `PanelContainer` onto a new inner `statsBox` (`PanelContainer`) that wraps only the stats row; outer control gets `StyleBoxEmpty`. `_evidenceContainer` is now the first row of the outer VBox → renders above the box, centered (`Alignment = Center`). Evidence wiring untouched.
@@ -17,7 +19,8 @@
 - [x] REJECT/APPROVE full-width of the middle column (`size_flags_horizontal = 3`), taller (26px).
 - [x] Remove unused `NotificationContainer`; stat panel + buttons bottom-aligned.
 - [x] Update `ScreeningPanel.cs` button node paths; `dotnet build` 0 errors; full suite 514/13.
-- [ ] Verify in-game: symbol distribution, button sizing/positioning, evidence button above the box.
+- [x] Reserve evidence row slot (fixed 24px, always-visible) so the stat panel never shifts.
+- [ ] Verify in-game: symbol distribution, button sizing/positioning, evidence button above the box, no 1px shift on evidence popup.
 
 ### Files Modified
 - `scripts/ui/components/StatSummaryPanel.cs`

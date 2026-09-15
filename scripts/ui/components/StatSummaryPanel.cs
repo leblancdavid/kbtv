@@ -23,6 +23,7 @@ namespace KBTV.UI.Components
         private HBoxContainer _statsContainer = null!;
         private Label _noDataLabel = null!;
         private Button _evidenceFoundButton = null!;
+        private Label _evidenceLabel = null!;
         private HBoxContainer _evidenceContainer = null!;
         
         // State
@@ -44,27 +45,34 @@ namespace KBTV.UI.Components
             rootColumn.SizeFlagsVertical = SizeFlags.ShrinkBegin;
             AddChild(rootColumn);
 
-            // Evidence container (label + button) - sits above the stat box, centered
-            _evidenceContainer = new HBoxContainer();
+            // Evidence container (label + button) - sits above the stat box, centered.
+            // Always occupies a fixed slot so the stat panel does not shift when
+            // evidence appears; only the label/button visibility is toggled.
+            _evidenceContainer = new HBoxContainer
+            {
+                CustomMinimumSize = new Vector2(0, 24),
+                MouseFilter = Control.MouseFilterEnum.Ignore
+            };
             _evidenceContainer.AddThemeConstantOverride("separation", 6);
             _evidenceContainer.Alignment = BoxContainer.AlignmentMode.Center;
-            _evidenceContainer.Visible = false;
             rootColumn.AddChild(_evidenceContainer);
 
             // Evidence Found label
-            var evidenceLabel = new Label
+            _evidenceLabel = new Label
             {
-                Text = "Evidence Found: "
+                Text = "Evidence Found: ",
+                Visible = false
             };
-            evidenceLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
-            evidenceLabel.AddThemeFontSizeOverride("font_size", 12);
-            _evidenceContainer.AddChild(evidenceLabel);
+            _evidenceLabel.AddThemeColorOverride("font_color", UIColors.TEXT_SECONDARY);
+            _evidenceLabel.AddThemeFontSizeOverride("font_size", 12);
+            _evidenceContainer.AddChild(_evidenceLabel);
 
             // Evidence Found button
             _evidenceFoundButton = new Button
             {
                 Text = "[EXAMINE]",
-                CustomMinimumSize = new Vector2(88, 18)
+                CustomMinimumSize = new Vector2(88, 18),
+                Visible = false
             };
             _evidenceFoundButton.AddThemeFontSizeOverride("font_size", 12);
             _evidenceFoundButton.Pressed += OnEvidenceFoundPressed;
@@ -179,11 +187,15 @@ namespace KBTV.UI.Components
         /// </summary>
         public void UpdateEvidenceButton(bool evidenceAvailable)
         {
-            if (_evidenceContainer == null || !GodotObject.IsInstanceValid(_evidenceContainer))
+            if (_evidenceContainer == null || _evidenceLabel == null ||
+                _evidenceFoundButton == null || !GodotObject.IsInstanceValid(_evidenceContainer))
                 return;
 
             _evidenceAvailable = evidenceAvailable;
-            _evidenceContainer.Visible = evidenceAvailable;
+            // The container always keeps its slot; toggle the visible parts so
+            // the stat panel below does not shift.
+            _evidenceLabel.Visible = evidenceAvailable;
+            _evidenceFoundButton.Visible = evidenceAvailable;
             if (evidenceAvailable)
             {
                 _evidenceFoundButton.Disabled = false;
