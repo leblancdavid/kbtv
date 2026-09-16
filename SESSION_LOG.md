@@ -1,13 +1,14 @@
 ## Current Session
 
 **Branch**: develop
-**Task**: Implement Vern animation pass 1 and permanent coffee/smoking props. **Status: In Progress**
+**Task**: Wire Vern's 3D animations to the broadcast speaker state — `VernAnimationController` + integration tests. **Status: Completed — build green, suites pass, full-suite failures are pre-existing**
 
-- User approved production of the saved animation handoff.
-- Work Done: inspected existing rig/export/runtime; Blender 5.2.1 available.
-- Files Modified: `SESSION_LOG.md`; prior planning documentation changes retained.
-- Next Steps: fresh baseline; generate clips/props and contact metadata; integrate playback/events; import, test and visually review.
-- Related Docs: `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`.
+- Implemented `scripts/world3d/props/VernAnimationController.cs` (ns `KBTV.World3D`), added as child node of `Vern.tscn`; `VernCharacter3D.AnimPlayer`/`FindAnimPlayer` added.
+- Controller subscribes to `BroadcastItemStartedEvent` (VernLine/DeadAir → talking; CallerLine → random idle behavior + 2s pre-speak idle; else idle_breathing) and `BroadcastEvent` (`Interrupted` only → reset timers, idle_breathing). Bounded, `_Process`-driven EventBus retry (max 10 frames) so the pre-existing `VernCharacterIntegrationTests` no longer crashes (`seated_rest` stays paused when no EventBus). Diagnostics seam: `DiagnosticAnimation`/`DiagnosticPreSpeakIdle`.
+- Added `tests/integration/VernAnimationControllerTests.cs` (5 tests, poll-based to survive EventBus deferred delivery — tree-less EventBus `_mainThreadId==0` → defer via message queue): `PublishVernLine_SwitchesToTalkingAnimation`, `PublishCallerLine_LeavesTalkingForAnIdleBehavior`, `PublishMusic_ReturnsToIdleBreathing`, `CallerLine_ReturnsToIdleBeforeLineEnd`, `InterruptedLine_ReturnsToIdle`.
+- Verification: `dotnet build` 0 errors. `run-tests.ps1 -Filter VernAnimationControllerTests` → 5/0; `-Filter VernCharacterIntegrationTests` → 1/0 (was fatal 0xC0000005 before bounded retry). Full suite → 494 passed / 14 failed — all 14 confirmed pre-existing by re-running each failing suite in isolation (LoadingScreen 2, GameStateManager 1, AudioDialoguePlayer 3, BroadcastStateManager 1, TranscriptManager 2, + remainder; none touch Vern/DI EventBus).
+- Next Steps: in-editor visual pass (talking/idle/smoking/drink anims against real broadcast); import real animation clips per `docs/art/VERN_3D_MODEL_BRIEF.md`.
+- Related Docs: `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `docs/testing/TESTING.md`.
 - Blockers: none.
 
 ---

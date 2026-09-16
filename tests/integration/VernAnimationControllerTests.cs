@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Chickensoft.GoDotTest;
@@ -30,6 +31,7 @@ public class VernAnimationControllerTests : KBTVTestClass
 	public void BeforeEach()
 	{
 		// ServiceProviderRoot registers this in the running game; tests provide their own.
+		// Note: it is not added to the tree, so Publish defers delivery to the message queue.
 		_eventBus = new EventBus();
 		DependencyInjection.Register<EventBus>(_ => _eventBus);
 		_vern = null;
@@ -42,30 +44,39 @@ public class VernAnimationControllerTests : KBTVTestClass
 		await SetupVernAsync();
 		PublishItem(BroadcastItemType.VernLine, audioLength: 3.0f);
 
-		AssertThat(Unqualified(_player!.AssignedAnimation.ToString()) == TalkingAnimation,
-			$"Expected {TalkingAnimation}, got {_player.AssignedAnimation}.");
+		AssertThat(await WaitForAnimationAsync(TalkingAnimation),
+			$"VernLine should play {TalkingAnimation}, got {CurrentAnimation()}.");
 	}
 
 	[Test]
-	public async Task PublishCallerLine_PlaysAnIdleBehavior()
+	public async Task PublishCallerLine_LeavesTalkingForAnIdleBehavior()
 	{
 		await SetupVernAsync();
+		PublishItem(BroadcastItemType.VernLine, audioLength: 3.0f);
+		AssertThat(await WaitForAnimationAsync(TalkingAnimation),
+			$"VernLine should play {TalkingAnimation} first.");
+
+		// Long line so the 2s pre-speak idle does not interfere.
 		PublishItem(BroadcastItemType.CallerLine, audioLength: 30.0f);
 
-		var animation = Unqualified(_player!.AssignedAnimation.ToString());
-		AssertThat(_idleBehaviors.Contains(animation),
-			$"Expected one of [{string.Join(", ", _idleBehaviors)}], got {animation}.");
-		AssertThat(animation != TalkingAnimation, "Vern must not talk while the caller speaks.");
+		AssertThat(await WaitUntilAsync(() => _idleBehaviors.Contains(CurrentAnimation())),
+			$"CallerLine should play an idle behavior, got {CurrentAnimation()}.");
+		AssertThat(CurrentAnimation() != TalkingAnimation,
+			$"Vern must not talk while the caller speaks, got {CurrentAnimation()}.");
 	}
 
 	[Test]
-	public async Task PublishMusic_PlaysIdleBreathing()
+	public async Task PublishMusic_ReturnsToIdleBreathing()
 	{
 		await SetupVernAsync();
+		PublishItem(BroadcastItemType.VernLine, audioLength: 3.0f);
+		AssertThat(await WaitForAnimationAsync(TalkingAnimation),
+			$"VernLine should play {TalkingAnimation} first.");
+
 		PublishItem(BroadcastItemType.Music, audioLength: 5.0f);
 
-		AssertThat(Unqualified(_player!.AssignedAnimation.ToString()) == IdleBreathingAnimation,
-			$"Expected {IdleBreathingAnimation}, got {_player.AssignedAnimation}.");
+		AssertThat(await WaitForAnimationAsync(IdleBreathingAnimation),
+			$"Music should return Vern to {IdleBreathingAnimation}, got {CurrentAnimation()}.");
 	}
 
 	[Test]
@@ -73,32 +84,56 @@ public class VernAnimationControllerTests : KBTVTestClass
 	{
 		await SetupVernAsync();
 
-		// 3s line -> pre-speak idle scheduled 2s before the end (at 1s).
-		PublishItem(BroadcastItemType.CallerLine, audioLength: 3.0f);
+		// 2.5s line -> pre-speak idle 2s before the end (at 0.5s), well before any
+		// behavior switch timer (>= 2s) could fire. Waiting on the lock itself makes
+		// the test deterministic regardless of the random first behavior.
+		PublishItem(BroadcastItemType.CallerLine, audioLength: 2.5f);
 
-		AssertThat(await WaitForAnimationAsync(IdleBreathingAnimation),
-			$"Vern should be idle by the pre-speak moment.");
+		AssertThat(await WaitUntilAsync(() => Controller().DiagnosticPreSpeakIdle),
+			"The pre-speak idle lock should engage while the caller speaks.");
+		AssertThat(CurrentAnimation() == IdleBreathingAnimation,
+			$"Vern should be idle the moment the lock engages, got {CurrentAnimation()}.");
 
-		// Even if the first random pick was smoking/drinking, the behavior timer
-		// could have switched for up to 6s; the pre-speak idle lock prevents that,
-		// so Vern must stay breathing through the line end.
-		await _testScene.ToSignal(_testScene.GetTree(), SceneTree.SignalName.ProcessFrame);
-		await _testScene.ToSignal(_testScene.GetTree(), SceneTree.SignalName.ProcessFrame);
-		AssertThat(Unqualified(_player!.AssignedAnimation.ToString()) == IdleBreathingAnimation,
-			"Vern must remain idle breathing while the caller finishes.");
+		// Let the line elapse. The pre-speak lock must keep Vern idle past the end.
+		await WaitSecondsAsync(2.6f);
+		AssertThat(CurrentAnimation() == IdleBreathingAnimation,
+			$"Vern must stay idle breathing through the line end, got {CurrentAnimation()}.");
+		AssertThat(Controller().DiagnosticPreSpeakIdle,
+			"The pre-speak idle lock should stay engaged until a new broadcast item.");
 	}
 
 	[Test]
 	public async Task InterruptedLine_ReturnsToIdle()
 	{
 		await SetupVernAsync();
-		PublishItem(BroadcastItemType.CallerLine, audioLength: 30.0f);
-		await _testScene.ToSignal(_testScene.GetTree(), SceneTree.SignalName.ProcessFrame);
+
+		// Get a CallerLine running and its pre-speak lock engaged.
+		PublishItem(BroadcastItemType.CallerLine, audioLength: 2.5f);
+		AssertThat(await WaitUntilAsync(() => Controller().DiagnosticPreSpeakIdle),
+			"The pre-speak idle lock should engage while the caller speaks.");
 
 		_eventBus!.Publish(new BroadcastEvent(BroadcastEventType.Interrupted, "int-1"));
 
-		AssertThat(Unqualified(_player!.AssignedAnimation.ToString()) == IdleBreathingAnimation,
-			$"Expected {IdleBreathingAnimation} after interruption, got {_player.AssignedAnimation}.");
+		AssertThat(await WaitUntilAsync(() => !Controller().DiagnosticPreSpeakIdle),
+			"Interruption should release the pre-speak idle lock.");
+		AssertThat(await WaitForAnimationAsync(IdleBreathingAnimation),
+			$"Interruption should return Vern to {IdleBreathingAnimation}, got {CurrentAnimation()}.");
+	}
+
+	private string CurrentAnimation()
+		=> Unqualified(_player?.AssignedAnimation.ToString());
+
+	private VernAnimationController Controller()
+		=> _vern!.GetNode<VernAnimationController>("VernAnimationController");
+
+	private string Unqualified(string? animationName)
+	{
+		if (string.IsNullOrEmpty(animationName))
+		{
+			return "";
+		}
+		var lastSlash = animationName.LastIndexOf('/');
+		return lastSlash >= 0 ? animationName.Substring(lastSlash + 1) : animationName;
 	}
 
 	private async Task SetupVernAsync()
@@ -113,7 +148,7 @@ public class VernAnimationControllerTests : KBTVTestClass
 		// Let the controller's deferred Initialize resolve and subscribe.
 		for (var i = 0; i < 3; i++)
 		{
-			await _testScene.ToSignal(_testScene.GetTree(), SceneTree.SignalName.ProcessFrame);
+			await FrameAsync();
 		}
 		_player = _vern.FindChildren("*", "AnimationPlayer", true, false)
 			.Cast<AnimationPlayer>()
@@ -126,26 +161,25 @@ public class VernAnimationControllerTests : KBTVTestClass
 		_eventBus!.Publish(new BroadcastItemStartedEvent(item, 4.0f, audioLength));
 	}
 
-	private async Task<bool> WaitForAnimationAsync(string unqualifiedName, int maxFrames = 300)
+	private async Task WaitSecondsAsync(float seconds)
+		=> await _testScene.ToSignal(_testScene.GetTree().CreateTimer(seconds), SceneTreeTimer.SignalName.Timeout);
+
+	private async Task FrameAsync()
+		=> await _testScene.ToSignal(_testScene.GetTree(), SceneTree.SignalName.ProcessFrame);
+
+	private async Task<bool> WaitForAnimationAsync(string unqualifiedName, int maxFrames = 480)
+		=> await WaitUntilAsync(() => CurrentAnimation() == unqualifiedName, maxFrames);
+
+	private async Task<bool> WaitUntilAsync(Func<bool> predicate, int maxFrames = 480)
 	{
 		for (var i = 0; i < maxFrames; i++)
 		{
-			if (Unqualified(_player!.AssignedAnimation.ToString()) == unqualifiedName)
+			if (predicate())
 			{
 				return true;
 			}
-			await _testScene.ToSignal(_testScene.GetTree(), SceneTree.SignalName.ProcessFrame);
+			await FrameAsync();
 		}
 		return false;
-	}
-
-	private static string Unqualified(string? animationName)
-	{
-		if (string.IsNullOrEmpty(animationName))
-		{
-			return "";
-		}
-		var lastSlash = animationName.LastIndexOf('/');
-		return lastSlash >= 0 ? animationName.Substring(lastSlash + 1) : animationName;
 	}
 }

@@ -56,14 +56,33 @@ public partial class VernAnimationController : Node
 	private bool _preSpeakIdle;
 	private bool _subscribed;
 
+	// Bounded EventBus resolution: the registry is populated by ServiceProviderRoot in
+	// the game scene, but tests instantiate Vern.tscn without it. Retry a few frames
+	// via _Process (never a re-entrant deferred loop), then give up gracefully.
+	private int _resolveAttempts;
+	private const int MaxResolveAttempts = 10;
+
 	// SceneTreeTimers cannot be cancelled, so a monotonically increasing
 	// generation invalidates callbacks scheduled before a state change.
 	private ulong _timerGeneration;
 
+	/// <summary>Diagnostics seam: the (unqualified) animation currently assigned to the player.</summary>
+	public string DiagnosticAnimation => _animPlayer?.AssignedAnimation.ToString() ?? "";
+
+	/// <summary>Diagnostics seam: true while Vern is locked idle for the end of the caller's line.</summary>
+	public bool DiagnosticPreSpeakIdle => _preSpeakIdle;
+
 	public override void _Ready()
 	{
 		// Parent's _Ready (which caches AnimPlayer) runs after children, so defer.
+		// Processing stays off unless EventBus resolution needs retrying.
+		SetProcess(false);
 		CallDeferred(nameof(Initialize));
+	}
+
+	public override void _Process(double delta)
+	{
+		RetryResolveServices();
 	}
 
 	public override void _ExitTree()
@@ -79,32 +98,32 @@ public partial class VernAnimationController : Node
 			_animPlayer = vern.AnimPlayer;
 		}
 		_animPlayer ??= FindAnimPlayer(this);
+		RetryResolveServices();
+	}
 
+	private void RetryResolveServices()
+	{
+		if (_eventBus != null)
+		{
+			SetProcess(false);
+			return;
+		}
+		if (_resolveAttempts >= MaxResolveAttempts)
+		{
+			SetProcess(false);
+			return;
+		}
+		_resolveAttempts++;
 		if (DependencyInjection.TryGet(this, out EventBus eventBus))
 		{
 			_eventBus = eventBus;
 			Subscribe();
 			PlayLooping(AnimIdleBreathing);
-		}
-		else
-		{
-			CallDeferred(nameof(RetryResolveServices));
-		}
-	}
-
-	private void RetryResolveServices()
-	{
-		if (_eventBus == null && DependencyInjection.TryGet(this, out EventBus eventBus))
-		{
-			_eventBus = eventBus;
-			Subscribe();
-			PlayLooping(AnimIdleBreathing);
+			SetProcess(false);
 			return;
 		}
-		if (_eventBus == null)
-		{
-			CallDeferred(nameof(RetryResolveServices));
-		}
+		// Try again next frame; if the registry is empty the cap stops it quickly.
+		SetProcess(true);
 	}
 
 	private void Subscribe()
