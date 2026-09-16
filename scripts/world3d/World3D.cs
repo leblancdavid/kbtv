@@ -483,12 +483,13 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 		_player?.SetMovementLocked(true);
 
 		var screenPos = _computerTerminal.ScreenCenter;
+		var screenBasis = _computerTerminal.GlobalTransform.Basis;
 		var viewportSize = GetViewport()?.GetVisibleRect().Size ?? new Vector2(1280f, 720f);
 		var aspect = viewportSize.X / Mathf.Max(1f, viewportSize.Y);
 		_terminalCameraSize = TerminalFramingWidth / (2f * aspect);
-		_terminalCameraPos = screenPos + new Vector3(0.09f, 0.12f, 1.42f);
+		_terminalCameraPos = screenPos + screenBasis * new Vector3(0.09f, 0.12f, 1.42f);
 
-		var lookTarget = screenPos + new Vector3(-0.02f, -0.08f, 0f);
+		var lookTarget = screenPos + screenBasis * new Vector3(-0.02f, -0.08f, 0f);
 		var transform = new Transform3D(Basis.Identity, _terminalCameraPos).LookingAt(lookTarget, Vector3.Up);
 		_terminalCameraBasis = transform.Basis;
 

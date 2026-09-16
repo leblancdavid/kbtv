@@ -19,9 +19,13 @@ public partial class ComputerTerminal3D : Node3D
 
 	public Vector3 ScreenCenter => ScreenMesh.GlobalPosition;
 
-	private const float ScreenZOffset = 0.105f;
-	private const float ScreenCenterY = 0.385f;
+	public const float ScreenZOffset = 0.105f;
+	public const float ScreenCenterY = 0.385f;
 	private const float ScreenLightZOffset = 0.24f;
+
+	/// <summary>CRT screen centre in the computer model's local space (tuned so the
+	/// projected UI sits exactly on the phosphor surface).</summary>
+	public static readonly Vector3 ModelScreenCenterOffset = new(0f, 0.335f, -0.105f);
 
 private static readonly Color ScreenOffColor = new(0.02f, 0.03f, 0.04f);
 

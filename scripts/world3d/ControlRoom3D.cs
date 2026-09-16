@@ -28,12 +28,9 @@ public partial class ControlRoom3D : Node3D
 		CreateColliders();
 		ComputerGlb = GetNode<Node3D>("Computer");
 		ComputerTerminal3D.ConfigureGlassMaterial(ComputerGlb);
-		ComputerTerminal = new ComputerTerminal3D
-		{
-			Name = "ComputerTerminal",
-			Position = new Vector3(1.55f, 0.85f, -3.55f)
-		};
+		ComputerTerminal = new ComputerTerminal3D { Name = "ComputerTerminal" };
 		AddChild(ComputerTerminal);
+		AlignComputerTerminal();
 
 		SoundBoard3D = new Soundboard3D
 		{
@@ -47,6 +44,22 @@ public partial class ControlRoom3D : Node3D
 	public void SetComputerCollidersEnabled(bool enabled)
 	{
 		ToggleColliders(ComputerGlb, enabled);
+	}
+
+	/// <summary>Keeps the invisible projection plane centred on and flush with the
+	/// CRT's phosphor surface. The helper is flipped 180° against the model's own
+	/// rotation so its plane front always faces the player while matching the
+	/// model's yaw (so the projected UI sits flat on the real screen).</summary>
+	private void AlignComputerTerminal()
+	{
+		var glb = ComputerGlb.GlobalTransform;
+		var planeCenterWorld = glb * ComputerTerminal3D.ModelScreenCenterOffset;
+		var planeBasis = new Basis(Vector3.Up, Mathf.Pi) * glb.Basis;
+		var planeLocalOffset = new Vector3(
+			0f, ComputerTerminal3D.ScreenCenterY, ComputerTerminal3D.ScreenZOffset);
+		ComputerTerminal.GlobalTransform = new Transform3D(
+			planeBasis,
+			planeCenterWorld - planeBasis * planeLocalOffset);
 	}
 
 	private static void ToggleColliders(Node node, bool enabled)
