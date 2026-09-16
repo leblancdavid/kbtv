@@ -26,7 +26,8 @@ namespace KBTV.Audio
     /// <summary>
     /// Final bus/effect parameter settings computed from a knob state, ready to
     /// be pushed into the audio engine. All values are clamped so the effects
-    /// never go fully silent or DC.
+    /// never go fully silent or DC. Neutral-equivalent (all dB fields 0, muffle
+    /// cutoffs transparent) means "preset audio, unchanged by the board".
     /// </summary>
     public readonly struct SoundboardEffectSettings
     {
@@ -34,28 +35,49 @@ namespace KBTV.Audio
         public readonly float CallerHighPassHz;
         public readonly float CallerDrive;
         public readonly float CallerAmplifyDb;
+        public readonly float CallerMuffleHz;
         public readonly float VernGainDb;
+        public readonly float VernMuffleHz;
         public readonly float AdsGainDb;
+        public readonly float AdsMuffleHz;
+        public readonly float CallerLevelDb;
+        public readonly float VernLevelDb;
+        public readonly float AdsLevelDb;
         public readonly float MusicFaderDb;
         public readonly float MasterFaderDb;
 
         public SoundboardEffectSettings(
             float callerLowPassHz, float callerHighPassHz, float callerDrive,
-            float callerAmplifyDb, float vernGainDb, float adsGainDb,
+            float callerAmplifyDb, float callerMuffleHz,
+            float vernGainDb, float vernMuffleHz,
+            float adsGainDb, float adsMuffleHz,
+            float callerLevelDb, float vernLevelDb, float adsLevelDb,
             float musicFaderDb, float masterFaderDb)
         {
             CallerLowPassHz = callerLowPassHz;
             CallerHighPassHz = callerHighPassHz;
             CallerDrive = callerDrive;
             CallerAmplifyDb = callerAmplifyDb;
+            CallerMuffleHz = callerMuffleHz;
             VernGainDb = vernGainDb;
+            VernMuffleHz = vernMuffleHz;
             AdsGainDb = adsGainDb;
+            AdsMuffleHz = adsMuffleHz;
+            CallerLevelDb = callerLevelDb;
+            VernLevelDb = vernLevelDb;
+            AdsLevelDb = adsLevelDb;
             MusicFaderDb = musicFaderDb;
             MasterFaderDb = masterFaderDb;
         }
 
         public static readonly SoundboardEffectSettings Neutral =
-            new SoundboardEffectSettings(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f);
+            new SoundboardEffectSettings(
+                callerLowPassHz: 0f, callerHighPassHz: 0f, callerDrive: 0f,
+                callerAmplifyDb: 0f, callerMuffleHz: 0f,
+                vernGainDb: 0f, vernMuffleHz: 0f,
+                adsGainDb: 0f, adsMuffleHz: 0f,
+                callerLevelDb: 0f, vernLevelDb: 0f, adsLevelDb: 0f,
+                musicFaderDb: 0f, masterFaderDb: 0f);
     }
 
     /// <summary>
@@ -77,16 +99,38 @@ namespace KBTV.Audio
         public const float CallerDriveSpan = 0.15f;
         public const float CallerDriveMin = 0.05f;
         public const float CallerDriveMax = 0.8f;
-        public const float CallerAmplifyBaseDb = 8f;
-        public const float CallerAmplifySpanDb = 6f;
+
+        // Caller gain knob boosts tape growl + presence; the neutral preset amp is
+        // 0 dB and gain sweeps 0..+10 dB (never negative — quiet = muffled, not cut).
+        public const float CallerAmplifySpanDb = 10f;
         public const float CallerAmplifyMinDb = 0f;
-        public const float CallerAmplifyMaxDb = 14f;
+        public const float CallerAmplifyMaxDb = 10f;
+
+        // Low end of the gain knobs sweeps the muffle low-pass down to a dull rumble
+        // rather than cutting the channel.
+        public const float MuffleTransparentHz = 20000f;
+        public const float MuffleMuffledHz = 500f;
+
+        // Vern/Ads gain knobs only *boost* their bus (+0..8 dB); pulling down the
+        // knob muffles the channel via its muffle filter instead of attenuating it.
         public const float VernGainSpanDb = 8f;
-        public const float VernGainMinDb = -12f;
-        public const float VernGainMaxDb = 12f;
+        public const float VernGainMinDb = 0f;
+        public const float VernGainMaxDb = 8f;
         public const float AdsGainSpanDb = 8f;
-        public const float AdsGainMinDb = -24f;
-        public const float AdsGainMaxDb = 12f;
+        public const float AdsGainMinDb = 0f;
+        public const float AdsGainMaxDb = 8f;
+
+        // Per-channel output level faders move the whole bus strip around neutral.
+        public const float CallerLevelSpanDb = 8f;
+        public const float CallerLevelMinDb = -24f;
+        public const float CallerLevelMaxDb = 8f;
+        public const float VernLevelSpanDb = 8f;
+        public const float VernLevelMinDb = -24f;
+        public const float VernLevelMaxDb = 8f;
+        public const float AdsLevelSpanDb = 8f;
+        public const float AdsLevelMinDb = -24f;
+        public const float AdsLevelMaxDb = 8f;
+
         public const float MusicFaderSpanDb = 8f;
         public const float MusicFaderMinDb = -24f;
         public const float MusicFaderMaxDb = 8f;
@@ -121,6 +165,12 @@ namespace KBTV.Audio
         }
 
         /// <summary>
+        /// Muffle depth (0 = transparent, 1 = fully muffled) for a gain-knob delta
+        /// pulled below neutral.
+        /// </summary>
+        private static float MuffleDepth(float gainDelta) => Mathf.Max(-gainDelta, 0f);
+
+        /// <summary>
         /// Pure knob->effect mapping: each target = equipment preset value + knob
         /// delta, fully clamped. Unit-testable without an AudioServer.
         /// </summary>
@@ -137,7 +187,17 @@ namespace KBTV.Audio
             float gainDelta = SoundboardKnobState.NormalizedDelta(state.CallerGain);
             float vernDelta = SoundboardKnobState.NormalizedDelta(state.VernGain);
             float adsDelta = SoundboardKnobState.NormalizedDelta(state.AdsGain);
+            float callerLevelDelta = SoundboardKnobState.NormalizedDelta(state.CallerLevel);
+            float vernLevelDelta = SoundboardKnobState.NormalizedDelta(state.VernLevel);
+            float adsLevelDelta = SoundboardKnobState.NormalizedDelta(state.AdsLevel);
             float faderDelta = SoundboardKnobState.NormalizedDelta(state.Fader);
+
+            float callerMuffleHz = Mathf.Lerp(MuffleTransparentHz, MuffleMuffledHz,
+                MuffleDepth(gainDelta));
+            float vernMuffleHz = Mathf.Lerp(MuffleTransparentHz, MuffleMuffledHz,
+                MuffleDepth(vernDelta));
+            float adsMuffleHz = Mathf.Lerp(MuffleTransparentHz, MuffleMuffledHz,
+                MuffleDepth(adsDelta));
 
             return new SoundboardEffectSettings(
                 Mathf.Clamp(preset.LowPassHz + lowPassDelta * CallerLowPassSpanHz,
@@ -146,10 +206,21 @@ namespace KBTV.Audio
                     CallerHighPassMinHz, CallerHighPassMaxHz),
                 Mathf.Clamp(preset.Distortion + gainDelta * CallerDriveSpan,
                     CallerDriveMin, CallerDriveMax),
-                Mathf.Clamp(CallerAmplifyBaseDb + gainDelta * CallerAmplifySpanDb,
+                Mathf.Clamp(Mathf.Max(gainDelta, 0f) * CallerAmplifySpanDb,
                     CallerAmplifyMinDb, CallerAmplifyMaxDb),
-                Mathf.Clamp(vernDelta * VernGainSpanDb, VernGainMinDb, VernGainMaxDb),
-                Mathf.Clamp(adsDelta * AdsGainSpanDb, AdsGainMinDb, AdsGainMaxDb),
+                callerMuffleHz,
+                Mathf.Clamp(Mathf.Max(vernDelta, 0f) * VernGainSpanDb,
+                    VernGainMinDb, VernGainMaxDb),
+                vernMuffleHz,
+                Mathf.Clamp(Mathf.Max(adsDelta, 0f) * AdsGainSpanDb,
+                    AdsGainMinDb, AdsGainMaxDb),
+                adsMuffleHz,
+                Mathf.Clamp(callerLevelDelta * CallerLevelSpanDb,
+                    CallerLevelMinDb, CallerLevelMaxDb),
+                Mathf.Clamp(vernLevelDelta * VernLevelSpanDb,
+                    VernLevelMinDb, VernLevelMaxDb),
+                Mathf.Clamp(adsLevelDelta * AdsLevelSpanDb,
+                    AdsLevelMinDb, AdsLevelMaxDb),
                 Mathf.Clamp(faderDelta * MusicFaderSpanDb, MusicFaderMinDb, MusicFaderMaxDb),
                 Mathf.Clamp(faderDelta * MasterFaderSpanDb, MasterFaderMinDb, MasterFaderMaxDb));
         }

@@ -33,21 +33,32 @@ namespace KBTV.World3D
         /// <summary>Full knob swing in degrees (each control turns ±45° around rest).</summary>
         public const float KnobTurnDeg = 90f;
 
+        /// <summary>
+        /// Fixed knob rotation offset so the index pointer sits pointing up at rest.
+        /// Authoring places the pointer toward +Y (front/camera); the gain-knob row
+        /// and the yaw-180 board instance flip that reading, so the pointers are
+        /// rotated 180° to face the camera (up on screen) at rest.
+        /// </summary>
+        public const float KnobRestOffsetDeg = 180f;
+
         /// <summary>Board-local Z of a fader cap at rest (authoring y 0.12 → glTF z -0.12).</summary>
         public const float FaderRestLocalZ = -0.12f;
 
         /// <summary>Per-channel lamps driven as status LEDs; the master channel reuses the last lamp.</summary>
-        public static readonly string[] IdleLamps = { "Lamp_3", "Lamp_4", "Lamp_5", "Lamp_6" };
+        public static readonly string[] IdleLamps = { "Lamp_0", "Lamp_1", "Lamp_2", "Lamp_4" };
 
         /// <summary>One entry per mixer control: GLB part to drive + its channel lamp.</summary>
         public static readonly SoundboardSlot[] Slots =
         {
-            new(SoundboardControl.CallerGain, "FaderCap_0", ControlKind.Fader, "Lamp_0"),
-            new(SoundboardControl.CallerLowPass, "Knob_0_0", ControlKind.Knob, "Lamp_0"),
-            new(SoundboardControl.CallerHighPass, "Knob_0_1", ControlKind.Knob, "Lamp_0"),
-            new(SoundboardControl.VernGain, "FaderCap_1", ControlKind.Fader, "Lamp_1"),
-            new(SoundboardControl.AdsGain, "FaderCap_2", ControlKind.Fader, "Lamp_2"),
-            new(SoundboardControl.Master, "MasterKnob", ControlKind.Knob, "Lamp_7")
+            new(SoundboardControl.CallerGain, "Knob_6_2", ControlKind.Knob, "Lamp_6"),
+            new(SoundboardControl.CallerLowPass, "Knob_6_0", ControlKind.Knob, "Lamp_6"),
+            new(SoundboardControl.CallerHighPass, "Knob_6_1", ControlKind.Knob, "Lamp_6"),
+            new(SoundboardControl.CallerLevel, "FaderCap_6", ControlKind.Fader, "Lamp_6"),
+            new(SoundboardControl.VernGain, "Knob_7_2", ControlKind.Knob, "Lamp_7"),
+            new(SoundboardControl.VernLevel, "FaderCap_7", ControlKind.Fader, "Lamp_7"),
+            new(SoundboardControl.AdsGain, "Knob_5_2", ControlKind.Knob, "Lamp_5"),
+            new(SoundboardControl.AdsLevel, "FaderCap_5", ControlKind.Fader, "Lamp_5"),
+            new(SoundboardControl.Master, "MasterKnob", ControlKind.Knob, "Lamp_3")
         };
 
         public static SoundboardSlot SlotFor(SoundboardControl control)
@@ -66,6 +77,7 @@ namespace KBTV.World3D
         public static float FaderLocalZ(float value) => (value - 0.5f) * 2f * FaderTravel + FaderRestLocalZ;
 
         /// <summary>Knob rotation in degrees for a normalized value (full swing around rest).</summary>
-        public static float KnobRotationDeg(float value) => (value - 0.5f) * 2f * KnobTurnDeg;
+        public static float KnobRotationDeg(float value) =>
+            (value - 0.5f) * 2f * KnobTurnDeg + KnobRestOffsetDeg;
     }
 }

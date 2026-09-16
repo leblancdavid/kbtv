@@ -467,10 +467,18 @@ private void ApplyVernEffects(int level)
             SetCallerHighPass(settings.CallerHighPassHz);
             SetCallerDistortion(settings.CallerDrive);
             SetCallerAmplify(settings.CallerAmplifyDb);
-            SetBusVolumeDb(_vernBusIndex, settings.VernGainDb);
+            SetCallerMuffle(settings.CallerMuffleHz);
 
-            // No dedicated Ads/Bumper bus yet - ADS gain uses the SFX bus as a placeholder.
-            SetBusVolumeDb(_sfxBusIndex, settings.AdsGainDb);
+            // Per-channel output fader sets the bus strip; the gain knob sits on
+            // top of it as a +0..8 dB boost (share the same bus volume).
+            SetBusVolumeDb(_callerBusIndex, settings.CallerLevelDb);
+            SetBusVolumeDb(_vernBusIndex, settings.VernLevelDb + settings.VernGainDb);
+            SetBusVolumeDb(_sfxBusIndex, settings.AdsLevelDb + settings.AdsGainDb);
+
+            // Gain knobs pulled low muffle their channel (rather than cutting it).
+            SetVernMuffle(settings.VernMuffleHz);
+            SetAdsMuffle(settings.AdsMuffleHz);
+
             SetBusVolumeDb(_musicBusIndex, settings.MusicFaderDb);
             SetBusVolumeDb(_masterBusIndex, settings.MasterFaderDb);
         }
@@ -531,6 +539,45 @@ private void ApplyVernEffects(int level)
             if (AudioServer.GetBusEffect(_callerBusIndex, _callerAmplifyIndex) is AudioEffectAmplify amplify)
             {
                 amplify.VolumeDb = volumeDb;
+            }
+        }
+
+        private void SetCallerMuffle(float cutoffHz)
+        {
+            if (_callerBusIndex < 0 || _callerMuffleLowPassIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_callerBusIndex, _callerMuffleLowPassIndex) is AudioEffectLowPassFilter lowPass)
+            {
+                lowPass.CutoffHz = cutoffHz;
+            }
+        }
+
+        private void SetVernMuffle(float cutoffHz)
+        {
+            if (_vernBusIndex < 0 || _vernMuffleLowPassIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_vernBusIndex, _vernMuffleLowPassIndex) is AudioEffectLowPassFilter lowPass)
+            {
+                lowPass.CutoffHz = cutoffHz;
+            }
+        }
+
+        private void SetAdsMuffle(float cutoffHz)
+        {
+            if (_sfxBusIndex < 0 || _sfxMuffleLowPassIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_sfxBusIndex, _sfxMuffleLowPassIndex) is AudioEffectLowPassFilter lowPass)
+            {
+                lowPass.CutoffHz = cutoffHz;
             }
         }
 

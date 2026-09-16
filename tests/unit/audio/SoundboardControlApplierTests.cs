@@ -19,6 +19,9 @@ namespace KBTV.Tests.Unit.Audio
             SoundboardControlApplier.Apply(state, SoundboardControl.CallerHighPass, 0.6f);
             SoundboardControlApplier.Apply(state, SoundboardControl.VernGain, 0.1f);
             SoundboardControlApplier.Apply(state, SoundboardControl.AdsGain, 0.8f);
+            SoundboardControlApplier.Apply(state, SoundboardControl.CallerLevel, 0.55f);
+            SoundboardControlApplier.Apply(state, SoundboardControl.VernLevel, 0.65f);
+            SoundboardControlApplier.Apply(state, SoundboardControl.AdsLevel, 0.45f);
             SoundboardControlApplier.Apply(state, SoundboardControl.Master, 0.25f);
 
             AssertThat(Mathf.IsEqualApprox(state.CallerGain, 0.9f));
@@ -26,6 +29,9 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(Mathf.IsEqualApprox(state.CallerHighPass, 0.6f));
             AssertThat(Mathf.IsEqualApprox(state.VernGain, 0.1f));
             AssertThat(Mathf.IsEqualApprox(state.AdsGain, 0.8f));
+            AssertThat(Mathf.IsEqualApprox(state.CallerLevel, 0.55f));
+            AssertThat(Mathf.IsEqualApprox(state.VernLevel, 0.65f));
+            AssertThat(Mathf.IsEqualApprox(state.AdsLevel, 0.45f));
             AssertThat(Mathf.IsEqualApprox(state.Fader, 0.25f));
         }
 
@@ -92,6 +98,9 @@ namespace KBTV.Tests.Unit.Audio
             state.CallerHighPass = 0.7f;
             state.VernGain = 0.2f;
             state.AdsGain = 0.9f;
+            state.CallerLevel = 0.75f;
+            state.VernLevel = 0.35f;
+            state.AdsLevel = 0.85f;
             state.Fader = 0.1f;
 
             AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.CallerGain), 0.7f));
@@ -99,6 +108,9 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.CallerHighPass), 0.7f));
             AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.VernGain), 0.2f));
             AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.AdsGain), 0.9f));
+            AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.CallerLevel), 0.75f));
+            AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.VernLevel), 0.35f));
+            AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.AdsLevel), 0.85f));
             AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.Master), 0.1f));
             AssertThat(Mathf.IsEqualApprox(
                 SoundboardControlApplier.CurrentValue(state, SoundboardControl.None), SoundboardKnobState.NeutralValue));

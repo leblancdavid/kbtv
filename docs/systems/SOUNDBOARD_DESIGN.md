@@ -184,28 +184,63 @@ pattern: fixed ortho camera → click-to-select → drag to adjust.
 
 ### Control Slots (`SoundboardPhysicalLayout.Slots`)
 
+Round 2 adds three per-channel output level faders and moves the caller gain up
+the column, giving **9 controls** driven by the GLB's real movables:
+
 | Control | GLB part | Drive | Channel lamp |
 |---------|----------|-------|--------------|
-| CallerGain | `FaderCap_0` | Fader | `Lamp_0` |
-| CallerLowPass | `Knob_0_0` | Knob | `Lamp_0` |
-| CallerHighPass | `Knob_0_1` | Knob | `Lamp_0` |
-| VernGain | `FaderCap_1` | Fader | `Lamp_1` |
-| AdsGain | `FaderCap_2` | Fader | `Lamp_2` |
-| Master | `MasterKnob` | Knob | `Lamp_7` |
+| CallerGain | `Knob_6_2` | Knob | `Lamp_6` |
+| CallerLowPass | `Knob_6_0` | Knob | `Lamp_6` |
+| CallerHighPass | `Knob_6_1` | Knob | `Lamp_6` |
+| CallerLevel | `FaderCap_6` | Fader | `Lamp_6` |
+| VernGain | `Knob_7_2` | Knob | `Lamp_7` |
+| VernLevel | `FaderCap_7` | Fader | `Lamp_7` |
+| AdsGain | `Knob_5_2` | Knob | `Lamp_5` |
+| AdsLevel | `FaderCap_5` | Fader | `Lamp_5` |
+| Master | `MasterKnob` | Knob | `Lamp_3` |
 
-Columns 4–8 and their lamps are cosmetic; `Lamp_3..Lamp_6` stay dim idle.
+Screen-bounded columns: **Caller** = column 6 (top gain knob + level fader +
+two filter knobs), **Vern** = column 7 (gain + level), **Ads/Bumper** = column
+5 (gain + level), **Master** = big centre knob. Columns 0–4 and 8 stay
+cosmetic; `IdleLamps = { Lamp_0, Lamp_1, Lamp_2, Lamp_4 }`.
 
 - Fader cap local Z: `FaderLocalZ(value) = (value - 0.5) * 2 * FaderTravel +
   FaderRestLocalZ` (`FaderTravel = 0.06`, `FaderRestLocalZ = -0.12`); value 0 is
   the front/bottom (`z = -0.18`), value 1 the back/top (`z = -0.06`).
-- Knob rotation: `KnobRotationDeg(value) = (value - 0.5) * 2 * KnobTurnDeg`
-  (`KnobTurnDeg = 90`, so ±45° around rest); the knob's child index follows.
+- Knob rotation: `KnobRotationDeg(value) = (value - 0.5) * 2 * KnobTurnDeg +
+  KnobRestOffsetDeg` (`KnobTurnDeg = 90`, `KnobRestOffsetDeg = 180`). The notch
+  points **up at rest** (180°), min = 135°, max = 225°; the knob's child index
+  follows.
 - Lamps are driven via per-lamp `MaterialOverride` emission (only while handles
-  are visible, once per frame): `Lamp_0` = caller worst band
+  are visible, once per frame): `Lamp_6` = caller worst band
   (`SoundboardTargetGenerator.GetWorstBand(SoundboardMonitor.CallerBands)`),
-  `Lamp_1` = Vern green, `Lamp_2` = Ads green while `AdManager.IsAdBreakActive`
-  else dim, `Lamp_7` = master worst band, `Lamp_3..Lamp_6` dim. The selected
-  control brightens its channel lamp.
+  `Lamp_7` = Vern steady green, `Lamp_5` = Ads green while
+  `AdManager.IsAdBreakActive` else dim, `Lamp_3` = Master steady green,
+  `Lamp_0/1/2/4` dim. The selected **and** hovered control brightens its
+  channel lamp.
+
+### Hover Affordance (Round 2)
+
+- `Soundboard3D.SetHover(SoundboardControl)` drives a single shared hover
+  quad + per-band color, recomputed every frame while handles are visible:
+  - **Halo**: one `MeshInstance3D` with a `QuadMesh` rotated `-90°` about X
+    (facing up), unshaded alpha `StandardMaterial3D` with
+    `NoDepthTest = true` and a radial `GradientTexture2D` (white centre →
+    transparent edge, `Fill = Radial`, `FillFrom (0.5,0.5)`, `FillTo (1,0.5)`).
+    Positioned `HaloLift (0.02)` above the part (`+Y`, board-local) and
+    `HaloTowardCameraZ (0.045)` toward the operator (`-Z`); hidden when hover =
+    `None`.
+  - **Color** = the control's live band: caller knobs use the caller bands,
+    everything else compares its current value to neutral
+    (`SoundboardTargetGenerator.GetControlBand`). Green `(0.3,1,0.55)`,
+    blue/cyan `(0.35,0.9,1.0)`, yellow `(1.0,0.85,0.2)`, red `(1.0,0.25,0.2)`.
+  - The hovered part's mesh gets a shared blue emissive `MaterialOverride`
+    (cleared on leave).
+- `World3D.PollSoundboardMouse()` now also **flips the fader drag sign** (drag
+  **up** increases, `deltaY = mouse Y − last Y`) and raycasts each frame for
+  hover: no control under the cursor → `SetHover(None)` (also forced when the
+  GUI is hovered, e.g. the drain-status label); while dragging, hover follows
+  `_boardSelected` so the halo tracks the active control.
 
 ### Interaction (World3D)
 
@@ -264,6 +299,16 @@ Columns 4–8 and their lamps are cosmetic; `Lamp_3..Lamp_6` stay dim idle.
 - `scripts/audio/AudioMixerManager.cs` - `ApplySoundboard`, re-apply in `UpdateAudioQuality`.
 - `scripts/callers/Caller.cs`, `scripts/callers/CallerGenerator.cs` - `SpeakingVolume`.
 
+**Round 2 (modified)**
+- `scripts/world3d/SoundboardPhysicalLayout.cs` - 9 controls (added gain knobs + level faders), `KnobRestOffsetDeg = 180f`, `IdleLamps`.
+- `scripts/world3d/Soundboard3D.cs` - `SetHover`, hover halo + per-band color, hovered-part emissive, `UpdateLeds` lamp remap, `IsLampHighlighted`.
+- `scripts/world3d/World3D.cs` - fader drag-sign flip (up = increase), per-frame hover raycast, `SetHover(None)` over GUI.
+- `scripts/audio/SoundboardKnobState.cs` - `CallerLevel`/`VernLevel`/`AdsLevel`, `NormalizedDelta`, 14-field `SoundboardEffectSettings`.
+- `scripts/audio/SoundboardControlApplier.cs` - `CallerLevel`/`VernLevel`/`AdsLevel`.
+- `scripts/audio/SoundboardMixerDriver.cs` - fully additive DSP (level faders, per-channel gain/muffle), `LevelMinDb/MaxDb`.
+- `scripts/audio/SoundboardTargetGenerator.cs` - `PerfectTolerance = 0.09f`, `GetControlBand`.
+- `scripts/audio/AudioMixerManager.cs` - muffle low-pass indices, per-channel level buses.
+
 **Tests**
 - `tests/unit/audio/SoundboardControlApplierTests.cs`
 - `tests/unit/audio/SoundboardTargetGeneratorTests.cs`
@@ -281,6 +326,32 @@ Columns 4–8 and their lamps are cosmetic; `Lamp_3..Lamp_6` stay dim idle.
   0.20–0.27 to shift the look-target up/down for the transcript overlay band);
   `SoundboardLookPivotHeight = 0.06f`, `SoundboardDragPixelsPerUnit = 220f`.
   Bottom-band framing shifts the look target down by `BottomBand × 2 × size`.
+- Soundboard DSP (round 2, `SoundboardMixerDriver` — fully additive, neutral =
+  equipment preset unchanged):
+  - CallerGain → `CallerAmplifySpanDb = 10` (amplify `max(gainΔ,0)·10` dB),
+    drive `clamp(preset.Distortion + gainΔ·0.15, 0.05, 0.8)`, muffle
+    `lerp(MuffleTransparentHz → MuffleMuffledHz, max(-gainΔ,0))` with
+    `MuffleTransparentHz = 20000`, `MuffleMuffledHz = 500`.
+  - CallerLowPass/CallerHighPass → additive `CutoffHz` on the caller bus.
+  - VernGain/AdsGain → `VernGainSpanDb = AdsGainSpanDb = 8` dB added on the
+    Vern/Sfx buses; each muffles below neutral.
+  - CallerLevel/VernLevel/AdsLevel → `{Channel}LevelSpanDb = 8`, min `-24`,
+    max `+8` dB, applied as `CallerLevelDb` (caller bus),
+    `VernLevelDb + VernGainDb` (Vern bus), `AdsLevelDb + AdsGainDb` (Sfx bus).
+  - Master (`Fader`) → `MasterFaderSpanDb = 4` over `MasterFaderMinDb = -12` /
+    `MasterFaderMaxDb = 4`, added into music + master buses.
+- Targets (`SoundboardTargetGenerator`): `PerfectTolerance = 0.09f`,
+  `AcceptableTolerance = 0.12f`; caller targets center on
+  `NeutralValue + SpeakingVolume jitter`; `GetControlBand(state, control,
+  speakingVolume)` returns the caller bands for caller knobs, otherwise the
+  value-vs-neutral band.
+- Hover halo (`Soundboard3D`): `HaloSize = 0.24` quad, `HaloLift = 0.02`,
+  `HaloTowardCameraZ = 0.045`; band colors Green `(0.3,1,0.55)` /
+  Blue `(0.35,0.9,1.0)` / Yellow `(1.0,0.85,0.2)` / Red `(1.0,0.25,0.2)`.
+- Full DSP when the engine's ipso bus values are in the air, or the in-editor
+  fit pass shows the notch/fader moving the wrong way: flip only
+  `World3D.cs` line 1094 (`deltaY = _boardLastDragScreenY - mousePosition.Y`
+  → `mousePosition.Y - _boardLastDragScreenY`), never the GLB geometry.
 - Audio indices/presets: `AudioMixerManager` `CallerPresets` L1..L4
   (low-pass 600/800/1200/2500 Hz), `AudioEffectsProcessor` `EffectPresets`
   (2000/3500/6000/10000). Knob deltas should keep L4 the floor/best.

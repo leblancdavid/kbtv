@@ -13,7 +13,7 @@ def _movable_names():
     for ch in range(8):
         names.append(f'FaderCap_{ch}')
         names.append(f'Lamp_{ch}')
-        for side in (0, 1):
+        for side in (0, 1, 2):
             names.append(f'Knob_{ch}_{side}')
             names.append(f'Index_{ch}_{side}')
     return tuple(names)
@@ -29,7 +29,7 @@ def build():
         box('Walnut cheek', (x, 0, 0.065), (0.045, 0.5, 0.13), p['wood'])
     for ch in range(8):
         x = -0.43 + ch * 0.105
-        for side, y in enumerate((-0.095, -0.025)):
+        for side, y in enumerate((-0.095, -0.025, 0.045)):
             knob = cylinder(f'Knob_{ch}_{side}', (x, y, 0.128), 0.018, 0.036, p['black'], vertices=12)
             index = box(f'Index_{ch}_{side}', (x, y + 0.009, 0.147), (0.004, 0.012, 0.003), p['cream'], 0)
             index.parent = knob

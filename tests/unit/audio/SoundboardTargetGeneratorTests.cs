@@ -39,6 +39,62 @@ namespace KBTV.Tests.Unit.Audio
         }
 
         [Test]
+        public void GetCallerBands_SlightlyOffTarget_StillGreenWithinTolerance()
+        {
+            var state = SoundboardKnobState.Neutral();
+            var targets = SoundboardTargetGenerator.GetCallerTargets(0.5f);
+            var within = targets.Gain + SoundboardTargetGenerator.PerfectTolerance * 0.5f;
+            state.CallerGain = within;
+
+            var bands = SoundboardTargetGenerator.GetCallerBands(state, 0.5f);
+
+            AssertThat(bands.Gain == SoundboardBand.Green);
+        }
+
+        [Test]
+        public void GetControlBand_CallerControls_DelegatesToCallerBands()
+        {
+            var state = SoundboardKnobState.Neutral();
+            state.CallerGain = 0f;
+            state.AdsLevel = 0.9f;
+
+            var expected = SoundboardTargetGenerator.GetCallerBands(state, 1.0f);
+            AssertThat(
+                SoundboardTargetGenerator.GetControlBand(state, SoundboardControl.CallerGain, 1.0f) == expected.Gain);
+            AssertThat(
+                SoundboardTargetGenerator.GetControlBand(state, SoundboardControl.CallerLowPass, 1.0f) == expected.LowPass);
+            AssertThat(
+                SoundboardTargetGenerator.GetControlBand(state, SoundboardControl.CallerHighPass, 1.0f) == expected.HighPass);
+        }
+
+        [Test]
+        public void GetControlBand_LevelsAndMaster_ScaleFromNeutral()
+        {
+            var state = SoundboardKnobState.Neutral();
+            state.VernLevel = 1f;
+            state.Fader = 0f;
+
+            AssertThat(
+                SoundboardTargetGenerator.GetControlBand(state, SoundboardControl.VernLevel, 0.5f) != SoundboardBand.Green);
+            AssertThat(
+                SoundboardTargetGenerator.GetControlBand(state, SoundboardControl.Master, 0.5f) != SoundboardBand.Green);
+            AssertThat(
+                SoundboardTargetGenerator.GetControlBand(state, SoundboardControl.None, 0.5f) == SoundboardBand.None);
+        }
+
+        [Test]
+        public void GetControlBand_NullState_ReturnsNone()
+        {
+            AssertThat(SoundboardTargetGenerator.GetControlBand(null!, SoundboardControl.Master, 0.5f) == SoundboardBand.None);
+        }
+
+        [Test]
+        public void PerfectTolerance_AllowsWiggleroom()
+        {
+            AssertThat(SoundboardTargetGenerator.PerfectTolerance == 0.09f);
+        }
+
+        [Test]
         public void GetBand_WayOutsideTarget_Red()
         {
             var band = SoundboardTargetGenerator.GetBand(0.1f, 0.5f);

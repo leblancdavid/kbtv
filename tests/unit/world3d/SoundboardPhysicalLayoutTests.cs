@@ -13,8 +13,11 @@ namespace KBTV.Tests.Unit.World3D
             SoundboardControl.CallerGain,
             SoundboardControl.CallerLowPass,
             SoundboardControl.CallerHighPass,
+            SoundboardControl.CallerLevel,
             SoundboardControl.VernGain,
+            SoundboardControl.VernLevel,
             SoundboardControl.AdsGain,
+            SoundboardControl.AdsLevel,
             SoundboardControl.Master
         };
 
@@ -41,20 +44,26 @@ namespace KBTV.Tests.Unit.World3D
         [Test]
         public void SlotLamps_MapToTheExpectedChannels()
         {
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerGain).LampName == "Lamp_0");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerLowPass).LampName == "Lamp_0");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerHighPass).LampName == "Lamp_0");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.VernGain).LampName == "Lamp_1");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsGain).LampName == "Lamp_2");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.Master).LampName == "Lamp_7");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerGain).LampName == "Lamp_6");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerLowPass).LampName == "Lamp_6");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerHighPass).LampName == "Lamp_6");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerLevel).LampName == "Lamp_6");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.VernGain).LampName == "Lamp_7");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.VernLevel).LampName == "Lamp_7");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsGain).LampName == "Lamp_5");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsLevel).LampName == "Lamp_5");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.Master).LampName == "Lamp_3");
         }
 
         [Test]
         public void FadersSlide_KnobsRotate()
         {
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerGain).Kind == ControlKind.Fader);
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.VernGain).Kind == ControlKind.Fader);
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsGain).Kind == ControlKind.Fader);
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerGain).Kind == ControlKind.Knob);
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerLevel).Kind == ControlKind.Fader);
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.VernGain).Kind == ControlKind.Knob);
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.VernLevel).Kind == ControlKind.Fader);
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsGain).Kind == ControlKind.Knob);
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsLevel).Kind == ControlKind.Fader);
             AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerLowPass).Kind == ControlKind.Knob);
             AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerHighPass).Kind == ControlKind.Knob);
             AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.Master).Kind == ControlKind.Knob);
@@ -93,13 +102,15 @@ namespace KBTV.Tests.Unit.World3D
         [Test]
         public void KnobRotationDeg_SwingsAroundRest()
         {
-            AssertThat(Mathf.IsEqualApprox(SoundboardPhysicalLayout.KnobRotationDeg(0.5f), 0f));
+            AssertThat(Mathf.IsEqualApprox(
+                SoundboardPhysicalLayout.KnobRotationDeg(0.5f),
+                SoundboardPhysicalLayout.KnobRestOffsetDeg));
             AssertThat(Mathf.IsEqualApprox(
                 SoundboardPhysicalLayout.KnobRotationDeg(0f),
-                -SoundboardPhysicalLayout.KnobTurnDeg / 2f));
+                SoundboardPhysicalLayout.KnobRestOffsetDeg - SoundboardPhysicalLayout.KnobTurnDeg / 2f));
             AssertThat(Mathf.IsEqualApprox(
                 SoundboardPhysicalLayout.KnobRotationDeg(1f),
-                SoundboardPhysicalLayout.KnobTurnDeg / 2f));
+                SoundboardPhysicalLayout.KnobRestOffsetDeg + SoundboardPhysicalLayout.KnobTurnDeg / 2f));
         }
     }
 }

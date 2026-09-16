@@ -61,7 +61,7 @@ namespace KBTV.Audio
     public static class SoundboardTargetGenerator
     {
         /// <summary>Within this distance of the target the knob is GREEN (perfect).</summary>
-        public const float PerfectTolerance = 0.05f;
+        public const float PerfectTolerance = 0.09f;
 
         /// <summary>Within this distance of the target the knob is BLUE (acceptable).</summary>
         public const float AcceptableTolerance = 0.12f;
@@ -104,6 +104,35 @@ namespace KBTV.Audio
                 GetBand(state.CallerGain, targets.Gain),
                 GetBand(state.CallerLowPass, targets.LowPass),
                 GetBand(state.CallerHighPass, targets.HighPass));
+        }
+
+        /// <summary>
+        /// Band for any single control. Caller knobs use the per-caller targets
+        /// (via <see cref="GetCallerBands"/>); level faders, Vern/Ads gain, and the
+        /// master knob are all nominal (neutral center) targets.
+        /// </summary>
+        public static SoundboardBand GetControlBand(
+            SoundboardKnobState state, SoundboardControl control, float speakingVolume)
+        {
+            if (state == null)
+            {
+                return SoundboardBand.None;
+            }
+
+            switch (control)
+            {
+                case SoundboardControl.CallerGain:
+                case SoundboardControl.CallerLowPass:
+                case SoundboardControl.CallerHighPass:
+                    var callerBands = GetCallerBands(state, speakingVolume);
+                    return control == SoundboardControl.CallerGain ? callerBands.Gain
+                        : control == SoundboardControl.CallerLowPass ? callerBands.LowPass
+                        : callerBands.HighPass;
+                default:
+                    return GetBand(
+                        SoundboardControlApplier.CurrentValue(state, control),
+                        SoundboardKnobState.NeutralValue);
+            }
         }
 
         /// <summary>

@@ -1066,6 +1066,7 @@ private void UpdateTerminalDebugStatus(string detail)
 		{
 			_boardLeftWasPressed = leftHeld;
 			_boardDragging = false;
+			_soundboard3D.SetHover(SoundboardControl.None);
 			return;
 		}
 
@@ -1080,18 +1081,20 @@ private void UpdateTerminalDebugStatus(string detail)
 				_boardDragging = true;
 				_boardLastDragScreenY = mousePosition.Y;
 				_soundboard3D.SelectControl(control);
+				_soundboard3D.SetHover(control);
 			}
 			else
 			{
 				_boardSelected = SoundboardControl.None;
 				_boardDragging = false;
 				_soundboard3D.SelectControl(SoundboardControl.None);
+				_soundboard3D.SetHover(SoundboardControl.None);
 			}
 		}
 
 		if (_boardSelected != SoundboardControl.None && _boardDragging)
 		{
-			var deltaY = _boardLastDragScreenY - mousePosition.Y;
+			var deltaY = mousePosition.Y - _boardLastDragScreenY;
 			if (Mathf.Abs(deltaY) > 0.5f)
 			{
 				var current = SoundboardControlApplier.CurrentValue(_soundboardOverlay.Driver.State, _boardSelected);
@@ -1099,6 +1102,11 @@ private void UpdateTerminalDebugStatus(string detail)
 				_soundboard3D.SetControlValue(_boardSelected, next);
 				_boardLastDragScreenY = mousePosition.Y;
 			}
+			_soundboard3D.SetHover(_boardSelected);
+		}
+		else
+		{
+			_soundboard3D.SetHover(RaycastBoardControl(mousePosition));
 		}
 
 		if (!leftHeld)

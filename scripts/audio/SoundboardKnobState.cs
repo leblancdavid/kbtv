@@ -31,6 +31,15 @@ namespace KBTV.Audio
         /// <summary>Ads/bumper channel gain.</summary>
         public float AdsGain { get; set; } = NeutralValue;
 
+        /// <summary>Caller channel output level (fader strip).</summary>
+        public float CallerLevel { get; set; } = NeutralValue;
+
+        /// <summary>Vern studio channel output level (fader strip).</summary>
+        public float VernLevel { get; set; } = NeutralValue;
+
+        /// <summary>Ads/bumper channel output level (fader strip).</summary>
+        public float AdsLevel { get; set; } = NeutralValue;
+
         /// <summary>Master (music/program) fader.</summary>
         public float Fader { get; set; } = NeutralValue;
 
@@ -41,6 +50,9 @@ namespace KBTV.Audio
             CallerHighPass = NeutralValue;
             VernGain = NeutralValue;
             AdsGain = NeutralValue;
+            CallerLevel = NeutralValue;
+            VernLevel = NeutralValue;
+            AdsLevel = NeutralValue;
             Fader = NeutralValue;
         }
 
@@ -56,6 +68,9 @@ namespace KBTV.Audio
             CallerHighPass = other.CallerHighPass;
             VernGain = other.VernGain;
             AdsGain = other.AdsGain;
+            CallerLevel = other.CallerLevel;
+            VernLevel = other.VernLevel;
+            AdsLevel = other.AdsLevel;
             Fader = other.Fader;
         }
 
