@@ -144,6 +144,9 @@ blender --background --factory-startup --python-exit-code 1 --python Tools/model
   10 materials; approximately 435 KiB). Chair remains `office_chair.glb`.
 - `seated_rest` is a one-second held pose. `VernCharacter3D` applies it before
   showing the model, then pauses the animation. Bind pose stays available.
+- Planned next pass: see [Animation pass 1](VERN_3D_MODEL_BRIEF.md#animation-pass-1--approved-plan)
+  for breathing/talking loops, smoking/coffee one-shots, permanent props and the
+  Astra handoff. These clips and playback changes are not implemented yet.
 - Geometry is authored seated then inverse-skinned into the neutral rest pose.
   Keep the weighted elbow/knee rings and shortest-arc bone orientation logic
   when changing shapes; arbitrary bone roll can corrupt the neutral mesh.
@@ -165,6 +168,13 @@ godot --path . --script Tools/modelgen/preview_vern.gd
 This writes `vern_godot_feed.png` and `vern_godot_studio.png` in
 `docs/art/model_previews/`. Use the correct executable path if `godot` on PATH
 is not version 4.6 mono. Blender-only previews use neutral review lighting.
+
+For the animation pass, extend validation beyond the active seated action:
+enumerate/select every imported clip, verify loop seams and one-shot endpoints,
+and review moving footage in Godot. Keep mug/cigarette exports separate from the
+skinned character and use the same resting/grip anchors for authoring and runtime.
+Record pickup/release/exhale timing outside glTF for Godot-side prop and smoke
+coordination. Static screenshots alone cannot validate contact or transitions.
 
 ## Troubleshooting
 

@@ -1,0 +1,53 @@
+{
+  "animations": {
+    "drink_coffee": {
+      "duration_seconds": 5.5,
+      "fixed_error": 0.000000387523670042356,
+      "grip_transform_error": 0.000000853928838751017,
+      "loop_from_contract": false,
+      "motion": 1.76548171043396,
+      "seam_error": 0.0,
+      "tracks": 32
+    },
+    "idle_breathing": {
+      "duration_seconds": 4.0,
+      "fixed_error": 0.000000387523670042356,
+      "grip_transform_error": 0.0,
+      "loop_from_contract": true,
+      "motion": 0.0127276089042425,
+      "seam_error": 0.0,
+      "tracks": 32
+    },
+    "seated_rest": {
+      "duration_seconds": 1.0,
+      "fixed_error": 0.0,
+      "grip_transform_error": 0.0,
+      "loop_from_contract": false,
+      "motion": 0.0,
+      "seam_error": 0.0,
+      "tracks": 31
+    },
+    "smoking": {
+      "duration_seconds": 5.5,
+      "fixed_error": 0.000000387523670042356,
+      "grip_transform_error": 0.000000967373011917516,
+      "loop_from_contract": false,
+      "motion": 1.82039833068848,
+      "seam_error": 0.0,
+      "tracks": 32
+    },
+    "talking_default": {
+      "duration_seconds": 3.0,
+      "fixed_error": 0.000000387523670042356,
+      "grip_transform_error": 0.0,
+      "loop_from_contract": true,
+      "motion": 1.50512027740479,
+      "seam_error": 0.0,
+      "tracks": 34
+    }
+  },
+  "bones": 21,
+  "engine": "4.6.3-stable (official)",
+  "scope": "isolated GLTFDocument, no game runtime",
+  "validation": "passed"
+}

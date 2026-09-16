@@ -1,6 +1,36 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Implement Vern animation pass 1 and permanent coffee/smoking props. **Status: In Progress**
+
+- User approved production of the saved animation handoff.
+- Work Done: inspected existing rig/export/runtime; Blender 5.2.1 available.
+- Files Modified: `SESSION_LOG.md`; prior planning documentation changes retained.
+- Next Steps: fresh baseline; generate clips/props and contact metadata; integrate playback/events; import, test and visually review.
+- Related Docs: `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`.
+- Blockers: none.
+
+---
+
+## Previous Session
+
+**Branch**: develop
+**Task**: Plan Vern animation pass 1 for GPT-6 Astra: idle breathing, generic talking, smoking, drinking coffee, plus permanent mug/ashtray/cigarette props. **Status: Completed — production handoff documented**
+
+- User direction: start with one generic default talking animation; future mood variants can come later. Coffee mug should be permanent. Cigarette and ashtray props may also be needed.
+- Plan: update Vern's 3D art brief with named action specs, permanent prop requirements, runtime follow-up notes, validation checks, and a copyable Astra handoff prompt.
+- Files Modified: `SESSION_LOG.md`, `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`.
+- Work Done: documented four clip contracts, permanent props with seamless pickup/return, runtime scheduling and event integration, export/test updates, moving-preview acceptance checks, and copyable Astra prompt. Original model-production prompt retained as completed history.
+- Verification: reviewed documentation diff; `git diff --check` passed. Documentation only; no build/tests run.
+- Next Steps: implement the animation handoff, starting with Blender motion/contact blocking and permanent prop placement; no animation assets or runtime behavior changed in this planning session.
+- Related Docs: `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`.
+- Blockers: none.
+
+---
+
+## Previous Session
+
+**Branch**: develop
 **Task**: Build, rig, export and integrate seated Vern in the 3D studio. **Status: Completed — model reviewed in Blender/Godot; build passes, baseline failures unchanged**
 
 - User approved model production from the saved brief and supplied Art Bell reference.

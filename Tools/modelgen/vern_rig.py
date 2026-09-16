@@ -42,6 +42,26 @@ def create():
         rotation = (swing @ rest.matrix_local.to_quaternion()).to_matrix().to_4x4()
         rig.pose.bones[name].matrix = Matrix.Translation(Vector(head)) @ rotation
         bpy.context.view_layer.update()
+    # Auxiliary controls share their parent's frame; original bone hierarchy stays intact.
+    seated = {b.name: b.matrix.copy() for b in rig.pose.bones}
+    pivots = {'grip.L': Vector((.278, .24, .732)),
+              'grip.R': Vector((-.278, .24, .732)), 'jaw': Vector((0, .103, 1.246))}
+    bpy.context.view_layer.objects.active = rig
+    bpy.ops.object.mode_set(mode='EDIT')
+    for name, parent in [('grip.L', 'hand.L'), ('grip.R', 'hand.R'), ('jaw', 'head')]:
+        bone = rig.data.edit_bones.new(name)
+        source = rig.data.edit_bones[parent]
+        pivot = source.matrix @ (seated[parent].inverted() @ pivots[name])
+        bone.head = pivot
+        bone.tail = pivot + (source.tail-source.head).normalized() * .06
+        bone.roll = source.roll
+        bone.parent = source
+    bpy.ops.object.mode_set(mode='OBJECT')
+    for name, parent in [('grip.L', 'hand.L'), ('grip.R', 'hand.R'), ('jaw', 'head')]:
+        matrix = seated[parent].copy()
+        matrix.translation = pivots[name]
+        rig.pose.bones[name].matrix = matrix
+        bpy.context.view_layer.update()
     return rig
 
 

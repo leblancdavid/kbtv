@@ -168,7 +168,132 @@ Acceptance checks:
 - Follow repository build/test instructions for implementation changes; compare
   failures against a fresh baseline rather than relying on older session counts.
 
-## GPT-6 Astra handoff prompt
+## Animation pass 1 — approved plan
+
+The next production pass adds four seated animations to the existing character.
+Use one generic talking performance initially; mood variants come later. The
+coffee mug is permanent studio dressing. Include an ashtray and cigarette prop
+to support the smoking action. This section is a production handoff, not a
+record of implemented animations.
+
+### Clip contract
+
+| Action | Playback | Starting duration | Performance |
+|---|---|---|---|
+| `idle_breathing` | Seamless loop | 3–5 seconds | Subtle chest/shoulder breathing and slight head drift; relaxed late-night host. |
+| `talking_default` | Seamless loop | 2–4 seconds | Restrained head nods, slight torso emphasis, small seated hand gestures. |
+| `smoking` | One-shot | 4–6 seconds | Reach for cigarette, lift to lips, inhale, lower, exhale, return cigarette to ashtray. |
+| `drink_coffee` | One-shot | 4–6 seconds | Reach, grasp mug, lift, sip with a small tilt, return upright to its resting position, release. |
+
+Durations are starting targets, adjustable for convincing motion. Preserve
+`seated_rest` as a fallback/reference pose and the neutral A-pose bind. Keep root,
+pelvis contact and feet stable; chair stays separate and stationary. One-shots
+begin/end in the same seated rest configuration. Loop endpoints must match in
+pose and motion so breathing/talking do not visibly hitch.
+
+Talking should read in the 320x180 feed. Body/head motion is the baseline;
+small mouth/jaw motion is welcome if needed for readability, but phoneme lip
+sync and mood-specific performances are later work. Current face geometry and
+hands follow head/hand bones rigidly. Inspect these limitations before animating;
+add minimal grip controls or shape keys if required rather than letting props
+float beside an open palm. Keep existing bone names/hierarchy stable.
+
+### Permanent props and contact
+
+- Create separate `coffee_mug.glb`, `ashtray.glb`, and `cigarette.glb` under
+  `assets/models3d/props/`, with reproducible generators and editable source.
+- Use existing muted, softly beveled PBR prop style. Suggested mug: worn cream
+  or muted gray ceramic, clear handle, dark recessed coffee surface. Ashtray:
+  simple dark ceramic or worn metal with a cigarette rest. Avoid tiny decoration.
+- Mug and ashtray remain visible in the studio. Cigarette rests at the ashtray
+  between smoking actions. Place all within a believable seated reach; measure
+  the actual table and arm reach before choosing anchors.
+- Use a single visible instance of each prop. At grasp, transfer the mug or
+  cigarette from its resting anchor to a hand attachment without a position or
+  rotation jump; at release, restore the exact resting transform. Ashtray stays
+  stationary. Author/bake hand motion against these same anchors.
+- Keep prop meshes separate from Vern's skinned body. Define hand grip offsets,
+  resting anchors and pickup/release/exhale timing in the wrapper/controller or
+  companion metadata; glTF does not carry Godot method-call tracks.
+- Verify wrist/handle alignment, mouth contact and clearance throughout the
+  motion. Do not fake a sip by leaving the mug on the table or showing a duplicate.
+- Keep smoke in Godot. Coordinate a puff at the exhale beat with a head-following
+  mouth marker; inspect `StudioSmoke3D`'s existing timed puffs to avoid duplicate
+  emissions. Preserve room haze and door-leak behavior.
+
+### Production and runtime sequence
+
+1. Block out clips and prop contacts in Blender; review silhouette, chair fit,
+   grasp/sip/inhale poses before polishing. Keep generator changes reproducible.
+2. Extend `vern_export.py` to export and enumerate every action, explicitly
+   select each imported action for validation, and report names/durations/bounds
+   in `vern.json`. Its current checks assume a single active `seated_rest` action.
+3. Extend `VernCharacter3D` with named playback and one-shot completion handling.
+   Apply a seated pose before first visibility, then loop idle; handle qualified
+   imported animation names and use short blends (initial target 0.15–0.25s).
+4. Provide a review harness to play all four clips repeatedly with props in the
+   studio and capture both world view and actual broadcast feed.
+5. Wire generic talking to Vern dialogue start/end/interruption using existing
+   broadcast events and matching line IDs. Caller speech/music must not trigger
+   it; stale completion events must not stop a newer Vern line.
+6. Add a lightweight successful-use notification at `ItemManager` for coffee
+   and cigarettes. Existing `ItemRow` applies effects after its 30-second timer;
+   request the visual action then, without changing stat/replenishment timing.
+7. Serialize one-shots. Queue consumable gestures while Vern is speaking; if
+   speech starts mid-gesture, finish the prop-safe return before showing talking.
+   Broadcast audio must never wait for animation. On teardown/cancellation,
+   restore prop ownership/transforms and remove event subscriptions.
+
+Keep playback on the Godot main thread. Use the project's dependency/event
+patterns for integration; place prop-specific offsets and behavior with the
+prop/controller rather than adding them to room-level setup.
+
+### Animation acceptance checks
+
+- Re-import into clean Blender and Godot: all five clips (including
+  `seated_rest`) exist, skinning survives, and loops/one-shots have correct modes.
+- Sample each clip through its full duration; no bind-pose flashes, root drift,
+  chair/table penetration, foot sliding or detached accessories.
+- Review moving footage, not only stills: two full cycles for each loop and
+  pickup/contact/release for each one-shot, in both studio view and 320x180 feed.
+- Mug/cigarette have no visible attachment jumps, duplication or float; repeated
+  uses leave props in exactly the same resting transforms. Inspect grip from
+  front and side as well as the broadcast angle.
+- Exercise idle → talking → idle, repeated one-shots, queued requests, speech
+  beginning mid-gesture, interrupted dialogue and scene exit/re-entry.
+- Update `VernCharacterIntegrationTests`: its existing paused/unchanging-pose
+  assertion must become a seated-startup and moving-idle assertion. Add meaningful
+  coverage for clip completion, prop restoration and dialogue state handling.
+- Establish a fresh test baseline, then `dotnet build` and run relevant tests
+  through `pwsh -NoProfile -File run-tests.ps1`; compare any full-suite failures
+  with that baseline. Record validation and any remaining visual limitations.
+
+### GPT-6 Astra animation handoff prompt
+
+```text
+Implement Animation pass 1 in docs/art/VERN_3D_MODEL_BRIEF.md.
+Use the existing Vern model and rig, preserving his appearance, neutral bind
+pose, seated_rest action, current chair fit and separate chair asset.
+
+Add idle_breathing and talking_default loops plus smoking and drink_coffee
+one-shots. Start with a generic restrained talking performance; mood variants
+come later. Create matching separate coffee mug, ashtray and cigarette props.
+Mug and ashtray are permanent studio dressing; the cigarette rests at the
+ashtray between uses. Animate actual pickup, mouth contact and return using
+one visible prop instance with seamless hand/rest-anchor transfers.
+
+Work through Blender blocking/contact review, reproducible generation/export,
+Godot playback review, then runtime dialogue/item-use integration. Follow the
+clip, contact, scheduling and validation requirements in the brief. Keep smoke
+Godot-side and coordinate its exhale beat. Preserve existing gameplay timing.
+
+Deliver updated generators, editable Blender sources, GLBs, named-action
+validation report, moving previews and real Godot studio/broadcast-feed review.
+Update tests for moving idle, one-shot completion and prop restoration. Build
+and test using repository instructions and report remaining visual limitations.
+```
+
+## Original model-production handoff (completed)
 
 > Implement `docs/art/VERN_3D_MODEL_BRIEF.md` in this repository. Use the attached
 > Art Bell photo for Vern's likeness and the existing office chair, audio cabinet

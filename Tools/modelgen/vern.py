@@ -62,7 +62,7 @@ def body(p):
             x = s * (.249 + finger * .018)
             end = .30 + (.014 if finger in (1, 2) else 0)
             tube('Resting finger %s %d' % (side, finger), [(x, .24, .732), (x, .282, .725),
-                 (x, end, .709)], [.012, .012, .008], p['skin'], {hand: 1}, 8)
+                 (x, end, .709)], [.012, .012, .008], p['skin'], {'grip.' + side: 1}, 8)
         tube('Thumb ' + side, [(s*.246, .207, .738), (s*.224, .235, .728), (s*.23, .266, .713)],
              [.018, .015, .011], p['skin'], {hand: 1}, 10)
         thigh, shin, foot = 'thigh.' + side, 'shin.' + side, 'foot.' + side
@@ -108,7 +108,8 @@ def face(p):
         tube('Dark eyebrow', [(s*.027, .105, 1.38), (s*.052, .108, 1.386),
              (s*.086, .086, 1.375)], [.007, .009, .006], p['hair'], h)
     tube('Quiet mouth', [(-.038, .09, 1.246), (0, .103, 1.247), (.038, .09, 1.246)],
-         .004, p['lip'], h)
+          .004, p['lip'], {'jaw': 1})
+    ellipsoid('Mouth opening', (0, .107, 1.245), (.026, .0025, .002), p['black'], {'jaw': 1})
     # Two tapered mustache lobes, kept off the upper lip.
     for s in (-1, 1):
         tube('Signature mustache', [(s*.004, .111, 1.274), (s*.018, .114, 1.269),
@@ -175,4 +176,7 @@ def build():
 
 if __name__ == '__main__':
     from vern_export import deliver
+    if '--preview-only' not in sys.argv:
+        from vern_props import generate
+        generate()
     deliver(build, '--preview-only' in sys.argv)

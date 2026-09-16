@@ -2,19 +2,19 @@
   "asset": "vern",
   "validation": "passed",
   "blender_version": "5.2.1 LTS",
-  "file_bytes": 445548,
-  "bones": 18,
-  "triangles": 14728,
+  "file_bytes": 526868,
+  "bones": 21,
+  "triangles": 15168,
   "materials": 10,
   "authoring_axes": "Z up, +Y front; GLB Y up, -Z front",
   "neutral_bounds": {
     "min": [
-      -0.6221011281013489,
+      -0.6221010088920593,
       -0.12733915448188782,
       0.0029999795369803905
     ],
     "max": [
-      0.6221011281013489,
+      0.6221010088920593,
       0.23399999737739563,
       1.8799999952316284
     ]
@@ -31,8 +31,107 @@
       1.5450005531311035
     ]
   },
-  "animations": [
-    "seated_rest"
-  ],
+  "animations": {
+    "seated_rest": {
+      "duration_seconds": 1.0,
+      "frames_sampled": 25,
+      "loop": false,
+      "endpoint_matrix_max_error": 0.0,
+      "fixed_root_pelvis_feet_max_error": 0.0,
+      "motion_matrix_max_delta": 0.0,
+      "bounds_blender": {
+        "min": [
+          -0.35664689540863037,
+          -0.15600009262561798,
+          0.0029998330865055323
+        ],
+        "max": [
+          0.3566470444202423,
+          0.7089998722076416,
+          1.5450005531311035
+        ]
+      }
+    },
+    "idle_breathing": {
+      "duration_seconds": 4.0,
+      "frames_sampled": 97,
+      "loop": true,
+      "endpoint_matrix_max_error": 0.0,
+      "fixed_root_pelvis_feet_max_error": 2.384185791015625e-07,
+      "motion_matrix_max_delta": 0.012047931615619234,
+      "bounds_blender": {
+        "min": [
+          -0.35878685116767883,
+          -0.15680450201034546,
+          0.0029998738318681717
+        ],
+        "max": [
+          0.3587869107723236,
+          0.708999752998352,
+          1.5473320484161377
+        ]
+      }
+    },
+    "talking_default": {
+      "duration_seconds": 3.0,
+      "frames_sampled": 73,
+      "loop": true,
+      "endpoint_matrix_max_error": 0.0,
+      "fixed_root_pelvis_feet_max_error": 2.384185791015625e-07,
+      "motion_matrix_max_delta": 1.5048190355300903,
+      "bounds_blender": {
+        "min": [
+          -0.35878685116767883,
+          -0.15680450201034546,
+          0.0029998738318681717
+        ],
+        "max": [
+          0.3587869107723236,
+          0.708999752998352,
+          1.5473273992538452
+        ]
+      }
+    },
+    "smoking": {
+      "duration_seconds": 5.5,
+      "frames_sampled": 133,
+      "loop": false,
+      "endpoint_matrix_max_error": 0.0,
+      "fixed_root_pelvis_feet_max_error": 2.384185791015625e-07,
+      "motion_matrix_max_delta": 1.4476054310798645,
+      "bounds_blender": {
+        "min": [
+          -0.4325004816055298,
+          -0.1560000777244568,
+          0.0029998738318681717
+        ],
+        "max": [
+          0.3566470444202423,
+          0.708999752998352,
+          1.545000433921814
+        ]
+      }
+    },
+    "drink_coffee": {
+      "duration_seconds": 5.5,
+      "frames_sampled": 133,
+      "loop": false,
+      "endpoint_matrix_max_error": 0.0,
+      "fixed_root_pelvis_feet_max_error": 2.384185791015625e-07,
+      "motion_matrix_max_delta": 1.336184799671173,
+      "bounds_blender": {
+        "min": [
+          -0.356646865606308,
+          -0.1560000777244568,
+          0.0029998738318681717
+        ],
+        "max": [
+          0.46178150177001953,
+          0.708999752998352,
+          1.545000433921814
+        ]
+      }
+    }
+  },
   "chair_exported": false
 }

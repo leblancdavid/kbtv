@@ -5,6 +5,7 @@ import bpy
 import bmesh
 from mathutils import Vector
 import common
+from vern_animation import build_actions, DURATIONS, FPS
 
 ROOT = Path(__file__).resolve().parents[2]
 REVIEW = ROOT / 'docs/art/model_previews'
@@ -91,13 +92,16 @@ def deliver(builder, preview_only=False):
         rig.data.pose_position = 'POSE'
         bpy.context.view_layer.update()
         rig.select_set(True)
+        build_actions(rig)
         bpy.context.preferences.filepaths.save_version = 0
         bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE))
         bpy.ops.export_scene.gltf(filepath=str(GLB), export_format='GLB',
             use_selection=True, export_yup=True, export_cameras=False,
             export_lights=False, export_animations=True, export_animation_mode='ACTIONS',
-            export_force_sampling=True, export_rest_position_armature=True)
+            export_force_sampling=True, export_rest_position_armature=True,
+            export_anim_slide_to_zero=True)
     common.reset()
+    previous_actions = set(bpy.data.actions)
     bpy.ops.import_scene.gltf(filepath=str(GLB))
     bpy.context.scene.frame_set(1)
     bpy.context.view_layer.update()
@@ -108,13 +112,21 @@ def deliver(builder, preview_only=False):
     meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH' and o not in widgets]
     assert len(rigs) == 1 and meshes, 'Missing imported skin/rig'
     rig = rigs[0]
-    assert rig.animation_data and 'seated_rest' in rig.animation_data.action.name
+    imported_actions = [a for a in bpy.data.actions if a not in previous_actions]
+    actions = {name: next(a for a in imported_actions if a.name.split('.')[0] == name)
+               for name in DURATIONS}
+    for track in rig.animation_data.nla_tracks:
+        track.mute = True
+    rig.animation_data.action = actions['seated_rest']
+    bpy.context.scene.frame_set(int(actions['seated_rest'].frame_range[0]))
+    bpy.context.view_layer.update()
     assert all(o.type in ('MESH', 'ARMATURE', 'EMPTY') for o in bpy.context.scene.objects)
     for obj in meshes:
         assert all(len(v.groups) > 0 for v in obj.data.vertices), 'Unweighted vertex'
         assert any(m.type == 'ARMATURE' and m.object == rig for m in obj.modifiers)
         obj.data.calc_loop_triangles()
     imported = bounds(meshes)
+    animation_report = validate_actions(rig, meshes, actions)
     if not preview_only:
         assert all(abs(a-b) < .003 for key in ('min', 'max')
                    for a, b in zip(seated[key], imported[key])), (seated, imported)
@@ -124,7 +136,49 @@ def deliver(builder, preview_only=False):
             materials=len({m.name for o in meshes for m in o.data.materials}),
             authoring_axes='Z up, +Y front; GLB Y up, -Z front',
             neutral_bounds=neutral, seated_bounds=imported,
-            animations=['seated_rest'], chair_exported=False)
+            animations=animation_report, chair_exported=False)
         (REVIEW / 'vern.json').write_text(json.dumps(report, indent=2) + '\n')
         print('VERN_VALIDATED ' + json.dumps(report))
-    previews()
+    if '--skip-previews' not in __import__('sys').argv:
+        previews()
+        from vern_review import moving_previews
+        moving_previews(rig, actions)
+
+
+def validate_actions(rig, meshes, actions):
+    report = {}
+    reference = None
+    scene = bpy.context.scene
+    scene.render.fps = FPS
+    for name, action in actions.items():
+        rig.animation_data.action = action
+        start, end = action.frame_range
+        duration = (end-start)/FPS
+        assert abs(duration-DURATIONS[name]) < .001, (name, duration)
+        poses, sampled_bounds = [], []
+        for frame in range(round(start), round(end)+1):
+            scene.frame_set(frame)
+            bpy.context.view_layer.update()
+            poses.append({b.name: b.matrix.copy() for b in rig.pose.bones})
+            sampled_bounds.append(bounds(meshes))
+        if reference is None:
+            reference = poses[0]
+        error = lambda a, b: max(abs(a[i][j]-b[i][j]) for i in range(4) for j in range(4))
+        seam = max(error(poses[0][n], poses[-1][n]) for n in poses[0])
+        fixed = max(error(p[n], reference[n]) for p in poses
+                    for n in ('root', 'pelvis', 'foot.L', 'foot.R'))
+        motion = max(error(p[n], poses[0][n]) for p in poses for n in p)
+        assert seam < .0001 and fixed < .0001, (name, seam, fixed)
+        if name != 'seated_rest':
+            assert motion > .002, ('Static action', name)
+        if name in ('smoking', 'drink_coffee'):
+            assert max(error(poses[0][n], reference[n]) for n in reference) < .0001
+        report[name] = dict(duration_seconds=duration, frames_sampled=len(poses),
+            loop=name in ('idle_breathing', 'talking_default'),
+            endpoint_matrix_max_error=seam, fixed_root_pelvis_feet_max_error=fixed,
+            motion_matrix_max_delta=motion,
+            bounds_blender={k: [fn(b[k][i] for b in sampled_bounds) for i in range(3)]
+                            for k, fn in [('min', min), ('max', max)]})
+    rig.animation_data.action = actions['seated_rest']
+    scene.frame_set(int(actions['seated_rest'].frame_range[0]))
+    return report
