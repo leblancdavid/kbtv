@@ -119,8 +119,8 @@ public partial class ControlRoom3D : Node3D
 
 		AddStaticBox(root, "FloorCollider", new Vector3(0f, -0.1f, 0f), new Vector3(10f, 0.2f, 8f));
 		AddStaticBox(root, "DeskCollider", new Vector3(0.6f, 0.4f, -3.55f), new Vector3(4.8f, 0.8f, 0.6f));
-		AddStaticBox(root, "SpeakerLeftCollider", new Vector3(-2.75f, 0.9f, -3.55f), new Vector3(1.0f, 1.8f, 1.0f));
-		AddStaticBox(root, "SpeakerRightCollider", new Vector3(3.35f, 0.9f, -3.55f), new Vector3(1.0f, 1.8f, 1.0f));
+		AddStaticBox(root, "SpeakerLeftCollider", new Vector3(-2.15f, 0.995f, -3.5f), new Vector3(0.55f, 1.79f, 0.435f));
+		AddStaticBox(root, "SpeakerRightCollider", new Vector3(3.35f, 0.995f, -3.5f), new Vector3(0.55f, 1.79f, 0.435f));
 		AddStaticBox(root, "AudioCabinetCollider", new Vector3(4.45f, 0.75f, -3.5f), new Vector3(1.05f, 1.5f, 0.975f));
 		AddStaticBox(root, "ShelfLeftCollider", new Vector3(-2.8f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
 		AddStaticBox(root, "ShelfCenterCollider", new Vector3(0f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
