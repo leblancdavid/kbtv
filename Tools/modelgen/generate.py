@@ -72,9 +72,19 @@ def generate(name, builder):
     bpy.context.scene.unit_settings.system = 'METRIC'
     bpy.context.scene.unit_settings.scale_length = 1
     builder.build()
-    # Collapse static components into one object; materials remain separate surfaces.
-    bpy.ops.object.select_all(action='SELECT')
-    bpy.context.view_layer.objects.active = next(o for o in bpy.context.scene.objects if o.type == 'MESH')
+    movable_names = set(getattr(builder, 'MOVABLE', ()))
+    meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH']
+    movables = [o for o in meshes if o.name in movable_names]
+    static = [o for o in meshes if o not in movables]
+    if not static:
+        raise RuntimeError(f'{name}: no static mesh remains to form the chassis')
+    # Collapse only the static components into one object; movable parts
+    # (faders, knobs, lamps) stay as separate named objects so the runtime can
+    # drive them as real GLB nodes. Materials remain separate surfaces.
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in static:
+        o.select_set(True)
+    bpy.context.view_layer.objects.active = static[0]
     bpy.ops.object.join()
     obj = bpy.context.object
     obj.name = name
@@ -98,6 +108,8 @@ def generate(name, builder):
     bpy.context.preferences.filepaths.save_version = 0
     bpy.ops.wm.save_as_mainfile(filepath=str(source_dir / (name + '.blend')))
     glb_path = model_dir / (name + '.glb')
+    # Export chassis + movables together so they arrive as sibling GLB nodes.
+    bpy.ops.object.select_all(action='SELECT')
     bpy.ops.export_scene.gltf(filepath=str(glb_path), export_format='GLB',
                              use_selection=True, export_yup=True,
                              export_cameras=False, export_lights=False)

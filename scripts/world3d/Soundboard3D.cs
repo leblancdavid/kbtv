@@ -12,11 +12,13 @@ namespace KBTV.World3D
 {
     /// <summary>
     /// Interactive 3D helper for the control-room soundboard. Owns the mixer driver
-    /// interaction: builds one handle per <see cref="SoundboardControl"/> over the
-    /// soundboard.glb body, slides faders / rotates knobs from driver state each
-    /// frame, and exposes tap-target colliders (on a dedicated collision layer) so
-    /// World3D can raycast clicks and drags. Mirrors the ComputerTerminal3D pattern:
-    /// a hidden sibling node that is revealed when the diegetic view opens.
+    /// interaction against the GLB's real parts (regenerated so the chassis is static
+    /// and the fader caps / knobs / lamps exist as named nodes): slides caps along
+    /// glTF-local Z, spins knobs around glTF-local Y, and drives per-channel lamp
+    /// emission from driver + monitor state each frame. Also exposes tap-target
+    /// colliders on a dedicated collision layer so World3D can raycast clicks and
+    /// drags. Parented at identity under the SoundBoard GLB node, so part transforms
+    /// share the board's local frame.
     /// </summary>
     public partial class Soundboard3D : Node3D
     {
@@ -30,32 +32,14 @@ namespace KBTV.World3D
         private static readonly Color LedDim = new(0.28f, 0.28f, 0.28f);
         private static readonly Color LedSelected = new(0.9f, 0.95f, 1.0f);
 
-        private const float SlotCenterY = 0.38f;
-        private const float FaderTravel = 0.16f;
-        private const float KnobTurnDeg = 90f;
-        private const float CoverZ = -0.09f;
-        private const float ColliderZ = -0.16f;
-        private const float LedY = 0.60f;
-
-        private static readonly (SoundboardControl Control, bool IsFader, float X)[] SlotLayout =
-        {
-            (SoundboardControl.CallerGain, true, -0.60f),
-            (SoundboardControl.CallerLowPass, false, -0.36f),
-            (SoundboardControl.CallerHighPass, false, -0.12f),
-            (SoundboardControl.VernGain, true, 0.12f),
-            (SoundboardControl.AdsGain, true, 0.36f),
-            (SoundboardControl.Master, true, 0.60f)
-        };
-
-        private readonly Dictionary<SoundboardControl, MeshInstance3D> _visuals = new();
-        private readonly Dictionary<SoundboardControl, Node3D> _roots = new();
-        private readonly Dictionary<SoundboardControl, MeshInstance3D> _leds = new();
-        private readonly Dictionary<SoundboardControl, StandardMaterial3D> _ledMaterials = new();
+        private readonly Dictionary<SoundboardControl, Node3D> _parts = new();
+        private readonly Dictionary<SoundboardControl, Vector3> _restPositions = new();
+        private readonly Dictionary<string, MeshInstance3D> _lamps = new();
+        private readonly Dictionary<string, StandardMaterial3D> _lampMaterials = new();
         private readonly Dictionary<StaticBody3D, SoundboardControl> _bodies = new();
+        private readonly HashSet<string> _warnedMissing = new();
 
-        private StandardMaterial3D? _normalMat;
-        private StandardMaterial3D? _knobMat;
-        private StandardMaterial3D? _selectedMat;
+        private Node3D? _board;
         private SoundboardMonitor? _monitor;
         private AdManager? _adManager;
         private bool _built;
@@ -69,8 +53,6 @@ namespace KBTV.World3D
 
         public override void _Ready()
         {
-            Visible = false;
-            Build();
             ResolveAdManager();
         }
 
@@ -98,8 +80,26 @@ namespace KBTV.World3D
         public void SetMonitor(SoundboardMonitor monitor) => _monitor = monitor;
 
         /// <summary>
+        /// Binds the board to the SoundBoard GLB node: locates the named part nodes
+        /// (and idle lamps), captures their rest transforms, and builds the HitLayer
+        /// tap-target colliders anchored to each part.
+        /// </summary>
+        public void AttachBoard(Node3D board)
+        {
+            if (_board != null || board == null)
+            {
+                return;
+            }
+
+            _board = board;
+            BuildSlots();
+            BuildLamps();
+            _built = true;
+        }
+
+        /// <summary>
         /// Returns the control a tap-target collider belongs to. Use with the
-        /// colliders from <see cref="GetBodies"/> after a raycast.
+        /// colliders from <see cref="Bodies"/> after a raycast.
         /// </summary>
         public SoundboardControl ControlFromBody(StaticBody3D body)
         {
@@ -116,11 +116,13 @@ namespace KBTV.World3D
         /// <summary>Shows the handles and returns them to neutral.</summary>
         public void ShowHandles()
         {
-            Build();
+            if (!_built)
+            {
+                return;
+            }
             SelectedControl = SoundboardControl.None;
             Driver.ResetToNeutral();
             Driver.Apply();
-            Visible = true;
             SetBodiesEnabled(true);
             _handlesVisible = true;
             UpdateControls();
@@ -132,11 +134,10 @@ namespace KBTV.World3D
         {
             SelectedControl = SoundboardControl.None;
             _handlesVisible = false;
-            Visible = false;
             SetBodiesEnabled(false);
         }
 
-        /// <summary>Selects a control (highlights its handle); None clears the selection.</summary>
+        /// <summary>Selects a control (highlights its channel lamp); None clears the selection.</summary>
         public void SelectControl(SoundboardControl control)
         {
             if (SelectedControl == control)
@@ -145,13 +146,9 @@ namespace KBTV.World3D
             }
 
             SelectedControl = control;
-            foreach (var pair in _visuals)
+            if (_built)
             {
-                if (pair.Value == null)
-                {
-                    continue;
-                }
-                pair.Value.MaterialOverride = pair.Key == control ? _selectedMat : null;
+                UpdateLeds();
             }
         }
 
@@ -168,186 +165,157 @@ namespace KBTV.World3D
             {
                 Driver.Apply();
             }
-            UpdateControlVisual(control);
+            if (_built)
+            {
+                var slot = SoundboardPhysicalLayout.SlotFor(control);
+                if (_parts.TryGetValue(control, out var part) && part != null)
+                {
+                    UpdateControlVisual(control, part, slot.Kind);
+                }
+            }
         }
 
-        private void Build()
+        private void BuildSlots()
         {
-            if (_built)
+            if (_board == null)
             {
                 return;
             }
 
-            _normalMat = MakeMaterial(new Color(0.16f, 0.18f, 0.22f));
-            _knobMat = MakeMaterial(new Color(0.26f, 0.24f, 0.22f));
-            _selectedMat = new StandardMaterial3D
+            foreach (var slot in SoundboardPhysicalLayout.Slots)
             {
-                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-                EmissionEnabled = true,
-                Emission = new Color(0.3f, 0.8f, 0.7f, 1f),
-                EmissionEnergyMultiplier = 2.2f,
-                AlbedoColor = new Color(0.35f, 0.85f, 0.75f, 1f)
-            };
+                var part = _board.FindChild(slot.PartName, true, false) as Node3D;
+                if (part == null)
+                {
+                    WarnMissing(slot.PartName);
+                    continue;
+                }
 
-            var root = new Node3D { Name = "SoundboardHandles" };
-            AddChild(root);
-
-            foreach (var (control, isFader, x) in SlotLayout)
-            {
-                BuildControl(root, control, isFader, x);
+                _parts[slot.Control] = part;
+                _restPositions[slot.Control] = part.Position;
+                BuildCollider(slot.Control, slot.Kind, part.Position);
             }
-
-            _built = true;
         }
 
-        private void BuildControl(Node3D parent, SoundboardControl control, bool isFader, float x)
+        private void BuildCollider(SoundboardControl control, ControlKind kind, Vector3 partPos)
         {
-            // Background track for the slot.
-            var background = new MeshInstance3D
-            {
-                Name = $"Slot_{control}",
-                Mesh = new BoxMesh
-                {
-                    Size = new Vector3(isFader ? 0.12f : 0.16f, 0.46f, 0.02f),
-                    Material = _normalMat
-                },
-                Position = new Vector3(x, SlotCenterY, CoverZ)
-            };
-            parent.AddChild(background);
-
-            // Movable handle root (faders slide on Y, knobs rotate on Y).
-            var handleRoot = new Node3D { Name = $"Handle_{control}", Position = new Vector3(x, SlotCenterY, CoverZ) };
-            parent.AddChild(handleRoot);
-
-            MeshInstance3D visual;
-            if (isFader)
-            {
-                var cap = new MeshInstance3D
-                {
-                    Name = "Cap",
-                    Mesh = new BoxMesh
-                    {
-                        Size = new Vector3(0.13f, 0.09f, 0.035f),
-                        Material = _normalMat
-                    }
-                };
-                handleRoot.AddChild(cap);
-                visual = cap;
-            }
-            else
-            {
-                var knob = new MeshInstance3D
-                {
-                    Name = "Knob",
-                    Mesh = new CylinderMesh
-                    {
-                        TopRadius = 0.045f,
-                        BottomRadius = 0.045f,
-                        Height = 0.06f,
-                        RadialSegments = 10,
-                        Material = _knobMat
-                    },
-                    Position = new Vector3(0f, 0.05f, 0f)
-                };
-                handleRoot.AddChild(knob);
-
-                var pointer = new MeshInstance3D
-                {
-                    Name = "Pointer",
-                    Mesh = new BoxMesh
-                    {
-                        Size = new Vector3(0.07f, 0.02f, 0.02f),
-                        Material = _normalMat
-                    },
-                    Position = new Vector3(0f, 0.09f, 0f)
-                };
-                handleRoot.AddChild(pointer);
-                visual = knob;
-            }
-
-            // Tap-target collider, in front of the cover face, isolated to HitLayer.
+            var isFader = kind == ControlKind.Fader;
             var body = new StaticBody3D
             {
                 Name = $"Hit_{control}",
-                Position = new Vector3(0f, 0f, ColliderZ - CoverZ),
+                Position = partPos,
                 CollisionLayer = HitLayer,
                 CollisionMask = 0u
             };
-            var shapeNode = new CollisionShape3D
+            var shape = new CollisionShape3D
             {
-                Shape = new BoxShape3D { Size = new Vector3(isFader ? 0.2f : 0.24f, 0.56f, 0.24f) }
-            };
-            body.AddChild(shapeNode);
-            handleRoot.AddChild(body);
-            _bodies[body] = control;
-
-            // Indicator LED above the slot.
-            var ledMat = new StandardMaterial3D
-            {
-                AlbedoColor = new Color(0.05f, 0.05f, 0.06f, 1f),
-                EmissionEnabled = true,
-                Emission = LedDim,
-                EmissionEnergyMultiplier = 3f
-            };
-            var led = new MeshInstance3D
-            {
-                Name = $"Led_{control}",
-                Mesh = new SphereMesh
+                // Track the full fader travel (0.22 deep) / knob extent (0.12–0.18) so
+                // the whole slot is a tap target, not just the cap geometry.
+                Shape = new BoxShape3D
                 {
-                    Radius = 0.014f,
-                    Height = 0.028f,
-                    RadialSegments = 8,
-                    Rings = 5
-                },
-                Position = new Vector3(x, LedY, CoverZ + 0.01f)
+                    Size = new Vector3(isFader ? 0.08f : 0.11f, 0.06f, isFader ? 0.22f : 0.14f)
+                }
             };
-            led.MaterialOverride = ledMat;
-            parent.AddChild(led);
+            if (!isFader && control == SoundboardControl.Master)
+            {
+                shape.Shape = new BoxShape3D { Size = new Vector3(0.2f, 0.08f, 0.18f) };
+            }
+            body.AddChild(shape);
+            AddChild(body);
+            _bodies[body] = control;
+        }
 
-            _roots[control] = handleRoot;
-            _visuals[control] = visual;
-            _leds[control] = led;
-            _ledMaterials[control] = ledMat;
+        private void BuildLamps()
+        {
+            if (_board == null)
+            {
+                return;
+            }
+
+            foreach (var lampName in AllLampNames())
+            {
+                var lamp = _board.FindChild(lampName, true, false) as MeshInstance3D;
+                if (lamp == null)
+                {
+                    WarnMissing(lampName);
+                    continue;
+                }
+
+                var material = new StandardMaterial3D
+                {
+                    AlbedoColor = new Color(0.05f, 0.05f, 0.06f, 1f),
+                    EmissionEnabled = true,
+                    Emission = LedDim,
+                    EmissionEnergyMultiplier = 3f
+                };
+                lamp.MaterialOverride = material;
+                _lamps[lampName] = lamp;
+                _lampMaterials[lampName] = material;
+            }
+        }
+
+        private static IEnumerable<string> AllLampNames()
+        {
+            var seen = new HashSet<string>(SoundboardPhysicalLayout.IdleLamps);
+            foreach (var lampName in SoundboardPhysicalLayout.IdleLamps)
+            {
+                yield return lampName;
+            }
+            foreach (var slot in SoundboardPhysicalLayout.Slots)
+            {
+                if (seen.Add(slot.LampName))
+                {
+                    yield return slot.LampName;
+                }
+            }
+        }
+
+        private void WarnMissing(string what)
+        {
+            if (_warnedMissing.Add(what))
+            {
+                GD.PushWarning($"Soundboard3D: missing board part '{what}' (stroke GLB out of date?)");
+            }
         }
 
         private void UpdateControls()
         {
-            foreach (var (control, _, _) in SlotLayout)
+            foreach (var slot in SoundboardPhysicalLayout.Slots)
             {
-                UpdateControlVisual(control);
+                if (_parts.TryGetValue(slot.Control, out var part) && part != null)
+                {
+                    UpdateControlVisual(slot.Control, part, slot.Kind);
+                }
             }
         }
 
-        private void UpdateControlVisual(SoundboardControl control)
+        private void UpdateControlVisual(SoundboardControl control, Node3D part, ControlKind kind)
         {
-            if (!_roots.TryGetValue(control, out var root) || root == null)
-            {
-                return;
-            }
-
             var value = SoundboardControlApplier.CurrentValue(Driver.State, control);
-            bool isFader = control is SoundboardControl.CallerGain or SoundboardControl.VernGain
-                or SoundboardControl.AdsGain or SoundboardControl.Master;
-            if (isFader)
+            if (kind == ControlKind.Fader)
             {
-                root.Position = new Vector3(root.Position.X, FaderLocalY(value), root.Position.Z);
+                var rest = _restPositions[control];
+                part.Position = new Vector3(rest.X, rest.Y, SoundboardPhysicalLayout.FaderLocalZ(value));
             }
             else
             {
-                root.RotationDegrees = new Vector3(0f, KnobRotationDeg(value), 0f);
+                part.RotationDegrees = new Vector3(0f, SoundboardPhysicalLayout.KnobRotationDeg(value), 0f);
             }
         }
 
         private void UpdateLeds()
         {
             var bands = CurrentCallerBands();
-            SetLedColor(SoundboardControl.CallerGain, BandColor(bands.Gain));
-            SetLedColor(SoundboardControl.CallerLowPass, BandColor(bands.LowPass));
-            SetLedColor(SoundboardControl.CallerHighPass, BandColor(bands.HighPass));
-            SetLedColor(SoundboardControl.VernGain, LedGreen);
+            var worst = SoundboardTargetGenerator.GetWorstBand(bands);
+            SetLampColor("Lamp_0", BandColor(worst));
+            SetLampColor("Lamp_1", LedGreen);
             var adBreak = _adManager != null && _adManager.IsAdBreakActive;
-            SetLedColor(SoundboardControl.AdsGain, adBreak ? LedGreen : LedDim);
-            SetLedColor(SoundboardControl.Master, BandColor(SoundboardTargetGenerator.GetWorstBand(bands)));
+            SetLampColor("Lamp_2", adBreak ? LedGreen : LedDim);
+            SetLampColor("Lamp_7", BandColor(worst));
+            foreach (var idle in SoundboardPhysicalLayout.IdleLamps)
+            {
+                SetLampColor(idle, LedDim);
+            }
         }
 
         private SoundboardCallerBands CurrentCallerBands()
@@ -360,16 +328,26 @@ namespace KBTV.World3D
             return SoundboardTargetGenerator.GetCallerBands(Driver.State, 0.5f);
         }
 
-        private void SetLedColor(SoundboardControl control, Color color)
+        private void SetLampColor(string lampName, Color color)
         {
-            if (!_ledMaterials.TryGetValue(control, out var material) || material == null)
+            if (!_lampMaterials.TryGetValue(lampName, out var material) || material == null)
             {
                 return;
             }
 
-            var isSelected = control == SelectedControl;
+            var isSelected = IsLampSelected(lampName);
             material.Emission = isSelected ? LedSelected : color;
             material.AlbedoColor = isSelected ? LedSelected : new Color(0.05f, 0.05f, 0.06f, 1f);
+        }
+
+        private bool IsLampSelected(string lampName)
+        {
+            if (SelectedControl == SoundboardControl.None || lampName == string.Empty)
+            {
+                return false;
+            }
+
+            return SoundboardPhysicalLayout.SlotFor(SelectedControl).LampName == lampName;
         }
 
         private void SetBodiesEnabled(bool enabled)
@@ -384,12 +362,6 @@ namespace KBTV.World3D
                 body.CollisionMask = 0u;
             }
         }
-
-        /// <summary>Fader cap local Y for a knob value (-travel at 0 .. +travel at 1).</summary>
-        public static float FaderLocalY(float value) => (value - 0.5f) * 2f * FaderTravel;
-
-        /// <summary>Knob rotation in degrees for a knob value (full swing around neutral).</summary>
-        public static float KnobRotationDeg(float value) => (value - 0.5f) * 2f * KnobTurnDeg;
 
         private void ResolveAdManager()
         {
@@ -411,10 +383,5 @@ namespace KBTV.World3D
             SoundboardBand.Red => LedRed,
             _ => LedDim
         };
-
-        private static StandardMaterial3D MakeMaterial(Color color)
-        {
-            return new StandardMaterial3D { AlbedoColor = color };
-        }
     }
 }

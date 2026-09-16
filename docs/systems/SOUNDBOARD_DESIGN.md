@@ -162,36 +162,57 @@ pattern: fixed ortho camera → click-to-select → drag to adjust.
 
 ### Placement & Visuals
 
-- `scripts/world3d/Soundboard3D.cs` (KBTV.World3D) is built by
-  `ControlRoom3D._Ready` at local `(0.25, 0.9, -3.55)` rot `(0, 180, 0)`,
-  name `"Soundboard3D"` — mirrors the `SoundBoard` GLB node transform
-  (`soundboard.glb`).
-- The GLB provides the box/face; faders (`BoxMesh`) and knobs
-  (`CylinderMesh`) are code-built and set slightly in front of the face
-  (`CoverZ = -0.09`) so the GLB internals stay opaque. Handle alignment is a
-  manual in-editor fit pass.
+- `soundboard.glb` is regenerated so the **chassis is static and every movable
+  part is a separately named sibling node**: `FaderCap_0..7`, `Knob_{ch}_{side}`
+  (with a child `Index_{ch}_{side}` pointer), `Lamp_0..7`, `MasterKnob`, plus
+  the `soundboard` chassis. The generator joins only static objects into the
+  chassis and exports the movables alongside (`Tools/modelgen/generate.py`
+  `MOVABLE` + selective `select_all(SELECT)` export).
+- `scripts/world3d/SoundboardPhysicalLayout.cs` (KBTV.World3D) is the **pure,
+  unit-testable** mapping of mixer controls → GLB part, drive kind, and channel
+  lamp. No Godot types, so it runs under GoDotTest without a scene.
+- `scripts/world3d/Soundboard3D.cs` is added by `ControlRoom3D._Ready` as a
+  child of the `"SoundBoard"` GLB node **at identity** (`Position = Zero`, no
+  rotation) and `AttachBoard(boardNode)` locates the named parts via
+  `FindChild(name, recursive, owned: false)`, captures each part's rest
+  transform, and builds the tap colliders. Parenting at identity makes part
+  transforms share the board's local frame (the previous absolute placement at
+  `(0.25, 0.9, -3.55)` yaw 180 did not match the instance's `x = -0.354`).
+- **Axis mapping** (verified from the exported glTF translations; authoring
+  `(x, y, z)` → glTF `(x, z, -y)`): fader caps slide along **glTF-local Z**
+  (authoring vertical), knobs and `MasterKnob` spin around **glTF-local Y**.
 
-### Control Slots (built left → right)
+### Control Slots (`SoundboardPhysicalLayout.Slots`)
 
-| Slot X | Control | Type |
-|--------|---------|------|
-| -0.60 | CallerGain | fader |
-| -0.36 | CallerLowPass | knob |
-| -0.12 | CallerHighPass | knob |
-| 0.12 | VernGain | fader |
-| 0.36 | AdsGain | fader |
-| 0.60 | Master | fader |
+| Control | GLB part | Drive | Channel lamp |
+|---------|----------|-------|--------------|
+| CallerGain | `FaderCap_0` | Fader | `Lamp_0` |
+| CallerLowPass | `Knob_0_0` | Knob | `Lamp_0` |
+| CallerHighPass | `Knob_0_1` | Knob | `Lamp_0` |
+| VernGain | `FaderCap_1` | Fader | `Lamp_1` |
+| AdsGain | `FaderCap_2` | Fader | `Lamp_2` |
+| Master | `MasterKnob` | Knob | `Lamp_7` |
 
-- Fader thumb Y: `FaderLocalY(value) = (value - 0.5f) * 2f * FaderTravel`.
-- Knob rotation: `KnobRotationDeg(value) = (value - 0.5f) * 2f * KnobTurnDeg`.
-- LEDs: 3D emissive quads above each slot. Caller LED reads
-  `SoundboardMonitor.CallerBands`; Vern = green; Ads = green while
-  `AdManager.IsAdBreakActive` else dim; Master = worst caller band.
+Columns 4–8 and their lamps are cosmetic; `Lamp_3..Lamp_6` stay dim idle.
+
+- Fader cap local Z: `FaderLocalZ(value) = (value - 0.5) * 2 * FaderTravel +
+  FaderRestLocalZ` (`FaderTravel = 0.06`, `FaderRestLocalZ = -0.12`); value 0 is
+  the front/bottom (`z = -0.18`), value 1 the back/top (`z = -0.06`).
+- Knob rotation: `KnobRotationDeg(value) = (value - 0.5) * 2 * KnobTurnDeg`
+  (`KnobTurnDeg = 90`, so ±45° around rest); the knob's child index follows.
+- Lamps are driven via per-lamp `MaterialOverride` emission (only while handles
+  are visible, once per frame): `Lamp_0` = caller worst band
+  (`SoundboardTargetGenerator.GetWorstBand(SoundboardMonitor.CallerBands)`),
+  `Lamp_1` = Vern green, `Lamp_2` = Ads green while `AdManager.IsAdBreakActive`
+  else dim, `Lamp_7` = master worst band, `Lamp_3..Lamp_6` dim. The selected
+  control brightens its channel lamp.
 
 ### Interaction (World3D)
 
-- Each handle has an oversized tap collider on `Soundboard3D.HitLayer`
-  (`1u << 20`, `CollisionMask = 0`) so only the board raycast hits.
+- Each part gets an invisible tap collider on `Soundboard3D.HitLayer`
+  (`1u << 20`, `CollisionMask = 0`) anchored to its rest position (fader
+  `0.08 × 0.06 × 0.22`, knob `0.11 × 0.06 × 0.14`, master `0.2 × 0.08 × 0.18`)
+  so only the board raycast hits.
 - `World3D.PollSoundboardMouse()` runs while `SoundboardViewState.Open`:
   click raycasts (`PhysicsRayQueryParameters3D`, mask = `HitLayer`), selects
   the control, then incremental vertical drag rebases each frame from
@@ -200,15 +221,21 @@ pattern: fixed ortho camera → click-to-select → drag to adjust.
   SoundboardDragPixelsPerUnit)` — drag **up** increases; result clamped to
   0..1; zero-ppu falls back to a unit step. Pure + unit-tested
   (`tests/unit/audio/SoundboardControlApplierTests.cs`).
-- Show/hide: `ShowHandles()` (reset driver to neutral + apply, `Visible =
-  true`) / `HideHandles()` (`Visible = false`, bodies disabled), driven by the
-  zoom transitions and `OnNavBackRequested`.
+- Show/hide: `ShowHandles()` (reset driver to neutral + apply, enable bodies) /
+  `HideHandles()` (disable bodies); driven by the zoom transitions and
+  `OnNavBackRequested`. `UpdateControls`/`UpdateLeds` run only while handles are
+  visible; overlay show/hide is unchanged.
 
 ### Camera
 
 - `SoundboardFramingWidth = 3.2f`, `SoundboardCameraDistance = 2.0f`,
-  `SoundboardElevationDeg = 35f`; camera pos = board center +
-  `(0, tan(35°)·dist, dist)`, look target = center + `(0, 0.06, 0)`.
+  `SoundboardElevationDeg = 75f` (steep look-down), `SoundboardBottomBand =
+  0.27f`; camera pos = board center + `(0, tan(75°)·dist, dist)`, look target
+  = center + `(0, SoundboardLookPivotHeight - SoundboardBottomBand·2·size, 0)`
+  so the board sits in the upper ~73% and the bottom ~27% stays clear for the
+  transcript overlay. `ComputeSoundboardFrame` measures the **combined AABB of
+  every mesh under the board** (`CombinedMeshAabb`) because the regenerated
+  board root is a plain `Node3D` (`VisualInstance3D.GetAabb` is empty).
 
 ### Overlay
 
@@ -222,8 +249,8 @@ pattern: fixed ortho camera → click-to-select → drag to adjust.
 **New**
 - `scripts/audio/SoundboardControlApplier.cs`
 - `scripts/world3d/Soundboard3D.cs`
+- `scripts/world3d/SoundboardPhysicalLayout.cs` (pure layout, no Godot types)
 - `scripts/ui/ScreenNavOverlay.cs`
-- `scripts/world3d/SoundboardTrigger3D.cs`
 - `scripts/audio/SoundboardKnobState.cs`
 - `scripts/audio/SoundboardTargetGenerator.cs`
 - `scripts/audio/SoundboardMixerDriver.cs`
@@ -232,27 +259,28 @@ pattern: fixed ortho camera → click-to-select → drag to adjust.
 - `docs/systems/SOUNDBOARD_DESIGN.md`
 
 **Modified**
-- `scripts/ui/SoundboardOverlay.cs` - drain-status-only label, mouse-transparent.
-- `scripts/ui/CallerTab.cs` - remove `BackRequested`/`CloseRequested`, `_backButton`, `_closeButton` (keep show-timer row + ON HOLD header).
-- `scripts/ui/CallerScreenerManager.cs` - remove `CallerTab` nav subscriptions; owns close via other paths.
-- `scripts/ui/TerminalOverlay.cs` - remove `CallerTab` nav wiring; nav now global.
-- `scripts/world3d/World3D.cs` - `SoundboardViewState`, view switching, AABB framing, nav overlay ownership, `PollSoundboardMouse`/`RaycastBoardControl`.
-- `scripts/world3d/ControlRoom3D.cs` - expose `SoundBoard` reference + build `Soundboard3D`.
-- `scripts/world3d/Soundboard3D.cs` - new (see section 7).
+- `scripts/world3d/ControlRoom3D.cs` - parent `Soundboard3D` under the `SoundBoard` GLB node at identity + `AttachBoard`.
+- `scripts/world3d/World3D.cs` - `SoundboardElevationDeg 75°`, `SoundboardBottomBand`, `CombinedMeshAabb`.
 - `scripts/audio/AudioMixerManager.cs` - `ApplySoundboard`, re-apply in `UpdateAudioQuality`.
 - `scripts/callers/Caller.cs`, `scripts/callers/CallerGenerator.cs` - `SpeakingVolume`.
 
-**Tests** (`tests/unit/audio/`, `tests/unit/monitors/`)
-- `SoundboardControlApplierTests.cs`
-- `SoundboardTargetGeneratorTests.cs`
-- `SoundboardMixerDriverTests.cs`
-- `SoundboardMonitorTests.cs`
+**Tests**
+- `tests/unit/audio/SoundboardControlApplierTests.cs`
+- `tests/unit/audio/SoundboardTargetGeneratorTests.cs`
+- `tests/unit/audio/SoundboardMixerDriverTests.cs`
+- `tests/unit/monitors/SoundboardMonitorTests.cs`
+- `tests/unit/world3d/SoundboardPhysicalLayoutTests.cs`
 
 ## 9. Tuning References
 
 - Terminal pattern: `TerminalViewState` enum, `TerminalZoomSpeed = 3.2f`,
   `TerminalFramingWidth = 1.85f`, camera offset `(0.09, 0.12, 1.42)`,
   look `(-0.02, -0.08, 0)`.
+- Soundboard: `SoundboardFramingWidth = 3.2f`, `SoundboardCameraDistance = 2.0f`,
+  `SoundboardElevationDeg = 75f`, `SoundboardBottomBand = 0.27f` (tune
+  0.20–0.27 to shift the look-target up/down for the transcript overlay band);
+  `SoundboardLookPivotHeight = 0.06f`, `SoundboardDragPixelsPerUnit = 220f`.
+  Bottom-band framing shifts the look target down by `BottomBand × 2 × size`.
 - Audio indices/presets: `AudioMixerManager` `CallerPresets` L1..L4
   (low-pass 600/800/1200/2500 Hz), `AudioEffectsProcessor` `EffectPresets`
   (2000/3500/6000/10000). Knob deltas should keep L4 the floor/best.

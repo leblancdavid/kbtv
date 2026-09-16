@@ -32,13 +32,14 @@ public partial class ControlRoom3D : Node3D
 		AddChild(ComputerTerminal);
 		AlignComputerTerminal();
 
-		SoundBoard3D = new Soundboard3D
+		SoundBoard3D = new Soundboard3D { Name = "Soundboard3D" };
+		var boardNode = GetNodeOrNull<Node3D>("SoundBoard");
+		if (boardNode != null)
 		{
-			Name = "Soundboard3D",
-			Position = new Vector3(0.25f, 0.9f, -3.55f),
-			RotationDegrees = new Vector3(0f, 180f, 0f)
-		};
-		AddChild(SoundBoard3D);
+			// Parented at identity so part transforms share the board's local frame.
+			boardNode.AddChild(SoundBoard3D);
+			SoundBoard3D.AttachBoard(boardNode);
+		}
 	}
 
 	public void SetComputerCollidersEnabled(bool enabled)

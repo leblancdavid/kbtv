@@ -25,8 +25,9 @@ private const float TerminalZoomSpeed = 3.2f;
 	private const float SoundboardZoomSpeed = 3.2f;
 	private const float SoundboardFramingWidth = 3.2f;
 	private const float SoundboardCameraDistance = 2.0f;
-	private const float SoundboardElevationDeg = 35f;
+	private const float SoundboardElevationDeg = 75f;
 	private const float SoundboardLookPivotHeight = 0.06f;
+	private const float SoundboardBottomBand = 0.27f;
 	private const float SoundboardInteractRadius = 1.4f;
 	private const float SoundboardDragPixelsPerUnit = 220f;
 
@@ -699,11 +700,7 @@ UpdateTerminalOverlayBounds();
 			return;
 		}
 
-		var aabb = new Aabb();
-		if (_soundBoardProp is VisualInstance3D visual)
-		{
-			aabb = visual.GetAabb();
-		}
+		var aabb = CombinedMeshAabb(_soundBoardProp);
 
 		var center = _soundBoardProp.GlobalPosition + new Vector3(0f, 0.3f, 0f);
 		var size = new Vector2(1.6f, 0.6f);
@@ -723,9 +720,37 @@ UpdateTerminalOverlayBounds();
 		var elevation = Mathf.DegToRad(SoundboardElevationDeg);
 		_soundboardCameraPos = center + new Vector3(0f, Mathf.Tan(elevation) * SoundboardCameraDistance, SoundboardCameraDistance);
 
-		var lookTarget = center + new Vector3(0f, SoundboardLookPivotHeight, 0f);
+		var lookTarget = center + new Vector3(
+			0f, SoundboardLookPivotHeight - SoundboardBottomBand * 2f * _soundboardCameraSize, 0f);
 		var transform = new Transform3D(Basis.Identity, _soundboardCameraPos).LookingAt(lookTarget, Vector3.Up);
 		_soundboardCameraBasis = transform.Basis;
+	}
+
+	/// <summary>Sum of the AABBs of every mesh under a (possibly non-visual) board root.</summary>
+	private static Aabb CombinedMeshAabb(Node3D root)
+	{
+		var aabb = new Aabb();
+		var found = false;
+		AccumulateMeshAabb(root, ref aabb, ref found);
+		return aabb;
+	}
+
+	private static void AccumulateMeshAabb(Node node, ref Aabb aabb, ref bool found)
+	{
+		if (node is VisualInstance3D visual)
+		{
+			var local = visual.GetAabb();
+			if (local.Size.LengthSquared() > 0.0001f)
+			{
+				aabb = found ? aabb.Merge(local) : local;
+				found = true;
+			}
+		}
+
+		foreach (var child in node.GetChildren())
+		{
+			AccumulateMeshAabb(child, ref aabb, ref found);
+		}
 	}
 
 	private void OpenSoundboardView()
