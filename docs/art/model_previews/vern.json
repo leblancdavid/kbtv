@@ -2,7 +2,7 @@
   "asset": "vern",
   "validation": "passed",
   "blender_version": "5.2.1 LTS",
-  "file_bytes": 526868,
+  "file_bytes": 597048,
   "bones": 21,
   "triangles": 15168,
   "materials": 10,
@@ -73,22 +73,22 @@
       }
     },
     "talking_default": {
-      "duration_seconds": 3.0,
-      "frames_sampled": 73,
+      "duration_seconds": 8.0,
+      "frames_sampled": 193,
       "loop": true,
       "endpoint_matrix_max_error": 0.0,
       "fixed_root_pelvis_feet_max_error": 2.384185791015625e-07,
-      "motion_matrix_max_delta": 1.5048190355300903,
+      "motion_matrix_max_delta": 1.5022321939468384,
       "bounds_blender": {
         "min": [
-          -0.35878685116767883,
-          -0.15680450201034546,
+          -0.415066123008728,
+          -0.17289191484451294,
           0.0029998738318681717
         ],
         "max": [
-          0.3587869107723236,
+          0.4292062520980835,
           0.708999752998352,
-          1.5473273992538452
+          1.5473744869232178
         ]
       }
     },
@@ -98,17 +98,17 @@
       "loop": false,
       "endpoint_matrix_max_error": 0.0,
       "fixed_root_pelvis_feet_max_error": 2.384185791015625e-07,
-      "motion_matrix_max_delta": 1.4476054310798645,
+      "motion_matrix_max_delta": 1.6394520998001099,
       "bounds_blender": {
         "min": [
-          -0.4325004816055298,
-          -0.1560000777244568,
+          -0.450525164604187,
+          -0.23096910119056702,
           0.0029998738318681717
         ],
         "max": [
-          0.3566470444202423,
+          0.3566470742225647,
           0.708999752998352,
-          1.545000433921814
+          1.5450005531311035
         ]
       }
     },
@@ -118,17 +118,17 @@
       "loop": false,
       "endpoint_matrix_max_error": 0.0,
       "fixed_root_pelvis_feet_max_error": 2.384185791015625e-07,
-      "motion_matrix_max_delta": 1.336184799671173,
+      "motion_matrix_max_delta": 1.5081628561019897,
       "bounds_blender": {
         "min": [
-          -0.356646865606308,
-          -0.1560000777244568,
+          -0.3566470444202423,
+          -0.23096910119056702,
           0.0029998738318681717
         ],
         "max": [
-          0.46178150177001953,
+          0.47130271792411804,
           0.708999752998352,
-          1.545000433921814
+          1.5450005531311035
         ]
       }
     }

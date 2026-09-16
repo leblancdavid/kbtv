@@ -38,6 +38,14 @@ public class VernAnimationControllerTests : KBTVTestClass
 		_player = null;
 	}
 
+	[Cleanup]
+	public void AfterEach()
+	{
+		_vern?.Free();
+		_eventBus?.Dispose();
+		_eventBus = null;
+	}
+
 	[Test]
 	public async Task PublishVernLine_SwitchesToTalkingAnimation()
 	{
@@ -112,7 +120,7 @@ public class VernAnimationControllerTests : KBTVTestClass
 		AssertThat(await WaitUntilAsync(() => Controller().DiagnosticPreSpeakIdle),
 			"The pre-speak idle lock should engage while the caller speaks.");
 
-		_eventBus!.Publish(new BroadcastEvent(BroadcastEventType.Interrupted, "int-1"));
+		_eventBus!.Publish(new BroadcastEvent(BroadcastEventType.Interrupted, "test-CallerLine"));
 
 		AssertThat(await WaitUntilAsync(() => !Controller().DiagnosticPreSpeakIdle),
 			"Interruption should release the pre-speak idle lock.");
@@ -121,7 +129,73 @@ public class VernAnimationControllerTests : KBTVTestClass
 	}
 
 	private string CurrentAnimation()
+
 		=> Unqualified(_player?.AssignedAnimation.ToString());
+
+	[Test]
+	public async Task ConsecutiveSpeech_PreservesPhaseAndIgnoresStaleInterruption()
+	{
+		await SetupVernAsync();
+		PublishItem(BroadcastItemType.VernLine, 10);
+		await WaitForAnimationAsync(TalkingAnimation);
+		_player!.Advance(2);
+		var before = _player.CurrentAnimationPosition;
+		_eventBus!.Publish(new BroadcastEvent(BroadcastEventType.Completed, "test-VernLine"));
+		PublishItem(BroadcastItemType.VernLine, 10);
+		_eventBus.Publish(new BroadcastEvent(BroadcastEventType.Interrupted, "stale-line"));
+		await WaitSecondsAsync(.2f);
+		Require(CurrentAnimation() == TalkingAnimation && _player.CurrentAnimationPosition >= before,
+			"Consecutive speech must preserve gesture phase; stale events must be ignored.");
+	}
+
+	[Test]
+	public async Task ShortCaller_NeverStartsPropAction()
+	{
+		await SetupVernAsync();
+		for (var i = 0; i < 12; i++)
+		{
+			PublishItem(BroadcastItemType.CallerLine, 6);
+			await FrameAsync();
+			await FrameAsync();
+			Require(CurrentAnimation() == IdleBreathingAnimation, "Action cannot fit before pre-speak idle.");
+		}
+	}
+
+	[Test]
+	public async Task PropAction_FinishesBeforeSpeechAndRestoresSingleProp()
+	{
+		await SetupVernAsync();
+		for (var attempt = 0; attempt < 30 && CurrentAnimation() == IdleBreathingAnimation; attempt++)
+		{
+			PublishItem(BroadcastItemType.CallerLine, 30);
+			await FrameAsync();
+			await FrameAsync();
+		}
+		var clip = CurrentAnimation();
+		Require(clip is "smoking" or "drink_coffee", "Expected a caller prop action.");
+		Require(_player!.GetAnimation(_player.AssignedAnimation).LoopMode == Animation.LoopModeEnum.None,
+			"Prop actions must be one-shots.");
+		var props = _vern!.GetNode<VernPerformanceProps>("PerformanceProps");
+		var prop = props.GetNode<Node3D>(clip == "smoking" ? "cigarette" : "coffee_mug");
+		var rest = prop.Transform;
+		_player.Advance(2.5);
+		props._Process(0);
+		Require(prop.Position.DistanceTo(rest.Origin) > .2f, "Held prop must follow the hand toward the mouth.");
+		PublishItem(BroadcastItemType.VernLine, 10);
+		await FrameAsync();
+		await FrameAsync();
+		Require(CurrentAnimation() == clip, "New speech must not abandon a held prop.");
+		_player.Advance(6);
+		props._Process(0);
+		Require(CurrentAnimation() == TalkingAnimation, "Completion must resume the latest speech state.");
+		Require(prop.Transform.IsEqualApprox(rest) && props.GetChildCount() == 4,
+			"Completion must return the single visible prop to its exact anchor.");
+	}
+
+	private static void Require(bool condition, string message)
+	{
+		if (!condition) throw new InvalidOperationException(message);
+	}
 
 	private VernAnimationController Controller()
 		=> _vern!.GetNode<VernAnimationController>("VernAnimationController");

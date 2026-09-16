@@ -28,5 +28,32 @@ func capture() -> void:
 		await process_frame
 	await RenderingServer.frame_post_draw
 	assert(root.get_texture().get_image().save_png("res://docs/art/model_previews/vern_godot_studio.png") == OK)
+	if "--animations" in OS.get_cmdline_user_args():
+		await capture_animations(world, viewport)
 	print("VERN_GODOT_PREVIEWS_SAVED")
 	quit()
+
+func capture_animations(world: Node, viewport: SubViewport) -> void:
+	var players = world.find_children("*", "AnimationPlayer", true, false)
+	var player: AnimationPlayer
+	for candidate in players:
+		if candidate.has_animation("talking_default"):
+			player = candidate
+			break
+	assert(player != null)
+	player.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+	var directory = OS.get_environment("LOCALAPPDATA") + "/Temp/opencode/vern_godot_frames"
+	DirAccess.make_dir_recursive_absolute(directory)
+	for clip in ["idle_breathing", "talking_default", "smoking", "drink_coffee"]:
+		var animation = player.get_animation(clip)
+		animation.loop_mode = Animation.LOOP_NONE
+		player.play(clip, 0)
+		for frame in range(roundi(animation.length * 12) + 1):
+			player.seek(frame / 12.0, true)
+			await process_frame
+			await RenderingServer.frame_post_draw
+			viewport.get_texture().get_image().save_png(directory + "/%s_feed_%03d.png" % [clip, frame])
+			var wide = root.get_texture().get_image()
+			wide.resize(640, 360)
+			wide.save_png(directory + "/%s_wide_%03d.png" % [clip, frame])
+	print("VERN_GODOT_FRAMES " + directory)

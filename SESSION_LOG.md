@@ -1,6 +1,24 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: End-to-end Vern animation polish: expressive whole-arm talking, smooth leaning prop actions, contact metadata and runtime scheduling. **Status: Completed**
+
+- Baseline: build succeeded; full tests 494 passed / 14 failed, including obsolete frozen-pose Vern expectation; existing soft assertions and shutdown leaks also present.
+- Implemented eight-second asymmetric whole-arm talking with wrist turns, torso/head accents, continuous Hermite positional tangents and contact holds. Drink/smoke recline around fixed seated spine pivot; shoulder IK and mouth contact follow torso/head. Neutral bind, bone names and separate chair retained.
+- Regenerated `vern.blend`, `vern.glb`, contact JSON, prop outputs and Blender moving/contact previews. 21 bones, 15,168 triangles, 10 materials. Godot per-frame validation passes: talking wrist excursions 0.287/0.269m, grip transform error <0.000001, mouth position error <0.0000002m, fixed pelvis/feet error <0.0000004.
+- Runtime: imported-duration one-shot admission, actual completion, two-second pre-speak buffer, safe return on unexpected speech/interruption, phase-preserving consecutive talking and stale item filtering. Added `VernPerformanceProps`: single permanent props on the animation clock; smaller exhale puffs from animated head marker replace periodic mouth puffs.
+- Files Modified: `Tools/modelgen/{vern_animation,vern_review,vern_pack_review,vern_godot_validate}.py`, `preview_vern.gd`, generated sources/assets/previews; `scripts/world3d/props/{VernAnimationController,VernCharacter3D,VernPerformanceProps}.cs`, `StudioSmoke3D.cs`; both Vern integration suites; art workflow/brief; this log.
+- Verification: Blender export/clean round-trip, Godot 4.6.3 editor import and independent all-frame validation passed. Actual studio + 320x180 feed sequences captured/packed for all four performances; front/side contacts and Godot sequence sheets inspected. Build 0 errors / 6 existing warnings. Focused suites 8/0 + 1/0. Full suite 498 passed / 13 failed (same unrelated baseline failures; obsolete Vern failure fixed). `-Filter Vern` matches no tests; use exact suite names.
+- Remaining: generic jaw motion and simplified existing grip rig, no phoneme sync; the close feed crops low/resting hands. Item-use notification/queue from the older full pass-1 plan remains separate from this caller-time animation-quality baseline. No commits made.
+- Next Steps: user aesthetic review of `docs/art/model_previews/vern_godot_*_{feed,wide}.gif` and contact sheets.
+- Related Docs: `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `docs/testing/TESTING.md`.
+- Blockers: none.
+
+---
+
+## Previous Session
+
+**Branch**: develop
 **Task**: Wire Vern's 3D animations to the broadcast speaker state — `VernAnimationController` + integration tests. **Status: Completed — build green, suites pass, full-suite failures are pre-existing**
 
 - Implemented `scripts/world3d/props/VernAnimationController.cs` (ns `KBTV.World3D`), added as child node of `Vern.tscn`; `VernCharacter3D.AnimPlayer`/`FindAnimPlayer` added.

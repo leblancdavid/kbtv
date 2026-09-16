@@ -18,6 +18,9 @@ public partial class VernCharacter3D : Node3D
 			return;
 		}
 		StationLighting3D.ApplyLayerToTree(this, StationLighting3D.StudioLayer);
+		var props = new VernPerformanceProps { Name = "PerformanceProps" };
+		AddChild(props);
+		props.Initialize(AnimPlayer);
 		Visible = true;
 	}
 

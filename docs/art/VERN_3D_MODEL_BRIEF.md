@@ -170,18 +170,40 @@ Acceptance checks:
 
 ## Animation pass 1 — approved plan
 
-The next production pass adds four seated animations to the existing character.
+### Implemented animation-quality baseline (September 2026)
+
+- Five exported actions, neutral bind and original bone names retained; the current
+  rig has 21 bones including existing grip/jaw controls. Chair remains separate.
+- `talking_default` is now **8 seconds**: asymmetric left/right explanations,
+  two-hand emphasis, wrist turns and torso/head accents. Both wrists travel over
+  0.26m from rest; continuous positional tangents carry gestures through transit beats.
+- Drink/smoke remain 5.5-second one-shots. Spine reclines about 7.5 degrees;
+  shoulders follow the chest, mouth contact follows the head, pelvis/feet stay fixed.
+  Contact and table holds retain zero velocity; contact samples regenerate with the rig.
+- `VernPerformanceProps` instantiates one mug, cigarette, ashtray and tray table,
+  samples the shared animation clock, and emits a head-following exhale at 3.5s.
+  Automatic unrelated mouth puffs were replaced; room haze/door leaks remain.
+- `VernAnimationController` admits a caller action only when its imported duration
+  fits before the two-second pre-speak buffer. Completion drives return to idle;
+  unexpected speech changes intent but allows the safe return to finish. Consecutive
+  speech preserves phase; stale item completion/interruption events are ignored.
+- Verified generated full clips in Blender and Godot; actual studio/feed GIFs and
+  sampled review sheets live under `model_previews/vern_godot_*`.
+- This baseline uses caller-time gestures. The item-use notification/queue described
+  in the original production sequence below remains a separate future integration.
+
+The original production plan below specifies four seated animations for the character.
 Use one generic talking performance initially; mood variants come later. The
 coffee mug is permanent studio dressing. Include an ashtray and cigarette prop
-to support the smoking action. This section is a production handoff, not a
-record of implemented animations.
+to support the smoking action. The implementation summary above supersedes
+the original starting targets; remaining item-use work is called out explicitly.
 
 ### Clip contract
 
 | Action | Playback | Starting duration | Performance |
 |---|---|---|---|
 | `idle_breathing` | Seamless loop | 3–5 seconds | Subtle chest/shoulder breathing and slight head drift; relaxed late-night host. |
-| `talking_default` | Seamless loop | 2–4 seconds | Restrained head nods, slight torso emphasis, small seated hand gestures. |
+| `talking_default` | Seamless loop | 8 seconds (implemented polish) | Alternating whole-arm gestures, wrist turns, two-hand emphasis and torso/head accents. |
 | `smoking` | One-shot | 4–6 seconds | Reach for cigarette, lift to lips, inhale, lower, exhale, return cigarette to ashtray. |
 | `drink_coffee` | One-shot | 4–6 seconds | Reach, grasp mug, lift, sip with a small tilt, return upright to its resting position, release. |
 

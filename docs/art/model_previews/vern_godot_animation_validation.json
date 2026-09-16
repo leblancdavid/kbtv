@@ -3,9 +3,14 @@
     "drink_coffee": {
       "duration_seconds": 5.5,
       "fixed_error": 0.000000387523670042356,
-      "grip_transform_error": 0.000000853928838751017,
+      "grip_transform_error": 0.000000850706953769986,
+      "hand_travel_meters": {
+        "hand.L": 0.55168491601944,
+        "hand.R": 0.000000276776773944221
+      },
       "loop_from_contract": false,
-      "motion": 1.76548171043396,
+      "motion": 1.8477178812027,
+      "mouth_contact_error": 0.000000163912773132324,
       "seam_error": 0.0,
       "tracks": 32
     },
@@ -13,8 +18,13 @@
       "duration_seconds": 4.0,
       "fixed_error": 0.000000387523670042356,
       "grip_transform_error": 0.0,
+      "hand_travel_meters": {
+        "hand.L": 0.00259144883602858,
+        "hand.R": 0.00259144883602858
+      },
       "loop_from_contract": true,
       "motion": 0.0127276089042425,
+      "mouth_contact_error": 0.0,
       "seam_error": 0.0,
       "tracks": 32
     },
@@ -22,28 +32,43 @@
       "duration_seconds": 1.0,
       "fixed_error": 0.0,
       "grip_transform_error": 0.0,
+      "hand_travel_meters": {
+        "hand.L": 0.0,
+        "hand.R": 0.0
+      },
       "loop_from_contract": false,
       "motion": 0.0,
+      "mouth_contact_error": 0.0,
       "seam_error": 0.0,
       "tracks": 31
     },
     "smoking": {
       "duration_seconds": 5.5,
       "fixed_error": 0.000000387523670042356,
-      "grip_transform_error": 0.000000967373011917516,
+      "grip_transform_error": 0.000000852367236348073,
+      "hand_travel_meters": {
+        "hand.L": 0.000000276776773944221,
+        "hand.R": 0.639904916286469
+      },
       "loop_from_contract": false,
-      "motion": 1.82039833068848,
+      "motion": 1.90482616424561,
+      "mouth_contact_error": 0.00000019670096662594,
       "seam_error": 0.0,
       "tracks": 32
     },
     "talking_default": {
-      "duration_seconds": 3.0,
+      "duration_seconds": 8.0,
       "fixed_error": 0.000000387523670042356,
       "grip_transform_error": 0.0,
+      "hand_travel_meters": {
+        "hand.L": 0.286950826644897,
+        "hand.R": 0.268727958202362
+      },
       "loop_from_contract": true,
-      "motion": 1.50512027740479,
-      "seam_error": 0.0,
-      "tracks": 34
+      "motion": 1.50987589359283,
+      "mouth_contact_error": 0.0,
+      "seam_error": 0.0000000298023223876953,
+      "tracks": 40
     }
   },
   "bones": 21,

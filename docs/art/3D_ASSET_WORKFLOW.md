@@ -138,15 +138,15 @@ blender --background --factory-startup --python-exit-code 1 --python Tools/model
 - `vern.py`: silhouette, clothing, face, hair, glasses and headphones.
 - `vern_mesh.py`: lofts/tubes with stable ring frames and weighted vertices.
 - `vern_rig.py`: neutral A-pose skeleton, seated transforms and inverse skinning.
-- `vern_export.py`: skin-preserving export, round-trip checks and six previews.
-- Source: `Tools/modelgen/source/vern.blend` (18 bones; live armature modifier).
-- Game asset: `assets/models3d/characters/vern/vern.glb` (14,728 triangles,
-  10 materials; approximately 435 KiB). Chair remains `office_chair.glb`.
+- `vern_export.py`: skin-preserving export, every-action round-trip checks and previews.
+- Source: `Tools/modelgen/source/vern.blend` (21 bones; live armature modifier).
+- Game asset: `assets/models3d/characters/vern/vern.glb` (15,168 triangles,
+  10 materials; approximately 583 KiB). Chair remains `office_chair.glb`.
 - `seated_rest` is a one-second held pose. `VernCharacter3D` applies it before
-  showing the model, then pauses the animation. Bind pose stays available.
-- Planned next pass: see [Animation pass 1](VERN_3D_MODEL_BRIEF.md#animation-pass-1--approved-plan)
-  for breathing/talking loops, smoking/coffee one-shots, permanent props and the
-  Astra handoff. These clips and playback changes are not implemented yet.
+  showing the model; deferred controller initialization then starts breathing.
+  Bind pose stays available. `vern_animation.py` bakes an 8-second talking loop,
+  4-second idle and 5.5-second smoking/coffee actions at 24fps, plus contact JSON.
+  `VernPerformanceProps` consumes the JSON in-game using the AnimationPlayer clock.
 - Geometry is authored seated then inverse-skinned into the neutral rest pose.
   Keep the weighted elbow/knee rings and shortest-arc bone orientation logic
   when changing shapes; arbitrary bone roll can corrupt the neutral mesh.
@@ -175,6 +175,26 @@ and review moving footage in Godot. Keep mug/cigarette exports separate from the
 skinned character and use the same resting/grip anchors for authoring and runtime.
 Record pickup/release/exhale timing outside glTF for Godot-side prop and smoke
 coordination. Static screenshots alone cannot validate contact or transitions.
+
+Current animation review commands (replace `$godot` with a Godot 4.6 mono console executable):
+
+```powershell
+blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/vern.py -- --skip-previews
+blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/vern.py -- --preview-only
+python Tools/modelgen/vern_godot_validate.py --godot $godot
+& $godot --headless --editor --path . --import
+dotnet build
+& $godot --path . --script Tools/modelgen/preview_vern.gd -- --animations
+python Tools/modelgen/vern_pack_review.py "$env:LOCALAPPDATA/Temp/opencode/vern_godot_frames" docs/art/model_previews vern_godot
+pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests
+pwsh -NoProfile -File run-tests.ps1 -Filter VernCharacterIntegrationTests
+```
+
+Blender moving reviews use `vern_review.py` / `vern_pack_review.py`; loops are
+packaged as two cycles. Godot validation checks every baked frame for fixed
+pelvis/feet, loop endpoints, hand-grip alignment, moving mouth contact and wrist
+travel. Runtime tests cover short caller admission, consecutive speech, stale
+events, one-shot completion and single-prop restoration.
 
 ## Troubleshooting
 

@@ -6,7 +6,7 @@ import bpy
 from mathutils import Matrix, Vector, Quaternion
 
 FPS = 24
-DURATIONS = {'seated_rest': 1., 'idle_breathing': 4., 'talking_default': 3.,
+DURATIONS = {'seated_rest': 1., 'idle_breathing': 4., 'talking_default': 8.,
              'smoking': 5.5, 'drink_coffee': 5.5}
 CONVERT = Matrix.Rotation(-math.pi/2, 4, 'X')
 REST = {'coffee_mug': Vector((.34, .43, .73)),
@@ -31,11 +31,20 @@ def encode(matrix, bone_local=False):
 
 
 def interpolate(keys, t):
-    for (a, ma), (b, mb) in zip(keys, keys[1:]):
+    # Cubic Hermite: shared transit tangents, zero velocity at repeated/contact keys.
+    def tangent(i):
+        if i == 0 or i == len(keys)-1:
+            return Vector((0, 0, 0))
+        before, here, after = keys[i-1:i+2]
+        if (here[1].translation-before[1].translation).length < 1e-6 or (after[1].translation-here[1].translation).length < 1e-6:
+            return Vector((0, 0, 0))
+        return (after[1].translation-before[1].translation)/(after[0]-before[0])
+    for i, ((a, ma), (b, mb)) in enumerate(zip(keys, keys[1:])):
         if t <= b:
-            f = smooth((t-a)/(b-a))
-            return Matrix.LocRotScale(ma.translation.lerp(mb.translation, f),
-                ma.to_quaternion().slerp(mb.to_quaternion(), f), Vector((1, 1, 1)))
+            u = max(0, min(1, (t-a)/(b-a)))
+            p = ((2*u**3-3*u*u+1)*ma.translation + (u**3-2*u*u+u)*(b-a)*tangent(i)
+                 + (-2*u**3+3*u*u)*mb.translation + (u**3-u*u)*(b-a)*tangent(i+1))
+            return Matrix.LocRotScale(p, ma.to_quaternion().slerp(mb.to_quaternion(), smooth(u)), Vector((1, 1, 1)))
     return keys[-1][1].copy()
 
 
@@ -56,6 +65,9 @@ def prop_keys(name):
 
 def solve_arm(rig, base, side, wrist, hand_rotation):
     names = ['upper_arm.'+side, 'forearm.'+side, 'hand.'+side]
+    # Follow the evaluated torso instead of pinning the shoulder in world space.
+    body = rig.pose.bones['chest'].matrix @ base['chest'].inverted()
+    base = {n: body @ m for n, m in base.items()}
     shoulder = base[names[0]].translation
     elbow0, wrist0 = base[names[1]].translation, base[names[2]].translation
     a, b = (elbow0-shoulder).length, (wrist0-elbow0).length
@@ -135,7 +147,19 @@ def build_actions(rig):
                 bone.matrix_basis = basis[bone.name]
             bpy.context.view_layer.update()
             if prop:
+                # Recline around the fixed seated spine pivot; pelvis/legs never move.
+                lean = .13*smooth((t-1.15)/1.15)*(1-smooth((t-3.1)/1.4))
+                pivot = base['spine'].translation
+                body = Matrix.Translation(pivot) @ Matrix.Rotation(lean, 4, 'X') @ Matrix.Translation(-pivot)
+                rig.pose.bones['spine'].matrix = body @ base['spine']
+                bpy.context.view_layer.update()
                 matrix = interpolate(keys, t)
+                # Blend the trajectory into the moving head frame at the contact hold.
+                follow = smooth((t-1.1)/1.2)*(1-smooth((t-3.0)/1.6))
+                head_delta = rig.pose.bones['head'].matrix @ base['head'].inverted()
+                followed = head_delta @ matrix
+                matrix = Matrix.LocRotScale(matrix.translation.lerp(followed.translation, follow),
+                    matrix.to_quaternion().slerp(followed.to_quaternion(), follow), Vector((1, 1, 1)))
                 target = matrix @ grip.inverted()
                 elevated = pickup_hand.copy()
                 elevated.translation.z += .09
@@ -146,6 +170,9 @@ def build_actions(rig):
                 elif t > 4.6:
                     target = interpolate([(4.6, pickup_hand), (4.9, elevated), (5.2, initial_up), (5.5, base[hand])], t)
                 solve_arm(rig, base, side, target.translation, target.to_quaternion())
+                other = 'R' if side == 'L' else 'L'
+                solve_arm(rig, base, other, base['hand.'+other].translation,
+                          base['hand.'+other].to_quaternion())
                 amount = smooth((t-.85)/.25) * (1-smooth((t-4.6)/.25))
                 axis = base[hand].to_quaternion().inverted() @ Vector((-1, 0, 0))
                 curl = .65 if side == 'L' else .2
@@ -157,8 +184,30 @@ def build_actions(rig):
                 rig.pose.bones['chest'].scale = (1+.006*breath, 1+.004*breath, 1+.008*breath)
                 rig.pose.bones['head'].rotation_quaternion @= Quaternion((1, 0, 0), .012*math.sin(phase))
                 if clip == 'talking_default':
-                    rig.pose.bones['head'].rotation_quaternion @= Quaternion((0, 0, 1), .025*math.sin(phase*2))
-                    rig.pose.bones['hand.L'].rotation_quaternion @= Quaternion((1, 0, 0), .08*(1-math.cos(phase)))
+                    # Explain with left palm, answer with right, then an open two-hand beat.
+                    rig.pose.bones['spine'].rotation_quaternion @= Quaternion((1, 0, 0), .035*math.sin(phase))
+                    rig.pose.bones['chest'].rotation_quaternion @= Quaternion((0, 1, 0), .045*math.sin(phase))
+                    rig.pose.bones['head'].rotation_quaternion @= Quaternion((0, 0, 1), .055*math.sin(phase*2))
+                    bpy.context.view_layer.update()
+                    for side, sign in [('L', 1), ('R', -1)]:
+                        hand = base['hand.'+side]
+                        beats = ([(0, (0, 0, 0), 0), (.7, (.02, .025, .13), -.25),
+                                  (1.4, (.08, .04, .27), -.65), (2.1, (.035, .07, .21), -.4),
+                                  (3.0, (0, .02, .08), -.1), (4.1, (0, 0, .025), 0),
+                                  (5.2, (.07, .045, .23), -.55), (6.1, (.10, .055, .19), -.4),
+                                  (7.1, (.015, .02, .07), -.1), (8, (0, 0, 0), 0)] if side == 'L' else
+                                 [(0, (0, 0, 0), 0), (1.2, (0, .01, .035), .1),
+                                  (2.5, (.015, .02, .075), .15), (3.3, (.055, .06, .25), .5),
+                                  (4.0, (.02, .08, .20), .35), (4.6, (.015, .02, .08), .1),
+                                  (5.5, (.085, .05, .23), .6), (6.4, (.065, .06, .18), .4),
+                                  (7.3, (.01, .02, .05), .1), (8, (0, 0, 0), 0)])
+                        gesture = []
+                        for time, offset, roll in beats:
+                            position = hand.translation+Vector((sign*offset[0], offset[1], offset[2]))
+                            rotation = Quaternion((0, 1, 0), roll) @ hand.to_quaternion()
+                            gesture.append((time, Matrix.LocRotScale(position, rotation, Vector((1, 1, 1)))))
+                        target = interpolate(gesture, t)
+                        solve_arm(rig, base, side, target.translation, target.to_quaternion())
                     rig.pose.bones['jaw'].location.y -= .004*(math.sin(phase*5)**2)
                     rig.pose.bones['jaw'].scale.y = 1+1.5*(math.sin(phase*5)**2)
             for bone in rig.pose.bones:

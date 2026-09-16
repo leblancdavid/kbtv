@@ -17,7 +17,7 @@ public class VernCharacterIntegrationTests : TestClass
 	}
 
 	[Test]
-	public async Task ImportedVern_IsSkinnedAndHoldsSeatedPoseBeforeFirstFrame()
+	public async Task ImportedVern_IsSkinnedSeatedThenBreathesWithFixedFeet()
 	{
 		var scene = GD.Load<PackedScene>("res://scenes/world3d/Vern.tscn");
 		var vern = scene.Instantiate<VernCharacter3D>();
@@ -44,8 +44,11 @@ public class VernCharacterIntegrationTests : TestClass
 				"Seated animation must move multiple bones away from the neutral bind pose at startup.");
 			await _testScene.ToSignal(_testScene.GetTree(), SceneTree.SignalName.ProcessFrame);
 			await _testScene.ToSignal(_testScene.GetTree(), SceneTree.SignalName.ProcessFrame);
-			Require(bones.All(bone => bone.Pose.IsEqualApprox(bone.Skeleton.GetBonePose(bone.Index))),
-				"The initialized pose must remain held across frames.");
+			players[0].Advance(1);
+			Require(bones.Any(bone => !bone.Pose.IsEqualApprox(bone.Skeleton.GetBonePose(bone.Index))),
+				"Idle must move the upper body.");
+			Require(bones.Where(b => new[] { "root", "pelvis", "foot.L", "foot.R" }.Contains(b.Skeleton.GetBoneName(b.Index)))
+				.All(b => b.Pose.IsEqualApprox(b.Skeleton.GetBonePose(b.Index))), "Seat and feet must stay fixed.");
 		}
 		finally
 		{

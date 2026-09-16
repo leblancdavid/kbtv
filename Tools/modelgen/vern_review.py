@@ -37,7 +37,7 @@ def moving_previews(rig, actions):
     camera = bpy.context.object
     scene.camera = camera
     camera.data.type = 'ORTHO'
-    with tempfile.TemporaryDirectory(prefix='vern_review_') as temp:
+    with tempfile.TemporaryDirectory(prefix='vern_review_', dir=Path.home() / 'AppData/Local/Temp/opencode') as temp:
         directory = Path(temp)
         for clip, action in actions.items():
             if clip == 'seated_rest':

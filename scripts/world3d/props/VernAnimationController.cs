@@ -13,7 +13,8 @@ namespace KBTV.World3D;
 /// cycles through smoking, idle breathing and drinking coffee, with a
 /// mandatory idle pause between the one-shot actions. A couple of seconds
 /// before the caller's line ends Vern returns to idle breathing so he is
-/// never mid-action when he is about to speak himself.
+/// ready to speak. Unexpected speech/interruption waits visually for a safe
+/// prop return without delaying audio; consecutive speech keeps its gesture phase.
 /// </summary>
 public partial class VernAnimationController : Node
 {
@@ -30,9 +31,11 @@ public partial class VernAnimationController : Node
 	// Mandatory breathing pause between one-shot actions (random between these bounds).
 	private const float MinBreathingSeconds = 2.0f;
 	private const float MaxBreathingSeconds = 4.0f;
-	// How long a smoking/drinking action is held before the next cycle step.
-	private const float MinActionSeconds = 3.0f;
-	private const float MaxActionSeconds = 6.0f;
+	// One-shots finish on AnimationFinished, using imported duration for admission.
+	private double _callerDeadline;
+	private bool _oneShot;
+	private string? _deferredAnimation;
+	private string? _activeItemId;
 	// Fallback line length when the broadcast provides no audio timing.
 	private const float FallbackLineSeconds = 4.0f;
 
@@ -88,6 +91,7 @@ public partial class VernAnimationController : Node
 	public override void _ExitTree()
 	{
 		Unsubscribe();
+		if (_animPlayer != null) _animPlayer.AnimationFinished -= OnAnimationFinished;
 		_timerGeneration++;
 	}
 
@@ -98,6 +102,8 @@ public partial class VernAnimationController : Node
 			_animPlayer = vern.AnimPlayer;
 		}
 		_animPlayer ??= FindAnimPlayer(this);
+		if (_animPlayer != null) _animPlayer.AnimationFinished += OnAnimationFinished;
+		PlayLooping(AnimIdleBreathing);
 		RetryResolveServices();
 	}
 
@@ -114,7 +120,7 @@ public partial class VernAnimationController : Node
 			return;
 		}
 		_resolveAttempts++;
-		if (DependencyInjection.TryGet(this, out EventBus eventBus))
+		if (DependencyInjection.TryGet(this, out EventBus eventBus) && eventBus != null)
 		{
 			_eventBus = eventBus;
 			Subscribe();
@@ -152,8 +158,21 @@ public partial class VernAnimationController : Node
 	{
 		// If the current line is interrupted (cursing, caller drop, break) before a
 		// replacement item starts, return Vern to idle breathing instead of freezing.
-		if (@event.Type != BroadcastEventType.Interrupted)
+		if (@event.ItemId != _activeItemId || @event.Type == BroadcastEventType.Started)
 		{
+			return;
+		}
+		if (@event.Type == BroadcastEventType.Completed)
+		{
+			// A short grace bridges consecutive lines without restarting the gesture loop.
+			var generation = _timerGeneration;
+			GetTree().CreateTimer(0.12).Timeout += () =>
+			{
+				if (generation != _timerGeneration || !IsInsideTree()) return;
+				_timerGeneration++;
+				_state = AnimState.Idle;
+				PlayLooping(AnimIdleBreathing);
+			};
 			return;
 		}
 		_timerGeneration++;
@@ -169,8 +188,9 @@ public partial class VernAnimationController : Node
 			return;
 		}
 
-		// Every new broadcast item overrides whatever Vern was doing.
+		// Replace intent/timers, retaining an in-progress prop-safe return.
 		_timerGeneration++;
+		_activeItemId = @event.Item.Id;
 
 		switch (@event.Item.Type)
 		{
@@ -186,6 +206,7 @@ public partial class VernAnimationController : Node
 				_preSpeakIdle = false;
 				var lineEndSeconds = @event.AudioLength > 0f ? @event.AudioLength : FallbackLineSeconds;
 				SchedulePreSpeakIdle(lineEndSeconds);
+				if (_oneShot) PlayLooping(AnimIdleBreathing);
 				PlayRandomIdleBehavior(null);
 				break;
 
@@ -200,6 +221,7 @@ public partial class VernAnimationController : Node
 
 	private void SchedulePreSpeakIdle(float lineLengthSeconds)
 	{
+		_callerDeadline = Time.GetTicksMsec()/1000.0 + Math.Max(0, lineLengthSeconds-PreSpeakIdleSeconds);
 		// Make sure Vern is idle (not smoking/drinking) when he is about to talk.
 		var delay = Mathf.Max(lineLengthSeconds - PreSpeakIdleSeconds, 0.1f);
 		var generation = _timerGeneration;
@@ -216,7 +238,7 @@ public partial class VernAnimationController : Node
 
 	private void PlayRandomIdleBehavior(IdleBehavior? previous)
 	{
-		if (_state != AnimState.CallerIdle)
+		if (_state != AnimState.CallerIdle || _oneShot || _preSpeakIdle)
 		{
 			return;
 		}
@@ -238,8 +260,6 @@ public partial class VernAnimationController : Node
 			next = IdleBehavior.Breathing;
 		}
 
-		var minSeconds = next == IdleBehavior.Breathing ? MinBreathingSeconds : MinActionSeconds;
-		var maxSeconds = next == IdleBehavior.Breathing ? MaxBreathingSeconds : MaxActionSeconds;
 		var animation = next switch
 		{
 			IdleBehavior.Smoking => AnimSmoking,
@@ -247,8 +267,31 @@ public partial class VernAnimationController : Node
 			_ => AnimIdleBreathing
 		};
 
-		PlayLooping(animation);
-		ScheduleIdleBehaviorAfter(next, minSeconds, maxSeconds);
+		var resolved = ResolveAnimationName(animation);
+		var duration = resolved == null ? 0 : _animPlayer!.GetAnimation(resolved).Length;
+		if (next != IdleBehavior.Breathing && duration > 0
+			&& Time.GetTicksMsec()/1000.0 + duration + 0.25 < _callerDeadline)
+		{
+			_oneShot = true;
+			_animPlayer!.GetAnimation(resolved!).LoopMode = Animation.LoopModeEnum.None;
+			_animPlayer.Play(resolved!, customBlend: 0.2);
+		}
+		else
+		{
+			PlayLooping(AnimIdleBreathing);
+			ScheduleIdleBehaviorAfter(IdleBehavior.Breathing, MinBreathingSeconds, MaxBreathingSeconds);
+		}
+	}
+
+	private void OnAnimationFinished(StringName animation)
+	{
+		if (!_oneShot) return;
+		_oneShot = false;
+		var next = _deferredAnimation;
+		_deferredAnimation = null;
+		PlayLooping(next ?? (_state == AnimState.Talking ? AnimTalking : AnimIdleBreathing));
+		if (_state == AnimState.CallerIdle && !_preSpeakIdle)
+			ScheduleIdleBehaviorAfter(IdleBehavior.Breathing, MinBreathingSeconds, MaxBreathingSeconds);
 	}
 
 	private void ScheduleIdleBehaviorAfter(IdleBehavior completed, float minSeconds, float maxSeconds)
@@ -267,6 +310,12 @@ public partial class VernAnimationController : Node
 
 	private void PlayLooping(string animationName)
 	{
+		// Let the authored return finish; audio never waits and props never teleport.
+		if (_oneShot)
+		{
+			_deferredAnimation = animationName;
+			return;
+		}
 		if (_animPlayer == null)
 		{
 			return;

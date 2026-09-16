@@ -30,7 +30,6 @@ public partial class StudioSmoke3D : Node3D
 	private Vector3 _fogBasePosition;
 	private Vector3 _fogBaseSize;
 	private float _time;
-	private float _puffTimer;
 	private float _controlStudioLeakTimer;
 	private float _studioHallLeakTimer;
 	private int _nextPuffIndex;
@@ -61,31 +60,30 @@ public partial class StudioSmoke3D : Node3D
 	{
 		_rng.Randomize();
 		Name = "StudioSmoke3D";
+		AddToGroup("vern_smoke");
 		_smokeTexture = CreateSmokeTexture();
 
 		CreateFogVolume();
 		CreatePuffPool();
 		CreateDoorLeakPool();
-		SpawnPuffBurst();
-		_puffTimer = PuffInterval * 0.65f;
 	}
 
 	public override void _Process(double delta)
 	{
 		var dt = (float)delta;
 		_time += dt;
-		_puffTimer += dt;
 
 		UpdateFogMotion();
 		UpdateActiveDoorLeaks(dt);
 		UpdatePuffs(dt);
 		UpdateDoorLeakPuffs(dt);
 
-		if (_puffTimer >= PuffInterval)
-		{
-			_puffTimer = 0f;
-			SpawnPuffBurst();
-		}
+	}
+
+	public void EmitExhale(Vector3 worldMouth)
+	{
+		PuffOrigin = ToLocal(worldMouth);
+		SpawnPuffBurst();
 	}
 
 	public void SetDoorLeakActive(string doorKey, Vector3 localOrigin, Vector3 localDirection, bool active)
@@ -387,9 +385,9 @@ public partial class StudioSmoke3D : Node3D
 			wisp.Age = -_rng.RandfRange(0f, 0.6f);
 			wisp.Lifetime = _rng.RandfRange(6.5f, 9.5f);
 			wisp.Phase = _rng.Randf() * Mathf.Tau;
-			wisp.BaseScale = _rng.RandfRange(0.32f, 0.58f);
+			wisp.BaseScale = _rng.RandfRange(0.08f, 0.14f);
 			wisp.Opacity = _rng.RandfRange(0.65f, 1f);
-			wisp.Origin = PuffOrigin + new Vector3(_rng.RandfRange(-0.12f, 0.12f), _rng.RandfRange(-0.05f, 0.08f), _rng.RandfRange(-0.12f, 0.12f));
+			wisp.Origin = PuffOrigin + new Vector3(_rng.RandfRange(-0.02f, 0.02f), 0, _rng.RandfRange(-0.02f, 0.02f));
 			wisp.Drift = new Vector3(_rng.RandfRange(-0.7f, 0.85f), _rng.RandfRange(0.85f, 1.45f), _rng.RandfRange(-0.45f, 0.65f));
 			wisp.Wobble = new Vector2(_rng.RandfRange(0.08f, 0.3f), _rng.RandfRange(0.05f, 0.22f));
 		}
