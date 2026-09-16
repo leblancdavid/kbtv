@@ -37,7 +37,9 @@ def create():
     bpy.ops.object.mode_set(mode='OBJECT')
     for name, (_, _, _, head, tail) in bones.items():
         direction = Vector(tail) - Vector(head)
-        rotation = direction.to_track_quat('Y', 'Z').to_matrix().to_4x4()
+        rest = rig.data.bones[name]
+        swing = (rest.tail_local - rest.head_local).rotation_difference(direction)
+        rotation = (swing @ rest.matrix_local.to_quaternion()).to_matrix().to_4x4()
         rig.pose.bones[name].matrix = Matrix.Translation(Vector(head)) @ rotation
         bpy.context.view_layer.update()
     return rig

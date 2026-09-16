@@ -48,13 +48,13 @@ def body(p):
          p['rib'], {'pelvis': 1}, 20)
     for side, s in [('L', 1), ('R', -1)]:
         arm, fore, hand = 'upper_arm.' + side, 'forearm.' + side, 'hand.' + side
-        points = [(s*.18, -.04, 1.067), (s*.235, -.045, 1.02), (s*.26, -.055, .91),
+        points = [(s*.145, -.04, 1.03), (s*.215, -.045, 1.035), (s*.26, -.055, .91),
                   (s*.285, -.07, .81), (s*.284, -.02, .776), (s*.28, .075, .756), (s*.28, .185, .742)]
         def sleeve_weights(i):
             t = [0, 0, 0, .45, .9, 1, 1][i // 16]
             return {arm: 1 - t, fore: t}
         tube('Continuous sweater sleeve ' + side, points,
-             [.092, .09, .077, .073, .065, .056, .047], p['sweater'], sleeve_weights, 16)
+             [.071, .086, .077, .073, .065, .056, .047], p['sweater'], sleeve_weights, 16)
         tube('Knitted wrist cuff ' + side, [(s*.28, .15, .75), (s*.28, .19, .741)],
              .048, p['rib'], {fore: 1}, 16)
         ellipsoid('Relaxed palm ' + side, (s*.278, .228, .737), (.044, .066, .024), p['skin'], {hand: 1})
@@ -107,7 +107,6 @@ def face(p):
              (s*.08, .091, 1.351)], .006, p['skin'], h)
         tube('Dark eyebrow', [(s*.027, .105, 1.38), (s*.052, .108, 1.386),
              (s*.086, .086, 1.375)], [.007, .009, .006], p['hair'], h)
-        ellipsoid('Cheek plane', (s*.07, .075, 1.291), (.04, .016, .032), p['skin'], h)
     tube('Quiet mouth', [(-.038, .09, 1.246), (0, .103, 1.247), (.038, .09, 1.246)],
          .004, p['lip'], h)
     # Two tapered mustache lobes, kept off the upper lip.
@@ -126,9 +125,10 @@ def hair_and_accessories(p):
             front = max(0, math.sin(a))
             end = 1.92 - .73 * front + .27 * max(0, -math.sin(a))
             theta = .02 + (end - .02) * row / (rows - 1)
-            vertices.append((.126 * math.sin(theta) * math.cos(a),
-                -.026 + .116 * math.sin(theta) * math.sin(a),
-                1.395 + .107 * math.cos(theta) + .009 * math.cos(a)))
+            vertices.append((.13 * math.sin(theta) * math.cos(a),
+                -.026 + .122 * math.sin(theta) * math.sin(a),
+                1.407 + .107 * math.cos(theta) + .006 * math.cos(a)
+                + .002 * math.sin(a * 9 + theta * 3)))
     faces = [tuple(reversed(range(sides)))]
     for row in range(rows - 1):
         for i in range(sides):
@@ -136,13 +136,6 @@ def hair_and_accessories(p):
             faces.append((a, a + sides, b + sides, b))
     faces.append(tuple(range((rows - 1) * sides, rows * sides)))
     mesh('Swept hair cap', vertices, faces, p['hair'], h)
-    # Low-relief swept locks communicate a combed side part at broadcast distance.
-    for i in range(6):
-        x = -.083 + i * .027
-        tube('Combed hair lock', [(x, .072, 1.432 + .028*(1-abs(x)/.1)),
-            (x-.018, .031, 1.483 + .007*(1-abs(x)/.1)),
-            (x-.014, -.025, 1.496 - .024*(abs(x)/.1)),
-            (x, -.079, 1.46)], [.009, .012, .010, .005], p['hair'], h, 8)
     for s in (-1, 1):
         tube('Gray temple', [(s*.12, .018, 1.38), (s*.121, .022, 1.356),
              (s*.12, .023, 1.323)], [.01, .009, .006], p['gray'], h)

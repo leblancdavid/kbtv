@@ -119,12 +119,52 @@ props are bottom-origin and meter-sized.
 
 | GLB | Dimensions in meters | Triangles | Materials | Scene placement |
 |---|---:|---:|---:|---|
-| `audio_cabinet.glb` | 0.700 x 1.000 x 0.658 | 12,876 | 7 | `ControlRoom3D/AudioCabinet` at `(4.1, 0, -2.3)`, Y rotation 180. |
+| `audio_cabinet.glb` | 0.700 x 1.000 x 0.658 | 12,876 | 7 | `ControlRoom3D/AudioCabinet` at `(4.45, 0, -3.5)`, Y rotation 180, scale 1.5x (back-right corner). |
 | `microphone_stand.glb` | 0.350 x 1.200 x 0.350 | 4,296 | 5 | `StudioRoom3D/StudioMicStand` at `(0.95, 0.2, 0.65)`, Y rotation 180. |
 
 The first in-game review looked good enough to keep this workflow for additional
 simple props. Use the same process for the next one or two assets before scaling
 up production.
+
+## Vern character pipeline
+
+Vern uses a separate rig-aware generator; do not pass him through the static
+prop generator's mesh-only export path.
+
+```powershell
+blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/vern.py
+```
+
+- `vern.py`: silhouette, clothing, face, hair, glasses and headphones.
+- `vern_mesh.py`: lofts/tubes with stable ring frames and weighted vertices.
+- `vern_rig.py`: neutral A-pose skeleton, seated transforms and inverse skinning.
+- `vern_export.py`: skin-preserving export, round-trip checks and six previews.
+- Source: `Tools/modelgen/source/vern.blend` (18 bones; live armature modifier).
+- Game asset: `assets/models3d/characters/vern/vern.glb` (14,728 triangles,
+  10 materials; approximately 435 KiB). Chair remains `office_chair.glb`.
+- `seated_rest` is a one-second held pose. `VernCharacter3D` applies it before
+  showing the model, then pauses the animation. Bind pose stays available.
+- Geometry is authored seated then inverse-skinned into the neutral rest pose.
+  Keep the weighted elbow/knee rings and shortest-arc bone orientation logic
+  when changing shapes; arbitrary bone roll can corrupt the neutral mesh.
+
+Import the GLB in Godot 4.6 mono, build C#, then run the focused test:
+
+```powershell
+dotnet build
+pwsh -NoProfile -File run-tests.ps1 -Filter VernCharacterIntegrationTests
+```
+
+With a graphical Godot 4.6 mono executable, capture actual studio lighting and
+the broadcast feed (the command does not start a show):
+
+```powershell
+godot --path . --script Tools/modelgen/preview_vern.gd
+```
+
+This writes `vern_godot_feed.png` and `vern_godot_studio.png` in
+`docs/art/model_previews/`. Use the correct executable path if `godot` on PATH
+is not version 4.6 mono. Blender-only previews use neutral review lighting.
 
 ## Troubleshooting
 

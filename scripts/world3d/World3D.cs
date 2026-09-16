@@ -218,7 +218,7 @@ private const float TerminalZoomSpeed = 3.2f;
 		_vernCameraViewport.AddChild(_vernCamera);
 		var lookTarget = _studio_room.GetNode<Marker3D>("VernStation/Vern/LookTarget");
 		_vernCamera.LookAtFromPosition(
-			lookTarget.GlobalPosition + new Vector3(-1.3f, 0.3f, 2.8f),
+			lookTarget.GlobalPosition + new Vector3(-0.48f, 0.12f, 1.2f),
 			lookTarget.GlobalPosition,
 			Vector3.Up);
 	}

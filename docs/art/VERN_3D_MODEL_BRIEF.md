@@ -6,7 +6,28 @@ Prepare Vern for the studio and its live broadcast camera. The user supplied an
 Art Bell photograph as the appearance reference and approved a slightly cartoony
 treatment consistent with KBTV's existing 3D props. First delivery is Vern sitting
 still in a separate chair; later work can add breathing, talking and gestures.
-This document is the production handoff for GPT-6 Astra; model creation is next.
+The first model is implemented. Production notes below supersede the original
+provisional dimensions/placement later in this brief.
+
+### First model delivery
+
+- `assets/models3d/characters/vern/vern.glb`: 18-bone rig, 14,728 triangles,
+  10 materials, held `seated_rest` animation and neutral bind pose.
+- `Tools/modelgen/source/vern.blend`: editable source. Rebuild using
+  `Tools/modelgen/vern.py`; see [3D asset workflow](3D_ASSET_WORKFLOW.md).
+- Seated headband top is 1.545m above the asset floor; neutral headband top 1.88m.
+  These are measured output dimensions, including the oversized readable headgear.
+- `VernStation` sits at studio-local `(-0.85, 0.1, -0.05)`, yaw 180 degrees,
+  keeping feet clear of the solid table placeholder. Chair and Vern are siblings.
+- Face/chest framing marker is Vern-local `(0, 1.26, 0)`; broadcast camera is
+  offset `(-0.48, 0.12, 1.2)` from that marker in world axes, FOV 38.
+- [Seated review](model_previews/vern_seated.png),
+  [portrait](model_previews/vern_portrait.png),
+  [neutral rig](model_previews/vern_bind_pose.png),
+  [actual broadcast feed](model_previews/vern_godot_feed.png), and
+  [studio placement](model_previews/vern_godot_studio.png).
+- Body is prepared for further animation; hands currently follow hand bones
+  rigidly, and facial expressions/lip sync are future work.
 
 ## Visual reference hierarchy
 

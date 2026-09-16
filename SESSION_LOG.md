@@ -1,12 +1,17 @@
 ## Current Session
 
 **Branch**: develop
-**Task**: Build, rig, export and integrate seated Vern in the 3D studio. **Status: In Progress**
+**Task**: Build, rig, export and integrate seated Vern in the 3D studio. **Status: Completed — model reviewed in Blender/Godot; build passes, baseline failures unchanged**
 
 - User approved model production from the saved brief and supplied Art Bell reference.
 - Plan: procedural Blender character with neutral rig and held seated action; separate existing chair; preview/re-import validation, studio integration and build/tests.
-- Files Modified: `SESSION_LOG.md`; model and integration outputs pending.
-- Next Steps: baseline tests, create character generator, inspect renders, export and verify Godot placement.
+- Implemented: stylized dark sweater/trousers, mustache, glasses, swept hair and vintage headphones; 18-bone rig, neutral A-pose and held `seated_rest` action. Mesh is inverse-skinned from authored seating into editable neutral geometry. Corrected bone roll and tube frame twists after inspecting initial renders.
+- Asset: `assets/models3d/characters/vern/vern.glb`, 14,728 triangles, 10 materials, 445,548 bytes. Editable `Tools/modelgen/source/vern.blend`; chair remains a separate existing `office_chair.glb`.
+- Integration: `scenes/world3d/Vern.tscn` + `scripts/world3d/props/VernCharacter3D.cs` apply/pause the pose before visibility. `VernStation` at studio-local (-0.85, 0.1, -0.05), yaw 180, leaves table clearance. Chair collider and smoke origin follow placement. Broadcast camera now frames actual face/chest via marker at Y=1.26.
+- Files Modified: `Tools/modelgen/vern.py`, `vern_mesh.py`, `vern_rig.py`, `vern_export.py`, `preview_vern.gd` (+ generated UID), source/GLB and `docs/art/model_previews/vern*`; `scenes/world3d/Vern.tscn`, `World3D.tscn`; `scripts/world3d/props/VernCharacter3D.cs`, `scripts/world3d/World3D.cs`, `StudioRoom3D.cs`; `tests/integration/VernCharacterIntegrationTests.cs`; art workflow/brief and this log.
+- Verification: Blender round-trip preserves skin, action and posed bounds; neutral/seated/front/side/portrait renders reviewed. Actual Godot studio and 320x180 feed captured with `Tools/modelgen/preview_vern.gd`. `dotnet build`: 0 errors, 6 existing warnings. Focused Vern test: 1 passed. Full suite: 490 passed, 13 failed (baseline 489/13; same existing hard failures and existing soft assertion logs).
+- Environment: temp Godot 4.6 runtime lacks GodotSharpEditor and crashes in editor mode; successful asset import/captures used `C:/Software/Godot/Godot_v4.6.3-stable_mono_win64/Godot_v4.6.3-stable_mono_win64_console.exe`. Standard test wrapper still works with the temp runtime.
+- Next Steps: user visual review; future breathing/head/arm animation and facial expressions. Fingers currently rigid to hand bones. Model generator/review commands documented in the 3D asset workflow.
 - Related Docs: `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `docs/testing/TESTING.md`.
 - Blockers: none.
 

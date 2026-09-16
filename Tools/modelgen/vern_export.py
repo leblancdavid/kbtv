@@ -43,13 +43,19 @@ def render(name, position, target, scale, resolution=(640, 640)):
 
 def previews():
     import office_chair
-    # Chair is review context only and is added AFTER character export.
-    office_chair.build()
     for position, power, size in [((-2, 3, 4), 350, 3), ((2, 2, 2), 170, 2), ((0, -2, 3), 280, 2)]:
         bpy.ops.object.light_add(type='AREA', location=position)
         light = bpy.context.object
         light.data.energy, light.data.size = power, size
         common.aim(light, (0, 0, .9))
+    rig = next(o for o in bpy.context.scene.objects if o.type == 'ARMATURE')
+    rig.data.pose_position = 'REST'
+    bpy.context.view_layer.update()
+    render('vern_bind_pose', (1, 4, 1.7), (0, 0, .95), 2.1)
+    rig.data.pose_position = 'POSE'
+    bpy.context.view_layer.update()
+    # Chair is review context only and is added AFTER character export.
+    office_chair.build()
     render('vern_seated', (2.4, 3.7, 2.1), (0, .1, .78), 1.9)
     render('vern_front', (0, 4, 1.1), (0, .08, .79), 1.8)
     render('vern_side', (4, .02, 1.25), (0, .18, .78), 1.85)
@@ -81,6 +87,7 @@ def deliver(builder, preview_only=False):
         rig.data.pose_position = 'REST'
         bpy.context.view_layer.update()
         neutral = bounds([obj])
+        assert neutral['max'][0] - neutral['min'][0] < 1.6, 'Twisted bind pose'
         rig.data.pose_position = 'POSE'
         bpy.context.view_layer.update()
         rig.select_set(True)

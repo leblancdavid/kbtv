@@ -51,11 +51,14 @@ def ellipsoid(name, center, radii, mat, weights, segments=20, rings=12):
 
 def tube(name, points, radius, mat, weights, sides=8):
     vertices = []
+    previous_u = None
     for j, point in enumerate(points):
         tangent = Vector(points[min(j + 1, len(points) - 1)]) - Vector(points[max(0, j - 1)])
         tangent.normalize()
         ref = Vector((0, 1, 0)) if abs(tangent.y) < .9 else Vector((1, 0, 0))
-        u = tangent.cross(ref).normalized()
+        # Parallel-transport the ring frame: arbitrary per-ring axes twist tubes.
+        u = (previous_u - tangent * previous_u.dot(tangent)).normalized() if previous_u is not None else tangent.cross(ref).normalized()
+        previous_u = u
         v = tangent.cross(u).normalized()
         r = radius[j] if isinstance(radius, list) else radius
         vertices.extend(tuple(Vector(point) + r * (u * math.cos(i * math.tau / sides)
