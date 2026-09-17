@@ -153,8 +153,8 @@ namespace KBTV.Audio
             _mixer = mixer;
         }
 
-        /// <summary>Current knob positions (neutral by default).</summary>
-        public SoundboardKnobState State { get; } = SoundboardKnobState.Neutral();
+        /// <summary>Current knob positions (board defaults on construction).</summary>
+        public SoundboardKnobState State { get; } = SoundboardKnobState.Default();
 
         /// <summary>
         /// The ideal caller knob positions the board grades/DSPs against. Null means
@@ -181,10 +181,10 @@ namespace KBTV.Audio
         /// <summary>Pushes the current knob state into the audio engine (no-op without a mixer).</summary>
         public void Apply() => _mixer?.ApplySoundboard(State);
 
-        /// <summary>Returns every knob to the neutral center and applies the result.</summary>
-        public void ResetToNeutral()
+        /// <summary>Returns the board to its resting defaults and applies the result.</summary>
+        public void ResetToDefault()
         {
-            State.ResetToNeutral();
+            State.ResetToDefault();
             Apply();
         }
 

@@ -44,7 +44,6 @@ namespace KBTV.UI
 
         public void ShowSoundboard()
         {
-            Driver.ResetToNeutral();
             Driver.Apply();
             Visible = true;
         }

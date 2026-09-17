@@ -184,19 +184,70 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(settings.CallerLowPassHz >= SoundboardMixerDriver.CallerLowPassMinHz);
         }
 
+        /// <summary>Ads fader at the board default (0) cuts the SFX bus.</summary>
         [Test]
-        public void ResetToNeutral_RestoresEveryKnob()
+        public void ComputeEffectSettings_DefaultAdsFader_CutsSfxBus()
+        {
+            var state = SoundboardKnobState.Default();
+            var preset = new SoundboardPresetInfo(600f, 400f, 0.4f);
+
+            var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
+
+            AssertThat(Mathf.IsEqualApprox(settings.AdsLevelDb, -30f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerLevelDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernLevelDb, 0f));
+        }
+
+        /// <summary>Default() places knobs at 0.5, Caller/Vern faders at 50%, Ads fader at the bottom.</summary>
+        [Test]
+        public void DefaultState_AdsFaderAtBottom()
+        {
+            var state = SoundboardKnobState.Default();
+
+            AssertThat(Mathf.IsEqualApprox(state.AdsLevel, 0f));
+            AssertThat(Mathf.IsEqualApprox(state.CallerGain, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(state.CallerLevel, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(state.VernLevel, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(state.Fader, SoundboardKnobState.NeutralValue));
+        }
+
+        /// <summary>Neutral() keeps every control at 0.5 — pure DSP baseline.</summary>
+        [Test]
+        public void NeutralState_AllControlsCenter()
+        {
+            var state = SoundboardKnobState.Neutral();
+
+            AssertThat(Mathf.IsEqualApprox(state.AdsLevel, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(state.CallerGain, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(state.CallerLevel, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(state.Fader, SoundboardKnobState.NeutralValue));
+        }
+
+        /// <summary>ResetToDefault restores board resting values (AdsLevel 0, everything else 0.5).</summary>
+        [Test]
+        public void ResetToDefault_RestoresBoardDefaults()
         {
             var driver = new SoundboardMixerDriver();
             driver.State.CallerGain = 1f;
             driver.State.VernGain = 0f;
+            driver.State.CallerLowPass = 1f;
+            driver.State.CallerHighPass = 1f;
+            driver.State.AdsGain = 1f;
             driver.State.CallerLevel = 1f;
+            driver.State.VernLevel = 0f;
+            driver.State.AdsLevel = 1f;
+            driver.State.Fader = 0f;
 
-            driver.ResetToNeutral();
+            driver.ResetToDefault();
 
             AssertThat(Mathf.IsEqualApprox(driver.State.CallerGain, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(driver.State.CallerLowPass, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(driver.State.CallerHighPass, SoundboardKnobState.NeutralValue));
             AssertThat(Mathf.IsEqualApprox(driver.State.VernGain, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(driver.State.AdsGain, SoundboardKnobState.NeutralValue));
             AssertThat(Mathf.IsEqualApprox(driver.State.CallerLevel, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(driver.State.VernLevel, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(driver.State.AdsLevel, 0f));
             AssertThat(Mathf.IsEqualApprox(driver.State.Fader, SoundboardKnobState.NeutralValue));
         }
 

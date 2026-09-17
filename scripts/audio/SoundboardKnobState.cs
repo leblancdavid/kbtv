@@ -9,6 +9,10 @@ namespace KBTV.Audio
     /// 0.5 (NeutralValue) means "no offset": the equipment preset is unchanged.
     /// Knob deltas are stacked on top of the AudioEffectsProcessor presets by
     /// <see cref="AudioMixerManager.ApplySoundboard"/>.
+    /// The board's resting state (<see cref="Default"/>) parks every knob at
+    /// 12 o'clock (0.5), leaves the Caller and Vern level faders at 50%, and
+    /// rests the Ads level fader at the bottom (0, fully cut). <see cref="Neutral"/>
+    /// is the pure DSP baseline (all controls 0.5) used by the effect stack.
     /// </summary>
     public sealed class SoundboardKnobState
     {
@@ -37,12 +41,14 @@ namespace KBTV.Audio
         /// <summary>Vern studio channel output level (fader strip).</summary>
         public float VernLevel { get; set; } = NeutralValue;
 
-        /// <summary>Ads/bumper channel output level (fader strip).</summary>
-        public float AdsLevel { get; set; } = NeutralValue;
+        /// <summary>Ads/bumper channel output level (fader strip). Rests at the
+        /// bottom (0 = cut) on the board default.</summary>
+        public float AdsLevel { get; set; } = 0f;
 
         /// <summary>Master (music/program) fader.</summary>
         public float Fader { get; set; } = NeutralValue;
 
+        /// <summary>Restores every control to the DSP-neutral center (all 0.5).</summary>
         public void ResetToNeutral()
         {
             CallerGain = NeutralValue;
@@ -53,6 +59,21 @@ namespace KBTV.Audio
             CallerLevel = NeutralValue;
             VernLevel = NeutralValue;
             AdsLevel = NeutralValue;
+            Fader = NeutralValue;
+        }
+
+        /// <summary>Restores this state to the board default: all knobs at
+        /// 12 o'clock (0.5), Caller/Vern faders at 50%, Ads fader at the bottom (0).</summary>
+        public void ResetToDefault()
+        {
+            CallerGain = NeutralValue;
+            CallerLowPass = NeutralValue;
+            CallerHighPass = NeutralValue;
+            VernGain = NeutralValue;
+            AdsGain = NeutralValue;
+            CallerLevel = NeutralValue;
+            VernLevel = NeutralValue;
+            AdsLevel = 0f;
             Fader = NeutralValue;
         }
 
@@ -74,7 +95,27 @@ namespace KBTV.Audio
             Fader = other.Fader;
         }
 
-        public static SoundboardKnobState Neutral() => new SoundboardKnobState();
+        /// <summary>A purely neutral state: every control at 0.5 (no DSP offset).
+        /// The DSP/driver baseline — distinct from the board's resting defaults.</summary>
+        public static SoundboardKnobState Neutral()
+        {
+            return new SoundboardKnobState
+            {
+                CallerGain = NeutralValue,
+                CallerLowPass = NeutralValue,
+                CallerHighPass = NeutralValue,
+                VernGain = NeutralValue,
+                AdsGain = NeutralValue,
+                CallerLevel = NeutralValue,
+                VernLevel = NeutralValue,
+                AdsLevel = NeutralValue,
+                Fader = NeutralValue,
+            };
+        }
+
+        /// <summary>The soundboard's resting configuration: all knobs at 12 o'clock
+        /// (0.5), Caller and Vern level faders at 50%, Ads fader at the bottom (0).</summary>
+        public static SoundboardKnobState Default() => new SoundboardKnobState();
 
         /// <summary>
         /// Clamped knob position (0..1).

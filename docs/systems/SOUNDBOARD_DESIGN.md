@@ -160,6 +160,14 @@ Knob deltas are stacked **on top of** `AudioEffectsProcessor` presets:
   drive/compression. Master/Music faders are unchanged.
 - `UpdateAudioQuality()` re-applies the stored knob state + stored caller targets
   after equip-level changes so equipment upgrades don't wipe knob positions.
+- **Board defaults & persistence (Round 8)**: `SoundboardKnobState.Default()`
+  rests every knob at 0.5 (= 12 o'clock), the Caller/Vern level faders at 50%,
+  and the Ads fader at the very bottom (`0`). Literal 0% is applied
+  (user-confirmed): the rested Ads fader cuts the SFX bus (ads/bumpers + UI
+  sounds) to −30 dB until the player raises it. `SoundboardKnobState.Neutral()`
+  (all controls 0.5) stays the pure DSP baseline for the effect stack, and
+  `SoundboardMixerDriver.ResetToDefault()` restores the resting values. The mix
+  persists across board visits — see §7 Show/hide.
 - All knob deltas are **clamped** so effects never go fully silent/DC.
 
 ## 6. Vern Mood Drain (SoundboardMonitor)
@@ -224,8 +232,13 @@ the column, giving **9 controls** driven by the GLB's real movables:
 
 Screen-bounded columns: **Caller** = column 6 (top gain knob + level fader +
 two filter knobs), **Vern** = column 7 (gain + level), **Ads/Bumper** = column
-5 (gain + level), **Master** = big centre knob. Columns 0–4 and 8 stay
-cosmetic; `IdleLamps = { Lamp_0, Lamp_1, Lamp_2, Lamp_4 }`.
+5 (gain + level), **Master** = big centre knob. Columns 0–4 stay cosmetic;
+`IdleLamps = { Lamp_0, Lamp_1, Lamp_2, Lamp_4 }`. Round 9 parks the cosmetic
+control surface at board defaults so the full face reads uniformly: every
+unused `Knob_*` (columns 0–4 plus the non-gain knobs of the Vern/Ads columns)
+is pinned to 180° = **12 o'clock** and every unused `FaderCap_*` to the bottom
+(`FaderLocalZ(0)` = 0%) at attach time; only the 9 driven slots move (from
+driver state).
 
 - Fader cap local Z: `FaderLocalZ(value) = (value - 0.5) * 2 * FaderTravel +
   FaderRestLocalZ` (`FaderTravel = 0.05`, `FaderRestLocalZ = -0.14`); value 0 is
@@ -300,10 +313,16 @@ angle — the old board-local `HaloTowardCameraZ` offset is gone. Round 4
   SoundboardDragPixelsPerUnit)` — drag **up** increases; result clamped to
   0..1; zero-ppu falls back to a unit step. Pure + unit-tested
   (`tests/unit/audio/SoundboardControlApplierTests.cs`).
-- Show/hide: `ShowHandles()` (reset driver to neutral + apply, enable bodies) /
-  `HideHandles()` (disable bodies); driven by the zoom transitions and
+- Show/hide: `ShowHandles()` / `HideHandles()` enable/disable the tap bodies and
+  re-push the mix via `Driver.Apply()`; driven by the zoom transitions and
   `OnNavBackRequested`. `UpdateControls`/`UpdateLeds` run only while handles are
-  visible; overlay show/hide is unchanged.
+  visible; `SoundboardOverlay.ShowSoundboard()` also re-applies. **Round 8 —
+  persistence**: the shared `SoundboardMixerDriver` (with its `State`) and
+  `AudioMixerManager._soundboardState` are session-long nodes owned by
+  `World3D`, and the old `Driver.ResetToNeutral()` calls inside
+  `ShowHandles()`/`ShowSoundboard()` (which wiped every control on zoom-in) are
+  removed — knob/fader positions and the applied DSP survive walking away from
+  and returning to the board.
 
 ### Camera
 
@@ -398,6 +417,29 @@ angle — the old board-local `HaloTowardCameraZ` offset is gone. Round 4
 - `scripts/audio/SoundboardMixerDriver.cs` - 17-field `SoundboardEffectSettings`, `NormalizedDeltaFrom`, target-aware `ComputeEffectSettings`, `SetCallerTargets`.
 - `scripts/audio/AudioMixerManager.cs` - `CallerBaseAmplifyDb = 8`, Vern/SFX drive + compression, `TuneCompressor`, above-target → drive/compress (never louder).
 - `scripts/monitors/SoundboardMonitor.cs`, `scripts/world3d/Soundboard3D.cs` - seed plumbing for bands + hover error.
+
+**Round 8 (modified) — board defaults & persistence**
+- `scripts/audio/SoundboardKnobState.cs` - `AdsLevel` default `0`; split
+  `Neutral()` (all controls 0.5, pure DSP baseline) from `Default()` (knobs 0.5,
+  Caller/Vern faders 0.5, Ads fader 0); added `ResetToDefault()`.
+- `scripts/audio/SoundboardMixerDriver.cs` - `State` starts at `Default()`;
+  `ResetToNeutral()` → `ResetToDefault()`.
+- `scripts/ui/SoundboardOverlay.cs`, `scripts/world3d/Soundboard3D.cs` -
+  removed `Driver.ResetToNeutral()` from `ShowSoundboard()`/`ShowHandles()`
+  (kept `Apply()`) so the knob/fader mix and its DSP persist across board visits.
+
+**Round 9 (modified) — full-face default parking**
+- `scripts/world3d/Soundboard3D.cs` - `NormalizeUnusedParts()` runs once at
+  `AttachBoard`: every cosmetic `Knob_*`/`FaderCap_*` part not in `Slots` is
+  parked at the resting defaults — knobs at 180° = 12 o'clock
+  (`KnobRestOffsetDeg`), unused fader caps at the bottom (`FaderLocalZ(0)` = 0%).
+  Driven slots are skipped (they come from driver state); cosmetic parts have no
+  slots so they never move again. Fixes the board face showing the GLB-authored
+  knobs/fader caps drifting off default (e.g. the non-gain knobs of the
+  Vern/Ads columns and every knob/fader of columns 0–4).
+- User-confirmed rule this implements: all knobs on the board sit at 12 o'clock
+  (including Vern's, Ads', and unused ones); faders default to 0% except Vern
+  and Caller, which stay at 50%.
 
 **Tests**
 - `tests/unit/audio/SoundboardControlApplierTests.cs`

@@ -146,6 +146,7 @@ namespace KBTV.World3D
             _board = board;
             BuildSlots();
             BuildLamps();
+            NormalizeUnusedParts();
             _built = true;
         }
 
@@ -165,7 +166,7 @@ namespace KBTV.World3D
         /// <summary>All tap-target colliders (for raycast distinguishes / tests).</summary>
         public IEnumerable<StaticBody3D> Bodies => _bodies.Keys;
 
-        /// <summary>Shows the handles and returns them to neutral.</summary>
+        /// <summary>Shows the handles and re-pushes the persisted mix.</summary>
         public void ShowHandles()
         {
             if (!_built)
@@ -174,7 +175,6 @@ namespace KBTV.World3D
             }
             SelectedControl = SoundboardControl.None;
             HoveredControl = SoundboardControl.None;
-            Driver.ResetToNeutral();
             Driver.Apply();
             SetBodiesEnabled(true);
             _handlesVisible = true;
@@ -266,6 +266,46 @@ namespace KBTV.World3D
                 _parts[slot.Control] = part;
                 _restPositions[slot.Control] = part.Position;
                 BuildCollider(slot.Control, slot.Kind, part.Position);
+            }
+        }
+
+        /// <summary>
+        /// Parks every cosmetic (driven-slot-adjacent + unused-column) knob and
+        /// fader cap on the board face at the resting defaults so the whole mixer
+        /// reads uniformly: all knobs at 12 o'clock and all unused fader caps at
+        /// the bottom (0%). Driven slots are skipped — they are positioned from
+        /// driver state in <see cref="UpdateControls"/>. Runs once at attach; the
+        /// parked parts have no slots so nothing ever moves them afterwards.
+        /// </summary>
+        private void NormalizeUnusedParts()
+        {
+            if (_board == null)
+            {
+                return;
+            }
+
+            var driven = new HashSet<string>(SoundboardPhysicalLayout.Slots.Length);
+            foreach (var slot in SoundboardPhysicalLayout.Slots)
+            {
+                driven.Add(slot.PartName);
+            }
+
+            foreach (var node in _board.FindChildren("Knob_*", recursive: true, owned: false))
+            {
+                if (node is Node3D knob && !driven.Contains(node.Name))
+                {
+                    knob.RotationDegrees = new Vector3(0f, SoundboardPhysicalLayout.KnobRestOffsetDeg, 0f);
+                }
+            }
+
+            foreach (var node in _board.FindChildren("FaderCap_*", recursive: true, owned: false))
+            {
+                if (node is Node3D cap && !driven.Contains(node.Name))
+                {
+                    var pos = cap.Position;
+                    pos.Z = SoundboardPhysicalLayout.FaderLocalZ(0f);
+                    cap.Position = pos;
+                }
             }
         }
 
