@@ -25,18 +25,15 @@ namespace KBTV.World3D
         /// <summary>Collision layer the handle tap-targets live on (player/world never collide with it).</summary>
         public const uint HitLayer = 1u << 20;
 
-        private static readonly Color LedGreen = new(0.2f, 0.9f, 0.3f);
-        private static readonly Color LedBlue = new(0.3f, 0.6f, 1.0f);
-        private static readonly Color LedYellow = new(1.0f, 0.8f, 0.2f);
-        private static readonly Color LedRed = new(0.9f, 0.25f, 0.2f);
         private static readonly Color LedDim = new(0.28f, 0.28f, 0.28f);
-        private static readonly Color LedSelected = new(0.9f, 0.95f, 1.0f);
+        private static readonly Color LedSelected = new(0.9f, 0.95f, 1f);
 
         private readonly Dictionary<SoundboardControl, Node3D> _parts = new();
         private readonly Dictionary<SoundboardControl, Vector3> _restPositions = new();
         private readonly Dictionary<string, MeshInstance3D> _lamps = new();
         private readonly Dictionary<string, StandardMaterial3D> _lampMaterials = new();
         private readonly Dictionary<StaticBody3D, SoundboardControl> _bodies = new();
+        private readonly Dictionary<SoundboardControl, StaticBody3D> _bodiesByControl = new();
         private readonly HashSet<string> _warnedMissing = new();
 
         private Node3D? _board;
@@ -44,19 +41,17 @@ namespace KBTV.World3D
         private AdManager? _adManager;
         private MeshInstance3D? _halo;
         private StandardMaterial3D? _haloMaterial;
-        private StandardMaterial3D? _hoverMaterial;
-        private Node3D? _hoverPart;
         private bool _built;
         private bool _handlesVisible;
 
-        /// <summary>Height of the hover halo above the board face (glTF-local +Y).</summary>
-        private const float HaloLift = 0.02f;
-
-        /// <summary>How far the halo sits toward the operator (board-local -Z) of the part centre.</summary>
-        private const float HaloTowardCameraZ = 0.045f;
+        /// <summary>Small lift so the halo clears the board face while the knob/fader body occludes its center.</summary>
+        private const float HaloLift = 0.008f;
 
         /// <summary>Side of the square hover halo quad.</summary>
-        private const float HaloSize = 0.24f;
+        private const float HaloSize = 0.06f;
+
+        /// <summary>Centre alpha of the halo (the radial gradient fades the edges to transparent).</summary>
+        private const float HaloAlpha = 0.55f;
 
         /// <summary>Shared knob-state driver (World3D points this at the overlay's driver).</summary>
         public SoundboardMixerDriver Driver { get; private set; } = new();
@@ -85,27 +80,16 @@ namespace KBTV.World3D
             UpdateHoverVisual();
         }
 
-        /// <summary>Creates the shared halo quad + hover highlight material.</summary>
+        /// <summary>Creates the shared halo quad.</summary>
         private void BuildHoverVisuals()
         {
-            _hoverMaterial = new StandardMaterial3D
-            {
-                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
-                Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-                AlbedoColor = new Color(0.45f, 0.78f, 1f),
-                EmissionEnabled = true,
-                Emission = new Color(0.35f, 0.7f, 1f),
-                EmissionEnergyMultiplier = 0.9f
-            };
-
             _haloMaterial = new StandardMaterial3D
             {
                 ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                 Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-                NoDepthTest = true,
                 CullMode = BaseMaterial3D.CullModeEnum.Disabled,
                 AlbedoTexture = MakeHaloGradient(),
-                AlbedoColor = new Color(0.3f, 1f, 0.55f)
+                AlbedoColor = new Color(0.3f, 1f, 0.55f, HaloAlpha)
             };
 
             _halo = new MeshInstance3D
@@ -297,20 +281,25 @@ namespace KBTV.World3D
             };
             var shape = new CollisionShape3D
             {
-                // Track the full fader travel (0.22 deep) / knob extent (0.12–0.18) so
-                // the whole slot is a tap target, not just the cap geometry.
+                // Slim tap targets so hover only activates over the actual handle.
+                // The halo is centred on the part, so the collider centre == the
+                // knob/fader centre under the cursor; the capsule bodies occlude the
+                // halo centre, leaving a soft glow ring under each handle.
+                // Knob depth (Z) must stay under the 0.065 row pitch so adjacent
+                // hitboxes never overlap under the oblique camera.
                 Shape = new BoxShape3D
                 {
-                    Size = new Vector3(isFader ? 0.08f : 0.11f, 0.06f, isFader ? 0.22f : 0.14f)
+                    Size = new Vector3(isFader ? 0.055f : 0.075f, 0.05f, isFader ? 0.04f : 0.05f)
                 }
             };
             if (!isFader && control == SoundboardControl.Master)
             {
-                shape.Shape = new BoxShape3D { Size = new Vector3(0.2f, 0.08f, 0.18f) };
+                shape.Shape = new BoxShape3D { Size = new Vector3(0.17f, 0.07f, 0.15f) };
             }
             body.AddChild(shape);
             AddChild(body);
             _bodies[body] = control;
+            _bodiesByControl[control] = body;
         }
 
         private void BuildLamps()
@@ -384,6 +373,10 @@ namespace KBTV.World3D
             {
                 var rest = _restPositions[control];
                 part.Position = new Vector3(rest.X, rest.Y, SoundboardPhysicalLayout.FaderLocalZ(value));
+                if (_bodiesByControl.TryGetValue(control, out var body) && body != null)
+                {
+                    body.Position = part.Position;
+                }
             }
             else
             {
@@ -396,10 +389,10 @@ namespace KBTV.World3D
             var bands = CurrentCallerBands();
             var worst = SoundboardTargetGenerator.GetWorstBand(bands);
             SetLampColor("Lamp_6", BandColor(worst));
-            SetLampColor("Lamp_7", LedGreen);
+            SetLampColor("Lamp_7", SoundboardTargetGenerator.RampGreen);
             var adBreak = _adManager != null && _adManager.IsAdBreakActive;
-            SetLampColor("Lamp_5", adBreak ? LedGreen : LedDim);
-            SetLampColor("Lamp_3", LedGreen);
+            SetLampColor("Lamp_5", adBreak ? SoundboardTargetGenerator.RampGreen : LedDim);
+            SetLampColor("Lamp_3", SoundboardTargetGenerator.RampGreen);
             foreach (var idle in SoundboardPhysicalLayout.IdleLamps)
             {
                 SetLampColor(idle, LedDim);
@@ -446,8 +439,12 @@ namespace KBTV.World3D
         }
 
         /// <summary>
-        /// Places the color-coded halo over the hovered part and applies the shared
-        /// hover highlight to its mesh each frame.
+        /// Places the color-coded halo under the hovered part each frame. The halo is
+        /// anchored at exactly the part's position (+ a tiny lift) so it stays centred
+        /// under the cursor from any camera angle, and depth-tested so the knob/fader
+        /// body hides its centre — a soft ring of light pooling under the handle.
+        /// The colour is the continuous blue→cyan→green→yellow→red ramp over the
+        /// control's signed error from its target.
         /// </summary>
         private void UpdateHoverVisual()
         {
@@ -456,52 +453,37 @@ namespace KBTV.World3D
                            HoveredControl != SoundboardControl.None &&
                            _parts.TryGetValue(HoveredControl, out part) && part != null;
 
-            if (showHalo)
+            if (!showHalo || _halo == null || _haloMaterial == null)
             {
-                _halo!.Position = part!.Position + new Vector3(0f, HaloLift, HaloTowardCameraZ);
-                _haloMaterial!.AlbedoColor = BandColor(HoveredControlBand());
-                _halo.Visible = true;
+                if (_halo != null)
+                {
+                    _halo.Visible = false;
+                }
+                return;
             }
 
-            if (_hoverPart != part)
-            {
-                if (_hoverPart is MeshInstance3D previous)
-                {
-                    previous.MaterialOverride = null;
-                }
-                _hoverPart = showHalo ? part : null;
-                if (_hoverPart is MeshInstance3D current)
-                {
-                    current.MaterialOverride = _hoverMaterial;
-                }
-            }
-
-            if (!showHalo && _halo != null)
-            {
-                _halo.Visible = false;
-            }
+            _halo.Position = part!.Position + new Vector3(0f, HaloLift, 0f);
+            var color = SoundboardTargetGenerator.ColorForError(HoveredControlError());
+            _haloMaterial.AlbedoColor = new Color(color.R, color.G, color.B, HaloAlpha);
+            _halo.Visible = true;
         }
 
-        /// <summary>
-        /// Band of the hovered control. Caller knobs use the live caller bands (from the
-        /// monitor when attached), all others compare their current value to neutral.
-        /// </summary>
-        private SoundboardBand HoveredControlBand()
+        private bool IsCallerControl(SoundboardControl control) =>
+            control == SoundboardControl.CallerGain ||
+            control == SoundboardControl.CallerLowPass ||
+            control == SoundboardControl.CallerHighPass;
+
+        private float HoveredControlError()
         {
-            var bands = CurrentCallerBands();
-            switch (HoveredControl)
+            if (HoveredControl == SoundboardControl.None)
             {
-                case SoundboardControl.CallerGain:
-                    return bands.Gain;
-                case SoundboardControl.CallerLowPass:
-                    return bands.LowPass;
-                case SoundboardControl.CallerHighPass:
-                    return bands.HighPass;
-                default:
-                    return SoundboardTargetGenerator.GetBand(
-                        SoundboardControlApplier.CurrentValue(Driver.State, HoveredControl),
-                        SoundboardKnobState.NeutralValue);
+                return 0f;
             }
+
+            var speakingVolume = _monitor != null && IsCallerControl(HoveredControl)
+                ? (_monitor.CallerSpeakingVolume ?? 0.5f)
+                : 0.5f;
+            return SoundboardTargetGenerator.GetControlError(Driver.State, HoveredControl, speakingVolume);
         }
 
         private void SetBodiesEnabled(bool enabled)
@@ -531,10 +513,11 @@ namespace KBTV.World3D
 
         private static Color BandColor(SoundboardBand band) => band switch
         {
-            SoundboardBand.Green => LedGreen,
-            SoundboardBand.Blue => LedBlue,
-            SoundboardBand.Yellow => LedYellow,
-            SoundboardBand.Red => LedRed,
+            SoundboardBand.Green => SoundboardTargetGenerator.RampGreen,
+            SoundboardBand.Cyan => SoundboardTargetGenerator.RampCyan,
+            SoundboardBand.Blue => SoundboardTargetGenerator.RampBlue,
+            SoundboardBand.Yellow => SoundboardTargetGenerator.RampYellow,
+            SoundboardBand.Red => SoundboardTargetGenerator.RampRed,
             _ => LedDim
         };
     }

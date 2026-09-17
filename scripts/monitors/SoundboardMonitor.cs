@@ -70,6 +70,9 @@ namespace KBTV.Monitors
         /// <summary>The mixer driver the monitor grades against.</summary>
         public SoundboardMixerDriver? Driver => _driver;
 
+        /// <summary>The on-air caller's speaking volume (drives the caller target jitter).</summary>
+        public float? CallerSpeakingVolume => _repository?.OnAirCaller?.SpeakingVolume;
+
         /// <summary>
         /// Supplies the knob state the monitor grades. Usually set by World3D after
         /// creating the overlay (the overlay owns the driver).

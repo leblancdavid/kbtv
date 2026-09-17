@@ -107,10 +107,10 @@ namespace KBTV.Tests.Unit.World3D
                 SoundboardPhysicalLayout.KnobRestOffsetDeg));
             AssertThat(Mathf.IsEqualApprox(
                 SoundboardPhysicalLayout.KnobRotationDeg(0f),
-                SoundboardPhysicalLayout.KnobRestOffsetDeg - SoundboardPhysicalLayout.KnobTurnDeg / 2f));
+                SoundboardPhysicalLayout.KnobRestOffsetDeg + SoundboardPhysicalLayout.KnobTurnDeg / 2f));
             AssertThat(Mathf.IsEqualApprox(
                 SoundboardPhysicalLayout.KnobRotationDeg(1f),
-                SoundboardPhysicalLayout.KnobRestOffsetDeg + SoundboardPhysicalLayout.KnobTurnDeg / 2f));
+                SoundboardPhysicalLayout.KnobRestOffsetDeg - SoundboardPhysicalLayout.KnobTurnDeg / 2f));
         }
     }
 }

@@ -90,53 +90,53 @@ namespace KBTV.Audio
     {
         // Knob deltas are normalized to -1..+1; these spans are the total range
         // they swing either side of the equipment preset.
-        public const float CallerLowPassSpanHz = 1000f;
+        public const float CallerLowPassSpanHz = 3000f;
         public const float CallerLowPassMinHz = 150f;
         public const float CallerLowPassMaxHz = 10000f;
-        public const float CallerHighPassSpanHz = 400f;
+        public const float CallerHighPassSpanHz = 1200f;
         public const float CallerHighPassMinHz = 40f;
         public const float CallerHighPassMaxHz = 1500f;
-        public const float CallerDriveSpan = 0.15f;
+        public const float CallerDriveSpan = 0.35f;
         public const float CallerDriveMin = 0.05f;
-        public const float CallerDriveMax = 0.8f;
+        public const float CallerDriveMax = 0.95f;
 
         // Caller gain knob boosts tape growl + presence; the neutral preset amp is
-        // 0 dB and gain sweeps 0..+10 dB (never negative — quiet = muffled, not cut).
-        public const float CallerAmplifySpanDb = 10f;
+        // 0 dB and gain sweeps 0..+18 dB (never negative — quiet = muffled, not cut).
+        public const float CallerAmplifySpanDb = 18f;
         public const float CallerAmplifyMinDb = 0f;
-        public const float CallerAmplifyMaxDb = 10f;
+        public const float CallerAmplifyMaxDb = 18f;
 
         // Low end of the gain knobs sweeps the muffle low-pass down to a dull rumble
         // rather than cutting the channel.
         public const float MuffleTransparentHz = 20000f;
-        public const float MuffleMuffledHz = 500f;
+        public const float MuffleMuffledHz = 220f;
 
-        // Vern/Ads gain knobs only *boost* their bus (+0..8 dB); pulling down the
+        // Vern/Ads gain knobs only *boost* their bus (+0..16 dB); pulling down the
         // knob muffles the channel via its muffle filter instead of attenuating it.
-        public const float VernGainSpanDb = 8f;
+        public const float VernGainSpanDb = 16f;
         public const float VernGainMinDb = 0f;
-        public const float VernGainMaxDb = 8f;
-        public const float AdsGainSpanDb = 8f;
+        public const float VernGainMaxDb = 16f;
+        public const float AdsGainSpanDb = 16f;
         public const float AdsGainMinDb = 0f;
-        public const float AdsGainMaxDb = 8f;
+        public const float AdsGainMaxDb = 16f;
 
         // Per-channel output level faders move the whole bus strip around neutral.
-        public const float CallerLevelSpanDb = 8f;
-        public const float CallerLevelMinDb = -24f;
-        public const float CallerLevelMaxDb = 8f;
-        public const float VernLevelSpanDb = 8f;
-        public const float VernLevelMinDb = -24f;
-        public const float VernLevelMaxDb = 8f;
-        public const float AdsLevelSpanDb = 8f;
-        public const float AdsLevelMinDb = -24f;
-        public const float AdsLevelMaxDb = 8f;
+        public const float CallerLevelSpanDb = 14f;
+        public const float CallerLevelMinDb = -30f;
+        public const float CallerLevelMaxDb = 14f;
+        public const float VernLevelSpanDb = 14f;
+        public const float VernLevelMinDb = -30f;
+        public const float VernLevelMaxDb = 14f;
+        public const float AdsLevelSpanDb = 14f;
+        public const float AdsLevelMinDb = -30f;
+        public const float AdsLevelMaxDb = 14f;
 
-        public const float MusicFaderSpanDb = 8f;
-        public const float MusicFaderMinDb = -24f;
-        public const float MusicFaderMaxDb = 8f;
-        public const float MasterFaderSpanDb = 4f;
+        public const float MusicFaderSpanDb = 14f;
+        public const float MusicFaderMinDb = -30f;
+        public const float MusicFaderMaxDb = 14f;
+        public const float MasterFaderSpanDb = 8f;
         public const float MasterFaderMinDb = -12f;
-        public const float MasterFaderMaxDb = 4f;
+        public const float MasterFaderMaxDb = 8f;
 
         private AudioMixerManager? _mixer;
 

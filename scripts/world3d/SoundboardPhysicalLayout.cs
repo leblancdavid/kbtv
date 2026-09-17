@@ -28,7 +28,7 @@ namespace KBTV.World3D
         public const string ChassisNode = "soundboard";
 
         /// <summary>Half-travel (metres) of a fader cap from its rest (track-centre) position.</summary>
-        public const float FaderTravel = 0.06f;
+        public const float FaderTravel = 0.05f;
 
         /// <summary>Full knob swing in degrees (each control turns ±45° around rest).</summary>
         public const float KnobTurnDeg = 90f;
@@ -41,8 +41,8 @@ namespace KBTV.World3D
         /// </summary>
         public const float KnobRestOffsetDeg = 180f;
 
-        /// <summary>Board-local Z of a fader cap at rest (authoring y 0.12 → glTF z -0.12).</summary>
-        public const float FaderRestLocalZ = -0.12f;
+        /// <summary>Board-local Z of a fader cap at rest (authoring y 0.14 → glTF z -0.14).</summary>
+        public const float FaderRestLocalZ = -0.14f;
 
         /// <summary>Per-channel lamps driven as status LEDs; the master channel reuses the last lamp.</summary>
         public static readonly string[] IdleLamps = { "Lamp_0", "Lamp_1", "Lamp_2", "Lamp_4" };
@@ -76,8 +76,8 @@ namespace KBTV.World3D
         /// <summary>Fader cap local Z for a normalized value (-travel at 0 .. +travel at 1 around rest).</summary>
         public static float FaderLocalZ(float value) => (value - 0.5f) * 2f * FaderTravel + FaderRestLocalZ;
 
-        /// <summary>Knob rotation in degrees for a normalized value (full swing around rest).</summary>
+        /// <summary>Knob rotation in degrees for a normalized value (value-up turns clockwise on screen).</summary>
         public static float KnobRotationDeg(float value) =>
-            (value - 0.5f) * 2f * KnobTurnDeg + KnobRestOffsetDeg;
+            KnobRestOffsetDeg - (value - 0.5f) * KnobTurnDeg;
     }
 }

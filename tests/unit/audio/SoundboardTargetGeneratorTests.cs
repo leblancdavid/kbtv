@@ -95,11 +95,113 @@ namespace KBTV.Tests.Unit.Audio
         }
 
         [Test]
-        public void GetBand_WayOutsideTarget_Red()
+        public void GetBand_AtTarget_Green()
+        {
+            AssertThat(SoundboardTargetGenerator.GetBand(0.5f, 0.5f) == SoundboardBand.Green);
+        }
+
+        [Test]
+        public void GetBand_FarBelowTarget_Blue()
         {
             var band = SoundboardTargetGenerator.GetBand(0.1f, 0.5f);
 
+            AssertThat(band == SoundboardBand.Blue);
+        }
+
+        [Test]
+        public void GetBand_JustBelowTarget_Cyan()
+        {
+            var band = SoundboardTargetGenerator.GetBand(0.4f, 0.5f);
+
+            AssertThat(band == SoundboardBand.Cyan);
+        }
+
+        [Test]
+        public void GetBand_JustAboveTarget_Yellow()
+        {
+            var band = SoundboardTargetGenerator.GetBand(0.6f, 0.5f);
+
+            AssertThat(band == SoundboardBand.Yellow);
+        }
+
+        [Test]
+        public void GetBand_FarAboveTarget_Red()
+        {
+            var band = SoundboardTargetGenerator.GetBand(0.9f, 0.5f);
+
             AssertThat(band == SoundboardBand.Red);
+        }
+
+        [Test]
+        public void GetBand_WithinPerfectTolerance_EitherSideIsGreen()
+        {
+            AssertThat(SoundboardTargetGenerator.GetBand(0.5f + SoundboardTargetGenerator.PerfectTolerance * 0.5f, 0.5f) == SoundboardBand.Green);
+            AssertThat(SoundboardTargetGenerator.GetBand(0.5f - SoundboardTargetGenerator.PerfectTolerance * 0.5f, 0.5f) == SoundboardBand.Green);
+        }
+
+        [Test]
+        public void GetControlError_NeutralStateAndTarget_Zero()
+        {
+            var state = SoundboardKnobState.Neutral();
+
+            AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.CallerGain, 0.5f)) < 0.0001f);
+            AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.Master, 0.5f)) < 0.0001f);
+            AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.VernLevel, 0.5f)) < 0.0001f);
+        }
+
+        [Test]
+        public void GetControlError_SignedAboveTarget_Positive()
+        {
+            var state = SoundboardKnobState.Neutral();
+            state.CallerGain = 0.9f;
+            state.VernLevel = 0.2f;
+
+            AssertThat(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.CallerGain, 0.5f) > 0f);
+            AssertThat(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.VernLevel, 0.5f) < 0f);
+        }
+
+        [Test]
+        public void GetControlError_NullState_Zero()
+        {
+            AssertThat(SoundboardTargetGenerator.GetControlError(null!, SoundboardControl.Master, 0.5f) == 0f);
+        }
+
+        [Test]
+        public void ColorForError_AtTarget_Green()
+        {
+            AssertThat(SoundboardTargetGenerator.ColorForError(0f).IsEqualApprox(SoundboardTargetGenerator.RampGreen));
+        }
+
+        [Test]
+        public void ColorForError_FarBelow_ClampsToBlue()
+        {
+            var color = SoundboardTargetGenerator.ColorForError(-1f);
+
+            AssertThat(color.IsEqualApprox(SoundboardTargetGenerator.RampBlue));
+        }
+
+        [Test]
+        public void ColorForError_HalfSpanBelow_Cyan()
+        {
+            var color = SoundboardTargetGenerator.ColorForError(-SoundboardTargetGenerator.ColorRampHalfSpan * 0.5f);
+
+            AssertThat(color.IsEqualApprox(SoundboardTargetGenerator.RampCyan));
+        }
+
+        [Test]
+        public void ColorForError_HalfSpanAbove_Yellow()
+        {
+            var color = SoundboardTargetGenerator.ColorForError(SoundboardTargetGenerator.ColorRampHalfSpan * 0.5f);
+
+            AssertThat(color.IsEqualApprox(SoundboardTargetGenerator.RampYellow));
+        }
+
+        [Test]
+        public void ColorForError_FarAbove_ClampsToRed()
+        {
+            var color = SoundboardTargetGenerator.ColorForError(1f);
+
+            AssertThat(color.IsEqualApprox(SoundboardTargetGenerator.RampRed));
         }
 
         [Test]
@@ -111,10 +213,30 @@ namespace KBTV.Tests.Unit.Audio
         }
 
         [Test]
+        public void GetWorstBand_BlueBeatsCyanAndYellowAndGreen()
+        {
+            AssertThat(SoundboardTargetGenerator.GetWorstBand(SoundboardBand.Green, SoundboardBand.Cyan, SoundboardBand.Blue) == SoundboardBand.Blue);
+            AssertThat(SoundboardTargetGenerator.GetWorstBand(SoundboardBand.Green, SoundboardBand.Yellow, SoundboardBand.Blue) == SoundboardBand.Blue);
+        }
+
+        [Test]
+        public void GetWorstBand_TieBetweenCyanAndYellow_YellowWins()
+        {
+            AssertThat(SoundboardTargetGenerator.GetWorstBand(SoundboardBand.Cyan, SoundboardBand.Yellow) == SoundboardBand.Yellow);
+        }
+
+        [Test]
+        public void GetWorstBand_NoneAndGreen_Green()
+        {
+            AssertThat(SoundboardTargetGenerator.GetWorstBand(SoundboardBand.None, SoundboardBand.Green) == SoundboardBand.Green);
+        }
+
+        [Test]
         public void IsOffPerfect_GreenIsPerfect_EverythingElseOff()
         {
             AssertThat(!SoundboardTargetGenerator.IsOffPerfect(SoundboardBand.Green));
             AssertThat(SoundboardTargetGenerator.IsOffPerfect(SoundboardBand.Blue));
+            AssertThat(SoundboardTargetGenerator.IsOffPerfect(SoundboardBand.Cyan));
             AssertThat(SoundboardTargetGenerator.IsOffPerfect(SoundboardBand.Yellow));
             AssertThat(SoundboardTargetGenerator.IsOffPerfect(SoundboardBand.Red));
             AssertThat(SoundboardTargetGenerator.IsOffPerfect(SoundboardBand.None));
