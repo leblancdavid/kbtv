@@ -734,6 +734,50 @@ private void ApplyVernEffects(int level)
         }
 
         /// <summary>
+        /// Current loudest sample of the Vern bus, in dB (pre-fader, so it reflects
+        /// the dry voice level rather than the board's strip volume). Returns -80 dB
+        /// when the bus is missing.
+        /// </summary>
+        public float GetVernBusPeakDb() => GetBusPeakDb(_vernBusIndex);
+
+        /// <summary>
+        /// Current loudest sample of the Caller bus, in dB (pre-fader, so it reflects
+        /// the dry phone-line voice level rather than the board's strip volume).
+        /// Returns -80 dB when the bus is missing.
+        /// </summary>
+        public float GetCallerBusPeakDb() => GetBusPeakDb(_callerBusIndex);
+
+        /// <summary>
+        /// Current loudest sample of the Ads/SFX bus, in dB. Ads routes onto the SFX
+        /// bus, so this reflects live commercial audio (silent outside ad breaks).
+        /// Returns -80 dB when the bus is missing.
+        /// </summary>
+        public float GetAdsBusPeakDb() => GetBusPeakDb(_sfxBusIndex);
+
+        private float GetBusPeakDb(int busIndex)
+        {
+            if (busIndex < 0 || busIndex >= AudioServer.BusCount)
+            {
+                return -80f;
+            }
+
+            float peak = float.NegativeInfinity;
+            int channels = AudioServer.GetBusChannels(busIndex);
+            for (int channel = 0; channel < channels; channel++)
+            {
+                float level = Mathf.Max(
+                    AudioServer.GetBusPeakVolumeLeftDb(busIndex, channel),
+                    AudioServer.GetBusPeakVolumeRightDb(busIndex, channel));
+                if (level > peak)
+                {
+                    peak = level;
+                }
+            }
+
+            return float.IsNegativeInfinity(peak) ? -80f : peak;
+        }
+
+        /// <summary>
         /// Gets the Vern audio player for direct playback.
         /// </summary>
         public AudioStreamPlayer GetVernPlayer() => _vernPlayer;

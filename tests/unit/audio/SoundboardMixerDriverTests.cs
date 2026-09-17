@@ -146,7 +146,7 @@ namespace KBTV.Tests.Unit.Audio
             var state = SoundboardKnobState.Neutral();
             state.CallerGain = 0.7f;
             var preset = new SoundboardPresetInfo(600f, 400f, 0.4f);
-            var targets = new SoundboardCallerTargets(0.7f, 0.5f, 0.5f);
+            var targets = new SoundboardCallerTargets(0.7f, 0.5f, 0.5f, 0.5f);
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset, targets);
 
@@ -163,13 +163,35 @@ namespace KBTV.Tests.Unit.Audio
             var state = SoundboardKnobState.Neutral();
             state.CallerGain = 1f;
             var preset = new SoundboardPresetInfo(600f, 400f, 0.4f);
-            var targets = new SoundboardCallerTargets(0.7f, 0.5f, 0.5f);
+            var targets = new SoundboardCallerTargets(0.7f, 0.5f, 0.5f, 0.5f);
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset, targets);
 
             AssertThat(settings.CallerCompression > 0f);
             AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 0f));
             AssertThat(settings.CallerDrive > preset.Distortion);
+        }
+
+        [Test]
+        public void ComputeEffectSettings_CallerLevel_GradesAgainstCallerTargetVolume()
+        {
+            var state = SoundboardKnobState.Neutral();
+            var preset = new SoundboardPresetInfo(600f, 400f, 0.4f);
+            var targets = new SoundboardCallerTargets(0.5f, 0.5f, 0.5f, 0.7f);
+
+            var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset, targets);
+
+            // The resting fader (0.5) sits below the 0.7 volume target, so the
+            // caller strip is pulled quiet - the fader no longer passes at rest.
+            AssertThat(settings.CallerLevelDb < 0f);
+            AssertThat(Mathf.IsEqualApprox(settings.CallerCompression, 0f));
+
+            // Sliding the fader onto the target returns the strip to 0 dB.
+            state.CallerLevel = 0.7f;
+            var aligned = SoundboardMixerDriver.ComputeEffectSettings(state, preset, targets);
+
+            AssertThat(Mathf.IsEqualApprox(aligned.CallerLevelDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(aligned.CallerCompression, 0f));
         }
 
         [Test]

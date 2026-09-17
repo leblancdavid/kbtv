@@ -120,11 +120,13 @@ Pure static/logic class, unit-testable.
 - **Per-caller targets** (Round 7): each caller carries a `SoundboardSeed`
   (assigned in `CallerGenerator` via `(int)GD.Randi()`, not persisted). The
   Caller target for knob *k* = `Clamp(0.5 + volumeJitter + perKnobJitter_k,
-  MinTargetKnob, MaxTargetKnob)` (`0.25..0.75`), where `perKnobJitter_k =
-  (HashUnit(seed, salt_k) - 0.5f) * 2f * PerKnobJitterRange (0.11)` via a
-  deterministic MurmurHash3-finalizer hash. So every knob of every caller is a
-  different but always reachable target; `NeutralCallerTargets()` = all 0.5
-  (used when no caller is on air).
+  MinTargetKnob (0), MaxTargetKnob (1))`, where `perKnobJitter_k =
+  (HashUnit(seed, salt_k) - 0.5f) * 2f * PerKnobJitterRange (0.5)` via a
+  deterministic MurmurHash3-finalizer hash. There are **four** caller targets —
+  Gain, LowPass, HighPass and the **CallerLevel fader** (`VolumeSalt`) — each
+  spread across the whole 0..1 track, so the perfect mix is often far from the
+  bent/rest position and the fader is a real knob like the rest.
+  `NeutralCallerTargets()` = all 0.5 (used when no caller is on air).
 - Vern / Ads targets = neutral 0.5 (the "clean" position) — their gain knobs and
   level faders grade against neutral, not a per-caller target.
 - Hover color uses the **continuous** blue→cyan→green→yellow→red ramp over the
@@ -141,7 +143,8 @@ Knob deltas are stacked **on top of** `AudioEffectsProcessor` presets:
 | CallerLowPass | `_callerLowPassIndex.CutoffHz` | grades against its per-caller target |
 | CallerHighPass | `_callerHighPassIndex.CutoffHz` | grades against its per-caller target |
 | VernGain/AdsGain | Vern/SFX bus distortion + compression | neutral target; above → drive/compress, never louder |
-| CallerLevel/VernLevel/AdsLevel | per-bus strip volume + compression | neutral; above → capped 0 dB, excess → compress |
+| CallerLevel | caller bus strip volume + compression | its own per-caller fader target; above → capped 0 dB, excess → compress |
+| VernLevel/AdsLevel | Vern/SFX bus strip volume + compression | neutral; above → capped 0 dB, excess → compress |
 | MasterFader | Music bus `VolumeDb` + program bus | unchanged |
 
 - New method `AudioMixerManager.ApplySoundboard(SoundboardKnobState)` computes
@@ -265,36 +268,49 @@ driver state).
   `Lamp_0/1/2/4` dim. The selected **and** hovered control brightens its
   channel lamp.
 
-### Hover Affordance (Round 2 → R3: alignment + glow)
+### Hover Affordance (Round 2 → R10: always-on per-ring glow)
 
-- `Soundboard3D.SetHover(SoundboardControl)` drives a single shared hover
-  quad, recomputed every frame while handles are visible:
-  - **Halo** (Round 3): one `MeshInstance3D` with a `QuadMesh` rotated `-90°`
-    about X (facing up), unshaded alpha `StandardMaterial3D` with **depth test
-    enabled** (the knob/fader body occludes the disc centre, leaving a soft ring
-    of light pooling under the handle — no whole-mesh emissive tint on the part)
-    and a radial `GradientTexture2D` (white centre → transparent edge,
-    `Fill = Radial`, `FillFrom (0.5,0.5)`, `FillTo (1,0.5)`).
-  - **Positioning** (fixes the old misalignment): the halo is anchored at
-    exactly the part's own position + a tiny `HaloLift (0.008)` in `+Y`
-    (board-local). `Soundboard3D` is parented at identity under the board GLB,
-    so `part.Position` is the correct centre under the cursor from any camera
-angle — the old board-local `HaloTowardCameraZ` offset is gone. Round 4
-    shrinks this to `HaloSize = 0.08`, just larger than the knob caps; Round 5
-    tightens it another 25% to `HaloSize = 0.06` (still small enough to sit
-    under the handle and read as a ring). `HaloAlpha
-    = 0.55` (centre alpha; gradient fades the edges).
-  - **Color** (Round 3) = the continuous `ColorForError` ramp from the signed
-    control error (`SoundboardTargetGenerator.GetControlError`): caller knobs
-    blend against their per-caller target (using the **live caller
-    `SpeakingVolume`** via `SoundboardMonitor.CallerSpeakingVolume`, falling back
-    to 0.5), everything else against neutral. So even a *nearly-right* knob shows
-    cyan (slightly low) / yellow (slightly high) rather than jumping to a band.
-    Exact band colors match the ramp: `RampBlue/Cyan/Green/Yellow/Red`.
+- `Soundboard3D` keeps **one persistent halo ring per driven control**, visible
+  whenever the handles are shown — no hovering required, so every knob/fader
+  reads its live status at a glance. Built once at `_Ready` by `BuildHalos()`
+  into `_halos`/`_haloMaterials`, one entry per `SoundboardPhysicalLayout.Slots`:
+  - **Ring** (R3 recipe, extended to all slots): a `MeshInstance3D` with a
+    `QuadMesh` rotated `-90°` about X (facing up), unshaded alpha
+    `StandardMaterial3D` with **depth test enabled** (the knob/fader body
+    occludes the disc centre, leaving a soft ring of light pooling under the
+    handle — no whole-mesh emissive tint on the part) and a radial
+    `GradientTexture2D` (white centre → transparent edge, `Fill = Radial`,
+    `FillFrom (0.5,0.5)`, `FillTo (1,0.5)`). Max ring size `HaloSize = 0.06`.
+  - **Positioning**: each ring is anchored at exactly its part's position + a
+    tiny `HaloLift (0.008)` in `+Y` (board-local). `Soundboard3D` is parented at
+    identity under the board GLB, so `part.Position` is the correct centre from
+    any camera angle. `UpdateHalos()` repositions every ring each frame, so the
+    fader rings follow their moving caps.
+  - **Color gate (R10)**: a ring shows the continuous `ColorForError` ramp of
+    its signed control error (`SoundboardTargetGenerator.GetControlError`) only
+    while **its own channel is the talking one** (`SoundboardGlow.ChannelOf`
+    equals `_speakingChannel` from `ChooseSpeakingChannel`). Caller knobs blend
+    against their per-caller target (live `CallerSpeakingVolume` /
+    `CallerSoundboardSeed` via the monitor, falling back to 0.5/0), everything
+    else against neutral. Silent-channel controls, **Ads, and Master stay
+    constant white** (`LedSelected`) — small idle rings, no clashing bright
+    white. Centre alpha is constant `HaloAlpha = 0.55`; the hovered ring
+    brightens to `HoverAlpha = 0.85`.
+  - **Size = loudness (R10)**: each ring scales off its own channel's live bus
+    peak — `HaloSize * SizeScaleFromGlow(ControlGlow(control))`, where
+    `SizeScaleFromGlow = Lerp(MinRingFraction 0.4, 1.0, glow)` (silent = 40% ≈
+    0.024, loud = 0.06). Per-channel glows `_callerGlow`/`_vernGlow`/`_adsGlow`
+    are eased toward `GlowFromPeakDb` of their bus (via `_mixer`
+    `GetCallerBusPeakDb`/`GetVernBusPeakDb`/`GetAdsBusPeakDb`, null-safe −80 dB)
+    at `GlowResponsePerSecond 8`, so the rings breathe with the actual audio.
+    Master has no channel of its own → constant quiet baseline size. The hovered
+    ring additionally scales `× HoverScale (1.35)`.
+  - All rings are hidden while the handles are (`!_handlesVisible`).
 - `World3D.PollSoundboardMouse()` raycasts each frame for hover: no control
   under the cursor → `SetHover(None)` (also forced when the GUI is hovered);
   while dragging, hover follows `_boardSelected` so the halo tracks the active
-  control.
+  control. Hover drives the ring scale/brighten above **and** the existing
+  channel-lamp brighten (`IsLampHighlighted`).
 
 ### Interaction (World3D)
 
@@ -441,10 +457,42 @@ angle — the old board-local `HaloTowardCameraZ` offset is gone. Round 4
   (including Vern's, Ads', and unused ones); faders default to 0% except Vern
   and Caller, which stay at 50%.
 
+**Round 10 (modified) — fourth caller target + speaking-channel glow**
+- `scripts/audio/SoundboardCallerTargets.cs` -> `SoundboardTargetGenerator.cs`:
+  `SoundboardCallerTargets`/`SoundboardCallerBands` gain a `Volume` field (4-arg
+  ctors), wired through `GetCallerTargets`/`GetCallerBands`/`GetControlBand`/
+  `GetControlError`/`GetWorstBand`; `PerKnobJitterRange 0.11 → 0.5`,
+  `Min/MaxTargetKnob 0.25/0.75 → 0/1`, new `VolumeSalt 0x564F4C01`. The
+  CallerLevel fader is now a real per-caller target spread across the full track
+  (root cause: it graded against neutral 0.5 and always read GREEN at rest).
+- `scripts/audio/SoundboardMixerDriver.cs` - `callerLevelDelta` grades against
+  `t.Volume` (per-caller) instead of neutral `center`.
+- `scripts/audio/SoundboardGlow.cs` (new) - `SpeakingChannel` enum,
+  `ChooseSpeakingChannel(callerDb, vernDb)`, `GlowFromPeakDb(db)`,
+  `ChannelOf(control)`, `MinRingFraction (0.4)`, `SizeScaleFromGlow(glow)`;
+  pure static, unit-tested.
+- `scripts/audio/AudioMixerManager.cs` - `GetVernBusPeakDb()`/`GetCallerBusPeakDb()`
+  from the Godot 4.6.3 `AudioServer.GetBusPeakVolumeLeftDb/RightDb` +
+  `GetBusChannels` (no generic `GetBusPeakVolumeDb`; invalid bus → −80 dB),
+  plus `GetAdsBusPeakDb()` (`_sfxBusIndex` — ads lives on the SFX bus).
+- `scripts/world3d/Soundboard3D.cs` - resolves the mixer in `_Ready`
+  (`GetNodeOrNull("/root/AudioMixerManager")`, null-safe headless −80 dB).
+  **R10 always-on per-ring redesign**: `_halos`/`_haloMaterials` (one ring per
+  `Slots` entry, built by `BuildHalos()`), per-channel eased glows
+  `_callerGlow`/`_vernGlow`/`_adsGlow` sampled from each bus peak in
+  `UpdateSpeakingState(delta)`; `UpdateHalos()` each frame repositions every
+  ring onto its part, gates colour by channel (`ChannelOf(control) ==
+  _speakingChannel` → `ColorForError(ControlError(...))`, else constant white
+  `LedSelected`), sizes by `HaloSize * SizeScaleFromGlow(glow)` (hovered ×
+  `HoverScale 1.35`, brightened to `HoverAlpha 0.85`); hidden when
+  `!_handlesVisible`. `HoveredControlError()` → per-control `ControlError(control)`
+  (caller uses live `CallerSpeakingVolume`/`CallerSoundboardSeed`).
+
 **Tests**
 - `tests/unit/audio/SoundboardControlApplierTests.cs`
 - `tests/unit/audio/SoundboardTargetGeneratorTests.cs`
 - `tests/unit/audio/SoundboardMixerDriverTests.cs`
+- `tests/unit/audio/SoundboardGlowTests.cs`
 - `tests/unit/monitors/SoundboardMonitorTests.cs`
 - `tests/unit/world3d/SoundboardPhysicalLayoutTests.cs`
 
@@ -484,20 +532,35 @@ angle — the old board-local `HaloTowardCameraZ` offset is gone. Round 4
 - Targets (`SoundboardTargetGenerator`): `PerfectTolerance = 0.09f`,
   `YellowTolerance = CyanTolerance = 0.12f` (directional bands, Round 3);
   per-caller targets (Round 7) = `Clamp(0.5 + volumeJitter + perKnobJitter_k,
-  0.25, 0.75)` with `PerKnobJitterRange = 0.11` and `HashUnit(seed, salt_k)`
+  0, 1)` with `PerKnobJitterRange = 0.5` and `HashUnit(seed, salt_k)`
   (salts `GainSalt 0x475F6911`, `LowPassSalt 0x6F502F01`, `HighPassSalt
-  0x48503401`); `GetControlBand/GetControlError` take the caller seed (0 = no
-  caller → neutral targets) and return neutral-based grades for
-  Vern/Ads/Master controls; `None` control → `None`.
+  0x48503401`, `VolumeSalt 0x564F4C01` — the four caller targets include the
+  CallerLevel fader, spread across the full range); `GetControlBand/
+  GetControlError` take the caller seed (0 = no caller → neutral targets) and
+  return neutral-based grades for Vern/Ads/Master controls; `None` control →
+  `None`.
   `ColorRampHalfSpan = 0.30f` (full ramp half-travel: red at ±0.30, exact
   cyan/yellow at ±0.15, green at 0) with `RampBlue (0.3,0.6,1)`,
   `RampCyan (0.25,0.95,1)`, `RampGreen (0.2,0.9,0.3)`,
   `RampYellow (1,0.8,0.2)`, `RampRed (0.9,0.25,0.2)`.
-- Hover halo (`Soundboard3D`, Round 5): squarish `HaloSize = 0.06` quad,
-  `HaloLift = 0.008`, centre `HaloAlpha = 0.55`, depth-tested (no
-  `NoDepthTest`), no per-part emissive override, centered exactly on
-  `part.Position`; color = `ColorForError(GetControlError(...))` with the live
-  caller `SpeakingVolume` for caller knobs.
+- Halo rings (`Soundboard3D`, Round 5 + R10): one persistent ring per driven
+  control, always visible while the handles are shown; squarish
+  `HaloSize = 0.06` quad, `HaloLift = 0.008`, centre `HaloAlpha = 0.55`
+  (hovered `HoverAlpha = 0.85`), depth-tested (no `NoDepthTest`), no per-part
+  emissive override, centered exactly on `part.Position` each frame (fader
+  rings follow the cap). Size = `HaloSize * SizeScaleFromGlow(glow)` with
+  `SizeScaleFromGlow = Lerp(MinRingFraction 0.4, 1.0, glow)` (silent idle
+  ~0.024 → loud 0.06); the hovered ring scales `× HoverScale (1.35)`. Color =
+  `ColorForError(GetControlError(...))` with the live caller
+  `SpeakingVolume`/`SoundboardSeed` for caller knobs, shown **only while that
+  control's channel is speaking** (`SoundboardGlow.ChannelOf` ==
+  `ChooseSpeakingChannel` from the Vern/Caller bus peaks, floored at
+  `SilenceFloorDb -50`, `HysteresisDb 3`) — silent-channel/Ads/Master rings stay
+  constant white `LedSelected`. Per-channel glows `_callerGlow`/`_vernGlow`/
+  `_adsGlow` ease toward `GlowFromPeakDb` (`LoudPeakDb -8`, bus peaks via
+  `GetCallerBusPeakDb`/`GetVernBusPeakDb`/`GetAdsBusPeakDb`) at
+  `GlowResponsePerSecond 8`, so each ring breathes with the voice/audio on its
+  own channel.
 - Full DSP when the engine's ipso bus values are in the air, or the in-editor
   fit pass shows the notch/fader moving the wrong way: flip only
   `World3D.cs` line 1094 (`deltaY = _boardLastDragScreenY - mousePosition.Y`

@@ -126,8 +126,9 @@ namespace KBTV.Audio
         public const float VernDriveSpan = 0.55f;
         public const float AdsDriveSpan = 0.55f;
 
-        // Per-channel output level faders move the whole bus strip around neutral,
-        // capped at 0 dB above (excess above neutral is scored as compression).
+        // Output level faders move each bus strip around its target (Caller grades
+        // against the per-caller Volume target, Vern/Ads against neutral), capped at
+        // 0 dB above (excess above the target is scored as compression).
         public const float CallerLevelSpanDb = 30f;
         public const float CallerLevelMinDb = -30f;
         public const float CallerLevelMaxDb = 0f;
@@ -204,10 +205,11 @@ namespace KBTV.Audio
         /// <summary>
         /// Pure knob->effect mapping: each target = equipment preset value + knob
         /// delta, fully clamped. Unit-testable without an AudioServer. Caller knobs
-        /// grade against the caller's per-caller targets (null targets = neutral,
-        /// e.g. no caller on air); Vern/Ads gain + the output faders grade against
-        /// neutral center. Above-target gain never gets louder — it becomes drive
-        /// and compression; below-target muffles instead of attenuating.
+        /// and the Caller output fader grade against the caller's per-caller targets
+        /// (null targets = neutral, e.g. no caller on air); Vern/Ads gain + their
+        /// faders grade against neutral center. Above-target gain never gets louder -
+        /// it becomes drive and compression; below-target muffles instead of
+        /// attenuating.
         /// </summary>
         public static SoundboardEffectSettings ComputeEffectSettings(
             SoundboardKnobState state, SoundboardPresetInfo preset,
@@ -226,7 +228,7 @@ namespace KBTV.Audio
             float highPassDelta = NormalizedDeltaFrom(state.CallerHighPass, t.HighPass);
             float vernDelta = NormalizedDeltaFrom(state.VernGain, center);
             float adsDelta = NormalizedDeltaFrom(state.AdsGain, center);
-            float callerLevelDelta = NormalizedDeltaFrom(state.CallerLevel, center);
+            float callerLevelDelta = NormalizedDeltaFrom(state.CallerLevel, t.Volume);
             float vernLevelDelta = NormalizedDeltaFrom(state.VernLevel, center);
             float adsLevelDelta = NormalizedDeltaFrom(state.AdsLevel, center);
             float faderDelta = SoundboardKnobState.NormalizedDelta(state.Fader);

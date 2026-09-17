@@ -22,20 +22,23 @@ namespace KBTV.Audio
     }
 
     /// <summary>
-    /// Per-knob target knob positions for the CALLER channel, all near neutral
-    /// (0.5) but jittered per caller so no two callers sound exactly alike.
+    /// Per-knob target positions for the CALLER channel (the three filter/gain
+    /// knobs plus the output level fader), spread across the full 0..1 range and
+    /// jittered per caller so no two callers sound exactly alike.
     /// </summary>
     public readonly struct SoundboardCallerTargets
     {
         public readonly float Gain;
         public readonly float LowPass;
         public readonly float HighPass;
+        public readonly float Volume;
 
-        public SoundboardCallerTargets(float gain, float lowPass, float highPass)
+        public SoundboardCallerTargets(float gain, float lowPass, float highPass, float volume)
         {
             Gain = gain;
             LowPass = lowPass;
             HighPass = highPass;
+            Volume = volume;
         }
     }
 
@@ -47,12 +50,14 @@ namespace KBTV.Audio
         public readonly SoundboardBand Gain;
         public readonly SoundboardBand LowPass;
         public readonly SoundboardBand HighPass;
+        public readonly SoundboardBand Volume;
 
-        public SoundboardCallerBands(SoundboardBand gain, SoundboardBand lowPass, SoundboardBand highPass)
+        public SoundboardCallerBands(SoundboardBand gain, SoundboardBand lowPass, SoundboardBand highPass, SoundboardBand volume)
         {
             Gain = gain;
             LowPass = lowPass;
             HighPass = highPass;
+            Volume = volume;
         }
     }
 
@@ -78,14 +83,15 @@ namespace KBTV.Audio
         /// <summary>
         /// Max knob-space spread per knob around the shared volume-jittered center,
         /// from the caller's stable seed so no two callers share an ideal position.
+        /// Wide enough to pin some targets at the very ends of the track.
         /// </summary>
-        public const float PerKnobJitterRange = 0.11f;
+        public const float PerKnobJitterRange = 0.5f;
 
-        /// <summary>Caller targets never sit closer to the knob ends than this (keeps them reachable).</summary>
-        public const float MinTargetKnob = 0.25f;
+        /// <summary>Caller targets never sit below this (track bottom = fader all the way down).</summary>
+        public const float MinTargetKnob = 0f;
 
-        /// <summary>Caller targets never sit closer to the knob ends than this (keeps them reachable).</summary>
-        public const float MaxTargetKnob = 0.75f;
+        /// <summary>Caller targets never sit above this (track top = fader all the way up).</summary>
+        public const float MaxTargetKnob = 1f;
 
         /// <summary>How far from the target the continuous color ramp reaches pure blue/red.</summary>
         public const float ColorRampHalfSpan = 0.30f;
@@ -104,6 +110,7 @@ namespace KBTV.Audio
         private const uint GainSalt = 0x475F6911u;
         private const uint LowPassSalt = 0x6F502F01u;
         private const uint HighPassSalt = 0x48503401u;
+        private const uint VolumeSalt = 0x564F4C01u;
 
         /// <summary>
         /// Deterministic 0..1 hash of a seed for one control, so a caller's ideal
@@ -128,14 +135,16 @@ namespace KBTV.Audio
             new SoundboardCallerTargets(
                 SoundboardKnobState.NeutralValue,
                 SoundboardKnobState.NeutralValue,
+                SoundboardKnobState.NeutralValue,
                 SoundboardKnobState.NeutralValue);
 
         /// <summary>
-        /// Target knob positions for the caller channel. The center sits at neutral
-        /// plus a small stable jitter derived from the caller's SpeakingVolume, and
-        /// each knob is then offset independently ±<see cref="PerKnobJitterRange"/>
-        /// from a stable per-caller seed. Targets stay within the reachable band so
-        /// the perfect position is always attainable.
+        /// Target knob positions for the caller channel, one per caller knob
+        /// (Gain, LowPass, HighPass) plus the per-caller output level fader
+        /// (Volume). The center sits at neutral plus a small stable jitter derived
+        /// from the caller's SpeakingVolume, and each knob is then offset
+        /// independently ±<see cref="PerKnobJitterRange"/> from a stable per-caller
+        /// seed - wide enough to pin some targets at the very ends of the track.
         /// </summary>
         public static SoundboardCallerTargets GetCallerTargets(float speakingVolume, int seed = 0)
         {
@@ -149,7 +158,8 @@ namespace KBTV.Audio
             return new SoundboardCallerTargets(
                 KnobTarget(center, GainSalt),
                 KnobTarget(center, LowPassSalt),
-                KnobTarget(center, HighPassSalt));
+                KnobTarget(center, HighPassSalt),
+                KnobTarget(center, VolumeSalt));
         }
 
         /// <summary>
@@ -162,14 +172,16 @@ namespace KBTV.Audio
         {
             if (state == null)
             {
-                return new SoundboardCallerBands(SoundboardBand.None, SoundboardBand.None, SoundboardBand.None);
+                return new SoundboardCallerBands(
+                    SoundboardBand.None, SoundboardBand.None, SoundboardBand.None, SoundboardBand.None);
             }
 
             var targets = GetCallerTargets(speakingVolume, seed);
             return new SoundboardCallerBands(
                 GetBand(state.CallerGain, targets.Gain),
                 GetBand(state.CallerLowPass, targets.LowPass),
-                GetBand(state.CallerHighPass, targets.HighPass));
+                GetBand(state.CallerHighPass, targets.HighPass),
+                GetBand(state.CallerLevel, targets.Volume));
         }
 
         /// <summary>
@@ -190,10 +202,15 @@ namespace KBTV.Audio
                 case SoundboardControl.CallerGain:
                 case SoundboardControl.CallerLowPass:
                 case SoundboardControl.CallerHighPass:
+                case SoundboardControl.CallerLevel:
                     var callerBands = GetCallerBands(state, speakingVolume, seed);
-                    return control == SoundboardControl.CallerGain ? callerBands.Gain
-                        : control == SoundboardControl.CallerLowPass ? callerBands.LowPass
-                        : callerBands.HighPass;
+                    return control switch
+                    {
+                        SoundboardControl.CallerGain => callerBands.Gain,
+                        SoundboardControl.CallerLowPass => callerBands.LowPass,
+                        SoundboardControl.CallerHighPass => callerBands.HighPass,
+                        _ => callerBands.Volume
+                    };
                 case SoundboardControl.None:
                     return SoundboardBand.None;
                 default:
@@ -222,10 +239,15 @@ namespace KBTV.Audio
                 case SoundboardControl.CallerGain:
                 case SoundboardControl.CallerLowPass:
                 case SoundboardControl.CallerHighPass:
+                case SoundboardControl.CallerLevel:
                     var callerTargets = GetCallerTargets(speakingVolume, seed);
-                    target = control == SoundboardControl.CallerGain ? callerTargets.Gain
-                        : control == SoundboardControl.CallerLowPass ? callerTargets.LowPass
-                        : callerTargets.HighPass;
+                    target = control switch
+                    {
+                        SoundboardControl.CallerGain => callerTargets.Gain,
+                        SoundboardControl.CallerLowPass => callerTargets.LowPass,
+                        SoundboardControl.CallerHighPass => callerTargets.HighPass,
+                        _ => callerTargets.Volume
+                    };
                     break;
                 default:
                     target = SoundboardKnobState.NeutralValue;
@@ -291,7 +313,7 @@ namespace KBTV.Audio
         /// </summary>
         public static SoundboardBand GetWorstBand(SoundboardCallerBands bands)
         {
-            return GetWorstBand(bands.Gain, bands.LowPass, bands.HighPass);
+            return GetWorstBand(bands.Gain, bands.LowPass, bands.HighPass, bands.Volume);
         }
 
         public static SoundboardBand GetWorstBand(params SoundboardBand[] bands)

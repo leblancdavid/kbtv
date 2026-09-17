@@ -171,7 +171,7 @@ namespace KBTV.Monitors
             _graceRemaining = 0f;
             _accelerationTimer = 0f;
             _drainRate = GraceDrainRate;
-            _callerBands = new SoundboardCallerBands(SoundboardBand.None, SoundboardBand.None, SoundboardBand.None);
+            _callerBands = new SoundboardCallerBands(SoundboardBand.None, SoundboardBand.None, SoundboardBand.None, SoundboardBand.None);
             _driver?.SetCallerTargets(SoundboardTargetGenerator.NeutralCallerTargets());
         }
 
@@ -218,7 +218,7 @@ namespace KBTV.Monitors
             var caller = _repository?.OnAirCaller;
             if (caller == null || _driver == null)
             {
-                _callerBands = new SoundboardCallerBands(SoundboardBand.None, SoundboardBand.None, SoundboardBand.None);
+                _callerBands = new SoundboardCallerBands(SoundboardBand.None, SoundboardBand.None, SoundboardBand.None, SoundboardBand.None);
                 return;
             }
 

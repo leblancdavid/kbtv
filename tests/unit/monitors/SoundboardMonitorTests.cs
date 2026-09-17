@@ -121,6 +121,7 @@ namespace KBTV.Tests.Unit.Monitors
             monitor.Driver!.State.CallerGain = targets.Gain;
             monitor.Driver!.State.CallerLowPass = targets.LowPass;
             monitor.Driver!.State.CallerHighPass = targets.HighPass;
+            monitor.Driver!.State.CallerLevel = targets.Volume;
         }
 
         private void PutCallerOnAir(CallerRepository repository)
