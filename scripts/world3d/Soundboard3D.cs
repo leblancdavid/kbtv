@@ -480,10 +480,14 @@ namespace KBTV.World3D
                 return 0f;
             }
 
-            var speakingVolume = _monitor != null && IsCallerControl(HoveredControl)
+            var isCaller = IsCallerControl(HoveredControl);
+            var speakingVolume = _monitor != null && isCaller
                 ? (_monitor.CallerSpeakingVolume ?? 0.5f)
                 : 0.5f;
-            return SoundboardTargetGenerator.GetControlError(Driver.State, HoveredControl, speakingVolume);
+            var seed = _monitor != null && isCaller
+                ? (_monitor.CallerSoundboardSeed ?? 0)
+                : 0;
+            return SoundboardTargetGenerator.GetControlError(Driver.State, HoveredControl, speakingVolume, seed);
         }
 
         private void SetBodiesEnabled(bool enabled)

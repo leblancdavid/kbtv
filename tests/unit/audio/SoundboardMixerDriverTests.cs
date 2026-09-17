@@ -23,10 +23,13 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 0f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.CallerMuffleHz, SoundboardMixerDriver.MuffleTransparentHz));
-            AssertThat(Mathf.IsEqualApprox(settings.VernGainDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerCompression, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernDrive, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernCompression, 0f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.VernMuffleHz, SoundboardMixerDriver.MuffleTransparentHz));
-            AssertThat(Mathf.IsEqualApprox(settings.AdsGainDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.AdsDrive, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.AdsCompression, 0f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.AdsMuffleHz, SoundboardMixerDriver.MuffleTransparentHz));
             AssertThat(Mathf.IsEqualApprox(settings.CallerLevelDb, 0f));
@@ -36,8 +39,8 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(Mathf.IsEqualApprox(settings.MasterFaderDb, 0f));
         }
 
-        [Test]
-        public void ComputeEffectSettings_FullCallerGain_RaisesDriveAndAmplify()
+[Test]
+        public void ComputeEffectSettings_FullCallerGain_AboveTargetScoresDriveAndCompression()
         {
             var state = SoundboardKnobState.Neutral();
             state.CallerGain = 1f;
@@ -46,13 +49,14 @@ namespace KBTV.Tests.Unit.Audio
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
             AssertThat(Mathf.IsEqualApprox(settings.CallerDrive, 0.75f));
-            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 18f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerCompression, 1f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.CallerMuffleHz, SoundboardMixerDriver.MuffleTransparentHz));
         }
 
         [Test]
-        public void ComputeEffectSettings_LowCallerGain_MufflesInsteadOfCutting()
+        public void ComputeEffectSettings_LowCallerGain_MufflesAndAttenuatesInsteadOfCutting()
         {
             var state = SoundboardKnobState.Neutral();
             state.CallerGain = 0f;
@@ -60,14 +64,16 @@ namespace KBTV.Tests.Unit.Audio
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
-            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, -6f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.CallerMuffleHz, SoundboardMixerDriver.MuffleMuffledHz));
             AssertThat(settings.CallerMuffleHz < SoundboardMixerDriver.MuffleTransparentHz);
+            AssertThat(Mathf.IsEqualApprox(settings.CallerDrive, preset.Distortion));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerCompression, 0f));
         }
 
-        [Test]
-        public void ComputeEffectSettings_HighVernAndAdsGain_BoostTheirBuses()
+[Test]
+        public void ComputeEffectSettings_HighVernAndAdsGain_ScoredAsDriveAndCompression()
         {
             var state = SoundboardKnobState.Neutral();
             state.VernGain = 1f;
@@ -76,8 +82,10 @@ namespace KBTV.Tests.Unit.Audio
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
-            AssertThat(Mathf.IsEqualApprox(settings.VernGainDb, 16f));
-            AssertThat(Mathf.IsEqualApprox(settings.AdsGainDb, 16f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernDrive, 0.55f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernCompression, 1f));
+            AssertThat(Mathf.IsEqualApprox(settings.AdsDrive, 0.55f));
+            AssertThat(Mathf.IsEqualApprox(settings.AdsCompression, 1f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.VernMuffleHz, SoundboardMixerDriver.MuffleTransparentHz));
             AssertThat(Mathf.IsEqualApprox(
@@ -93,25 +101,75 @@ namespace KBTV.Tests.Unit.Audio
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
-            AssertThat(Mathf.IsEqualApprox(settings.VernGainDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernDrive, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernCompression, 0f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.VernMuffleHz, SoundboardMixerDriver.MuffleMuffledHz));
         }
 
-        [Test]
-        public void ComputeEffectSettings_LevelFaders_MoveBusStrips()
+[Test]
+        public void ComputeEffectSettings_LevelFaders_MoveBusStripsBelowNeutral()
         {
             var state = SoundboardKnobState.Neutral();
-            state.CallerLevel = 1f;
+            state.CallerLevel = 0f;
             state.VernLevel = 0f;
             state.AdsLevel = 0.5f;
             var preset = new SoundboardPresetInfo(600f, 400f, 0.4f);
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
-            AssertThat(Mathf.IsEqualApprox(settings.CallerLevelDb, 14f));
-            AssertThat(Mathf.IsEqualApprox(settings.VernLevelDb, -14f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerLevelDb, -30f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernLevelDb, -30f));
             AssertThat(Mathf.IsEqualApprox(settings.AdsLevelDb, 0f));
+        }
+
+        [Test]
+        public void ComputeEffectSettings_LevelFadersAboveNeutral_ScoreCompressionNotVolume()
+        {
+            var state = SoundboardKnobState.Neutral();
+            state.CallerLevel = 1f;
+            state.VernLevel = 1f;
+            var preset = new SoundboardPresetInfo(600f, 400f, 0.4f);
+
+            var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
+
+            AssertThat(Mathf.IsEqualApprox(settings.CallerLevelDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernLevelDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerCompression, 1f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernCompression, 1f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernDrive, 0.55f));
+        }
+
+        [Test]
+        public void ComputeEffectSettings_WithCallerTargets_GradesAgainstTarget()
+        {
+            var state = SoundboardKnobState.Neutral();
+            state.CallerGain = 0.7f;
+            var preset = new SoundboardPresetInfo(600f, 400f, 0.4f);
+            var targets = new SoundboardCallerTargets(0.7f, 0.5f, 0.5f);
+
+            var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset, targets);
+
+            AssertThat(Mathf.IsEqualApprox(settings.CallerDrive, preset.Distortion));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerCompression, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(
+                settings.CallerMuffleHz, SoundboardMixerDriver.MuffleTransparentHz));
+        }
+
+        [Test]
+        public void ComputeEffectSettings_AboveCallerTarget_DoesNotGetLouder()
+        {
+            var state = SoundboardKnobState.Neutral();
+            state.CallerGain = 1f;
+            var preset = new SoundboardPresetInfo(600f, 400f, 0.4f);
+            var targets = new SoundboardCallerTargets(0.7f, 0.5f, 0.5f);
+
+            var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset, targets);
+
+            AssertThat(settings.CallerCompression > 0f);
+            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 0f));
+            AssertThat(settings.CallerDrive > preset.Distortion);
         }
 
         [Test]

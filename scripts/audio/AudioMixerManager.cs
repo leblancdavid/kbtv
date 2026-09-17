@@ -52,8 +52,10 @@ namespace KBTV.Audio
         private int _staticDistortionIndex = -1;
         private int _staticMuffleLowPassIndex = -1; // Low-pass for muffling when player exits
 
-        // SFX effect indices (for UI sounds and bleep)
+        // SFX effect indices (for UI sounds, bleep, and ads)
         private int _sfxMuffleLowPassIndex = -1;
+        private int _sfxDistortionIndex = -1;
+        private int _sfxCompressorIndex = -1;
 
         // Music effect indices
         private int _musicMuffleLowPassIndex = -1;
@@ -64,6 +66,9 @@ namespace KBTV.Audio
 
         // Last soundboard knob position, re-applied after equipment level changes.
         private SoundboardKnobState? _soundboardState;
+
+        // Ideal caller knob positions the DSP grades against (null = no caller).
+        private SoundboardCallerTargets? _callerTargets;
 
         // Effect presets for each equipment level - CALLERS
         // Format: (lowPassHz, highPassHz, distortion, resonance)
@@ -97,6 +102,18 @@ namespace KBTV.Audio
         private const float CALLER_COMPRESSOR_ATTACK_MS = 15f;
         private const float CALLER_COMPRESSOR_RELEASE_MS = 150f;
         private const float CALLER_COMPRESSOR_GAIN = 3f; // makeup gain
+
+        // Caller amplify baseline (the radio-like phone book). The soundboard gain
+        // knob pulls this down below-target; above-target is scored as compression.
+        private const float CallerBaseAmplifyDb = 8f;
+
+        // Full "tighten" compressor recipe when the channel is pushed above target.
+        private const float CallerCompressThresholdMaxDb = -28f;
+        private const float CallerCompressRatioMax = 12f;
+        private const float VernCompressThresholdMaxDb = -30f;
+        private const float VernCompressRatioMax = 10f;
+        private const float AdsCompressThresholdMaxDb = -28f;
+        private const float AdsCompressRatioMax = 10f;
 
         public override void _Ready()
         {
@@ -184,9 +201,16 @@ namespace KBTV.Audio
             AudioServer.AddBusEffect(_vernBusIndex, vernCompressor);
             _vernCompressorIndex = AudioServer.GetBusEffectCount(_vernBusIndex) - 1;
 
-            // Keep Vern clean - no EQ or distortion
+            // Vern distortion for above-target gain scoring (Drive 0 = transparent).
+            var vernDistortion = new AudioEffectDistortion();
+            vernDistortion.Mode = AudioEffectDistortion.ModeEnum.Overdrive;
+            vernDistortion.PreGain = 1f;
+            vernDistortion.Drive = 0f;
+            AudioServer.AddBusEffect(_vernBusIndex, vernDistortion);
+            _vernDistortionIndex = AudioServer.GetBusEffectCount(_vernBusIndex) - 1;
+
+            // No EQ on Vern
             _vernEqIndex = -1;
-            _vernDistortionIndex = -1;
         }
 
         private void ConfigureCallerBus()
@@ -318,13 +342,30 @@ namespace KBTV.Audio
 
         private void ConfigureSFXBus()
         {
-            // SFX bus handles UI sounds and bleep effects
+            // SFX bus handles UI sounds, bleep effects, and ad spots.
             // Add a low-pass filter for muffling when player is outside
             var muffleLowPass = new AudioEffectLowPassFilter();
             muffleLowPass.CutoffHz = 20000f; // Initially transparent (very high)
             muffleLowPass.Resonance = 1.0f;
             AudioServer.AddBusEffect(_sfxBusIndex, muffleLowPass);
             _sfxMuffleLowPassIndex = AudioServer.GetBusEffectCount(_sfxBusIndex) - 1;
+
+            // Distortion + compressor for above-target ad gain scoring
+            // (Drive 0 / gentle compressor = transparent at rest).
+            var distortion = new AudioEffectDistortion();
+            distortion.Mode = AudioEffectDistortion.ModeEnum.Overdrive;
+            distortion.PreGain = 1f;
+            distortion.Drive = 0f;
+            AudioServer.AddBusEffect(_sfxBusIndex, distortion);
+            _sfxDistortionIndex = AudioServer.GetBusEffectCount(_sfxBusIndex) - 1;
+
+            var compressor = new AudioEffectCompressor();
+            compressor.Threshold = -12f;
+            compressor.Ratio = 2f;
+            compressor.AttackUs = 10f;
+            compressor.ReleaseMs = 150f;
+            AudioServer.AddBusEffect(_sfxBusIndex, compressor);
+            _sfxCompressorIndex = AudioServer.GetBusEffectCount(_sfxBusIndex) - 1;
         }
 
         private void SetupAudioPlayers()
@@ -461,26 +502,45 @@ private void ApplyVernEffects(int level)
 
             _soundboardState = state;
             var preset = GetCallerPresetInfo(_currentPhoneLineLevel);
-            var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
+            var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset, _callerTargets);
 
             SetCallerLowPass(settings.CallerLowPassHz);
             SetCallerHighPass(settings.CallerHighPassHz);
             SetCallerDistortion(settings.CallerDrive);
+            SetCallerCompression(settings.CallerCompression);
             SetCallerAmplify(settings.CallerAmplifyDb);
             SetCallerMuffle(settings.CallerMuffleHz);
 
-            // Per-channel output fader sets the bus strip; the gain knob sits on
-            // top of it as a +0..8 dB boost (share the same bus volume).
-            SetBusVolumeDb(_callerBusIndex, settings.CallerLevelDb);
-            SetBusVolumeDb(_vernBusIndex, settings.VernLevelDb + settings.VernGainDb);
-            SetBusVolumeDb(_sfxBusIndex, settings.AdsLevelDb + settings.AdsGainDb);
+            SetVernDrive(settings.VernDrive);
+            SetVernCompression(settings.VernCompression);
+            SetAdsDrive(settings.AdsDrive);
+            SetAdsCompression(settings.AdsCompression);
 
             // Gain knobs pulled low muffle their channel (rather than cutting it).
             SetVernMuffle(settings.VernMuffleHz);
             SetAdsMuffle(settings.AdsMuffleHz);
 
+            // Output faders move the strip; faders never raise the bus above 0 dB
+            // (excess above neutral is already scored as drive + compression).
+            SetBusVolumeDb(_callerBusIndex, settings.CallerLevelDb);
+            SetBusVolumeDb(_vernBusIndex, settings.VernLevelDb);
+            SetBusVolumeDb(_sfxBusIndex, settings.AdsLevelDb);
+
             SetBusVolumeDb(_musicBusIndex, settings.MusicFaderDb);
             SetBusVolumeDb(_masterBusIndex, settings.MasterFaderDb);
+        }
+
+        /// <summary>
+        /// Sets the ideal caller knob positions and re-grades the DSP stack against
+        /// them when a knob state is already applied (e.g. a caller came on air).
+        /// </summary>
+        public void SetCallerTargets(SoundboardCallerTargets? targets)
+        {
+            _callerTargets = targets;
+            if (_soundboardState != null)
+            {
+                ApplySoundboard(_soundboardState);
+            }
         }
 
         private SoundboardPresetInfo GetCallerPresetInfo(int level)
@@ -529,7 +589,7 @@ private void ApplyVernEffects(int level)
             }
         }
 
-        private void SetCallerAmplify(float volumeDb)
+        private void SetCallerAmplify(float offsetDb)
         {
             if (_callerBusIndex < 0 || _callerAmplifyIndex < 0)
             {
@@ -538,7 +598,9 @@ private void ApplyVernEffects(int level)
 
             if (AudioServer.GetBusEffect(_callerBusIndex, _callerAmplifyIndex) is AudioEffectAmplify amplify)
             {
-                amplify.VolumeDb = volumeDb;
+                // Baseline stays at the radio-like phone book; the soundboard knob
+                // only attenuates from it (never goes louder than the base).
+                amplify.VolumeDb = CallerBaseAmplifyDb + offsetDb;
             }
         }
 
@@ -552,6 +614,86 @@ private void ApplyVernEffects(int level)
             if (AudioServer.GetBusEffect(_callerBusIndex, _callerMuffleLowPassIndex) is AudioEffectLowPassFilter lowPass)
             {
                 lowPass.CutoffHz = cutoffHz;
+            }
+        }
+
+        /// <summary>
+        /// Scrubs an effect compressor toward its "tighten" recipe: deeper
+        /// compression (0..1) lowers the threshold and raises the ratio.
+        /// </summary>
+        private static void TuneCompressor(AudioEffectCompressor compressor, float depth,
+            float baseThresholdDb, float maxThresholdDb, float baseRatio, float maxRatio)
+        {
+            compressor.Threshold = Mathf.Lerp(baseThresholdDb, maxThresholdDb, depth);
+            compressor.Ratio = Mathf.Lerp(baseRatio, maxRatio, depth);
+        }
+
+        private void SetCallerCompression(float depth)
+        {
+            if (_callerBusIndex < 0 || _callerCompressorIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_callerBusIndex, _callerCompressorIndex) is AudioEffectCompressor compressor)
+            {
+                TuneCompressor(compressor, depth,
+                    CALLER_COMPRESSOR_THRESHOLD, CallerCompressThresholdMaxDb,
+                    CALLER_COMPRESSOR_RATIO, CallerCompressRatioMax);
+            }
+        }
+
+        private void SetVernDrive(float drive)
+        {
+            if (_vernBusIndex < 0 || _vernDistortionIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_vernBusIndex, _vernDistortionIndex) is AudioEffectDistortion distortion)
+            {
+                distortion.Drive = drive;
+            }
+        }
+
+        private void SetVernCompression(float depth)
+        {
+            if (_vernBusIndex < 0 || _vernCompressorIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_vernBusIndex, _vernCompressorIndex) is AudioEffectCompressor compressor)
+            {
+                TuneCompressor(compressor, depth,
+                    VERN_COMPRESSOR_THRESHOLD, VernCompressThresholdMaxDb,
+                    VERN_COMPRESSOR_RATIO, VernCompressRatioMax);
+            }
+        }
+
+        private void SetAdsDrive(float drive)
+        {
+            if (_sfxBusIndex < 0 || _sfxDistortionIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_sfxBusIndex, _sfxDistortionIndex) is AudioEffectDistortion distortion)
+            {
+                distortion.Drive = drive;
+            }
+        }
+
+        private void SetAdsCompression(float depth)
+        {
+            if (_sfxBusIndex < 0 || _sfxCompressorIndex < 0)
+            {
+                return;
+            }
+
+            if (AudioServer.GetBusEffect(_sfxBusIndex, _sfxCompressorIndex) is AudioEffectCompressor compressor)
+            {
+                TuneCompressor(compressor, depth, -12f, AdsCompressThresholdMaxDb, 2f, AdsCompressRatioMax);
             }
         }
 

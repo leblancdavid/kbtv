@@ -394,6 +394,9 @@ namespace KBTV.Callers
             // Per-caller vocal variance for the soundboard minigame (stable jitter source).
             caller.SpeakingVolume = (float)GD.RandRange(0.2f, 0.8f);
 
+            // Per-caller seed so each soundboard knob's ideal position differs.
+            caller.SoundboardSeed = (int)GD.Randi();
+
             return caller;
         }
 

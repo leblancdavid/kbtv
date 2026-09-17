@@ -73,6 +73,9 @@ namespace KBTV.Monitors
         /// <summary>The on-air caller's speaking volume (drives the caller target jitter).</summary>
         public float? CallerSpeakingVolume => _repository?.OnAirCaller?.SpeakingVolume;
 
+        /// <summary>The on-air caller's soundboard seed (drives the per-knob target jitter).</summary>
+        public int? CallerSoundboardSeed => _repository?.OnAirCaller?.SoundboardSeed;
+
         /// <summary>
         /// Supplies the knob state the monitor grades. Usually set by World3D after
         /// creating the overlay (the overlay owns the driver).
@@ -154,6 +157,12 @@ namespace KBTV.Monitors
             _graceRemaining = GracePeriod;
             _accelerationTimer = 0f;
             _drainRate = GraceDrainRate;
+
+            // Push this caller's per-knob ideal positions into the mixer so the
+            // board grades and DSP stack against the same targets.
+            _driver?.SetCallerTargets(
+                SoundboardTargetGenerator.GetCallerTargets(
+                    caller.SpeakingVolume, caller.SoundboardSeed));
         }
 
         public void OnCallerOnAirEnded(Caller caller)
@@ -163,6 +172,7 @@ namespace KBTV.Monitors
             _accelerationTimer = 0f;
             _drainRate = GraceDrainRate;
             _callerBands = new SoundboardCallerBands(SoundboardBand.None, SoundboardBand.None, SoundboardBand.None);
+            _driver?.SetCallerTargets(SoundboardTargetGenerator.NeutralCallerTargets());
         }
 
         protected override void OnUpdate(float deltaTime)
@@ -212,7 +222,8 @@ namespace KBTV.Monitors
                 return;
             }
 
-            _callerBands = SoundboardTargetGenerator.GetCallerBands(_driver.State, caller.SpeakingVolume);
+            _callerBands = SoundboardTargetGenerator.GetCallerBands(
+                _driver.State, caller.SpeakingVolume, caller.SoundboardSeed);
         }
     }
 }

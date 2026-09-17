@@ -45,6 +45,7 @@ namespace KBTV.Callers
         private float _patience;
         private float _quality;
         private float _speakingVolume;
+        private int _soundboardSeed;
 
         // Reveal order tracking (random sequence for property revelation)
         private int[] _revealOrder;
@@ -84,6 +85,17 @@ namespace KBTV.Callers
         {
             get => _speakingVolume;
             set => _speakingVolume = Godot.Mathf.Clamp(value, 0f, 1f);
+        }
+
+        /// <summary>
+        /// Stable per-caller seed that jitters each CALLER soundboard knob's ideal
+        /// position independently (gain / low-pass / high-pass). Seeded by the
+        /// CallerGenerator; defaults to 0. Not persisted.
+        /// </summary>
+        public int SoundboardSeed
+        {
+            get => _soundboardSeed;
+            set => _soundboardSeed = value;
         }
 
         /// <summary>

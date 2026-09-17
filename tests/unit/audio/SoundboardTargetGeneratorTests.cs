@@ -9,9 +9,9 @@ namespace KBTV.Tests.Unit.Audio
         public SoundboardTargetGeneratorTests(Node testScene) : base(testScene) { }
 
         [Test]
-        public void GetCallerTargets_NeutralSpeakingVolume_CenterAtNeutral()
+        public void NeutralCallerTargets_AllKnobsNeutral()
         {
-            var targets = SoundboardTargetGenerator.GetCallerTargets(0.5f);
+            var targets = SoundboardTargetGenerator.NeutralCallerTargets();
 
             AssertThat(Mathf.IsEqualApprox(targets.Gain, SoundboardKnobState.NeutralValue));
             AssertThat(Mathf.IsEqualApprox(targets.LowPass, SoundboardKnobState.NeutralValue));
@@ -19,19 +19,75 @@ namespace KBTV.Tests.Unit.Audio
         }
 
         [Test]
-        public void GetCallerTargets_LoudSpeakingVolume_JitteredAboveNeutral()
+        public void GetCallerTargets_DifferentKnobs_DifferPerKnob()
         {
-            var targets = SoundboardTargetGenerator.GetCallerTargets(1.0f);
+            var targets = SoundboardTargetGenerator.GetCallerTargets(0.5f, 0);
 
-            AssertThat(targets.Gain > SoundboardKnobState.NeutralValue);
+            AssertThat(!Mathf.IsEqualApprox(targets.Gain, targets.LowPass));
+            AssertThat(!Mathf.IsEqualApprox(targets.LowPass, targets.HighPass));
+        }
+
+        [Test]
+        public void GetCallerTargets_AnySeed_StaysInReachableRange()
+        {
+            for (int seed = 0; seed < 20; seed++)
+            {
+                var targets = SoundboardTargetGenerator.GetCallerTargets(0.5f, seed);
+                AssertThat(targets.Gain >= SoundboardTargetGenerator.MinTargetKnob);
+                AssertThat(targets.Gain <= SoundboardTargetGenerator.MaxTargetKnob);
+                AssertThat(targets.LowPass >= SoundboardTargetGenerator.MinTargetKnob);
+                AssertThat(targets.LowPass <= SoundboardTargetGenerator.MaxTargetKnob);
+                AssertThat(targets.HighPass >= SoundboardTargetGenerator.MinTargetKnob);
+                AssertThat(targets.HighPass <= SoundboardTargetGenerator.MaxTargetKnob);
+            }
+        }
+
+        [Test]
+        public void GetCallerTargets_SameSeed_IsDeterministic()
+        {
+            var first = SoundboardTargetGenerator.GetCallerTargets(0.3f, 42);
+            var second = SoundboardTargetGenerator.GetCallerTargets(0.3f, 42);
+
+            AssertThat(Mathf.IsEqualApprox(first.Gain, second.Gain));
+            AssertThat(Mathf.IsEqualApprox(first.LowPass, second.LowPass));
+            AssertThat(Mathf.IsEqualApprox(first.HighPass, second.HighPass));
+        }
+
+        [Test]
+        public void GetCallerTargets_LoudVolume_RaisesCenterAboveQuiet()
+        {
+            float Sum(SoundboardCallerTargets t) => t.Gain + t.LowPass + t.HighPass;
+
+            var loud = SoundboardTargetGenerator.GetCallerTargets(1.0f, 0);
+            var quiet = SoundboardTargetGenerator.GetCallerTargets(0f, 0);
+
+            AssertThat(Sum(loud) > Sum(quiet));
+        }
+
+        [Test]
+        public void HashUnit_DeterministicBoundedAndSeedSensitive()
+        {
+            uint salt = 0x475F6911u;
+            var a = SoundboardTargetGenerator.HashUnit(0, salt);
+            var b = SoundboardTargetGenerator.HashUnit(1, salt);
+
+            AssertThat(a >= 0f && a < 1f);
+            AssertThat(b >= 0f && b < 1f);
+            AssertThat(!Mathf.IsEqualApprox(a, b));
+            AssertThat(Mathf.IsEqualApprox(
+                a, SoundboardTargetGenerator.HashUnit(0, salt)));
         }
 
         [Test]
         public void GetCallerBands_KnobsAtTarget_AllGreen()
         {
             var state = SoundboardKnobState.Neutral();
+            var targets = SoundboardTargetGenerator.GetCallerTargets(0.5f, 7);
+            state.CallerGain = targets.Gain;
+            state.CallerLowPass = targets.LowPass;
+            state.CallerHighPass = targets.HighPass;
 
-            var bands = SoundboardTargetGenerator.GetCallerBands(state, 0.5f);
+            var bands = SoundboardTargetGenerator.GetCallerBands(state, 0.5f, 7);
 
             AssertThat(bands.Gain == SoundboardBand.Green);
             AssertThat(bands.LowPass == SoundboardBand.Green);
@@ -143,8 +199,10 @@ namespace KBTV.Tests.Unit.Audio
         public void GetControlError_NeutralStateAndTarget_Zero()
         {
             var state = SoundboardKnobState.Neutral();
+            var targets = SoundboardTargetGenerator.GetCallerTargets(0.5f, 3);
+            state.CallerGain = targets.Gain;
 
-            AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.CallerGain, 0.5f)) < 0.0001f);
+            AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.CallerGain, 0.5f, 3)) < 0.0001f);
             AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.Master, 0.5f)) < 0.0001f);
             AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.VernLevel, 0.5f)) < 0.0001f);
         }

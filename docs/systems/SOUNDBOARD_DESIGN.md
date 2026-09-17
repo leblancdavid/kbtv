@@ -117,10 +117,16 @@ Pure static/logic class, unit-testable.
     (farther above)
   - **Below** the target: **Cyan** (≤ `CyanTolerance` beyond perfect) / **Blue**
     (farther below)
-- The Caller target center = equipment preset value ± small stable jitter seeded
-  from `SpeakingVolume`, so callers are never exactly the same but always
-  reachable near the preset.
-- Vern / Ads targets = fixed nominal values (knob at the "clean" position).
+- **Per-caller targets** (Round 7): each caller carries a `SoundboardSeed`
+  (assigned in `CallerGenerator` via `(int)GD.Randi()`, not persisted). The
+  Caller target for knob *k* = `Clamp(0.5 + volumeJitter + perKnobJitter_k,
+  MinTargetKnob, MaxTargetKnob)` (`0.25..0.75`), where `perKnobJitter_k =
+  (HashUnit(seed, salt_k) - 0.5f) * 2f * PerKnobJitterRange (0.11)` via a
+  deterministic MurmurHash3-finalizer hash. So every knob of every caller is a
+  different but always reachable target; `NeutralCallerTargets()` = all 0.5
+  (used when no caller is on air).
+- Vern / Ads targets = neutral 0.5 (the "clean" position) — their gain knobs and
+  level faders grade against neutral, not a per-caller target.
 - Hover color uses the **continuous** blue→cyan→green→yellow→red ramp over the
   signed knob error (`ColorForError`, ramp half-span `ColorRampHalfSpan = 0.30`);
   the discrete LEDs stay 5-band.
@@ -131,18 +137,29 @@ Knob deltas are stacked **on top of** `AudioEffectsProcessor` presets:
 
 | Knob | Effect target | Note |
 |------|---------------|------|
-| CallerGain | `_callerDistortionIndex.Drive`, `_callerAmplifyIndex.VolumeDb` | gain + a touch of drive |
-| CallerLowPass | `_callerLowPassIndex.CutoffHz` | |
-| CallerHighPass | `_callerHighPassIndex.CutoffHz` | |
-| VernGain | Vern bus `VolumeDb` | |
-| AdsGain | Ads/Bumper bus `VolumeDb` | |
-| MasterFader | Music bus `VolumeDb` + program bus | |
+| CallerGain | `_callerDistortionIndex.Drive`, `_callerAmplifyIndex.VolumeDb`, compression | above target: drive + compress, NEVER louder |
+| CallerLowPass | `_callerLowPassIndex.CutoffHz` | grades against its per-caller target |
+| CallerHighPass | `_callerHighPassIndex.CutoffHz` | grades against its per-caller target |
+| VernGain/AdsGain | Vern/SFX bus distortion + compression | neutral target; above → drive/compress, never louder |
+| CallerLevel/VernLevel/AdsLevel | per-bus strip volume + compression | neutral; above → capped 0 dB, excess → compress |
+| MasterFader | Music bus `VolumeDb` + program bus | unchanged |
 
-- New method `AudioMixerManager.ApplySoundboard(SoundboardKnobState)` that
-  computes each `CutoffHz`/`VolumeDb`/`Drive` = preset value + knob delta and
-  applies via the existing effect indices/bus API.
-- `UpdateAudioQuality()` re-applies the stored knob state after equip-level
-  changes so equipment upgrades don't wipe knob positions.
+- New method `AudioMixerManager.ApplySoundboard(SoundboardKnobState)` computes
+  the `SoundboardEffectSettings` (17 fields) and applies via the existing bus
+  indices; `SoundboardMixerDriver.ComputeEffectSettings(state, preset, targets)`
+  is the pure calculation. Caller knobs grade against the per-caller target
+  knob values, Vern/Ads against neutral.
+- **Base-preserving** (R3/R4): the caller amplify effect keeps the phone-preset
+  loudness as a fixed baseline (`CallerBaseAmplifyDb = 8`); gaining a knob above
+  target NEVER raises volume — the excess becomes distortion drive +
+  compression. Below target, the caller just gets softer/clearer (amplify offset
+  `-below·6 dB`, never a cut of the preset) and the filter knobs sweep the
+  low/high-pass cutoffs. Vern/Ads behave the same way above their neutral target.
+- Level faders are `Clamp(delta·30, -30, 0)` — pulling a strip below neutral
+  lowers that bus; pushing above neutral caps at 0 dB and feeds the excess into
+  drive/compression. Master/Music faders are unchanged.
+- `UpdateAudioQuality()` re-applies the stored knob state + stored caller targets
+  after equip-level changes so equipment upgrades don't wipe knob positions.
 - All knob deltas are **clamped** so effects never go fully silent/DC.
 
 ## 6. Vern Mood Drain (SoundboardMonitor)
@@ -221,9 +238,12 @@ cosmetic; `IdleLamps = { Lamp_0, Lamp_1, Lamp_2, Lamp_4 }`.
   per-channel lamp
   (`y 0.011 → 0.055`) to sit between the lowest knob row and the fader track.
 - Knob rotation: `KnobRotationDeg(value) = KnobRestOffsetDeg - (value - 0.5) *
-  KnobTurnDeg` (`KnobTurnDeg = 90`, `KnobRestOffsetDeg = 180`). The notch points
-  **up at rest** (180°), value 0 = 225°, value 1 = 135°, so mouse-up/value-up
-  reads clockwise on screen; the knob's child index follows.
+  KnobTurnDeg` (`KnobTurnDeg = 270`, `KnobRestOffsetDeg = 180`). Rest sits at
+  180° = **12 o'clock**; value 0 = 315° (down-right) and value 1 = 45° (up-right),
+  so value 0→1 swings counterclockwise in degrees = **clockwise on screen**, with
+  the 12 o'clock notch exactly centred in the travel; the knob's child index
+  follows. Round 7 widened the swing from 90° to 270° so one turn reads as a full
+  three-quarter sweep between the notch stops.
 - Lamps are driven via per-lamp `MaterialOverride` emission (only while handles
   are visible, once per frame): `Lamp_6` = caller worst band
   (`SoundboardTargetGenerator.GetWorstBand(SoundboardMonitor.CallerBands)`),
@@ -371,6 +391,14 @@ angle — the old board-local `HaloTowardCameraZ` offset is gone. Round 4
   `Tools/modelgen/source/soundboard.blend`, `docs/art/model_previews/soundboard.{json,png}` - feedback pass: knob rows spread wider (spacing `0.05 → 0.065`, rows `(-0.10, -0.035, 0.02)`) and per-channel lamp moved forward to `y = 0.055` so it stays visible below the knob stack and clear of the fader track. Regenerated model.
 - Follow-up fix: rows rebalanced to truly even spacing (rows `(-0.11, -0.045, 0.02)`, `0.065` apart) and knob tap-collider depth reduced `0.11 → 0.05` so hover no longer grabs a neighbour row under the oblique camera. Regenerated model (dims unchanged).
 
+**Round 7 (modified) — interaction + DSP rounds**
+- `scripts/world3d/SoundboardPhysicalLayout.cs` - knob rotation endpoints: `KnobTurnDeg = 270`, `KnobRestOffsetDeg = 180` (value 0 → 315°, rest 0.5 → 180° = 12 o'clock, value 1 → 45°).
+- `scripts/callers/Caller.cs`, `scripts/callers/CallerGenerator.cs` - per-caller `SoundboardSeed`.
+- `scripts/audio/SoundboardTargetGenerator.cs` - `HashUnit`, per-knob salts, `PerKnobJitterRange`, `Min/MaxTargetKnob`, `NeutralCallerTargets`, seed-aware targets/bands/error.
+- `scripts/audio/SoundboardMixerDriver.cs` - 17-field `SoundboardEffectSettings`, `NormalizedDeltaFrom`, target-aware `ComputeEffectSettings`, `SetCallerTargets`.
+- `scripts/audio/AudioMixerManager.cs` - `CallerBaseAmplifyDb = 8`, Vern/SFX drive + compression, `TuneCompressor`, above-target → drive/compress (never louder).
+- `scripts/monitors/SoundboardMonitor.cs`, `scripts/world3d/Soundboard3D.cs` - seed plumbing for bands + hover error.
+
 **Tests**
 - `tests/unit/audio/SoundboardControlApplierTests.cs`
 - `tests/unit/audio/SoundboardTargetGeneratorTests.cs`
@@ -388,26 +416,37 @@ angle — the old board-local `HaloTowardCameraZ` offset is gone. Round 4
   0.20–0.27 to shift the look-target up/down for the transcript overlay band);
   `SoundboardLookPivotHeight = 0.06f`, `SoundboardDragPixelsPerUnit = 220f`.
   Bottom-band framing shifts the look target down by `BottomBand × 2 × size`.
-- Soundboard DSP (round 4 exaggerated tuning, `SoundboardMixerDriver` — fully
-  additive, neutral = equipment preset unchanged):
-  - CallerGain → `CallerAmplifySpanDb = 18` (amplify `max(gainΔ,0)·18` dB),
-    drive `clamp(preset.Distortion + gainΔ·0.35, 0.05, 0.95)`, muffle
-    `lerp(MuffleTransparentHz → MuffleMuffledHz, max(-gainΔ,0))` with
-    `MuffleTransparentHz = 20000`, `MuffleMuffledHz = 220`.
-  - CallerLowPass/CallerHighPass → additive `CutoffHz` on the caller bus with
-    spans `CallerLowPassSpanHz = 3000`, `CallerHighPassSpanHz = 1200`.
-  - VernGain/AdsGain → `VernGainSpanDb = AdsGainSpanDb = 16` dB added on the
-    Vern/Sfx buses; each muffles below neutral.
-  - CallerLevel/VernLevel/AdsLevel → `{Channel}LevelSpanDb = 14`, min `-30`,
-    max `+14` dB, applied as `CallerLevelDb` (caller bus),
-    `VernLevelDb + VernGainDb` (Vern bus), `AdsLevelDb + AdsGainDb` (Sfx bus).
+- Soundboard DSP (Round 7 base-preserving tuning, `SoundboardMixerDriver` —
+  `SoundboardEffectSettings` has 17 fields; neutral = all zeros = equipment
+  preset unchanged; caller knobs grade vs per-caller targets, Vern/Ads vs
+  neutral). Caveat: `AudioEffectDistortion` with `Drive = 0` (the neutral audio
+  state) is assumed transparent in Godot — confirm no audible coloration while
+  at rest in-engine.
+  - CallerGain → drive `clamp(preset.Distortion + callerTotalOver·0.35, 0.05,
+    0.95)`; amplify offset `-gainBelow·CallerAttenuateSpanDb (6)` dB (`Min/Max`
+    -6/0) over `AudioMixerManager.CallerBaseAmplifyDb (8)` — at/above target the
+    caller stays at the preset baseline, NEVER louder; compression = totalOver.
+    Below target: knobs go softer/clearer; low LP/HP sweep `CutoffHz` spans
+    `CallerLowPassSpanHz = 3000`, `CallerHighPassSpanHz = 1200`.
+  - Vern/Ads → drive `clamp(totalOver·VernDriveSpan/AdsDriveSpan (0.55), 0, 1)`,
+    compression = totalOver, muffle `lerp(MuffleTransparentHz → MuffleMuffledHz,
+    belowDepth)` with `MuffleTransparentHz = 20000`, `MuffleMuffledHz = 220`.
+  - CallerLevel/VernLevel/AdsLevel → `Clamp(delta·30, -30, 0)` dB strip volume
+    (below neutral lowers the bus; above neutral caps at 0 dB and the excess
+    feeds drive/compression).
   - Master (`Fader`) → `MusicFaderSpanDb = 14` and `MasterFaderSpanDb = 8`, with
-    music clamped `-30..+14` dB and master clamped `-12..+8` dB.
+    music clamped `-30..+14` dB and master clamped `-12..+8` dB (unchanged).
+  - Compression (`AudioMixerManager.TuneCompressor`): caller
+    `Lerp(-18→-28 dB, ratio 4→12)`, vern `Lerp(-20→-30, 3→10)`, ads/SFX
+    `Lerp(-12→-28, 2→10)`.
 - Targets (`SoundboardTargetGenerator`): `PerfectTolerance = 0.09f`,
   `YellowTolerance = CyanTolerance = 0.12f` (directional bands, Round 3);
-  caller targets center on `NeutralValue + SpeakingVolume jitter`;
-  `GetControlBand(state, control, speakingVolume)` returns the caller bands
-  for caller knobs, otherwise the value-vs-neutral band; `None` control → `None`.
+  per-caller targets (Round 7) = `Clamp(0.5 + volumeJitter + perKnobJitter_k,
+  0.25, 0.75)` with `PerKnobJitterRange = 0.11` and `HashUnit(seed, salt_k)`
+  (salts `GainSalt 0x475F6911`, `LowPassSalt 0x6F502F01`, `HighPassSalt
+  0x48503401`); `GetControlBand/GetControlError` take the caller seed (0 = no
+  caller → neutral targets) and return neutral-based grades for
+  Vern/Ads/Master controls; `None` control → `None`.
   `ColorRampHalfSpan = 0.30f` (full ramp half-travel: red at ±0.30, exact
   cyan/yellow at ±0.15, green at 0) with `RampBlue (0.3,0.6,1)`,
   `RampCyan (0.25,0.95,1)`, `RampGreen (0.2,0.9,0.3)`,

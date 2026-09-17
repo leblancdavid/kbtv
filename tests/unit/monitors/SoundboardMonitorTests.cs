@@ -27,6 +27,7 @@ namespace KBTV.Tests.Unit.Monitors
         {
             var (monitor, vernStats, repository) = CreateRig();
             PutCallerOnAir(repository);
+            BringMixToTarget(monitor, repository);
 
             monitor._Process(11f);
 
@@ -93,7 +94,7 @@ namespace KBTV.Tests.Unit.Monitors
             float drained = vernStats.Emotional.Value;
             AssertThat(drained < 0f);
 
-            monitor.Driver!.ResetToNeutral();
+            BringMixToTarget(monitor, repository);
 
             monitor._Process(1f);
 
@@ -110,6 +111,16 @@ namespace KBTV.Tests.Unit.Monitors
             monitor.BindRepository(repository);
             monitor.BindVernStats(vernStats);
             return (monitor, vernStats, repository);
+        }
+
+        private void BringMixToTarget(SoundboardMonitor monitor, CallerRepository repository)
+        {
+            var caller = repository.OnAirCaller!;
+            var targets = SoundboardTargetGenerator.GetCallerTargets(
+                caller.SpeakingVolume, caller.SoundboardSeed);
+            monitor.Driver!.State.CallerGain = targets.Gain;
+            monitor.Driver!.State.CallerLowPass = targets.LowPass;
+            monitor.Driver!.State.CallerHighPass = targets.HighPass;
         }
 
         private void PutCallerOnAir(CallerRepository repository)

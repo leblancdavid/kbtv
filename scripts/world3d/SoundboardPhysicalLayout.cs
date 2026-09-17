@@ -30,14 +30,13 @@ namespace KBTV.World3D
         /// <summary>Half-travel (metres) of a fader cap from its rest (track-centre) position.</summary>
         public const float FaderTravel = 0.05f;
 
-        /// <summary>Full knob swing in degrees (each control turns ±45° around rest).</summary>
-        public const float KnobTurnDeg = 90f;
+        /// <summary>Full knob swing in degrees (each control turns ±135° around rest).</summary>
+        public const float KnobTurnDeg = 270f;
 
         /// <summary>
-        /// Fixed knob rotation offset so the index pointer sits pointing up at rest.
-        /// Authoring places the pointer toward +Y (front/camera); the gain-knob row
-        /// and the yaw-180 board instance flip that reading, so the pointers are
-        /// rotated 180° to face the camera (up on screen) at rest.
+        /// Fixed knob rotation offset so the index pointer sits at 12 o'clock (up)
+        /// at rest. 180° is the validated "up" angle for the notch on the exported
+        /// board; rest (value 0.5) lands exactly there, with ±135° of swing around it.
         /// </summary>
         public const float KnobRestOffsetDeg = 180f;
 
@@ -76,7 +75,11 @@ namespace KBTV.World3D
         /// <summary>Fader cap local Z for a normalized value (-travel at 0 .. +travel at 1 around rest).</summary>
         public static float FaderLocalZ(float value) => (value - 0.5f) * 2f * FaderTravel + FaderRestLocalZ;
 
-        /// <summary>Knob rotation in degrees for a normalized value (value-up turns clockwise on screen).</summary>
+        /// <summary>
+        /// Knob rotation in degrees for a normalized value (value-up turns clockwise
+        /// on screen): value 0 = 315° (down-right), value 0.5 = 180° (12 o'clock),
+        /// value 1 = 45° (up-right).
+        /// </summary>
         public static float KnobRotationDeg(float value) =>
             KnobRestOffsetDeg - (value - 0.5f) * KnobTurnDeg;
     }

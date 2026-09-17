@@ -112,5 +112,23 @@ namespace KBTV.Tests.Unit.World3D
                 SoundboardPhysicalLayout.KnobRotationDeg(1f),
                 SoundboardPhysicalLayout.KnobRestOffsetDeg - SoundboardPhysicalLayout.KnobTurnDeg / 2f));
         }
+
+        [Test]
+        public void KnobRotationDeg_ValueZero_315Degrees()
+        {
+            AssertThat(Mathf.IsEqualApprox(SoundboardPhysicalLayout.KnobRotationDeg(0f), 315f));
+        }
+
+        [Test]
+        public void KnobRotationDeg_ValueOne_45Degrees()
+        {
+            AssertThat(Mathf.IsEqualApprox(SoundboardPhysicalLayout.KnobRotationDeg(1f), 45f));
+        }
+
+        [Test]
+        public void KnobRotationDeg_Rest_12OClock()
+        {
+            AssertThat(Mathf.IsEqualApprox(SoundboardPhysicalLayout.KnobRotationDeg(0.5f), 180f));
+        }
     }
 }
