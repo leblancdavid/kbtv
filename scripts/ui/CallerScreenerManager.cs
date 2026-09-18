@@ -17,8 +17,10 @@ namespace KBTV.UI
         private ColorRect? _background;
         private CallerTab? _callerTab;
         private Control? _liveShowFooter;
-        private CanvasLayer? _transcriptCanvas;
+private CanvasLayer? _transcriptCanvas;
         private TranscriptOverlay? _transcriptOverlay;
+        private CanvasLayer? _topOverlayCanvas;
+        private TopStateOverlay? _topOverlay;
 
         public bool IsOpen { get; private set; }
         public event Action? Opened;
@@ -94,10 +96,22 @@ namespace KBTV.UI
             };
             AddChild(_transcriptCanvas);
 
-            // Transcript overlay is independent from the caller screener canvas.
+// Transcript overlay is independent from the caller screener canvas.
             _transcriptOverlay = new TranscriptOverlay();
             _transcriptCanvas.AddChild(_transcriptOverlay);
             _transcriptCanvas.Hide();
+
+            // Top HUD overlay (time / breaks / status feed / listeners / money).
+            _topOverlayCanvas = new CanvasLayer
+            {
+                Name = "TopOverlayCanvasLayer",
+                Layer = 103
+            };
+            AddChild(_topOverlayCanvas);
+
+            _topOverlay = new TopStateOverlay();
+            _topOverlayCanvas.AddChild(_topOverlay);
+            _topOverlayCanvas.Hide();
 
             _canvas.Hide();
             IsOpen = false;
@@ -192,7 +206,7 @@ namespace KBTV.UI
             _eventBus.Subscribe<ScreeningRequestedEvent>(HandleScreeningRequested);
         }
 
-        private void SubscribeToPhaseChanges()
+private void SubscribeToPhaseChanges()
         {
             _gameStateManager = DependencyInjection.Get<GameStateManager>(this);
             if (_gameStateManager == null)
@@ -202,28 +216,28 @@ namespace KBTV.UI
             }
 
             _gameStateManager.OnPhaseChanged += HandlePhaseChanged;
-            UpdateTranscriptVisibility(_gameStateManager.CurrentPhase);
+            UpdateHudVisibility(_gameStateManager.CurrentPhase);
         }
 
         private void HandlePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
         {
-            UpdateTranscriptVisibility(newPhase);
+            UpdateHudVisibility(newPhase);
         }
 
-        private void UpdateTranscriptVisibility(GamePhase phase)
+        private void UpdateHudVisibility(GamePhase phase)
         {
-            if (_transcriptCanvas == null)
+            bool visible = phase == GamePhase.LiveShow;
+
+            if (_transcriptCanvas != null)
             {
-                return;
+                if (visible) _transcriptCanvas.Show();
+                else _transcriptCanvas.Hide();
             }
 
-            if (phase == GamePhase.LiveShow)
+            if (_topOverlayCanvas != null)
             {
-                _transcriptCanvas.Show();
-            }
-            else
-            {
-                _transcriptCanvas.Hide();
+                if (visible) _topOverlayCanvas.Show();
+                else _topOverlayCanvas.Hide();
             }
         }
 

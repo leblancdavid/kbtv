@@ -99,17 +99,17 @@ namespace KBTV.Audio
     /// </summary>
     public sealed class SoundboardMixerDriver
     {
-// Knob deltas are normalized to -1..+1; these spans are the total range
+        // Knob deltas are normalized to -1..+1; these spans are the total range
         // they swing either side of the equipment preset. Spans are intentionally
         // modest so a wrong knob dulls/thins the caller but never undoes the phone
         // band and makes them *clearer*, and never pushes them inaudible.
-        public const float CallerLowPassSpanHz = 1400f;
+        public const float CallerLowPassSpanHz = 2000f;
         public const float CallerLowPassMinHz = 150f;
         public const float CallerLowPassMaxHz = 10000f;
-        public const float CallerHighPassSpanHz = 600f;
+        public const float CallerHighPassSpanHz = 800f;
         public const float CallerHighPassMinHz = 40f;
         public const float CallerHighPassMaxHz = 1500f;
-        public const float CallerDriveSpan = 0.45f;
+        public const float CallerDriveSpan = 0.6f;
         public const float CallerDriveMin = 0.05f;
         public const float CallerDriveMax = 0.95f;
 
