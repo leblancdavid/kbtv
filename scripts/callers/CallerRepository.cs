@@ -216,26 +216,38 @@ namespace KBTV.Callers
                 return Result<Caller>.Fail("Already have a caller on air", "ON_AIR_BUSY");
             }
 
-            var onHold = OnHoldCallers.FirstOrDefault();
-            if (onHold == null)
-            {
-                return Result<Caller>.Fail("No on-hold callers", "NO_ON_HOLD");
-            }
-
-            // Check if caller has sufficient remaining patience (> 3 seconds)
+            // Minimum remaining patience required to put a caller on air (> 3 seconds)
             const float MIN_REMAINING_PATIENCE = 3.0f;
-            float remainingPatience = onHold.Patience - onHold.WaitTime;
-            if (remainingPatience <= MIN_REMAINING_PATIENCE)
+
+            // Drop front-of-queue callers who can no longer wait so the broadcast always
+            // makes forward progress instead of blocking on an impatient caller.
+            var candidates = OnHoldCallers;
+            while (candidates.Count > 0)
             {
-                return Result<Caller>.Fail("No callers with sufficient remaining patience", "INSUFFICIENT_PATIENCE");
+                var onHold = candidates.First();
+                float remainingPatience = onHold.Patience - onHold.WaitTime;
+                if (remainingPatience > MIN_REMAINING_PATIENCE)
+                {
+                    _onAirCallerId = onHold.Id;
+                    onHold.SetState(CallerState.OnAir);
+
+                    NotifyObservers(o => o.OnCallerOnAir(onHold));
+
+                    return Result<Caller>.Ok(onHold);
+                }
+
+                DropImpatientCaller(onHold);
+                candidates = OnHoldCallers;
             }
 
-            _onAirCallerId = onHold.Id;
-            onHold.SetState(CallerState.OnAir);
+            return Result<Caller>.Fail("No on-hold callers", "NO_ON_HOLD");
+        }
 
-            NotifyObservers(o => o.OnCallerOnAir(onHold));
-
-            return Result<Caller>.Ok(onHold);
+        private void DropImpatientCaller(Caller caller)
+        {
+            caller.SetState(CallerState.Disconnected);
+            RemoveCaller(caller);
+            Log.Debug($"CallerRepository: Dropped impatient caller {caller.Name} before putting on air");
         }
         
         public Result<Caller> EndOnAir()

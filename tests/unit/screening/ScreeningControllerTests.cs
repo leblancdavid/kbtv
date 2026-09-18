@@ -227,5 +227,76 @@ namespace KBTV.Tests.Unit.Screening
         {
             AssertThat(_controller.CurrentCaller == null);
         }
+
+        [Test]
+        public void Approve_HoldQueueFull_PreservesSessionForRetry()
+        {
+            var controller = new ScreeningController(
+                new MockApproveFailingRepository(),
+                new TopicManager(),
+                _saveManager,
+                _mockGameStateManager);
+            var caller = CreateTestCaller();
+            controller.Start(caller);
+
+            var result = controller.Approve();
+
+            AssertThat(result.IsFailure);
+            AssertThat(result.ErrorCode == "HOLD_QUEUE_FULL");
+            AssertThat(controller.CurrentCaller == caller);
+            AssertThat(controller.IsActive);
+            AssertThat(controller.Phase == ScreeningPhase.Gathering);
+        }
+
+        [Test]
+        public void Approve_HoldQueueFull_RejectStillWorks()
+        {
+            var controller = new ScreeningController(
+                new MockApproveFailingRepository(),
+                new TopicManager(),
+                _saveManager,
+                _mockGameStateManager);
+            var caller = CreateTestCaller();
+            controller.Start(caller);
+
+            controller.Approve();
+
+            var reject = controller.Reject();
+
+            AssertThat(reject.IsSuccess);
+            AssertThat(controller.CurrentCaller == null);
+            AssertThat(controller.Phase == ScreeningPhase.Completed);
+        }
+    }
+
+    public class MockApproveFailingRepository : ICallerRepository
+    {
+        public IReadOnlyList<Caller> IncomingCallers => new List<Caller>();
+        public IReadOnlyList<Caller> OnHoldCallers => new List<Caller>();
+        public Caller? CurrentScreening => null;
+        public Caller? OnAirCaller => null;
+
+        public bool HasIncomingCallers => false;
+        public bool HasOnHoldCallers => false;
+        public bool IsScreening => true;
+        public bool IsOnAir => false;
+        public bool CanAcceptMoreCallers => true;
+        public bool CanPutOnHold => false;
+
+        public Result<Caller> AddCaller(Caller caller) => Result<Caller>.Ok(caller);
+        public Result<Caller> StartScreening(Caller caller) => Result<Caller>.Ok(caller);
+        public Result<Caller> StartScreeningNext() => Result<Caller>.Fail("No callers");
+        public Result<Caller> ApproveScreening() => Result<Caller>.Fail("On-hold queue is full", "HOLD_QUEUE_FULL");
+        public Result<Caller> RejectScreening() => Result<Caller>.Ok(null!);
+        public Result<Caller> PutOnAir() => Result<Caller>.Fail("No caller");
+        public Result<Caller> EndOnAir() => Result<Caller>.Fail("No caller on air");
+
+        public bool SetCallerState(Caller caller, CallerState newState) => true;
+        public bool RemoveCaller(Caller caller) => true;
+        public void ClearAll() { }
+        public Caller? GetCaller(string callerId) => null;
+
+        public void Subscribe(ICallerRepositoryObserver observer) { }
+        public void Unsubscribe(ICallerRepositoryObserver observer) { }
     }
 }

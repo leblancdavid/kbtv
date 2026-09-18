@@ -9,6 +9,24 @@
       "mood": "neutral"
     },
     {
+      "id": "betweencallers_neutral_2",
+      "text": "Interesting call. Let's take another one.",
+      "voiceText": "Interesting call. Let's take another one.",
+      "mood": "neutral"
+    },
+    {
+      "id": "betweencallers_neutral_3",
+      "text": "The lines are still busy - this show has energy tonight. Next caller.",
+      "voiceText": "The lines are still busy - this show has energy tonight. Next caller.",
+      "mood": "neutral"
+    },
+    {
+      "id": "betweencallers_neutral_4",
+      "text": "We've got more listeners queued up. Let's meet the next one.",
+      "voiceText": "We've got more listeners queued up. Let's meet the next one.",
+      "mood": "neutral"
+    },
+    {
       "id": "betweencallers_tired_1",
       "text": "Alright, we've got more callers waiting. Let's keep this going.",
       "voiceText": "Alright, we've got more callers waiting. Let's keep this going.",

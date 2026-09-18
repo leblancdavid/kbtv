@@ -241,24 +241,24 @@ namespace KBTV.Tests.Unit.Callers
         [Test]
         public void ApproveScreening_FullHoldQueue_ReturnsFailure()
         {
-            var caller = CreateTestCaller();
-            _repository.AddCaller(caller);
-            _repository.StartScreening(caller);
-
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < 10; i++)
             {
-                var holdCaller = CreateTestCaller($"Hold {i}");
-                _repository.AddCaller(holdCaller);
-                _repository.StartScreening(holdCaller);
+                _repository.AddCaller(CreateTestCaller($"Hold {i}"));
                 _repository.ApproveScreening();
             }
 
-            AssertThat(_repository.CanPutOnHold);
+            AssertThat(_repository.OnHoldCallers.Count == 10);
+            AssertThat(!_repository.CanPutOnHold);
+
+            var overflow = CreateTestCaller("Overflow");
+            _repository.AddCaller(overflow);
+            _repository.StartScreening(overflow);
 
             var result = _repository.ApproveScreening();
 
             AssertThat(result.IsFailure);
-            AssertThat(result.ErrorCode == "NO_SCREENING");
+            AssertThat(result.ErrorCode == "HOLD_QUEUE_FULL");
+            AssertThat(_repository.IsScreening);
         }
 
         [Test]
@@ -357,6 +357,58 @@ namespace KBTV.Tests.Unit.Callers
             AssertThat(_repository.OnAirCaller == caller);
             AssertThat(caller.State == CallerState.OnAir);
             AssertThat(_repository.IsOnAir);
+        }
+
+        [Test]
+        public void PutOnAir_FrontCallerImpatient_DropsItAndPromotesNext()
+        {
+            var impatient = CreateTestCaller("Impatient");
+            _repository.AddCaller(impatient);
+            _repository.ApproveScreening();
+
+            var viable = CreateTestCaller("Viable");
+            _repository.AddCaller(viable);
+            _repository.ApproveScreening();
+
+            // Front caller waited ~29s of a 30s pool -> 1s remaining (impatient)
+            impatient.UpdateWaitTime(58f);
+
+            var result = _repository.PutOnAir();
+
+            AssertThat(result.IsSuccess);
+            AssertThat(result.Value == viable);
+            AssertThat(_repository.OnAirCaller == viable);
+            AssertThat(viable.State == CallerState.OnAir);
+
+            AssertThat(!_repository.OnHoldCallers.Contains(impatient));
+            AssertThat(impatient.State == CallerState.Disconnected);
+            AssertThat(_observer.RemovedCallers.Contains(impatient));
+        }
+
+        [Test]
+        public void PutOnAir_AllImpatient_DrainsQueueAndFails()
+        {
+            var first = CreateTestCaller("First");
+            _repository.AddCaller(first);
+            _repository.ApproveScreening();
+
+            var second = CreateTestCaller("Second");
+            _repository.AddCaller(second);
+            _repository.ApproveScreening();
+
+            first.UpdateWaitTime(58f);
+            second.UpdateWaitTime(58f);
+
+            var result = _repository.PutOnAir();
+
+            AssertThat(result.IsFailure);
+            AssertThat(result.ErrorCode == "NO_ON_HOLD");
+            AssertThat(_repository.OnHoldCallers.Count == 0);
+            AssertThat(!_repository.IsOnAir);
+            AssertThat(first.State == CallerState.Disconnected);
+            AssertThat(second.State == CallerState.Disconnected);
+            AssertThat(_observer.RemovedCallers.Contains(first));
+            AssertThat(_observer.RemovedCallers.Contains(second));
         }
 
         [Test]

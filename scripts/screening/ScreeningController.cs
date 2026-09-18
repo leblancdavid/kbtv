@@ -84,21 +84,25 @@ namespace KBTV.Screening
 				return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
 			}
 
-			// Save caller reference and clear session BEFORE calling repository
-			// This allows AutoStartNextScreening() to create a new session without it being overwritten
 			var caller = _session.Caller;
-			_session = null;
-			SetPhase(ScreeningPhase.Completed);
-			Log.Debug($"ScreeningController: Approved {caller.Name}");
+			Log.Debug($"ScreeningController: Approving {caller.Name}");
 
 			var result = repository.ApproveScreening();
-			if (result.IsSuccess)
+			if (!result.IsSuccess)
 			{
-				return Result<Caller>.Ok(caller);
+				// Keep the session intact so the player can retry or reject the caller
+				Log.Error($"ScreeningController: Failed to approve - {result.ErrorMessage}");
+				return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
 			}
 
-			Log.Error($"ScreeningController: Failed to approve - {result.ErrorMessage}");
-			return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
+			// Only clear the session if it hasn't already been replaced by the next auto-started screening
+			if (_session?.Caller == caller)
+			{
+				_session = null;
+				SetPhase(ScreeningPhase.Completed);
+			}
+
+			return Result<Caller>.Ok(caller);
 		}
 
 		public Result<Caller> Reject()
@@ -121,21 +125,24 @@ namespace KBTV.Screening
 				return Result<Caller>.Fail("NO_SCREENING", "No caller being screened (state mismatch detected)");
 			}
 
-			// Save caller reference and clear session BEFORE calling repository
-			// This allows AutoStartNextScreening() to create a new session without it being overwritten
 			var caller = _session.Caller;
-			_session = null;
-			SetPhase(ScreeningPhase.Completed);
-			Log.Debug($"ScreeningController: Rejected {caller.Name}");
+			Log.Debug($"ScreeningController: Rejecting {caller.Name}");
 
 			var result = repository.RejectScreening();
-			if (result.IsSuccess)
+			if (!result.IsSuccess)
 			{
-				return Result<Caller>.Ok(caller);
+				Log.Error($"ScreeningController: Failed to reject - {result.ErrorMessage}");
+				return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
 			}
 
-			Log.Error($"ScreeningController: Failed to reject - {result.ErrorMessage}");
-			return Result<Caller>.Fail(result.ErrorCode ?? "UNKNOWN", result.ErrorMessage);
+			// Only clear the session if it hasn't already been replaced by the next auto-started screening
+			if (_session?.Caller == caller)
+			{
+				_session = null;
+				SetPhase(ScreeningPhase.Completed);
+			}
+
+			return Result<Caller>.Ok(caller);
 		}
 
 		public void Update(float deltaTime)
