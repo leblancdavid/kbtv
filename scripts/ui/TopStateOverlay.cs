@@ -21,7 +21,8 @@ namespace KBTV.UI
     /// </summary>
     public partial class TopStateOverlay : Control, IDependent
     {
-        private const float BarHeight = 34f;
+        /// <summary>HUD bar height; nav/soundboard overlays offset their top controls below this.</summary>
+        public const float BarHeight = 27f;
         private const float TrendSampleInterval = 0.5f;
         private const float BreakCueWindow = 20f;
         private const float LowTimeThreshold = 20f;
@@ -33,8 +34,8 @@ namespace KBTV.UI
         private const float FeedWindowSeconds = 60f;
         private const float FeedCycleInterval = 5f;
 
-        private const int StatFontSize = 16;
-        private const int FeedFontSize = 16;
+        private const int StatFontSize = 14;
+        private const int FeedFontSize = 14;
 
         // Services (resolved in OnResolved)
         private TimeManager? _timeManager;

@@ -20,6 +20,12 @@ namespace KBTV.UI
         private const string BackText = "<-";
         private const string CloseText = "X";
 
+        /// <summary>
+        /// Buttons sit below the top HUD bar (CanvasLayer 140 draws over this layer),
+        /// so their top edge starts just under the bar instead of being covered by it.
+        /// </summary>
+        private static float NavTopY => TopStateOverlay.BarHeight + UITheme.MARGIN_SMALL;
+
         private Button _backButton = null!;
         private Button _closeButton = null!;
 
@@ -51,7 +57,7 @@ namespace KBTV.UI
                 Name = "BackButton",
                 Text = BackText,
                 MouseFilter = Control.MouseFilterEnum.Stop,
-                Position = new Vector2(UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL),
+                Position = new Vector2(UITheme.MARGIN_SMALL, NavTopY),
                 CustomMinimumSize = new Vector2(54, UITheme.BUTTON_HEIGHT)
             };
             UITheme.ApplyButtonStyle(_backButton);
@@ -78,7 +84,7 @@ namespace KBTV.UI
             }
 
             var size = GetViewport().GetVisibleRect().Size;
-            _closeButton.Position = new Vector2(size.X - _closeButton.Size.X - UITheme.MARGIN_SMALL, UITheme.MARGIN_SMALL);
+            _closeButton.Position = new Vector2(size.X - _closeButton.Size.X - UITheme.MARGIN_SMALL, NavTopY);
         }
 
         /// <summary>

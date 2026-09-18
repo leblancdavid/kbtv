@@ -80,7 +80,8 @@ namespace KBTV.UI
             style.BorderWidthRight = 1;
             root.AddThemeStyleboxOverride("panel", style);
             root.SetAnchorsPreset(Control.LayoutPreset.CenterTop);
-            root.Position = new Vector2(-160f, 14f);
+            // Keep below the top HUD bar (CanvasLayer 140) so it isn't covered by it.
+            root.Position = new Vector2(-160f, TopStateOverlay.BarHeight + UITheme.MARGIN_SMALL);
             root.Size = new Vector2(320f, 28f);
             AddChild(root);
 

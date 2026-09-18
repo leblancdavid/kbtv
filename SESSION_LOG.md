@@ -1,7 +1,17 @@
 ## Current Session
 
 **Branch**: develop
-**Task**: Top status overlay polish — halve bar height, merge BREAK next to ON-AIR timer, label prefixes ("ON-AIR:", "Listeners:", "Bank:"), feed cycles any event from the last 60s. **Status: Completed — implementation done, build green, full suite 582/13 (same pre-existing DI baseline, +4 new tests); in-editor visual verification + commit pending**
+**Task**: Top status overlay polish — halve bar height, merge BREAK next to ON-AIR timer, label prefixes, feed cycles any last-minute event; round 2: font 14 (match transcript), bar 27px, move ScreenNav back/close + soundboard drain panel below the HUD bar. **Status: Completed (round 2) — build green, full suite 582/13 (same pre-existing DI baseline); in-editor visual verification + commit pending**
+
+### Round 2 (completed)
+- `TopStateOverlay.cs`: `BarHeight` 34→27 + now `public const` (with doc); `StatFontSize`/`FeedFontSize` 16→14 (transcript uses 14px, `LiveShowPanel.tscn:136`).
+- `ScreenNavOverlay.cs`: new `NavTopY => TopStateOverlay.BarHeight + UITheme.MARGIN_SMALL` used for back-button `Position` + close-button y in `_Process` (HUD CanvasLayer 140 drew over these 121/122 buttons at y=6).
+- `SoundboardOverlay.cs`: drain panel y 14 → same expression (~33) so it clears the bar.
+- Verify: `dotnet build` 0 errors. Full `run-tests.ps1`: **582/13** (same pre-existing DI-harness baseline; no UI-position tests exist).
+- Remaining: in-editor check — 27px bar readable at 14px font, `<-`/`X` buttons clear of the HUD, drain readout visible under the bar.
+
+### Round 1 (completed)
+- Build green, full suite 582/13 (same pre-existing DI baseline, +4 new tests).
 
 - `TopStateOverlay.cs`: `BarHeight` 68→34 + stylebox v-margins 6→2; time + break merged into one `ClockPair` pod (bar = [ON-AIR+BREAK] [feed] [Listeners+trend] [Bank]); label text now `ON-AIR: mm:ss`, `Listeners: …`, `Bank: $…`. Feed rebuilt as a single centered `_feedLabel` (was 3-line VBox) cycling every 5s (`UpdateFeedCycle`/`UpdateFeedDisplay`, `FeedWindowSeconds=60`); a new event (top-signature change) resets rotation to newest; per-label fade-in tween kept.
 - `StatusFeedModel.cs`: `StatusFeedEntry` gained `ElapsedSeconds` (raw, alongside `FormattedTime`); new `EntriesWithinWindow(now, windowSeconds)` (newest-first, break on first stale); `MaxEntries` 3→12 as pure memory cap — display is now window-based so ANY event in the last minute cycles (user-confirmed).
