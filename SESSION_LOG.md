@@ -1,7 +1,7 @@
 ## Current Session
 
 **Branch**: develop
-**Task**: Soundboard Round 10 — 4th per-caller perfect-mix target (CallerLevel fader, Volume) + **always-on per-ring speaking-channel glow**: one persistent halo per driven control, color-gated by its channel, size breathing with live bus peaks, hover highlight. **Status: Completed — build green, all soundboard suites pass (incl. new glow + regression tests), full suite 562/13 (same pre-existing DI baseline), docs + session log synced**
+**Task**: Soundboard glow follow-up — current-channel glow with brief pause hold/subtle dimming, replace rectangular fader halo with circular glow at existing CallerLevel `Lamp_6`. **Status: In Progress — partial implementation present; compile/runtime verification pending**
 
 - **R10-1 (done)**: `CallerLevel` fader was graded vs neutral and showed GREEN at rest 0.5. Added a 4th per-caller perfect-mix target (Volume) so it behaves like the other caller knobs. `SoundboardCallerTargets`/`SoundboardCallerBands` gained `Volume` + 4-arg ctors; constants retuned — `PerKnobJitterRange 0.11 → 0.5`, `MinTargetKnob/MaxTargetKnob 0.25/0.75 → 0/1`, new `VolumeSalt = 0x564F4C01u`; `center = 0.5 + (clamp(speakingVolume,0,1) - 0.5) * 2 * JitterRange (0.08)`, target = `Clamp(center + perKnobJitter, 0, 1)`, per-knob jitter = `(HashUnit(seed, salt) - 0.5) * 2 * PerKnobJitterRange` (HashUnit = MurmurHash3 finalizer, verified). Volume wired through `GetCallerTargets/GetCallerBands/GetControlBand/GetControlError/GetWorstBand`. Fixed positions (volume .5, seed 0): Gain .8408, LowPass .8364, HighPass .4489, Volume .7708 — all distinct; seeds 7 & 42 also fully distinct. `NeutralCallerTargets()` now Volume .5. `SoundboardMixerDriver` `callerLevelDelta = NormalizedDeltaFrom(State.CallerLevel, t.Volume)`; `ComputeEffectSettings(state, preset, targets = null)` keeps the null→neutral fallback so fader tests unchanged.
 - **R10-2 (done)**: new `scripts/audio/SoundboardGlow.cs` — `SpeakingChannel { None, Caller, Vern }` + static `ChooseSpeakingChannel(vernDb, callerDb)` (both below `SilenceFloorDb -50`: None; diff > `HysteresisDb 3`: louder wins; within hysteresis both audible → louder wins; exact tie → None) + `GlowFromPeakDb` (clamp((peak − −50)/(−8 − −50), 0, 1)) + `ChannelOf(SoundboardControl)` (Caller* → Caller, Vern* → Vern, else None).
@@ -13,6 +13,12 @@
 - Files Modified: `scripts/audio/{SoundboardTargetGenerator.cs,SoundboardMixerDriver.cs,AudioMixerManager.cs,SoundboardGlow.cs(new)}`, `scripts/world3d/Soundboard3D.cs`, `scripts/monitors/SoundboardMonitor.cs`, `tests/unit/audio/{SoundboardTargetGeneratorTests.cs,SoundboardMixerDriverTests.cs,SoundboardGlowTests.cs(new)}`, `tests/unit/monitors/SoundboardMonitorTests.cs`, `docs/systems/SOUNDBOARD_DESIGN.md`, `SESSION_LOG.md`.
 - Related Docs: `docs/systems/SOUNDBOARD_DESIGN.md`.
 - Blockers: none.
+
+- **Glow follow-up (in progress)**: `SoundboardGlow.MinRingFraction` raised from `0.4f` to `0.75f`; `Soundboard3D` now uses `_speakingChannel` plus `_speakingChannelHold`, removes the old `_faderTrackerLights`/rectangular fader halo path, and creates radial `FaderGlow_*` meshes at fader lamps. Remaining work: finish the 0.35s pause hold/dim state, remove stale `_lastSpeakingChannel` references, fix the static/instance color helper, position the glow with `FaderGlowLift`, and verify whether the glow should cover all faders or only `CallerLevel`/`Lamp_6`.
+- **Glow follow-up verification**: `dotnet build` and relevant soundboard tests have not yet run after these partial edits; in-editor visual pass remains.
+- Files Modified: `scripts/audio/SoundboardGlow.cs`, `scripts/world3d/Soundboard3D.cs`; pending documentation and test updates.
+- Related Docs: `docs/systems/SOUNDBOARD_DESIGN.md`.
+- Blockers: current `Soundboard3D.cs` has stale `_lastSpeakingChannel` references and a static method calling instance `ControlError`; rebuild is required after repair.
 
 ---
 

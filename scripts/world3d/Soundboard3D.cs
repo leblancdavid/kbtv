@@ -49,9 +49,12 @@ namespace KBTV.World3D
         /// <summary>One persistent halo ring per driven control (always visible while handles are shown).</summary>
         private readonly Dictionary<SoundboardControl, MeshInstance3D> _halos = new();
         private readonly Dictionary<SoundboardControl, StandardMaterial3D> _haloMaterials = new();
+        private readonly Dictionary<SoundboardControl, MeshInstance3D> _faderGlows = new();
+        private readonly Dictionary<SoundboardControl, StandardMaterial3D> _faderGlowMaterials = new();
         private bool _built;
         private bool _handlesVisible;
         private SoundboardGlow.SpeakingChannel _speakingChannel = SoundboardGlow.SpeakingChannel.None;
+        private float _speakingChannelHold;
 
         /// <summary>Eased 0..1 glow per channel, following that channel's live bus peak (size = loudness).</summary>
         private float _callerGlow;
@@ -62,19 +65,23 @@ namespace KBTV.World3D
         private const float HaloLift = 0.008f;
 
         /// <summary>Side of a knob halo ring quad at FULL loudness (the max; silent channels shrink to MinRingFraction of this).</summary>
-        private const float HaloSize = 0.09f;
+        private const float HaloSize = 0.07f;
 
         /// <summary>Knob-halo quad for the master knob (its body is much larger than a channel knob).</summary>
-        private const float MasterHaloSize = 0.15f;
+        private const float MasterHaloSize = 0.10f;
 
-        /// <summary>Fader-halo quad at FULL loudness: narrow across the slot (X), elongated along the slider stroke (Z).</summary>
-        private static readonly Vector2 FaderHaloSize = new(0.045f, 0.13f);
+        private const float FaderGlowSize = 0.035f;
+        private const float FaderGlowLift = 0.004f;
 
         /// <summary>Centre alpha of a resting halo ring (the radial/rect gradient fades the edges to transparent).</summary>
         private const float HaloAlpha = 0.55f;
+        private const float FaderGlowAlpha = 0.35f;
 
         /// <summary>Per-second smoothing rate for the per-channel glow following the live bus peaks.</summary>
         private const float GlowResponsePerSecond = 8f;
+        private const float SpeakingChannelHoldSeconds = 0.35f;
+        private const float HoverScale = 1.35f;
+        private const float HoverAlpha = 0.85f;
 
         /// <summary>Shared knob-state driver (World3D points this at the overlay's driver).</summary>
         public SoundboardMixerDriver Driver { get; private set; } = new();
@@ -110,25 +117,24 @@ namespace KBTV.World3D
         {
             foreach (var slot in SoundboardPhysicalLayout.Slots)
             {
-                if (_halos.ContainsKey(slot.Control))
+                if (_halos.ContainsKey(slot.Control) || slot.Kind == ControlKind.Fader)
                 {
                     continue;
                 }
 
-                var isFader = slot.Kind == ControlKind.Fader;
                 var material = new StandardMaterial3D
                 {
                     ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
                     Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
                     CullMode = BaseMaterial3D.CullModeEnum.Disabled,
-                    AlbedoTexture = isFader ? RectHaloTexture : MakeHaloGradient(),
+                    AlbedoTexture = MakeHaloGradient(),
                     AlbedoColor = new Color(LedSelected.R, LedSelected.G, LedSelected.B, HaloAlpha)
                 };
 
                 var ring = new MeshInstance3D
                 {
                     Name = $"Halo_{slot.Control}",
-                    Mesh = new QuadMesh { Size = BaseHaloSize(slot.Control, isFader) },
+                    Mesh = new QuadMesh { Size = BaseHaloSize(slot.Control) },
                     MaterialOverride = material,
                     RotationDegrees = new Vector3(-90f, 0f, 0f),
                     Visible = false
@@ -156,39 +162,9 @@ namespace KBTV.World3D
             };
         }
 
-        /// <summary>
-        /// Soft rounded-rectangle glow texture for fader halos (the radial knob
-        /// gradient can't read as a slider, so faders get a rectangular falloff
-        /// with rounded corners). White core fading to transparent at the edges.
-        /// </summary>
-        private static readonly ImageTexture RectHaloTexture = MakeRectHaloTexture();
-
-        private static ImageTexture MakeRectHaloTexture()
-        {
-            const int res = 96;
-            var image = Image.CreateEmpty(res, res, false, Image.Format.Rgba8);
-            float half = res / 2f;
-            for (int y = 0; y < res; y++)
-            {
-                for (int x = 0; x < res; x++)
-                {
-                    float px = Mathf.Abs(x + 0.5f - half) / half;
-                    float py = Mathf.Abs(y + 0.5f - half) / half;
-                    float alpha = Mathf.Clamp(1f - Mathf.Max(px, py), 0f, 1f);
-                    alpha = Mathf.Pow(alpha, 1.6f);
-                    image.SetPixel(x, y, new Color(1f, 1f, 1f, alpha));
-                }
-            }
-            return ImageTexture.CreateFromImage(image);
-        }
-
         /// <summary>Halo quad size at full loudness for a control.</summary>
-        private static Vector2 BaseHaloSize(SoundboardControl control, bool isFader)
+        private static Vector2 BaseHaloSize(SoundboardControl control)
         {
-            if (isFader)
-            {
-                return FaderHaloSize;
-            }
             float side = control == SoundboardControl.Master ? MasterHaloSize : HaloSize;
             return new Vector2(side, side);
         }
@@ -555,6 +531,36 @@ namespace KBTV.World3D
                 lamp.MaterialOverride = material;
                 _lamps[lampName] = lamp;
                 _lampMaterials[lampName] = material;
+
+                foreach (var slot in SoundboardPhysicalLayout.Slots)
+                {
+                    if (slot.Kind != ControlKind.Fader || slot.Control != SoundboardControl.CallerLevel ||
+                        slot.LampName != lampName || _faderGlows.ContainsKey(slot.Control))
+                    {
+                        continue;
+                    }
+
+                    var glowMaterial = new StandardMaterial3D
+                    {
+                        ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+                        Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+                        CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+                        AlbedoTexture = MakeHaloGradient(),
+                        AlbedoColor = new Color(LedSelected.R, LedSelected.G, LedSelected.B, FaderGlowAlpha)
+                    };
+                    var glow = new MeshInstance3D
+                    {
+                        Name = $"FaderGlow_{slot.Control}",
+                        Mesh = new QuadMesh { Size = new Vector2(FaderGlowSize, FaderGlowSize) },
+                        MaterialOverride = glowMaterial,
+                        RotationDegrees = new Vector3(-90f, 0f, 0f),
+                        Position = new Vector3(0f, FaderGlowLift, 0f),
+                        Visible = false
+                    };
+                    lamp.AddChild(glow);
+                    _faderGlows[slot.Control] = glow;
+                    _faderGlowMaterials[slot.Control] = glowMaterial;
+                }
             }
         }
 
@@ -674,17 +680,22 @@ namespace KBTV.World3D
         /// the continuous blue→cyan→green→yellow→red error ramp while its own
         /// channel is the one talking, a constant white idle ring otherwise. SIZE
         /// encodes live loudness (each channel's glow grows from the MinRingFraction
-        /// baseline up to its full base size as the channel's bus peak rises, and
-        /// fader rings are stretched into a rectangle along the slider stroke).
-        /// Hover never touches the glow — the hovered part highlights itself.
+        /// baseline up to its full base size as the channel's bus peak rises). The
+        /// CallerLevel fader uses a separate radial glow at its channel lamp.
+        /// Hovered controls scale and brighten their glow; the part itself is also
+        /// lit subtly by the existing hover highlight.
         /// </summary>
         private void UpdateHalos()
         {
-            if (!_handlesVisible || _halos.Count == 0)
+            if (!_handlesVisible || (_halos.Count == 0 && _faderGlows.Count == 0))
             {
                 foreach (var ring in _halos.Values)
                 {
                     ring.Visible = false;
+                }
+                foreach (var glow in _faderGlows.Values)
+                {
+                    glow.Visible = false;
                 }
                 return;
             }
@@ -701,23 +712,104 @@ namespace KBTV.World3D
                 var channel = SoundboardGlow.ChannelOf(slot.Control);
                 var colored = channel != SoundboardGlow.SpeakingChannel.None &&
                               channel == _speakingChannel;
+                var glowLevel = ControlGlow(slot.Control);
+                var hovered = slot.Control == HoveredControl;
+                var haloColor = colored
+                    ? GetSpeakingHaloColor(slot.Control, _speakingChannel, glowLevel, hovered ? HoverAlpha : HaloAlpha)
+                    : GetIdleHaloColor(slot.Control, glowLevel, hovered ? HoverAlpha : HaloAlpha);
 
-                material.AlbedoColor = colored
-                    ? new Color(SoundboardTargetGenerator.ColorForError(ControlError(slot.Control)), HaloAlpha)
-                    : new Color(LedSelected.R, LedSelected.G, LedSelected.B, HaloAlpha);
+                material.AlbedoColor = haloColor;
 
-                var isFader = slot.Kind == ControlKind.Fader;
-                var baseSize = BaseHaloSize(slot.Control, isFader);
-                var glowScale = SoundboardGlow.SizeScaleFromGlow(ControlGlow(slot.Control));
+                var baseSize = BaseHaloSize(slot.Control);
+                var glowScale = SoundboardGlow.SizeScaleFromGlow(glowLevel);
+                if (hovered)
+                {
+                    glowScale *= HoverScale;
+                }
                 ((QuadMesh)ring.Mesh!).Size = baseSize * glowScale;
 
                 ring.Position = part.Position + new Vector3(0f, HaloLift, 0f);
                 ring.Visible = true;
             }
+
+            UpdateFaderGlows();
+        }
+
+        private void UpdateFaderGlows()
+        {
+            foreach (var slot in SoundboardPhysicalLayout.Slots)
+            {
+                if (slot.Kind != ControlKind.Fader ||
+                    !_faderGlows.TryGetValue(slot.Control, out var glow) || glow == null ||
+                    !_faderGlowMaterials.TryGetValue(slot.Control, out var material) || material == null)
+                {
+                    continue;
+                }
+
+                var channel = SoundboardGlow.ChannelOf(slot.Control);
+                var colored = channel != SoundboardGlow.SpeakingChannel.None &&
+                              channel == _speakingChannel;
+                var glowLevel = ControlGlow(slot.Control);
+                var hovered = slot.Control == HoveredControl;
+                var haloColor = colored
+                    ? GetSpeakingHaloColor(slot.Control, _speakingChannel, glowLevel, hovered ? HoverAlpha : FaderGlowAlpha)
+                    : GetIdleHaloColor(slot.Control, glowLevel, hovered ? HoverAlpha : FaderGlowAlpha);
+                material.AlbedoColor = haloColor;
+
+                var glowScale = SoundboardGlow.SizeScaleFromGlow(glowLevel);
+                if (hovered)
+                {
+                    glowScale *= HoverScale;
+                }
+                ((QuadMesh)glow.Mesh!).Size = new Vector2(FaderGlowSize, FaderGlowSize) * glowScale;
+                glow.Visible = true;
+            }
         }
 
         private static bool IsCallerControl(SoundboardControl control) =>
             SoundboardGlow.ChannelOf(control) == SoundboardGlow.SpeakingChannel.Caller;
+
+        private Color GetSpeakingHaloColor(SoundboardControl control, SoundboardGlow.SpeakingChannel channel, float glowLevel, float alpha)
+        {
+            var statusColor = channel == SoundboardGlow.SpeakingChannel.Caller
+                ? SoundboardTargetGenerator.ColorForError(ControlError(control))
+                : channel == SoundboardGlow.SpeakingChannel.Vern
+                    ? SoundboardTargetGenerator.RampGreen
+                    : LedSelected;
+            var dimFactor = SpeakingChannelDimFactor();
+            var luminance = Mathf.Lerp(0.35f, 1f, Mathf.Clamp(glowLevel, 0f, 1f)) * dimFactor;
+            return new Color(
+                statusColor.R * luminance,
+                statusColor.G * luminance,
+                statusColor.B * luminance,
+                alpha * dimFactor
+            );
+        }
+
+        private float SpeakingChannelDimFactor()
+        {
+            if (_speakingChannel == SoundboardGlow.SpeakingChannel.None || _speakingChannelHold <= 0f)
+            {
+                return 1f;
+            }
+
+            float progress = Mathf.Clamp(_speakingChannelHold / SpeakingChannelHoldSeconds, 0f, 1f);
+            return Mathf.Lerp(1f, 0.65f, progress);
+        }
+
+        private static Color GetIdleHaloColor(SoundboardControl control, float glowLevel) =>
+            GetIdleHaloColor(control, glowLevel, HaloAlpha);
+
+        private static Color GetIdleHaloColor(SoundboardControl control, float glowLevel, float alpha)
+        {
+            var intensity = Mathf.Lerp(0.3f, 1f, Mathf.Clamp(glowLevel, 0f, 1f));
+            return new Color(
+                LedSelected.R * intensity,
+                LedSelected.G * intensity,
+                LedSelected.B * intensity,
+                alpha
+            );
+        }
 
         private float ControlError(SoundboardControl control)
         {
@@ -792,7 +884,22 @@ namespace KBTV.World3D
             float callerPeak = _mixer?.GetCallerBusPeakDb() ?? -80f;
             float vernPeak = _mixer?.GetVernBusPeakDb() ?? -80f;
             float adsPeak = _mixer?.GetAdsBusPeakDb() ?? -80f;
-            _speakingChannel = SoundboardGlow.ChooseSpeakingChannel(callerPeak, vernPeak);
+            var detectedChannel = SoundboardGlow.ChooseSpeakingChannel(callerPeak, vernPeak);
+
+            if (detectedChannel != SoundboardGlow.SpeakingChannel.None)
+            {
+                _speakingChannel = detectedChannel;
+                _speakingChannelHold = 0f;
+            }
+            else if (_speakingChannel != SoundboardGlow.SpeakingChannel.None)
+            {
+                _speakingChannelHold += Mathf.Clamp((float)delta, 0f, 1f);
+                if (_speakingChannelHold >= SpeakingChannelHoldSeconds)
+                {
+                    _speakingChannel = SoundboardGlow.SpeakingChannel.None;
+                    _speakingChannelHold = 0f;
+                }
+            }
 
             float ease = 1f - Mathf.Exp(-GlowResponsePerSecond * (float)delta);
             _callerGlow = Mathf.Lerp(_callerGlow, SoundboardGlow.GlowFromPeakDb(callerPeak), ease);

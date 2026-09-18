@@ -40,10 +40,10 @@ public static class SoundboardGlow
 
     /// <summary>
     /// Fraction of the max halo size a ring keeps while its channel is silent.
-    /// Keeps the glow readable around a part (0.6 → the idle ring stays slightly
-    /// larger than a knob, so it never hides completely under the control).
+    /// Keeps the glow readable around a part (0.75 → the idle ring stays significantly
+    /// larger than a knob, so it's always visible and never hides completely under the control).
     /// </summary>
-    public const float MinRingFraction = 0.6f;
+    public const float MinRingFraction = 0.75f;
 
     /// <summary>
     /// Decides which channel is "speaking" based on the two bus peak levels.
