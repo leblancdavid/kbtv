@@ -141,8 +141,8 @@ Knob deltas are stacked **on top of** the equipment phone presets in
 | Knob | Effect target | Note |
 |------|---------------|------|
 | CallerGain | `_callerDistortionIndex.Drive`, `_callerAmplifyIndex.VolumeDb` | real trim: above target is audibly louder + rougher (drive); below is softer |
-| CallerLowPass | `_callerLowPassIndex.CutoffHz` | grades against its per-caller target (±1000 Hz span) |
-| CallerHighPass | `_callerHighPassIndex.CutoffHz` | grades against its per-caller target (±400 Hz span) |
+| CallerLowPass | `_callerLowPassIndex.CutoffHz` | grades against its per-caller target (±1400 Hz span) |
+| CallerHighPass | `_callerHighPassIndex.CutoffHz` | grades against its per-caller target (±600 Hz span) |
 | VernGain/AdsGain | Vern/SFX bus distortion + compression | neutral target; above → drive/compress, never louder |
 | CallerLevel | caller bus strip volume | its own per-caller fader target; above → capped 0 dB, excess → compress |
 | VernLevel/AdsLevel | Vern/SFX bus strip volume + compression | neutral; above → capped 0 dB, excess → compress |
@@ -162,7 +162,7 @@ Knob deltas are stacked **on top of** the equipment phone presets in
   is the pure calculation. Caller knobs grade against the per-caller target
   knob values, Vern/Ads against neutral.
 - **Real trim (R12)**: the Caller gain knob is genuine loudness control, not a
-  penalty. It clamps to `±CallerAmplifySpanDb` (±8 dB) around 0 dB; pushing above
+  penalty. It clamps to `±CallerAmplifySpanDb` (±10 dB) around 0 dB; pushing above
   target makes the caller audibly louder **and** rougher (drive — `CallerDrive`
   feeds the distortion `Drive`), pulling below makes them softer. The old
   "above-target never louder" rule is gone for Caller (Vern/Ads still score
@@ -173,12 +173,12 @@ Knob deltas are stacked **on top of** the equipment phone presets in
   last on the caller bus keeps the hot end (full trim + full drive) from hard
   clipping, so abuse sounds "rough, not painful". `CallerCompression` remains
   computed for the score/UI.
-- **Always audible**: filter spans are deliberately modest — LowPass ±1000 Hz,
-  HighPass ±400 Hz swing a caller duller/thinner but can never undo the phone
+- **Always audible**: filter spans are deliberately modest — LowPass ±1400 Hz,
+  HighPass ±600 Hz swing a caller duller/thinner but can never undo the phone
   band and make them clearer, and never silence them. Pulling the gain/level
-  below target softens + muffles (`MuffleMuffledHz = 1200`, a dull but
+  below target softens + muffles (`MuffleMuffledHz = 1000`, a dull but
   intelligible floor) instead of cutting; the bus limiter holds the floor.
-- Level faders: Caller is `Clamp(delta·15, -15, 0)` (bottoming muffles but never
+- Level faders: Caller is `Clamp(delta·18, -18, 0)` (bottoming muffles but never
   cuts); Vern/Ads stay `Clamp(delta·30, -30, 0)`. Master/Music faders are
   unchanged.
 - `UpdateAudioQuality()` re-applies the stored knob state + stored caller targets
@@ -300,7 +300,8 @@ driver state).
     occludes the disc centre, leaving a soft ring of light pooling under the
     handle — no whole-mesh emissive tint on the part) and a radial
     `GradientTexture2D` (white centre → transparent edge, `Fill = Radial`,
-    `FillFrom (0.5,0.5)`, `FillTo (1,0.5)`). Max ring size `HaloSize = 0.06`.
+    `FillFrom (0.5,0.5)`, `FillTo (1,0.5)`). Max ring size `HaloSize = 0.07`
+    (`MasterHaloSize = 0.10`).
   - **Positioning**: each ring is anchored at exactly its part's position + a
     tiny `HaloLift (0.008)` in `+Y` (board-local). `Soundboard3D` is parented at
     identity under the board GLB, so `part.Position` is the correct centre from
@@ -313,24 +314,25 @@ driver state).
     against their per-caller target (live `CallerSpeakingVolume` /
     `CallerSoundboardSeed` via the monitor, falling back to 0.5/0), everything
     else against neutral. Silent-channel controls, **Ads, and Master stay
-    constant white** (`LedSelected`) — small idle rings, no clashing bright
-    white. Centre alpha is constant `HaloAlpha = 0.55`; the hovered ring
-    brightens to `HoverAlpha = 0.85`.
+    constant white** (`LedSelected`) — no clashing bright white. Centre alpha is
+    constant `HaloAlpha = 0.55` regardless of hover (the old hover brighten to
+    `HoverAlpha = 0.85` was removed in R13 — hover no longer touches the ring).
   - **Size = loudness (R10)**: each ring scales off its own channel's live bus
     peak — `HaloSize * SizeScaleFromGlow(ControlGlow(control))`, where
-    `SizeScaleFromGlow = Lerp(MinRingFraction 0.4, 1.0, glow)` (silent = 40% ≈
-    0.024, loud = 0.06). Per-channel glows `_callerGlow`/`_vernGlow`/`_adsGlow`
+    `SizeScaleFromGlow = Lerp(MinRingFraction 0.75, 1.0, glow)` (silent = 75% ≈
+    0.053, loud = 0.07). Per-channel glows `_callerGlow`/`_vernGlow`/`_adsGlow`
     are eased toward `GlowFromPeakDb` of their bus (via `_mixer`
     `GetCallerBusPeakDb`/`GetVernBusPeakDb`/`GetAdsBusPeakDb`, null-safe −80 dB)
     at `GlowResponsePerSecond 8`, so the rings breathe with the actual audio.
-    Master has no channel of its own → constant quiet baseline size. The hovered
-    ring additionally scales `× HoverScale (1.35)`.
+    Master has no channel of its own → constant quiet baseline size. Hover does
+    **not** scale the ring (the old `× HoverScale 1.35` was removed in R13).
   - All rings are hidden while the handles are (`!_handlesVisible`).
 - `World3D.PollSoundboardMouse()` raycasts each frame for hover: no control
   under the cursor → `SetHover(None)` (also forced when the GUI is hovered);
   while dragging, hover follows `_boardSelected` so the halo tracks the active
-  control. Hover drives the ring scale/brighten above **and** the existing
-  channel-lamp brighten (`IsLampHighlighted`).
+  control. Hover feedback is now only the part highlight + the existing
+  channel-lamp brighten (`IsLampHighlighted`) — it no longer scales or brightens
+  the halo ring (R13).
 
 ### Interaction (World3D)
 
@@ -542,6 +544,29 @@ driver state).
   real-trim law (`RealTrimLouderAndRougher`, `GetsLouderAndRougher`,
   `MufflesAndAttenuatesInsteadOfCutting` −8 dB, fader floor −15).
 
+**Round 13 — Vern clarity, wider ranges, hover/glow decoupling**
+- **Vern is fixed-clean**: `AudioMixerManager.ConfigureVernBus()` builds a fixed
+  presence EQ after the 80 Hz high-pass (bands 2/3/4 ≈ +0.5/+1.0/+1.5 dB at
+  ~320 Hz/1 kHz/3.2 kHz), configured once and never changed by broadcast level —
+  removed the dead `VernPresets` array and the `_vernEqIndex = -1` stub;
+  `ApplyVernEffects` no longer touches EQ. Compressor bumped to
+  `VERN_COMPRESSOR_THRESHOLD -20→-18`, `RATIO 3→3.5`, `GAIN 2→4` dB, so Vern reads
+  as the crisp studio voice against any caller. Broadcast upgrades change the
+  caller's phone line, not Vern.
+- **Wider effect ranges** (`SoundboardMixerDriver.cs`, mirrored in
+  `AudioMixerManager`): `CallerLowPassSpanHz 1000→1400`, `CallerHighPassSpanHz
+  400→600`, `CallerDriveSpan 0.35→0.45`, `CallerAmplifySpanDb 8→10`,
+  `MuffleMuffledHz 1200→1000`, `VernDriveSpan`/`AdsDriveSpan 0.55→0.65`,
+  `CallerLevelSpanDb`/`CallerLevelMinDb 15`/`-15 → 18`/`-18` — min→max knob travel
+  is more audible while the never-inaudible floors still hold.
+- **Hover no longer touches the halo** (`Soundboard3D.cs`): removed `HoverScale`
+  (1.35) and `HoverAlpha` (0.85); centre alpha is now constant `HaloAlpha 0.55`
+  and `MinRingFraction 0.4→0.75` (rings no longer shrink or brighten on hover, and
+  are less tiny when silent). Hover feedback is only the part highlight +
+  `IsLampHighlighted` channel lamp. Also corrected stale doc `HaloSize 0.06`→`0.07`.
+- `tests/unit/audio/SoundboardMixerDriverTests.cs` - expectations updated to the
+  new spans (drive 0.85, amplify ±10, Vern/Ads drive 0.65, caller fader floor −18).
+
 **Tests**
 - `tests/unit/audio/SoundboardControlApplierTests.cs`
 - `tests/unit/audio/SoundboardTargetGeneratorTests.cs`
@@ -566,26 +591,30 @@ driver state).
   neutral). Caveat: `AudioEffectDistortion` with `Drive = 0` (the neutral audio
   state) is assumed transparent in Godot — confirm no audible coloration while
   at rest in-engine.
-  - CallerGain → drive `clamp(preset.Distortion + callerTotalOver·0.35, 0.05,
-    0.95)`; amplify offset `clamp(gainDelta·CallerAmplifySpanDb (8), -8..8)` dB
+  - CallerGain → drive `clamp(preset.Distortion + callerTotalOver·0.45, 0.05,
+    0.95)`; amplify offset `clamp(gainDelta·CallerAmplifySpanDb (10), -10..10)` dB
     around 0 — a **real trim**, so at/above target the caller is audibly louder
     (and rougher via drive), below target softer; compression = totalOver
     (informational for the score/UI). Filter spans are modest:
-    `CallerLowPassSpanHz = 1000`, `CallerHighPassSpanHz = 400` — a wrong knob
+    `CallerLowPassSpanHz = 1400`, `CallerHighPassSpanHz = 600` — a wrong knob
     dulls/thins but never undoes the phone band and never silences the caller.
-  - Vern/Ads → drive `clamp(totalOver·VernDriveSpan/AdsDriveSpan (0.55), 0, 1)`,
+  - Vern/Ads → drive `clamp(totalOver·VernDriveSpan/AdsDriveSpan (0.65), 0, 1)`,
     compression = totalOver, muffle `lerp(MuffleTransparentHz → MuffleMuffledHz,
-    belowDepth)` with `MuffleTransparentHz = 20000`, `MuffleMuffledHz = 1200`
+    belowDepth)` with `MuffleTransparentHz = 20000`, `MuffleMuffledHz = 1000`
     (dull-but-intelligible floor, low end of the caller gain knob too).
-  - CallerLevel → `Clamp(delta·15, -15, 0)` dB strip volume (below target lowers
-    the bus to a −15 dB floor — muffled, never cut; above target caps at 0 dB and
+  - CallerLevel → `Clamp(delta·18, -18, 0)` dB strip volume (below target lowers
+    the bus to a −18 dB floor — muffled, never cut; above target caps at 0 dB and
     the excess feeds drive/compression). VernLevel/AdsLevel stay
     `Clamp(delta·30, -30, 0)`.
   - Master (`Fader`) → `MusicFaderSpanDb = 14` and `MasterFaderSpanDb = 8`, with
     music clamped `-30..+14` dB and master clamped `-12..+8` dB (unchanged).
   - Compression: caller compressor is **fixed glue** — threshold −18 dB, ratio 4,
     makeup `CALLER_COMPRESSOR_GAIN = 5` dB (normalizes every caller; no longer
-    tightened by knob position). Vern `Lerp(-20→-30, 3→10)`, ads/SFX
+    tightened by knob position). Vern is **fixed clean (R13)**: a presence EQ
+    (bands 2/3/4 ≈ +0.5/+1.0/+1.5 dB at ~320 Hz/1 kHz/3.2 kHz) is configured
+    once on the Vern bus (after the 80 Hz high-pass), and the compressor settings
+    are `VERN_COMPRESSOR_THRESHOLD = -18`, `RATIO = 3.5`, `GAIN = 4` dB — Vern
+    stays crisp and consistent at every broadcast level. Ads/SFX use
     `Lerp(-12→-28, 2→10)` via `TuneCompressor`. A limiter (threshold −1 dB) sits
     last on the caller bus so full trim + full drive never hard-clips.
 - Targets (`SoundboardTargetGenerator`): `PerfectTolerance = 0.09f`,
@@ -605,12 +634,13 @@ driver state).
   `RampYellow (1,0.8,0.2)`, `RampRed (0.9,0.25,0.2)`.
 - Halo rings (`Soundboard3D`, Round 5 + R10): one persistent ring per driven
   control, always visible while the handles are shown; squarish
-  `HaloSize = 0.06` quad, `HaloLift = 0.008`, centre `HaloAlpha = 0.55`
-  (hovered `HoverAlpha = 0.85`), depth-tested (no `NoDepthTest`), no per-part
-  emissive override, centered exactly on `part.Position` each frame (fader
-  rings follow the cap). Size = `HaloSize * SizeScaleFromGlow(glow)` with
-  `SizeScaleFromGlow = Lerp(MinRingFraction 0.4, 1.0, glow)` (silent idle
-  ~0.024 → loud 0.06); the hovered ring scales `× HoverScale (1.35)`. Color =
+  `HaloSize = 0.07` (`MasterHaloSize 0.10`) quad, `HaloLift = 0.008`, centre `HaloAlpha = 0.55`
+  (constant — hover no longer changes ring alpha or size, R13), depth-tested (no
+  `NoDepthTest`), no per-part emissive override, centered exactly on
+  `part.Position` each frame (fader rings follow the cap). Size =
+  `HaloSize * SizeScaleFromGlow(glow)` with
+  `SizeScaleFromGlow = Lerp(MinRingFraction 0.75, 1.0, glow)` (silent idle
+  ~0.053 → loud 0.07). Color =
   `ColorForError(GetControlError(...))` with the live caller
   `SpeakingVolume`/`SoundboardSeed` for caller knobs, shown **only while that
   control's channel is speaking** (`SoundboardGlow.ChannelOf` ==

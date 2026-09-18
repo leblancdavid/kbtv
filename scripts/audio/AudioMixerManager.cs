@@ -82,21 +82,15 @@ namespace KBTV.Audio
             (8500f, 150f, 0.02f, 1.2f)    // Level 4: Clear - nearly full band
         };
 
-        // Vern broadcast presets - VERN (should be clean)
-        private static readonly (float eqGain, float distortion)[] VernPresets =
-        {
-            (1.0f, 0.0f),   // Level 1: Clean - no distortion
-            (1.0f, 0.0f),   // Level 2: Clean
-            (1.0f, 0.0f),   // Level 3: Clean
-            (1.0f, 0.0f)    // Level 4: Clean - broadcast quality
-        };
+        // Vern broadcast voice: fixed clean-studio sound (user decision, R13 —
+        // no per-level change). A single fixed presence EQ + normalization makeup.
 
         // Audio normalization compressor/limiter settings (tunable)
-        private const float VERN_COMPRESSOR_THRESHOLD = -20f;
-        private const float VERN_COMPRESSOR_RATIO = 3f;
+        private const float VERN_COMPRESSOR_THRESHOLD = -18f;
+        private const float VERN_COMPRESSOR_RATIO = 3.5f;
         private const float VERN_COMPRESSOR_ATTACK_MS = 10f;
         private const float VERN_COMPRESSOR_RELEASE_MS = 100f;
-        private const float VERN_COMPRESSOR_GAIN = 2f; // makeup gain
+        private const float VERN_COMPRESSOR_GAIN = 4f; // makeup gain
 
         private const float CALLER_COMPRESSOR_THRESHOLD = -18f;
         private const float CALLER_COMPRESSOR_RATIO = 4f;
@@ -108,7 +102,7 @@ namespace KBTV.Audio
         // dB around 0 — at target the voice rests at 0 dB (the fixed compressor's
         // makeup normalizes loudness), below target it gets softer, above it gets
         // audibly louder and rougher (drive).
-        private const float CallerAmplifySpanDb = 8f;
+        private const float CallerAmplifySpanDb = 10f;
 
         // Full "tighten" compressor recipes for the non-caller channels when they
         // are pushed above target. The caller compressor is fixed glue (loudness
@@ -187,6 +181,16 @@ namespace KBTV.Audio
             AudioServer.AddBusEffect(_vernBusIndex, highPass);
             _vernHighPassIndex = 0;
 
+            // Broadcast-mic presence lift (fixed, R13): a subtle 320 Hz → 3.2 kHz
+            // tilt that makes Vern read as the clear studio voice. Fixed across
+            // broadcast levels — Broadcast upgrades change the caller, not Vern.
+            var vernEq = new AudioEffectEQ();
+            vernEq.SetBandGainDb(2, 0.5f);   // ~320 Hz - slight body
+            vernEq.SetBandGainDb(3, 1.0f);   // ~1 kHz - mid presence
+            vernEq.SetBandGainDb(4, 1.5f);   // ~3.2 kHz - air/clarity
+            AudioServer.AddBusEffect(_vernBusIndex, vernEq);
+            _vernEqIndex = AudioServer.GetBusEffectCount(_vernBusIndex) - 1;
+
             // Add a low-pass filter for muffling when player is outside
             var muffleLowPass = new AudioEffectLowPassFilter();
             muffleLowPass.CutoffHz = 20000f; // Initially transparent (very high)
@@ -211,9 +215,6 @@ namespace KBTV.Audio
             vernDistortion.Drive = 0f;
             AudioServer.AddBusEffect(_vernBusIndex, vernDistortion);
             _vernDistortionIndex = AudioServer.GetBusEffectCount(_vernBusIndex) - 1;
-
-            // No EQ on Vern
-            _vernEqIndex = -1;
         }
 
         private void ConfigureCallerBus()
@@ -500,8 +501,9 @@ private void ApplyVernEffects(int level)
         {
             if (_vernBusIndex < 0) return;
 
-            // Vern is always clean - no distortion, minimal EQ
-            // No reverb applied to Vern
+            // Vern is always clean: no distortion, no reverb, and a FIXED presence
+            // EQ (configured once in ConfigureVernBus) at every broadcast level.
+            // Broadcast upgrades shape the caller's phone line, not Vern's voice.
         }
 
         /// <summary>

@@ -50,8 +50,8 @@ namespace KBTV.Tests.Unit.Audio
 
             // Real trim: full-up gain is audibly louder AND rougher, and the
             // informational compression field still reports the over-target depth.
-            AssertThat(Mathf.IsEqualApprox(settings.CallerDrive, 0.75f));
-            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 8f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerDrive, 0.85f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 10f));
             AssertThat(Mathf.IsEqualApprox(settings.CallerCompression, 1f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.CallerMuffleHz, SoundboardMixerDriver.MuffleTransparentHz));
@@ -66,7 +66,7 @@ namespace KBTV.Tests.Unit.Audio
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
-            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, -8f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, -10f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.CallerMuffleHz, SoundboardMixerDriver.MuffleMuffledHz));
             AssertThat(settings.CallerMuffleHz < SoundboardMixerDriver.MuffleTransparentHz);
@@ -84,9 +84,9 @@ namespace KBTV.Tests.Unit.Audio
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
-            AssertThat(Mathf.IsEqualApprox(settings.VernDrive, 0.55f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernDrive, 0.65f));
             AssertThat(Mathf.IsEqualApprox(settings.VernCompression, 1f));
-            AssertThat(Mathf.IsEqualApprox(settings.AdsDrive, 0.55f));
+            AssertThat(Mathf.IsEqualApprox(settings.AdsDrive, 0.65f));
             AssertThat(Mathf.IsEqualApprox(settings.AdsCompression, 1f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.VernMuffleHz, SoundboardMixerDriver.MuffleTransparentHz));
@@ -120,7 +120,7 @@ namespace KBTV.Tests.Unit.Audio
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
-            AssertThat(Mathf.IsEqualApprox(settings.CallerLevelDb, -15f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerLevelDb, -18f));
             AssertThat(Mathf.IsEqualApprox(settings.VernLevelDb, -30f));
             AssertThat(Mathf.IsEqualApprox(settings.AdsLevelDb, 0f));
         }
@@ -139,7 +139,7 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(Mathf.IsEqualApprox(settings.VernLevelDb, 0f));
             AssertThat(Mathf.IsEqualApprox(settings.CallerCompression, 1f));
             AssertThat(Mathf.IsEqualApprox(settings.VernCompression, 1f));
-            AssertThat(Mathf.IsEqualApprox(settings.VernDrive, 0.55f));
+            AssertThat(Mathf.IsEqualApprox(settings.VernDrive, 0.65f));
         }
 
         [Test]

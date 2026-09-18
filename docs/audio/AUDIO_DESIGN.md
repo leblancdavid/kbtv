@@ -200,6 +200,13 @@ Pre-generated TTS or recorded voice files for:
 
 **Location:** `Assets/Audio/Voice/Vern/`
 
+**Vern always sounds clean (Soundboard R13):** broadcast-equipment upgrades
+change the **caller's** phone-line quality, never Vern. His voice gets a fixed
+radio-presence EQ (high-pass 80 Hz → 5-band presence lift ≈ +0.5/+1.0/+1.5 dB at
+~320 Hz/1 kHz/3.2 kHz → muffle capable) plus a fixed normalize compressor
+(threshold −18 dB, ratio 3.5, makeup `VERN_COMPRESSOR_GAIN = 4 dB`), so Vern
+reads as the crisp studio voice against any caller at every equipment level.
+
 ### Caller Voices
 
 Pre-generated or procedural caller voices:
@@ -208,7 +215,7 @@ Pre-generated or procedural caller voices:
   `AudioMixerManager.CallerPresets`) — callers always sound like an intelligible
   phone call at every equipment level.
 - **Never inaudible** (Soundboard R12): the soundboard's knob span, muffle floor
-  (1200 Hz) and −15 dB fader floor can dull/thin or soften a caller, but can
+  (1000 Hz) and −18 dB fader floor can dull/thin or soften a caller, but can
   never cut them — a fixed compressor normalizes level and a limiter holds the
   hot end.
 

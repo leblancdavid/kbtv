@@ -1,7 +1,25 @@
 ## Current Session
 
 **Branch**: develop
-**Task**: Caller sound design rework — light telephone phone-preset (always intelligible), gain knob = real trim (louder + rough above target), caller never inaudible, compression becomes fixed normalization. **Status: In Progress — implementation done, build green, soundboard suites green, docs synced; in-editor audio pass + commit pending**
+**Task**: Soundboard Round 13 — Vern clarity (fixed presence EQ + louder compressor), slightly wider effect-knob ranges, hover no longer scales/brightens the glow. **Status: Completed — implementation done, build green, full suite 562/13 (same pre-existing DI baseline), soundboard suites green, docs synced; in-editor audio pass + commit pending**
+
+- User-confirmed: (1) **Vern clarity = fixed EQ** at every broadcast level (not level-scaled) — one consistent clean-studio voice; (2) range bumps "about right" as proposed.
+- **R13 implemented + verified**:
+  - **Vern fixed-clean** (`scripts/audio/AudioMixerManager.cs`): `ConfigureVernBus()` adds a fixed 5-band presence EQ after the 80 Hz high-pass (bands 2/3/4 ≈ +0.5/+1.0/+1.5 dB at ~320 Hz/1 kHz/3.2 kHz), stored in `_vernEqIndex`; removed the dead `VernPresets` array + the `_vernEqIndex = -1` stub; `ApplyVernEffects` no longer touches EQ. Compressor `VERN_COMPRESSOR_THRESHOLD -20→-18`, `RATIO 3→3.5`, `GAIN 2→4` dB.
+  - **Wider ranges** (`scripts/audio/SoundboardMixerDriver.cs`; `AudioMixerManager.CallerAmplifySpanDb` mirrored 8→10): LP span 1000→1400, HP span 400→600, `CallerDriveSpan 0.35→0.45`, caller amplify ±8→±10, `MuffleMuffledHz 1200→1000`, `VernDriveSpan`/`AdsDriveSpan 0.55→0.65`, `CallerLevelSpanDb`/`CallerLevelMinDb 15`/`-15 → 18`/`-18`.
+  - **Hover/glow decoupled** (`scripts/world3d/Soundboard3D.cs`): removed `HoverScale (1.35)`/`HoverAlpha (0.85)`; halos are now constant `HaloAlpha 0.55` with `MinRingFraction` 0.75 (in `SoundboardGlow`), no hover size/alpha change; hover feedback = part highlight + `IsLampHighlighted` lamp only. Corrected stale doc `HaloSize 0.06`→`0.07`.
+- Verification: `dotnet build` 0 errors. `run-tests.ps1 -Filter SoundboardMixerDriverTests` → **16/0**. Full `run-tests.ps1`: **562 passed / 13 failed** — same 6 pre-existing DI-harness suites; none touch audio/soundboard.
+- Files Modified: `scripts/audio/{AudioMixerManager.cs,SoundboardMixerDriver.cs}`, `scripts/world3d/Soundboard3D.cs`, `tests/unit/audio/SoundboardMixerDriverTests.cs`, `docs/systems/SOUNDBOARD_DESIGN.md` (§5 spans, §7 hover, §9 tuning + halo, R13 changelog), `docs/audio/AUDIO_DESIGN.md` (Vern fixed-clean note + caller floors), `SESSION_LOG.md`.
+- Related Docs: `docs/systems/SOUNDBOARD_DESIGN.md`, `docs/audio/AUDIO_DESIGN.md`.
+- Blockers: none.
+- Remaining: in-editor audio pass — confirm Vern is clearly cleaner than the caller at every broadcast level; confirm min→max knob travel is now more pronounced; confirm hovering a knob/fader no longer scales or brightens its ring. Commit when asked.
+
+---
+
+## Previous Session (completed)
+
+**Branch**: develop
+**Task**: Caller sound design rework — light telephone phone-preset (always intelligible), gain knob = real trim (louder + rough above target), caller never inaudible, compression becomes fixed normalization. **Status: Completed — implementation done, build green, soundboard suites green, docs synced; in-editor audio pass + commit pending**
 
 - User design decisions locked: (1) **Subtle phone tone kept** — fixed light telephone EQ (bandpass + presence) per equipment level, always intelligible; upgrades audibly widen clarity. (2) **Gain = real trim** — above target = actually louder + mild drive/roughness; below = quieter/soft. Replaces the old "never louder" law.
 - Root causes: phone preset too suffocating (L1 low-pass 600 Hz escaped by a ±3000 Hz LP knob span → wrong knob made caller *clearer*); above-target gain penalty (compressor ratio 12, never louder) inaudible; below-target muffle swept to 220 Hz + fader floor −30 dB → caller inaudible; `PerKnobJitterRange 0.5` spread targets across full 0..1 so even correct mixes sounded inconsistent.

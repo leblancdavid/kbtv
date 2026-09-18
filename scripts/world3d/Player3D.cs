@@ -30,10 +30,10 @@ public partial class Player3D : CharacterBody3D
 	public override void _PhysicsProcess(double delta)
 	{
 		var input = Vector3.Zero;
-		if (Input.IsActionPressed("ui_up")) input.Z -= 1f;
-		if (Input.IsActionPressed("ui_down")) input.Z += 1f;
-		if (Input.IsActionPressed("ui_left")) input.X -= 1f;
-		if (Input.IsActionPressed("ui_right")) input.X += 1f;
+		if (Input.IsActionPressed("move_forward")) input.Z -= 1f;
+		if (Input.IsActionPressed("move_back")) input.Z += 1f;
+		if (Input.IsActionPressed("move_left")) input.X -= 1f;
+		if (Input.IsActionPressed("move_right")) input.X += 1f;
 
 		if (input != Vector3.Zero)
 		{

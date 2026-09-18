@@ -103,13 +103,13 @@ namespace KBTV.Audio
         // they swing either side of the equipment preset. Spans are intentionally
         // modest so a wrong knob dulls/thins the caller but never undoes the phone
         // band and makes them *clearer*, and never pushes them inaudible.
-        public const float CallerLowPassSpanHz = 1000f;
+        public const float CallerLowPassSpanHz = 1400f;
         public const float CallerLowPassMinHz = 150f;
         public const float CallerLowPassMaxHz = 10000f;
-        public const float CallerHighPassSpanHz = 400f;
+        public const float CallerHighPassSpanHz = 600f;
         public const float CallerHighPassMinHz = 40f;
         public const float CallerHighPassMaxHz = 1500f;
-        public const float CallerDriveSpan = 0.35f;
+        public const float CallerDriveSpan = 0.45f;
         public const float CallerDriveMin = 0.05f;
         public const float CallerDriveMax = 0.95f;
 
@@ -117,27 +117,27 @@ namespace KBTV.Audio
         // 0 (at target the voice rests at 0 dB via the fixed compressor's makeup).
         // Above target the caller is audibly louder AND rougher (drive); below it
         // is softer. The bus limiter keeps the hot end from clipping.
-        public const float CallerAmplifySpanDb = 8f;
-        public const float CallerAmplifyMinDb = -8f;
-        public const float CallerAmplifyMaxDb = 8f;
+        public const float CallerAmplifySpanDb = 10f;
+        public const float CallerAmplifyMinDb = -10f;
+        public const float CallerAmplifyMaxDb = 10f;
 
         // Low end of the gain knobs sweeps the muffle low-pass down to a dull but
         // still-intelligible floor rather than cutting the channel; high end is
         // scored as drive + loudness.
         public const float MuffleTransparentHz = 20000f;
-        public const float MuffleMuffledHz = 1200f;
+        public const float MuffleMuffledHz = 1000f;
 
         // Vern/Ads gain knobs and faders sit at neutral; pulled above it the excess
         // turns into drive + compression instead of getting louder.
-        public const float VernDriveSpan = 0.55f;
-        public const float AdsDriveSpan = 0.55f;
+        public const float VernDriveSpan = 0.65f;
+        public const float AdsDriveSpan = 0.65f;
 
         // Output level faders move each bus strip around its target (Caller grades
         // against the per-caller Volume target, Vern/Ads against neutral), capped at
         // 0 dB above (excess above the target is scored as compression). The floor
-        // is -15 dB: bottoming a fader muffles the strip but never cuts it.
-        public const float CallerLevelSpanDb = 15f;
-        public const float CallerLevelMinDb = -15f;
+        // is -18 dB: bottoming a fader muffles the strip but never cuts it.
+        public const float CallerLevelSpanDb = 18f;
+        public const float CallerLevelMinDb = -18f;
         public const float CallerLevelMaxDb = 0f;
         public const float VernLevelSpanDb = 30f;
         public const float VernLevelMinDb = -30f;

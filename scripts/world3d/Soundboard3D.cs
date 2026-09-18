@@ -80,8 +80,6 @@ namespace KBTV.World3D
         /// <summary>Per-second smoothing rate for the per-channel glow following the live bus peaks.</summary>
         private const float GlowResponsePerSecond = 8f;
         private const float SpeakingChannelHoldSeconds = 0.35f;
-        private const float HoverScale = 1.35f;
-        private const float HoverAlpha = 0.85f;
 
         /// <summary>Shared knob-state driver (World3D points this at the overlay's driver).</summary>
         public SoundboardMixerDriver Driver { get; private set; } = new();
@@ -89,7 +87,7 @@ namespace KBTV.World3D
         /// <summary>Currently selected control (or None).</summary>
         public SoundboardControl SelectedControl { get; private set; } = SoundboardControl.None;
 
-        /// <summary>Currently hovered control (or None). Drives the halo + lamp brighten.</summary>
+        /// <summary>Currently hovered control (or None). Drives the part highlight + lamp brighten.</summary>
         public SoundboardControl HoveredControl { get; private set; } = SoundboardControl.None;
 
         public override void _Ready()
@@ -682,8 +680,8 @@ namespace KBTV.World3D
         /// encodes live loudness (each channel's glow grows from the MinRingFraction
         /// baseline up to its full base size as the channel's bus peak rises). The
         /// CallerLevel fader uses a separate radial glow at its channel lamp.
-        /// Hovered controls scale and brighten their glow; the part itself is also
-        /// lit subtly by the existing hover highlight.
+        /// Hover does not scale or brighten the glow; hover feedback is the part
+        /// highlight and the channel-lamp brighten only.
         /// </summary>
         private void UpdateHalos()
         {
@@ -713,19 +711,14 @@ namespace KBTV.World3D
                 var colored = channel != SoundboardGlow.SpeakingChannel.None &&
                               channel == _speakingChannel;
                 var glowLevel = ControlGlow(slot.Control);
-                var hovered = slot.Control == HoveredControl;
                 var haloColor = colored
-                    ? GetSpeakingHaloColor(slot.Control, _speakingChannel, glowLevel, hovered ? HoverAlpha : HaloAlpha)
-                    : GetIdleHaloColor(slot.Control, glowLevel, hovered ? HoverAlpha : HaloAlpha);
+                    ? GetSpeakingHaloColor(slot.Control, _speakingChannel, glowLevel, HaloAlpha)
+                    : GetIdleHaloColor(slot.Control, glowLevel, HaloAlpha);
 
                 material.AlbedoColor = haloColor;
 
                 var baseSize = BaseHaloSize(slot.Control);
                 var glowScale = SoundboardGlow.SizeScaleFromGlow(glowLevel);
-                if (hovered)
-                {
-                    glowScale *= HoverScale;
-                }
                 ((QuadMesh)ring.Mesh!).Size = baseSize * glowScale;
 
                 ring.Position = part.Position + new Vector3(0f, HaloLift, 0f);
@@ -750,17 +743,12 @@ namespace KBTV.World3D
                 var colored = channel != SoundboardGlow.SpeakingChannel.None &&
                               channel == _speakingChannel;
                 var glowLevel = ControlGlow(slot.Control);
-                var hovered = slot.Control == HoveredControl;
                 var haloColor = colored
-                    ? GetSpeakingHaloColor(slot.Control, _speakingChannel, glowLevel, hovered ? HoverAlpha : FaderGlowAlpha)
-                    : GetIdleHaloColor(slot.Control, glowLevel, hovered ? HoverAlpha : FaderGlowAlpha);
+                    ? GetSpeakingHaloColor(slot.Control, _speakingChannel, glowLevel, FaderGlowAlpha)
+                    : GetIdleHaloColor(slot.Control, glowLevel, FaderGlowAlpha);
                 material.AlbedoColor = haloColor;
 
                 var glowScale = SoundboardGlow.SizeScaleFromGlow(glowLevel);
-                if (hovered)
-                {
-                    glowScale *= HoverScale;
-                }
                 ((QuadMesh)glow.Mesh!).Size = new Vector2(FaderGlowSize, FaderGlowSize) * glowScale;
                 glow.Visible = true;
             }
