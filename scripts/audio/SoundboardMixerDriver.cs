@@ -28,7 +28,8 @@ namespace KBTV.Audio
     /// be pushed into the audio engine. All values are clamped so the effects
     /// never go fully silent or DC. Neutral-equivalent (all dB fields 0, muffle
     /// cutoffs transparent) means "preset audio, unchanged by the board".
-    /// Gain knobs/faders raised above their target never get louder: the excess
+    /// The Caller gain knob is a real trim (louder + rougher above target, softer
+    /// below); Vern/Ads raised above their target never get louder — the excess
     /// is turned into drive + compression instead (see <see cref="ComputeEffectSettings"/>).
     /// </summary>
     public readonly struct SoundboardEffectSettings
@@ -99,27 +100,32 @@ namespace KBTV.Audio
     public sealed class SoundboardMixerDriver
     {
 // Knob deltas are normalized to -1..+1; these spans are the total range
-        // they swing either side of the equipment preset.
-        public const float CallerLowPassSpanHz = 3000f;
+        // they swing either side of the equipment preset. Spans are intentionally
+        // modest so a wrong knob dulls/thins the caller but never undoes the phone
+        // band and makes them *clearer*, and never pushes them inaudible.
+        public const float CallerLowPassSpanHz = 1000f;
         public const float CallerLowPassMinHz = 150f;
         public const float CallerLowPassMaxHz = 10000f;
-        public const float CallerHighPassSpanHz = 1200f;
+        public const float CallerHighPassSpanHz = 400f;
         public const float CallerHighPassMinHz = 40f;
         public const float CallerHighPassMaxHz = 1500f;
         public const float CallerDriveSpan = 0.35f;
         public const float CallerDriveMin = 0.05f;
         public const float CallerDriveMax = 0.95f;
 
-        // Above-target gain never gets louder: below-target pulls the base 0 dB
-        // amplify down to -6 dB, above-target is scored as compression instead.
-        public const float CallerAttenuateSpanDb = 6f;
-        public const float CallerAmplifyMinDb = -6f;
-        public const float CallerAmplifyMaxDb = 0f;
+        // The gain knob is a real trim: it swings the strip ±this many dB around
+        // 0 (at target the voice rests at 0 dB via the fixed compressor's makeup).
+        // Above target the caller is audibly louder AND rougher (drive); below it
+        // is softer. The bus limiter keeps the hot end from clipping.
+        public const float CallerAmplifySpanDb = 8f;
+        public const float CallerAmplifyMinDb = -8f;
+        public const float CallerAmplifyMaxDb = 8f;
 
-        // Low end of the gain knobs sweeps the muffle low-pass down to a dull rumble
-        // rather than cutting the channel; high end is scored as drive + compression.
+        // Low end of the gain knobs sweeps the muffle low-pass down to a dull but
+        // still-intelligible floor rather than cutting the channel; high end is
+        // scored as drive + loudness.
         public const float MuffleTransparentHz = 20000f;
-        public const float MuffleMuffledHz = 220f;
+        public const float MuffleMuffledHz = 1200f;
 
         // Vern/Ads gain knobs and faders sit at neutral; pulled above it the excess
         // turns into drive + compression instead of getting louder.
@@ -128,9 +134,10 @@ namespace KBTV.Audio
 
         // Output level faders move each bus strip around its target (Caller grades
         // against the per-caller Volume target, Vern/Ads against neutral), capped at
-        // 0 dB above (excess above the target is scored as compression).
-        public const float CallerLevelSpanDb = 30f;
-        public const float CallerLevelMinDb = -30f;
+        // 0 dB above (excess above the target is scored as compression). The floor
+        // is -15 dB: bottoming a fader muffles the strip but never cuts it.
+        public const float CallerLevelSpanDb = 15f;
+        public const float CallerLevelMinDb = -15f;
         public const float CallerLevelMaxDb = 0f;
         public const float VernLevelSpanDb = 30f;
         public const float VernLevelMinDb = -30f;
@@ -207,9 +214,10 @@ namespace KBTV.Audio
         /// delta, fully clamped. Unit-testable without an AudioServer. Caller knobs
         /// and the Caller output fader grade against the caller's per-caller targets
         /// (null targets = neutral, e.g. no caller on air); Vern/Ads gain + their
-        /// faders grade against neutral center. Above-target gain never gets louder -
-        /// it becomes drive and compression; below-target muffles instead of
-        /// attenuating.
+        /// faders grade against neutral center. The Caller gain knob is a real trim:
+        /// pulling below target softens + dulls the strip (still audible), pushing
+        /// above makes it louder AND rougher (drive). Vern/Ads raised above neutral
+        /// never get louder — the excess becomes drive and compression.
         /// </summary>
         public static SoundboardEffectSettings ComputeEffectSettings(
             SoundboardKnobState state, SoundboardPresetInfo preset,
@@ -234,7 +242,6 @@ namespace KBTV.Audio
             float faderDelta = SoundboardKnobState.NormalizedDelta(state.Fader);
 
             float gainOver = Mathf.Max(gainDelta, 0f);
-            float gainBelow = Mathf.Max(-gainDelta, 0f);
             float vernOver = Mathf.Max(vernDelta, 0f);
             float adsOver = Mathf.Max(adsDelta, 0f);
 
@@ -258,7 +265,7 @@ namespace KBTV.Audio
                     CallerHighPassMinHz, CallerHighPassMaxHz),
                 Mathf.Clamp(preset.Distortion + callerTotalOver * CallerDriveSpan,
                     CallerDriveMin, CallerDriveMax),
-                Mathf.Clamp(-gainBelow * CallerAttenuateSpanDb,
+                Mathf.Clamp(gainDelta * CallerAmplifySpanDb,
                     CallerAmplifyMinDb, CallerAmplifyMaxDb),
                 callerMuffleHz,
                 callerTotalOver,

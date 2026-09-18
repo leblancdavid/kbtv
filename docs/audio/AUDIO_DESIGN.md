@@ -204,7 +204,13 @@ Pre-generated TTS or recorded voice files for:
 
 Pre-generated or procedural caller voices:
 - Various phone quality levels (Good, Average, Poor, Terrible)
-- Processed through CallerMixerGroup with phone filter
+- Processed through the Caller bus with a **light telephone EQ** (see
+  `AudioMixerManager.CallerPresets`) — callers always sound like an intelligible
+  phone call at every equipment level.
+- **Never inaudible** (Soundboard R12): the soundboard's knob span, muffle floor
+  (1200 Hz) and −15 dB fader floor can dull/thin or soften a caller, but can
+  never cut them — a fixed compressor normalizes level and a limiter holds the
+  hot end.
 
 ### Audio Mixer Groups
 

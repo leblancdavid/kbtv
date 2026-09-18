@@ -41,10 +41,9 @@ namespace KBTV.Audio
         private int _callerHighPassIndex = -1;
         private int _callerDistortionIndex = -1;
         private int _callerAmplifyIndex = -1;
-        private int _callerCompressorIndex = -1;
         private int _callerEqIndex = -1;
-        private int _callerChorusIndex = -1;
         private int _callerMuffleLowPassIndex = -1; // Additional low-pass for muffling
+        private int _callerLimiterIndex = -1;        // Fixed output protection (last)
 
         // Static effect indices
         private int _staticLowPassIndex = -1;
@@ -72,13 +71,15 @@ namespace KBTV.Audio
 
         // Effect presets for each equipment level - CALLERS
         // Format: (lowPassHz, highPassHz, distortion, resonance)
-        // Balanced phone effect
+        // Light telephone band: a subtle phone tone that is always intelligible
+        // at every level; upgrades audibly widen the band. Preset distortion is
+        // near-flat — board over-target drive supplies any "rough" character.
         private static readonly (float lowPass, float highPass, float distortion, float resonance)[] CallerPresets =
         {
-            (600f, 400f, 0.40f, 3.0f),   // Level 1: Bad phone - balanced
-            (800f, 350f, 0.35f, 3.0f),   // Level 2: Improved
-            (1200f, 300f, 0.30f, 3.0f),   // Level 3: Better
-            (2500f, 200f, 0.20f, 3.0f)    // Level 4: Clear
+            (3500f, 250f, 0.02f, 1.2f),   // Level 1: Light telephone - crisp but thin
+            (4800f, 220f, 0.02f, 1.2f),   // Level 2: Improved clarity
+            (6000f, 190f, 0.02f, 1.2f),   // Level 3: Better
+            (8500f, 150f, 0.02f, 1.2f)    // Level 4: Clear - nearly full band
         };
 
         // Vern broadcast presets - VERN (should be clean)
@@ -101,15 +102,17 @@ namespace KBTV.Audio
         private const float CALLER_COMPRESSOR_RATIO = 4f;
         private const float CALLER_COMPRESSOR_ATTACK_MS = 15f;
         private const float CALLER_COMPRESSOR_RELEASE_MS = 150f;
-        private const float CALLER_COMPRESSOR_GAIN = 3f; // makeup gain
+        private const float CALLER_COMPRESSOR_GAIN = 5f; // makeup gain (normalize floor)
 
-        // Caller amplify baseline (the radio-like phone book). The soundboard gain
-        // knob pulls this down below-target; above-target is scored as compression.
-        private const float CallerBaseAmplifyDb = 8f;
+        // Caller trim: the soundboard gain knob moves the caller strip ±this many
+        // dB around 0 — at target the voice rests at 0 dB (the fixed compressor's
+        // makeup normalizes loudness), below target it gets softer, above it gets
+        // audibly louder and rougher (drive).
+        private const float CallerAmplifySpanDb = 8f;
 
-        // Full "tighten" compressor recipe when the channel is pushed above target.
-        private const float CallerCompressThresholdMaxDb = -28f;
-        private const float CallerCompressRatioMax = 12f;
+        // Full "tighten" compressor recipes for the non-caller channels when they
+        // are pushed above target. The caller compressor is fixed glue (loudness
+        // normalization only); its failure articulation is drive + loudness.
         private const float VernCompressThresholdMaxDb = -30f;
         private const float VernCompressRatioMax = 10f;
         private const float AdsCompressThresholdMaxDb = -28f;
@@ -217,47 +220,19 @@ namespace KBTV.Audio
         {
             GD.Print($"ConfigureCallerBus: Adding effects to bus index {_callerBusIndex}");
 
-            // Add LowPass filter (index 0) - simulates phone bandwidth
-            // Start with Level 1 settings: 600Hz, resonance 3.0
-            var lowPass = new AudioEffectLowPassFilter();
-            lowPass.CutoffHz = 600f;
-            lowPass.Resonance = 3.0f;
-            AudioServer.AddBusEffect(_callerBusIndex, lowPass);
-            _callerLowPassIndex = 0;
-            GD.Print("AudioMixerManager: Added LowPass to Caller bus");
-
-            // Add HighPass filter (index 1) - removes low frequencies
-            var highPass = new AudioEffectHighPassFilter();
-            highPass.CutoffHz = 400f;  // Level 1: 400Hz
-            AudioServer.AddBusEffect(_callerBusIndex, highPass);
-            _callerHighPassIndex = 1;
-            GD.Print("AudioMixerManager: Added HighPass to Caller bus");
-
-            // Add Distortion (index 2) - phone line character
-            var distortion = new AudioEffectDistortion();
-            distortion.Mode = AudioEffectDistortion.ModeEnum.Overdrive;
-            distortion.PreGain = 1f;
-            distortion.Drive = 0.40f;  // Level 1: 0.40
-            AudioServer.AddBusEffect(_callerBusIndex, distortion);
-            _callerDistortionIndex = 2;
-            GD.Print("AudioMixerManager: Added Distortion to Caller bus");
-
-            // Add Amplify (index 3) - boost caller voice above static
+            // Board adjustments run on the clean caller voice first: the gain
+            // knob (Amplify = real trim, ±CallerAmplifySpanDb at full throw) and
+            // the fixed normalization compressor shape the dry signal before the
+            // phone-line coloration below.
             var amplify = new AudioEffectAmplify();
-            amplify.VolumeDb = 8f;  // Boost by 8dB
+            amplify.VolumeDb = 0f;  // Soundboard gain trims around 0 dB
             AudioServer.AddBusEffect(_callerBusIndex, amplify);
-            _callerAmplifyIndex = 3;
+            _callerAmplifyIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
             GD.Print("AudioMixerManager: Added Amplify to Caller bus");
 
-            // Add EQ (index 4) - subtle telephone presence at 1-2kHz
-            var eq = new AudioEffectEQ();
-            eq.SetBandGainDb(3, 2f);   // ~1kHz - subtle boost
-            eq.SetBandGainDb(4, 2f);   // ~2kHz - subtle boost
-            AudioServer.AddBusEffect(_callerBusIndex, eq);
-            _callerEqIndex = 4;
-            GD.Print("AudioMixerManager: Added EQ to Caller bus");
-
-            // Add compressor for volume normalization
+            // Compression is fixed loudness "glue" (normalize) and does not
+            // tighten on board abuse — the soundboard's above-target failure is
+            // articulated by real loudness + distortion, not by the compressor.
             var callerCompressor = new AudioEffectCompressor();
             callerCompressor.Threshold = CALLER_COMPRESSOR_THRESHOLD;
             callerCompressor.Gain = CALLER_COMPRESSOR_GAIN;
@@ -265,14 +240,55 @@ namespace KBTV.Audio
             callerCompressor.AttackUs = CALLER_COMPRESSOR_ATTACK_MS * 1000; // Convert ms to microseconds
             callerCompressor.ReleaseMs = CALLER_COMPRESSOR_RELEASE_MS;
             AudioServer.AddBusEffect(_callerBusIndex, callerCompressor);
-            _callerCompressorIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
+            GD.Print("AudioMixerManager: Added Compressor to Caller bus");
 
-            // Add a low-pass filter for muffling when player is outside
+            // Phone-line coloration (quality presets + board filter knobs) is
+            // applied to the already-adjusted audio: bandwidth, then character.
+            var lowPass = new AudioEffectLowPassFilter();
+            lowPass.CutoffHz = CallerPresets[0].lowPass; // Level 1: 3500 Hz
+            lowPass.Resonance = CallerPresets[0].resonance; // 1.2
+            AudioServer.AddBusEffect(_callerBusIndex, lowPass);
+            _callerLowPassIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
+            GD.Print("AudioMixerManager: Added LowPass to Caller bus");
+
+            var highPass = new AudioEffectHighPassFilter();
+            highPass.CutoffHz = CallerPresets[0].highPass; // Level 1: 250 Hz
+            AudioServer.AddBusEffect(_callerBusIndex, highPass);
+            _callerHighPassIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
+            GD.Print("AudioMixerManager: Added HighPass to Caller bus");
+
+            var distortion = new AudioEffectDistortion();
+            distortion.Mode = AudioEffectDistortion.ModeEnum.Overdrive;
+            distortion.PreGain = 1f;
+            distortion.Drive = CallerPresets[0].distortion;  // Level 1: 0.02
+            AudioServer.AddBusEffect(_callerBusIndex, distortion);
+            _callerDistortionIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
+            GD.Print("AudioMixerManager: Added Distortion to Caller bus");
+
+            // Subtle telephone presence at 1-2kHz
+            var eq = new AudioEffectEQ();
+            eq.SetBandGainDb(3, 2f);   // ~1kHz - subtle boost
+            eq.SetBandGainDb(4, 2f);   // ~2kHz - subtle boost
+            AudioServer.AddBusEffect(_callerBusIndex, eq);
+            _callerEqIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
+            GD.Print("AudioMixerManager: Added EQ to Caller bus");
+
+            // Muffle stays near the end: it colors the final broadcast output when
+            // the player leaves the control room (and doubles as the below-target
+            // gain-knob "channel muffled" state).
             var muffleLowPass = new AudioEffectLowPassFilter();
             muffleLowPass.CutoffHz = 20000f; // Initially transparent (very high)
             muffleLowPass.Resonance = 1.0f;
             AudioServer.AddBusEffect(_callerBusIndex, muffleLowPass);
             _callerMuffleLowPassIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
+
+            // Fixed limiter last: with a real-trim gain knob the max-abuse case
+            // (full trim + full drive) is genuinely hotter, so this keeps the
+            // caller (and thus the master) from hard clipping — "rough, not painful".
+            var limiter = new AudioEffectLimiter();
+            limiter.ThresholdDb = -1f;
+            AudioServer.AddBusEffect(_callerBusIndex, limiter);
+            _callerLimiterIndex = AudioServer.GetBusEffectCount(_callerBusIndex) - 1;
         }
 
         private void ConfigureMusicBus()
@@ -507,7 +523,9 @@ private void ApplyVernEffects(int level)
             SetCallerLowPass(settings.CallerLowPassHz);
             SetCallerHighPass(settings.CallerHighPassHz);
             SetCallerDistortion(settings.CallerDrive);
-            SetCallerCompression(settings.CallerCompression);
+            // The caller compressor is fixed glue — failure is articulated by the
+            // real trim (loudness) + distortion (roughness) just applied/above,
+            // so there is no caller tighten to apply here.
             SetCallerAmplify(settings.CallerAmplifyDb);
             SetCallerMuffle(settings.CallerMuffleHz);
 
@@ -598,9 +616,10 @@ private void ApplyVernEffects(int level)
 
             if (AudioServer.GetBusEffect(_callerBusIndex, _callerAmplifyIndex) is AudioEffectAmplify amplify)
             {
-                // Baseline stays at the radio-like phone book; the soundboard knob
-                // only attenuates from it (never goes louder than the base).
-                amplify.VolumeDb = CallerBaseAmplifyDb + offsetDb;
+                // Real trim: the soundboard gain knob sets the strip level directly
+                // (±CallerAmplifySpanDb around 0 dB) — below target softer, above
+                // target louder (and rougher via drive). Clamp guards the range.
+                amplify.VolumeDb = Mathf.Clamp(offsetDb, -CallerAmplifySpanDb, CallerAmplifySpanDb);
             }
         }
 
@@ -626,21 +645,6 @@ private void ApplyVernEffects(int level)
         {
             compressor.Threshold = Mathf.Lerp(baseThresholdDb, maxThresholdDb, depth);
             compressor.Ratio = Mathf.Lerp(baseRatio, maxRatio, depth);
-        }
-
-        private void SetCallerCompression(float depth)
-        {
-            if (_callerBusIndex < 0 || _callerCompressorIndex < 0)
-            {
-                return;
-            }
-
-            if (AudioServer.GetBusEffect(_callerBusIndex, _callerCompressorIndex) is AudioEffectCompressor compressor)
-            {
-                TuneCompressor(compressor, depth,
-                    CALLER_COMPRESSOR_THRESHOLD, CallerCompressThresholdMaxDb,
-                    CALLER_COMPRESSOR_RATIO, CallerCompressRatioMax);
-            }
         }
 
         private void SetVernDrive(float drive)

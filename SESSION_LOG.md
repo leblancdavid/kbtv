@@ -1,6 +1,22 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Caller sound design rework — light telephone phone-preset (always intelligible), gain knob = real trim (louder + rough above target), caller never inaudible, compression becomes fixed normalization. **Status: In Progress — implementation done, build green, soundboard suites green, docs synced; in-editor audio pass + commit pending**
+
+- User design decisions locked: (1) **Subtle phone tone kept** — fixed light telephone EQ (bandpass + presence) per equipment level, always intelligible; upgrades audibly widen clarity. (2) **Gain = real trim** — above target = actually louder + mild drive/roughness; below = quieter/soft. Replaces the old "never louder" law.
+- Root causes: phone preset too suffocating (L1 low-pass 600 Hz escaped by a ±3000 Hz LP knob span → wrong knob made caller *clearer*); above-target gain penalty (compressor ratio 12, never louder) inaudible; below-target muffle swept to 220 Hz + fader floor −30 dB → caller inaudible; `PerKnobJitterRange 0.5` spread targets across full 0..1 so even correct mixes sounded inconsistent.
+- **R12 implemented + verified**: new `CallerPresets` (LP 3500/4800/6000/8500, HP 250/220/190/150, distortion ~0.02, resonance 3.0→1.2); symmetric trim ±8 dB (`CallerAmplifySpanDb`) replacing `CallerBaseAmplifyDb`; above-target excess → drive (rough), caller compressor now **fixed glue** (threshold −18 / ratio 4 / makeup `CALLER_COMPRESSOR_GAIN = 5`; removed `SetCallerCompression` + `CallerCompress*Max` + `_callerCompressorIndex`); `AudioEffectLimiter` (threshold −1 dB, no `SoftClip` — not in this Godot binding) added last on caller bus as `_callerLimiterIndex`; deleted dead `_callerChorusIndex`; spans shrunk (LP 3000→1000, HP 1200→400, `MuffleMuffledHz` 220→1200, `CallerLevelSpanDb 30→15` / `CallerLevelMinDb −30→−15`); `PerKnobJitterRange 0.5→0.2`; **deleted `AudioEffectsProcessor.cs`** (dead `EffectPresets` duplication; `AudioMixerManager.CallerPresets` is sole source of truth) + fixed its comment ref in `SoundboardKnobState.cs`.
+- `SoundboardMixerDriver` keep: `CallerCompression` field still computed (= callerTotalOver) for the score/UI; Vern/Ads gain still "never louder" (drive + compression only).
+- Verification: `dotnet build` 0 errors (6 pre-existing warnings). `run-tests.ps1`: **562 passed / 13 failed** — same 6 pre-existing DI-harness suites (AdManager, AudioDialoguePlayer, BroadcastStateManager, GameStateManager, LoadingScreen, TranscriptManager: "No provider found for service…"); none touch audio/soundboard. All soundboard suites green: SoundboardMixerDriverTests (rewritten gain tests `RealTrimLouderAndRougher`, `GetsLouderAndRougher`, `MufflesAndAttenuatesInsteadOfCutting` −8 dB, fader floor −15), SoundboardTargetGeneratorTests (still green at jitter 0.2), SoundboardControlApplierTests, SoundboardGlowTests.
+- Files Modified: `scripts/audio/{AudioMixerManager.cs,SoundboardMixerDriver.cs,SoundboardTargetGenerator.cs,SoundboardKnobState.cs}`, `scripts/audio/AudioEffectsProcessor.cs` (+`.uid` deleted), `tests/unit/audio/SoundboardMixerDriverTests.cs`, `docs/systems/SOUNDBOARD_DESIGN.md` (§5 table + chain incl. limiter, R12 changelog, §9 tuning, jitter 0.2; AudioEffectsProcessor refs removed; R7/R10 marked superseded), `docs/audio/AUDIO_DESIGN.md` (caller "never inaudible" note), `SESSION_LOG.md`.
+- Related Docs: `docs/systems/SOUNDBOARD_DESIGN.md`, `docs/audio/AUDIO_DESIGN.md`.
+- Blockers: none.
+
+---
+
+## Previous Session (carried over — in progress)
+
+**Branch**: develop
 **Task**: Soundboard glow follow-up — current-channel glow with brief pause hold/subtle dimming, replace rectangular fader halo with circular glow at existing CallerLevel `Lamp_6`. **Status: In Progress — partial implementation present; compile/runtime verification pending**
 
 - **R10-1 (done)**: `CallerLevel` fader was graded vs neutral and showed GREEN at rest 0.5. Added a 4th per-caller perfect-mix target (Volume) so it behaves like the other caller knobs. `SoundboardCallerTargets`/`SoundboardCallerBands` gained `Volume` + 4-arg ctors; constants retuned — `PerKnobJitterRange 0.11 → 0.5`, `MinTargetKnob/MaxTargetKnob 0.25/0.75 → 0/1`, new `VolumeSalt = 0x564F4C01u`; `center = 0.5 + (clamp(speakingVolume,0,1) - 0.5) * 2 * JitterRange (0.08)`, target = `Clamp(center + perKnobJitter, 0, 1)`, per-knob jitter = `(HashUnit(seed, salt) - 0.5) * 2 * PerKnobJitterRange` (HashUnit = MurmurHash3 finalizer, verified). Volume wired through `GetCallerTargets/GetCallerBands/GetControlBand/GetControlError/GetWorstBand`. Fixed positions (volume .5, seed 0): Gain .8408, LowPass .8364, HighPass .4489, Volume .7708 — all distinct; seeds 7 & 42 also fully distinct. `NeutralCallerTargets()` now Volume .5. `SoundboardMixerDriver` `callerLevelDelta = NormalizedDeltaFrom(State.CallerLevel, t.Volume)`; `ComputeEffectSettings(state, preset, targets = null)` keeps the null→neutral fallback so fader tests unchanged.
@@ -22,7 +38,7 @@
 
 ---
 
-## Previous Session
+## Earlier Session
 
 **Branch**: develop
 **Task**: Soundboard DSP rounds R1–R4 (knob rotation endpoints, per-caller target seeding, base-preserving DSP) + R8 defaults & persistence + R9 full-face default parking. **Status: Completed — build green, all soundboard suites pass, full suite 544/13 (same pre-existing DI baseline), docs + session log synced**

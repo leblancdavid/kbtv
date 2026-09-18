@@ -40,7 +40,7 @@ namespace KBTV.Tests.Unit.Audio
         }
 
 [Test]
-        public void ComputeEffectSettings_FullCallerGain_AboveTargetScoresDriveAndCompression()
+        public void ComputeEffectSettings_FullCallerGain_RealTrimLouderAndRougher()
         {
             var state = SoundboardKnobState.Neutral();
             state.CallerGain = 1f;
@@ -48,8 +48,10 @@ namespace KBTV.Tests.Unit.Audio
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
+            // Real trim: full-up gain is audibly louder AND rougher, and the
+            // informational compression field still reports the over-target depth.
             AssertThat(Mathf.IsEqualApprox(settings.CallerDrive, 0.75f));
-            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 0f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 8f));
             AssertThat(Mathf.IsEqualApprox(settings.CallerCompression, 1f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.CallerMuffleHz, SoundboardMixerDriver.MuffleTransparentHz));
@@ -64,7 +66,7 @@ namespace KBTV.Tests.Unit.Audio
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
-            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, -6f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, -8f));
             AssertThat(Mathf.IsEqualApprox(
                 settings.CallerMuffleHz, SoundboardMixerDriver.MuffleMuffledHz));
             AssertThat(settings.CallerMuffleHz < SoundboardMixerDriver.MuffleTransparentHz);
@@ -118,7 +120,7 @@ namespace KBTV.Tests.Unit.Audio
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset);
 
-            AssertThat(Mathf.IsEqualApprox(settings.CallerLevelDb, -30f));
+            AssertThat(Mathf.IsEqualApprox(settings.CallerLevelDb, -15f));
             AssertThat(Mathf.IsEqualApprox(settings.VernLevelDb, -30f));
             AssertThat(Mathf.IsEqualApprox(settings.AdsLevelDb, 0f));
         }
@@ -158,7 +160,7 @@ namespace KBTV.Tests.Unit.Audio
         }
 
         [Test]
-        public void ComputeEffectSettings_AboveCallerTarget_DoesNotGetLouder()
+        public void ComputeEffectSettings_AboveCallerTarget_GetsLouderAndRougher()
         {
             var state = SoundboardKnobState.Neutral();
             state.CallerGain = 1f;
@@ -167,8 +169,10 @@ namespace KBTV.Tests.Unit.Audio
 
             var settings = SoundboardMixerDriver.ComputeEffectSettings(state, preset, targets);
 
+            // Above the per-caller target the caller is audibly louder (+trim) and
+            // rougher (drive); the compression field still reports the overshoot.
             AssertThat(settings.CallerCompression > 0f);
-            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 0f));
+            AssertThat(settings.CallerAmplifyDb > 0f);
             AssertThat(settings.CallerDrive > preset.Distortion);
         }
 

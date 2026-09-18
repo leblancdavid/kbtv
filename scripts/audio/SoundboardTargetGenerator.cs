@@ -83,9 +83,10 @@ namespace KBTV.Audio
         /// <summary>
         /// Max knob-space spread per knob around the shared volume-jittered center,
         /// from the caller's stable seed so no two callers share an ideal position.
-        /// Wide enough to pin some targets at the very ends of the track.
+        /// Kept modest (±0.2 → targets stay within ~0.3..0.7) so a correct mix always
+        /// sounds close to the phone preset and consistent across callers.
         /// </summary>
-        public const float PerKnobJitterRange = 0.5f;
+        public const float PerKnobJitterRange = 0.2f;
 
         /// <summary>Caller targets never sit below this (track bottom = fader all the way down).</summary>
         public const float MinTargetKnob = 0f;
@@ -144,7 +145,7 @@ namespace KBTV.Audio
         /// (Volume). The center sits at neutral plus a small stable jitter derived
         /// from the caller's SpeakingVolume, and each knob is then offset
         /// independently ±<see cref="PerKnobJitterRange"/> from a stable per-caller
-        /// seed - wide enough to pin some targets at the very ends of the track.
+        /// seed.
         /// </summary>
         public static SoundboardCallerTargets GetCallerTargets(float speakingVolume, int seed = 0)
         {

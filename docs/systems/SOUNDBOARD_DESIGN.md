@@ -15,7 +15,7 @@ Two changes in one feature:
 2. **Soundboard minigame** — a 3-channel mixer (Vern / Caller / Ads-Bumper)
    with gain, low-pass, high-pass knobs, a master fader, and status LEDs. Knobs
    drive existing audio-bus effects as **offsets on top of** the equipment
-   presets (`AudioEffectsProcessor`). Getting the levels wrong drains Vern's
+   presets in `AudioMixerManager`. Getting the levels wrong drains Vern's
    Emotional/Mental stats.
 
 ## Design Decisions (confirmed)
@@ -108,8 +108,7 @@ Caller.SpeakingVolume                             -- per-caller variance input
 Pure static/logic class, unit-testable.
 
 - Inputs: `Caller.PhoneQuality`-derived equipment level (the "ideal" preset),
-  per-caller `SpeakingVolume` variance, and the current `AudioEffectsProcessor`
-  preset values.
+  per-caller `SpeakingVolume` variance, and the `AudioMixerManager` preset values.
 - Produces per-knob target bands, directional around the target amount (Round 3):
   - **Green** = knob within `PerfectTolerance` of the target (the only "perfect"
     band; nothing below it is usable)
@@ -121,11 +120,12 @@ Pure static/logic class, unit-testable.
   (assigned in `CallerGenerator` via `(int)GD.Randi()`, not persisted). The
   Caller target for knob *k* = `Clamp(0.5 + volumeJitter + perKnobJitter_k,
   MinTargetKnob (0), MaxTargetKnob (1))`, where `perKnobJitter_k =
-  (HashUnit(seed, salt_k) - 0.5f) * 2f * PerKnobJitterRange (0.5)` via a
+  (HashUnit(seed, salt_k) - 0.5f) * 2f * PerKnobJitterRange (0.2)` via a
   deterministic MurmurHash3-finalizer hash. There are **four** caller targets —
   Gain, LowPass, HighPass and the **CallerLevel fader** (`VolumeSalt`) — each
-  spread across the whole 0..1 track, so the perfect mix is often far from the
-  bent/rest position and the fader is a real knob like the rest.
+  independently jittered so no two callers share an ideal position; the modest
+  ±0.2 spread (R12) keeps every target near the phone-ideal, so a correct mix
+  always sounds like the same clean, intelligible caller.
   `NeutralCallerTargets()` = all 0.5 (used when no caller is on air).
 - Vern / Ads targets = neutral 0.5 (the "clean" position) — their gain knobs and
   level faders grade against neutral, not a per-caller target.
@@ -135,32 +135,52 @@ Pure static/logic class, unit-testable.
 
 ## 5. Audio Application (AudioMixerManager)
 
-Knob deltas are stacked **on top of** `AudioEffectsProcessor` presets:
+Knob deltas are stacked **on top of** the equipment phone presets in
+`AudioMixerManager.CallerPresets` (light telephone EQ, always intelligible):
 
 | Knob | Effect target | Note |
 |------|---------------|------|
-| CallerGain | `_callerDistortionIndex.Drive`, `_callerAmplifyIndex.VolumeDb`, compression | above target: drive + compress, NEVER louder |
-| CallerLowPass | `_callerLowPassIndex.CutoffHz` | grades against its per-caller target |
-| CallerHighPass | `_callerHighPassIndex.CutoffHz` | grades against its per-caller target |
+| CallerGain | `_callerDistortionIndex.Drive`, `_callerAmplifyIndex.VolumeDb` | real trim: above target is audibly louder + rougher (drive); below is softer |
+| CallerLowPass | `_callerLowPassIndex.CutoffHz` | grades against its per-caller target (±1000 Hz span) |
+| CallerHighPass | `_callerHighPassIndex.CutoffHz` | grades against its per-caller target (±400 Hz span) |
 | VernGain/AdsGain | Vern/SFX bus distortion + compression | neutral target; above → drive/compress, never louder |
-| CallerLevel | caller bus strip volume + compression | its own per-caller fader target; above → capped 0 dB, excess → compress |
+| CallerLevel | caller bus strip volume | its own per-caller fader target; above → capped 0 dB, excess → compress |
 | VernLevel/AdsLevel | Vern/SFX bus strip volume + compression | neutral; above → capped 0 dB, excess → compress |
 | MasterFader | Music bus `VolumeDb` + program bus | unchanged |
+
+- **Caller bus chain order**: board adjustments are applied to the **clean**
+  caller voice first, then the quality-based phone-line effects color the
+  result. Chain = Amplify (real trim) → Compressor (fixed normalize) → LowPass
+  → HighPass → Distortion → EQ → Muffle → **Limiter (last, fixed output
+  protection)**. `AudioMixerManager.ConfigureCallerBus()` builds this order;
+  effect indices are derived from `GetBusEffectCount()`. The CallerLevel fader
+  is a bus volume, applied at the bus output regardless of effect order.
 
 - New method `AudioMixerManager.ApplySoundboard(SoundboardKnobState)` computes
   the `SoundboardEffectSettings` (17 fields) and applies via the existing bus
   indices; `SoundboardMixerDriver.ComputeEffectSettings(state, preset, targets)`
   is the pure calculation. Caller knobs grade against the per-caller target
   knob values, Vern/Ads against neutral.
-- **Base-preserving** (R3/R4): the caller amplify effect keeps the phone-preset
-  loudness as a fixed baseline (`CallerBaseAmplifyDb = 8`); gaining a knob above
-  target NEVER raises volume — the excess becomes distortion drive +
-  compression. Below target, the caller just gets softer/clearer (amplify offset
-  `-below·6 dB`, never a cut of the preset) and the filter knobs sweep the
-  low/high-pass cutoffs. Vern/Ads behave the same way above their neutral target.
-- Level faders are `Clamp(delta·30, -30, 0)` — pulling a strip below neutral
-  lowers that bus; pushing above neutral caps at 0 dB and feeds the excess into
-  drive/compression. Master/Music faders are unchanged.
+- **Real trim (R12)**: the Caller gain knob is genuine loudness control, not a
+  penalty. It clamps to `±CallerAmplifySpanDb` (±8 dB) around 0 dB; pushing above
+  target makes the caller audibly louder **and** rougher (drive — `CallerDrive`
+  feeds the distortion `Drive`), pulling below makes them softer. The old
+  "above-target never louder" rule is gone for Caller (Vern/Ads still score
+  excess as drive + compression only). The compressor is **fixed** glue
+  (threshold −18 dB, ratio 4, makeup `CALLER_COMPRESSOR_GAIN = 5 dB`) that
+  normalizes every caller to the same intelligible level — it no longer tightens
+  when a knob sits above target. The `AudioEffectLimiter` (threshold −1 dB) added
+  last on the caller bus keeps the hot end (full trim + full drive) from hard
+  clipping, so abuse sounds "rough, not painful". `CallerCompression` remains
+  computed for the score/UI.
+- **Always audible**: filter spans are deliberately modest — LowPass ±1000 Hz,
+  HighPass ±400 Hz swing a caller duller/thinner but can never undo the phone
+  band and make them clearer, and never silence them. Pulling the gain/level
+  below target softens + muffles (`MuffleMuffledHz = 1200`, a dull but
+  intelligible floor) instead of cutting; the bus limiter holds the floor.
+- Level faders: Caller is `Clamp(delta·15, -15, 0)` (bottoming muffles but never
+  cuts); Vern/Ads stay `Clamp(delta·30, -30, 0)`. Master/Music faders are
+  unchanged.
 - `UpdateAudioQuality()` re-applies the stored knob state + stored caller targets
   after equip-level changes so equipment upgrades don't wipe knob positions.
 - **Board defaults & persistence (Round 8)**: `SoundboardKnobState.Default()`
@@ -431,7 +451,7 @@ driver state).
 - `scripts/callers/Caller.cs`, `scripts/callers/CallerGenerator.cs` - per-caller `SoundboardSeed`.
 - `scripts/audio/SoundboardTargetGenerator.cs` - `HashUnit`, per-knob salts, `PerKnobJitterRange`, `Min/MaxTargetKnob`, `NeutralCallerTargets`, seed-aware targets/bands/error.
 - `scripts/audio/SoundboardMixerDriver.cs` - 17-field `SoundboardEffectSettings`, `NormalizedDeltaFrom`, target-aware `ComputeEffectSettings`, `SetCallerTargets`.
-- `scripts/audio/AudioMixerManager.cs` - `CallerBaseAmplifyDb = 8`, Vern/SFX drive + compression, `TuneCompressor`, above-target → drive/compress (never louder).
+- `scripts/audio/AudioMixerManager.cs` - `CallerBaseAmplifyDb = 8`, Vern/SFX drive + compression, `TuneCompressor`, above-target → drive/compress (never louder). *(Superseded for Caller by R12 — see changelog.)*
 - `scripts/monitors/SoundboardMonitor.cs`, `scripts/world3d/Soundboard3D.cs` - seed plumbing for bands + hover error.
 
 **Round 8 (modified) — board defaults & persistence**
@@ -464,7 +484,8 @@ driver state).
   `GetControlError`/`GetWorstBand`; `PerKnobJitterRange 0.11 → 0.5`,
   `Min/MaxTargetKnob 0.25/0.75 → 0/1`, new `VolumeSalt 0x564F4C01`. The
   CallerLevel fader is now a real per-caller target spread across the full track
-  (root cause: it graded against neutral 0.5 and always read GREEN at rest).
+  (root cause: it graded against neutral 0.5 and always read GREEN at rest). *(Spread
+  narrowed to 0.2 in R12 — see changelog.)*
 - `scripts/audio/SoundboardMixerDriver.cs` - `callerLevelDelta` grades against
   `t.Volume` (per-caller) instead of neutral `center`.
 - `scripts/audio/SoundboardGlow.cs` (new) - `SpeakingChannel` enum,
@@ -488,6 +509,39 @@ driver state).
   `!_handlesVisible`. `HoveredControlError()` → per-control `ControlError(control)`
   (caller uses live `CallerSpeakingVolume`/`CallerSoundboardSeed`).
 
+**Round 12 — caller sound design rework (real trim, never-inaudible)**
+- **Root causes fixed**: (1) the phone preset was a suffocating tin can — new
+  `AudioMixerManager.CallerPresets` L1..L4 are a light telephone EQ
+  (low-pass 3500/4800/6000/8500 Hz, high-pass 250/220/190/150 Hz, resonance
+  3.0→1.2, distortion ~0.02) that always sounds like a clear phone call;
+  (2) the ±3000/±1200 Hz LP/HP knob spans let wrong knobs make the caller
+  *clearer* and the deep-muffle sweep (220 Hz) + −30 dB fader floor made them
+  *inaudible* — spans now ±1000/±400 Hz, `MuffleMuffledHz = 1200`,
+  `CallerLevelMinDb = -15` (floor muffles, never cuts); (3) the gain-above
+  penalty was inaudible — the Caller gain knob is now a **real trim**.
+- `scripts/audio/AudioMixerManager.cs` - `CallerBaseAmplifyDb` → symmetric
+  `CallerAmplifySpanDb = 8` (amplify starts at 0 dB real trim; `SetCallerAmplify`
+  clamps `±8`); removed caller deep-tighten (`SetCallerCompression` +
+  `_callerCompressorIndex` + `CallerCompressThresholdMaxDb`/`CallerCompressRatioMax`)
+  — the caller compressor is fixed glue (`CALLER_COMPRESSOR_GAIN 3→5`);
+  removed dead `_callerChorusIndex`; added `AudioEffectLimiter` (threshold −1 dB)
+  last on the caller bus as `_callerLimiterIndex`; above-target excess feeds the
+  drive (rough) instead of compression.
+- `scripts/audio/SoundboardMixerDriver.cs` - `CallerAmplify` law now
+  `clamp(gainDelta·CallerAmplifySpanDb, -8..8)` (real trim; killed
+  `CallerAttenuateSpanDb`/`gainBelow`); `CallerLowPassSpanHz 3000→1000`,
+  `CallerHighPassSpanHz 1200→400`, `MuffleMuffledHz 220→1200`,
+  `CallerLevel` `Clamp(delta·15, -15, 0)` (30→15 span). `CallerCompression`
+  stays computed (= callerTotalOver) so the UI/score keeps grading the overshoot.
+- `scripts/audio/SoundboardTargetGenerator.cs` - `PerKnobJitterRange 0.5 → 0.2`
+  (targets stay near the phone-ideal — a correct mix always sounds consistent).
+- `scripts/audio/AudioEffectsProcessor.cs` (deleted) - the duplicated
+  `EffectPresets` table and its stub node are gone; `AudioMixerManager
+  CallerPresets` is the single source of truth.
+- `tests/unit/audio/SoundboardMixerDriverTests.cs` - rewritten gain tests to the
+  real-trim law (`RealTrimLouderAndRougher`, `GetsLouderAndRougher`,
+  `MufflesAndAttenuatesInsteadOfCutting` −8 dB, fader floor −15).
+
 **Tests**
 - `tests/unit/audio/SoundboardControlApplierTests.cs`
 - `tests/unit/audio/SoundboardTargetGeneratorTests.cs`
@@ -506,36 +560,42 @@ driver state).
   0.20–0.27 to shift the look-target up/down for the transcript overlay band);
   `SoundboardLookPivotHeight = 0.06f`, `SoundboardDragPixelsPerUnit = 220f`.
   Bottom-band framing shifts the look target down by `BottomBand × 2 × size`.
-- Soundboard DSP (Round 7 base-preserving tuning, `SoundboardMixerDriver` —
+- Soundboard DSP (Round 12 real-trim tuning, `SoundboardMixerDriver` —
   `SoundboardEffectSettings` has 17 fields; neutral = all zeros = equipment
   preset unchanged; caller knobs grade vs per-caller targets, Vern/Ads vs
   neutral). Caveat: `AudioEffectDistortion` with `Drive = 0` (the neutral audio
   state) is assumed transparent in Godot — confirm no audible coloration while
   at rest in-engine.
   - CallerGain → drive `clamp(preset.Distortion + callerTotalOver·0.35, 0.05,
-    0.95)`; amplify offset `-gainBelow·CallerAttenuateSpanDb (6)` dB (`Min/Max`
-    -6/0) over `AudioMixerManager.CallerBaseAmplifyDb (8)` — at/above target the
-    caller stays at the preset baseline, NEVER louder; compression = totalOver.
-    Below target: knobs go softer/clearer; low LP/HP sweep `CutoffHz` spans
-    `CallerLowPassSpanHz = 3000`, `CallerHighPassSpanHz = 1200`.
+    0.95)`; amplify offset `clamp(gainDelta·CallerAmplifySpanDb (8), -8..8)` dB
+    around 0 — a **real trim**, so at/above target the caller is audibly louder
+    (and rougher via drive), below target softer; compression = totalOver
+    (informational for the score/UI). Filter spans are modest:
+    `CallerLowPassSpanHz = 1000`, `CallerHighPassSpanHz = 400` — a wrong knob
+    dulls/thins but never undoes the phone band and never silences the caller.
   - Vern/Ads → drive `clamp(totalOver·VernDriveSpan/AdsDriveSpan (0.55), 0, 1)`,
     compression = totalOver, muffle `lerp(MuffleTransparentHz → MuffleMuffledHz,
-    belowDepth)` with `MuffleTransparentHz = 20000`, `MuffleMuffledHz = 220`.
-  - CallerLevel/VernLevel/AdsLevel → `Clamp(delta·30, -30, 0)` dB strip volume
-    (below neutral lowers the bus; above neutral caps at 0 dB and the excess
-    feeds drive/compression).
+    belowDepth)` with `MuffleTransparentHz = 20000`, `MuffleMuffledHz = 1200`
+    (dull-but-intelligible floor, low end of the caller gain knob too).
+  - CallerLevel → `Clamp(delta·15, -15, 0)` dB strip volume (below target lowers
+    the bus to a −15 dB floor — muffled, never cut; above target caps at 0 dB and
+    the excess feeds drive/compression). VernLevel/AdsLevel stay
+    `Clamp(delta·30, -30, 0)`.
   - Master (`Fader`) → `MusicFaderSpanDb = 14` and `MasterFaderSpanDb = 8`, with
     music clamped `-30..+14` dB and master clamped `-12..+8` dB (unchanged).
-  - Compression (`AudioMixerManager.TuneCompressor`): caller
-    `Lerp(-18→-28 dB, ratio 4→12)`, vern `Lerp(-20→-30, 3→10)`, ads/SFX
-    `Lerp(-12→-28, 2→10)`.
+  - Compression: caller compressor is **fixed glue** — threshold −18 dB, ratio 4,
+    makeup `CALLER_COMPRESSOR_GAIN = 5` dB (normalizes every caller; no longer
+    tightened by knob position). Vern `Lerp(-20→-30, 3→10)`, ads/SFX
+    `Lerp(-12→-28, 2→10)` via `TuneCompressor`. A limiter (threshold −1 dB) sits
+    last on the caller bus so full trim + full drive never hard-clips.
 - Targets (`SoundboardTargetGenerator`): `PerfectTolerance = 0.09f`,
   `YellowTolerance = CyanTolerance = 0.12f` (directional bands, Round 3);
-  per-caller targets (Round 7) = `Clamp(0.5 + volumeJitter + perKnobJitter_k,
-  0, 1)` with `PerKnobJitterRange = 0.5` and `HashUnit(seed, salt_k)`
+  per-caller targets = `Clamp(0.5 + volumeJitter + perKnobJitter_k,
+  0, 1)` with `PerKnobJitterRange = 0.2` (R12) and `HashUnit(seed, salt_k)`
   (salts `GainSalt 0x475F6911`, `LowPassSalt 0x6F502F01`, `HighPassSalt
   0x48503401`, `VolumeSalt 0x564F4C01` — the four caller targets include the
-  CallerLevel fader, spread across the full range); `GetControlBand/
+  CallerLevel fader, each independently jittered so no two callers share an
+  ideal spot but all stay near the phone-ideal); `GetControlBand/
   GetControlError` take the caller seed (0 = no caller → neutral targets) and
   return neutral-based grades for Vern/Ads/Master controls; `None` control →
   `None`.
@@ -565,7 +625,8 @@ driver state).
   fit pass shows the notch/fader moving the wrong way: flip only
   `World3D.cs` line 1094 (`deltaY = _boardLastDragScreenY - mousePosition.Y`
   → `mousePosition.Y - _boardLastDragScreenY`), never the GLB geometry.
-- Audio indices/presets: `AudioMixerManager` `CallerPresets` L1..L4
-  (low-pass 600/800/1200/2500 Hz), `AudioEffectsProcessor` `EffectPresets`
-  (2000/3500/6000/10000). Knob deltas should keep L4 the floor/best.
+- Audio indices/presets: `AudioMixerManager` `CallerPresets` L1..L4 (light
+  telephone EQ — low-pass 3500/4800/6000/8500 Hz, high-pass 250/220/190/150 Hz).
+  A single source of truth (was duplicated in `AudioEffectsProcessor`, now
+  removed). Knob deltas should keep L4 the floor/best.
 - CRIT calibration: `TerminalOverlay` layer `120`; use `121`/`122` for nav + soundboard overlays.

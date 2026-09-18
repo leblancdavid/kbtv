@@ -7,7 +7,7 @@ namespace KBTV.Audio
     /// <summary>
     /// Normalized (0..1) knob/fader positions for the 3-channel soundboard.
     /// 0.5 (NeutralValue) means "no offset": the equipment preset is unchanged.
-    /// Knob deltas are stacked on top of the AudioEffectsProcessor presets by
+    /// Knob deltas are stacked on top of the equipment presets by
     /// <see cref="AudioMixerManager.ApplySoundboard"/>.
     /// The board's resting state (<see cref="Default"/>) parks every knob at
     /// 12 o'clock (0.5), leaves the Caller and Vern level faders at 50%, and
