@@ -102,10 +102,11 @@ private CanvasLayer? _transcriptCanvas;
             _transcriptCanvas.Hide();
 
             // Top HUD overlay (time / breaks / status feed / listeners / money).
+            // Above World3D terminal (120) and soundboard (122) overlays, below modals (150).
             _topOverlayCanvas = new CanvasLayer
             {
                 Name = "TopOverlayCanvasLayer",
-                Layer = 103
+                Layer = 140
             };
             AddChild(_topOverlayCanvas);
 

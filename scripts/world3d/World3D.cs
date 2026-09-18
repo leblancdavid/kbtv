@@ -121,6 +121,11 @@ private const float TerminalZoomSpeed = 3.2f;
 		_camera = GetNode<Camera3D>("WorldCamera");
 		_statusLayer = GetNodeOrNull<CanvasLayer>("StatusLayer");
 		_status_label = GetNodeOrNull<Label>("StatusLayer/StatusPanel/StatusLabel");
+		// Blockout-era debug panel ("KBTV 3D BLOCKOUT | ...") — obsolete and overlaps
+		// the live-show top HUD (TopStateOverlay, canvas layer 140). Hidden; the label
+		// updates continue harmlessly and the terminal screen-debug preview still
+		// parents into the layer itself, not this panel.
+		_statusLayer?.GetNodeOrNull<Control>("StatusPanel")?.Hide();
 		_control_room = GetNode<ControlRoom3D>("ControlRoom3D");
 		_studio_room = GetNode<StudioRoom3D>("StudioRoom3D");
 		_station_greybox = GetNodeOrNull<StationGreybox3D>("StationGreybox3D");

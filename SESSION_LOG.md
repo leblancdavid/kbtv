@@ -1,6 +1,22 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Fix top overlay misalignment — letterbox removal + fullscreen re-sync layout. **Status: Completed — implementation done, build green, full suite 578/13 (same pre-existing DI baseline); in-editor visual verification + commit pending**
+
+- Root cause 1: `project.godot` had `window/stretch/scale_mode="integer"` and `Main` forces a borderless window at the display's native resolution. On displays that are not an integer multiple of 1280x720, integer scale floors down and the whole game renders centered with pillarbox bars — user confirmed black bars left/right. Fix: removed `scale_mode="integer"`, added `window/stretch/aspect="expand"`; `WindowScaleManager.cs` dropped the snap logic, keeps `SetBorderlessFullscreen()`.
+- Root cause 2: the "KBTV 3D BLOCKOUT | HALLWAY | connected floorplan" rounded panel piling on the HUD is World3D's blockout-era debug `StatusPanel` (`World3D.tscn` StatusLayer/CanvasLayer 20; long single-line label grows the PanelContainer across the top). Fix: `World3D._Ready()` now hides `StatusLayer/StatusPanel` (label updates continue harmlessly; the terminal screen-debug preview parents into StatusLayer, unaffected).
+- Root cause 3 (main, per user screenshots): the HUD is built at boot against the 1280x720 viewport; Main then resizes the window borderless-fullscreen and the logical viewport resizes — the `Control` under the `CanvasLayer` keeps the stale anchor rect (bar not full width, pods overflow so AIR/BREAK clip off-screen). TranscriptOverlay/ScreenNavOverlay already re-sync from `GetViewport().GetVisibleRect()` every frame for the same reason. Fix in `TopStateOverlay`: new `SyncToViewport()` called every visible frame — explicitly sets root `Size`, bar `Position/Size` (0,0 → vp.X × BarHeight), and content `Position/Size` (12px margins). Kept anchors as fallback + `SetAnchorsAndOffsetsPreset(FullRect)` in `_Ready`. `FeedMinWidth` 300→220 so pods can't overflow at odd aspects. Diagnostic prints (added mid-session to chase the silent-log question) removed.
+- Verification: `dotnet build` 0 errors (6 pre-existing warnings). `run-tests.ps1`: **578 passed / 13 failed** — same 6 pre-existing DI-harness suites (AdManager, AudioDialoguePlayer, BroadcastStateManager, GameStateManager, LoadingScreen, TranscriptManager). `TopStateOverlayModelsTests` 12/0.
+- Files Modified: `project.godot`, `scripts/core/WindowScaleManager.cs`, `scripts/world3d/World3D.cs`, `scripts/ui/TopStateOverlay.cs`, `SESSION_LOG.md`.
+- Related Docs: `docs/ui/UI_IMPLEMENTATION.md` (panel/pattern refs), `docs/technical/MONITOR_PATTERN.md` (not touched).
+- Blockers: none.
+- Remaining: in-editor run — HUD should hug the true top edge at full window width with all items (AIR / BREAK / feed / listeners / money); confirm no leftover black side borders. Commit when asked.
+
+---
+
+## Previous Session (completed)
+
+**Branch**: develop
 **Task**: Soundboard Round 13 — Vern clarity (fixed presence EQ + louder compressor), slightly wider effect-knob ranges, hover no longer scales/brightens the glow. **Status: Completed — implementation done, build green, full suite 562/13 (same pre-existing DI baseline), soundboard suites green, docs synced; in-editor audio pass + commit pending**
 
 - User-confirmed: (1) **Vern clarity = fixed EQ** at every broadcast level (not level-scaled) — one consistent clean-studio voice; (2) range bumps "about right" as proposed.

@@ -21,14 +21,18 @@ namespace KBTV.UI
     /// </summary>
     public partial class TopStateOverlay : Control, IDependent
     {
-        private const float BarHeight = 32f;
+        private const float BarHeight = 68f;
         private const float TrendSampleInterval = 0.5f;
         private const float BreakCueWindow = 20f;
         private const float LowTimeThreshold = 20f;
         private const float MoneyFlashDuration = 1.25f;
+        private const float PodMinWidth = 90f;
+        private const float FeedMinWidth = 220f;
+        private const float TrendArrowMinSize = 18f;
+        private const float ContentMargin = 12f;
 
-        private const int StatFontSize = 10;
-        private const int FeedFontSize = 8;
+        private const int StatFontSize = 16;
+        private const int FeedFontSize = 16;
 
         // Services (resolved in OnResolved)
         private TimeManager? _timeManager;
@@ -47,6 +51,8 @@ namespace KBTV.UI
         private TrendArrow? _trendArrow;
         private Control? _feedHost;
         private VBoxContainer? _feedBox;
+        private Panel? _bar;
+        private HBoxContainer? _content;
 
         // State
         private readonly StatusFeedModel _feed = new();
@@ -67,7 +73,7 @@ namespace KBTV.UI
         public override void _Ready()
         {
             Name = "TopStateOverlay";
-            SetAnchorsPreset(LayoutPreset.FullRect);
+            SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
             MouseFilter = MouseFilterEnum.Ignore;
             BuildUi();
         }
@@ -123,11 +129,40 @@ namespace KBTV.UI
                 return;
             }
 
+            SyncToViewport();
             UpdateTimeAndBreak();
             UpdateListeners();
             UpdateMoney();
             UpdateEvidence();
             RebuildFeedIfChanged();
+        }
+
+        /// <summary>
+        /// Re-sync the bar geometry to the live viewport every visible frame (same
+        /// pattern as TranscriptOverlay/ScreenNavOverlay). The window resizes to
+        /// borderless fullscreen after boot, and Controls under a CanvasLayer may
+        /// keep the stale anchor rect from the pre-resize viewport; explicit sizing
+        /// guarantees the bar hugs the true top edge at full window width.
+        /// </summary>
+        private void SyncToViewport()
+        {
+            var viewport = GetViewport();
+            if (viewport == null || _bar == null || _content == null)
+            {
+                return;
+            }
+
+            var vp = viewport.GetVisibleRect().Size;
+            if (vp.X <= 0f || vp.Y <= 0f)
+            {
+                return;
+            }
+
+            Size = vp;
+            _bar.Position = Vector2.Zero;
+            _bar.Size = new Vector2(vp.X, BarHeight);
+            _content.Position = new Vector2(ContentMargin, 2f);
+            _content.Size = new Vector2(Mathf.Max(0f, vp.X - ContentMargin * 2f), BarHeight - 4f);
         }
 
         // ───────────── UI construction ─────────────
@@ -139,6 +174,7 @@ namespace KBTV.UI
             bar.OffsetTop = 0;
             bar.OffsetBottom = BarHeight;
             bar.MouseFilter = MouseFilterEnum.Ignore;
+            _bar = bar;
 
             var style = new StyleBoxFlat
             {
@@ -149,56 +185,92 @@ namespace KBTV.UI
             style.BorderColor = UIColors.BG_BORDER;
             style.ContentMarginLeft = 12;
             style.ContentMarginRight = 12;
-            style.ContentMarginTop = 3;
-            style.ContentMarginBottom = 3;
+            style.ContentMarginTop = 6;
+            style.ContentMarginBottom = 6;
             bar.AddThemeStyleboxOverride("panel", style);
             AddChild(bar);
 
             var content = new HBoxContainer { Name = "BarContent" };
             content.MouseFilter = MouseFilterEnum.Ignore;
+            // Fill the full bar width so the pods spread evenly across the screen.
+            // SyncToViewport() re-applies this explicitly each visible frame.
+            content.SetAnchorsPreset(LayoutPreset.FullRect);
+            content.OffsetLeft = ContentMargin;
+            content.OffsetRight = -ContentMargin;
+            content.OffsetTop = 2;
+            content.OffsetBottom = -2;
+            content.GrowHorizontal = GrowDirection.Both;
+            content.GrowVertical = GrowDirection.Both;
             bar.AddChild(content);
+            _content = content;
 
+            // Each pod shares the width evenly and centers its content.
             _timeValue = MakeLabel("AIR --:--", StatFontSize, UIColors.TEXT_PRIMARY);
-            content.AddChild(_timeValue);
-
-            content.AddChild(Spacer(14));
+            content.AddChild(MakePod(_timeValue));
 
             _breakValue = MakeLabel("BREAK --:--", StatFontSize, UIColors.TEXT_SECONDARY);
-            content.AddChild(_breakValue);
-
-            content.AddChild(Spacer(14));
+            content.AddChild(MakePod(_breakValue));
 
             _feedHost = new Control
             {
                 Name = "FeedHost",
                 SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                SizeFlagsVertical = Control.SizeFlags.Fill,
                 ClipContents = true,
                 MouseFilter = MouseFilterEnum.Ignore,
-                CustomMinimumSize = new Vector2(140, 0)
+                CustomMinimumSize = new Vector2(FeedMinWidth, 0)
             };
             content.AddChild(_feedHost);
 
-            _feedBox = new VBoxContainer { Name = "FeedBox", MouseFilter = MouseFilterEnum.Ignore };
+            _feedBox = new VBoxContainer
+            {
+                Name = "FeedBox",
+                Alignment = BoxContainer.AlignmentMode.Center,
+                MouseFilter = MouseFilterEnum.Ignore
+            };
             _feedBox.AddThemeConstantOverride("separation", 0);
+            _feedBox.SetAnchorsPreset(LayoutPreset.FullRect);
             _feedHost.AddChild(_feedBox);
 
-            content.AddChild(Spacer(14));
+            var listenerPair = new HBoxContainer
+            {
+                Name = "ListenerPair",
+                MouseFilter = MouseFilterEnum.Ignore,
+                CustomMinimumSize = new Vector2(0, TrendArrowMinSize)
+            };
+            listenerPair.AddThemeConstantOverride("separation", 4);
 
             _listenersValue = MakeLabel("0", StatFontSize, UIColors.TEXT_PRIMARY);
-            content.AddChild(_listenersValue);
+            listenerPair.AddChild(_listenersValue);
 
             _trendArrow = new TrendArrow
             {
                 Name = "TrendArrow",
-                CustomMinimumSize = new Vector2(14, 14),
+                CustomMinimumSize = new Vector2(TrendArrowMinSize, TrendArrowMinSize),
                 MouseFilter = MouseFilterEnum.Ignore
             };
-            content.AddChild(_trendArrow);
+            listenerPair.AddChild(_trendArrow);
 
-            content.AddChild(Spacer(14));
+            content.AddChild(MakePod(listenerPair));
 
             _moneyValue = MakeLabel("$0", StatFontSize, UIColors.TEXT_PRIMARY);
-            content.AddChild(_moneyValue);
+            content.AddChild(MakePod(_moneyValue));
+        }
+
+        /// <summary>
+        /// Wrap a widget in a centered pod that expands to fill an equal share of the bar.
+        /// </summary>
+        private static CenterContainer MakePod(Control child)
+        {
+            var pod = new CenterContainer
+            {
+                Name = $"Pod_{child.Name}",
+                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                MouseFilter = MouseFilterEnum.Ignore,
+                CustomMinimumSize = new Vector2(PodMinWidth, 0)
+            };
+            pod.AddChild(child);
+            return pod;
         }
 
         private static Label MakeLabel(string text, int fontSize, Color color)
@@ -206,6 +278,9 @@ namespace KBTV.UI
             var label = new Label
             {
                 Text = text,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                SizeFlagsVertical = Control.SizeFlags.Fill,
                 MouseFilter = MouseFilterEnum.Ignore
             };
             label.AddThemeFontSizeOverride("font_size", fontSize);
@@ -213,11 +288,11 @@ namespace KBTV.UI
             return label;
         }
 
-        private static Control Spacer(float width) => new()
+        private static void SetLabel(Label label, string text, Color color)
         {
-            CustomMinimumSize = new Vector2(width, 0),
-            MouseFilter = MouseFilterEnum.Ignore
-        };
+            label.Text = text;
+            label.AddThemeColorOverride("font_color", color);
+        }
 
         // ───────────── Per-frame updates ─────────────
 
@@ -375,6 +450,7 @@ namespace KBTV.UI
             foreach (var entry in _feed.Entries)
             {
                 var label = MakeLabel($"[{entry.FormattedTime}] {entry.Message}", FeedFontSize, KindColor(entry.Kind));
+                label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
                 label.Modulate = new Color(1f, 1f, 1f, 0f);
                 _feedBox.AddChild(label);
                 var tween = CreateTween();
@@ -441,12 +517,6 @@ namespace KBTV.UI
         // ───────────── Helpers ─────────────
 
         private bool BlinkOn() => ((int)(_pulseAccum * 2f)) % 2 == 0;
-
-        private static void SetLabel(Label label, string text, Color color)
-        {
-            label.Text = text;
-            label.AddThemeColorOverride("font_color", color);
-        }
 
         private static string FormatClock(float seconds)
         {

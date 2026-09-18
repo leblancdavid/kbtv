@@ -29,9 +29,9 @@ RoomStateManager="*res://scripts/core/RoomStateManager.cs"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/mode=2
-window/stretch/mode="canvas_items"
-window/stretch/scale_mode="integer"
 
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 [dotnet]
 
 project/assembly_name="KBTV"
