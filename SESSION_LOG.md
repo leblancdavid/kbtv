@@ -1,6 +1,21 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Top status overlay polish — halve bar height, merge BREAK next to ON-AIR timer, label prefixes ("ON-AIR:", "Listeners:", "Bank:"), feed cycles any event from the last 60s. **Status: Completed — implementation done, build green, full suite 582/13 (same pre-existing DI baseline, +4 new tests); in-editor visual verification + commit pending**
+
+- `TopStateOverlay.cs`: `BarHeight` 68→34 + stylebox v-margins 6→2; time + break merged into one `ClockPair` pod (bar = [ON-AIR+BREAK] [feed] [Listeners+trend] [Bank]); label text now `ON-AIR: mm:ss`, `Listeners: …`, `Bank: $…`. Feed rebuilt as a single centered `_feedLabel` (was 3-line VBox) cycling every 5s (`UpdateFeedCycle`/`UpdateFeedDisplay`, `FeedWindowSeconds=60`); a new event (top-signature change) resets rotation to newest; per-label fade-in tween kept.
+- `StatusFeedModel.cs`: `StatusFeedEntry` gained `ElapsedSeconds` (raw, alongside `FormattedTime`); new `EntriesWithinWindow(now, windowSeconds)` (newest-first, break on first stale); `MaxEntries` 3→12 as pure memory cap — display is now window-based so ANY event in the last minute cycles (user-confirmed).
+- `TopStateOverlayModelsTests.cs`: ElapsedSeconds assert extended; +4 tests (filter, boundary inclusive, all-expired, empty).
+- Verification: `dotnet build` 0 errors (6 pre-existing warnings). `-Filter TopStateOverlayModelsTests` 16/0. Full: **582/13** — same 6 pre-existing DI-harness suites.
+- Files Modified: `scripts/ui/TopStateOverlay.cs`, `scripts/ui/StatusFeedModel.cs`, `tests/unit/ui/TopStateOverlayModelsTests.cs`, `SESSION_LOG.md`.
+- Blockers: none.
+- Remaining: in-editor check — 34px bar readable, ON-AIR+BREAK fit at min window width, feed single line cycles ~5s; commit when asked.
+
+---
+
+## Previous Session (completed)
+
+**Branch**: develop
 **Task**: Fix top overlay misalignment — letterbox removal + fullscreen re-sync layout. **Status: Completed — implementation done, build green, full suite 578/13 (same pre-existing DI baseline); in-editor visual verification + commit pending**
 
 - Root cause 1: `project.godot` had `window/stretch/scale_mode="integer"` and `Main` forces a borderless window at the display's native resolution. On displays that are not an integer multiple of 1280x720, integer scale floors down and the whole game renders centered with pillarbox bars — user confirmed black bars left/right. Fix: removed `scale_mode="integer"`, added `window/stretch/aspect="expand"`; `WindowScaleManager.cs` dropped the snap logic, keeps `SetBorderlessFullscreen()`.

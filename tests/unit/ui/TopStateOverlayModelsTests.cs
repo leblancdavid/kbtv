@@ -46,6 +46,51 @@ namespace KBTV.Tests.Unit.UI
 
             AssertThat(feed.Entries[0].Kind == StatusFeedKind.Warning);
             AssertThat(feed.Entries[0].FormattedTime == "12:33");
+            AssertThat(feed.Entries[0].ElapsedSeconds == 753f);
+        }
+
+        [Test]
+        public void EntriesWithinWindow_FiltersOlderThanWindow()
+        {
+            var feed = new StatusFeedModel();
+            feed.Add("old", StatusFeedKind.Info, 0f);
+            feed.Add("mid", StatusFeedKind.Info, 30f);
+            feed.Add("new", StatusFeedKind.Curse, 70f);
+
+            var recent = feed.EntriesWithinWindow(now: 70f, windowSeconds: 60f);
+
+            AssertThat(recent.Count == 2);
+            AssertThat(recent[0].Message == "new");
+            AssertThat(recent[1].Message == "mid");
+        }
+
+        [Test]
+        public void EntriesWithinWindow_Boundary_Inclusive()
+        {
+            var feed = new StatusFeedModel();
+            feed.Add("edge", StatusFeedKind.Info, 10f);
+
+            var recent = feed.EntriesWithinWindow(now: 70f, windowSeconds: 60f);
+
+            AssertThat(recent.Count == 1);
+            AssertThat(recent[0].Message == "edge");
+        }
+
+        [Test]
+        public void EntriesWithinWindow_AllExpired_Empty()
+        {
+            var feed = new StatusFeedModel();
+            feed.Add("a", StatusFeedKind.Info, 0f);
+            feed.Add("b", StatusFeedKind.Info, 5f);
+
+            AssertThat(feed.EntriesWithinWindow(now: 100f, windowSeconds: 60f).Count == 0);
+        }
+
+        [Test]
+        public void EntriesWithinWindow_EmptyFeed_Empty()
+        {
+            var feed = new StatusFeedModel();
+            AssertThat(feed.EntriesWithinWindow(now: 42f, windowSeconds: 60f).Count == 0);
         }
 
         [Test]

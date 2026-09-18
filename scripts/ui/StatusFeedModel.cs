@@ -17,17 +17,20 @@ namespace KBTV.UI
     }
 
     /// <summary>
-    /// A single status feed entry: message text, category, and the in-show time it was logged.
+    /// A single status feed entry: message text, category, the in-show time it was logged
+    /// (raw seconds + preformatted display).
     /// </summary>
-    public record StatusFeedEntry(string Message, StatusFeedKind Kind, string FormattedTime);
+    public record StatusFeedEntry(string Message, StatusFeedKind Kind, string FormattedTime, float ElapsedSeconds);
 
     /// <summary>
-    /// Pure rotating store of recent status messages (newest first) used by the top overlay.
+    /// Rotating store of recent status messages (newest first) used by the top overlay.
+    /// The overlay displays entries via <see cref="EntriesWithinWindow"/> (recency-based);
+    /// <see cref="MaxEntries"/> is only a memory cap for extreme event bursts.
     /// Kept dependency-free so it can be unit tested without a scene tree.
     /// </summary>
     public class StatusFeedModel
     {
-        public const int MaxEntries = 3;
+        public const int MaxEntries = 12;
 
         private readonly List<StatusFeedEntry> _entries = new();
 
@@ -41,11 +44,31 @@ namespace KBTV.UI
         /// </summary>
         public void Add(string message, StatusFeedKind kind, float elapsedSeconds)
         {
-            _entries.Insert(0, new StatusFeedEntry(message, kind, FormatTime(elapsedSeconds)));
+            _entries.Insert(0, new StatusFeedEntry(message, kind, FormatTime(elapsedSeconds), elapsedSeconds));
             if (_entries.Count > MaxEntries)
             {
                 _entries.RemoveAt(MaxEntries);
             }
+        }
+
+        /// <summary>
+        /// Entries logged within <paramref name="windowSeconds"/> of <paramref name="now"/>,
+        /// newest-first. Assumes entries were added in non-decreasing elapsed time.
+        /// </summary>
+        public IReadOnlyList<StatusFeedEntry> EntriesWithinWindow(float now, float windowSeconds)
+        {
+            var result = new List<StatusFeedEntry>();
+            foreach (var entry in _entries)
+            {
+                if (now - entry.ElapsedSeconds > windowSeconds)
+                {
+                    break;
+                }
+
+                result.Add(entry);
+            }
+
+            return result;
         }
 
         public void Clear() => _entries.Clear();

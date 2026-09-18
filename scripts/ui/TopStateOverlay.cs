@@ -1,7 +1,6 @@
 #nullable enable
 
 using System;
-using System.Text;
 using Godot;
 using KBTV.Ads;
 using KBTV.Callers;
@@ -16,12 +15,13 @@ namespace KBTV.UI
 {
     /// <summary>
     /// Thin top-of-screen HUD strip shown during the live show. Displays:
-    /// show time remaining, next ad-break countdown with a "queue music" cue,
-    /// a compact scrolling status feed, listener count with trend arrows, and money.
+    /// show time remaining with next ad-break countdown, a single-line status feed
+    /// cycling through events from the last minute, listener count with trend arrows,
+    /// and money.
     /// </summary>
     public partial class TopStateOverlay : Control, IDependent
     {
-        private const float BarHeight = 68f;
+        private const float BarHeight = 34f;
         private const float TrendSampleInterval = 0.5f;
         private const float BreakCueWindow = 20f;
         private const float LowTimeThreshold = 20f;
@@ -30,6 +30,8 @@ namespace KBTV.UI
         private const float FeedMinWidth = 220f;
         private const float TrendArrowMinSize = 18f;
         private const float ContentMargin = 12f;
+        private const float FeedWindowSeconds = 60f;
+        private const float FeedCycleInterval = 5f;
 
         private const int StatFontSize = 16;
         private const int FeedFontSize = 16;
@@ -50,7 +52,7 @@ namespace KBTV.UI
         private Label? _moneyValue;
         private TrendArrow? _trendArrow;
         private Control? _feedHost;
-        private VBoxContainer? _feedBox;
+        private Label? _feedLabel;
         private Panel? _bar;
         private HBoxContainer? _content;
 
@@ -58,6 +60,9 @@ namespace KBTV.UI
         private readonly StatusFeedModel _feed = new();
         private readonly ListenerTrendTracker _trend = new();
         private string _lastFeedSignature = "";
+        private string _lastFeedTopSignature = "";
+        private int _feedCycleIndex;
+        private float _feedCycleAccum;
         private bool _lastEvidenceAvailable;
         private bool _moneyInitialized;
         private int _lastMoney;
@@ -134,7 +139,8 @@ namespace KBTV.UI
             UpdateListeners();
             UpdateMoney();
             UpdateEvidence();
-            RebuildFeedIfChanged();
+            UpdateFeedCycle(dt);
+            UpdateFeedDisplay();
         }
 
         /// <summary>
@@ -185,8 +191,8 @@ namespace KBTV.UI
             style.BorderColor = UIColors.BG_BORDER;
             style.ContentMarginLeft = 12;
             style.ContentMarginRight = 12;
-            style.ContentMarginTop = 6;
-            style.ContentMarginBottom = 6;
+            style.ContentMarginTop = 2;
+            style.ContentMarginBottom = 2;
             bar.AddThemeStyleboxOverride("panel", style);
             AddChild(bar);
 
@@ -205,11 +211,21 @@ namespace KBTV.UI
             _content = content;
 
             // Each pod shares the width evenly and centers its content.
-            _timeValue = MakeLabel("AIR --:--", StatFontSize, UIColors.TEXT_PRIMARY);
-            content.AddChild(MakePod(_timeValue));
+            // The on-air clock and break countdown travel together in one pod.
+            var clockPair = new HBoxContainer
+            {
+                Name = "ClockPair",
+                MouseFilter = MouseFilterEnum.Ignore,
+            };
+            clockPair.AddThemeConstantOverride("separation", 16);
+
+            _timeValue = MakeLabel("ON-AIR: --:--", StatFontSize, UIColors.TEXT_PRIMARY);
+            clockPair.AddChild(_timeValue);
 
             _breakValue = MakeLabel("BREAK --:--", StatFontSize, UIColors.TEXT_SECONDARY);
-            content.AddChild(MakePod(_breakValue));
+            clockPair.AddChild(_breakValue);
+
+            content.AddChild(MakePod(clockPair));
 
             _feedHost = new Control
             {
@@ -222,15 +238,10 @@ namespace KBTV.UI
             };
             content.AddChild(_feedHost);
 
-            _feedBox = new VBoxContainer
-            {
-                Name = "FeedBox",
-                Alignment = BoxContainer.AlignmentMode.Center,
-                MouseFilter = MouseFilterEnum.Ignore
-            };
-            _feedBox.AddThemeConstantOverride("separation", 0);
-            _feedBox.SetAnchorsPreset(LayoutPreset.FullRect);
-            _feedHost.AddChild(_feedBox);
+            _feedLabel = MakeLabel("", FeedFontSize, UIColors.TEXT_SECONDARY);
+            _feedLabel.Name = "FeedLabel";
+            _feedLabel.SetAnchorsPreset(LayoutPreset.FullRect);
+            _feedHost.AddChild(_feedLabel);
 
             var listenerPair = new HBoxContainer
             {
@@ -240,7 +251,7 @@ namespace KBTV.UI
             };
             listenerPair.AddThemeConstantOverride("separation", 4);
 
-            _listenersValue = MakeLabel("0", StatFontSize, UIColors.TEXT_PRIMARY);
+            _listenersValue = MakeLabel("Listeners: 0", StatFontSize, UIColors.TEXT_PRIMARY);
             listenerPair.AddChild(_listenersValue);
 
             _trendArrow = new TrendArrow
@@ -253,7 +264,7 @@ namespace KBTV.UI
 
             content.AddChild(MakePod(listenerPair));
 
-            _moneyValue = MakeLabel("$0", StatFontSize, UIColors.TEXT_PRIMARY);
+            _moneyValue = MakeLabel("Bank: $0", StatFontSize, UIColors.TEXT_PRIMARY);
             content.AddChild(MakePod(_moneyValue));
         }
 
@@ -303,7 +314,7 @@ namespace KBTV.UI
                 return;
             }
 
-            _timeValue.Text = $"AIR {_timeManager.RemainingTimeFormatted}";
+            _timeValue.Text = $"ON-AIR: {_timeManager.RemainingTimeFormatted}";
             bool lowTime = _timeManager.RemainingTime <= LowTimeThreshold;
             _timeValue.AddThemeColorOverride("font_color",
                 lowTime && BlinkOn() ? UIColors.Warning.Critical : UIColors.TEXT_PRIMARY);
@@ -346,7 +357,7 @@ namespace KBTV.UI
                 return;
             }
 
-            _listenersValue.Text = _listenerManager.GetFormattedListeners();
+            _listenersValue.Text = $"Listeners: {_listenerManager.GetFormattedListeners()}";
 
             if (_sampleAccum < TrendSampleInterval || _timeManager == null)
             {
@@ -388,7 +399,7 @@ namespace KBTV.UI
             _lastMoney = money;
             _moneyInitialized = true;
 
-            _moneyValue.Text = $"${money:N0}";
+            _moneyValue.Text = $"Bank: ${money:N0}";
             if (_moneyFlashTime > 0f)
             {
                 _moneyValue.AddThemeColorOverride("font_color",
@@ -420,57 +431,75 @@ namespace KBTV.UI
 
         // ───────────── Status feed ─────────────
 
-        private void RebuildFeedIfChanged()
+        /// <summary>
+        /// Advances the feed rotation every <see cref="FeedCycleInterval"/> seconds so the
+        /// single feed line cycles through events still inside the display window.
+        /// </summary>
+        private void UpdateFeedCycle(float delta)
         {
-            string signature = FeedSignature();
+            _feedCycleAccum += delta;
+            if (_feedCycleAccum < FeedCycleInterval)
+            {
+                return;
+            }
+
+            _feedCycleAccum = 0f;
+            _feedCycleIndex++;
+        }
+
+        /// <summary>
+        /// Shows one feed line at a time, cycling through all events from the last
+        /// <see cref="FeedWindowSeconds"/>; a new event resets the rotation to the newest.
+        /// </summary>
+        private void UpdateFeedDisplay()
+        {
+            if (_feedLabel == null)
+            {
+                return;
+            }
+
+            float now = _timeManager?.ElapsedTime ?? 0f;
+            var entries = _feed.EntriesWithinWindow(now, FeedWindowSeconds);
+
+            if (entries.Count == 0)
+            {
+                _feedCycleIndex = 0;
+                _feedCycleAccum = 0f;
+                _lastFeedTopSignature = "";
+                if (_lastFeedSignature != "")
+                {
+                    _lastFeedSignature = "";
+                    _feedLabel.Text = "";
+                }
+
+                return;
+            }
+
+            string topSignature = EntrySignature(entries[0]);
+            if (topSignature != _lastFeedTopSignature)
+            {
+                _lastFeedTopSignature = topSignature;
+                _feedCycleIndex = 0;
+                _feedCycleAccum = 0f;
+            }
+
+            var entry = entries[_feedCycleIndex % entries.Count];
+            string signature = EntrySignature(entry);
             if (signature == _lastFeedSignature)
             {
                 return;
             }
 
             _lastFeedSignature = signature;
-            RebuildFeed();
+            _feedLabel.Text = $"[{entry.FormattedTime}] {entry.Message}";
+            _feedLabel.AddThemeColorOverride("font_color", KindColor(entry.Kind));
+            _feedLabel.Modulate = new Color(1f, 1f, 1f, 0f);
+            var tween = CreateTween();
+            tween.TweenProperty(_feedLabel, "modulate:a", 1f, 0.25f);
         }
 
-        private void RebuildFeed()
-        {
-            if (_feedBox == null)
-            {
-                return;
-            }
-
-            foreach (var child in _feedBox.GetChildren())
-            {
-                if (child is Node node)
-                {
-                    node.QueueFree();
-                }
-            }
-
-            foreach (var entry in _feed.Entries)
-            {
-                var label = MakeLabel($"[{entry.FormattedTime}] {entry.Message}", FeedFontSize, KindColor(entry.Kind));
-                label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-                label.Modulate = new Color(1f, 1f, 1f, 0f);
-                _feedBox.AddChild(label);
-                var tween = CreateTween();
-                tween.TweenProperty(label, "modulate:a", 1f, 0.25f);
-            }
-        }
-
-        private string FeedSignature()
-        {
-            var sb = new StringBuilder();
-            foreach (var entry in _feed.Entries)
-            {
-                sb.Append(entry.FormattedTime)
-                  .Append((int)entry.Kind)
-                  .Append(entry.Message)
-                  .Append('|');
-            }
-
-            return sb.ToString();
-        }
+        private static string EntrySignature(StatusFeedEntry entry) =>
+            $"{entry.FormattedTime}|{(int)entry.Kind}|{entry.Message}";
 
         private void AddFeed(string message, StatusFeedKind kind)
         {
