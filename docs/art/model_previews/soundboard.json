@@ -3,10 +3,10 @@
   "validation": "passed",
   "blender_version": "5.2.1 LTS",
   "authoring_axes": "Z up, +Y front; GLB Y up, -Z front",
-  "file_bytes": 506932,
+  "file_bytes": 381956,
   "reimported_blender_stats": {
-    "meshes": 66,
-    "triangles": 7312,
+    "meshes": 48,
+    "triangles": 5892,
     "materials": 7,
     "bounds_min": [
       -0.5600000023841858,
@@ -16,12 +16,12 @@
     "bounds_max": [
       0.5600000023841858,
       0.2525000274181366,
-      0.15600000321865082
+      0.148499995470047
     ],
     "dimensions": [
       1.1200000047683716,
       0.5025000274181366,
-      0.15600000321865082
+      0.148499995470047
     ]
   }
 }

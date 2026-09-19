@@ -113,7 +113,7 @@ namespace KBTV.Tests.Unit.Audio
         {
             AssertThat(SoundboardGlow.ChannelOf(SoundboardControl.AdsGain) == SoundboardGlow.SpeakingChannel.None);
             AssertThat(SoundboardGlow.ChannelOf(SoundboardControl.AdsLevel) == SoundboardGlow.SpeakingChannel.None);
-            AssertThat(SoundboardGlow.ChannelOf(SoundboardControl.Master) == SoundboardGlow.SpeakingChannel.None);
+            AssertThat(SoundboardGlow.ChannelOf(SoundboardControl.MasterLeft) == SoundboardGlow.SpeakingChannel.None);
             AssertThat(SoundboardGlow.ChannelOf(SoundboardControl.None) == SoundboardGlow.SpeakingChannel.None);
         }
     }

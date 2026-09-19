@@ -1072,6 +1072,7 @@ private void UpdateTerminalDebugStatus(string detail)
 			_boardLeftWasPressed = leftHeld;
 			_boardDragging = false;
 			_soundboard3D.SetHover(SoundboardControl.None);
+			_soundboard3D.SetButtonHover(SoundboardButton.None);
 			return;
 		}
 
@@ -1079,7 +1080,9 @@ private void UpdateTerminalDebugStatus(string detail)
 
 		if (leftJustPressed)
 		{
-			var control = RaycastBoardControl(mousePosition);
+			var body = RaycastBoardBody(mousePosition);
+			var control = _soundboard3D.ControlFromBody(body);
+			var button = _soundboard3D.ButtonFromBody(body);
 			if (control != SoundboardControl.None)
 			{
 				_boardSelected = control;
@@ -1087,6 +1090,15 @@ private void UpdateTerminalDebugStatus(string detail)
 				_boardLastDragScreenY = mousePosition.Y;
 				_soundboard3D.SelectControl(control);
 				_soundboard3D.SetHover(control);
+				_soundboard3D.SetButtonHover(SoundboardButton.None);
+			}
+			else if (button != SoundboardButton.None)
+			{
+				_boardSelected = SoundboardControl.None;
+				_boardDragging = false;
+				_soundboard3D.SelectControl(SoundboardControl.None);
+				_soundboard3D.SetHover(SoundboardControl.None);
+				_soundboard3D.TapButton(button);
 			}
 			else
 			{
@@ -1094,6 +1106,7 @@ private void UpdateTerminalDebugStatus(string detail)
 				_boardDragging = false;
 				_soundboard3D.SelectControl(SoundboardControl.None);
 				_soundboard3D.SetHover(SoundboardControl.None);
+				_soundboard3D.SetButtonHover(SoundboardButton.None);
 			}
 		}
 
@@ -1111,7 +1124,9 @@ private void UpdateTerminalDebugStatus(string detail)
 		}
 		else
 		{
-			_soundboard3D.SetHover(RaycastBoardControl(mousePosition));
+			var hoverBody = RaycastBoardBody(mousePosition);
+			_soundboard3D.SetHover(_soundboard3D.ControlFromBody(hoverBody));
+			_soundboard3D.SetButtonHover(_soundboard3D.ButtonFromBody(hoverBody));
 		}
 
 		if (!leftHeld)
@@ -1122,7 +1137,7 @@ private void UpdateTerminalDebugStatus(string detail)
 		_boardLeftWasPressed = leftHeld;
 	}
 
-	private SoundboardControl RaycastBoardControl(Vector2 mousePosition)
+	private StaticBody3D? RaycastBoardBody(Vector2 mousePosition)
 	{
 		var from = _camera.ProjectRayOrigin(mousePosition);
 		var to = from + _camera.ProjectRayNormal(mousePosition) * 60f;
@@ -1135,15 +1150,10 @@ private void UpdateTerminalDebugStatus(string detail)
 		var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
 		if (hit.Count == 0 || _soundboard3D == null)
 		{
-			return SoundboardControl.None;
+			return null;
 		}
 
-		if (hit["collider"].AsGodotObject() is not StaticBody3D body)
-		{
-			return SoundboardControl.None;
-		}
-
-		return _soundboard3D.ControlFromBody(body);
+		return hit["collider"].AsGodotObject() as StaticBody3D;
 	}
 
 	private void OnTerminalViewRequested()

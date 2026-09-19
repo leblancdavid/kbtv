@@ -1,6 +1,27 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Soundboard Round 14 — board redesign: channels 1-3 stay (Vern/Caller/Ads-Music), channel 4 becomes a linked stereo master pair, VU meter above master, channels 5-8 replaced by a 2x2 broadcast button grid (Music/Delay/Ads/Drop) with an info screen above. **Status: Completed (incl. 14b orientation fix) — build green, full suite 583/13 (same pre-existing DI baseline, +1 new test); in-editor visual/interaction verification + commit pending**
+
+- **Round 14b (after first in-editor look):** the yaw-180 `SoundBoard` instance made the authored face read mirrored (strips right, buttons left) with the flat labels upside down. Fixed model-only: strips authored right-to-left (`STRIP_X0=+0.45`, `STRIP_PITCH=-0.105`), button grid/screen moved to authored −X, `BtnLabel_*` spun 180°, VU meter moved above the master strip, screen halved in height (bezel 0.115→0.060, face 0.046). Part names/axes untouched → **zero C# changes**. Verified with an in-game-angle Blender render (strips Vern→Master left-to-right, readable buttons, matches the user mock). Docs updated (§7 authoring-orientation note, R14 changelog).
+
+- User-confirmed decisions: strip order **1=Vern, 2=Caller, 3=Ads/Music**; master pair **linked** (one value, `state.Fader`, drives both caps — no DSP change); **Ads → `AdManager.QueueBreak()`, Drop → `InterruptBroadcast(CallerDropped)`** wired now, **Music/Delay publish `SoundboardButtonPressedEvent`** for follow-up wiring; button flash effects + screen look = separate work.
+- `Tools/modelgen/soundboard.py` rewritten: 4 strips + single VU meter + `Screen bezel`/`ScreenFace` + 4 `Button_*` caps (parented `BtnLamp_*` face + `BtnLabel_*` text); `MasterKnob`/columns 4-7 deleted. Regenerated GLB (blender 5.2, validated; preview `docs/art/model_previews/soundboard.png` matches the user mock; GLB node names + parenting verified via re-import).
+- `SoundboardPhysicalLayout.cs`: new slots (strips 0-2 = Vern/Caller/Ads, `FaderCap_3L/3R` master pair), `IdleLamps` removed, new `SoundboardButton` enum + `ButtonSlots`/`ButtonSlotFor` + `ButtonPressDepth`.
+- `SoundboardControlApplier.cs`: `Master` → `MasterLeft`/`MasterRight` (both map to `state.Fader`); `SoundboardGlow` unaffected (defaults to None channel).
+- `Soundboard3D.cs`: button subsystem (`BuildButtons`, `TapButton` press animation, `SetButtonHover`, `ButtonFromBody`, per-button lamp materials, `SetButtonLight`/`ClearButtonLight` flash-effect hook), Ads/Drop actions + event publish for Music/Delay, `UpdateLeds`/colliders/hover remapped to new lamp names.
+- `World3D.cs`: `RaycastBoardControl` → `RaycastBoardBody`; taps resolve control **or** button; button hover cleared over GUI.
+- New `scripts/world3d/SoundboardButtonPressedEvent.cs`.
+- Tests: `SoundboardPhysicalLayoutTests` remapped (+ `ButtonSlots_AreComplete`), `SoundboardControlApplierTests` + `MasterPair_IsLinkedThroughOneFaderValue`, Master→MasterLeft in applier/glow/target-generator suites. All soundboard suites green; full run 583/13 == baseline (verified via stash: clean tree fails the same 13 DI-harness tests).
+- Docs: `docs/systems/SOUNDBOARD_DESIGN.md` §7 (parts, axis map, control-slot table, button grid table, LEDs, interaction) + Round 14 changelog + §9 halo tuning.
+- Blockers: none.
+- Remaining: in-editor run — open the soundboard, confirm drag on all 10 controls + lamp colors, button press/hover glow, Ads queues a break, Drop hangs the caller, Music/Delay log events; then define button light effects + screen content (separate work). Commit when asked.
+
+---
+
+## Previous Session (completed)
+
+**Branch**: develop
 **Task**: Top status overlay polish — halve bar height, merge BREAK next to ON-AIR timer, label prefixes, feed cycles any last-minute event; round 2: font 14 (match transcript), bar 27px, move ScreenNav back/close + soundboard drain panel below the HUD bar. **Status: Completed (round 2) — build green, full suite 582/13 (same pre-existing DI baseline); in-editor visual verification + commit pending**
 
 ### Round 2 (completed)

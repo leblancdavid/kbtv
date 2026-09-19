@@ -5,9 +5,10 @@ using Godot;
 namespace KBTV.Audio
 {
     /// <summary>
-    /// The nine controls on the 3D soundboard. Faders are the per-channel output
-    /// strips (they slide); knobs are the rotary CALLER filter controls, the
-    /// per-channel gain knobs, and the master knob.
+    /// The controls on the 3D soundboard. Faders are the per-channel output
+    /// strips (they slide); knobs are the rotary CALLER filter controls and the
+    /// per-channel gain knobs. The stereo master pair (channel 4's two faders)
+    /// are linked: both read and write the single <see cref="SoundboardKnobState.Fader"/>.
     /// </summary>
     public enum SoundboardControl
     {
@@ -20,7 +21,8 @@ namespace KBTV.Audio
         CallerLevel,
         VernLevel,
         AdsLevel,
-        Master
+        MasterLeft,
+        MasterRight
     }
 
     /// <summary>
@@ -77,7 +79,8 @@ namespace KBTV.Audio
                 case SoundboardControl.AdsLevel:
                     state.AdsLevel = clamped;
                     break;
-                case SoundboardControl.Master:
+                case SoundboardControl.MasterLeft:
+                case SoundboardControl.MasterRight:
                     state.Fader = clamped;
                     break;
             }
@@ -109,7 +112,8 @@ namespace KBTV.Audio
                     return state.VernLevel;
                 case SoundboardControl.AdsLevel:
                     return state.AdsLevel;
-                case SoundboardControl.Master:
+                case SoundboardControl.MasterLeft:
+                case SoundboardControl.MasterRight:
                     return state.Fader;
                 default:
                     return SoundboardKnobState.NeutralValue;

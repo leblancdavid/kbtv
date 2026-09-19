@@ -104,7 +104,7 @@ public static class SoundboardGlow
 
     /// <summary>
     /// Maps a <see cref="SoundboardControl"/> to its owning speaking channel.
-    /// Master/Ads/None → None (white halo); every caller knob/level → Caller;
+    /// Master pair/Ads/None → None (white halo); every caller knob/level → Caller;
     /// every Vern knob/level → Vern.
     /// </summary>
     public static SpeakingChannel ChannelOf(SoundboardControl control)

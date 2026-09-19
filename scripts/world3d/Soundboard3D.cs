@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using Godot;
 using KBTV.Ads;
 using KBTV.Audio;
+using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Dialogue;
 using KBTV.Monitors;
 
 namespace KBTV.World3D
@@ -13,9 +15,11 @@ namespace KBTV.World3D
     /// <summary>
     /// Interactive 3D helper for the control-room soundboard. Owns the mixer driver
     /// interaction against the GLB's real parts (regenerated so the chassis is static
-    /// and the fader caps / knobs / lamps exist as named nodes): slides caps along
-    /// glTF-local Z, spins knobs around glTF-local Y, and drives per-channel lamp
-    /// emission from driver + monitor state each frame. Also exposes tap-target
+    /// and the fader caps / knobs / lamps / broadcast buttons exist as named nodes):
+    /// slides caps along glTF-local Z, spins knobs around glTF-local Y, drives
+    /// per-channel lamp emission from driver + monitor state each frame, and presses
+    /// the four blocky broadcast buttons (Music/Delay/Ads/Drop) with per-button
+    /// lamp-face materials ready for flash effects. Also exposes tap-target
     /// colliders on a dedicated collision layer so World3D can raycast clicks and
     /// drags. Parented at identity under the SoundBoard GLB node, so part transforms
     /// share the board's local frame.
@@ -45,6 +49,26 @@ namespace KBTV.World3D
         private SoundboardMonitor? _monitor;
         private AudioMixerManager? _mixer;
         private AdManager? _adManager;
+        private ICallerRepository? _callerRepository;
+        private AsyncBroadcastLoop? _broadcastLoop;
+        private EventBus? _eventBus;
+
+        /// <summary>Driven button parts: cap node + rest transform.</summary>
+        private readonly Dictionary<SoundboardButton, Node3D> _buttonParts = new();
+        private readonly Dictionary<SoundboardButton, Vector3> _buttonRestPositions = new();
+        private readonly Dictionary<string, StandardMaterial3D> _buttonLampMaterials = new();
+        private readonly Dictionary<StaticBody3D, SoundboardButton> _buttonBodies = new();
+        private readonly Dictionary<SoundboardButton, (Color Color, float Energy)?> _buttonLights = new();
+        private SoundboardButton _hoveredButton = SoundboardButton.None;
+        private SoundboardButton _pressedButton = SoundboardButton.None;
+        private float _pressTimer;
+
+        /// <summary>How long a pressed button cap stays down before it pops back.</summary>
+        private const float ButtonPressHoldSeconds = 0.14f;
+
+        /// <summary>Idle emission of a broadcast button's lamp face (a faint warm glow under the label).</summary>
+        private static readonly Color ButtonIdleEmission = new(0.3f, 0.09f, 0.09f);
+        private static readonly Color ButtonLampAlbedo = new(0.456f, 0.397f, 0.258f);
 
         /// <summary>One persistent halo ring per driven control (always visible while handles are shown).</summary>
         private readonly Dictionary<SoundboardControl, MeshInstance3D> _halos = new();
@@ -66,9 +90,6 @@ namespace KBTV.World3D
 
         /// <summary>Side of a knob halo ring quad at FULL loudness (the max; silent channels shrink to MinRingFraction of this).</summary>
         private const float HaloSize = 0.07f;
-
-        /// <summary>Knob-halo quad for the master knob (its body is much larger than a channel knob).</summary>
-        private const float MasterHaloSize = 0.10f;
 
         private const float FaderGlowSize = 0.035f;
         private const float FaderGlowLift = 0.004f;
@@ -108,6 +129,7 @@ namespace KBTV.World3D
             UpdateLeds();
             UpdateSpeakingState(delta);
             UpdateHalos();
+            UpdateButtons(delta);
         }
 
         /// <summary>Creates one persistent halo ring per driven control.</summary>
@@ -161,11 +183,8 @@ namespace KBTV.World3D
         }
 
         /// <summary>Halo quad size at full loudness for a control.</summary>
-        private static Vector2 BaseHaloSize(SoundboardControl control)
-        {
-            float side = control == SoundboardControl.Master ? MasterHaloSize : HaloSize;
-            return new Vector2(side, side);
-        }
+        private static Vector2 BaseHaloSize(SoundboardControl control) =>
+            new Vector2(HaloSize, HaloSize);
 
         /// <summary>Points this board at a shared driver (set before the view opens).</summary>
         public void AttachDriver(SoundboardMixerDriver driver)
@@ -195,6 +214,7 @@ namespace KBTV.World3D
             BuildSlots();
             BuildPartHighlights();
             BuildLamps();
+            BuildButtons();
             NormalizeUnusedParts();
             _built = true;
         }
@@ -223,6 +243,7 @@ namespace KBTV.World3D
                 return;
             }
             ClearHoverHighlight();
+            ClearButtonState();
             SelectedControl = SoundboardControl.None;
             HoveredControl = SoundboardControl.None;
             Driver.Apply();
@@ -237,6 +258,7 @@ namespace KBTV.World3D
         public void HideHandles()
         {
             ClearHoverHighlight();
+            ClearButtonState();
             SelectedControl = SoundboardControl.None;
             HoveredControl = SoundboardControl.None;
             _handlesVisible = false;
@@ -289,6 +311,208 @@ namespace KBTV.World3D
             if (HoveredControl != SoundboardControl.None)
             {
                 SetPartHighlight(HoveredControl, false);
+            }
+        }
+
+        /// <summary>
+        /// Locates the four broadcast button caps + lamp faces, captures their rest
+        /// transforms, gives each lamp face its own driven material, and builds the
+        /// HitLayer tap colliders.
+        /// </summary>
+        private void BuildButtons()
+        {
+            if (_board == null)
+            {
+                return;
+            }
+
+            foreach (var slot in SoundboardPhysicalLayout.ButtonSlots)
+            {
+                var cap = _board.FindChild(slot.PartName, true, false) as Node3D;
+                if (cap == null)
+                {
+                    WarnMissing(slot.PartName);
+                    continue;
+                }
+
+                _buttonParts[slot.Button] = cap;
+                _buttonRestPositions[slot.Button] = cap.Position;
+
+                var lamp = _board.FindChild(slot.LampName, true, false) as MeshInstance3D;
+                if (lamp == null)
+                {
+                    WarnMissing(slot.LampName);
+                }
+                else
+                {
+                    var material = new StandardMaterial3D
+                    {
+                        AlbedoColor = ButtonLampAlbedo,
+                        EmissionEnabled = true,
+                        Emission = ButtonIdleEmission,
+                        EmissionEnergyMultiplier = 1f
+                    };
+                    lamp.MaterialOverride = material;
+                    _buttonLampMaterials[slot.LampName] = material;
+                }
+
+                var body = new StaticBody3D
+                {
+                    Name = $"Hit_Button_{slot.Button}",
+                    Position = cap.Position,
+                    CollisionLayer = HitLayer,
+                    CollisionMask = 0u
+                };
+                body.AddChild(new CollisionShape3D
+                {
+                    Shape = new BoxShape3D { Size = new Vector3(0.16f, 0.04f, 0.14f) }
+                });
+                AddChild(body);
+                _buttonBodies[body] = slot.Button;
+            }
+        }
+
+        /// <summary>Returns the button a tap-target collider belongs to (or None).</summary>
+        public SoundboardButton ButtonFromBody(StaticBody3D body)
+        {
+            if (body != null && _buttonBodies.TryGetValue(body, out var button))
+            {
+                return button;
+            }
+            return SoundboardButton.None;
+        }
+
+        /// <summary>All button tap-target colliders (for raycast distinguishes / tests).</summary>
+        public IEnumerable<StaticBody3D> ButtonBodies => _buttonBodies.Keys;
+
+        /// <summary>Sets the hovered broadcast button (None clears). Drives its lamp-face brighten.</summary>
+        public void SetButtonHover(SoundboardButton button)
+        {
+            if (_built)
+            {
+                _hoveredButton = button;
+            }
+        }
+
+        /// <summary>
+        /// Presses a broadcast button: sinks the cap briefly, then runs its action.
+        /// Ads drops a break into the ad queue and Drop hangs up the on-air caller
+        /// directly; Music and Delay publish a <see cref="SoundboardButtonPressedEvent"/>
+        /// for the broadcast flow to consume.
+        /// </summary>
+        public void TapButton(SoundboardButton button)
+        {
+            if (!_built || button == SoundboardButton.None)
+            {
+                return;
+            }
+
+            _pressedButton = button;
+            _pressTimer = ButtonPressHoldSeconds;
+            if (_buttonParts.TryGetValue(button, out var cap) && cap != null &&
+                _buttonRestPositions.TryGetValue(button, out var rest))
+            {
+                cap.Position = new Vector3(rest.X, rest.Y - SoundboardPhysicalLayout.ButtonPressDepth, rest.Z);
+            }
+
+            InvokeButtonAction(button);
+        }
+
+        /// <summary>
+        /// Overrides a button's lamp-face emission (the hook for queued/flash states).
+        /// Call <see cref="ClearButtonLight"/> to return it to the idle glow.
+        /// </summary>
+        public void SetButtonLight(SoundboardButton button, Color color, float energy = 1f)
+        {
+            _buttonLights[button] = (color, energy);
+        }
+
+        /// <summary>Returns a button's lamp face to the hover/idle behaviour.</summary>
+        public void ClearButtonLight(SoundboardButton button)
+        {
+            _buttonLights.Remove(button);
+        }
+
+        private void ClearButtonState()
+        {
+            _hoveredButton = SoundboardButton.None;
+            if (_pressedButton != SoundboardButton.None && _built)
+            {
+                RestoreButtonCap(_pressedButton);
+            }
+            _pressedButton = SoundboardButton.None;
+            _pressTimer = 0f;
+        }
+
+        private void RestoreButtonCap(SoundboardButton button)
+        {
+            if (_buttonParts.TryGetValue(button, out var cap) && cap != null &&
+                _buttonRestPositions.TryGetValue(button, out var rest))
+            {
+                cap.Position = rest;
+            }
+        }
+
+        /// <summary>Animates the pressed cap back up and refreshes every button's lamp face.</summary>
+        private void UpdateButtons(double delta)
+        {
+            if (_pressedButton != SoundboardButton.None)
+            {
+                _pressTimer -= Mathf.Clamp((float)delta, 0f, 1f);
+                if (_pressTimer <= 0f)
+                {
+                    RestoreButtonCap(_pressedButton);
+                    _pressedButton = SoundboardButton.None;
+                }
+            }
+
+            foreach (var slot in SoundboardPhysicalLayout.ButtonSlots)
+            {
+                if (!_buttonLampMaterials.TryGetValue(slot.LampName, out var material) || material == null)
+                {
+                    continue;
+                }
+
+                if (_buttonLights.TryGetValue(slot.Button, out var flash) && flash.HasValue)
+                {
+                    material.Emission = flash.Value.Color;
+                    material.EmissionEnergyMultiplier = flash.Value.Energy;
+                }
+                else if (_hoveredButton == slot.Button)
+                {
+                    material.Emission = LedSelected;
+                    material.EmissionEnergyMultiplier = 2.5f;
+                }
+                else
+                {
+                    material.Emission = ButtonIdleEmission;
+                    material.EmissionEnergyMultiplier = 1f;
+                }
+            }
+        }
+
+        private void InvokeButtonAction(SoundboardButton button)
+        {
+            switch (button)
+            {
+                case SoundboardButton.Ads:
+                    _adManager?.QueueBreak();
+                    break;
+                case SoundboardButton.Drop:
+                    DropOnAirCaller();
+                    break;
+                default:
+                    _eventBus?.Publish(new SoundboardButtonPressedEvent(button));
+                    break;
+            }
+        }
+
+        private void DropOnAirCaller()
+        {
+            var caller = _callerRepository?.OnAirCaller;
+            if (caller != null && _broadcastLoop != null)
+            {
+                _broadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.CallerDropped, caller.Id);
             }
         }
 
@@ -493,10 +717,6 @@ namespace KBTV.World3D
                     Size = new Vector3(isFader ? 0.055f : 0.075f, 0.05f, isFader ? 0.04f : 0.05f)
                 }
             };
-            if (!isFader && control == SoundboardControl.Master)
-            {
-                shape.Shape = new BoxShape3D { Size = new Vector3(0.17f, 0.07f, 0.15f) };
-            }
             body.AddChild(shape);
             AddChild(body);
             _bodies[body] = control;
@@ -564,11 +784,7 @@ namespace KBTV.World3D
 
         private static IEnumerable<string> AllLampNames()
         {
-            var seen = new HashSet<string>(SoundboardPhysicalLayout.IdleLamps);
-            foreach (var lampName in SoundboardPhysicalLayout.IdleLamps)
-            {
-                yield return lampName;
-            }
+            var seen = new HashSet<string>();
             foreach (var slot in SoundboardPhysicalLayout.Slots)
             {
                 if (seen.Add(slot.LampName))
@@ -619,15 +835,12 @@ namespace KBTV.World3D
         {
             var bands = CurrentCallerBands();
             var worst = SoundboardTargetGenerator.GetWorstBand(bands);
-            SetLampColor("Lamp_6", BandColor(worst));
-            SetLampColor("Lamp_7", SoundboardTargetGenerator.RampGreen);
+            SetLampColor("Lamp_1", BandColor(worst));
+            SetLampColor("Lamp_0", SoundboardTargetGenerator.RampGreen);
             var adBreak = _adManager != null && _adManager.IsAdBreakActive;
-            SetLampColor("Lamp_5", adBreak ? SoundboardTargetGenerator.RampGreen : LedDim);
-            SetLampColor("Lamp_3", SoundboardTargetGenerator.RampGreen);
-            foreach (var idle in SoundboardPhysicalLayout.IdleLamps)
-            {
-                SetLampColor(idle, LedDim);
-            }
+            SetLampColor("Lamp_2", adBreak ? SoundboardTargetGenerator.RampGreen : LedDim);
+            SetLampColor("Lamp_3L", SoundboardTargetGenerator.RampGreen);
+            SetLampColor("Lamp_3R", SoundboardTargetGenerator.RampGreen);
         }
 
         private SoundboardCallerBands CurrentCallerBands()
@@ -842,17 +1055,36 @@ namespace KBTV.World3D
                 body.CollisionLayer = enabled ? HitLayer : 0u;
                 body.CollisionMask = 0u;
             }
+            foreach (var body in _buttonBodies.Keys)
+            {
+                if (body == null)
+                {
+                    continue;
+                }
+                body.CollisionLayer = enabled ? HitLayer : 0u;
+                body.CollisionMask = 0u;
+            }
         }
 
         private void ResolveAdManager()
         {
+            _adManager = TryResolve<AdManager>();
+            _callerRepository = TryResolve<ICallerRepository>();
+            _broadcastLoop = TryResolve<AsyncBroadcastLoop>();
+            _eventBus = TryResolve<EventBus>();
+        }
+
+        private T? TryResolve<T>() where T : class
+        {
             try
             {
-                _adManager = DependencyInjection.Get<AdManager>(this);
+                return DependencyInjection.Get<T>(this);
             }
             catch (InvalidOperationException)
             {
-                _adManager = null;
+                // Service not provided in this context (e.g. isolated tests): the
+                // board still renders; the dependent button action becomes a no-op.
+                return null;
             }
         }
 

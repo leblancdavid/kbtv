@@ -167,7 +167,7 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(
                 SoundboardTargetGenerator.GetControlBand(state, SoundboardControl.VernLevel, 0.5f) != SoundboardBand.Green);
             AssertThat(
-                SoundboardTargetGenerator.GetControlBand(state, SoundboardControl.Master, 0.5f) != SoundboardBand.Green);
+                SoundboardTargetGenerator.GetControlBand(state, SoundboardControl.MasterLeft, 0.5f) != SoundboardBand.Green);
             AssertThat(
                 SoundboardTargetGenerator.GetControlBand(state, SoundboardControl.None, 0.5f) == SoundboardBand.None);
         }
@@ -175,7 +175,7 @@ namespace KBTV.Tests.Unit.Audio
         [Test]
         public void GetControlBand_NullState_ReturnsNone()
         {
-            AssertThat(SoundboardTargetGenerator.GetControlBand(null!, SoundboardControl.Master, 0.5f) == SoundboardBand.None);
+            AssertThat(SoundboardTargetGenerator.GetControlBand(null!, SoundboardControl.MasterLeft, 0.5f) == SoundboardBand.None);
         }
 
         [Test]
@@ -239,7 +239,7 @@ namespace KBTV.Tests.Unit.Audio
 
             AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.CallerGain, 0.5f, 3)) < 0.0001f);
             AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.CallerLevel, 0.5f, 3)) < 0.0001f);
-            AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.Master, 0.5f)) < 0.0001f);
+            AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.MasterLeft, 0.5f)) < 0.0001f);
             AssertThat(Mathf.Abs(SoundboardTargetGenerator.GetControlError(state, SoundboardControl.VernLevel, 0.5f)) < 0.0001f);
         }
 
@@ -257,7 +257,7 @@ namespace KBTV.Tests.Unit.Audio
         [Test]
         public void GetControlError_NullState_Zero()
         {
-            AssertThat(SoundboardTargetGenerator.GetControlError(null!, SoundboardControl.Master, 0.5f) == 0f);
+            AssertThat(SoundboardTargetGenerator.GetControlError(null!, SoundboardControl.MasterLeft, 0.5f) == 0f);
         }
 
         [Test]

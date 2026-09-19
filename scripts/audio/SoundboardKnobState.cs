@@ -45,7 +45,7 @@ namespace KBTV.Audio
         /// bottom (0 = cut) on the board default.</summary>
         public float AdsLevel { get; set; } = 0f;
 
-        /// <summary>Master (music/program) fader.</summary>
+        /// <summary>Master (music/program) level, shown by channel 4's linked stereo faders.</summary>
         public float Fader { get; set; } = NeutralValue;
 
         /// <summary>Restores every control to the DSP-neutral center (all 0.5).</summary>

@@ -22,7 +22,7 @@ namespace KBTV.Tests.Unit.Audio
             SoundboardControlApplier.Apply(state, SoundboardControl.CallerLevel, 0.55f);
             SoundboardControlApplier.Apply(state, SoundboardControl.VernLevel, 0.65f);
             SoundboardControlApplier.Apply(state, SoundboardControl.AdsLevel, 0.45f);
-            SoundboardControlApplier.Apply(state, SoundboardControl.Master, 0.25f);
+            SoundboardControlApplier.Apply(state, SoundboardControl.MasterLeft, 0.25f);
 
             AssertThat(Mathf.IsEqualApprox(state.CallerGain, 0.9f));
             AssertThat(Mathf.IsEqualApprox(state.CallerLowPass, 0.3f));
@@ -41,7 +41,7 @@ namespace KBTV.Tests.Unit.Audio
             var state = SoundboardKnobState.Neutral();
 
             SoundboardControlApplier.Apply(state, SoundboardControl.None, 0.2f);
-            SoundboardControlApplier.Apply(null!, SoundboardControl.Master, 0.2f);
+            SoundboardControlApplier.Apply(null!, SoundboardControl.MasterLeft, 0.2f);
 
             AssertThat(Mathf.IsEqualApprox(state.Fader, SoundboardKnobState.NeutralValue));
         }
@@ -52,10 +52,24 @@ namespace KBTV.Tests.Unit.Audio
             var state = SoundboardKnobState.Neutral();
 
             SoundboardControlApplier.Apply(state, SoundboardControl.VernGain, 1.7f);
-            SoundboardControlApplier.Apply(state, SoundboardControl.Master, -0.3f);
+            SoundboardControlApplier.Apply(state, SoundboardControl.MasterLeft, -0.3f);
 
             AssertThat(Mathf.IsEqualApprox(state.VernGain, 1f));
             AssertThat(Mathf.IsEqualApprox(state.Fader, 0f));
+        }
+
+        [Test]
+        public void MasterPair_IsLinkedThroughOneFaderValue()
+        {
+            var state = SoundboardKnobState.Neutral();
+
+            SoundboardControlApplier.Apply(state, SoundboardControl.MasterLeft, 0.7f);
+            AssertThat(Mathf.IsEqualApprox(
+                SoundboardControlApplier.CurrentValue(state, SoundboardControl.MasterRight), 0.7f));
+
+            SoundboardControlApplier.Apply(state, SoundboardControl.MasterRight, 0.2f);
+            AssertThat(Mathf.IsEqualApprox(
+                SoundboardControlApplier.CurrentValue(state, SoundboardControl.MasterLeft), 0.2f));
         }
 
         [Test]
@@ -111,7 +125,7 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.CallerLevel), 0.75f));
             AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.VernLevel), 0.35f));
             AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.AdsLevel), 0.85f));
-            AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.Master), 0.1f));
+            AssertThat(Mathf.IsEqualApprox(SoundboardControlApplier.CurrentValue(state, SoundboardControl.MasterLeft), 0.1f));
             AssertThat(Mathf.IsEqualApprox(
                 SoundboardControlApplier.CurrentValue(state, SoundboardControl.None), SoundboardKnobState.NeutralValue));
         }

@@ -217,11 +217,22 @@ pattern: fixed ortho camera → click-to-select → drag to adjust.
 ### Placement & Visuals
 
 - `soundboard.glb` is regenerated so the **chassis is static and every movable
-  part is a separately named sibling node**: `FaderCap_0..7`, `Knob_{ch}_{side}`
-  (with a child `Index_{ch}_{side}` pointer), `Lamp_0..7`, `MasterKnob`, plus
-  the `soundboard` chassis. The generator joins only static objects into the
+  part is a separately named sibling node**: `FaderCap_0..2` + `FaderCap_3L/3R`,
+  `Knob_{ch}_{side}` (with a child `Index_{ch}_{side}` pointer), `Lamp_0..2` +
+  `Lamp_3L/3R`, the four `Button_*` caps (each with child `BtnLamp_*` face +
+  `BtnLabel_*` lettering), and the `ScreenFace` panel, plus the `soundboard`
+  chassis. The generator joins only static objects into the
   chassis and exports the movables alongside (`Tools/modelgen/generate.py`
   `MOVABLE` + selective `select_all(SELECT)` export).
+- **Authoring orientation (Round 14b):** the `SoundBoard` instance in
+  `World3D.tscn` carries a 180° yaw (room convention shared with the other desk
+  props), so the in-game view reads authored **+X as left** and authored +Y as
+  bottom. The face is therefore authored mirrored: strips run
+  right-to-left in Blender (`STRIP_X0 = +0.45`, `STRIP_PITCH = -0.105` → Vern
+  0.45 … master 0.135, reading Vern→Master left-to-right in game), the button
+  grid + screen sit on authored −X, and the flat `BtnLabel_*` lettering is spun
+  180°. All part names, fader/knob axes, and the runtime sign conventions are
+  unchanged by the mirror.
 - `scripts/world3d/SoundboardPhysicalLayout.cs` (KBTV.World3D) is the **pure,
   unit-testable** mapping of mixer controls → GLB part, drive kind, and channel
   lamp. No Godot types, so it runs under GoDotTest without a scene.
@@ -234,34 +245,60 @@ pattern: fixed ortho camera → click-to-select → drag to adjust.
   `(0.25, 0.9, -3.55)` yaw 180 did not match the instance's `x = -0.354`).
 - **Axis mapping** (verified from the exported glTF translations; authoring
   `(x, y, z)` → glTF `(x, z, -y)`): fader caps slide along **glTF-local Z**
-  (authoring vertical), knobs and `MasterKnob` spin around **glTF-local Y**.
+  (authoring vertical), knobs spin around **glTF-local Y**, button caps press
+  down along **glTF-local Y** (authoring vertical).
 
 ### Control Slots (`SoundboardPhysicalLayout.Slots`)
 
-Round 2 adds three per-channel output level faders and moves the caller gain up
-the column, giving **9 controls** driven by the GLB's real movables:
+Round 14 redesigned the board surface: **channels 1-3 stay the live strips,
+channel 4 becomes the stereo master pair, and channels 5-8 are gone** — that
+area now holds the info screen and the broadcast button grid. **10 controls**
+are driven by the GLB's real movables:
 
 | Control | GLB part | Drive | Channel lamp |
 |---------|----------|-------|--------------|
-| CallerGain | `Knob_6_2` | Knob | `Lamp_6` |
-| CallerLowPass | `Knob_6_0` | Knob | `Lamp_6` |
-| CallerHighPass | `Knob_6_1` | Knob | `Lamp_6` |
-| CallerLevel | `FaderCap_6` | Fader | `Lamp_6` |
-| VernGain | `Knob_7_2` | Knob | `Lamp_7` |
-| VernLevel | `FaderCap_7` | Fader | `Lamp_7` |
-| AdsGain | `Knob_5_2` | Knob | `Lamp_5` |
-| AdsLevel | `FaderCap_5` | Fader | `Lamp_5` |
-| Master | `MasterKnob` | Knob | `Lamp_3` |
+| VernGain | `Knob_0_2` | Knob | `Lamp_0` |
+| VernLevel | `FaderCap_0` | Fader | `Lamp_0` |
+| CallerGain | `Knob_1_2` | Knob | `Lamp_1` |
+| CallerLowPass | `Knob_1_0` | Knob | `Lamp_1` |
+| CallerHighPass | `Knob_1_1` | Knob | `Lamp_1` |
+| CallerLevel | `FaderCap_1` | Fader | `Lamp_1` |
+| AdsGain | `Knob_2_2` | Knob | `Lamp_2` |
+| AdsLevel | `FaderCap_2` | Fader | `Lamp_2` |
+| MasterLeft | `FaderCap_3L` | Fader | `Lamp_3L` |
+| MasterRight | `FaderCap_3R` | Fader | `Lamp_3R` |
 
-Screen-bounded columns: **Caller** = column 6 (top gain knob + level fader +
-two filter knobs), **Vern** = column 7 (gain + level), **Ads/Bumper** = column
-5 (gain + level), **Master** = big centre knob. Columns 0–4 stay cosmetic;
-`IdleLamps = { Lamp_0, Lamp_1, Lamp_2, Lamp_4 }`. Round 9 parks the cosmetic
-control surface at board defaults so the full face reads uniformly: every
-unused `Knob_*` (columns 0–4 plus the non-gain knobs of the Vern/Ads columns)
-is pinned to 180° = **12 o'clock** and every unused `FaderCap_*` to the bottom
-(`FaderLocalZ(0)` = 0%) at attach time; only the 9 driven slots move (from
-driver state).
+Board strips left→right: **channel 1 = Vern** (gain + level, two cosmetic
+knobs), **channel 2 = Caller** (top gain knob + level fader + two filter knobs),
+**channel 3 = Ads/Music** (gain + level, two cosmetic knobs), **channel 4 =
+Master** — a *linked* stereo pair: `MasterLeft`/`MasterRight` both read and
+write the single `SoundboardKnobState.Fader`, so the two caps always move
+together (no DSP change; `SoundboardMixerDriver` still derives Music + Master
+bus deltas from that one value). `MasterKnob` and `IdleLamps` are removed. The one VU meter sits above the
+master strip (the second meter deleted). Round 9
+parking stays: every unused `Knob_*` (the cosmetic knob rows) is pinned to 12
+o'clock at attach time; only the driven slots move (from driver state).
+
+**Broadcast buttons (`SoundboardPhysicalLayout.ButtonSlots`, 2×2 grid where
+channels 5-8 used to sit):**
+
+| Button | GLB part | Lamps face | Action |
+|--------|----------|-----------|--------|
+| Music | `Button_Music` | `BtnLamp_Music` | publishes `SoundboardButtonPressedEvent` |
+| Delay | `Button_Delay` | `BtnLamp_Delay` | publishes `SoundboardButtonPressedEvent` |
+| Ads | `Button_Ads` | `BtnLamp_Ads` | `AdManager.QueueBreak()` |
+| Drop | `Button_Drop` | `BtnLamp_Drop` | `AsyncBroadcastLoop.InterruptBroadcast(CallerDropped, id)` |
+
+Each cap is a blocky pressable part with its lamp face + flat label parented
+to it, so a press (`TapButton`, cap sinks `ButtonPressDepth = 0.006` for
+`ButtonPressHoldSeconds = 0.14`) moves the whole button. Each `BtnLamp_*`
+gets its own `MaterialOverride`: idle = faint red glow, hover = bright
+`LedSelected`, and **`SetButtonLight(button, color, energy)` /
+`ClearButtonLight(button)` override it for future queue/flash effects**
+(light choreography intentionally deferred). `ScreenFace` (the panel above
+the grid) stays a separate movable node with a plain dark material so the
+caller-info screen (own work item) can swap in a viewport texture later
+without a model change.
 
 - Fader cap local Z: `FaderLocalZ(value) = (value - 0.5) * 2 * FaderTravel +
   FaderRestLocalZ` (`FaderTravel = 0.05`, `FaderRestLocalZ = -0.14`); value 0 is
@@ -281,12 +318,11 @@ driver state).
   follows. Round 7 widened the swing from 90° to 270° so one turn reads as a full
   three-quarter sweep between the notch stops.
 - Lamps are driven via per-lamp `MaterialOverride` emission (only while handles
-  are visible, once per frame): `Lamp_6` = caller worst band
+  are visible, once per frame): `Lamp_1` = caller worst band
   (`SoundboardTargetGenerator.GetWorstBand(SoundboardMonitor.CallerBands)`),
-  `Lamp_7` = Vern steady green, `Lamp_5` = Ads green while
-  `AdManager.IsAdBreakActive` else dim, `Lamp_3` = Master steady green,
-  `Lamp_0/1/2/4` dim. The selected **and** hovered control brightens its
-  channel lamp.
+  `Lamp_0` = Vern steady green, `Lamp_2` = Ads green while
+  `AdManager.IsAdBreakActive` else dim, `Lamp_3L/3R` = Master steady green.
+  The selected **and** hovered control brightens its channel lamp.
 
 ### Hover Affordance (Round 2 → R10: always-on per-ring glow)
 
@@ -338,15 +374,16 @@ driver state).
 
 - Each part gets an invisible tap collider on `Soundboard3D.HitLayer`
   (`1u << 20`, `CollisionMask = 0`) anchored to its control handle (fader cap
-  `0.055 × 0.05 × 0.04`, knob `0.075 × 0.05 × 0.05`, master `0.17 × 0.07 × 0.15`)
+  `0.055 × 0.05 × 0.04`, knob `0.075 × 0.05 × 0.05`, broadcast button
+  `0.16 × 0.04 × 0.14`)
   so only the board raycast hits. Knob depth stays under the `0.065` row pitch so
   adjacent hitboxes never overlap under the oblique camera. Round 4 makes fader
   colliders follow the moving cap, so hover/click registers on the fader control
   itself, not the whole track.
 - `World3D.PollSoundboardMouse()` runs while `SoundboardViewState.Open`:
-  click raycasts (`PhysicsRayQueryParameters3D`, mask = `HitLayer`), selects
-  the control, then incremental vertical drag rebases each frame from
-  `CurrentValue`.
+  click raycasts (`PhysicsRayQueryParameters3D`, mask = `HitLayer`) resolve to a
+  **control or a button** (`ControlFromBody` / `ButtonFromBody`): controls
+  select + drag as before, buttons fire once on press (`TapButton`, no drag).
 - `SoundboardControlApplier.ValueFromDrag(start, dragDeltaScreenY,
   SoundboardDragPixelsPerUnit)` — drag **up** increases; result clamped to
   0..1; zero-ppu falls back to a unit step. Pure + unit-tested
@@ -567,6 +604,39 @@ driver state).
 - `tests/unit/audio/SoundboardMixerDriverTests.cs` - expectations updated to the
   new spans (drive 0.85, amplify ±10, Vern/Ads drive 0.65, caller fader floor −18).
 
+**Round 14 (modified) — board redesign: master pair, button grid, info screen**
+- `Tools/modelgen/soundboard.py`, `assets/models3d/props/soundboard.glb`,
+  `Tools/modelgen/source/soundboard.blend`, `docs/art/model_previews/soundboard.{json,png}` -
+  rebuilt as 4 strips (1=Vern, 2=Caller, 3=Ads/Music, 4=stereo master pair) +
+  one VU meter above the master strip; channels 5-8 replaced by the
+  `Screen bezel`/`ScreenFace` panel (half-height) and the 2×2
+  `Button_Music/Delay/Ads/Drop` grid (each cap carrying a parented `BtnLamp_*`
+  face + `BtnLabel_*` text); `MasterKnob` deleted. Face authored mirrored
+  (14b) so the yaw-180 in-game instance reads Vern-first left-to-right with
+  buttons on the right and labels upright — verified via an in-game-angle
+  render; no C# changes required.
+- `scripts/world3d/SoundboardPhysicalLayout.cs` - strips renumbered to slots
+  `Knob_0..2`/`FaderCap_0..2`, master = `FaderCap_3L/3R` fader pair, `IdleLamps`
+  removed, new `SoundboardButton` enum + `ButtonSlots`/`ButtonSlotFor` +
+  `ButtonPressDepth`.
+- `scripts/audio/SoundboardControlApplier.cs` - `Master` → linked
+  `MasterLeft`/`MasterRight` (both read/write `state.Fader`; no DSP or save
+  format change).
+- `scripts/world3d/Soundboard3D.cs` - button subsystem (`BuildButtons`,
+  `TapButton`, press animation, `SetButtonHover`, `ButtonFromBody`,
+  `SetButtonLight`/`ClearButtonLight` for future flash effects), Ads/Drop wired
+  to `AdManager.QueueBreak`/`AsyncBroadcastLoop.InterruptBroadcast`,
+  Music/Delay publish `SoundboardButtonPressedEvent`; LED + collider updates for
+  the new naming.
+- `scripts/world3d/World3D.cs` - `RaycastBoardControl` → `RaycastBoardBody`;
+  `PollSoundboardMouse` resolves control **or** button per tap/hover.
+- `scripts/world3d/SoundboardButtonPressedEvent.cs` (new) - button event for
+  consumers (broadcast flow / delay handling to be defined in follow-up work).
+- `tests/unit/world3d/SoundboardPhysicalLayoutTests.cs`,
+  `tests/unit/audio/SoundboardControlApplierTests.cs` (+master pair test),
+  `SoundboardTargetGeneratorTests.cs`, `SoundboardGlowTests.cs` - updated to the
+  new control names/mappings.
+
 **Tests**
 - `tests/unit/audio/SoundboardControlApplierTests.cs`
 - `tests/unit/audio/SoundboardTargetGeneratorTests.cs`
@@ -634,7 +704,7 @@ driver state).
   `RampYellow (1,0.8,0.2)`, `RampRed (0.9,0.25,0.2)`.
 - Halo rings (`Soundboard3D`, Round 5 + R10): one persistent ring per driven
   control, always visible while the handles are shown; squarish
-  `HaloSize = 0.07` (`MasterHaloSize 0.10`) quad, `HaloLift = 0.008`, centre `HaloAlpha = 0.55`
+  `HaloSize = 0.07` quad, `HaloLift = 0.008`, centre `HaloAlpha = 0.55`
   (constant — hover no longer changes ring alpha or size, R13), depth-tested (no
   `NoDepthTest`), no per-part emissive override, centered exactly on
   `part.Position` each frame (fader rings follow the cap). Size =

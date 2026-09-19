@@ -18,7 +18,16 @@ namespace KBTV.Tests.Unit.World3D
             SoundboardControl.VernLevel,
             SoundboardControl.AdsGain,
             SoundboardControl.AdsLevel,
-            SoundboardControl.Master
+            SoundboardControl.MasterLeft,
+            SoundboardControl.MasterRight
+        };
+
+        private static readonly SoundboardButton[] AllButtons =
+        {
+            SoundboardButton.Music,
+            SoundboardButton.Delay,
+            SoundboardButton.Ads,
+            SoundboardButton.Drop
         };
 
         public SoundboardPhysicalLayoutTests(Node testScene) : base(testScene) { }
@@ -42,17 +51,32 @@ namespace KBTV.Tests.Unit.World3D
         }
 
         [Test]
+        public void ButtonSlots_AreComplete()
+        {
+            foreach (var button in AllButtons)
+            {
+                var slot = SoundboardPhysicalLayout.ButtonSlotFor(button);
+                AssertThat(slot.PartName.Length > 0);
+                AssertThat(slot.LampName.Length > 0);
+            }
+
+            var names = SoundboardPhysicalLayout.ButtonSlots.Select(s => s.PartName).ToList();
+            AssertThat(names.Count == names.Distinct().Count());
+        }
+
+        [Test]
         public void SlotLamps_MapToTheExpectedChannels()
         {
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerGain).LampName == "Lamp_6");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerLowPass).LampName == "Lamp_6");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerHighPass).LampName == "Lamp_6");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerLevel).LampName == "Lamp_6");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.VernGain).LampName == "Lamp_7");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.VernLevel).LampName == "Lamp_7");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsGain).LampName == "Lamp_5");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsLevel).LampName == "Lamp_5");
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.Master).LampName == "Lamp_3");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.VernGain).LampName == "Lamp_0");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.VernLevel).LampName == "Lamp_0");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerGain).LampName == "Lamp_1");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerLowPass).LampName == "Lamp_1");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerHighPass).LampName == "Lamp_1");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerLevel).LampName == "Lamp_1");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsGain).LampName == "Lamp_2");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsLevel).LampName == "Lamp_2");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.MasterLeft).LampName == "Lamp_3L");
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.MasterRight).LampName == "Lamp_3R");
         }
 
         [Test]
@@ -66,18 +90,8 @@ namespace KBTV.Tests.Unit.World3D
             AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.AdsLevel).Kind == ControlKind.Fader);
             AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerLowPass).Kind == ControlKind.Knob);
             AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.CallerHighPass).Kind == ControlKind.Knob);
-            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.Master).Kind == ControlKind.Knob);
-        }
-
-        [Test]
-        public void IdleLamps_DoNotOverlapSlotLamps()
-        {
-            var slotLamps = SoundboardPhysicalLayout.Slots.Select(s => s.LampName).ToHashSet();
-            foreach (var idle in SoundboardPhysicalLayout.IdleLamps)
-            {
-                AssertThat(!slotLamps.Contains(idle));
-            }
-            AssertThat(SoundboardPhysicalLayout.IdleLamps.Length == 4);
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.MasterLeft).Kind == ControlKind.Fader);
+            AssertThat(SoundboardPhysicalLayout.SlotFor(SoundboardControl.MasterRight).Kind == ControlKind.Fader);
         }
 
         [Test]

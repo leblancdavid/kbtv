@@ -15,6 +15,20 @@ namespace KBTV.World3D
     public readonly record struct SoundboardSlot(
         SoundboardControl Control, string PartName, ControlKind Kind, string LampName);
 
+    /// <summary>The board's four blocky broadcast buttons (2x2 grid).</summary>
+    public enum SoundboardButton
+    {
+        None,
+        Music,
+        Delay,
+        Ads,
+        Drop
+    }
+
+    /// <summary>Mapping of one broadcast button to its GLB cap + lamp face.</summary>
+    public readonly record struct SoundboardButtonSlot(
+        SoundboardButton Button, string PartName, string LampName);
+
     /// <summary>
     /// Pure mapping between mixer controls and the named parts of the regenerated
     /// soundboard.glb (chassis + separate fader caps, knobs, lamps). Free of
@@ -43,21 +57,32 @@ namespace KBTV.World3D
         /// <summary>Board-local Z of a fader cap at rest (authoring y 0.14 → glTF z -0.14).</summary>
         public const float FaderRestLocalZ = -0.14f;
 
-        /// <summary>Per-channel lamps driven as status LEDs; the master channel reuses the last lamp.</summary>
-        public static readonly string[] IdleLamps = { "Lamp_0", "Lamp_1", "Lamp_2", "Lamp_4" };
-
-        /// <summary>One entry per mixer control: GLB part to drive + its channel lamp.</summary>
+        /// <summary>
+        /// One entry per mixer control: GLB part to drive + its channel lamp.
+        /// Strips are authored left to right: 0=Vern, 1=Caller, 2=Ads/Music,
+        /// 3=stereo master pair (both caps share the linked <c>Fader</c> value).
+        /// </summary>
         public static readonly SoundboardSlot[] Slots =
         {
-            new(SoundboardControl.CallerGain, "Knob_6_2", ControlKind.Knob, "Lamp_6"),
-            new(SoundboardControl.CallerLowPass, "Knob_6_0", ControlKind.Knob, "Lamp_6"),
-            new(SoundboardControl.CallerHighPass, "Knob_6_1", ControlKind.Knob, "Lamp_6"),
-            new(SoundboardControl.CallerLevel, "FaderCap_6", ControlKind.Fader, "Lamp_6"),
-            new(SoundboardControl.VernGain, "Knob_7_2", ControlKind.Knob, "Lamp_7"),
-            new(SoundboardControl.VernLevel, "FaderCap_7", ControlKind.Fader, "Lamp_7"),
-            new(SoundboardControl.AdsGain, "Knob_5_2", ControlKind.Knob, "Lamp_5"),
-            new(SoundboardControl.AdsLevel, "FaderCap_5", ControlKind.Fader, "Lamp_5"),
-            new(SoundboardControl.Master, "MasterKnob", ControlKind.Knob, "Lamp_3")
+            new(SoundboardControl.VernGain, "Knob_0_2", ControlKind.Knob, "Lamp_0"),
+            new(SoundboardControl.VernLevel, "FaderCap_0", ControlKind.Fader, "Lamp_0"),
+            new(SoundboardControl.CallerGain, "Knob_1_2", ControlKind.Knob, "Lamp_1"),
+            new(SoundboardControl.CallerLowPass, "Knob_1_0", ControlKind.Knob, "Lamp_1"),
+            new(SoundboardControl.CallerHighPass, "Knob_1_1", ControlKind.Knob, "Lamp_1"),
+            new(SoundboardControl.CallerLevel, "FaderCap_1", ControlKind.Fader, "Lamp_1"),
+            new(SoundboardControl.AdsGain, "Knob_2_2", ControlKind.Knob, "Lamp_2"),
+            new(SoundboardControl.AdsLevel, "FaderCap_2", ControlKind.Fader, "Lamp_2"),
+            new(SoundboardControl.MasterLeft, "FaderCap_3L", ControlKind.Fader, "Lamp_3L"),
+            new(SoundboardControl.MasterRight, "FaderCap_3R", ControlKind.Fader, "Lamp_3R")
+        };
+
+        /// <summary>One entry per broadcast button: cap part to press + lamp face to light.</summary>
+        public static readonly SoundboardButtonSlot[] ButtonSlots =
+        {
+            new(SoundboardButton.Music, "Button_Music", "BtnLamp_Music"),
+            new(SoundboardButton.Delay, "Button_Delay", "BtnLamp_Delay"),
+            new(SoundboardButton.Ads, "Button_Ads", "BtnLamp_Ads"),
+            new(SoundboardButton.Drop, "Button_Drop", "BtnLamp_Drop")
         };
 
         public static SoundboardSlot SlotFor(SoundboardControl control)
@@ -71,6 +96,21 @@ namespace KBTV.World3D
             }
             return new SoundboardSlot(control, string.Empty, ControlKind.Knob, string.Empty);
         }
+
+        public static SoundboardButtonSlot ButtonSlotFor(SoundboardButton button)
+        {
+            foreach (var slot in ButtonSlots)
+            {
+                if (slot.Button == button)
+                {
+                    return slot;
+                }
+            }
+            return new SoundboardButtonSlot(button, string.Empty, string.Empty);
+        }
+
+        /// <summary>How far a button cap sinks (board-local Z) while pressed.</summary>
+        public const float ButtonPressDepth = 0.006f;
 
         /// <summary>Fader cap local Z for a normalized value (-travel at 0 .. +travel at 1 around rest).</summary>
         public static float FaderLocalZ(float value) => (value - 0.5f) * 2f * FaderTravel + FaderRestLocalZ;
