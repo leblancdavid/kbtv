@@ -284,21 +284,38 @@ channels 5-8 used to sit):**
 
 | Button | GLB part | Lamps face | Action |
 |--------|----------|-----------|--------|
-| Music | `Button_Music` | `BtnLamp_Music` | publishes `SoundboardButtonPressedEvent` |
-| Delay | `Button_Delay` | `BtnLamp_Delay` | publishes `SoundboardButtonPressedEvent` |
-| Ads | `Button_Ads` | `BtnLamp_Ads` | `AdManager.QueueBreak()` |
-| Drop | `Button_Drop` | `BtnLamp_Drop` | `AsyncBroadcastLoop.InterruptBroadcast(CallerDropped, id)` |
+| Music | `Button_Music` | `BtnLamp_Music` | plays a random station **intro bumper** on the **Music** bus (one-shot, dedicated non-looping `AudioStreamPlayer` owned by the board) |
+| Delay | `Button_Delay` | `BtnLamp_Delay` | publishes `SoundboardButtonPressedEvent`; `LiveShowFooter` clears a **live curse window** (QTE) as a successful reaction alongside Drop (does **not** hang up the caller) |
+| Ads | `Button_Ads` | `BtnLamp_Ads` | `AdManager.QueueBreak()` (self-gated: no-op outside a break window / when already queued) |
+| Drop | `Button_Drop` | `BtnLamp_Drop` | `AsyncBroadcastLoop.InterruptBroadcast(CallerDropped, id)` (guarded on a caller being on air) |
+
+**Lamp-face feedback (Round 15).** `Soundboard3D.UpdateButtons` drives each
+`BtnLamp_*` through the pure resolver `SoundboardButtonState`
+(`scripts/world3d/SoundboardButtonState.cs` → `ButtonLampLook`), polled from live
+state each frame (AdManager flags, on-air caller, curse window mirrored via
+`BroadcastInterruptionEvent`/`CursingTimerCompletedEvent`): **Ads** off → ready
+(green, window open) → queued (amber) → active (red pulse); **Drop** off → ready
+(green, caller live) → urgent (red pulse, curse open); **Delay** off → pending
+(amber pulse, curse open); **Music** idle. Priority: explicit
+`SetButtonLight` hook → press-flash (`PressFlash`, bright white for
+`ButtonFlashSeconds = 0.18`) → hover (`LedSelected`, 2.5) → look. The
+previously-unused `SetButtonLight`/`ClearButtonLight` remain as the external
+override hook.
 
 Each cap is a blocky pressable part with its lamp face + flat label parented
 to it, so a press (`TapButton`, cap sinks `ButtonPressDepth = 0.006` for
-`ButtonPressHoldSeconds = 0.14`) moves the whole button. Each `BtnLamp_*`
-gets its own `MaterialOverride`: idle = faint red glow, hover = bright
-`LedSelected`, and **`SetButtonLight(button, color, energy)` /
-`ClearButtonLight(button)` override it for future queue/flash effects**
-(light choreography intentionally deferred). `ScreenFace` (the panel above
-the grid) stays a separate movable node with a plain dark material so the
-caller-info screen (own work item) can swap in a viewport texture later
-without a model change.
+`ButtonPressHoldSeconds = 0.14`) moves the whole button and fires a short
+`PressFlash` on the lamp (see above). **`ScreenFace` (the panel above the grid)
+now renders a live info screen (Round 15):** `Soundboard3D.BuildScreen` hosts a
+hidden `SubViewport` (256×128) with a green `Label`, assigned as `ScreenFace`'s
+unshaded `AlbedoTexture`. `UpdateScreen` (throttled ~5 Hz) shows on-air caller /
+mix status (OFF AIR / GRACE / DRAIN / MIXED PERFECT, from `SoundboardMonitor`) /
+ad state (from `AdManager`) / a `!! CURSED: DELAY/DROP` alert while a curse
+window is open — **replacing the 2D `SoundboardOverlay`** (CanvasLayer 122,
+deleted); its mixer driver moved to `World3D._soundboardDriver`, handed to both
+the monitor and the 3D board. Under the yaw-180 board the panel UV may read
+inverted — flip the viewport label if the in-editor pass shows it (no model
+change).
 
 - Fader cap local Z: `FaderLocalZ(value) = (value - 0.5) * 2 * FaderTravel +
   FaderRestLocalZ` (`FaderTravel = 0.05`, `FaderRestLocalZ = -0.14`); value 0 is
@@ -630,12 +647,43 @@ without a model change.
   the new naming.
 - `scripts/world3d/World3D.cs` - `RaycastBoardControl` → `RaycastBoardBody`;
   `PollSoundboardMouse` resolves control **or** button per tap/hover.
-- `scripts/world3d/SoundboardButtonPressedEvent.cs` (new) - button event for
-  consumers (broadcast flow / delay handling to be defined in follow-up work).
+- `scripts/world3d/SoundboardButtonPressedEvent.cs` (new) - button event published
+  by Delay (and any future button) for consumers to react to (Round 15 wired
+  `LiveShowFooter` to it; Music/Ads/Drop act directly).
 - `tests/unit/world3d/SoundboardPhysicalLayoutTests.cs`,
   `tests/unit/audio/SoundboardControlApplierTests.cs` (+master pair test),
   `SoundboardTargetGeneratorTests.cs`, `SoundboardGlowTests.cs` - updated to the
   new control names/mappings.
+
+**Round 15 — broadcast buttons wired end-to-end + live info screen**
+- `scripts/world3d/Soundboard3D.cs` - `InvokeButtonAction` now splits by button:
+  Ads → `QueueBreak`, Drop → `InterruptBroadcast(CallerDropped)`, **Music → plays a
+  random intro bumper** (`LoadRandomIntroBumper` via `IBroadcastAudioService`
+  downcast, on a dedicated non-looping `AudioStreamPlayer` on the Music bus),
+  **Delay → still publishes `SoundboardButtonPressedEvent`**. Adds `_curseActive`
+  mirror (subscribes `BroadcastInterruptionEvent`/`CursingTimerCompletedEvent`,
+  unsubscribed in `_ExitTree`), a per-button `PressFlash` on tap, and rewrites
+  `UpdateButtons` to drive every `BtnLamp_*` through the pure `SoundboardButtonState`
+  resolver (gated/queued/active/ready/urgent/pending + hover + flash) via
+  `ApplyLampLook`. New `BuildScreen`/`UpdateScreen`/`ComposeScreenText`: a hidden
+  `SubViewport` (256×128, green `Label`) assigned as `ScreenFace`'s unshaded
+  `AlbedoTexture`, throttled ~5 Hz, showing caller / mix / ad / curse info.
+- `scripts/world3d/SoundboardButtonState.cs` (new) - pure
+  `ButtonLampLook` + `SoundboardButtonState` resolver (unit-testable, no Godot).
+- `scripts/ui/LiveShowFooter.cs` - subscribes `SoundboardButtonPressedEvent`; a
+  Delay or Drop press during a live curse window calls `StopCursingTimer()`
+  (successful QTE-clear, no caller hang-up).
+- `scripts/world3d/World3D.cs` - mixer driver relocated from the overlay to
+  `World3D._soundboardDriver` (created + `Attach`mbed to the mixer autoload, handed
+  to the monitor + 3D board); `SoundboardOverlay` removed.
+- `scripts/ui/SoundboardOverlay.cs` (+ `.cs.uid`) - **deleted** (its 2D drain label
+  is superseded by the 3D `ScreenFace` readout); stale `<see cref>` refs in
+  `SoundboardTargetGenerator.cs`/`SoundboardMonitor.cs` repointed to `Soundboard3D`.
+- `tests/unit/world3d/SoundboardButtonStateTests.cs` (new) - 7 tests (Ads priority,
+  Drop urgent-beats-ready, Delay pending-only, press-flash override, per-button
+  routing). Full suite 590/13 == the 583 baseline +7 (same 13 pre-existing DI-harness
+  failures). In-editor verification owed (bumper audible on Music bus, Delay clears
+  fine, lamp states/pulses, ScreenFace orientation under the yaw-180 board).
 
 **Tests**
 - `tests/unit/audio/SoundboardControlApplierTests.cs`
@@ -644,6 +692,7 @@ without a model change.
 - `tests/unit/audio/SoundboardGlowTests.cs`
 - `tests/unit/monitors/SoundboardMonitorTests.cs`
 - `tests/unit/world3d/SoundboardPhysicalLayoutTests.cs`
+- `tests/unit/world3d/SoundboardButtonStateTests.cs`
 
 ## 9. Tuning References
 

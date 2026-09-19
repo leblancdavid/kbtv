@@ -16,7 +16,7 @@ namespace KBTV.Monitors
     /// brought back to perfect.
     ///
     /// Grading reuses <see cref="SoundboardTargetGenerator"/> so the monitor and
-    /// the <see cref="UI.SoundboardOverlay"/> can never disagree.
+    /// the <see cref="World3D.Soundboard3D"/> can never disagree.
     /// </summary>
     public partial class SoundboardMonitor : DomainMonitor, ICallerRepositoryObserver
     {

@@ -63,6 +63,26 @@ namespace KBTV.World3D
         private SoundboardButton _pressedButton = SoundboardButton.None;
         private float _pressTimer;
 
+        /// <summary>Brief bright flash on a button's lamp face right after it is pressed.</summary>
+        private SoundboardButton _flashButton = SoundboardButton.None;
+        private float _flashTimer;
+        private const float ButtonFlashSeconds = 0.18f;
+
+        private IBroadcastAudioService? _audioService;
+        private AudioStreamPlayer? _bumperPlayer;
+
+        /// <summary>Live info screen rendered onto the GLB's ScreenFace panel.</summary>
+        private MeshInstance3D? _screenFace;
+        private SubViewport? _screenViewport;
+        private Label? _screenLabel;
+        private StandardMaterial3D? _screenMaterial;
+        private float _screenRefreshTimer;
+
+        /// <summary>Mirrors the live-curse window so the Delay/Drop lamps can pulse while it is open.</summary>
+        private bool _curseActive;
+        private float _curseTimer;
+        private const float CurseWindowSeconds = 20f;
+
         /// <summary>How long a pressed button cap stays down before it pops back.</summary>
         private const float ButtonPressHoldSeconds = 0.14f;
 
@@ -130,6 +150,7 @@ namespace KBTV.World3D
             UpdateSpeakingState(delta);
             UpdateHalos();
             UpdateButtons(delta);
+            UpdateScreen(delta);
         }
 
         /// <summary>Creates one persistent halo ring per driven control.</summary>
@@ -215,6 +236,7 @@ namespace KBTV.World3D
             BuildPartHighlights();
             BuildLamps();
             BuildButtons();
+            BuildScreen();
             NormalizeUnusedParts();
             _built = true;
         }
@@ -409,6 +431,8 @@ namespace KBTV.World3D
 
             _pressedButton = button;
             _pressTimer = ButtonPressHoldSeconds;
+            _flashButton = button;
+            _flashTimer = ButtonFlashSeconds;
             if (_buttonParts.TryGetValue(button, out var cap) && cap != null &&
                 _buttonRestPositions.TryGetValue(button, out var rest))
             {
@@ -436,6 +460,8 @@ namespace KBTV.World3D
         private void ClearButtonState()
         {
             _hoveredButton = SoundboardButton.None;
+            _flashButton = SoundboardButton.None;
+            _flashTimer = 0f;
             if (_pressedButton != SoundboardButton.None && _built)
             {
                 RestoreButtonCap(_pressedButton);
@@ -456,15 +482,42 @@ namespace KBTV.World3D
         /// <summary>Animates the pressed cap back up and refreshes every button's lamp face.</summary>
         private void UpdateButtons(double delta)
         {
+            var dt = Mathf.Clamp((float)delta, 0f, 1f);
+
             if (_pressedButton != SoundboardButton.None)
             {
-                _pressTimer -= Mathf.Clamp((float)delta, 0f, 1f);
+                _pressTimer -= dt;
                 if (_pressTimer <= 0f)
                 {
                     RestoreButtonCap(_pressedButton);
                     _pressedButton = SoundboardButton.None;
                 }
             }
+
+            if (_flashButton != SoundboardButton.None)
+            {
+                _flashTimer -= dt;
+                if (_flashTimer <= 0f)
+                {
+                    _flashButton = SoundboardButton.None;
+                }
+            }
+
+            if (_curseActive)
+            {
+                _curseTimer -= dt;
+                if (_curseTimer <= 0f)
+                {
+                    _curseActive = false;
+                }
+            }
+
+            var callerOnAir = _callerRepository?.OnAirCaller != null;
+            var adActive = _adManager != null && _adManager.IsAdBreakActive;
+            var adQueued = _adManager != null && _adManager.IsQueued;
+            var adEnabled = _adManager != null && _adManager.IsQueueButtonEnabled();
+            var adWindow = _adManager != null && _adManager.IsInBreakWindow;
+            var pulse = Mathf.Pow(0.5f + 0.5f * Mathf.Sin(Time.GetTicksMsec() / 1000f * 12.566f), 2f);
 
             foreach (var slot in SoundboardPhysicalLayout.ButtonSlots)
             {
@@ -473,21 +526,64 @@ namespace KBTV.World3D
                     continue;
                 }
 
-                if (_buttonLights.TryGetValue(slot.Button, out var flash) && flash.HasValue)
+                if (_buttonLights.TryGetValue(slot.Button, out var forced) && forced.HasValue)
                 {
-                    material.Emission = flash.Value.Color;
-                    material.EmissionEnergyMultiplier = flash.Value.Energy;
+                    material.Emission = forced.Value.Color;
+                    material.EmissionEnergyMultiplier = forced.Value.Energy;
+                    continue;
                 }
-                else if (_hoveredButton == slot.Button)
+
+                var look = SoundboardButtonState.Resolve(slot.Button, _flashButton == slot.Button,
+                    adActive, adQueued, adEnabled, adWindow, callerOnAir, _curseActive);
+
+                if (look != ButtonLampLook.PressFlash && _hoveredButton == slot.Button)
                 {
                     material.Emission = LedSelected;
                     material.EmissionEnergyMultiplier = 2.5f;
+                    continue;
                 }
-                else
-                {
+
+                ApplyLampLook(material, look, pulse);
+            }
+        }
+
+        /// <summary>Maps a resolved <see cref="ButtonLampLook"/> to the lamp-face emission.</summary>
+        private static void ApplyLampLook(StandardMaterial3D material, ButtonLampLook look, float pulse)
+        {
+            switch (look)
+            {
+                case ButtonLampLook.PressFlash:
+                    material.Emission = LedSelected;
+                    material.EmissionEnergyMultiplier = 4f;
+                    break;
+                case ButtonLampLook.Ready:
+                    material.Emission = SoundboardTargetGenerator.RampGreen;
+                    material.EmissionEnergyMultiplier = 2.2f;
+                    break;
+                case ButtonLampLook.Queued:
+                    material.Emission = SoundboardTargetGenerator.RampYellow;
+                    material.EmissionEnergyMultiplier = 2.6f;
+                    break;
+                case ButtonLampLook.Active:
+                    material.Emission = SoundboardTargetGenerator.RampRed;
+                    material.EmissionEnergyMultiplier = Mathf.Lerp(1.5f, 3.2f, pulse);
+                    break;
+                case ButtonLampLook.Pending:
+                    material.Emission = SoundboardTargetGenerator.RampYellow;
+                    material.EmissionEnergyMultiplier = Mathf.Lerp(1.2f, 3.0f, pulse);
+                    break;
+                case ButtonLampLook.Urgent:
+                    material.Emission = SoundboardTargetGenerator.RampRed;
+                    material.EmissionEnergyMultiplier = Mathf.Lerp(1.5f, 3.6f, pulse);
+                    break;
+                case ButtonLampLook.Off:
+                    material.Emission = new Color(0.10f, 0.045f, 0.045f);
+                    material.EmissionEnergyMultiplier = 0.5f;
+                    break;
+                default:
                     material.Emission = ButtonIdleEmission;
                     material.EmissionEnergyMultiplier = 1f;
-                }
+                    break;
             }
         }
 
@@ -501,10 +597,176 @@ namespace KBTV.World3D
                 case SoundboardButton.Drop:
                     DropOnAirCaller();
                     break;
-                default:
+                case SoundboardButton.Music:
+                    PlayIntroBumper();
+                    break;
+                case SoundboardButton.Delay:
+                    // LiveShowFooter owns the curse window; it resolves on this event
+                    // (a QTE-clear alongside Drop). Kept event-driven per the design doc.
                     _eventBus?.Publish(new SoundboardButtonPressedEvent(button));
                     break;
             }
+        }
+
+        /// <summary>Plays a random station intro bumper on the Music bus as a one-shot.</summary>
+        private void PlayIntroBumper()
+        {
+            if (_audioService is not BroadcastAudioService audio)
+            {
+                return;
+            }
+
+            var stream = audio.LoadRandomIntroBumper();
+            if (stream == null)
+            {
+                return;
+            }
+
+            EnsureBumperPlayer();
+            if (_bumperPlayer == null)
+            {
+                return;
+            }
+
+            _bumperPlayer.Stop();
+            _bumperPlayer.Stream = stream;
+            _bumperPlayer.Play();
+        }
+
+        private void EnsureBumperPlayer()
+        {
+            if (_bumperPlayer != null)
+            {
+                return;
+            }
+
+            _bumperPlayer = new AudioStreamPlayer
+            {
+                Name = "SoundboardBumperPlayer",
+                Bus = "Music",
+                VolumeDb = -3f
+            };
+            AddChild(_bumperPlayer);
+        }
+
+        /// <summary>
+        /// Builds the live info screen: a hidden SubViewport rendered onto the GLB's
+        /// ScreenFace panel so the board shows caller / mix / ad state diegetically
+        /// (replacing the old 2D SoundboardOverlay readout).
+        /// </summary>
+        private void BuildScreen()
+        {
+            if (_board == null)
+            {
+                return;
+            }
+
+            _screenFace = _board.FindChild("ScreenFace", true, false) as MeshInstance3D;
+            if (_screenFace == null)
+            {
+                WarnMissing("ScreenFace");
+                return;
+            }
+
+            _screenViewport = new SubViewport
+            {
+                Name = "ScreenContent",
+                Size = new Vector2I(256, 128),
+                TransparentBg = false,
+                RenderTargetUpdateMode = SubViewport.UpdateMode.Always
+            };
+            AddChild(_screenViewport);
+
+            _screenLabel = new Label
+            {
+                Position = new Vector2(8f, 6f),
+                Size = new Vector2(240f, 116f),
+                Text = "STANDBY",
+                HorizontalAlignment = HorizontalAlignment.Left,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+            _screenLabel.AddThemeFontSizeOverride("font_size", 17);
+            _screenLabel.AddThemeColorOverride("font_color", new Color(0.45f, 1f, 0.62f));
+            _screenViewport.AddChild(_screenLabel);
+
+            // NOTE: the SoundBoard instance carries a yaw-180 (Round 14b), so the
+            // panel UV may read mirrored/upside-down in-game. If so, flip the label
+            // inside the viewport (no model change). Verify in editor.
+            _screenMaterial = new StandardMaterial3D
+            {
+                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+                AlbedoTexture = _screenViewport.GetTexture()
+            };
+            _screenFace.MaterialOverride = _screenMaterial;
+        }
+
+        private void UpdateScreen(double delta)
+        {
+            if (_screenLabel == null)
+            {
+                return;
+            }
+
+            _screenRefreshTimer -= Mathf.Clamp((float)delta, 0f, 1f);
+            if (_screenRefreshTimer > 0f)
+            {
+                return;
+            }
+
+            _screenRefreshTimer = 0.2f;
+            _screenLabel.Text = ComposeScreenText();
+        }
+
+        private string ComposeScreenText()
+        {
+            var caller = _callerRepository?.OnAirCaller;
+            var sb = new System.Text.StringBuilder();
+
+            sb.Append(caller != null ? $"CALLER {caller.Name}" : "CALLER --");
+            sb.Append('\n');
+
+            if (_monitor == null || !_monitor.IsCallerOnAir)
+            {
+                sb.Append("STATUS OFF AIR");
+            }
+            else if (_monitor.GraceRemaining > 0f)
+            {
+                sb.Append($"GRACE {_monitor.GraceRemaining:0}s");
+            }
+            else if (_monitor.IsDraining)
+            {
+                sb.Append($"DRAIN -{_monitor.CurrentDrainRate:0.0}/s");
+            }
+            else
+            {
+                sb.Append("MIXED PERFECT");
+            }
+            sb.Append('\n');
+
+            if (_adManager != null && _adManager.IsAdBreakActive)
+            {
+                sb.Append("AD BREAK LIVE");
+            }
+            else if (_adManager != null && _adManager.IsQueued)
+            {
+                sb.Append("AD QUEUED");
+            }
+            else if (_adManager != null && _adManager.IsInBreakWindow)
+            {
+                sb.Append("AD WINDOW OPEN");
+            }
+            else
+            {
+                sb.Append($"ADS LEFT {_adManager?.BreaksRemaining ?? 0}");
+            }
+
+            if (_curseActive)
+            {
+                sb.Append('\n');
+                sb.Append("!! CURSED: DELAY/DROP");
+            }
+
+            return sb.ToString();
         }
 
         private void DropOnAirCaller()
@@ -1071,7 +1333,38 @@ namespace KBTV.World3D
             _adManager = TryResolve<AdManager>();
             _callerRepository = TryResolve<ICallerRepository>();
             _broadcastLoop = TryResolve<AsyncBroadcastLoop>();
+            _audioService = TryResolve<IBroadcastAudioService>();
             _eventBus = TryResolve<EventBus>();
+
+            if (_eventBus != null)
+            {
+                _eventBus.Subscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
+                _eventBus.Subscribe<CursingTimerCompletedEvent>(OnCursingTimerCompleted);
+            }
+        }
+
+        private void OnBroadcastInterruption(BroadcastInterruptionEvent e)
+        {
+            if (e.Reason == BroadcastInterruptionReason.CallerCursed)
+            {
+                _curseActive = true;
+                _curseTimer = CurseWindowSeconds;
+            }
+        }
+
+        private void OnCursingTimerCompleted(CursingTimerCompletedEvent e)
+        {
+            _curseActive = false;
+            _curseTimer = 0f;
+        }
+
+        public override void _ExitTree()
+        {
+            if (_eventBus != null)
+            {
+                _eventBus.Unsubscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
+                _eventBus.Unsubscribe<CursingTimerCompletedEvent>(OnCursingTimerCompleted);
+            }
         }
 
         private T? TryResolve<T>() where T : class

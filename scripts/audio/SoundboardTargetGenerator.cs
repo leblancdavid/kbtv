@@ -63,7 +63,7 @@ namespace KBTV.Audio
 
     /// <summary>
     /// Pure static logic that turns caller state into soundboard LED bands.
-    /// Used by both the UI (<see cref="UI.SoundboardOverlay"/>) and the
+    /// Used by both the 3D board (<see cref="World3D.Soundboard3D"/>) and the
     /// <see cref="Monitors.SoundboardMonitor"/> so the two can never disagree.
     /// </summary>
     public static class SoundboardTargetGenerator

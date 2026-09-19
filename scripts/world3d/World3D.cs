@@ -84,7 +84,7 @@ private const float TerminalZoomSpeed = 3.2f;
 	private float _boardLastDragScreenY;
 	private bool _cameraHomeCaptured;
 	private ScreenNavOverlay? _screenNavOverlay;
-	private SoundboardOverlay? _soundboardOverlay;
+	private readonly SoundboardMixerDriver _soundboardDriver = new();
 	private SoundboardMonitor? _soundboardMonitor;
 	private Node3D? _soundBoardProp;
 	private SubViewport? _vernCameraViewport;
@@ -173,16 +173,14 @@ private const float TerminalZoomSpeed = 3.2f;
 	_screenNavOverlay.CloseRequested += OnNavCloseRequested;
 	AddChild(_screenNavOverlay);
 
-	_soundboardOverlay = new SoundboardOverlay { Name = "SoundboardOverlay" };
-	AddChild(_soundboardOverlay);
+	_soundboardDriver.Attach(GetNodeOrNull<AudioMixerManager>("/root/AudioMixerManager"));
 
 	_soundboardMonitor = new SoundboardMonitor { Name = "SoundboardMonitor" };
-	_soundboardMonitor.SetDriver(_soundboardOverlay.Driver);
-	_soundboardOverlay.SetMonitor(_soundboardMonitor);
+	_soundboardMonitor.SetDriver(_soundboardDriver);
 	AddChild(_soundboardMonitor);
 
 	_soundboard3D = _control_room.SoundBoard3D;
-	_soundboard3D.AttachDriver(_soundboardOverlay.Driver);
+	_soundboard3D.AttachDriver(_soundboardDriver);
 	_soundboard3D.SetMonitor(_soundboardMonitor);
 	_soundboard3D.HideHandles();
 
@@ -646,7 +644,7 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 		{
 			_statusLayer.Visible = false;
 		}
-		_soundboardOverlay?.ShowSoundboard();
+		_soundboardDriver.Apply();
 	}
 
 	private void ForwardTerminalMouse(InputEventMouse mouse)
@@ -695,7 +693,8 @@ UpdateTerminalOverlayBounds();
 
 	private void HideSoundboardOverlay()
 	{
-		_soundboardOverlay?.HideSoundboard();
+		// Info now renders on the 3D ScreenFace; nothing to hide. The status HUD
+		// layer is restored by the zoom-out paths.
 	}
 
 	private void ComputeSoundboardFrame()
@@ -1115,7 +1114,7 @@ private void UpdateTerminalDebugStatus(string detail)
 			var deltaY = mousePosition.Y - _boardLastDragScreenY;
 			if (Mathf.Abs(deltaY) > 0.5f)
 			{
-				var current = SoundboardControlApplier.CurrentValue(_soundboardOverlay.Driver.State, _boardSelected);
+				var current = SoundboardControlApplier.CurrentValue(_soundboardDriver.State, _boardSelected);
 				var next = SoundboardControlApplier.ValueFromDrag(current, deltaY, SoundboardDragPixelsPerUnit);
 				_soundboard3D.SetControlValue(_boardSelected, next);
 				_boardLastDragScreenY = mousePosition.Y;

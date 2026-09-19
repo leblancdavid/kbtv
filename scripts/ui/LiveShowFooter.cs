@@ -7,6 +7,7 @@ using KBTV.Dialogue;
 using KBTV.Economy;
 using KBTV.Managers;
 using KBTV.UI.Themes;
+using KBTV.World3D;
 
 namespace KBTV.UI
 {
@@ -77,6 +78,7 @@ namespace KBTV.UI
 
             // Subscribe to broadcast interruption events for cursing
             _eventBus.Subscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
+            _eventBus.Subscribe<SoundboardButtonPressedEvent>(OnSoundboardButton);
 
             // Set up AdManager events
             SetupAdManagerEvents();
@@ -226,6 +228,25 @@ namespace KBTV.UI
             {
                 _callerDroppedDueToCursing = true;
                 StartCursingTimer();
+            }
+        }
+
+        /// <summary>
+        /// The 3D soundboard's Delay and Drop buttons are diegetic alternatives to the
+        /// on-screen DROP: while a curse window is open, pressing either clears the
+        /// FCC-fine penalty (a successful reaction). Delay is the "bleeped it" path and
+        /// Drop is the hang-up path; both stop the countdown as a success.
+        /// </summary>
+        private void OnSoundboardButton(SoundboardButtonPressedEvent buttonEvent)
+        {
+            if (!_isCursingTimerActive)
+            {
+                return;
+            }
+
+            if (buttonEvent.Button == SoundboardButton.Delay || buttonEvent.Button == SoundboardButton.Drop)
+            {
+                StopCursingTimer();
             }
         }
 
@@ -608,6 +629,7 @@ namespace KBTV.UI
             if (_eventBus != null)
             {
                 _eventBus.Unsubscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
+                _eventBus.Unsubscribe<SoundboardButtonPressedEvent>(OnSoundboardButton);
             }
 
             if (_queueAdsButton != null)
