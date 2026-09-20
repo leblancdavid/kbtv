@@ -99,7 +99,9 @@ namespace KBTV.Dialogue
 
                 _bleepPlayer.Stream = bleepStream;
                 _bleepPlayer.VolumeDb = -6f;
-                _bleepPlayer.Bus = "SFX";
+                // Master (not the SFX/ads strip): the bleep is a station-system alert
+                // and must stay audible regardless of the player's board mix.
+                _bleepPlayer.Bus = "Master";
 
                 // Verify setup
                 if (_bleepPlayer.Stream == null)

@@ -18,11 +18,15 @@ namespace KBTV.World3D
     /// and the fader caps / knobs / lamps / broadcast buttons exist as named nodes):
     /// slides caps along glTF-local Z, spins knobs around glTF-local Y, drives
     /// per-channel lamp emission from driver + monitor state each frame, and presses
-    /// the four blocky broadcast buttons (Music/Delay/Ads/Drop) with per-button
-    /// lamp-face materials ready for flash effects. Also exposes tap-target
-    /// colliders on a dedicated collision layer so World3D can raycast clicks and
-    /// drags. Parented at identity under the SoundBoard GLB node, so part transforms
-    /// share the board's local frame.
+    /// the four blocky broadcast buttons (Music/Delay/Ads/Drop): Ads queues the next
+    /// break, Music starts the looping channel-3 break bed, Drop hangs up the on-air
+    /// caller, and every press publishes a SoundboardButtonPressedEvent (curse-QTE).
+    /// Lamp faces show game-state looks through the pure SoundboardButtonState
+    /// resolver (incl. the breathing white-yellow Flashing state + glow quads);
+    /// cap bodies get the same subtle hover brighten the knobs/faders use. Also
+    /// exposes tap-target colliders on a dedicated collision layer so World3D can
+    /// raycast clicks and drags. Parented at identity under the SoundBoard GLB
+    /// node, so part transforms share the board's local frame.
     /// </summary>
     public partial class Soundboard3D : Node3D
     {
@@ -52,6 +56,8 @@ namespace KBTV.World3D
         private ICallerRepository? _callerRepository;
         private AsyncBroadcastLoop? _broadcastLoop;
         private EventBus? _eventBus;
+        private bool _servicesResolved;
+        private bool _eventsSubscribed;
 
         /// <summary>Driven button parts: cap node + rest transform.</summary>
         private readonly Dictionary<SoundboardButton, Node3D> _buttonParts = new();
@@ -59,6 +65,19 @@ namespace KBTV.World3D
         private readonly Dictionary<string, StandardMaterial3D> _buttonLampMaterials = new();
         private readonly Dictionary<StaticBody3D, SoundboardButton> _buttonBodies = new();
         private readonly Dictionary<SoundboardButton, (Color Color, float Energy)?> _buttonLights = new();
+
+        /// <summary>Button cap hover highlight (same subtle brighten as knobs/faders).</summary>
+        private readonly Dictionary<SoundboardButton, MeshInstance3D> _buttonPartMeshes = new();
+        private readonly Dictionary<SoundboardButton, Material?> _buttonOriginalOverrides = new();
+        private readonly Dictionary<SoundboardButton, StandardMaterial3D> _buttonHighlightMaterials = new();
+
+        /// <summary>White-yellow glow quad per button, visible only while its lamp is flashing.</summary>
+        private readonly Dictionary<SoundboardButton, MeshInstance3D> _buttonGlows = new();
+        private readonly Dictionary<SoundboardButton, StandardMaterial3D> _buttonGlowMaterials = new();
+        private readonly Dictionary<SoundboardButton, Vector3> _buttonGlowOffsets = new();
+        private const float ButtonGlowSize = 0.12f;
+        private const float ButtonGlowLift = 0.012f;
+
         private SoundboardButton _hoveredButton = SoundboardButton.None;
         private SoundboardButton _pressedButton = SoundboardButton.None;
         private float _pressTimer;
@@ -69,7 +88,6 @@ namespace KBTV.World3D
         private const float ButtonFlashSeconds = 0.18f;
 
         private IBroadcastAudioService? _audioService;
-        private AudioStreamPlayer? _bumperPlayer;
 
         /// <summary>Live info screen rendered onto the GLB's ScreenFace panel.</summary>
         private MeshInstance3D? _screenFace;
@@ -89,6 +107,10 @@ namespace KBTV.World3D
         /// <summary>Idle emission of a broadcast button's lamp face (a faint warm glow under the label).</summary>
         private static readonly Color ButtonIdleEmission = new(0.3f, 0.09f, 0.09f);
         private static readonly Color ButtonLampAlbedo = new(0.456f, 0.397f, 0.258f);
+
+        /// <summary>White-yellow core of the demanding-press flash (grows/shrinks with the pulse).</summary>
+        private static readonly Color ButtonFlashWarm = new(1f, 0.93f, 0.55f);
+        private static readonly Color ButtonFlashHot = new(1f, 0.99f, 0.88f);
 
         /// <summary>One persistent halo ring per driven control (always visible while handles are shown).</summary>
         private readonly Dictionary<SoundboardControl, MeshInstance3D> _halos = new();
@@ -134,12 +156,14 @@ namespace KBTV.World3D
         public override void _Ready()
         {
             BuildHalos();
-            ResolveAdManager();
+            ResolveServices();
             ResolveMixer();
         }
 
         public override void _Process(double delta)
         {
+            ResolveServices();
+
             if (!_built || !_handlesVisible)
             {
                 return;
@@ -360,6 +384,14 @@ namespace KBTV.World3D
                 _buttonParts[slot.Button] = cap;
                 _buttonRestPositions[slot.Button] = cap.Position;
 
+                var capMesh = FindButtonBodyMesh(cap, slot.LampName);
+                if (capMesh != null)
+                {
+                    _buttonPartMeshes[slot.Button] = capMesh;
+                    _buttonOriginalOverrides[slot.Button] = capMesh.MaterialOverride;
+                    _buttonHighlightMaterials[slot.Button] = MakeHighlightMaterial(GetPartBaseColor(capMesh));
+                }
+
                 var lamp = _board.FindChild(slot.LampName, true, false) as MeshInstance3D;
                 if (lamp == null)
                 {
@@ -377,6 +409,34 @@ namespace KBTV.World3D
                     lamp.MaterialOverride = material;
                     _buttonLampMaterials[slot.LampName] = material;
                 }
+
+                // The flash glow pool rides just above the lamp face (which is
+                // parented to the cap, so the cap's rest frame locates it in the
+                // board frame — both sit under the identity-parented helper).
+                var lampOffset = lamp != null
+                    ? lamp.Position + new Vector3(0f, ButtonGlowLift, 0f)
+                    : new Vector3(0f, ButtonGlowLift, 0f);
+                _buttonGlowOffsets[slot.Button] = lampOffset;
+                var glowMaterial = new StandardMaterial3D
+                {
+                    ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded,
+                    Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+                    CullMode = BaseMaterial3D.CullModeEnum.Disabled,
+                    AlbedoTexture = MakeHaloGradient(),
+                    AlbedoColor = new Color(ButtonFlashWarm.R, ButtonFlashWarm.G, ButtonFlashWarm.B, HaloAlpha)
+                };
+                var glow = new MeshInstance3D
+                {
+                    Name = $"BtnGlow_{slot.Button}",
+                    Mesh = new QuadMesh { Size = new Vector2(ButtonGlowSize, ButtonGlowSize) },
+                    MaterialOverride = glowMaterial,
+                    RotationDegrees = new Vector3(-90f, 0f, 0f),
+                    Position = cap.Position + lampOffset,
+                    Visible = false
+                };
+                AddChild(glow);
+                _buttonGlows[slot.Button] = glow;
+                _buttonGlowMaterials[slot.Button] = glowMaterial;
 
                 var body = new StaticBody3D
                 {
@@ -407,20 +467,55 @@ namespace KBTV.World3D
         /// <summary>All button tap-target colliders (for raycast distinguishes / tests).</summary>
         public IEnumerable<StaticBody3D> ButtonBodies => _buttonBodies.Keys;
 
-        /// <summary>Sets the hovered broadcast button (None clears). Drives its lamp-face brighten.</summary>
+        /// <summary>
+        /// Sets the hovered broadcast button (None clears). Applies the same subtle
+        /// part brighten the knobs/faders use to the cap body — the lamp face keeps
+        /// showing its game-state look unchanged.
+        /// </summary>
         public void SetButtonHover(SoundboardButton button)
         {
-            if (_built)
+            if (!_built || _hoveredButton == button)
             {
-                _hoveredButton = button;
+                return;
+            }
+
+            if (_hoveredButton != SoundboardButton.None)
+            {
+                SetButtonHighlight(_hoveredButton, false);
+            }
+            _hoveredButton = button;
+            if (button != SoundboardButton.None)
+            {
+                SetButtonHighlight(button, true);
+            }
+        }
+
+        private void SetButtonHighlight(SoundboardButton button, bool on)
+        {
+            if (!_buttonPartMeshes.TryGetValue(button, out var mesh) || mesh == null)
+            {
+                return;
+            }
+
+            if (on)
+            {
+                if (_buttonHighlightMaterials.TryGetValue(button, out var highlight) && highlight != null)
+                {
+                    mesh.MaterialOverride = highlight;
+                }
+            }
+            else if (_buttonOriginalOverrides.TryGetValue(button, out var original))
+            {
+                mesh.MaterialOverride = original;
             }
         }
 
         /// <summary>
         /// Presses a broadcast button: sinks the cap briefly, then runs its action.
-        /// Ads drops a break into the ad queue and Drop hangs up the on-air caller
-        /// directly; Music and Delay publish a <see cref="SoundboardButtonPressedEvent"/>
-        /// for the broadcast flow to consume.
+        /// Ads queues the next break, Music starts the looping break bed on the
+        /// channel-3 strip and Drop hangs up the on-air caller; every press also
+        /// publishes a <see cref="SoundboardButtonPressedEvent"/> so the curse-QTE
+        /// owner (LiveShowFooter) can react to Delay and to a board Drop.
         /// </summary>
         public void TapButton(SoundboardButton button)
         {
@@ -429,6 +524,7 @@ namespace KBTV.World3D
                 return;
             }
 
+            ResolveServices();
             _pressedButton = button;
             _pressTimer = ButtonPressHoldSeconds;
             _flashButton = button;
@@ -451,7 +547,7 @@ namespace KBTV.World3D
             _buttonLights[button] = (color, energy);
         }
 
-        /// <summary>Returns a button's lamp face to the hover/idle behaviour.</summary>
+        /// <summary>Returns a button's lamp face to its game-state-driven look.</summary>
         public void ClearButtonLight(SoundboardButton button)
         {
             _buttonLights.Remove(button);
@@ -459,6 +555,10 @@ namespace KBTV.World3D
 
         private void ClearButtonState()
         {
+            if (_hoveredButton != SoundboardButton.None && _built)
+            {
+                SetButtonHighlight(_hoveredButton, false);
+            }
             _hoveredButton = SoundboardButton.None;
             _flashButton = SoundboardButton.None;
             _flashTimer = 0f;
@@ -468,6 +568,13 @@ namespace KBTV.World3D
             }
             _pressedButton = SoundboardButton.None;
             _pressTimer = 0f;
+            foreach (var glow in _buttonGlows.Values)
+            {
+                if (glow != null)
+                {
+                    glow.Visible = false;
+                }
+            }
         }
 
         private void RestoreButtonCap(SoundboardButton button)
@@ -517,7 +624,20 @@ namespace KBTV.World3D
             var adQueued = _adManager != null && _adManager.IsQueued;
             var adEnabled = _adManager != null && _adManager.IsQueueButtonEnabled();
             var adWindow = _adManager != null && _adManager.IsInBreakWindow;
+            var breakDue = _adManager != null && _adManager.IsActive && !_adManager.IsAdBreakActive &&
+                           !_adManager.IsQueued && _adManager.BreaksRemaining > 0 &&
+                           _adManager.TimeUntilNextBreak <= 0f;
+            var bedPlaying = _audioService is BroadcastAudioService service && service.IsBreakMusicPlaying;
             var pulse = Mathf.Pow(0.5f + 0.5f * Mathf.Sin(Time.GetTicksMsec() / 1000f * 12.566f), 2f);
+            var facts = new ButtonStateFacts(
+                AdBreakActive: adActive,
+                AdQueued: adQueued,
+                QueueEnabled: adEnabled,
+                InBreakWindow: adWindow,
+                BreakDue: breakDue,
+                MusicBedPlaying: bedPlaying,
+                CallerOnAir: callerOnAir,
+                CurseActive: _curseActive);
 
             foreach (var slot in SoundboardPhysicalLayout.ButtonSlots)
             {
@@ -533,18 +653,46 @@ namespace KBTV.World3D
                     continue;
                 }
 
-                var look = SoundboardButtonState.Resolve(slot.Button, _flashButton == slot.Button,
-                    adActive, adQueued, adEnabled, adWindow, callerOnAir, _curseActive);
-
-                if (look != ButtonLampLook.PressFlash && _hoveredButton == slot.Button)
-                {
-                    material.Emission = LedSelected;
-                    material.EmissionEnergyMultiplier = 2.5f;
-                    continue;
-                }
-
+                var look = SoundboardButtonState.Resolve(slot.Button, in facts, _flashButton == slot.Button);
                 ApplyLampLook(material, look, pulse);
+                UpdateButtonGlow(slot.Button, look == ButtonLampLook.Flashing, pulse);
             }
+        }
+
+        /// <summary>
+        /// Breathing white-yellow glow pool over a button whose lamp is flashing
+        /// (demands a press). Same light language as the knob/fader halos: a radial
+        /// gradient quad that grows/shrinks and brightens with the pulse.
+        /// </summary>
+        private void UpdateButtonGlow(SoundboardButton button, bool flashing, float pulse)
+        {
+            if (!_buttonGlows.TryGetValue(button, out var glow) || glow == null ||
+                !_buttonGlowMaterials.TryGetValue(button, out var material) || material == null)
+            {
+                return;
+            }
+
+            if (!flashing || !_handlesVisible)
+            {
+                glow.Visible = false;
+                return;
+            }
+
+            if (_buttonParts.TryGetValue(button, out var cap) && cap != null &&
+                _buttonGlowOffsets.TryGetValue(button, out var offset))
+            {
+                glow.Position = cap.Position + offset;
+            }
+
+            var scale = Mathf.Lerp(0.75f, 1.3f, pulse);
+            ((QuadMesh)glow.Mesh!).Size = new Vector2(ButtonGlowSize, ButtonGlowSize) * scale;
+            var intensity = Mathf.Lerp(0.45f, 1f, pulse);
+            material.AlbedoColor = new Color(
+                ButtonFlashWarm.R,
+                ButtonFlashWarm.G * intensity,
+                ButtonFlashWarm.B * intensity,
+                HaloAlpha * Mathf.Lerp(0.6f, 1f, pulse));
+            glow.Visible = true;
         }
 
         /// <summary>Maps a resolved <see cref="ButtonLampLook"/> to the lamp-face emission.</summary>
@@ -568,9 +716,9 @@ namespace KBTV.World3D
                     material.Emission = SoundboardTargetGenerator.RampRed;
                     material.EmissionEnergyMultiplier = Mathf.Lerp(1.5f, 3.2f, pulse);
                     break;
-                case ButtonLampLook.Pending:
-                    material.Emission = SoundboardTargetGenerator.RampYellow;
-                    material.EmissionEnergyMultiplier = Mathf.Lerp(1.2f, 3.0f, pulse);
+                case ButtonLampLook.Flashing:
+                    material.Emission = ButtonFlashHot.Lerp(ButtonFlashWarm, pulse);
+                    material.EmissionEnergyMultiplier = Mathf.Lerp(1.3f, 3.4f, pulse);
                     break;
                 case ButtonLampLook.Urgent:
                     material.Emission = SoundboardTargetGenerator.RampRed;
@@ -598,55 +746,35 @@ namespace KBTV.World3D
                     DropOnAirCaller();
                     break;
                 case SoundboardButton.Music:
-                    PlayIntroBumper();
+                    QueueBreakMusic();
                     break;
                 case SoundboardButton.Delay:
-                    // LiveShowFooter owns the curse window; it resolves on this event
-                    // (a QTE-clear alongside Drop). Kept event-driven per the design doc.
-                    _eventBus?.Publish(new SoundboardButtonPressedEvent(button));
+                    // LiveShowFooter owns the curse window; it resolves on the event
+                    // below (drops the caller and clears the QTE penalty).
                     break;
             }
+
+            // Every press is published so curse-QTE consumers (LiveShowFooter) can
+            // react to Delay AND to a board Drop hanging up a cursing caller.
+            _eventBus?.Publish(new SoundboardButtonPressedEvent(button));
         }
 
-        /// <summary>Plays a random station intro bumper on the Music bus as a one-shot.</summary>
-        private void PlayIntroBumper()
+        /// <summary>
+        /// Starts (idempotently) the looping ad-break music bed on the channel-3
+        /// strip. Only meaningful inside an open break window — the Music button
+        /// flashes then; the bed stays silent until the player fades the strip up.
+        /// </summary>
+        private void QueueBreakMusic()
         {
-            if (_audioService is not BroadcastAudioService audio)
+            if (_adManager == null || !_adManager.IsInBreakWindow)
             {
                 return;
             }
 
-            var stream = audio.LoadRandomIntroBumper();
-            if (stream == null)
+            if (_audioService is BroadcastAudioService audio)
             {
-                return;
+                audio.PlayBreakTransitionMusic();
             }
-
-            EnsureBumperPlayer();
-            if (_bumperPlayer == null)
-            {
-                return;
-            }
-
-            _bumperPlayer.Stop();
-            _bumperPlayer.Stream = stream;
-            _bumperPlayer.Play();
-        }
-
-        private void EnsureBumperPlayer()
-        {
-            if (_bumperPlayer != null)
-            {
-                return;
-            }
-
-            _bumperPlayer = new AudioStreamPlayer
-            {
-                Name = "SoundboardBumperPlayer",
-                Bus = "Music",
-                VolumeDb = -3f
-            };
-            AddChild(_bumperPlayer);
         }
 
         /// <summary>
@@ -753,7 +881,8 @@ namespace KBTV.World3D
             }
             else if (_adManager != null && _adManager.IsInBreakWindow)
             {
-                sb.Append("AD WINDOW OPEN");
+                var bedPlaying = _audioService is BroadcastAudioService service && service.IsBreakMusicPlaying;
+                sb.Append(bedPlaying ? "WINDOW / BED UP" : "AD WINDOW OPEN");
             }
             else
             {
@@ -901,6 +1030,30 @@ namespace KBTV.World3D
             foreach (var node in part.FindChildren("*", recursive: true, owned: false))
             {
                 if (node is MeshInstance3D mesh)
+                {
+                    return mesh;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// The cap's own body mesh: the first mesh under the cap that is not the
+        /// lamp face or the printed label (both are parented to the cap too).
+        /// </summary>
+        private static MeshInstance3D? FindButtonBodyMesh(Node3D cap, string lampName)
+        {
+            if (cap is MeshInstance3D direct && direct.Name != lampName)
+            {
+                return direct;
+            }
+
+            foreach (var node in cap.FindChildren("*", recursive: true, owned: false))
+            {
+                if (node is MeshInstance3D mesh &&
+                    mesh.Name != lampName &&
+                    !mesh.Name.ToString().StartsWith("BtnLamp") &&
+                    !mesh.Name.ToString().StartsWith("BtnLabel"))
                 {
                     return mesh;
                 }
@@ -1328,16 +1481,36 @@ namespace KBTV.World3D
             }
         }
 
-        private void ResolveAdManager()
+        /// <summary>
+        /// Resolves the board's system services lazily. The 3D world's scene tree
+        /// is ready BEFORE <c>Main._Ready()</c> runs <c>ServiceProviderRoot.Initialize()</c>,
+        /// so resolving once in _Ready would pin every service to null and silently
+        /// no-op every button. Retried from _Process/TapButton until every service
+        /// resolves; event subscriptions happen exactly once afterwards.
+        /// </summary>
+        private void ResolveServices()
         {
-            _adManager = TryResolve<AdManager>();
-            _callerRepository = TryResolve<ICallerRepository>();
-            _broadcastLoop = TryResolve<AsyncBroadcastLoop>();
-            _audioService = TryResolve<IBroadcastAudioService>();
-            _eventBus = TryResolve<EventBus>();
-
-            if (_eventBus != null)
+            if (_servicesResolved)
             {
+                return;
+            }
+
+            if (_adManager == null) DependencyInjection.TryGet<AdManager>(this, out _adManager);
+            if (_callerRepository == null) DependencyInjection.TryGet<ICallerRepository>(this, out _callerRepository);
+            if (_broadcastLoop == null) DependencyInjection.TryGet<AsyncBroadcastLoop>(this, out _broadcastLoop);
+            if (_audioService == null) DependencyInjection.TryGet<IBroadcastAudioService>(this, out _audioService);
+            if (_eventBus == null) DependencyInjection.TryGet<EventBus>(this, out _eventBus);
+
+            if (_adManager == null || _callerRepository == null || _broadcastLoop == null ||
+                _audioService == null || _eventBus == null)
+            {
+                return;
+            }
+
+            _servicesResolved = true;
+            if (!_eventsSubscribed)
+            {
+                _eventsSubscribed = true;
                 _eventBus.Subscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
                 _eventBus.Subscribe<CursingTimerCompletedEvent>(OnCursingTimerCompleted);
             }
@@ -1364,20 +1537,6 @@ namespace KBTV.World3D
             {
                 _eventBus.Unsubscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
                 _eventBus.Unsubscribe<CursingTimerCompletedEvent>(OnCursingTimerCompleted);
-            }
-        }
-
-        private T? TryResolve<T>() where T : class
-        {
-            try
-            {
-                return DependencyInjection.Get<T>(this);
-            }
-            catch (InvalidOperationException)
-            {
-                // Service not provided in this context (e.g. isolated tests): the
-                // board still renders; the dependent button action becomes a no-op.
-                return null;
             }
         }
 

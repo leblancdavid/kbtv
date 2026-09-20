@@ -93,7 +93,9 @@ namespace KBTV.Audio
             for (int i = 0; i < PlayerPoolSize; i++)
             {
                 var player = new AudioStreamPlayer();
-                player.Bus = "SFX"; // Use SFX audio bus if available
+                // Master bus, NOT SFX: SFX is now the soundboard's channel-3 (Ads/Music)
+                // strip, so interface clicks must bypass it and never fade with the mix.
+                player.Bus = "Master";
                 AddChild(player);
                 _playerPool.Add(player);
             }

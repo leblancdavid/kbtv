@@ -117,10 +117,12 @@ namespace KBTV.Audio
                 player.Finished += () => OnPlayerFinished(player);
             }
 
-            // Initialize background music player for ad break transitions
+            // Initialize background music player for ad break transitions. Routes to
+            // the SFX bus = the board's channel-3 (Ads/Music) strip, so the player
+            // fades the bed up with that fader.
             _backgroundMusicPlayer = new AudioStreamPlayer();
             _backgroundMusicPlayer.Name = "BackgroundMusic";
-            _backgroundMusicPlayer.Bus = "Music";
+            _backgroundMusicPlayer.Bus = "SFX";
             AddChild(_backgroundMusicPlayer);
 
             // Initialize audio mixer for effects
@@ -368,9 +370,14 @@ namespace KBTV.Audio
             await PlayAudioAsync("res://assets/audio/silence_4sec.wav");
         }
 
+        /// <summary>True while the ad-break transition bed is playing.</summary>
+        public bool IsBreakMusicPlaying => _backgroundMusicPlayer != null && _backgroundMusicPlayer.Playing;
+
         /// <summary>
-        /// Plays random background music for ad break transitions.
-        /// Uses a separate player so it doesn't interfere with main audio.
+        /// Starts the looping background bed for an ad break transition (idempotent
+        /// while it is already running). Routed to the soundboard's channel-3 strip
+        /// (SFX bus), so the player has to fade the fader up to hear it; started by
+        /// the board's Music button and stopped when the break actually begins.
         /// </summary>
         public void PlayBreakTransitionMusic()
         {
@@ -385,12 +392,35 @@ namespace KBTV.Audio
                 return;
             }
 
+            if (IsBreakMusicPlaying)
+            {
+                return;
+            }
+
             var music = LoadRandomBreakTransitionMusic();
             if (music != null)
             {
+                EnsureLoops(music);
                 _backgroundMusicPlayer.Stream = music;
                 _backgroundMusicPlayer.Play();
-                Log.Debug("PlayBreakTransitionMusic: Started background music");
+                Log.Debug("PlayBreakTransitionMusic: Started looping background music");
+            }
+        }
+
+        /// <summary>
+        /// Forces seamless looping on break beds that were authored one-shot, so the
+        /// music runs under the whole break window until <see cref="StopBreakTransitionMusic"/>.
+        /// </summary>
+        private static void EnsureLoops(AudioStream stream)
+        {
+            switch (stream)
+            {
+                case AudioStreamOggVorbis ogg when !ogg.Loop:
+                    ogg.Loop = true;
+                    break;
+                case AudioStreamMP3 mp3 when !mp3.Loop:
+                    mp3.Loop = true;
+                    break;
             }
         }
 
@@ -594,8 +624,10 @@ namespace KBTV.Audio
                 }
                 else if (_currentSpeaker == Speaker.Music)
                 {
-                    player.Bus = "Music";
-                    GD.Print($"BroadcastAudioService: Assigned Music bus to player for speaker: {_currentSpeaker}");
+                    // Ads, bumpers and break beds ride the SFX bus = the soundboard's
+                    // channel-3 (Ads/Music) strip, so its gain/fader shape them.
+                    player.Bus = "SFX";
+                    GD.Print($"BroadcastAudioService: Assigned Ads/SFX bus to player for speaker: {_currentSpeaker}");
                 }
                 else
                 {
@@ -782,7 +814,7 @@ tcs.TrySetResult();
             if (string.IsNullOrEmpty(audioPath))
                 return Speaker.Vern;
 
-            // Check for ad audio (route to Music bus for correct muffle behavior)
+            // Check for ad audio (routes through Speaker.Music = the board's channel-3 strip)
             if (audioPath.Contains("/ads/") || audioPath.Contains("\\ads\\"))
                 return Speaker.Music;
 

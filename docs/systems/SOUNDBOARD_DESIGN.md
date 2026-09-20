@@ -146,7 +146,7 @@ Knob deltas are stacked **on top of** the equipment phone presets in
 | VernGain/AdsGain | Vern/SFX bus distortion + compression | neutral target; above → drive/compress, never louder |
 | CallerLevel | caller bus strip volume | its own per-caller fader target; above → capped 0 dB, excess → compress |
 | VernLevel/AdsLevel | Vern/SFX bus strip volume + compression | neutral; above → capped 0 dB, excess → compress |
-| MasterFader | Music bus `VolumeDb` + program bus | unchanged |
+| MasterFader | program bus `VolumeDb` (+ dormant Music bus) | unchanged |
 
 - **Caller bus chain order**: board adjustments are applied to the **clean**
   caller voice first, then the quality-based phone-line effects color the
@@ -186,8 +186,10 @@ Knob deltas are stacked **on top of** the equipment phone presets in
 - **Board defaults & persistence (Round 8)**: `SoundboardKnobState.Default()`
   rests every knob at 0.5 (= 12 o'clock), the Caller/Vern level faders at 50%,
   and the Ads fader at the very bottom (`0`). Literal 0% is applied
-  (user-confirmed): the rested Ads fader cuts the SFX bus (ads/bumpers + UI
-  sounds) to −30 dB until the player raises it. `SoundboardKnobState.Neutral()`
+  (user-confirmed): the rested Ads fader cuts the SFX bus (ads, bumpers and the
+  break music bed — everything routed via `Speaker.Music`) to −30 dB until the
+  player raises it; UI sounds and the curse bleep sit on Master and are never
+  gated by the board. `SoundboardKnobState.Neutral()`
   (all controls 0.5) stays the pure DSP baseline for the effect stack, and
   `SoundboardMixerDriver.ResetToDefault()` restores the resting values. The mix
   persists across board visits — see §7 Show/hide.
@@ -284,21 +286,31 @@ channels 5-8 used to sit):**
 
 | Button | GLB part | Lamps face | Action |
 |--------|----------|-----------|--------|
-| Music | `Button_Music` | `BtnLamp_Music` | plays a random station **intro bumper** on the **Music** bus (one-shot, dedicated non-looping `AudioStreamPlayer` owned by the board) |
-| Delay | `Button_Delay` | `BtnLamp_Delay` | publishes `SoundboardButtonPressedEvent`; `LiveShowFooter` clears a **live curse window** (QTE) as a successful reaction alongside Drop (does **not** hang up the caller) |
-| Ads | `Button_Ads` | `BtnLamp_Ads` | `AdManager.QueueBreak()` (self-gated: no-op outside a break window / when already queued) |
+| Music | `Button_Music` | `BtnLamp_Music` | starts the **looping ad-break music bed** (`PlayBreakTransitionMusic`, random `break_transition_*.ogg`, forced loop, idempotent while playing) on the **SFX bus = channel 3** — silent until the player fades the strip up. Only accepts presses inside an open break window |
+| Delay | `Button_Delay` | `BtnLamp_Delay` | publishes `SoundboardButtonPressedEvent`; `LiveShowFooter` resolves a **live curse window** (QTE): hang the caller up repository-level and release the bleep delay so Vern's cursed line plays (no FCC fine) |
+| Ads | `Button_Ads` | `BtnLamp_Ads` | `AdManager.QueueBreak()` (self-gated: valid from window-open until the break actually starts rolling) |
 | Drop | `Button_Drop` | `BtnLamp_Drop` | `AsyncBroadcastLoop.InterruptBroadcast(CallerDropped, id)` (guarded on a caller being on air) |
 
-**Lamp-face feedback (Round 15).** `Soundboard3D.UpdateButtons` drives each
+Every press ALSO publishes `SoundboardButtonPressedEvent` (Delay/Drop clear the
+curse QTE in `LiveShowFooter`; the direct actions above still run board-side).
+
+**Lamp-face feedback (Round 16).** `Soundboard3D.UpdateButtons` drives each
 `BtnLamp_*` through the pure resolver `SoundboardButtonState`
-(`scripts/world3d/SoundboardButtonState.cs` → `ButtonLampLook`), polled from live
-state each frame (AdManager flags, on-air caller, curse window mirrored via
-`BroadcastInterruptionEvent`/`CursingTimerCompletedEvent`): **Ads** off → ready
-(green, window open) → queued (amber) → active (red pulse); **Drop** off → ready
-(green, caller live) → urgent (red pulse, curse open); **Delay** off → pending
-(amber pulse, curse open); **Music** idle. Priority: explicit
-`SetButtonLight` hook → press-flash (`PressFlash`, bright white for
-`ButtonFlashSeconds = 0.18`) → hover (`LedSelected`, 2.5) → look. The
+(`scripts/world3d/SoundboardButtonState.cs` → `ButtonLampLook` + `ButtonStateFacts`),
+polled from live state each frame (AdManager flags, on-air caller, bed playing,
+curse window mirrored via `BroadcastInterruptionEvent`/`CursingTimerCompletedEvent`):
+**Music** idle → **flashing** (break window open, bed not started) → queued
+(amber, bed running); **Ads** off → ready (green, window open) → **flashing**
+(countdown hit 0 and the break hasn't rolled — press within the grace) → queued
+(amber) → active (red pulse); **Drop** off → ready (green, caller live) → urgent
+(red pulse, curse open); **Delay** off → **flashing** (curse open). The
+white-yellow `Flashing` look breathes the lamp emission (`Lerp(1.3, 3.4, pulse)`,
+hot-white → warm-yellow) AND scales a radial-gradient glow quad over the cap
+(`BtnGlow_*`, `Lerp(0.75, 1.3, pulse)`) — the same light language as the knob/
+fader halos. Priority: explicit `SetButtonLight` hook → press-flash
+(`PressFlash`, bright white for `ButtonFlashSeconds = 0.18`) → look. **Hover no
+longer touches the lamp face** — hovering brightens the button *cap body* with
+the same subtle `MakeHighlightMaterial` lift the knobs/faders use. The
 previously-unused `SetButtonLight`/`ClearButtonLight` remain as the external
 override hook.
 
@@ -684,6 +696,43 @@ change).
   routing). Full suite 590/13 == the 583 baseline +7 (same 13 pre-existing DI-harness
   failures). In-editor verification owed (bumper audible on Music bus, Delay clears
   fine, lamp states/pulses, ScreenFace orientation under the yaw-180 board).
+
+**Round 16 — button behavior pass (lazy DI, channel-3 music/ads, flash states)**
+- `scripts/world3d/Soundboard3D.cs` - **root-cause fix:** services are now
+  resolved lazily (`ResolveServices()` retried from `_Process`/`TapButton`, events
+  subscribed once) because the World3D tree is ready before
+  `Main._Ready → ServiceProviderRoot.Initialize()` registers the DI resolvers —
+  the old one-shot resolve in `_Ready` pinned every service null, which is why no
+  button did anything. Music → `QueueBreakMusic()` (looping break bed via
+  `BroadcastAudioService.PlayBreakTransitionMusic`, gated on an open window);
+  intro-bumper player removed. Every press publishes `SoundboardButtonPressedEvent`
+  (board Drop now also clears the curse QTE). `UpdateButtons` polls the new
+  `ButtonStateFacts` (adds BreakDue/MusicBedPlaying) and drives the white-yellow
+  `Flashing` lamp pulse + breathing `BtnGlow_*` halo quad. Hover moved from the
+  lamp face (was `LedSelected` @ 2.5×) to the knob-style subtle
+  `MakeHighlightMaterial` lift on the cap body mesh. Screen shows `WINDOW / BED UP`.
+- `scripts/world3d/SoundboardButtonState.cs` - `ButtonStateFacts` record +
+  `Flashing` look (replaces `Pending`); Music: bed → Queued, window open →
+  Flashing; Ads: Flashing at T-0 until the break rolls; Delay: Flashing while
+  cursed.
+- `scripts/audio/BroadcastAudioService.cs` - ad/bumper/break-bed playback
+  (`Speaker.Music`) rerouted from the Music bus to the **SFX bus** = the board's
+  channel-3 strip, so the bed/ads fade up with `FaderCap_2`; break bed loops
+  (`EnsureLoops` forces `Loop` on ogg/mp3), `IsBreakMusicPlaying` exposed,
+  `PlayBreakTransitionMusic` idempotent.
+- `scripts/ads/AdManager.cs` - `QueueBreak` no longer plays the transition music
+  (the Music button owns the bed); the bed still stops when the break starts.
+- `scripts/ui/LiveShowFooter.cs` - board Delay/Drop press during a curse window
+  now hangs the caller up repository-level (`DropCursedCaller`) before clearing
+  the QTE; timer expiry always drops the cursed caller (the old
+  `_callerDroppedDueToCursing` flag made the expiry drop dead code, leaving the
+  caller on air).
+- `scripts/audio/UIAudioService.cs`, `scripts/dialogue/executables/CursingDelayExecutable.cs`
+  - UI clicks and the FCC bleep moved from SFX to **Master** (the SFX bus is now
+  the diegetic channel-3 strip, muted at board rest).
+- `tests/unit/world3d/SoundboardButtonStateTests.cs` - rewritten for the facts
+  record: Ads priority incl. Flashing-at-T0, Music bed/window rules, Delay flash,
+  press-flash override, per-button routing.
 
 **Tests**
 - `tests/unit/audio/SoundboardControlApplierTests.cs`

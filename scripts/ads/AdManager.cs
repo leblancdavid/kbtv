@@ -390,7 +390,11 @@ namespace KBTV.Ads
         }
 
         /// <summary>
-        /// Player clicks "Queue Ads" button - queues the next break.
+        /// Player clicks "Queue Ads" (footer button or the board's Ads button) -
+        /// queues the next break. The break music bed is NOT part of this action:
+        /// the board's Music button starts it, and the Ads button flashes as a final
+        /// reminder once the countdown hits zero (queueing stays valid until the
+        /// break actually starts rolling).
         /// </summary>
         public void QueueBreak()
         {
@@ -399,12 +403,6 @@ namespace KBTV.Ads
             _isQueued = true;
             _queuedCountdown = _timeUntilNextBreak;
             _breakQueueStatus = BreakQueueStatus.Queued;
-
-            // Play random transition music as audio cue to Vern
-            if (BroadcastAudioService is BroadcastAudioService bas)
-            {
-                bas.PlayBreakTransitionMusic();
-            }
 
             OnBreakQueued?.Invoke();
         }

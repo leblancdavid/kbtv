@@ -5,10 +5,10 @@ using KBTV.Core;
 namespace KBTV.World3D
 {
     /// <summary>
-    /// Published when a broadcast button on the 3D soundboard is pressed and the
-    /// board has no direct system action wired for it (Music/Delay). Consumers
-    /// (broadcast flow, bleep/delay handling) react to the specific button.
-    /// Ads and Drop are executed directly by <see cref="Soundboard3D"/>.
+    /// Published every time a broadcast button on the 3D soundboard is pressed.
+    /// <see cref="Soundboard3D"/> also executes the direct system actions (Ads queue,
+    /// Music bed, caller drop) itself; consumers react to the specific button for
+    /// everything else — LiveShowFooter resolves the curse QTE on Delay/Drop.
     /// </summary>
     public class SoundboardButtonPressedEvent : GameEvent
     {

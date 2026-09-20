@@ -32,7 +32,6 @@ namespace KBTV.UI
         private bool _isCursingTimerActive = false;
         private float _cursingTimeRemaining = 0f;
         private const float CURSING_TIMER_DURATION = 20f;
-        private bool _callerDroppedDueToCursing = false;
 
         private float _previousAdBreakSeconds = -1f;
 
@@ -226,16 +225,16 @@ namespace KBTV.UI
         {
             if (interruptionEvent.Reason == BroadcastInterruptionReason.CallerCursed)
             {
-                _callerDroppedDueToCursing = true;
                 StartCursingTimer();
             }
         }
 
         /// <summary>
         /// The 3D soundboard's Delay and Drop buttons are diegetic alternatives to the
-        /// on-screen DROP: while a curse window is open, pressing either clears the
-        /// FCC-fine penalty (a successful reaction). Delay is the "bleeped it" path and
-        /// Drop is the hang-up path; both stop the countdown as a success.
+        /// on-screen DROP. Delay is the "bleeped it" path: it drops the cursing caller
+        /// and releases the broadcast loop to Vern's cursed response. Drop hangs up the
+        /// caller (the board performs the broadcast interruption itself); in both cases
+        /// the curse window closes as a successful reaction (no FCC fine).
         /// </summary>
         private void OnSoundboardButton(SoundboardButtonPressedEvent buttonEvent)
         {
@@ -246,8 +245,30 @@ namespace KBTV.UI
 
             if (buttonEvent.Button == SoundboardButton.Delay || buttonEvent.Button == SoundboardButton.Drop)
             {
+                // Delay is the "bleeped it" path; the board's Drop has already sent
+                // the hang-up interruption. Either way: hang the caller up (idempotent)
+                // and close the window as a success.
+                DropCursedCaller();
                 StopCursingTimer();
             }
+        }
+
+        /// <summary>
+        /// Hangs up a cursing caller at repository level (clears the on-air slot so
+        /// the next caller can go on air once Vern's cursed response finishes).
+        /// Idempotent - safe when the board's Drop path already disconnected them.
+        /// </summary>
+        private void DropCursedCaller()
+        {
+            var caller = _repository?.OnAirCaller;
+            if (caller == null)
+            {
+                return;
+            }
+
+            Log.Debug($"LiveShowFooter: Dropping cursing caller {caller.Name}");
+            _repository.SetCallerState(caller, CallerState.Disconnected);
+            _repository.RemoveCaller(caller);
         }
 
         private void UpdateCursingTimer(double delta)
@@ -299,19 +320,10 @@ namespace KBTV.UI
                 Log.Debug("LiveShowFooter: Applied $100 FCC fine");
             }
 
-            // Automatically drop the caller - but only if not already dropped due to cursing
-            // (the cursing flow already handles dropping the caller)
-            if (_callerDroppedDueToCursing)
-            {
-                Log.Debug("LiveShowFooter: Caller already dropped due to cursing, skipping extra drop");
-                _callerDroppedDueToCursing = false; // Reset flag
-            }
-            else if (_repository?.OnAirCaller != null && _asyncBroadcastLoop != null)
-            {
-                var callerId = _repository.OnAirCaller.Id;
-                Log.Debug($"LiveShowFooter: Automatically dropping cursing caller {_repository.OnAirCaller.Name}");
-                _asyncBroadcastLoop.InterruptBroadcast(BroadcastInterruptionReason.CallerDropped, callerId);
-            }
+            // The caller is never hung up by the curse interruption itself (the
+            // broadcast loop is parked in the CursingDelay bleep while the window
+            // is open), so on expiry the station has to drop them to move on.
+            DropCursedCaller();
 
             if (_dropTimerLabel != null)
             {
