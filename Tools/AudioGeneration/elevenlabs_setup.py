@@ -213,9 +213,9 @@ class ElevenLabsVoiceCloner:
             "text": text,
             "model_id": model,
             "voice_settings": {
-                "stability": 0.5,        # Voice stability (0-1)
-                "similarity_boost": 0.8, # How similar to reference (0-1)
-                "style": 0.5,           # Style exaggeration (0-1)
+                "stability": stability,
+                "similarity_boost": similarity_boost,
+                "style": style,
                 "use_speaker_boost": True
             }
         }

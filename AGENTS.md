@@ -295,6 +295,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [PIXELLAB_MCP_GUIDE.md](docs/art/PIXELLAB_MCP_GUIDE.md) | PixelLab MCP setup, configuration, and usage |
 | [AUDIO_DESIGN.md](docs/audio/AUDIO_DESIGN.md) | Sound design, music, and audio technical specs |
 | [ROADMAP.md](docs/design/ROADMAP.md) | Development milestones and feature backlog |
+| [UFO_ARC_EXPANSION.md](docs/design/UFO_ARC_EXPANSION.md) | 50-arc UFO expansion catalog (crazy/opinion/question) with per-arc status |
 | [STATION_LAYOUT_WORKFLOW.md](docs/design/STATION_LAYOUT_WORKFLOW.md) | Excalidraw-first station layout workflow and OpenCode review loop |
 | [STATION_FLOORPLAN_BRIEF.md](docs/design/STATION_FLOORPLAN_BRIEF.md) | Design brief for room relationships, routes, visibility, and event zones |
 | [GREYBOX_LEVEL_WORKFLOW.md](docs/design/GREYBOX_LEVEL_WORKFLOW.md) | Godot/HammerForge greybox handoff, scale assumptions, and review checklist |
