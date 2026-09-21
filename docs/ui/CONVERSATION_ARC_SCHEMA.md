@@ -1,276 +1,163 @@
 # KBTV - Arc JSON Schema
 
-This document defines the JSON schema for conversation arc files.
+Authoritative rules for authoring conversation arcs and their voice audio.
+Every rule here is machine-enforced: schema rules by
+`tests/unit/dialogue/ArcSchemaValidationTests.cs`, audio coverage by
+`tests/unit/dialogue/ConversationArcTests.ParsedArcs_EveryLineHasAudioAtExpectedPath`,
+and the generator (`Tools/AudioGeneration/generate_arc_audio.py`) resolves
+paths with the same rules as the runtime (`scripts/dialogue/ArcAudioTopics.cs`,
+`scripts/dialogue/executables/DialogueExecutable.cs`).
 
-## Overview
+## File & Identity Rules
 
-Conversation arcs are pre-scripted dialogues between Vern and callers. Each arc contains:
-- An `arcLines` array defining the sequence of speakers with nested line details
-- Each speaker entry contains a `lines` array with line variants (Vern has 7 mood variants)
-- First speaker is always Vern's intro, last speaker is always Vern's conclusion
-- Metadata for arc selection and voice direction
+| Rule | Enforcement |
+|------|-------------|
+| Arc files live anywhere under `assets/dialogue/arcs/` (convention: one folder per topic) | `ArcRepository` discovers recursively |
+| `arcId` field == filename without `.json` == audio folder name | schema test |
+| `arcId` is unique across all arcs | schema test |
+| `legitimacy` is one of `Fake`, `Questionable`, `Credible`, `Compelling` | schema test (lowercase token check) |
+| `topic` is one of `UFOs`, `Cryptids`, `Conspiracies`, `Ghosts` | `ArcJsonParser` |
+| `claimedTopic` (optional) marks a topic-switcher arc; the caller lied during screening | runtime arc selection |
 
-## Full Arc Example
+## Turn Structure
 
-```json
-{
-  "arcId": "dashcam_trucker",
-  "topic": "UFOs",
-  "legitimacy": "Credible",
-  "screeningSummary": "Trucker with dashcam footage of triangular object pacing his truck for two miles",
-  "callerPersonality": "gruff_experienced",
-  "arcNotes": "Trucker with dashcam evidence, skeptical but has specific details, willing to defend his experience",
-  "callerGender": "male",
-  "arcLines": [
-    {
-      "speaker": "vern",
-      "lines": [
-        {
-          "id": "ufos_credible_dashcam_vern_neutral_1",
-          "text": "You're on the air. You mentioned dashcam footage?",
-          "voiceText": "You're on the air. You mentioned dashcam footage?",
-          "mood": "neutral"
-        },
-        {
-          "id": "ufos_credible_dashcam_vern_tired_1",
-          "text": "Alright, you're on. Something about dashcam footage?",
-          "voiceText": "Alright, you're on. Something about dashcam footage?",
-          "mood": "tired"
-        }
-      ]
-    },
-    {
-      "speaker": "caller",
-      "lines": [
-        {
-          "id": "ufos_credible_dashcam_caller_1",
-          "text": "Yeah, I was trucking through rural Montana last month. Had my dashcam running like always. Something started pacing my truck.",
-          "voiceText": "Yeah, I was trucking through rural Montana last month. Had my dashcam running like always. Something started pacing my truck.",
-          "mood": "neutral"
-        }
-      ]
-    }
-  ]
-}
+- `arcLines` is an array of speaker turns: `{ "speaker": "vern"|"caller", "lines": [...] }`.
+- Turn 0 is **always vern** (intro), and turns **strictly alternate** vern/caller.
+- The final turn should be vern (conclusion); a small set of legacy arcs ends on
+  a caller line - acceptable, but new arcs should conclude with Vern.
+- Each **vern turn** has exactly **13 lines** - one per mood below.
+  `neutral` is the required fallback variant.
+- Each **caller turn** has exactly **1 line** (no mood variants; the caller's
+  story doesn't change with Vern's mood).
+
+## Mood Enum (13 values - `scripts/data/VernMoodType.cs`)
+
+| Mood | Character |
+|------|-----------|
+| `exhausted` | drained, trailing off, lowercase energy |
+| `depressed` | flat, hopeless, withdrawn |
+| `angry` | hostile, confrontational, caps |
+| `frustrated` | short-tempered, distracted |
+| `tired` | low energy, dismissive, ellipses |
+| `irritated` | clipped, sarcastic |
+| `obsessive` | hyper-focused, detail-intense |
+| `manic` | erratic high energy, !!! |
+| `energized` | enthusiastic, quick |
+| `amused` | playful, entertained |
+| `focused` | analytical, probing |
+| `gruff` | brusque, minimal |
+| `neutral` | professional baseline (fallback) |
+
+## Line IDs
+
+Pattern (regex-validated):
+
+```
+vern:   {topicToken}_{legitimacy}_{descriptor}_vern_{mood}_{sequence}
+caller: {topicToken}_{legitimacy}_{descriptor}_caller_{sequence}
 ```
 
-## Schema Reference
+| Part | Rule |
+|------|------|
+| `topicToken` | one of `ufo`, `ufos`, `ghosts`, `cryptid`, `cryptids`, `conspiracies`. **This token - not the arc's `topic` field - selects the audio folder** (`ArcAudioTopics.GetTopicFolder`). All ids in one arc share the same token. Topic-switcher arcs use the *claimed* topic token (e.g. `ufos_fake_topic_switch_cryptid_...`). |
+| `legitimacy` | lowercase, must equal the arc's `legitimacy` field |
+| `descriptor` | free-form slug; **prefer making it identical to `arcId`** (some legacy arcs deviate, e.g. `dashcam` vs arcId `dashcam_trucker` - harmless but discouraged) |
+| `mood` | must equal the line's `mood` field |
+| `sequence` | 1-based ordinal of the turn *for that speaker* (vern turn N -> `_N`; caller turn N -> `_N`). Every mood variant of a vern turn shares the same sequence. |
 
-### Root Object
+All line ids must be globally unique (they are filenames).
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `arcId` | string | Yes | Unique identifier (format: `{topic}_{legitimacy}_{descriptor}`) - used as folder name for audio files |
-| `topic` | string | Yes | One of: "UFOs", "Cryptids", "Conspiracies", "Ghosts" |
-| `claimedTopic` | string | No | For topic-switcher arcs: what the caller claimed during screening |
-| `legitimacy` | string | Yes | One of: "Fake", "Questionable", "Credible", "Compelling" |
-| `arcLines` | array | Yes | Conversation structure with nested line details |
-| `callerPersonality` | string | No | Personality type for voice direction |
-| `arcNotes` | string | No | Author notes for content direction |
-| `screeningSummary` | string | No | Brief summary of the caller's story for screening |
-| `callerGender` | string | No | "male" or "female" for voice selection |
+## Line Fields
 
-## Arc Lines Array
+| Field | Required | Notes |
+|-------|----------|-------|
+| `id` | yes | per pattern above |
+| `text` | yes | display text (typewriter) |
+| `voiceText` | yes | text sent to TTS - keep non-empty or the generator skips the line |
+| `mood` | yes (vern) | lowercase mood name; ignored on caller lines but keep `neutral` |
 
-The `arcLines` array defines the conversation structure:
-- **Index 0** is always vern (intro)
-- **Index N-1** (last) is always vern (conclusion)
-- Lines alternate: vern, caller, vern, caller...
+## Audio File Rules
 
-| Index | Speaker | Description |
-|-------|---------|-------------|
-| 0 | vern | Intro - "You're on the air" |
-| 1 | caller | Initial claim |
-| 2 | vern | Response |
-| 3 | caller | Details |
-| 4 | vern | Response |
-| 5 | caller | Details |
-| 6 | vern | Response |
-| 7 | caller | Closing thought |
-| N-1 | vern | Conclusion |
+Generated by `Tools/AudioGeneration/generate_arc_audio.py` (run from that
+folder), stored per line id:
 
-### ArcLine Object
+```
+vern:   assets/audio/voice/Vern/ConversationArcs/{topicTokenFolder}/{arcId}/{id}.mp3
+caller: assets/audio/voice/Callers/{topicTokenFolder}/{arcId}/{id}.mp3
+```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `speaker` | string | Yes | "vern" or "caller" |
-| `lines` | array | Yes | Array of line variants (Vern: 7 moods, Caller: 1) |
+`{topicTokenFolder}` maps `ufo|ufos -> UFOs`, `ghosts -> Ghosts`,
+`cryptid|cryptids -> Cryptids`, `conspiracies -> Conspiracies`.
 
-### Line Object
+- Audio is **not tracked in git** (`*.mp3` is in `.gitignore`); each machine
+  generates it locally from the JSON. Open Godot once after generating so the
+  `.import` sidecars are created.
+- Missing audio does not crash: `DialogueExecutable` detects it and holds the
+  line for a default duration (silently). Keep the test green so this stays rare.
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `id` | string | Yes | Unique line identifier (format: `{topic}_{legitimacy}_{descriptor}_{speaker}_{mood}_{sequence}`) |
-| `text` | string | Yes | Display text (may contain placeholders) |
-| `voiceText` | string | Yes | Text sent to TTS (may differ from display text) |
-| `mood` | string | Yes | Mood enum: neutral, tired, energized, irritated, gruff, amused, focused |
+## Runtime Mood Selection
 
-### Mood Enum Values
+At playback, `DialogueExecutable` reads Vern's current mood
+(`VernStats.CurrentMoodType`, lowercased) and resolves the variant per line
+via `ArcDialogueLine.GetAudioIdForMood` / `GetTextForMood`, falling back to
+the line's default (neutral) when a variant is absent. Mood may drift
+mid-conversation; each line picks up the current mood.
 
-| Value | Mood | Characteristics |
-|-------|------|-----------------|
-| `neutral` | Neutral | Professional, balanced, curious |
-| `tired` | Tired | Low energy, dismissive, short responses |
-| `energized` | Energized | High energy, enthusiastic, lots of punctuation |
-| `irritated` | Irritated | Short-tempered, sarcastic, dismissive |
-| `gruff` | Gruff | Gruff but engaged, reluctant interest |
-| `amused` | Amused | Playful, laughing, finds it entertaining |
-| `focused` | Focused | Analytical, detail-oriented, digging for facts |
-
-## Placeholders
-
-| Placeholder | Replaced With |
-|-------------|---------------|
-| `{callerName}` | Caller's name from CallerProfile |
-| `{callerLocation}` | Caller's location from CallerProfile |
-| `{topic}` | Current topic display name |
-
-## Caller Personality Types
-
-| Personality | Description | Vern's Response Style |
-|-------------|-------------|----------------------|
-| `gruff_experienced` | Straight-talking professional with decades of experience | Vern respects their expertise, engages as peer |
-| `nervous_hesitant` | Anxious, second-guessing, uncertain if they'll be believed | Vern is patient, draws them out gently |
-| `enthusiastic_convert` | Was skeptical, now true believer, eager to share | Vern is intrigued, asks how the转变 happened |
-| `cold_factual` | Detached, clinical, presenting facts and timeline | Vern engages analytically, follows the evidence |
-| `emotional_wreck` | Fearful, upset, personal stakes high | Vern is empathetic but focused on getting details |
-| `charismatic_storyteller` | Pacing narrative, dramatic beats, performance-oriented | Vern goes along with the energy, plays off cues |
-
-## Topic-Switcher Arcs
-
-Topic-switcher arcs handle callers who lied about their topic during screening.
-
-### Example
+## Minimal Example (one vern turn, truncated to two moods for readability - ship all 13)
 
 ```json
 {
-  "arcId": "cryptid_credible_claims_ufos",
-  "claimedTopic": "UFOs",
-  "topic": "Cryptids",
+  "arcId": "haunted_motel",
+  "topic": "Ghosts",
   "legitimacy": "Credible",
-  "screeningSummary": "Caller claiming UFO sighting but actually saw something in the woods",
+  "callerGender": "female",
   "callerPersonality": "nervous_hesitant",
-  "arcNotes": "Topic-switcher: claimed UFOs but actually cryptid sighting",
-  "callerGender": "male",
+  "screeningSummary": "Night dispatcher at a motel where room 7 keeps ringing itself",
   "arcLines": [
     {
       "speaker": "vern",
       "lines": [
-        {
-          "id": "cryptid_credible_claims_ufos_vern_neutral_1",
-          "text": "You're on. You said you had something about lights in the sky?",
-          "voiceText": "You're on. You said you had something about lights in the sky?",
-          "mood": "neutral"
-        }
+        { "id": "ghosts_credible_haunted_motel_vern_neutral_1", "mood": "neutral",
+          "text": "You're on the air. You said something about the phones?",
+          "voiceText": "You're on the air. You said something about the phones?" },
+        { "id": "ghosts_credible_haunted_motel_vern_tired_1", "mood": "tired",
+          "text": "Yeah, you're on. Phones, you said?",
+          "voiceText": "Yeah, you're on. Phones, you said?" }
       ]
     },
     {
       "speaker": "caller",
       "lines": [
-        {
-          "id": "cryptid_credible_claims_ufos_caller_1",
-          "text": "I... I said that to get through, Vern. That's not what I saw. I was out past Miller Road checking my trail cameras, and I heard something in the trees. Big. Moving through the undergrowth.",
-          "voiceText": "I... I said that to get through, Vern. That's not what I saw. I was out past Miller Road checking my trail cameras, and I heard something in the trees. Big. Moving through the undergrowth.",
-          "mood": "neutral"
-        }
-      ]
-    },
-    {
-      "speaker": "vern",
-      "lines": [
-        {
-          "id": "cryptid_credible_claims_ufos_vern_neutral_2",
-          "text": "Trail cameras? So this is about whatever you've been tracking in the woods?",
-          "voiceText": "Trail cameras? So this is about whatever you've been tracking in the woods?",
-          "mood": "neutral"
-        }
+        { "id": "ghosts_credible_haunted_motel_caller_1", "mood": "neutral",
+          "text": "Every night at 3 AM, line four rings. Room four is empty. It's been empty since...",
+          "voiceText": "Every night at 3 AM, line four rings. Room four is empty. It's been empty since..." }
       ]
     }
   ]
 }
 ```
 
-## Audio File Organization
+## Adding a New Arc - Checklist
 
-Audio files are stored in subdirectories by topic and arcId:
-- **Vern**: `Vern/ConversationArcs/{topic}/{arcId}/{line.Id}.mp3`
-- **Caller**: `Callers/{topic}/{arcId}/{line.Id}.mp3`
+1. Write `assets/dialogue/arcs/Ghosts/haunted_motel.json` (pattern above).
+2. `pwsh -NoProfile -File run-tests.ps1 -Filter ArcSchemaValidationTests` - fix schema violations.
+3. `cd Tools/AudioGeneration && python generate_arc_audio.py haunted_motel --check` - list what's missing.
+4. `python generate_arc_audio.py haunted_motel` - generate (needs ElevenLabs config).
+5. Open Godot once so the new mp3s import.
+6. `pwsh -NoProfile -File run-tests.ps1 -Filter ConversationArcTests` - all lines have audio.
 
-The `arcId` in each JSON must exactly match the JSON filename (without `.json`).
+## Broadcast Lines (non-arc dialog)
 
-## File Naming Convention
+Show openings/closings/fillers live in `assets/dialogue/vern/*.json` as flat
+`lines` arrays with unique `id`s (`opening_ufos_1`, `betweencallers_neutral_2`).
+Audio goes to `assets/audio/voice/Vern/Broadcast/{id}.mp3` via
+`python generate_vern_audio.py` (skips existing). Keep ids globally unique.
 
-```
-{descriptor}.json
-```
+## Validation Summary
 
-Examples:
-- `dashcam_trucker.json`
-- `nervous_hiker.json`
-- `government_whistleblower.json`
-- `historic_house.json`
-
-The `arcId` inside the file should follow the pattern: `{topic}_{legitimacy}_{descriptor}`
-
-## Writing Guidelines
-
-### Arc Content Goals
-
-- **Medium length** - 8-10 lines total (odd number, starts and ends with Vern)
-- **Caller backstory** - Occupation, lifestyle, why this matters to them
-- **Specific details** - Dates, times, locations, sensory details
-- **Emotional journey** - How this experience affected them
-- **Evidence mentioned** - Physical proof, documentation, witnesses
-
-### Line Guidelines
-
-| Position | Lines | Purpose |
-|----------|-------|---------|
-| Intro (0) | 1 Vern | Hook the listener, introduce caller |
-| Body | 6-8 alternating | Build tension, add details, establish credibility |
-| Conclusion (N-1) | 1 Vern | Wrap up, call to action |
-
-### Mood Variant Guidelines
-
-Each Vern line needs 7 unique variants:
-
-| Mood | Energy | Punctuation | Response Style |
-|------|--------|-------------|----------------|
-| Neutral | Medium | Periods | Professional, curious |
-| Tired | Low | Dots, ellipses | Dismissive, short |
-| Energized | High | Exclamation marks!!! | Enthusiastic, excited |
-| Irritated | Medium-low | Question marks? | Sarcastic, dismissive |
-| Gruff | Medium-low | Periods | Reluctant interest |
-| Amused | Medium-high | Exclamation, laughter | Playful, entertained |
-| Focused | Medium | Periods | Analytical, detail-focused |
-
-## Validation Rules
-
-1. `arcLines` array must be present
-2. First arcLine must be vern (index 0)
-3. Last arcLine must be vern (index N-1, where N is odd)
-4. arcLines must alternate: vern, caller, vern, caller...
-5. Each arcLine must have `speaker` ("vern" or "caller") and `lines` array
-6. Vern arcLines must have 7 lines (one per mood)
-7. Caller arcLines must have 1 line
-8. All lines must have `id`, `text`, `voiceText`, and `mood` fields
-9. Line IDs must follow the pattern: `{topic}_{legitimacy}_{descriptor}_{speaker}_{mood}_{sequence}`
-10. `arcId` must be unique across all arc files
-11. All placeholders in `text` and `voiceText` should be valid
-
-## Content Volume
-
-| Metric | Count |
-|--------|-------|
-| Topics | 4 (UFOs, Cryptids, Conspiracies, Ghosts) |
-| Legitimacy levels | 4 (Fake, Questionable, Credible, Compelling) |
-| Arcs per topic × legitimacy | 4-5 |
-| Total arcs | 17 |
-| ArcLines per arc (avg) | 9 |
-| Vern arcLines per arc | 5 (each with 7 mood variants) |
-| Caller arcLines per arc | 4 (each with 1 line) |
-| Total line entries per arc | 5 × 7 + 4 × 1 = 39 entries |
-| Total Vern dialogue variants | 17 arcs × 5 lines × 7 moods = 595 audio files |
-| Total Caller audio files | 17 arcs × 4 lines = 68 audio files |
-
-This system provides **unique Vern experiences for each mood** with nested line structure for better organization.
+| Layer | What it checks |
+|-------|----------------|
+| `ArcSchemaValidationTests` | all schema rules above, every arc |
+| `ConversationArcTests.ParsedArcs_EveryLineHasAudioAtExpectedPath` | every parsed line id has an mp3 at the runtime path |
+| `generate_arc_audio.py --all --check` | same coverage report without Godot, exit code 1 on gaps |
+| `ArcJsonParser` (runtime) | skips arcs with invalid topic; tolerates everything else |

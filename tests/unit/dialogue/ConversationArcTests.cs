@@ -9,6 +9,8 @@ namespace KBTV.Tests.Unit.Dialogue
     {
         public ConversationArcTests(Node testScene) : base(testScene) { }
 
+        protected override bool FailOnRecordedFailures => true;
+
         [Test]
         public void GetTopicFolder_MapsLineIdPrefixToGeneratorFolder()
         {
@@ -28,10 +30,10 @@ namespace KBTV.Tests.Unit.Dialogue
         }
 
         [Test]
-        public void ParsedArcs_AudioFolderMatchesGeneratedFileLayout()
+        public void ParsedArcs_EveryLineHasAudioAtExpectedPath()
         {
-            // Every shipped arc's first Vern line must have audio at
-            // ConversationArcs/{line-id-prefix}/{arcId}/{lineId}.mp3 - the exact path
+            // Every shipped arc's EVERY line (all mood variants for Vern, the single
+            // variant for callers) must have audio at the exact path
             // DialogueExecutable builds. Guards against silent 4-second-gap playback.
             int checkedArcs = 0;
             var report = new System.Text.StringBuilder();
@@ -67,23 +69,27 @@ namespace KBTV.Tests.Unit.Dialogue
             var arc = ArcJsonParser.Parse(file.GetAsText());
             if (arc == null || !arc.HasDialogue()) return;
 
-            string? firstVern = null;
-            string? firstCaller = null;
+            checkedArcs++;
             foreach (var line in arc.Dialogue)
             {
-                if (string.IsNullOrEmpty(line.AudioId)) continue;
-                if (line.Speaker == Speaker.Vern && firstVern == null) firstVern = line.AudioId;
-                if (line.Speaker == Speaker.Caller && firstCaller == null) firstCaller = line.AudioId;
+                if (line.Speaker == Speaker.Vern && line.AudioIds.Count > 0)
+                {
+                    foreach (var audioId in line.AudioIds.Values)
+                    {
+                        CheckAudio(report, arc, "Vern/ConversationArcs", audioId);
+                    }
+                }
+                else
+                {
+                    var baseDir = line.Speaker == Speaker.Vern ? "Vern/ConversationArcs" : "Callers";
+                    CheckAudio(report, arc, baseDir, line.AudioId);
+                }
             }
-
-            checkedArcs++;
-            CheckFirstLine(report, arc, "Vern/ConversationArcs", firstVern);
-            CheckFirstLine(report, arc, "Callers", firstCaller);
         }
 
-        private void CheckFirstLine(System.Text.StringBuilder report, ConversationArc arc, string baseDir, string? lineId)
+        private void CheckAudio(System.Text.StringBuilder report, ConversationArc arc, string baseDir, string lineId)
         {
-            if (lineId == null) return;
+            if (string.IsNullOrEmpty(lineId)) return;
             var topic = ArcAudioTopics.GetTopicFolder(lineId, arc.TopicName);
             var path = $"res://assets/audio/voice/{baseDir}/{topic}/{arc.ArcId}/{lineId}.mp3";
             if (!FileAccess.FileExists(path))

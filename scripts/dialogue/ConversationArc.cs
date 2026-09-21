@@ -128,23 +128,9 @@ namespace KBTV.Dialogue
         }
 
         /// <summary>
-        /// Get the dialogue lines. In the new schema, mood selection happens at playback time.
-        /// </summary>
-        /// <param name="mood">The current Vern mood type (ignored in new schema)</param>
-        /// <returns>List of ArcDialogueLine</returns>
-        public List<ArcDialogueLine> GetDialogueForMood(VernMoodType mood)
-        {
-            if (_dialogue == null)
-                return new List<ArcDialogueLine>();
-
-            // In the new schema, each line already has the appropriate audio id
-            // Mood selection happens in BroadcastStateManager
-            return _dialogue.ToList();
-        }
-
-        /// <summary>
         /// Get all Vern lines in this arc (for audio preloading).
-        /// Returns all mood variants for each Vern line.
+        /// Mood variant selection happens per line at playback time via
+        /// <see cref="ArcDialogueLine.GetAudioIdForMood"/>.
         /// </summary>
         public List<ArcDialogueLine> GetAllVernLines()
         {
@@ -205,6 +191,36 @@ namespace KBTV.Dialogue
         public string AudioId => _audioId;
         public Godot.Collections.Dictionary<string, string> TextVariants => _textVariants;
         public Godot.Collections.Dictionary<string, string> AudioIds => _audioIds;
+
+        /// <summary>
+        /// The audio id for the given (lowercase) mood, falling back to this
+        /// line's default id when no variant exists for that mood.
+        /// </summary>
+        public string GetAudioIdForMood(string? moodKey)
+        {
+            if (!string.IsNullOrEmpty(moodKey)
+                && _audioIds.TryGetValue(moodKey, out var id)
+                && !string.IsNullOrEmpty(id))
+            {
+                return id;
+            }
+            return _audioId;
+        }
+
+        /// <summary>
+        /// The display text for the given (lowercase) mood, falling back to
+        /// this line's default text when no variant exists for that mood.
+        /// </summary>
+        public string GetTextForMood(string? moodKey)
+        {
+            if (!string.IsNullOrEmpty(moodKey)
+                && _textVariants.TryGetValue(moodKey, out var text)
+                && !string.IsNullOrEmpty(text))
+            {
+                return text;
+            }
+            return _text;
+        }
 
         /// <summary>
         /// The original 0-based index of this line within the arc JSON.

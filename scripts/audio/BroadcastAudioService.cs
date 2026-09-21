@@ -926,7 +926,7 @@ tcs.TrySetResult();
                     var arcId = GetArcIdFromMetadata(item.Metadata);
                     if (!string.IsNullOrEmpty(arcId))
                     {
-                        string topic = GetTopicFromArcId(arcId);
+                        string topic = ArcAudioTopics.GetTopicFolder(item.Id, "UFOs");
                         audioPath = $"res://assets/audio/voice/Callers/{topic}/{arcId}/{item.Id}.mp3";
                     }
                     break;
@@ -936,7 +936,7 @@ tcs.TrySetResult();
                     arcId = GetArcIdFromMetadata(item.Metadata);
                     if (!string.IsNullOrEmpty(arcId))
                     {
-                        string topic = GetTopicFromArcId(arcId);
+                        string topic = ArcAudioTopics.GetTopicFolder(item.Id, "UFOs");
                         audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{arcId}/{item.Id}.mp3";
                     }
                     break;
@@ -963,39 +963,6 @@ tcs.TrySetResult();
             }
 
             return null;
-        }
-
-        /// <summary>
-        /// Extracts topic from arc ID.
-        /// </summary>
-        private string GetTopicFromArcId(string arcId)
-        {
-            // Extract topic from arc ID (e.g., "conspiracies_credible_govt_contractor" -> "Conspiracies")
-            if (arcId.StartsWith("ufos") || arcId.Contains("ufos_"))
-                return "UFOs";
-            if (arcId.StartsWith("ghosts") || arcId.Contains("ghosts_"))
-                return "Ghosts";
-            if (arcId.StartsWith("cryptids") || arcId.Contains("cryptids_") || arcId.Contains("cryptid_"))
-                return "Cryptids";
-            if (arcId.StartsWith("conspiracies") || arcId.Contains("conspiracies_"))
-                return "Conspiracies";
-
-            // Fallback: first part
-            var parts = arcId.Split('_');
-            if (parts.Length >= 1)
-            {
-                var topicPart = parts[0];
-                return topicPart switch
-                {
-                    "ufos" => "UFOs",
-                    "ghosts" => "Ghosts",
-                    "cryptids" => "Cryptids",
-                    "cryptid" => "Cryptids",
-                    "conspiracies" => "Conspiracies",
-                    _ => "UFOs"
-                };
-            }
-            return "UFOs"; // Default
         }
 
         /// <summary>

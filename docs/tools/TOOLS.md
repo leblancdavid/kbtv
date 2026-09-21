@@ -7,12 +7,11 @@ This document covers the Python scripts and tools used for KBTV development.
 | Tool | Location | Purpose |
 |------|----------|---------|
 | **ElevenLabs Setup** | `Tools/AudioGeneration/elevenlabs_setup.py` | Voice cloning and API management |
-| **Arc Audio Generator** | `Tools/AudioGeneration/generate_arc_audio.py` | Generate conversation arc audio |
+| **Arc Audio Generator** | `Tools/AudioGeneration/generate_arc_audio.py` | Generate/verify conversation arc audio (JSON-driven, `--check`, `--all`) |
 | **Vern Audio Generator** | `Tools/AudioGeneration/generate_vern_audio.py` | Generate broadcast audio |
 | **List Voices** | `Tools/AudioGeneration/list_voices.py` | List available ElevenLabs voices |
 | **Test Voices** | `Tools/AudioGeneration/test_voices.py` | Test voice quality samples |
 | **Test Voice Mods** | `Tools/AudioGeneration/test_voice_mods.py` | Test mood-based voice settings |
-| **Extract Arc IDs** | `Tools/AudioGeneration/extract_arc_ids.py` | Find missing audio files |
 
 ## Audio Generation System
 
@@ -54,34 +53,44 @@ KBTV generates voice audio using ElevenLabs professional AI voice synthesis with
 
 ## Generating Arc Audio
 
+The arc audio rules (paths, ids, moods) are defined in
+[CONVERSATION_ARC_SCHEMA.md](../ui/CONVERSATION_ARC_SCHEMA.md) and enforced
+by `ArcSchemaValidationTests` + `ConversationArcTests`. The generator reads
+everything from the arc JSON - no manual arc registration anywhere.
+
 ### Basic Usage
 ```bash
 cd Tools/AudioGeneration
 
-# Generate specific arc (both Vern and caller)
-python generate_arc_audio.py ufos_pilot
+# Report missing audio first (no API calls; exit 1 if gaps)
+python generate_arc_audio.py pilot --check
+
+# Generate specific arc (both speakers; existing files are skipped)
+python generate_arc_audio.py pilot
 
 # Generate only Vern lines
-python generate_arc_audio.py ufos_pilot --speaker vern
+python generate_arc_audio.py pilot --speaker vern
 
 # Generate only caller lines
-python generate_arc_audio.py ufos_pilot --speaker caller
+python generate_arc_audio.py pilot --speaker caller
+
+# Audit every arc
+python generate_arc_audio.py --all --check
 
 # Force regenerate existing files
-python generate_arc_audio.py ufos_pilot --force
+python generate_arc_audio.py pilot --force
 
 # Verbose output
-python generate_arc_audio.py ufos_pilot --verbose
+python generate_arc_audio.py pilot --verbose
 ```
 
 ### Output Location
 ```
 assets/audio/voice/
-├── Vern/ConversationArcs/{Topic}/{arc_id}/
-│   └── {arc_id}_vern_{mood}_{index}.mp3
-└── Callers/{Topic}/{arc_id}/
-    └── {arc_id}_caller_{index}.mp3
+├── Vern/ConversationArcs/{topicToken}/{arcId}/{line_id}.mp3
+└── Callers/{topicToken}/{arcId}/{line_id}.mp3
 ```
+`{topicToken}` comes from the first token of the line id (see schema doc).
 
 ### Arc JSON Requirements
 
@@ -90,15 +99,18 @@ Each arc JSON must include:
 {
   "arcId": "pilot",
   "topic": "UFOs",
+  "legitimacy": "Compelling",
   "callerGender": "male",
   "arcLines": [...]
 }
 ```
 
 **Required fields:**
-- `arcId` - Unique arc identifier
+- `arcId` - Unique; equals filename; equals audio folder name
 - `topic` - UFOs, Ghosts, Cryptids, or Conspiracies
+- `legitimacy` - Fake, Questionable, Credible, or Compelling
 - `callerGender` - "male" or "female"
+- Vern turns carry all 13 mood variants; caller turns exactly one line
 
 ---
 
@@ -120,17 +132,10 @@ python generate_vern_audio.py --verbose
 
 ### Output Location
 ```
-assets/audio/voice/Vern/Broadcast/
-├── opening_{mood}_{index}.mp3
-├── closing_{mood}_{index}.mp3
-├── deadair_{mood}_{index}.mp3
-├── break_{mood}_{index}.mp3
-├── return_{mood}_{index}.mp3
-├── dropped_{mood}_{index}.mp3
-├── offtopic_{mood}_{index}.mp3
-├── cursed_{mood}_{index}.mp3
-└── betweencallers_{mood}_{index}.mp3
+assets/audio/voice/Vern/Broadcast/{line id}.mp3
 ```
+Filenames are the `id` fields from the vern JSON files verbatim, e.g.
+`opening_ufos_1.mp3`, `betweencallers_neutral_2.mp3`, `break_gruff_1.mp3`.
 
 ### Vern Dialog Files
 
@@ -144,9 +149,9 @@ assets/audio/voice/Vern/Broadcast/
 | `dropped-callers.json` | 35 | Dropped callers |
 | `off-topic-remarks.json` | 29 | Off-topic responses |
 | `caller-cursed.json` | 19 | Profanity responses |
-| `between-callers.json` | 31 | Between callers |
+| `between-callers.json` | 34 | Between callers |
 
-**Important**: Each line must have a `mood` field. Some files had missing mood fields - these have been fixed.
+**Important**: Each line must have a `mood` and `voiceText` field.
 
 ---
 
@@ -198,20 +203,23 @@ Example:
 
 ## Troubleshooting
 
-### JSON Syntax Errors
+### Missing Audio (silent dialogue lines)
 
-Some Vern dialog files had missing `mood` fields. These have been fixed:
-- `between-callers.json`
-- `break-transitions.json`
-- `dropped-callers.json`
-- `off-topic-remarks.json`
+Run the coverage check - it reports every JSON line without an mp3, no API
+calls:
+
+```bash
+python generate_arc_audio.py --all --check
+```
+
+Or via tests: `run-tests.ps1 -Filter ConversationArcTests`.
 
 ### Quota Exceeded
 
 ElevenLabs has monthly credit limits. If you hit the limit:
-1. Wait for monthly reset
-2. Upgrade your ElevenLabs plan
-3. Use `--force` to continue where you left off
+1. Wait for monthly reset (or upgrade)
+2. Re-run the same command WITHOUT `--force` - existing files are skipped,
+   so generation resumes where it stopped
 
 ### Voice ID Not Found
 
@@ -227,9 +235,9 @@ If you see "No voice_id.txt file found":
 ```
 assets/audio/voice/
 ├── Vern/
-│   ├── Broadcast/              # Show openings/closings
-│   │   ├── opening_neutral_1.mp3
-│   │   ├── closing_tired_2.mp3
+│   ├── Broadcast/              # {id}.mp3 from assets/dialogue/vern/*.json
+│   │   ├── opening_ufos_1.mp3
+│   │   ├── betweencallers_neutral_2.mp3
 │   │   └── ...
 │   └── ConversationArcs/       # Vern conversation responses
 │       ├── UFOs/pilot/
@@ -243,23 +251,9 @@ assets/audio/voice/
 
 ### Audio Naming Convention
 
-**Vern arc lines:**
-```
-{arc_id}_vern_{mood}_{index}.mp3
-# Example: ufos_pilot_vern_neutral_1.mp3
-```
-
-**Caller arc lines:**
-```
-{arc_id}_caller_{index}.mp3
-# Example: ufos_pilot_caller_1.mp3
-```
-
-**Broadcast lines:**
-```
-{type}_{mood}_{index}.mp3
-# Example: opening_neutral_1.mp3
-```
+Files are named by their JSON line `id` verbatim (plus `.mp3`). Full id
+pattern, mood list, and the line-id-prefix folder routing rule are defined in
+[CONVERSATION_ARC_SCHEMA.md](../ui/CONVERSATION_ARC_SCHEMA.md).
 
 ---
 

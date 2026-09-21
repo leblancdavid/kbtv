@@ -10,14 +10,14 @@ This document outlines the strategy for producing voice audio for KBTV's dialogu
 
 ### Content Volume
 
-| Category | Description | Actual Files Generated |
-|----------|-------------|-------------------------|
-| **Vern Conversation Arcs** | 15 topic arcs × 35 mood variants each | 525 Vern conversation files |
-| **Caller Conversation Arcs** | 15 topic arcs × 5-6 dialogue lines each | 83 caller audio files |
-| **Vern Broadcast Audio** | Show openings/closings, between-callers, dead air | 40 broadcast files |
-| **Total Audio Files** | Complete voice library | 648 MP3 files |
+| Category | Description | Current Files |
+|----------|-------------|---------------|
+| **Vern Conversation Arcs** | 73 arcs x vern turns x 13 mood variants | ~2900 vern arc files |
+| **Caller Conversation Arcs** | 73 arcs, one caller file per caller turn | ~360 caller files |
+| **Vern Broadcast Audio** | Openings/closings/fillers/breaks etc. from `assets/dialogue/vern/*.json` | ~350 files |
 
-**Total unique audio files generated: 648 files**
+Audio is regenerated locally from the dialogue JSON (mp3s are gitignored);
+run `python generate_arc_audio.py --all --check` to see current coverage.
 
 ### Character Voices Needed
 
@@ -82,33 +82,32 @@ All audio is generated using ElevenLabs' professional-grade AI voice synthesis w
 | **Style** | Late-night radio host, Art Bell inspired |
 | **Delivery** | Measured, occasionally sardonic, professional |
 
-**Mood Variations (7 VernMoodType variations):**
+**Mood Variations (all 13 `VernMoodType` values):**
 
-| VernMoodType | DialogueTone | Speed | Pitch | Notes |
-|--------------|--------------|-------|-------|-------|
-| Tired | Dismissive | 0.85x | -5% | Slower, trailing off, low energy |
-| Energized | Excited | 1.15x | +5% | Fast, enthusiastic, engaged |
-| Irritated | Annoyed | 0.95x | 0% | Short, clipped, impatient |
-| Amused | Believing | 1.05x | +3% | Warm, playful, amused |
-| Gruff | Dismissive | 0.90x | -3% | Brusk, direct, no-nonsense |
-| Focused | Skeptical | 1.0x | 0% | Analytical, probing, questioning |
-| Neutral | Neutral | 1.0x | 0% | Professional, balanced delivery |
+Delivery parameters live in `MOOD_SETTINGS`
+(`Tools/AudioGeneration/generate_vern_audio.py`) and apply to both broadcast
+lines and arc lines. The seven originals:
 
-### Caller Voice Archetypes
+| VernMoodType | DialogueTone | Notes |
+|--------------|--------------|-------|
+| Tired | Dismissive | Slower, trailing off, low energy |
+| Energized | Excited | Fast, enthusiastic, engaged |
+| Irritated | Annoyed | Short, clipped, impatient |
+| Amused | Believing | Warm, playful, amused |
+| Gruff | Dismissive | Brusk, direct, no-nonsense |
+| Focused | Skeptical | Analytical, probing, questioning |
+| Neutral | Neutral | Professional, balanced delivery |
 
-| Archetype | ElevenLabs Voice | Personality Use | Topic Mapping |
-|-----------|------------------|-----------------|---------------|
-| **default_male** | Drew (29vD33N1CtxCmqQRPOHJ) | Neutral, credible witnesses | All topics |
-| **default_female** | Rachel (21m00Tcm4TlvDq8ikWAM) | Neutral, credible witnesses | All topics |
-| **enthusiastic** | Bella (EXAVITQu4vr4xnSDxMaL) | Excited, compelling stories | UFOs, Cryptids |
-| **nervous** | Dani (AZnzlk1XvdvUeBnXmlld) | Hesitant, questionable claims | Ghosts, Conspiracies |
-| **gruff** | Drew (deeper) | Experienced, skeptical | Cryptids, Ghosts |
-| **conspiracy** | Antoni (ErXwobaYiN019PkySvjV) | Intense, conspiratorial | Conspiracies |
-| **elderly_male** | Drew (slower) | Veteran callers | All topics |
-| **elderly_female** | Rachel (slower) | Veteran callers | All topics |
+Added with VIBE/stats expansion: Exhausted, Depressed, Angry, Frustrated,
+Obsessive, Manic (`scripts/data/VernMoodType.cs`).
 
-**Voice Selection Logic**: Archetype chosen based on personality (cold_factual, nervous_hesitant, etc.) + legitimacy (Compelling, Credible, Questionable, Fake) + gender + topic preferences.
-| **Conspiracy Theorist** | `en_US-ryan-medium` | 1.15x | 0% | Intense, rapid |
+### Caller Voice Pools
+
+Current implementation uses gender pools defined in
+`Tools/AudioGeneration/elevenlabs_setup.py`: 13 male + 6 female ElevenLabs
+voices. Each arc is hashed from its `arcId` to one pool voice, so all caller
+lines in an arc share one voice while different arcs differ. Voice-settings
+overrides in the same file make some voices read older/southern.
 
 All caller audio receives phone filter via Godot Audio Buses at runtime.
 
@@ -172,11 +171,9 @@ These parameters are controlled by the equipment level:
 
 | Property | Value |
 |----------|-------|
-| **Source Format** | WAV (from Piper) |
-| **Output Format** | OGG Vorbis (Godot preferred) |
-| **Sample Rate** | 22.05 kHz (Piper default) or 44.1 kHz |
+| **Source** | ElevenLabs API (`eleven_flash_v2`) |
+| **Format** | MP3 |
 | **Channels** | Mono |
-| **OGG Quality** | 0.5-0.7 |
 
 ### Effects Chain
 
@@ -201,184 +198,56 @@ Effects are applied at runtime via Godot Audio Buses (see "Runtime Audio Effects
 | Tool | Purpose | Installation |
 |------|---------|--------------|
 | **Python 3.9+** | Script runtime | System install |
-| **Piper TTS** | Voice synthesis | `pip install piper-tts` |
-| **pydub** | Audio normalization | `pip install pydub` |
-| **ffmpeg** | Audio conversion | System install (add to PATH) |
+| **requests** | ElevenLabs API calls | `pip install requests` |
 
-### Piper Voice Models
-
-Voice models are automatically downloaded when first needed by the audio generation scripts. The scripts download both the `.onnx` model file and `.onnx.json` configuration file from the official Hugging Face repository.
-
-**Automatic Download Behavior:**
-- Models are cached locally in `Tools/AudioGeneration/voices/`
-- Downloads happen transparently when a script encounters a missing voice model
-- No manual download required - scripts handle model management automatically
-- Models are ~60MB each and cached after first use
-
-**Manual Testing:**
-```bash
-# List available voices (if Piper is installed)
-piper --list-voices
-
-# Generate sample with local cached model
-echo "Welcome to Beyond the Veil AM" | piper --model en_US-ryan-medium --output_file test.wav
-```
-
-**Voice Model Sources:**
-- Repository: [Piper Voices on Hugging Face](https://huggingface.co/rhasspy/piper-voices)
-- Model format: `{lang}_{voice}-{quality}` (e.g., `en_US-ryan-medium`)
-- Files downloaded: `{model_name}.onnx` and `{model_name}.onnx.json`
-
-### Project Scripts Location
+### Generation Scripts
 
 ```
-Tools/
-├── AudioGeneration/
-│   ├── generate_audio.py      # Main batch generation script (includes automatic voice model downloading)
-│   ├── config.json            # Voice mappings and settings
-│   ├── voices/                # Cached voice models (auto-downloaded, gitignored)
-│   └── temp/                  # Temporary files (gitignored)
+Tools/AudioGeneration/
+├── generate_arc_audio.py    # Per-arc audio from assets/dialogue/arcs/**/*.json (JSON-driven, --check/--all)
+├── generate_vern_audio.py   # Broadcast audio from assets/dialogue/vern/*.json
+├── generate_break_audio.py  # Break transition lines
+├── elevenlabs_setup.py      # Vern clone + caller voice pools (pools defined here)
+├── elevenlabs_config.json   # API key (gitignored)
+└── voice_id.txt             # Vern clone ID (gitignored)
 ```
 
-**Note:** Voice models are automatically downloaded and cached in the `voices/` subdirectory when first needed. No separate download script is required.
-
-See [TOOLS.md](../tools/TOOLS.md) for detailed usage instructions.
-
-### Automatic Voice Model Management
-
-The audio generation scripts now automatically download and cache Piper TTS voice models when needed:
-
-**How It Works:**
-1. When a script needs a voice model (e.g., `en_US-ryan-medium`), it checks the local `voices/` directory
-2. If the model is missing, it downloads both `.onnx` and `.onnx.json` files from Hugging Face
-3. Downloaded models are cached locally for future use
-4. Subsequent runs use the cached models, eliminating redundant downloads
-
-**Benefits:**
-- **Zero setup:** No manual model downloads required
-- **Automatic updates:** Scripts always use the latest available models
-- **Space efficient:** Models downloaded on-demand, not pre-committed to repository
-- **Cross-platform:** Works on Godot supported platforms
-
-**Network Requirements:**
-- Internet connection required for initial model downloads
-- Models cached locally after first download
-- Graceful fallback if download fails (logs warning, continues with available models)
-
-**Dependencies:**
-- `requests` library (install with `pip install requests`)
-- Internet access for model downloads
+The Piper-era tooling described in earlier revisions of this doc has been
+replaced entirely by the ElevenLabs scripts above.
+See [AUDIO_GENERATION.md](../tools/AUDIO_GENERATION.md) for usage.
 
 ## File Organization
 
-### Actual Directory Structure
-
 ```
-Assets/Audio/Voice/
+assets/audio/voice/
 ├── Vern/
-│   └── Broadcast/
-│       ├── Opening/           # vern_opening_001.ogg, etc.
-│       ├── Closing/           # vern_closing_001.ogg, etc.
-│       ├── BetweenCallers/    # vern_betweencallers_001.ogg, etc.
-│       ├── DeadAirFiller/     # vern_deadairfiller_001.ogg, etc.
-│       ├── Introduction/      # vern_introduction_001.ogg, etc.
-│       ├── SignOff/           # vern_signoff_001.ogg, etc.
-│       └── ... (other categories)
+│   ├── Broadcast/                  # {line id from assets/dialogue/vern/*.json}.mp3
+│   │   └── opening_ufos_1.mp3, betweencallers_neutral_2.mp3, ...
+│   └── ConversationArcs/
+│       └── {topicToken}/{arcId}/   # topicToken from the line id prefix
+│           └── {line id}.mp3
 └── Callers/
-    ├── UFOs/
-    │   ├── ufo_credible_dashcam/
-    │   │   ├── Tired/         # ufo_credible_dashcam_tired_001_vern.ogg, etc.
-    │   │   ├── Energized/
-    │   │   ├── Irritated/
-    │   │   ├── Amused/
-    │   │   ├── Gruff/
-    │   │   ├── Focused/
-    │   │   ├── Neutral/
-    │   │   └── Caller/        # Caller lines (same for all moods)
-    │   ├── ufos_fake_prankster/
-    │   │   └── ... (7 mood folders + Caller)
-    │   └── ... (other arcs)
-    ├── Cryptids/
-    ├── Conspiracies/
-    └── Ghosts/
+    └── {topicToken}/{arcId}/
+        └── {line id}.mp3
 ```
-
-**Note:** Caller conversation clips are organized by `Topic/ArcId/{Mood}/` for Vern lines, and `Topic/ArcId/Caller/` for caller lines. Each mood folder contains all Vern lines for that arc in that mood tone.
 
 ## Naming Convention
 
-Audio files use a specific naming pattern that matches the Addressable address format:
+Filenames are the **line `id` fields from the arc JSON verbatim** plus `.mp3`.
+Line ids encode topic token, legitimacy, descriptor, speaker, mood, and turn
+sequence - see [CONVERSATION_ARC_SCHEMA.md](../ui/CONVERSATION_ARC_SCHEMA.md)
+for the authoritative pattern, mood list, and folder routing rules (the audio
+folder topic comes from the **line id prefix**, which is what allows
+topic-switcher arcs to resolve consistently between generator and runtime).
 
-**Vern conversation lines (7 tones per arc):**
-```
-{arcId}_{mood}_{lineIndex:D3}_{speaker}.ogg
+Broadcast lines use their `id` field directly, e.g. `opening_ufos_1.mp3`,
+`betweencallers_neutral_2.mp3`.
 
-Examples:
-ufo_credible_dashcam_tired_001_vern.ogg
-ufo_credible_dashcam_energized_001_vern.ogg
-ufo_credible_dashcam_irritated_001_vern.ogg
-ufo_credible_dashcam_amused_001_vern.ogg
-ufo_credible_dashcam_gruff_001_vern.ogg
-ufo_credible_dashcam_focused_001_vern.ogg
-ufo_credible_dashcam_neutral_001_vern.ogg
-```
-
-**Caller conversation lines (1 version per arc, placed in Caller folder):**
-```
-{arcId}_neutral_{lineIndex:D3}_{speaker}.ogg
-
-Examples:
-ufo_credible_dashcam_neutral_002_caller.ogg
-```
-
-**Belief branch lines:**
-```
-{arcId}_{mood}_{beliefTag}_{lineIndex:D3}_{speaker}.ogg
-
-Examples:
-ufo_credible_dashcam_tired_skep_009_vern.ogg  (skeptical branch, tired tone)
-ufo_credible_dashcam_energized_beli_011_vern.ogg (believing branch, energized tone)
-```
-
-The `beliefTag` is:
-- `skep` for Skeptical belief branch lines (first 4 chars of "Skeptical")
-- `beli` for Believing belief branch lines (first 4 chars of "Believing")
-
-Note: The `arcId` comes from the arc JSON file and may or may not include a topic prefix. The arcId is used as-is without modification.
-
-### Line Index and Belief Paths
-
-The `lineIndex` in audio filenames is based on the **arc JSON structure**, not the runtime conversation order. Lines are indexed sequentially across all sections including BOTH belief paths.
-
-**IMPORTANT**: The generation order is: Intro → Development → Conclusion → Skeptical → Believing
-
-This ordering ensures conclusion lines are numbered before belief branches, which makes the sequential numbering work correctly even though belief branches are mutually exclusive at runtime:
-
-```
-Intro lines:       001, 002
-Development lines: 003, 004, 005, 006
-Conclusion lines:  007, 008                 (processed BEFORE belief branches)
-Skeptical lines:   009, 010  (belief path) - uses "_skep_" prefix
-Believing lines:   011, 012  (belief path) - uses "_beli_" prefix
-```
-
-The Python audio generator (`Tools/AudioGeneration/generate_audio.py`) and C# parser (`ArcJsonParser.cs`) must use the same section ordering to ensure audio addresses match file names.
-
-At runtime, only one belief path is used per conversation, but the audio file indices remain fixed. Each `DialogueLine` tracks:
-- `ArcLineIndex`: The original arc position (0-based index, becomes 1-based in filenames)
-- `Section`: Which arc section the line belongs to (Intro, Development, Skeptical, Believing, Conclusion)
-
-The `Section` property is critical for belief branch audio lookup - it determines whether the `_skep_` or `_beli_` prefix is added to the audio address.
-
-**Broadcast lines:**
-```
-vern_{category}_{index:D3}.ogg
-
-Examples:
-vern_opening_001.ogg
-vern_deadairfiller_012.ogg
-vern_betweencallers_003.ogg
-```
+(The 7-tone/mood-folder/belief-tag naming scheme described in earlier
+revisions of this document predates the current 13-mood schema and no longer
+applies. There are ~100 leftover files in `Vern/Broadcast/` from that era -
+`opening_neutral_*`, `closing_amused_*`, `deadair_*`, `return_neutral_*` -
+which are unreferenced by any JSON and safe to delete.)
 
 ## Implementation Plan
 
@@ -399,7 +268,7 @@ vern_betweencallers_003.ogg
 - [x] Add IDs to VernDialogue.json broadcast entries
 - [x] Update AudioManager with speaker-based mixer routing
 - [x] Update ConversationManager to trigger voice playback
-- [x] Configure Addressables groups for voice audio folders
+- [x] Replace Addressables with Godot ResourceLoader paths (see above)
 - [x] Add VoiceAudioService instantiation to GameBootstrap
 - [x] Create Audio Mixer with VernGroup and CallerGroup (basic routing only)
 - [ ] Assign mixer groups to AudioManager in scene (Inspector)
@@ -422,115 +291,32 @@ vern_betweencallers_003.ogg
 
 ### Overview
 
-Voice audio is loaded via Godot ResourceLoader and played through the AudioManager when dialogue lines are displayed. The typewriter text effect speed is dynamically adjusted to match the audio clip duration.
-
-### System Components
+Voice audio is loaded per line at playback time. The flow is:
 
 ```
-VoiceAudioService          AudioManager              ConversationManager
-      │                         │                           │
-      │ LoadClipAsync()         │                           │
-      │<────────────────────────│                           │
-      │                         │   OnLineDisplayed         │
-      │                         │<──────────────────────────│
-      │   GetClip(lineId)       │                           │
-      │<────────────────────────│                           │
-      │                         │                           │
-      │   AudioClip             │                           │
-      │────────────────────────>│                           │
-      │                         │   PlayVoiceClip(clip)     │
-      │                         │───────────────────────────>
-      │                         │                           │
-      │                         │              ConversationPanel
-      │                         │                     │
-      │                         │ SetLineDuration()   │
-      │                         │────────────────────>│
-      │                         │                     │
-      │                         │      (typewriter syncs to audio)
+DialogueExecutable (arc)  BroadcastStateMachine (single lines)
+        │                         │
+        │ build res:// path       │ resolve id -> res://assets/audio/voice/
+        │ via mood + line id      │   Vern/Broadcast/{id}.mp3
+        ▼                         ▼
+   BroadcastAudioService.PlayAudioAsync(path)  ->  AudioStreamPlayer on
+   Vern/Caller bus (speaker detected from path)
 ```
 
-### VoiceAudioService
+`DialogueExecutable` reads `VernStats.CurrentMoodType`, picks the mood
+variant of each line (`ArcDialogueLine.GetAudioIdForMood`/`GetTextForMood`,
+neutral fallback), and resolves the folder from the line-id topic token via
+`ArcAudioTopics.GetTopicFolder` - identical rules to the generator.
 
-Location: `Assets/Scripts/Runtime/Audio/VoiceAudioService.cs`
+### Clip Loading
 
-Responsibilities:
-- Load clips via Addressables by address
-- Cache clips for current conversation in memory
-- Preload all clips for an arc when conversation starts (using section info for correct paths)
-- Unload clips when conversation ends (memory management)
-- Fallback gracefully when clip not found (log warning, return null)
-
-Key Methods:
-```csharp
-// Preload all clips for a conversation arc (call on conversation start)
-// Uses dialogue set and mood type to determine tone and get section info for each line
-Task PreloadConversationAsync(string arcId, string topic, VernMoodType moodType, ArcDialogueSet dialogue);
-
-// Get a cached conversation clip (section determines belief path prefix)
-AudioClip GetConversationClip(int lineIndex, Speaker speaker, ArcSection section);
-
-// Get a conversation clip, loading on-demand if not cached
-Task<AudioClip> GetConversationClipAsync(int lineIndex, Speaker speaker, ArcSection section);
-
-// Get a broadcast clip by ID (e.g., "vern_opening_001")
-Task<AudioClip> GetBroadcastClipAsync(string clipId);
-
-// Unload cached clips (call on conversation end)
-void UnloadCurrentConversation();
-```
-
-The `ArcSection` parameter is essential for belief branch lines - it determines whether the audio address includes `_skep_` or `_beli_` prefix.
-
-### Audio File Address Format
-
-Addressables uses simplified addresses (filename without extension). The address is set by the `VoiceAudioSetup` editor script.
-
-**Vern conversation clips (7 mood types):**
-```
-Address: {arcId}_{mood}_{lineIndex:D3}_{speaker}
-Example: ufo_credible_dashcam_tired_001_vern
-File:    Assets/Audio/Voice/Callers/UFOs/ufo_credible_dashcam/Tired/ufo_credible_dashcam_tired_001_vern.ogg
-
-Vern mood types: tired, energized, irritated, amused, gruff, focused, neutral
-```
-
-**Caller conversation clips (1 version per arc):**
-```
-Address: {arcId}_neutral_{lineIndex:D3}_{speaker}
-Example: ufo_credible_dashcam_neutral_002_caller
-File:    Assets/Audio/Voice/Callers/UFOs/ufo_credible_dashcam/Caller/ufo_credible_dashcam_neutral_002_caller.ogg
-```
-
-**Belief branch clips (skeptical/believing sections):**
-```
-Address: {arcId}_{mood}_{beliefTag}_{lineIndex:D3}_{speaker}
-Example: ufo_credible_dashcam_tired_skep_009_vern
-File:    Assets/Audio/Voice/Callers/UFOs/ufo_credible_dashcam/Tired/ufo_credible_dashcam_tired_skep_009_vern.ogg
-```
-
-The `beliefTag` is `skep` or `beli` depending on the arc section (Skeptical or Believing).
-
-Note: The address does NOT include topic prefix. The arcId from the JSON is used directly.
-
-**Broadcast clips:**
-```
-Address: vern_{category}_{index:D3}
-Example: opening_1
-File:    res://assets/audio/voice/Vern/Broadcast/opening_1.mp3
-```
-
-### Typewriter Synchronization
-
-When a dialogue line is displayed:
-
-1. `ConversationManager` fires `OnLineDisplayed` event
-2. `VoiceAudioService` retrieves the cached clip
-3. `AudioManager.PlayVoiceClip(clip, speaker)` starts playback
-4. `ConversationPanel.SetLineDuration(clip.length)` calculates dynamic typing speed:
-   ```csharp
-   float charsPerSecond = text.Length / audioDuration;
-   ```
-5. Typewriter effect runs at calculated speed, finishing when audio ends
+- Conversation clips: path built per line as described above (no preload
+  layer); Godot's `ResourceLoader` caches each `res://` path after first load.
+- Broadcast clips: loaded by id from the `assets/dialogue/vern/*.json` files.
+- The legacy Unity-era `VoiceAudioService` / Addressables abstraction was
+  replaced by `BroadcastAudioService` during the Godot migration; the
+  belief-branch address scheme predates the current schema and no longer
+  applies.
 
 ### Missing Clip Handling
 
@@ -541,12 +327,12 @@ If a clip is not found:
 
 ### Memory Management
 
-To avoid loading all 950+ clips at once:
+With ~4000 clips total, loading everything at once is impossible:
 
-1. **Preload on conversation start**: Load all clips for the current arc (~10-20 clips)
-2. **Cache in Dictionary**: Keep clips in memory during conversation
-3. **Unload on conversation end**: Release clips when conversation completes
-4. **Broadcast clips**: Load on-demand, cache for session duration
+1. **Load per line**: each line's clip is `GD.Load`ed when playback reaches it
+2. **Godot resource cache**: keeps loaded streams in memory per session
+3. **Future option**: LRU eviction or `Resource.Unload` per conversation if
+   memory becomes a constraint (not currently an issue for show-length runs)
 
 ### Godot ResourceLoader Configuration
 

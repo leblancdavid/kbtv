@@ -101,29 +101,35 @@ namespace KBTV.Dialogue
                             break;
                         }
 
+                        // Vern's current mood selects the text/audio variant for
+                        // this line (falls back to the line default, e.g. neutral).
+                        var moodKey = _stateManager?.GameStateManager?.VernStats?.CurrentMoodType.ToString().ToLowerInvariant();
+                        var audioId = line.GetAudioIdForMood(moodKey);
+                        var lineText = line.GetTextForMood(moodKey);
+
                         // Audio files live under the topic encoded in the line id prefix
                         // (generator convention), not the arc's actual topic.
-                        var topic = ArcAudioTopics.GetTopicFolder(line.AudioId, _arc.TopicName);
+                        var topic = ArcAudioTopics.GetTopicFolder(audioId, _arc.TopicName);
                         string audioPath;
                         BroadcastItemType itemType;
                         string speakerName;
                         if (line.Speaker == Speaker.Vern)
                         {
-                            audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{_arc.ArcId}/{line.AudioId}.mp3";
+                            audioPath = $"res://assets/audio/voice/Vern/ConversationArcs/{topic}/{_arc.ArcId}/{audioId}.mp3";
                             itemType = BroadcastItemType.VernLine;
                             speakerName = "Vern";
                         }
                         else
                         {
-                            audioPath = $"res://assets/audio/voice/Callers/{topic}/{_arc.ArcId}/{line.AudioId}.mp3";
+                            audioPath = $"res://assets/audio/voice/Callers/{topic}/{_arc.ArcId}/{audioId}.mp3";
                             itemType = BroadcastItemType.CallerLine;
                             speakerName = _caller.Name;
                         }
 
                         var item = new BroadcastItem(
-                            id: line.AudioId,
+                            id: audioId,
                             type: itemType,
-                            text: line.Text,
+                            text: lineText,
                             audioPath: audioPath,
                             duration: BroadcastConstants.DEFAULT_LINE_DURATION,
                             metadata: new { ArcId = _arc.ArcId, SpeakerId = speakerName, CallerGender = _arc.CallerGender }

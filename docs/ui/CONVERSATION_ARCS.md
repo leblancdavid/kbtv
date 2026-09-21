@@ -5,8 +5,8 @@
 The arc-based system provides pre-scripted, narrative-driven conversations between Vern and callers. Each arc is a complete story with beginning, middle, and end - authored as cohesive dialogue rather than assembled from random lines.
 
 **Key Changes in v2.0:**
-- Single dialogue set per arc (no mood variants in JSON)
-- Tone applied programmatically based on Vern's current mood
+- One conversation per arc, authored as a flat `arcLines` array
+- Each Vern turn carries **13 mood variants** (one per `VernMoodType`); the runtime picks the variant matching Vern's current mood at playback time
 - Caller personality drives storytelling style
 - Medium-to-long format with richer character development
 
@@ -21,21 +21,24 @@ Pre-written complete conversations where all lines are authored together. Unlike
 - Vern's questions reference specific caller claims
 - Caller responses acknowledge Vern's reactions
 
-### Single Dialogue, Multiple Tones
+### Mood Variants, Not Mood Filters
 
-Each arc contains **one dialogue set**. Vern's mood affects **delivery style**, not content:
+Each arc contains **one dialogue set**, but every Vern turn ships all 13 mood
+variants (text + audio). Vern's mood selects which variant plays via
+`ArcDialogueLine.GetAudioIdForMood` / `GetTextForMood`
+(`scripts/dialogue/ConversationArc.cs`), falling back to the line default
+(`neutral`) if a mood has no variant. The **caller's story remains
+consistent** regardless of Vern's mood.
 
-| Vern's Mood | Delivery Style | Example |
+| Vern's Mood (example) | Delivery Style | Example |
 |-------------|----------------|---------|
-| Tired | Flat, slow, dismissive | "Yeah... go on." |
-| Energized | Enthusiastic, quick, engaged | "This is incredible! Keep going!" |
-| Irritated | Short, sharp, impatient | "Get to the point." |
-| Amused | Playful, entertained | "Ha! I love this. Continue." |
-| Gruff | Direct, no-nonsense | "What do you want?" |
-| Focused | Analytical, probing | "Walk me through exactly what happened." |
-| Neutral | Professional, balanced | Standard delivery |
+| tired | Flat, slow, dismissive | "Yeah... go on." |
+| energized | Enthusiastic, quick, engaged | "This is incredible! Keep going!" |
+| irritated | Short, sharp, impatient | "Get to the point." |
+| amused | Playful, entertained | "Ha! I love this. Continue." |
 
-The **caller's story remains consistent** regardless of Vern's mood - only Vern's delivery changes.
+The full 13-mood enum lives in `scripts/data/VernMoodType.cs` and is
+mirrored in [CONVERSATION_ARC_SCHEMA.md](CONVERSATION_ARC_SCHEMA.md).
 
 ### Caller Personalities
 
@@ -84,42 +87,33 @@ correctReadChance = Discernment + LegitimacyModifier
 
 ## Arc Structure
 
-Each arc uses a flat dialogue array with mood-specific text variants for Vern's lines:
+Each arc uses a flat `arcLines` array of speaker turns; Vern turns carry
+mood-specific text + audio variants (13 each):
 
 ```
-Dialogue Array (8-10 lines, odd number, starts and ends with Vern)
-  └─ Lines alternate: Vern, Caller, Vern, Caller...
-  └─ Vern lines have 7 text variants (one per mood)
-  └─ Caller lines have single text
+arcLines (8-12 turns, starts with Vern, strictly alternates Vern/Caller)
+  └─ Vern turns: 13 lines - one per VernMoodType
+  └─ Caller turns: 1 line
+  └─ Ends with Vern conclusion (recommended; some legacy arcs end on a Caller line)
 ```
 
 **Example arc structure:**
 ```
-001: Vern intro (7 mood variants)
+001: Vern intro (13 mood variants)
 002: Caller initial claim
-003: Vern response (7 mood variants)
+003: Vern response (13 mood variants)
 004: Caller details
-005: Vern response (7 mood variants)
+005: Vern response (13 mood variants)
 006: Caller details
-007: Vern response (7 mood variants)
-008: Caller closing
-009: Vern conclusion (7 mood variants)
+007: Vern conclusion (13 mood variants)
 ```
 
-The conversation phases (Intro, Probe, Challenge, Resolution) are assigned based on line index at runtime, not from the JSON structure.
-  └─ Vern wraps up, Caller signs off
-```
+The conversation phases (Intro, Development, Conclusion) are assigned based on
+line index at parse time (`ArcJsonParser.DetermineSection`), not from the JSON.
 
-### Line Counts by Legitimacy
-
-| Legitimacy | Total | Intro | Development | Belief Branch | Conclusion |
-|------------|-------|-------|-------------|---------------|------------|
-| Fake | 8 | 2 | 4 | 0 | 2 |
-| Questionable | 10 | 2 | 4 | 2 | 2 |
-| Credible | 12 | 2 | 4 | 4 | 2 |
-| Compelling | 14 | 2 | 6 | 4 | 2 |
-
-**Note:** Fake callers are dismissed quickly - no belief branch investment.
+**Note:** The "belief branch" (Skeptical/Believing) sections from the original
+design were never adopted - current arcs have no belief branching, and the
+discernment mechanic above is used by screening/stats, not dialogue selection.
 
 ## Arc Selection Flow
 
@@ -163,47 +157,21 @@ Each arc should include relevant elements based on topic:
 ## Directory Structure
 
 ```
-Assets/Data/Dialogue/
-├── Arcs/                          # Arc-based conversations
-│   ├── UFOs/
-│   │   ├── Fake/
-│   │   │   └── prankster.json
-│   │   ├── Questionable/
-│   │   │   └── lights.json
-│   │   ├── Credible/
-│   │   │   └── dashcam_trucker.json
-│   │   └── Compelling/
-│   │       └── pilot.json
-│   ├── Cryptids/
-│   │   ├── Fake/
-│   │   │   └── costume.json
-│   │   ├── Questionable/
-│   │   │   └── shadow.json
-│   │   ├── Credible/
-│   │   │   └── forest_hiker.json
-│   │   └── Compelling/
-│   │       └── biologist.json
-│   ├── Conspiracies/
-│   │   ├── Fake/
-│   │   │   └── tinfoil.json
-│   │   ├── Questionable/
-│   │   │   └── patterns.json
-│   │   ├── Credible/
-│   │   │   └── govt_contractor.json
-│   │   └── Compelling/
-│   │       └── whistleblower.json
-│   └── Ghosts/
-│       ├── Fake/
-│       │   └── halloween.json
-│       ├── Questionable/
-│       │   └── footsteps.json
-│       ├── Credible/
-│       │   └── old_house.json
-│       └── Compelling/
-│           └── investigator.json
-└── Vern/                          # Broadcast lines (opening, closing, filler)
-    └── VernDialogue.json
+assets/dialogue/
+├── arcs/                          # Arc-based conversations (auto-discovered, flat per topic)
+│   ├── UFOs/                      # e.g. pilot.json, dashcam_trucker.json, topic_switch_ghost.json
+│   ├── Cryptids/                  # e.g. biologist.json, claims_ufos.json
+│   ├── Conspiracies/              # e.g. whistleblower.json, tinfoil.json
+│   └── Ghosts/                    # e.g. old_house.json, halloween.json
+└── vern/                          # Broadcast lines (openings, closings, fillers, ...)
+    ├── openings.json
+    ├── closings.json
+    └── ... (one file per line type)
 ```
+
+Topics and legitimacy levels live inside each JSON (`topic`, `legitimacy`
+fields); no legitimacy subfolders. `ArcRepository` discovers every
+`*.json` under `arcs/` recursively.
 
 ## Content Volume
 
@@ -211,12 +179,8 @@ Assets/Data/Dialogue/
 |--------|-------|
 | Topics | 4 (UFOs, Cryptids, Conspiracies, Ghosts) |
 | Legitimacy levels | 4 (Fake, Questionable, Credible, Compelling) |
-| Arcs per topic × legitimacy | 4-5 |
-| Total arcs | 18 |
-| Avg lines per arc | ~12 |
-| Total dialogue lines | ~216 |
-
-**Compared to v1.0:** ~75% less JSON content (216 lines vs ~900 lines) while maintaining full gameplay variety.
+| Total arcs | 73 (as of Sep 2026) |
+| Total dialogue line entries | ~4000 incl. all mood variants |
 
 ## Writing Guidelines
 
@@ -253,8 +217,8 @@ Assets/Data/Dialogue/
 - [x] VernStateCalculator.cs for mood type and tone mapping
 - [x] ArcConversationGenerator.cs for conversation generation
 - [x] Updated ConversationManager.cs to use arc system
-- [x] Single dialogue set architecture (no mood variants in JSON)
-- [x] Runtime tone application based on Vern's mood
+- [x] Mood-variant JSON schema (13 variants per Vern turn, authored per line)
+- [x] Runtime mood variant selection (`ArcDialogueLine.GetAudioIdForMood`)
 - [x] Removed legacy CallerDialogueTemplate and ConversationGenerator
 
 ### Arc Content (In Progress)
@@ -270,28 +234,22 @@ The following arcs need to be rewritten with the new longer, richer format:
 
 ## Adding New Arcs
 
-To add a new conversation arc:
-
-1. Create a JSON file in `Assets/Data/Dialogue/Arcs/{Topic}/{Legitimacy}/`
-2. Follow the schema in [CONVERSATION_ARC_SCHEMA.md](CONVERSATION_ARC_SCHEMA.md)
-3. Include a complete dialogue with Vern and Caller lines (odd number, starts/ends with Vern)
-4. Set appropriate `callerPersonality` for the story
-5. Run **KBTV > Setup Game Scene** to reload arcs
+1. Create `assets/dialogue/arcs/{Topic}/{descriptor}.json` following
+   [CONVERSATION_ARC_SCHEMA.md](CONVERSATION_ARC_SCHEMA.md) (that doc is the
+   authoritative rule set, validated by `ArcSchemaValidationTests`).
+2. Generate the audio:
+   `cd Tools/AudioGeneration && python generate_arc_audio.py {descriptor} --check`
+   then the same command without `--check` (see
+   [AUDIO_GENERATION.md](../tools/AUDIO_GENERATION.md)).
+3. Open Godot once so the new `.mp3` files import.
+4. Run `pwsh -NoProfile -File run-tests.ps1 -Filter ConversationArcTests` and
+   `-Filter ArcSchemaValidationTests` - both must stay green.
 
 ## Audio Naming Convention
 
-Audio files are organized by mood and use underscores in filenames:
-
-```
-{arcId}/{mood}/{arcId}_{mood}_{lineIndex:000}_{speaker}.ogg
-```
-
-Example:
-- `ufos_credible_dashcam/energized/ufos_credible_dashcam_energized_001_vern.ogg`
-- `ufos_credible_dashcam/tired/ufos_credible_dashcam_tired_001_vern.ogg`
-- `ufos_credible_dashcam/neutral/ufos_credible_dashcam_neutral_001_vern.ogg`
-
-Caller lines are placed in a `caller/` folder:
-- `ufos_credible_dashcam/caller/ufos_credible_dashcam_caller_002.ogg`
-
-Mood folders: `neutral`, `tired`, `energized`, `irritated`, `gruff`, `amused`, `focused`
+Line ids are filenames (`.mp3`) inside
+`assets/audio/voice/Vern/ConversationArcs/{topicToken}/{arcId}/` or
+`assets/audio/voice/Callers/{topicToken}/{arcId}/`, where `{topicToken}` is
+the first `_`-separated token of the line id (see the schema doc). The topic
+folder is chosen by the line id, not the arc's `topic` field - this keeps
+topic-switcher arcs consistent with the generator and runtime.

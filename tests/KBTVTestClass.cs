@@ -96,12 +96,24 @@ namespace KBTV.Tests
             GD.PrintErr($"Test assertion failed: {message}");
         }
 
+        /// <summary>
+        /// When true, assertions recorded via the Assert helpers fail the suite
+        /// at cleanup instead of only logging. New tests should opt in by
+        /// overriding this to true; legacy suites keep log-only behavior until
+        /// their recorded-but-unenforced failures are triaged.
+        /// </summary>
+        protected virtual bool FailOnRecordedFailures => false;
+
         [Cleanup]
         public void Cleanup()
         {
             if (_recordedFailures.Count > 0)
             {
                 GD.PrintErr($"Test suite had {_recordedFailures.Count} failure(s)");
+                if (!FailOnRecordedFailures) return;
+                var messages = _recordedFailures.ConvertAll(f => f.Message);
+                _recordedFailures.Clear();
+                throw new AssertionException($"{messages.Count} recorded failure(s):\n{string.Join("\n", messages)}");
             }
         }
     }

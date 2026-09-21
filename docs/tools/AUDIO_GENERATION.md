@@ -39,34 +39,50 @@ assets/dialogue/arcs/{Topic}/{arc_id}.json
 ```
 
 ### Structure
-Arc JSON files have a nested structure with `arcLines` containing groups:
+
+Arc JSON files nest speaker turns, and each turn lists line objects with
+`id` / `text` / `voiceText` / `mood`. Vern turns carry all 13 mood variants;
+caller turns carry exactly one line:
 
 ```json
 {
   "arcId": "pilot",
   "topic": "UFOs",
+  "legitimacy": "Compelling",
   "callerGender": "male",
   "arcLines": [
     {
       "speaker": "vern",
-      "lines": ["You're on the air. What's your story?", "..."]
+      "lines": [
+        { "id": "ufos_compelling_pilot_vern_neutral_1", "mood": "neutral",
+          "text": "You're on the air. You said you have professional experience in aviation?",
+          "voiceText": "You're on the air. You said you have professional experience in aviation?" },
+        { "id": "ufos_compelling_pilot_vern_tired_1", "mood": "tired", "text": "...", "voiceText": "..." }
+      ]
     },
     {
-      "speaker": "caller", 
-      "lines": ["Okay, so this is gonna sound crazy...", "..."]
+      "speaker": "caller",
+      "lines": [
+        { "id": "ufos_compelling_pilot_caller_1", "mood": "neutral", "text": "...", "voiceText": "..." }
+      ]
     }
   ]
 }
 ```
 
+**The full authoring rules (line id pattern, folder routing, mood list,
+enforcement) are in [CONVERSATION_ARC_SCHEMA.md](../ui/CONVERSATION_ARC_SCHEMA.md).**
+`ArcSchemaValidationTests` fails on violations.
+
 ### Required Fields
 
 | Field | Description |
 |-------|-------------|
-| `arcId` | Unique identifier for the arc |
-| `topic` | Topic folder (UFOs, Ghosts, Cryptids, Conspiracies) |
+| `arcId` | Unique; must equal the JSON filename; used as the audio folder name |
+| `topic` | Actual topic (UFOs, Ghosts, Cryptids, Conspiracies) |
+| `legitimacy` | Fake / Questionable / Credible / Compelling |
 | `callerGender` | "male" or "female" - determines voice pool |
-| `arcLines` | Array of speaker groups |
+| `arcLines` | Array of speaker groups (see schema doc) |
 
 ### Editing Guidelines
 
@@ -120,44 +136,58 @@ Location: `assets/dialogue/vern/`
 
 ## Part 2: Generating Arc Audio
 
+The generator is JSON-driven: you point it at the arc's `arcId` (its JSON
+filename) and it reads all path/naming rules from the JSON itself - the same
+rules the runtime uses (see
+[CONVERSATION_ARC_SCHEMA.md](../ui/CONVERSATION_ARC_SCHEMA.md)). No
+hardcoded arc list.
+
 ### Command
 ```bash
 cd Tools/AudioGeneration
-python generate_arc_audio.py <arc_id> [options]
+python generate_arc_audio.py <arcId|path-to-arc.json> [options]
+python generate_arc_audio.py --all [options]
 ```
 
 ### Examples
 ```bash
-# Generate specific arc
-python generate_arc_audio.py ufos_pilot
+# Report missing audio only (no API calls, exit 1 if gaps) - do this first
+python generate_arc_audio.py haunted_motel --check
 
-# Generate only Vern lines
-python generate_arc_audio.py ufos_pilot --speaker vern
+# Generate a Ghosts arc (existing files are skipped automatically)
+python generate_arc_audio.py haunted_motel
 
-# Generate only caller lines  
-python generate_arc_audio.py ufos_pilot --speaker caller
+# Audit every arc under assets/dialogue/arcs/
+python generate_arc_audio.py --all --check
 
-# Force regenerate (overwrite existing)
-python generate_arc_audio.py ufos_pilot --force
+# Generate only Vern lines (or --speaker caller)
+python generate_arc_audio.py haunted_motel --speaker vern
+
+# Force regenerate (overwrites existing; may change caller voice, see below)
+python generate_arc_audio.py haunted_motel --force
 ```
 
 ### Output Location
 ```
 assets/audio/voice/
-├── Vern/ConversationArcs/{Topic}/{arc_id}/
-│   └── {arc_id}_vern_{mood}_{index}.mp3
-└── Callers/{Topic}/{arc_id}/
-    └── {arc_id}_caller_{index}.mp3
+├── Vern/ConversationArcs/{topicToken}/{arcId}/{line_id}.mp3
+└── Callers/{topicToken}/{arcId}/{line_id}.mp3
 ```
+`{topicToken}` is the first token of each line id (`ufo|ufos|ghosts|cryptid|cryptids|conspiracies`),
+NOT the arc's `topic` field - this is what keeps topic-switcher arcs consistent.
 
 ### Voice Selection
 
-**Vern**: Always uses cloned voice (`cD12ZqbaUeADFL4RycQC`)
+**Vern**: Always uses cloned voice (`cD12ZqbaUeADFL4RycQC`), with mood-based
+settings from `MOOD_SETTINGS` in `generate_vern_audio.py` (all 13 moods).
 
 **Callers**: Uses gender-based pools from `elevenlabs_setup.py`:
 - 13 male voices
 - 6 female voices
-- Each arc gets a consistent voice (hashed from arc ID)
+- Each arc gets a consistent voice, hashed from the arc's `arcId`.
+  (Legacy arcs were generated from a hash of the older full-id argument;
+  regenerating one with `--force` may pick a different pool voice. Only
+  force-regenerate single arcs deliberately.)
 
 ---
 
@@ -239,29 +269,23 @@ Tests different stability/style settings for mood variations.
 
 ## Part 5: Troubleshooting
 
-### JSON Syntax Errors
+### Coverage Gaps (silent lines in game)
 
-Several Vern dialog files have known issues - missing `mood` fields:
+A dialogue line whose mp3 is missing plays as ~4 seconds of silence at
+runtime (no crash). Find gaps without spending API credits:
 
-| File | Issue |
-|------|-------|
-| `between-callers.json` | Line 45 missing mood |
-| `break-transitions.json` | Line 69 missing mood |
-| `dropped-callers.json` | Line 69 missing mood |
-| `off-topic-remarks.json` | Line 33 missing mood |
+```bash
+python generate_arc_audio.py --all --check   # exit 1 lists MISSING files
+```
 
-**Fix**: Add `"mood": "value"` to the affected lines.
+Or via the test suite: `pwsh -NoProfile -File run-tests.ps1 -Filter ConversationArcTests`.
 
 ### Quota Exceeded
 
 ElevenLabs has monthly credit limits. If you hit the limit:
-1. Wait for monthly reset
-2. Upgrade your ElevenLabs plan
-3. Use `--force` to continue where you left off:
-   ```bash
-   python generate_arc_audio.py <arc_id> --force
-   python generate_vern_audio.py --force
-   ```
+1. Wait for monthly reset (or upgrade)
+2. Re-run the SAME command without `--force` - existing files are skipped,
+   so generation resumes exactly where it stopped.
 
 ### Voice ID Not Found
 
@@ -295,23 +319,16 @@ assets/audio/voice/
 
 ### Naming Convention
 
-**Vern arc lines:**
+Filenames are the arc JSON's line `id` values verbatim plus `.mp3`:
+
 ```
-{arc_id}_vern_{mood}_{index}.mp3
-# Example: ufos_pilot_vern_neutral_1.mp3
+Vern arc line:   {topicToken}_{legitimacy}_{descriptor}_vern_{mood}_{seq}.mp3
+Caller arc line: {topicToken}_{legitimacy}_{descriptor}_caller_{seq}.mp3
+Broadcast line:  {id from assets/dialogue/vern/*.json}.mp3
 ```
 
-**Caller arc lines:**
-```
-{arc_id}_caller_{index}.mp3
-# Example: ufos_pilot_caller_1.mp3
-```
-
-**Broadcast lines:**
-```
-{type}_{mood}_{index}.mp3
-# Example: opening_neutral_1.mp3
-```
+The authoritative pattern (and folder rules) lives in
+[CONVERSATION_ARC_SCHEMA.md](../ui/CONVERSATION_ARC_SCHEMA.md).
 
 ---
 
@@ -321,7 +338,8 @@ assets/audio/voice/
 2. **Test voices first** - Use test_voices.py to find good caller voices
 3. **Generate in batches** - Process multiple arcs without hitting rate limits
 4. **Use --force selectively** - Only regenerate what you need
-5. **Commit audio files** - Generated MP3s should be committed to git
+5. **Don't commit audio** - mp3 files are gitignored by design; each machine
+   regenerates locally from the JSON (the repo carries the dialogue, not the audio)
 
 ---
 
