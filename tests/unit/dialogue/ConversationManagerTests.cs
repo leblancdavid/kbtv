@@ -285,5 +285,108 @@ namespace KBTV.Tests.Unit.Dialogue
                 AssertThat(template.GetDeadAirFiller(ShowTopic.UFOs).Topic == "ufos");
             }
         }
+
+        private static VernDialogueTemplate CreateShowLineTemplate(
+            Action<VernDialogueTemplate, DialogueTemplate[]> setter)
+        {
+            var template = new VernDialogueTemplate();
+            setter(template, new[]
+            {
+                new DialogueTemplate("x_ufos_1", "topic one", 1f, "neutral", "ufos"),
+                new DialogueTemplate("x_ufos_2", "topic two", 1f, "neutral", "ufos"),
+                new DialogueTemplate("x_ghosts_1", "foreign one", 1f, "neutral", "ghosts"),
+                new DialogueTemplate("x_open_1", "generic one", 1f, "neutral", "open"),
+                new DialogueTemplate("x_open_2", "generic two", 1f, "neutral", "open"),
+                new DialogueTemplate("x_personal_1", "personal one", 1f, "neutral", "personal"),
+                new DialogueTemplate("x_personal_2", "personal two", 1f, "neutral", "personal"),
+            });
+            return template;
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetShowOpening_BlendsPools_ExcludesForeignTopics()
+        {
+            var template = CreateShowLineTemplate((t, lines) => t.SetShowOpeningLines(lines));
+
+            int topicCount = 0, genericCount = 0, personalCount = 0;
+            for (int i = 0; i < 900; i++)
+            {
+                switch (template.GetShowOpening(ShowTopic.UFOs).Topic)
+                {
+                    case "ufos": topicCount++; break;
+                    case "open": genericCount++; break;
+                    case "personal": personalCount++; break;
+                    default: AssertThat(false); break;
+                }
+            }
+
+            // Shares are 80/15/5 - every pool reachable, topic dominates.
+            AssertThat(topicCount > 600 && genericCount > 60 && personalCount > 10);
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetShowClosing_ExcludesForeignTopics()
+        {
+            var template = CreateShowLineTemplate((t, lines) => t.SetShowClosingLines(lines));
+
+            for (int i = 0; i < 200; i++)
+            {
+                var topic = template.GetShowClosing(ShowTopic.UFOs).Topic;
+                AssertThat(topic == "ufos" || topic == "open" || topic == "personal");
+            }
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetReturnFromBreak_ExcludesForeignTopics()
+        {
+            var template = CreateShowLineTemplate((t, lines) => t.SetReturnFromBreakLines(lines));
+
+            for (int i = 0; i < 200; i++)
+            {
+                var topic = template.GetReturnFromBreak(ShowTopic.UFOs).Topic;
+                AssertThat(topic == "ufos" || topic == "open" || topic == "personal");
+            }
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetShowOpening_OpenShow_DrawsGenericAndPersonal()
+        {
+            var template = CreateShowLineTemplate((t, lines) => t.SetShowOpeningLines(lines));
+
+            int openCount = 0, personalCount = 0;
+            for (int i = 0; i < 300; i++)
+            {
+                var topic = template.GetShowOpening(ShowTopic.Open).Topic;
+                AssertThat(topic == "open" || topic == "personal");
+                if (topic == "open") openCount++; else personalCount++;
+            }
+
+            AssertThat(openCount > 0 && personalCount > 0);
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetShowOpening_EmptyTemplate_FallsBackToNull()
+        {
+            var template = new VernDialogueTemplate();
+
+            AssertThat(template.GetShowOpening(ShowTopic.Ghosts) == null);
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetCallerCursed_MoodSelectionWithNeutralFallback()
+        {
+            var template = new VernDialogueTemplate();
+            template.SetCallerCursedLines(new[]
+            {
+                new DialogueTemplate("cursed_neutral_1", "neutral scold", 1f, "neutral"),
+                new DialogueTemplate("cursed_amused_1", "amused scold", 1f, "amused"),
+            });
+
+            for (int i = 0; i < 20; i++)
+            {
+                AssertThat(template.GetCallerCursed(VernMoodType.Amused).Mood == "amused");
+                AssertThat(template.GetCallerCursed(VernMoodType.Tired).Mood == "neutral");
+            }
+        }
     }
 }

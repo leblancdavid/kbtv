@@ -175,6 +175,96 @@
       "text": "YOU KNOW WHAT EXCITES ME? THE PATTERNS THAT REVEAL EVERYTHING!",
       "voiceText": "YOU KNOW WHAT EXCITES ME? THE PATTERNS THAT REVEAL EVERYTHING!",
       "mood": "manic"
+    },
+    {
+      "id": "offtopic_tired_1",
+      "text": "Mm. Let's... pretend that was on topic. Next.",
+      "voiceText": "Mm. Let's... pretend that was on topic. Next.",
+      "mood": "tired"
+    },
+    {
+      "id": "offtopic_tired_2",
+      "text": "I'm too tired for that detour. We'll move on.",
+      "voiceText": "I'm too tired for that detour. We'll move on.",
+      "mood": "tired"
+    },
+    {
+      "id": "offtopic_tired_3",
+      "text": "That was... something. I'll be in the back if anyone needs me.",
+      "voiceText": "That was... something. I'll be in the back if anyone needs me.",
+      "mood": "tired"
+    },
+    {
+      "id": "offtopic_energized_1",
+      "text": "Hey, we wandered off, but the night's young! On to the next one!",
+      "voiceText": "Hey, we wandered off, but the night's young! On to the next one!",
+      "mood": "energized"
+    },
+    {
+      "id": "offtopic_energized_2",
+      "text": "That's not what we're here for, but I'm still wired! Next caller!",
+      "voiceText": "That's not what we're here for, but I'm still wired! Next caller!",
+      "mood": "energized"
+    },
+    {
+      "id": "offtopic_energized_3",
+      "text": "We'll come back to that, I promise! So much to get to tonight!",
+      "voiceText": "We'll come back to that, I promise! So much to get to tonight!",
+      "mood": "energized"
+    },
+    {
+      "id": "offtopic_amused_1",
+      "text": "Well, that was a whole detour. I liked it. But we do have a show to run.",
+      "voiceText": "Well, that was a whole detour. I liked it. But we do have a show to run.",
+      "mood": "amused"
+    },
+    {
+      "id": "offtopic_amused_2",
+      "text": "heh, you had me going there. Back to the mysteries, folks.",
+      "voiceText": "heh, you had me going there. Back to the mysteries, folks.",
+      "mood": "amused"
+    },
+    {
+      "id": "offtopic_amused_3",
+      "text": "I'd listen to that all night, but the board's glowing. Next caller.",
+      "voiceText": "I'd listen to that all night, but the board's glowing. Next caller.",
+      "mood": "amused"
+    },
+    {
+      "id": "offtopic_focused_1",
+      "text": "That's not what this show is about. Next caller. Let's stay on the record.",
+      "voiceText": "That's not what this show is about. Next caller. Let's stay on the record.",
+      "mood": "focused"
+    },
+    {
+      "id": "offtopic_focused_2",
+      "text": "We'll set that aside and return to tonight's topic. The next one's waiting.",
+      "voiceText": "We'll set that aside and return to tonight's topic. The next one's waiting.",
+      "mood": "focused"
+    },
+    {
+      "id": "offtopic_focused_3",
+      "text": "Interesting. Not tonight's subject. Let's take the next caller.",
+      "voiceText": "Interesting. Not tonight's subject. Let's take the next caller.",
+      "mood": "focused"
+    },
+    {
+      "id": "offtopic_gruff_1",
+      "text": "Wrong number for that story. Next.",
+      "voiceText": "Wrong number for that story. Next.",
+      "mood": "gruff"
+    },
+    {
+      "id": "offtopic_gruff_2",
+      "text": "Let's not. You're done. Next caller.",
+      "voiceText": "Let's not. You're done. Next caller.",
+      "mood": "gruff"
+    },
+    {
+      "id": "offtopic_gruff_3",
+      "text": "That's off topic and we both know it. Moving on.",
+      "voiceText": "That's off topic and we both know it. Moving on.",
+      "mood": "gruff"
     }
   ]
 }

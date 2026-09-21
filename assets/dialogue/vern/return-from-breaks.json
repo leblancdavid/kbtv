@@ -351,6 +351,314 @@
       "voiceText": "Welcome back to KBTV. That break gave me time to think about the vastness of the universe. While the commercials ran, I was pondering our insignificance and significance all at once. Keep those lines open - your cosmic perspective might help us find meaning in the grand scheme.",
       "mood": "neutral",
       "topic": "open"
+    },
+    {
+      "id": "return_ufos_11",
+      "text": "We're back. While the commercials ran, I was watching that Navy footage again. The service didn't release it to comfort anybody. The phones are open again. You're on.",
+      "voiceText": "We're back. While the commercials ran, I was watching that Navy footage again. The service didn't release it to comfort anybody. The phones are open again. You're on.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "return_ufos_12",
+      "text": "Back from the break. The headline this week said unidentified, not unexplained. We're here for the second word. Keep calling.",
+      "voiceText": "Back from the break. The headline this week said unidentified, not unexplained. We're here for the second word. Keep calling.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "return_ufos_13",
+      "text": "hmm, we're back. The break was three minutes of nothing, which is more than the sky's been given over in seventy years of explanations. Our next caller has something worth hearing.",
+      "voiceText": "hmm, we're back. The break was three minutes of nothing, which is more than the sky's been given over in seventy years of explanations. Our next caller has something worth hearing.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "return_ufos_14",
+      "text": "Welcome back. While we were off, I ran the numbers on disclosure. They tell you a little when the secret stops paying. Tonight's callers are the receipts. Go ahead.",
+      "voiceText": "Welcome back. While we were off, I ran the numbers on disclosure. They tell you a little when the secret stops paying. Tonight's callers are the receipts. Go ahead.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "return_ufos_15",
+      "text": "heh, back on the air. The break's over, the cover-up isn't. Our next witness might be the one the agencies never got to.",
+      "voiceText": "heh, back on the air. The break's over, the cover-up isn't. Our next witness might be the one the agencies never got to.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "return_ufos_16",
+      "text": "We're back. A listener phoned during the break to say sightings are up because there's more up there worth seeing. That's a theory. We've got a caller to test it with.",
+      "voiceText": "We're back. A listener phoned during the break to say sightings are up because there's more up there worth seeing. That's a theory. We've got a caller to test it with.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "return_ufos_17",
+      "text": "Welcome back from the break. Every pilot we've talked to into this show described the same thing wrong: the maneuver. It moved like nothing we fly. Next caller, you're on.",
+      "voiceText": "Welcome back from the break. Every pilot we've talked to into this show described the same thing wrong: the maneuver. It moved like nothing we fly. Next caller, you're on.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "return_ufos_18",
+      "text": "Back on the air. If you missed the first hour, we had radar and we had pilots. The best is always the next caller. Call in.",
+      "voiceText": "Back on the air. If you missed the first hour, we had radar and we had pilots. The best is always the next caller. Call in.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "return_ufos_19",
+      "text": "ah... we're back. While we were off, somebody lit up the board and hung up without a word. Coincidence, probably. We'll see who's next.",
+      "voiceText": "ah... we're back. While we were off, somebody lit up the board and hung up without a word. Coincidence, probably. We'll see who's next.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "return_ufos_20",
+      "text": "Welcome back to KBTV. The question isn't whether they're here. It's why they don't land. The lines are open. Go ahead.",
+      "voiceText": "Welcome back to KBTV. The question isn't whether they're here. It's why they don't land. The lines are open. Go ahead.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "return_ghosts_11",
+      "text": "We're back. The studio got cold during the break, and the thermostat says the furnace never came on. Haunting night continues. You're next.",
+      "voiceText": "We're back. The studio got cold during the break, and the thermostat says the furnace never came on. Haunting night continues. You're next.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "return_ghosts_12",
+      "text": "Back from the break. The recording from last hour has a voice behind the voice. We'll play it again and listen together. Keep calling.",
+      "voiceText": "Back from the break. The recording from last hour has a voice behind the voice. We'll play it again and listen together. Keep calling.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "return_ghosts_13",
+      "text": "hmm, we're back. Three minutes of silence on this show isn't nothing. The quiet's where they work. Our next caller lives in one of those quiet houses.",
+      "voiceText": "hmm, we're back. Three minutes of silence on this show isn't nothing. The quiet's where they work. Our next caller lives in one of those quiet houses.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "return_ghosts_14",
+      "text": "Welcome back. I checked the hall closet during the break. Nothing in it. That's the problem, for the man who put something in there. Hauntings tonight. Call in.",
+      "voiceText": "Welcome back. I checked the hall closet during the break. Nothing in it. That's the problem, for the man who put something in there. Hauntings tonight. Call in.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "return_ghosts_15",
+      "text": "heh, we're back. A caller said she'd take her haunting over any of her neighbors. That's the right attitude, and this show's full of it tonight.",
+      "voiceText": "heh, we're back. A caller said she'd take her haunting over any of her neighbors. That's the right attitude, and this show's full of it tonight.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "return_ghosts_16",
+      "text": "Back on the air. Every house in this county has a history. Most of it's just dirt. The interesting ones answer. The line's open.",
+      "voiceText": "Back on the air. Every house in this county has a history. Most of it's just dirt. The interesting ones answer. The line's open.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "return_ghosts_17",
+      "text": "We're back from the break. The lights in here cycled once and came back steady. It's old wiring. I've decided that. Next caller, you're on.",
+      "voiceText": "We're back from the break. The lights in here cycled once and came back steady. It's old wiring. I've decided that. Next caller, you're on.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "return_ghosts_18",
+      "text": "Welcome back. While we were off, the board blinked twice with nobody on the line. Technical. It's a technical thing. Ghost night goes on.",
+      "voiceText": "Welcome back. While we were off, the board blinked twice with nobody on the line. Technical. It's a technical thing. Ghost night goes on.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "return_ghosts_19",
+      "text": "ah... we're back. The dead don't take commercial breaks, so neither do we. The next caller hasn't slept since the funeral. Come find out why.",
+      "voiceText": "ah... we're back. The dead don't take commercial breaks, so neither do we. The next caller hasn't slept since the funeral. Come find out why.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "return_ghosts_20",
+      "text": "Back on the air. House to house tonight. The ones where nothing happens are the ones where nothing's happened yet. Call in.",
+      "voiceText": "Back on the air. House to house tonight. The ones where nothing happens are the ones where nothing's happened yet. Call in.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "return_cryptids_11",
+      "text": "We're back. During the break I was looking at those track photos again. They went toward the food, but they stopped. Nothing hungry stops like that. Next caller, you're on.",
+      "voiceText": "We're back. During the break I was looking at those track photos again. They went toward the food, but they stopped. Nothing hungry stops like that. Next caller, you're on.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "return_cryptids_12",
+      "text": "Back from the break. The pattern tonight is smell, and it's consistent. Whatever it is, it announces itself before you see it. That's data. Keep calling.",
+      "voiceText": "Back from the break. The pattern tonight is smell, and it's consistent. Whatever it is, it announces itself before you see it. That's data. Keep calling.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "return_cryptids_13",
+      "text": "hmm, we're back. The break gave me time to pull the cast archive. That stride isn't a bear. That stride isn't a man. Somebody out there knows the third option. You've got the line.",
+      "voiceText": "hmm, we're back. The break gave me time to pull the cast archive. That stride isn't a bear. That stride isn't a man. Somebody out there knows the third option. You've got the line.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "return_cryptids_14",
+      "text": "Welcome back. Third call tonight from the same ridge, same week, same time. That's a range, not a migration. Cryptid night goes on. You're next.",
+      "voiceText": "Welcome back. Third call tonight from the same ridge, same week, same time. That's a range, not a migration. Cryptid night goes on. You're next.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "return_cryptids_15",
+      "text": "heh, back on the air. The foresters won't say the quiet part, so the phone board says it. Tonight's caller logged something in the county notes. We'll get to it.",
+      "voiceText": "heh, back on the air. The foresters won't say the quiet part, so the phone board says it. Tonight's caller logged something in the county notes. We'll get to it.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "return_cryptids_16",
+      "text": "We're back. A listener phoned during the break to say the woods changed shape when he was a boy, and what lives in them knows it. Land stories tonight. Bring yours.",
+      "voiceText": "We're back. A listener phoned during the break to say the woods changed shape when he was a boy, and what lives in them knows it. Land stories tonight. Bring yours.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "return_cryptids_17",
+      "text": "Back from the break. Big cats aren't supposed to be in these mountains. So what's been running deer across the highway since June? We're on it. Keep calling.",
+      "voiceText": "Back from the break. Big cats aren't supposed to be in these mountains. So what's been running deer across the highway since June? We're on it. Keep calling.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "return_cryptids_18",
+      "text": "Welcome back. Somebody said during the break that the woods aren't empty, they're occupied. The lines are open. Let's hear it from the neighbors.",
+      "voiceText": "Welcome back. Somebody said during the break that the woods aren't empty, they're occupied. The lines are open. Let's hear it from the neighbors.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "return_cryptids_19",
+      "text": "ah... we're back. Our next caller is a girl with a plaster cast of a hand. It's a man's size, and it's got no thumb. Come find out what she heard about it. The lines are open.",
+      "voiceText": "ah... we're back. Our next caller is a girl with a plaster cast of a hand. It's a man's size, and it's got no thumb. Come find out what she heard about it. The lines are open.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "return_cryptids_20",
+      "text": "We're back. The cameras are still pointed at the treeline, and the treeline's still looking back. Cryptid night, KBTV. Keep calling.",
+      "voiceText": "We're back. The cameras are still pointed at the treeline, and the treeline's still looking back. Cryptid night, KBTV. Keep calling.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "return_conspiracies_11",
+      "text": "We're back. I read the fine print on our own sponsor during the break. There's more in it than a jingle. There always is. Keep calling.",
+      "voiceText": "We're back. I read the fine print on our own sponsor during the break. There's more in it than a jingle. There always is. Keep calling.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_12",
+      "text": "Back from the break. Our next caller has an employee badge for a company that doesn't exist, in a town that does. We'll find the company. Stay with us.",
+      "voiceText": "Back from the break. Our next caller has an employee badge for a company that doesn't exist, in a town that does. We'll find the company. Stay with us.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_13",
+      "text": "hmm, we're back. The break was interesting. The ad for the product is made by a company that doesn't make the product. It's a structure. We've got the phone. Keep calling.",
+      "voiceText": "hmm, we're back. The break was interesting. The ad for the product is made by a company that doesn't make the product. It's a structure. We've got the phone. Keep calling.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_14",
+      "text": "Welcome back. I ran the numbers during the break. The story from the last hour doesn't add up, which is why it's on this show and not the news. Callers, do the math with me.",
+      "voiceText": "Welcome back. I ran the numbers during the break. The story from the last hour doesn't add up, which is why it's on this show and not the news. Callers, do the math with me.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_15",
+      "text": "heh, we're back. The pattern tonight is witnesses from the same decade, the same agency, the same silence afterward. Somebody had a budget. Bring a budget item. You're on.",
+      "voiceText": "heh, we're back. The pattern tonight is witnesses from the same decade, the same agency, the same silence afterward. Somebody had a budget. Bring a budget item. You're on.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_16",
+      "text": "Back on the air. First they take the records, then they take the memory. The phone board is for the memory. Keep calling it in.",
+      "voiceText": "Back on the air. First they take the records, then they take the memory. The phone board is for the memory. Keep calling it in.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_17",
+      "text": "We're back from the break. Someone out there works on something they can't talk about. Our callers tonight can. The rest of you should. The number's up.",
+      "voiceText": "We're back from the break. Someone out there works on something they can't talk about. Our callers tonight can. The rest of you should. The number's up.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_18",
+      "text": "Welcome back. The quiet part of the quiet part is that it has a name, an office, and a fiscal year. We're on the names tonight. Keep listening, keep calling.",
+      "voiceText": "Welcome back. The quiet part of the quiet part is that it has a name, an office, and a fiscal year. We're on the names tonight. Keep listening, keep calling.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_19",
+      "text": "ah... we're back. The document nobody will deny tonight is the whole reason for the show. There's more where it came from, and the next caller knows where. Go ahead.",
+      "voiceText": "ah... we're back. The document nobody will deny tonight is the whole reason for the show. There's more where it came from, and the next caller knows where. Go ahead.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_conspiracies_20",
+      "text": "We're back. They can't say it. You can. That's the deal this show's always made. The lines are open, the break's over. Start talking.",
+      "voiceText": "We're back. They can't say it. You can. That's the deal this show's always made. The lines are open, the break's over. Start talking.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "return_personal_1",
+      "text": "We're back. I spent the break at the diner, and the waitress asked if the show was tonight. She asks that every week. So does this phone board. You're up.",
+      "voiceText": "We're back. I spent the break at the diner, and the waitress asked if the show was tonight. She asks that every week. So does this phone board. You're up.",
+      "mood": "neutral",
+      "topic": "personal"
+    },
+    {
+      "id": "return_personal_2",
+      "text": "hmm, back. The break gave me time to walk out and see if the truck light was the problem or me this time. It was the truck. It's always the truck. The show's back. You're next.",
+      "voiceText": "hmm, back. The break gave me time to walk out and see if the truck light was the problem or me this time. It was the truck. It's always the truck. The show's back. You're next.",
+      "mood": "neutral",
+      "topic": "personal"
+    },
+    {
+      "id": "return_personal_3",
+      "text": "Welcome back. My ex used to say I'd talk to the transmitter if the board didn't answer. We'll find out tonight who's on the board. Keep calling.",
+      "voiceText": "Welcome back. My ex used to say I'd talk to the transmitter if the board didn't answer. We'll find out tonight who's on the board. Keep calling.",
+      "mood": "neutral",
+      "topic": "personal"
+    },
+    {
+      "id": "return_personal_4",
+      "text": "heh, we're back. During the break the old CB on the shelf crackled. Trucker habit, I still key it sometimes. Just static. Just. The phones are open. Call in.",
+      "voiceText": "heh, we're back. During the break the old CB on the shelf crackled. Trucker habit, I still key it sometimes. Just static. Just. The phones are open. Call in.",
+      "mood": "neutral",
+      "topic": "personal"
     }
   ]
 }

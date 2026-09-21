@@ -134,6 +134,118 @@
       "voiceText": "Watch your damn mouth. Get outta here.",
       "mood": "gruff",
       "weight": 1.0
+    },
+    {
+      "id": "cursed_tired_2",
+      "text": "Please. No. I don't have the energy for the FCC tonight.",
+      "voiceText": "Please. No. I don't have the energy for the FCC tonight.",
+      "mood": "tired",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_tired_3",
+      "text": "Whoa. Watch it. I can't deal with a fine right now.",
+      "voiceText": "Whoa. Watch it. I can't deal with a fine right now.",
+      "mood": "tired",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_energized_2",
+      "text": "Hey now! We don't swear on this show! Moving on, moving on!",
+      "voiceText": "Hey now! We don't swear on this show! Moving on, moving on!",
+      "mood": "energized",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_energized_3",
+      "text": "Language! But I'm not mad, just telling you. Keep it clean!",
+      "voiceText": "Language! But I'm not mad, just telling you. Keep it clean!",
+      "mood": "energized",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_amused_2",
+      "text": "heh, feisty. But this is broadcast, not a bar fight.",
+      "voiceText": "heh, feisty. But this is broadcast, not a bar fight.",
+      "mood": "amused",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_amused_3",
+      "text": "Whoa. You made me blush, and nothing makes me blush. Watch it.",
+      "voiceText": "Whoa. You made me blush, and nothing makes me blush. Watch it.",
+      "mood": "amused",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_gruff_2",
+      "text": "Cut it out. That's a warning.",
+      "voiceText": "Cut it out. That's a warning.",
+      "mood": "gruff",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_gruff_3",
+      "text": "Language. One more word, you're off the air.",
+      "voiceText": "Language. One more word, you're off the air.",
+      "mood": "gruff",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_exhausted_2",
+      "text": "Please don't. I really don't have the strength for the censors tonight.",
+      "voiceText": "Please don't. I really don't have the strength for the censors tonight.",
+      "mood": "exhausted",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_exhausted_3",
+      "text": "ah... that. We don't... never mind. Watch the mouth.",
+      "voiceText": "ah... that. We don't... never mind. Watch the mouth.",
+      "mood": "exhausted",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_depressed_2",
+      "text": "Fair enough, honestly. But we can't say it on air. Sorry.",
+      "voiceText": "Fair enough, honestly. But we can't say it on air. Sorry.",
+      "mood": "depressed",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_depressed_3",
+      "text": "Everyone's angry. I get it. But watch the language anyway.",
+      "voiceText": "Everyone's angry. I get it. But watch the language anyway.",
+      "mood": "depressed",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_obsessive_2",
+      "text": "Swearing won't get you banned twice. It's logged. Watch the mouth.",
+      "voiceText": "Swearing won't get you banned twice. It's logged. Watch the mouth.",
+      "mood": "obsessive",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_obsessive_3",
+      "text": "The decline in caller language on this show is measurable. Correct it.",
+      "voiceText": "The decline in caller language on this show is measurable. Correct it.",
+      "mood": "obsessive",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_manic_2",
+      "text": "LANGUAGE! HAHA, I LIKED YOUR ENERGY. NOT ON AIR! BEHAVIOR!",
+      "voiceText": "LANGUAGE! HAHA, I LIKED YOUR ENERGY. NOT ON AIR! BEHAVIOR!",
+      "mood": "manic",
+      "weight": 1.0
+    },
+    {
+      "id": "cursed_manic_3",
+      "text": "WOW! THE FRENCH REVOLUTION OF FOUR LETTERS! NOT ON MY AIRWAVES!",
+      "voiceText": "WOW! THE FRENCH REVOLUTION OF FOUR LETTERS! NOT ON MY AIRWAVES!",
+      "mood": "manic",
+      "weight": 1.0
     }
   ]
 }

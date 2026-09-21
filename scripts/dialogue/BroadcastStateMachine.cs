@@ -158,7 +158,8 @@ namespace KBTV.Dialogue
                     }
                       return new DialogueExecutable("dropped_caller", "Looks like we lost that caller...", "Vern", _eventBus, _audioService, lineType: VernLineType.DroppedCaller, stateManager: _stateManager, statTracker: _statTracker);
                  case AsyncBroadcastState.CallerCursed:
-                     var cursedCaller = _vernDialogue.GetCallerCursed();
+                     var cursedMood = _gameStateManager?.VernStats?.CurrentMoodType ?? VernMoodType.Neutral;
+                     var cursedCaller = _vernDialogue.GetCallerCursed(cursedMood);
                      if (cursedCaller != null)
                      {
                          var audioPath = $"res://assets/audio/voice/Vern/Broadcast/{cursedCaller.Id}.mp3";

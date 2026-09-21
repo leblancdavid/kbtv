@@ -351,6 +351,307 @@
       "voiceText": "You're listening to KBTV, where we explore the unexplained. Tonight, open lines. I'm Vern, and let's begin.",
       "mood": "neutral",
       "topic": "open"
+    },
+    {
+      "id": "opening_ufos_11",
+      "text": "It's midnight on KBTV, and tonight the phones are for anyone who's ever seen something cross the sky and kept it to themselves. I'm Vern. Speak now.",
+      "voiceText": "It's midnight on KBTV, and tonight the phones are for anyone who's ever seen something cross the sky and kept it to themselves. I'm Vern. Speak now.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "opening_ufos_12",
+      "text": "Good evening. They call this the fringe topic. Ask the Navy pilots who filed the reports. This is KBTV, UFO night, lines open.",
+      "voiceText": "Good evening. They call this the fringe topic. Ask the Navy pilots who filed the reports. This is KBTV, UFO night, lines open.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "opening_ufos_13",
+      "text": "hmm, welcome to the program they send the hate mail about. UFOs. Government footage, radar returns, witnesses with pay stubs. I'm Vern. Talk to me.",
+      "voiceText": "hmm, welcome to the program they send the hate mail about. UFOs. Government footage, radar returns, witnesses with pay stubs. I'm Vern. Talk to me.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "opening_ufos_14",
+      "text": "You're tuned to KBTV, where the extraterrestrial question is one phone call away from being on the record. I'm Vern Tell. Keep your eyes on the sky.",
+      "voiceText": "You're tuned to KBTV, where the extraterrestrial question is one phone call away from being on the record. I'm Vern Tell. Keep your eyes on the sky.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "opening_ufos_15",
+      "text": "heh, they used to joke about this show. Then the Pentagon started joking about it itself. Welcome to UFO night. I'm Vern.",
+      "voiceText": "heh, they used to joke about this show. Then the Pentagon started joking about it itself. Welcome to UFO night. I'm Vern.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "opening_ufos_16",
+      "text": "Clear night out. Good for looking up. KBTV is on the air, the subject is what flies over and never lands, and the board is open. Call in.",
+      "voiceText": "Clear night out. Good for looking up. KBTV is on the air, the subject is what flies over and never lands, and the board is open. Call in.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "opening_ufos_17",
+      "text": "Good evening. Tonight's show is for anyone who's stood outside at two in the morning, seen a light that wasn't a star, and told nobody about it. This is KBTV. I'm Vern.",
+      "voiceText": "Good evening. Tonight's show is for anyone who's stood outside at two in the morning, seen a light that wasn't a star, and told nobody about it. This is KBTV. I'm Vern.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "opening_ufos_18",
+      "text": "Welcome to KBTV. Tonight's subject is whatever's moving above your house right now. Or nobody. We'll find out together. I'm Vern.",
+      "voiceText": "Welcome to KBTV. Tonight's subject is whatever's moving above your house right now. Or nobody. We'll find out together. I'm Vern.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "opening_ufos_19",
+      "text": "ah... another night shift. UFOs tonight, the oldest story nobody will tell straight. Bring your sighting, I'll bring the skepticism. Vern on the mic.",
+      "voiceText": "ah... another night shift. UFOs tonight, the oldest story nobody will tell straight. Bring your sighting, I'll bring the skepticism. Vern on the mic.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "opening_ufos_20",
+      "text": "This is KBTV, home of the unexplained frequency. UFO night. The lines are open and the sky is doing something. Let's talk about it.",
+      "voiceText": "This is KBTV, home of the unexplained frequency. UFO night. The lines are open and the sky is doing something. Let's talk about it.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "opening_ghosts_11",
+      "text": "Good evening. It's ninety degrees outside and this studio still runs cold. That's KBTV. Tonight: the dead aren't done. I'm Vern.",
+      "voiceText": "Good evening. It's ninety degrees outside and this studio still runs cold. That's KBTV. Tonight: the dead aren't done. I'm Vern.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "opening_ghosts_12",
+      "text": "hmm, midnight. Quiet house. Which is exactly when some of you turn on the light. Welcome to haunting night. I'm Vern.",
+      "voiceText": "hmm, midnight. Quiet house. Which is exactly when some of you turn on the light. Welcome to haunting night. I'm Vern.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "opening_ghosts_13",
+      "text": "This is KBTV. Tonight's topic is every creak you explained away, every door you closed without touching. Call in.",
+      "voiceText": "This is KBTV. Tonight's topic is every creak you explained away, every door you closed without touching. Call in.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "opening_ghosts_14",
+      "text": "They say a ghost is just a memory. Then why do they answer back? KBTV, hauntings tonight. I'm Vern Tell.",
+      "voiceText": "They say a ghost is just a memory. Then why do they answer back? KBTV, hauntings tonight. I'm Vern Tell.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "opening_ghosts_15",
+      "text": "heh, the sun's down and you know what that's good for. Tonight: haunted houses, EVP, and everybody who's lived in one. Welcome to KBTV.",
+      "voiceText": "heh, the sun's down and you know what that's good for. Tonight: haunted houses, EVP, and everybody who's lived in one. Welcome to KBTV.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "opening_ghosts_16",
+      "text": "Welcome. This phone line is for people who live with it. The footsteps, the cold spot, the name your kid knows that nobody taught them. I'm Vern.",
+      "voiceText": "Welcome. This phone line is for people who live with it. The footsteps, the cold spot, the name your kid knows that nobody taught them. I'm Vern.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "opening_ghosts_17",
+      "text": "Good evening. Everywhere you drive tonight, something's buried under the road. KBTV is on the air. Haunting night. Be brave.",
+      "voiceText": "Good evening. Everywhere you drive tonight, something's buried under the road. KBTV is on the air. Haunting night. Be brave.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "opening_ghosts_18",
+      "text": "ah... another night, another dead thing trying to get somebody's attention. Bring yours. The lines are open at KBTV. I'm Vern.",
+      "voiceText": "ah... another night, another dead thing trying to get somebody's attention. Bring yours. The lines are open at KBTV. I'm Vern.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "opening_ghosts_19",
+      "text": "You're tuned to KBTV. We believe the witnesses, not the textbooks. If your house has a past, tonight's your night. Vern on the mic.",
+      "voiceText": "You're tuned to KBTV. We believe the witnesses, not the textbooks. If your house has a past, tonight's your night. Vern on the mic.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "opening_ghosts_20",
+      "text": "The dead don't sleep, so neither do their houses. Midnight at KBTV. Ghost night, lines open. I'm Vern.",
+      "voiceText": "The dead don't sleep, so neither do their houses. Midnight at KBTV. Ghost night, lines open. I'm Vern.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "opening_cryptids_11",
+      "text": "Good evening. Something's out in the woods tonight, and it isn't a bear. That's the whole argument. KBTV, cryptid night. I'm Vern.",
+      "voiceText": "Good evening. Something's out in the woods tonight, and it isn't a bear. That's the whole argument. KBTV, cryptid night. I'm Vern.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "opening_cryptids_12",
+      "text": "hmm, midnight. The deep country's awake. Tonight we're talking about the animals that don't exist, and the folks who've seen them twice. KBTV.",
+      "voiceText": "hmm, midnight. The deep country's awake. Tonight we're talking about the animals that don't exist, and the folks who've seen them twice. KBTV.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "opening_cryptids_13",
+      "text": "This is KBTV. They say the map's finished. Nobody's ever met the map. Tonight: cryptids. Call in if the woods have opinions about you.",
+      "voiceText": "This is KBTV. They say the map's finished. Nobody's ever met the map. Tonight: cryptids. Call in if the woods have opinions about you.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "opening_cryptids_14",
+      "text": "Science says the big ones are extinct. Science wasn't standing at the tree line at three a.m. last night. Cryptid night on KBTV. I'm Vern.",
+      "voiceText": "Science says the big ones are extinct. Science wasn't standing at the tree line at three a.m. last night. Cryptid night on KBTV. I'm Vern.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "opening_cryptids_15",
+      "text": "heh, welcome to the show for the tracks that came up to the porch and stopped. The tall ones, the fast ones, the wrong ones. I'm Vern. You're on the air.",
+      "voiceText": "heh, welcome to the show for the tracks that came up to the porch and stopped. The tall ones, the fast ones, the wrong ones. I'm Vern. You're on the air.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "opening_cryptids_16",
+      "text": "Good evening. Every continent tells the same story: something tall, something fast, something wrong. The names change, the shape doesn't. This is KBTV.",
+      "voiceText": "Good evening. Every continent tells the same story: something tall, something fast, something wrong. The names change, the shape doesn't. This is KBTV.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "opening_cryptids_17",
+      "text": "You're tuned to KBTV. Tonight we've got the trail cameras, the plaster casts, and the voices that can't stop describing what stood in the yard. I'm Vern.",
+      "voiceText": "You're tuned to KBTV. Tonight we've got the trail cameras, the plaster casts, and the voices that can't stop describing what stood in the yard. I'm Vern.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "opening_cryptids_18",
+      "text": "ah... the night shift at the zoo that isn't. Cryptids tonight. The witnesses agree with each other, and that's the problem for the experts. Vern on the mic.",
+      "voiceText": "ah... the night shift at the zoo that isn't. Cryptids tonight. The witnesses agree with each other, and that's the problem for the experts. Vern on the mic.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "opening_cryptids_19",
+      "text": "This is KBTV. The woods are quiet tonight, and some of you said so at exactly the same time. That's the topic. I'm Vern. Call in.",
+      "voiceText": "This is KBTV. The woods are quiet tonight, and some of you said so at exactly the same time. That's the topic. I'm Vern. Call in.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "opening_cryptids_20",
+      "text": "Good evening. Bring your photos, your casts, your three a.m. stories about the treeline. Cryptid night, KBTV, lines open. I'm Vern.",
+      "voiceText": "Good evening. Bring your photos, your casts, your three a.m. stories about the treeline. Cryptid night, KBTV, lines open. I'm Vern.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "opening_conspiracies_11",
+      "text": "Good evening. You're listening to KBTV, and tonight we're not doing the sky. We're doing the people running things. I'm Vern.",
+      "voiceText": "Good evening. You're listening to KBTV, and tonight we're not doing the sky. We're doing the people running things. I'm Vern.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "opening_conspiracies_12",
+      "text": "hmm, midnight. The markets close, the offices empty, and somebody badged walks into a room with no name. Tonight's show is about the room. KBTV.",
+      "voiceText": "hmm, midnight. The markets close, the offices empty, and somebody badged walks into a room with no name. Tonight's show is about the room. KBTV.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "opening_conspiracies_13",
+      "text": "The official version has a footnote. Tonight is for the people who read it. KBTV, conspiracy night. I'm Vern Tell.",
+      "voiceText": "The official version has a footnote. Tonight is for the people who read it. KBTV, conspiracy night. I'm Vern Tell.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "opening_conspiracies_14",
+      "text": "Welcome. Tonight's topic is the quiet part, the part with the line item. Bring your receipts. The phone board is open.",
+      "voiceText": "Welcome. Tonight's topic is the quiet part, the part with the line item. Bring your receipts. The phone board is open.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "opening_conspiracies_15",
+      "text": "heh, they say the cover-up is that nothing happened. That's never all it is. Conspiracy night on KBTV. I'm Vern. Start talking.",
+      "voiceText": "heh, they say the cover-up is that nothing happened. That's never all it is. Conspiracy night on KBTV. I'm Vern. Start talking.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "opening_conspiracies_16",
+      "text": "Good evening. If your grandfather's war story doesn't match the history book, he's either a liar or a witness. We're settling it tonight. I'm Vern.",
+      "voiceText": "Good evening. If your grandfather's war story doesn't match the history book, he's either a liar or a witness. We're settling it tonight. I'm Vern.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "opening_conspiracies_17",
+      "text": "You're tuned to KBTV. Tonight: who profits from the story they tell you, and what story they'd rather not. Ask about the mill your town closed. Vern on the mic.",
+      "voiceText": "You're tuned to KBTV. Tonight: who profits from the story they tell you, and what story they'd rather not. Ask about the mill your town closed. Vern on the mic.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "opening_conspiracies_18",
+      "text": "ah... the sun's down and the archives go online for exactly one night. Every agency has a floor they don't show visitors. Tonight we're calling about that floor. KBTV.",
+      "voiceText": "ah... the sun's down and the archives go online for exactly one night. Every agency has a floor they don't show visitors. Tonight we're calling about that floor. KBTV.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "opening_conspiracies_19",
+      "text": "This is KBTV. The real conspiracies are the ones they stopped denying. Tonight's about the ones they're still laughing at. I'm Vern. You're on the record.",
+      "voiceText": "This is KBTV. The real conspiracies are the ones they stopped denying. Tonight's about the ones they're still laughing at. I'm Vern. You're on the record.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "opening_conspiracies_20",
+      "text": "Good evening. Tonight's subject is the kind of power that never campaigns and never loses. That's the whole topic. The lines are open. Midnight on KBTV.",
+      "voiceText": "Good evening. Tonight's subject is the kind of power that never campaigns and never loses. That's the whole topic. The lines are open. Midnight on KBTV.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "opening_personal_1",
+      "text": "Good evening. Before the calls, a story. My father kept a box of photographs in his closet for forty years and never said a word about any of it. I'm still not ready to open it. So we'll talk about what other people saw instead. KBTV, midnight, I'm Vern.",
+      "voiceText": "Good evening. Before the calls, a story. My father kept a box of photographs in his closet for forty years and never said a word about any of it. I'm still not ready to open it. So we'll talk about what other people saw instead. KBTV, midnight, I'm Vern.",
+      "mood": "neutral",
+      "topic": "personal"
+    },
+    {
+      "id": "opening_personal_2",
+      "text": "hmm, I'll tell you why a man stands at a radio at this hour, and then you can call me about what keeps you up. It starts in a field behind my mother's house, with a light that was probably Venus. Probably. Welcome to KBTV. I'm Vern.",
+      "voiceText": "hmm, I'll tell you why a man stands at a radio at this hour, and then you can call me about what keeps you up. It starts in a field behind my mother's house, with a light that was probably Venus. Probably. Welcome to KBTV. I'm Vern.",
+      "mood": "neutral",
+      "topic": "personal"
+    },
+    {
+      "id": "opening_personal_3",
+      "text": "heh, the diner out on the county road knows me better than my last wife did. Three a.m. regulars, the booth in the back. That's where half this show's stories come from. Tonight you're all in my dining room. Lines are open. I'm Vern, KBTV.",
+      "voiceText": "heh, the diner out on the county road knows me better than my last wife did. Three a.m. regulars, the booth in the back. That's where half this show's stories come from. Tonight you're all in my dining room. Lines are open. I'm Vern, KBTV.",
+      "mood": "neutral",
+      "topic": "personal"
     }
   ]
 }

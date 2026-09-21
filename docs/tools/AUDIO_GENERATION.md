@@ -111,8 +111,8 @@ Location: `assets/dialogue/vern/`
 
 | File | Description |
 |------|-------------|
-| `openings.json` | Show opening lines (50 lines) |
-| `closings.json` | Show closing lines (50 lines) |
+| `openings.json` | Show opening lines (per topic + `open` + `personal`) |
+| `closings.json` | Show closing lines (per topic + `open` + `personal`) |
 | `dead-air-fillers.json` | Filler content between callers |
 | `break-transitions.json` | Transition to commercial breaks |
 | `return-from-breaks.json` | Coming back from breaks |

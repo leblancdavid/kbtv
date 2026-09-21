@@ -205,6 +205,78 @@
       "text": "ALRIGHT, YOU'RE ON! LET'S UNEARTH SOME MORE SECRETS!",
       "voiceText": "ALRIGHT, YOU'RE ON! LET'S UNEARTH SOME MORE SECRETS!",
       "mood": "manic"
+    },
+    {
+      "id": "betweencallers_tired_2",
+      "text": "One more caller... alright, put them through. I'm still here.",
+      "voiceText": "One more caller... alright, put them through. I'm still here.",
+      "mood": "tired"
+    },
+    {
+      "id": "betweencallers_tired_3",
+      "text": "The board's still blinking. Next one, you're on. Don't keep me up.",
+      "voiceText": "The board's still blinking. Next one, you're on. Don't keep me up.",
+      "mood": "tired"
+    },
+    {
+      "id": "betweencallers_energized_2",
+      "text": "We've got them lined up around the block tonight! Next caller, let's go!",
+      "voiceText": "We've got them lined up around the block tonight! Next caller, let's go!",
+      "mood": "energized"
+    },
+    {
+      "id": "betweencallers_energized_3",
+      "text": "This is a good night! Another witness is waiting. Put them through!",
+      "voiceText": "This is a good night! Another witness is waiting. Put them through!",
+      "mood": "energized"
+    },
+    {
+      "id": "betweencallers_irritated_2",
+      "text": "Let's see if this next one wastes less of my time. You're on.",
+      "voiceText": "Let's see if this next one wastes less of my time. You're on.",
+      "mood": "irritated"
+    },
+    {
+      "id": "betweencallers_irritated_3",
+      "text": "Next caller. And for the love of this station, make it interesting.",
+      "voiceText": "Next caller. And for the love of this station, make it interesting.",
+      "mood": "irritated"
+    },
+    {
+      "id": "betweencallers_gruff_2",
+      "text": "Line's open. Talk.",
+      "voiceText": "Line's open. Talk.",
+      "mood": "gruff"
+    },
+    {
+      "id": "betweencallers_gruff_3",
+      "text": "Who's next. Go ahead.",
+      "voiceText": "Who's next. Go ahead.",
+      "mood": "gruff"
+    },
+    {
+      "id": "betweencallers_amused_2",
+      "text": "I like where this night's going. Let's see who's got the next story.",
+      "voiceText": "I like where this night's going. Let's see who's got the next story.",
+      "mood": "amused"
+    },
+    {
+      "id": "betweencallers_amused_3",
+      "text": "heh, this show keeps delivering. Bring on the next one.",
+      "voiceText": "heh, this show keeps delivering. Bring on the next one.",
+      "mood": "amused"
+    },
+    {
+      "id": "betweencallers_focused_2",
+      "text": "Let's continue. The next caller is on the line.",
+      "voiceText": "Let's continue. The next caller is on the line.",
+      "mood": "focused"
+    },
+    {
+      "id": "betweencallers_focused_3",
+      "text": "We'll go to the next witness now. Stay with the details.",
+      "voiceText": "We'll go to the next witness now. Stay with the details.",
+      "mood": "focused"
     }
   ]
 }

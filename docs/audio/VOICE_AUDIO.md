@@ -14,7 +14,7 @@ This document outlines the strategy for producing voice audio for KBTV's dialogu
 |----------|-------------|---------------|
 | **Vern Conversation Arcs** | 73 arcs x vern turns x 13 mood variants | ~2900 vern arc files |
 | **Caller Conversation Arcs** | 73 arcs, one caller file per caller turn | ~360 caller files |
-| **Vern Broadcast Audio** | Openings/closings/fillers/breaks etc. from `assets/dialogue/vern/*.json` | ~350 files |
+| **Vern Broadcast Audio** | Openings/closings/fillers/breaks etc. from `assets/dialogue/vern/*.json` | ~550 files |
 
 Audio is regenerated locally from the dialogue JSON (mp3s are gitignored);
 run `python generate_arc_audio.py --all --check` to see current coverage.

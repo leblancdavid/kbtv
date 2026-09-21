@@ -12,12 +12,26 @@ namespace KBTV.Dialogue
     /// </summary>
     public partial class VernDialogueTemplate : Resource
     {
-        // Dead air filler pool shares (see GetDeadAirFiller(ShowTopic)).
-        private const float DeadAirTopicShare = 0.6f;
+        // Pool shares for topic-blended selection (see GetBlendedTopicLine):
+        // (topic / generic "open" / "personal") on topic shows, then
+        // (generic / personal) on Open-topic shows.
+        private const float DeadAirTopicShare = 0.60f;
         private const float DeadAirGenericShare = 0.25f;
         private const float DeadAirPersonalShare = 0.15f;
-        private const float OpenShowGenericShare = 0.6f;
-        private const float OpenShowPersonalShare = 0.4f;
+        private const float DeadAirOpenGenericShare = 0.60f;
+        private const float DeadAirOpenPersonalShare = 0.40f;
+
+        private const float ShowLineTopicShare = 0.80f;
+        private const float ShowLineGenericShare = 0.15f;
+        private const float ShowLinePersonalShare = 0.05f;
+        private const float ShowLineOpenGenericShare = 0.90f;
+        private const float ShowLineOpenPersonalShare = 0.10f;
+
+        private const float BreakReturnTopicShare = 0.75f;
+        private const float BreakReturnGenericShare = 0.15f;
+        private const float BreakReturnPersonalShare = 0.10f;
+        private const float BreakReturnOpenGenericShare = 0.85f;
+        private const float BreakReturnOpenPersonalShare = 0.15f;
 
         [Export] private Godot.Collections.Array<DialogueTemplate> _showOpeningLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _introductionLines = new Godot.Collections.Array<DialogueTemplate>();
@@ -54,20 +68,25 @@ namespace KBTV.Dialogue
 
         /// <summary>
         /// Get a show opening line for the specified topic.
+        /// Topic shows mostly draw topic-specific openers, with a small blend
+        /// of generic ("open") and "personal" lines for variety.
         /// </summary>
         public DialogueTemplate GetShowOpening(ShowTopic topic)
         {
             var topicString = topic.ToTopicName().ToLower();
 
-            var topicLines = System.Linq.Enumerable.Where(_showOpeningLines, line => line.Topic == topicString);
+            var blended = GetBlendedTopicLine(
+                _showOpeningLines, topicString,
+                ShowLineTopicShare, ShowLineGenericShare, ShowLinePersonalShare,
+                ShowLineOpenGenericShare, ShowLineOpenPersonalShare);
 
-            if (!topicLines.Any())
+            if (blended == null)
             {
                 // Fallback to mood-based selection
                 return GetShowOpeningFallback(VernMoodType.Neutral);
             }
 
-            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(topicLines));
+            return blended;
         }
 
         /// <summary>
@@ -104,20 +123,25 @@ namespace KBTV.Dialogue
 
         /// <summary>
         /// Get a show closing line for the specified topic.
+        /// Topic shows mostly draw topic-specific closers, with a small blend
+        /// of generic ("open") and "personal" lines for variety.
         /// </summary>
         public DialogueTemplate GetShowClosing(ShowTopic topic)
         {
             var topicString = topic.ToTopicName().ToLower();
 
-            var topicLines = System.Linq.Enumerable.Where(_showClosingLines, line => line.Topic == topicString);
+            var blended = GetBlendedTopicLine(
+                _showClosingLines, topicString,
+                ShowLineTopicShare, ShowLineGenericShare, ShowLinePersonalShare,
+                ShowLineOpenGenericShare, ShowLineOpenPersonalShare);
 
-            if (!topicLines.Any())
+            if (blended == null)
             {
                 // Fallback to mood-based selection
                 return GetShowClosingFallback(VernMoodType.Neutral);
             }
 
-            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(topicLines));
+            return blended;
         }
 
         /// <summary>
@@ -185,32 +209,12 @@ namespace KBTV.Dialogue
         {
             var topicString = topic.ToTopicName().ToLower();
 
-            var topicLines = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(_deadAirFillerLines, line => line.Topic == topicString));
-            var genericLines = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(_deadAirFillerLines, line => line.Topic == "open"));
-            var personalLines = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(_deadAirFillerLines, line => line.Topic == "personal"));
+            var blended = GetBlendedTopicLine(
+                _deadAirFillerLines, topicString,
+                DeadAirTopicShare, DeadAirGenericShare, DeadAirPersonalShare,
+                DeadAirOpenGenericShare, DeadAirOpenPersonalShare);
 
-            if (topicLines.Length == 0 && genericLines.Length == 0 && personalLines.Length == 0)
-            {
-                return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_deadAirFillerLines));
-            }
-
-            if (topic == ShowTopic.Open)
-            {
-                return DialogueUtility.GetWeightedRandom(
-                    System.Linq.Enumerable.Concat(genericLines, personalLines).ToArray(),
-                    line => line.Topic == "personal"
-                        ? OpenShowPersonalShare / personalLines.Length
-                        : OpenShowGenericShare / genericLines.Length);
-            }
-
-            return DialogueUtility.GetWeightedRandom(
-                topicLines.Concat(genericLines).Concat(personalLines).ToArray(),
-                line =>
-                {
-                    if (line.Topic == topicString) return DeadAirTopicShare / topicLines.Length;
-                    if (line.Topic == "open") return DeadAirGenericShare / genericLines.Length;
-                    return DeadAirPersonalShare / personalLines.Length;
-                });
+            return blended ?? DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_deadAirFillerLines));
         }
 
         /// <summary>
@@ -230,20 +234,25 @@ namespace KBTV.Dialogue
 
         /// <summary>
         /// Get a return from break line for the specified topic.
+        /// Topic shows mostly draw topic-specific returns, with a blend of
+        /// generic ("open") and "personal" lines for variety.
         /// </summary>
         public DialogueTemplate GetReturnFromBreak(ShowTopic topic)
         {
             var topicString = topic.ToTopicName().ToLower();
 
-            var topicLines = System.Linq.Enumerable.Where(_returnFromBreakLines, line => line.Topic == topicString);
+            var blended = GetBlendedTopicLine(
+                _returnFromBreakLines, topicString,
+                BreakReturnTopicShare, BreakReturnGenericShare, BreakReturnPersonalShare,
+                BreakReturnOpenGenericShare, BreakReturnOpenPersonalShare);
 
-            if (!topicLines.Any())
+            if (blended == null)
             {
                 // Fallback to mood-based selection
                 return GetReturnFromBreak(VernMoodType.Neutral);
             }
 
-            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(topicLines));
+            return blended;
         }
 
         /// <summary>
@@ -326,6 +335,57 @@ namespace KBTV.Dialogue
             }
 
             return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(moodLines));
+        }
+
+        /// <summary>
+        /// Weighted pick blending a line array's topic-specific pool, its generic
+        /// ("open") pool, and its "personal" pool. Empty pools contribute nothing
+        /// (shares renormalize). On Open-topic shows only generic and personal
+        /// pools are eligible. Template weights still apply within a pool.
+        /// Returns null only when every relevant pool is empty, so callers can
+        /// keep their legacy fallbacks.
+        /// </summary>
+        private static DialogueTemplate GetBlendedTopicLine(
+            Godot.Collections.Array<DialogueTemplate> lines,
+            string topicString,
+            float topicShare,
+            float genericShare,
+            float personalShare,
+            float openShowGenericShare,
+            float openShowPersonalShare)
+        {
+            var genericLines = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(lines, line => line.Topic == "open"));
+            var personalLines = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(lines, line => line.Topic == "personal"));
+
+            if (topicString == "open")
+            {
+                if (genericLines.Length == 0 && personalLines.Length == 0)
+                {
+                    return null;
+                }
+
+                return DialogueUtility.GetWeightedRandom(
+                    System.Linq.Enumerable.Concat(genericLines, personalLines).ToArray(),
+                    line => line.Topic == "personal"
+                        ? openShowPersonalShare / personalLines.Length * line.Weight
+                        : openShowGenericShare / genericLines.Length * line.Weight);
+            }
+
+            var topicLines = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(lines, line => line.Topic == topicString));
+
+            if (topicLines.Length == 0 && genericLines.Length == 0 && personalLines.Length == 0)
+            {
+                return null;
+            }
+
+            return DialogueUtility.GetWeightedRandom(
+                topicLines.Concat(genericLines).Concat(personalLines).ToArray(),
+                line =>
+                {
+                    if (line.Topic == topicString) return topicShare / topicLines.Length * line.Weight;
+                    if (line.Topic == "open") return genericShare / genericLines.Length * line.Weight;
+                    return personalShare / personalLines.Length * line.Weight;
+                });
         }
     }
 }

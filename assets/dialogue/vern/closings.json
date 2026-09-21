@@ -351,6 +351,307 @@
       "voiceText": "Goodnight, folks. The night holds secrets. Until next time.",
       "mood": "neutral",
       "topic": "open"
+    },
+    {
+      "id": "closing_ufos_11",
+      "text": "That's all for tonight. And to whoever's watching from up there: we see you looking. Goodnight from KBTV.",
+      "voiceText": "That's all for tonight. And to whoever's watching from up there: we see you looking. Goodnight from KBTV.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "closing_ufos_12",
+      "text": "The board's dark. The sky isn't. Keep watching. KBTV, goodnight.",
+      "voiceText": "The board's dark. The sky isn't. Keep watching. KBTV, goodnight.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "closing_ufos_13",
+      "text": "hmm, we're off. If you saw something tonight, call tomorrow. The aliens can wait. Vern, out.",
+      "voiceText": "hmm, we're off. If you saw something tonight, call tomorrow. The aliens can wait. Vern, out.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "closing_ufos_14",
+      "text": "That's the show. Night sights only, from now on. KBTV, signing off.",
+      "voiceText": "That's the show. Night sights only, from now on. KBTV, signing off.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "closing_ufos_15",
+      "text": "heh, another night, more questions. Drive home under an open sky. Goodnight from KBTV.",
+      "voiceText": "heh, another night, more questions. Drive home under an open sky. Goodnight from KBTV.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "closing_ufos_16",
+      "text": "Show's done. The lights are still up there doing something, and so am I, in the morning. Goodnight from the midnight shift.",
+      "voiceText": "Show's done. The lights are still up there doing something, and so am I, in the morning. Goodnight from the midnight shift.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "closing_ufos_17",
+      "text": "We're off the air. Whatever's flying, it flies without us now. KBTV.",
+      "voiceText": "We're off the air. Whatever's flying, it flies without us now. KBTV.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "closing_ufos_18",
+      "text": "Before I go: if a caller on this show sounded like you, call tomorrow. The lines get watched either way. Goodnight.",
+      "voiceText": "Before I go: if a caller on this show sounded like you, call tomorrow. The lines get watched either way. Goodnight.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "closing_ufos_19",
+      "text": "That's it for tonight. Some answers aren't in the files. They're on this phone board. Vern, signing off.",
+      "voiceText": "That's it for tonight. Some answers aren't in the files. They're on this phone board. Vern, signing off.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "closing_ufos_20",
+      "text": "ah... time. Keep looking up, and call about what looks back. KBTV out.",
+      "voiceText": "ah... time. Keep looking up, and call about what looks back. KBTV out.",
+      "mood": "neutral",
+      "topic": "ufos"
+    },
+    {
+      "id": "closing_ghosts_11",
+      "text": "That's all for tonight. Say a prayer for them, and check the back hallway. KBTV, goodnight.",
+      "voiceText": "That's all for tonight. Say a prayer for them, and check the back hallway. KBTV, goodnight.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "closing_ghosts_12",
+      "text": "The phones are quiet. They're always quiet around three. That's when the dead get going. Vern, out.",
+      "voiceText": "The phones are quiet. They're always quiet around three. That's when the dead get going. Vern, out.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "closing_ghosts_13",
+      "text": "hmm, we're off. Whatever followed you home tonight, call tomorrow. Goodnight from KBTV.",
+      "voiceText": "hmm, we're off. Whatever followed you home tonight, call tomorrow. Goodnight from KBTV.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "closing_ghosts_14",
+      "text": "That's the show. Sleep with the light on if you want. They're used to it. KBTV, signing off.",
+      "voiceText": "That's the show. Sleep with the light on if you want. They're used to it. KBTV, signing off.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "closing_ghosts_15",
+      "text": "heh, what a night. Check the baby monitor. We're done here. Goodnight.",
+      "voiceText": "heh, what a night. Check the baby monitor. We're done here. Goodnight.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "closing_ghosts_16",
+      "text": "We're off the air. Some of you still have company. Keep the line open. KBTV.",
+      "voiceText": "We're off the air. Some of you still have company. Keep the line open. KBTV.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "closing_ghosts_17",
+      "text": "Show's over. The veil's thin out there tonight. Drive careful. Goodnight from the midnight shift.",
+      "voiceText": "Show's over. The veil's thin out there tonight. Drive careful. Goodnight from the midnight shift.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "closing_ghosts_18",
+      "text": "Before I go: the name somebody heard tonight? It's in the log now. Call if you heard it too. Vern, signing off.",
+      "voiceText": "Before I go: the name somebody heard tonight? It's in the log now. Call if you heard it too. Vern, signing off.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "closing_ghosts_19",
+      "text": "That's it. They're still talking. I just operate the phone. KBTV, goodnight.",
+      "voiceText": "That's it. They're still talking. I just operate the phone. KBTV, goodnight.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "closing_ghosts_20",
+      "text": "ah... time. Lock the attic. That was a serious note, and I'm not taking questions tonight. Goodnight, folks.",
+      "voiceText": "ah... time. Lock the attic. That was a serious note, and I'm not taking questions tonight. Goodnight, folks.",
+      "mood": "neutral",
+      "topic": "ghosts"
+    },
+    {
+      "id": "closing_cryptids_11",
+      "text": "That's all. If you go out back tonight, watch the treeline. KBTV, goodnight.",
+      "voiceText": "That's all. If you go out back tonight, watch the treeline. KBTV, goodnight.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "closing_cryptids_12",
+      "text": "The phones are done. The woods aren't. Keep a light on. Vern, out.",
+      "voiceText": "The phones are done. The woods aren't. Keep a light on. Vern, out.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "closing_cryptids_13",
+      "text": "hmm, we're off. Whatever followed that logging truck tonight, it's still following it. Goodnight from KBTV.",
+      "voiceText": "hmm, we're off. Whatever followed that logging truck tonight, it's still following it. Goodnight from KBTV.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "closing_cryptids_14",
+      "text": "Show's over. Check your game cameras. Then check them twice. KBTV, signing off.",
+      "voiceText": "Show's over. Check your game cameras. Then check them twice. KBTV, signing off.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "closing_cryptids_15",
+      "text": "heh, what a night. The tall dark things don't need this show. We need them to keep being out there. Goodnight.",
+      "voiceText": "heh, what a night. The tall dark things don't need this show. We need them to keep being out there. Goodnight.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "closing_cryptids_16",
+      "text": "We're off the air. The woods stay open. If they answer back, let me know. Vern, goodnight.",
+      "voiceText": "We're off the air. The woods stay open. If they answer back, let me know. Vern, goodnight.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "closing_cryptids_17",
+      "text": "That's it for tonight. Stay on the road. Whatever's beside it isn't lost. KBTV.",
+      "voiceText": "That's it for tonight. Stay on the road. Whatever's beside it isn't lost. KBTV.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "closing_cryptids_18",
+      "text": "Before I go: you're not crazy. You're early. Goodnight from KBTV, cryptid country.",
+      "voiceText": "Before I go: you're not crazy. You're early. Goodnight from KBTV, cryptid country.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "closing_cryptids_19",
+      "text": "That's the show. Keep the camera pointed at the treeline, and the kettle on. Vern, out.",
+      "voiceText": "That's the show. Keep the camera pointed at the treeline, and the kettle on. Vern, out.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "closing_cryptids_20",
+      "text": "ah... time. The howls out there aren't coyotes. Most of them. Goodnight, folks. KBTV.",
+      "voiceText": "ah... time. The howls out there aren't coyotes. Most of them. Goodnight, folks. KBTV.",
+      "mood": "neutral",
+      "topic": "cryptids"
+    },
+    {
+      "id": "closing_conspiracies_11",
+      "text": "That's all for tonight. Check your receipts. Check your water. KBTV, goodnight.",
+      "voiceText": "That's all for tonight. Check your receipts. Check your water. KBTV, goodnight.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "closing_conspiracies_12",
+      "text": "The phones are quiet. The files aren't. That's tomorrow's problem. Vern, out.",
+      "voiceText": "The phones are quiet. The files aren't. That's tomorrow's problem. Vern, out.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "closing_conspiracies_13",
+      "text": "hmm, we're off. If there's a knock at your door after this show, it isn't me. It's the ones who don't do radio. Goodnight.",
+      "voiceText": "hmm, we're off. If there's a knock at your door after this show, it isn't me. It's the ones who don't do radio. Goodnight.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "closing_conspiracies_14",
+      "text": "Show's done. The truth is on the board, and the board's off for the night. KBTV, signing off.",
+      "voiceText": "Show's done. The truth is on the board, and the board's off for the night. KBTV, signing off.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "closing_conspiracies_15",
+      "text": "heh, what a night. If you saw something in your town this week, call it in. If you saw something about your town, that's tomorrow. Goodnight.",
+      "voiceText": "heh, what a night. If you saw something in your town this week, call it in. If you saw something about your town, that's tomorrow. Goodnight.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "closing_conspiracies_16",
+      "text": "We're off. Keep the documents. Keep two copies, one off site. Vern, signing off.",
+      "voiceText": "We're off. Keep the documents. Keep two copies, one off site. Vern, signing off.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "closing_conspiracies_17",
+      "text": "That's it for tonight. What they want you to forget was on this air an hour ago. Keep listening. Goodnight from KBTV.",
+      "voiceText": "That's it for tonight. What they want you to forget was on this air an hour ago. Keep listening. Goodnight from KBTV.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "closing_conspiracies_18",
+      "text": "Before I go: none of tonight was my opinion. It was the phone. The phone's on the record. KBTV, out.",
+      "voiceText": "Before I go: none of tonight was my opinion. It was the phone. The phone's on the record. KBTV, out.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "closing_conspiracies_19",
+      "text": "That's the show. The rest is classified. Or tomorrow. Goodnight.",
+      "voiceText": "That's the show. The rest is classified. Or tomorrow. Goodnight.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "closing_conspiracies_20",
+      "text": "ah... time. My shift's over. The other one's just starting. Drive safe out there, folks. KBTV.",
+      "voiceText": "ah... time. My shift's over. The other one's just starting. Drive safe out there, folks. KBTV.",
+      "mood": "neutral",
+      "topic": "conspiracies"
+    },
+    {
+      "id": "closing_personal_1",
+      "text": "That's all for tonight. I'm going to sit out back in the dark a while, watching the treeline like I was nine. You do the same. KBTV, goodnight.",
+      "voiceText": "That's all for tonight. I'm going to sit out back in the dark a while, watching the treeline like I was nine. You do the same. KBTV, goodnight.",
+      "mood": "neutral",
+      "topic": "personal"
+    },
+    {
+      "id": "closing_personal_2",
+      "text": "We're off. The coffee's cold, the board's quiet, and that's the sign-off. Keep a light on for whoever's still up. Vern, out.",
+      "voiceText": "We're off. The coffee's cold, the board's quiet, and that's the sign-off. Keep a light on for whoever's still up. Vern, out.",
+      "mood": "neutral",
+      "topic": "personal"
+    },
+    {
+      "id": "closing_personal_3",
+      "text": "ah... time. My father never talked about what he saw, and I never talk about anything else. Someone has to. Goodnight from KBTV.",
+      "voiceText": "ah... time. My father never talked about what he saw, and I never talk about anything else. Someone has to. Goodnight from KBTV.",
+      "mood": "neutral",
+      "topic": "personal"
     }
   ]
 }

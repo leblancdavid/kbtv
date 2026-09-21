@@ -170,6 +170,17 @@ BroadcastCoordinator.GetNextDisplayLine: returning transition line
 3. **No callers ever** → Filler cycles forever
 4. **Arc dialogue exhausted** → Between-callers transition → auto-advance
 
+### Pool Blending (VernDialogueTemplate)
+
+Topic-filtered line files (`dead-air-fillers`, `openings`, `closings`,
+`return-from-breaks`) blend three pools per show topic - topic-specific,
+generic (`topic: "open"`), and personal anecdotes (`topic: "personal"`).
+Shares are set in `scripts/dialogue/Templates/VernDialogueTemplate.cs`
+(e.g. dead air: 60/25/15 on topic shows, 60/40 on Open-topic shows).
+`between-callers`, `off-topic-remarks`, and `caller-cursed` are mood-filtered
+against Vern's live `VernStats.CurrentMoodType` (neutral fallback), so each
+mood needs several authored variants for in-show variety.
+
 ## Scenarios
 
 | Scenario | Behavior |
