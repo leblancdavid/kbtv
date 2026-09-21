@@ -12,6 +12,13 @@ namespace KBTV.Dialogue
     /// </summary>
     public partial class VernDialogueTemplate : Resource
     {
+        // Dead air filler pool shares (see GetDeadAirFiller(ShowTopic)).
+        private const float DeadAirTopicShare = 0.6f;
+        private const float DeadAirGenericShare = 0.25f;
+        private const float DeadAirPersonalShare = 0.15f;
+        private const float OpenShowGenericShare = 0.6f;
+        private const float OpenShowPersonalShare = 0.4f;
+
         [Export] private Godot.Collections.Array<DialogueTemplate> _showOpeningLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _introductionLines = new Godot.Collections.Array<DialogueTemplate>();
         [Export] private Godot.Collections.Array<DialogueTemplate> _showClosingLines = new Godot.Collections.Array<DialogueTemplate>();
@@ -169,20 +176,41 @@ namespace KBTV.Dialogue
 
         /// <summary>
         /// Get a dead air filler line for the specified topic.
+        /// Topic shows blend pools: 60% topic-specific, 25% generic (open),
+        /// 15% personal anecdotes. Open-topic shows draw only generic (60%)
+        /// and personal (40%). If none of the relevant pools have lines,
+        /// falls back to a random pick across all filler lines.
         /// </summary>
         public DialogueTemplate GetDeadAirFiller(ShowTopic topic)
         {
             var topicString = topic.ToTopicName().ToLower();
 
-            var topicLines = System.Linq.Enumerable.Where(_deadAirFillerLines, line => line.Topic == topicString);
+            var topicLines = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(_deadAirFillerLines, line => line.Topic == topicString));
+            var genericLines = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(_deadAirFillerLines, line => line.Topic == "open"));
+            var personalLines = System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Where(_deadAirFillerLines, line => line.Topic == "personal"));
 
-            if (!topicLines.Any())
+            if (topicLines.Length == 0 && genericLines.Length == 0 && personalLines.Length == 0)
             {
-                // Fallback to random selection
                 return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(_deadAirFillerLines));
             }
 
-            return DialogueUtility.GetWeightedRandom(System.Linq.Enumerable.ToArray(topicLines));
+            if (topic == ShowTopic.Open)
+            {
+                return DialogueUtility.GetWeightedRandom(
+                    System.Linq.Enumerable.Concat(genericLines, personalLines).ToArray(),
+                    line => line.Topic == "personal"
+                        ? OpenShowPersonalShare / personalLines.Length
+                        : OpenShowGenericShare / genericLines.Length);
+            }
+
+            return DialogueUtility.GetWeightedRandom(
+                topicLines.Concat(genericLines).Concat(personalLines).ToArray(),
+                line =>
+                {
+                    if (line.Topic == topicString) return DeadAirTopicShare / topicLines.Length;
+                    if (line.Topic == "open") return DeadAirGenericShare / genericLines.Length;
+                    return DeadAirPersonalShare / personalLines.Length;
+                });
         }
 
         /// <summary>

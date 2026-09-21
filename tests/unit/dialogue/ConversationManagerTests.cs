@@ -199,5 +199,91 @@ namespace KBTV.Tests.Unit.Dialogue
 
             AssertThat(line == null);
         }
+
+        private static VernDialogueTemplate CreateFillerTemplate()
+        {
+            var template = new VernDialogueTemplate();
+            template.SetDeadAirFillerLines(new[]
+            {
+                new DialogueTemplate("deadair_ufos_1", "ufo one", 1f, "neutral", "ufos"),
+                new DialogueTemplate("deadair_ufos_2", "ufo two", 1f, "neutral", "ufos"),
+                new DialogueTemplate("deadair_ghosts_1", "ghost one", 1f, "neutral", "ghosts"),
+                new DialogueTemplate("deadair_open_1", "generic one", 1f, "neutral", "open"),
+                new DialogueTemplate("deadair_open_2", "generic two", 1f, "neutral", "open"),
+                new DialogueTemplate("deadair_personal_1", "personal one", 1f, "neutral", "personal"),
+                new DialogueTemplate("deadair_personal_2", "personal two", 1f, "neutral", "personal"),
+            });
+            return template;
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetDeadAirFillerForTopic_ExcludesForeignTopics()
+        {
+            var template = CreateFillerTemplate();
+
+            var seen = new System.Collections.Generic.HashSet<string>();
+            for (int i = 0; i < 300; i++)
+            {
+                var line = template.GetDeadAirFiller(ShowTopic.UFOs);
+                AssertThat(line != null);
+                seen.Add(line.Id);
+            }
+
+            AssertThat(!seen.Contains("deadair_ghosts_1"));
+            AssertThat(seen.Contains("deadair_ufos_1") || seen.Contains("deadair_ufos_2"));
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetDeadAirFillerForTopic_BlendsGenericAndPersonal()
+        {
+            var template = CreateFillerTemplate();
+
+            int topicCount = 0, genericCount = 0, personalCount = 0;
+            for (int i = 0; i < 600; i++)
+            {
+                switch (template.GetDeadAirFiller(ShowTopic.UFOs).Topic)
+                {
+                    case "ufos": topicCount++; break;
+                    case "open": genericCount++; break;
+                    case "personal": personalCount++; break;
+                }
+            }
+
+            // All pools must be reachable and the 60/25/15 ordering must hold.
+            AssertThat(topicCount > 0 && genericCount > 0 && personalCount > 0);
+            AssertThat(topicCount > genericCount && genericCount > personalCount);
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetDeadAirFillerForOpenShow_ExcludesSpecificTopics()
+        {
+            var template = CreateFillerTemplate();
+
+            int openCount = 0, personalCount = 0;
+            for (int i = 0; i < 300; i++)
+            {
+                var line = template.GetDeadAirFiller(ShowTopic.Open);
+                AssertThat(line.Topic == "open" || line.Topic == "personal");
+                if (line.Topic == "open") openCount++; else personalCount++;
+            }
+
+            AssertThat(openCount > 0 && personalCount > 0);
+        }
+
+        [Test]
+        public void VernDialogueTemplate_GetDeadAirFiller_TopicOnlyPool_StillWorks()
+        {
+            var template = new VernDialogueTemplate();
+            template.SetDeadAirFillerLines(new[]
+            {
+                new DialogueTemplate("deadair_ufos_1", "ufo one", 1f, "neutral", "ufos"),
+                new DialogueTemplate("deadair_ufos_2", "ufo two", 1f, "neutral", "ufos"),
+            });
+
+            for (int i = 0; i < 50; i++)
+            {
+                AssertThat(template.GetDeadAirFiller(ShowTopic.UFOs).Topic == "ufos");
+            }
+        }
     }
 }
