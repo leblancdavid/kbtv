@@ -135,6 +135,10 @@ namespace KBTV.Dialogue
             if (_audioService == null || _audioService.IsAudioDisabled)
                 return 0f;
 
+            // Missing files would spam resource-load errors on every GD.Load attempt
+            if (!FileAccess.FileExists(audioPath))
+                return fallbackDuration;
+
             try
             {
                 var audioStream = GD.Load<AudioStream>(audioPath);

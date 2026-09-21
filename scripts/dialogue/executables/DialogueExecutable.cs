@@ -94,7 +94,6 @@ namespace KBTV.Dialogue
                      bool cursingOccurred = false;
 
                      // Play full conversation line by line
-                    var topic = _arc.TopicName;
                     foreach (var line in _arc.Dialogue)
                     {
                         if (localToken.IsCancellationRequested)
@@ -102,6 +101,9 @@ namespace KBTV.Dialogue
                             break;
                         }
 
+                        // Audio files live under the topic encoded in the line id prefix
+                        // (generator convention), not the arc's actual topic.
+                        var topic = ArcAudioTopics.GetTopicFolder(line.AudioId, _arc.TopicName);
                         string audioPath;
                         BroadcastItemType itemType;
                         string speakerName;
@@ -128,8 +130,10 @@ namespace KBTV.Dialogue
                         );
 
                           // Get actual audio duration - skip loading if audio is disabled
+                          // or the file is missing (avoids per-line resource-load error spam)
+                          bool audioExists = FileAccess.FileExists(audioPath);
                           float audioDuration = BroadcastConstants.DEFAULT_LINE_DURATION; // Default fallback
-                          if (!_audioService.IsAudioDisabled)
+                          if (!_audioService.IsAudioDisabled && audioExists)
                           {
                               audioDuration = await GetAudioDurationAsync(audioPath);
                           }
@@ -185,8 +189,16 @@ namespace KBTV.Dialogue
                             }
                            else
                            {
-                               // No cursing: play entire audio normally
-                               await PlayAudioAsync(audioPath, localToken);
+                               // No cursing: play entire audio normally (or hold for its
+                               // duration if the audio file is missing)
+                               if (audioExists)
+                               {
+                                   await PlayAudioAsync(audioPath, localToken);
+                               }
+                               else
+                               {
+                                   await DelayAsync(audioDuration, localToken);
+                               }
                            }
 
                           // Apply stat effects for this completed line (only when no cursing)
@@ -245,7 +257,7 @@ namespace KBTV.Dialogue
                         vernStats?.ApplyOffTopicRemarkPenalty();
                     }
                     
-                    if (!string.IsNullOrEmpty(_audioPath))
+                    if (!string.IsNullOrEmpty(_audioPath) && FileAccess.FileExists(_audioPath))
                     {
                         await PlayAudioAsync(_audioPath, localToken);
                     }
@@ -293,7 +305,7 @@ namespace KBTV.Dialogue
 
         protected override async Task<float> GetAudioDurationAsync()
         {
-            if (string.IsNullOrEmpty(_audioPath))
+            if (string.IsNullOrEmpty(_audioPath) || !FileAccess.FileExists(_audioPath))
                 return 0f;
 
             return await GetAudioDurationAsync(_audioPath, _duration);

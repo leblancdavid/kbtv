@@ -71,6 +71,7 @@ namespace KBTV.Dialogue
         private AsyncBroadcastState _currentState = AsyncBroadcastState.Idle;
         private readonly Queue<BroadcastExecutable> _pendingExecutables = new();
         private bool _isShowActive = false;
+        private bool _subscribedToEvents = false;
         public bool _hasPlayedVernOpening = false;
         public bool _pendingBreakTransition = false;
         public string? _pendingCallerDroppedCallerId = null;
@@ -345,6 +346,13 @@ namespace KBTV.Dialogue
         /// </summary>
         private void PublishStateChangedEvent(AsyncBroadcastState previousState)
         {
+            // The _eventBus DI property throws when nothing provides EventBus
+            // (e.g. nodes created outside the service tree in tests).
+            if (!_subscribedToEvents)
+            {
+                return;
+            }
+
             var stateChangedEvent = new BroadcastStateChangedEvent(_currentState, previousState);
             _eventBus.Publish(stateChangedEvent);
             Log.Debug($"BroadcastStateManager: Published state change from {previousState} to {_currentState}");
@@ -407,15 +415,19 @@ namespace KBTV.Dialogue
             _eventBus.Subscribe<BroadcastTimingEvent>(HandleTimingEvent);
             // Subscribe to interruption events for break handling
             _eventBus.Subscribe<BroadcastInterruptionEvent>(HandleInterruptionEvent);
+            _subscribedToEvents = true;
         }
 
         public override void _ExitTree()
         {
-            // Unsubscribe from events to prevent memory leaks
-            if (_eventBus != null)
+            // Unsubscribe from events to prevent memory leaks. Only valid if
+            // dependencies were resolved (OnResolved ran) - the _eventBus property
+            // throws when DI never provided EventBus.
+            if (_subscribedToEvents)
             {
                 _eventBus.Unsubscribe<BroadcastTimingEvent>(HandleTimingEvent);
                 _eventBus.Unsubscribe<BroadcastInterruptionEvent>(HandleInterruptionEvent);
+                _subscribedToEvents = false;
             }
             
             base._ExitTree();

@@ -43,6 +43,32 @@ namespace KBTV.Dialogue
         public string ClaimedTopicName => _hasClaimedTopic ? _claimedTopic.ToTopicName() : "";
 
         /// <summary>
+        /// The topic folder this arc's audio files live under, derived from the first
+        /// dialogue line's audio id prefix (the same rule the audio generator uses).
+        /// Audio lookup must use this instead of <see cref="TopicName"/> because
+        /// topic-switcher arcs (e.g. "cryptid_credible_claims_ufos", "ufos_fake_topic_
+        /// switch_ghost") carry the claimed topic in their line ids, not the actual topic.
+        /// </summary>
+        public string AudioTopicName
+        {
+            get
+            {
+                if (_dialogue != null)
+                {
+                    foreach (var line in _dialogue)
+                    {
+                        if (!string.IsNullOrEmpty(line.AudioId))
+                        {
+                            return ArcAudioTopics.GetTopicFolder(line.AudioId, TopicName);
+                        }
+                    }
+                }
+
+                return TopicName;
+            }
+        }
+
+        /// <summary>
         /// True if this is a topic-switcher arc (has a claimed topic different from actual topic).
         /// </summary>
         public bool IsTopicSwitcher => _hasClaimedTopic;

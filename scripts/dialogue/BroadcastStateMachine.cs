@@ -40,6 +40,9 @@ namespace KBTV.Dialogue
         private bool _pendingOffTopicRemark = false;
         private bool _skipBetweenAfterSpecialLine = false;
 
+        // Loop guard: consecutive fallback-line cycles without real caller progress
+        private int _consecutiveFallbackCycles = 0;
+
         public BroadcastStateMachine(
             ICallerRepository callerRepository,
             IArcRepository arcRepository,
@@ -370,12 +373,14 @@ namespace KBTV.Dialogue
             // Handle PutOnAir completion
             if (executable.Type == BroadcastItemType.PutOnAir)
             {
+                _consecutiveFallbackCycles = 0;
                 return AsyncBroadcastState.Conversation;
             }
 
             // Handle caller conversation completion
              if (executable.Type == BroadcastItemType.Conversation)
             {
+                _consecutiveFallbackCycles = 0;
                 
                 if (_stateManager._pendingBreakTransition)
                 {
@@ -464,6 +469,31 @@ namespace KBTV.Dialogue
             }
 
             // Fallback
+            // Guard against an endless BetweenCallers <-> Conversation ping-pong: the
+            // "Welcome to the show." fallback line has no caller progress, so if it repeats
+            // several cycles in a row, force-clear whatever is blocking progress.
+            if (executable is DialogueExecutable fallbackExecutable &&
+                fallbackExecutable.LineType == VernLineType.Fallback)
+            {
+                _consecutiveFallbackCycles++;
+                if (_consecutiveFallbackCycles >= 3)
+                {
+                    _consecutiveFallbackCycles = 0;
+                    Log.Warning("BroadcastStateMachine: Repeated fallback cycles detected - forcing recovery");
+                    if (_callerRepository.IsOnAir)
+                    {
+                        _callerRepository.EndOnAir();
+                    }
+                    _stateManager._pendingBreakTransition = false;
+                    _stateManager._pendingShowEndingTransition = false;
+                    return AsyncBroadcastState.DeadAir;
+                }
+            }
+            else
+            {
+                _consecutiveFallbackCycles = 0;
+            }
+
                  if (ShouldPlayBetweenCallers())
                  {
                      if (_skipBetweenAfterSpecialLine)
@@ -584,20 +614,19 @@ namespace KBTV.Dialogue
             if (onAirCaller != null)
             {
                 var topic = ShowTopicExtensions.ParseTopic(onAirCaller.ActualTopic);
-                if (topic.HasValue)
+                var arc = topic.HasValue
+                    ? _arcRepository.GetRandomArcForTopic(topic.Value, onAirCaller.Legitimacy)
+                    : null;
+                if (arc != null)
                 {
-                    var arc = _arcRepository.GetRandomArcForTopic(topic.Value, onAirCaller.Legitimacy);
-                    if (arc != null)
-                    {
-                        return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus, _audioService, _stateManager, _statTracker);
-                    }
-                    else
-                    {
-                    }
+                    return new DialogueExecutable($"dialogue_{onAirCaller.Id}", onAirCaller, arc, _eventBus, _audioService, _stateManager, _statTracker);
                 }
-                else
-                {
-                }
+
+                // No arc available for this caller - release them so the show can make
+                // forward progress instead of cycling BetweenCallers <-> Conversation
+                // behind a caller that can never talk.
+                Log.Warning($"BroadcastStateMachine: No arc for on-air caller '{onAirCaller.Name}' (topic={onAirCaller.ActualTopic}, legitimacy={onAirCaller.Legitimacy}) - releasing caller");
+                _callerRepository.EndOnAir();
             }
 
             if (_callerRepository.IncomingCallers.Count > 0)

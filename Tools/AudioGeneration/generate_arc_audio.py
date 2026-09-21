@@ -4,7 +4,14 @@ import time
 from elevenlabs_setup import ElevenLabsVoiceCloner
 
 def get_topic_from_arc_id(arc_id):
-    """Map arc_id to topic folder"""
+    """Map arc_id to topic folder.
+
+    Must match the runtime audio-path convention in ConversationArc.AudioTopicName:
+    topic-switcher arcs (ufo_*/topic_switch_*) live under their CLAIMED topic folder,
+    which is the id prefix for these arcs.
+    """
+    if arc_id.startswith("ufo"):
+        return "UFOs"
     if arc_id.startswith("ufos") or "ufos_" in arc_id:
         return "UFOs"
     if arc_id.startswith("ghosts") or "ghosts_" in arc_id:
