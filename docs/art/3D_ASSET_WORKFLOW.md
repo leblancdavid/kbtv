@@ -6,7 +6,11 @@ layout, collision design, character animation, or final hero assets.
 
 For Vern's character-specific workflow and GPT-6 Astra handoff, see
 [Vern 3D Model Brief](VERN_3D_MODEL_BRIEF.md). It defines matching prop style,
-separate character/chair assets, and a rig-aware export path.
+separate character/chair assets, and a rig-aware export path. Character
+model/animation work must also apply
+[CHARACTER_GUIDELINES.md](CHARACTER_GUIDELINES.md) (generic principles) and
+[VERN_CHARACTER_GUIDELINES.md](VERN_CHARACTER_GUIDELINES.md) (Vern-specific
+anchors, vocabulary, and validation).
 
 ## Current toolchain
 

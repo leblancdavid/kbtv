@@ -1,6 +1,19 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Add persistent character agent context - generic `docs/art/CHARACTER_GUIDELINES.md` (character-agnostic model/animation principles for future character work) + Vern-specific `docs/art/VERN_CHARACTER_GUIDELINES.md` (IK anchors, animation vocabulary, validation sequence, known limitations); register both in `AGENTS.md` docs table and point `VERN_3D_MODEL_BRIEF.md` (+ Astra handoff prompt) at them.
+**Status**: In Progress
+- Files Modified: `SESSION_LOG.md`.
+- Work Done: split authored character guidelines into generic + Vern-specific docs. Generic keeps pipeline/anatomy checks, rest-pose, IK anchor pattern, reusable animation layers, mocap-first, anti-robotic timing, secondary motion, stateful interactions, Godot humanoid system, fix-priority order, validation sequence, diagnosis-driven AI behavior. Vern doc holds concrete interaction anchors (coffee/cigarette/ashtray/mic/chair/desk), named clip vocabulary, seated pose, coffee validation sequence, smoking state machine and known rig limitations (four fingers share one grip bone, rigid thumb, fixed talking loop, sampled prop trajectories).
+- Next Steps: confirm both docs read clean, markdown links resolve, and future Astra sessions reference the generic doc then the Vern doc before touching the character.
+- Related Docs: `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `docs/art/CHARACTER_GUIDELINES.md`, `docs/art/VERN_CHARACTER_GUIDELINES.md`.
+- Blockers: none.
+
+---
+
+## Previous Session (in progress - Vern model/animation enrichment)
+
+**Branch**: develop
 **Task**: Enrich Vern's existing stylized model/materials and improve breathing, talking, smoking, and drinking, especially articulated hands and believable contacts.
 **Status**: In Progress
 - Approved direction: preserve the current stylization with richer detail. User supplied Art Bell seated radio-studio photo: swept dark hair, restrained mustache, aviator glasses, black high-neck sweater, relaxed supported posture.

@@ -9,6 +9,20 @@ still in a separate chair; later work can add breathing, talking and gestures.
 The first model is implemented. Production notes below supersede the original
 provisional dimensions/placement later in this brief.
 
+## Persistent character guidelines
+
+Before any change to Vern's mesh, proportions, rig, or animation, read and apply:
+
+1. [CHARACTER_GUIDELINES.md](CHARACTER_GUIDELINES.md) - character-agnostic
+   principles for any 3D character work.
+2. [VERN_CHARACTER_GUIDELINES.md](VERN_CHARACTER_GUIDELINES.md) - Vern-specific
+   IK anchors, animation vocabulary, and validation sequence.
+
+Where these guidelines conflict with older statements in this brief (for
+example "simple hands are sufficient" or rigid-finger limitations), the
+guidelines supersede them. Do not expand the animation library until Vern's
+validation sequence looks convincing.
+
 ### First model delivery
 
 - `assets/models3d/characters/vern/vern.glb`: 18-bone rig, 14,728 triangles,
@@ -294,6 +308,9 @@ prop/controller rather than adding them to room-level setup.
 
 ```text
 Implement Animation pass 1 in docs/art/VERN_3D_MODEL_BRIEF.md.
+First read and apply the persistent character guidelines:
+docs/art/CHARACTER_GUIDELINES.md (generic principles) and
+docs/art/VERN_CHARACTER_GUIDELINES.md (Vern-specific anchors/vocabulary).
 Use the existing Vern model and rig, preserving his appearance, neutral bind
 pose, seated_rest action, current chair fit and separate chair asset.
 

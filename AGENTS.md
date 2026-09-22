@@ -291,6 +291,8 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [ART_STYLE.md](docs/art/ART_STYLE.md) | Visual direction, color palette, and asset guidelines |
 | [3D_ASSET_WORKFLOW.md](docs/art/3D_ASSET_WORKFLOW.md) | Blender prop generation, GLB export, previews, and Godot placement conventions |
 | [VERN_3D_MODEL_BRIEF.md](docs/art/VERN_3D_MODEL_BRIEF.md) | GPT-6 Astra handoff: seated Vern, existing-prop style references, separate chair, rig and studio integration |
+| [CHARACTER_GUIDELINES.md](docs/art/CHARACTER_GUIDELINES.md) | Generic character model/animation guidelines for all characters - proportions/rig/IPK, rest pose, animation layers, mocap, timing, validation |
+| [VERN_CHARACTER_GUIDELINES.md](docs/art/VERN_CHARACTER_GUIDELINES.md) | Vern-specific character guidelines - interaction anchors, animation vocabulary, coffee/smoking sequence, validation order |
 | [PIXELLAB_PROMPT_RULES.md](docs/art/PIXELLAB_PROMPT_RULES.md) | Authoritative PixelLab prompt rules - tool selection, canonical templates, iteration budget protocol, generation plan |
 | [PIXELLAB_MCP_GUIDE.md](docs/art/PIXELLAB_MCP_GUIDE.md) | PixelLab MCP setup, configuration, and usage |
 | [AUDIO_DESIGN.md](docs/audio/AUDIO_DESIGN.md) | Sound design, music, and audio technical specs |
