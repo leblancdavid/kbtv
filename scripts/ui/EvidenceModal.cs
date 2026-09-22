@@ -65,7 +65,9 @@ public partial class EvidenceModal : Control
 
     // Decryption theme colors
     private static readonly Color CorrectColor = new(0.2f, 0.9f, 0.2f);
-    private static readonly Color WrongPosColor = new(0.9f, 0.9f, 0.2f);
+    // Amber (not pure yellow): under the CRT phosphor tint, yellow loses its
+    // red channel and reads green - amber keeps a clear hue gap from green.
+    private static readonly Color WrongPosColor = new(0.95f, 0.72f, 0.10f);
     private static readonly Color RuledOutColor = new(0.85f, 0.3f, 0.25f);
     private static readonly Color UnusedColor = new(0.75f, 0.85f, 0.78f);
     private static readonly Color BlockedColor = new(0.35f, 0.4f, 0.37f);

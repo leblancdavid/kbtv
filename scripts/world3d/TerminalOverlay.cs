@@ -40,7 +40,7 @@ public partial class TerminalOverlay : CanvasLayer
 	/// Phosphor tone applied to content rendered inside the CRT viewport so it
 	/// blends with the projected screen look (CallerTab and hosted dialogs).
 	/// </summary>
-	public static readonly Color PhosphorTint = new(0.74f, 1.0f, 0.9f, 1f);
+	public static readonly Color PhosphorTint = new(0.85f, 1.0f, 0.82f, 1f);
 
 	/// <summary>
 	/// Safe-area container inside the projected CRT viewport. UI registered here
@@ -240,7 +240,7 @@ public partial class TerminalOverlay : CanvasLayer
 		var tint = new ColorRect
 		{
 			Name = "CrtTint",
-			Color = new Color(0.0f, 0.20f, 0.15f, 0.10f),
+			Color = new Color(0.05f, 0.16f, 0.10f, 0.06f),
 			MouseFilter = Control.MouseFilterEnum.Ignore
 		};
 		tint.SetAnchorsPreset(Control.LayoutPreset.FullRect);
