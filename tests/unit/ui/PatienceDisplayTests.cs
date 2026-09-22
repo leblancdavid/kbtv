@@ -34,32 +34,51 @@ namespace KBTV.Tests.Unit.UI
         }
 
         [Test]
-        public void Remaining_SubtractsElapsedTime()
+        public void Remaining_ReflectsDrainedScreeningPatience()
         {
             var caller = CreateCaller(60f);
-            var progress = new ScreeningProgress(0, 0, 45f, 60f, 15f);
+            caller.SetState(CallerState.Screening);
 
-            AssertAreEqual(45f, PatienceDisplay.Remaining(caller, progress), "remaining");
-            AssertAreEqual(0.75f, PatienceDisplay.Ratio(caller, progress), "ratio");
+            // Screening drains at 0.5x, so 30s of updates removes 15 patience.
+            caller.UpdateWaitTime(30f);
+
+            AssertAreEqual(45f, PatienceDisplay.Remaining(caller), "remaining");
+            AssertAreEqual(0.75f, PatienceDisplay.Ratio(caller), "ratio");
+        }
+
+        [Test]
+        public void Remaining_NotDoubleCountedByElapsedTime()
+        {
+            // Regression: the old formula subtracted the session's ElapsedTime
+            // on top of the already-drained patience, expiring the evidence
+            // dialog at ~1/3 of the real window.
+            var caller = CreateCaller(60f);
+            caller.SetState(CallerState.Screening);
+            caller.UpdateWaitTime(30f);
+
+            var progress = new ScreeningProgress(0, 0, 45f, 60f, 30f);
+            AssertAreEqual(caller.ScreeningPatience, PatienceDisplay.Remaining(caller), "remaining");
+            AssertThat(progress.ElapsedTime > 0f, "elapsed time must not affect the display");
         }
 
         [Test]
         public void Remaining_ClampedAtZero()
         {
             var caller = CreateCaller(10f);
-            var progress = new ScreeningProgress(0, 0, 0f, 10f, 30f);
+            caller.SetState(CallerState.Screening);
+            caller.UpdateWaitTime(60f);
 
-            AssertAreEqual(0f, PatienceDisplay.Remaining(caller, progress), "remaining");
-            AssertAreEqual(0f, PatienceDisplay.Ratio(caller, progress), "ratio");
+            AssertAreEqual(0f, PatienceDisplay.Remaining(caller), "remaining");
+            AssertAreEqual(0f, PatienceDisplay.Ratio(caller), "ratio");
         }
 
         [Test]
-        public void NullProgress_ShowsFullPatience()
+        public void FreshCaller_ShowsFullPatience()
         {
             var caller = CreateCaller(60f);
 
-            AssertAreEqual(60f, PatienceDisplay.Remaining(caller, null), "remaining");
-            AssertAreEqual(1f, PatienceDisplay.Ratio(caller, null), "ratio");
+            AssertAreEqual(60f, PatienceDisplay.Remaining(caller), "remaining");
+            AssertAreEqual(1f, PatienceDisplay.Ratio(caller), "ratio");
         }
 
         [Test]

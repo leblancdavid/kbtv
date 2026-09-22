@@ -41,7 +41,7 @@ namespace KBTV.Callers
 	{
         [Export] private float _minSpawnInterval = 1f;
         [Export] private float _maxSpawnInterval = 3f;
-        [Export] private float _basePatience = 60f;
+        [Export] private float _basePatience = 90f;
         [Export] private float _patienceVariance = 10f;
 
         private float _nextSpawnTime;

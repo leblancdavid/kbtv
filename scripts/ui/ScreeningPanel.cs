@@ -216,7 +216,7 @@ namespace KBTV.UI
 			// Update text-based patience display (shared with the evidence dialog)
 			if (_patienceTextLabel != null && caller.ScreeningPatience > 0)
 			{
-				float ratio = PatienceDisplay.Ratio(caller, progress);
+				float ratio = PatienceDisplay.Ratio(caller);
 				_patienceTextLabel.Text = PatienceDisplay.Text(ratio);
 				_patienceTextLabel.AddThemeColorOverride("font_color", PatienceDisplay.ColorFor(ratio));
 			}

@@ -17,7 +17,7 @@ namespace KBTV.UI;
 /// <summary>
 /// Evidence decryption dialog. Hosted on the CRT terminal above the screening
 /// UI (see ModalManager.SetModalHost) with a fullscreen overlay fallback.
-/// The player cracks a 5-character password to unlock the caller's evidence.
+/// The player cracks a 5-letter English-word password to unlock the caller's evidence.
 /// </summary>
 public partial class EvidenceModal : Control
 {
@@ -43,6 +43,7 @@ public partial class EvidenceModal : Control
     private Label? _patienceCaption;
     private Label? _patienceLabel;
     private Dictionary<char, LetterState> _letterStates = new();
+    private readonly Dictionary<char, Button> _letterButtons = new();
     private char[] _currentInputChars = new char[5];
     private bool[] _positionsFilled = new bool[5];
 
@@ -74,12 +75,15 @@ public partial class EvidenceModal : Control
     private static bool _wordListLoaded = false;
     private const string WORD_LIST_PATH = "res://assets/config/evidence_words.json";
 
-    // Fallback word list in case JSON loading fails
+    // Fallback word list in case JSON loading fails. All entries must be
+    // exactly 5 letters - 4-letter entries made the game unwinnable (the
+    // evaluation routines bail on length mismatches, so greens never carried
+    // to the next line). UseFallbackWords validates this defensively.
     private static readonly string[] FallbackWords = {
         "HOUSE", "PHONE", "TRUCK", "LIGHT", "PAPER", "TABLE",
         "GHOST", "ALIEN", "PROOF", "TRACE", "SIGHT", "AUDIO",
         "VIDEO", "PHOTO", "SPELL", "CURSE", "DEMON", "ANGEL",
-        "SPIRIT", "NIGHT", "DARK", "MOON", "CLOUD", "MISTY",
+        "SPIRIT", "NIGHT", "DUSKY", "LUNAR", "CLOUD", "MISTY",
         "BEAST", "STORY", "TALES", "TRUTH", "GUESS", "CLUES", "SIGNS"
     };
 
@@ -174,19 +178,22 @@ public partial class EvidenceModal : Control
 
             var wordsArray = (Godot.Collections.Array)dict["words"];
             _wordList.Clear();
+            var seen = new HashSet<string>();
 
             foreach (var wordVariant in wordsArray)
             {
                 string word = wordVariant.ToString().ToUpper();
 
-                // Validate: must be exactly 5 letters
-                if (word.Length == 5)
+                // Validate: exactly 5 A-Z letters. Anything else (e.g. hyphenated
+                // entries like "X-RAY") makes an unwinnable target - the on-screen
+                // keyboard can never type it - so it must never reach the pool.
+                if (word.Length == 5 && word.All(c => c >= 'A' && c <= 'Z') && seen.Add(word))
                 {
                     _wordList.Add(word);
                 }
                 else
                 {
-                    GD.PrintErr($"EvidenceModal: Skipping invalid word '{word}' (length {word.Length}, expected 5)");
+                    GD.PrintErr($"EvidenceModal: Skipping invalid word '{word}' (must be 5 A-Z letters, unique)");
                 }
             }
 
@@ -210,7 +217,8 @@ public partial class EvidenceModal : Control
     private static void UseFallbackWords()
     {
         _wordList.Clear();
-        _wordList.AddRange(FallbackWords);
+        _wordList.AddRange(FallbackWords.Where(
+            w => w.Length == 5 && w.All(char.IsLetter)));
     }
 
     /// <summary>
@@ -357,8 +365,12 @@ public partial class EvidenceModal : Control
 
     /// <summary>
     /// Flat black + 1px border style matching the screening terminal panels.
+    /// When <paramref name="statusColor"/> is given it is also used for the
+    /// DISABLED state (dimmed) - without it, disabled tiles fall back to the
+    /// generic gray and the letter status (red/green) becomes invisible, which
+    /// is what made ruled-out letters indistinguishable from unused ones.
     /// </summary>
-    private static void ApplyDosButtonStyle(Button button, Color accent)
+    private static void ApplyDosButtonStyle(Button button, Color accent, Color? statusColor = null)
     {
         button.Flat = true;
         button.AddThemeFontOverride("font", UITheme.MonoFont);
@@ -369,12 +381,25 @@ public partial class EvidenceModal : Control
         ApplyDosButtonState(button, "normal", bg, new Color(accent.R, accent.G, accent.B, 0.45f));
         ApplyDosButtonState(button, "hover", new Color(0.08f, 0.12f, 0.1f, 1f), accent);
         ApplyDosButtonState(button, "pressed", new Color(accent.R * 0.25f, accent.G * 0.25f, accent.B * 0.25f, 1f), accent);
-        ApplyDosButtonState(button, "disabled", bg, new Color(0.25f, 0.28f, 0.26f, 0.6f));
+
+        if (statusColor.HasValue)
+        {
+            var s = statusColor.Value;
+            ApplyDosButtonState(button, "disabled",
+                new Color(s.R * 0.10f, s.G * 0.10f, s.B * 0.10f, 1f),
+                new Color(s.R * 0.55f, s.G * 0.55f, s.B * 0.55f, 1f));
+            button.AddThemeColorOverride("font_disabled_color",
+                new Color(s.R * 0.9f, s.G * 0.9f, s.B * 0.9f, 1f));
+        }
+        else
+        {
+            ApplyDosButtonState(button, "disabled", bg, new Color(0.25f, 0.28f, 0.26f, 0.6f));
+            button.AddThemeColorOverride("font_disabled_color", BlockedColor);
+        }
 
         button.AddThemeColorOverride("font_hover_color", new Color(
             Mathf.Min(1f, accent.R + 0.1f), Mathf.Min(1f, accent.G + 0.1f), Mathf.Min(1f, accent.B + 0.1f)));
         button.AddThemeColorOverride("font_pressed_color", UIColors.Screening.HeaderText);
-        button.AddThemeColorOverride("font_disabled_color", BlockedColor);
     }
 
     private static void ApplyDosButtonState(Button button, string state, Color bg, Color border)
@@ -427,6 +452,7 @@ public partial class EvidenceModal : Control
             _alphabetDisplay.RemoveChild(child);
             child.QueueFree();
         }
+        _letterButtons.Clear();
 
         var rows = new[] {
             "ABCDEFG",
@@ -462,11 +488,15 @@ public partial class EvidenceModal : Control
                     Disabled = !enabled,
                     SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
                 };
-                ApplyDosButtonStyle(letterButton, color);
+                // Ruled-out tiles are disabled; pass the red status color so the
+                // disabled state keeps showing "absent" instead of generic gray.
+                ApplyDosButtonStyle(letterButton, color,
+                    state == LetterState.RuledOut ? RuledOutColor : null);
 
                 var captured = letter;
                 letterButton.Pressed += () => TryTypeLetter(captured);
                 rowContainer.AddChild(letterButton);
+                _letterButtons[letter] = letterButton;
             }
 
             _alphabetDisplay.AddChild(rowContainer);
@@ -508,19 +538,18 @@ public partial class EvidenceModal : Control
             return;
         }
 
-        var progress = _screeningController?.Progress;
-
         // Same computation and text style as the screening panel's patience
-        // indicator (see PatienceDisplay).
+        // indicator (see PatienceDisplay). ScreeningPatience is already drained
+        // in real time, so it is displayed as-is.
         if (_patienceLabel != null && IsInstanceValid(_patienceLabel) && _caller.ScreeningPatience > 0)
         {
-            var ratio = PatienceDisplay.Ratio(_caller, progress);
+            var ratio = PatienceDisplay.Ratio(_caller);
             _patienceLabel.Text = PatienceDisplay.Text(ratio);
             _patienceLabel.AddThemeColorOverride("font_color", PatienceDisplay.ColorFor(ratio));
         }
 
         // Fallback if patience expires before the disconnect event fires.
-        if (_caller.ScreeningPatience <= 0f || PatienceDisplay.Remaining(_caller, progress) <= 0f)
+        if (PatienceDisplay.Remaining(_caller) <= 0f)
         {
             ModalClosed?.Invoke();
         }
@@ -551,11 +580,15 @@ public partial class EvidenceModal : Control
             return false;
         }
 
-        if (key.Keycode == Key.Enter)
+        if (key.Keycode == Key.Enter || key.Keycode == Key.KpEnter)
         {
             if (IsCompleteGuess())
             {
                 MakeGuess(GetCurrentGuess());
+            }
+            else
+            {
+                ShowIncompleteWarning();
             }
             return true;
         }
@@ -582,10 +615,19 @@ public partial class EvidenceModal : Control
     /// </summary>
     private void TryTypeLetter(char letter)
     {
-        if (_gameCompleted ||
-            !_letterStates.TryGetValue(letter, out var state) ||
-            state == LetterState.RuledOut)
+        if (_gameCompleted)
         {
+            return;
+        }
+
+        if (!_letterStates.TryGetValue(letter, out var state))
+        {
+            return;
+        }
+
+        if (state == LetterState.RuledOut)
+        {
+            BlinkRejectedLetter(letter);
             return;
         }
 
@@ -598,6 +640,36 @@ public partial class EvidenceModal : Control
                 return;
             }
         }
+    }
+
+    /// <summary>
+    /// Red flash on a ruled-out keyboard tile when the player tries to type it,
+    /// so the block never feels like a dead keypress.
+    /// </summary>
+    private void BlinkRejectedLetter(char letter)
+    {
+        if (!_letterButtons.TryGetValue(letter, out var button) || !IsInstanceValid(button))
+        {
+            return;
+        }
+
+        button.Modulate = new Color(1.6f, 0.4f, 0.35f);
+        var tween = button.CreateTween();
+        tween.TweenProperty(button, "modulate", Colors.White, 0.25f);
+    }
+
+    /// <summary>
+    /// Non-consuming feedback for Enter with empty slots (no attempt is spent).
+    /// </summary>
+    private void ShowIncompleteWarning()
+    {
+        int empty = _currentInputChars.Count(c => c == '_');
+        if (empty == 0)
+        {
+            return;
+        }
+
+        AddRichMessage($"[color={ColorHtml(WrongPosColor)}]PASSWORD INCOMPLETE - {empty} SLOT(S) EMPTY[/color]");
     }
 
     /// <summary>
@@ -827,7 +899,8 @@ public partial class EvidenceModal : Control
                 Disabled = locked || !filled,
                 SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
             };
-            ApplyDosButtonStyle(slot, locked ? CorrectColor : UIColors.Screening.DefaultText);
+            ApplyDosButtonStyle(slot, locked ? CorrectColor : UIColors.Screening.DefaultText,
+                locked ? CorrectColor : null);
             if (!locked && filled)
             {
                 var captured = i;
@@ -1064,7 +1137,7 @@ public partial class EvidenceModal : Control
 
         if (_descriptionLabel != null)
         {
-            _descriptionLabel.Text = "Crack the 5-character password to unlock this caller's evidence file.";
+            _descriptionLabel.Text = "Crack the 5-letter password (an English word) to unlock this caller's evidence file.";
         }
 
         UpdateAlphabetDisplay();

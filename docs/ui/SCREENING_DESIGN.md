@@ -113,7 +113,10 @@ The scramble duration equals the reveal time for that property. This creates ant
 ## Patience System
 
 ### Base Patience
-Each caller has random patience between 20-40 seconds when entering screening.
+Each caller has a base patience of 90 seconds (±10s random variance) when entering screening
+(`CallerGenerator._basePatience`). Because screening drains it at 50%, this is ~160-200 seconds
+of real time - the same clock the evidence decryption dialog runs on (see
+[EVIDENCE_SYSTEM.md](../systems/EVIDENCE_SYSTEM.md)).
 
 ### Screening Drain Rate
 During screening, patience drains at 50% of the normal rate. This gives players more time to gather information.

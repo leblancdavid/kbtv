@@ -53,9 +53,11 @@ namespace KBTV.Screening
             {
                 ScreeningPatience -= deltaTime * 0.5f;
                 ScreeningPatience = System.Math.Max(0, ScreeningPatience);
-                
-                Caller.UpdateScreenableProperties(deltaTime);
-                
+
+                // NOTE: property revelations are driven by Caller.UpdateWaitTime
+                // (via CallerMonitor). Calling UpdateScreenableProperties here as
+                // well made reveals progress at 2x the configured rate.
+
                 // Check if Evidence property became revealed this frame
                 CheckForEvidenceRevelation();
             }
