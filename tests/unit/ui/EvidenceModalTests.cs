@@ -86,7 +86,7 @@ namespace KBTV.Tests.Unit.UI
             AssertTrue(Get<bool>(_modal, "_gameCompleted"));
             var collect = FindButton("CollectButton");
             AssertFalse(collect.Disabled);
-            AssertAreEqual("Extract Evidence", collect.Text);
+            AssertAreEqual("Download", collect.Text);
         }
 
         [Test]

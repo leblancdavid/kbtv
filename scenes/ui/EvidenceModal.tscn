@@ -55,6 +55,10 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 12.0
+offset_right = -16.0
+offset_bottom = -12.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 4
@@ -90,17 +94,13 @@ theme_override_constants/separation = 8
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_font_sizes/font_size = 12
-text = "PATIENCE:"
+text = "PATIENCE"
 horizontal_alignment = 2
 
-[node name="PatienceProgressBar" type="ProgressBar" parent="ModalPanel/ContentContainer/HeaderContainer/PatienceHBox"]
+[node name="PatienceTextLabel" type="Label" parent="ModalPanel/ContentContainer/HeaderContainer/PatienceHBox"]
 layout_mode = 2
-size_flags_horizontal = 0
-size_flags_vertical = 4
-custom_minimum_size = Vector2(120, 14)
-max_value = 100.0
-value = 100.0
-show_percentage = false
+theme_override_font_sizes/font_size = 12
+text = "[...............] --%"
 
 [node name="RightSpacer" type="Control" parent="ModalPanel/ContentContainer/HeaderContainer"]
 layout_mode = 2
@@ -193,7 +193,7 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 custom_minimum_size = Vector2(150, 22)
 theme_override_font_sizes/font_size = 12
-text = "Extract Evidence"
+text = "Download"
 
 [node name="FooterSpacerRight" type="Control" parent="ModalPanel/ContentContainer/ContentVBox/FooterHBox"]
 layout_mode = 2

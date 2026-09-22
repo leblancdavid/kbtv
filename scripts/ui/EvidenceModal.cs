@@ -40,7 +40,8 @@ public partial class EvidenceModal : Control
     private Control? _alphabetDisplay;
     private HBoxContainer _inputRow = null!;
     private Label _descriptionLabel = null!;
-    private ProgressBar? _patienceProgressBar;
+    private Label? _patienceCaption;
+    private Label? _patienceLabel;
     private Dictionary<char, LetterState> _letterStates = new();
     private char[] _currentInputChars = new char[5];
     private bool[] _positionsFilled = new bool[5];
@@ -266,9 +267,7 @@ public partial class EvidenceModal : Control
 
         _collectButton.Pressed += OnCollectPressed;
         _collectButton.Disabled = true;
-        _collectButton.Text = "Extract Evidence";
-
-        SetCallerHeader();
+        _collectButton.Text = "Download";
 
         BuildInputRow();
         UpdateAlphabetDisplay();
@@ -309,21 +308,25 @@ public partial class EvidenceModal : Control
             _descriptionLabel.AddThemeColorOverride("font_color", UIColors.Screening.DefaultText);
         }
 
+        // Patience header styled like the screening panel (caption white, value
+        // re-colored each frame via PatienceDisplay).
+        if (_patienceCaption != null)
+        {
+            _patienceCaption.AddThemeFontOverride("font", UITheme.MonoFont);
+            _patienceCaption.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
+            _patienceCaption.AddThemeColorOverride("font_color", UIColors.Screening.HeaderText);
+        }
+
+        if (_patienceLabel != null)
+        {
+            _patienceLabel.AddThemeFontOverride("font", UITheme.MonoFont);
+            _patienceLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
+            _patienceLabel.AddThemeColorOverride("font_color", UIColors.Screening.DimText);
+        }
+
         if (_collectButton != null)
         {
             UITheme.ApplyButtonStyle(_collectButton);
-        }
-    }
-
-    /// <summary>
-    /// Wire the patience header (caller name + bar) when present in the scene.
-    /// </summary>
-    private void SetCallerHeader()
-    {
-        if (_patienceProgressBar != null && _caller != null)
-        {
-            _patienceProgressBar.MaxValue = _caller.ScreeningPatience;
-            _patienceProgressBar.Value = _caller.ScreeningPatience;
         }
     }
 
@@ -495,30 +498,31 @@ public partial class EvidenceModal : Control
         UpdateUI();
 
         _collectButton.Disabled = true;
-        _collectButton.Text = "Extract Evidence";
+        _collectButton.Text = "Download";
     }
 
     public override void _Process(double delta)
     {
-        if (_caller != null && !_gameCompleted)
+        if (_caller == null || _gameCompleted)
         {
-            if (_patienceProgressBar != null && IsInstanceValid(_patienceProgressBar))
-            {
-                var progress = _screeningController?.Progress;
-                if (progress != null)
-                {
-                    _patienceProgressBar.Value = _caller.ScreeningPatience - progress.ElapsedTime;
-                }
-                else
-                {
-                    _patienceProgressBar.Value = _caller.ScreeningPatience;
-                }
-            }
+            return;
+        }
 
-            if (_caller.ScreeningPatience <= 0f)
-            {
-                ModalClosed?.Invoke();
-            }
+        var progress = _screeningController?.Progress;
+
+        // Same computation and text style as the screening panel's patience
+        // indicator (see PatienceDisplay).
+        if (_patienceLabel != null && IsInstanceValid(_patienceLabel) && _caller.ScreeningPatience > 0)
+        {
+            var ratio = PatienceDisplay.Ratio(_caller, progress);
+            _patienceLabel.Text = PatienceDisplay.Text(ratio);
+            _patienceLabel.AddThemeColorOverride("font_color", PatienceDisplay.ColorFor(ratio));
+        }
+
+        // Fallback if patience expires before the disconnect event fires.
+        if (_caller.ScreeningPatience <= 0f || PatienceDisplay.Remaining(_caller, progress) <= 0f)
+        {
+            ModalClosed?.Invoke();
         }
     }
 
@@ -900,11 +904,6 @@ public partial class EvidenceModal : Control
 
         _screeningController?.ResetPatienceAndTime();
 
-        if (_patienceProgressBar != null)
-        {
-            _patienceProgressBar.Value = _patienceProgressBar.MaxValue;
-        }
-
         _discoveredTier = RollEvidenceTier();
 
         UpdateUI();
@@ -912,7 +911,7 @@ public partial class EvidenceModal : Control
         ShowDiscoveryMessage(_discoveredTier);
 
         _collectButton.Disabled = false;
-        _collectButton.Text = "Extract Evidence";
+        _collectButton.Text = "Download";
     }
 
     /// <summary>
@@ -1122,7 +1121,7 @@ public partial class EvidenceModal : Control
             }
             else
             {
-                ShowErrorMessage("Extraction failed - try again");
+                ShowErrorMessage("Download failed - try again");
             }
         }
         else if (_gameCompleted && _evidenceCollected)
@@ -1138,7 +1137,8 @@ public partial class EvidenceModal : Control
         _attemptsLabel ??= GetNodeOrNull<Label>("ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/LeftPanel/AttemptsLabel");
         _collectButton ??= GetNodeOrNull<Button>("ModalPanel/ContentContainer/ContentVBox/FooterHBox/CollectButton");
         _guessHistory ??= GetNodeOrNull<Control>("ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/LeftPanel/GuessHistory");
-        _patienceProgressBar ??= GetNodeOrNull<ProgressBar>("ModalPanel/ContentContainer/HeaderContainer/PatienceHBox/PatienceProgressBar");
+        _patienceCaption ??= GetNodeOrNull<Label>("ModalPanel/ContentContainer/HeaderContainer/PatienceHBox/PatienceLabel");
+        _patienceLabel ??= GetNodeOrNull<Label>("ModalPanel/ContentContainer/HeaderContainer/PatienceHBox/PatienceTextLabel");
         _descriptionLabel ??= GetNodeOrNull<Label>("ModalPanel/ContentContainer/ContentVBox/DescriptionLabel");
     }
 

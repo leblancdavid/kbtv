@@ -213,14 +213,12 @@ namespace KBTV.UI
 			_approveButton.Disabled = !canInteract;
 			_rejectButton.Disabled = !canInteract;
 
-			// Update text-based patience display
+			// Update text-based patience display (shared with the evidence dialog)
 			if (_patienceTextLabel != null && caller.ScreeningPatience > 0)
 			{
-				float remaining = Mathf.Max(caller.ScreeningPatience - progress.ElapsedTime, 0f);
-				float ratio = Mathf.Clamp(remaining / caller.ScreeningPatience, 0f, 1f);
-				int percent = (int)(ratio * 100f);
-				_patienceTextLabel.Text = $"{BuildPatienceBar(ratio)} {percent}%";
-				_patienceTextLabel.AddThemeColorOverride("font_color", UIColors.GetPatienceColor(ratio));
+				float ratio = PatienceDisplay.Ratio(caller, progress);
+				_patienceTextLabel.Text = PatienceDisplay.Text(ratio);
+				_patienceTextLabel.AddThemeColorOverride("font_color", PatienceDisplay.ColorFor(ratio));
 			}
 
 			// Only update stat summary panel if properties have changed (performance optimization)
@@ -375,12 +373,6 @@ namespace KBTV.UI
 				_statSummaryPanel.SetProperties(_pendingProperties);
 				_pendingProperties = null; // Clear after use
 			}
-		}
-
-		private string BuildPatienceBar(float ratio, int width = 14)
-		{
-			int filled = Mathf.RoundToInt(Mathf.Clamp(ratio, 0f, 1f) * width);
-			return "[" + new string('|', filled) + new string('.', width - filled) + "]";
 		}
 	}
 }
