@@ -13,10 +13,10 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0.35, 0.38, 0.36, 1)
-content_margin_left = 12.0
-content_margin_top = 10.0
-content_margin_right = 12.0
-content_margin_bottom = 10.0
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
 
 [node name="EvidenceModal" type="Control"]
 layout_mode = 3
@@ -42,10 +42,10 @@ color = Color(0, 0, 0, 0.5)
 [node name="ModalPanel" type="Panel" parent="."]
 layout_mode = 1
 anchors_preset = 0
-anchor_left = 0.05
-anchor_top = 0.03
-anchor_right = 0.95
-anchor_bottom = 0.97
+anchor_left = 0.16
+anchor_top = 0.1
+anchor_right = 0.84
+anchor_bottom = 0.9
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("1")
@@ -57,13 +57,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="HeaderContainer" type="HBoxContainer" parent="ModalPanel/ContentContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 22)
 theme_override_constants/separation = 10
 
 [node name="TitleLabel" type="Label" parent="ModalPanel/ContentContainer/HeaderContainer"]
@@ -107,17 +107,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="DividerLabel" type="Label" parent="ModalPanel/ContentContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "================================================================================"
-horizontal_alignment = 1
-
 [node name="ContentVBox" type="VBoxContainer" parent="ModalPanel/ContentContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="DescriptionLabel" type="Label" parent="ModalPanel/ContentContainer/ContentVBox"]
 layout_mode = 2
@@ -131,14 +125,14 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
 
 [node name="LeftPanel" type="VBoxContainer" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 1.5
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="AttemptsLabel" type="Label" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/LeftPanel"]
 unique_name_in_owner = true
@@ -159,14 +153,14 @@ vertical_scroll_mode = 3
 [node name="GuessHistoryContent" type="VBoxContainer" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/LeftPanel/GuessHistory"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 3
+theme_override_constants/separation = 2
 
 [node name="RightPanel" type="VBoxContainer" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 size_flags_stretch_ratio = 1.0
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="AlphabetHeaderLabel" type="Label" parent="ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/RightPanel"]
 layout_mode = 2
@@ -179,13 +173,13 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="FooterHBox" type="HBoxContainer" parent="ModalPanel/ContentContainer/ContentVBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 0
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(0, 26)
 theme_override_constants/separation = 10
 
 [node name="FooterSpacerLeft" type="Control" parent="ModalPanel/ContentContainer/ContentVBox/FooterHBox"]
@@ -197,7 +191,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-custom_minimum_size = Vector2(170, 26)
+custom_minimum_size = Vector2(150, 22)
 theme_override_font_sizes/font_size = 12
 text = "Extract Evidence"
 

@@ -37,6 +37,12 @@ public partial class TerminalOverlay : CanvasLayer
 	public event Action? CloseRequested;
 
 	/// <summary>
+	/// Phosphor tone applied to content rendered inside the CRT viewport so it
+	/// blends with the projected screen look (CallerTab and hosted dialogs).
+	/// </summary>
+	public static readonly Color PhosphorTint = new(0.74f, 1.0f, 0.9f, 1f);
+
+	/// <summary>
 	/// Safe-area container inside the projected CRT viewport. UI registered here
 	/// renders on the monitor above the CallerTab and receives the CRT effects
 	/// (tint, scanlines, vignette). Used by ModalManager to host dialogs on-screen.
@@ -223,7 +229,7 @@ public partial class TerminalOverlay : CanvasLayer
 		_callerTab = callerScene.Instantiate<CallerTab>();
 		_callerTab.Name = "ProjectedCallerTab";
 		_callerTab.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-		_callerTab.Modulate = new Color(0.74f, 1.0f, 0.9f, 1f);
+		_callerTab.Modulate = PhosphorTint;
 		_callerTab.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
 		_callerTab.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
 		_contentHost.AddChild(_callerTab);

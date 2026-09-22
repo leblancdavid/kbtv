@@ -249,7 +249,8 @@ public partial class EvidenceModal : Control
 
         FocusMode = FocusModeEnum.All;
         MouseFilter = MouseFilterEnum.Stop;
-        ZIndex = 100;
+        // No ZIndex: when hosted in the CRT viewport it would lift the dialog
+        // above the scanline/tint/vignette layers instead of behind them.
 
         EnsureNodesInitialized();
         SetupModal();
@@ -406,8 +407,9 @@ public partial class EvidenceModal : Control
     }
 
     /// <summary>
-    /// Build the clickable alphabet board. A letter is enabled only while it is
-    /// still unused (never appeared in a guess); clicking it types it.
+    /// Build the clickable alphabet board. A letter stays enabled while it could
+    /// still be in the password; only ruled-out (red) letters are disabled.
+    /// Clicking an enabled letter types it.
     /// </summary>
     private void UpdateAlphabetDisplay()
     {
@@ -436,12 +438,12 @@ public partial class EvidenceModal : Control
             {
                 Alignment = BoxContainer.AlignmentMode.Center
             };
-            rowContainer.AddThemeConstantOverride("separation", 6);
+            rowContainer.AddThemeConstantOverride("separation", 4);
 
             foreach (var letter in row)
             {
                 var state = _letterStates[letter];
-                var enabled = state == LetterState.Unused && !_gameCompleted;
+                var enabled = state != LetterState.RuledOut && !_gameCompleted;
                 var color = state switch
                 {
                     LetterState.CorrectPosition => CorrectColor,
@@ -453,7 +455,7 @@ public partial class EvidenceModal : Control
                 var letterButton = new Button
                 {
                     Text = letter.ToString(),
-                    CustomMinimumSize = new Vector2(32, 24),
+                    CustomMinimumSize = new Vector2(28, 22),
                     Disabled = !enabled,
                     SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
                 };
@@ -570,14 +572,15 @@ public partial class EvidenceModal : Control
     }
 
     /// <summary>
-    /// Type a letter into the first open (unlocked, empty) slot. Letters already
-    /// revealed by a guess are locked out to match the alphabet board.
+    /// Type a letter into the first open (unlocked, empty) slot. Only letters
+    /// ruled out by a guess (red) are locked out, matching the alphabet board;
+    /// green/yellow letters can be reused (needed for repeated letters).
     /// </summary>
     private void TryTypeLetter(char letter)
     {
         if (_gameCompleted ||
             !_letterStates.TryGetValue(letter, out var state) ||
-            state != LetterState.Unused)
+            state == LetterState.RuledOut)
         {
             return;
         }
@@ -786,7 +789,7 @@ public partial class EvidenceModal : Control
             Alignment = BoxContainer.AlignmentMode.Center,
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
         };
-        _inputRow.AddThemeConstantOverride("separation", 4);
+        _inputRow.AddThemeConstantOverride("separation", 3);
         guessHistoryContent.AddChild(_inputRow);
         RebuildInputRow();
     }
@@ -816,7 +819,7 @@ public partial class EvidenceModal : Control
             var slot = new Button
             {
                 Text = filled ? _currentInputChars[i].ToString() : "_",
-                CustomMinimumSize = new Vector2(30, 26),
+                CustomMinimumSize = new Vector2(26, 22),
                 Disabled = locked || !filled,
                 SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
             };
@@ -832,7 +835,7 @@ public partial class EvidenceModal : Control
         var enterButton = new Button
         {
             Text = "ENTER",
-            CustomMinimumSize = new Vector2(52, 26),
+            CustomMinimumSize = new Vector2(44, 22),
             Disabled = _gameCompleted || !IsCompleteGuess(),
             SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
         };

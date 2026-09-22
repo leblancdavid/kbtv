@@ -32,10 +32,11 @@ inside `TerminalOverlay`'s content host), styled to match the screening UI (DOS
 terminal, 12–14px `AcPlus_IBM_VGA_8x16`).
 
 - Goal: crack a 5-character password (from `assets/config/evidence_words.json`) within 6 attempts.
-- Input: clickable letter tiles (a tile is enabled only while that letter has never appeared in a guess) plus keyboard with the same restriction. Letters revealed in the correct position stay locked into the password row (green); clicking a typed-but-unlocked slot clears it. ENTER submits (`Enter` key or the on-screen ENTER button).
+- Input: clickable letter tiles + keyboard (same rule) - letters stay usable until ruled out (red, i.e. confirmed absent from the password); green/yellow letters remain re-typeable for repeated letters. Letters revealed in the correct position stay locked into the password row (green); clicking a typed-but-unlocked slot clears it. ENTER submits (`Enter` key or the on-screen ENTER button).
 - Feedback: per-guess color coding — green = right spot, yellow = wrong spot, red = not in password.
 - Win: `PASSWORD ACCEPTED - FILE UNLOCKED` + tier reveal (`EVIDENCE DECRYPTED: <tier>`), patience resets, then `Extract Evidence` stores the evidence.
 - Lose: `DECRYPTION FAILED - FILE SEALED` - opportunity forfeited (`LoseEvidenceOpportunity`).
+- Presentation: the dialog renders inside the CRT viewport (no ZIndex) so the scanline/tint/vignette layers draw over it, and it carries the same phosphor `Modulate` as the CallerTab, making it read as part of the screen rather than an overlay pasted on top.
 - Leaving the terminal (close/walk away, ESC) mid-game aborts the dialog with the same lose penalty; the fullscreen overlay fallback is used only when the CRT is not available.
 
 ## Evidence Tiers

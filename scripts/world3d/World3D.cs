@@ -551,7 +551,8 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 		{
 			modalManager.SetModalHost(
 				_terminalOverlay?.ContentHost,
-				() => _terminalOverlay != null && _terminalOverlay.Visible);
+				() => _terminalOverlay != null && _terminalOverlay.Visible,
+				TerminalOverlay.PhosphorTint);
 		}
 	}
 

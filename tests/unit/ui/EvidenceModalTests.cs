@@ -90,10 +90,10 @@ namespace KBTV.Tests.Unit.UI
         }
 
         [Test]
-        public void GuessedLetter_CannotBeRetypedAndButtonDisabled()
+        public void RuledOutLetter_CannotBeRetypedAndButtonDisabled()
         {
             var target = Get<string>(_modal, "_targetWord");
-            var probe = target == "ZZZZZ" ? 'Q' : 'Z';
+            var probe = PickAbsentLetter(target);
 
             for (int i = 0; i < 5; i++)
             {
@@ -103,25 +103,69 @@ namespace KBTV.Tests.Unit.UI
 
             AssertFalse(Get<bool>(_modal, "_gameCompleted"));
 
-            // Slots were cleared; typing the now-guessed letter must stay blocked.
+            // Slots were cleared; typing the now-ruled-out letter must stay blocked.
             _modal.HandleKey(LetterKey(probe));
             AssertAreEqual('_', Get<char[]>(_modal, "_currentInputChars")[0]);
 
             // Its board button must be disabled.
-            Button? probeButton = null;
+            var probeButton = FindLetterButton(probe);
+            AssertNotNull(probeButton!);
+            AssertThat(probeButton!.Disabled, $"{probe} button should be disabled after being ruled out");
+        }
+
+        [Test]
+        public void MisplacedLetter_CanBeRetypedAndButtonStaysEnabled()
+        {
+            var target = Get<string>(_modal, "_targetWord");
+            var letter = target[0];
+            var filler = PickAbsentLetter(target);
+
+            for (int i = 0; i < 4; i++)
+            {
+                _modal.HandleKey(LetterKey(filler));
+            }
+            _modal.HandleKey(LetterKey(letter));
+            _modal.HandleKey(EnterKey());
+
+            // 'letter' is in the password at the wrong spot now (green if it was
+            // last too). Either way it must not be ruled out.
+            var letterButton = FindLetterButton(letter);
+            AssertNotNull(letterButton!);
+            AssertThat(!letterButton!.Disabled, $"{letter} should stay usable after a wrong-position guess");
+
+            _modal.HandleKey(LetterKey(letter));
+            AssertAreEqual(letter, Get<char[]>(_modal, "_currentInputChars")[0]);
+        }
+
+        /// <summary>
+        /// First candidate letter guaranteed absent from the target word.
+        /// </summary>
+        private static char PickAbsentLetter(string target)
+        {
+            foreach (var c in "XYZWVJKQUPFGH")
+            {
+                if (!target.Contains(c))
+                {
+                    return c;
+                }
+            }
+            throw new InvalidOperationException($"No absent letter for target {target}");
+        }
+
+        private Button FindLetterButton(char letter)
+        {
+            Button? found = null;
             foreach (var row in Board().GetChildren())
             {
                 foreach (var child in row.GetChildren())
                 {
-                    if (child is Button button && button.Text == probe.ToString())
+                    if (child is Button button && button.Text == letter.ToString())
                     {
-                        probeButton = button;
+                        found = button;
                     }
                 }
             }
-
-            AssertNotNull(probeButton!);
-            AssertThat(probeButton!.Disabled, $"{probe} button should be disabled after guessing");
+            return found!;
         }
 
         [Test]

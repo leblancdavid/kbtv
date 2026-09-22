@@ -25,6 +25,7 @@ namespace KBTV.UI
 
         private Control? _modalHost;
         private Func<bool>? _hostVisibleCheck;
+        private Color? _hostTint;
 
         public override void _Ready()
         {
@@ -45,12 +46,14 @@ namespace KBTV.UI
         /// <summary>
         /// Registers the control (CRT content host) that evidence modals should be
         /// parented to when the terminal is visible, plus a predicate reporting
-        /// whether that host is currently on screen.
+        /// whether that host is currently on screen and an optional modulate to
+        /// blend hosted dialogs with the screen's phosphor tone.
         /// </summary>
-        public void SetModalHost(Control? host, Func<bool>? isHostVisible)
+        public void SetModalHost(Control? host, Func<bool>? isHostVisible, Color? hostTint = null)
         {
             _modalHost = host;
             _hostVisibleCheck = isHostVisible;
+            _hostTint = hostTint;
         }
 
         private bool IsHostUsable() =>
@@ -81,8 +84,14 @@ namespace KBTV.UI
 
             if (IsHostUsable())
             {
-                // Render inside the CRT viewport, above the screening UI.
+                // Render inside the CRT viewport, above the screening UI. The
+                // phosphor tint blends it with the terminal content; the CRT
+                // effect layers (scanlines/vignette) draw over it naturally.
                 modal.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                if (_hostTint.HasValue)
+                {
+                    modal.Modulate = _hostTint.Value;
+                }
                 _modalHost!.AddChild(modal);
             }
             else
