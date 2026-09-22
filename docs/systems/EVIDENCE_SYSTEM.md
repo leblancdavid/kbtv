@@ -18,10 +18,25 @@ The evidence system allows players to collect raw evidence during broadcasts, id
 ## Evidence Lifecycle
 
 ```
-1. COLLECT → Raw evidence from screening (Wordle minigame)
+1. COLLECT → Raw evidence from screening (evidence decryption dialog on the CRT)
 2. PROCESS → Identify evidence (time-based on quality)
 3. DECIDE → Sell for money OR Store in Cabinet/Website
 ```
+
+## Evidence Decryption Dialog (Collection)
+
+When the caller's Evidence property is revealed during screening, the caller's evidence
+file shows as `LOCKED` in the screening panel. Clicking the evidence button opens the
+**decryption dialog on the CRT terminal** (`EvidenceModal`, hosted by `ModalManager`
+inside `TerminalOverlay`'s content host), styled to match the screening UI (DOS
+terminal, 12–14px `AcPlus_IBM_VGA_8x16`).
+
+- Goal: crack a 5-character password (from `assets/config/evidence_words.json`) within 6 attempts.
+- Input: clickable letter tiles (a tile is enabled only while that letter has never appeared in a guess) plus keyboard with the same restriction. Letters revealed in the correct position stay locked into the password row (green); clicking a typed-but-unlocked slot clears it. ENTER submits (`Enter` key or the on-screen ENTER button).
+- Feedback: per-guess color coding — green = right spot, yellow = wrong spot, red = not in password.
+- Win: `PASSWORD ACCEPTED - FILE UNLOCKED` + tier reveal (`EVIDENCE DECRYPTED: <tier>`), patience resets, then `Extract Evidence` stores the evidence.
+- Lose: `DECRYPTION FAILED - FILE SEALED` - opportunity forfeited (`LoseEvidenceOpportunity`).
+- Leaving the terminal (close/walk away, ESC) mid-game aborts the dialog with the same lose penalty; the fullscreen overlay fallback is used only when the CRT is not available.
 
 ## Evidence Tiers
 
@@ -101,7 +116,7 @@ Example: Very Rare evidence ($18 base) with 5,000 listeners = $90/show
 
 ### Process
 
-1. Collect raw evidence from screening (Wordle minigame)
+1. Collect raw evidence from screening (evidence decryption dialog)
 2. Click "Identify All" in Evidence tab
 3. Wait for analysis (time based on tier)
 4. Notification when ready

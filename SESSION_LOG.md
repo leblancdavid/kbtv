@@ -1,6 +1,18 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Evidence minigame presentation rework: render `EvidenceModal` on the CRT terminal (inside `TerminalOverlay`'s SubViewport, above the CallerTab screening UI) instead of the fullscreen `ModalManager` CanvasLayer; DOS-restyle to match screening UI fonts; reword as decrypting the evidence password; clickable letter tiles (unused letters only) with keyboard parity (guessed letters blocked); auto-close + lose evidence when the terminal is hidden mid-game.
+**Status**: Completed (code) - build green; full suite 616/10 (baseline 610/9 + 6 new `EvidenceModalTests`; 10th failure = pre-existing `ConversationArcTests` UFO-audio coverage gap from blocked session)
+- Files Modified: `scripts/ui/ModalManager.cs` (CRT host routing + key forwarding + `AbortEvidenceModal`), `scripts/ui/EvidenceModal.cs` (rewrite: decrypt wording, DOS styling, clickable letter/slot buttons, `HandleKey`/`Abort`/`IsCrtHosted`, cached-controller lookups), `scenes/ui/EvidenceModal.tscn` (DOS restyle, 12-14px mono, decrypt strings), `scripts/world3d/TerminalOverlay.cs` (`ContentHost`), `scripts/world3d/World3D.cs` (host sync on open, abort on close/nav-back), `tests/unit/ui/EvidenceModalTests.cs` (new), `docs/systems/EVIDENCE_SYSTEM.md` (decryption dialog section), `SESSION_LOG.md`.
+- Work Done: modal hosted in CRT content host when terminal visible (fullscreen fallback otherwise); keyboard routed via `ModalManager._Input` -> `modal.HandleKey` when hosted (subviewport nodes don't get main-viewport `_input`); letters typed/clicked only while `LetterState.Unused`; slot click clears unlocked slot; ENTER button + key submit; win/lose wording per approved set; terminal close/nav-back = `Abort()` (LoseEvidenceOpportunity).
+- Next Steps: in-editor verify - screen a caller to Evidence reveal -> dialog renders on the monitor over screening UI with CRT scanline/tint over it; click letters, wrong guess colors letters red/green/yellow on board; ESC away mid-game seals file; extract stores evidence.
+- Related Docs: `docs/systems/EVIDENCE_SYSTEM.md`, `docs/ui/SCREENING_DESIGN.md`
+
+---
+
+## Previous Session (blocked - UFO arc audio)
+
+**Branch**: develop
 **Task**: UFO conversation-arc expansion: 50 new arcs (5 crazy-sincere stories, 23 opinion-based callers, 22 question-askers; Vern shares info in question/opinion arcs). Catalog + progress checklist: `docs/design/UFO_ARC_EXPANSION.md`.
 **Status**: Blocked - JSON authoring complete for all 50 arcs; audio generation partially complete, blocked by ElevenLabs quota
 - Files Modified: `SESSION_LOG.md`, `docs/design/UFO_ARC_EXPANSION.md`, `AGENTS.md` (docs table row), `Tools/ArcFactory/build_arcs.py`, `Tools/ArcFactory/arcs_data/{__init__,batch1,batch2,batch3,batch4,batch5,batch6,batch7,batch8a,batch8b,batch9}.py`, 50 new/updated arcs in `assets/dialogue/arcs/UFOs/`.

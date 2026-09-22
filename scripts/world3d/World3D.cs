@@ -526,10 +526,33 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 		{
 			_statusLayer.Visible = true;
 		}
+		AbortEvidenceModalIfOpen();
 		_terminalOverlay?.HideTerminal();
 		TeardownTerminalScreen();
 		_player?.SetMovementLocked(false);
 		_screenNavOverlay?.HideOverlay();
+	}
+
+	/// <summary>
+	/// Walked away from the CRT mid-decryption: close the dialog and forfeit the
+	/// evidence opportunity (same penalty as failing the puzzle).
+	/// </summary>
+	private void AbortEvidenceModalIfOpen()
+	{
+		if (DependencyInjection.TryGet<ModalManager>(this, out var modalManager) && modalManager != null)
+		{
+			modalManager.AbortEvidenceModal();
+		}
+	}
+
+	private void SyncEvidenceModalHost()
+	{
+		if (DependencyInjection.TryGet<ModalManager>(this, out var modalManager) && modalManager != null)
+		{
+			modalManager.SetModalHost(
+				_terminalOverlay?.ContentHost,
+				() => _terminalOverlay != null && _terminalOverlay.Visible);
+		}
 	}
 
 	private void TeardownTerminalScreen()
@@ -688,6 +711,7 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 		}
 UpdateTerminalOverlayBounds();
 		_terminalOverlay?.ShowTerminal();
+		SyncEvidenceModalHost();
 		_screenNavOverlay?.ShowOverlay("BOARD", true);
 	}
 
@@ -851,6 +875,7 @@ UpdateTerminalOverlayBounds();
 		if (_terminalViewState != TerminalViewState.None)
 		{
 			_terminalViewState = TerminalViewState.None;
+			AbortEvidenceModalIfOpen();
 			_terminalOverlay?.HideTerminal();
 			TeardownTerminalScreen();
 			OpenSoundboardView();

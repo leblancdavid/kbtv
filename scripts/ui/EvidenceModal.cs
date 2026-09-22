@@ -5,6 +5,7 @@ using Chickensoft.GoDotTest;
 using System.Collections.Generic;
 using KBTV.Callers;
 using KBTV.UI;
+using KBTV.UI.Themes;
 using KBTV.Managers;
 using KBTV.Screening;
 using KBTV.Core;
@@ -13,6 +14,11 @@ using KBTV.Persistence;
 
 namespace KBTV.UI;
 
+/// <summary>
+/// Evidence decryption dialog. Hosted on the CRT terminal above the screening
+/// UI (see ModalManager.SetModalHost) with a fullscreen overlay fallback.
+/// The player cracks a 5-character password to unlock the caller's evidence.
+/// </summary>
 public partial class EvidenceModal : Control
 {
     // Event for when modal is closed
@@ -20,23 +26,6 @@ public partial class EvidenceModal : Control
 
     [Export]
     private Label _titleLabel = null!;
-
-    [Export]
-    private Control _wordDisplay = null!;
-
-    [Export]
-    private LineEdit _inputField = null!;
-
-    [Export]
-    private Button _guessButton = null!;
-
-    [Export]
-    private Label _attemptsLabel = null!;
-
-    [Export]
-    private Control _alphabetDisplay = null!;
-
-
 
     [Export]
     private Button _collectButton = null!;
@@ -47,9 +36,11 @@ public partial class EvidenceModal : Control
     [Export]
     private Button _closeButton = null!;
 
-    private LineEdit _hiddenInput;
-    private RichTextLabel _currentInputDisplay;
+    private Label? _attemptsLabel;
+    private Control? _alphabetDisplay;
+    private HBoxContainer _inputRow = null!;
     private Label _descriptionLabel = null!;
+    private ProgressBar? _patienceProgressBar;
     private Dictionary<char, LetterState> _letterStates = new();
     private char[] _currentInputChars = new char[5];
     private bool[] _positionsFilled = new bool[5];
@@ -65,12 +56,17 @@ public partial class EvidenceModal : Control
 
     private IScreeningController? _screeningController;
     private bool _dependencyResolutionAttempted = false;
+    private bool _crtHosted;
 
     // Cached caller reference and patience tracking
     private Caller? _caller;
-    private ProgressBar? _patienceProgressBar;
-    private Label? _callerNameLabel;
-    private float _initialPatience;
+
+    // Decryption theme colors
+    private static readonly Color CorrectColor = new(0.2f, 0.9f, 0.2f);
+    private static readonly Color WrongPosColor = new(0.9f, 0.9f, 0.2f);
+    private static readonly Color RuledOutColor = new(0.85f, 0.3f, 0.25f);
+    private static readonly Color UnusedColor = new(0.75f, 0.85f, 0.78f);
+    private static readonly Color BlockedColor = new(0.35f, 0.4f, 0.37f);
 
     // Word list configuration
     private static List<string> _wordList = new();
@@ -93,18 +89,29 @@ public partial class EvidenceModal : Control
     public void Initialize(Caller? caller)
     {
         _caller = caller;
-        _initialPatience = caller?.ScreeningPatience ?? 0f;
-        GD.Print($"EvidenceModal: Initialized for caller '{caller?.Name ?? "null"}' with patience {_initialPatience}");
-        
-        // Subscribe to caller disconnection event
-        if (_caller != null)
+        if (caller != null)
         {
             _caller.OnDisconnected += OnCallerDisconnected;
-            GD.Print($"EvidenceModal: Subscribed to OnDisconnected event for {_caller.Name}");
         }
-        
+
         // Load word list if not already loaded
         LoadWordList();
+    }
+
+    /// <summary>
+    /// True when the dialog lives inside the CRT's SubViewport. In that mode the
+    /// main viewport's ModalManager forwards key events via HandleKey.
+    /// </summary>
+    public bool IsCrtHosted() => _crtHosted && IsInsideTree();
+
+    /// <summary>
+    /// Force-close as an aborted decryption: forfeits the evidence opportunity.
+    /// Called when the player leaves the terminal mid-game.
+    /// </summary>
+    public void Abort()
+    {
+        _screeningController?.LoseEvidenceOpportunity();
+        ModalClosed?.Invoke();
     }
 
     /// <summary>
@@ -112,16 +119,7 @@ public partial class EvidenceModal : Control
     /// </summary>
     private void OnCallerDisconnected()
     {
-        try
-        {
-            GD.Print("EvidenceModal: Caller disconnected, invoking ModalClosed");
-            ModalClosed?.Invoke();
-            GD.Print("EvidenceModal: ModalClosed invoked successfully");
-        }
-        catch (Exception ex)
-        {
-            GD.PrintErr($"EvidenceModal: Error in OnCallerDisconnected - {ex.Message}");
-        }
+        ModalClosed?.Invoke();
     }
 
     /// <summary>
@@ -179,7 +177,7 @@ public partial class EvidenceModal : Control
             foreach (var wordVariant in wordsArray)
             {
                 string word = wordVariant.ToString().ToUpper();
-                
+
                 // Validate: must be exactly 5 letters
                 if (word.Length == 5)
                 {
@@ -197,8 +195,6 @@ public partial class EvidenceModal : Control
                 UseFallbackWords();
                 return;
             }
-
-            GD.Print($"EvidenceModal: Successfully loaded {_wordList.Count} words from {WORD_LIST_PATH}");
         }
         catch (Exception ex)
         {
@@ -214,7 +210,6 @@ public partial class EvidenceModal : Control
     {
         _wordList.Clear();
         _wordList.AddRange(FallbackWords);
-        GD.Print($"EvidenceModal: Using fallback list with {_wordList.Count} words");
     }
 
     /// <summary>
@@ -224,13 +219,12 @@ public partial class EvidenceModal : Control
     {
         if (_dependencyResolutionAttempted)
             return;
-            
+
         _dependencyResolutionAttempted = true;
-        
+
         try
         {
             _screeningController = DependencyInjection.Get<IScreeningController>(this);
-            GD.Print("EvidenceModal: Successfully resolved IScreeningController");
         }
         catch (InvalidOperationException ex)
         {
@@ -241,7 +235,6 @@ public partial class EvidenceModal : Control
 
     /// <summary>
     /// Applies monospace font to a control for terminal-like display.
-    /// Uses the same font pattern as other UI components in the project.
     /// </summary>
     private static void ApplyMonospaceFont(Control control)
     {
@@ -250,61 +243,35 @@ public partial class EvidenceModal : Control
 
     public override void _Ready()
     {
-        GD.Print("EvidenceModal _Ready called");
+        // Keyboard comes via ModalManager._Input when hosted in the CRT SubViewport;
+        // only handle it locally when parented to the root window's CanvasLayer.
+        _crtHosted = GetViewport() != GetTree().Root;
 
-        // Ensure modal can receive input and appear on top
         FocusMode = FocusModeEnum.All;
         MouseFilter = MouseFilterEnum.Stop;
         ZIndex = 100;
 
         EnsureNodesInitialized();
-        
-        // Verify node paths are working
-        GD.Print($"Node paths - GuessHistory: {_guessHistory?.Name}, Alphabet: {_alphabetDisplay?.Name}, Attempts: {_attemptsLabel?.Name}");
-        
         SetupModal();
         StartNewGame();
 
-        // Verify critical components
-        GD.Print($"Components ready - CollectButton: {_collectButton != null}");
-        
-        // Verify terminal display is ready
-        GD.Print($"Terminal display: {(_currentInputDisplay != null ? "Created" : "NOT CREATED")}");
-        if (_currentInputDisplay != null)
-        {
-            GD.Print($"Terminal text: '{_currentInputDisplay.Text}'");
-        }
-        
-        // Try to resolve dependencies now that we're in the scene tree
         ResolveDependencies();
     }
 
     private void SetupModal()
     {
-        // Apply UITheme styling to all labels
         ApplyThemeToLabels();
-
-        // Initialize letter states
         InitializeLetterStates();
 
-        // Connect signals with debugging
         _collectButton.Pressed += OnCollectPressed;
-
-        // Initially disable collect button, it will be enabled when evidence is collected
         _collectButton.Disabled = true;
-        _collectButton.Text = "Dismiss";
+        _collectButton.Text = "Extract Evidence";
 
-        // Set patience progress bar initial value and max
-        if (_patienceProgressBar != null)
-        {
-            _patienceProgressBar.MaxValue = _initialPatience;
-            _patienceProgressBar.Value = _initialPatience;
-        }
+        SetCallerHeader();
 
-        // Create alphabet display
+        BuildInputRow();
         UpdateAlphabetDisplay();
 
-        // Setup close button (if not already set via Export)
         if (_closeButton == null)
         {
             SetupCloseButton();
@@ -313,66 +280,34 @@ public partial class EvidenceModal : Control
         {
             _closeButton.Pressed += OnClosePressed;
         }
-
-        // Ensure terminal display is visible immediately
-        GD.Print("Setting up modal - creating terminal display");
-        
-        // Create current input display
-        _currentInputDisplay = new RichTextLabel
-        {
-            BbcodeEnabled = true,
-            Text = GetCurrentInputDisplay(),
-            FitContent = true,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-        _currentInputDisplay.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_SMALL);
-        ApplyMonospaceFont(_currentInputDisplay);
-        
-        // Add to ScrollContainer content - FIXED: _guessHistory IS the ScrollContainer
-        var guessHistoryContent = _guessHistory.GetChild(0) as VBoxContainer;
-        if (guessHistoryContent != null)
-        {
-            guessHistoryContent.AddChild(_currentInputDisplay);
-            GD.Print($"Terminal display added to content. Total children: {guessHistoryContent.GetChildCount()}");
-        }
-        else
-        {
-            GD.Print("ERROR: Could not find ScrollContainer content for terminal display!");
-            GD.Print($"_guessHistory type: {_guessHistory?.GetType().Name}");
-            GD.Print($"_guessHistory child count: {_guessHistory?.GetChildCount()}");
-        }
     }
 
     /// <summary>
-    /// Apply UITheme styling to scene-defined labels for consistent appearance.
+    /// Apply DOS-terminal styling consistent with the screening UI.
     /// </summary>
     private void ApplyThemeToLabels()
     {
-        // Title label - use larger size for header
         if (_titleLabel != null)
         {
             _titleLabel.AddThemeFontOverride("font", UITheme.MonoFont);
-            _titleLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_XL);
-            _titleLabel.AddThemeColorOverride("font_color", UITheme.TEXT_PRIMARY);
+            _titleLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_MEDIUM);
+            _titleLabel.AddThemeColorOverride("font_color", UIColors.Screening.HeaderText);
         }
 
-        // Attempts label - show as secondary
         if (_attemptsLabel != null)
         {
             _attemptsLabel.AddThemeFontOverride("font", UITheme.MonoFont);
             _attemptsLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
-            _attemptsLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+            _attemptsLabel.AddThemeColorOverride("font_color", UIColors.Screening.DimText);
         }
 
-        // Description label
         if (_descriptionLabel != null)
         {
             _descriptionLabel.AddThemeFontOverride("font", UITheme.MonoFont);
-            _descriptionLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_BASE);
-            _descriptionLabel.AddThemeColorOverride("font_color", UITheme.TEXT_SECONDARY);
+            _descriptionLabel.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
+            _descriptionLabel.AddThemeColorOverride("font_color", UIColors.Screening.DefaultText);
         }
 
-        // Apply button styling
         if (_collectButton != null)
         {
             UITheme.ApplyButtonStyle(_collectButton);
@@ -380,8 +315,19 @@ public partial class EvidenceModal : Control
     }
 
     /// <summary>
-    /// Sets up the close button in the top-right corner of the modal.
-    /// Creates an X button with styling if one doesn't exist via Export.
+    /// Wire the patience header (caller name + bar) when present in the scene.
+    /// </summary>
+    private void SetCallerHeader()
+    {
+        if (_patienceProgressBar != null && _caller != null)
+        {
+            _patienceProgressBar.MaxValue = _caller.ScreeningPatience;
+            _patienceProgressBar.Value = _caller.ScreeningPatience;
+        }
+    }
+
+    /// <summary>
+    /// Sets up the close button in the top-right corner of the dialog.
     /// </summary>
     private void SetupCloseButton()
     {
@@ -392,54 +338,61 @@ public partial class EvidenceModal : Control
             return;
         }
 
-        // Create close button
         _closeButton = new Button
         {
             Text = "X",
-            CustomMinimumSize = new Vector2(30, 30),
+            CustomMinimumSize = new Vector2(24, 22),
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkEnd,
-            SizeFlagsVertical = Control.SizeFlags.Expand
+            SizeFlagsVertical = Control.SizeFlags.ShrinkCenter
         };
-
-        // Style the close button
-        var closeStyle = new StyleBoxFlat
-        {
-            BgColor = new Color(0.2f, 0.2f, 0.2f, 1.0f),
-            CornerRadiusTopLeft = 4,
-            CornerRadiusTopRight = 4,
-            CornerRadiusBottomLeft = 4,
-            CornerRadiusBottomRight = 4
-        };
-        _closeButton.AddThemeStyleboxOverride("normal", closeStyle);
-
-        var closeHoverStyle = new StyleBoxFlat
-        {
-            BgColor = new Color(0.8f, 0.2f, 0.2f, 1.0f),
-            CornerRadiusTopLeft = 4,
-            CornerRadiusTopRight = 4,
-            CornerRadiusBottomLeft = 4,
-            CornerRadiusBottomRight = 4
-        };
-        _closeButton.AddThemeStyleboxOverride("hover", closeHoverStyle);
-
-        _closeButton.AddThemeFontSizeOverride("font_size", 18);
-        _closeButton.AddThemeColorOverride("font_color", new Color(0.9f, 0.9f, 0.9f, 1.0f));
-
-        // Connect close button signal
+        ApplyDosButtonStyle(_closeButton, UIColors.Screening.DefaultText);
+        _closeButton.AddThemeColorOverride("font_hover_color", RuledOutColor);
         _closeButton.Pressed += OnClosePressed;
-
-        // Add to header container (after patience bar)
         headerContainer.AddChild(_closeButton);
-
-        GD.Print("EvidenceModal: Close button created and added to header container");
     }
 
     /// <summary>
-    /// Handles close button press - closes the modal.
+    /// Flat black + 1px border style matching the screening terminal panels.
     /// </summary>
+    private static void ApplyDosButtonStyle(Button button, Color accent)
+    {
+        button.Flat = true;
+        button.AddThemeFontOverride("font", UITheme.MonoFont);
+        button.AddThemeFontSizeOverride("font_size", UITheme.FONT_SMALL);
+        button.AddThemeColorOverride("font_color", accent);
+
+        var bg = UIColors.Screening.Background;
+        ApplyDosButtonState(button, "normal", bg, new Color(accent.R, accent.G, accent.B, 0.45f));
+        ApplyDosButtonState(button, "hover", new Color(0.08f, 0.12f, 0.1f, 1f), accent);
+        ApplyDosButtonState(button, "pressed", new Color(accent.R * 0.25f, accent.G * 0.25f, accent.B * 0.25f, 1f), accent);
+        ApplyDosButtonState(button, "disabled", bg, new Color(0.25f, 0.28f, 0.26f, 0.6f));
+
+        button.AddThemeColorOverride("font_hover_color", new Color(
+            Mathf.Min(1f, accent.R + 0.1f), Mathf.Min(1f, accent.G + 0.1f), Mathf.Min(1f, accent.B + 0.1f)));
+        button.AddThemeColorOverride("font_pressed_color", UIColors.Screening.HeaderText);
+        button.AddThemeColorOverride("font_disabled_color", BlockedColor);
+    }
+
+    private static void ApplyDosButtonState(Button button, string state, Color bg, Color border)
+    {
+        var style = new StyleBoxFlat
+        {
+            BgColor = bg,
+            BorderColor = border,
+            BorderWidthLeft = 1,
+            BorderWidthTop = 1,
+            BorderWidthRight = 1,
+            BorderWidthBottom = 1,
+            ContentMarginLeft = 4,
+            ContentMarginRight = 4,
+            ContentMarginTop = 2,
+            ContentMarginBottom = 2
+        };
+        button.AddThemeStyleboxOverride(state, style);
+    }
+
     private void OnClosePressed()
     {
-        GD.Print("EvidenceModal: Close button clicked");
         ModalClosed?.Invoke();
     }
 
@@ -452,18 +405,27 @@ public partial class EvidenceModal : Control
         }
     }
 
+    /// <summary>
+    /// Build the clickable alphabet board. A letter is enabled only while it is
+    /// still unused (never appeared in a guess); clicking it types it.
+    /// </summary>
     private void UpdateAlphabetDisplay()
     {
-        // Clear existing alphabet display
-        foreach (var child in _alphabetDisplay.GetChildren())
+        if (_alphabetDisplay == null)
         {
+            return;
+        }
+
+        // Detach + free so stale buttons never receive input this frame.
+        foreach (var child in _alphabetDisplay.GetChildren().ToList())
+        {
+            _alphabetDisplay.RemoveChild(child);
             child.QueueFree();
         }
 
-        // Create 4 rows of letters with enhanced spacing
         var rows = new[] {
             "ABCDEFG",
-            "HIJKLMN", 
+            "HIJKLMN",
             "OPQRSTU",
             "VWXYZ"
         };
@@ -474,98 +436,75 @@ public partial class EvidenceModal : Control
             {
                 Alignment = BoxContainer.AlignmentMode.Center
             };
-            rowContainer.AddThemeConstantOverride("separation", 8);
-            rowContainer.SizeFlagsVertical = Control.SizeFlags.Expand;
+            rowContainer.AddThemeConstantOverride("separation", 6);
 
-                foreach (var letter in row)
+            foreach (var letter in row)
+            {
+                var state = _letterStates[letter];
+                var enabled = state == LetterState.Unused && !_gameCompleted;
+                var color = state switch
                 {
-                    var letterLabel = new RichTextLabel
-                    {
-                        BbcodeEnabled = true,
-                        Text = GetLetterDisplayText(letter),
-                        FitContent = true,
-                        CustomMinimumSize = new Vector2(25, 25)
-                    };
-                    letterLabel.SizeFlagsVertical = Control.SizeFlags.Expand;
-                    letterLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
-                    ApplyMonospaceFont(letterLabel);
-                    rowContainer.AddChild(letterLabel);
-                }
+                    LetterState.CorrectPosition => CorrectColor,
+                    LetterState.WrongPosition => WrongPosColor,
+                    LetterState.RuledOut => RuledOutColor,
+                    _ => UnusedColor
+                };
+
+                var letterButton = new Button
+                {
+                    Text = letter.ToString(),
+                    CustomMinimumSize = new Vector2(32, 24),
+                    Disabled = !enabled,
+                    SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
+                };
+                ApplyDosButtonStyle(letterButton, color);
+
+                var captured = letter;
+                letterButton.Pressed += () => TryTypeLetter(captured);
+                rowContainer.AddChild(letterButton);
+            }
 
             _alphabetDisplay.AddChild(rowContainer);
         }
     }
 
-    private string GetLetterDisplayText(char letter)
-    {
-        var color = _letterStates[letter] switch
-        {
-            LetterState.CorrectPosition => "green",
-            LetterState.WrongPosition => "yellow",
-            LetterState.RuledOut => "red",
-            _ => "gray"
-        };
-        return $"[color={color}]{letter}[/color]";
-    }
-
     private void StartNewGame()
     {
-        // Ensure word list is loaded
         LoadWordList();
-        
-        // Select a random word from the loaded list
+
         if (_wordList.Count > 0)
         {
             _targetWord = _wordList[(int)(GD.Randi() % (uint)_wordList.Count)];
-            GD.Print("");
-            GD.Print("========================================");
-            GD.Print($"TARGET WORD: {_targetWord}");
-            GD.Print("========================================");
-            GD.Print($"(from {_wordList.Count} words)");
-            GD.Print("");
         }
         else
         {
-            // Ultimate fallback - should never happen
             _targetWord = "HOUSE";
             GD.PrintErr("EvidenceModal: Word list empty, using hardcoded fallback");
         }
 
-        // Reset game state
         _currentAttempt = 0;
         _previousGuesses.Clear();
         _gameCompleted = false;
         _currentInputChars = new char[] { '_', '_', '_', '_', '_' };
         _positionsFilled = new bool[5];
 
-        // Reset letter states
         InitializeLetterStates();
 
-        // Update UI
         UpdateUI();
 
-        // Reset button state - disabled until evidence is collected
         _collectButton.Disabled = true;
-        _collectButton.Text = "Collect Evidence";
-    }
-
-    private void GrabModalFocus()
-    {
-        GrabFocus();
+        _collectButton.Text = "Extract Evidence";
     }
 
     public override void _Process(double delta)
     {
-        // Check if caller is still valid and update patience bar
         if (_caller != null && !_gameCompleted)
         {
-            // Update patience progress bar - use same calculation as ScreeningPanel
             if (_patienceProgressBar != null && IsInstanceValid(_patienceProgressBar))
             {
-                var screeningController = DependencyInjection.Get<IScreeningController>(this);
-                if (screeningController != null)
+                var progress = _screeningController?.Progress;
+                if (progress != null)
                 {
-                    var progress = screeningController.Progress;
                     _patienceProgressBar.Value = _caller.ScreeningPatience - progress.ElapsedTime;
                 }
                 else
@@ -573,11 +512,9 @@ public partial class EvidenceModal : Control
                     _patienceProgressBar.Value = _caller.ScreeningPatience;
                 }
             }
-            
-            // Check if patience expired (fallback if event doesn't fire)
+
             if (_caller.ScreeningPatience <= 0f)
             {
-                GD.Print($"EvidenceModal: Patience expired for {_caller.Name}, closing modal");
                 ModalClosed?.Invoke();
             }
         }
@@ -585,48 +522,105 @@ public partial class EvidenceModal : Control
 
     public override void _Input(InputEvent @event)
     {
-        if (_gameCompleted) return;
-
-        if (@event is InputEventKey keyEvent && keyEvent.Pressed)
+        if (_crtHosted)
         {
-            if (keyEvent.Keycode == Key.Enter)
+            // Forwarded through ModalManager instead; avoid double handling.
+            return;
+        }
+
+        if (@event is InputEventKey key && HandleKey(key))
+        {
+            GetViewport().SetInputAsHandled();
+        }
+    }
+
+    /// <summary>
+    /// Handle a key event. Returns true when consumed. Used both by local _Input
+    /// (fullscreen fallback) and ModalManager forwarding (CRT hosted mode).
+    /// </summary>
+    public bool HandleKey(InputEventKey key)
+    {
+        if (_gameCompleted || !key.Pressed)
+        {
+            return false;
+        }
+
+        if (key.Keycode == Key.Enter)
+        {
+            if (IsCompleteGuess())
             {
-                if (IsCompleteGuess())
-                {
-                    MakeGuess(GetCurrentGuess());
-                }
-                GetViewport().SetInputAsHandled();
+                MakeGuess(GetCurrentGuess());
             }
-            else if (keyEvent.Keycode == Key.Backspace)
+            return true;
+        }
+
+        if (key.Keycode == Key.Backspace)
+        {
+            TryClearLastTyped();
+            return true;
+        }
+
+        if (key.Unicode != 0 && char.IsLetter((char)key.Unicode))
+        {
+            TryTypeLetter(char.ToUpper((char)key.Unicode));
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Type a letter into the first open (unlocked, empty) slot. Letters already
+    /// revealed by a guess are locked out to match the alphabet board.
+    /// </summary>
+    private void TryTypeLetter(char letter)
+    {
+        if (_gameCompleted ||
+            !_letterStates.TryGetValue(letter, out var state) ||
+            state != LetterState.Unused)
+        {
+            return;
+        }
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (!_positionsFilled[i] && _currentInputChars[i] == '_')
             {
-                // Find the last unfilled, unlocked position and clear it
-                for (int i = 4; i >= 0; i--)
-                {
-                    if (!_positionsFilled[i] && _currentInputChars[i] != '_')
-                    {
-                        _currentInputChars[i] = '_';
-                        UpdateCurrentInputDisplay();
-                        break;
-                    }
-                }
-                GetViewport().SetInputAsHandled();
-            }
-            else if (keyEvent.Unicode != 0 && char.IsLetter((char)keyEvent.Unicode))
-            {
-                char letter = char.ToUpper((char)keyEvent.Unicode);
-                // Find the first unfilled, unlocked position and fill it
-                for (int i = 0; i < 5; i++)
-                {
-                    if (!_positionsFilled[i] && _currentInputChars[i] == '_')
-                    {
-                        _currentInputChars[i] = letter;
-                        UpdateCurrentInputDisplay();
-                        break;
-                    }
-                }
-                GetViewport().SetInputAsHandled();
+                _currentInputChars[i] = letter;
+                RebuildInputRow();
+                return;
             }
         }
+    }
+
+    /// <summary>
+    /// Backspace: clear the last typed (not yet locked) letter.
+    /// </summary>
+    private void TryClearLastTyped()
+    {
+        for (int i = 4; i >= 0; i--)
+        {
+            if (!_positionsFilled[i] && _currentInputChars[i] != '_')
+            {
+                _currentInputChars[i] = '_';
+                RebuildInputRow();
+                return;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Click a typed, unlocked slot to clear it.
+    /// </summary>
+    private void TryClearSlot(int index)
+    {
+        if (index < 0 || index >= 5 || _positionsFilled[index])
+        {
+            return;
+        }
+
+        _currentInputChars[index] = '_';
+        RebuildInputRow();
     }
 
     private void MakeGuess(string guess)
@@ -636,23 +630,19 @@ public partial class EvidenceModal : Control
             return;
         }
 
-        // Validate input (must be 5 letters)
         if (!IsValidGuess(guess))
         {
-            ShowInvalidGuessMessage();
             return;
         }
 
         _currentAttempt++;
         _previousGuesses.Add(guess);
 
-        // Update letter states based on this guess
         UpdateLetterStates(guess);
 
-        // Check if guess is correct
         if (guess == _targetWord)
         {
-            OnGameWon(guess);
+            OnGameWon();
         }
         else if (_currentAttempt >= _maxAttempts)
         {
@@ -660,8 +650,6 @@ public partial class EvidenceModal : Control
         }
         else
         {
-            AddGuessToHistory(guess);
-            // Prepare next input: keep correct letters, clear wrong ones
             PrepareNextInput(guess);
             UpdateUI();
         }
@@ -684,13 +672,12 @@ public partial class EvidenceModal : Control
 
     private void PrepareNextInput(string guess)
     {
-        // Defensive: validate inputs
         if (string.IsNullOrEmpty(_targetWord) || string.IsNullOrEmpty(guess) || guess.Length != 5 || _targetWord.Length != 5)
         {
             GD.PrintErr($"EvidenceModal.PrepareNextInput: Invalid input - target: '{_targetWord}', guess: '{guess}'");
             return;
         }
-        
+
         var targetChars = _targetWord.ToCharArray();
         var guessChars = guess.ToCharArray();
 
@@ -713,13 +700,12 @@ public partial class EvidenceModal : Control
 
     private void UpdateLetterStates(string guess)
     {
-        // Defensive: validate inputs
         if (string.IsNullOrEmpty(_targetWord) || string.IsNullOrEmpty(guess) || guess.Length != 5 || _targetWord.Length != 5)
         {
             GD.PrintErr($"EvidenceModal.UpdateLetterStates: Invalid input - target: '{_targetWord}', guess: '{guess}'");
             return;
         }
-        
+
         var targetChars = _targetWord.ToCharArray();
         var guessChars = guess.ToCharArray();
         var usedPositions = new bool[5];
@@ -729,7 +715,6 @@ public partial class EvidenceModal : Control
         {
             if (guessChars[i] == targetChars[i])
             {
-                // Ensure the character exists in dictionary before accessing
                 if (_letterStates.ContainsKey(guessChars[i]))
                 {
                     _letterStates[guessChars[i]] = LetterState.CorrectPosition;
@@ -748,7 +733,6 @@ public partial class EvidenceModal : Control
                 {
                     if (!usedPositions[j] && guessChars[i] == targetChars[j])
                     {
-                        // Ensure the character exists in dictionary before accessing
                         if (_letterStates.ContainsKey(guessChars[i]) && _letterStates[guessChars[i]] != LetterState.CorrectPosition)
                         {
                             _letterStates[guessChars[i]] = LetterState.WrongPosition;
@@ -760,7 +744,6 @@ public partial class EvidenceModal : Control
                 }
                 if (!found)
                 {
-                    // Ensure the character exists in dictionary before accessing
                     if (_letterStates.ContainsKey(guessChars[i]) && _letterStates[guessChars[i]] == LetterState.Unused)
                     {
                         _letterStates[guessChars[i]] = LetterState.RuledOut;
@@ -770,59 +753,11 @@ public partial class EvidenceModal : Control
         }
     }
 
-    private bool IsValidPartialInput(string input)
-    {
-        if (input.Length > 5) return false;
-        foreach (char c in input)
-        {
-            if (!char.IsLetter(c)) return false;
-        }
-        return true;
-    }
-
-    private string GetCurrentInputDisplay()
-    {
-        var display = new string[5];
-        for (int i = 0; i < 5; i++)
-        {
-            if (_positionsFilled[i] && _currentInputChars[i] != '_')
-            {
-                // Locked correct letter - show in green
-                display[i] = $"[color=green]{_currentInputChars[i]}[/color]";
-            }
-            else if (_currentInputChars[i] == '_')
-            {
-                // Empty position - show as gray underscore
-                display[i] = $"[color=gray]_[/color]";
-            }
-            else
-            {
-                // Unfilled position - show as white letter
-                display[i] = _currentInputChars[i].ToString();
-            }
-        }
-        return $"> {string.Join(" ", display)}";
-    }
-
-    private void UpdateCurrentInputDisplay()
-    {
-        if (_currentInputDisplay != null)
-        {
-            _currentInputDisplay.Text = GetCurrentInputDisplay();
-            GD.Print($"Terminal updated: '{_currentInputDisplay.Text}'");
-        }
-        else
-        {
-            GD.Print("ERROR: _currentInputDisplay is null in UpdateCurrentInputDisplay!");
-        }
-    }
-
     private bool IsValidGuess(string guess)
     {
         if (guess.Length != 5)
             return false;
 
-        // Check if all characters are letters
         foreach (char c in guess)
         {
             if (!char.IsLetter(c))
@@ -832,35 +767,84 @@ public partial class EvidenceModal : Control
         return true;
     }
 
-    private void ShowInvalidGuessMessage()
+    /// <summary>
+    /// Build the live password row: PWD> [slot][slot][slot][slot][slot] [ENTER].
+    /// Slots are clickable: a typed, unlocked slot clears on click; locked
+    /// (correct) slots and empty slots are not interactive.
+    /// </summary>
+    private void BuildInputRow()
     {
-        // Could add a temporary error message here
-        // For now, just keep the current input
+        var guessHistoryContent = _guessHistory.GetChild(0) as VBoxContainer;
+        if (guessHistoryContent == null)
+        {
+            GD.PrintErr("EvidenceModal: Could not find GuessHistory content");
+            return;
+        }
+
+        _inputRow = new HBoxContainer
+        {
+            Alignment = BoxContainer.AlignmentMode.Center,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill
+        };
+        _inputRow.AddThemeConstantOverride("separation", 4);
+        guessHistoryContent.AddChild(_inputRow);
+        RebuildInputRow();
     }
 
-    private void AddGuessToHistory(string guess)
+    private void RebuildInputRow()
     {
-        var guessResult = EvaluateGuess(guess);
-        var guessLabel = new RichTextLabel
+        if (_inputRow == null || !IsInstanceValid(_inputRow))
         {
-            BbcodeEnabled = true,
-            Text = guessResult,
-            FitContent = true,
-            HorizontalAlignment = HorizontalAlignment.Center
+            return;
+        }
+
+        foreach (var child in _inputRow.GetChildren())
+        {
+            child.QueueFree();
+        }
+
+        var prefix = new Label { Text = "PWD>" };
+        prefix.AddThemeFontOverride("font", UITheme.MonoFont);
+        prefix.AddThemeFontSizeOverride("font_size", UITheme.FONT_BASE);
+        prefix.AddThemeColorOverride("font_color", UIColors.Screening.DimText);
+        _inputRow.AddChild(prefix);
+
+        for (int i = 0; i < 5; i++)
+        {
+            bool locked = _positionsFilled[i] && _currentInputChars[i] != '_';
+            bool filled = _currentInputChars[i] != '_';
+            var slot = new Button
+            {
+                Text = filled ? _currentInputChars[i].ToString() : "_",
+                CustomMinimumSize = new Vector2(30, 26),
+                Disabled = locked || !filled,
+                SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
+            };
+            ApplyDosButtonStyle(slot, locked ? CorrectColor : UIColors.Screening.DefaultText);
+            if (!locked && filled)
+            {
+                var captured = i;
+                slot.Pressed += () => TryClearSlot(captured);
+            }
+            _inputRow.AddChild(slot);
+        }
+
+        var enterButton = new Button
+        {
+            Text = "ENTER",
+            CustomMinimumSize = new Vector2(52, 26),
+            Disabled = _gameCompleted || !IsCompleteGuess(),
+            SizeFlagsVertical = Control.SizeFlags.ShrinkBegin
         };
-        guessLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_SMALL);
-        ApplyMonospaceFont(guessLabel);
-        
-        // Find the ScrollContainer and its content - FIXED node path
-        var guessHistoryContent = _guessHistory.GetChild(0) as VBoxContainer;
-        if (guessHistoryContent != null)
+        ApplyDosButtonStyle(enterButton, WrongPosColor);
+        enterButton.Pressed += () =>
         {
-            guessHistoryContent.AddChild(guessLabel);
-        }
-        else
-        {
-            GD.Print("ERROR: Could not find ScrollContainer content in AddGuessToHistory!");
-        }
+            if (IsCompleteGuess())
+            {
+                MakeGuess(GetCurrentGuess());
+            }
+        };
+        _inputRow.AddChild(enterButton);
     }
 
     private string EvaluateGuess(string guess)
@@ -869,18 +853,16 @@ public partial class EvidenceModal : Control
         var targetChars = _targetWord.ToCharArray();
         var guessChars = guess.ToCharArray();
 
-        // First pass: mark correct positions (green)
         for (int i = 0; i < 5; i++)
         {
             if (guessChars[i] == targetChars[i])
             {
-                result[i] = $"[color=green]{guessChars[i]}[/color]";
-                targetChars[i] = '\0'; // Mark as used
+                result[i] = $"[color={ColorHtml(CorrectColor)}]{guessChars[i]}[/color]";
+                targetChars[i] = '\0';
                 guessChars[i] = '\0';
             }
         }
 
-        // Second pass: mark wrong positions (yellow)
         for (int i = 0; i < 5; i++)
         {
             if (guessChars[i] != '\0')
@@ -890,15 +872,15 @@ public partial class EvidenceModal : Control
                 {
                     if (guessChars[i] == targetChars[j])
                     {
-                        result[i] = $"[color=yellow]{guessChars[i]}[/color]";
-                        targetChars[j] = '\0'; // Mark as used
+                        result[i] = $"[color={ColorHtml(WrongPosColor)}]{guessChars[i]}[/color]";
+                        targetChars[j] = '\0';
                         found = true;
                         break;
                     }
                 }
                 if (!found)
                 {
-                    result[i] = $"[color=red]{guessChars[i]}[/color]";
+                    result[i] = $"[color={ColorHtml(RuledOutColor)}]{guessChars[i]}[/color]";
                 }
             }
         }
@@ -906,32 +888,28 @@ public partial class EvidenceModal : Control
         return $"> {string.Join(" ", result)}";
     }
 
-    private void OnGameWon(string winningGuess)
+    private static string ColorHtml(Color color) => "#" + color.ToHtml(false);
+
+    private void OnGameWon()
     {
         _gameCompleted = true;
-        _evidenceCollected = false; // Reset collection flag
-        AddGuessToHistory(winningGuess);
+        _evidenceCollected = false;
 
-        // Reset patience when evidence is revealed (both in minigame and screening panel)
-        var screeningController = DependencyInjection.Get<IScreeningController>(this);
-        screeningController?.ResetPatienceAndTime();
+        _screeningController?.ResetPatienceAndTime();
 
-        // Reset progress bar to full immediately
         if (_patienceProgressBar != null)
         {
             _patienceProgressBar.Value = _patienceProgressBar.MaxValue;
         }
 
-        // Roll loot table to determine evidence tier
         _discoveredTier = RollEvidenceTier();
-        
-        // Show discovery message instead of collecting immediately
+
+        UpdateUI();
+        AddRichMessage("[color=" + ColorHtml(CorrectColor) + "]PASSWORD ACCEPTED - FILE UNLOCKED[/color]");
         ShowDiscoveryMessage(_discoveredTier);
-        
-        // Enable collect button for user to collect evidence
+
         _collectButton.Disabled = false;
-        _collectButton.Text = "Collect Evidence";
-        GD.Print($"Collect button enabled for evidence discovery (tier: {_discoveredTier})");
+        _collectButton.Text = "Extract Evidence";
     }
 
     /// <summary>
@@ -940,22 +918,18 @@ public partial class EvidenceModal : Control
     /// </summary>
     private bool TryCollectEvidence(string? callerName, string? evidenceLevel, string? callerId)
     {
-        // Check if we have cached caller data
         if (string.IsNullOrEmpty(callerName) || string.IsNullOrEmpty(callerId))
         {
             GD.PrintErr("EvidenceModal: Cannot collect evidence - no cached caller data");
             return false;
         }
 
-        // First, try using the screening controller if the cached caller is still current
         if (_screeningController != null)
         {
             var currentCaller = _screeningController.CurrentCaller;
-            
-            // If the cached caller is the same as the current caller, use normal flow
+
             if (currentCaller != null && currentCaller.Id == callerId)
             {
-                GD.Print("EvidenceModal: Cached caller matches current caller, using normal collection flow");
                 bool success = _screeningController.CollectEvidence(_targetWord, _discoveredTier);
                 if (success)
                 {
@@ -965,8 +939,6 @@ public partial class EvidenceModal : Control
             }
         }
 
-        // Fallback: Create evidence directly using cached data
-        GD.Print("EvidenceModal: Using direct evidence creation for cached caller");
         return CreateEvidenceDirectly(callerName, evidenceLevel);
     }
 
@@ -978,26 +950,14 @@ public partial class EvidenceModal : Control
     {
         try
         {
-            // Validate inputs
-            if (string.IsNullOrEmpty(callerName))
+            if (string.IsNullOrEmpty(callerName) || string.IsNullOrEmpty(_targetWord))
             {
-                GD.PrintErr("EvidenceModal: Cannot create evidence - caller name is null or empty");
+                GD.PrintErr("EvidenceModal: Cannot create evidence - missing caller or word");
                 return false;
             }
 
-            // Check target word
-            if (string.IsNullOrEmpty(_targetWord))
-            {
-                GD.PrintErr("EvidenceModal: Cannot create evidence - _targetWord is null or empty");
-                return false;
-            }
-
-            // Use default evidence level if not provided
             evidenceLevel ??= "None";
 
-            GD.Print($"EvidenceModal: Creating evidence item - Word: {_targetWord}, Caller: {callerName}, Level: {evidenceLevel}, Tier: {_discoveredTier}");
-
-            // Create evidence item using cached data and pre-rolled tier
             var evidence = EvidenceItem.Create(
                 _targetWord,
                 callerName,
@@ -1011,9 +971,6 @@ public partial class EvidenceModal : Control
                 return false;
             }
 
-            GD.Print("EvidenceModal: Evidence item created successfully");
-
-            // Get save manager and save evidence
             SaveManager? saveManager = null;
             try
             {
@@ -1025,67 +982,37 @@ public partial class EvidenceModal : Control
                 return false;
             }
 
-            if (saveManager == null)
+            if (saveManager?.CurrentSave == null)
             {
-                GD.PrintErr("EvidenceModal: SaveManager is null");
+                GD.PrintErr("EvidenceModal: SaveManager/CurrentSave unavailable");
                 return false;
             }
 
-            GD.Print("EvidenceModal: Got SaveManager successfully");
-
-            if (saveManager.CurrentSave == null)
-            {
-                GD.PrintErr("EvidenceModal: CurrentSave is null");
-                return false;
-            }
-
-            GD.Print("EvidenceModal: CurrentSave is valid");
-
-            if (saveManager.CurrentSave.CollectedEvidence == null)
-            {
-                GD.Print("EvidenceModal: CollectedEvidence list is null, initializing it");
-                saveManager.CurrentSave.CollectedEvidence = new System.Collections.Generic.List<Items.EvidenceItem>();
-            }
-
-            GD.Print($"EvidenceModal: CollectedEvidence list has {saveManager.CurrentSave.CollectedEvidence.Count} items");
-
+            saveManager.CurrentSave.CollectedEvidence ??= new System.Collections.Generic.List<Items.EvidenceItem>();
             saveManager.CurrentSave.CollectedEvidence.Add(evidence);
 
-            // Also store in new EvidenceSystem for immediate availability
-            if (saveManager.CurrentSave.EvidenceSystem == null)
-            {
-                GD.Print("EvidenceModal: EvidenceSystem is null, initializing it");
-                saveManager.CurrentSave.EvidenceSystem = new Persistence.EvidenceSystemData();
-            }
+            saveManager.CurrentSave.EvidenceSystem ??= new Persistence.EvidenceSystemData();
+            saveManager.CurrentSave.EvidenceSystem.RawEvidence ??= new System.Collections.Generic.List<Persistence.IdentifiedEvidenceData>();
 
-            if (saveManager.CurrentSave.EvidenceSystem.RawEvidence == null)
-            {
-                saveManager.CurrentSave.EvidenceSystem.RawEvidence = new System.Collections.Generic.List<Persistence.IdentifiedEvidenceData>();
-            }
-
-            var rawEvidenceData = new Persistence.IdentifiedEvidenceData
+            saveManager.CurrentSave.EvidenceSystem.RawEvidence.Add(new Persistence.IdentifiedEvidenceData
             {
                 Word = evidence.Word,
                 SourceCallerName = evidence.SourceCallerName,
                 EvidenceLevel = evidence.EvidenceLevel,
                 Tier = (int)evidence.Tier,
-                BonusType = 0, // Will be determined during analysis
+                BonusType = 0,
                 BonusAmount = 0f,
                 Status = 0 // EvidenceStatus.Raw
-            };
-
-            saveManager.CurrentSave.EvidenceSystem.RawEvidence.Add(rawEvidenceData);
+            });
 
             saveManager.Save();
 
             _evidenceCollected = true;
-            GD.Print($"EvidenceModal: Direct evidence creation successful for {callerName} with tier {_discoveredTier}");
             return true;
         }
         catch (Exception ex)
         {
             GD.PrintErr($"EvidenceModal: Failed to create evidence directly - {ex.Message}");
-            GD.PrintErr($"EvidenceModal: Stack trace - {ex.StackTrace}");
             return false;
         }
     }
@@ -1093,161 +1020,93 @@ public partial class EvidenceModal : Control
     private void OnGameLost()
     {
         _gameCompleted = true;
-        ShowFailureMessage();
-        _collectButton.Disabled = false; // Enable button for dismissal
+        UpdateUI();
+        AddRichMessage("[color=" + ColorHtml(RuledOutColor) + "]DECRYPTION FAILED - FILE SEALED. EVIDENCE LOST.[/color]");
+
+        _collectButton.Disabled = false;
         _collectButton.Text = "Dismiss";
 
-        // Mark evidence opportunity as lost to hide the examine button
         _screeningController?.LoseEvidenceOpportunity();
     }
 
-    private void ShowSuccessMessage()
+    /// <summary>
+    /// Append a colored status line to the history, above the bottom edge.
+    /// </summary>
+    private void AddRichMessage(string bbcode)
     {
-        var successLabel = new RichTextLabel
+        var label = new RichTextLabel
         {
             BbcodeEnabled = true,
-            Text = "[color=green]🎉 EVIDENCE COLLECTED! 🎉[/color]",
+            Text = bbcode,
             FitContent = true,
             HorizontalAlignment = HorizontalAlignment.Center
         };
-        successLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
-        ApplyMonospaceFont(successLabel);
-        
-        // Find the ScrollContainer content - FIXED node path
-        var guessHistoryContent = _guessHistory.GetChild(0) as VBoxContainer;
-        if (guessHistoryContent != null)
-        {
-            guessHistoryContent.AddChild(successLabel);
-        }
-        else
-        {
-            GD.Print("ERROR: Could not find ScrollContainer content in ShowSuccessMessage!");
-        }
-    }
+        label.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_SMALL);
+        ApplyMonospaceFont(label);
 
-    private void ShowFailureMessage()
-    {
-        var failureLabel = new RichTextLabel
-        {
-            BbcodeEnabled = true,
-            Text = "[color=red]❌ Evidence lost - better luck next time![/color]",
-            FitContent = true,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-        failureLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
-        ApplyMonospaceFont(failureLabel);
-        
-        // Find the ScrollContainer content - FIXED node path
         var guessHistoryContent = _guessHistory.GetChild(0) as VBoxContainer;
-        if (guessHistoryContent != null)
-        {
-            guessHistoryContent.AddChild(failureLabel);
-        }
-        else
-        {
-            GD.Print("ERROR: Could not find ScrollContainer content in ShowFailureMessage!");
-        }
-    }
-
-    private void ShowPrematureExitMessage()
-    {
-        var messageLabel = new RichTextLabel
-        {
-            BbcodeEnabled = true,
-            Text = "[color=red]❌ Evidence opportunity lost - closed early[/color]",
-            FitContent = true,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-        messageLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
-        ApplyMonospaceFont(messageLabel);
-        
-        // Find the ScrollContainer content - FIXED node path
-        var guessHistoryContent = _guessHistory.GetChild(0) as VBoxContainer;
-        if (guessHistoryContent != null)
-        {
-            guessHistoryContent.AddChild(messageLabel);
-        }
-        else
-        {
-            GD.Print("ERROR: Could not find ScrollContainer content in ShowPrematureExitMessage!");
-        }
+        guessHistoryContent?.AddChild(label);
     }
 
     private void ShowErrorMessage(string message)
     {
-        var errorLabel = new RichTextLabel
-        {
-            BbcodeEnabled = true,
-            Text = $"[color=red]⚠️ {message}[/color]",
-            FitContent = true,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-        errorLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
-        ApplyMonospaceFont(errorLabel);
-        
-        // Find the ScrollContainer content - FIXED node path
-        var guessHistoryContent = _guessHistory.GetChild(0) as VBoxContainer;
-        if (guessHistoryContent != null)
-        {
-            guessHistoryContent.AddChild(errorLabel);
-        }
-        else
-        {
-            GD.Print("ERROR: Could not find ScrollContainer content in ShowErrorMessage!");
-        }
+        AddRichMessage($"[color={ColorHtml(RuledOutColor)}]WARNING: {message}[/color]");
     }
 
     private void UpdateUI()
     {
-        _attemptsLabel.Text = $"Attempts remaining: {_maxAttempts - _currentAttempt}/{_maxAttempts}";
-
-        // Update description label with current attempts
-        if (_descriptionLabel != null)
+        if (_attemptsLabel != null)
         {
-            _descriptionLabel.Text = "Guess the 5-letter code";
+            _attemptsLabel.Text = $"DECRYPTION ATTEMPTS REMAINING: {_maxAttempts - _currentAttempt}/{_maxAttempts}";
         }
 
-        // Update alphabet display
+        if (_descriptionLabel != null)
+        {
+            _descriptionLabel.Text = "Crack the 5-character password to unlock this caller's evidence file.";
+        }
+
         UpdateAlphabetDisplay();
 
-        // Clear previous history from ScrollContainer content - FIXED node path
+        // Rebuild history above the live input row
         var guessHistoryContent = _guessHistory.GetChild(0) as VBoxContainer;
-        if (guessHistoryContent != null)
+        if (guessHistoryContent == null)
         {
-            foreach (var child in guessHistoryContent.GetChildren())
+            GD.PrintErr("EvidenceModal: Could not find GuessHistory content in UpdateUI");
+            return;
+        }
+
+        foreach (var child in guessHistoryContent.GetChildren().ToList())
+        {
+            if (child != _inputRow)
             {
+                guessHistoryContent.RemoveChild(child);
                 child.QueueFree();
             }
+        }
 
-            // Rebuild history
-            foreach (var guess in _previousGuesses)
-            {
-                AddGuessToHistory(guess);
-            }
-
-            // Add current input display (recreate to maintain reference)
-            _currentInputDisplay = new RichTextLabel
+        foreach (var guess in _previousGuesses)
+        {
+            var guessResult = EvaluateGuess(guess);
+            var guessLabel = new RichTextLabel
             {
                 BbcodeEnabled = true,
-                Text = GetCurrentInputDisplay(),
+                Text = guessResult,
                 FitContent = true,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
-        _currentInputDisplay.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
-            ApplyMonospaceFont(_currentInputDisplay);
-            guessHistoryContent.AddChild(_currentInputDisplay);
+            guessLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_SMALL);
+            ApplyMonospaceFont(guessLabel);
+            guessHistoryContent.AddChild(guessLabel);
         }
-        else
-        {
-            GD.Print("ERROR: Could not find ScrollContainer content in UpdateUI!");
-        }
+
+        guessHistoryContent.MoveChild(_inputRow, guessHistoryContent.GetChildCount() - 1);
+        RebuildInputRow();
     }
 
     private void OnCollectPressed()
     {
         if (_gameCompleted && !_evidenceCollected)
         {
-            // Collect evidence with pre-rolled tier
             string? callerName = _caller?.Name;
             string? evidenceLevel = _caller?.EvidenceLevel.ToString();
             string? callerId = _caller?.Id;
@@ -1256,29 +1115,22 @@ public partial class EvidenceModal : Control
 
             if (success)
             {
-                // Evidence collected successfully - close modal
                 ModalClosed?.Invoke();
             }
             else
             {
-                // Collection failed - show error but keep modal open
-                ShowErrorMessage("Failed to collect evidence - try again");
-                GD.PrintErr("EvidenceModal: Evidence collection failed in OnCollectPressed");
+                ShowErrorMessage("Extraction failed - try again");
             }
         }
         else if (_gameCompleted && _evidenceCollected)
         {
-            // Evidence already collected - just close modal
             ModalClosed?.Invoke();
         }
     }
 
-
-
     private void EnsureNodesInitialized()
     {
         _titleLabel ??= GetNodeOrNull<Label>("ModalPanel/ContentContainer/HeaderContainer/TitleLabel");
-        _wordDisplay ??= GetNodeOrNull<Control>("ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/WordDisplay");
         _alphabetDisplay ??= GetNodeOrNull<Control>("ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/RightPanel/AlphabetDisplay");
         _attemptsLabel ??= GetNodeOrNull<Label>("ModalPanel/ContentContainer/ContentVBox/MainHBoxContainer/LeftPanel/AttemptsLabel");
         _collectButton ??= GetNodeOrNull<Button>("ModalPanel/ContentContainer/ContentVBox/FooterHBox/CollectButton");
@@ -1292,7 +1144,6 @@ public partial class EvidenceModal : Control
     /// </summary>
     private EvidenceTier RollEvidenceTier()
     {
-        // Get total belief level from topic mastery
         int totalBeliefLevel;
         try
         {
@@ -1306,7 +1157,6 @@ public partial class EvidenceModal : Control
         }
 
         _discoveredTier = EvidenceLootTable.RollQuality(totalBeliefLevel);
-        GD.Print($"EvidenceModal: Rolled evidence tier {_discoveredTier} for belief level {totalBeliefLevel}");
         return _discoveredTier;
     }
 
@@ -1317,12 +1167,12 @@ public partial class EvidenceModal : Control
     {
         return tier switch
         {
-            EvidenceTier.Common => "gray",
-            EvidenceTier.Uncommon => "green",
-            EvidenceTier.Rare => "blue",
-            EvidenceTier.VeryRare => "purple",
-            EvidenceTier.OneOfAKind => "gold",
-            _ => "gray"
+            EvidenceTier.Common => "9a9a9a",
+            EvidenceTier.Uncommon => "38e838",
+            EvidenceTier.Rare => "3878e8",
+            EvidenceTier.VeryRare => "a040e0",
+            EvidenceTier.OneOfAKind => "ffd700",
+            _ => "9a9a9a"
         };
     }
 
@@ -1347,29 +1197,7 @@ public partial class EvidenceModal : Control
     /// </summary>
     private void ShowDiscoveryMessage(EvidenceTier tier)
     {
-        string color = GetTierColor(tier);
-        string displayName = GetTierDisplayName(tier);
-        
-        var discoveryLabel = new RichTextLabel
-        {
-            BbcodeEnabled = true,
-            Text = $"[color={color}]Evidence Discovered: {displayName}[/color]",
-            FitContent = true,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-        discoveryLabel.AddThemeFontSizeOverride("normal_font_size", UITheme.FONT_BASE);
-        ApplyMonospaceFont(discoveryLabel);
-        
-        // Find the ScrollContainer content
-        var guessHistoryContent = _guessHistory.GetChild(0) as VBoxContainer;
-        if (guessHistoryContent != null)
-        {
-            guessHistoryContent.AddChild(discoveryLabel);
-        }
-        else
-        {
-            GD.Print("ERROR: Could not find ScrollContainer content in ShowDiscoveryMessage!");
-        }
+        AddRichMessage($"[color=#{GetTierColor(tier)}]EVIDENCE DECRYPTED: {GetTierDisplayName(tier)}[/color]");
     }
 
     public override void _ExitTree()

@@ -36,6 +36,14 @@ public partial class TerminalOverlay : CanvasLayer
 
 	public event Action? CloseRequested;
 
+	/// <summary>
+	/// Safe-area container inside the projected CRT viewport. UI registered here
+	/// renders on the monitor above the CallerTab and receives the CRT effects
+	/// (tint, scanlines, vignette). Used by ModalManager to host dialogs on-screen.
+	/// </summary>
+	public Control? ContentHost => _contentHost;
+
+
 	public override void _Ready()
 	{
 		Layer = 120;
