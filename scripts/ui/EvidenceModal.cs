@@ -56,6 +56,13 @@ public partial class EvidenceModal : Control
     private EvidenceTier _discoveredTier;
     private bool _evidenceCollected = false;
 
+    // Cosmetic 2-second "download" spinner on the collect button
+    private bool _downloading;
+    private double _downloadElapsed;
+    private const double DOWNLOAD_DURATION = 2.0;
+    private const double SPINNER_FRAME_SECONDS = 0.12;
+    private static readonly string[] SpinnerFrames = { "|", "/", "-", "\\" };
+
     private IScreeningController? _screeningController;
     private bool _dependencyResolutionAttempted = false;
     private bool _crtHosted;
@@ -535,6 +542,24 @@ public partial class EvidenceModal : Control
 
     public override void _Process(double delta)
     {
+        if (_downloading)
+        {
+            _downloadElapsed += delta;
+            var frame = SpinnerFrames[(int)(_downloadElapsed / SPINNER_FRAME_SECONDS) % SpinnerFrames.Length];
+            var spinnerText = $"DOWNLOADING {frame}";
+            if (_collectButton.Text != spinnerText)
+            {
+                _collectButton.Text = spinnerText;
+            }
+
+            if (_downloadElapsed >= DOWNLOAD_DURATION)
+            {
+                _downloading = false;
+                ModalClosed?.Invoke();
+            }
+            return;
+        }
+
         if (_caller == null || _gameCompleted)
         {
             return;
@@ -1182,6 +1207,11 @@ public partial class EvidenceModal : Control
 
     private void OnCollectPressed()
     {
+        if (_downloading)
+        {
+            return;
+        }
+
         if (_gameCompleted && !_evidenceCollected)
         {
             string? callerName = _caller?.Name;
@@ -1192,7 +1222,15 @@ public partial class EvidenceModal : Control
 
             if (success)
             {
-                ModalClosed?.Invoke();
+                _downloading = true;
+                _downloadElapsed = 0;
+                _collectButton.Disabled = true;
+                _collectButton.Text = $"DOWNLOADING {SpinnerFrames[0]}";
+                if (_closeButton != null)
+                {
+                    _closeButton.Disabled = true;
+                }
+                AddRichMessage($"[color={ColorHtml(UnusedColor)}]DOWNLOADING FILE...[/color]");
             }
             else
             {
