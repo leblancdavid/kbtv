@@ -46,6 +46,9 @@ assets/audio/voice_references/
 # Voice models (large files - downloaded on demand)
 *.onnx
 
+# Local reference asset libraries (large bundles - see docs/art/CHARACTER_REFERENCE_LIBRARY.md)
+/docs/references/
+
 # Python cache
 __pycache__/
 *.pyc

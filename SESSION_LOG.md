@@ -1,9 +1,22 @@
 ## Current Session
 
 **Branch**: develop
-**Task**: Add persistent character agent context - generic `docs/art/CHARACTER_GUIDELINES.md` (character-agnostic model/animation principles for future character work) + Vern-specific `docs/art/VERN_CHARACTER_GUIDELINES.md` (IK anchors, animation vocabulary, validation sequence, known limitations); register both in `AGENTS.md` docs table and point `VERN_3D_MODEL_BRIEF.md` (+ Astra handoff prompt) at them.
+**Task**: Add local reference-asset catalog for character/animation work: gitignore `docs/references/` (2 large bundles), create `docs/art/CHARACTER_REFERENCE_LIBRARY.md` with extracted inventory + links (Quaternius 46-clip animation library incl. Godot GLB; human-base-meshes v1.4.1 blend + catalog), cross-link from the character guides, register in AGENTS.md.
 **Status**: In Progress
 - Files Modified: `SESSION_LOG.md`.
+- Work Done: scanned folders (~101 MB total). Animation Library[Standard] = Quaternius CC0; Godot GLB has 46 named clips incl. `Sitting_Enter/Exit/Idle_Loop/Talking_Loop`, `Idle_Talking_Loop`, `A_TPose` (Vern-relevant); Unity/Unreal FBX exports + previews. human-base-meshes-bundle-v1.4.1 = `human_base_meshes_bundle.blend` + `blender_assets.cats.txt` + 24 thumbnails across Planar/Primitives/Realistic/Stylized; NO license file bundled (flagged verify-before-shipping).
+- Next Steps: confirm `.gitignore` picks up `docs/references/`, catalog links render (brackets/spaces percent-encoded), and future sessions use the library as inspiration per character guidelines.
+- Related Docs: `docs/art/CHARACTER_REFERENCE_LIBRARY.md`, `docs/art/CHARACTER_GUIDELINES.md`, `docs/art/VERN_CHARACTER_GUIDELINES.md`.
+- Blockers: none.
+
+---
+
+## Previous Session (completed)
+
+**Branch**: develop
+**Task**: Add persistent character agent context - generic `docs/art/CHARACTER_GUIDELINES.md` (character-agnostic model/animation principles for future character work) + Vern-specific `docs/art/VERN_CHARACTER_GUIDELINES.md` (IK anchors, animation vocabulary, validation sequence, known limitations); register both in `AGENTS.md` docs table and point `VERN_3D_MODEL_BRIEF.md` (+ Astra handoff prompt) at them.
+**Status**: Completed
+- Files Modified: `docs/art/CHARACTER_GUIDELINES.md` (new), `docs/art/VERN_CHARACTER_GUIDELINES.md` (new), `AGENTS.md`, `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `SESSION_LOG.md`.
 - Work Done: split authored character guidelines into generic + Vern-specific docs. Generic keeps pipeline/anatomy checks, rest-pose, IK anchor pattern, reusable animation layers, mocap-first, anti-robotic timing, secondary motion, stateful interactions, Godot humanoid system, fix-priority order, validation sequence, diagnosis-driven AI behavior. Vern doc holds concrete interaction anchors (coffee/cigarette/ashtray/mic/chair/desk), named clip vocabulary, seated pose, coffee validation sequence, smoking state machine and known rig limitations (four fingers share one grip bone, rigid thumb, fixed talking loop, sampled prop trajectories).
 - Next Steps: confirm both docs read clean, markdown links resolve, and future Astra sessions reference the generic doc then the Vern doc before touching the character.
 - Related Docs: `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `docs/art/CHARACTER_GUIDELINES.md`, `docs/art/VERN_CHARACTER_GUIDELINES.md`.

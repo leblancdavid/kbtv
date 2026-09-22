@@ -8,7 +8,10 @@ just Vern.
 For a character-specific worked example, see
 [VERN_CHARACTER_GUIDELINES.md](VERN_CHARACTER_GUIDELINES.md) and the production
 facts in [VERN_3D_MODEL_BRIEF.md](VERN_3D_MODEL_BRIEF.md). Authoring/export tooling
-lives in [3D_ASSET_WORKFLOW.md](3D_ASSET_WORKFLOW.md).
+lives in [3D_ASSET_WORKFLOW.md](3D_ASSET_WORKFLOW.md). Local base meshes and a
+retargetable CC0 animation library are cataloged in
+[CHARACTER_REFERENCE_LIBRARY.md](CHARACTER_REFERENCE_LIBRARY.md) - prefer them
+over inventing anatomy or motion from scratch.
 
 When these principles conflict with an older per-character brief, this document
 supersedes it. Diagnose the underlying cause instead of compensating elsewhere

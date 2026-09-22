@@ -8,7 +8,10 @@ limits in older briefs).
 
 Production facts (tests, studio placement, chair, materials, exports) are
 defined in [VERN_3D_MODEL_BRIEF.md](VERN_3D_MODEL_BRIEF.md). Workflow and tooling
-live in [3D_ASSET_WORKFLOW.md](3D_ASSET_WORKFLOW.md).
+live in [3D_ASSET_WORKFLOW.md](3D_ASSET_WORKFLOW.md). For reusable base meshes and
+seated/talking animation seeds, see
+[CHARACTER_REFERENCE_LIBRARY.md](CHARACTER_REFERENCE_LIBRARY.md) (e.g.
+`Sitting_Idle_Loop`, `Sitting_Talking_Loop`).
 
 ## Identity (brief summary)
 
