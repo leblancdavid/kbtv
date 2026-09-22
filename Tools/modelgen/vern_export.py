@@ -141,8 +141,9 @@ def deliver(builder, preview_only=False):
         print('VERN_VALIDATED ' + json.dumps(report))
     if '--skip-previews' not in __import__('sys').argv:
         previews()
-        from vern_review import moving_previews
-        moving_previews(rig, actions)
+        if '--static-only' not in __import__('sys').argv:
+            from vern_review import moving_previews
+            moving_previews(rig, actions)
 
 
 def validate_actions(rig, meshes, actions):

@@ -1,6 +1,20 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Enrich Vern's existing stylized model/materials and improve breathing, talking, smoking, and drinking, especially articulated hands and believable contacts.
+**Status**: In Progress
+- Approved direction: preserve the current stylization with richer detail. User supplied Art Bell seated radio-studio photo: swept dark hair, restrained mustache, aviator glasses, black high-neck sweater, relaxed supported posture.
+- Files Modified: `SESSION_LOG.md`.
+- Work Done: inspected generator, rig, animation/runtime and existing previews. Flat-color materials; four fingers share one grip bone, thumb rigid; fixed talking loop and separate sampled prop trajectories identified as limitations.
+- Next Steps: establish baseline; upgrade model/materials and hand articulation; refine performances; regenerate/review and validate in Blender/Godot.
+- Related Docs: `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/3D_ASSET_WORKFLOW.md`.
+- Blockers: none.
+
+---
+
+## Previous Session (completed)
+
+**Branch**: develop
 **Task**: Evidence modal usability round 2: (1) keyboard/input tiles hide letter state - ruled-out (disabled) letters rendered with the generic gray disabled style, so red status never showed; locked green slots in `PWD>` also gray. Fix `ApplyDosButtonStyle` usage with a tile style that keeps the status color in the disabled state. (2) Curate `assets/config/evidence_words.json` - replace the 3185-entry dictionary dump (ARCUS/TULLE/PILAF tier + unwinnable `SO-SO`/`X-RAY` entries) with ~600 common, theme-weighted 5-letter words; validate `^[A-Z]{5}$` + dedupe on load; fix stale metadata. (3) Interaction: red blink when typing a ruled-out letter, "PASSWORD INCOMPLETE" warning when Enter is pressed with empty slots, description text says "5-letter password (an English word)". (4) Tests: word-file schema, win-sweep over every shipped word, tile style color assertions, incomplete-enter.
 **Status**: Completed - build green; full suite 634/10 (baseline 630/10 + 4 new EvidenceModal tests; same 10 pre-existing failures). Live-playtest confirmation: user won a real game with "TARDY" from the curated list.
 - Files Modified: `assets/config/evidence_words.json` (replaced 3185-entry dictionary dump with 1315 curated common words - all corpus-validated real words, `^[A-Z]{5}$`, unique, thematic picks like GHOST/PROOF/RADIO/SIREN/HEXES/OUIJA; metadata corrected; hyphenated/unwinnable entries gone), `scripts/ui/EvidenceModal.cs` (loader validates ^[A-Z]{5}$ + dedupes; `ApplyDosButtonStyle` gained `statusColor` param so DISABLED tiles keep their status color - ruled-out letters now render red font/border/dark-red bg instead of generic gray, locked green slots stay green; `_letterButtons` registry + red blink tween when a ruled-out letter is typed; Enter with empty slots shows "PASSWORD INCOMPLETE - N SLOT(S) EMPTY" without spending an attempt; description text now says "5-letter password (an English word)"), `scenes/ui/EvidenceModal.tscn` (description text), `tests/unit/ui/EvidenceModalTests.cs` (+4 tests: word-file schema, sampled win-sweep over the loaded pool incl. double-letter words, ruled-out red disabled state, incomplete-Enter warning), `docs/systems/EVIDENCE_SYSTEM.md`. Color pass: `scripts/world3d/TerminalOverlay.cs` (`PhosphorTint` 0.74/1.0/0.9 -> 0.85/1.0/0.82 so yellow keeps its red channel; `CrtTint` overlay 0.10 alpha teal -> 0.06 lighter teal), `scripts/ui/EvidenceModal.cs` (`WrongPosColor` pure yellow -> amber 0.95/0.72/0.10 - hue-safe against green under any phosphor tint), `docs/systems/EVIDENCE_SYSTEM.md`.

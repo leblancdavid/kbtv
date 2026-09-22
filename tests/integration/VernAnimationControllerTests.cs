@@ -2,6 +2,7 @@
 
 using System;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Chickensoft.GoDotTest;
 using Godot;
@@ -190,6 +191,90 @@ public class VernAnimationControllerTests : KBTVTestClass
 		Require(CurrentAnimation() == TalkingAnimation, "Completion must resume the latest speech state.");
 		Require(prop.Transform.IsEqualApprox(rest) && props.GetChildCount() == 4,
 			"Completion must return the single visible prop to its exact anchor.");
+	}
+
+	[Test]
+	public async Task HeldProps_FollowEvaluatedHandsUnderTransformedRoot()
+	{
+		await SetupVernAsync();
+		using var contract = JsonDocument.Parse(FileAccess.GetFileAsString(
+			"res://assets/models3d/characters/vern/animation_contacts.json"));
+		var props = _vern!.GetNode<VernPerformanceProps>("PerformanceProps");
+		var skeleton = _vern.FindChildren("*", "Skeleton3D", true, false).Cast<Skeleton3D>().First();
+		var instances = props.GetChildren().Cast<Node3D>().ToArray();
+		var rootTransform = _vern.Transform;
+		var propsTransform = props.Transform;
+		var speed = _player!.SpeedScale;
+		_player.SpeedScale = 0;
+		try
+		{
+			foreach (var transformed in new[] { false, true })
+			{
+				_vern.Transform = transformed
+					? new Transform3D(new Basis(Vector3.Up, .7f).Scaled(new Vector3(1.3f, .8f, 1.1f)),
+						new Vector3(4, 2, -3)) : rootTransform;
+				// Also exercise the conversion into the props root's own local space.
+				props.Transform = transformed
+					? new Transform3D(new Basis(Vector3.Right, .2f), new Vector3(.2f, .1f, -.3f))
+					: propsTransform;
+				foreach (var clip in new[] { "smoking", "drink_coffee" })
+				{
+					var action = contract.RootElement.GetProperty("actions").GetProperty(clip);
+					var name = action.GetProperty("prop").GetString()!;
+					var prop = props.GetNode<Node3D>(name);
+					var rest = DecodeContact(contract.RootElement.GetProperty("props").GetProperty(name).GetProperty("rest"));
+					var grip = DecodeContact(action.GetProperty("hand_local_grip"));
+					var hand = skeleton.FindBone(action.GetProperty("hand_bone").GetString()!);
+					Require(hand >= 0, $"{clip} must reference an imported hand bone.");
+					_player.Play(_player.GetAnimationList().First(a => Unqualified(a) == clip), 0);
+					_player.Seek(2.5, update: true);
+					await FrameAsync();
+					await FrameAsync();
+					Require(prop.GlobalTransform.IsEqualApprox(skeleton.GlobalTransform * skeleton.GetBoneGlobalPose(hand) * grip),
+						$"{clip}: held prop must match the evaluated hand after frame processing (transformed={transformed}).");
+					var held = prop.GlobalTransform;
+					var position = skeleton.GetBonePosePosition(hand);
+					var rotation = skeleton.GetBonePoseRotation(hand);
+					try
+					{
+						skeleton.SetBonePosePosition(hand, position + new Vector3(.17f, .09f, -.12f));
+						skeleton.SetBonePoseRotation(hand, rotation * new Quaternion(Vector3.Up, .4f));
+						props._Process(0);
+						Require(!prop.GlobalTransform.IsEqualApprox(held), $"{clip}: changing the hand at fixed clip time must move the prop.");
+						Require(prop.GlobalTransform.IsEqualApprox(skeleton.GlobalTransform * skeleton.GetBoneGlobalPose(hand) * grip),
+							$"{clip}: hand translation and rotation must drive the prop, not sampled trajectory JSON.");
+					}
+					finally
+					{
+						skeleton.SetBonePosePosition(hand, position);
+						skeleton.SetBonePoseRotation(hand, rotation);
+					}
+					foreach (var time in new[] { action.GetProperty("pickup_seconds").GetDouble() - .01,
+						action.GetProperty("release_seconds").GetDouble(), 5.0 })
+					{
+						_player.Seek(time, update: true);
+						props._Process(0);
+						Require(prop.Transform.IsEqualApprox(rest), $"{clip}: prop must stay at its tray anchor outside contact ({time}s).");
+					}
+					Require(instances.SequenceEqual(props.GetChildren().Cast<Node3D>()),
+						"Attachment and release must preserve every original prop instance.");
+				}
+			}
+		}
+		finally
+		{
+			_vern.Transform = rootTransform;
+			props.Transform = propsTransform;
+			_player.SpeedScale = speed;
+		}
+	}
+
+	private static Transform3D DecodeContact(JsonElement value)
+	{
+		var p = value.GetProperty("position");
+		var q = value.GetProperty("rotation_quaternion_xyzw");
+		return new Transform3D(new Basis(new Quaternion(q[0].GetSingle(), q[1].GetSingle(),
+			q[2].GetSingle(), q[3].GetSingle())), new Vector3(p[0].GetSingle(), p[1].GetSingle(), p[2].GetSingle()));
 	}
 
 	private static void Require(bool condition, string message)

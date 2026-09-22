@@ -136,17 +136,22 @@ blender --background --factory-startup --python-exit-code 1 --python Tools/model
 ```
 
 - `vern.py`: silhouette, clothing, face, hair, glasses and headphones.
-- `vern_mesh.py`: lofts/tubes with stable ring frames and weighted vertices.
+- `vern_mesh.py`: lofts/tubes with stable ring frames, seam-safe UVs and weighted vertices.
 - `vern_rig.py`: neutral A-pose skeleton, seated transforms and inverse skinning.
+- `vern_hands.py`: articulated digits (three joints per finger/thumb) and grip poses.
+- `vern_materials.py`: deterministic painted PBR images (base color/roughness/normal), packed into the GLB.
+- `vern_detail.py`: broad sculptural relief (cheek planes, sweater folds, swept hair locks).
 - `vern_export.py`: skin-preserving export, every-action round-trip checks and previews.
-- Source: `Tools/modelgen/source/vern.blend` (21 bones; live armature modifier).
-- Game asset: `assets/models3d/characters/vern/vern.glb` (15,168 triangles,
-  10 materials; approximately 583 KiB). Chair remains `office_chair.glb`.
+- Source: `Tools/modelgen/source/vern.blend` (53 bones; live armature modifier).
+- Game asset: `assets/models3d/characters/vern/vern.glb` (23,864 triangles,
+  11 materials with embedded textures; approximately 1.5 MiB). Chair remains `office_chair.glb`.
 - `seated_rest` is a one-second held pose. `VernCharacter3D` applies it before
   showing the model; deferred controller initialization then starts breathing.
   Bind pose stays available. `vern_animation.py` bakes an 8-second talking loop,
   4-second idle and 5.5-second smoking/coffee actions at 24fps, plus contact JSON.
-  `VernPerformanceProps` consumes the JSON in-game using the AnimationPlayer clock.
+  `VernPerformanceProps` attaches a held prop to the evaluated hand pose
+  (skeleton * `hand_local_grip`) between pickup and release, keeps contract rest
+  anchors otherwise, and uses the AnimationPlayer clock for timing and exhale.
 - Geometry is authored seated then inverse-skinned into the neutral rest pose.
   Keep the weighted elbow/knee rings and shortest-arc bone orientation logic
   when changing shapes; arbitrary bone roll can corrupt the neutral mesh.

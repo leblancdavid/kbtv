@@ -45,10 +45,13 @@ def create():
     # Auxiliary controls share their parent's frame; original bone hierarchy stays intact.
     seated = {b.name: b.matrix.copy() for b in rig.pose.bones}
     pivots = {'grip.L': Vector((.278, .24, .732)),
-              'grip.R': Vector((-.278, .24, .732)), 'jaw': Vector((0, .103, 1.246))}
+              'grip.R': Vector((-.278, .24, .732)), 'jaw': Vector((0, .103, 1.246)),
+              'eyelid.L': Vector((.053, .102, 1.348)), 'eyelid.R': Vector((-.053, .102, 1.348))}
+    controls = [('grip.L', 'hand.L'), ('grip.R', 'hand.R'), ('jaw', 'head'),
+                ('eyelid.L', 'head'), ('eyelid.R', 'head')]
     bpy.context.view_layer.objects.active = rig
     bpy.ops.object.mode_set(mode='EDIT')
-    for name, parent in [('grip.L', 'hand.L'), ('grip.R', 'hand.R'), ('jaw', 'head')]:
+    for name, parent in controls:
         bone = rig.data.edit_bones.new(name)
         source = rig.data.edit_bones[parent]
         pivot = source.matrix @ (seated[parent].inverted() @ pivots[name])
@@ -57,11 +60,13 @@ def create():
         bone.roll = source.roll
         bone.parent = source
     bpy.ops.object.mode_set(mode='OBJECT')
-    for name, parent in [('grip.L', 'hand.L'), ('grip.R', 'hand.R'), ('jaw', 'head')]:
+    for name, parent in controls:
         matrix = seated[parent].copy()
         matrix.translation = pivots[name]
         rig.pose.bones[name].matrix = matrix
         bpy.context.view_layer.update()
+    from vern_hands import add_controls
+    add_controls(rig)
     return rig
 
 

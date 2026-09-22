@@ -14,7 +14,8 @@ from vern_rig import create, bind_and_animate
 
 
 def palette():
-    return {key: common.material(name, color, metallic, roughness) for key, name, color, metallic, roughness in [
+    from vern_materials import upgrade
+    return upgrade({key: common.material(name, color, metallic, roughness) for key, name, color, metallic, roughness in [
         ('skin', 'Muted warm skin', 'b58d78', 0, .78),
         ('lip', 'Lips and ear warmth', '8c6054', 0, .8),
         ('sweater', 'Charcoal wool', '292c33', 0, .92),
@@ -25,12 +26,13 @@ def palette():
         ('gray', 'Salt at temples', '696964', 0, .85),
         ('metal', 'Aged pewter frames', '8d8a79', .65, .38),
         ('eye', 'Warm eye whites', 'c6b8a6', 0, .55),
-    ]}
+    ]})
 
 
 def body(p):
+    from vern_detail import subdivide_rings, sweater_folds
     def torso_weights(i):
-        z = torso_rings[i // 20][2]
+        z = torso_rings[i // 32][2]
         if z < .77:
             t = max(0, min(1, (z - .68) / .09))
             return {'pelvis': 1 - t, 'spine': t}
@@ -41,30 +43,40 @@ def body(p):
         (0, -.013, .88, .185, .136), (0, -.028, .99, .218, .128),
         (0, -.038, 1.065, .228, .112), (0, -.038, 1.095, .202, .10),
         (0, -.03, 1.12, .13, .083), (0, -.025, 1.145, .067, .069)]
-    loft('Sweater tailored torso', torso_rings, p['sweater'], torso_weights, 20)
+    torso_rings = subdivide_rings(torso_rings, 3)
+    torso = loft('Sweater tailored torso', torso_rings, p['sweater'], torso_weights, 32)
+    sweater_folds(torso)
     loft('Folded turtleneck', [(0, -.025, z, r, r * .92) for z, r in
         [(1.11, .072), (1.125, .077), (1.16, .074), (1.176, .066)]], p['rib'], {'neck': 1}, 20)
     loft('Sweater lower ribbing', [(0, .01, z, .181, .134) for z in (.656, .673, .693)],
          p['rib'], {'pelvis': 1}, 20)
     for side, s in [('L', 1), ('R', -1)]:
         arm, fore, hand = 'upper_arm.' + side, 'forearm.' + side, 'hand.' + side
-        points = [(s*.145, -.04, 1.03), (s*.215, -.045, 1.035), (s*.26, -.055, .91),
-                  (s*.285, -.07, .81), (s*.284, -.02, .776), (s*.28, .075, .756), (s*.28, .185, .742)]
+        points = [(s*.16, -.035, 1.015), (s*.207, -.033, 1.009), (s*.233, -.040, .996),
+                  (s*.258, -.047, .978), (s*.266, -.050, .956), (s*.27, -.053, .935),
+                  (s*.276, -.057, .89), (s*.285, -.07, .81), (s*.284, -.02, .776),
+                  (s*.28, .075, .756), (s*.28, .185, .742)]
         def sleeve_weights(i):
-            t = [0, 0, 0, .45, .9, 1, 1][i // 16]
-            return {arm: 1 - t, fore: t}
+            ring = i // 16
+            t = [0, 0, 0, 0, 0, 0, 0, .45, .9, 1, 1][ring]
+            # Deltoid blend: the buried root rings share chest weight so a
+            # raised arm compresses the armpit instead of stretching a shelf.
+            chest = (0, .55, .3, .12)[ring] if ring < 4 else 0
+            weights = {arm: (1 - t) * (1 - chest)}
+            if chest:
+                weights['chest'] = chest
+            if t:
+                weights[fore] = t
+            return weights
+        # Root cap stays buried in the torso; sewn gussets stretched a visible
+        # shelf across the armpit whenever a hand rose to the mouth.
         tube('Continuous sweater sleeve ' + side, points,
-             [.071, .086, .077, .073, .065, .056, .047], p['sweater'], sleeve_weights, 16)
+             [.062, .065, .069, .073, .074, .075, .074, .071, .064, .055, .047],
+             p['sweater'], sleeve_weights, 16)
         tube('Knitted wrist cuff ' + side, [(s*.28, .15, .75), (s*.28, .19, .741)],
              .048, p['rib'], {fore: 1}, 16)
-        ellipsoid('Relaxed palm ' + side, (s*.278, .228, .737), (.044, .066, .024), p['skin'], {hand: 1})
-        for finger in range(4):
-            x = s * (.249 + finger * .018)
-            end = .30 + (.014 if finger in (1, 2) else 0)
-            tube('Resting finger %s %d' % (side, finger), [(x, .24, .732), (x, .282, .725),
-                 (x, end, .709)], [.012, .012, .008], p['skin'], {'grip.' + side: 1}, 8)
-        tube('Thumb ' + side, [(s*.246, .207, .738), (s*.224, .235, .728), (s*.23, .266, .713)],
-             [.018, .015, .011], p['skin'], {hand: 1}, 10)
+        from vern_hands import build as build_hand
+        build_hand(side, p)
         thigh, shin, foot = 'thigh.' + side, 'shin.' + side, 'foot.' + side
         points = [(s*.103, -.03, .629), (s*.12, .10, .619), (s*.131, .25, .585),
                   (s*.135, .39, .553), (s*.135, .434, .505), (s*.135, .455, .39),
@@ -80,18 +92,20 @@ def body(p):
         ellipsoid('Leather shoe ' + side, (s*.135, .552, .07), (.074, .15, .067),
                   p['black'], {foot: 1})
         loft('Shoe sole ' + side, [(s*.135, .558, z, .074, .151) for z in (.009, .024, .034)],
-             p['pants'], {foot: 1}, 20)
+              p['pants'], {foot: 1}, 20)
 
 
 def face(p):
+    from vern_detail import subdivide_rings, face_planes, facial_details
     h = {'head': 1}
-    loft('Sculpted jaw cheeks and forehead', [
+    head = loft('Sculpted jaw cheeks and forehead', subdivide_rings([
         (0, .009, 1.165, .052, .057), (0, .018, 1.185, .075, .071),
         (0, .012, 1.215, .092, .082), (0, -.005, 1.25, .108, .098),
         (0, -.012, 1.29, .12, .11), (0, -.015, 1.335, .122, .114),
         (0, -.018, 1.38, .119, .111), (0, -.024, 1.425, .115, .103),
         (0, -.026, 1.455, .098, .086), (0, -.026, 1.478, .066, .061),
-        (0, -.026, 1.485, .012, .012)], p['skin'], h, 24)
+        (0, -.026, 1.485, .012, .012)]), p['face'], h, 48)
+    face_planes(head)
     # Nose is a shaped closed volume with a bridge, bulb and two nostril wings.
     loft('Nose bridge and tip', [(0, .115, 1.282, .014, .012),
         (0, .14, 1.292, .027, .027), (0, .156, 1.307, .027, .027),
@@ -101,10 +115,11 @@ def face(p):
         ellipsoid('Nostril shadow', (s*.022, .137, 1.288), (.007, .006, .003), p['lip'], h)
         ellipsoid('Ear', (s*.12, -.013, 1.306), (.025, .025, .048), p['skin'], h)
         ellipsoid('Inner ear', (s*.14, .001, 1.308), (.006, .015, .03), p['lip'], h)
-        ellipsoid('Eye', (s*.053, .092, 1.348), (.028, .010, .012), p['eye'], h)
-        ellipsoid('Iris', (s*.053, .102, 1.348), (.008, .004, .009), p['hair'], h)
+        lid = {'eyelid.'+('L' if s == 1 else 'R'): 1}
+        ellipsoid('Eye', (s*.053, .092, 1.348), (.028, .010, .012), p['eye'], lid)
+        ellipsoid('Iris', (s*.053, .102, 1.348), (.008, .004, .009), p['hair'], lid)
         tube('Heavy upper eyelid', [(s*.028, .102, 1.353), (s*.051, .105, 1.36),
-             (s*.08, .091, 1.351)], .006, p['skin'], h)
+             (s*.08, .091, 1.351)], .006, p['skin'], lid)
         tube('Dark eyebrow', [(s*.027, .105, 1.38), (s*.052, .108, 1.386),
              (s*.086, .086, 1.375)], [.007, .009, .006], p['hair'], h)
     tube('Quiet mouth', [(-.038, .09, 1.246), (0, .103, 1.247), (.038, .09, 1.246)],
@@ -114,29 +129,34 @@ def face(p):
     for s in (-1, 1):
         tube('Signature mustache', [(s*.004, .111, 1.274), (s*.018, .114, 1.269),
              (s*.034, .106, 1.265), (s*.047, .092, 1.257)],
-             [.009, .012, .011, .005], p['hair'], h, 10)
+              [.007, .0095, .008, .0035], p['hair'], h, 10)
+    facial_details(p)
 
 
 def hair_and_accessories(p):
+    from vern_detail import swept_cap
+    from vern_mesh import ring_uvs
     h = {'head': 1}
-    vertices, sides, rows = [], 32, 10
+    vertices, sides, rows = [], 64, 26
     for row in range(rows):
         for i in range(sides):
             a = i * math.tau / sides
             front = max(0, math.sin(a))
             end = 1.92 - .73 * front + .27 * max(0, -math.sin(a))
             theta = .02 + (end - .02) * row / (rows - 1)
-            vertices.append((.13 * math.sin(theta) * math.cos(a),
-                -.026 + .122 * math.sin(theta) * math.sin(a),
+            relief = swept_cap(a, theta)
+            vertices.append(((.13 + relief) * math.sin(theta) * math.cos(a),
+                -.026 + (.122 + relief) * math.sin(theta) * math.sin(a),
                 1.407 + .107 * math.cos(theta) + .006 * math.cos(a)
-                + .002 * math.sin(a * 9 + theta * 3)))
+                + relief))
     faces = [tuple(reversed(range(sides)))]
     for row in range(rows - 1):
         for i in range(sides):
             a, b = row * sides + i, row * sides + (i + 1) % sides
             faces.append((a, a + sides, b + sides, b))
     faces.append(tuple(range((rows - 1) * sides, rows * sides)))
-    mesh('Swept hair cap', vertices, faces, p['hair'], h)
+    mesh('Swept hair cap', vertices, faces, p['hair'], h,
+         ring_uvs(faces, sides, rows))
     for s in (-1, 1):
         tube('Gray temple', [(s*.12, .018, 1.38), (s*.121, .022, 1.356),
              (s*.12, .023, 1.323)], [.01, .009, .006], p['gray'], h)

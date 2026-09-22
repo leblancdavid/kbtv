@@ -4,7 +4,7 @@ using Godot;
 
 namespace KBTV.World3D;
 
-/// <summary>Single visible props driven by the same baked contact clock as the hands.</summary>
+/// <summary>Single visible props attached to evaluated hands during baked contact intervals.</summary>
 public partial class VernPerformanceProps : Node3D
 {
     private readonly Dictionary<string, Node3D> _props = new();
@@ -56,13 +56,14 @@ public partial class VernPerformanceProps : Node3D
         {
             var pose = Decode(prop.Value.GetProperty("rest"));
             if (action.ValueKind == JsonValueKind.Object && action.TryGetProperty("prop", out var name)
-                && name.GetString() == prop.Name)
+                && name.GetString() == prop.Name
+                && time >= action.GetProperty("pickup_seconds").GetDouble()
+                && time < action.GetProperty("release_seconds").GetDouble())
             {
-                var samples = action.GetProperty("samples");
-                var frame = Mathf.Clamp(_player.CurrentAnimationPosition * 24, 0, samples.GetArrayLength()-1);
-                var index = (int)frame;
-                pose = Decode(samples[index]).InterpolateWith(
-                    Decode(samples[System.Math.Min(index+1, samples.GetArrayLength()-1)]), (float)(frame-index));
+                var hand = _skeleton.FindBone(action.GetProperty("hand_bone").GetString()!);
+                // Grip is already in the imported skeleton's native bone basis.
+                pose = GlobalTransform.AffineInverse() * _skeleton.GlobalTransform
+                    * _skeleton.GetBoneGlobalPose(hand) * Decode(action.GetProperty("hand_local_grip"));
             }
             _props[prop.Name].Transform = pose;
         }

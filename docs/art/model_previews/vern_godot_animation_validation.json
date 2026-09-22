@@ -3,30 +3,30 @@
     "drink_coffee": {
       "duration_seconds": 5.5,
       "fixed_error": 0.000000387523670042356,
-      "grip_transform_error": 0.000000850706953769986,
+      "grip_transform_error": 0.00000134820515995671,
       "hand_travel_meters": {
-        "hand.L": 0.55168491601944,
-        "hand.R": 0.000000276776773944221
+        "hand.L": 0.497117578983307,
+        "hand.R": 0.000000263628464836074
       },
       "loop_from_contract": false,
-      "motion": 1.8477178812027,
-      "mouth_contact_error": 0.000000163912773132324,
-      "seam_error": 0.0,
-      "tracks": 32
+      "motion": 1.87545907497406,
+      "mouth_contact_error": 0.000000149011611938477,
+      "seam_error": 0.0000000614390600617298,
+      "tracks": 48
     },
     "idle_breathing": {
       "duration_seconds": 4.0,
       "fixed_error": 0.000000387523670042356,
       "grip_transform_error": 0.0,
       "hand_travel_meters": {
-        "hand.L": 0.00259144883602858,
-        "hand.R": 0.00259144883602858
+        "hand.L": 0.000000685453414916992,
+        "hand.R": 0.000000685453414916992
       },
       "loop_from_contract": true,
-      "motion": 0.0127276089042425,
+      "motion": 0.952365458011627,
       "mouth_contact_error": 0.0,
-      "seam_error": 0.0,
-      "tracks": 32
+      "seam_error": 0.0000000596046447753906,
+      "tracks": 38
     },
     "seated_rest": {
       "duration_seconds": 1.0,
@@ -45,33 +45,33 @@
     "smoking": {
       "duration_seconds": 5.5,
       "fixed_error": 0.000000387523670042356,
-      "grip_transform_error": 0.000000852367236348073,
+      "grip_transform_error": 0.000000804932142273174,
       "hand_travel_meters": {
-        "hand.L": 0.000000276776773944221,
-        "hand.R": 0.639904916286469
+        "hand.L": 0.000000263628464836074,
+        "hand.R": 0.62037605047226
       },
       "loop_from_contract": false,
-      "motion": 1.90482616424561,
-      "mouth_contact_error": 0.00000019670096662594,
-      "seam_error": 0.0,
-      "tracks": 32
+      "motion": 1.85891580581665,
+      "mouth_contact_error": 0.000000179433740754575,
+      "seam_error": 0.0000000614390600617298,
+      "tracks": 48
     },
     "talking_default": {
       "duration_seconds": 8.0,
       "fixed_error": 0.000000387523670042356,
       "grip_transform_error": 0.0,
       "hand_travel_meters": {
-        "hand.L": 0.286950826644897,
-        "hand.R": 0.268727958202362
+        "hand.L": 0.242899119853973,
+        "hand.R": 0.233345165848732
       },
       "loop_from_contract": true,
-      "motion": 1.50987589359283,
+      "motion": 1.52179431915283,
       "mouth_contact_error": 0.0,
-      "seam_error": 0.0000000298023223876953,
-      "tracks": 40
+      "seam_error": 0.0000000666660469050839,
+      "tracks": 72
     }
   },
-  "bones": 21,
+  "bones": 53,
   "engine": "4.6.3-stable (official)",
   "scope": "isolated GLTFDocument, no game runtime",
   "validation": "passed"

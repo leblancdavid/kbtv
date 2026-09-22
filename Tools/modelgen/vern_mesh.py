@@ -8,10 +8,20 @@ import bpy
 from mathutils import Vector
 
 
-def mesh(name, vertices, faces, mat, weights):
+def mesh(name, vertices, faces, mat, weights, uv_faces=None):
     data = bpy.data.meshes.new(name)
     data.from_pydata(vertices, [], faces)
     data.update()
+    uv = data.uv_layers.new(name='UVMap')
+    if uv_faces is None:
+        # Deterministic front projection for small custom details.
+        xs, zs = [v[0] for v in vertices], [v[2] for v in vertices]
+        dx, dz = max(max(xs) - min(xs), 1e-6), max(max(zs) - min(zs), 1e-6)
+        uv_faces = [[((vertices[i][0] - min(xs)) / dx,
+                      (vertices[i][2] - min(zs)) / dz) for i in f] for f in faces]
+    for poly, coords in zip(data.polygons, uv_faces):
+        for loop, coord in zip(poly.loop_indices, coords):
+            uv.data[loop].uv = coord
     obj = bpy.data.objects.new(name, data)
     bpy.context.collection.objects.link(obj)
     obj.data.materials.append(mat)
@@ -22,6 +32,21 @@ def mesh(name, vertices, faces, mat, weights):
             group = obj.vertex_groups.get(bone) or obj.vertex_groups.new(name=bone)
             group.add([i], weight, 'REPLACE')
     return obj
+
+
+def ring_uvs(faces, sides, rows, row_v=None):
+    """Per-loop cylindrical UVs: wrap faces use U=1, not a cross-image seam."""
+    row_v = row_v if row_v is not None else [j / (rows - 1) for j in range(rows)]
+    result = []
+    for face_index, face in enumerate(faces):
+        if face_index in (0, len(faces) - 1):
+            result.append([(.5 + .48 * math.cos(i % sides * math.tau / sides),
+                            .5 + .48 * math.sin(i % sides * math.tau / sides)) for i in face])
+            continue
+        seam = {i % sides for i in face} == {0, sides - 1}
+        result.append([(1.0 if seam and i % sides == 0 else (i % sides) / sides,
+                        row_v[i // sides]) for i in face])
+    return result
 
 
 def loft(name, rings, mat, weights, sides=16):
@@ -35,7 +60,9 @@ def loft(name, rings, mat, weights, sides=16):
             a, b = j * sides + i, j * sides + (i + 1) % sides
             faces.append((a, b, b + sides, a + sides))
     faces.append(tuple(range((len(rings) - 1) * sides, len(vertices))))
-    return mesh(name, vertices, faces, mat, weights)
+    height = max(rings[-1][2] - rings[0][2], 1e-6)
+    row_v = [(r[2] - rings[0][2]) / height for r in rings]
+    return mesh(name, vertices, faces, mat, weights, ring_uvs(faces, sides, len(rings), row_v))
 
 
 def ellipsoid(name, center, radii, mat, weights, segments=20, rings=12):
@@ -45,8 +72,10 @@ def ellipsoid(name, center, radii, mat, weights, segments=20, rings=12):
     vertices = [tuple(Vector(center) + Vector((v.co.x * radii[0],
                  v.co.y * radii[1], v.co.z * radii[2]))) for v in obj.data.vertices]
     faces = [tuple(p.vertices) for p in obj.data.polygons]
+    uv_faces = [[tuple(obj.data.uv_layers.active.data[i].uv) for i in p.loop_indices]
+                for p in obj.data.polygons]
     bpy.data.objects.remove(obj, do_unlink=True)
-    return mesh(name, vertices, faces, mat, weights)
+    return mesh(name, vertices, faces, mat, weights, uv_faces)
 
 
 def tube(name, points, radius, mat, weights, sides=8):
@@ -69,4 +98,8 @@ def tube(name, points, radius, mat, weights, sides=8):
             a, b = j * sides + i, j * sides + (i + 1) % sides
             faces.append((a, b, b + sides, a + sides))
     faces.append(tuple(range((len(points) - 1) * sides, len(vertices))))
-    return mesh(name, vertices, faces, mat, weights)
+    lengths = [0.0]
+    for a, b in zip(points, points[1:]):
+        lengths.append(lengths[-1] + (Vector(b) - Vector(a)).length)
+    row_v = [v / max(lengths[-1], 1e-6) for v in lengths]
+    return mesh(name, vertices, faces, mat, weights, ring_uvs(faces, sides, len(points), row_v))

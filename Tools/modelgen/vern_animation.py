@@ -4,6 +4,7 @@ import math
 from pathlib import Path
 import bpy
 from mathutils import Matrix, Vector, Quaternion
+from vern_hands import pose as pose_hand
 
 FPS = 24
 DURATIONS = {'seated_rest': 1., 'idle_breathing': 4., 'talking_default': 8.,
@@ -107,7 +108,8 @@ def build_actions(rig):
         'bone_local_space': 'Native imported Godot Skeleton3D joint basis, not Vern-local axes. '
                             'Multiply skeleton transform * bone global pose * local grip/marker.',
         'playback': 'Use clip seconds, lerp position and shortest-path slerp rotation between samples. '
-                    'Samples are authoritative Vern-local prop transforms; do not also parent to hand. '
+                     'During pickup/release interval use evaluated hand pose * hand_local_grip. '
+                     'Samples are the authoring reference; outside the held interval use rest. '
                     'Keep one instance per prop. Reset to rest on cancellation.',
         'mouth_marker': {'bone': 'head', 'seated_vern_local': [0, 1.246, -.107]},
         'props': {}, 'actions': {}}
@@ -132,8 +134,10 @@ def build_actions(rig):
         if prop:
             side = 'L' if prop == 'coffee_mug' else 'R'
             hand = 'hand.'+side
-            offset = Vector((.075, -.043, .082) if side == 'L' else (-.035, -.065, .045))
+            offset = Vector((.110, -.085, .055) if side == 'L' else (-.022, -.070, .028))
             pickup_hand = base[hand].copy()
+            if side == 'L':
+                pickup_hand = Matrix.Rotation(math.pi/2, 4, 'Y') @ pickup_hand
             pickup_hand.translation = REST[prop]+offset
             grip = pickup_hand.inverted() @ transform(REST[prop])
             entry.update(prop=prop, hand_bone=hand, hand_local_grip=encode(grip, bone_local=True),
@@ -148,7 +152,7 @@ def build_actions(rig):
             bpy.context.view_layer.update()
             if prop:
                 # Recline around the fixed seated spine pivot; pelvis/legs never move.
-                lean = .13*smooth((t-1.15)/1.15)*(1-smooth((t-3.1)/1.4))
+                lean = .065*smooth((t-1.15)/1.15)*(1-smooth((t-3.1)/1.4))
                 pivot = base['spine'].translation
                 body = Matrix.Translation(pivot) @ Matrix.Rotation(lean, 4, 'X') @ Matrix.Translation(-pivot)
                 rig.pose.bones['spine'].matrix = body @ base['spine']
@@ -164,7 +168,7 @@ def build_actions(rig):
                 elevated = pickup_hand.copy()
                 elevated.translation.z += .09
                 initial_up = base[hand].copy()
-                initial_up.translation.z += .12
+                initial_up.translation.z += .055
                 if t < 1.1:
                     target = interpolate([(0, base[hand]), (.4, initial_up), (.8, elevated), (1.1, pickup_hand)], t)
                 elif t > 4.6:
@@ -174,15 +178,19 @@ def build_actions(rig):
                 solve_arm(rig, base, other, base['hand.'+other].translation,
                           base['hand.'+other].to_quaternion())
                 amount = smooth((t-.85)/.25) * (1-smooth((t-4.6)/.25))
-                axis = base[hand].to_quaternion().inverted() @ Vector((-1, 0, 0))
-                curl = .65 if side == 'L' else .2
-                rig.pose.bones['grip.'+side].rotation_quaternion = Quaternion(axis, curl*amount)
+                pose_hand(rig, base, side, amount, smoking=clip == 'smoking')
                 entry['samples'].append({'time_seconds': round(t, 7), **encode(matrix)})
             else:
                 phase = math.tau*t/duration
                 breath = (1-math.cos(phase))/2
-                rig.pose.bones['chest'].scale = (1+.006*breath, 1+.004*breath, 1+.008*breath)
+                rig.pose.bones['chest'].scale = (1+.003*breath, 1+.002*breath, 1+.004*breath)
+                rig.pose.bones['chest'].rotation_quaternion @= Quaternion((1, 0, 0), .009*breath)
                 rig.pose.bones['head'].rotation_quaternion @= Quaternion((1, 0, 0), .012*math.sin(phase))
+                bpy.context.view_layer.update()
+                if clip == 'idle_breathing':
+                    for side in ('L', 'R'):
+                        hand = base['hand.'+side]
+                        solve_arm(rig, base, side, hand.translation, hand.to_quaternion())
                 if clip == 'talking_default':
                     # Explain with left palm, answer with right, then an open two-hand beat.
                     rig.pose.bones['spine'].rotation_quaternion @= Quaternion((1, 0, 0), .035*math.sin(phase))
@@ -191,16 +199,17 @@ def build_actions(rig):
                     bpy.context.view_layer.update()
                     for side, sign in [('L', 1), ('R', -1)]:
                         hand = base['hand.'+side]
-                        beats = ([(0, (0, 0, 0), 0), (.7, (.02, .025, .13), -.25),
-                                  (1.4, (.08, .04, .27), -.65), (2.1, (.035, .07, .21), -.4),
-                                  (3.0, (0, .02, .08), -.1), (4.1, (0, 0, .025), 0),
-                                  (5.2, (.07, .045, .23), -.55), (6.1, (.10, .055, .19), -.4),
-                                  (7.1, (.015, .02, .07), -.1), (8, (0, 0, 0), 0)] if side == 'L' else
-                                 [(0, (0, 0, 0), 0), (1.2, (0, .01, .035), .1),
-                                  (2.5, (.015, .02, .075), .15), (3.3, (.055, .06, .25), .5),
-                                  (4.0, (.02, .08, .20), .35), (4.6, (.015, .02, .08), .1),
-                                  (5.5, (.085, .05, .23), .6), (6.4, (.065, .06, .18), .4),
-                                  (7.3, (.01, .02, .05), .1), (8, (0, 0, 0), 0)])
+                        beats = ([(0, (0, 0, 0), 0), (.35, (0, 0, 0), 0),
+                                  (.95, (.02, .025, .12), -.22), (1.5, (.06, .05, .23), -.5),
+                                  (1.85, (.06, .05, .23), -.5), (2.5, (.025, .05, .16), -.32),
+                                  (3.35, (0, 0, 0), 0), (4.3, (0, 0, 0), 0),
+                                  (5.3, (.05, .04, .15), -.4), (6.05, (.07, .055, .12), -.3),
+                                  (7.35, (0, 0, 0), 0), (8, (0, 0, 0), 0)] if side == 'L' else
+                                 [(0, (0, 0, 0), 0), (2.25, (0, 0, 0), 0),
+                                  (2.8, (.01, .025, .09), .15), (3.45, (.055, .055, .22), .45),
+                                  (3.85, (.055, .055, .22), .45), (4.7, (.015, .04, .09), .12),
+                                  (5.65, (.055, .05, .17), .4), (6.35, (.045, .06, .13), .3),
+                                  (7.5, (0, 0, 0), 0), (8, (0, 0, 0), 0)])
                         gesture = []
                         for time, offset, roll in beats:
                             position = hand.translation+Vector((sign*offset[0], offset[1], offset[2]))
@@ -208,8 +217,16 @@ def build_actions(rig):
                             gesture.append((time, Matrix.LocRotScale(position, rotation, Vector((1, 1, 1)))))
                         target = interpolate(gesture, t)
                         solve_arm(rig, base, side, target.translation, target.to_quaternion())
-                    rig.pose.bones['jaw'].location.y -= .004*(math.sin(phase*5)**2)
-                    rig.pose.bones['jaw'].scale.y = 1+1.5*(math.sin(phase*5)**2)
+                        pose_hand(rig, base, side, .18*math.sin(phase/2)**2 * (1+.3*math.sin(phase*3)))
+                    # Phrased mouth activity includes closures, instead of a metronomic gape.
+                    speech = math.sin(phase/2)**2 * max(0, math.sin(phase*11)+.35*math.sin(phase*17))
+                    rig.pose.bones['jaw'].location.y -= .003*speech
+                    rig.pose.bones['jaw'].scale.y = 1+1.2*speech
+            # Short asymmetric blink, closed briefly then a slower reopening.
+            centers = (1.65, 6.7) if clip == 'talking_default' else (2.05,)
+            blink = max(smooth((t-c+.09)/.09)*(1-smooth((t-c-.025)/.16)) for c in centers)
+            for blink_side in ('L', 'R'):
+                rig.pose.bones['eyelid.'+blink_side].scale.y = 1-.96*blink
             for bone in rig.pose.bones:
                 for channel in ('location', 'rotation_quaternion', 'scale'):
                     bone.keyframe_insert(channel, frame=frame, group=bone.name)
