@@ -14,7 +14,7 @@ namespace KBTV.Tests.Integration;
 
 public class VernAnimationControllerTests : KBTVTestClass
 {
-	private const string TalkingAnimation = "talking_default";
+	private const string TalkingAnimation = "talk_calm";
 	private const string IdleBreathingAnimation = "idle_breathing";
 	private readonly string[] _idleBehaviors = { "smoking", IdleBreathingAnimation, "drink_coffee" };
 

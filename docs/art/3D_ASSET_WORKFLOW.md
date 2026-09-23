@@ -205,6 +205,34 @@ pelvis/feet, loop endpoints, hand-grip alignment, moving mouth contact and wrist
 travel. Runtime tests cover short caller admission, consecutive speech, stale
 events, one-shot completion and single-prop restoration.
 
+### Baked talk clip (`talk_calm`)
+
+Vern's on-air talking animation is a production retarget of the reference
+library's CC0 `Sitting_Talking` clip, ported byte-faithfully from the approved
+spike (V5) and shipped as a standalone `Animation` resource (not part of
+`vern.glb`):
+
+- Script: `Tools/modelgen/bake_talk_calm.gd` (self-contained; maps the raw
+  reference GLB's `DEF-*` bones to Vern's native names via the `retarget/`
+  BoneMap profile join, fused with Vern-only jaw/eyelid/grip tracks sampled
+  from `talking_default`).
+- Output: `assets/models3d/characters/vern/animations/talk_calm.tres`
+  (52 tracks, `VernRig/Skeleton3D:<bone>` paths, 2.933 s @ 24 fps,
+  LOOP_LINEAR).
+- Runtime: `VernCharacter3D._Ready` injects the clip into the player's root
+  library; `VernAnimationController` plays `talk_calm` for Vern lines, falling
+  back to `talking_default` if injection failed.
+- Re-bake and validate:
+  ```powershell
+  & $godot --headless --path . --script res://Tools/modelgen/bake_talk_calm.gd
+  & $godot --headless --path . --script res://Tools/modelgen/reimpl_validate.gd   # needs Tools/modelgen/tmp/oracle_reference.scn
+  dotnet build
+  pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests
+  pwsh -NoProfile -File run-tests.ps1 -Filter VernCharacterIntegrationTests
+  ```
+  Fidelity against the approved V5 bake is checked by
+  `val_fidelity_vs_v5.gd` (one-time; it reads the temp spike path).
+
 ## Troubleshooting
 
 - `blender` not found: restart the shell after updating PATH, or call Blender by full path.

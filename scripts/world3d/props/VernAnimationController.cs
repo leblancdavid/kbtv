@@ -18,11 +18,13 @@ namespace KBTV.World3D;
 /// </summary>
 public partial class VernAnimationController : Node
 {
-	// Animation clip names baked into vern.glb. Imported libraries may qualify
-	// them (e.g. "Library/talking_default") so lookups use suffix matching.
+	// Animation clip names for vern.glb. Imported libraries may qualify them (e.g.
+	// "Library/talking_default"), and the production talk clip is injected by
+	// VernCharacter3D as "talk_calm", so lookups use suffix matching throughout.
 	private const string AnimSeatedRest = "seated_rest";
 	private const string AnimIdleBreathing = "idle_breathing";
-	private const string AnimTalking = "talking_default";
+	private const string AnimTalking = "talk_calm";
+	private const string AnimTalkingFallback = "talking_default";
 	private const string AnimSmoking = "smoking";
 	private const string AnimDrinkCoffee = "drink_coffee";
 
@@ -321,7 +323,9 @@ public partial class VernAnimationController : Node
 			return;
 		}
 
-		var resolved = ResolveAnimationName(animationName);
+		var resolved = animationName == AnimTalking
+			? ResolveTalkingAnimation()
+			: ResolveAnimationName(animationName);
 		if (resolved == null)
 		{
 			GD.PushWarning($"VernAnimationController: no animation '{animationName}' on the model.");
@@ -340,6 +344,11 @@ public partial class VernAnimationController : Node
 			_animPlayer.Play(resolved, customBlend: 0.25f);
 		}
 	}
+
+	// The production talk clip is injected by VernCharacter3D; if it failed to
+	// load, fall back to the imported GLB clip so Vern still talks.
+	private string? ResolveTalkingAnimation()
+		=> ResolveAnimationName(AnimTalking) ?? ResolveAnimationName(AnimTalkingFallback);
 
 	private string? ResolveAnimationName(string animationName)
 	{

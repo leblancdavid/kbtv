@@ -32,28 +32,31 @@ Rigged characters + motion library for humanoid retargeting. **License:** CC0
 
 - `Sitting_Enter` - walk into / settle onto a seat (base for seated transitions)
 - `Sitting_Exit` - leaving the seat
-- `Sitting_Idle_Loop` - seated rest pose (matches generic §2 rest pose)
-- `Sitting_Talking_Loop` - seated speech motion (retarget base for `talk_*`)
-- `Idle_Loop`, `Idle_Talking_Loop` - standing variants
+- `Sitting_Idle` - seated rest pose (matches generic §2 rest pose)
+- `Sitting_Talking` - seated speech motion (retarget base for `talk_*`)
+- `Idle`, `Idle_Talking` - standing variants
 - `A_TPose` - bind/reference pose for retargeting and rig alignment
 
-**Full clip list:** `A_TPose`, `Crouch_Fwd_Loop`, `Crouch_Idle_Loop`,
-`Dance_Loop`, `Death01`, `Driving_Loop`, `Fixing_Kneeling`, `Hit_Chest`,
-`Hit_Head`, `Idle_Loop`, `Idle_Talking_Loop`, `Idle_Torch_Loop`, `Interact`,
-`Jog_Fwd_Loop`, `Jump_Land`, `Jump_Loop`, `Jump_Start`, `PickUp_Table`,
-`Pistol_Aim_Down`, `Pistol_Aim_Neutral`, `Pistol_Aim_Up`, `Pistol_Idle_Loop`,
+**Full clip list (in asset order):** `A_TPose`, `Crouch_Fwd`, `Crouch_Idle`,
+`Dance`, `Death01`, `Driving`, `Fixing_Kneeling`, `Hit_Chest`,
+`Hit_Head`, `Idle`, `Idle_Talking`, `Idle_Torch`, `Interact`,
+`Jog_Fwd`, `Jump`, `Jump_Land`, `Jump_Start`, `PickUp_Table`,
+`Pistol_Aim_Down`, `Pistol_Aim_Neutral`, `Pistol_Aim_Up`, `Pistol_Idle`,
 `Pistol_Reload`, `Pistol_Shoot`, `Punch_Cross`, `Punch_Enter`, `Punch_Jab`,
-`Push_Loop`, `Roll`, `Roll_RM`, `Sitting_Enter`, `Sitting_Exit`,
-`Sitting_Idle_Loop`, `Sitting_Talking_Loop`, `Spell_Simple_Enter`,
-`Spell_Simple_Exit`, `Spell_Simple_Idle_Loop`, `Spell_Simple_Shoot`,
-`Sprint_Loop`, `Swim_Fwd_Loop`, `Swim_Idle_Loop`, `Sword_Attack`,
-`Sword_Attack_RM`, `Sword_Idle`, `Walk_Formal_Loop`, `Walk_Loop`.
+`Push`, `Roll`, `Roll_RM`, `Sitting_Enter`, `Sitting_Exit`,
+`Sitting_Idle`, `Sitting_Talking`, `Spell_Simple_Enter`,
+`Spell_Simple_Exit`, `Spell_Simple_Idle`, `Spell_Simple_Shoot`,
+`Sprint`, `Swim_Fwd`, `Swim_Idle`, `Sword_Attack`,
+`Sword_Attack_RM`, `Sword_Idle`, `Walk`, `Walk_Formal`.
+
+> Names above are the actual GLB clip names (verified via `Tools/modelgen/probe_sources.gd`).
+> There are no `_Loop` suffixes on this asset.
 
 ### Use for Vern
 
-Retarget `Sitting_Idle_Loop` / `Sitting_Talking_Loop` onto Vern's humanoid rig
+Retarget `Sitting_Idle` / `Sitting_Talking` onto Vern's humanoid rig
 instead of inventing seated biomechanics from scratch (generic §5 - prefer real
-motion; §9 - Godot humanoid retargeting). Use `Sitting_Talking_Loop` as the
+motion; §9 - Godot humanoid retargeting). Use `Sitting_Talking` as the
 seed for `talk_calm` and `PickUp_Table`/`Interact` for grip/release feel.
 
 ---
@@ -94,8 +97,8 @@ KBTV's slightly-cartoony Vern. Import into a Blender asset library via the
 | Character stage | Guidance | Reference asset |
 |---|---|---|
 | Base mesh / proportions | CHARACTER_GUIDELINES §1 | Human Base Meshes bundle |
-| Rest pose | CHARACTER_GUIDELINES §2 | `Sitting_Idle_Loop` |
+| Rest pose | CHARACTER_GUIDELINES §2 | `Sitting_Idle` |
 | IK / prop interaction | CHARACTER_GUIDELINES §3, VERN_CHARACTER_GUIDELINES | - |
 | Animation vocab layers | CHARACTER_GUIDELINES §4 | library clips |
-| Retarget-mocap seed | CHARACTER_GUIDELINES §5 | `Sitting_Talking_Loop` |
+| Retarget-mocap seed | CHARACTER_GUIDELINES §5 | `Sitting_Talking` |
 | Godot humanoid system | CHARACTER_GUIDELINES §9 | Godot GLB export

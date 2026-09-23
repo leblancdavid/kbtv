@@ -37,6 +37,8 @@ public class VernCharacterIntegrationTests : TestClass
 				&& (player.AssignedAnimation.ToString() == "seated_rest"
 					|| player.AssignedAnimation.ToString().EndsWith("/seated_rest", StringComparison.Ordinal))),
 				"The seated clip must be assigned and paused immediately.");
+			Require(players.Any(player => player.HasAnimation("talk_calm")),
+				"The baked talk_calm clip must be injected into the imported model.");
 
 			var bones = skeletons.SelectMany(skeleton => Enumerable.Range(0, skeleton.GetBoneCount())
 				.Select(index => (Skeleton: skeleton, Index: index, Pose: skeleton.GetBonePose(index)))).ToArray();
