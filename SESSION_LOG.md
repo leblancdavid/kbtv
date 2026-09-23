@@ -1,5 +1,11 @@
 ## Current Session
 
+### Visual rebuild follow-up (In Progress)
+- User rejected the fitted previews and authorized a full static appearance correction.
+- Direct image inspection confirms reversed front/back labels, misplaced face accessories, torso garments below the chest, disconnected trousers, and cropped previews.
+- Rebuild clothing from the actual body surface, fit accessories to facial landmarks, and review renders before export approval.
+- Correction to prior verification: Godot import crashed loading `GodotSharpEditor`; a missing project build was not established as its cause. The previous `triangles` report counted polygons, not triangulated geometry.
+
 **Branch**: develop
 **Task**: Replace the rejected MPFB clothed prototype with properly fitted, skinned clothing and Vern identity accessories on the male MPFB base, export a cleaned rigged GLB, and hand to the user for visual review. This is Phase 2 of the MPFB Vern migration (diagnostic base was approved).
 **Status**: Completed (script + export + validation; **blocked on user visual review of renders**)

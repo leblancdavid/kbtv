@@ -10,30 +10,36 @@
   ],
   "bounds": {
     "min": [
-      -0.55252,
-      -0.34407,
-      -0.00697
+      -0.52327,
+      -0.33107,
+      0.0025
     ],
     "max": [
-      0.55252,
-      0.21502,
-      1.70809
+      0.52327,
+      0.11751,
+      1.74113
     ]
   },
-  "height": 1.71506,
-  "meshes": 30,
+  "height": 1.73863,
+  "meshes": 29,
   "armatures": 1,
-  "triangles": 15524,
-  "body_verts": 13380,
-  "skinned_garments": 29,
+  "triangles": 44596,
+  "body_verts": 7483,
+  "body_verts_before_clothing_occlusion": 13380,
+  "front_axis": {
+    "blender": "-Y",
+    "godot": "+Z"
+  },
+  "skinned_garments": 28,
   "rig_measurements": {
-    "shoulder_width": 0.36226,
-    "hip_width": 0.21917
+    "shoulder_width": 0.35765,
+    "hip_width": 0.23696
   },
   "notes": [
-    "Garments measured from evaluated male body cross-sections and bone landmarks.",
-    "Every garment vertex inherits weights from its nearest body vertex (deforms with skin).",
+    "Continuous garments extracted from body topology; original skin weights retained.",
+    "MPFB face is Blender -Y / glTF +Z; rigid accessories follow head.",
     "Body export baked male shape keys and dropped MASK/helper geometry.",
+    "Covered skin removed after garment construction; full base reproducible from MPFB.",
     "Still prototype: not runtime-wired; seated pose, contact anchors and talk_calm retarget are later phases."
   ]
 }

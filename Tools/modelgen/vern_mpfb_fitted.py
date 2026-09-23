@@ -4,23 +4,19 @@ Run with normal Blender startup (MPFB needs registered preferences), not
 --factory-startup:
   blender --background --python-exit-code 1 --python Tools/modelgen/vern_mpfb_fitted.py
 
-Phase 2 of the MPFB Vern migration. Unlike the rejected prototype, garments are
-sized from the evaluated male body's cross-sections and bone landmarks, then
-skinned by copying each garment vertex's weights from its nearest body vertex, so
-clothing deforms with the MPFB standard rig. Writes prototype files only; does
-not touch the production vern.glb.
+Phase 2 of the MPFB Vern migration. Garments are cut from body topology, relaxed
+into cloth and retain interpolated MPFB skin weights. Accessories follow the
+head. Authoring front is Blender -Y (Godot +Z). Writes prototype files only.
 """
 
 from __future__ import annotations
 
 import json
-import math
 import sys
 from pathlib import Path
 
 import addon_utils
 import bpy
-import mathutils
 from mathutils import Vector
 
 HERE = Path(__file__).resolve().parent
@@ -28,7 +24,6 @@ ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 
 import common  # noqa: E402
-from vern_mesh import loft, tube, ellipsoid  # noqa: E402
 
 MPFB_ROOT = Path.home() / "AppData/Roaming/Blender Foundation/Blender/5.2/extensions/blender_org/mpfb"
 TARGET_DIR = MPFB_ROOT / "data/targets/macrodetails"
@@ -63,54 +58,6 @@ def group_weight(obj, group, i):
         return group.weight(i)
     except RuntimeError:
         return 0.0
-
-
-def body_world():
-    """World-space coords (male shape baked) for body-surface verts only."""
-    group = body.vertex_groups["body"]
-    idx = [i for i in range(len(body.data.vertices)) if group_weight(body, group, i) > 0.0]
-    return [body.matrix_world @ body.data.vertices[i].co for i in idx], idx
-
-
-def ring(z, ease, cap, band=0.035):
-    """Ellipse fitting a horizontal torso slice at height z.
-
-    Returns a loft ring (x, y, z, rx, ry): y is shifted so the ellipse covers
-    the real front/back build; rx/ry are half-widths plus garment ease.
-    cap limits |x| to keep arm vertices out of the measurement.
-    """
-    verts, _ = body_world()
-    band_verts = [v for v in verts if abs(v[2] - z) <= band and abs(v[0]) < cap]
-    if not band_verts:
-        return (0.0, 0.0, z, 0.08, 0.08)
-    cx = sum(v[0] for v in band_verts) / len(band_verts)
-    cy = sum(v[1] for v in band_verts) / len(band_verts)
-    front = max(v[1] for v in band_verts) - cy
-    back = cy - min(v[1] for v in band_verts)
-    right = max(v[0] for v in band_verts) - cx
-    left = cx - min(v[0] for v in band_verts)
-    return (cx, cy + (front - back) / 2, z, max(right, left) + ease, (front + back) / 2 + ease)
-
-
-def limb_radius(points, t, ease, window, cap):
-    """Largest radius around the limb axis at parametric t, plus ease."""
-    idx_a = min(int(t * (len(points) - 1)), len(points) - 2)
-    a, b = Vector(points[idx_a]), Vector(points[idx_a + 1])
-    seg = b - a
-    d = seg.normalized()
-    frac = t * (len(points) - 1) - idx_a
-    sample = a + d * frac * seg.length
-    verts, _ = body_world()
-    best = 0.0
-    for v in verts:
-        to_v = v - sample
-        along = to_v.dot(d)
-        if abs(along) > window / 2 or to_v.length > cap:
-            continue
-        radial = to_v.length_squared - along * along
-        if radial > best * best:
-            best = math.sqrt(radial)
-    return best + ease
 
 
 def bake_male_shape():
@@ -149,27 +96,9 @@ def clean_body():
     bmesh.update_edit_mesh(body.data)
     bpy.ops.mesh.delete(type="VERT")
     bpy.ops.object.mode_set(mode="OBJECT")
-    bm.free()
     for g in list(body.vertex_groups):
         if not any(group_weight(body, g, i) > 0.0 for i in range(len(body.data.vertices))):
             body.vertex_groups.remove(g)
-
-
-def skin_garment(garment):
-    """Parent to the rig, add an Armature modifier, copy weights from the
-    nearest body vertex so the garment deforms exactly like the skin."""
-    garment.parent = rig
-    mod = garment.modifiers.new("Armature", "ARMATURE")
-    mod.object = rig
-    for v in garment.data.vertices:
-        co = garment.matrix_world @ v.co
-        _found, idx, _dist = body_kd.find(co)
-        for g in body.vertex_groups:
-            weight = group_weight(body, g, idx)
-            if weight <= 0.0:
-                continue
-            group = garment.vertex_groups.get(g.name) or garment.vertex_groups.new(name=g.name)
-            group.add([v.index], weight, "REPLACE")
 
 
 def render(name, position, target, scale, resolution=(640, 720)):
@@ -202,7 +131,7 @@ def add_lights():
 
 
 def main():
-    global body, rig, body_kd
+    global body, rig
     common.reset()
     bpy.context.scene.unit_settings.system = "METRIC"
     p = {
@@ -228,95 +157,28 @@ def main():
         bpy.ops.mpfb.load_target(directory=str(TARGET_DIR), files=[{"name": filename}], weight=1.0)
     body.MPFB_HUM_gender = 1.0
     body.MPFB_HUM_age = 0.65
+    # create_human starts with mixed default male/female macro targets (including
+    # breast targets). Loading two male targets adds to those; it does not replace
+    # them. Use only the explicitly selected complete male macro combination.
+    target_names = {name.removesuffix('.target.gz') for name in MALE_TARGETS}
+    for key in body.data.shape_keys.key_blocks:
+        if key != body.data.shape_keys.reference_key:
+            key.value = 1.0 if key.name in target_names else 0.0
+    bpy.context.view_layer.update()
     bpy.ops.mpfb.add_standard_rig()
     rig = [o for o in bpy.context.scene.objects if o.type == "ARMATURE"][0]
     rig.name = "Vern_MPFB_StandardRig"
     bake_male_shape()
 
-    verts, idx = body_world()
-    body_kd = mathutils.kdtree.KDTree(len(verts))
-    for i, v in enumerate(verts):
-        body_kd.insert(v, idx[i])
-    body_kd.balance()
-
     shoulder_l, shoulder_r = bone("upperarm01.L"), bone("upperarm01.R")
     hip_l, hip_r = bone("upperleg01.L"), bone("upperleg01.R")
 
-    rings = []
-    caps = {1.095: 0.13, 1.03: 0.19, 0.975: 0.13, 0.915: 0.14, 0.855: 0.15, 0.795: 0.15, 0.735: 0.15, 0.675: 0.15}
-    for z in (1.095, 1.03, 0.975, 0.915, 0.855, 0.795, 0.735, 0.675):
-        rings.append(ring(z, 0.015, caps[z]))
-    loft("Sweater fitted torso", rings, p["sweater"], lambda i: {}, sides=20)
-
-    turtleneck = [ring(z, ease, 0.085, band=0.02) for z, ease in ((1.115, 0.006), (1.135, 0.008), (1.155, 0.006))]
-    loft("Folded turtleneck collar", turtleneck, p["rib"], lambda i: {}, sides=20)
-
-    hem = ring(0.675, 0.010, 0.15)
-    loft("Sweater lower ribbing", [
-        (hem[0], hem[1], 0.665, hem[3], hem[4]),
-        (hem[0], hem[1], 0.682, hem[3], hem[4]),
-    ], p["rib"], lambda i: {}, sides=20)
-
-    for side, s in [("L", 1), ("R", -1)]:
-        arm_pts = [bone(f"upperarm0{i}.{side}") for i in (1, 2)]
-        arm_pts += [bone(f"lowerarm0{i}.{side}") for i in (1, 2)]
-        arm_pts.append(bone(f"wrist.{side}"))
-        radii = [limb_radius(arm_pts, k / (len(arm_pts) - 1), 0.010, 0.05, 0.12)
-                 for k in range(len(arm_pts))]
-        tube(f"Sweater fitted sleeve {side}", arm_pts, radii, p["sweater"], lambda i: {}, sides=12)
-        cuff_mid = (Vector(arm_pts[-2]) + Vector(arm_pts[-1])) / 2
-        cuff_r = limb_radius(arm_pts, 1.0, 0.010, 0.04, 0.12)
-        loft(f"Knitted wrist cuff {side}", [
-            (cuff_mid[0], cuff_mid[1], cuff_mid[2] - 0.012, cuff_r, cuff_r * 0.95),
-            (cuff_mid[0], cuff_mid[1], cuff_mid[2], cuff_r, cuff_r * 0.95),
-            (cuff_mid[0], cuff_mid[1], cuff_mid[2] + 0.012, cuff_r, cuff_r * 0.95),
-        ], p["rib"], lambda i: {}, sides=12)
-
-    for side, s in [("L", 1), ("R", -1)]:
-        leg_pts = [bone(f"upperleg0{i}.{side}") for i in (1, 2)]
-        leg_pts += [bone(f"lowerleg0{i}.{side}") for i in (1, 2)]
-        leg_pts.append(bone(f"foot.{side}"))
-        leg_radii = [limb_radius(leg_pts, k / (len(leg_pts) - 1), 0.012, 0.06, 0.14)
-                     for k in range(len(leg_pts))]
-        tube(f"Fitted trousers {side}", leg_pts, leg_radii, p["pants"], lambda i: {}, sides=12)
-        foot = bone(f"foot.{side}")
-        ellipsoid(f"Leather shoe {side}", foot + Vector((s * 0.02, 0.10, -0.01)),
-                  (0.065, 0.135, 0.05), p["black"], lambda i: {}, segments=16, rings=6)
-
-    hair_bone = bone("head")
-    ellipsoid("Swept dark hair mass", hair_bone + Vector((0, -0.04, 0.075)),
-              (0.115, 0.095, 0.065), p["hair"], lambda i: {}, segments=16, rings=8)
-    ellipsoid("Front swept hair", hair_bone + Vector((0.03, 0.012, 0.10)),
-              (0.085, 0.045, 0.03), p["hair"], lambda i: {}, segments=16, rings=6)
-    for s in (-1, 1):
-        temple = hair_bone + Vector((s * 0.10, -0.02, 0.045))
-        common.rod(f"Gray temple streak {s}", temple + Vector((0, 0, 0.03)),
-                   temple - Vector((0, 0, 0.03)), 0.008, p["gray"])
-        cup = hair_bone + Vector((s * 0.145, -0.03, 0.01))
-        ellipsoid(f"Headphone cushion {s}", cup, (0.022, 0.04, 0.055), p["black"],
-                  lambda i: {}, segments=12, rings=6)
-        ellipsoid(f"Headphone cup {s}", cup + Vector((s * 0.022, 0.0, 0.0)),
-                  (0.015, 0.036, 0.05), p["sweater"], lambda i: {}, segments=12, rings=6)
-        for dz in (0.012, -0.012):
-            common.rod(f"Aviator rim {s} {dz}",
-                       hair_bone + Vector((s * 0.03, 0.085, 0.012 + dz)),
-                       hair_bone + Vector((s * 0.09, 0.082, 0.012 + dz)), 0.0035, p["metal"])
-        common.rod(f"Aviator rim side {s}",
-                   hair_bone + Vector((s * 0.03, 0.085, 0.024)),
-                   hair_bone + Vector((s * 0.03, 0.085, 0.0)), 0.0035, p["metal"])
-        common.rod(f"Mustache lobe {s}",
-                   hair_bone + Vector((s * 0.005, 0.088, -0.048)),
-                   hair_bone + Vector((s * 0.05, 0.078, -0.054)), 0.006, p["hair"])
-    common.rod("Glasses bridge", hair_bone + Vector((-0.025, 0.088, 0.0)),
-               hair_bone + Vector((0.025, 0.088, 0.0)), 0.0035, p["metal"])
-    common.rod("Headphone band", hair_bone + Vector((-0.115, -0.035, 0.075)),
-               hair_bone + Vector((0.115, -0.035, 0.075)), 0.011, p["black"])
+    from vern_mpfb_wardrobe import build_wardrobe
+    clean_body()
+    clean_body_verts = len(body.data.vertices)
+    build_wardrobe(body, rig, p)
 
     garments = [o for o in bpy.context.scene.objects if o.type == "MESH" and o is not body]
-    for garment in garments:
-        skin_garment(garment)
-
-    clean_body()
     bpy.context.view_layer.update()
 
     for path in (SOURCE.parent, GLB.parent, REVIEW):
@@ -342,27 +204,30 @@ def main():
         "height": round(maxv[2] - minv[2], 5),
         "meshes": len(mesh_objects),
         "armatures": len([o for o in bpy.context.scene.objects if o.type == "ARMATURE"]),
-        "triangles": sum(len(o.data.polygons) for o in mesh_objects),
+        "triangles": sum(sum(len(f.vertices) - 2 for f in o.data.polygons) for o in mesh_objects),
         "body_verts": len(body.data.vertices),
+        "body_verts_before_clothing_occlusion": clean_body_verts,
+        "front_axis": {"blender": "-Y", "godot": "+Z"},
         "skinned_garments": len(garments),
         "rig_measurements": {
             "shoulder_width": round((shoulder_l - shoulder_r).length, 5),
             "hip_width": round((hip_l - hip_r).length, 5),
         },
         "notes": [
-            "Garments measured from evaluated male body cross-sections and bone landmarks.",
-            "Every garment vertex inherits weights from its nearest body vertex (deforms with skin).",
+            "Continuous garments extracted from body topology; original skin weights retained.",
+            "MPFB face is Blender -Y / glTF +Z; rigid accessories follow head.",
             "Body export baked male shape keys and dropped MASK/helper geometry.",
+            "Covered skin removed after garment construction; full base reproducible from MPFB.",
             "Still prototype: not runtime-wired; seated pose, contact anchors and talk_calm retarget are later phases.",
         ],
     }
     REPORT.write_text(json.dumps(report, indent=2) + "\n")
 
     add_lights()
-    render("vern_mpfb_fitted_front", (0, 3.4, 1.0), (0, -0.02, 0.85), 1.45)
-    render("vern_mpfb_fitted_side", (3.2, 0.0, 1.0), (0, -0.02, 0.85), 1.45)
-    render("vern_mpfb_fitted_back", (0, -3.4, 1.0), (0, -0.02, 0.85), 1.45)
-    render("vern_mpfb_fitted_portrait", (0.8, 2.6, 1.62), (0, 0.0, 1.50), 0.5)
+    render("vern_mpfb_fitted_front", (0, -3.4, 0.88), (0, -0.02, 0.88), 2.02)
+    render("vern_mpfb_fitted_side", (3.2, 0.0, 0.88), (0, -0.02, 0.88), 2.02)
+    render("vern_mpfb_fitted_back", (0, 3.4, 0.88), (0, -0.02, 0.88), 2.02)
+    render("vern_mpfb_fitted_portrait", (0.65, -2.6, 1.66), (0, -0.035, 1.55), 0.48)
     print("VERN_MPFB_FITTED " + json.dumps({"glb": str(GLB), "height": report["height"],
         "meshes": report["meshes"], "triangles": report["triangles"],
         "skinned_garments": report["skinned_garments"]}))

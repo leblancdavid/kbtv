@@ -57,18 +57,12 @@ def bounds(obj) -> dict:
 
 
 def face_direction(obj) -> str:
-    """Determine which Blender axis the face/nose points toward from geometry.
-
-    The head band is isolated by Z height, then the vertex protruding farthest
-    from the head centroid on the Y axis marks the nose tip. MPFB humans are
-    authored facing +Y (Z-up).
-    """
-    verts = evaluated_vertices(obj)
-    head = [v for v in verts if 1.40 <= v.z <= 1.72]
-    cy = sum(v.y for v in head) / len(head)
-    maxy = max(head, key=lambda v: v.y)
-    miny = min(head, key=lambda v: v.y)
-    return "+Y (Blender)" if abs(maxy.y - cy) >= abs(miny.y - cy) else "-Y (Blender)"
+    """Use eye landmarks: head-centroid extrema confuse the skull with the nose."""
+    rig = next(m.object for m in obj.modifiers if m.type == 'ARMATURE')
+    head = rig.matrix_world @ rig.data.bones['head'].head_local
+    eye = rig.matrix_world @ rig.data.bones['eye.L'].head_local
+    assert abs(eye.y-head.y) > .01, 'Ambiguous facing: inspect the axis renders'
+    return '+Y (Blender)' if eye.y > head.y else '-Y (Blender)'
 
 
 def add_label(text: str, loc, size=0.08):
@@ -191,7 +185,7 @@ def main():
         },
         "orientation": {
             "face_pointing": face_dir,
-            "blender_to_gltf": "Blender +Y (face) exports to glTF as -Z, so in Godot the MPFB face points toward -Z (forward).",
+            "blender_to_gltf": "Blender -Y exports to glTF +Z; Blender +Y exports to glTF -Z. Use face_pointing above.",
             "production_vern_facing": "Production vern.glb in world3d faces the viewer; apply a Y-rotation when instancing this MPFB base so the face points at the camera.",
             "note": "Cross-check with vern_mpfb_body_axis_*.png: face should appear in the +Y view, back in the -Y view.",
         },

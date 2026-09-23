@@ -61,9 +61,15 @@ Use the male MPFB body diagnostic before making another clothed prototype:
   axis-labelled views.
 - `docs/art/model_previews/vern_mpfb_body_diagnostic.json`: records the applied
   male targets, `male_assertion.verified=true` when active, and the confirmed
-  face direction (Blender +Y / glTF -Z).
+  face direction (Blender -Y / glTF +Z; corrected using eye/head landmarks).
 - `docs/art/model_previews/vern_mpfb_body_axis_*.png`: front/back/side discovery
-  renders. The face appears in the `plus_y` view; the back in `minus_y`.
+  renders. The face appears in the `minus_y` view; the back in `plus_y`.
+
+The fitted revision uses `vern_mpfb_fitted.py` + `vern_mpfb_wardrobe.py` and
+`model_previews/vern_mpfb_fitted_{front,side,back,portrait}.png`. Clothing is
+surface-derived and continuous; accessories are aligned to the actual face.
+The former positive-Y diagnostic conclusion and primitive-clothing fit claims
+were rejected by direct render inspection. Runtime migration remains pending.
 
 A separate MPFB-derived prototype also exists for visual comparison before
 replacing the production animated Vern:

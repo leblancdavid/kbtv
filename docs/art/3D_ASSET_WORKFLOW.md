@@ -267,11 +267,18 @@ Outputs:
 The diagnostic applies MPFB's built-in `caucasian-male-old.target.gz` and
 `universal-male-old-averagemuscle-averageweight.target.gz` shape keys and records
 `male_assertion.verified=true` when those male targets are active. The report also
-records the face direction via a geometry probe: **the MPFB face points toward
-Blender +Y (Z-up)**, which exports to glTF/Godot as facing -Z (forward). Use the
-axis previews to confirm: the face should appear in the `plus_y` view, the back in
-the `minus_y` view. Use this facing when instancing before placing clothing, hair,
-glasses, or headphones.
+records face direction using the eye/head rig landmarks: **the MPFB face points
+toward Blender -Y (Z-up)**, which exports to glTF/Godot +Z. The older head-centroid
+extrema heuristic was wrong. Front is the `minus_y` view, back is `plus_y`.
+This differs from the procedural production Vern's facing convention.
+
+The corrected static clothing pass is generated with
+`blender --background --python-exit-code 1 --python Tools/modelgen/vern_mpfb_fitted.py`.
+`vern_mpfb_wardrobe.py` extracts continuous garments from the body topology,
+retains skin weights, removes covered skin, and fits rigid head accessories.
+Review `model_previews/vern_mpfb_fitted_{front,side,back,portrait}.png`.
+The report counts actual triangles and records the corrected facing. This is
+still a separate static prototype, pending user approval and seated/animation work.
 
 The current procedural Vern body can also be compared against a rough MPFB-derived
 clothed prototype without replacing the runtime asset:

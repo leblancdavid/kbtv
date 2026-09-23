@@ -111,8 +111,9 @@ Remaining gaps, in priority order:
 - Compare Vern's current proportions against the MPFB baseline, then adjust only
   the generator values needed to improve adult anatomy.
 - Evaluate the MPFB body diagnostic before making more procedural body tweaks.
-  Male body targets are confirmed active and the face points toward Blender +Y
-  (glTF/Godot -Z). Use that facing when migrating toward the MPFB body/rig
+  Male body targets are confirmed active and the face points toward Blender -Y
+  (glTF/Godot +Z), verified against eye/head landmarks and rendered views.
+  The previous centroid-based positive-Y conclusion was incorrect. Use that facing when migrating toward the MPFB body/rig
   instead of continuing to tune the tube-based procedural body.
 - Keep bone names, clip names, `animation_contacts.json`, and prop rest/grip
   contracts stable unless a downstream runtime/test update is made in the same
