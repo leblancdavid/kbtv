@@ -1,0 +1,37 @@
+{
+  "asset": "vern_mpfb_prototype",
+  "status": "prototype_not_runtime_wired",
+  "blender_version": "5.2.1 LTS",
+  "source": "Tools\\modelgen\\source\\vern_mpfb_prototype.blend",
+  "glb": "assets\\models3d\\characters\\vern_mpfb\\vern_mpfb_prototype.glb",
+  "bounds": {
+    "min": [
+      -0.55941,
+      -0.33447,
+      0.0
+    ],
+    "max": [
+      0.55941,
+      0.25,
+      1.67
+    ]
+  },
+  "height": 1.67,
+  "meshes": 34,
+  "armatures": 1,
+  "triangles": 21580,
+  "rig_measurements": {
+    "shoulder_width": 0.34003,
+    "hip_width": 0.20294,
+    "shoulder_to_hip_ratio": 1.67551,
+    "upper_arm_l": 0.242,
+    "forearm_l": 0.23848,
+    "thigh_l": 0.39471,
+    "shin_l": 0.40733
+  },
+  "notes": [
+    "Uses MPFB body and standard rig as anatomical base.",
+    "Vern clothing/accessories are visual prototype overlays, not final skinned clothing.",
+    "Do not replace production vern.glb until seated pose, clothing skinning, contact anchors, and talk_calm retarget are migrated."
+  ]
+}

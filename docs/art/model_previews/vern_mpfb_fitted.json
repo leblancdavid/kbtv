@@ -1,0 +1,39 @@
+{
+  "asset": "vern_mpfb_fitted",
+  "status": "fitted_skinned_prototype",
+  "blender_version": "5.2.1 LTS",
+  "source": "Tools\\modelgen\\source\\vern_mpfb_fitted.blend",
+  "glb": "assets\\models3d\\characters\\vern_mpfb\\vern_mpfb_fitted.glb",
+  "male_targets": [
+    "caucasian-male-old.target.gz",
+    "universal-male-old-averagemuscle-averageweight.target.gz"
+  ],
+  "bounds": {
+    "min": [
+      -0.55252,
+      -0.34407,
+      -0.00697
+    ],
+    "max": [
+      0.55252,
+      0.21502,
+      1.70809
+    ]
+  },
+  "height": 1.71506,
+  "meshes": 30,
+  "armatures": 1,
+  "triangles": 15524,
+  "body_verts": 13380,
+  "skinned_garments": 29,
+  "rig_measurements": {
+    "shoulder_width": 0.36226,
+    "hip_width": 0.21917
+  },
+  "notes": [
+    "Garments measured from evaluated male body cross-sections and bone landmarks.",
+    "Every garment vertex inherits weights from its nearest body vertex (deforms with skin).",
+    "Body export baked male shape keys and dropped MASK/helper geometry.",
+    "Still prototype: not runtime-wired; seated pose, contact anchors and talk_calm retarget are later phases."
+  ]
+}

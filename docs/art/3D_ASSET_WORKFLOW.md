@@ -160,6 +160,21 @@ blender --background --factory-startup --python-exit-code 1 --python Tools/model
   Keep the weighted elbow/knee rings and shortest-arc bone orientation logic
   when changing shapes; arbitrary bone roll can corrupt the neutral mesh.
 
+Before MPFB-informed proportion edits, capture a reproducible baseline:
+
+```powershell
+blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/vern_proportion_audit.py
+blender --background --python-exit-code 1 --python Tools/modelgen/mpfb_vern_proportion_compare.py
+```
+
+This writes `docs/art/model_previews/vern_proportion_audit.json` with current
+mesh bounds, visual mesh slice widths, skeleton landmarks, limb lengths and
+ratios. The comparison command uses normal Blender startup (not
+`--factory-startup`) because MPFB needs its registered preferences; it writes
+`docs/art/model_previews/mpfb_vern_proportion_comparison.json` using a default
+MPFB standard-rig human. Use both reports as before/after guardrails for
+body-proportion changes; do not alter Vern's generator by eye alone.
+
 Import the GLB in Godot 4.6 mono, build C#, then run the focused test:
 
 ```powershell
@@ -232,6 +247,53 @@ spike (V5) and shipped as a standalone `Animation` resource (not part of
   ```
   Fidelity against the approved V5 bake is checked by
   `val_fidelity_vs_v5.gd` (one-time; it reads the temp spike path).
+
+### MPFB Vern prototype
+
+Before fitting clothes or accessories, confirm MPFB body orientation and male
+geometry with the body diagnostic:
+
+```powershell
+blender --background --python-exit-code 1 --python Tools/modelgen/vern_mpfb_body_diagnostic.py
+```
+
+Outputs:
+
+- Source: `Tools/modelgen/source/vern_mpfb_body_diagnostic.blend`
+- Report: `docs/art/model_previews/vern_mpfb_body_diagnostic.json`
+- Axis previews: `vern_mpfb_body_axis_plus_y.png`, `_minus_y.png`, `_plus_x.png`,
+  `_minus_x.png`
+
+The diagnostic applies MPFB's built-in `caucasian-male-old.target.gz` and
+`universal-male-old-averagemuscle-averageweight.target.gz` shape keys and records
+`male_assertion.verified=true` when those male targets are active. The report also
+records the face direction via a geometry probe: **the MPFB face points toward
+Blender +Y (Z-up)**, which exports to glTF/Godot as facing -Z (forward). Use the
+axis previews to confirm: the face should appear in the `plus_y` view, the back in
+the `minus_y` view. Use this facing when instancing before placing clothing, hair,
+glasses, or headphones.
+
+The current procedural Vern body can also be compared against a rough MPFB-derived
+clothed prototype without replacing the runtime asset:
+
+```powershell
+blender --background --python-exit-code 1 --python Tools/modelgen/vern_mpfb_prototype.py
+```
+
+Outputs:
+
+- Source: `Tools/modelgen/source/vern_mpfb_prototype.blend`
+- Prototype GLB: `assets/models3d/characters/vern_mpfb/vern_mpfb_prototype.glb`
+- Report: `docs/art/model_previews/vern_mpfb_prototype.json`
+- Previews: `vern_mpfb_prototype_front.png`, `vern_mpfb_prototype_side.png`,
+  `vern_mpfb_prototype_portrait.png`
+
+This prototype uses MPFB's body and standard rig as the anatomical base, with
+rough Vern clothing/accessory overlays for visual review. It is not runtime-wired.
+The first overlay pass was visually rejected because the orientation and primitive
+clothing fit were wrong; keep it as a failed reference only. Do not replace
+`assets/models3d/characters/vern/vern.glb` until seated pose, skinned/fitted
+clothing, contact anchors, and `talk_calm` retargeting are migrated.
 
 ## Troubleshooting
 

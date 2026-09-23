@@ -90,24 +90,45 @@ hand placement, prop attachment/detachment, natural timing, overlapping motion,
 appropriate interpolation, and subtle secondary movement. Do not expand the
 animation library until this sequence looks convincing.
 
-## Known limitations to fix (current asset)
+## Current asset state and remaining gaps
 
-When retouching the existing Vern asset, address these in priority order
-(generic doc §10); these are documented as the primary remaining gaps:
+The current production asset is no longer the early rigid-hand prototype. Before
+retouching it, confirm the latest generated reports in `docs/art/model_previews/`:
 
-- Hands: four fingers share one grip bone; thumb is rigid. Replace with
-  articulated fingers/thumb for believable prop contact.
-- `talking_default` is a fixed looping clip; sampling has produced stiff,
-  "sampled prop trajectories." Rework toward layered/responsive performance.
-- Prop pickup/release uses separate sampled trajectories; move to IK against the
-  anchors above with seamless hand/rest-anchor transfers.
-- Flat-color materials are acceptable to keep; articulation and contact are the
-  current focus over material richness.
+- `vern.json` reports the generated GLB contract: 53 bones, articulated digits,
+  textured materials, and the shipped clip set.
+- `vern_godot_animation_validation.json` validates fixed pelvis/feet, loop seams,
+  prop grip, mouth contact, and hand travel in an isolated Godot import.
+- `vern_proportion_audit.json` is the current generated-Vern proportion audit;
+  `mpfb_vern_proportion_comparison.json` compares it to a default MPFB
+  standard-rig human.
+- `talk_calm` is the production on-air speaking clip. It is injected at runtime
+  from `assets/models3d/characters/vern/animations/talk_calm.tres` and falls
+  back to `talking_default` if loading fails.
+
+Remaining gaps, in priority order:
+
+- Compare Vern's current proportions against the MPFB baseline, then adjust only
+  the generator values needed to improve adult anatomy.
+- Evaluate the MPFB body diagnostic before making more procedural body tweaks.
+  Male body targets are confirmed active and the face points toward Blender +Y
+  (glTF/Godot -Z). Use that facing when migrating toward the MPFB body/rig
+  instead of continuing to tune the tube-based procedural body.
+- Keep bone names, clip names, `animation_contacts.json`, and prop rest/grip
+  contracts stable unless a downstream runtime/test update is made in the same
+  change.
+- Move further from monolithic authored loops toward layered speech/head/hand
+  vocabulary after the seated rest pose and coffee validation sequence still read
+  well with the refined proportions.
+- Facial animation/lip sync remains future work; keep current jaw/eyelid tracks
+  working while proportion changes are evaluated.
 
 ## Apply order for Vern work
 
-1. Verify/refresh proportions, joint alignment, and seams with the rest pose.
-2. Fix hands and grip bones; keep the existing skeleton/bone names stable.
-3. Configure IK targets from the anchor table above.
-4. Validate the coffee sequence (see above) before building more clips.
-5. Only then expand the talking/smoking vocabulary and layer blends.
+1. Run `Tools/modelgen/vern_proportion_audit.py` and save the current baseline.
+2. Run `Tools/modelgen/mpfb_vern_proportion_compare.py`, then decide which
+   proportions actually need changing.
+3. Edit the procedural generator with stable bone names and contact contracts.
+4. Rebuild Vern, rerun Godot import/contact validation, and review moving clips.
+5. Validate the coffee sequence (see above) before expanding more clips.
+6. Only then expand the talking/smoking vocabulary and layer blends.

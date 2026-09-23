@@ -38,9 +38,9 @@ def body(p):
             return {'pelvis': 1 - t, 'spine': t}
         t = max(0, min(1, (z - .84) / .18))
         return {'spine': 1 - t, 'chest': t}
-    torso_rings = [(0, .005, .635, .155, .115), (0, .01, .665, .18, .13),
-        (0, .012, .71, .185, .14), (0, .005, .78, .182, .142),
-        (0, -.013, .88, .185, .136), (0, -.028, .99, .218, .128),
+    torso_rings = [(0, .005, .635, .178, .12), (0, .01, .665, .208, .138),
+        (0, .012, .71, .214, .148), (0, .005, .78, .204, .146),
+        (0, -.013, .88, .190, .138), (0, -.028, .99, .218, .128),
         (0, -.038, 1.065, .228, .112), (0, -.038, 1.095, .202, .10),
         (0, -.03, 1.12, .13, .083), (0, -.025, 1.145, .067, .069)]
     torso_rings = subdivide_rings(torso_rings, 3)
@@ -48,7 +48,7 @@ def body(p):
     sweater_folds(torso)
     loft('Folded turtleneck', [(0, -.025, z, r, r * .92) for z, r in
         [(1.11, .072), (1.125, .077), (1.16, .074), (1.176, .066)]], p['rib'], {'neck': 1}, 20)
-    loft('Sweater lower ribbing', [(0, .01, z, .181, .134) for z in (.656, .673, .693)],
+    loft('Sweater lower ribbing', [(0, .01, z, .208, .139) for z in (.656, .673, .693)],
          p['rib'], {'pelvis': 1}, 20)
     for side, s in [('L', 1), ('R', -1)]:
         arm, fore, hand = 'upper_arm.' + side, 'forearm.' + side, 'hand.' + side
@@ -78,20 +78,20 @@ def body(p):
         from vern_hands import build as build_hand
         build_hand(side, p)
         thigh, shin, foot = 'thigh.' + side, 'shin.' + side, 'foot.' + side
-        points = [(s*.103, -.03, .629), (s*.12, .10, .619), (s*.131, .25, .585),
-                  (s*.135, .39, .553), (s*.135, .434, .505), (s*.135, .455, .39),
-                  (s*.135, .47, .23), (s*.135, .475, .11)]
+        points = [(s*.125, -.03, .629), (s*.145, .10, .619), (s*.157, .25, .585),
+                  (s*.163, .39, .553), (s*.163, .434, .505), (s*.163, .455, .39),
+                  (s*.163, .47, .23), (s*.163, .475, .11)]
         def leg_weights(i):
             ring = i // 16
             if ring == 0:
                 return {'pelvis': .55, thigh: .45}
             t = [0, 0, 0, .3, .8, 1, 1, 1][ring]
             return {thigh: 1 - t, shin: t}
-        tube('Trousers ' + side, points, [.094, .101, .092, .083, .081, .073, .059, .057],
+        tube('Trousers ' + side, points, [.104, .110, .101, .090, .086, .075, .060, .057],
              p['pants'], leg_weights, 16)
-        ellipsoid('Leather shoe ' + side, (s*.135, .552, .07), (.074, .15, .067),
+        ellipsoid('Leather shoe ' + side, (s*.163, .552, .07), (.074, .15, .067),
                   p['black'], {foot: 1})
-        loft('Shoe sole ' + side, [(s*.135, .558, z, .074, .151) for z in (.009, .024, .034)],
+        loft('Shoe sole ' + side, [(s*.163, .558, z, .074, .151) for z in (.009, .024, .034)],
               p['pants'], {foot: 1}, 20)
 
 

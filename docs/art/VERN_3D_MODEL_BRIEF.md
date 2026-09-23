@@ -23,14 +23,23 @@ example "simple hands are sufficient" or rigid-finger limitations), the
 guidelines supersede them. Do not expand the animation library until Vern's
 validation sequence looks convincing.
 
-### First model delivery
+### Current production asset
 
-- `assets/models3d/characters/vern/vern.glb`: 18-bone rig, 14,728 triangles,
-  10 materials, held `seated_rest` animation and neutral bind pose.
+- `assets/models3d/characters/vern/vern.glb`: 53-bone rig with articulated
+  fingers, 23,864 triangles, 11 materials, neutral bind pose and generated clips
+  `seated_rest`, `idle_breathing`, `talking_default`, `smoking`, and
+  `drink_coffee`.
+- `assets/models3d/characters/vern/animations/talk_calm.tres`: production
+  on-air speaking clip retargeted from the CC0 `Sitting_Talking` reference and
+  injected by `VernCharacter3D` at runtime.
 - `Tools/modelgen/source/vern.blend`: editable source. Rebuild using
   `Tools/modelgen/vern.py`; see [3D asset workflow](3D_ASSET_WORKFLOW.md).
 - Seated headband top is 1.545m above the asset floor; neutral headband top 1.88m.
   These are measured output dimensions, including the oversized readable headgear.
+- `docs/art/model_previews/vern_proportion_audit.json` is the current Vern
+  measurement baseline for MPFB-informed anatomy refinement;
+  `mpfb_vern_proportion_comparison.json` compares it to a default MPFB
+  standard-rig human.
 - `VernStation` sits at studio-local `(-0.85, 0.1, -0.05)`, yaw 180 degrees,
   keeping feet clear of the solid table placeholder. Chair and Vern are siblings.
 - Face/chest framing marker is Vern-local `(0, 1.26, 0)`; broadcast camera is
@@ -40,8 +49,40 @@ validation sequence looks convincing.
   [neutral rig](model_previews/vern_bind_pose.png),
   [actual broadcast feed](model_previews/vern_godot_feed.png), and
   [studio placement](model_previews/vern_godot_studio.png).
-- Body is prepared for further animation; hands currently follow hand bones
-  rigidly, and facial expressions/lip sync are future work.
+- Body is prepared for further animation; hands have articulated digits and
+  runtime prop-follow tests. Facial expressions/lip sync remain future work.
+
+### MPFB replacement prototype
+
+Use the male MPFB body diagnostic before making another clothed prototype:
+
+- `Tools/modelgen/vern_mpfb_body_diagnostic.py`: creates an MPFB body, applies
+  built-in male/old target shape keys, adds the standard rig, and renders four
+  axis-labelled views.
+- `docs/art/model_previews/vern_mpfb_body_diagnostic.json`: records the applied
+  male targets, `male_assertion.verified=true` when active, and the confirmed
+  face direction (Blender +Y / glTF -Z).
+- `docs/art/model_previews/vern_mpfb_body_axis_*.png`: front/back/side discovery
+  renders. The face appears in the `plus_y` view; the back in `minus_y`.
+
+A separate MPFB-derived prototype also exists for visual comparison before
+replacing the production animated Vern:
+
+- `Tools/modelgen/vern_mpfb_prototype.py`: creates an MPFB body with standard rig,
+  adds rough Vern clothing/accessory overlays, exports the prototype and renders
+  review images.
+- `assets/models3d/characters/vern_mpfb/vern_mpfb_prototype.glb`: prototype only,
+  not referenced by runtime scenes.
+- `docs/art/model_previews/vern_mpfb_prototype.json`: measurements and status.
+- `docs/art/model_previews/vern_mpfb_prototype_front.png`, `_side.png`, and
+  `_portrait.png`: review images.
+
+The first rough clothed prototype was rejected because the body appeared
+backward/sideways and the primitive clothing/accessories did not fit. Do not swap
+it into `Vern.tscn`. First use the body diagnostic to confirm orientation, then
+finish fitted/skinned clothing, seated pose, hand/mouth contact anchors, and
+retarget/rebake `talk_calm` against the MPFB skeleton or a Vern-compatible
+exported skeleton.
 
 ## Visual reference hierarchy
 
