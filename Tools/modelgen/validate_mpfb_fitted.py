@@ -60,6 +60,26 @@ for name in ['Aviator frame 1', 'Aviator frame -1', 'Arched headphone headband']
 verts = [obj.matrix_world @ v.co for obj in meshes for v in obj.data.vertices]
 height = max(v.z for v in verts)-min(v.z for v in verts)
 assert abs(height-report['height']) < .001, (height, report['height'])
+assert 1.70 <= height <= 1.72, height
+from vern_mpfb_proportions import measurements
+legs = measurements(rig)
+assert .44 < (legs['thigh']+legs['shin'])/height < .46, legs
+for key, value in legs.items():
+    assert abs(value-report['proportions']['after'][key]) < .001, key
+locks = [o for o in meshes if o.name.startswith('Swept hair lock ')]
+assert len(locks) >= 14
+for side in ('L', 'R'):
+    shoe = bpy.data.objects['Leather loafer '+side]
+    points = [shoe.matrix_world @ v.co for v in shoe.data.vertices]
+    assert .24 < max(v.y for v in points)-min(v.y for v in points) < .28
+    assert max(v.z for v in points)-min(v.z for v in points) < .085
+# Neutral evaluated geometry must agree with the exported bind mesh after tailoring.
+depsgraph = bpy.context.evaluated_depsgraph_get()
+for obj in meshes:
+    evaluated = obj.evaluated_get(depsgraph)
+    geometry = evaluated.to_mesh()
+    assert max((a.co-b.co).length for a, b in zip(obj.data.vertices, geometry.vertices)) < .001, obj.name
+    evaluated.to_mesh_clear()
 # Exercise a head rotation: rigid accessories must move without changing size.
 frame = bpy.data.objects['Aviator frame 1']
 def evaluated_points(obj):
@@ -80,9 +100,11 @@ head.rotation_euler.z = 0
 bpy.context.view_layer.update()
 from vern_mpfb_fitted import add_lights, render
 add_lights()
-render('vern_mpfb_fitted_export_portrait', (.65, -2.6, 1.66), (0, -.035, 1.55), .48)
+render('vern_mpfb_fitted_export_portrait', (.65, -2.6, 1.618), (0, -.035, 1.508), .48)
+render('vern_mpfb_fitted_export_front', (0,-3.4,.88), (0,-.02,.88), 2.02)
 result = {'status': 'passed', 'meshes': len(meshes), 'bones': len(rig.data.bones),
           'height': round(height, 5), 'normalized_weights': True, 'rigid_head_motion': True,
+          'leg_measurements': legs, 'swept_locks': len(locks), 'neutral_bind_match': True,
           'embedded_pbr_materials': len(textured), 'export_portrait_rendered': True,
           'note': 'Blender round-trip; Godot runtime and seated deformation not tested.'}
 (ROOT/'docs/art/model_previews/vern_mpfb_fitted_validation.json').write_text(json.dumps(result, indent=2)+'\n')

@@ -1,6 +1,18 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Correct Vern's long-legged silhouette, flat fabrics, oversized loafers and helmet-like hair following approved appearance direction.
+**Status**: Completed (revision generated; user appearance review pending)
+- Work Done: Shortened leg region 10% with a matched mesh/edit-bone rest-space remap and modest torso extension, instead of relying on unverified MPFB target weights. Height is 1.70701m; thigh 0.34466m, shin 0.41698m (~44.6% of total height combined). Replaced egg-shaped shoes with 26cm shaped low-profile loafers, narrow heels and matching thin soles/welts. Added subtle trouser breaks and levelled hems. Changed fabrics from repeat 25 to 16/m, increased color contrast and reduced overly strong close-up normals. Added 22 flattened swept locks sharing the cap's texture projection; iterated on scalp penetration and floating ribbon edges through actual image inspection.
+- Verification: Existing Blender round-trip baseline passed before edits. Final generator and extended validator passed: normalized weights, facing, body cleanup, height and leg measurements, loafer size, rigid head motion, neutral evaluated/bind geometry agreement, embedded PBR maps. Inspected generated front/side/back, shoes, swatches and export portrait/front. `git diff --check` passed (line-ending warnings only). No C# runtime changes; Godot runtime/seated deformation remain unverified.
+- Next Steps: User reviews new front, portrait and shoes renders; hair is still stylized sculpted locks and needs an appearance verdict before seated/chair/animation work.
+- Files Modified: `SESSION_LOG.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `Tools/modelgen/{vern_mpfb_fitted.py,vern_mpfb_wardrobe.py,vern_mpfb_surfaces.py,validate_mpfb_fitted.py}`, new `vern_mpfb_proportions.py`, `vern_mpfb_shoes.py`, `vern_mpfb_hair.py`, fitted blend/backup/GLB, ignored previews/maps.
+- Notes: Image reads succeed; earlier claims of image-input failure were incorrect. Pre-existing untracked texture copies in `Tools/modelgen/source/textures/` and beside the GLB were present at session start and were retained.
+- Blockers: None.
+
+## Previous Session (collar and fabric refinement)
+
+**Branch**: develop
 **Task**: Refine the fitted Vern's neck/collar and strange hair surface; add restrained fabric texture to clothing following user feedback.
 **Status**: Completed (refined asset and review renders generated)
 - Work Done: Replaced the straight oversized collar with a closed rounded band sampled against actual neck geometry, dipped below the chin and weighted from body vertices. Smoothed/subdivided the lumpy scalp, compensated hairline shrinkage, and replaced faceted temple-color patches with a soft gradient and restrained swept-strand map. Added 512px color/normal/roughness-metallic maps for wool knit, ribbed collar, and twill trousers. Physical-area UV normalization keeps yarn scale consistent; headphone plastic uses its own plain material. Expanded the lower sweater slightly to eliminate trouser-waistband overlap exposed by the new textures.

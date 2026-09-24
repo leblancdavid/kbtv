@@ -104,7 +104,7 @@ def clean_body():
 def render(name, position, target, scale, resolution=(640, 720)):
     scene = bpy.context.scene
     scene.render.engine = "CYCLES"
-    scene.cycles.samples = 24
+    scene.cycles.samples = 48
     scene.render.resolution_x, scene.render.resolution_y = resolution
     scene.render.resolution_percentage = 100
     if scene.world is None:
@@ -185,6 +185,8 @@ def main():
     clean_body()
     clean_body_verts = len(body.data.vertices)
     build_wardrobe(body, rig, p)
+    from vern_mpfb_proportions import tailor_proportions
+    proportions = tailor_proportions(rig)
 
     garments = [o for o in bpy.context.scene.objects if o.type == "MESH" and o is not body]
     bpy.context.view_layer.update()
@@ -209,6 +211,7 @@ def main():
         "glb": str(GLB.relative_to(ROOT)),
         "male_targets": MALE_TARGETS,
         "default_macro_targets_disabled": True,
+        "proportions": proportions,
         "surface_maps": {"materials": ["sweater", "rib", "pants", "hair"],
                          "maps": ["base_color", "normal", "roughness_metallic"],
                          "embedded_in_glb": True, "tile_size": 512},
@@ -240,8 +243,11 @@ def main():
     render("vern_mpfb_fitted_front", (0, -3.4, 0.88), (0, -0.02, 0.88), 2.02)
     render("vern_mpfb_fitted_side", (3.2, 0.0, 0.88), (0, -0.02, 0.88), 2.02)
     render("vern_mpfb_fitted_back", (0, 3.4, 0.88), (0, -0.02, 0.88), 2.02)
-    render("vern_mpfb_fitted_portrait", (0.65, -2.6, 1.66), (0, -0.035, 1.55), 0.48)
-    render("vern_mpfb_fitted_fabric", (.45, -2.6, 1.36), (0, -.04, 1.24), .62)
+    render("vern_mpfb_fitted_portrait", (0.65, -2.6, 1.618), (0, -0.035, 1.508), 0.48)
+    render("vern_mpfb_fitted_fabric", (.45, -2.6, 1.318), (0, -.04, 1.198), .62)
+    render("vern_mpfb_fitted_shoes", (.7, -2, .32), (0, -.06, .10), .55)
+    from vern_mpfb_surfaces import render_swatches
+    render_swatches(p, render)
     print("VERN_MPFB_FITTED " + json.dumps({"glb": str(GLB), "height": report["height"],
         "meshes": report["meshes"], "triangles": report["triangles"],
         "skinned_garments": report["skinned_garments"]}))

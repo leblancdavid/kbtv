@@ -149,23 +149,25 @@ def build_wardrobe(body, rig, p):
         ease = 1+.12*max(0, min(1, (waist+.08-v.co.z)/.08))
         v.co.x *= ease
         v.co.y = -.02+(v.co.y+.02)*ease
-    shell(body, 'Continuous tailored trousers', p['pants'], [
+    trousers = shell(body, 'Continuous tailored trousers', p['pants'], [
         ((0, 0, waist + .045), (0, 0, 1)), ((0, 0, .065), (0, 0, -1)),
         ((.24, 0, 0), (1, 0, 0)), ((-.24, 0, 0), (-1, 0, 0))], .016)
+    # Subtle cloth breaks at knees and ankles interrupt the long tubular silhouette.
+    for v in trousers.data.vertices:
+        side = 'L' if v.co.x > 0 else 'R'
+        knee = rig.data.bones['lowerleg01.'+side].head_local.z
+        fold = .004*math.sin((v.co.z-knee)*65)*math.exp(-((v.co.z-knee)/.075)**2)
+        fold += .005*math.sin((v.co.z-.09)*90)*math.exp(-((v.co.z-.11)/.055)**2)
+        v.co.y += fold
+        if v.co.z < .086:
+            v.co.z = .076
     from vern_mpfb_collar import build_collar
     from vern_mpfb_surfaces import cloth_uv
     build_collar(body, rig, p['rib'])
     for name in ['Continuous wool pullover', 'Continuous tailored trousers']:
         cloth_uv(bpy.data.objects[name])
-    for side, s in [('L', 1), ('R', -1)]:
-        foot = rig.data.bones[f'foot.{side}'].head_local
-        shoe = ellipsoid(f'Leather loafer {side}', (foot.x, -.09, .053),
-                         (.061, .150, .046), p['black'], {}, segments=24, rings=12)
-        for v in shoe.data.vertices:
-            v.co.z = max(.019, v.co.z)
-        rigid(shoe, rig, f'foot.{side}')
-        rigid(common.box(f'Loafer sole {side}', (foot.x, -.09, .015),
-                         (.116, .276, .025), p['black'], bevel=.012), rig, f'foot.{side}')
+    from vern_mpfb_shoes import build_shoes
+    build_shoes(rig, rigid)
     build_head(body, rig, p)
     # The clothed body remains in the diagnostic source; hidden skin is removed
     # from this clothed asset to prevent cloth/skin intersections in animation.
@@ -186,13 +188,13 @@ def build_head(body, rig, p):
     top = max(v.co.z for v in body.data.vertices)
     def hairline(co):
         front = max(0, min(1, (-co.y-.025)/.10))
-        return co.z > top-.137 + .076*front + .012*abs(co.x)/.075
-    hair = shell(body, 'Fitted swept scalp', p['hair'], [], .009, hairline)
+        part = .007*math.exp(-((co.x-.028)/.014)**2)*front
+        return co.z > top-.137 + .085*front + .012*abs(co.x)/.075+part
+    hair = shell(body, 'Fitted swept scalp', p['hair'], [], .004, hairline)
     hair.modifiers.clear()
     for v in hair.data.vertices:
         lift = max(0, min(1, (v.co.z-(top-.060))/.060))
-        v.co.z += (.010+.008*max(0, 1-v.co.x/.07))*lift
-        v.co.x += .010*lift
+        v.co.z += (.005+.008*max(0, 1-v.co.x/.07))*lift
     smooth = hair.modifiers.new('Smooth scalp lumps', 'SMOOTH')
     smooth.factor, smooth.iterations = .65, 10
     apply(hair, smooth)
@@ -203,10 +205,24 @@ def build_head(body, rig, p):
     hair.data.update()
     for v in hair.data.vertices:
         outward = Vector((v.co.x, v.co.y+.035, (v.co.z-(top-.10))*.5)).normalized()
-        v.co += outward*.004
+        v.co += outward*.003
+    # Guarantee scalp coverage without a thick uniform helmet offset. Smoothing
+    # otherwise buries isolated hairline vertices inside the underlying skin.
+    from mathutils.bvhtree import BVHTree
+    scalp = BVHTree.FromPolygons([v.co.copy() for v in body.data.vertices],
+                                [list(f.vertices) for f in body.data.polygons])
+    center = Vector((0, -.025, top-.10))
+    for v in hair.data.vertices:
+        delta = v.co-center
+        direction = delta.normalized()
+        hit, _, _, _ = scalp.ray_cast(center, direction, .4)
+        if hit is not None and delta.length < (hit-center).length+.003:
+            v.co = hit+direction*.003
     from vern_mpfb_surfaces import hair_material
     hair_material(hair, top)
     rigid(hair, rig)
+    from vern_mpfb_hair import swept_locks
+    swept_locks(hair, rig, top, rigid)
     sclera = common.material('Warm ivory eyes', 'b5aaa0', 0, .6)
     iris = common.material('Hazel iris', '554b37', 0, .65)
     for s in (-1, 1):

@@ -300,6 +300,23 @@ actual re-imported GLB. The validator checks all four textured materials have
 embedded base-color, normal and metallic/roughness images, then renders the
 round-trip portrait using the same lighting as the source previews.
 
+The subsequent silhouette pass uses `vern_mpfb_proportions.py` to apply the same
+piecewise height mapping to every mesh vertex and edit-bone endpoint. The leg
+region above the ankles is shortened by 10%, with modest trunk extension;
+head/feet retain their size. This is a rest-space change, not pose scaling or an
+unverified MPFB target weight. Before/after joint measurements are recorded in
+the report; the validator checks the imported measurements and neutral evaluated
+mesh against its bind geometry. Current overall height is approximately 1.707m.
+
+`vern_mpfb_shoes.py` builds 26cm shaped loafers with narrower heels and thin
+matching soles. `vern_mpfb_hair.py` adds flattened surface-following swept locks
+using the same texture projection as the underlayer. Fabric repeat is 16/m,
+with stronger color variation and restrained normal strength. Review `_shoes.png`
+and `_swatches.png` (left to right: sweater, rib, trousers), plus the validator's
+`_export_front.png` and `_export_portrait.png`. These are local generated outputs
+under the gitignored preview directory. Appearance still needs human review;
+structural validation is not an art-quality verdict.
+
 The current procedural Vern body can also be compared against a rough MPFB-derived
 clothed prototype without replacing the runtime asset:
 

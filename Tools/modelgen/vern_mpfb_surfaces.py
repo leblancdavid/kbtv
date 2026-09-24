@@ -73,12 +73,12 @@ def build_materials(p):
     p['headphone'] = p['sweater'].copy()
     p['headphone'].name = 'Matte headphone shell'
     for key, color, pattern, rough, strength in [
-        ('sweater', '30333a', knit, .91, .020),
-        ('rib', '2d3036', rib, .93, .018),
+        ('sweater', '363940', knit, .91, .008),
+        ('rib', '2d3036', rib, .93, .008),
         ('pants', '24272d', twill, .86, .010)]:
-        base = linear(color)*(1+.24*(pattern[:, :, None]-.5)+fleck[:, :, None])
+        base = linear(color)*(1+.65*(pattern[:, :, None]-.5)+fleck[:, :, None])
         p[key] = textured('Vern '+key+' fabric', base, pattern,
-                          np.clip(rough+.045*(pattern-.5), 0, 1), repeat=25,
+                          np.clip(rough+.08*(pattern-.5), 0, 1), repeat=16,
                           normal_strength=strength)
     return p
 
@@ -103,6 +103,27 @@ def cloth_uv(obj):
         loop.uv *= scale
 
 
+def render_swatches(p, render):
+    """Review-only fabric tiles at the same physical UV scale as the garments."""
+    meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH']
+    for obj in meshes:
+        obj.hide_render = True
+    tiles = []
+    for key, x in [('sweater', -.32), ('rib', 0), ('pants', .32)]:
+        bpy.ops.mesh.primitive_plane_add(size=.28, location=(x, 0, 1.2),
+                                        rotation=(math.pi/2, 0, 0))
+        obj = bpy.context.object
+        obj.data.materials.append(p[key])
+        for uv in obj.data.uv_layers.active.data:
+            uv.uv *= .28
+        tiles.append(obj)
+    render('vern_mpfb_fitted_swatches', (0,-2,1.2), (0,0,1.2), 1.02, (960,400))
+    for obj in tiles:
+        bpy.data.objects.remove(obj, do_unlink=True)
+    for obj in meshes:
+        obj.hide_render = False
+
+
 def hair_material(obj, top):
     """Soft salt-at-temples gradient replaces per-face gray triangles."""
     size = 512
@@ -117,6 +138,11 @@ def hair_material(obj, top):
                         np.full_like(wave, .84), normal_strength=.00012)
     obj.data.materials.clear()
     obj.data.materials.append(material)
+    hair_uv(obj, top)
+
+
+def hair_uv(obj, top):
+    """Shared projection keeps lock and underlayer colors continuous."""
     uv = obj.data.uv_layers.active or obj.data.uv_layers.new(name='HairUV')
     for face in obj.data.polygons:
         face.material_index = 0
