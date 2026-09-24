@@ -5,15 +5,31 @@ Structural checks supplement, never replace, the four rendered views.
 """
 import json
 import math
+import sys
+import struct
 from pathlib import Path
 
 import bpy
-from mathutils import Vector
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from vern_mpfb_body_diagnostic import face_direction
 report = json.loads((ROOT/'docs/art/model_previews/vern_mpfb_fitted.json').read_text())
 assert report['body_verts_before_clothing_occlusion'] == 13380, 'Helper geometry survived cleanup'
 assert report['front_axis'] == {'blender': '-Y', 'godot': '+Z'}
+assert report['default_macro_targets_disabled']
+glb = (ROOT/report['glb']).read_bytes()
+chunk_size, chunk_type = struct.unpack_from('<II', glb, 12)
+assert chunk_type == 0x4e4f534a
+gltf = json.loads(glb[20:20+chunk_size])
+textured_names = {'Vern sweater fabric', 'Vern rib fabric', 'Vern pants fabric', 'Vern swept hair'}
+textured = [m for m in gltf['materials'] if m['name'] in textured_names]
+assert len(textured) == 4
+for material in textured:
+    for info in [material['pbrMetallicRoughness']['baseColorTexture'],
+                 material['pbrMetallicRoughness']['metallicRoughnessTexture'], material['normalTexture']]:
+        texture = gltf['textures'][info['index']]
+        assert 'bufferView' in gltf['images'][texture['source']], 'Texture is not embedded'
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(ROOT/report['glb']))
 rigs = [o for o in bpy.context.scene.objects if o.type == 'ARMATURE']
@@ -23,6 +39,12 @@ widgets = {b.custom_shape for b in rig.pose.bones if b.custom_shape}
 meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH' and o not in widgets]
 assert len(meshes) == report['meshes']
 assert rig.data.bones['eye.L'].head_local.y < rig.data.bones['head'].head_local.y
+assert face_direction(bpy.data.objects['Vern_MPFB_Body']) == '-Y (Blender)'
+skin = bpy.data.objects['Vern_MPFB_Body']
+neck_z = rig.data.bones['neck01'].head_local.z
+hand_min_x = abs(rig.data.bones['wrist.L'].head_local.x)-.10
+assert not any(v.co.z < neck_z-.04 and abs(v.co.x) < hand_min_x
+               for v in skin.data.vertices), 'Covered torso/leg skin survived occlusion cleanup'
 for obj in meshes:
     assert any(m.type == 'ARMATURE' and m.object == rig for m in obj.modifiers), obj.name
     assert all(math.isfinite(c) for v in obj.data.vertices for c in v.co), obj.name
@@ -54,8 +76,14 @@ bpy.context.view_layer.update()
 after = evaluated_points(frame)
 assert max((a-b).length for a, b in zip(before, after)) > .005
 assert abs((before[0]-before[-1]).length-(after[0]-after[-1]).length) < .00001
+head.rotation_euler.z = 0
+bpy.context.view_layer.update()
+from vern_mpfb_fitted import add_lights, render
+add_lights()
+render('vern_mpfb_fitted_export_portrait', (.65, -2.6, 1.66), (0, -.035, 1.55), .48)
 result = {'status': 'passed', 'meshes': len(meshes), 'bones': len(rig.data.bones),
           'height': round(height, 5), 'normalized_weights': True, 'rigid_head_motion': True,
+          'embedded_pbr_materials': len(textured), 'export_portrait_rendered': True,
           'note': 'Blender round-trip; Godot runtime and seated deformation not tested.'}
 (ROOT/'docs/art/model_previews/vern_mpfb_fitted_validation.json').write_text(json.dumps(result, indent=2)+'\n')
 print('MPFB_FITTED_VALIDATION', json.dumps(result))

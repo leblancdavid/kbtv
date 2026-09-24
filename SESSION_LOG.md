@@ -1,10 +1,33 @@
 ## Current Session
 
-### Visual rebuild follow-up (In Progress)
-- User rejected the fitted previews and authorized a full static appearance correction.
-- Direct image inspection confirms reversed front/back labels, misplaced face accessories, torso garments below the chest, disconnected trousers, and cropped previews.
-- Rebuild clothing from the actual body surface, fit accessories to facial landmarks, and review renders before export approval.
-- Correction to prior verification: Godot import crashed loading `GodotSharpEditor`; a missing project build was not established as its cause. The previous `triangles` report counted polygons, not triangulated geometry.
+**Branch**: develop
+**Task**: Refine the fitted Vern's neck/collar and strange hair surface; add restrained fabric texture to clothing following user feedback.
+**Status**: Completed (refined asset and review renders generated)
+- Work Done: Replaced the straight oversized collar with a closed rounded band sampled against actual neck geometry, dipped below the chin and weighted from body vertices. Smoothed/subdivided the lumpy scalp, compensated hairline shrinkage, and replaced faceted temple-color patches with a soft gradient and restrained swept-strand map. Added 512px color/normal/roughness-metallic maps for wool knit, ribbed collar, and twill trousers. Physical-area UV normalization keeps yarn scale consistent; headphone plastic uses its own plain material. Expanded the lower sweater slightly to eliminate trouser-waistband overlap exposed by the new textures.
+- Verification: Rebuilt the blend/GLB and inspected front, side, back, portrait, and new fabric close-up. `validate_mpfb_fitted.py` passed normalized-weight, facing, covered-skin, bounds, head-motion and embedded-texture checks (four textured PBR materials). Rendered and inspected the re-imported GLB portrait; material appearance matches the source. `git diff --check` passed with line-ending warnings only. No C# runtime changes or Godot runtime verification in this pass.
+- Next Steps: Review `docs/art/model_previews/vern_mpfb_fitted_portrait.png`, `_fabric.png`, and `_export_portrait.png`; seated/animation work remains a later phase.
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/{vern_mpfb_fitted.py,vern_mpfb_wardrobe.py,validate_mpfb_fitted.py}`, new `vern_mpfb_collar.py` and `vern_mpfb_surfaces.py`, fitted blend/backup/GLB, 12 texture PNGs under `assets/models3d/characters/vern_mpfb/textures/`, fitted reports and review PNGs, `docs/art/3D_ASSET_WORKFLOW.md`.
+- Related Docs: `docs/art/3D_ASSET_WORKFLOW.md`, `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/VERN_CHARACTER_GUIDELINES.md`.
+- Blockers: None.
+
+---
+
+## Previous Session (static MPFB rebuild; user confirms improvement)
+
+**Branch**: develop
+**Task**: Rebuild the rejected fitted MPFB Vern using direct rendered inspection: correct anatomy targets, orientation, garment coverage, and face accessories.
+**Status**: Completed (static revision generated and visually inspected; user art approval pending)
+- Files Modified: `Tools/modelgen/vern_mpfb_fitted.py`, `vern_mpfb_wardrobe.py`, `vern_mpfb_body_diagnostic.py`, `validate_mpfb_fitted.py`; fitted GLB, diagnostic/fitted source blends and Blender backups, diagnostic/fitted PNGs and reports under `docs/art/model_previews/`; `docs/art/3D_ASSET_WORKFLOW.md`, `VERN_3D_MODEL_BRIEF.md`, `VERN_CHARACTER_GUIDELINES.md`, `SESSION_LOG.md`.
+- Work Done: Replaced disconnected primitives with continuous surface-derived pullover/trousers retaining MPFB weights. Fitted sleeve ends using forearm planes, gave trousers leg clearance and shoes flat soles, removed hidden skin (head/hands retained). Rebuilt scalp/hairline, gray temples, eyes, eyebrows, closed aviator frames, tapered mustache and arched headphones against head/eye landmarks. Corrected camera directions and full-body framing. Iterated by opening the generated images with the Read tool; the previous claim that the agent cannot inspect images was incorrect.
+- Root Causes Corrected: Face is **Blender -Y / Godot +Z**, not +Y/-Z; centroid-extrema direction inference was wrong. MPFB default mixed male/female targets, including breast targets, were being added underneath the selected male targets; both generators now disable defaults before using the two explicit male macros. Diagnostic verification checks exact active target names rather than substring `male` (which also matches `female`). Old `triangles` metric was polygon count; new report counts triangles.
+- Verification: Diagnostic generation, fitted generation, and `validate_mpfb_fitted.py` all passed under Blender 5.2.1. Final asset: 29 skinned meshes, 137 bones, 43,148 triangles, ~1.753m with headband. Round-trip checks cover normalized weights, correct facing via the actual diagnostic function, dimensions, covered-skin removal, and rigid head-accessory motion. Final front/side/back/portrait renders reviewed. `git diff --check` passed (line-ending warnings only). Runtime/C# tests not run for this asset/tooling-only revision; Godot runtime and seated deformation are not yet verified.
+- Next Steps: User reviews `docs/art/model_previews/vern_mpfb_fitted_{portrait,front,side,back}.png`. After appearance approval, proceed to seated/chair fit, contacts, and animation migration.
+- Related Docs: `docs/art/3D_ASSET_WORKFLOW.md`, `docs/art/VERN_3D_MODEL_BRIEF.md`, `docs/art/CHARACTER_GUIDELINES.md`, `docs/art/VERN_CHARACTER_GUIDELINES.md`.
+- Blockers: None for static revision. Prior Godot import failed loading `GodotSharpEditor`; a missing project build was not established as its cause. Animation rebake reference availability still needs checking before the later migration.
+
+---
+
+## Previous Session (fitted prototype rejected; claims below superseded by visual rebuild)
 
 **Branch**: develop
 **Task**: Replace the rejected MPFB clothed prototype with properly fitted, skinned clothing and Vern identity accessories on the male MPFB base, export a cleaned rigged GLB, and hand to the user for visual review. This is Phase 2 of the MPFB Vern migration (diagnostic base was approved).

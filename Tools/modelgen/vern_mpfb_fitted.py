@@ -107,7 +107,12 @@ def render(name, position, target, scale, resolution=(640, 720)):
     scene.cycles.samples = 24
     scene.render.resolution_x, scene.render.resolution_y = resolution
     scene.render.resolution_percentage = 100
-    scene.world.color = (0.18, 0.18, 0.18)
+    if scene.world is None:
+        scene.world = bpy.data.worlds.new('Vern review environment')
+    scene.world.use_nodes = True
+    background = scene.world.node_tree.nodes.get('Background')
+    background.inputs['Color'].default_value = (.05, .05, .05, 1)
+    background.inputs['Strength'].default_value = 1
     scene.view_settings.view_transform = "AgX"
     bpy.ops.object.camera_add(location=position)
     camera = bpy.context.object
@@ -144,6 +149,8 @@ def main():
         "gray": mat("Salt at temples", "696964", 0, 0.85),
         "metal": mat("Aged pewter frames", "8d8a79", 0.65, 0.38),
     }
+    from vern_mpfb_surfaces import build_materials
+    build_materials(p)
 
     ensure_mpfb()
     bpy.ops.mpfb.create_human()
@@ -164,6 +171,7 @@ def main():
     for key in body.data.shape_keys.key_blocks:
         if key != body.data.shape_keys.reference_key:
             key.value = 1.0 if key.name in target_names else 0.0
+    assert target_names.issubset(body.data.shape_keys.key_blocks.keys()), 'Missing male macro targets'
     bpy.context.view_layer.update()
     bpy.ops.mpfb.add_standard_rig()
     rig = [o for o in bpy.context.scene.objects if o.type == "ARMATURE"][0]
@@ -200,6 +208,10 @@ def main():
         "source": str(SOURCE.relative_to(ROOT)),
         "glb": str(GLB.relative_to(ROOT)),
         "male_targets": MALE_TARGETS,
+        "default_macro_targets_disabled": True,
+        "surface_maps": {"materials": ["sweater", "rib", "pants", "hair"],
+                         "maps": ["base_color", "normal", "roughness_metallic"],
+                         "embedded_in_glb": True, "tile_size": 512},
         "bounds": {"min": [round(x, 5) for x in minv], "max": [round(x, 5) for x in maxv]},
         "height": round(maxv[2] - minv[2], 5),
         "meshes": len(mesh_objects),
@@ -218,6 +230,7 @@ def main():
             "MPFB face is Blender -Y / glTF +Z; rigid accessories follow head.",
             "Body export baked male shape keys and dropped MASK/helper geometry.",
             "Covered skin removed after garment construction; full base reproducible from MPFB.",
+            "Fitted dipped collar; textured knit/twill and softly blended temples with embedded PBR maps.",
             "Still prototype: not runtime-wired; seated pose, contact anchors and talk_calm retarget are later phases.",
         ],
     }
@@ -228,6 +241,7 @@ def main():
     render("vern_mpfb_fitted_side", (3.2, 0.0, 0.88), (0, -0.02, 0.88), 2.02)
     render("vern_mpfb_fitted_back", (0, 3.4, 0.88), (0, -0.02, 0.88), 2.02)
     render("vern_mpfb_fitted_portrait", (0.65, -2.6, 1.66), (0, -0.035, 1.55), 0.48)
+    render("vern_mpfb_fitted_fabric", (.45, -2.6, 1.36), (0, -.04, 1.24), .62)
     print("VERN_MPFB_FITTED " + json.dumps({"glb": str(GLB), "height": report["height"],
         "meshes": report["meshes"], "triangles": report["triangles"],
         "skinned_garments": report["skinned_garments"]}))

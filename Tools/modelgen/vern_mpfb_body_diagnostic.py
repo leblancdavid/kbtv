@@ -162,6 +162,11 @@ def main():
     human.MPFB_HUM_caucasian = 1.0
     human.MPFB_HUM_african = 0.0
     human.MPFB_HUM_asian = 0.0
+    target_names = {name.removesuffix('.target.gz') for name in target_files}
+    for key in human.data.shape_keys.key_blocks:
+        if key != human.data.shape_keys.reference_key:
+            key.value = 1.0 if key.name in target_names else 0.0
+    bpy.context.view_layer.update()
 
     bpy.ops.mpfb.add_standard_rig()
     rig = [obj for obj in bpy.context.scene.objects if obj.type == "ARMATURE"][0]
@@ -171,7 +176,8 @@ def main():
 
     b = bounds(human)
     height = round(b["max"][2] - b["min"][2], 5)
-    shape_keys = [(key.name, round(key.value, 5)) for key in human.data.shape_keys.key_blocks] if human.data.shape_keys else []
+    shape_keys = [(key.name, round(key.value, 5)) for key in human.data.shape_keys.key_blocks
+                  if key != human.data.shape_keys.reference_key and key.value > 0] if human.data.shape_keys else []
     face_dir = face_direction(human)
     report = {
         "asset": "vern_mpfb_body_diagnostic",
@@ -181,13 +187,14 @@ def main():
             "requested_gender_property": human.MPFB_HUM_gender,
             "applied_targets": target_files,
             "active_shape_keys": shape_keys,
-            "verified": any("male" in name for name, value in shape_keys if value > 0.0),
+            "verified": {name for name, value in shape_keys if value == 1.0} == target_names
+                        and len(shape_keys) == len(target_names),
         },
         "orientation": {
             "face_pointing": face_dir,
             "blender_to_gltf": "Blender -Y exports to glTF +Z; Blender +Y exports to glTF -Z. Use face_pointing above.",
-            "production_vern_facing": "Production vern.glb in world3d faces the viewer; apply a Y-rotation when instancing this MPFB base so the face points at the camera.",
-            "note": "Cross-check with vern_mpfb_body_axis_*.png: face should appear in the +Y view, back in the -Y view.",
+            "production_vern_facing": "Procedural Vern uses Blender +Y / Godot -Z; MPFB has the opposite facing. Account for this during runtime migration.",
+            "note": "Cross-check with vern_mpfb_body_axis_*.png: face should appear in the -Y view, back in the +Y view.",
         },
         "bounds": b,
         "height": height,
@@ -200,7 +207,7 @@ def main():
             "note": "Use these renders to identify the actual MPFB face/front direction before fitting clothing.",
         },
         "next_steps": [
-            "Face confirmed pointing +Y (Blender) / -Z (glTF/Godot) via geometry probe; visually verify against the four axis renders.",
+            "Face points -Y (Blender) / +Z (glTF/Godot) via eye/head landmarks; cross-check the four axis renders.",
             "Only then fit clothing and accessories to evaluated body landmarks.",
             "Do not reuse the rejected primitive clothing overlay approach.",
         ],

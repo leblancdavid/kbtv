@@ -63,6 +63,18 @@ def shell(body, name, material, planes, ease, predicate=None):
             envelope = -.153 * math.sqrt(max(.05, 1-(v.co.x/.215)**2))
             blend = min(1, (v.co.z-1.05)/.08, (1.37-v.co.z)/.055)
             v.co.y += blend*(envelope-v.co.y)
+        if name == 'Continuous tailored trousers' and v.co.z < .70:
+            side = 'L' if v.co.x > 0 else 'R'
+            points = [body.parent.data.bones[f'{bone}.{side}'].head_local
+                      for bone in ['upperleg01', 'lowerleg01', 'lowerleg02', 'foot']]
+            a, b = next(((a, b) for a, b in zip(points, points[1:])
+                         if a.z >= v.co.z >= b.z), (points[-2], points[-1]))
+            t = max(0, min(1, (a.z-v.co.z)/max(.001, a.z-b.z)))
+            center = a.lerp(b, t)
+            radial = Vector((v.co.x-center.x, v.co.y-center.y, 0))
+            minimum = .060+.020*max(0, min(1, (v.co.z-.065)/.635))
+            if 0 < radial.length < minimum:
+                v.co += radial.normalized()*(minimum-radial.length)
     # Restore planar cut boundaries after relaxation, so hems meet cleanly.
     bm = bmesh.new()
     bm.from_mesh(obj.data)
@@ -129,23 +141,22 @@ def build_wardrobe(body, rig, p):
         forearm = rig.data.bones[f'lowerarm02.{side}'].head_local
         outward = (wrist-forearm).normalized()
         wrist_planes.append((wrist-outward*.018, outward))
-    shell(body, 'Continuous wool pullover', p['sweater'], [
+    pullover = shell(body, 'Continuous wool pullover', p['sweater'], [
         ((0, 0, waist), (0, 0, -1)), ((0, 0, neck), (0, 0, 1)),
         *wrist_planes], 0.019)
+    # The hem overlaps the trouser waistband; keep both cloth surfaces distinct.
+    for v in pullover.data.vertices:
+        ease = 1+.12*max(0, min(1, (waist+.08-v.co.z)/.08))
+        v.co.x *= ease
+        v.co.y = -.02+(v.co.y+.02)*ease
     shell(body, 'Continuous tailored trousers', p['pants'], [
         ((0, 0, waist + .045), (0, 0, 1)), ((0, 0, .065), (0, 0, -1)),
         ((.24, 0, 0), (1, 0, 0)), ((-.24, 0, 0), (-1, 0, 0))], .016)
-    from vern_mesh import loft
-    collar = loft('Folded high collar', [(0, -.039, neck-.016, .093, .086),
-                  (0, -.039, neck-.005, .090, .084),
-                  (0, -.039, neck+.006, .088, .081),
-                  (0, -.039, neck+.010, .085, .078)], p['rib'], {}, sides=48)
-    bm = bmesh.new()
-    bm.from_mesh(collar.data)
-    bmesh.ops.delete(bm, geom=[f for f in bm.faces if len(f.verts)>4], context='FACES_ONLY')
-    bm.to_mesh(collar.data)
-    bm.free()
-    rigid(collar, rig, 'neck01')
+    from vern_mpfb_collar import build_collar
+    from vern_mpfb_surfaces import cloth_uv
+    build_collar(body, rig, p['rib'])
+    for name in ['Continuous wool pullover', 'Continuous tailored trousers']:
+        cloth_uv(bpy.data.objects[name])
     for side, s in [('L', 1), ('R', -1)]:
         foot = rig.data.bones[f'foot.{side}'].head_local
         shoe = ellipsoid(f'Leather loafer {side}', (foot.x, -.09, .053),
@@ -160,9 +171,11 @@ def build_wardrobe(body, rig, p):
     # from this clothed asset to prevent cloth/skin intersections in animation.
     bm = bmesh.new()
     bm.from_mesh(body.data)
+    hand_min_x = min(abs(point.x) for point, _ in wrist_planes)-.06
     bmesh.ops.delete(bm, geom=[v for v in bm.verts if v.co.z < neck-.035
-                    and not any((v.co-point).dot(normal) > -.012
-                                for point, normal in wrist_planes)], context='VERTS')
+                    and not (abs(v.co.x) > hand_min_x
+                             and any((v.co-point).dot(normal) > -.012
+                                     for point, normal in wrist_planes))], context='VERTS')
     bm.to_mesh(body.data)
     bm.free()
 
@@ -180,11 +193,19 @@ def build_head(body, rig, p):
         lift = max(0, min(1, (v.co.z-(top-.060))/.060))
         v.co.z += (.010+.008*max(0, 1-v.co.x/.07))*lift
         v.co.x += .010*lift
-    hair.data.materials.append(p['gray'])
-    for f in hair.data.polygons:
-        co = sum((hair.data.vertices[i].co for i in f.vertices), Vector())/len(f.vertices)
-        if abs(co.x) > .056 and co.z < eye.z+.032 and co.y < -.035:
-            f.material_index = 1
+    smooth = hair.modifiers.new('Smooth scalp lumps', 'SMOOTH')
+    smooth.factor, smooth.iterations = .65, 10
+    apply(hair, smooth)
+    subdiv = hair.modifiers.new('Soft swept silhouette', 'SUBSURF')
+    subdiv.levels = 1
+    apply(hair, subdiv)
+    # Relaxation must not bury the front hairline back inside the forehead.
+    hair.data.update()
+    for v in hair.data.vertices:
+        outward = Vector((v.co.x, v.co.y+.035, (v.co.z-(top-.10))*.5)).normalized()
+        v.co += outward*.004
+    from vern_mpfb_surfaces import hair_material
+    hair_material(hair, top)
     rigid(hair, rig)
     sclera = common.material('Warm ivory eyes', 'b5aaa0', 0, .6)
     iris = common.material('Hazel iris', '554b37', 0, .65)
@@ -199,7 +220,7 @@ def build_head(body, rig, p):
         rigid(ellipsoid(f'Headphone earpad {s}', cup, (.016, .040, .051),
                         p['black'], {}, segments=24, rings=16), rig)
         rigid(ellipsoid(f'Headphone shell {s}', (s*.108, cup[1], cup[2]),
-                        (.013, .034, .044), p['sweater'], {}, segments=24, rings=16), rig)
+                        (.013, .034, .044), p['headphone'], {}, segments=24, rings=16), rig)
         # Closed, gently squared aviator rims. Thin metal leaves the eyes readable.
         points = []
         for i in range(49):

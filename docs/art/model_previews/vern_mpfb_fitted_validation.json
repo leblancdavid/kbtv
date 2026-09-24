@@ -1,9 +1,0 @@
-{
-  "status": "passed",
-  "meshes": 29,
-  "bones": 137,
-  "height": 1.73863,
-  "normalized_weights": true,
-  "rigid_head_motion": true,
-  "note": "Blender round-trip; Godot runtime and seated deformation not tested."
-}

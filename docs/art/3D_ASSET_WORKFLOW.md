@@ -276,9 +276,29 @@ The corrected static clothing pass is generated with
 `blender --background --python-exit-code 1 --python Tools/modelgen/vern_mpfb_fitted.py`.
 `vern_mpfb_wardrobe.py` extracts continuous garments from the body topology,
 retains skin weights, removes covered skin, and fits rigid head accessories.
+Both generators explicitly disable MPFB's default mixed macro targets before
+applying the selected male targets (loading targets alone is additive).
 Review `model_previews/vern_mpfb_fitted_{front,side,back,portrait}.png`.
 The report counts actual triangles and records the corrected facing. This is
 still a separate static prototype, pending user approval and seated/animation work.
+Run the round-trip checks with
+`blender --background --python-exit-code 1 --python Tools/modelgen/validate_mpfb_fitted.py`.
+These check normalized skin weights, facing, covered-skin removal, bounds, and
+rigid head-accessory motion. They do not validate Godot or seated deformation.
+
+The neck/material refinement uses `vern_mpfb_collar.py` to sample a rounded,
+dipped-front collar from the neck surface, with inherited body weights.
+`vern_mpfb_surfaces.py` generates 512px color, tangent-normal and packed
+roughness/metallic maps for sweater knit, collar ribbing, trouser twill and hair.
+Source PNGs live in `assets/models3d/characters/vern_mpfb/textures/`; the blend
+packs them and the GLB embeds them. Clothing UV area is normalized to metres so
+yarn scale remains consistent. Hair uses a smooth temple-color gradient instead
+of hard per-face gray patches. Headphone shells retain an untextured material.
+
+Review `_fabric.png` for textile detail and `_export_portrait.png` for the
+actual re-imported GLB. The validator checks all four textured materials have
+embedded base-color, normal and metallic/roughness images, then renders the
+round-trip portrait using the same lighting as the source previews.
 
 The current procedural Vern body can also be compared against a rough MPFB-derived
 clothed prototype without replacing the runtime asset:
