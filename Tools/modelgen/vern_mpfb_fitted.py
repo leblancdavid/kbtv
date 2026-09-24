@@ -214,7 +214,15 @@ def main():
         "proportions": proportions,
         "surface_maps": {"materials": ["sweater", "rib", "pants", "hair"],
                          "maps": ["base_color", "normal", "roughness_metallic"],
-                         "embedded_in_glb": True, "tile_size": 512},
+                          "embedded_in_glb": True, "tile_size": 512},
+        "hair": {
+            "clumps": sum(o.name.startswith('Swept hair clump ') for o in mesh_objects),
+            "cards": sum(o.name.startswith('Hair edge card ') for o in mesh_objects),
+            "card_material": "Vern masked hair tips", "alpha_mode": "MASK",
+            "triangles": sum(len(f.vertices)-2 for o in mesh_objects
+                             if o.name.startswith(('Swept hair clump ', 'Hair edge card ', 'Fitted swept scalp'))
+                             for f in o.data.polygons),
+        },
         "bounds": {"min": [round(x, 5) for x in minv], "max": [round(x, 5) for x in maxv]},
         "height": round(maxv[2] - minv[2], 5),
         "meshes": len(mesh_objects),

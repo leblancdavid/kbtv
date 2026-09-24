@@ -186,43 +186,8 @@ def build_head(body, rig, p):
     # Measure against the real eyes and scalp, not the head bone's pivot alone.
     eye = rig.data.bones['eye.L'].head_local
     top = max(v.co.z for v in body.data.vertices)
-    def hairline(co):
-        front = max(0, min(1, (-co.y-.025)/.10))
-        part = .007*math.exp(-((co.x-.028)/.014)**2)*front
-        return co.z > top-.137 + .085*front + .012*abs(co.x)/.075+part
-    hair = shell(body, 'Fitted swept scalp', p['hair'], [], .004, hairline)
-    hair.modifiers.clear()
-    for v in hair.data.vertices:
-        lift = max(0, min(1, (v.co.z-(top-.060))/.060))
-        v.co.z += (.005+.008*max(0, 1-v.co.x/.07))*lift
-    smooth = hair.modifiers.new('Smooth scalp lumps', 'SMOOTH')
-    smooth.factor, smooth.iterations = .65, 10
-    apply(hair, smooth)
-    subdiv = hair.modifiers.new('Soft swept silhouette', 'SUBSURF')
-    subdiv.levels = 1
-    apply(hair, subdiv)
-    # Relaxation must not bury the front hairline back inside the forehead.
-    hair.data.update()
-    for v in hair.data.vertices:
-        outward = Vector((v.co.x, v.co.y+.035, (v.co.z-(top-.10))*.5)).normalized()
-        v.co += outward*.003
-    # Guarantee scalp coverage without a thick uniform helmet offset. Smoothing
-    # otherwise buries isolated hairline vertices inside the underlying skin.
-    from mathutils.bvhtree import BVHTree
-    scalp = BVHTree.FromPolygons([v.co.copy() for v in body.data.vertices],
-                                [list(f.vertices) for f in body.data.polygons])
-    center = Vector((0, -.025, top-.10))
-    for v in hair.data.vertices:
-        delta = v.co-center
-        direction = delta.normalized()
-        hit, _, _, _ = scalp.ray_cast(center, direction, .4)
-        if hit is not None and delta.length < (hit-center).length+.003:
-            v.co = hit+direction*.003
-    from vern_mpfb_surfaces import hair_material
-    hair_material(hair, top)
-    rigid(hair, rig)
-    from vern_mpfb_hair import swept_locks
-    swept_locks(hair, rig, top, rigid)
+    from vern_mpfb_hair import build_hair
+    build_hair(body, rig, top, rigid)
     sclera = common.material('Warm ivory eyes', 'b5aaa0', 0, .6)
     iris = common.material('Hazel iris', '554b37', 0, .65)
     for s in (-1, 1):

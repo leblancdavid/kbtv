@@ -10,6 +10,7 @@ import struct
 from pathlib import Path
 
 import bpy
+import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -30,11 +31,19 @@ for material in textured:
                  material['pbrMetallicRoughness']['metallicRoughnessTexture'], material['normalTexture']]:
         texture = gltf['textures'][info['index']]
         assert 'bufferView' in gltf['images'][texture['source']], 'Texture is not embedded'
+tips = next(m for m in gltf['materials'] if m['name'] == 'Vern masked hair tips')
+assert tips['alphaMode'] == 'MASK' and abs(tips['alphaCutoff']-.45) < .001
+assert tips['doubleSided'], 'Hair edge cards need both faces'
+texture = gltf['textures'][tips['pbrMetallicRoughness']['baseColorTexture']['index']]
+assert 'bufferView' in gltf['images'][texture['source']], 'Hair RGBA must be embedded'
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(ROOT/report['glb']))
 rigs = [o for o in bpy.context.scene.objects if o.type == 'ARMATURE']
 assert len(rigs) == 1
 rig = rigs[0]
+rig.animation_data_clear()
+bpy.context.scene.frame_set(0)
+bpy.context.view_layer.update()
 widgets = {b.custom_shape for b in rig.pose.bones if b.custom_shape}
 meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH' and o not in widgets]
 assert len(meshes) == report['meshes']
@@ -66,20 +75,38 @@ legs = measurements(rig)
 assert .44 < (legs['thigh']+legs['shin'])/height < .46, legs
 for key, value in legs.items():
     assert abs(value-report['proportions']['after'][key]) < .001, key
-locks = [o for o in meshes if o.name.startswith('Swept hair lock ')]
-assert len(locks) >= 14
+locks = [o for o in meshes if o.name.startswith('Swept hair clump ')]
+cards = [o for o in meshes if o.name.startswith('Hair edge card ')]
+assert len(locks) == report['hair']['clumps'] and len(locks) > 0
+assert len(cards) == report['hair']['cards'] and len(cards) > 0
+for obj in locks+cards+[bpy.data.objects['Fitted swept scalp']]:
+    assert all(obj.vertex_groups[g.group].name == 'head' for v in obj.data.vertices for g in v.groups)
+    assert min(f.area for f in obj.data.polygons) > 1e-12, obj.name
+card_mat = cards[0].data.materials[0]
+rgba = next(n.image for n in card_mat.node_tree.nodes if n.type == 'TEX_IMAGE')
+pixels = np.empty(len(rgba.pixels), dtype=np.float32)
+rgba.pixels.foreach_get(pixels)
+alpha = pixels[3::4]
+assert np.mean(alpha < .45) > .15 and np.mean(alpha > .45) > .15, 'Mask is empty or opaque'
 for side in ('L', 'R'):
     shoe = bpy.data.objects['Leather loafer '+side]
     points = [shoe.matrix_world @ v.co for v in shoe.data.vertices]
     assert .24 < max(v.y for v in points)-min(v.y for v in points) < .28
     assert max(v.z for v in points)-min(v.z for v in points) < .085
 # Neutral evaluated geometry must agree with the exported bind mesh after tailoring.
+# The glTF importer bakes the animated root's first-frame translation into its base
+# TRS (the imported rig's natural pose is therefore seated), so force REST evaluation
+# to recover the standing bind for this check. Pose-based checks below restore POSE.
+rig.data.pose_position = 'REST'
+bpy.context.view_layer.update()
 depsgraph = bpy.context.evaluated_depsgraph_get()
 for obj in meshes:
     evaluated = obj.evaluated_get(depsgraph)
     geometry = evaluated.to_mesh()
     assert max((a.co-b.co).length for a, b in zip(obj.data.vertices, geometry.vertices)) < .001, obj.name
     evaluated.to_mesh_clear()
+rig.data.pose_position = 'POSE'
+bpy.context.view_layer.update()
 # Exercise a head rotation: rigid accessories must move without changing size.
 frame = bpy.data.objects['Aviator frame 1']
 def evaluated_points(obj):
@@ -89,6 +116,8 @@ def evaluated_points(obj):
     evaluated.to_mesh_clear()
     return result
 before = evaluated_points(frame)
+hair_before = {o.name: evaluated_points(o) for o in locks+cards}
+rest_head = rig.pose.bones['head'].matrix.copy()
 head = rig.pose.bones['head']
 head.rotation_mode = 'XYZ'
 head.rotation_euler.z = .25
@@ -96,15 +125,23 @@ bpy.context.view_layer.update()
 after = evaluated_points(frame)
 assert max((a-b).length for a, b in zip(before, after)) > .005
 assert abs((before[0]-before[-1]).length-(after[0]-after[-1]).length) < .00001
+transform = rig.matrix_world @ head.matrix @ rest_head.inverted() @ rig.matrix_world.inverted()
+for obj in locks+cards:
+    expected = [transform @ p for p in hair_before[obj.name]]
+    assert max((a-b).length for a,b in zip(expected,evaluated_points(obj))) < .0001, obj.name
 head.rotation_euler.z = 0
 bpy.context.view_layer.update()
 from vern_mpfb_fitted import add_lights, render
 add_lights()
 render('vern_mpfb_fitted_export_portrait', (.65, -2.6, 1.618), (0, -.035, 1.508), .48)
 render('vern_mpfb_fitted_export_front', (0,-3.4,.88), (0,-.02,.88), 2.02)
+render('vern_mpfb_fitted_hair_side', (.9,-.4,1.67), (0,-.025,1.55), .36)
+render('vern_mpfb_fitted_hair_back', (.4,.9,1.70), (0,-.025,1.56), .36)
+render('vern_mpfb_fitted_hair_feed', (.65,-2.6,1.618), (0,-.035,1.508), .62, (320,180))
 result = {'status': 'passed', 'meshes': len(meshes), 'bones': len(rig.data.bones),
           'height': round(height, 5), 'normalized_weights': True, 'rigid_head_motion': True,
-          'leg_measurements': legs, 'swept_locks': len(locks), 'neutral_bind_match': True,
+           'leg_measurements': legs, 'hair_clumps': len(locks), 'hair_cards': len(cards),
+           'embedded_rgba_mask': True, 'hair_rigid_motion': True, 'neutral_bind_match': True,
           'embedded_pbr_materials': len(textured), 'export_portrait_rendered': True,
           'note': 'Blender round-trip; Godot runtime and seated deformation not tested.'}
 (ROOT/'docs/art/model_previews/vern_mpfb_fitted_validation.json').write_text(json.dumps(result, indent=2)+'\n')

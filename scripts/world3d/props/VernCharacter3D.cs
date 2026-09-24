@@ -5,8 +5,14 @@ namespace KBTV.World3D;
 
 public partial class VernCharacter3D : Node3D
 {
-	private const string TalkCalmPath = "res://assets/models3d/characters/vern/animations/talk_calm.tres";
-	private const string TalkCalmName = "talk_calm";
+	private static readonly (string Name, string Path)[] InjectedClips =
+	{
+		("talk_calm", "res://assets/models3d/characters/vern/animations/talk_calm_mpfb.tres"),
+		("idle_breathing", "res://assets/models3d/characters/vern/animations/idle_breathing_mpfb.tres"),
+		("talking_default", "res://assets/models3d/characters/vern/animations/talking_default_mpfb.tres"),
+		("smoking", "res://assets/models3d/characters/vern/animations/smoking_mpfb.tres"),
+		("drink_coffee", "res://assets/models3d/characters/vern/animations/drink_coffee_mpfb.tres"),
+	};
 
 	public AnimationPlayer? AnimPlayer { get; private set; }
 
@@ -20,10 +26,11 @@ public partial class VernCharacter3D : Node3D
 			GD.PushError("Vern: imported model has no AnimationPlayer.");
 			return;
 		}
-		// The baked talk_calm clip ships as a .tres alongside the model. It is not
-		// part of vern.glb, so add it to the player's root (empty-name) library,
-		// which is where the imported clips live (hence unqualified names).
-		InjectTalkCalm(AnimPlayer);
+		// The baked MPFB clips ship as .tres files alongside the model. They are not
+		// part of vern_mpfb_fitted.glb (which only carries seated_rest), so inject
+		// each into the player's root (empty-name) library with the exact names the
+		// controller suffix-matches on.
+		InjectClips(AnimPlayer);
 		if (!ApplySeatedPose(AnimPlayer))
 		{
 			GD.PushError("Vern: imported model has no AnimationPlayer with seated_rest.");
@@ -48,20 +55,8 @@ public partial class VernCharacter3D : Node3D
 		return null;
 	}
 
-	private static void InjectTalkCalm(AnimationPlayer player)
+	private static void InjectClips(AnimationPlayer player)
 	{
-		if (player.HasAnimation(TalkCalmName))
-		{
-			return;
-		}
-		var animation = GD.Load<Animation>(TalkCalmPath);
-		if (animation == null)
-		{
-			GD.PushWarning($"Vern: could not load {TalkCalmPath}.");
-			return;
-		}
-		// Injected paths are identical to the imported VernRig tracks, so the
-		// clip evaluates against the same skeleton the GLB clips use.
 		if (!player.HasAnimationLibrary(""))
 		{
 			player.AddAnimationLibrary("", new AnimationLibrary());
@@ -69,10 +64,25 @@ public partial class VernCharacter3D : Node3D
 		var library = player.GetAnimationLibrary("");
 		if (library == null)
 		{
-			GD.PushWarning("Vern: no animation library to host talk_calm.");
+			GD.PushWarning("Vern: no animation library to host the MPFB clips.");
 			return;
 		}
-		library.AddAnimation(TalkCalmName, animation);
+		foreach (var (name, path) in InjectedClips)
+		{
+			if (player.HasAnimation(name))
+			{
+				continue;
+			}
+			var animation = GD.Load<Animation>(path);
+			if (animation == null)
+			{
+				GD.PushWarning($"Vern: could not load {path}.");
+				continue;
+			}
+			// Injected paths target the MPFB skeleton the GLB clips use, so each
+			// clip evaluates against the same skeleton as the imported rest pose.
+			library.AddAnimation(name, animation);
+		}
 	}
 
 	private static bool ApplySeatedPose(AnimationPlayer player)

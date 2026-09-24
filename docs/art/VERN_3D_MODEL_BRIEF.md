@@ -88,7 +88,9 @@ backward/sideways and the primitive clothing/accessories did not fit. Do not swa
 it into `Vern.tscn`. First use the body diagnostic to confirm orientation, then
 finish fitted/skinned clothing, seated pose, hand/mouth contact anchors, and
 retarget/rebake `talk_calm` against the MPFB skeleton or a Vern-compatible
-exported skeleton.
+exported skeleton. The step-by-step, grounded migration (rig facts, VernRig→MPFB
+bone-name table, profile-join rebake path, contact anchors, swap, validation
+gates) lives in [VERN_MPFB_MIGRATION.md](VERN_MPFB_MIGRATION.md).
 
 ## Visual reference hierarchy
 

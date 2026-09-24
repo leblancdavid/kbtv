@@ -10,12 +10,14 @@ import common
 TEXTURES = Path(__file__).resolve().parents[2]/'assets/models3d/characters/vern_mpfb/textures'
 
 
-def image(name, pixels, color=False):
+def image(name, pixels, color=False, alpha=None):
     size = pixels.shape[0]
-    img = bpy.data.images.new(name, width=size, height=size, alpha=False)
+    img = bpy.data.images.new(name, width=size, height=size, alpha=alpha is not None)
     img.colorspace_settings.name = 'sRGB' if color else 'Non-Color'
     rgba = np.ones((size, size, 4), dtype=np.float32)
     rgba[:, :, :3] = pixels
+    if alpha is not None:
+        rgba[:, :, 3] = alpha
     img.pixels.foreach_set(rgba.ravel())
     TEXTURES.mkdir(parents=True, exist_ok=True)
     img.filepath_raw = str(TEXTURES/f'{name}.png')
@@ -23,6 +25,45 @@ def image(name, pixels, color=False):
     img.save()
     img.pack()
     return img
+
+
+def hair_card_material():
+    """Opaque roots break into unequal tapered tips; base-color RGBA glTF MASK.
+
+    A threshold node is recognized by Blender 5's glTF exporter and also makes
+    the source render use exactly the same cutoff as the exported material.
+    """
+    size = 512
+    v, u = np.mgrid[:size, :size]/(size-1)
+    alpha = np.zeros_like(u)
+    rng = np.random.default_rng(419)
+    for root in np.linspace(.10, .90, 31):
+        tip = rng.uniform(.72, .98)
+        bend = rng.uniform(-.045, .045)
+        path = root+bend*v*v
+        width = rng.uniform(.010, .020)*np.clip((tip-v)/.22, 0, 1)
+        stroke = np.clip((width-np.abs(u-path))*size+0.5, 0, 1)
+        alpha = np.maximum(alpha, stroke)
+    edge = np.clip(np.minimum(u,1-u)*size-3,0,1)
+    alpha *= edge*np.clip(v*size-2,0,1)
+    # UV-aligned strand variation; no bright outlines on transparent pixels.
+    stripe = .9+.1*np.cos(math.tau*(u*31+.15*v))
+    base = np.broadcast_to(linear('292922'), (size,size,3))*stripe[:,:,None]
+    material = common.material('Vern masked hair tips', 'ffffff', 0, .8)
+    material.use_backface_culling = False
+    material.surface_render_method = 'DITHERED'
+    nodes, links = material.node_tree.nodes, material.node_tree.links
+    tex = nodes.new('ShaderNodeTexImage')
+    tex.image = image('Vern_hair_tips_rgba', base, color=True, alpha=alpha)
+    tex.extension = 'EXTEND'
+    shader = nodes.get('Principled BSDF')
+    links.new(tex.outputs['Color'], shader.inputs['Base Color'])
+    cutoff = nodes.new('ShaderNodeMath')
+    cutoff.operation = 'GREATER_THAN'
+    cutoff.inputs[1].default_value = .45
+    links.new(tex.outputs['Alpha'], cutoff.inputs[0])
+    links.new(cutoff.outputs[0], shader.inputs['Alpha'])
+    return material
 
 
 def textured(name, base, height, roughness, repeat=1, normal_strength=.025):
@@ -133,9 +174,9 @@ def hair_material(obj, top):
     temples *= np.clip((.62-v)/.30, 0, 1)
     gray = temples[:, :, None]*.72
     base = linear('24241f')*(1-gray)+linear('696960')*gray
-    base *= .985+.030*wave[:, :, None]
+    base *= .90+.20*wave[:, :, None]
     material = textured('Vern swept hair', base, wave,
-                        np.full_like(wave, .84), normal_strength=.00012)
+                        np.full_like(wave, .84), normal_strength=.0003)
     obj.data.materials.clear()
     obj.data.materials.append(material)
     hair_uv(obj, top)

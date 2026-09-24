@@ -309,13 +309,21 @@ the report; the validator checks the imported measurements and neutral evaluated
 mesh against its bind geometry. Current overall height is approximately 1.707m.
 
 `vern_mpfb_shoes.py` builds 26cm shaped loafers with narrower heels and thin
-matching soles. `vern_mpfb_hair.py` adds flattened surface-following swept locks
-using the same texture projection as the underlayer. Fabric repeat is 16/m,
-with stronger color variation and restrained normal strength. Review `_shoes.png`
-and `_swatches.png` (left to right: sweater, rib, trousers), plus the validator's
-`_export_front.png` and `_export_portrait.png`. These are local generated outputs
-under the gitignored preview directory. Appearance still needs human review;
-structural validation is not an art-quality verdict.
+matching soles. Fabric repeat is 16/m, with stronger color variation and
+restrained normal strength. Review `_shoes.png`, `_swatches.png` (left to
+right: sweater, rib, trousers), and the validator's `_export_front.png` and
+`_export_portrait.png`. These are local generated outputs under the gitignored
+preview directory. Appearance still needs human review; structural validation
+is not an art-quality verdict.
+
+`vern_mpfb_hair.py` replaces the flattened swept-lock overlay with a shaped
+`Fitted swept scalp` plus 10 `Swept hair clump 00–09` volumes and 10 `Hair edge
+card 00–09` tip cards. The cards share a `Vern masked hair tips` material whose
+base-color alpha drives glTF MASK transparency (glTF uses the base color alpha,
+not a separate map, for MASK). Volume respects measured headband clearance
+rather than an arbitrary uniform lift. The validator confirms embedded RGBA +
+mask mode, rigid head motion, and the clump/card counts; review
+`vern_mpfb_fitted_hair_{side,back,feed}.png`.
 
 The current procedural Vern body can also be compared against a rough MPFB-derived
 clothed prototype without replacing the runtime asset:

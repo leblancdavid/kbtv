@@ -291,6 +291,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [ART_STYLE.md](docs/art/ART_STYLE.md) | Visual direction, color palette, and asset guidelines |
 | [3D_ASSET_WORKFLOW.md](docs/art/3D_ASSET_WORKFLOW.md) | Blender prop generation, GLB export, previews, and Godot placement conventions |
 | [VERN_3D_MODEL_BRIEF.md](docs/art/VERN_3D_MODEL_BRIEF.md) | GPT-6 Astra handoff: seated Vern, existing-prop style references, separate chair, rig and studio integration |
+| [VERN_MPFB_MIGRATION.md](docs/art/VERN_MPFB_MIGRATION.md) | MPFB fitted prototype -> production migration plan: seated pose, clip rebake via profile join, contact anchors, Vern.tscn swap, validation gates |
 | [CHARACTER_GUIDELINES.md](docs/art/CHARACTER_GUIDELINES.md) | Generic character model/animation guidelines for all characters - proportions/rig/IPK, rest pose, animation layers, mocap, timing, validation |
 | [VERN_CHARACTER_GUIDELINES.md](docs/art/VERN_CHARACTER_GUIDELINES.md) | Vern-specific character guidelines - interaction anchors, animation vocabulary, coffee/smoking sequence, validation order |
 | [CHARACTER_REFERENCE_LIBRARY.md](docs/art/CHARACTER_REFERENCE_LIBRARY.md) | Local reference assets (gitignored) - Quaternius CC0 animation library + human base meshes; extracted clip/asset catalogs with links |

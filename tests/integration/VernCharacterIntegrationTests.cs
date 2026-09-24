@@ -49,7 +49,8 @@ public class VernCharacterIntegrationTests : TestClass
 			players[0].Advance(1);
 			Require(bones.Any(bone => !bone.Pose.IsEqualApprox(bone.Skeleton.GetBonePose(bone.Index))),
 				"Idle must move the upper body.");
-			Require(bones.Where(b => new[] { "root", "pelvis", "foot.L", "foot.R" }.Contains(b.Skeleton.GetBoneName(b.Index)))
+			Require(bones.Where(b => new[] { "root", "pelvis", "pelvis.L", "pelvis.R", "foot.L", "foot.R" }
+				.Contains(b.Skeleton.GetBoneName(b.Index)))
 				.All(b => b.Pose.IsEqualApprox(b.Skeleton.GetBonePose(b.Index))), "Seat and feet must stay fixed.");
 		}
 		finally
