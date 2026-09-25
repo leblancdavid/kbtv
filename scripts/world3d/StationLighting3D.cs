@@ -22,15 +22,17 @@ public partial class StationLighting3D : Node3D
 	private const float FluorescentShadowActiveRadiusSquared = FluorescentShadowActiveRadius * FluorescentShadowActiveRadius;
 	private const float RoomShadowRange = 13.0f;
 	private const float FluorescentShadowRange = 12.0f;
-	private const float ShadowBias = 0.035f;
-	private const float ShadowNormalBias = 1.2f;
-	private const float ShadowBlur = 0.0f;
+	private const float ShadowBias = 0.12f;
+	private const float ShadowNormalBias = 2.4f;
+	private const float DefaultShadowBlur = 0.5f;
 	private readonly Godot.Collections.Array<Light3D> _controlLights = new();
 	private readonly Godot.Collections.Array<Light3D> _studioLights = new();
 	private readonly Godot.Collections.Array<Light3D> _equipmentLights = new();
 	private readonly Godot.Collections.Array<Light3D> _stationLights = new();
+	private readonly Godot.Collections.Array<Light3D> _shadowQualityLights = new();
 	private readonly Godot.Collections.Array<SpotLight3D> _fluorescentShadowLights = new();
 	private readonly Godot.Collections.Dictionary<string, Godot.Collections.Array<Light3D>> _doorSpillLights = new();
+	private float _shadowBlur = DefaultShadowBlur;
 
 	public void Build()
 	{
@@ -95,6 +97,15 @@ public partial class StationLighting3D : Node3D
 		if (!anyActive && closestLight != null)
 		{
 			closestLight.ShadowEnabled = true;
+		}
+	}
+
+	public void SetShadowBlur(float blur)
+	{
+		_shadowBlur = blur;
+		foreach (var light in _shadowQualityLights)
+		{
+			light.ShadowBlur = _shadowBlur;
 		}
 	}
 
@@ -199,7 +210,7 @@ public partial class StationLighting3D : Node3D
 		_fluorescentShadowLights.Add(wash);
 	}
 
-	private static SpotLight3D AddOverheadSpot(Node3D root, string name, Vector3 position, Color color, float energy, float range, float angle, bool shadows)
+	private SpotLight3D AddOverheadSpot(Node3D root, string name, Vector3 position, Color color, float energy, float range, float angle, bool shadows)
 	{
 		var light = new SpotLight3D
 		{
@@ -219,11 +230,12 @@ public partial class StationLighting3D : Node3D
 		return light;
 	}
 
-	private static void ConfigureShadowQuality(Light3D light)
+	private void ConfigureShadowQuality(Light3D light)
 	{
 		light.ShadowBias = ShadowBias;
 		light.ShadowNormalBias = ShadowNormalBias;
-		light.ShadowBlur = ShadowBlur;
+		light.ShadowBlur = _shadowBlur;
+		_shadowQualityLights.Add(light);
 	}
 
 	private static OmniLight3D AddOmni(Node3D root, string name, Vector3 position, Color color, float energy, float range, bool shadows)

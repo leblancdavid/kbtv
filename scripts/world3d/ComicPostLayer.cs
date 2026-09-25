@@ -11,14 +11,22 @@ public partial class ComicPostLayer : CanvasLayer
 
 	[Export] public bool ComicPostEnabled { get; set; } = true;
 	[Export] public Key ToggleKey { get; set; } = Key.F8;
+	[Export] public Key ToggleOutlinesKey { get; set; } = Key.F9;
 	[Export] public float EffectStrength { get; set; } = 0.78f;
 	[Export] public int PosterizeSteps { get; set; } = 5;
 	[Export] public float Saturation { get; set; } = 1.22f;
-	[Export] public float OutlineThreshold { get; set; } = 0.22f;
+	[Export] public float OutlineThreshold { get; set; } = 0.28f;
 	[Export] public float OutlineBias { get; set; } = 0.07f;
 	[Export] public float OutlineWidthPx { get; set; } = 2.0f;
 	[Export] public Color OutlineColor { get; set; } = new(0.02f, 0.03f, 0.07f, 1.0f);
 	[Export] public float OutlineMix { get; set; } = 1.0f;
+	[Export] public float DetailInkSuppression { get; set; } = 0.92f;
+	[Export] public float BrightDetailInkSuppression { get; set; } = 0.75f;
+	[Export] public float BrightDetailThreshold { get; set; } = 0.34f;
+	[Export] public float BrightDetailSoftness { get; set; } = 0.18f;
+	[Export] public float MacroEdgeWidthPx { get; set; } = 7.0f;
+	[Export] public float MacroEdgeThreshold { get; set; } = 0.16f;
+	[Export] public float MacroEdgeBias { get; set; } = 0.10f;
 	[Export] public float HalftoneSizePx { get; set; } = 14.0f;
 	[Export] public float HalftoneStrength { get; set; } = 0.0f;
 	[Export] public Vector2 HalftoneBand { get; set; } = new(0.30f, 0.72f);
@@ -26,6 +34,7 @@ public partial class ComicPostLayer : CanvasLayer
 	[Export] public float MedianFilterStrength { get; set; } = 0.25f;
 	[Export] public float MedianFilterThreshold { get; set; } = 0.08f;
 	[Export] public float MedianFilterRadiusPx { get; set; } = 1.5f;
+	[Export] public float SobelPrefilterStrength { get; set; } = 0.65f;
 	[Export] public bool ShadowFlattenEnabled { get; set; } = false;
 	[Export] public float ShadowFlattenThreshold { get; set; } = 0.30f;
 	[Export] public float ShadowFlattenSoftness { get; set; } = 0.035f;
@@ -39,6 +48,7 @@ public partial class ComicPostLayer : CanvasLayer
 	[Export] public float ShadowSmoothRadiusPx { get; set; } = 4.0f;
 
 	private ShaderMaterial? _material;
+	private float _savedOutlineMix = 1.0f;
 
 	public ComicPostLayer()
 	{
@@ -59,15 +69,36 @@ public partial class ComicPostLayer : CanvasLayer
 			return;
 		}
 
-		if (ToggleKey == Key.None || keyEvent.Keycode != ToggleKey)
+		if (ToggleKey != Key.None && keyEvent.Keycode == ToggleKey)
 		{
+			ComicPostEnabled = !ComicPostEnabled;
+			Visible = ComicPostEnabled;
+			GD.Print($"Comic post filter {(ComicPostEnabled ? "enabled" : "disabled")}");
+			GetViewport().SetInputAsHandled();
 			return;
 		}
 
-		ComicPostEnabled = !ComicPostEnabled;
-		Visible = ComicPostEnabled;
-		GD.Print($"Comic post filter {(ComicPostEnabled ? "enabled" : "disabled")}");
-		GetViewport().SetInputAsHandled();
+		if (ToggleOutlinesKey != Key.None && keyEvent.Keycode == ToggleOutlinesKey)
+		{
+			ToggleOutlines();
+			GetViewport().SetInputAsHandled();
+		}
+	}
+
+	private void ToggleOutlines()
+	{
+		if (OutlineMix > 0.001f)
+		{
+			_savedOutlineMix = OutlineMix;
+			OutlineMix = 0.0f;
+		}
+		else
+		{
+			OutlineMix = _savedOutlineMix <= 0.001f ? 1.0f : _savedOutlineMix;
+		}
+
+		_material?.SetShaderParameter("outline_mix", OutlineMix);
+		GD.Print($"Comic outlines {(OutlineMix > 0.001f ? "enabled" : "disabled")}");
 	}
 
 	private void BuildOverlay()
@@ -106,6 +137,13 @@ public partial class ComicPostLayer : CanvasLayer
 		_material.SetShaderParameter("outline_width_px", OutlineWidthPx);
 		_material.SetShaderParameter("outline_color", OutlineColor);
 		_material.SetShaderParameter("outline_mix", OutlineMix);
+		_material.SetShaderParameter("detail_ink_suppression", DetailInkSuppression);
+		_material.SetShaderParameter("bright_detail_ink_suppression", BrightDetailInkSuppression);
+		_material.SetShaderParameter("bright_detail_threshold", BrightDetailThreshold);
+		_material.SetShaderParameter("bright_detail_softness", BrightDetailSoftness);
+		_material.SetShaderParameter("macro_edge_width_px", MacroEdgeWidthPx);
+		_material.SetShaderParameter("macro_edge_threshold", MacroEdgeThreshold);
+		_material.SetShaderParameter("macro_edge_bias", MacroEdgeBias);
 		_material.SetShaderParameter("halftone_size_px", HalftoneSizePx);
 		_material.SetShaderParameter("halftone_strength", HalftoneStrength);
 		_material.SetShaderParameter("halftone_band", HalftoneBand);
@@ -113,6 +151,7 @@ public partial class ComicPostLayer : CanvasLayer
 		_material.SetShaderParameter("median_filter_strength", MedianFilterStrength);
 		_material.SetShaderParameter("median_filter_threshold", MedianFilterThreshold);
 		_material.SetShaderParameter("median_filter_radius_px", MedianFilterRadiusPx);
+		_material.SetShaderParameter("sobel_prefilter_strength", SobelPrefilterStrength);
 		_material.SetShaderParameter("shadow_flatten_enabled", ShadowFlattenEnabled);
 		_material.SetShaderParameter("shadow_flatten_threshold", ShadowFlattenThreshold);
 		_material.SetShaderParameter("shadow_flatten_softness", ShadowFlattenSoftness);

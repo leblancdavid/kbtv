@@ -12,6 +12,9 @@ public partial class World3D : Node3D
 	[Export] public NodePath? PlayerPath { get; set; }
 	[Export] public Vector3 CameraOffset { get; set; } = new(0f, 11.5f, 13f);
 	[Export] public float CameraFollowSpeed { get; set; } = 8f;
+	[Export] public bool PixelSnapCamera { get; set; } = true;
+	[Export] public Key TogglePixelSnapKey { get; set; } = Key.F6;
+	[Export] public Key CycleShadowBlurKey { get; set; } = Key.F7;
 	[Export] public Vector2 CameraXBounds { get; set; } = new(-8f, 34f);
 	[Export] public Vector2 CameraZBounds { get; set; } = new(0f, 24f);
 	private static readonly Vector3 ControlStudioDoorPosition = new(-4.15f, 0f, 0f);
@@ -30,6 +33,7 @@ private const float TerminalZoomSpeed = 3.2f;
 	private const float SoundboardBottomBand = 0.27f;
 	private const float SoundboardInteractRadius = 1.4f;
 	private const float SoundboardDragPixelsPerUnit = 220f;
+	private static readonly float[] ShadowBlurPresets = { 0.0f, 0.5f, 1.0f };
 
 	private enum TerminalViewState
 	{
@@ -83,6 +87,7 @@ private const float TerminalZoomSpeed = 3.2f;
 	private SoundboardControl _boardSelected = SoundboardControl.None;
 	private float _boardLastDragScreenY;
 	private bool _cameraHomeCaptured;
+	private int _shadowBlurPresetIndex = 1;
 	private ScreenNavOverlay? _screenNavOverlay;
 	private readonly SoundboardMixerDriver _soundboardDriver = new();
 	private SoundboardMonitor? _soundboardMonitor;
@@ -270,12 +275,38 @@ private const float TerminalZoomSpeed = 3.2f;
 
 public override void _Input(InputEvent @event)
 	{
-		if (@event is InputEventKey key && key.Pressed && key.Keycode == Key.Escape
+		if (@event is InputEventKey key && key.Pressed && !key.Echo)
+		{
+			if (TogglePixelSnapKey != Key.None && key.Keycode == TogglePixelSnapKey)
+			{
+				PixelSnapCamera = !PixelSnapCamera;
+				GD.Print($"3D camera pixel snap {(PixelSnapCamera ? "enabled" : "disabled")}");
+				GetViewport().SetInputAsHandled();
+				return;
+			}
+
+			if (CycleShadowBlurKey != Key.None && key.Keycode == CycleShadowBlurKey)
+			{
+				CycleShadowBlurPreset();
+				GetViewport().SetInputAsHandled();
+				return;
+			}
+		}
+
+		if (@event is InputEventKey escapeKey && escapeKey.Pressed && escapeKey.Keycode == Key.Escape
 			&& IsAnyScreenViewActive())
 		{
 			CloseActiveView();
 			GetViewport().SetInputAsHandled();
 		}
+	}
+
+	private void CycleShadowBlurPreset()
+	{
+		_shadowBlurPresetIndex = (_shadowBlurPresetIndex + 1) % ShadowBlurPresets.Length;
+		var blur = ShadowBlurPresets[_shadowBlurPresetIndex];
+		_station_lighting?.SetShadowBlur(blur);
+		GD.Print($"3D shadow blur set to {blur:0.##}");
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -471,17 +502,38 @@ UpdateComputerHint();
 		target.X = Mathf.Clamp(target.X, CameraXBounds.X, CameraXBounds.Y);
 		target.Z = Mathf.Clamp(target.Z, CameraZBounds.X, CameraZBounds.Y);
 
+		Vector3 nextPosition;
 		if (immediate)
 		{
-			_camera.GlobalPosition = target;
+			nextPosition = target;
 		}
 		else
 		{
 			var weight = 1f - Mathf.Exp(-CameraFollowSpeed * (float)delta);
-			_camera.GlobalPosition = _camera.GlobalPosition.Lerp(target, weight);
+			nextPosition = _camera.GlobalPosition.Lerp(target, weight);
 		}
 
 		_camera.RotationDegrees = new Vector3(-35f, 0f, 0f);
+		_camera.GlobalPosition = PixelSnapCamera ? SnapCameraToPixelGrid(nextPosition) : nextPosition;
+	}
+
+	private Vector3 SnapCameraToPixelGrid(Vector3 position)
+	{
+		var viewportSize = GetViewport().GetVisibleRect().Size;
+		if (viewportSize.Y <= 0f || _camera.Size <= 0f)
+		{
+			return position;
+		}
+
+		var unitsPerPixel = _camera.Size / viewportSize.Y;
+		var basis = _camera.GlobalTransform.Basis.Orthonormalized();
+		var right = basis.X;
+		var up = basis.Y;
+		var forward = basis.Z;
+		var snappedRight = Mathf.Round(position.Dot(right) / unitsPerPixel) * unitsPerPixel;
+		var snappedUp = Mathf.Round(position.Dot(up) / unitsPerPixel) * unitsPerPixel;
+		var forwardDistance = position.Dot(forward);
+		return right * snappedRight + up * snappedUp + forward * forwardDistance;
 	}
 
 	private void UpdateComputerHint()

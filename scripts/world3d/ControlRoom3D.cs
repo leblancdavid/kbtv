@@ -40,6 +40,8 @@ public partial class ControlRoom3D : Node3D
 			boardNode.AddChild(SoundBoard3D);
 			SoundBoard3D.AttachBoard(boardNode);
 		}
+
+		DisableShadowsInTree(GetNodeOrNull<Node3D>("SpeakerRight"));
 	}
 
 	public void SetComputerCollidersEnabled(bool enabled)
@@ -85,6 +87,24 @@ public partial class ControlRoom3D : Node3D
 				}
 			}
 			ToggleColliders(child, enabled);
+		}
+	}
+
+	private static void DisableShadowsInTree(Node? node)
+	{
+		if (node == null)
+		{
+			return;
+		}
+
+		if (node is GeometryInstance3D geometry)
+		{
+			geometry.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+		}
+
+		foreach (var child in node.GetChildren())
+		{
+			DisableShadowsInTree(child);
 		}
 	}
 

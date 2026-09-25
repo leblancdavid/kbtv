@@ -1,15 +1,22 @@
 shader_type canvas_item;
 render_mode unshaded;
 
-uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_nearest;
+uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
 uniform float effect_strength = 0.78;
 uniform int posterize_steps = 5;
 uniform float saturation = 1.22;
-uniform float outline_threshold = 0.22;
+uniform float outline_threshold = 0.28;
 uniform float outline_bias = 0.07;
 uniform float outline_width_px = 2.0;
 uniform vec4 outline_color : source_color = vec4(0.02, 0.03, 0.07, 1.0);
 uniform float outline_mix = 1.0;
+uniform float detail_ink_suppression = 0.92;
+uniform float bright_detail_ink_suppression = 0.75;
+uniform float bright_detail_threshold = 0.34;
+uniform float bright_detail_softness = 0.18;
+uniform float macro_edge_width_px = 7.0;
+uniform float macro_edge_threshold = 0.16;
+uniform float macro_edge_bias = 0.10;
 uniform float halftone_size_px = 14.0;
 uniform float halftone_strength = 0.0;
 uniform vec2 halftone_band = vec2(0.30, 0.72);
@@ -17,6 +24,7 @@ uniform bool median_filter_enabled = true;
 uniform float median_filter_strength = 0.25;
 uniform float median_filter_threshold = 0.08;
 uniform float median_filter_radius_px = 1.5;
+uniform float sobel_prefilter_strength = 0.65;
 uniform bool shadow_flatten_enabled = false;
 uniform float shadow_flatten_threshold = 0.30;
 uniform float shadow_flatten_softness = 0.035;
@@ -62,6 +70,25 @@ float median_clamp(float value, float median_value) {
 	return mix(value, median_value, outlier * clamp(median_filter_strength, 0.0, 1.0));
 }
 
+float prefilter_luma(float center_value, float north_value, float south_value, float west_value, float east_value) {
+	float cross_average = (center_value * 4.0 + north_value + south_value + west_value + east_value) / 8.0;
+	return mix(center_value, cross_average, clamp(sobel_prefilter_strength, 0.0, 1.0));
+}
+
+float sobel_luma(vec2 uv, vec2 px) {
+	float tl = luminance(texture(screen_tex, uv + vec2(-px.x, -px.y)).rgb);
+	float tc = luminance(texture(screen_tex, uv + vec2(0.0, -px.y)).rgb);
+	float tr = luminance(texture(screen_tex, uv + vec2(px.x, -px.y)).rgb);
+	float ml = luminance(texture(screen_tex, uv + vec2(-px.x, 0.0)).rgb);
+	float mr = luminance(texture(screen_tex, uv + vec2(px.x, 0.0)).rgb);
+	float bl = luminance(texture(screen_tex, uv + vec2(-px.x, px.y)).rgb);
+	float bc = luminance(texture(screen_tex, uv + vec2(0.0, px.y)).rgb);
+	float br = luminance(texture(screen_tex, uv + vec2(px.x, px.y)).rgb);
+	float gx = -tl - 2.0 * ml - bl + tr + 2.0 * mr + br;
+	float gy = -tl - 2.0 * tc - tr + bl + 2.0 * bc + br;
+	return length(vec2(gx, gy));
+}
+
 void pick_closer_to_luma(
 	inout vec3 best_color,
 	inout float best_delta,
@@ -79,6 +106,7 @@ void pick_closer_to_luma(
 void fragment() {
 	vec2 uv = SCREEN_UV;
 	vec2 edge_px = SCREEN_PIXEL_SIZE * max(outline_width_px, 1.0);
+	vec2 macro_px = SCREEN_PIXEL_SIZE * max(macro_edge_width_px, outline_width_px);
 	vec2 filter_px = SCREEN_PIXEL_SIZE * max(median_filter_radius_px, 1.0);
 	vec2 smooth_px = SCREEN_PIXEL_SIZE * max(shadow_smooth_radius_px, 1.0);
 	vec3 center = texture(screen_tex, uv).rgb;
@@ -132,10 +160,20 @@ void fragment() {
 	float etc = median_clamp(luminance(texture(screen_tex, uv + vec2(0.0, -edge_px.y)).rgb), median_luma);
 	float etr = median_clamp(luminance(texture(screen_tex, uv + vec2(edge_px.x, -edge_px.y)).rgb), median_luma);
 	float eml = median_clamp(luminance(texture(screen_tex, uv + vec2(-edge_px.x, 0.0)).rgb), median_luma);
+	float emc = median_clamp(luminance(center), median_luma);
 	float emr = median_clamp(luminance(texture(screen_tex, uv + vec2(edge_px.x, 0.0)).rgb), median_luma);
 	float ebl = median_clamp(luminance(texture(screen_tex, uv + vec2(-edge_px.x, edge_px.y)).rgb), median_luma);
 	float ebc = median_clamp(luminance(texture(screen_tex, uv + vec2(0.0, edge_px.y)).rgb), median_luma);
 	float ebr = median_clamp(luminance(texture(screen_tex, uv + vec2(edge_px.x, edge_px.y)).rgb), median_luma);
+
+	etl = prefilter_luma(etl, etl, eml, etl, etc);
+	etc = prefilter_luma(etc, etc, emc, etl, etr);
+	etr = prefilter_luma(etr, etr, emr, etc, etr);
+	eml = prefilter_luma(eml, etl, ebl, eml, emc);
+	emr = prefilter_luma(emr, etr, ebr, emc, emr);
+	ebl = prefilter_luma(ebl, eml, ebl, ebl, ebc);
+	ebc = prefilter_luma(ebc, emc, ebc, ebl, ebr);
+	ebr = prefilter_luma(ebr, emr, ebr, ebc, ebr);
 
 	float gx = -etl - 2.0 * eml - ebl + etr + 2.0 * emr + ebr;
 	float gy = -etl - 2.0 * etc - etr + ebl + 2.0 * ebc + ebr;
@@ -178,7 +216,21 @@ void fragment() {
 		* (1.0 - smoothstep(halftone_band.y - 0.10, halftone_band.y, band_luma));
 	color *= mix(vec3(1.0), vec3(dot_value), halftone_mask * (1.0 - shadow_mask) * halftone_strength);
 
-	float ink = smoothstep(outline_threshold, outline_threshold + outline_bias, edge) * outline_mix;
+	float macro_edge = sobel_luma(uv, macro_px);
+	float macro_gate = smoothstep(
+		macro_edge_threshold,
+		macro_edge_threshold + max(macro_edge_bias, 0.0001),
+		macro_edge);
+	float bright_detail_mask = smoothstep(
+		bright_detail_threshold,
+		bright_detail_threshold + max(bright_detail_softness, 0.0001),
+		band_luma);
+	float combined_detail_suppression = clamp(
+		detail_ink_suppression + bright_detail_mask * bright_detail_ink_suppression,
+		0.0,
+		1.0);
+	float detail_gate = mix(1.0, macro_gate, combined_detail_suppression);
+	float ink = smoothstep(outline_threshold, outline_threshold + outline_bias, edge) * detail_gate * outline_mix;
 	color = mix(color, outline_color.rgb, clamp(ink, 0.0, 1.0));
 	color = mix(original, color, max(clamp(effect_strength, 0.0, 1.0), shadow_smooth_mask));
 

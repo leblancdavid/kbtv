@@ -32,12 +32,13 @@ private static readonly Color ScreenOffColor = new(0.02f, 0.03f, 0.04f);
 	[ExportGroup("CRT Flicker")]
 	[Export] public bool EnableCrtFlicker { get; set; } = true;
 	[Export] public float FlickerBaseEnergy { get; set; } = 0.11f;
-	[Export] public float FlickerVariation { get; set; } = 0.055f;
-	[Export] public float FlickerInterval { get; set; } = 0.07f;
-	[Export] public float FlickerSmoothSpeed { get; set; } = 6f;
+	[Export] public float FlickerVariation { get; set; } = 0.035f;
+	[Export] public float FlickerInterval { get; set; } = 0.16f;
+	[Export] public float FlickerSmoothSpeed { get; set; } = 9f;
 	[Export] public float DipChancePerSecond { get; set; } = 0.04f;
-	[Export] public float DipDuration { get; set; } = 0.16f;
-	[Export] public float DipLevel { get; set; } = 0.4f;
+	[Export] public float DipDuration { get; set; } = 0.22f;
+	[Export] public float DipLevel { get; set; } = 0.55f;
+	[Export] public float DipSmoothSpeed { get; set; } = 12f;
 
 	private readonly System.Random _random = new();
 	private double _flickerTime;
@@ -45,6 +46,7 @@ private static readonly Color ScreenOffColor = new(0.02f, 0.03f, 0.04f);
 	private float _currentLevel = 1f;
 	private float _targetLevel = 1f;
 	private float _dipRemaining = -1f;
+	private float _dipBlend;
 
 	public override void _Ready()
 	{
@@ -67,19 +69,25 @@ private static readonly Color ScreenOffColor = new(0.02f, 0.03f, 0.04f);
 			_nextFlickerChange = _flickerTime + FlickerInterval * (0.5f + (float)_random.NextDouble());
 		}
 
-		_currentLevel = Mathf.MoveToward(_currentLevel, _targetLevel, FlickerSmoothSpeed * (float)delta);
+
+		var dt = (float)delta;
+		var flickerWeight = 1f - Mathf.Exp(-FlickerSmoothSpeed * dt);
+		_currentLevel = Mathf.Lerp(_currentLevel, _targetLevel, flickerWeight);
 
 		if (_dipRemaining < 0f && _random.NextDouble() < DipChancePerSecond * delta)
 		{
 			_dipRemaining = DipDuration;
 		}
 
-		var level = _currentLevel;
+		var dipTarget = 0f;
 		if (_dipRemaining >= 0f)
 		{
-			_dipRemaining -= (float)delta;
-			level = Mathf.Min(level, DipLevel);
+			_dipRemaining -= dt;
+			dipTarget = 1f;
 		}
+		_dipBlend = Mathf.Lerp(_dipBlend, dipTarget, 1f - Mathf.Exp(-DipSmoothSpeed * dt));
+
+		var level = Mathf.Lerp(_currentLevel, Mathf.Min(_currentLevel, DipLevel), _dipBlend);
 
 		ScreenLight.LightEnergy = FlickerBaseEnergy * level;
 	}
