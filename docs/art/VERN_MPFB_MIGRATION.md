@@ -69,14 +69,16 @@ basis and only receives the seated root POS track; this avoids quaternion
 reconstruction drift from the fitted root rest basis' tiny non-orthonormal
 component.
 
-Runtime diagnostic note (2026-09-24): `VernStation` is already yawed 180° in
-`World3D.tscn`; `Vern.tscn/Model` must stay unrotated. A screenshot from the
-actual world view showed the extra Model yaw made Vern face away from the table
-and camera. The non-`talk_calm` MPFB rebakes also still routed old Vern
-thigh/shin tracks into the MPFB legs; those clips now pin the full leg chain to
-`seated_rest`, matching `talk_calm` and keeping the seated lower body stable
-while upper-body, hands, jaw, and props animate. Contact grips were re-solved for
-the unrotated Model chain.
+Runtime diagnostic note (2026-09-25): `VernStation` is yawed 180° in
+`World3D.tscn` and `Vern.tscn/Model` is also yawed 180°. These rotations cancel
+to a net identity chain, so the MPFB model's +Z imported face direction presents
+toward the in-world table/camera while Vern-local `-Z` remains the authored
+front/contact direction. Keep `remap_contacts.gd`, diagnostics, previews, and
+`Vern.tscn` in sync with this exact chain; do not switch one without re-solving
+contacts and rerunning the runtime orientation diagnostic. The non-`talk_calm`
+MPFB rebakes pin the full leg chain to `seated_rest`, matching `talk_calm` and
+keeping the seated lower body stable while upper-body, hands, jaw, and props
+animate. Contact grips were re-solved for the yaw-180 Model chain.
 
 **VernRig → MPFB name table (divergences):**
 
@@ -125,8 +127,9 @@ pose; the prop trajectories in `VernPerformanceProps` sample these transforms.
 - If the MPFB full facial rig offsets performance, export a Vern-compatible
   subset skeleton instead and retitle this step; the bone table above still
   applies.
-- Apply the +Z facing / yaw-180 placement at the `VernStation` placement root
-  (currently authoring convention is Godot -Z).
+- Preserve the current +Z imported MPFB facing with the runtime chain documented
+  above: `VernStation` yaw-180 plus `Vern.tscn/Model` yaw-180. If either node's
+  yaw changes, regenerate contacts and previews from the same chain.
 - `VernCharacter3D` injects `talk_calm.tres` at runtime; keep
   `HasAnimation` guard + `talking_default` fallback working.
 

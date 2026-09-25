@@ -31,6 +31,22 @@ The primary pose is seated at the radio desk. Verify before animating:
 - Head is naturally positioned relative to the microphone.
 - Hands can rest on the chair armrests or desk surface with natural asymmetry.
 
+## Runtime orientation and body-side contract
+
+Use these definitions for every Vern MPFB animation, contact, diagnostic, and
+preview. Do not infer side from the camera image.
+
+- Vern-local `+Y` is up.
+- Vern-local `-Z` is front: toward the tray table, microphone, and broadcast camera.
+- Vern-local `+X` is Vern's right side; Vern-local `-X` is Vern's left side.
+- `*.L` bones are Vern's left body parts; `*.R` bones are Vern's right body parts.
+- The current runtime chain is `VernStation` yaw-180 plus `Vern.tscn/Model`
+  yaw-180. Those rotations cancel, so the evaluated MPFB skeleton faces the
+  in-world table/camera while preserving the Vern-local axes above.
+- Preview and validation tools must instantiate the same runtime chain or label
+  their output as raw-GLB space. Raw GLB screenshots are not sufficient evidence
+  for in-game left/right or front/back behavior.
+
 ## Interaction anchors
 
 Author IK targets toward these known points instead of guessing coordinates:

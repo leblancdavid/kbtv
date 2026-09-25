@@ -1,12 +1,15 @@
 extends SceneTree
-## Renders the fitted MPFB Vern performing the baked talk_calm_mpfb clip.
+## Renders runtime Vern performing the baked talk_calm MPFB clip.
 ## Requires a GRAPHICAL Godot 4.6 mono run (NOT --headless):
 ##   <console.exe> --path . --script Tools/modelgen/preview_mpfb_calm.gd
 ## Emits PNG frames to OUT then packs them with pack_mpfb_calm.py.
 ## Renders into an offscreen SubViewport for reliable per-frame get_image().
+##
+## Important: this instantiates scenes/world3d/Vern.tscn under the yaw-180
+## VernStation transform used by World3D.tscn. Earlier versions loaded the raw
+## GLB directly, which previewed the wrong orientation for runtime review.
 
-const MODEL := "res://assets/models3d/characters/vern_mpfb/vern_mpfb_fitted.glb"
-const CLIP := "res://assets/models3d/characters/vern/animations/talk_calm_mpfb.tres"
+const VERN_SCENE := "res://scenes/world3d/Vern.tscn"
 const OUT := "C:/Users/lblan/AppData/Local/Temp/opencode/vern_mpfb_calm_frames"
 const FEED_SIZE := Vector2i(640, 360)
 
@@ -55,26 +58,27 @@ func capture() -> void:
 	rim.light_energy = 0.4
 	_vp.add_child(rim)
 
-	var vern := (load(MODEL) as PackedScene).instantiate()
-	_vp.add_child(vern)
+	var station := Node3D.new()
+	station.name = "RuntimeVernStation"
+	station.transform = Transform3D(Basis(Vector3.UP, PI), Vector3(-0.85, 0.1, -0.05))
+	_vp.add_child(station)
+
+	var vern := (load(VERN_SCENE) as PackedScene).instantiate() as Node3D
+	station.add_child(vern)
 	_player = _find_ap(vern)
 	assert(_player != null)
-	var anim := load(CLIP) as Animation
-	assert(anim != null)
-	anim.loop_mode = Animation.LOOP_NONE
-	print("LEN_LOADED %f tracks=%d" % [anim.length, anim.get_track_count()])
-	var lib := AnimationLibrary.new()
-	lib.add_animation("talk_calm_mpfb", anim)
-	_player.add_animation_library("mpfb", lib)
 	_player.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
 
 	for i in range(6):
 		await process_frame
 	await RenderingServer.frame_post_draw
 
-	_player.play("mpfb/talk_calm_mpfb", 0)
-	await _capture_with("feed", Vector3(-1.05, 1.12, 1.35), Vector3(0, 0.5, 0), 40)
-	await _capture_with("front", Vector3(0.02, 1.1, 1.5), Vector3(0, 0.5, 0), 42)
+	var talk := _resolve(_player, "talk_calm")
+	assert(not talk.is_empty())
+	_player.play(talk, 0)
+	var look := station.to_global(Vector3(0, 0.95, 0))
+	await _capture_with("feed", Vector3(-2.15, 1.55, 2.3), look + Vector3(0, -0.1, 0.5), 38)
+	await _capture_with("front", look + Vector3(-0.25, 0.2, 2.0), look, 40)
 	print("MPFB_CALM_FRAMES " + OUT)
 	quit()
 
@@ -85,7 +89,8 @@ func _capture_with(tag: String, pos: Vector3, look: Vector3, fov: float) -> void
 	cam.look_at(look, Vector3.UP)
 	cam.fov = fov
 	cam.current = true
-	var length: float = _player.get_animation("mpfb/talk_calm_mpfb").length
+	var talk := _resolve(_player, "talk_calm")
+	var length: float = _player.get_animation(talk).length
 	print("LEN_BEING_PLAYED %f" % length)
 	var total := roundi(length * 12) + 1
 	for frame in range(total):
@@ -100,6 +105,13 @@ func _capture_with(tag: String, pos: Vector3, look: Vector3, fov: float) -> void
 		img.save_png(OUT + "/talk_calm_mpfb_%s_%03d.png" % [tag, frame])
 	_vp.remove_child(cam)
 	cam.free()
+
+func _resolve(player: AnimationPlayer, suffix: String) -> String:
+	for anim in player.get_animation_list():
+		var name := String(anim)
+		if name == suffix or name.ends_with("/" + suffix):
+			return name
+	return ""
 
 func _find_ap(n: Node) -> AnimationPlayer:
 	if n is AnimationPlayer:

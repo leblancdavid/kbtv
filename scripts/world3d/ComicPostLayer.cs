@@ -20,8 +20,16 @@ public partial class ComicPostLayer : CanvasLayer
 	[Export] public Color OutlineColor { get; set; } = new(0.02f, 0.03f, 0.07f, 1.0f);
 	[Export] public float OutlineMix { get; set; } = 1.0f;
 	[Export] public float HalftoneSizePx { get; set; } = 14.0f;
-	[Export] public float HalftoneStrength { get; set; } = 0.012f;
-	[Export] public Vector2 HalftoneBand { get; set; } = new(0.10f, 0.72f);
+	[Export] public float HalftoneStrength { get; set; } = 0.0f;
+	[Export] public Vector2 HalftoneBand { get; set; } = new(0.30f, 0.72f);
+	[Export] public bool MedianFilterEnabled { get; set; } = true;
+	[Export] public float MedianFilterStrength { get; set; } = 0.25f;
+	[Export] public float MedianFilterThreshold { get; set; } = 0.08f;
+	[Export] public float MedianFilterRadiusPx { get; set; } = 1.5f;
+	[Export] public bool ShadowFlattenEnabled { get; set; } = false;
+	[Export] public float ShadowFlattenThreshold { get; set; } = 0.30f;
+	[Export] public float ShadowFlattenSoftness { get; set; } = 0.035f;
+	[Export] public float ShadowFlattenStrength { get; set; } = 0.0f;
 
 	private ShaderMaterial? _material;
 
@@ -94,5 +102,13 @@ public partial class ComicPostLayer : CanvasLayer
 		_material.SetShaderParameter("halftone_size_px", HalftoneSizePx);
 		_material.SetShaderParameter("halftone_strength", HalftoneStrength);
 		_material.SetShaderParameter("halftone_band", HalftoneBand);
+		_material.SetShaderParameter("median_filter_enabled", MedianFilterEnabled);
+		_material.SetShaderParameter("median_filter_strength", MedianFilterStrength);
+		_material.SetShaderParameter("median_filter_threshold", MedianFilterThreshold);
+		_material.SetShaderParameter("median_filter_radius_px", MedianFilterRadiusPx);
+		_material.SetShaderParameter("shadow_flatten_enabled", ShadowFlattenEnabled);
+		_material.SetShaderParameter("shadow_flatten_threshold", ShadowFlattenThreshold);
+		_material.SetShaderParameter("shadow_flatten_softness", ShadowFlattenSoftness);
+		_material.SetShaderParameter("shadow_flatten_strength", ShadowFlattenStrength);
 	}
 }
