@@ -126,6 +126,7 @@ private const float TerminalZoomSpeed = 3.2f;
 		// updates continue harmlessly and the terminal screen-debug preview still
 		// parents into the layer itself, not this panel.
 		_statusLayer?.GetNodeOrNull<Control>("StatusPanel")?.Hide();
+		AddChild(new ComicPostLayer { Name = "ComicPostLayer" });
 		_control_room = GetNode<ControlRoom3D>("ControlRoom3D");
 		_studio_room = GetNode<StudioRoom3D>("StudioRoom3D");
 		_station_greybox = GetNodeOrNull<StationGreybox3D>("StationGreybox3D");

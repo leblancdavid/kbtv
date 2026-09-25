@@ -24,9 +24,7 @@ extends SceneTree
 #   lowerarm01.L/R    <- vern forearm     (lowerarm02 holds seat)
 #   wrist.L/R         <- vern hand        (metacarpals hold seat)
 #   finger1-1..5-3    <- vern thumb..little_{1,2,3} (finger1=thumb..finger5=little)
-#   upperleg01/02.L/R <- vern thigh
-#   lowerleg01/02.L/R <- vern shin
-#   foot.L/R          -> seat rotation    (planted: source foot ROT is dropped)
+#   upperleg/lowerleg/foot/toe.L/R -> seat rotation (full seated legs stay planted)
 #   root              -> NO ROT track (rest basis = baseline), constant POS (rest root origin)
 #   jaw               -> seat rotation + SCALE pulse from source
 #   everything else   -> hold seat (clavicle, shoulder01, breast, spine02-04, neck02/03,
@@ -49,6 +47,13 @@ const LOG := "user://rebake_vern_clips.log"
 const TYPE_POS := 1
 const TYPE_ROT := 2
 const TYPE_SCALE := 3
+
+const PINNED := [
+	"pelvis.L", "pelvis.R",
+	"upperleg01.L", "upperleg01.R", "upperleg02.L", "upperleg02.R",
+	"lowerleg01.L", "lowerleg01.R", "lowerleg02.L", "lowerleg02.R",
+	"foot.L", "foot.R", "toe1-1.L", "toe1-1.R",
+]
 
 # Vern source bone -> list of MPFB target bones (full body, fingers finger1=thumb..little=finger5)
 var AUTH_VERN_TO_MB := {}
@@ -141,7 +146,7 @@ func _init() -> void:
 					# skeleton keeps root on its exact rest basis, which IS the baseline pose.
 					continue
 				var local: Quaternion
-				if mb == "jaw" or mb == "foot.L" or mb == "foot.R" or mb == "pelvis.L" or mb == "pelvis.R":
+				if mb == "jaw" or PINNED.has(mb):
 					# seat/planted bones hold the imported seated_rest clip pose
 					local = seat_local[mb]
 				elif AUTH_MB_TO_V.has(mb):
@@ -223,10 +228,9 @@ func _build_maps() -> void:
 		AUTH_VERN_TO_MB["upper_arm." + side] = ["upperarm01." + side]
 		AUTH_VERN_TO_MB["forearm." + side] = ["lowerarm01." + side]
 		AUTH_VERN_TO_MB["hand." + side] = ["wrist." + side]
-		AUTH_VERN_TO_MB["thigh." + side] = ["upperleg01." + side, "upperleg02." + side]
-		AUTH_VERN_TO_MB["shin." + side] = ["lowerleg01." + side, "lowerleg02." + side]
-		# foot.L/R is NOT routed: source foot ROT is dropped and the MPFB feet hold
-		# the imported seated_rest pose so Vern stays planted while seated.
+		# Full legs are NOT routed: source Vern leg ROTs were authored against a
+		# different seated skeleton. The MPFB legs hold the imported seated_rest pose
+		# so knees, shins, feet, and toes stay planted while the upper body animates.
 		var fingers := {
 			"thumb": "finger1", "index": "finger2", "middle": "finger3",
 			"ring": "finger4", "little": "finger5",

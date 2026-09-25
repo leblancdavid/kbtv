@@ -141,17 +141,17 @@
    "prop": "cigarette",
    "hand_bone": "wrist.R",
    "hand_local_grip": {
-    "position": [
-     -0.777935,
-     -0.4067513,
-     0.3214821
-    ],
-    "rotation_quaternion_xyzw": [
-     0.98095769,
-     0.11621761,
-     0.08743103,
-     -0.12872732
-    ]
+     "position": [
+      0.0240185,
+      -0.0362308,
+      -0.2971107
+     ],
+     "rotation_quaternion_xyzw": [
+      -0.08780505,
+      -0.1283962,
+      0.9810403,
+      -0.11560293
+     ]
    },
    "contact_seconds": [
     2.3,
@@ -2031,17 +2031,17 @@
    "prop": "coffee_mug",
    "hand_bone": "wrist.L",
    "hand_local_grip": {
-    "position": [
-     0.2510366,
-     0.386858,
-     0.8242298
-    ],
-    "rotation_quaternion_xyzw": [
-     0.77809572,
-     0.57824463,
-     0.16650651,
-     -0.18020709
-    ]
+     "position": [
+      0.1070907,
+      0.2225411,
+      -0.2501444
+     ],
+     "rotation_quaternion_xyzw": [
+      0.16650791,
+      0.1802073,
+      -0.77809471,
+      0.57824546
+     ]
    },
    "contact_seconds": [
     2.4,

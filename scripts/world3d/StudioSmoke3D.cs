@@ -13,12 +13,15 @@ public partial class StudioSmoke3D : Node3D
 	[Export] public float FogMotionSpeed { get; set; } = 0.55f;
 	[Export] public float FogMotionStrength { get; set; } = 0.22f;
 	[Export] public float DriftSpeed { get; set; } = 0.45f;
+	[Export] public bool RenderAmbientFogAfterComicPost { get; set; } = true;
+	[Export] public bool RenderPuffsAfterComicPost { get; set; } = true;
 	[Export] public Vector3 PuffOrigin { get; set; } = new(-0.85f, 1.25f, 0.35f);
 	[Export] public Vector3 RoomHalfExtents { get; set; } = new(4.4f, 1.7f, 3.4f);
 
 	private const int MaxPuffs = 36;
 	private const int MaxDoorLeakPuffs = 24;
 	private const int SmokeTextureSize = 128;
+	private const int PostSmokeLayer = -5;
 	private static readonly Color FogColor = new(0.62f, 0.6f, 0.56f);
 	private static readonly Color PuffSmokeColor = new(0.66f, 0.68f, 0.7f, 1f);
 	private readonly RandomNumberGenerator _rng = new();
@@ -27,6 +30,8 @@ public partial class StudioSmoke3D : Node3D
 	private Texture2D _smokeTexture = null!;
 	private FogMaterial _fogMaterial = null!;
 	private FogVolume _fogVolume = null!;
+	private CanvasLayer? _postSmokeLayer;
+	private Control? _postSmokeCanvas;
 	private Vector3 _fogBasePosition;
 	private Vector3 _fogBaseSize;
 	private float _time;
@@ -64,6 +69,7 @@ public partial class StudioSmoke3D : Node3D
 		_smokeTexture = CreateSmokeTexture();
 
 		CreateFogVolume();
+		CreatePostSmokeLayer();
 		CreatePuffPool();
 		CreateDoorLeakPool();
 	}
@@ -77,6 +83,7 @@ public partial class StudioSmoke3D : Node3D
 		UpdateActiveDoorLeaks(dt);
 		UpdatePuffs(dt);
 		UpdateDoorLeakPuffs(dt);
+		_postSmokeCanvas?.QueueRedraw();
 
 	}
 
@@ -136,7 +143,7 @@ public partial class StudioSmoke3D : Node3D
 		_fogMaterial = new FogMaterial
 		{
 			Albedo = FogColor,
-			Density = AmbientOpacity,
+			Density = RenderAmbientFogAfterComicPost ? 0f : AmbientOpacity,
 			HeightFalloff = 0.01f,
 			EdgeFade = 1.0f
 		};
@@ -150,9 +157,34 @@ public partial class StudioSmoke3D : Node3D
 			Size = _fogBaseSize,
 			Position = _fogBasePosition,
 			Material = _fogMaterial,
-			Layers = StationLighting3D.StudioLayer
+			Layers = StationLighting3D.StudioLayer,
+			Visible = !RenderAmbientFogAfterComicPost
 		};
 		AddChild(_fogVolume);
+	}
+
+	private void CreatePostSmokeLayer()
+	{
+		if (!RenderAmbientFogAfterComicPost && !RenderPuffsAfterComicPost)
+		{
+			return;
+		}
+
+		_postSmokeLayer = new CanvasLayer
+		{
+			Name = "StudioSmokePostLayer",
+			Layer = PostSmokeLayer
+		};
+		AddChild(_postSmokeLayer);
+
+		_postSmokeCanvas = new Control
+		{
+			Name = "StudioSmokePostCanvas",
+			MouseFilter = Control.MouseFilterEnum.Ignore
+		};
+		_postSmokeCanvas.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+		_postSmokeCanvas.Draw += DrawPostSmoke;
+		_postSmokeLayer.AddChild(_postSmokeCanvas);
 	}
 
 	private void CreatePuffPool()
@@ -258,7 +290,9 @@ public partial class StudioSmoke3D : Node3D
 		var primary = Mathf.Sin(_time * FogMotionSpeed);
 		var secondary = Mathf.Sin(_time * FogMotionSpeed * 0.57f + 1.8f);
 		var densityOffset = primary * FogMotionStrength + secondary * FogMotionStrength * 0.55f;
-		_fogMaterial.Density = AmbientOpacity * Mathf.Clamp(1f + densityOffset, 0.55f, 1.45f);
+		_fogMaterial.Density = RenderAmbientFogAfterComicPost
+			? 0f
+			: AmbientOpacity * Mathf.Clamp(1f + densityOffset, 0.55f, 1.45f);
 
 		_fogVolume.Position = _fogBasePosition + new Vector3(
 			primary * FogMotionStrength * 1.15f,
@@ -286,7 +320,7 @@ public partial class StudioSmoke3D : Node3D
 				continue;
 			}
 
-			wisp.Mesh.Visible = true;
+			wisp.Mesh.Visible = !RenderPuffsAfterComicPost;
 			var t = wisp.Age / wisp.Lifetime;
 			if (t >= 1f)
 			{
@@ -349,7 +383,7 @@ public partial class StudioSmoke3D : Node3D
 				continue;
 			}
 
-			wisp.Mesh.Visible = true;
+			wisp.Mesh.Visible = !RenderPuffsAfterComicPost;
 			var t = wisp.Age / wisp.Lifetime;
 			if (t >= 1f)
 			{
@@ -390,6 +424,125 @@ public partial class StudioSmoke3D : Node3D
 			wisp.Origin = PuffOrigin + new Vector3(_rng.RandfRange(-0.02f, 0.02f), 0, _rng.RandfRange(-0.02f, 0.02f));
 			wisp.Drift = new Vector3(_rng.RandfRange(-0.7f, 0.85f), _rng.RandfRange(0.85f, 1.45f), _rng.RandfRange(-0.45f, 0.65f));
 			wisp.Wobble = new Vector2(_rng.RandfRange(0.08f, 0.3f), _rng.RandfRange(0.05f, 0.22f));
+		}
+	}
+
+	private void DrawPostSmoke()
+	{
+		if (_postSmokeCanvas == null || _smokeTexture == null || !IsVisibleInTree())
+		{
+			return;
+		}
+
+		var camera = GetViewport()?.GetCamera3D();
+		if (camera == null)
+		{
+			return;
+		}
+
+		DrawAmbientPostFog(camera);
+		DrawWispSet(_puffWisps, camera);
+		DrawWispSet(_doorLeakWisps, camera);
+	}
+
+	private void DrawAmbientPostFog(Camera3D camera)
+	{
+		if (!RenderAmbientFogAfterComicPost || AmbientOpacity <= 0f)
+		{
+			return;
+		}
+
+		var bounds = ProjectFogBounds(camera);
+		if (bounds == null || bounds.Value.Size.X <= 2f || bounds.Value.Size.Y <= 2f)
+		{
+			return;
+		}
+
+		var rect = bounds.Value.Grow(Mathf.Max(bounds.Value.Size.X, bounds.Value.Size.Y) * 0.12f);
+		var veilAlpha = Mathf.Clamp(AmbientOpacity * 0.12f, 0f, 0.12f);
+		var veilColor = new Color(FogColor.R, FogColor.G, FogColor.B, veilAlpha);
+		_postSmokeCanvas?.DrawRect(rect, veilColor, true);
+
+		var blobAlpha = Mathf.Clamp(AmbientOpacity * 0.18f, 0f, 0.18f);
+		var blobColor = new Color(FogColor.R, FogColor.G, FogColor.B, blobAlpha);
+		for (var i = 0; i < 5; i++)
+		{
+			var phase = _time * (0.12f + i * 0.025f) + i * 1.73f;
+			var size = rect.Size * (0.62f + Mathf.Sin(phase * 0.7f) * 0.08f);
+			var offset = new Vector2(
+				Mathf.Sin(phase) * rect.Size.X * 0.22f,
+				Mathf.Cos(phase * 0.83f) * rect.Size.Y * 0.16f
+			);
+			var center = rect.GetCenter() + offset;
+			_postSmokeCanvas?.DrawTextureRect(_smokeTexture, new Rect2(center - size * 0.5f, size), false, blobColor);
+		}
+	}
+
+	private Rect2? ProjectFogBounds(Camera3D camera)
+	{
+		Vector2 min = new(float.PositiveInfinity, float.PositiveInfinity);
+		Vector2 max = new(float.NegativeInfinity, float.NegativeInfinity);
+		var any = false;
+		var halfSize = _fogBaseSize * 0.5f;
+
+		for (var x = -1; x <= 1; x += 2)
+		{
+			for (var y = -1; y <= 1; y += 2)
+			{
+				for (var z = -1; z <= 1; z += 2)
+				{
+					var local = _fogBasePosition + new Vector3(halfSize.X * x, halfSize.Y * y, halfSize.Z * z);
+					var world = ToGlobal(local);
+					if (camera.IsPositionBehind(world))
+					{
+						continue;
+					}
+
+					var screen = camera.UnprojectPosition(world);
+					min = new Vector2(Mathf.Min(min.X, screen.X), Mathf.Min(min.Y, screen.Y));
+					max = new Vector2(Mathf.Max(max.X, screen.X), Mathf.Max(max.Y, screen.Y));
+					any = true;
+				}
+			}
+		}
+
+		if (!any || _postSmokeCanvas == null)
+		{
+			return null;
+		}
+
+		var viewportSize = _postSmokeCanvas.GetViewportRect().Size;
+		min = new Vector2(Mathf.Clamp(min.X, 0f, viewportSize.X), Mathf.Clamp(min.Y, 0f, viewportSize.Y));
+		max = new Vector2(Mathf.Clamp(max.X, 0f, viewportSize.X), Mathf.Clamp(max.Y, 0f, viewportSize.Y));
+		return new Rect2(min, max - min);
+	}
+
+	private void DrawWispSet(SmokeWisp[] wisps, Camera3D camera)
+	{
+		foreach (var wisp in wisps)
+		{
+			if (wisp == null || !wisp.Active || wisp.Age < 0f)
+			{
+				continue;
+			}
+
+			var worldPosition = ToGlobal(wisp.Mesh.Position);
+			if (camera.IsPositionBehind(worldPosition))
+			{
+				continue;
+			}
+
+			var center = camera.UnprojectPosition(worldPosition);
+			var halfSize = wisp.Mesh.Scale.X * 0.5f;
+			var cameraBasis = camera.GlobalTransform.Basis;
+			var right = camera.UnprojectPosition(worldPosition + cameraBasis.X * halfSize);
+			var up = camera.UnprojectPosition(worldPosition + cameraBasis.Y * halfSize);
+			var size = new Vector2(
+				Mathf.Max(2f, center.DistanceTo(right) * 2f),
+				Mathf.Max(2f, center.DistanceTo(up) * 2f)
+			);
+			var rect = new Rect2(center - size * 0.5f, size);
+			_postSmokeCanvas?.DrawTextureRect(_smokeTexture, rect, false, wisp.Material.AlbedoColor);
 		}
 	}
 }

@@ -41,7 +41,7 @@ transfer, and the runtime skeleton path must follow the new armature.
 
 The fitted GLB exports standing. Author a seated rest pose on the MPFB standard
 rig matching the current VernStation chair fit (SeatAnchor `(0, 0.53, -0.005)`,
-yaw 180 for the +Z-facing model). Export a `seated_rest` action with identical
+with station yaw handled by `VernStation`, not `Vern.tscn/Model`). Export a `seated_rest` action with identical
 keys over a short duration (existing `vern_rig.py`/`vern.py` pattern), and
 preserve the female-target-free male baseline. `VernCharacter3D` must apply the
 pose before first visibility (same mechanism as today).
@@ -68,6 +68,15 @@ intentionally emits **no root ROT track**. Root keeps the exact skeleton rest
 basis and only receives the seated root POS track; this avoids quaternion
 reconstruction drift from the fitted root rest basis' tiny non-orthonormal
 component.
+
+Runtime diagnostic note (2026-09-24): `VernStation` is already yawed 180° in
+`World3D.tscn`; `Vern.tscn/Model` must stay unrotated. A screenshot from the
+actual world view showed the extra Model yaw made Vern face away from the table
+and camera. The non-`talk_calm` MPFB rebakes also still routed old Vern
+thigh/shin tracks into the MPFB legs; those clips now pin the full leg chain to
+`seated_rest`, matching `talk_calm` and keeping the seated lower body stable
+while upper-body, hands, jaw, and props animate. Contact grips were re-solved for
+the unrotated Model chain.
 
 **VernRig → MPFB name table (divergences):**
 

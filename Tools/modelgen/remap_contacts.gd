@@ -4,12 +4,13 @@ extends SceneTree
 ## validate the new mouth_marker head_local. Runtime uses:
 ##   propLocal = GlobalTransform.affine_inverse() * skeleton.global_transform * boneGlobalPose(hand) * grip
 ## With K = skeleton->Vern-local (GlobalInverse*SkeletonGlobal), want K*bonePose*grip == rest at pickup,
-## so grip = (K*bonePose).affine_inverse() * rest. New rig sits under a Model node yaw-180 (as Phase 4 ships).
+## so grip = (K*bonePose).affine_inverse() * rest. The MPFB model is unrotated under Vern.tscn;
+## VernStation provides runtime station facing.
 ##   --script Tools/modelgen/remap_contacts.gd
 const VERN_GLB := "res://assets/models3d/characters/vern/vern.glb"
 const MPFB_GLB := "res://assets/models3d/characters/vern_mpfb/vern_mpfb_fitted.glb"
 const CLIP_DIR := "res://assets/models3d/characters/vern/animations"
-const MODEL_YAW_DEG := 180.0
+const MODEL_YAW_DEG := 0.0
 const MOUTH_NEW := Vector3(0, 0.0310001, 0.127)
 
 const CASES := [
@@ -53,7 +54,7 @@ func _run_case(contract: Dictionary, c: Dictionary) -> bool:
 	ok = ok and cont_d < 0.02
 	vroot.queue_free()
 
-	# NEW grip: fitted rig under Model yaw-180, playing the MPFB rebake.
+	# NEW grip: fitted rig under the same Model transform used by Vern.tscn, playing the MPFB rebake.
 	var mroot := (load(MPFB_GLB) as PackedScene).instantiate()
 	var vern := Node3D.new()
 	var model := Node3D.new()
