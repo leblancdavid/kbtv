@@ -16,7 +16,10 @@ public partial class StationLighting3D : Node3D
 	private static readonly Color Fluorescent = new(0.88f, 0.93f, 1.0f);
 	private static readonly Color OnAirRed = new(1.0f, 0.12f, 0.08f);
 	private static readonly Color FixtureDark = new(0.035f, 0.032f, 0.03f);
-	private static readonly bool EnableFluorescentDynamicShadows = false;
+	private const float FluorescentFillEnergyMultiplier = 0.95f;
+	private const float FluorescentShadowEnergyMultiplier = 1.35f;
+	private const float FluorescentShadowActiveRadius = 9.5f;
+	private const float FluorescentShadowActiveRadiusSquared = FluorescentShadowActiveRadius * FluorescentShadowActiveRadius;
 	private readonly Godot.Collections.Array<Light3D> _controlLights = new();
 	private readonly Godot.Collections.Array<Light3D> _studioLights = new();
 	private readonly Godot.Collections.Array<Light3D> _equipmentLights = new();
@@ -63,18 +66,9 @@ public partial class StationLighting3D : Node3D
 
 	public void UpdateFluorescentShadowCaster(Vector3 playerPosition)
 	{
-		if (!EnableFluorescentDynamicShadows)
-		{
-			foreach (var light in _fluorescentShadowLights)
-			{
-				light.ShadowEnabled = true;
-			}
-
-			return;
-		}
-
 		SpotLight3D? closestLight = null;
 		var closestDistanceSquared = float.MaxValue;
+		var anyActive = false;
 
 		foreach (var light in _fluorescentShadowLights)
 		{
@@ -84,11 +78,18 @@ public partial class StationLighting3D : Node3D
 				closestDistanceSquared = distanceSquared;
 				closestLight = light;
 			}
+
+			var shouldCastShadow = distanceSquared <= FluorescentShadowActiveRadiusSquared;
+			light.ShadowEnabled = shouldCastShadow;
+			if (shouldCastShadow)
+			{
+				anyActive = true;
+			}
 		}
 
-		foreach (var light in _fluorescentShadowLights)
+		if (!anyActive && closestLight != null)
 		{
-			light.ShadowEnabled = light == closestLight;
+			closestLight.ShadowEnabled = true;
 		}
 	}
 
@@ -187,8 +188,8 @@ public partial class StationLighting3D : Node3D
 
 	private void AddFluorescent(Node3D root, string name, Vector3 position, float energy, float range)
 	{
-		_stationLights.Add(AddOmni(root, $"{name}Fill", position + new Vector3(0f, -0.35f, 0f), Fluorescent, energy * 1.85f, range * 1.15f, false));
-		var wash = AddOverheadSpot(root, $"{name}Wash", position, Fluorescent, energy * 0.8f, range * 1.25f, 88f, false);
+		_stationLights.Add(AddOmni(root, $"{name}Fill", position + new Vector3(0f, -0.35f, 0f), Fluorescent, energy * FluorescentFillEnergyMultiplier, range * 1.15f, false));
+		var wash = AddOverheadSpot(root, $"{name}Wash", position, Fluorescent, energy * FluorescentShadowEnergyMultiplier, range * 1.25f, 88f, false);
 		_stationLights.Add(wash);
 		_fluorescentShadowLights.Add(wash);
 	}

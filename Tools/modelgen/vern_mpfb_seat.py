@@ -7,7 +7,9 @@ the GLB with animations enabled, renders seated review previews, and appends
 `seated` metrics to the report without touching standing-validator fields.
 
 Grounding locked before writing this module:
-  - MPFB face is Blender -Y (report front_axis), so knees go toward -Y.
+  - Runtime probe after the final Vern.tscn Model yaw shows Blender -Y limb
+    targets land behind Vern in production; knees/hands must target Blender +Y
+    so they export to Vern-local -Z with the scene yaw applied.
   - VernStation/SeatAnchor local (0, 0.53, -0.005) anchors hip z 0.53.
   - The studio chair has no armrest; Vern hands rest on the runtime tray table
     (surface_y 0.73; production seated wrist z 0.742) -> wrists target z 0.73.
@@ -38,9 +40,9 @@ from vern_mpfb_fitted import GLB, REPORT, REVIEW, SOURCE, add_lights, render  # 
 HIP_Z = 0.53        # VernStation/SeatAnchor local (0, 0.53, -0.005)
 ANKLE_Z = 0.05      # feet near the floor (bind foot z was ~0.066)
 WRIST_Z = 0.73      # runtime tray table surface_y
-WRIST_FORWARD = 0.31  # in front of the hip plane (front = Blender -Y)
-WRIST_X = 0.28      # horizontal offset; character-left is +X when facing -Y
-FRONT = -1.0
+WRIST_FORWARD = 0.31  # in front of the hip plane after the runtime Model yaw
+WRIST_X = 0.28      # horizontal offset; character-left is +X in the fitted rig
+FRONT = 1.0
 FPS = 24
 
 REQUIRED = [
@@ -119,6 +121,12 @@ def main():
     assert len(armatures) == 1, f"Expected one armature, found {len(armatures)}"
     rig = armatures[0]
     rig.data.pose_position = "POSE"
+    rig.animation_data_clear()
+    for action in list(bpy.data.actions):
+        bpy.data.actions.remove(action)
+    for pose_bone in rig.pose.bones:
+        pose_bone.matrix_basis.identity()
+    bpy.context.view_layer.update()
     for n in REQUIRED:
         assert n in rig.data.bones, f"Missing bone {n}"
     tops = [b.name for b in rig.data.bones if not b.parent]
@@ -214,7 +222,7 @@ def main():
     shoulder_z = base["upperarm01.L"].translation.z
     for w, e in ((wrist_L, elbow_L), (wrist_R, elbow_R)):
         assert abs(w.z - WRIST_Z) < 0.02, w
-        assert -0.42 < w.y < -0.20, w
+        assert 0.20 < w.y < 0.42, w
         assert shoulder_z - 0.22 < e.z < shoulder_z + 0.02, e
 
     bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE))
@@ -239,7 +247,7 @@ def main():
         "elbow_R": [round(elbow_R.x, 5), round(elbow_R.y, 5), round(elbow_R.z, 5)],
         "hip_anchor": "VernStation/SeatAnchor local (0,0.53,-0.005)",
         "hand_support": "runtime vern_tray_table surface_y 0.73",
-        "facing": "MPFB front Blender -Y (knees toward -Y); Phase 4 yaw swap handles scene orientation",
+        "facing": "runtime-corrected: knees/hands target Blender +Y so Vern.tscn Model yaw places them at Vern-local -Z",
     }
     REPORT.write_text(json.dumps(report, indent=2) + "\n")
 

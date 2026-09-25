@@ -47,12 +47,16 @@ func _run_case(contract: Dictionary, c: Dictionary) -> bool:
 	vap.play(clip)
 	vap.seek(pickup, true)
 	await process_frame
-	var vworld := vs.global_transform * vs.get_bone_global_pose(vs.find_bone(hand_old))
-	var vlocal := vworld * old_grip
-	var cont_d := vlocal.origin.distance_to(rest.origin)
-	print("[%s] OLD continuity: hand_local_grip -> rest at t=%.1f, |d|=%.4f %s"
-		% [clip, pickup, cont_d, "OK" if cont_d < 0.02 else "FAIL(old grip drifted)"])
-	ok = ok and cont_d < 0.02
+	var old_bone := vs.find_bone(hand_old)
+	if old_bone >= 0:
+		var vworld := vs.global_transform * vs.get_bone_global_pose(old_bone)
+		var vlocal := vworld * old_grip
+		var cont_d := vlocal.origin.distance_to(rest.origin)
+		print("[%s] OLD continuity: hand_local_grip -> rest at t=%.1f, |d|=%.4f %s"
+			% [clip, pickup, cont_d, "OK" if cont_d < 0.02 else "FAIL(old grip drifted)"])
+		ok = ok and cont_d < 0.02
+	else:
+		print("[%s] OLD continuity skipped: %s is not on the legacy Vern rig." % [clip, hand_old])
 	vroot.queue_free()
 
 	# NEW grip: fitted rig under the same Model transform used by Vern.tscn, playing the MPFB rebake.

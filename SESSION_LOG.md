@@ -1,6 +1,30 @@
 ## Current Session
 
 **Branch**: comic-styling
+**Task**: Fix Vern's MPFB talking/smoking/drinking animations after the runtime facing correction. User confirmed the pose now faces the right way, but the authored performance motions appear backwards.
+**Status**: Completed (build + Vern tests green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/vern_mpfb_seat.py`, `Tools/modelgen/remap_contacts.gd`, `Tools/modelgen/fix_vern_mpfb_arm_front.gd` (+`.uid`), `Tools/modelgen/source/vern_mpfb_fitted.blend` (+`.blend1`), `assets/models3d/characters/vern_mpfb/vern_mpfb_fitted.glb`, `assets/models3d/characters/vern/animations/{talk_calm,idle_breathing,talking_default,smoking,drink_coffee}_mpfb.tres`, `assets/models3d/characters/vern/animation_contacts.json`.
+- Work Done: Probed current runtime transforms and confirmed the active wrists were behind Vern's mouth/front axis after the face-yaw fix. Made `vern_mpfb_seat.py` idempotent (clears old actions/pose) and corrected the seated limb target side for the final runtime yaw. Re-exported the fitted GLB and forced a Godot import using the full `D:\Software\Godot` 4.6.3 mono install (the temp opencode install lacks `GodotSharpEditor.dll`). Re-baked all MPFB clips, then added `fix_vern_mpfb_arm_front.gd` as a reproducible post-pass that mirrors evaluated MPFB wrist targets to Vern-local front and re-solves the arm chain. Recomputed final smoking/drink grips and updated `animation_contacts.json`; `remap_contacts.gd` now skips the legacy old-rig continuity check when the contract already references MPFB `wrist.*` bones.
+- Verification: Numeric probe after the post-pass showed talk/smoke/drink wrists on Vern-local front (`z` negative, with smoke/drink reaching near/in front of the mouth plane). `dotnet build KBTV.csproj` passed. `run-tests.ps1 -Godot D:\Software\Godot\Godot_v4.6.3-stable_mono_win64\Godot_v4.6.3-stable_mono_win64_console.exe -Filter VernAnimationControllerTests` passed 9/0. `run-tests.ps1 -Godot ... -Filter VernCharacterIntegrationTests` passed 1/0.
+- Next Steps: User visual check in-editor: confirm Vern still faces correctly and talking/smoking/drinking now move toward the table/camera side instead of behind him.
+- Blockers: none.
+
+## Concurrent Session (hallway shadows)
+
+**Branch**: comic-styling
+**Task**: Restore readable hallway fluorescent shadows under the stronger comic style.
+**Status**: Completed (build green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationLighting3D.cs`
+- Work Done: Read-only trace found the likely issue in `StationLighting3D`: strong non-shadow fluorescent fill lights overlapped weaker shadow-casting wash lights, while the comic post pass posterizes the remaining subtle contrast. Rebalanced fluorescent lighting so fill lights are dimmer (`0.95x`, down from `1.85x`) and shadow wash lights are stronger (`1.35x`, up from `0.8x`). Replaced the previous all-shadow-wash behavior with a stable nearby radius: all fluorescent wash lights within 9.5m of the player cast shadows, with a closest-light fallback outside that radius. This keeps overlap near transitions without returning to the old single-source jump/morph behavior.
+- Verification: `dotnet build KBTV.csproj` passed with existing warnings only. Visual hallway check still required because shadow readability is art-directed.
+- Next Steps: Run the scene visually and compare hallway shadows with comic enabled/disabled via F8; if shadows are still too flat, add a small shadow-preservation control in `comic_post.gdshader` rather than weakening the whole comic pass.
+- Blockers: none.
+
+---
+
+## Previous Session (comic outlines/fog)
+
+**Branch**: comic-styling
 **Task**: Strengthen comic outlines substantially and stabilize hallway shadows that changed shape while moving between lights.
 **Status**: Completed (build green; visual review pending)
 - Files Modified: `SESSION_LOG.md`, `shaders/comic_post.gdshader`, `scripts/world3d/ComicPostLayer.cs`, `scripts/world3d/StationLighting3D.cs`, `scripts/world3d/StudioSmoke3D.cs`, `scripts/world3d/StudioRoom3D.cs`
