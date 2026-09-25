@@ -4,13 +4,14 @@ extends SceneTree
 ## validate the new mouth_marker head_local. Runtime uses:
 ##   propLocal = GlobalTransform.affine_inverse() * skeleton.global_transform * boneGlobalPose(hand) * grip
 ## With K = skeleton->Vern-local (GlobalInverse*SkeletonGlobal), want K*bonePose*grip == rest at pickup,
-## so grip = (K*bonePose).affine_inverse() * rest. The MPFB model is unrotated under Vern.tscn;
-## VernStation provides runtime station facing.
+## so grip = (K*bonePose).affine_inverse() * rest. The MPFB model is yaw-180 under Vern.tscn to cancel
+## the yaw-180 VernStation (net identity), so Vern faces the table/camera. MODEL_YAW_DEG must match the
+## scene Model node rotation or the runtime grips will misplace.
 ##   --script Tools/modelgen/remap_contacts.gd
 const VERN_GLB := "res://assets/models3d/characters/vern/vern.glb"
 const MPFB_GLB := "res://assets/models3d/characters/vern_mpfb/vern_mpfb_fitted.glb"
 const CLIP_DIR := "res://assets/models3d/characters/vern/animations"
-const MODEL_YAW_DEG := 0.0
+const MODEL_YAW_DEG := 180.0
 const MOUTH_NEW := Vector3(0, 0.0310001, 0.127)
 
 const CASES := [

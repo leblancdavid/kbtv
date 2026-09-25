@@ -221,10 +221,34 @@ private const float TerminalZoomSpeed = 3.2f;
 			Far = 80f
 		};
 		_vernCameraViewport.AddChild(_vernCamera);
-		var lookTarget = _studio_room.GetNode<Marker3D>("VernStation/Vern/LookTarget");
+		CallDeferred(nameof(PositionVernCameraFeed));
+	}
+
+	private void PositionVernCameraFeed()
+	{
+		if (_vernCamera == null || _studio_room == null)
+		{
+			return;
+		}
+
+		var lookTarget = _studio_room.GetNodeOrNull<Marker3D>("VernStation/Vern/LookTarget")
+			?? _studio_room.FindChild("LookTarget", recursive: true, owned: false) as Marker3D;
+		var targetPosition = lookTarget?.GlobalPosition;
+		if (targetPosition == null)
+		{
+			var seatAnchor = _studio_room.GetNodeOrNull<Marker3D>("VernStation/SeatAnchor");
+			if (seatAnchor == null)
+			{
+				GD.PushWarning("World3D: Vern camera feed could not find Vern LookTarget or SeatAnchor.");
+				return;
+			}
+
+			targetPosition = seatAnchor.ToGlobal(new Vector3(0f, 1.04f, 0.005f));
+		}
+
 		_vernCamera.LookAtFromPosition(
-			lookTarget.GlobalPosition + new Vector3(-0.48f, 0.12f, 1.2f),
-			lookTarget.GlobalPosition,
+			targetPosition.Value + new Vector3(-0.48f, 0.12f, 1.2f),
+			targetPosition.Value,
 			Vector3.Up);
 	}
 

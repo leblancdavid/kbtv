@@ -9,8 +9,9 @@ visible = false
 script = ExtResource("1")
 
 [node name="Model" parent="." instance=ExtResource("2")]
-# The VernStation parent already provides the runtime station facing. Keep the
-# imported MPFB model unrotated here so Vern faces the in-world table/camera.
+rotation = Vector3(0, 3.1415927, 0)
+# The imported MPFB model faces +Z; VernStation is yaw-180. The Model's own
+# 180deg yaw cancels it (net identity) so Vern faces the in-world table/camera.
 
 [node name="LookTarget" type="Marker3D" parent="."]
 position = Vector3(0, 1.57, 0)
