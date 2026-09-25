@@ -22,12 +22,12 @@ uniform float shadow_flatten_threshold = 0.30;
 uniform float shadow_flatten_softness = 0.035;
 uniform float shadow_flatten_strength = 0.0;
 uniform bool shadow_smooth_enabled = true;
-uniform float shadow_smooth_threshold = 0.46;
-uniform float shadow_smooth_softness = 0.10;
-uniform float shadow_smooth_edge_reject = 0.12;
-uniform float shadow_smooth_edge_softness = 0.08;
-uniform float shadow_smooth_strength = 0.70;
-uniform float shadow_smooth_radius_px = 2.5;
+uniform float shadow_smooth_threshold = 0.55;
+uniform float shadow_smooth_softness = 0.14;
+uniform float shadow_smooth_edge_reject = 0.34;
+uniform float shadow_smooth_edge_softness = 0.12;
+uniform float shadow_smooth_strength = 1.0;
+uniform float shadow_smooth_radius_px = 4.0;
 
 float luminance(vec3 color) {
 	return dot(color, vec3(0.299, 0.587, 0.114));
@@ -82,10 +82,14 @@ void fragment() {
 	vec2 filter_px = SCREEN_PIXEL_SIZE * max(median_filter_radius_px, 1.0);
 	vec2 smooth_px = SCREEN_PIXEL_SIZE * max(shadow_smooth_radius_px, 1.0);
 	vec3 center = texture(screen_tex, uv).rgb;
+	vec3 smooth_tl = texture(screen_tex, uv + vec2(-smooth_px.x, -smooth_px.y)).rgb;
 	vec3 smooth_n = texture(screen_tex, uv + vec2(0.0, -smooth_px.y)).rgb;
+	vec3 smooth_tr = texture(screen_tex, uv + vec2(smooth_px.x, -smooth_px.y)).rgb;
 	vec3 smooth_s = texture(screen_tex, uv + vec2(0.0, smooth_px.y)).rgb;
 	vec3 smooth_w = texture(screen_tex, uv + vec2(-smooth_px.x, 0.0)).rgb;
 	vec3 smooth_e = texture(screen_tex, uv + vec2(smooth_px.x, 0.0)).rgb;
+	vec3 smooth_bl = texture(screen_tex, uv + vec2(-smooth_px.x, smooth_px.y)).rgb;
+	vec3 smooth_br = texture(screen_tex, uv + vec2(smooth_px.x, smooth_px.y)).rgb;
 	vec3 color_tl = texture(screen_tex, uv + vec2(-filter_px.x, -filter_px.y)).rgb;
 	vec3 color_tc = texture(screen_tex, uv + vec2(0.0, -filter_px.y)).rgb;
 	vec3 color_tr = texture(screen_tex, uv + vec2(filter_px.x, -filter_px.y)).rgb;
@@ -142,7 +146,8 @@ void fragment() {
 	float band_luma = floor(base_luma * steps + 0.5) / steps;
 	vec3 color = center * (band_luma / base_luma);
 	color = mix(vec3(luminance(color)), color, saturation);
-	vec3 smooth_source = (center * 2.0 + smooth_n + smooth_s + smooth_w + smooth_e) / 6.0;
+	vec3 smooth_source = (center * 4.0 + smooth_n * 2.0 + smooth_s * 2.0 + smooth_w * 2.0 + smooth_e * 2.0
+		+ smooth_tl + smooth_tr + smooth_bl + smooth_br) / 16.0;
 	float smooth_luma = max(luminance(smooth_source), 0.0001);
 	vec3 smooth_color = smooth_source * (band_luma / smooth_luma);
 	smooth_color = mix(vec3(luminance(smooth_color)), smooth_color, saturation);
@@ -175,7 +180,7 @@ void fragment() {
 
 	float ink = smoothstep(outline_threshold, outline_threshold + outline_bias, edge) * outline_mix;
 	color = mix(color, outline_color.rgb, clamp(ink, 0.0, 1.0));
-	color = mix(original, color, clamp(effect_strength, 0.0, 1.0));
+	color = mix(original, color, max(clamp(effect_strength, 0.0, 1.0), shadow_smooth_mask));
 
 	COLOR = vec4(color, 1.0);
 }

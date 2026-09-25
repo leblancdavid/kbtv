@@ -118,6 +118,7 @@ private const float TerminalZoomSpeed = 3.2f;
 	public override void _Ready()
 	{
 		AddToGroup("world3d");
+		ConfigureShadowAtlas();
 		_camera = GetNode<Camera3D>("WorldCamera");
 		_statusLayer = GetNodeOrNull<CanvasLayer>("StatusLayer");
 		_status_label = GetNodeOrNull<Label>("StatusLayer/StatusPanel/StatusLabel");
@@ -186,6 +187,12 @@ private const float TerminalZoomSpeed = 3.2f;
 	_soundboard3D.HideHandles();
 
 	UpdateStatusLabel("CONTROL ROOM");
+	}
+
+	private void ConfigureShadowAtlas()
+	{
+		var viewport = GetViewport();
+		viewport.PositionalShadowAtlasSize = 4096;
 	}
 
 	public Texture2D? GetVernCameraTexture()

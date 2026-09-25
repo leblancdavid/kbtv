@@ -20,6 +20,11 @@ public partial class StationLighting3D : Node3D
 	private const float FluorescentShadowEnergyMultiplier = 1.35f;
 	private const float FluorescentShadowActiveRadius = 9.5f;
 	private const float FluorescentShadowActiveRadiusSquared = FluorescentShadowActiveRadius * FluorescentShadowActiveRadius;
+	private const float RoomShadowRange = 13.0f;
+	private const float FluorescentShadowRange = 12.0f;
+	private const float ShadowBias = 0.035f;
+	private const float ShadowNormalBias = 1.2f;
+	private const float ShadowBlur = 0.0f;
 	private readonly Godot.Collections.Array<Light3D> _controlLights = new();
 	private readonly Godot.Collections.Array<Light3D> _studioLights = new();
 	private readonly Godot.Collections.Array<Light3D> _equipmentLights = new();
@@ -118,7 +123,7 @@ public partial class StationLighting3D : Node3D
 
 	private void AddControlRoomLights(Node3D root)
 	{
-		_controlLights.Add(AddOverheadSpot(root, "ControlRoomOverhead", new Vector3(0f, 3.25f, 4f), WarmNoir, 10.0f, 100.0f, 80f, true));
+		_controlLights.Add(AddOverheadSpot(root, "ControlRoomOverhead", new Vector3(0f, 3.25f, 4f), WarmNoir, 10.0f, RoomShadowRange, 80f, true));
 		AddPendantFixture(root, "ControlRoomPendant", new Vector3(0f, 3.12f, 4f), WarmNoir);
 		_controlLights.Add(AddOmni(root, "ControlEquipmentGlow", new Vector3(1.0f, 1.0f, 0.35f), new Color(0.05f, 0.7f, 0.28f), 0f, 3.1f, false)); // TODO: temp off to inspect scene
 		_controlLights.Add(AddOmni(root, "ControlOnAirRedGlow", new Vector3(0f, 1.4f, -0.1f), OnAirRed, 0.55f, 2.6f, false));
@@ -126,14 +131,14 @@ public partial class StationLighting3D : Node3D
 
 	private void AddStudioLights(Node3D root)
 	{
-		_studioLights.Add(AddOverheadSpot(root, "StudioRoomOverhead", new Vector3(0f, 3.25f, -4f), WarmNoir, 10.0f, 100.0f, 80f, true));
+		_studioLights.Add(AddOverheadSpot(root, "StudioRoomOverhead", new Vector3(0f, 3.25f, -4f), WarmNoir, 10.0f, RoomShadowRange, 80f, true));
 		AddPendantFixture(root, "StudioRoomPendant", new Vector3(0f, 3.12f, -4f), WarmNoir);
 		_studioLights.Add(AddOmni(root, "StudioOnAirRedGlow", new Vector3(-0.85f, 1.1f, -3.55f), OnAirRed, 0.35f, 2.3f, false));
 	}
 
 	private void AddEquipmentRoomLights(Node3D root)
 	{
-		_equipmentLights.Add(AddOverheadSpot(root, "EquipmentRoomOverhead", new Vector3(0f, 3.05f, -11f), WarmNoir, 10.0f, 100.0f, 80f, true));
+		_equipmentLights.Add(AddOverheadSpot(root, "EquipmentRoomOverhead", new Vector3(0f, 3.05f, -11f), WarmNoir, 10.0f, RoomShadowRange, 80f, true));
 		AddPendantFixture(root, "EquipmentRoomPendant", new Vector3(0f, 2.92f, -11f), WarmNoir);
 	}
 
@@ -189,7 +194,7 @@ public partial class StationLighting3D : Node3D
 	private void AddFluorescent(Node3D root, string name, Vector3 position, float energy, float range)
 	{
 		_stationLights.Add(AddOmni(root, $"{name}Fill", position + new Vector3(0f, -0.35f, 0f), Fluorescent, energy * FluorescentFillEnergyMultiplier, range * 1.15f, false));
-		var wash = AddOverheadSpot(root, $"{name}Wash", position, Fluorescent, energy * FluorescentShadowEnergyMultiplier, range * 1.25f, 88f, false);
+		var wash = AddOverheadSpot(root, $"{name}Wash", position, Fluorescent, energy * FluorescentShadowEnergyMultiplier, Mathf.Min(range * 1.25f, FluorescentShadowRange), 88f, false);
 		_stationLights.Add(wash);
 		_fluorescentShadowLights.Add(wash);
 	}
@@ -209,8 +214,16 @@ public partial class StationLighting3D : Node3D
 			SpotAngle = angle,
 			SpotAngleAttenuation = shadows ? 1.5f : 1.0f
 		};
+		ConfigureShadowQuality(light);
 		root.AddChild(light);
 		return light;
+	}
+
+	private static void ConfigureShadowQuality(Light3D light)
+	{
+		light.ShadowBias = ShadowBias;
+		light.ShadowNormalBias = ShadowNormalBias;
+		light.ShadowBlur = ShadowBlur;
 	}
 
 	private static OmniLight3D AddOmni(Node3D root, string name, Vector3 position, Color color, float energy, float range, bool shadows)

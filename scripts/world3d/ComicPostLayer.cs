@@ -30,6 +30,13 @@ public partial class ComicPostLayer : CanvasLayer
 	[Export] public float ShadowFlattenThreshold { get; set; } = 0.30f;
 	[Export] public float ShadowFlattenSoftness { get; set; } = 0.035f;
 	[Export] public float ShadowFlattenStrength { get; set; } = 0.0f;
+	[Export] public bool ShadowSmoothEnabled { get; set; } = true;
+	[Export] public float ShadowSmoothThreshold { get; set; } = 0.55f;
+	[Export] public float ShadowSmoothSoftness { get; set; } = 0.14f;
+	[Export] public float ShadowSmoothEdgeReject { get; set; } = 0.34f;
+	[Export] public float ShadowSmoothEdgeSoftness { get; set; } = 0.12f;
+	[Export] public float ShadowSmoothStrength { get; set; } = 1.0f;
+	[Export] public float ShadowSmoothRadiusPx { get; set; } = 4.0f;
 
 	private ShaderMaterial? _material;
 
@@ -110,5 +117,12 @@ public partial class ComicPostLayer : CanvasLayer
 		_material.SetShaderParameter("shadow_flatten_threshold", ShadowFlattenThreshold);
 		_material.SetShaderParameter("shadow_flatten_softness", ShadowFlattenSoftness);
 		_material.SetShaderParameter("shadow_flatten_strength", ShadowFlattenStrength);
+		_material.SetShaderParameter("shadow_smooth_enabled", ShadowSmoothEnabled);
+		_material.SetShaderParameter("shadow_smooth_threshold", ShadowSmoothThreshold);
+		_material.SetShaderParameter("shadow_smooth_softness", ShadowSmoothSoftness);
+		_material.SetShaderParameter("shadow_smooth_edge_reject", ShadowSmoothEdgeReject);
+		_material.SetShaderParameter("shadow_smooth_edge_softness", ShadowSmoothEdgeSoftness);
+		_material.SetShaderParameter("shadow_smooth_strength", ShadowSmoothStrength);
+		_material.SetShaderParameter("shadow_smooth_radius_px", ShadowSmoothRadiusPx);
 	}
 }
