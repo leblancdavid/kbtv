@@ -16,6 +16,7 @@ public partial class StationLighting3D : Node3D
 	private static readonly Color Fluorescent = new(0.88f, 0.93f, 1.0f);
 	private static readonly Color OnAirRed = new(1.0f, 0.12f, 0.08f);
 	private static readonly Color FixtureDark = new(0.035f, 0.032f, 0.03f);
+	private static readonly bool EnableFluorescentDynamicShadows = false;
 	private readonly Godot.Collections.Array<Light3D> _controlLights = new();
 	private readonly Godot.Collections.Array<Light3D> _studioLights = new();
 	private readonly Godot.Collections.Array<Light3D> _equipmentLights = new();
@@ -62,6 +63,16 @@ public partial class StationLighting3D : Node3D
 
 	public void UpdateFluorescentShadowCaster(Vector3 playerPosition)
 	{
+		if (!EnableFluorescentDynamicShadows)
+		{
+			foreach (var light in _fluorescentShadowLights)
+			{
+				light.ShadowEnabled = true;
+			}
+
+			return;
+		}
+
 		SpotLight3D? closestLight = null;
 		var closestDistanceSquared = float.MaxValue;
 

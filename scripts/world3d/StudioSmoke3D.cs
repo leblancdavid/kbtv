@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Godot;
 
 namespace KBTV.World3D;
@@ -16,7 +17,7 @@ public partial class StudioSmoke3D : Node3D
 	[Export] public bool RenderAmbientFogAfterComicPost { get; set; } = true;
 	[Export] public bool RenderPuffsAfterComicPost { get; set; } = true;
 	[Export] public Vector3 PuffOrigin { get; set; } = new(-0.85f, 1.25f, 0.35f);
-	[Export] public Vector3 RoomHalfExtents { get; set; } = new(4.4f, 1.7f, 3.4f);
+	[Export] public Vector3 RoomHalfExtents { get; set; } = new(5f, 1.15f, 4f);
 
 	private const int MaxPuffs = 36;
 	private const int MaxDoorLeakPuffs = 24;
@@ -147,7 +148,7 @@ public partial class StudioSmoke3D : Node3D
 			HeightFalloff = 0.01f,
 			EdgeFade = 1.0f
 		};
-		_fogBasePosition = new Vector3(0f, RoomHalfExtents.Y * 0.58f, 0f);
+		_fogBasePosition = new Vector3(0f, RoomHalfExtents.Y, 0f);
 		_fogBaseSize = new Vector3(RoomHalfExtents.X * 2f, RoomHalfExtents.Y * 2f, RoomHalfExtents.Z * 2f);
 
 		_fogVolume = new FogVolume
@@ -445,44 +446,56 @@ public partial class StudioSmoke3D : Node3D
 		DrawWispSet(_doorLeakWisps, camera);
 	}
 
-	private void DrawAmbientPostFog(Camera3D camera)
+private void DrawAmbientPostFog(Camera3D camera)
 	{
 		if (!RenderAmbientFogAfterComicPost || AmbientOpacity <= 0f)
 		{
 			return;
 		}
 
-		var bounds = ProjectFogBounds(camera);
-		if (bounds == null || bounds.Value.Size.X <= 2f || bounds.Value.Size.Y <= 2f)
+		var hull = ProjectFogHull(camera);
+		if (hull.Length < 3)
 		{
 			return;
 		}
 
-		var rect = bounds.Value.Grow(Mathf.Max(bounds.Value.Size.X, bounds.Value.Size.Y) * 0.12f);
 		var veilAlpha = Mathf.Clamp(AmbientOpacity * 0.12f, 0f, 0.12f);
 		var veilColor = new Color(FogColor.R, FogColor.G, FogColor.B, veilAlpha);
-		_postSmokeCanvas?.DrawRect(rect, veilColor, true);
+		_postSmokeCanvas?.DrawColoredPolygon(hull, veilColor);
+
+		var bounds = ComputeHullBounds(hull);
+		if (bounds.Size.X <= 2f || bounds.Size.Y <= 2f)
+		{
+			return;
+		}
 
 		var blobAlpha = Mathf.Clamp(AmbientOpacity * 0.18f, 0f, 0.18f);
 		var blobColor = new Color(FogColor.R, FogColor.G, FogColor.B, blobAlpha);
 		for (var i = 0; i < 5; i++)
 		{
 			var phase = _time * (0.12f + i * 0.025f) + i * 1.73f;
-			var size = rect.Size * (0.62f + Mathf.Sin(phase * 0.7f) * 0.08f);
-			var offset = new Vector2(
-				Mathf.Sin(phase) * rect.Size.X * 0.22f,
-				Mathf.Cos(phase * 0.83f) * rect.Size.Y * 0.16f
+			var size = new Vector2(
+				bounds.Size.X * (0.34f + Mathf.Sin(phase * 0.7f) * 0.05f),
+				bounds.Size.Y * (0.34f + Mathf.Sin(phase * 0.7f) * 0.05f)
 			);
-			var center = rect.GetCenter() + offset;
-			_postSmokeCanvas?.DrawTextureRect(_smokeTexture, new Rect2(center - size * 0.5f, size), false, blobColor);
+			var offset = new Vector2(
+				Mathf.Sin(phase) * bounds.Size.X * 0.14f,
+				Mathf.Cos(phase * 0.83f) * bounds.Size.Y * 0.11f
+			);
+			var blobRect = new Rect2(bounds.GetCenter() + offset - size * 0.5f, size);
+			var clipped = blobRect.Intersection(bounds);
+			if (clipped.Size.X <= 2f || clipped.Size.Y <= 2f)
+			{
+				continue;
+			}
+
+			_postSmokeCanvas?.DrawTextureRect(_smokeTexture, clipped, false, blobColor);
 		}
 	}
 
-	private Rect2? ProjectFogBounds(Camera3D camera)
+	private Vector2[] ProjectFogHull(Camera3D camera)
 	{
-		Vector2 min = new(float.PositiveInfinity, float.PositiveInfinity);
-		Vector2 max = new(float.NegativeInfinity, float.NegativeInfinity);
-		var any = false;
+		var points = new List<Vector2>();
 		var halfSize = _fogBaseSize * 0.5f;
 
 		for (var x = -1; x <= 1; x += 2)
@@ -498,22 +511,71 @@ public partial class StudioSmoke3D : Node3D
 						continue;
 					}
 
-					var screen = camera.UnprojectPosition(world);
-					min = new Vector2(Mathf.Min(min.X, screen.X), Mathf.Min(min.Y, screen.Y));
-					max = new Vector2(Mathf.Max(max.X, screen.X), Mathf.Max(max.Y, screen.Y));
-					any = true;
+					points.Add(camera.UnprojectPosition(world));
 				}
 			}
 		}
 
-		if (!any || _postSmokeCanvas == null)
+		return ConvexHull(points);
+	}
+
+	private static Vector2[] ConvexHull(List<Vector2> points)
+	{
+		if (points.Count < 3)
 		{
-			return null;
+			return System.Array.Empty<Vector2>();
 		}
 
-		var viewportSize = _postSmokeCanvas.GetViewportRect().Size;
-		min = new Vector2(Mathf.Clamp(min.X, 0f, viewportSize.X), Mathf.Clamp(min.Y, 0f, viewportSize.Y));
-		max = new Vector2(Mathf.Clamp(max.X, 0f, viewportSize.X), Mathf.Clamp(max.Y, 0f, viewportSize.Y));
+		points.Sort(static (a, b) => a.X != b.X ? a.X.CompareTo(b.X) : a.Y.CompareTo(b.Y));
+		var hull = new List<Vector2>();
+
+		static float Cross(Vector2 origin, Vector2 a, Vector2 b)
+			=> (a.X - origin.X) * (b.Y - origin.Y) - (a.Y - origin.Y) * (b.X - origin.X);
+
+		foreach (var point in points)
+		{
+			while (hull.Count >= 2 && Cross(hull[^2], hull[^1], point) <= 0f)
+			{
+				hull.RemoveAt(hull.Count - 1);
+			}
+
+			hull.Add(point);
+		}
+
+		var lower = hull.Count + 1;
+		for (var i = points.Count - 2; i >= 0; i--)
+		{
+			var point = points[i];
+			while (hull.Count >= lower && Cross(hull[^2], hull[^1], point) <= 0f)
+			{
+				hull.RemoveAt(hull.Count - 1);
+			}
+
+			hull.Add(point);
+		}
+
+		hull.RemoveAt(hull.Count - 1);
+		if (hull.Count < 3)
+		{
+			return System.Array.Empty<Vector2>();
+		}
+
+		return hull.ToArray();
+	}
+
+	private static Rect2 ComputeHullBounds(Vector2[] hull)
+	{
+		Vector2 min = new(float.PositiveInfinity, float.PositiveInfinity);
+		Vector2 max = new(float.NegativeInfinity, float.NegativeInfinity);
+		for (var i = 0; i < hull.Length; i++)
+		{
+			var point = hull[i];
+			min.X = Mathf.Min(min.X, point.X);
+			min.Y = Mathf.Min(min.Y, point.Y);
+			max.X = Mathf.Max(max.X, point.X);
+			max.Y = Mathf.Max(max.Y, point.Y);
+		}
+
 		return new Rect2(min, max - min);
 	}
 

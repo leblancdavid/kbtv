@@ -11,15 +11,16 @@ public partial class ComicPostLayer : CanvasLayer
 
 	[Export] public bool ComicPostEnabled { get; set; } = true;
 	[Export] public Key ToggleKey { get; set; } = Key.F8;
-	[Export] public float EffectStrength { get; set; } = 0.50f;
-	[Export] public int PosterizeSteps { get; set; } = 6;
-	[Export] public float Saturation { get; set; } = 1.12f;
-	[Export] public float OutlineThreshold { get; set; } = 0.52f;
-	[Export] public float OutlineBias { get; set; } = 0.10f;
+	[Export] public float EffectStrength { get; set; } = 0.78f;
+	[Export] public int PosterizeSteps { get; set; } = 5;
+	[Export] public float Saturation { get; set; } = 1.22f;
+	[Export] public float OutlineThreshold { get; set; } = 0.22f;
+	[Export] public float OutlineBias { get; set; } = 0.07f;
+	[Export] public float OutlineWidthPx { get; set; } = 2.0f;
 	[Export] public Color OutlineColor { get; set; } = new(0.02f, 0.03f, 0.07f, 1.0f);
-	[Export] public float OutlineMix { get; set; } = 0.70f;
-	[Export] public float HalftoneSizePx { get; set; } = 8.0f;
-	[Export] public float HalftoneStrength { get; set; } = 0.04f;
+	[Export] public float OutlineMix { get; set; } = 1.0f;
+	[Export] public float HalftoneSizePx { get; set; } = 14.0f;
+	[Export] public float HalftoneStrength { get; set; } = 0.012f;
 	[Export] public Vector2 HalftoneBand { get; set; } = new(0.10f, 0.72f);
 
 	private ShaderMaterial? _material;
@@ -87,6 +88,7 @@ public partial class ComicPostLayer : CanvasLayer
 		_material.SetShaderParameter("saturation", Saturation);
 		_material.SetShaderParameter("outline_threshold", OutlineThreshold);
 		_material.SetShaderParameter("outline_bias", OutlineBias);
+		_material.SetShaderParameter("outline_width_px", OutlineWidthPx);
 		_material.SetShaderParameter("outline_color", OutlineColor);
 		_material.SetShaderParameter("outline_mix", OutlineMix);
 		_material.SetShaderParameter("halftone_size_px", HalftoneSizePx);

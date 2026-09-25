@@ -2,15 +2,16 @@ shader_type canvas_item;
 render_mode unshaded;
 
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_nearest;
-uniform float effect_strength = 0.50;
-uniform int posterize_steps = 6;
-uniform float saturation = 1.12;
-uniform float outline_threshold = 0.52;
-uniform float outline_bias = 0.10;
+uniform float effect_strength = 0.78;
+uniform int posterize_steps = 5;
+uniform float saturation = 1.22;
+uniform float outline_threshold = 0.22;
+uniform float outline_bias = 0.07;
+uniform float outline_width_px = 2.0;
 uniform vec4 outline_color : source_color = vec4(0.02, 0.03, 0.07, 1.0);
-uniform float outline_mix = 0.70;
-uniform float halftone_size_px = 8.0;
-uniform float halftone_strength = 0.04;
+uniform float outline_mix = 1.0;
+uniform float halftone_size_px = 14.0;
+uniform float halftone_strength = 0.012;
 uniform vec2 halftone_band = vec2(0.10, 0.72);
 
 float luminance(vec3 color) {
@@ -19,7 +20,7 @@ float luminance(vec3 color) {
 
 void fragment() {
 	vec2 uv = SCREEN_UV;
-	vec2 px = SCREEN_PIXEL_SIZE;
+	vec2 px = SCREEN_PIXEL_SIZE * max(outline_width_px, 1.0);
 	vec3 center = texture(screen_tex, uv).rgb;
 	vec3 original = center;
 

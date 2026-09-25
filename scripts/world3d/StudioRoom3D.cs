@@ -17,7 +17,7 @@ public partial class StudioRoom3D : Node3D
 	[Export] public float FogMotionStrength = 0.22f;
 	[Export] public float SmokeDriftSpeed = 0.45f;
 	[Export] public Vector3 SmokePuffOrigin = new(-0.85f, 1.4f, 0.2f);
-	[Export] public Vector3 SmokeRoomHalfExtents = new(4.4f, 1.7f, 3.4f);
+	[Export] public Vector3 SmokeRoomHalfExtents = new(5f, 1.15f, 4f);
 
 	private const float HalfWidth = 5f;
 	private const float HalfDepth = 4f;
