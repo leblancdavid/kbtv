@@ -11,21 +11,21 @@ public partial class ComicPostLayer : Node3D
 	[Export] public bool ComicPostEnabled { get; set; } = true;
 	[Export] public Key ToggleKey { get; set; } = Key.F8;
 	[Export] public Key ToggleOutlinesKey { get; set; } = Key.F9;
-	[Export] public float EffectStrength { get; set; } = 0.78f;
+	[Export] public float EffectStrength { get; set; } = 1.0f;
 	[Export] public int PosterizeSteps { get; set; } = 5;
-	[Export] public float Saturation { get; set; } = 1.22f;
-	[Export] public float OutlineThreshold { get; set; } = 0.28f;
-	[Export] public float OutlineBias { get; set; } = 0.07f;
+	[Export] public float Saturation { get; set; } = 1.0f;
+	[Export] public float OutlineThreshold { get; set; } = 0.2f;
+	[Export] public float OutlineBias { get; set; } = 0.1f;
 	[Export] public float OutlineWidthPx { get; set; } = 2.0f;
-	[Export] public Color OutlineColor { get; set; } = new(0.02f, 0.03f, 0.07f, 1.0f);
-	[Export] public float OutlineMix { get; set; } = 1.15f;
+	[Export] public Color OutlineColor { get; set; } = new(0f, 0f, 0f, 1.0f);
+	[Export] public float OutlineMix { get; set; } = 1.0f;
 	// Depth jumps are compared as a fraction of distance, so these are
 	// dimensionless: threshold is "1.5% closer/farther", width is the diagonal
 	// tap spacing in pixels.
 	[Export] public bool DepthEdgesEnabled { get; set; } = true;
 	[Export] public float DepthEdgeMix { get; set; } = 1.0f;
-	[Export] public float DepthEdgeThreshold { get; set; } = 0.015f;
-	[Export] public float DepthEdgeBias { get; set; } = 0.006f;
+	[Export] public float DepthEdgeThreshold { get; set; } = 0.15f;
+	[Export] public float DepthEdgeBias { get; set; } = 0.06f;
 	[Export] public float DepthEdgeWidthPx { get; set; } = 2.0f;
 	[Export] public bool NormalEdgesEnabled { get; set; } = true;
 	[Export] public float NormalEdgeMix { get; set; } = 0.45f;
@@ -56,7 +56,7 @@ public partial class ComicPostLayer : Node3D
 	[Export] public float ShadowSmoothSoftness { get; set; } = 0.14f;
 	[Export] public float ShadowSmoothEdgeReject { get; set; } = 0.34f;
 	[Export] public float ShadowSmoothEdgeSoftness { get; set; } = 0.12f;
-	[Export] public float ShadowSmoothStrength { get; set; } = 0.25f;
+	[Export] public float ShadowSmoothStrength { get; set; } = 0.0f;
 	[Export] public float ShadowSmoothRadiusPx { get; set; } = 4.0f;
 
 	private ShaderMaterial? _material;

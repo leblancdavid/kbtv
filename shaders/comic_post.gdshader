@@ -4,14 +4,14 @@ render_mode unshaded, fog_disabled, cull_disabled, depth_test_disabled, depth_dr
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
 uniform sampler2D depth_tex : hint_depth_texture, repeat_disable, filter_nearest;
 uniform sampler2D normal_roughness_tex : hint_normal_roughness_texture, repeat_disable, filter_nearest;
-uniform float effect_strength = 0.78;
+uniform float effect_strength = 0.90;
 uniform int posterize_steps = 5;
-uniform float saturation = 1.22;
+uniform float saturation = 0.92;
 uniform float outline_threshold = 0.28;
 uniform float outline_bias = 0.07;
 uniform float outline_width_px = 2.0;
-uniform vec4 outline_color : source_color = vec4(0.02, 0.03, 0.07, 1.0);
-uniform float outline_mix = 1.15;
+uniform vec4 outline_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
+uniform float outline_mix = 1.25;
 uniform bool depth_edges_enabled = true;
 uniform float depth_edge_mix = 1.0;
 uniform float depth_edge_threshold = 0.015;
@@ -49,7 +49,7 @@ uniform float shadow_smooth_threshold = 0.55;
 uniform float shadow_smooth_softness = 0.14;
 uniform float shadow_smooth_edge_reject = 0.34;
 uniform float shadow_smooth_edge_softness = 0.12;
-uniform float shadow_smooth_strength = 0.25;
+uniform float shadow_smooth_strength = 0.0;
 uniform float shadow_smooth_radius_px = 4.0;
 
 float luminance(vec3 color) {
@@ -271,7 +271,7 @@ void fragment() {
 	float surface_mask = is_far_plane(center_linear_depth, far_plane) ? 0.0 : 1.0;
 	// Noir lighting keeps many textured surfaces below the first posterize band.
 	// Give real geometry a hard dark band while keeping far-plane background black.
-	float dark_surface_band = surface_mask * 0.095 * step(0.004, base_luma);
+	float dark_surface_band = surface_mask * 0.060 * step(0.004, base_luma);
 	float band_luma = max(quantized_luma, dark_surface_band);
 	vec3 color = center * (band_luma / base_luma);
 	color = mix(vec3(luminance(color)), color, saturation);
@@ -339,8 +339,14 @@ void fragment() {
 			* clamp(normal_edge_mix, 0.0, 1.0)
 		: 0.0;
 	float ink = max(max(luma_ink, depth_ink), normal_ink) * outline_mix;
-	color = mix(color, outline_color.rgb, clamp(ink, 0.0, 1.0));
+	ink = smoothstep(0.03, 0.35, ink);
+	float noir_shadow = 1.0 - smoothstep(0.30, 0.80, band_luma);
+	vec3 noir_tint = vec3(0.78, 0.82, 0.92);
+	color *= mix(vec3(1.0), noir_tint * 0.68, noir_shadow);
 	color = mix(original, color, clamp(effect_strength, 0.0, 1.0));
+	// Ink last so strong edges are fully black instead of being diluted by the
+	// original-image blend.
+	color = mix(color, outline_color.rgb, clamp(ink, 0.0, 1.0));
 
 	ALBEDO = color;
 	EMISSION = vec3(0.0);
