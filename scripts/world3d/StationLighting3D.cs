@@ -16,12 +16,12 @@ public partial class StationLighting3D : Node3D
 	private static readonly Color Fluorescent = new(0.88f, 0.93f, 1.0f);
 	private static readonly Color OnAirRed = new(1.0f, 0.12f, 0.08f);
 	private static readonly Color FixtureDark = new(0.035f, 0.032f, 0.03f);
-	private const float FluorescentFillEnergyMultiplier = 0.95f;
-	private const float FluorescentShadowEnergyMultiplier = 1.35f;
+	private const float FluorescentFillEnergyMultiplier = 1.05f;
+	private const float FluorescentShadowEnergyMultiplier = 1.05f;
 	private const float FluorescentShadowActiveRadius = 9.5f;
 	private const float FluorescentShadowActiveRadiusSquared = FluorescentShadowActiveRadius * FluorescentShadowActiveRadius;
 	private const float RoomShadowRange = 13.0f;
-	private const float FluorescentShadowRange = 12.0f;
+	private const float FluorescentShadowRange = 14.5f;
 	private const float ShadowBias = 0.12f;
 	private const float ShadowNormalBias = 2.4f;
 	private const float DefaultShadowBlur = 0.5f;
@@ -157,9 +157,11 @@ public partial class StationLighting3D : Node3D
 	{
 		AddEquipmentRoomLights(root);
 
-		AddFluorescent(root, "HallFluorescentNorth", new Vector3(6.5f, 2.55f, -11.5f), 5.0f, 20.0f);
-		AddFluorescent(root, "HallFluorescentMiddle", new Vector3(6.5f, 2.55f, -3.0f), 5.0f, 20.0f);
-		AddFluorescent(root, "HallFluorescentSouth", new Vector3(6.5f, 2.55f, 4.8f), 5.0f, 20.0f);
+		AddFluorescent(root, "HallFluorescentNorth", new Vector3(6.5f, 2.55f, -12.0f), 3.6f, 24.0f);
+		AddFluorescent(root, "HallFluorescentUpperMid", new Vector3(6.5f, 2.55f, -7.2f), 3.4f, 24.0f);
+		AddFluorescent(root, "HallFluorescentMiddle", new Vector3(6.5f, 2.55f, -2.4f), 3.4f, 24.0f);
+		AddFluorescent(root, "HallFluorescentLowerMid", new Vector3(6.5f, 2.55f, 2.4f), 3.4f, 24.0f);
+		AddFluorescent(root, "HallFluorescentSouth", new Vector3(6.5f, 2.55f, 6.2f), 3.6f, 24.0f);
 
 		AddFluorescent(root, "ArchiveFluorescent", new Vector3(12.0f, 2.45f, -11.0f), 5.0f, 20.0f);
 		AddFluorescent(root, "OfficeFluorescent", new Vector3(12.0f, 2.4f, -2.5f), 5.0f, 20.0f);

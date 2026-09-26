@@ -14,6 +14,7 @@ public partial class ComicPostLayer : Node3D
 	[Export] public Key ToggleOutlinesKey { get; set; } = Key.F9;
 	[Export] public float EffectStrength { get; set; } = 1.0f;
 	[Export] public int PosterizeSteps { get; set; } = 6;
+	[Export] public float SurfacePosterizeStrength { get; set; } = 0.0f;
 	[Export] public float Saturation { get; set; } = 1.2f;
 	[Export] public float OutlineThreshold { get; set; } = 0.14f;
 	[Export] public float OutlineBias { get; set; } = 0.045f;
@@ -61,9 +62,17 @@ public partial class ComicPostLayer : Node3D
 	[Export] public float ShadowSmoothRadiusPx { get; set; } = 4.0f;
 	[Export] public bool LightPosterizeEnabled { get; set; } = true;
 	[Export] public float LightPosterizeSteps { get; set; } = 4.0f;
-	[Export] public float LightPosterizeStrength { get; set; } = 0.65f;
-	[Export] public float LightPosterizeThreshold { get; set; } = 0.34f;
-	[Export] public float LightPosterizeSoftness { get; set; } = 0.18f;
+	[Export] public float LightPosterizeStrength { get; set; } = 1.0f;
+	[Export] public float LightPosterizeThreshold { get; set; } = 0.0f;
+	[Export] public float LightPosterizeSoftness { get; set; } = 0.0f;
+	[Export] public float LightPosterizeRelativeThreshold { get; set; } = 0.045f;
+	[Export] public float LightPosterizeRelativeSoftness { get; set; } = 0.08f;
+	[Export] public float LightPosterizeLocalDarken { get; set; } = 0.82f;
+	[Export] public bool SurfaceDetailReinjectEnabled { get; set; } = true;
+	[Export] public float SurfaceDetailReinjectStrength { get; set; } = 1.4f;
+	[Export] public float SurfaceDetailReinjectThreshold { get; set; } = 0.006f;
+	[Export] public float SurfaceDetailReinjectSoftness { get; set; } = 0.030f;
+	[Export] public float SurfaceDetailReinjectMaxLuma { get; set; } = 0.46f;
 
 	private ShaderMaterial? _material;
 	private float _savedOutlineMix = 1.0f;
@@ -183,6 +192,7 @@ public partial class ComicPostLayer : Node3D
 
 		_material.SetShaderParameter("effect_strength", EffectStrength);
 		_material.SetShaderParameter("posterize_steps", PosterizeSteps);
+		_material.SetShaderParameter("surface_posterize_strength", SurfacePosterizeStrength);
 		_material.SetShaderParameter("saturation", Saturation);
 		_material.SetShaderParameter("outline_threshold", OutlineThreshold);
 		_material.SetShaderParameter("outline_bias", OutlineBias);
@@ -230,6 +240,14 @@ public partial class ComicPostLayer : Node3D
 		_material.SetShaderParameter("light_posterize_strength", LightPosterizeStrength);
 		_material.SetShaderParameter("light_posterize_threshold", LightPosterizeThreshold);
 		_material.SetShaderParameter("light_posterize_softness", LightPosterizeSoftness);
+		_material.SetShaderParameter("light_posterize_relative_threshold", LightPosterizeRelativeThreshold);
+		_material.SetShaderParameter("light_posterize_relative_softness", LightPosterizeRelativeSoftness);
+		_material.SetShaderParameter("light_posterize_local_darken", LightPosterizeLocalDarken);
+		_material.SetShaderParameter("surface_detail_reinject_enabled", SurfaceDetailReinjectEnabled);
+		_material.SetShaderParameter("surface_detail_reinject_strength", SurfaceDetailReinjectStrength);
+		_material.SetShaderParameter("surface_detail_reinject_threshold", SurfaceDetailReinjectThreshold);
+		_material.SetShaderParameter("surface_detail_reinject_softness", SurfaceDetailReinjectSoftness);
+		_material.SetShaderParameter("surface_detail_reinject_max_luma", SurfaceDetailReinjectMaxLuma);
 		_material.SetShaderParameter("camera_near_far", _nearFar);
 	}
 }

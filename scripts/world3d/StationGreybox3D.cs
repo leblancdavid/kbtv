@@ -22,6 +22,7 @@ public partial class StationGreybox3D : Node3D
 	private const float DoubleDoorMiddleZone = 0.28f;
 	private const float WindowFrameDepth = WallThickness;
 	private const float WindowFrameZ = 0f;
+	private const float HallTileWorldSize = 1.5f;
 
 	private readonly Rect2 _hallway = new(new Vector2(5f, -14f), new Vector2(3f, 22f));
 	private readonly Rect2 _equipmentRoom = new(new Vector2(-5f, -14f), new Vector2(10f, 6f));
@@ -124,7 +125,7 @@ public partial class StationGreybox3D : Node3D
 
 	private void CreateMaterials()
 	{
-		_hallMaterial = MakeMaterial(new Color(0.11f, 0.12f, 0.14f));
+		_hallMaterial = StationFloorMaterials3D.MakeHallLinoleum();
 		_supportMaterial = MakeMaterial(new Color(0.13f, 0.12f, 0.11f));
 		_wallMaterial = MakeMaterial(new Color(0.2f, 0.18f, 0.16f));
 		_equipmentMaterial = MakeMaterial(new Color(0.06f, 0.18f, 0.22f));
@@ -420,8 +421,33 @@ public partial class StationGreybox3D : Node3D
 	private void AddRoom(string name, Rect2 rect, Material material, string label, uint layerMask)
 	{
 		var center = GetCenter(rect);
-		AddBox($"{name}Floor", new Vector3(center.X, -0.1f, center.Y), new Vector3(rect.Size.X, 0.2f, rect.Size.Y), material, true, layerMask, false);
+		if (material == _hallMaterial)
+		{
+			AddFloorPlane($"{name}Floor", new Vector3(center.X, 0.01f, center.Y), rect.Size, material, layerMask);
+		}
+		else
+		{
+			AddBox($"{name}Floor", new Vector3(center.X, -0.1f, center.Y), new Vector3(rect.Size.X, 0.2f, rect.Size.Y), material, true, layerMask, false);
+		}
 		AddLabel(label, new Vector3(center.X, 1.3f, center.Y));
+	}
+
+	private void AddFloorPlane(string name, Vector3 position, Vector2 size, Material material, uint layerMask)
+	{
+		var mesh = new MeshInstance3D
+		{
+			Name = name,
+			Position = position,
+			Mesh = StationFloorMaterials3D.MakeTiledFloorMesh(size.X, size.Y, HallTileWorldSize),
+			MaterialOverride = material,
+			Layers = layerMask,
+			CastShadow = GeometryInstance3D.ShadowCastingSetting.Off
+		};
+		AddChild(mesh);
+
+		var body = new StaticBody3D { Name = $"{name}Collider", Position = new Vector3(position.X, -0.1f, position.Z) };
+		body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(size.X, 0.2f, size.Y) } });
+		AddChild(body);
 	}
 
 	private static Vector2 GetCenter(Rect2 rect)

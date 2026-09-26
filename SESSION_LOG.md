@@ -1,6 +1,19 @@
 ## Current Session
 
 **Branch**: comic-styling
+**Task**: Make light posterization affect all room light pools, not only bright hallway pixels.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`, `scripts/world3d/ControlRoom3D.cs`, `scripts/world3d/StudioRoom3D.cs`, `scripts/world3d/StationGreybox3D.cs`, `scripts/world3d/StationLighting3D.cs`, `scripts/world3d/ComicPostLayer.cs`, `shaders/comic_post.gdshader`, `assets/textures/world3d/{control_carpet,studio_carpet,hall_linoleum,wallpaper_subtle}.png`
+- Work Done: User screenshot showed the first procedural runtime texture pass was unacceptable: default box UVs and high-contrast procedural patterns produced huge blotchy artifacts under the comic pass. Reverted that attempt, then generated actual PixelLab texture swatches (seeds 41011/41023/41037/41051) and saved them under `assets/textures/world3d/`. Added `StationFloorMaterials3D`, which loads PNG bytes with `FileAccess.GetFileAsBytes()` + `Image.LoadPngFromBuffer()` (export-safe, no Godot `.import` dependency), builds explicit tiled floor `ArrayMesh` quads, and applies nearest-filtered floor materials. Control/studio floor texturing and global wallpaper were rolled back after they flattened the noir lighting. Replaced the old texture-brightness lifting path with `MakeComicMaskedMaterial(...)`: source PNGs are converted to luma/detail masks around a controlled dark base color, with separate darken/brighten strengths, luma clamps, and optional dark border/grout. Initial hallway luma-mask passes were either blown out or collapsed by comic posterization into mostly flat color with only vague texture outlines. Tried explicit hallway grout geometry, but user screenshot showed it read as oversized black bands, not tile texture, so it was removed. Added post-posterize detail reinjection to `comic_post.gdshader` and `ComicPostLayer`: after lighting is posterized, high-frequency source detail (`original - smooth_source`) is blended back in with configurable strength/threshold/max-luma so texture can survive without driving lighting bands. Changed hallway fluorescents from 3 hot pools to 5 lower-energy overlapping fixtures with wider effective range. Added `SurfacePosterizeStrength` to keep global surface luma posterization off by default. Updated light posterization to use smoothed scene luma plus a local-relative light mask instead of raw absolute pixel luma, with new `LightPosterizeRelativeThreshold`, `LightPosterizeRelativeSoftness`, and `LightPosterizeLocalDarken` controls. This should let warm/darker control and studio light pools qualify for banding, not just bright hallway fluorescents.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded with no new script/resource errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel`/`BroadcastAudioService`.
+- Next Steps: User visual check. If room lights still do not band enough, lower `LightPosterizeRelativeThreshold` or `LightPosterizeLocalDarken`; if texture starts banding/noising, raise the relative threshold or lower `LightPosterizeStrength`.
+- Blockers: none.
+
+---
+
+## Previous Session (comic light posterization)
+
+**Branch**: comic-styling
 **Task**: Apply comic posterization to light falloff and transparent glow effects.
 **Status**: Completed (build + Godot check green; visual review pending)
 - Files Modified: `SESSION_LOG.md`, `shaders/comic_post.gdshader`, `scripts/world3d/ComicPostLayer.cs`, `scripts/world3d/Soundboard3D.cs`

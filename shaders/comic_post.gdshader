@@ -6,6 +6,7 @@ uniform sampler2D depth_tex : hint_depth_texture, repeat_disable, filter_nearest
 uniform sampler2D normal_roughness_tex : hint_normal_roughness_texture, repeat_disable, filter_nearest;
 uniform float effect_strength = 0.90;
 uniform int posterize_steps = 5;
+uniform float surface_posterize_strength = 0.0;
 uniform float saturation = 0.92;
 uniform float outline_threshold = 0.14;
 uniform float outline_bias = 0.045;
@@ -56,6 +57,14 @@ uniform float light_posterize_steps = 4.0;
 uniform float light_posterize_strength = 0.65;
 uniform float light_posterize_threshold = 0.34;
 uniform float light_posterize_softness = 0.18;
+uniform float light_posterize_relative_threshold = 0.045;
+uniform float light_posterize_relative_softness = 0.08;
+uniform float light_posterize_local_darken = 0.82;
+uniform bool surface_detail_reinject_enabled = true;
+uniform float surface_detail_reinject_strength = 1.4;
+uniform float surface_detail_reinject_threshold = 0.006;
+uniform float surface_detail_reinject_softness = 0.030;
+uniform float surface_detail_reinject_max_luma = 0.46;
 
 float luminance(vec3 color) {
 	return dot(color, vec3(0.299, 0.587, 0.114));
@@ -285,25 +294,31 @@ void fragment() {
 	// Noir lighting keeps many textured surfaces below the first posterize band.
 	// Give real geometry a hard dark band while keeping far-plane background black.
 	float dark_surface_band = surface_mask * 0.060 * step(0.004, base_luma);
-	float band_luma = max(quantized_luma, dark_surface_band);
+	vec3 smooth_source = (center * 4.0 + smooth_n * 2.0 + smooth_s * 2.0 + smooth_w * 2.0 + smooth_e * 2.0
+		+ smooth_tl + smooth_tr + smooth_bl + smooth_br) / 16.0;
+	float smooth_luma = max(luminance(smooth_source), 0.0001);
+	float band_luma = max(mix(base_luma, quantized_luma, clamp(surface_posterize_strength, 0.0, 1.0)), dark_surface_band);
 	vec3 color = clamp_rgb(center * capped_luma_scale(band_luma, base_luma));
 	color = mix(vec3(luminance(color)), color, saturation);
 	color = clamp_rgb(color);
 	if (light_posterize_enabled) {
-		float light_mask = smoothstep(
+		float absolute_light_mask = smoothstep(
 			light_posterize_threshold,
 			light_posterize_threshold + max(light_posterize_softness, 0.0001),
-			base_luma);
+			smooth_luma);
+		float local_light = max(smooth_luma - median_luma * clamp(light_posterize_local_darken, 0.0, 1.5), 0.0);
+		float relative_light_mask = smoothstep(
+			light_posterize_relative_threshold,
+			light_posterize_relative_threshold + max(light_posterize_relative_softness, 0.0001),
+			local_light);
+		float light_mask = max(absolute_light_mask, relative_light_mask) * surface_mask;
 		float light_steps = max(light_posterize_steps, 1.0);
-		float light_luma = floor(base_luma * light_steps + 0.5) / light_steps;
+		float light_luma = floor(smooth_luma * light_steps + 0.5) / light_steps;
 		light_luma = max(light_luma, dark_surface_band);
-		vec3 light_color = clamp_rgb(center * capped_luma_scale(light_luma, base_luma));
+		vec3 light_color = clamp_rgb(center * capped_luma_scale(light_luma, smooth_luma));
 		light_color = mix(vec3(luminance(light_color)), light_color, saturation);
 		color = mix(color, clamp_rgb(light_color), light_mask * clamp(light_posterize_strength, 0.0, 1.0));
 	}
-	vec3 smooth_source = (center * 4.0 + smooth_n * 2.0 + smooth_s * 2.0 + smooth_w * 2.0 + smooth_e * 2.0
-		+ smooth_tl + smooth_tr + smooth_bl + smooth_br) / 16.0;
-	float smooth_luma = max(luminance(smooth_source), 0.0001);
 	vec3 smooth_color = clamp_rgb(smooth_source * capped_luma_scale(band_luma, smooth_luma));
 	smooth_color = mix(vec3(luminance(smooth_color)), smooth_color, saturation);
 	smooth_color = clamp_rgb(smooth_color);
@@ -352,6 +367,18 @@ void fragment() {
 		bright_detail_threshold,
 		bright_detail_threshold + max(bright_detail_softness, 0.0001),
 		band_luma);
+	if (surface_detail_reinject_enabled) {
+		vec3 source_detail = original - smooth_source;
+		float detail_luma = abs(luminance(original) - luminance(smooth_source));
+		float detail_mask = smoothstep(
+			surface_detail_reinject_threshold,
+			surface_detail_reinject_threshold + max(surface_detail_reinject_softness, 0.0001),
+			detail_luma)
+			* surface_mask
+			* (1.0 - smoothstep(surface_detail_reinject_max_luma - 0.10, surface_detail_reinject_max_luma, band_luma));
+
+		color = clamp_rgb(color + source_detail * detail_mask * surface_detail_reinject_strength);
+	}
 	float combined_detail_suppression = clamp(
 		detail_ink_suppression + bright_detail_mask * bright_detail_ink_suppression,
 		0.0,
