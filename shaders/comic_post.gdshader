@@ -1,7 +1,9 @@
-shader_type canvas_item;
-render_mode unshaded;
+shader_type spatial;
+render_mode unshaded, fog_disabled, cull_disabled, depth_test_disabled, depth_draw_never;
 
 uniform sampler2D screen_tex : hint_screen_texture, repeat_disable, filter_linear;
+uniform sampler2D depth_tex : hint_depth_texture, repeat_disable, filter_nearest;
+uniform sampler2D normal_roughness_tex : hint_normal_roughness_texture, repeat_disable, filter_nearest;
 uniform float effect_strength = 0.78;
 uniform int posterize_steps = 5;
 uniform float saturation = 1.22;
@@ -9,7 +11,20 @@ uniform float outline_threshold = 0.28;
 uniform float outline_bias = 0.07;
 uniform float outline_width_px = 2.0;
 uniform vec4 outline_color : source_color = vec4(0.02, 0.03, 0.07, 1.0);
-uniform float outline_mix = 1.0;
+uniform float outline_mix = 1.15;
+uniform bool depth_edges_enabled = true;
+uniform float depth_edge_mix = 1.0;
+uniform float depth_edge_threshold = 0.015;
+uniform float depth_edge_bias = 0.006;
+uniform float depth_edge_width_px = 2.0;
+uniform bool normal_edges_enabled = true;
+uniform float normal_edge_mix = 0.45;
+uniform float normal_edge_threshold = 0.10;
+uniform float normal_edge_bias = 0.10;
+// Supplied by ComicPostLayer from the active Camera3D for far-plane silhouette checks.
+uniform vec2 camera_near_far = vec2(0.05, 100.0);
+
+uniform float luma_edge_mix = 0.45;
 uniform float detail_ink_suppression = 0.92;
 uniform float bright_detail_ink_suppression = 0.75;
 uniform float bright_detail_threshold = 0.34;
@@ -34,7 +49,7 @@ uniform float shadow_smooth_threshold = 0.55;
 uniform float shadow_smooth_softness = 0.14;
 uniform float shadow_smooth_edge_reject = 0.34;
 uniform float shadow_smooth_edge_softness = 0.12;
-uniform float shadow_smooth_strength = 1.0;
+uniform float shadow_smooth_strength = 0.25;
 uniform float shadow_smooth_radius_px = 4.0;
 
 float luminance(vec3 color) {
@@ -89,6 +104,68 @@ float sobel_luma(vec2 uv, vec2 px) {
 	return length(vec2(gx, gy));
 }
 
+// Godot 4.3+ uses a reverse-Z depth buffer in Forward+/Mobile: depth is 1.0 at
+// the near plane and 0.0 at the far plane. Reconstruct view distance with the
+// inverse projection matrix instead of treating depth as standard OpenGL Z.
+float linearize_depth(vec2 sample_uv, float raw_depth, mat4 inv_projection_matrix) {
+#if CURRENT_RENDERER == RENDERER_COMPATIBILITY
+	vec3 ndc = vec3(sample_uv, raw_depth) * 2.0 - 1.0;
+#else
+	vec3 ndc = vec3(sample_uv * 2.0 - 1.0, raw_depth);
+#endif
+	vec4 view = inv_projection_matrix * vec4(ndc, 1.0);
+	view.xyz /= view.w;
+	return -view.z;
+}
+
+bool is_far_plane(float linear_depth, float far_plane) {
+	return linear_depth >= far_plane * 0.995;
+}
+
+// Relative depth jump: the change in distance as a fraction of the farther of
+// the two samples, so a slanted floor stays clean at any camera distance. A
+// sample sitting on the far plane means background, which is always a
+// silhouette worth inking.
+float relative_depth_delta(float center_depth, vec2 sample_uv, float raw_depth, float far_plane, mat4 inv_projection_matrix) {
+	float sample_depth = linearize_depth(sample_uv, raw_depth, inv_projection_matrix);
+	if (is_far_plane(sample_depth, far_plane)) {
+		return 1.0;
+	}
+	float scale = max(max(center_depth, sample_depth), 0.0001);
+	return abs(sample_depth - center_depth) / scale;
+}
+
+// Roberts cross: two diagonal taps instead of all eight neighbours, so a
+// silhouette costs half the reads and a flat surface contributes no gradient.
+float depth_edge_delta(vec2 uv, vec2 px, float far_plane, mat4 inv_projection_matrix) {
+	float center_depth = linearize_depth(uv, texture(depth_tex, uv).r, inv_projection_matrix);
+	if (is_far_plane(center_depth, far_plane)) {
+		return 0.0;
+	}
+	vec2 diagonal_a_uv = uv + vec2(px.x, px.y);
+	vec2 diagonal_b_uv = uv - vec2(px.x, px.y);
+	float diagonal_a = relative_depth_delta(center_depth, diagonal_a_uv, texture(depth_tex, diagonal_a_uv).r, far_plane, inv_projection_matrix);
+	float diagonal_b = relative_depth_delta(center_depth, diagonal_b_uv, texture(depth_tex, diagonal_b_uv).r, far_plane, inv_projection_matrix);
+	return max(diagonal_a, diagonal_b);
+}
+
+vec3 read_normal(vec2 uv) {
+	vec3 raw = texture(normal_roughness_tex, uv).rgb * 2.0 - 1.0;
+	float len = length(raw);
+	// An unwritten normal buffer samples as zero; normalize() would give NaN.
+	return len > 0.0001 ? raw / len : vec3(0.0, 1.0, 0.0);
+}
+
+// Crease severity as 1 - cos(angle): 0 when coplanar, 0.06 at 20 degrees,
+// 0.29 at 45. Dot products keep this in a 0..2 range regardless of normal
+// encoding, unlike the length of a normal difference.
+float normal_crease_delta(vec2 uv, vec2 px) {
+	vec3 c = read_normal(uv);
+	float diagonal_a = 1.0 - dot(c, read_normal(uv + vec2(px.x, px.y)));
+	float diagonal_b = 1.0 - dot(c, read_normal(uv - vec2(px.x, px.y)));
+	return max(diagonal_a, diagonal_b);
+}
+
 void pick_closer_to_luma(
 	inout vec3 best_color,
 	inout float best_delta,
@@ -103,12 +180,20 @@ void pick_closer_to_luma(
 	}
 }
 
+void vertex() {
+	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
+}
+
 void fragment() {
 	vec2 uv = SCREEN_UV;
-	vec2 edge_px = SCREEN_PIXEL_SIZE * max(outline_width_px, 1.0);
-	vec2 macro_px = SCREEN_PIXEL_SIZE * max(macro_edge_width_px, outline_width_px);
-	vec2 filter_px = SCREEN_PIXEL_SIZE * max(median_filter_radius_px, 1.0);
-	vec2 smooth_px = SCREEN_PIXEL_SIZE * max(shadow_smooth_radius_px, 1.0);
+	vec2 screen_px = 1.0 / VIEWPORT_SIZE;
+	vec2 edge_px = screen_px * max(outline_width_px, 1.0);
+	vec2 depth_px = screen_px * max(depth_edge_width_px, 1.0);
+	vec2 macro_px = screen_px * max(macro_edge_width_px, outline_width_px);
+	vec2 filter_px = screen_px * max(median_filter_radius_px, 1.0);
+	vec2 smooth_px = screen_px * max(shadow_smooth_radius_px, 1.0);
+	mat4 inv_projection_matrix = INV_PROJECTION_MATRIX;
+	float far_plane = camera_near_far.y;
 	vec3 center = texture(screen_tex, uv).rgb;
 	vec3 smooth_tl = texture(screen_tex, uv + vec2(-smooth_px.x, -smooth_px.y)).rgb;
 	vec3 smooth_n = texture(screen_tex, uv + vec2(0.0, -smooth_px.y)).rgb;
@@ -181,7 +266,13 @@ void fragment() {
 
 	float base_luma = max(mc, 0.0001);
 	float steps = max(float(posterize_steps), 1.0);
-	float band_luma = floor(base_luma * steps + 0.5) / steps;
+	float quantized_luma = floor(base_luma * steps + 0.5) / steps;
+	float center_linear_depth = linearize_depth(uv, texture(depth_tex, uv).r, inv_projection_matrix);
+	float surface_mask = is_far_plane(center_linear_depth, far_plane) ? 0.0 : 1.0;
+	// Noir lighting keeps many textured surfaces below the first posterize band.
+	// Give real geometry a hard dark band while keeping far-plane background black.
+	float dark_surface_band = surface_mask * 0.095 * step(0.004, base_luma);
+	float band_luma = max(quantized_luma, dark_surface_band);
 	vec3 color = center * (band_luma / base_luma);
 	color = mix(vec3(luminance(color)), color, saturation);
 	vec3 smooth_source = (center * 4.0 + smooth_n * 2.0 + smooth_s * 2.0 + smooth_w * 2.0 + smooth_e * 2.0
@@ -230,9 +321,28 @@ void fragment() {
 		0.0,
 		1.0);
 	float detail_gate = mix(1.0, macro_gate, combined_detail_suppression);
-	float ink = smoothstep(outline_threshold, outline_threshold + outline_bias, edge) * detail_gate * outline_mix;
+	float luma_ink = smoothstep(outline_threshold, outline_threshold + max(outline_bias, 0.0001), edge)
+		* detail_gate
+		* clamp(luma_edge_mix, 0.0, 1.0);
+	float depth_ink = depth_edges_enabled
+		? smoothstep(
+			depth_edge_threshold,
+			depth_edge_threshold + max(depth_edge_bias, 0.0001),
+			depth_edge_delta(uv, depth_px, far_plane, inv_projection_matrix))
+			* clamp(depth_edge_mix, 0.0, 1.0)
+		: 0.0;
+	float normal_ink = normal_edges_enabled
+		? smoothstep(
+			normal_edge_threshold,
+			normal_edge_threshold + max(normal_edge_bias, 0.0001),
+			normal_crease_delta(uv, edge_px))
+			* clamp(normal_edge_mix, 0.0, 1.0)
+		: 0.0;
+	float ink = max(max(luma_ink, depth_ink), normal_ink) * outline_mix;
 	color = mix(color, outline_color.rgb, clamp(ink, 0.0, 1.0));
-	color = mix(original, color, max(clamp(effect_strength, 0.0, 1.0), shadow_smooth_mask));
+	color = mix(original, color, clamp(effect_strength, 0.0, 1.0));
 
-	COLOR = vec4(color, 1.0);
+	ALBEDO = color;
+	EMISSION = vec3(0.0);
+	ALPHA = 1.0;
 }

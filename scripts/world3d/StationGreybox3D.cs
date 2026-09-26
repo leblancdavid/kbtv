@@ -406,7 +406,7 @@ public partial class StationGreybox3D : Node3D
 	private StandardMaterial3D MakeWallMaterial()
 	{
 		var material = (StandardMaterial3D)_wallMaterial.Duplicate();
-		material.Transparency = BaseMaterial3D.TransparencyEnum.Alpha;
+		material.Transparency = BaseMaterial3D.TransparencyEnum.Disabled;
 		material.AlbedoColor = new Color(material.AlbedoColor.R, material.AlbedoColor.G, material.AlbedoColor.B, WallOpaqueAlpha);
 		return material;
 	}
@@ -510,6 +510,9 @@ public partial class StationGreybox3D : Node3D
 			var color = target.Material.AlbedoColor;
 			color.A = Mathf.Lerp(color.A, targetAlpha, weight);
 			target.Material.AlbedoColor = color;
+			target.Material.Transparency = color.A < 0.99f
+				? BaseMaterial3D.TransparencyEnum.Alpha
+				: BaseMaterial3D.TransparencyEnum.Disabled;
 		}
 	}
 

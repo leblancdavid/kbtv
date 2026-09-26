@@ -4,10 +4,9 @@ using Godot;
 
 namespace KBTV.World3D;
 
-public partial class ComicPostLayer : CanvasLayer
+public partial class ComicPostLayer : Node3D
 {
 	private const string ShaderPath = "res://shaders/comic_post.gdshader";
-	private const int LayerConstant = -10;
 
 	[Export] public bool ComicPostEnabled { get; set; } = true;
 	[Export] public Key ToggleKey { get; set; } = Key.F8;
@@ -19,7 +18,20 @@ public partial class ComicPostLayer : CanvasLayer
 	[Export] public float OutlineBias { get; set; } = 0.07f;
 	[Export] public float OutlineWidthPx { get; set; } = 2.0f;
 	[Export] public Color OutlineColor { get; set; } = new(0.02f, 0.03f, 0.07f, 1.0f);
-	[Export] public float OutlineMix { get; set; } = 1.0f;
+	[Export] public float OutlineMix { get; set; } = 1.15f;
+	// Depth jumps are compared as a fraction of distance, so these are
+	// dimensionless: threshold is "1.5% closer/farther", width is the diagonal
+	// tap spacing in pixels.
+	[Export] public bool DepthEdgesEnabled { get; set; } = true;
+	[Export] public float DepthEdgeMix { get; set; } = 1.0f;
+	[Export] public float DepthEdgeThreshold { get; set; } = 0.015f;
+	[Export] public float DepthEdgeBias { get; set; } = 0.006f;
+	[Export] public float DepthEdgeWidthPx { get; set; } = 2.0f;
+	[Export] public bool NormalEdgesEnabled { get; set; } = true;
+	[Export] public float NormalEdgeMix { get; set; } = 0.45f;
+	[Export] public float NormalEdgeThreshold { get; set; } = 0.10f;
+	[Export] public float NormalEdgeBias { get; set; } = 0.10f;
+	[Export] public float LumaEdgeMix { get; set; } = 0.45f;
 	[Export] public float DetailInkSuppression { get; set; } = 0.92f;
 	[Export] public float BrightDetailInkSuppression { get; set; } = 0.75f;
 	[Export] public float BrightDetailThreshold { get; set; } = 0.34f;
@@ -44,22 +56,27 @@ public partial class ComicPostLayer : CanvasLayer
 	[Export] public float ShadowSmoothSoftness { get; set; } = 0.14f;
 	[Export] public float ShadowSmoothEdgeReject { get; set; } = 0.34f;
 	[Export] public float ShadowSmoothEdgeSoftness { get; set; } = 0.12f;
-	[Export] public float ShadowSmoothStrength { get; set; } = 1.0f;
+	[Export] public float ShadowSmoothStrength { get; set; } = 0.25f;
 	[Export] public float ShadowSmoothRadiusPx { get; set; } = 4.0f;
 
 	private ShaderMaterial? _material;
 	private float _savedOutlineMix = 1.0f;
-
-	public ComicPostLayer()
-	{
-		Layer = LayerConstant;
-	}
+	// The shader needs the active camera's near/far to linearize depth, and Godot
+	// does not expose the projection matrix to the fragment stage. Cached so the
+	// per-frame path is two float compares instead of a viewport lookup.
+	private Camera3D? _trackedCamera;
+	private Vector2 _nearFar = new(0.05f, 100.0f);
 
 	public override void _Ready()
 	{
 		BuildOverlay();
 		ApplyShaderParameters();
 		Visible = ComicPostEnabled;
+	}
+
+	public override void _Process(double delta)
+	{
+		SyncCameraNearFar();
 	}
 
 	public override void _UnhandledInput(InputEvent @event)
@@ -83,6 +100,35 @@ public partial class ComicPostLayer : CanvasLayer
 			ToggleOutlines();
 			GetViewport().SetInputAsHandled();
 		}
+	}
+
+	private void SyncCameraNearFar()
+	{
+		var camera = GetViewport().GetCamera3D();
+		if (camera is null)
+		{
+			// Leave the last known values in place; a frame with no active camera
+			// should not blank the outlines.
+			return;
+		}
+
+		if (camera != _trackedCamera)
+		{
+			_trackedCamera = camera;
+			_nearFar = new Vector2(camera.Near, camera.Far);
+		}
+		else if (Mathf.IsEqualApprox(camera.Near, _nearFar.X) && Mathf.IsEqualApprox(camera.Far, _nearFar.Y))
+		{
+			return;
+		}
+
+		if (_material is null)
+		{
+			return;
+		}
+
+		_nearFar = new Vector2(camera.Near, camera.Far);
+		_material.SetShaderParameter("camera_near_far", _nearFar);
 	}
 
 	private void ToggleOutlines()
@@ -111,15 +157,15 @@ public partial class ComicPostLayer : CanvasLayer
 		}
 
 		_material = new ShaderMaterial { Shader = shader };
-		var rect = new ColorRect
+		var quad = new MeshInstance3D
 		{
-			Name = "ComicPostRect",
-			Color = Colors.White,
-			MouseFilter = Control.MouseFilterEnum.Ignore,
-			Material = _material
+			Name = "ComicPostQuad",
+			Mesh = new QuadMesh { Size = new Vector2(2f, 2f) },
+			MaterialOverride = _material,
+			CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+			ExtraCullMargin = 16384f
 		};
-		rect.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-		AddChild(rect);
+		AddChild(quad);
 	}
 
 	private void ApplyShaderParameters()
@@ -137,6 +183,16 @@ public partial class ComicPostLayer : CanvasLayer
 		_material.SetShaderParameter("outline_width_px", OutlineWidthPx);
 		_material.SetShaderParameter("outline_color", OutlineColor);
 		_material.SetShaderParameter("outline_mix", OutlineMix);
+		_material.SetShaderParameter("depth_edges_enabled", DepthEdgesEnabled);
+		_material.SetShaderParameter("depth_edge_mix", DepthEdgeMix);
+		_material.SetShaderParameter("depth_edge_threshold", DepthEdgeThreshold);
+		_material.SetShaderParameter("depth_edge_bias", DepthEdgeBias);
+		_material.SetShaderParameter("depth_edge_width_px", DepthEdgeWidthPx);
+		_material.SetShaderParameter("normal_edges_enabled", NormalEdgesEnabled);
+		_material.SetShaderParameter("normal_edge_mix", NormalEdgeMix);
+		_material.SetShaderParameter("normal_edge_threshold", NormalEdgeThreshold);
+		_material.SetShaderParameter("normal_edge_bias", NormalEdgeBias);
+		_material.SetShaderParameter("luma_edge_mix", LumaEdgeMix);
 		_material.SetShaderParameter("detail_ink_suppression", DetailInkSuppression);
 		_material.SetShaderParameter("bright_detail_ink_suppression", BrightDetailInkSuppression);
 		_material.SetShaderParameter("bright_detail_threshold", BrightDetailThreshold);
@@ -163,5 +219,6 @@ public partial class ComicPostLayer : CanvasLayer
 		_material.SetShaderParameter("shadow_smooth_edge_softness", ShadowSmoothEdgeSoftness);
 		_material.SetShaderParameter("shadow_smooth_strength", ShadowSmoothStrength);
 		_material.SetShaderParameter("shadow_smooth_radius_px", ShadowSmoothRadiusPx);
+		_material.SetShaderParameter("camera_near_far", _nearFar);
 	}
 }
