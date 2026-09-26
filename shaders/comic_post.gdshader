@@ -7,24 +7,24 @@ uniform sampler2D normal_roughness_tex : hint_normal_roughness_texture, repeat_d
 uniform float effect_strength = 0.90;
 uniform int posterize_steps = 5;
 uniform float saturation = 0.92;
-uniform float outline_threshold = 0.28;
-uniform float outline_bias = 0.07;
+uniform float outline_threshold = 0.14;
+uniform float outline_bias = 0.045;
 uniform float outline_width_px = 2.0;
 uniform vec4 outline_color : source_color = vec4(0.0, 0.0, 0.0, 1.0);
-uniform float outline_mix = 1.25;
+uniform float outline_mix = 1.2;
 uniform bool depth_edges_enabled = true;
 uniform float depth_edge_mix = 1.0;
-uniform float depth_edge_threshold = 0.015;
-uniform float depth_edge_bias = 0.006;
+uniform float depth_edge_threshold = 0.045;
+uniform float depth_edge_bias = 0.018;
 uniform float depth_edge_width_px = 2.0;
 uniform bool normal_edges_enabled = true;
-uniform float normal_edge_mix = 0.45;
+uniform float normal_edge_mix = 0.35;
 uniform float normal_edge_threshold = 0.10;
 uniform float normal_edge_bias = 0.10;
 // Supplied by ComicPostLayer from the active Camera3D for far-plane silhouette checks.
 uniform vec2 camera_near_far = vec2(0.05, 100.0);
 
-uniform float luma_edge_mix = 0.45;
+uniform float luma_edge_mix = 0.18;
 uniform float detail_ink_suppression = 0.92;
 uniform float bright_detail_ink_suppression = 0.75;
 uniform float bright_detail_threshold = 0.34;
@@ -54,6 +54,14 @@ uniform float shadow_smooth_radius_px = 4.0;
 
 float luminance(vec3 color) {
 	return dot(color, vec3(0.299, 0.587, 0.114));
+}
+
+vec3 clamp_rgb(vec3 color) {
+	return clamp(color, vec3(0.0), vec3(1.0));
+}
+
+float capped_luma_scale(float target_luma, float source_luma) {
+	return min(target_luma / max(source_luma, 0.0001), 4.0);
 }
 
 void sort_pair(inout float a, inout float b) {
@@ -273,13 +281,15 @@ void fragment() {
 	// Give real geometry a hard dark band while keeping far-plane background black.
 	float dark_surface_band = surface_mask * 0.060 * step(0.004, base_luma);
 	float band_luma = max(quantized_luma, dark_surface_band);
-	vec3 color = center * (band_luma / base_luma);
+	vec3 color = clamp_rgb(center * capped_luma_scale(band_luma, base_luma));
 	color = mix(vec3(luminance(color)), color, saturation);
+	color = clamp_rgb(color);
 	vec3 smooth_source = (center * 4.0 + smooth_n * 2.0 + smooth_s * 2.0 + smooth_w * 2.0 + smooth_e * 2.0
 		+ smooth_tl + smooth_tr + smooth_bl + smooth_br) / 16.0;
 	float smooth_luma = max(luminance(smooth_source), 0.0001);
-	vec3 smooth_color = smooth_source * (band_luma / smooth_luma);
+	vec3 smooth_color = clamp_rgb(smooth_source * capped_luma_scale(band_luma, smooth_luma));
 	smooth_color = mix(vec3(luminance(smooth_color)), smooth_color, saturation);
+	smooth_color = clamp_rgb(smooth_color);
 	float shadow_smooth_mask = shadow_smooth_enabled
 		? (1.0 - smoothstep(
 			shadow_smooth_threshold,
@@ -312,6 +322,15 @@ void fragment() {
 		macro_edge_threshold,
 		macro_edge_threshold + max(macro_edge_bias, 0.0001),
 		macro_edge);
+	// High-frequency, non-macro contrast gets a small amount of local color detail
+	// back so controls/tracks stay readable after broad posterization.
+	float fine_detail = smoothstep(0.035, 0.12, edge) * (1.0 - macro_gate);
+	float original_luma = luminance(original);
+	vec3 original_chroma = original - vec3(original_luma);
+	vec3 detail_boost = color
+		+ original_chroma * 0.16
+		+ vec3(original_luma - luminance(color)) * 0.18;
+	color = mix(color, clamp_rgb(detail_boost), fine_detail * 0.40);
 	float bright_detail_mask = smoothstep(
 		bright_detail_threshold,
 		bright_detail_threshold + max(bright_detail_softness, 0.0001),
@@ -320,10 +339,22 @@ void fragment() {
 		detail_ink_suppression + bright_detail_mask * bright_detail_ink_suppression,
 		0.0,
 		1.0);
-	float detail_gate = mix(1.0, macro_gate, combined_detail_suppression);
+	float detail_gate = mix(1.0, 1.0 - macro_gate, combined_detail_suppression);
 	float luma_ink = smoothstep(outline_threshold, outline_threshold + max(outline_bias, 0.0001), edge)
 		* detail_gate
 		* clamp(luma_edge_mix, 0.0, 1.0);
+	float center_luma = luminance(center);
+	float center_chroma = length(center - vec3(center_luma));
+	float bright_light_gradient = smoothstep(0.42, 0.78, center_luma)
+		* (1.0 - smoothstep(0.04, 0.14, center_chroma))
+		* macro_gate;
+	luma_ink *= mix(1.0, 0.06, bright_light_gradient);
+	// Red/warm-lit skin details can look like dense hatch marks. Suppress only
+	// luma/normal ink there; depth silhouettes still draw normally.
+	float warm_face_like = smoothstep(0.08, 0.22, center.r - max(center.g, center.b))
+		* smoothstep(0.08, 0.35, center_luma)
+		* (1.0 - smoothstep(0.55, 0.85, center_luma));
+	luma_ink *= mix(1.0, 0.35, warm_face_like);
 	float depth_ink = depth_edges_enabled
 		? smoothstep(
 			depth_edge_threshold,
@@ -338,15 +369,17 @@ void fragment() {
 			normal_crease_delta(uv, edge_px))
 			* clamp(normal_edge_mix, 0.0, 1.0)
 		: 0.0;
+	normal_ink *= mix(1.0, 0.55, warm_face_like);
 	float ink = max(max(luma_ink, depth_ink), normal_ink) * outline_mix;
 	ink = smoothstep(0.03, 0.35, ink);
 	float noir_shadow = 1.0 - smoothstep(0.30, 0.80, band_luma);
 	vec3 noir_tint = vec3(0.78, 0.82, 0.92);
 	color *= mix(vec3(1.0), noir_tint * 0.68, noir_shadow);
+	color = clamp_rgb(color);
 	color = mix(original, color, clamp(effect_strength, 0.0, 1.0));
 	// Ink last so strong edges are fully black instead of being diluted by the
 	// original-image blend.
-	color = mix(color, outline_color.rgb, clamp(ink, 0.0, 1.0));
+	color = clamp_rgb(mix(color, outline_color.rgb, clamp(ink, 0.0, 1.0)));
 
 	ALBEDO = color;
 	EMISSION = vec3(0.0);

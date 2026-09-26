@@ -9,29 +9,29 @@ public partial class ComicPostLayer : Node3D
 	private const string ShaderPath = "res://shaders/comic_post.gdshader";
 
 	[Export] public bool ComicPostEnabled { get; set; } = true;
-	[Export] public Key ToggleKey { get; set; } = Key.F8;
+	[Export] public Key ToggleKey { get; set; } = Key.F10;
 	[Export] public Key ToggleOutlinesKey { get; set; } = Key.F9;
 	[Export] public float EffectStrength { get; set; } = 1.0f;
-	[Export] public int PosterizeSteps { get; set; } = 5;
-	[Export] public float Saturation { get; set; } = 1.0f;
-	[Export] public float OutlineThreshold { get; set; } = 0.2f;
-	[Export] public float OutlineBias { get; set; } = 0.1f;
+	[Export] public int PosterizeSteps { get; set; } = 6;
+	[Export] public float Saturation { get; set; } = 0.9f;
+	[Export] public float OutlineThreshold { get; set; } = 0.14f;
+	[Export] public float OutlineBias { get; set; } = 0.045f;
 	[Export] public float OutlineWidthPx { get; set; } = 2.0f;
 	[Export] public Color OutlineColor { get; set; } = new(0f, 0f, 0f, 1.0f);
-	[Export] public float OutlineMix { get; set; } = 1.0f;
+	[Export] public float OutlineMix { get; set; } = 1.2f;
 	// Depth jumps are compared as a fraction of distance, so these are
 	// dimensionless: threshold is "1.5% closer/farther", width is the diagonal
 	// tap spacing in pixels.
 	[Export] public bool DepthEdgesEnabled { get; set; } = true;
 	[Export] public float DepthEdgeMix { get; set; } = 1.0f;
-	[Export] public float DepthEdgeThreshold { get; set; } = 0.15f;
-	[Export] public float DepthEdgeBias { get; set; } = 0.06f;
+	[Export] public float DepthEdgeThreshold { get; set; } = 0.045f;
+	[Export] public float DepthEdgeBias { get; set; } = 0.018f;
 	[Export] public float DepthEdgeWidthPx { get; set; } = 2.0f;
 	[Export] public bool NormalEdgesEnabled { get; set; } = true;
-	[Export] public float NormalEdgeMix { get; set; } = 0.45f;
+	[Export] public float NormalEdgeMix { get; set; } = 0.35f;
 	[Export] public float NormalEdgeThreshold { get; set; } = 0.10f;
 	[Export] public float NormalEdgeBias { get; set; } = 0.10f;
-	[Export] public float LumaEdgeMix { get; set; } = 0.45f;
+	[Export] public float LumaEdgeMix { get; set; } = 0.18f;
 	[Export] public float DetailInkSuppression { get; set; } = 0.92f;
 	[Export] public float BrightDetailInkSuppression { get; set; } = 0.75f;
 	[Export] public float BrightDetailThreshold { get; set; } = 0.34f;
@@ -43,10 +43,10 @@ public partial class ComicPostLayer : Node3D
 	[Export] public float HalftoneStrength { get; set; } = 0.0f;
 	[Export] public Vector2 HalftoneBand { get; set; } = new(0.30f, 0.72f);
 	[Export] public bool MedianFilterEnabled { get; set; } = true;
-	[Export] public float MedianFilterStrength { get; set; } = 0.25f;
+	[Export] public float MedianFilterStrength { get; set; } = 0.18f;
 	[Export] public float MedianFilterThreshold { get; set; } = 0.08f;
 	[Export] public float MedianFilterRadiusPx { get; set; } = 1.5f;
-	[Export] public float SobelPrefilterStrength { get; set; } = 0.65f;
+	[Export] public float SobelPrefilterStrength { get; set; } = 0.45f;
 	[Export] public bool ShadowFlattenEnabled { get; set; } = false;
 	[Export] public float ShadowFlattenThreshold { get; set; } = 0.30f;
 	[Export] public float ShadowFlattenSoftness { get; set; } = 0.035f;

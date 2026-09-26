@@ -10,6 +10,26 @@ public partial class Player3D : CharacterBody3D
 	public override void _Ready()
 	{
 		AddToGroup("player");
+		ApplyComicReadableMaterial();
+	}
+
+	private void ApplyComicReadableMaterial()
+	{
+		var visual = GetNodeOrNull<MeshInstance3D>("Visual");
+		if (visual == null)
+		{
+			return;
+		}
+
+		var material = new StandardMaterial3D
+		{
+			AlbedoColor = new Color(0.42f, 0.46f, 0.48f),
+			EmissionEnabled = true,
+			Emission = new Color(0.42f, 0.46f, 0.48f),
+			EmissionEnergyMultiplier = 0.12f,
+			Roughness = 0.82f
+		};
+		visual.MaterialOverride = material;
 	}
 
 	public void SetMovementLocked(bool locked)
