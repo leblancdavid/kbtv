@@ -9,7 +9,8 @@ public partial class StationLighting3D : Node3D
 	public const uint EquipmentLayer = 1u << 2;
 	public const uint StationLayer = 1u << 3;
 	public const uint ExteriorLayer = 1u << 4;
-	public const uint AllInteriorLayers = ControlLayer | StudioLayer | EquipmentLayer | StationLayer;
+	public const uint HallLayer = 1u << 5;
+	public const uint AllInteriorLayers = ControlLayer | StudioLayer | EquipmentLayer | StationLayer | HallLayer;
 
 	private static readonly Color AmbientColor = new(0.015f, 0.018f, 0.026f);
 	private static readonly Color WarmNoir = new(1.0f, 0.78f, 0.52f);
@@ -28,6 +29,7 @@ public partial class StationLighting3D : Node3D
 	private readonly Godot.Collections.Array<Light3D> _controlLights = new();
 	private readonly Godot.Collections.Array<Light3D> _studioLights = new();
 	private readonly Godot.Collections.Array<Light3D> _equipmentLights = new();
+	private readonly Godot.Collections.Array<Light3D> _hallLights = new();
 	private readonly Godot.Collections.Array<Light3D> _stationLights = new();
 	private readonly Godot.Collections.Array<Light3D> _shadowQualityLights = new();
 	private readonly Godot.Collections.Array<SpotLight3D> _fluorescentShadowLights = new();
@@ -157,11 +159,11 @@ public partial class StationLighting3D : Node3D
 	{
 		AddEquipmentRoomLights(root);
 
-		AddFluorescent(root, "HallFluorescentNorth", new Vector3(6.5f, 2.55f, -12.0f), 3.6f, 24.0f);
-		AddFluorescent(root, "HallFluorescentUpperMid", new Vector3(6.5f, 2.55f, -7.2f), 3.4f, 24.0f);
-		AddFluorescent(root, "HallFluorescentMiddle", new Vector3(6.5f, 2.55f, -2.4f), 3.4f, 24.0f);
-		AddFluorescent(root, "HallFluorescentLowerMid", new Vector3(6.5f, 2.55f, 2.4f), 3.4f, 24.0f);
-		AddFluorescent(root, "HallFluorescentSouth", new Vector3(6.5f, 2.55f, 6.2f), 3.6f, 24.0f);
+		AddHallFluorescent(root, "HallFluorescentNorth", new Vector3(6.5f, 2.65f, -12.0f));
+		AddHallFluorescent(root, "HallFluorescentUpperMid", new Vector3(6.5f, 2.65f, -7.5f));
+		AddHallFluorescent(root, "HallFluorescentMiddle", new Vector3(6.5f, 2.65f, -3.0f));
+		AddHallFluorescent(root, "HallFluorescentLowerMid", new Vector3(6.5f, 2.65f, 1.5f));
+		AddHallFluorescent(root, "HallFluorescentSouth", new Vector3(6.5f, 2.65f, 6.0f));
 
 		AddFluorescent(root, "ArchiveFluorescent", new Vector3(12.0f, 2.45f, -11.0f), 5.0f, 20.0f);
 		AddFluorescent(root, "OfficeFluorescent", new Vector3(12.0f, 2.4f, -2.5f), 5.0f, 20.0f);
@@ -206,10 +208,18 @@ public partial class StationLighting3D : Node3D
 
 	private void AddFluorescent(Node3D root, string name, Vector3 position, float energy, float range)
 	{
+		AddLightBar(root, $"{name}Fixture", position + new Vector3(0f, 0.02f, 0f), Fluorescent);
 		_stationLights.Add(AddOmni(root, $"{name}Fill", position + new Vector3(0f, -0.35f, 0f), Fluorescent, energy * FluorescentFillEnergyMultiplier, range * 1.15f, false));
 		var wash = AddOverheadSpot(root, $"{name}Wash", position, Fluorescent, energy * FluorescentShadowEnergyMultiplier, Mathf.Min(range * 1.25f, FluorescentShadowRange), 88f, false);
 		_stationLights.Add(wash);
 		_fluorescentShadowLights.Add(wash);
+	}
+
+	private void AddHallFluorescent(Node3D root, string name, Vector3 position)
+	{
+		AddLightBar(root, $"{name}Fixture", position + new Vector3(0f, 0.02f, 0f), Fluorescent);
+		_hallLights.Add(AddOmni(root, $"{name}Fill", position + new Vector3(0f, -0.35f, 0f), Fluorescent, 1.0f, 3.2f, false));
+		_hallLights.Add(AddOverheadSpot(root, $"{name}Wash", position, Fluorescent, 12.0f, 3.8f, 44f, false));
 	}
 
 	private SpotLight3D AddOverheadSpot(Node3D root, string name, Vector3 position, Color color, float energy, float range, float angle, bool shadows)
@@ -332,6 +342,7 @@ public partial class StationLighting3D : Node3D
 		SetLightMasks(_controlLights, ControlLayer);
 		SetLightMasks(_studioLights, StudioLayer);
 		SetLightMasks(_equipmentLights, EquipmentLayer);
+		SetLightMasks(_hallLights, HallLayer);
 		SetLightMasks(_stationLights, StationLayer);
 	}
 

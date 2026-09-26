@@ -431,7 +431,12 @@ UpdateComputerHint();
 			var stationRoom = _station_greybox?.GetRoomName(playerPosition);
 			if (stationRoom != null)
 			{
-				SetPlayerLightLayer(stationRoom == "EQUIPMENT" ? StationLighting3D.EquipmentLayer : StationLighting3D.StationLayer);
+				SetPlayerLightLayer(stationRoom switch
+				{
+					"EQUIPMENT" => StationLighting3D.EquipmentLayer,
+					"HALLWAY" => StationLighting3D.HallLayer,
+					_ => StationLighting3D.StationLayer
+				});
 				nextRoomName = stationRoom;
 			}
 		}

@@ -165,7 +165,7 @@ public partial class StationGreybox3D : Node3D
 			"Control" => StationLighting3D.ControlLayer,
 			"Studio" => StationLighting3D.StudioLayer,
 			"Equipment" => StationLighting3D.EquipmentLayer,
-			"Station" => StationLighting3D.StationLayer,
+			"Station" => StationLighting3D.HallLayer,
 			"Exterior" => StationLighting3D.ExteriorLayer,
 			_ => 0u
 		};
@@ -173,10 +173,10 @@ public partial class StationGreybox3D : Node3D
 
 	private void BuildStationInterior()
 	{
-		AddRoom("Hallway", _hallway, _hallMaterial, "HALLWAY", StationLighting3D.StationLayer);
+		AddRoom("Hallway", _hallway, _hallMaterial, "HALLWAY", StationLighting3D.HallLayer);
 		AddRoom("Equipment", _equipmentRoom, _supportMaterial, "EQUIPMENT ROOM", StationLighting3D.EquipmentLayer);
 		AddRoom("Archive", _archive, _officeMaterial, "DOCUMENT / ARCHIVE", StationLighting3D.StationLayer);
-		AddRoom("LobbyConnector", _lobbyConnector, _hallMaterial, "HALLWAY", StationLighting3D.StationLayer);
+		AddRoom("LobbyConnector", _lobbyConnector, _hallMaterial, "HALLWAY", StationLighting3D.HallLayer);
 		AddRoom("Office", _office, _officeMaterial, "OFFICE", StationLighting3D.StationLayer);
 		AddRoom("Kitchen", _kitchen, _supportMaterial, "KITCHEN / BREAK", StationLighting3D.StationLayer);
 		AddRoom("Bathroom", _bathroom, _bathroomMaterial, "BATHROOM", StationLighting3D.StationLayer);
@@ -423,7 +423,7 @@ public partial class StationGreybox3D : Node3D
 		var center = GetCenter(rect);
 		if (material == _hallMaterial)
 		{
-			AddFloorPlane($"{name}Floor", new Vector3(center.X, 0.01f, center.Y), rect.Size, material, layerMask);
+			AddBox($"{name}Floor", new Vector3(center.X, -0.04f, center.Y), new Vector3(rect.Size.X, 0.08f, rect.Size.Y), material, true, layerMask, false);
 		}
 		else
 		{

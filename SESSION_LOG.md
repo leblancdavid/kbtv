@@ -1,6 +1,149 @@
 ## Current Session
 
 **Branch**: comic-styling
+**Task**: Reintroduce hallway linoleum texture after localized lighting fix.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: User confirmed the localized hallway light pools now look closer to the control room. Restored only the hallway linoleum material while keeping the current successful diagnostic baseline: `HallLayer`, tight fluorescent pools, BoxMesh hallway floor, no pendants, no shadows. `_hallMaterial` now uses `StationFloorMaterials3D.MakeHallLinoleum()` again.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off/on. If texture behaves, decide whether to keep BoxMesh floor or test restoring the custom tiled floor mesh next.
+- Blockers: none.
+
+---
+
+## Previous Session (localized hallway pools)
+
+**Branch**: comic-styling
+**Task**: Localize hallway light pools by reducing overlap.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationLighting3D.cs`
+- Work Done: User screenshot after brightness increase showed the raw hallway is brighter, but the five hallway lights still merge into one broad continuous wash. Remaining issue is overlap/range, not absolute brightness. Kept the `HallLayer`/BoxMesh/plain-material diagnostic baseline and changed hall lights to smaller, higher-contrast pools: fill from `4.0/8.0` to `1.0/3.2`, wash from `9.0/8.5/68` to `12.0/3.8/44`.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off first, then comic on. If raw pools are distinct but comic flattens them, tune the comic shader; if raw pools are too small/dim, raise wash energy only before range.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway brightness tune)
+
+**Branch**: comic-styling
+**Task**: Raise hallway raw lighting strength before comic posterization.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationLighting3D.cs`
+- Work Done: User provided a comic-off screenshot showing the hallway light pools are present but too dim/soft before the comic pass. This means the comic effect is posterizing weak lighting input rather than being the sole cause. Current diagnostic baseline remains `HallLayer`, BoxMesh hallway floor, plain floor material, fluorescent bars, no pendants, no shadows. Raised `AddHallFluorescent(...)` fill energy/range from `1.6/5.5` to `4.0/8.0`, and wash energy/range/angle from `3.2/5.8/58` to `9.0/8.5/68`.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off first, then comic on. If raw light pools are now readable but comic still flattens them, tune the comic shader next; if raw pools remain weak, increase light intensity/range further.
+- Blockers: none.
+
+---
+
+## Previous Session (tight hallway fluorescents)
+
+**Branch**: comic-styling
+**Task**: Replace hallway diagnostic pendants with tight fluorescent light pools.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationLighting3D.cs`
+- Work Done: User screenshot after HallLayer test showed the hallway is receiving light, but warm pendant fixtures created huge black top-down silhouettes and overlapping warm pools posterized into one broad flat band. Kept the isolated/simple hallway baseline but replaced the warm pendant setup with cool fluorescent bar fixtures using smaller ranges. `AddHallFluorescent(...)` now adds a light bar, small non-shadow fill (`1.6f`, range `5.5f`), and tight non-shadow spot wash (`3.2f`, range `5.8f`, angle `58f`) on `HallLayer`; no pendant geometry is created.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check in hallway. If pools now read correctly, decide whether to keep `HallLayer`/BoxMesh/plain material or restore texture incrementally. If still flat, inspect raw lighting before comic post.
+- Blockers: none.
+
+---
+
+## Previous Session (hall layer isolation)
+
+**Branch**: comic-styling
+**Task**: Isolate hallway lighting onto its own light layer.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationLighting3D.cs`, `scripts/world3d/StationGreybox3D.cs`, `scripts/world3d/World3D.cs`
+- Work Done: User confirmed the hallway still looks flat after BoxMesh geometry and plain control/studio-style material, which rules out the previous geometry/material hypotheses. Remaining architectural difference is lighting scope: control/studio each have isolated light layers, while hallway/rest-of-building shared `StationLayer`. Added `HallLayer`, included it in `AllInteriorLayers`, added `_hallLights`, and routed five hallway-only warm overhead lights to that layer. Moved the two hallway room floor sections (`Hallway`, `LobbyConnector`) onto `HallLayer`. Updated player light-layer selection so `GetRoomName(...) == "HALLWAY"` applies `HallLayer`. Door room mapping for `"Station"` now maps to `HallLayer` so station-labeled hall doors share the hallway light mask.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check in hallway. If this fixes light pools, convert the hall lights back toward fluorescent styling on `HallLayer`; if it still fails, inspect raw lighting before the comic post pass.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway plain material diagnostic)
+
+**Branch**: comic-styling
+**Task**: Test hallway with plain control/studio-style floor material.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: User screenshot showed the hallway still looks bad after switching hallway floors to BoxMesh geometry, which points away from geometry and toward the hallway linoleum material/post-process interaction. Kept the BoxMesh hallway floor diagnostic and replaced `_hallMaterial = StationFloorMaterials3D.MakeHallLinoleum()` with `MakeMaterial(new Color(0.12f, 0.12f, 0.14f))`, matching the simple dark floor style used by control/studio.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check in hallway. If this fixes the light pools, restore/replace the hall texture with a subtler material later; if it still fails, inspect station-layer lighting/postprocess behavior rather than the hall material.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway BoxMesh diagnostic)
+
+**Branch**: comic-styling
+**Task**: Recover black hallway floor and test hallway BoxMesh floor path.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: User screenshot showed the hallway went black after flipping the generated floor mesh winding. That disproves the upward-winding fix for the current material/camera/post setup. Restored the original `MakeTiledFloorMesh(...)` indices exactly. Changed the hallway floor creation path in `StationGreybox3D.AddRoom(...)` from the custom tiled floor plane to a thin `BoxMesh` via `AddBox(...)`, preserving the same hallway material and station layer. This makes hallway floor geometry structurally match the control/studio floor approach while retaining the hall material, which should isolate geometry from material/post behavior.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check in hallway. If the BoxMesh floor lights correctly, keep the box floor path or rebuild the tiled mesh with proven face orientation. If it still does not, swap the hallway diagnostic box to `StandardMaterial3D_room_dark` next to isolate the hall material/post interaction.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway mesh winding)
+
+**Branch**: comic-styling
+**Task**: Fix hallway floor lighting by correcting generated floor mesh winding.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationLighting3D.cs`, `scripts/world3d/StationFloorMaterials3D.cs`
+- Work Done: User confirmed replacing hallway fluorescents with studio-style warm spotlights looked the same, so the problem is not light type. Read-only comparison found the main difference from control/studio: those rooms use normal `BoxMesh` floors, while hallway uses `StationFloorMaterials3D.MakeTiledFloorMesh(...)`, a custom flat plane. The tile indices appeared wound downward in Godot's Y-up coordinate system, so the visible floor may have been the back side of the plane under disabled culling, making lighting/normal-buffer/post behavior diverge from box floors. Reverted the temporary studio-style hallway diagnostic back to the 5 hallway fluorescents, preserving the brighter/even spacing and visible fixture bars. Changed generated tile indices from `0,1,2 / 0,2,3` to `0,2,1 / 0,3,2` so the floor front face points upward.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check in hallway with comic on/off. If floor still does not light correctly, compare the hallway plane against a temporary `BoxMesh` floor next to isolate material versus geometry.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway studio-light diagnostic)
+
+**Branch**: comic-styling
+**Task**: Diagnostic swap hallway fluorescents to studio-style warm overhead lights.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationLighting3D.cs`
+- Work Done: User confirmed the material lift still did not make the hallway light pools read correctly. Replaced only the five hallway fluorescent fixtures with a diagnostic studio/control-style warm overhead spotlight setup. Added `AddHallStudioStyleLight(...)`, which adds a `WarmNoir` `AddOverheadSpot(...)` using the same studio/control recipe (`10.0f` energy, `RoomShadowRange`, `80f`, shadows enabled) and a matching warm pendant fixture. Non-hall station fluorescents remain unchanged.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check in hallway. If this works, the issue is the previous fluorescent fill/wash setup. If it still fails, the issue is likely hallway floor/post-processing path rather than light type.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway floor light response)
+
+**Branch**: comic-styling
+**Task**: Fix hallway floor light response under comic posterization.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`
+- Work Done: User screenshot showed hallway fluorescent pools visible on/around the player and fixtures, but the hallway ground stayed nearly flat/dark. Read-only trace found light layers are correct: hallway floor and hallway fluorescents are both on `StationLayer`, and the player switches to `StationLayer`. The likely difference is material/post effect interaction: control/studio floors use a simple brighter material, while `MakeHallLinoleum()` clamped the hallway texture to very low luma and added extra dark borders, so the comic post pass treated it as dark texture instead of visible light response. Tuned `MakeHallLinoleum()` by raising the base color, lifting the luma clamp from `0.04-0.15` to `0.075-0.22`, reducing darken strength from `0.28` to `0.20`, raising brighten strength from `0.015` to `0.025`, and reducing tile border darkening from `0.34` to `0.18`.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check in the hallway with comic on/off. If floor pools still do not read, add a very small hallway floor emission floor or lower the comic light-posterize relative threshold only after confirming the material lift is insufficient.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway illumination)
+
+**Branch**: comic-styling
+**Task**: Raise hallway illumination and make 5 evenly spaced hallway lights read clearly.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationLighting3D.cs`
+- Work Done: Read-only inspection found `StationLighting3D` already had 5 hallway fluorescent light entries, but their energy was lower than other station fluorescents and spacing was slightly uneven. Raised all hallway fluorescent energy values to `5.0`, matching the adjacent station fluorescents. Adjusted their z positions to 5 evenly spaced fixtures down the hall: `-12.0`, `-7.5`, `-3.0`, `1.5`, and `6.0`. Wired the existing `AddLightBar` fixture helper into `AddFluorescent` so fluorescent sources now have visible fixture bars and the scene should read as having the intended number of lights.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check in the hallway. If still too dim, raise the hallway `range` or fluorescent fill/shadow multipliers; if too flat, lower only the non-shadow fill multiplier to preserve shadow contrast.
+- Blockers: none.
+
+---
+
+## Previous Session (comic light posterization rooms)
+
+**Branch**: comic-styling
 **Task**: Make light posterization affect all room light pools, not only bright hallway pixels.
 **Status**: Completed (build + Godot check green; visual review pending)
 - Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`, `scripts/world3d/ControlRoom3D.cs`, `scripts/world3d/StudioRoom3D.cs`, `scripts/world3d/StationGreybox3D.cs`, `scripts/world3d/StationLighting3D.cs`, `scripts/world3d/ComicPostLayer.cs`, `shaders/comic_post.gdshader`, `assets/textures/world3d/{control_carpet,studio_carpet,hall_linoleum,wallpaper_subtle}.png`
