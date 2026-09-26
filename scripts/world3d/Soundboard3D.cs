@@ -139,6 +139,8 @@ namespace KBTV.World3D
         /// <summary>Centre alpha of a resting halo ring (the radial/rect gradient fades the edges to transparent).</summary>
         private const float HaloAlpha = 0.55f;
         private const float FaderGlowAlpha = 0.35f;
+        private const int GlowRenderPriority = 127;
+        private const int GlowGradientSteps = 4;
 
         /// <summary>Per-second smoothing rate for the per-channel glow following the live bus peaks.</summary>
         private const float GlowResponsePerSecond = 8f;
@@ -195,6 +197,7 @@ namespace KBTV.World3D
                     AlbedoTexture = MakeHaloGradient(),
                     AlbedoColor = new Color(LedSelected.R, LedSelected.G, LedSelected.B, HaloAlpha)
                 };
+                ConfigureGlowMaterial(material);
 
                 var ring = new MeshInstance3D
                 {
@@ -214,8 +217,8 @@ namespace KBTV.World3D
         private static GradientTexture2D MakeHaloGradient()
         {
             var gradient = new Gradient();
-            gradient.SetColor(0, new Color(1f, 1f, 1f, 1f));
-            gradient.SetColor(1, new Color(1f, 1f, 1f, 0f));
+            gradient.Offsets = MakeSteppedGlowOffsets(GlowGradientSteps);
+            gradient.Colors = MakeSteppedGlowColors(GlowGradientSteps);
             return new GradientTexture2D
             {
                 Gradient = gradient,
@@ -225,6 +228,37 @@ namespace KBTV.World3D
                 FillFrom = new Vector2(0.5f, 0.5f),
                 FillTo = new Vector2(1f, 0.5f)
             };
+        }
+
+        private static float[] MakeSteppedGlowOffsets(int steps)
+        {
+            var offsets = new float[steps * 2];
+            for (int i = 0; i < steps; i++)
+            {
+                float start = (float)i / steps;
+                float end = (float)(i + 1) / steps;
+                offsets[i * 2] = start;
+                offsets[i * 2 + 1] = Mathf.Min(end, 1f);
+            }
+            return offsets;
+        }
+
+        private static Color[] MakeSteppedGlowColors(int steps)
+        {
+            var colors = new Color[steps * 2];
+            for (int i = 0; i < steps; i++)
+            {
+                float alpha = 1f - (float)i / (steps - 1);
+                var color = new Color(1f, 1f, 1f, alpha);
+                colors[i * 2] = color;
+                colors[i * 2 + 1] = color;
+            }
+            return colors;
+        }
+
+        private static void ConfigureGlowMaterial(StandardMaterial3D material)
+        {
+            material.RenderPriority = GlowRenderPriority;
         }
 
         /// <summary>Halo quad size at full loudness for a control.</summary>
@@ -425,6 +459,7 @@ namespace KBTV.World3D
                     AlbedoTexture = MakeHaloGradient(),
                     AlbedoColor = new Color(ButtonFlashWarm.R, ButtonFlashWarm.G, ButtonFlashWarm.B, HaloAlpha)
                 };
+                ConfigureGlowMaterial(glowMaterial);
                 var glow = new MeshInstance3D
                 {
                     Name = $"BtnGlow_{slot.Button}",
@@ -1181,6 +1216,7 @@ namespace KBTV.World3D
                         AlbedoTexture = MakeHaloGradient(),
                         AlbedoColor = new Color(LedSelected.R, LedSelected.G, LedSelected.B, FaderGlowAlpha)
                     };
+                    ConfigureGlowMaterial(glowMaterial);
                     var glow = new MeshInstance3D
                     {
                         Name = $"FaderGlow_{slot.Control}",

@@ -51,6 +51,11 @@ uniform float shadow_smooth_edge_reject = 0.34;
 uniform float shadow_smooth_edge_softness = 0.12;
 uniform float shadow_smooth_strength = 0.0;
 uniform float shadow_smooth_radius_px = 4.0;
+uniform bool light_posterize_enabled = true;
+uniform float light_posterize_steps = 4.0;
+uniform float light_posterize_strength = 0.65;
+uniform float light_posterize_threshold = 0.34;
+uniform float light_posterize_softness = 0.18;
 
 float luminance(vec3 color) {
 	return dot(color, vec3(0.299, 0.587, 0.114));
@@ -284,6 +289,18 @@ void fragment() {
 	vec3 color = clamp_rgb(center * capped_luma_scale(band_luma, base_luma));
 	color = mix(vec3(luminance(color)), color, saturation);
 	color = clamp_rgb(color);
+	if (light_posterize_enabled) {
+		float light_mask = smoothstep(
+			light_posterize_threshold,
+			light_posterize_threshold + max(light_posterize_softness, 0.0001),
+			base_luma);
+		float light_steps = max(light_posterize_steps, 1.0);
+		float light_luma = floor(base_luma * light_steps + 0.5) / light_steps;
+		light_luma = max(light_luma, dark_surface_band);
+		vec3 light_color = clamp_rgb(center * capped_luma_scale(light_luma, base_luma));
+		light_color = mix(vec3(luminance(light_color)), light_color, saturation);
+		color = mix(color, clamp_rgb(light_color), light_mask * clamp(light_posterize_strength, 0.0, 1.0));
+	}
 	vec3 smooth_source = (center * 4.0 + smooth_n * 2.0 + smooth_s * 2.0 + smooth_w * 2.0 + smooth_e * 2.0
 		+ smooth_tl + smooth_tr + smooth_bl + smooth_br) / 16.0;
 	float smooth_luma = max(luminance(smooth_source), 0.0001);

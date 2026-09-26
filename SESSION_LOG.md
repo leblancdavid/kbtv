@@ -1,6 +1,33 @@
 ## Current Session
 
 **Branch**: comic-styling
+**Task**: Apply comic posterization to light falloff and transparent glow effects.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `shaders/comic_post.gdshader`, `scripts/world3d/ComicPostLayer.cs`, `scripts/world3d/Soundboard3D.cs`
+- Work Done: Added a separate light-posterization path to `comic_post.gdshader` so bright light falloff uses coarser bands independent of normal surface posterization. New shader uniforms: `light_posterize_enabled`, `light_posterize_steps`, `light_posterize_strength`, `light_posterize_threshold`, and `light_posterize_softness`; `ComicPostLayer.cs` exposes and pushes matching runtime defaults (`true`, `4`, `0.65`, `0.34`, `0.18`). Kept the previous soundboard render-order fix intact, then changed `Soundboard3D.MakeHaloGradient()` to generate a 4-step radial alpha gradient so knob halos, caller fader glow, and flashing button glow read as posterized even though they render after the comic post pass.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --check-only --quit` loaded the project with no new shader/script-load errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel`/`BroadcastAudioService`.
+- Next Steps: User visual check: confirm studio/control room light falloff has pleasing comic bands, and soundboard halo/button glow bands are visible but not too chunky. Tune `LightPosterizeStrength` first if the room lights are too smooth or too harsh.
+- Blockers: none.
+
+---
+
+## Previous Session (soundboard glow render order)
+
+**Branch**: comic-styling
+**Task**: Restore the 3D soundboard knob/fader/button glow after the comic post-effect migration.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/ComicPostLayer.cs`, `scripts/world3d/Soundboard3D.cs`
+- Work Done: Read-only trace found the likely regression path: the soundboard halos/fader/button glow pools are alpha-transparent unshaded 3D quads in `Soundboard3D.cs`, while the comic effect was migrated from a CanvasLayer to a spatial full-screen post quad sampling `screen_tex`. Transparent glow quads can be missing from the sampled back-buffer and/or be covered by the post quad depending on render order. Kept glow logic/placement unchanged and only adjusted render ordering: `ComicPostLayer` now assigns the comic post material Godot's lowest render priority (`-128`), while all soundboard halo/fader/button glow materials are configured with the highest render priority (`127`). This lets the post pass establish the comic-treated base image while soundboard transparent glow quads render after it.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings; a final incremental rerun after diff review succeeded with 0 warnings/0 errors. Godot 4.6.3 mono `--headless --check-only --quit` loaded the project with no new shader/script-load errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel`/`BroadcastAudioService`.
+- Note: Final diff review showed `ComicPostLayer.Saturation = 1.9f` versus git's `0.9f`. This was not part of the render-order patch and appears to be concurrent/unrelated; left intact.
+- Next Steps: User visual check in soundboard view with comic enabled: confirm knob/fader idle halos, caller fader glow, and flashing button glow appear over the comic-treated board.
+- Blockers: none.
+
+---
+
+## Previous Session (comic post darkening/depth robustness)
+
+**Branch**: comic-styling
 **Task**: Fix the comic post effect darkening the whole screen, and make depth silhouettes distance-robust without changing the approved look from commit `ad5abda9`.
 **Status**: Completed (build + shader compile green; user visual review pending)
 - Files Modified: `SESSION_LOG.md`, `shaders/comic_post.gdshader`, `scripts/world3d/ComicPostLayer.cs`

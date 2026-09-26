@@ -7,13 +7,14 @@ namespace KBTV.World3D;
 public partial class ComicPostLayer : Node3D
 {
 	private const string ShaderPath = "res://shaders/comic_post.gdshader";
+	private const int PostRenderPriority = -128;
 
 	[Export] public bool ComicPostEnabled { get; set; } = true;
 	[Export] public Key ToggleKey { get; set; } = Key.F10;
 	[Export] public Key ToggleOutlinesKey { get; set; } = Key.F9;
 	[Export] public float EffectStrength { get; set; } = 1.0f;
 	[Export] public int PosterizeSteps { get; set; } = 6;
-	[Export] public float Saturation { get; set; } = 0.9f;
+	[Export] public float Saturation { get; set; } = 1.2f;
 	[Export] public float OutlineThreshold { get; set; } = 0.14f;
 	[Export] public float OutlineBias { get; set; } = 0.045f;
 	[Export] public float OutlineWidthPx { get; set; } = 2.0f;
@@ -58,6 +59,11 @@ public partial class ComicPostLayer : Node3D
 	[Export] public float ShadowSmoothEdgeSoftness { get; set; } = 0.12f;
 	[Export] public float ShadowSmoothStrength { get; set; } = 0.0f;
 	[Export] public float ShadowSmoothRadiusPx { get; set; } = 4.0f;
+	[Export] public bool LightPosterizeEnabled { get; set; } = true;
+	[Export] public float LightPosterizeSteps { get; set; } = 4.0f;
+	[Export] public float LightPosterizeStrength { get; set; } = 0.65f;
+	[Export] public float LightPosterizeThreshold { get; set; } = 0.34f;
+	[Export] public float LightPosterizeSoftness { get; set; } = 0.18f;
 
 	private ShaderMaterial? _material;
 	private float _savedOutlineMix = 1.0f;
@@ -156,7 +162,7 @@ public partial class ComicPostLayer : Node3D
 			return;
 		}
 
-		_material = new ShaderMaterial { Shader = shader };
+		_material = new ShaderMaterial { Shader = shader, RenderPriority = PostRenderPriority };
 		var quad = new MeshInstance3D
 		{
 			Name = "ComicPostQuad",
@@ -219,6 +225,11 @@ public partial class ComicPostLayer : Node3D
 		_material.SetShaderParameter("shadow_smooth_edge_softness", ShadowSmoothEdgeSoftness);
 		_material.SetShaderParameter("shadow_smooth_strength", ShadowSmoothStrength);
 		_material.SetShaderParameter("shadow_smooth_radius_px", ShadowSmoothRadiusPx);
+		_material.SetShaderParameter("light_posterize_enabled", LightPosterizeEnabled);
+		_material.SetShaderParameter("light_posterize_steps", LightPosterizeSteps);
+		_material.SetShaderParameter("light_posterize_strength", LightPosterizeStrength);
+		_material.SetShaderParameter("light_posterize_threshold", LightPosterizeThreshold);
+		_material.SetShaderParameter("light_posterize_softness", LightPosterizeSoftness);
 		_material.SetShaderParameter("camera_near_far", _nearFar);
 	}
 }
