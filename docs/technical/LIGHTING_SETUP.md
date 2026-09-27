@@ -344,6 +344,14 @@ The hallway has five fixtures at `z = -12.0, -7.5, -3.0, 1.5, 6.0`. This spacing
 - If tiles look rectangular, verify the generated mesh before changing scale. The current UVs are square in world space; the rectangular read can come from perspective, camera angle, comic posterization, or texture line detail.
 - For comic-safe light floors, prefer off-white beige over cool blue. Current hall linoleum uses `new Color(0.78f, 0.74f, 0.64f)` with luma clamped to `0.48..0.82` so it reads light but still retains subtle tile detail.
 
+### Current Room Material Stack
+
+- Runtime room surfaces are generated from small texture masks in `assets/textures/world3d/` by `StationFloorMaterials3D.MakeComicMaskedMaterial(...)`.
+- Control and studio floors replace their scene floor mesh with `MakeTiledFloorMesh(...)` in `ControlRoom3D.ApplyTexturedRoomSurfaces()` and `StudioRoom3D.ApplyTexturedRoomSurfaces()`.
+- Wallpaper is not a room overlay. `StationGreybox3D.AddWall(...)` creates thin wallpaper skins on each actual wall face so windows and door gaps remain clear and wall fade behavior stays consistent.
+- Keep wallpaper non-emissive. If wall texture disappears, fix room light placement/range or material luma/contrast; do not add emission unless deliberately creating a glowing surface.
+- Keep the comic post pass as ink-only by default: outlines/depth/normal edges are on, surface and light posterization are off. Use F10/F9 only for review toggles, not as content fixes.
+
 ### Diagnostic Sequence
 
 When a 3D room or hallway looks flat, debug in this order:

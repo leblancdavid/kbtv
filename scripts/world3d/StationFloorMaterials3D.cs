@@ -27,11 +27,6 @@ public static class StationFloorMaterials3D
 		return MakeComicMaskedMaterial("wallpaper_subtle.png", new Color(0.52f, 0.40f, 0.28f), 0.55f, 0.16f, 0.12f, 0.42f, 0.9f, detailCenter: 0.45f);
 	}
 
-	public static StandardMaterial3D MakeRedBrick(string textureName = "wallpaper_subtle.png")
-	{
-		return MakeComicMaskedMaterial(textureName, new Color(0.18f, 0.055f, 0.035f), 0.16f, 0.025f, 0.035f, 0.18f, 0.95f);
-	}
-
 	public static ArrayMesh MakeTiledFloorMesh(float width, float depth, float tileWorldSize)
 	{
 		var columns = Mathf.Max(1, Mathf.CeilToInt(width / tileWorldSize));

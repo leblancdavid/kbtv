@@ -6,6 +6,49 @@
 
 **Pixel Art Style** - Retro 2D aesthetic with a **late-night noir** overlay. The radio station should feel like a 3 AM broadcast: dim, desaturated, lit by screens and the warm red of an on-air sign.
 
+## Current 3D Presentation Baseline
+
+The active in-game look is now a **stylized 3D noir station** with an ink-outline post pass. Treat the older 2D pixel prop rules below as legacy/reference guidance for sprite assets; the current room presentation uses low-poly 3D meshes, textured 3D room surfaces, and real 3D lighting.
+
+### What Is Working
+
+- **Comic pass is ink-only by default.** `ComicPostLayer.EffectStrength = 0.0f`, surface posterization is off, and light posterization is off. The post effect preserves scene colors/textures and adds silhouette/depth/normal ink edges.
+- **Judge materials with comic off first, then comic on.** Weak or overly broad raw lighting gets flattened by the comic pass; fix raw light shape before changing shader values.
+- **Use localized light pools.** Rooms use warm overhead spots; the hallway uses tighter fluorescent fill/wash pairs on its own light layer.
+- **Use restrained textured materials, not flat debug colors.** The current floors and walls keep visible texture while staying muted enough for noir lighting.
+- **Wallpaper belongs on actual wall faces.** It is generated as thin wall skins on the real wall segments, not as broad room overlay panels.
+- **Floor textures need generated tiled meshes.** `BoxMesh` stretches a single texture over the whole floor and is only acceptable as a temporary diagnostic.
+- **Hide visual light fixtures when they hurt top-down readability.** Ceiling bars can render over the player from the fixed camera angle even when the light itself is correct.
+
+### Current Surface Recipes
+
+The production room surfaces are generated in `StationFloorMaterials3D` from small texture masks under `assets/textures/world3d/`:
+
+| Surface | Texture | Current Treatment |
+|---------|---------|-------------------|
+| Control room carpet | `control_carpet.png` | Warm brown, dark, low luma, subtle detail. |
+| Studio carpet | `studio_carpet.png` | Dark oxblood/red-brown, moody but still textured. |
+| Hall linoleum | `hall_linoleum.png` | Off-white beige, comic-safe, six 0.5m tiles across the 3m hallway. |
+| Wallpaper | `wallpaper_subtle.png` | Warm brown/tan wall skin, no emission, enough contrast to read in room light. |
+
+Material tuning should happen in `StationFloorMaterials3D.MakeComicMaskedMaterial(...)`, not by recoloring source PNGs unless the source pattern itself is wrong. Keep luma clamps conservative: pushing texture too bright reduces dramatic lighting contrast, while pushing it too dark makes the comic pass hide detail.
+
+### Current Lighting Rules
+
+- Control room and studio: warm overhead spot, localized shadow range, on-air red as a small accent.
+- Hallway: separate `HallLayer`; each fixture has a weak fill omni plus a strong shadow-capable wash spot.
+- Only nearby hallway wash lights cast shadows at runtime via `UpdateFluorescentShadowCaster(...)`.
+- Equipment/screen glow should be intentional. If a glow is disabled for diagnostics, either restore it with final values or remove it rather than leaving temp comments.
+
+### Do Not Regress
+
+- Do not re-enable global color posterization as a default comic effect.
+- Do not reintroduce broad wallpaper panels that cover windows or door openings.
+- Do not use stretched `BoxMesh` floors for final textured rooms.
+- Do not brighten wallpaper with emission to compensate for poor light setup.
+- Do not make the hallway one continuous wash; repeated pools should remain visible.
+- Do not bake floor shadows or contact shadows into prop textures or meshes. Lighting/shadows come from the scene.
+
 ### Project Settings
 - **Resolution**: 1280x720 (16:9), stretched from 640x360 internal
 - **Render Mode**: Forward Plus with pixel-perfect texture filtering

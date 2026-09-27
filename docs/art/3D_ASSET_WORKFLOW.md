@@ -69,6 +69,24 @@ lamps, microphones, radios, coffee machines, and small station clutter.
 Avoid starting with organic props, characters, cloth, complex cables, transparent
 glass, dense greebles, or anything that needs animation.
 
+## Current 3D art acceptance rules
+
+Generated props should match the accepted station presentation, not just the
+Blender preview:
+
+- Low-poly, readable silhouettes with simple bevels and broad material regions.
+- Desaturated charcoal, worn metal, muted walnut, aged cream, phosphor green and
+  oxblood accents. Avoid saturated arcade colors.
+- No exported floors, lights, cameras, baked shadows, or environment geometry.
+- No strong self-emission except deliberate indicators/screens/signage.
+- Review in `Game3D.tscn` with comic off first, then comic on. The default comic
+  pass is ink-only; do not rely on posterization to hide noisy materials.
+- Props must sit comfortably under current room lighting. If a prop only reads in
+  the neutral Blender preview, tune its material values or placement before
+  accepting it.
+- Keep runtime collision simple and separate unless the mesh has been explicitly
+  approved as collision-safe.
+
 ## Generator pattern
 
 The current implementation uses:

@@ -1,6 +1,19 @@
 ## Current Session
 
 **Branch**: comic-styling
+**Task**: Document current working art style and remove low-risk prototype code.
+**Status**: Completed (build + Godot check green)
+- Files Modified: `SESSION_LOG.md`, `docs/art/ART_STYLE.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `docs/technical/LIGHTING_SETUP.md`, `scripts/world3d/StationFloorMaterials3D.cs`, `scripts/world3d/StationLighting3D.cs`, `scripts/world3d/World3D.cs`
+- Work Done: Captured the accepted current art direction in `ART_STYLE.md`: stylized 3D noir station, ink-only comic post by default, localized light pools, tiled textured floors, wall-skin wallpaper, and do-not-regress rules. Added current 3D asset acceptance rules to `3D_ASSET_WORKFLOW.md` and implementation-facing material/wallpaper/comic notes to `LIGHTING_SETUP.md`. Kept disabled comic shader tuning controls as archived visual knobs instead of collapsing the shader. Removed unused `StationFloorMaterials3D.MakeRedBrick()`, removed the zero-energy temporary `ControlEquipmentGlow`, and removed runtime terminal debug preview/sampling/logging from `World3D` while preserving terminal input forwarding.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Visual review in `Game3D.tscn` to confirm no noticeable change from deleting the already-zero equipment glow and terminal debug overlay.
+- Blockers: none.
+
+---
+
+## Previous Session (ink-only comic pass)
+
+**Branch**: comic-styling
 **Task**: Make comic post pass ink-only.
 **Status**: Completed (build + Godot check green; visual review pending)
 - Files Modified: `SESSION_LOG.md`, `scripts/world3d/ComicPostLayer.cs`, `shaders/comic_post.gdshader`

@@ -16,7 +16,7 @@ public partial class ComicPostLayer : Node3D
 	[Export] public int PosterizeSteps { get; set; } = 3;
 	[Export] public float SurfacePosterizeStrength { get; set; } = 0.0f;
 	[Export] public float Saturation { get; set; } = 1.2f;
-	[Export] public float OutlineThreshold { get; set; } = 0.5f;
+	[Export] public float OutlineThreshold { get; set; } = 0.3f;
 	[Export] public float OutlineBias { get; set; } = 0.045f;
 	[Export] public float OutlineWidthPx { get; set; } = 2.0f;
 	[Export] public Color OutlineColor { get; set; } = new(0f, 0f, 0f, 1.0f);

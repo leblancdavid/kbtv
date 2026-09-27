@@ -98,27 +98,11 @@ private const float TerminalZoomSpeed = 3.2f;
 	private CallerTab? _terminalTab;
 	private TerminalOverlay? _terminalOverlay;
 	private StandardMaterial3D? _screenLiveMaterial;
-	private TextureRect? _screenDebugPreview;
-	private int _debugSampleTicks = -1;
 	private static readonly Vector2I VernCameraViewportSize = new(320, 180);
 
-	private double _lastTerminalLogTime = -1.0;
-	private int _terminalPushCount;
-	private int _terminalMissCount;
 	private bool _terminalLeftPressed;
 	private bool _terminalRightPressed;
 	private bool _terminalMiddlePressed;
-
-	private void LogTerminalMouse(string line)
-	{
-		var now = Time.GetTicksMsec() / 1000.0;
-		if (now - _lastTerminalLogTime < 0.25)
-		{
-			return;
-		}
-		_lastTerminalLogTime = now;
-		GD.Print($"[TerminalMouse] {line}");
-	}
 
 	public override void _Ready()
 	{
@@ -127,10 +111,8 @@ private const float TerminalZoomSpeed = 3.2f;
 		_camera = GetNode<Camera3D>("WorldCamera");
 		_statusLayer = GetNodeOrNull<CanvasLayer>("StatusLayer");
 		_status_label = GetNodeOrNull<Label>("StatusLayer/StatusPanel/StatusLabel");
-		// Blockout-era debug panel ("KBTV 3D BLOCKOUT | ...") — obsolete and overlaps
-		// the live-show top HUD (TopStateOverlay, canvas layer 140). Hidden; the label
-		// updates continue harmlessly and the terminal screen-debug preview still
-		// parents into the layer itself, not this panel.
+		// Blockout-era debug panel ("KBTV 3D BLOCKOUT | ...") overlaps the
+		// live-show top HUD (TopStateOverlay, canvas layer 140), so keep it hidden.
 		_statusLayer?.GetNodeOrNull<Control>("StatusPanel")?.Hide();
 		AddChild(new ComicPostLayer { Name = "ComicPostLayer" });
 		_control_room = GetNode<ControlRoom3D>("ControlRoom3D");
@@ -370,8 +352,7 @@ public override void _Input(InputEvent @event)
 			UpdateTerminalCamera(delta);
 		}
 
-UpdateComputerHint();
-		UpdateDebugSample();
+		UpdateComputerHint();
 		UpdateTerminalOverlayBounds();
 
 		if (_soundboardViewState == SoundboardViewState.Open)
@@ -677,17 +658,6 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 			_computerTerminal.Visible = true;
 			_computerTerminal.SetScreenLightEnabled(true);
 
-			var screenBody = _computerTerminal.ScreenBody.GlobalTransform.Origin;
-			var camPos = _camera.GlobalPosition;
-			var visRect = GetViewport().GetVisibleRect().Size;
-			var vpDesc = _terminalViewport == null ? "null" : $"{_terminalViewport.Size} guiDisable={_terminalViewport.GuiDisableInput} kids={_terminalViewport.GetChildCount()}";
-			GD.Print($"[Terminal] OPEN win={DisplayServer.WindowGetSize()} visibleRect={visRect} " +
-				$"stretch={ProjectSettings.GetSetting("display/window/stretch/mode")} " +
-				$"camProjection={_camera.Projection} camSize={_camera.Size:N3} camPos=({camPos.X:N3},{camPos.Y:N3},{camPos.Z:N3}) " +
-				$"screen=({screenBody.X:N3},{screenBody.Y:N3},{screenBody.Z:N3}) screenSize={ComputerTerminal3D.ScreenWidth}x{ComputerTerminal3D.ScreenHeight} " +
-				$"subViewport={vpDesc}");
-			_terminalPushCount = 0;
-			_terminalMissCount = 0;
 			if (_player != null)
 			{
 				_player.Visible = false;
@@ -762,15 +732,12 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 
 	private void ForwardTerminalMouse(InputEventMouse mouse)
 	{
-		if (!TryGetTerminalViewportPosition(mouse.Position, true, out var viewportPosition))
+		if (!TryGetTerminalViewportPosition(mouse.Position, out var viewportPosition))
 		{
 			return;
 		}
 
 		var buttonMask = mouse is InputEventMouseMotion motion ? motion.ButtonMask : (MouseButtonMask)0;
-
-		_terminalPushCount++;
-		LogTerminalMouse($"PUSH #{_terminalPushCount} type={mouse.GetType().Name} mouse={mouse.Position} vpPos={viewportPosition} mask={buttonMask}");
 
 		_terminalViewport.PushInput(new InputEventMouseMotion
 		{
@@ -799,7 +766,7 @@ if (_terminalViewState != TerminalViewState.None || _computerTerminal == null)
 		{
 			_statusLayer.Visible = false;
 		}
-UpdateTerminalOverlayBounds();
+		UpdateTerminalOverlayBounds();
 		_terminalOverlay?.ShowTerminal();
 		SyncEvidenceModalHost();
 		_screenNavOverlay?.ShowOverlay("BOARD", true);
@@ -1048,9 +1015,8 @@ UpdateTerminalOverlayBounds();
 		}
 
 		var mousePosition = GetViewport().GetMousePosition();
-		if (!TryGetTerminalViewportPosition(mousePosition, false, out var viewportPosition))
+		if (!TryGetTerminalViewportPosition(mousePosition, out var viewportPosition))
 		{
-			UpdateTerminalDebugStatus("mouse off screen");
 			return;
 		}
 
@@ -1065,28 +1031,19 @@ UpdateTerminalOverlayBounds();
 		PushPolledButton(MouseButton.Left, ref _terminalLeftPressed, viewportPosition);
 		PushPolledButton(MouseButton.Right, ref _terminalRightPressed, viewportPosition);
 		PushPolledButton(MouseButton.Middle, ref _terminalMiddlePressed, viewportPosition);
-		UpdateTerminalDebugStatus($"mouse {viewportPosition.X:N0},{viewportPosition.Y:N0} mask={buttonMask}");
 	}
 
-	private bool TryGetTerminalViewportPosition(Vector2 mousePosition, bool logFailures, out Vector2 viewportPosition)
+	private bool TryGetTerminalViewportPosition(Vector2 mousePosition, out Vector2 viewportPosition)
 	{
 		viewportPosition = Vector2.Zero;
 		if (_terminalViewport == null || _computerTerminal == null)
 		{
-			if (logFailures)
-			{
-				LogTerminalMouse($"EARLY: viewport null (vp={_terminalViewport != null}, term={_computerTerminal != null})");
-			}
 			return false;
 		}
 
 		var camera = GetViewport().GetCamera3D();
 		if (camera == null)
 		{
-			if (logFailures)
-			{
-				LogTerminalMouse("EARLY: camera null");
-			}
 			return false;
 		}
 
@@ -1099,24 +1056,12 @@ UpdateTerminalOverlayBounds();
 		var hit = GetWorld3D().DirectSpaceState.IntersectRay(query);
 		if (hit.Count == 0)
 		{
-			_terminalMissCount++;
-			if (logFailures)
-			{
-				var p = camera.ProjectRayNormal(mousePosition);
-				LogTerminalMouse($"RAY MISS ({_terminalMissCount}) mouse={mousePosition} origin={from} dir=({p.X:N3},{p.Y:N3},{p.Z:N3})");
-			}
 			return false;
 		}
 
 		if (hit["collider"].AsGodotObject() is not StaticBody3D colliderBody
 			|| colliderBody != _computerTerminal.ScreenBody)
 		{
-			_terminalMissCount++;
-			if (logFailures)
-			{
-				var queued = hit["collider"].AsGodotObject();
-				LogTerminalMouse($"WRONG COLLIDER ({_terminalMissCount}) hit='{queued}' want='{_computerTerminal.ScreenBody}' at {hit["position"].As<Vector3>()}");
-			}
 			return false;
 		}
 
@@ -1153,14 +1098,6 @@ UpdateTerminalOverlayBounds();
 			Position = viewportPosition,
 			GlobalPosition = viewportPosition
 		});
-	}
-
-private void UpdateTerminalDebugStatus(string detail)
-	{
-		if (_status_label != null)
-		{
-			_status_label.Text = $"KBTV 3D BLOCKOUT | TERMINAL | {detail}";
-		}
 	}
 
 	private void ResetSoundboardInput()
@@ -1355,9 +1292,6 @@ private void UpdateTerminalDebugStatus(string detail)
 		_screenLiveMaterial.EmissionTexture = texture;
 		_computerTerminal.ScreenMesh.MaterialOverride = _screenLiveMaterial;
 		_addedScreenMaterial = true;
-
-		SetupScreenDebugPreview();
-		ScheduleDebugSample();
 		GD.Print($"AttachScreenTexture: texture={texture.GetWidth()}x{texture.GetHeight()} applied");
 	}
 
@@ -1368,96 +1302,10 @@ private void UpdateTerminalDebugStatus(string detail)
 			return;
 		}
 
-_computerTerminal.ScreenMesh.MaterialOverride = null;
+		_computerTerminal.ScreenMesh.MaterialOverride = null;
 		_computerTerminal.SetScreenLightEnabled(true);
 		_addedScreenMaterial = false;
-		HideScreenDebugPreview();
 	}
 
 	private bool _addedScreenMaterial;
-
-	private void SetupScreenDebugPreview()
-	{
-		if (_screenDebugPreview != null || _terminalViewport == null)
-		{
-			return;
-		}
-
-		var panel = new PanelContainer
-		{
-			Name = "TerminalScreenPreview",
-			MouseFilter = Control.MouseFilterEnum.Ignore,
-			Position = new Vector2(16f, 64f)
-		};
-		var preview = new TextureRect
-		{
-			Texture = _terminalViewport.GetTexture(),
-			StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-			CustomMinimumSize = new Vector2(320f, 213f),
-			MouseFilter = Control.MouseFilterEnum.Ignore
-		};
-		panel.AddChild(preview);
-		_status_label?.GetParent()?.GetParent()?.AddChild(panel);
-		_screenDebugPreview = preview;
-	}
-
-	private void HideScreenDebugPreview()
-	{
-		if (_screenDebugPreview == null)
-		{
-			return;
-		}
-
-		var panel = _screenDebugPreview.GetParent();
-		_screenDebugPreview = null;
-		panel?.QueueFree();
-	}
-
-	private void ScheduleDebugSample()
-	{
-		if (_debugSampleTicks < 0)
-		{
-			_debugSampleTicks = 30;
-		}
-	}
-
-	private void UpdateDebugSample()
-	{
-		if (_debugSampleTicks < 0 || _terminalViewport == null)
-		{
-			return;
-		}
-
-		if (_debugSampleTicks-- > 0)
-		{
-			return;
-		}
-
-		_debugSampleTicks = -1;
-		var viewportTexture = _terminalViewport.GetTexture();
-		var image = viewportTexture.GetImage();
-		if (image == null)
-		{
-			GD.Print("ScreenDebug: unable to read viewport image");
-			return;
-		}
-
-		var nonBlack = 0;
-		var total = 0;
-		var size = image.GetSize();
-		var data = image.GetData();
-		for (var i = 0; i < data.Length; i += 4)
-		{
-			var r = data[i];
-			var g = data[i + 1];
-			var b = data[i + 2];
-			total++;
-			if (r > 24 || g > 24 || b > 24)
-			{
-				nonBlack++;
-			}
-		}
-
-		GD.Print($"ScreenDebug: {size.X}x{size.Y}, non-black pixels={nonBlack}/{total} ({(total == 0 ? 0 : nonBlack * 100 / total)}%), materialApplied={_addedScreenMaterial}");
-	}
 }
