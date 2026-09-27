@@ -306,6 +306,63 @@ If shadows are initialized with null light references:
 
 The fix (commit `b96d6c4d`) ensures lights exist before `CastShadowSystem.Initialize()` is called.
 
+## 3D Room And Hallway Lighting Pattern
+
+This pattern came from the `Game3D.tscn` hallway polish pass and should be reused when adding or tuning 3D station spaces.
+
+### Core Rules
+
+- Give visually distinct spaces their own 3D light layer when they need different lighting behavior. The hallway uses `StationLighting3D.HallLayer` instead of sharing the broad `StationLayer`.
+- Route floor meshes, walls/props, lights, and the player to the same layer while the player is in that space. See `StationGreybox3D.RoomLayerMask(...)`, `StationGreybox3D.AddRoom(...)`, `StationLighting3D.RefreshLightMasks()`, and `World3D.SetPlayerLightLayer(...)`.
+- Tune raw lighting before judging the comic post-process. Check comic off first, then comic on. The comic pass can flatten weak or overly broad light input.
+- Use a non-shadow fill plus one shadow-capable wash per fixture. Fill gives readability; the wash creates the shape and player shadow.
+- Register shadow-capable 3D fluorescent spots with `_fluorescentShadowLights` so `UpdateFluorescentShadowCaster(...)` keeps only nearby shadow casters active.
+- Hide source meshes when top-down readability matters. A visible ceiling bar can draw over the player because of the camera angle, even if its light contribution is correct.
+
+### Hallway Baseline
+
+The current hallway baseline is intentionally different from the larger station rooms:
+
+```csharp
+AddHallFluorescent(root, "HallFluorescentMiddle", new Vector3(6.5f, 2.65f, -3.0f));
+```
+
+Current hall light values:
+
+| Component | Energy | Range | Spot Angle | Shadows | Purpose |
+|-----------|--------|-------|------------|---------|---------|
+| Fill omni | `1.1f` | `4.1f` | N/A | No | Keeps the floor readable between pools |
+| Wash spot | `12.0f` | `4.4f` | `78f` | Yes | Defines the overhead pool and casts the player shadow |
+
+The hallway has five fixtures at `z = -12.0, -7.5, -3.0, 1.5, 6.0`. This spacing keeps repeated pools readable without collapsing into one flat wash.
+
+### Floor Material And Tiling
+
+- Do not use `BoxMesh` for textured floor diagnostics once tiling matters. A `BoxMesh` stretches one texture over the full hallway, which makes tiles look huge.
+- Use `StationFloorMaterials3D.MakeTiledFloorMesh(width, depth, tileWorldSize)` through `StationGreybox3D.AddFloorPlane(...)` for tiled floor UVs.
+- `HallTileWorldSize = 0.5f` gives six square tiles across the 3m hallway width.
+- If tiles look rectangular, verify the generated mesh before changing scale. The current UVs are square in world space; the rectangular read can come from perspective, camera angle, comic posterization, or texture line detail.
+- For comic-safe light floors, prefer off-white beige over cool blue. Current hall linoleum uses `new Color(0.78f, 0.74f, 0.64f)` with luma clamped to `0.48..0.82` so it reads light but still retains subtle tile detail.
+
+### Diagnostic Sequence
+
+When a 3D room or hallway looks flat, debug in this order:
+
+1. Temporarily simplify the floor material. Rule out texture/post-process interaction before changing lights.
+2. Isolate the space onto its own light layer. Shared station lighting can flatten small spaces.
+3. Tune raw lights with comic off. Start with smaller ranges and higher contrast before increasing ambient/fill.
+4. Reintroduce texture only after the light pools read correctly.
+5. Restore tiled floor mesh after texture visibility is proven; avoid judging tile scale on `BoxMesh`.
+6. Enable shadows on the wash light and add it to `_fluorescentShadowLights` only after the basic pool shape is right.
+
+### Gotchas
+
+- Reach is not the same as brightness. Increasing range can erase pools by merging them into one wash.
+- Visible light meshes are not required for light to exist. Hide fixtures in top-down views if they overlap the player silhouette.
+- Shadow-enabled lights must be on the same cull layer as the player and floor, and the player visual must be routed to that layer.
+- If shadows do not appear, check both `ShadowEnabled = true` and whether the light is registered with the per-frame shadow updater.
+- Tiled material color should be chosen for the post-process, not just raw render. Cool dark floors tend to posterize into blue-gray; beige floors preserve contrast while staying noir-muted.
+
 ## Future Enhancements
 
 ### Animations

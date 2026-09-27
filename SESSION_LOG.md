@@ -1,6 +1,19 @@
 ## Current Session
 
 **Branch**: comic-styling
+**Task**: Document 3D hallway lighting/material lessons for reuse.
+**Status**: Completed
+- Files Modified: `SESSION_LOG.md`, `docs/technical/LIGHTING_SETUP.md`, `AGENTS.md`
+- Work Done: User confirmed the latest hallway pass is good and asked to document the lessons so the pattern can be applied in the future. Added a `3D Room And Hallway Lighting Pattern` section to `LIGHTING_SETUP.md` covering isolated light layers, comic-off diagnostics, fill/wash light split, `_fluorescentShadowLights`, hidden source meshes, tiled floor UVs vs BoxMesh stretch, beige comic-safe floor materials, and the recommended diagnostic sequence. Added `LIGHTING_SETUP.md` to the AGENTS doc reference table.
+- Verification: Read back the new doc section and AGENTS reference. `git diff` confirmed the documentation-only changes.
+- Next Steps: Use `LIGHTING_SETUP.md` before tuning future 3D room/hallway lighting or floor materials.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway floor/shadows polish)
+
+**Branch**: comic-styling
 **Task**: Polish hallway floor color, hide fixtures, and enable hallway shadows.
 **Status**: Completed (build + Godot check green; visual review pending)
 - Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`, `scripts/world3d/StationLighting3D.cs`
