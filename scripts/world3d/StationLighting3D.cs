@@ -21,7 +21,7 @@ public partial class StationLighting3D : Node3D
 	private const float FluorescentShadowEnergyMultiplier = 1.05f;
 	private const float FluorescentShadowActiveRadius = 9.5f;
 	private const float FluorescentShadowActiveRadiusSquared = FluorescentShadowActiveRadius * FluorescentShadowActiveRadius;
-	private const float RoomShadowRange = 13.0f;
+	private const float RoomShadowRange = 10.5f;
 	private const float FluorescentShadowRange = 14.5f;
 	private const float ShadowBias = 0.12f;
 	private const float ShadowNormalBias = 2.4f;
@@ -136,7 +136,7 @@ public partial class StationLighting3D : Node3D
 
 	private void AddControlRoomLights(Node3D root)
 	{
-		_controlLights.Add(AddOverheadSpot(root, "ControlRoomOverhead", new Vector3(0f, 3.25f, 4f), WarmNoir, 10.0f, RoomShadowRange, 80f, true));
+		_controlLights.Add(AddOverheadSpot(root, "ControlRoomOverhead", new Vector3(0f, 3.25f, 4f), WarmNoir, 10.0f, RoomShadowRange, 66f, true));
 		AddPendantFixture(root, "ControlRoomPendant", new Vector3(0f, 3.12f, 4f), WarmNoir);
 		_controlLights.Add(AddOmni(root, "ControlEquipmentGlow", new Vector3(1.0f, 1.0f, 0.35f), new Color(0.05f, 0.7f, 0.28f), 0f, 3.1f, false)); // TODO: temp off to inspect scene
 		_controlLights.Add(AddOmni(root, "ControlOnAirRedGlow", new Vector3(0f, 1.4f, -0.1f), OnAirRed, 0.55f, 2.6f, false));
@@ -144,14 +144,14 @@ public partial class StationLighting3D : Node3D
 
 	private void AddStudioLights(Node3D root)
 	{
-		_studioLights.Add(AddOverheadSpot(root, "StudioRoomOverhead", new Vector3(0f, 3.25f, -4f), WarmNoir, 10.0f, RoomShadowRange, 80f, true));
+		_studioLights.Add(AddOverheadSpot(root, "StudioRoomOverhead", new Vector3(0f, 3.25f, -4f), WarmNoir, 10.0f, RoomShadowRange, 66f, true));
 		AddPendantFixture(root, "StudioRoomPendant", new Vector3(0f, 3.12f, -4f), WarmNoir);
 		_studioLights.Add(AddOmni(root, "StudioOnAirRedGlow", new Vector3(-0.85f, 1.1f, -3.55f), OnAirRed, 0.35f, 2.3f, false));
 	}
 
 	private void AddEquipmentRoomLights(Node3D root)
 	{
-		_equipmentLights.Add(AddOverheadSpot(root, "EquipmentRoomOverhead", new Vector3(0f, 3.05f, -11f), WarmNoir, 10.0f, RoomShadowRange, 80f, true));
+		_equipmentLights.Add(AddOverheadSpot(root, "EquipmentRoomOverhead", new Vector3(0f, 3.05f, -11f), WarmNoir, 10.0f, RoomShadowRange, 66f, true));
 		AddPendantFixture(root, "EquipmentRoomPendant", new Vector3(0f, 2.92f, -11f), WarmNoir);
 	}
 

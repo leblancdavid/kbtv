@@ -12,11 +12,11 @@ public partial class ComicPostLayer : Node3D
 	[Export] public bool ComicPostEnabled { get; set; } = true;
 	[Export] public Key ToggleKey { get; set; } = Key.F10;
 	[Export] public Key ToggleOutlinesKey { get; set; } = Key.F9;
-	[Export] public float EffectStrength { get; set; } = 1.0f;
+	[Export] public float EffectStrength { get; set; } = 0.0f;
 	[Export] public int PosterizeSteps { get; set; } = 3;
 	[Export] public float SurfacePosterizeStrength { get; set; } = 0.0f;
 	[Export] public float Saturation { get; set; } = 1.2f;
-	[Export] public float OutlineThreshold { get; set; } = 0.14f;
+	[Export] public float OutlineThreshold { get; set; } = 0.5f;
 	[Export] public float OutlineBias { get; set; } = 0.045f;
 	[Export] public float OutlineWidthPx { get; set; } = 2.0f;
 	[Export] public Color OutlineColor { get; set; } = new(0f, 0f, 0f, 1.0f);
@@ -26,7 +26,7 @@ public partial class ComicPostLayer : Node3D
 	// tap spacing in pixels.
 	[Export] public bool DepthEdgesEnabled { get; set; } = true;
 	[Export] public float DepthEdgeMix { get; set; } = 1.0f;
-	[Export] public float DepthEdgeThreshold { get; set; } = 0.045f;
+	[Export] public float DepthEdgeThreshold { get; set; } = 0.45f;
 	[Export] public float DepthEdgeBias { get; set; } = 0.018f;
 	[Export] public float DepthEdgeWidthPx { get; set; } = 2.0f;
 	[Export] public bool NormalEdgesEnabled { get; set; } = true;
@@ -60,7 +60,7 @@ public partial class ComicPostLayer : Node3D
 	[Export] public float ShadowSmoothEdgeSoftness { get; set; } = 0.12f;
 	[Export] public float ShadowSmoothStrength { get; set; } = 0.0f;
 	[Export] public float ShadowSmoothRadiusPx { get; set; } = 4.0f;
-	[Export] public bool LightPosterizeEnabled { get; set; } = true;
+	[Export] public bool LightPosterizeEnabled { get; set; } = false;
 	[Export] public float LightPosterizeSteps { get; set; } = 3.0f;
 	[Export] public float LightPosterizeStrength { get; set; } = 1.0f;
 	[Export] public float LightPosterizeThreshold { get; set; } = 0.0f;

@@ -1,6 +1,32 @@
 ## Current Session
 
 **Branch**: comic-styling
+**Task**: Make comic post pass ink-only.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/ComicPostLayer.cs`, `shaders/comic_post.gdshader`
+- Work Done: User confirmed a posterized look still remained after disabling explicit light posterization. Inspection found the shader still blended fully into its stylized color path via `EffectStrength = 1.0f`, with ink applied after that blend. Set `ComicPostLayer.EffectStrength` to `0.0f` so the post pass preserves original scene colors/textures and only applies the final ink edges. Also set the shader's `light_posterize_enabled` default to `false` so the shader resource itself matches the C# default.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic on. If texture washout/posterization remains, investigate material-side texture recolor/luma clamps in `StationFloorMaterials3D.MakeComicMaskedMaterial(...)` rather than the post shader.
+- Blockers: none.
+
+---
+
+## Previous Session (posterize toggle and tighter lights)
+
+**Branch**: comic-styling
+**Task**: Remove comic posterizing washout and tighten room overhead pools.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/ComicPostLayer.cs`, `scripts/world3d/StationLighting3D.cs`
+- Work Done: User asked to keep comic edges but remove posterizing to compare texture readability, and make overhead lights tighter so room edges are darker. Inspection found surface posterize already disabled, while `LightPosterizeEnabled` was still on. Disabled light posterizing by default so comic outlines/depth/normal edges stay active without the light-band washout. Tightened room overhead spot pools by reducing `RoomShadowRange` from `13.0f` to `10.5f` and narrowing control/studio/equipment overhead spot angles from `80f` to `66f`, preserving center energy.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic on. Confirm textures no longer wash out, comic edges still read, and room edges/corners are darker without making room centers too dim.
+- Blockers: none.
+
+---
+
+## Previous Session (dramatic wallpaper contrast)
+
+**Branch**: comic-styling
 **Task**: Restore dramatic contrast after wallpaper wall skins.
 **Status**: Completed (build + Godot check green; visual review pending)
 - Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`
