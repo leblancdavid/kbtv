@@ -19,7 +19,7 @@ public static class StationFloorMaterials3D
 
 	public static StandardMaterial3D MakeHallLinoleum()
 	{
-		return MakeComicMaskedMaterial("hall_linoleum.png", new Color(0.135f, 0.155f, 0.15f), 0.20f, 0.025f, 0.075f, 0.22f, 0.92f, borderDarken: 0.18f, borderWidthFraction: 0.085f);
+		return MakeComicMaskedMaterial("hall_linoleum.png", new Color(0.78f, 0.74f, 0.64f), 0.16f, 0.02f, 0.48f, 0.82f, 0.92f, borderDarken: 0.14f, borderWidthFraction: 0.085f);
 	}
 
 	public static StandardMaterial3D MakeWallpaper()

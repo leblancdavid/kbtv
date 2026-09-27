@@ -1,6 +1,45 @@
 ## Current Session
 
 **Branch**: comic-styling
+**Task**: Polish hallway floor color, hide fixtures, and enable hallway shadows.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`, `scripts/world3d/StationLighting3D.cs`
+- Work Done: User approved changing hallway floor from blue-green to near-white beige, hiding hallway light source meshes so they do not render over the player, and enabling hallway shadows. Changed `MakeHallLinoleum()` base from blue-green to near-white beige (`0.78, 0.74, 0.64`) with brighter luma clamps (`0.48..0.82`) while preserving subtle tile texture. Removed visible hallway `AddLightBar(...)` calls. Hall fill lights remain non-shadowed; hall wash lights are now shadow-enabled and added to `_fluorescentShadowLights` so `UpdateFluorescentShadowCaster(...)` can activate the nearest hallway shadow caster.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off/on. Confirm beige floor color, hidden hallway light source bars, and visible hallway player shadows.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway light width)
+
+**Branch**: comic-styling
+**Task**: Widen hallway fluorescent coverage to remove black gaps.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationLighting3D.cs`
+- Work Done: User confirmed the subtle hallway texture looks good. Code inspection confirmed the floor tile mesh is square in world space (`0.5m x 0.5m`); the slightly rectangular look is likely camera perspective/comic projection and texture detail. Broadened hallway-only lighting while preserving localized pools: hall fixture bar width `1.45f` -> `2.4f`, hall fill `1.0f/3.2f` -> `1.1f/4.1f`, hall wash `12.0f/3.8f/44f` -> `12.0f/4.4f/78f`. Room fluorescents keep the original fixture width via an optional `AddLightBar(...)` width parameter.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off/on. Confirm black gaps are reduced without flattening all hallway lighting into one even wash.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway tile scale)
+
+**Branch**: comic-styling
+**Task**: Restore tiled hallway floor with correct square tile scale.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: User confirmed the hallway texture is visible under the improved lighting, but the diagnostic BoxMesh floor stretched the texture across the whole hallway. Requirement: square tiles tiled across the floor with at least 6 tiles across the 3m hallway width. Changed `HallTileWorldSize` from `1.5f` to `0.5f`, giving 6 tiles across the hallway width. Restored `_hallMaterial` floor sections to `AddFloorPlane(...)` so the generated UVs tile the texture instead of stretching it across a BoxMesh.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off/on. Confirm square floor tiles, at least 6 tiles across the hallway, and that localized light pools still read correctly.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway texture reintroduction)
+
+**Branch**: comic-styling
 **Task**: Reintroduce hallway linoleum texture after localized lighting fix.
 **Status**: Completed (build + Godot check green; visual review pending)
 - Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`

@@ -217,9 +217,10 @@ public partial class StationLighting3D : Node3D
 
 	private void AddHallFluorescent(Node3D root, string name, Vector3 position)
 	{
-		AddLightBar(root, $"{name}Fixture", position + new Vector3(0f, 0.02f, 0f), Fluorescent);
-		_hallLights.Add(AddOmni(root, $"{name}Fill", position + new Vector3(0f, -0.35f, 0f), Fluorescent, 1.0f, 3.2f, false));
-		_hallLights.Add(AddOverheadSpot(root, $"{name}Wash", position, Fluorescent, 12.0f, 3.8f, 44f, false));
+		_hallLights.Add(AddOmni(root, $"{name}Fill", position + new Vector3(0f, -0.35f, 0f), Fluorescent, 1.1f, 4.1f, false));
+		var wash = AddOverheadSpot(root, $"{name}Wash", position, Fluorescent, 12.0f, 4.4f, 78f, true);
+		_hallLights.Add(wash);
+		_fluorescentShadowLights.Add(wash);
 	}
 
 	private SpotLight3D AddOverheadSpot(Node3D root, string name, Vector3 position, Color color, float energy, float range, float angle, bool shadows)
@@ -267,7 +268,7 @@ public partial class StationLighting3D : Node3D
 		return light;
 	}
 
-	private static void AddLightBar(Node3D root, string name, Vector3 position, Color color)
+	private static void AddLightBar(Node3D root, string name, Vector3 position, Color color, float width = 1.45f)
 	{
 		var material = new StandardMaterial3D
 		{
@@ -281,7 +282,7 @@ public partial class StationLighting3D : Node3D
 		{
 			Name = name,
 			Position = position,
-			Mesh = new BoxMesh { Size = new Vector3(1.45f, 0.035f, 0.22f) },
+			Mesh = new BoxMesh { Size = new Vector3(width, 0.035f, 0.22f) },
 			MaterialOverride = material
 		};
 		DisableMeshShadows(fixture);

@@ -22,7 +22,7 @@ public partial class StationGreybox3D : Node3D
 	private const float DoubleDoorMiddleZone = 0.28f;
 	private const float WindowFrameDepth = WallThickness;
 	private const float WindowFrameZ = 0f;
-	private const float HallTileWorldSize = 1.5f;
+	private const float HallTileWorldSize = 0.5f;
 
 	private readonly Rect2 _hallway = new(new Vector2(5f, -14f), new Vector2(3f, 22f));
 	private readonly Rect2 _equipmentRoom = new(new Vector2(-5f, -14f), new Vector2(10f, 6f));
@@ -423,7 +423,7 @@ public partial class StationGreybox3D : Node3D
 		var center = GetCenter(rect);
 		if (material == _hallMaterial)
 		{
-			AddBox($"{name}Floor", new Vector3(center.X, -0.04f, center.Y), new Vector3(rect.Size.X, 0.08f, rect.Size.Y), material, true, layerMask, false);
+			AddFloorPlane($"{name}Floor", new Vector3(center.X, 0.01f, center.Y), rect.Size, material, layerMask);
 		}
 		else
 		{
