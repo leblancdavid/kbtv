@@ -13,7 +13,7 @@ public partial class ComicPostLayer : Node3D
 	[Export] public Key ToggleKey { get; set; } = Key.F10;
 	[Export] public Key ToggleOutlinesKey { get; set; } = Key.F9;
 	[Export] public float EffectStrength { get; set; } = 1.0f;
-	[Export] public int PosterizeSteps { get; set; } = 6;
+	[Export] public int PosterizeSteps { get; set; } = 3;
 	[Export] public float SurfacePosterizeStrength { get; set; } = 0.0f;
 	[Export] public float Saturation { get; set; } = 1.2f;
 	[Export] public float OutlineThreshold { get; set; } = 0.14f;
@@ -61,7 +61,7 @@ public partial class ComicPostLayer : Node3D
 	[Export] public float ShadowSmoothStrength { get; set; } = 0.0f;
 	[Export] public float ShadowSmoothRadiusPx { get; set; } = 4.0f;
 	[Export] public bool LightPosterizeEnabled { get; set; } = true;
-	[Export] public float LightPosterizeSteps { get; set; } = 4.0f;
+	[Export] public float LightPosterizeSteps { get; set; } = 3.0f;
 	[Export] public float LightPosterizeStrength { get; set; } = 1.0f;
 	[Export] public float LightPosterizeThreshold { get; set; } = 0.0f;
 	[Export] public float LightPosterizeSoftness { get; set; } = 0.0f;

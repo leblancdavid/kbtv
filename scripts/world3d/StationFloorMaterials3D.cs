@@ -9,12 +9,12 @@ public static class StationFloorMaterials3D
 
 	public static StandardMaterial3D MakeControlCarpet()
 	{
-		return MakeComicMaskedMaterial("control_carpet.png", new Color(0.18f, 0.12f, 0.075f), 0.08f, 0.015f, 0.045f, 0.18f, 0.96f);
+		return MakeComicMaskedMaterial("control_carpet.png", new Color(0.34f, 0.24f, 0.15f), 0.28f, 0.08f, 0.12f, 0.34f, 0.96f);
 	}
 
 	public static StandardMaterial3D MakeStudioCarpet()
 	{
-		return MakeComicMaskedMaterial("studio_carpet.png", new Color(0.17f, 0.065f, 0.05f), 0.08f, 0.015f, 0.04f, 0.16f, 0.97f);
+		return MakeComicMaskedMaterial("studio_carpet.png", new Color(0.34f, 0.12f, 0.085f), 0.28f, 0.08f, 0.10f, 0.30f, 0.97f);
 	}
 
 	public static StandardMaterial3D MakeHallLinoleum()
@@ -24,7 +24,7 @@ public static class StationFloorMaterials3D
 
 	public static StandardMaterial3D MakeWallpaper()
 	{
-		return MakeComicMaskedMaterial("wallpaper_subtle.png", new Color(0.18f, 0.145f, 0.105f), 0.06f, 0.01f, 0.045f, 0.16f, 0.9f);
+		return MakeComicMaskedMaterial("wallpaper_subtle.png", new Color(0.52f, 0.40f, 0.28f), 0.55f, 0.16f, 0.12f, 0.42f, 0.9f, detailCenter: 0.45f);
 	}
 
 	public static StandardMaterial3D MakeRedBrick(string textureName = "wallpaper_subtle.png")
@@ -92,6 +92,33 @@ public static class StationFloorMaterials3D
 		return mesh;
 	}
 
+	public static ArrayMesh MakeTiledWallMesh(float width, float height, float tileWorldSize)
+	{
+		var u = width / tileWorldSize;
+		var v = height / tileWorldSize;
+		var vertices = new[]
+		{
+			new Vector3(-width * 0.5f, -height * 0.5f, 0f),
+			new Vector3(width * 0.5f, -height * 0.5f, 0f),
+			new Vector3(width * 0.5f, height * 0.5f, 0f),
+			new Vector3(-width * 0.5f, height * 0.5f, 0f)
+		};
+		var normals = new[] { Vector3.Back, Vector3.Back, Vector3.Back, Vector3.Back };
+		var uvs = new[] { Vector2.Zero, new Vector2(u, 0f), new Vector2(u, v), new Vector2(0f, v) };
+		var indices = new[] { 0, 2, 1, 0, 3, 2 };
+
+		var arrays = new Godot.Collections.Array();
+		arrays.Resize((int)Mesh.ArrayType.Max);
+		arrays[(int)Mesh.ArrayType.Vertex] = vertices;
+		arrays[(int)Mesh.ArrayType.Normal] = normals;
+		arrays[(int)Mesh.ArrayType.TexUV] = uvs;
+		arrays[(int)Mesh.ArrayType.Index] = indices;
+
+		var mesh = new ArrayMesh();
+		mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+		return mesh;
+	}
+
 	private static StandardMaterial3D MakeComicMaskedMaterial(
 		string textureName,
 		Color baseColor,
@@ -102,12 +129,15 @@ public static class StationFloorMaterials3D
 		float roughness,
 		float detailCenter = DefaultDetailCenter,
 		float borderDarken = 0f,
-		float borderWidthFraction = 0.035f)
+		float borderWidthFraction = 0.035f,
+		float emissionEnergy = 0f)
 	{
 		var image = LoadPng(TextureRoot + textureName);
 		if (image.IsEmpty())
 		{
-			return new StandardMaterial3D { AlbedoColor = ClampLuma(baseColor, minLuma, maxLuma), Roughness = roughness };
+			var fallback = new StandardMaterial3D { AlbedoColor = ClampLuma(baseColor, minLuma, maxLuma), Roughness = roughness };
+			ApplyMaterialEmission(fallback, emissionEnergy);
+			return fallback;
 		}
 
 		image.Convert(Image.Format.Rgba8);
@@ -134,7 +164,7 @@ public static class StationFloorMaterials3D
 			}
 		}
 
-		return new StandardMaterial3D
+		var material = new StandardMaterial3D
 		{
 			AlbedoColor = Colors.White,
 			AlbedoTexture = ImageTexture.CreateFromImage(image),
@@ -142,6 +172,21 @@ public static class StationFloorMaterials3D
 			CullMode = BaseMaterial3D.CullModeEnum.Disabled,
 			Roughness = roughness
 		};
+		ApplyMaterialEmission(material, emissionEnergy);
+		return material;
+	}
+
+	private static void ApplyMaterialEmission(StandardMaterial3D material, float energy)
+	{
+		if (energy <= 0f)
+		{
+			return;
+		}
+
+		material.EmissionEnabled = true;
+		material.Emission = Colors.White;
+		material.EmissionTexture = material.AlbedoTexture;
+		material.EmissionEnergyMultiplier = energy;
 	}
 
 	private static float Luma(Color color)

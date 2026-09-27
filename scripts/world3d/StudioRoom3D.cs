@@ -23,13 +23,27 @@ public partial class StudioRoom3D : Node3D
 	private const float HalfDepth = 4f;
 	private const float DoorHalfWidth = 1.4f;
 	private const float DoorCenterX = -4.15f;
+	private const float FloorTileWorldSize = 0.5f;
 	private StudioSmoke3D? _smoke;
 
 	public override void _Ready()
 	{
 		Visible = true;
+		ApplyTexturedRoomSurfaces();
 		CreateColliders();
 		CreateSmoke();
+	}
+
+	private void ApplyTexturedRoomSurfaces()
+	{
+		var floor = GetNodeOrNull<MeshInstance3D>("Floor");
+		if (floor != null)
+		{
+			floor.Position = new Vector3(0f, 0.01f, 0f);
+			floor.Mesh = StationFloorMaterials3D.MakeTiledFloorMesh(HalfWidth * 2f, HalfDepth * 2f, FloorTileWorldSize);
+			floor.MaterialOverride = StationFloorMaterials3D.MakeStudioCarpet();
+			floor.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+		}
 	}
 
 	public void SetPlayer(Player3D player)

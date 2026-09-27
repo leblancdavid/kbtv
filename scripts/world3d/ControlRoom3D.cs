@@ -9,6 +9,7 @@ public partial class ControlRoom3D : Node3D
 	private const float HalfDepth = 4f;
 	private const float DoorHalfWidth = 1.4f;
 	private const float DoorCenterX = -4.15f;
+	private const float FloorTileWorldSize = 0.5f;
 	private const float ChairPushRadius = 1.1f;
 	private const float ChairMaxDisplacement = 0.8f;
 	private const float ChairMoveSpeed = 6f;
@@ -23,6 +24,7 @@ public partial class ControlRoom3D : Node3D
 	public override void _Ready()
 	{
 		Visible = true;
+		ApplyTexturedRoomSurfaces();
 		_officeChair = GetNodeOrNull<Node3D>("OfficeChair");
 		_officeChairHome = _officeChair?.Position ?? Vector3.Zero;
 		CreateColliders();
@@ -42,6 +44,18 @@ public partial class ControlRoom3D : Node3D
 		}
 
 		DisableShadowsInTree(GetNodeOrNull<Node3D>("SpeakerRight"));
+	}
+
+	private void ApplyTexturedRoomSurfaces()
+	{
+		var floor = GetNodeOrNull<MeshInstance3D>("Floor");
+		if (floor != null)
+		{
+			floor.Position = new Vector3(0f, 0.01f, 0f);
+			floor.Mesh = StationFloorMaterials3D.MakeTiledFloorMesh(HalfWidth * 2f, HalfDepth * 2f, FloorTileWorldSize);
+			floor.MaterialOverride = StationFloorMaterials3D.MakeControlCarpet();
+			floor.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
+		}
 	}
 
 	public void SetComputerCollidersEnabled(bool enabled)

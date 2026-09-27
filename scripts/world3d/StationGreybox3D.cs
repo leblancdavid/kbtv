@@ -40,6 +40,7 @@ public partial class StationGreybox3D : Node3D
 	private StandardMaterial3D _hallMaterial = null!;
 	private StandardMaterial3D _supportMaterial = null!;
 	private StandardMaterial3D _wallMaterial = null!;
+	private StandardMaterial3D _wallpaperMaterial = null!;
 	private StandardMaterial3D _equipmentMaterial = null!;
 	private StandardMaterial3D _supplyMaterial = null!;
 	private StandardMaterial3D _bathroomMaterial = null!;
@@ -128,6 +129,7 @@ public partial class StationGreybox3D : Node3D
 		_hallMaterial = StationFloorMaterials3D.MakeHallLinoleum();
 		_supportMaterial = MakeMaterial(new Color(0.13f, 0.12f, 0.11f));
 		_wallMaterial = MakeMaterial(new Color(0.2f, 0.18f, 0.16f));
+		_wallpaperMaterial = StationFloorMaterials3D.MakeWallpaper();
 		_equipmentMaterial = MakeMaterial(new Color(0.06f, 0.18f, 0.22f));
 		_supplyMaterial = MakeMaterial(new Color(0.22f, 0.15f, 0.08f));
 		_bathroomMaterial = MakeMaterial(new Color(0.15f, 0.18f, 0.2f));
@@ -460,6 +462,38 @@ public partial class StationGreybox3D : Node3D
 		var material = MakeWallMaterial();
 		var mesh = AddBox(name, position, size, material, true, StationLighting3D.AllInteriorLayers);
 		_wallFadeTargets.Add(new WallFadeTarget { Mesh = mesh, Material = material, Position = position, Size = size });
+		AddWallpaperSkins(name, position, size);
+	}
+
+	private void AddWallpaperSkins(string name, Vector3 position, Vector3 size)
+	{
+		const float skinOffset = 0.006f;
+		if (size.X >= size.Z)
+		{
+			AddWallpaperSkin($"{name}WallpaperNorth", position + new Vector3(0f, 0f, -size.Z * 0.5f - skinOffset), Vector3.Zero, size.X, size.Y, position, size);
+			AddWallpaperSkin($"{name}WallpaperSouth", position + new Vector3(0f, 0f, size.Z * 0.5f + skinOffset), new Vector3(0f, 180f, 0f), size.X, size.Y, position, size);
+			return;
+		}
+
+		AddWallpaperSkin($"{name}WallpaperWest", position + new Vector3(-size.X * 0.5f - skinOffset, 0f, 0f), new Vector3(0f, 90f, 0f), size.Z, size.Y, position, size);
+		AddWallpaperSkin($"{name}WallpaperEast", position + new Vector3(size.X * 0.5f + skinOffset, 0f, 0f), new Vector3(0f, -90f, 0f), size.Z, size.Y, position, size);
+	}
+
+	private void AddWallpaperSkin(string name, Vector3 position, Vector3 rotationDegrees, float width, float height, Vector3 wallPosition, Vector3 wallSize)
+	{
+		var material = (StandardMaterial3D)_wallpaperMaterial.Duplicate();
+		var mesh = new MeshInstance3D
+		{
+			Name = name,
+			Position = position,
+			RotationDegrees = rotationDegrees,
+			Mesh = StationFloorMaterials3D.MakeTiledWallMesh(width, height, 1.0f),
+			MaterialOverride = material,
+			Layers = StationLighting3D.AllInteriorLayers,
+			CastShadow = GeometryInstance3D.ShadowCastingSetting.Off
+		};
+		AddChild(mesh);
+		_wallFadeTargets.Add(new WallFadeTarget { Mesh = mesh, Material = material, Position = wallPosition, Size = wallSize });
 	}
 
 	private StandardMaterial3D MakeWallMaterial()

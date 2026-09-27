@@ -1,6 +1,84 @@
 ## Current Session
 
 **Branch**: comic-styling
+**Task**: Restore dramatic contrast after wallpaper wall skins.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`
+- Work Done: User confirmed wall-skin wallpaper looks good, but brighter walls reduced dramatic lighting contrast. Conservative first pass removed wallpaper emission and lowered wallpaper brightness while keeping the pattern contrast visible. `MakeWallpaper()` now uses a darker base (`0.38, 0.29, 0.2`), luma clamp `0.10..0.42`, and no `emissionEnergy`.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off/on. If contrast still feels low, tune lighting next rather than further darkening wallpaper: reduce broad fill/ambient or add room-specific wall palettes.
+- Blockers: none.
+
+---
+
+## Previous Session (wall-skin wallpaper)
+
+**Branch**: comic-styling
+**Task**: Move wallpaper from room overlays to actual wall skins.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`, `scripts/world3d/ControlRoom3D.cs`, `scripts/world3d/StudioRoom3D.cs`
+- Work Done: User pointed out wallpaper should be applied on top of the walls themselves instead of as broad room panels. Removed the temporary control/studio overlay wallpaper panels. Added `_wallpaperMaterial` and generated thin wallpaper skins from `StationGreybox3D.AddWall(...)`, placing skins on both faces of each actual wall segment with continuous UV wall meshes. Wallpaper skins duplicate their material per segment and are registered in `_wallFadeTargets` so they fade with their parent wall. Door/window openings remain clear because skins are generated only where real wall segments exist.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off/on. Confirm wallpaper is on actual wall faces, no longer crosses window/door gaps, and still fades correctly when walls fade near the player.
+- Blockers: none.
+
+---
+
+## Previous Session (wallpaper placement/cutouts)
+
+**Branch**: comic-styling
+**Task**: Fix wallpaper placement, cutouts, and seams.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`, `scripts/world3d/ControlRoom3D.cs`, `scripts/world3d/StudioRoom3D.cs`
+- Work Done: User identified wallpaper is behind/through walls/openings, appears over window/door areas, and shows tile seam lines. Changed `MakeTiledWallMesh(...)` from per-cell UV resets to one continuous UV quad, which should remove generated tile seam lines. Removed wallpaper border darkening so repeats are not emphasized. Moved wallpaper panels onto the room-facing wall surface with `WallFaceInset`. Replaced the control room's full back wallpaper with smaller back-wall strips around the control/studio door and window regions, so the central window and door opening are skipped. Studio panels were also moved inward.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off/on. Confirm wallpaper sits in front of walls, no longer covers the main window/door, and seam grid lines are gone.
+- Blockers: none.
+
+---
+
+## Previous Session (wallpaper readability)
+
+**Branch**: comic-styling
+**Task**: Make control/studio wallpaper texture readable.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/ControlRoom3D.cs`, `scripts/world3d/StudioRoom3D.cs`, `scripts/world3d/StationFloorMaterials3D.cs`
+- Work Done: User confirmed carpets look good, but wallpaper panels still read as flat beige. Screenshot shows the wall panels are visible, so this is a wallpaper material/scale readability issue rather than missing geometry. Enlarged wallpaper tile size from `0.5f` to `1.0f` in control/studio. Made `MakeWallpaper()` more pattern-forward: stronger base color, wider luma range, much higher darken/brighten contrast, shifted detail center, added border darkening, and reduced emission from `0.08f` to `0.04f` so it no longer flattens the texture as much.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off/on. If wallpaper is still too flat, next step is to inspect/replace the source `wallpaper_subtle.png` or add explicit procedural stripe/trim pattern rather than continuing material tuning.
+- Blockers: none.
+
+---
+
+## Previous Session (control/studio texture visibility)
+
+**Branch**: comic-styling
+**Task**: Make control/studio texture test visible.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`
+- Work Done: User reported the control/studio floor and wall textures are not visible. Inspection confirmed the runtime floor/wall mesh wiring is present, so the likely issue is material readability: control/studio carpet and wallpaper were very dark/subtle compared with the beige hallway material, and vertical wallpaper panels receive little overhead light. Increased carpet base colors, texture contrast, and luma clamps. Increased wallpaper base/luma/contrast and added a small texture-matched emission lift (`0.08f`) through an optional `emissionEnergy` parameter on `MakeComicMaskedMaterial(...)`.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off/on. If still invisible, next likely issue is wall/floor geometry visibility rather than material contrast; add temporary debug colors or move panels/floors forward/up to prove placement.
+- Blockers: none.
+
+---
+
+## Previous Session (control/studio texture pass)
+
+**Branch**: comic-styling
+**Task**: Apply hallway texture workflow to control/studio floors and wallpaper.
+**Status**: Completed (build + Godot check green; visual review pending)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationFloorMaterials3D.cs`, `scripts/world3d/ControlRoom3D.cs`, `scripts/world3d/StudioRoom3D.cs`
+- Work Done: User asked to apply the same texture process to control room and studio carpets plus wallpaper. Added `StationFloorMaterials3D.MakeTiledWallMesh(...)` for non-stretched vertical wallpaper UVs. Runtime visual pass now replaces each room's existing `Floor` mesh with a tiled floor mesh using `MakeControlCarpet()` / `MakeStudioCarpet()`, preserving existing floor colliders. Added non-colliding, non-shadow-casting back/left/right wallpaper panels to both rooms using `MakeWallpaper()`. Room layer routing should include the generated meshes because `World3D` applies light layers after room `_Ready()`.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without new script/shader errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: User visual check with comic off/on. Confirm carpet texture scale, wallpaper readability, and whether side wall panels obscure the camera too much.
+- Blockers: none.
+
+---
+
+## Previous Session (lighting documentation)
+
+**Branch**: comic-styling
 **Task**: Document 3D hallway lighting/material lessons for reuse.
 **Status**: Completed
 - Files Modified: `SESSION_LOG.md`, `docs/technical/LIGHTING_SETUP.md`, `AGENTS.md`
