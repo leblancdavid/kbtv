@@ -1,6 +1,45 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Fine-tune exterior double-door frame opening inset.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: User review found the exterior frame opening still shows about one pixel of wall at the side. Increased the exterior-only opening inset from `0.04m` to `0.055m` per side while leaving door leaves, hinges, triggers, interior frames, and frame depth unchanged.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm exterior frame jambs fully hide the side wall slivers without crowding the glass doors.
+- Blockers: none.
+
+---
+
+## Previous Session (door frames)
+
+**Branch**: develop
+**Task**: Add procedural frames around all 3D station doors.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: Added non-colliding procedural door frames to every generated station doorway. Single/interior doors now get muted wooden jambs and headers; double/exterior storefront doors get gray metal jambs and headers. Frame pieces sit outside the clear door opening, use trim wider than the wall thickness so they overlap both wall faces slightly, and preserve existing door leaves, hinge pivots, triggers, open/close logic, and light-link behavior.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm wooden/metal frame colors read correctly, frames hide floating door edges, openings still fit the doors, and door leaves do not visibly clip the frames while opening.
+- Blockers: none.
+
+---
+
+## Previous Session (station baseboards)
+
+**Branch**: develop
+**Task**: Add baseboards to station walls.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: Added procedural baseboard trim to every generated station wall segment. Corrected the visual placement so baseboards slightly overlap wall faces instead of floating with a visible gap. Changed baseboard material selection from wall-wide to per-side sampling: sides inside the control room or studio footprint use wood, while hallway/station-facing sides outside those rooms use muted off-white. Control/studio divider sides remain wood.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm baseboards are visually flush and hallway-facing trim beside control/studio is off-white.
+- Blockers: none.
+
+---
+
+## Previous Session (door handles)
+
+**Branch**: develop
 **Task**: Fix indoor door handle side and add glass handles to both sides.
 **Status**: Completed (build + Godot import/check green)
 - Files Modified: `SESSION_LOG.md`, `Tools/modelgen/interior_door_leaf.py`, `Tools/modelgen/exterior_glass_door_leaf.py`, `Tools/modelgen/source/interior_door_leaf.blend`, `Tools/modelgen/source/exterior_glass_door_leaf.blend`, `assets/models3d/props/interior_door_leaf.glb`, `assets/models3d/props/exterior_glass_door_leaf.glb`
