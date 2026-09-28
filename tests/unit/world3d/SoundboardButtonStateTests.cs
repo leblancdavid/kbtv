@@ -11,8 +11,8 @@ namespace KBTV.Tests.Unit.World3D
         private static ButtonStateFacts Facts(
             bool adBreakActive = false, bool adQueued = false, bool queueEnabled = false,
             bool inBreakWindow = false, bool breakDue = false, bool musicBedPlaying = false,
-            bool callerOnAir = false, bool curseActive = false) =>
-            new(adBreakActive, adQueued, queueEnabled, inBreakWindow, breakDue, musicBedPlaying, callerOnAir, curseActive);
+            bool callerOnAir = false, bool curseActive = false, bool showReadyToStart = false) =>
+            new(adBreakActive, adQueued, queueEnabled, inBreakWindow, breakDue, musicBedPlaying, callerOnAir, curseActive, showReadyToStart);
 
         [Test]
         public void AdsLook_PrioritisesActiveOverQueuedOverFlashingOverReady()
@@ -54,9 +54,10 @@ namespace KBTV.Tests.Unit.World3D
         [Test]
         public void MusicLook_BedBeatsWindowFlashBeatsIdle()
         {
-            AssertThat(SoundboardButtonState.MusicLook(true, true) == ButtonLampLook.Queued);
-            AssertThat(SoundboardButtonState.MusicLook(true, false) == ButtonLampLook.Flashing);
-            AssertThat(SoundboardButtonState.MusicLook(false, false) == ButtonLampLook.Idle);
+            AssertThat(SoundboardButtonState.MusicLook(true, true, true) == ButtonLampLook.Queued);
+            AssertThat(SoundboardButtonState.MusicLook(false, false, true) == ButtonLampLook.Flashing);
+            AssertThat(SoundboardButtonState.MusicLook(true, false, false) == ButtonLampLook.Flashing);
+            AssertThat(SoundboardButtonState.MusicLook(false, false, false) == ButtonLampLook.Idle);
         }
 
         [Test]
@@ -74,6 +75,8 @@ namespace KBTV.Tests.Unit.World3D
         {
             AssertThat(SoundboardButtonState.Resolve(SoundboardButton.Music, Facts(musicBedPlaying: true), false)
                 == ButtonLampLook.Queued);
+            AssertThat(SoundboardButtonState.Resolve(SoundboardButton.Music, Facts(showReadyToStart: true), false)
+                == ButtonLampLook.Flashing);
             AssertThat(SoundboardButtonState.Resolve(SoundboardButton.Delay, Facts(curseActive: true), false)
                 == ButtonLampLook.Flashing);
             AssertThat(SoundboardButtonState.Resolve(SoundboardButton.Ads, Facts(inBreakWindow: true), false)

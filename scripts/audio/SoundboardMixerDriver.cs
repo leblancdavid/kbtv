@@ -152,6 +152,7 @@ namespace KBTV.Audio
         public const float MasterFaderSpanDb = 8f;
         public const float MasterFaderMinDb = -12f;
         public const float MasterFaderMaxDb = 8f;
+        public const float Channel3FaderTargetValue = SoundboardKnobState.MusicTargetValue;
 
         private AudioMixerManager? _mixer;
         private SoundboardCallerTargets? _callerTargets;
@@ -238,8 +239,12 @@ namespace KBTV.Audio
             float adsDelta = NormalizedDeltaFrom(state.AdsGain, center);
             float callerLevelDelta = NormalizedDeltaFrom(state.CallerLevel, t.Volume);
             float vernLevelDelta = NormalizedDeltaFrom(state.VernLevel, center);
-            float adsLevelDelta = NormalizedDeltaFrom(state.AdsLevel, center);
-            float faderDelta = SoundboardKnobState.NormalizedDelta(state.Fader);
+            float adsLevelDelta = NormalizedDeltaFrom(state.AdsLevel, Channel3FaderTargetValue);
+            float adsLevelDb = FaderDbFromTarget(state.AdsLevel, Channel3FaderTargetValue,
+                AdsLevelMinDb, AdsLevelMaxDb);
+            float musicFaderDb = 0f;
+            float masterFaderDb = FaderDbFromTarget(state.Fader, Channel3FaderTargetValue,
+                MasterFaderMinDb, MasterFaderMaxDb);
 
             float gainOver = Mathf.Max(gainDelta, 0f);
             float vernOver = Mathf.Max(vernDelta, 0f);
@@ -279,10 +284,20 @@ namespace KBTV.Audio
                     CallerLevelMinDb, CallerLevelMaxDb),
                 Mathf.Clamp(vernLevelDelta * VernLevelSpanDb,
                     VernLevelMinDb, VernLevelMaxDb),
-                Mathf.Clamp(adsLevelDelta * AdsLevelSpanDb,
-                    AdsLevelMinDb, AdsLevelMaxDb),
-                Mathf.Clamp(faderDelta * MusicFaderSpanDb, MusicFaderMinDb, MusicFaderMaxDb),
-                Mathf.Clamp(faderDelta * MasterFaderSpanDb, MasterFaderMinDb, MasterFaderMaxDb));
+                adsLevelDb,
+                musicFaderDb,
+                masterFaderDb);
+        }
+
+        private static float FaderDbFromTarget(float value, float target, float minDb, float maxDb)
+        {
+            var clamped = SoundboardKnobState.Clamp(value);
+            if (clamped <= target)
+            {
+                return Mathf.Lerp(minDb, 0f, clamped / Mathf.Max(0.001f, target));
+            }
+
+            return Mathf.Lerp(0f, maxDb, (clamped - target) / Mathf.Max(0.001f, 1f - target));
         }
     }
 }

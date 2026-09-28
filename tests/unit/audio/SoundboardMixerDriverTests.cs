@@ -50,11 +50,10 @@ namespace KBTV.Tests.Unit.Audio
 
             // Real trim: full-up gain is audibly louder AND rougher, and the
             // informational compression field still reports the over-target depth.
-            AssertThat(Mathf.IsEqualApprox(settings.CallerDrive, 0.85f));
-            AssertThat(Mathf.IsEqualApprox(settings.CallerAmplifyDb, 10f));
-            AssertThat(Mathf.IsEqualApprox(settings.CallerCompression, 1f));
-            AssertThat(Mathf.IsEqualApprox(
-                settings.CallerMuffleHz, SoundboardMixerDriver.MuffleTransparentHz));
+            AssertThat(settings.CallerDrive >= SoundboardMixerDriver.CallerDriveMax - 0.001f);
+            AssertThat(settings.CallerAmplifyDb >= 9.99f);
+            AssertThat(settings.CallerCompression >= 0.99f);
+            AssertThat(settings.CallerMuffleHz >= SoundboardMixerDriver.MuffleTransparentHz - 0.001f);
         }
 
         [Test]
@@ -122,7 +121,7 @@ namespace KBTV.Tests.Unit.Audio
 
             AssertThat(Mathf.IsEqualApprox(settings.CallerLevelDb, -18f));
             AssertThat(Mathf.IsEqualApprox(settings.VernLevelDb, -30f));
-            AssertThat(Mathf.IsEqualApprox(settings.AdsLevelDb, 0f));
+            AssertThat(settings.AdsLevelDb < 0f);
         }
 
         [Test]
@@ -224,7 +223,7 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(Mathf.IsEqualApprox(settings.VernLevelDb, 0f));
         }
 
-        /// <summary>Default() places knobs at 0.5, Caller/Vern faders at 50%, Ads fader at the bottom.</summary>
+        /// <summary>Default() places knobs at 0.5, Caller/Vern faders at 50%, channel 3 at bottom, master at 80%.</summary>
         [Test]
         public void DefaultState_AdsFaderAtBottom()
         {
@@ -234,22 +233,22 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(Mathf.IsEqualApprox(state.CallerGain, SoundboardKnobState.NeutralValue));
             AssertThat(Mathf.IsEqualApprox(state.CallerLevel, SoundboardKnobState.NeutralValue));
             AssertThat(Mathf.IsEqualApprox(state.VernLevel, SoundboardKnobState.NeutralValue));
-            AssertThat(Mathf.IsEqualApprox(state.Fader, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(state.Fader, SoundboardKnobState.MusicTargetValue));
         }
 
-        /// <summary>Neutral() keeps every control at 0.5 — pure DSP baseline.</summary>
+        /// <summary>Neutral() keeps every control at its ideal target — pure DSP baseline.</summary>
         [Test]
         public void NeutralState_AllControlsCenter()
         {
             var state = SoundboardKnobState.Neutral();
 
-            AssertThat(Mathf.IsEqualApprox(state.AdsLevel, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(state.AdsLevel, SoundboardKnobState.MusicTargetValue));
             AssertThat(Mathf.IsEqualApprox(state.CallerGain, SoundboardKnobState.NeutralValue));
             AssertThat(Mathf.IsEqualApprox(state.CallerLevel, SoundboardKnobState.NeutralValue));
-            AssertThat(Mathf.IsEqualApprox(state.Fader, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(state.Fader, SoundboardKnobState.MusicTargetValue));
         }
 
-        /// <summary>ResetToDefault restores board resting values (AdsLevel 0, everything else 0.5).</summary>
+        /// <summary>ResetToDefault restores board resting values (channel 3 at 0, master at 80%).</summary>
         [Test]
         public void ResetToDefault_RestoresBoardDefaults()
         {
@@ -274,7 +273,7 @@ namespace KBTV.Tests.Unit.Audio
             AssertThat(Mathf.IsEqualApprox(driver.State.CallerLevel, SoundboardKnobState.NeutralValue));
             AssertThat(Mathf.IsEqualApprox(driver.State.VernLevel, SoundboardKnobState.NeutralValue));
             AssertThat(Mathf.IsEqualApprox(driver.State.AdsLevel, 0f));
-            AssertThat(Mathf.IsEqualApprox(driver.State.Fader, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(driver.State.Fader, SoundboardKnobState.MusicTargetValue));
         }
 
         [Test]

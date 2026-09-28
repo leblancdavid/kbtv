@@ -56,6 +56,7 @@ namespace KBTV.World3D
         private ICallerRepository? _callerRepository;
         private AsyncBroadcastLoop? _broadcastLoop;
         private EventBus? _eventBus;
+        private GameStateManager? _gameState;
         private bool _servicesResolved;
         private bool _eventsSubscribed;
 
@@ -166,7 +167,7 @@ namespace KBTV.World3D
         {
             ResolveServices();
 
-            if (!_built || !_handlesVisible)
+            if (!_built)
             {
                 return;
             }
@@ -663,6 +664,8 @@ namespace KBTV.World3D
                            !_adManager.IsQueued && _adManager.BreaksRemaining > 0 &&
                            _adManager.TimeUntilNextBreak <= 0f;
             var bedPlaying = _audioService is BroadcastAudioService service && service.IsBreakMusicPlaying;
+            var showReady = _gameState != null && _gameState.CurrentPhase == GamePhase.PreShow &&
+                            _gameState.CanStartLiveShow();
             var pulse = Mathf.Pow(0.5f + 0.5f * Mathf.Sin(Time.GetTicksMsec() / 1000f * 12.566f), 2f);
             var facts = new ButtonStateFacts(
                 AdBreakActive: adActive,
@@ -672,7 +675,8 @@ namespace KBTV.World3D
                 BreakDue: breakDue,
                 MusicBedPlaying: bedPlaying,
                 CallerOnAir: callerOnAir,
-                CurseActive: _curseActive);
+                CurseActive: _curseActive,
+                ShowReadyToStart: showReady);
 
             foreach (var slot in SoundboardPhysicalLayout.ButtonSlots)
             {
@@ -781,7 +785,10 @@ namespace KBTV.World3D
                     DropOnAirCaller();
                     break;
                 case SoundboardButton.Music:
-                    QueueBreakMusic();
+                    if (!StartShowFromMusicButton())
+                    {
+                        QueueBreakMusic();
+                    }
                     break;
                 case SoundboardButton.Delay:
                     // LiveShowFooter owns the curse window; it resolves on the event
@@ -808,8 +815,23 @@ namespace KBTV.World3D
 
             if (_audioService is BroadcastAudioService audio)
             {
+                ResetChannel3FaderToBottom();
                 audio.PlayBreakTransitionMusic();
             }
+        }
+
+        private bool StartShowFromMusicButton()
+        {
+            ResolveServices();
+            if (_gameState == null || _gameState.CurrentPhase != GamePhase.PreShow ||
+                !_gameState.CanStartLiveShow())
+            {
+                return false;
+            }
+
+            ResetChannel3FaderToBottom();
+            _gameState.StartLiveShow();
+            return true;
         }
 
         /// <summary>
@@ -1202,7 +1224,8 @@ namespace KBTV.World3D
 
                 foreach (var slot in SoundboardPhysicalLayout.Slots)
                 {
-                    if (slot.Kind != ControlKind.Fader || slot.Control != SoundboardControl.CallerLevel ||
+                    if (slot.Kind != ControlKind.Fader ||
+                        (slot.Control != SoundboardControl.CallerLevel && slot.Control != SoundboardControl.AdsLevel) ||
                         slot.LampName != lampName || _faderGlows.ContainsKey(slot.Control))
                     {
                         continue;
@@ -1392,6 +1415,23 @@ namespace KBTV.World3D
             UpdateFaderGlows();
         }
 
+        private bool ShouldShowChannel3Target()
+        {
+            var breakMusicPlaying = _audioService is BroadcastAudioService service && service.IsBreakMusicPlaying;
+            var active = breakMusicPlaying ||
+                         (_adManager != null && (_adManager.IsInBreakWindow || _adManager.IsAdBreakActive)) ||
+                         (_gameState != null && _gameState.CurrentPhase == GamePhase.PreShow &&
+                          _gameState.CanStartLiveShow());
+            if (_broadcastLoop != null)
+            {
+                active = active ||
+                         _broadcastLoop.CurrentState == AsyncBroadcastState.IntroMusic ||
+                         _broadcastLoop.CurrentState == AsyncBroadcastState.BreakReturnMusic;
+            }
+
+            return active;
+        }
+
         private void UpdateFaderGlows()
         {
             foreach (var slot in SoundboardPhysicalLayout.Slots)
@@ -1407,12 +1447,22 @@ namespace KBTV.World3D
                 var colored = channel != SoundboardGlow.SpeakingChannel.None &&
                               channel == _speakingChannel;
                 var glowLevel = ControlGlow(slot.Control);
-                var haloColor = colored
-                    ? GetSpeakingHaloColor(slot.Control, _speakingChannel, glowLevel, FaderGlowAlpha)
-                    : GetIdleHaloColor(slot.Control, glowLevel, FaderGlowAlpha);
+                var channel3Target = slot.Control == SoundboardControl.AdsLevel && ShouldShowChannel3Target();
+                var channel3Color = SoundboardTargetGenerator.ColorForChannel3Fader(Driver.State.AdsLevel);
+                var haloColor = channel3Target
+                    ? new Color(
+                        channel3Color.R,
+                        channel3Color.G,
+                        channel3Color.B,
+                        FaderGlowAlpha)
+                    : colored
+                        ? GetSpeakingHaloColor(slot.Control, _speakingChannel, glowLevel, FaderGlowAlpha)
+                        : GetIdleHaloColor(slot.Control, glowLevel, FaderGlowAlpha);
                 material.AlbedoColor = haloColor;
 
-                var glowScale = SoundboardGlow.SizeScaleFromGlow(glowLevel);
+                var glowScale = channel3Target
+                    ? 1.25f
+                    : SoundboardGlow.SizeScaleFromGlow(glowLevel);
                 ((QuadMesh)glow.Mesh!).Size = new Vector2(FaderGlowSize, FaderGlowSize) * glowScale;
                 glow.Visible = true;
             }
@@ -1536,9 +1586,10 @@ namespace KBTV.World3D
             if (_broadcastLoop == null) DependencyInjection.TryGet<AsyncBroadcastLoop>(this, out _broadcastLoop);
             if (_audioService == null) DependencyInjection.TryGet<IBroadcastAudioService>(this, out _audioService);
             if (_eventBus == null) DependencyInjection.TryGet<EventBus>(this, out _eventBus);
+            if (_gameState == null) DependencyInjection.TryGet<GameStateManager>(this, out _gameState);
 
             if (_adManager == null || _callerRepository == null || _broadcastLoop == null ||
-                _audioService == null || _eventBus == null)
+                _audioService == null || _eventBus == null || _gameState == null)
             {
                 return;
             }
@@ -1549,6 +1600,35 @@ namespace KBTV.World3D
                 _eventsSubscribed = true;
                 _eventBus.Subscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
                 _eventBus.Subscribe<CursingTimerCompletedEvent>(OnCursingTimerCompleted);
+                _eventBus.Subscribe<BroadcastEvent>(OnBroadcastEvent);
+                _eventBus.Subscribe<BroadcastStateChangedEvent>(OnBroadcastStateChanged);
+            }
+        }
+
+        private void OnBroadcastEvent(BroadcastEvent e)
+        {
+            if (e.Type == BroadcastEventType.Completed && e.Item?.Type == BroadcastItemType.Music)
+            {
+                ResetChannel3FaderToBottom();
+            }
+        }
+
+        private void OnBroadcastStateChanged(BroadcastStateChangedEvent e)
+        {
+            if (e.NewState == AsyncBroadcastState.AdBreak || e.NewState == AsyncBroadcastState.BreakReturnMusic ||
+                e.NewState == AsyncBroadcastState.BreakReturn)
+            {
+                ResetChannel3FaderToBottom();
+            }
+        }
+
+        private void ResetChannel3FaderToBottom()
+        {
+            Driver.State.AdsLevel = 0f;
+            Driver.Apply();
+            if (_built)
+            {
+                UpdateControls();
             }
         }
 
@@ -1573,6 +1653,8 @@ namespace KBTV.World3D
             {
                 _eventBus.Unsubscribe<BroadcastInterruptionEvent>(OnBroadcastInterruption);
                 _eventBus.Unsubscribe<CursingTimerCompletedEvent>(OnCursingTimerCompleted);
+                _eventBus.Unsubscribe<BroadcastEvent>(OnBroadcastEvent);
+                _eventBus.Unsubscribe<BroadcastStateChangedEvent>(OnBroadcastStateChanged);
             }
         }
 

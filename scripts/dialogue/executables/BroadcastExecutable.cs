@@ -84,6 +84,11 @@ namespace KBTV.Dialogue
 
                 // Execute the specific content
                 await ExecuteInternalAsync(_cancellationTokenSource.Token);
+                _eventBus.Publish(new BroadcastEvent(
+                    BroadcastEventType.Completed,
+                    _id,
+                    CreateBroadcastItem()
+                ));
             }
             catch (OperationCanceledException)
             {

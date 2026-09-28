@@ -428,8 +428,13 @@ namespace KBTV.UI
 
                 _timeManager.SetShowDuration(_showDurationMinutes * 60f);
 
-                _gameStateManager.StartLiveShow();
-                GD.Print("[PreShowShowPanel] Live show started");
+                if (_errorLabel != null)
+                {
+                    _errorLabel.Text = "SHOW ARMED - PRESS MUSIC ON THE SOUNDBOARD";
+                }
+                _startShowButton.Disabled = true;
+                HidePreShowOverlay();
+                GD.Print("[PreShowShowPanel] Show armed; start from the soundboard Music button");
             }
             else
             {
@@ -439,6 +444,23 @@ namespace KBTV.UI
                     _errorLabel.Text = "PLEASE SELECT A TOPIC FIRST";
                 }
             }
+        }
+
+        private void HidePreShowOverlay()
+        {
+            Node? node = this;
+            while (node != null)
+            {
+                if (node is CanvasLayer layer)
+                {
+                    layer.Hide();
+                    return;
+                }
+
+                node = node.GetParent();
+            }
+
+            Hide();
         }
 
         private void UpdateUI()

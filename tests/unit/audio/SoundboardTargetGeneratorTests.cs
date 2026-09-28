@@ -299,6 +299,28 @@ namespace KBTV.Tests.Unit.Audio
         }
 
         [Test]
+        public void ColorForChannel3Fader_BottomTargetAndTop_UseFullTuningRamp()
+        {
+            AssertThat(SoundboardTargetGenerator.ColorForChannel3Fader(0f)
+                .IsEqualApprox(SoundboardTargetGenerator.RampBlue));
+            AssertThat(SoundboardTargetGenerator.ColorForChannel3Fader(SoundboardKnobState.MusicTargetValue)
+                .IsEqualApprox(SoundboardTargetGenerator.RampGreen));
+            AssertThat(SoundboardTargetGenerator.ColorForChannel3Fader(1f)
+                .IsEqualApprox(SoundboardTargetGenerator.RampRed));
+        }
+
+        [Test]
+        public void ColorForChannel3Fader_Midpoints_UseCyanAndYellow()
+        {
+            var target = SoundboardKnobState.MusicTargetValue;
+
+            AssertThat(SoundboardTargetGenerator.ColorForChannel3Fader(target * 0.5f)
+                .IsEqualApprox(SoundboardTargetGenerator.RampCyan));
+            AssertThat(SoundboardTargetGenerator.ColorForChannel3Fader(target + (1f - target) * 0.5f)
+                .IsEqualApprox(SoundboardTargetGenerator.RampYellow));
+        }
+
+        [Test]
         public void GetWorstBand_PicksHighestSeverity()
         {
             var worst = SoundboardTargetGenerator.GetWorstBand(SoundboardBand.Green, SoundboardBand.Blue, SoundboardBand.Red);

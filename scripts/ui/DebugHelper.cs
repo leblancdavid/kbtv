@@ -33,26 +33,7 @@ namespace KBTV.UI
                 Log.Error("DebugHelper: ICallerRepository not available");
             }
 
-            // Auto-start live show for testing after 2 seconds
-            CallDeferred(nameof(StartAutoShowTimer));
-        }
-
-        private void StartAutoShowTimer()
-        {
-            var timer = new Timer();
-            timer.WaitTime = 2.0f; // 2 seconds
-            timer.OneShot = true;
-            timer.Timeout += () => AutoStartShow();
-            AddChild(timer);
-            timer.Start();
-        }
-
-        private void AutoStartShow()
-        {
-            if (_gameState != null)
-            {
-                _gameState.StartLiveShow();
-            }
+            // Shows now start from the physical soundboard Music button.
         }
 
         // Debug methods that can be called from Godot editor or console

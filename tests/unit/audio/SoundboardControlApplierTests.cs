@@ -43,7 +43,7 @@ namespace KBTV.Tests.Unit.Audio
             SoundboardControlApplier.Apply(state, SoundboardControl.None, 0.2f);
             SoundboardControlApplier.Apply(null!, SoundboardControl.MasterLeft, 0.2f);
 
-            AssertThat(Mathf.IsEqualApprox(state.Fader, SoundboardKnobState.NeutralValue));
+            AssertThat(Mathf.IsEqualApprox(state.Fader, SoundboardKnobState.MusicTargetValue));
         }
 
         [Test]

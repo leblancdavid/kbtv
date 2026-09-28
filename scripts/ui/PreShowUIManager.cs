@@ -642,7 +642,9 @@ namespace KBTV.UI
 					timeManager.SetShowDuration(_showDurationMinutes * 60f);
 				}
 
-				gameStateManager.StartLiveShow();
+				_errorLabel.Text = "SHOW ARMED - PRESS MUSIC ON THE SOUNDBOARD";
+				_startShowButton.Disabled = true;
+				Hide();
 			}
 			else
 			{

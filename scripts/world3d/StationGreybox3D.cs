@@ -6,6 +6,8 @@ namespace KBTV.World3D;
 
 public partial class StationGreybox3D : Node3D
 {
+	private const string InteriorDoorScenePath = "res://assets/models3d/props/interior_door_leaf.glb";
+	private const string ExteriorGlassDoorScenePath = "res://assets/models3d/props/exterior_glass_door_leaf.glb";
 	private const float WallHeight = 2.3f;
 	private const float WallThickness = 0.2f;
 	private const float DoorGap = 2f;
@@ -47,6 +49,8 @@ public partial class StationGreybox3D : Node3D
 	private StandardMaterial3D _officeMaterial = null!;
 	private StandardMaterial3D _exteriorMaterial = null!;
 	private StandardMaterial3D _doorMaterial = null!;
+	private PackedScene? _interiorDoorScene;
+	private PackedScene? _exteriorGlassDoorScene;
 	private readonly List<WallFadeTarget> _wallFadeTargets = new();
 	private readonly List<Doorway> _doorways = new();
 	private readonly HashSet<Vector2> _wallCornerPostPositions = new();
@@ -136,6 +140,12 @@ public partial class StationGreybox3D : Node3D
 		_officeMaterial = MakeMaterial(new Color(0.14f, 0.12f, 0.18f));
 		_exteriorMaterial = MakeMaterial(new Color(0.08f, 0.11f, 0.09f));
 		_doorMaterial = MakeDoorMaterial();
+	}
+
+	private void LoadDoorScenes()
+	{
+		_interiorDoorScene ??= GD.Load<PackedScene>(InteriorDoorScenePath);
+		_exteriorGlassDoorScene ??= GD.Load<PackedScene>(ExteriorGlassDoorScenePath);
 	}
 
 	private static StandardMaterial3D MakeMaterial(Color color)
@@ -303,7 +313,7 @@ public partial class StationGreybox3D : Node3D
 			? center + new Vector3(-width * 0.5f, 0f, 0f)
 			: center + new Vector3(0f, 0f, -width * 0.5f);
 		var closedRotation = orientation == DoorOrientation.Horizontal ? 0f : -90f;
-		doorway.Leaves.Add(AddDoorLeaf($"{name}Leaf", hinge, width, closedRotation, closedRotation + 90f, true, 0f, layerMask));
+		doorway.Leaves.Add(AddDoorLeaf($"{name}Leaf", hinge, width, closedRotation, closedRotation + 90f, true, 0f, layerMask, false));
 	}
 
 	private void AddDoubleDoor(string name, Vector3 center, float width, float triggerWidth, DoorOrientation orientation, float outsideDirection, string? roomA = null, string? roomB = null)
@@ -314,13 +324,13 @@ public partial class StationGreybox3D : Node3D
 
 		if (orientation == DoorOrientation.Horizontal)
 		{
-			doorway.Leaves.Add(AddDoorLeaf($"{name}LeftLeaf", center + new Vector3(-width * 0.5f, 0f, 0f), leafWidth, 0f, -90f * outsideDirection, true, -1f, layerMask));
-			doorway.Leaves.Add(AddDoorLeaf($"{name}RightLeaf", center + new Vector3(width * 0.5f, 0f, 0f), leafWidth, 0f, 90f * outsideDirection, false, 1f, layerMask));
+			doorway.Leaves.Add(AddDoorLeaf($"{name}LeftLeaf", center + new Vector3(-width * 0.5f, 0f, 0f), leafWidth, 0f, -90f * outsideDirection, true, -1f, layerMask, true));
+			doorway.Leaves.Add(AddDoorLeaf($"{name}RightLeaf", center + new Vector3(width * 0.5f, 0f, 0f), leafWidth, 0f, 90f * outsideDirection, false, 1f, layerMask, true));
 		}
 		else
 		{
-			doorway.Leaves.Add(AddDoorLeaf($"{name}NearLeaf", center + new Vector3(0f, 0f, -width * 0.5f), leafWidth, -90f, -90f + 90f * outsideDirection, true, -1f, layerMask));
-			doorway.Leaves.Add(AddDoorLeaf($"{name}FarLeaf", center + new Vector3(0f, 0f, width * 0.5f), leafWidth, -90f, -90f - 90f * outsideDirection, false, 1f, layerMask));
+			doorway.Leaves.Add(AddDoorLeaf($"{name}NearLeaf", center + new Vector3(0f, 0f, -width * 0.5f), leafWidth, -90f, -90f + 90f * outsideDirection, true, -1f, layerMask, true));
+			doorway.Leaves.Add(AddDoorLeaf($"{name}FarLeaf", center + new Vector3(0f, 0f, width * 0.5f), leafWidth, -90f, -90f - 90f * outsideDirection, false, 1f, layerMask, true));
 		}
 	}
 
@@ -352,8 +362,9 @@ public partial class StationGreybox3D : Node3D
 		return doorway;
 	}
 
-	private DoorLeaf AddDoorLeaf(string name, Vector3 hingePosition, float width, float closedRotationDegrees, float openRotationDegrees, bool extendsPositive, float sideSign, uint layerMask)
+	private DoorLeaf AddDoorLeaf(string name, Vector3 hingePosition, float width, float closedRotationDegrees, float openRotationDegrees, bool extendsPositive, float sideSign, uint layerMask, bool useGlassDoor)
 	{
+		LoadDoorScenes();
 		var hinge = new Node3D
 		{
 			Name = name,
@@ -363,6 +374,17 @@ public partial class StationGreybox3D : Node3D
 		AddChild(hinge);
 
 		var localCenterX = (extendsPositive ? 1f : -1f) * width * 0.5f;
+		var scene = useGlassDoor ? _exteriorGlassDoorScene : _interiorDoorScene;
+		if (scene != null)
+		{
+			var visual = scene.Instantiate<Node3D>();
+			visual.Name = "Panel";
+			visual.Position = new Vector3(localCenterX, 0f, 0f);
+			StationLighting3D.ApplyLayerToTree(visual, layerMask);
+			hinge.AddChild(visual);
+			return new DoorLeaf { Hinge = hinge, ClosedRotationDegrees = closedRotationDegrees, OpenRotationDegrees = openRotationDegrees, SideSign = sideSign };
+		}
+
 		var leafSize = new Vector3(width, DoorHeight, DoorThickness);
 		var mesh = new MeshInstance3D
 		{

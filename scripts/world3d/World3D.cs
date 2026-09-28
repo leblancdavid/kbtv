@@ -2,6 +2,7 @@ using System;
 using Godot;
 using KBTV.Audio;
 using KBTV.Core;
+using KBTV.Dialogue;
 using KBTV.Monitors;
 using KBTV.UI;
 
@@ -98,6 +99,10 @@ private const float TerminalZoomSpeed = 3.2f;
 	private CallerTab? _terminalTab;
 	private TerminalOverlay? _terminalOverlay;
 	private StandardMaterial3D? _screenLiveMaterial;
+	private readonly System.Collections.Generic.List<OnAirSign3D> _onAirSigns = new();
+	private EventBus? _eventBus;
+	private AsyncBroadcastLoop? _broadcastLoop;
+	private bool _broadcastEventsSubscribed;
 	private static readonly Vector2I VernCameraViewportSize = new(320, 180);
 
 	private bool _terminalLeftPressed;
@@ -127,6 +132,7 @@ private const float TerminalZoomSpeed = 3.2f;
 		}
 		StationLighting3D.ApplyLayerToTree(_control_room, StationLighting3D.ControlLayer);
 		StationLighting3D.ApplyLayerToTree(_studio_room, StationLighting3D.StudioLayer);
+		ConfigureOnAirSigns();
 		_roomStateManager = GetNodeOrNull<RoomStateManager>("/root/RoomStateManager");
 		_computerTerminal = _control_room.ComputerTerminal;
 
@@ -330,6 +336,7 @@ public override void _Input(InputEvent @event)
 
 	public override void _Process(double delta)
 	{
+		ResolveBroadcastServices();
 		_UpdatePlayerRoomState();
 		if (_player != null)
 		{
@@ -360,6 +367,83 @@ public override void _Input(InputEvent @event)
 			PollSoundboardMouse();
 		}
 	}
+
+	public override void _ExitTree()
+	{
+		if (_eventBus != null && _broadcastEventsSubscribed)
+		{
+			_eventBus.Unsubscribe<BroadcastStateChangedEvent>(OnBroadcastStateChanged);
+			_broadcastEventsSubscribed = false;
+		}
+	}
+
+	private void ConfigureOnAirSigns()
+	{
+		AttachOnAirSign(_control_room.GetNodeOrNull<Node3D>("OnAirSign"), StationLighting3D.ControlLayer);
+		AttachOnAirSign(_studio_room.GetNodeOrNull<Node3D>("OnAirSign"), StationLighting3D.StudioLayer);
+		SetOnAirSignsActive(false);
+	}
+
+	private void AttachOnAirSign(Node3D? signNode, uint lightMask)
+	{
+		if (signNode == null)
+		{
+			return;
+		}
+
+		var controller = new OnAirSign3D { Name = "OnAirSignController" };
+		signNode.AddChild(controller);
+		controller.Attach(signNode, lightMask);
+		_onAirSigns.Add(controller);
+	}
+
+	private void ResolveBroadcastServices()
+	{
+		if (_eventBus == null) DependencyInjection.TryGet(this, out _eventBus);
+		if (_broadcastLoop == null) DependencyInjection.TryGet(this, out _broadcastLoop);
+
+		if (_eventBus == null || _broadcastLoop == null)
+		{
+			return;
+		}
+
+		if (!_broadcastEventsSubscribed)
+		{
+			_broadcastEventsSubscribed = true;
+			_eventBus.Subscribe<BroadcastStateChangedEvent>(OnBroadcastStateChanged);
+			SetOnAirSignsActive(IsOnAirSignActive(_broadcastLoop.CurrentState));
+		}
+	}
+
+	private void OnBroadcastStateChanged(BroadcastStateChangedEvent e)
+	{
+		SetOnAirSignsActive(IsOnAirSignActive(e.NewState));
+	}
+
+	private void SetOnAirSignsActive(bool active)
+	{
+		foreach (var sign in _onAirSigns)
+		{
+			sign.SetActive(active);
+		}
+	}
+
+	private static bool IsOnAirSignActive(AsyncBroadcastState state) => state switch
+	{
+		AsyncBroadcastState.IntroMusic => true,
+		AsyncBroadcastState.Conversation => true,
+		AsyncBroadcastState.BetweenCallers => true,
+		AsyncBroadcastState.DeadAir => true,
+		AsyncBroadcastState.DroppedCaller => true,
+		AsyncBroadcastState.CallerCursed => true,
+		AsyncBroadcastState.CursingDelay => true,
+		AsyncBroadcastState.BreakReturnMusic => true,
+		AsyncBroadcastState.BreakReturn => true,
+		AsyncBroadcastState.ShowClosing => true,
+		AsyncBroadcastState.WaitingForBreak => true,
+		AsyncBroadcastState.WaitingForShowEnd => true,
+		_ => false
+	};
 
 
 	private void _UpdatePlayerRoomState()

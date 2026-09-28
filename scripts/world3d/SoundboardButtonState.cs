@@ -37,7 +37,8 @@ namespace KBTV.World3D
         bool BreakDue,
         bool MusicBedPlaying,
         bool CallerOnAir,
-        bool CurseActive);
+        bool CurseActive,
+        bool ShowReadyToStart = false);
 
     /// <summary>Resolves each broadcast button's lamp look from primitive game-state facts.</summary>
     public static class SoundboardButtonState
@@ -72,9 +73,10 @@ namespace KBTV.World3D
         /// steady amber once the bed is running (the player still has to fade it up);
         /// idle otherwise.
         /// </summary>
-        public static ButtonLampLook MusicLook(bool windowOpen, bool bedPlaying)
+        public static ButtonLampLook MusicLook(bool windowOpen, bool bedPlaying, bool showReadyToStart = false)
         {
             if (bedPlaying) return ButtonLampLook.Queued;
+            if (showReadyToStart) return ButtonLampLook.Flashing;
             if (windowOpen) return ButtonLampLook.Flashing;
             return ButtonLampLook.Idle;
         }
@@ -85,7 +87,7 @@ namespace KBTV.World3D
             if (pressed) return ButtonLampLook.PressFlash;
             return button switch
             {
-                SoundboardButton.Music => MusicLook(facts.InBreakWindow, facts.MusicBedPlaying),
+                SoundboardButton.Music => MusicLook(facts.InBreakWindow, facts.MusicBedPlaying, facts.ShowReadyToStart),
                 SoundboardButton.Delay => DelayLook(facts.CurseActive),
                 SoundboardButton.Ads => AdsLook(facts),
                 SoundboardButton.Drop => DropLook(facts.CallerOnAir, facts.CurseActive),

@@ -11,14 +11,16 @@ namespace KBTV.Audio
     /// <see cref="AudioMixerManager.ApplySoundboard"/>.
     /// The board's resting state (<see cref="Default"/>) parks every knob at
     /// 12 o'clock (0.5), leaves the Caller and Vern level faders at 50%, and
-    /// rests the Ads level fader at the bottom (0, fully cut). <see cref="Neutral"/>
-    /// is the pure DSP baseline (all controls 0.5) used by the effect stack.
+    /// rests channel 3 (Ads/Music) at the bottom (0, cut) and the master at
+    /// the 80% broadcast mark. <see cref="Neutral"/>
+    /// is the pure DSP baseline used by the effect stack.
     /// </summary>
     public sealed class SoundboardKnobState
     {
         public const float MinValue = 0f;
         public const float MaxValue = 1f;
         public const float NeutralValue = 0.5f;
+        public const float MusicTargetValue = 0.8f;
 
         /// <summary>Caller channel gain (drives distortion + amplify).</summary>
         public float CallerGain { get; set; } = NeutralValue;
@@ -41,14 +43,14 @@ namespace KBTV.Audio
         /// <summary>Vern studio channel output level (fader strip).</summary>
         public float VernLevel { get; set; } = NeutralValue;
 
-        /// <summary>Ads/bumper channel output level (fader strip). Rests at the
-        /// bottom (0 = cut) on the board default.</summary>
+        /// <summary>Ads/music channel output level (channel 3 fader strip). Rests at the
+        /// bottom (0 = cut); 80% is the ideal broadcast mark.</summary>
         public float AdsLevel { get; set; } = 0f;
 
-        /// <summary>Master (music/program) level, shown by channel 4's linked stereo faders.</summary>
-        public float Fader { get; set; } = NeutralValue;
+        /// <summary>Master/program level, shown by channel 4's linked stereo faders. Rests at 80%.</summary>
+        public float Fader { get; set; } = MusicTargetValue;
 
-        /// <summary>Restores every control to the DSP-neutral center (all 0.5).</summary>
+        /// <summary>Restores every control to its DSP-neutral target.</summary>
         public void ResetToNeutral()
         {
             CallerGain = NeutralValue;
@@ -58,12 +60,12 @@ namespace KBTV.Audio
             AdsGain = NeutralValue;
             CallerLevel = NeutralValue;
             VernLevel = NeutralValue;
-            AdsLevel = NeutralValue;
-            Fader = NeutralValue;
+            AdsLevel = MusicTargetValue;
+            Fader = MusicTargetValue;
         }
 
         /// <summary>Restores this state to the board default: all knobs at
-        /// 12 o'clock (0.5), Caller/Vern faders at 50%, Ads fader at the bottom (0).</summary>
+        /// 12 o'clock (0.5), Caller/Vern faders at 50%, channel 3 at bottom, master at 80%.</summary>
         public void ResetToDefault()
         {
             CallerGain = NeutralValue;
@@ -74,7 +76,7 @@ namespace KBTV.Audio
             CallerLevel = NeutralValue;
             VernLevel = NeutralValue;
             AdsLevel = 0f;
-            Fader = NeutralValue;
+            Fader = MusicTargetValue;
         }
 
         public void CopyFrom(SoundboardKnobState other)
@@ -95,7 +97,7 @@ namespace KBTV.Audio
             Fader = other.Fader;
         }
 
-        /// <summary>A purely neutral state: every control at 0.5 (no DSP offset).
+        /// <summary>A purely neutral state: every control at its ideal target (no DSP offset).
         /// The DSP/driver baseline — distinct from the board's resting defaults.</summary>
         public static SoundboardKnobState Neutral()
         {
@@ -108,13 +110,13 @@ namespace KBTV.Audio
                 AdsGain = NeutralValue,
                 CallerLevel = NeutralValue,
                 VernLevel = NeutralValue,
-                AdsLevel = NeutralValue,
-                Fader = NeutralValue,
+                AdsLevel = MusicTargetValue,
+                Fader = MusicTargetValue,
             };
         }
 
         /// <summary>The soundboard's resting configuration: all knobs at 12 o'clock
-        /// (0.5), Caller and Vern level faders at 50%, Ads fader at the bottom (0).</summary>
+        /// (0.5), Caller and Vern level faders at 50%, channel 3 at bottom, master at 80%.</summary>
         public static SoundboardKnobState Default() => new SoundboardKnobState();
 
         /// <summary>

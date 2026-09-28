@@ -1,5 +1,83 @@
 ## Current Session
 
+**Branch**: develop
+**Task**: Generate and integrate 3D office/interior and exterior glass door props.
+**Status**: Completed (build green; Godot check unavailable on PATH)
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/generate.py`, `Tools/modelgen/interior_door_leaf.py`, `Tools/modelgen/exterior_glass_door_leaf.py`, `Tools/modelgen/source/interior_door_leaf.blend`, `Tools/modelgen/source/exterior_glass_door_leaf.blend`, `assets/models3d/props/interior_door_leaf.glb`, `assets/models3d/props/exterior_glass_door_leaf.glb`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: Added repeatable Blender generators for a plain muted office/interior door leaf and a strip-mall storefront glass door leaf. Generated validated GLBs, source blends, and previews/reports through the existing modelgen pipeline. Updated `StationGreybox3D` so single doors load the office door visual, while exterior double doors assemble two glass door leaves from the existing hinge/trigger system. Preserved existing door triggers, hinge rotations, double-door side opening logic, and room light-link events; box doors remain as a fallback if a GLB scene is not loaded yet.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets interior_door_leaf exterior_glass_door_leaf` passed validation for both assets. `dotnet build KBTV.csproj` succeeded with 0 warnings and 0 errors. `godot --headless --path . --check-only --quit` could not run because `godot` is not on PATH in this shell.
+- Next Steps: Open/import in Godot 4.6 so `.glb.import` files are generated, then manual playtest `Game3D.tscn` to confirm door scale, handle side, glass readability, hinge pivots, and wall clipping from the fixed camera with comic off/on.
+- Blockers: none.
+
+---
+
+## Previous Session (on-air signs)
+
+**Branch**: develop
+**Task**: Add working 3D on-air signs in the control room and Vern's studio.
+**Status**: Completed (build green)
+- Files Modified: `SESSION_LOG.md`, `scenes/world3d/World3D.tscn`, `scripts/world3d/World3D.cs`, `scripts/world3d/OnAirSign3D.cs`, `scripts/world3d/OnAirSign3D.cs.uid`
+- Work Done: Confirmed `on_air_sign.glb` exists. Moved the existing hidden control-room sign to the upper north wall left of the left speaker, then shifted it right to avoid the doorway overlap. Added a second studio sign centered high on the north wall. Added `OnAirSign3D` to duplicate sign materials locally, apply a modest glow to the actual imported model instead of overlay text, and drive a short-range front room glow. Removed the temporary floating `ON`/`AIR` label overlay after visual review showed it looked detached/backwards. Pulled both signs farther off the north walls to avoid embedding. Tuned washout down by reducing non-text sign emission, shortening/dimming the red room glow, increasing attenuation, and moving the glow farther into the room so material emission handles readability. `World3D` attaches both sign controllers, subscribes to broadcast state changes, turns signs on from intro/bumper/live content, keeps them on through break countdown/transition, turns them off at `AdBreak` (`0sec`), and turns them back on for return bumper music.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. `godot --headless --path . --check-only --quit` could not run because `godot` is not on PATH in this shell.
+- Next Steps: Manual playtest in `Game3D.tscn`: confirm both signs sit visibly on the wall, control sign no longer overlaps the doorway, red spill reaches nearby surfaces/player without bleeding into the adjacent room, and state timing still matches intro/ad break/return bumper.
+- Blockers: none.
+
+---
+
+## Previous Session (pre-show overlay)
+
+**Branch**: develop
+**Task**: Make channel 3 glow color reflect fader tuning position.
+**Status**: Completed (build + focused tests green)
+- Files Modified: `SESSION_LOG.md`, `scripts/audio/SoundboardTargetGenerator.cs`, `scripts/world3d/Soundboard3D.cs`, `tests/unit/audio/SoundboardTargetGeneratorTests.cs`
+- Work Done: Replaced channel 3's flashing green attention pulse with position-based tuning color. Added `ColorForChannel3Fader(...)`, mapping channel 3 bottom to blue, 80% target to green, and top to red, with cyan/yellow midpoints. `Lamp_2` glow now uses this color while channel 3 is active. Updated generic non-caller target logic so channel 3 and master target 80% instead of 50%.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 warnings/errors. Focused tests passed: `SoundboardTargetGeneratorTests` 36/36 and `SoundboardMixerDriverTests` 16/16.
+- Next Steps: Manual playtest: confirm channel 3 lamp is blue at 0, shifts to green at 80%, turns yellow/red above target, and no longer flashes.
+- Blockers: none.
+
+---
+
+## Previous Session (channel 3 music fade correction)
+
+**Branch**: develop
+**Task**: Move soundboard music fade gameplay to channel 3.
+**Status**: Completed (build + focused tests green)
+- Files Modified: `SESSION_LOG.md`, `scripts/audio/SoundboardKnobState.cs`, `scripts/audio/SoundboardMixerDriver.cs`, `scripts/world3d/Soundboard3D.cs`, `tests/unit/audio/SoundboardMixerDriverTests.cs`
+- Work Done: Master faders now default/reset to the 80% mark and no longer get gameplay target markers. Channel 3 (`AdsLevel` / `FaderCap_2` / `Lamp_2`) owns the music/bumper/ad fade gameplay: board default parks it at 0, DSP-neutral target is 80%, SFX bus volume maps 0->cut and 80%->ideal, and above-target channel 3 fader position contributes to over-target compression/drive scoring. Removed the separate fader rail/master target markers. Added the attention pulse to channel 3's lamp glow, matching the existing lamp-above-fader language. Music start/completion and break reset logic now resets channel 3 only.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 warnings/errors. Focused tests passed: `SoundboardMixerDriverTests` 16/16, `SoundboardControlApplierTests` 9/9, `SoundboardButtonStateTests` 8/8.
+- Next Steps: Manual playtest: confirm master faders sit at 80%, channel 3 lamp pulses, channel 3 fader controls intro/break audio, and channel 3 resets to 0 after intro/break bumper.
+- Blockers: none.
+
+---
+
+## Previous Session (hide pre-show overlay after arm)
+
+**Branch**: develop
+**Task**: Hide pre-show overlay after arming the soundboard-start show.
+**Status**: Completed (build green)
+- Files Modified: `SESSION_LOG.md`, `scripts/ui/PreShowShowPanel.cs`, `scripts/ui/PreShowUIManager.cs`
+- Work Done: Successful pre-show arm now disables the start button and hides the pre-show overlay. `PreShowShowPanel` walks up to its owning `CanvasLayer` and hides it; legacy `PreShowUIManager` hides itself directly. The actual show still starts later from the physical Music button.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings.
+- Next Steps: Manual playtest: click pre-show Start, confirm overlay disappears, then press board Music to start the broadcast.
+- Blockers: none.
+
+---
+
+## Previous Session (sound mixer show start/faders)
+
+**Branch**: develop
+**Task**: Fix sound mixer show-start and persistent fader state.
+**Status**: Completed (build + focused tests green)
+- Files Modified: `SESSION_LOG.md`, `scripts/audio/SoundboardKnobState.cs`, `scripts/audio/SoundboardMixerDriver.cs`, `scripts/dialogue/executables/BroadcastExecutable.cs`, `scripts/ui/DebugHelper.cs`, `scripts/ui/PreShowShowPanel.cs`, `scripts/ui/PreShowUIManager.cs`, `scripts/world3d/Soundboard3D.cs`, `scripts/world3d/SoundboardButtonState.cs`, `tests/unit/audio/SoundboardControlApplierTests.cs`, `tests/unit/audio/SoundboardMixerDriverTests.cs`, `tests/unit/world3d/SoundboardButtonStateTests.cs`
+- Work Done: Removed the debug 2-second auto-start. Pre-show UI now arms/configures the show instead of starting playback. The physical soundboard Music button starts the show from PreShow and still starts break music during break windows. Music button lamps flash when the show is ready to start. Board default parks Ads and music/master faders at 0; DSP-neutral music target is 80%. Added 80% target markers for the active music faders. Music completion and break-state changes reset the relevant faders to 0. Soundboard controls/buttons/screens continue reflecting state while the player is not actively interacting with the board. Broadcast executables now publish completed events.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 warnings/errors. Focused tests passed: `SoundboardButtonStateTests` 8/8, `SoundboardMixerDriverTests` 16/16, `SoundboardControlApplierTests` 9/9.
+- Next Steps: Visual/playtest in `Game3D.tscn` to confirm the Music button flash, 80% halos, and fader reset timing feel right in-world.
+- Blockers: none.
+
+---
+
+## Previous Session (art style docs/prototype cleanup)
+
 **Branch**: comic-styling
 **Task**: Document current working art style and remove low-risk prototype code.
 **Status**: Completed (build + Godot check green)

@@ -217,7 +217,7 @@ namespace KBTV.Audio
                 default:
                     return GetBand(
                         SoundboardControlApplier.CurrentValue(state, control),
-                        SoundboardKnobState.NeutralValue);
+                        TargetForNonCallerControl(control));
             }
         }
 
@@ -251,12 +251,19 @@ namespace KBTV.Audio
                     };
                     break;
                 default:
-                    target = SoundboardKnobState.NeutralValue;
+                    target = TargetForNonCallerControl(control);
                     break;
             }
 
             return SoundboardControlApplier.CurrentValue(state, control) - target;
         }
+
+        private static float TargetForNonCallerControl(SoundboardControl control) => control switch
+        {
+            SoundboardControl.AdsLevel or SoundboardControl.MasterLeft or SoundboardControl.MasterRight =>
+                SoundboardKnobState.MusicTargetValue,
+            _ => SoundboardKnobState.NeutralValue
+        };
 
         /// <summary>
         /// Continuous color for a signed knob error: pure BLUE far below → CYAN →
@@ -281,6 +288,22 @@ namespace KBTV.Audio
             return t <= 0.5f
                 ? RampGreen.Lerp(RampYellow, t * 2f)
                 : RampYellow.Lerp(RampRed, (t - 0.5f) * 2f);
+        }
+
+        /// <summary>
+        /// Continuous tuning colour for channel 3's music/ad fader. Unlike caller
+        /// knobs, the target is not centered: bottom (0) should read fully blue,
+        /// the 80% mark green, and the top red.
+        /// </summary>
+        public static Color ColorForChannel3Fader(float value)
+        {
+            var clamped = SoundboardKnobState.Clamp(value);
+            var target = SoundboardKnobState.MusicTargetValue;
+            float normalizedError = clamped <= target
+                ? Mathf.Lerp(-ColorRampHalfSpan, 0f, clamped / Mathf.Max(0.001f, target))
+                : Mathf.Lerp(0f, ColorRampHalfSpan, (clamped - target) / Mathf.Max(0.001f, 1f - target));
+
+            return ColorForError(normalizedError);
         }
 
         /// <summary>

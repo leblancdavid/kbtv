@@ -15,7 +15,8 @@ import common
 
 CONTROL_PROPS = ('control_desk', 'phone_board', 'soundboard', 'crt_computer',
                  'office_chair', 'monitor_speaker', 'storage_shelf', 'on_air_sign')
-ASSETS = ('audio_cabinet', 'microphone_stand') + CONTROL_PROPS
+DOOR_PROPS = ('interior_door_leaf', 'exterior_glass_door_leaf')
+ASSETS = ('audio_cabinet', 'microphone_stand') + CONTROL_PROPS + DOOR_PROPS
 
 
 def stats():
