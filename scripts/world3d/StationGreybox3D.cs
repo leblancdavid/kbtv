@@ -380,6 +380,10 @@ public partial class StationGreybox3D : Node3D
 			var visual = scene.Instantiate<Node3D>();
 			visual.Name = "Panel";
 			visual.Position = new Vector3(localCenterX, 0f, 0f);
+			if (useGlassDoor && !extendsPositive)
+			{
+				visual.Scale = new Vector3(-1f, 1f, 1f);
+			}
 			StationLighting3D.ApplyLayerToTree(visual, layerMask);
 			hinge.AddChild(visual);
 			return new DoorLeaf { Hinge = hinge, ClosedRotationDegrees = closedRotationDegrees, OpenRotationDegrees = openRotationDegrees, SideSign = sideSign };

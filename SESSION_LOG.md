@@ -1,12 +1,38 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Fix indoor door handle side and add glass handles to both sides.
+**Status**: Completed (build + Godot import/check green)
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/interior_door_leaf.py`, `Tools/modelgen/exterior_glass_door_leaf.py`, `Tools/modelgen/source/interior_door_leaf.blend`, `Tools/modelgen/source/exterior_glass_door_leaf.blend`, `assets/models3d/props/interior_door_leaf.glb`, `assets/models3d/props/exterior_glass_door_leaf.glb`
+- Work Done: User review found indoor handles were on the wrong side and glass doors needed handles on both sides of each door. Flipped indoor handle placement in the generator while keeping two-sided trim/detail. Added matching back-face pull bars and mounts to the glass door generator. Regenerated both door GLBs/source blends; kept the existing runtime mirror for the secondary glass leaf so double-door handles still meet at the center seam.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets interior_door_leaf exterior_glass_door_leaf` passed validation. `exterior_glass_door_leaf` now validates with symmetric front/back handle depth and 1,404 triangles. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without door/model errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`. `dotnet build KBTV.csproj` succeeded with 0 warnings and 0 errors.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm indoor handle side is correct and glass door handles are visible from both inside and outside.
+- Blockers: none.
+
+---
+
+## Previous Session (door visibility and center handles)
+
+**Branch**: develop
+**Task**: Fix 3D door prop visibility and exterior double-door handle placement.
+**Status**: Completed (build + Godot import/check green)
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/interior_door_leaf.py`, `Tools/modelgen/source/interior_door_leaf.blend`, `assets/models3d/props/interior_door_leaf.glb`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: User review found interior doors still read like blank slabs from some angles, and exterior double-door handles both sat away from the center seam. Updated the interior door generator to add trim, inset panels, kick plates, and lever handles to both faces so viewed-from-behind doors no longer look blank. Updated `StationGreybox3D` to mirror glass door visuals on the secondary/right leaf while preserving hinge positions, trigger logic, opening directions, and light-link events. Regenerated the door GLBs/source blends through the modelgen pipeline.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets interior_door_leaf exterior_glass_door_leaf` passed validation; `interior_door_leaf` now validates with symmetric front/back bounds and 2,220 triangles. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded without door/model errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`. `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm interior door details are visible from hallway/room sides and exterior double-door handles now meet at the center seam.
+- Blockers: none.
+
+---
+
+## Previous Session (door prop generation)
+
+**Branch**: develop
 **Task**: Generate and integrate 3D office/interior and exterior glass door props.
-**Status**: Completed (build green; Godot check unavailable on PATH)
+**Status**: Completed (build + Godot import/check green)
 - Files Modified: `SESSION_LOG.md`, `Tools/modelgen/generate.py`, `Tools/modelgen/interior_door_leaf.py`, `Tools/modelgen/exterior_glass_door_leaf.py`, `Tools/modelgen/source/interior_door_leaf.blend`, `Tools/modelgen/source/exterior_glass_door_leaf.blend`, `assets/models3d/props/interior_door_leaf.glb`, `assets/models3d/props/exterior_glass_door_leaf.glb`, `scripts/world3d/StationGreybox3D.cs`
-- Work Done: Added repeatable Blender generators for a plain muted office/interior door leaf and a strip-mall storefront glass door leaf. Generated validated GLBs, source blends, and previews/reports through the existing modelgen pipeline. Updated `StationGreybox3D` so single doors load the office door visual, while exterior double doors assemble two glass door leaves from the existing hinge/trigger system. Preserved existing door triggers, hinge rotations, double-door side opening logic, and room light-link events; box doors remain as a fallback if a GLB scene is not loaded yet.
-- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets interior_door_leaf exterior_glass_door_leaf` passed validation for both assets. `dotnet build KBTV.csproj` succeeded with 0 warnings and 0 errors. `godot --headless --path . --check-only --quit` could not run because `godot` is not on PATH in this shell.
-- Next Steps: Open/import in Godot 4.6 so `.glb.import` files are generated, then manual playtest `Game3D.tscn` to confirm door scale, handle side, glass readability, hinge pivots, and wall clipping from the fixed camera with comic off/on.
+- Work Done: Added repeatable Blender generators for a plain muted office/interior door leaf and a strip-mall storefront glass door leaf. Generated validated GLBs, source blends, and previews/reports through the existing modelgen pipeline. Updated `StationGreybox3D` so single doors load the office door visual, while exterior double doors assemble two glass door leaves from the existing hinge/trigger system. Preserved existing door triggers, hinge rotations, double-door side opening logic, and room light-link events; box doors remain as a fallback if a GLB scene is not loaded yet. Imported both GLBs through Godot 4.6; `.glb.import` metadata exists locally and is ignored by the project-wide `*.import` rule.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets interior_door_leaf exterior_glass_door_leaf` passed validation for both assets. `dotnet build KBTV.csproj` succeeded with 0 warnings and 0 errors. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded the project without door/model errors; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm door scale, handle side, glass readability, hinge pivots, and wall clipping from the fixed camera with comic off/on.
 - Blockers: none.
 
 ---

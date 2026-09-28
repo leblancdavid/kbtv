@@ -27,6 +27,8 @@ def build():
     box('Bottom aluminum rail', (0, 0, 0.04), (0.95, 0.08, 0.08), frame, 0.006)
     box('Mid push rail', (0, 0.044, 0.92), (0.82, 0.038, 0.07), frame, 0.005)
     box('Center rubber gasket', (0.42, 0.048, 0.95), (0.022, 0.02, 1.72), rubber, 0.002)
-    box('Vertical pull bar', (0.25, 0.085, 1.02), (0.045, 0.045, 0.72), metal, 0.012)
-    box('Upper pull mount', (0.25, 0.063, 1.34), (0.13, 0.032, 0.05), metal, 0.008)
-    box('Lower pull mount', (0.25, 0.063, 0.7), (0.13, 0.032, 0.05), metal, 0.008)
+    for side_name, y in (('Front', 0.085), ('Back', -0.085)):
+        side = 1 if y > 0 else -1
+        box(f'{side_name} vertical pull bar', (0.25, y, 1.02), (0.045, 0.045, 0.72), metal, 0.012)
+        box(f'{side_name} upper pull mount', (0.25, y - 0.022 * side, 1.34), (0.13, 0.032, 0.05), metal, 0.008)
+        box(f'{side_name} lower pull mount', (0.25, y - 0.022 * side, 0.7), (0.13, 0.032, 0.05), metal, 0.008)
