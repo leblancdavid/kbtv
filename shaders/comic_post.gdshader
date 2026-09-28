@@ -157,18 +157,26 @@ float relative_depth_delta(float center_depth, vec2 sample_uv, float raw_depth, 
 	return abs(sample_depth - center_depth) / scale;
 }
 
-// Roberts cross: two diagonal taps instead of all eight neighbours, so a
-// silhouette costs half the reads and a flat surface contributes no gradient.
+// Sample cardinals plus diagonals so axis-aligned silhouettes are not missed
+// when the edge falls between the two diagonal taps.
 float depth_edge_delta(vec2 uv, vec2 px, float far_plane, mat4 inv_projection_matrix) {
 	float center_depth = linearize_depth(uv, texture(depth_tex, uv).r, inv_projection_matrix);
 	if (is_far_plane(center_depth, far_plane)) {
 		return 0.0;
 	}
+	vec2 east_uv = uv + vec2(px.x, 0.0);
+	vec2 west_uv = uv - vec2(px.x, 0.0);
+	vec2 north_uv = uv - vec2(0.0, px.y);
+	vec2 south_uv = uv + vec2(0.0, px.y);
 	vec2 diagonal_a_uv = uv + vec2(px.x, px.y);
 	vec2 diagonal_b_uv = uv - vec2(px.x, px.y);
+	float east = relative_depth_delta(center_depth, east_uv, texture(depth_tex, east_uv).r, far_plane, inv_projection_matrix);
+	float west = relative_depth_delta(center_depth, west_uv, texture(depth_tex, west_uv).r, far_plane, inv_projection_matrix);
+	float north = relative_depth_delta(center_depth, north_uv, texture(depth_tex, north_uv).r, far_plane, inv_projection_matrix);
+	float south = relative_depth_delta(center_depth, south_uv, texture(depth_tex, south_uv).r, far_plane, inv_projection_matrix);
 	float diagonal_a = relative_depth_delta(center_depth, diagonal_a_uv, texture(depth_tex, diagonal_a_uv).r, far_plane, inv_projection_matrix);
 	float diagonal_b = relative_depth_delta(center_depth, diagonal_b_uv, texture(depth_tex, diagonal_b_uv).r, far_plane, inv_projection_matrix);
-	return max(diagonal_a, diagonal_b);
+	return max(max(max(east, west), max(north, south)), max(diagonal_a, diagonal_b));
 }
 
 vec3 read_normal(vec2 uv) {
@@ -183,9 +191,13 @@ vec3 read_normal(vec2 uv) {
 // encoding, unlike the length of a normal difference.
 float normal_crease_delta(vec2 uv, vec2 px) {
 	vec3 c = read_normal(uv);
+	float east = 1.0 - dot(c, read_normal(uv + vec2(px.x, 0.0)));
+	float west = 1.0 - dot(c, read_normal(uv - vec2(px.x, 0.0)));
+	float north = 1.0 - dot(c, read_normal(uv - vec2(0.0, px.y)));
+	float south = 1.0 - dot(c, read_normal(uv + vec2(0.0, px.y)));
 	float diagonal_a = 1.0 - dot(c, read_normal(uv + vec2(px.x, px.y)));
 	float diagonal_b = 1.0 - dot(c, read_normal(uv - vec2(px.x, px.y)));
-	return max(diagonal_a, diagonal_b);
+	return max(max(max(east, west), max(north, south)), max(diagonal_a, diagonal_b));
 }
 
 void pick_closer_to_luma(

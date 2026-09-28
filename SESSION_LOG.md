@@ -1,6 +1,110 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Extend control-room north baseboards to door frames.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`
+- Work Done: User review found the restored control-room north baseboards still stopped short of the door frames. Root cause: the one-sided divider baseboard helper reused the shrunken wall mesh span instead of the original wall endpoint span. Updated the helper to use original divider segment endpoints and let the existing door-frame cutout trim the baseboard exactly at the frame edge.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm control-room north baseboards now meet the door frames cleanly.
+- Blockers: none.
+
+---
+
+## Previous Session (control-room baseboards)
+
+**Branch**: develop
+**Task**: Restore control-room north wall baseboards.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: User review found the baseboard missing on the north wall of the control room. Root cause: control/studio divider wall segments intentionally disabled all baseboards during earlier divider cleanup. Added one-sided wood baseboards only on the control-room side of the solid divider segments so the studio/window/door side remains suppressed.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm the control-room north wall baseboard appears without reintroducing the unwanted studio divider trim/box.
+- Blockers: none.
+
+---
+
+## Previous Session (baseboard door cutouts)
+
+**Branch**: develop
+**Task**: Stop baseboards from running through door frames.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: Added door-opening cutout metadata before wall/baseboard generation. Baseboard strips now split around matching door-frame zones instead of running under jambs or thresholds, and corner cap blocks are skipped inside those cutout zones. Tightened the cutout span to the actual outer frame edge with a tiny 1cm tuck-under overlap so baseboards end flush against frames instead of leaving a padded gap. Preserved existing per-side wood/off-white material selection and corner overlap behavior.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm baseboards stop before door frames at interior and exterior doors.
+- Blockers: none.
+
+---
+
+## Previous Session (door thresholds)
+
+**Branch**: develop
+**Task**: Restore visible door thresholds/sills.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: Restored non-colliding threshold meshes in `AddDoorFrame()` for horizontal and vertical doors. Thresholds now use each door frame's wood/metal material and are slightly raised/deeper than the frame so they read as intentional door sills instead of white artifacts.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm restored thresholds are visible and colored correctly at all station doors.
+- Blockers: none.
+
+---
+
+## Previous Session (control/studio divider cleanup)
+
+**Branch**: develop
+**Task**: Remove persistent white control/studio divider box.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: User confirmed the white box remained after marker/baseboard cleanup. Replaced the visible `ControlStudioWindowHalfWall` mesh with an invisible collider-only body, preserving the control/studio divider collision barrier without rendering the bright low wall rectangle.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm the white control/studio divider box is gone while the window/divider still blocks movement correctly.
+- Blockers: none.
+
+---
+
+## Previous Session (comic post edges)
+
+**Branch**: develop
+**Task**: Improve comic post vertical edge detection.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/ComicPostLayer.cs`, `shaders/comic_post.gdshader`
+- Work Done: Corrected `ComicPostLayer.DepthEdgeThreshold` from `0.45f` to `0.045f` so depth outlines match the shader's relative-depth threshold. Updated comic depth and normal edge detection to sample cardinal neighbors plus diagonals, reducing missed vertical/horizontal silhouettes caused by diagonal-only taps.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` with comic post enabled to confirm vertical edges read better without over-inking small surface details.
+- Blockers: none.
+
+---
+
+## Previous Session (door layout markers)
+
+**Branch**: develop
+**Task**: Remove remaining control/studio doorway floor artifact.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: Confirmed no `DoorMarker`/`Threshold` marker meshes remained. Suppressed baseboards on the control/studio divider wall pieces, the control/studio window half-wall, and the divider corner posts/caps so the remaining floor-level strip/block under that doorway no longer renders. Preserved wall colliders, door triggers, door leaves, frames, and light-link behavior.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm the control/studio doorway artifact is gone and the divider still reads cleanly.
+- Blockers: none.
+
+---
+
+## Previous Session (floor door markers)
+
+**Branch**: develop
+**Task**: Remove 3D station floor door layout markers.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: Removed the non-colliding floor-height door layout marker meshes from `StationGreybox3D`; preserved every `AddSingleDoor`/`AddDoubleDoor` call, door trigger, leaf, frame, and light-link behavior. Renamed the now marker-free builder from `BuildRouteMarkers()` to `BuildDoors()`.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully; it still prints the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm the blue/purple floor boxes are gone and all doors still open/close normally.
+- Blockers: none.
+
+---
+
+## Previous Session (door frame inset)
+
+**Branch**: develop
 **Task**: Fine-tune exterior double-door frame opening inset.
 **Status**: Completed (build + Godot check green with known shutdown errors)
 - Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`

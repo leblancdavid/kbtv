@@ -26,7 +26,7 @@ public partial class ComicPostLayer : Node3D
 	// tap spacing in pixels.
 	[Export] public bool DepthEdgesEnabled { get; set; } = true;
 	[Export] public float DepthEdgeMix { get; set; } = 1.0f;
-	[Export] public float DepthEdgeThreshold { get; set; } = 0.45f;
+	[Export] public float DepthEdgeThreshold { get; set; } = 0.0f;
 	[Export] public float DepthEdgeBias { get; set; } = 0.018f;
 	[Export] public float DepthEdgeWidthPx { get; set; } = 2.0f;
 	[Export] public bool NormalEdgesEnabled { get; set; } = true;

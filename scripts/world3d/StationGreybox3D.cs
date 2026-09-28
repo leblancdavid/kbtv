@@ -31,10 +31,15 @@ public partial class StationGreybox3D : Node3D
 	private const float BaseboardWallOverlap = 0.004f;
 	private const float BaseboardCornerOverlap = BaseboardDepth;
 	private const float BaseboardCornerCapSize = WallThickness + BaseboardDepth * 2f;
+	private const float BaseboardDoorFrameOverlap = 0.01f;
+	private const float BaseboardMinSegmentLength = 0.04f;
 	private const float DoorFrameTrimWidth = 0.12f;
 	private const float ExteriorDoorFrameTrimWidth = 0.075f;
 	private const float ExteriorDoorFrameOpeningInset = 0.055f;
 	private const float DoorFrameDepth = WallThickness + 0.12f;
+	private const float DoorThresholdHeight = 0.035f;
+	private const float DoorThresholdDepth = DoorFrameDepth + 0.04f;
+	private const float DoorThresholdSideOverlap = 0.04f;
 
 	private readonly Rect2 _hallway = new(new Vector2(5f, -14f), new Vector2(3f, 22f));
 	private readonly Rect2 _equipmentRoom = new(new Vector2(-5f, -14f), new Vector2(10f, 6f));
@@ -69,6 +74,7 @@ public partial class StationGreybox3D : Node3D
 	private PackedScene? _exteriorGlassDoorScene;
 	private readonly List<WallFadeTarget> _wallFadeTargets = new();
 	private readonly List<Doorway> _doorways = new();
+	private readonly List<DoorBaseboardCutout> _doorBaseboardCutouts = new();
 	private readonly HashSet<Vector2> _wallCornerPostPositions = new();
 	private Player3D? _player;
 	public event Action<string, string, bool>? DoorLightLinkChanged;
@@ -99,6 +105,14 @@ public partial class StationGreybox3D : Node3D
 		public float SideSign { get; init; }
 	}
 
+	private sealed class DoorBaseboardCutout
+	{
+		public required Vector3 Center { get; init; }
+		public required DoorOrientation Orientation { get; init; }
+		public required float Span { get; init; }
+		public required float Depth { get; init; }
+	}
+
 	private sealed class WallFadeTarget
 	{
 		public required MeshInstance3D Mesh { get; init; }
@@ -112,7 +126,7 @@ public partial class StationGreybox3D : Node3D
 		CreateMaterials();
 		BuildStationInterior();
 		BuildExteriorHooks();
-		BuildRouteMarkers();
+		BuildDoors();
 	}
 
 	public override void _Process(double delta)
@@ -205,6 +219,7 @@ public partial class StationGreybox3D : Node3D
 
 	private void BuildStationInterior()
 	{
+		RegisterDoorBaseboardCutouts();
 		AddRoom("Hallway", _hallway, _hallMaterial, "HALLWAY", StationLighting3D.HallLayer);
 		AddRoom("Equipment", _equipmentRoom, _supportMaterial, "EQUIPMENT ROOM", StationLighting3D.EquipmentLayer);
 		AddRoom("Archive", _archive, _officeMaterial, "DOCUMENT / ARCHIVE", StationLighting3D.StationLayer);
@@ -217,6 +232,40 @@ public partial class StationGreybox3D : Node3D
 
 		AddInteriorDividers();
 		AddInteriorProps();
+	}
+
+	private void RegisterDoorBaseboardCutouts()
+	{
+		_doorBaseboardCutouts.Clear();
+		AddDoorBaseboardCutout(new Vector3(5f, 0f, 5.4f), SingleDoorWidth, DoorOrientation.Vertical, false);
+		AddDoorBaseboardCutout(new Vector3(-4.15f, 0f, 0f), SingleDoorWidth, DoorOrientation.Horizontal, false);
+		AddDoorBaseboardCutout(new Vector3(5f, 0f, -4f), SingleDoorWidth, DoorOrientation.Vertical, false);
+		AddDoorBaseboardCutout(new Vector3(5f, 0f, -11f), SingleDoorWidth, DoorOrientation.Vertical, false);
+		AddDoorBaseboardCutout(new Vector3(6.5f, 0f, -14f), DoubleDoorWidth, DoorOrientation.Horizontal, true);
+		AddDoorBaseboardCutout(new Vector3(8f, 0f, -11f), SingleDoorWidth, DoorOrientation.Vertical, false);
+		AddDoorBaseboardCutout(new Vector3(8f, 0f, -2.5f), SingleDoorWidth, DoorOrientation.Vertical, false);
+		AddDoorBaseboardCutout(new Vector3(8f, 0f, 2.5f), SingleDoorWidth, DoorOrientation.Vertical, false);
+		AddDoorBaseboardCutout(new Vector3(8f, 0f, 6.5f), SingleDoorWidth, DoorOrientation.Vertical, false);
+		AddDoorBaseboardCutout(new Vector3(6.5f, 0f, 8f), DoubleDoorWidth, DoorOrientation.Horizontal, true);
+		AddDoorBaseboardCutout(new Vector3(16f, 0f, -11f), SingleDoorWidth, DoorOrientation.Vertical, false);
+		AddDoorBaseboardCutout(new Vector3(13f, 0f, 5f), SingleDoorWidth, DoorOrientation.Horizontal, false);
+		AddDoorBaseboardCutout(new Vector3(26f, 0f, -4f), DoubleDoorWidth, DoorOrientation.Vertical, true);
+	}
+
+	private void AddDoorBaseboardCutout(Vector3 center, float openingWidth, DoorOrientation orientation, bool isExterior)
+	{
+		var trimWidth = isExterior ? ExteriorDoorFrameTrimWidth : DoorFrameTrimWidth;
+		var frameOpeningWidth = isExterior
+			? Mathf.Max(0.1f, openingWidth - ExteriorDoorFrameOpeningInset * 2f)
+			: openingWidth;
+		var frameSpan = frameOpeningWidth + trimWidth * 2f;
+		_doorBaseboardCutouts.Add(new DoorBaseboardCutout
+		{
+			Center = center,
+			Orientation = orientation,
+			Span = Mathf.Max(0.1f, frameSpan - BaseboardDoorFrameOverlap * 2f),
+			Depth = Mathf.Max(0.1f, Mathf.Max(DoorFrameDepth, DoorThresholdDepth) - BaseboardDoorFrameOverlap * 2f)
+		});
 	}
 
 	private void AddInteriorDividers()
@@ -237,9 +286,12 @@ public partial class StationGreybox3D : Node3D
 		AddVerticalWall("HallControlWallSouth", 5f, 6.05f, 8f);
 
 		AddHorizontalWall("EquipmentStudioDivider", -5f, 5f, -8f);
-		AddHorizontalWall("StudioControlDoorJambWest", -5f, -4.75f, 0f);
-		AddHorizontalWall("StudioControlDoorJambEast", -3.55f, -1.7f, 0f, registerRightPost: false);
-		AddHorizontalWall("StudioControlEastWall", 2.9f, 5f, 0f, registerLeftPost: false);
+		AddHorizontalWall("StudioControlDoorJambWest", -5f, -4.75f, 0f, addBaseboards: false);
+		AddHorizontalWall("StudioControlDoorJambEast", -3.55f, -1.7f, 0f, registerRightPost: false, addBaseboards: false);
+		AddHorizontalWall("StudioControlEastWall", 2.9f, 5f, 0f, registerLeftPost: false, addBaseboards: false);
+		AddControlSideBaseboard("StudioControlDoorJambWest", -5f, -4.75f, 0f);
+		AddControlSideBaseboard("StudioControlDoorJambEast", -3.55f, -1.7f, 0f);
+		AddControlSideBaseboard("StudioControlEastWall", 2.9f, 5f, 0f);
 		AddControlStudioWindow();
 
 		AddVerticalWall("ArchiveHallWallNorth", 8f, -14f, -11.65f);
@@ -294,22 +346,8 @@ public partial class StationGreybox3D : Node3D
 		AddLabel("LADDER TO ROOF", new Vector3(-1f, 1.4f, 8.7f));
 	}
 
-	private void BuildRouteMarkers()
+	private void BuildDoors()
 	{
-		AddBox("ControlToHallThreshold", new Vector3(5f, 0.04f, 5.4f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false, castShadow: false);
-		AddBox("ControlStudioDoorMarker", new Vector3(-4.15f, 0.04f, 0f), new Vector3(1.2f, 0.08f, 0.8f), _equipmentMaterial, false, castShadow: false);
-		AddBox("StudioToHallThreshold", new Vector3(5f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false, castShadow: false);
-		AddBox("EquipmentDoorMarker", new Vector3(5f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.8f), _equipmentMaterial, false, castShadow: false);
-		AddBox("NorthExteriorDoorMarker", new Vector3(6.5f, 0.04f, -14f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false, castShadow: false);
-		AddBox("ArchiveDoorMarker", new Vector3(8f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.6f), _officeMaterial, false, castShadow: false);
-		AddBox("OfficeDoorMarker", new Vector3(8f, 0.04f, -2.5f), new Vector3(0.8f, 0.08f, 1.6f), _officeMaterial, false, castShadow: false);
-		AddBox("KitchenDoorMarker", new Vector3(8f, 0.04f, 2.5f), new Vector3(0.8f, 0.08f, 1.8f), _supplyMaterial, false, castShadow: false);
-		AddBox("BathroomDoorMarker", new Vector3(8f, 0.04f, 6.5f), new Vector3(0.8f, 0.08f, 1.6f), _bathroomMaterial, false, castShadow: false);
-		AddBox("SouthExteriorDoorMarker", new Vector3(6.5f, 0.04f, 8f), new Vector3(1.8f, 0.08f, 0.8f), _equipmentMaterial, false, castShadow: false);
-		AddBox("ArchiveFrontDeskDoorMarker", new Vector3(16f, 0.04f, -11f), new Vector3(0.8f, 0.08f, 1.6f), _officeMaterial, false, castShadow: false);
-		AddBox("KitchenBathroomDoorMarker", new Vector3(13f, 0.04f, 5f), new Vector3(1.6f, 0.08f, 0.8f), _bathroomMaterial, false, castShadow: false);
-		AddBox("LobbyExitMarker", new Vector3(26f, 0.04f, -4f), new Vector3(0.8f, 0.08f, 1.9f), _equipmentMaterial, false, castShadow: false);
-
 		AddSingleDoor("ControlToHallDoor", new Vector3(5f, 0f, 5.4f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical, "Control", "Station");
 		AddSingleDoor("ControlStudioDoor", new Vector3(-4.15f, 0f, 0f), SingleDoorWidth, 1.2f, DoorOrientation.Horizontal, "Control", "Studio");
 		AddSingleDoor("StudioToHallDoor", new Vector3(5f, 0f, -4f), SingleDoorWidth, 1.8f, DoorOrientation.Vertical, "Studio", "Station");
@@ -363,6 +401,7 @@ public partial class StationGreybox3D : Node3D
 		var frameOpeningWidth = isExterior
 			? Mathf.Max(0.1f, openingWidth - ExteriorDoorFrameOpeningInset * 2f)
 			: openingWidth;
+		var thresholdWidth = frameOpeningWidth + DoorThresholdSideOverlap * 2f;
 		if (orientation == DoorOrientation.Horizontal)
 		{
 			var jambSize = new Vector3(trimWidth, DoorHeight, DoorFrameDepth);
@@ -373,6 +412,7 @@ public partial class StationGreybox3D : Node3D
 
 			var headerSize = new Vector3(frameOpeningWidth + trimWidth * 2f, trimWidth, DoorFrameDepth);
 			AddBox($"{name}Header", new Vector3(center.X, DoorHeight + trimWidth * 0.5f, center.Z), headerSize, material, false, layerMask, false);
+			AddBox($"{name}Threshold", new Vector3(center.X, DoorThresholdHeight * 0.5f, center.Z), new Vector3(thresholdWidth, DoorThresholdHeight, DoorThresholdDepth), material, false, layerMask, false);
 			return;
 		}
 
@@ -384,6 +424,7 @@ public partial class StationGreybox3D : Node3D
 
 		var verticalHeaderSize = new Vector3(DoorFrameDepth, trimWidth, frameOpeningWidth + trimWidth * 2f);
 		AddBox($"{name}Header", new Vector3(center.X, DoorHeight + trimWidth * 0.5f, center.Z), verticalHeaderSize, material, false, layerMask, false);
+		AddBox($"{name}Threshold", new Vector3(center.X, DoorThresholdHeight * 0.5f, center.Z), new Vector3(DoorThresholdDepth, DoorThresholdHeight, thresholdWidth), material, false, layerMask, false);
 	}
 
 	private Doorway AddDoorTrigger(string name, Vector3 center, float width, DoorOrientation orientation, bool isDoubleDoor, string? roomA = null, string? roomB = null)
@@ -530,18 +571,28 @@ public partial class StationGreybox3D : Node3D
 		AddChild(body);
 	}
 
+	private void AddColliderOnly(string name, Vector3 position, Vector3 size)
+	{
+		var body = new StaticBody3D { Name = $"{name}Collider", Position = position };
+		body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size } });
+		AddChild(body);
+	}
+
 	private static Vector2 GetCenter(Rect2 rect)
 	{
 		return rect.Position + rect.Size / 2f;
 	}
 
-	private void AddWall(string name, Vector3 position, Vector3 size)
+	private void AddWall(string name, Vector3 position, Vector3 size, bool addBaseboards = true)
 	{
 		var material = MakeWallMaterial();
 		var mesh = AddBox(name, position, size, material, true, StationLighting3D.AllInteriorLayers);
 		_wallFadeTargets.Add(new WallFadeTarget { Mesh = mesh, Material = material, Position = position, Size = size });
 		AddWallpaperSkins(name, position, size);
-		AddBaseboards(name, position, size);
+		if (addBaseboards)
+		{
+			AddBaseboards(name, position, size);
+		}
 	}
 
 	private void AddBaseboards(string name, Vector3 position, Vector3 size)
@@ -551,16 +602,109 @@ public partial class StationGreybox3D : Node3D
 			var boardSize = new Vector3(size.X + BaseboardCornerOverlap * 2f, BaseboardHeight, BaseboardDepth);
 			var northPosition = position + new Vector3(0f, BaseboardCenterY - position.Y, -size.Z * 0.5f - BaseboardDepth * 0.5f + BaseboardWallOverlap);
 			var southPosition = position + new Vector3(0f, BaseboardCenterY - position.Y, size.Z * 0.5f + BaseboardDepth * 0.5f - BaseboardWallOverlap);
-			AddBaseboard($"{name}BaseboardNorth", northPosition, boardSize, BaseboardMaterialForSide(northPosition), position, size);
-			AddBaseboard($"{name}BaseboardSouth", southPosition, boardSize, BaseboardMaterialForSide(southPosition), position, size);
+			AddHorizontalBaseboardSegments($"{name}BaseboardNorth", northPosition, boardSize, position, size);
+			AddHorizontalBaseboardSegments($"{name}BaseboardSouth", southPosition, boardSize, position, size);
 			return;
 		}
 
 		var verticalBoardSize = new Vector3(BaseboardDepth, BaseboardHeight, size.Z + BaseboardCornerOverlap * 2f);
 		var westPosition = position + new Vector3(-size.X * 0.5f - BaseboardDepth * 0.5f + BaseboardWallOverlap, BaseboardCenterY - position.Y, 0f);
 		var eastPosition = position + new Vector3(size.X * 0.5f + BaseboardDepth * 0.5f - BaseboardWallOverlap, BaseboardCenterY - position.Y, 0f);
-		AddBaseboard($"{name}BaseboardWest", westPosition, verticalBoardSize, BaseboardMaterialForSide(westPosition), position, size);
-		AddBaseboard($"{name}BaseboardEast", eastPosition, verticalBoardSize, BaseboardMaterialForSide(eastPosition), position, size);
+		AddVerticalBaseboardSegments($"{name}BaseboardWest", westPosition, verticalBoardSize, position, size);
+		AddVerticalBaseboardSegments($"{name}BaseboardEast", eastPosition, verticalBoardSize, position, size);
+	}
+
+	private void AddControlSideBaseboard(string name, float x1, float x2, float z)
+	{
+		var left = Mathf.Min(x1, x2);
+		var right = Mathf.Max(x1, x2);
+		var width = right - left;
+		if (width <= 0f)
+		{
+			return;
+		}
+
+		var wallPosition = new Vector3(left + width * 0.5f, WallCenterY, z);
+		var wallSize = new Vector3(width, WallHeight, WallThickness);
+		var boardSize = new Vector3(width + BaseboardCornerOverlap * 2f, BaseboardHeight, BaseboardDepth);
+		var southPosition = wallPosition + new Vector3(0f, BaseboardCenterY - wallPosition.Y, wallSize.Z * 0.5f + BaseboardDepth * 0.5f - BaseboardWallOverlap);
+		AddHorizontalBaseboardSegments($"{name}ControlBaseboardSouth", southPosition, boardSize, wallPosition, wallSize);
+	}
+
+	private void AddHorizontalBaseboardSegments(string name, Vector3 position, Vector3 size, Vector3 wallPosition, Vector3 wallSize)
+	{
+		var segments = new List<(float Start, float End)> { (position.X - size.X * 0.5f, position.X + size.X * 0.5f) };
+		foreach (var cutout in _doorBaseboardCutouts)
+		{
+			if (cutout.Orientation != DoorOrientation.Horizontal || Mathf.Abs(wallPosition.Z - cutout.Center.Z) > cutout.Depth * 0.5f)
+			{
+				continue;
+			}
+
+			SubtractBaseboardCutout(segments, cutout.Center.X - cutout.Span * 0.5f, cutout.Center.X + cutout.Span * 0.5f);
+		}
+
+		AddBaseboardSegments(name, position, size, wallPosition, wallSize, segments, true);
+	}
+
+	private void AddVerticalBaseboardSegments(string name, Vector3 position, Vector3 size, Vector3 wallPosition, Vector3 wallSize)
+	{
+		var segments = new List<(float Start, float End)> { (position.Z - size.Z * 0.5f, position.Z + size.Z * 0.5f) };
+		foreach (var cutout in _doorBaseboardCutouts)
+		{
+			if (cutout.Orientation != DoorOrientation.Vertical || Mathf.Abs(wallPosition.X - cutout.Center.X) > cutout.Depth * 0.5f)
+			{
+				continue;
+			}
+
+			SubtractBaseboardCutout(segments, cutout.Center.Z - cutout.Span * 0.5f, cutout.Center.Z + cutout.Span * 0.5f);
+		}
+
+		AddBaseboardSegments(name, position, size, wallPosition, wallSize, segments, false);
+	}
+
+	private static void SubtractBaseboardCutout(List<(float Start, float End)> segments, float cutStart, float cutEnd)
+	{
+		for (var index = segments.Count - 1; index >= 0; index--)
+		{
+			var segment = segments[index];
+			if (cutEnd <= segment.Start || cutStart >= segment.End)
+			{
+				continue;
+			}
+
+			segments.RemoveAt(index);
+			if (cutStart > segment.Start)
+			{
+				segments.Insert(index, (segment.Start, Mathf.Min(cutStart, segment.End)));
+				index++;
+			}
+			if (cutEnd < segment.End)
+			{
+				segments.Insert(index, (Mathf.Max(cutEnd, segment.Start), segment.End));
+			}
+		}
+	}
+
+	private void AddBaseboardSegments(string name, Vector3 position, Vector3 size, Vector3 wallPosition, Vector3 wallSize, List<(float Start, float End)> segments, bool horizontal)
+	{
+		var segmentIndex = 0;
+		foreach (var segment in segments)
+		{
+			var length = segment.End - segment.Start;
+			if (length < BaseboardMinSegmentLength)
+			{
+				continue;
+			}
+
+			var segmentPosition = horizontal
+				? new Vector3(segment.Start + length * 0.5f, position.Y, position.Z)
+				: new Vector3(position.X, position.Y, segment.Start + length * 0.5f);
+			var segmentSize = horizontal
+				? new Vector3(length, size.Y, size.Z)
+				: new Vector3(size.X, size.Y, length);
+			AddBaseboard($"{name}{segmentIndex++}", segmentPosition, segmentSize, BaseboardMaterialForSide(segmentPosition), wallPosition, wallSize);
+		}
 	}
 
 	private void AddBaseboard(string name, Vector3 position, Vector3 size, StandardMaterial3D materialSource, Vector3 wallPosition, Vector3 wallSize)
@@ -629,12 +773,17 @@ public partial class StationGreybox3D : Node3D
 
 	private void AddWallCornerPost(string name, float x, float z)
 	{
-		AddWall(name, new Vector3(x, WallCenterY, z), new Vector3(WallThickness, WallHeight, WallThickness));
+		AddWall(name, new Vector3(x, WallCenterY, z), new Vector3(WallThickness, WallHeight, WallThickness), !IsControlStudioDividerBaseboardPosition(x, z));
 		AddBaseboardCornerCaps(name, x, z);
 	}
 
 	private void AddBaseboardCornerCaps(string name, float x, float z)
 	{
+		if (IsControlStudioDividerBaseboardPosition(x, z))
+		{
+			return;
+		}
+
 		var halfSize = BaseboardCornerCapSize * 0.5f;
 		var quadrantSize = new Vector3(halfSize, BaseboardHeight, halfSize);
 		AddBaseboardCornerCap($"{name}BaseboardCapNorthWest", new Vector3(x - halfSize * 0.5f, BaseboardCenterY, z - halfSize * 0.5f), quadrantSize);
@@ -643,11 +792,40 @@ public partial class StationGreybox3D : Node3D
 		AddBaseboardCornerCap($"{name}BaseboardCapSouthEast", new Vector3(x + halfSize * 0.5f, BaseboardCenterY, z + halfSize * 0.5f), quadrantSize);
 	}
 
+	private static bool IsControlStudioDividerBaseboardPosition(float x, float z)
+	{
+		return Mathf.IsEqualApprox(z, 0f) && x >= -5f && x <= 5f;
+	}
+
 	private void AddBaseboardCornerCap(string name, Vector3 position, Vector3 size)
 	{
+		if (IsPointInsideDoorBaseboardCutout(position))
+		{
+			return;
+		}
+
 		var material = (StandardMaterial3D)BaseboardMaterialForSide(position).Duplicate();
 		material.Transparency = BaseMaterial3D.TransparencyEnum.Disabled;
 		AddBox(name, position, size, material, false, StationLighting3D.AllInteriorLayers, false);
+	}
+
+	private bool IsPointInsideDoorBaseboardCutout(Vector3 position)
+	{
+		foreach (var cutout in _doorBaseboardCutouts)
+		{
+			var withinSpan = cutout.Orientation == DoorOrientation.Horizontal
+				? Mathf.Abs(position.X - cutout.Center.X) <= cutout.Span * 0.5f
+				: Mathf.Abs(position.Z - cutout.Center.Z) <= cutout.Span * 0.5f;
+			var withinDepth = cutout.Orientation == DoorOrientation.Horizontal
+				? Mathf.Abs(position.Z - cutout.Center.Z) <= cutout.Depth * 0.5f
+				: Mathf.Abs(position.X - cutout.Center.X) <= cutout.Depth * 0.5f;
+			if (withinSpan && withinDepth)
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private void AddControlStudioWindow()
@@ -656,14 +834,13 @@ public partial class StationGreybox3D : Node3D
 		var layerMask = StationLighting3D.ControlLayer | StationLighting3D.StudioLayer;
 		var halfWallPosition = new Vector3(0.6f, 0.3f, positionZ);
 		var halfWallSize = new Vector3(4.6f, 0.6f, WindowFrameDepth);
-		AddBox("ControlStudioWindowHalfWall", halfWallPosition, halfWallSize, _wallMaterial, true, layerMask);
-		AddBaseboards("ControlStudioWindowHalfWall", halfWallPosition, halfWallSize);
+		AddColliderOnly("ControlStudioWindowHalfWall", halfWallPosition, halfWallSize);
 		AddBox("ControlStudioWindowLeftFrame", new Vector3(-1.7f, 1.25f, positionZ), new Vector3(WallThickness, 1.9f, WindowFrameDepth), _wallMaterial, false, layerMask);
 		AddBox("ControlStudioWindowRightFrame", new Vector3(2.9f, 1.25f, positionZ), new Vector3(WallThickness, 1.9f, WindowFrameDepth), _wallMaterial, false, layerMask);
 		AddBox("ControlStudioWindowTopFrame", new Vector3(0.6f, 2.15f, positionZ), new Vector3(4.6f, WallThickness, WindowFrameDepth), _wallMaterial, false, layerMask);
 	}
 
-	private void AddHorizontalWall(string name, float x1, float x2, float z, bool registerLeftPost = true, bool registerRightPost = true)
+	private void AddHorizontalWall(string name, float x1, float x2, float z, bool registerLeftPost = true, bool registerRightPost = true, bool addBaseboards = true)
 	{
 		var left = Mathf.Min(x1, x2);
 		var right = Mathf.Max(x1, x2);
@@ -683,7 +860,7 @@ public partial class StationGreybox3D : Node3D
 			return;
 		}
 		var centerX = left + width / 2f;
-		AddWall(name, new Vector3(centerX, WallCenterY, z), new Vector3(width, WallHeight, WallThickness));
+		AddWall(name, new Vector3(centerX, WallCenterY, z), new Vector3(width, WallHeight, WallThickness), addBaseboards);
 	}
 
 	private void AddVerticalWall(string name, float x, float z1, float z2)
