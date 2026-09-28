@@ -40,6 +40,19 @@
 ## Previous Session (door thresholds)
 
 **Branch**: develop
+**Task**: Fix asymmetric blue tint on exterior glass double doors.
+**Status**: Completed (build + Godot check green with known shutdown errors)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`, `Tools/modelgen/exterior_glass_door_leaf.py`, `Tools/modelgen/exterior_glass_door_leaf_right.py`, `Tools/modelgen/generate.py`, `assets/models3d/props/exterior_glass_door_leaf.glb`, `assets/models3d/props/exterior_glass_door_leaf_right.glb`, generated model previews/source metadata.
+- Work Done: Replaced runtime negative X scaling on the second exterior glass door leaf with a true right-hand generated GLB. Refactored the glass door generator to produce either handle/gasket side, added the right-hand generator, updated the modelgen asset list, loaded the right-hand PackedScene in `StationGreybox3D`, and removed the negative scale that caused asymmetric transparent/refraction shading.
+- Verification: Blender 5.2 generated and validated both exterior glass door GLBs. `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. Godot 4.6.3 mono import pass succeeded using the full install at `D:\Software\Godot\Godot_v4.6.3-stable_mono_win64`; normal `--headless --path . --check-only --quit` then loaded successfully with only the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm both panes now have matching glass tint while the handles still meet at the center.
+- Blockers: none.
+
+---
+
+## Previous Session (door thresholds restored)
+
+**Branch**: develop
 **Task**: Restore visible door thresholds/sills.
 **Status**: Completed (build + Godot check green with known shutdown errors)
 - Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`

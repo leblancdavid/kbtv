@@ -8,6 +8,7 @@ public partial class StationGreybox3D : Node3D
 {
 	private const string InteriorDoorScenePath = "res://assets/models3d/props/interior_door_leaf.glb";
 	private const string ExteriorGlassDoorScenePath = "res://assets/models3d/props/exterior_glass_door_leaf.glb";
+	private const string ExteriorGlassDoorRightScenePath = "res://assets/models3d/props/exterior_glass_door_leaf_right.glb";
 	private const float WallHeight = 2.3f;
 	private const float WallThickness = 0.2f;
 	private const float DoorGap = 2f;
@@ -72,6 +73,7 @@ public partial class StationGreybox3D : Node3D
 	private StandardMaterial3D _doorMaterial = null!;
 	private PackedScene? _interiorDoorScene;
 	private PackedScene? _exteriorGlassDoorScene;
+	private PackedScene? _exteriorGlassDoorRightScene;
 	private readonly List<WallFadeTarget> _wallFadeTargets = new();
 	private readonly List<Doorway> _doorways = new();
 	private readonly List<DoorBaseboardCutout> _doorBaseboardCutouts = new();
@@ -180,6 +182,7 @@ public partial class StationGreybox3D : Node3D
 	{
 		_interiorDoorScene ??= GD.Load<PackedScene>(InteriorDoorScenePath);
 		_exteriorGlassDoorScene ??= GD.Load<PackedScene>(ExteriorGlassDoorScenePath);
+		_exteriorGlassDoorRightScene ??= GD.Load<PackedScene>(ExteriorGlassDoorRightScenePath);
 	}
 
 	private static StandardMaterial3D MakeMaterial(Color color)
@@ -467,16 +470,14 @@ public partial class StationGreybox3D : Node3D
 		AddChild(hinge);
 
 		var localCenterX = (extendsPositive ? 1f : -1f) * width * 0.5f;
-		var scene = useGlassDoor ? _exteriorGlassDoorScene : _interiorDoorScene;
+		var scene = useGlassDoor && !extendsPositive
+			? _exteriorGlassDoorRightScene
+			: useGlassDoor ? _exteriorGlassDoorScene : _interiorDoorScene;
 		if (scene != null)
 		{
 			var visual = scene.Instantiate<Node3D>();
 			visual.Name = "Panel";
 			visual.Position = new Vector3(localCenterX, 0f, 0f);
-			if (useGlassDoor && !extendsPositive)
-			{
-				visual.Scale = new Vector3(-1f, 1f, 1f);
-			}
 			StationLighting3D.ApplyLayerToTree(visual, layerMask);
 			hinge.AddChild(visual);
 			return new DoorLeaf { Hinge = hinge, ClosedRotationDegrees = closedRotationDegrees, OpenRotationDegrees = openRotationDegrees, SideSign = sideSign };
