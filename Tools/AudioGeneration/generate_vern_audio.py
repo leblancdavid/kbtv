@@ -126,6 +126,9 @@ def generate_vern_audio(force_regenerate=False, verbose=False):
                 
             except Exception as e:
                 print(f"  ERROR: {line_id}: {e}")
+                if "quota_exceeded" in str(e):
+                    print("Stopping generation because ElevenLabs quota is exhausted.")
+                    raise
             
             # Rate limiting
             time.sleep(1.5)

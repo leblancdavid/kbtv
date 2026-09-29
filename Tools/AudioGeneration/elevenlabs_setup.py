@@ -238,6 +238,8 @@ class ElevenLabsVoiceCloner:
         else:
             print(f"Generation failed: {response.status_code}")
             print(f"Response: {response.text}")
+            if response.status_code == 401 and "quota_exceeded" in response.text:
+                raise RuntimeError("quota_exceeded")
             return None
 
     def test_basic_generation(self, test_text="Good evening, truth-seekers. You're tuned to KBTV, Beyond the Veil AM."):

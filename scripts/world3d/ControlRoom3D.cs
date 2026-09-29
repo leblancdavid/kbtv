@@ -43,7 +43,6 @@ public partial class ControlRoom3D : Node3D
 			SoundBoard3D.AttachBoard(boardNode);
 		}
 
-		DisableShadowsInTree(GetNodeOrNull<Node3D>("SpeakerRight"));
 	}
 
 	private void ApplyTexturedRoomSurfaces()
@@ -101,24 +100,6 @@ public partial class ControlRoom3D : Node3D
 				}
 			}
 			ToggleColliders(child, enabled);
-		}
-	}
-
-	private static void DisableShadowsInTree(Node? node)
-	{
-		if (node == null)
-		{
-			return;
-		}
-
-		if (node is GeometryInstance3D geometry)
-		{
-			geometry.CastShadow = GeometryInstance3D.ShadowCastingSetting.Off;
-		}
-
-		foreach (var child in node.GetChildren())
-		{
-			DisableShadowsInTree(child);
 		}
 	}
 

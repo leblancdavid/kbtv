@@ -182,6 +182,9 @@ def generate_arc(json_path, force=False, verbose=False, speaker_filter="both", c
         except Exception as e:
             print(f"ERROR generating {line_id}: {e}")
             errors += 1
+            if "quota_exceeded" in str(e):
+                print("Stopping generation because ElevenLabs quota is exhausted.")
+                raise
 
     print(f"  {arc_id}: {generated} generated, {skipped} skipped, {errors} errors")
     return generated, skipped, errors

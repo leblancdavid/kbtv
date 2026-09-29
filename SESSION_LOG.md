@@ -1,6 +1,48 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Make hallway doors swing into adjacent rooms.
+**Status**: Completed
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: Identified hallway-to-control/studio/equipment doors in `scripts/world3d/StationGreybox3D.cs` as single vertical doors opening toward positive X into the hallway.
+- Work Done: Added per-door single-door open direction support and set the control, studio, and equipment hallway doors to open toward negative X into their rooms. Other single doors retain their previous default swing direction.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm the doors visually swing into the intended rooms and do not clip major props.
+- Blockers: none.
+
+---
+
+## Previous Session (audio generation)
+
+**Branch**: develop
+**Task**: Generate missing ElevenLabs audio for conversation arcs.
+**Status**: Blocked (ElevenLabs quota exhausted)
+- Files Modified: `SESSION_LOG.md`, `Tools/AudioGeneration/elevenlabs_setup.py`, `Tools/AudioGeneration/generate_arc_audio.py`, `Tools/AudioGeneration/generate_vern_audio.py`
+- Work Done: Audited audio coverage before generation. Vern broadcast/dialog audio is complete. Conversation arc audit initially reported 1,575 missing files across 24 UFO arcs: 1,487 Vern files and 88 caller files. Confirmed `elevenlabs_config.json` and `voice_id.txt` are present. Ran generation without `--force`, so existing MP3 files were skipped. Generated all 88 missing caller files and 579 missing Vern files before ElevenLabs returned `quota_exceeded`.
+- Work Done: Added a quota-exhaustion safeguard to the ElevenLabs audio tooling so future generation stops immediately on `quota_exceeded` instead of continuing through remaining lines with guaranteed failures.
+- Verification: `python generate_arc_audio.py --all --speaker caller --check` reports 0 missing caller audio files. `python -m py_compile elevenlabs_setup.py generate_arc_audio.py generate_vern_audio.py` passed. Final all-arc audit reports 908 missing files remain, all Vern arc files across 15 UFO arcs.
+- Next Steps: After ElevenLabs quota is replenished, rerun `python generate_arc_audio.py --all --speaker vern` from `Tools/AudioGeneration`; existing files will be skipped automatically. Then run `python generate_arc_audio.py --all --check`.
+- Blockers: ElevenLabs quota exhausted: API reported 0 credits remaining.
+
+---
+
+## Previous Session (right speaker shadows)
+
+**Branch**: develop
+**Task**: Restore right monitor speaker shadow casting.
+**Status**: Completed (build green)
+- Files Modified: `SESSION_LOG.md`, `scripts/world3d/ControlRoom3D.cs`
+- Work Done: Confirmed `ControlRoom3D` explicitly disables shadows for `SpeakerRight` via `DisableShadowsInTree(GetNodeOrNull<Node3D>("SpeakerRight"))`.
+- Work Done: Removed the right-speaker shadow override and deleted the now-unused recursive shadow-disable helper.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm the right speaker now casts correctly and does not over-darken the audio cabinet area.
+- Blockers: none.
+
+---
+
+## Previous Session (control-room baseboards)
+
+**Branch**: develop
 **Task**: Extend control-room north baseboards to door frames.
 **Status**: Completed (build + Godot check green with known shutdown errors)
 - Files Modified: `SESSION_LOG.md`
