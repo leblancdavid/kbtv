@@ -16,7 +16,7 @@ public partial class StudioRoom3D : Node3D
 	[Export] public float FogMotionSpeed = 0.55f;
 	[Export] public float FogMotionStrength = 0.22f;
 	[Export] public float SmokeDriftSpeed = 0.45f;
-	[Export] public Vector3 SmokePuffOrigin = new(-0.85f, 1.4f, 0.2f);
+	[Export] public Vector3 SmokePuffOrigin = new(0.58f, 1.4f, 0.11f);
 	[Export] public Vector3 SmokeRoomHalfExtents = new(5f, 1.15f, 4f);
 
 	private const float HalfWidth = 5f;
@@ -90,7 +90,7 @@ public partial class StudioRoom3D : Node3D
 
 		AddStaticBox(root, "FloorCollider", new Vector3(0f, -0.1f, 0f), new Vector3(10f, 0.2f, 8f));
 		AddStaticBox(root, "StudioTableCollider", new Vector3(0.55f, 0.45f, 0.98f), new Vector3(4.01f, 0.9f, 1.62f));
-		AddStaticBox(root, "VernChairCollider", new Vector3(-0.85f, 0.35f, -0.05f), new Vector3(0.9f, 0.7f, 0.7f));
+		AddStaticBox(root, "VernChairCollider", new Vector3(0.58f, 0.35f, -0.14f), new Vector3(0.9f, 0.7f, 0.7f));
 		AddStaticBox(root, "GuestChairCollider", new Vector3(1.05f, 0.35f, 0.7f), new Vector3(0.75f, 0.7f, 0.65f));
 		AddStaticBox(root, "BookcaseLeftCollider", new Vector3(-2.45f, 1.0f, -3.5f), new Vector3(1.85f, 1.9f, 0.9f));
 		AddStaticBox(root, "BookcaseRightCollider", new Vector3(2.45f, 1.0f, -3.5f), new Vector3(1.85f, 1.9f, 0.9f));

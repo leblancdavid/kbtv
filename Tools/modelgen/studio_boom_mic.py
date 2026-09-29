@@ -19,8 +19,9 @@ def build():
 
     # Dual-arm boom: two parallel rods per segment with chunky readable hinges.
     shoulder = (0.0, 0.0, 0.46)
-    elbow = (-0.34, -0.05, 0.77)
-    wrist = (-0.74, -0.01, 0.96)
+    elbow = (-0.34, -0.05, 0.69)
+    wrist = (-0.74, -0.01, 0.62)
+    mic_z = 0.62
     for offset in (-0.026, 0.026):
         rod('Lower parallel boom arm', (shoulder[0] + offset, shoulder[1], shoulder[2]),
             (elbow[0] + offset, elbow[1], elbow[2]), 0.011, dark)
@@ -32,19 +33,19 @@ def build():
         cylinder(name + ' black cap right', (loc[0] + 0.052, loc[1], loc[2]), 0.026, 0.012, dark, 'Y', vertices=16)
 
     # Small cable runs along the arm, offset so it reads as separate from rods.
-    rod('Boom cable lower sag', (0.02, -0.035, 0.44), (-0.34, -0.085, 0.73), 0.005, p['black'])
-    rod('Boom cable upper sag', (-0.34, -0.085, 0.73), (-0.74, -0.045, 0.92), 0.005, p['black'])
+    rod('Boom cable lower sag', (0.02, -0.035, 0.44), (-0.34, -0.085, 0.65), 0.005, p['black'])
+    rod('Boom cable upper sag', (-0.34, -0.085, 0.65), (-0.74, -0.045, 0.58), 0.005, p['black'])
 
     # Shock mount and side-address capsule aimed toward the seated host.
-    box('Shock mount square frame', (-0.86, 0.005, 0.95), (0.17, 0.045, 0.20), chrome, 0.009)
-    box('Shock mount inner gap', (-0.86, 0.029, 0.95), (0.115, 0.012, 0.145), p['black'], 0.004)
-    for z in (0.88, 1.02):
-        rod('Shock elastic cross cord', (-0.92, 0.04, z), (-0.80, 0.04, 0.95), 0.004, p['black'])
-        rod('Shock elastic cross cord', (-0.80, 0.04, z), (-0.92, 0.04, 0.95), 0.004, p['black'])
-    box('Broadcast microphone body', (-0.86, 0.065, 0.95), (0.12, 0.16, 0.23), dark, 0.025)
-    box('Front grille panel', (-0.86, 0.153, 0.955), (0.092, 0.018, 0.175), grille, 0.014)
+    box('Shock mount square frame', (-0.86, 0.005, mic_z), (0.17, 0.045, 0.20), chrome, 0.009)
+    box('Shock mount inner gap', (-0.86, 0.029, mic_z), (0.115, 0.012, 0.145), p['black'], 0.004)
+    for z in (mic_z - 0.07, mic_z + 0.07):
+        rod('Shock elastic cross cord', (-0.92, 0.04, z), (-0.80, 0.04, mic_z), 0.004, p['black'])
+        rod('Shock elastic cross cord', (-0.80, 0.04, z), (-0.92, 0.04, mic_z), 0.004, p['black'])
+    box('Broadcast microphone body', (-0.86, 0.065, mic_z), (0.12, 0.16, 0.23), dark, 0.025)
+    box('Front grille panel', (-0.86, 0.153, mic_z + 0.005), (0.092, 0.018, 0.175), grille, 0.014)
     for i in range(7):
-        box('Mic grille rib', (-0.86, 0.165, 0.885 + i * 0.023), (0.074, 0.007, 0.004), chrome, 0.001)
+        box('Mic grille rib', (-0.86, 0.165, mic_z - 0.065 + i * 0.023), (0.074, 0.007, 0.004), chrome, 0.001)
 
     # Keep validation's bottom-origin contract while preserving clamp thickness.
     for obj in bpy.context.scene.objects:

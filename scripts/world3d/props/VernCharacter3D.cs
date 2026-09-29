@@ -5,6 +5,9 @@ namespace KBTV.World3D;
 
 public partial class VernCharacter3D : Node3D
 {
+	[Export] public bool HoldSeatedPoseForReview { get; set; }
+	private const float PoseSampleSeconds = 0.05f;
+
 	private static readonly (string Name, string Path)[] InjectedClips =
 	{
 		("talk_calm", "res://assets/models3d/characters/vern/animations/talk_calm_mpfb.tres"),
@@ -18,8 +21,8 @@ public partial class VernCharacter3D : Node3D
 
 	public override void _Ready()
 	{
-		// Apply before the first rendered frame and before World3D's layer traversal.
-		Visible = false;
+		// Keep Vern visible in scene/game review even if setup reports an import error.
+		Visible = true;
 		AnimPlayer = FindAnimPlayer(this);
 		if (AnimPlayer == null)
 		{
@@ -31,9 +34,10 @@ public partial class VernCharacter3D : Node3D
 		// each into the player's root (empty-name) library with the exact names the
 		// controller suffix-matches on.
 		InjectClips(AnimPlayer);
-		if (!ApplySeatedPose(AnimPlayer))
+		if (!ApplySeatedPose(AnimPlayer, HoldSeatedPoseForReview))
 		{
 			GD.PushError("Vern: imported model has no AnimationPlayer with seated_rest.");
+			Visible = true;
 			return;
 		}
 		StationLighting3D.ApplyLayerToTree(this, StationLighting3D.StudioLayer);
@@ -85,18 +89,29 @@ public partial class VernCharacter3D : Node3D
 		}
 	}
 
-	private static bool ApplySeatedPose(AnimationPlayer player)
+	private static bool ApplySeatedPose(AnimationPlayer player, bool preferInjectedSeatedPose)
+	{
+		if (preferInjectedSeatedPose && ApplyPose(player, "idle_breathing"))
+		{
+			return true;
+		}
+
+		return ApplyPose(player, "seated_rest")
+			|| ApplyPose(player, "idle_breathing");
+	}
+
+	private static bool ApplyPose(AnimationPlayer player, string animationName)
 	{
 		foreach (var animation in player.GetAnimationList())
 		{
 			// Imported libraries may qualify the clip as "library/seated_rest".
-			if (animation != "seated_rest"
-				&& !animation.EndsWith("/seated_rest", StringComparison.Ordinal))
+			if (animation != animationName
+				&& !animation.EndsWith($"/{animationName}", StringComparison.Ordinal))
 			{
 				continue;
 			}
 			player.Play(animation, customBlend: 0);
-			player.Advance(0);
+			player.Seek(Mathf.Min(PoseSampleSeconds, player.GetAnimation(animation).Length), update: true);
 			player.Pause(); // Stop would reset playback; Pause holds the evaluated pose.
 			return true;
 		}

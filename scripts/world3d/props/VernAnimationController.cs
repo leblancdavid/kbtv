@@ -60,6 +60,7 @@ public partial class VernAnimationController : Node
 	private AnimState _state = AnimState.Idle;
 	private bool _preSpeakIdle;
 	private bool _subscribed;
+	private bool _animationFinishedConnected;
 
 	// Bounded EventBus resolution: the registry is populated by ServiceProviderRoot in
 	// the game scene, but tests instantiate Vern.tscn without it. Retry a few frames
@@ -93,7 +94,11 @@ public partial class VernAnimationController : Node
 	public override void _ExitTree()
 	{
 		Unsubscribe();
-		if (_animPlayer != null) _animPlayer.AnimationFinished -= OnAnimationFinished;
+		if (_animPlayer != null && _animationFinishedConnected)
+		{
+			_animPlayer.AnimationFinished -= OnAnimationFinished;
+			_animationFinishedConnected = false;
+		}
 		_timerGeneration++;
 	}
 
@@ -102,9 +107,18 @@ public partial class VernAnimationController : Node
 		if (GetParent() is VernCharacter3D vern)
 		{
 			_animPlayer = vern.AnimPlayer;
+			if (vern.HoldSeatedPoseForReview)
+			{
+				SetProcess(false);
+				return;
+			}
 		}
 		_animPlayer ??= FindAnimPlayer(this);
-		if (_animPlayer != null) _animPlayer.AnimationFinished += OnAnimationFinished;
+		if (_animPlayer != null)
+		{
+			_animPlayer.AnimationFinished += OnAnimationFinished;
+			_animationFinishedConnected = true;
+		}
 		PlayLooping(AnimIdleBreathing);
 		RetryResolveServices();
 	}
