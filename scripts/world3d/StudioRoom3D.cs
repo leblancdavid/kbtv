@@ -89,11 +89,11 @@ public partial class StudioRoom3D : Node3D
 		AddChild(root);
 
 		AddStaticBox(root, "FloorCollider", new Vector3(0f, -0.1f, 0f), new Vector3(10f, 0.2f, 8f));
-		AddStaticBox(root, "RoundTableCollider", new Vector3(0.65f, 0.35f, 1.15f), new Vector3(3.2f, 0.7f, 0.9f));
+		AddStaticBox(root, "StudioTableCollider", new Vector3(0.55f, 0.45f, 0.98f), new Vector3(4.01f, 0.9f, 1.62f));
 		AddStaticBox(root, "VernChairCollider", new Vector3(-0.85f, 0.35f, -0.05f), new Vector3(0.9f, 0.7f, 0.7f));
 		AddStaticBox(root, "GuestChairCollider", new Vector3(1.05f, 0.35f, 0.7f), new Vector3(0.75f, 0.7f, 0.65f));
-		AddStaticBox(root, "BookcaseLeftCollider", new Vector3(-2.6f, 0.7f, -3.1f), new Vector3(1.6f, 1.4f, 0.7f));
-		AddStaticBox(root, "BookcaseRightCollider", new Vector3(2.6f, 0.7f, -3.1f), new Vector3(1.6f, 1.4f, 0.7f));
+		AddStaticBox(root, "BookcaseLeftCollider", new Vector3(-2.45f, 1.0f, -3.5f), new Vector3(1.85f, 1.9f, 0.9f));
+		AddStaticBox(root, "BookcaseRightCollider", new Vector3(2.45f, 1.0f, -3.5f), new Vector3(1.85f, 1.9f, 0.9f));
 	}
 
 	private void CreateSmoke()

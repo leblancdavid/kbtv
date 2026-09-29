@@ -1,6 +1,109 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Split studio table lamp and audio interface into separately selectable Godot props.
+**Status**: Completed
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/generate.py`, `Tools/modelgen/studio_table.py`, `Tools/modelgen/studio_audio_interface.py`, `Tools/modelgen/studio_desk_lamp.py`, `scenes/world3d/World3D.tscn`, `scripts/world3d/StudioRoom3D.cs`, regenerated `Tools/modelgen/source/studio_table.blend`, generated `Tools/modelgen/source/studio_audio_interface.blend`, generated `Tools/modelgen/source/studio_desk_lamp.blend`, regenerated `assets/models3d/props/studio_table.glb`, generated `assets/models3d/props/studio_audio_interface.glb`, generated `assets/models3d/props/studio_desk_lamp.glb`
+- Work Done: Diagnosed that the visible studio lamp and audio interface are baked meshes inside `studio_table.glb`, so Godot can only select the `StudioTable` GLB instance.
+- Work Done: Removed the baked lamp/audio-interface geometry from `studio_table.glb` and added standalone reproducible generators for `studio_audio_interface.glb` and `studio_desk_lamp.glb`.
+- Work Done: Instanced `StudioAudioInterface` and `StudioDeskLamp` as separate nodes in `World3D.tscn`; moved the lamp light under `StudioDeskLamp/LampLight` so it follows editor repositioning.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets studio_table studio_audio_interface studio_desk_lamp` passed validation. Godot 4.6.3 editor import completed for the regenerated/new GLBs. `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. `pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests` passed 9/9. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully with the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual editor/playtest review in `Game3D.tscn` to reposition/select `StudioAudioInterface` and `StudioDeskLamp` and confirm the lamp light follows the lamp as expected.
+- Blockers: none.
+
+---
+
+## Previous Session (studio props)
+
+**Branch**: develop
+**Task**: Cut Vern studio table width by 25% while preserving height/depth.
+**Status**: Completed
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/studio_table.py`, `scripts/world3d/StudioRoom3D.cs`, regenerated `Tools/modelgen/source/studio_table.blend`, regenerated `assets/models3d/props/studio_table.glb`
+- Work Done: User requested reducing only the studio table width by 25%; current generated table is 5.08m wide x 1.44m deep, with height/depth to remain unchanged.
+- Work Done: Reduced table X dimensions/leg placement by 25%: tabletop is now 3.81m wide while depth and height remain unchanged. Updated the studio table collider width to match with a small margin.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets studio_table` passed validation (`studio_table` now 3.81m x 1.49m x 1.36m). `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. `pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests` passed 9/9. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully with the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm the narrower table still holds the gear visually and improves chair/studio clearance.
+- Blockers: none.
+
+---
+
+## Previous Session (studio props)
+
+**Branch**: develop
+**Task**: Improve Vern seated leg visibility in the studio chair.
+**Status**: Completed
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/studio_table.py`, regenerated `Tools/modelgen/source/studio_table.blend`, regenerated `assets/models3d/props/studio_table.glb`
+- Work Done: User review noted Vern appears to have no legs while seated in the studio chair. Initial inspection showed the MPFB seated preview includes legs, so the likely issue is runtime composition/occlusion from the table/chair/camera angle rather than missing geometry.
+- Work Done: Reverted the too-thin front lip and restored the table's original front-apron style at 75% of its original height, keeping the wider table dimensions intact.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets studio_table` passed validation. `dotnet build KBTV.csproj` succeeded with 0 errors and 0 warnings. `pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests` passed 9/9.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm Vern's legs read clearly in the in-game Vern/studio camera feed and that the table still looks substantial enough.
+- Blockers: none.
+
+---
+
+## Previous Session (studio props)
+
+**Branch**: develop
+**Task**: Enlarge Vern's studio table by another 25%.
+**Status**: Completed
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/studio_table.py`, regenerated `Tools/modelgen/source/studio_table.blend`, regenerated `assets/models3d/props/studio_table.glb`, `scripts/world3d/StudioRoom3D.cs`
+- Work Done: User requested another 25% studio table size increase beyond the previous enlarged table.
+- Work Done: Increased the table footprint from 4.06m x 1.15m to 5.08m x 1.44m while preserving tabletop height and keeping the gear/lamp/contact prop positions stable. Updated the studio table collider to match the larger footprint.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets studio_table` passed validation (`studio_table` now 5.08m x 1.49m x 1.36m). Godot 4.6.3 import completed for the enlarged table. `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. `pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests` passed 9/9. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully with the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm the larger table still leaves comfortable studio walkway/chair clearance.
+- Blockers: none.
+
+---
+
+## Previous Session (studio table enlargement)
+
+**Branch**: develop
+**Task**: Enlarge Vern's studio table by 25%.
+**Status**: Completed
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/studio_table.py`, regenerated `Tools/modelgen/source/studio_table.blend`, regenerated `assets/models3d/props/studio_table.glb`, `scripts/world3d/StudioRoom3D.cs`
+- Work Done: User requested the studio table be 25% larger after the lamp/audio/mic detail pass.
+- Work Done: Increased the table footprint from 3.25m x 0.92m to 4.06m x 1.15m while preserving tabletop height and keeping the gear/lamp/contact prop positions stable. Updated the studio table collider to match the larger footprint.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets studio_table` passed validation (`studio_table` now 4.06m x 1.20m x 1.36m). Godot 4.6.3 import completed for the enlarged table. `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. `pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests` passed 9/9. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully with the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm the larger table does not crowd Vern, the guest chair, or studio walkway space.
+- Blockers: none.
+
+---
+
+## Previous Session (studio detail fixes)
+
+**Branch**: develop
+**Task**: Fix studio table/mic floating details after in-game review.
+**Status**: Completed
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/studio_table.py`, `Tools/modelgen/studio_boom_mic.py`, regenerated `Tools/modelgen/source/studio_table.blend`, regenerated `Tools/modelgen/source/studio_boom_mic.blend`, regenerated `assets/models3d/props/studio_table.glb`, regenerated `assets/models3d/props/studio_boom_mic.glb`, `scenes/world3d/World3D.tscn`, `scripts/world3d/StudioRoom3D.cs`, `assets/models3d/characters/vern/animation_contacts.json`
+- Work Done: User review found the first studio table too cluttered: lamp silhouette looked wrong, audio controls were scattered, custom CRT looked odd, and the tabletop needs to be larger. Boom mic reads well enough to keep for now.
+- Work Done: Widened the studio table from 2.55m to 3.25m, removed the baked custom CRT, replaced the odd lamp with a simple round-base/gooseneck/cone-shade desk lamp, and reorganized the audio deck controls into aligned slider/knob/indicator rows.
+- Work Done: Instanced the existing `crt_computer.glb` on the studio table, adjusted table collider and desk lamp runtime light, and spread Vern's mug/ashtray/cigarette anchors slightly across the new tabletop.
+- Work Done: Fixed second review issues by moving the audio deck sliders/knobs/indicators back onto the top plate, removing the oxblood mic badge that still read as a floating artifact, and replacing the crooked multi-segment lamp with a straight stem plus one sloped neck aligned to a tapered cone/frustum shade aimed down at the desk.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets studio_table studio_boom_mic` passed validation. Godot 4.6.3 import completed for the revised table and boom mic. `dotnet build KBTV.csproj` succeeded with 0 errors and 0 warnings. `pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests` passed 9/9. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully with the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to confirm the wider table fits the studio, the reused CRT orientation is correct, the new lamp silhouette/light position reads well, and the boom mic still lands near Vern's mouth after the table changes.
+- Blockers: none.
+
+---
+
+## Previous Session (studio props)
+
+**Branch**: develop
+**Task**: Generate and wire Vern studio props.
+**Status**: Completed
+- Files Modified: `SESSION_LOG.md`, `Tools/modelgen/generate.py`, `Tools/modelgen/studio_table.py`, `Tools/modelgen/studio_boom_mic.py`, `Tools/modelgen/studio_bookcase.py`, generated `Tools/modelgen/source/studio_*.blend`, generated `assets/models3d/props/studio_*.glb`, `scenes/world3d/World3D.tscn`, `scripts/world3d/StudioRoom3D.cs`, `assets/models3d/characters/vern/animation_contacts.json`, `tests/integration/VernAnimationControllerTests.cs`
+- Work Done: Confirmed the current studio uses 3D placeholder meshes for the table/bookcases and a generated floor mic stand; Vern's lap tray is spawned by `assets/models3d/characters/vern/animation_contacts.json`.
+- Work Done: Added reproducible Blender generators for a studio table with baked audio deck/CRT/lamp visuals, a tabletop articulated boom mic, and filled studio bookcases. Generated and validated all three GLBs plus source blends.
+- Work Done: Replaced the studio table, mic stand, and bookcase placeholders in `World3D.tscn`; kept the existing guest-chair placeholder. Added a warm runtime desk-lamp light and updated studio collider volumes for the new props.
+- Work Done: Removed `vern_tray_table` from Vern's performance prop contract and moved the mug, ashtray, and cigarette rest anchors onto the new table. Updated Vern animation tests for the three-prop contract and table anchor wording.
+- Verification: `blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --studio-room` passed validation for `studio_table`, `studio_boom_mic`, and `studio_bookcase`. `assets/models3d/characters/vern/animation_contacts.json` parses successfully. Godot 4.6.3 import completed for the new GLBs. `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. `pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests` passed 9/9. Godot 4.6.3 mono `--headless --path . --check-only --quit` loaded successfully with the known pre-existing shutdown disconnect errors from `LiveShowPanel` and `BroadcastAudioService`.
+- Next Steps: Manual playtest `Game3D.tscn` to review table/mic/bookcase placement, confirm the desk lamp intensity, and confirm mug/ashtray/cigarette anchors visually line up with the tabletop during Vern's idle/smoking/coffee actions.
+- Blockers: none.
+
+---
+
+## Previous Session (stale ad-break transition)
+
+**Branch**: develop
 **Task**: Fix stale post-ad-break transition repeating before the next break.
 **Status**: Completed
 - Files Modified: `SESSION_LOG.md`, `scripts/dialogue/BroadcastTimer.cs`, `tests/unit/dialogue/BroadcastTimerTests.cs`, `scripts/world3d/StationGreybox3D.cs`

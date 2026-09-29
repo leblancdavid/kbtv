@@ -15,8 +15,9 @@ import common
 
 CONTROL_PROPS = ('control_desk', 'phone_board', 'soundboard', 'crt_computer',
                  'office_chair', 'monitor_speaker', 'storage_shelf', 'on_air_sign')
+STUDIO_PROPS = ('studio_table', 'studio_audio_interface', 'studio_desk_lamp', 'studio_boom_mic', 'studio_bookcase')
 DOOR_PROPS = ('interior_door_leaf', 'exterior_glass_door_leaf', 'exterior_glass_door_leaf_right')
-ASSETS = ('audio_cabinet', 'microphone_stand') + CONTROL_PROPS + DOOR_PROPS
+ASSETS = ('audio_cabinet', 'microphone_stand') + CONTROL_PROPS + STUDIO_PROPS + DOOR_PROPS
 
 
 def stats():
@@ -135,6 +136,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate selected reproducible station props.')
     parser.add_argument('--assets', nargs='+', choices=ASSETS)
     parser.add_argument('--control-room', action='store_true', help='Only new control-room props; reuse accepted assets.')
+    parser.add_argument('--studio-room', action='store_true', help='Only studio-room props; reuse accepted assets.')
     args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else [])
-    for asset_name in args.assets or (CONTROL_PROPS if args.control_room else ASSETS):
+    default_assets = STUDIO_PROPS if args.studio_room else (CONTROL_PROPS if args.control_room else ASSETS)
+    for asset_name in args.assets or default_assets:
         generate(asset_name, importlib.import_module(asset_name))

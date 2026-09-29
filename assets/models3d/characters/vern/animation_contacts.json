@@ -37,9 +37,9 @@
    "asset": "res://assets/models3d/props/coffee_mug.glb",
    "rest": {
     "position": [
-     0.34,
-     0.73,
-     -0.43
+     -0.72,
+     0.77,
+     -0.60
     ],
     "rotation_quaternion_xyzw": [
      0.0,
@@ -49,17 +49,17 @@
     ]
    },
    "support": {
-    "prop": "vern_tray_table",
-    "surface_y": 0.73
+    "prop": "studio_table",
+    "surface_y": 0.77
    }
   },
   "ashtray": {
    "asset": "res://assets/models3d/props/ashtray.glb",
    "rest": {
     "position": [
-     -0.36,
-     0.73,
-     -0.4475
+     -0.40,
+     0.77,
+     -0.54
     ],
     "rotation_quaternion_xyzw": [
      0.0,
@@ -69,17 +69,17 @@
     ]
    },
    "support": {
-    "prop": "vern_tray_table",
-    "surface_y": 0.73
+    "prop": "studio_table",
+    "surface_y": 0.77
    }
   },
   "cigarette": {
    "asset": "res://assets/models3d/props/cigarette.glb",
    "rest": {
     "position": [
-     -0.36,
-     0.755,
-     -0.405
+     -0.40,
+     0.795,
+     -0.4975
     ],
     "rotation_quaternion_xyzw": [
      0.0,
@@ -90,23 +90,7 @@
    },
    "support": {
     "prop": "ashtray",
-    "surface_y": 0.751
-   }
-  },
-  "vern_tray_table": {
-   "asset": "res://assets/models3d/props/vern_tray_table.glb",
-   "rest": {
-    "position": [
-     0.0,
-     0.0,
-     0.0
-    ],
-    "rotation_quaternion_xyzw": [
-     0.0,
-     0.0,
-     0.0,
-     1.0
-    ]
+    "surface_y": 0.791
    }
   }
  },

@@ -177,8 +177,11 @@ public class VernAnimationControllerTests : KBTVTestClass
 		Require(_player!.GetAnimation(_player.AssignedAnimation).LoopMode == Animation.LoopModeEnum.None,
 			"Prop actions must be one-shots.");
 		var props = _vern!.GetNode<VernPerformanceProps>("PerformanceProps");
-		var prop = props.GetNode<Node3D>(clip == "smoking" ? "cigarette" : "coffee_mug");
-		var rest = prop.Transform;
+		var propName = clip == "smoking" ? "cigarette" : "coffee_mug";
+		var prop = props.GetNode<Node3D>(propName);
+		using var contract = JsonDocument.Parse(FileAccess.GetFileAsString(
+			"res://assets/models3d/characters/vern/animation_contacts.json"));
+		var rest = DecodeContact(contract.RootElement.GetProperty("props").GetProperty(propName).GetProperty("rest"));
 		_player.Advance(2.5);
 		props._Process(0);
 		Require(prop.Position.DistanceTo(rest.Origin) > .2f, "Held prop must follow the hand toward the mouth.");
@@ -189,7 +192,7 @@ public class VernAnimationControllerTests : KBTVTestClass
 		_player.Advance(6);
 		props._Process(0);
 		Require(CurrentAnimation() == TalkingAnimation, "Completion must resume the latest speech state.");
-		Require(prop.Transform.IsEqualApprox(rest) && props.GetChildCount() == 4,
+		Require(prop.Transform.IsEqualApprox(rest) && props.GetChildCount() == 3,
 			"Completion must return the single visible prop to its exact anchor.");
 	}
 
@@ -254,7 +257,7 @@ public class VernAnimationControllerTests : KBTVTestClass
 					{
 						_player.Seek(time, update: true);
 						props._Process(0);
-						Require(prop.Transform.IsEqualApprox(rest), $"{clip}: prop must stay at its tray anchor outside contact ({time}s).");
+						Require(prop.Transform.IsEqualApprox(rest), $"{clip}: prop must stay at its table anchor outside contact ({time}s).");
 					}
 					Require(instances.SequenceEqual(props.GetChildren().Cast<Node3D>()),
 						"Attachment and release must preserve every original prop instance.");
