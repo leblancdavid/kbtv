@@ -108,19 +108,19 @@ public partial class BroadcastTimer : Node,
         private void CreateTimers()
         {
             // Break warning timers
-            CreateTimer(BroadcastTimingEventType.Break20Seconds, 20.0f, false);
-            CreateTimer(BroadcastTimingEventType.Break10Seconds, 10.0f, false);
-            CreateTimer(BroadcastTimingEventType.Break5Seconds, 5.0f, false);
-            CreateTimer(BroadcastTimingEventType.Break0Seconds, 0.0f, false); // Will be set to 0.001f for Godot compatibility
+            CreateTimer(BroadcastTimingEventType.Break20Seconds, 20.0f);
+            CreateTimer(BroadcastTimingEventType.Break10Seconds, 10.0f);
+            CreateTimer(BroadcastTimingEventType.Break5Seconds, 5.0f);
+            CreateTimer(BroadcastTimingEventType.Break0Seconds, 0.0f); // Will be set to 0.001f for Godot compatibility
             
             // Show end timer
-            CreateTimer(BroadcastTimingEventType.ShowEnd, 600.0f, false); // 10 minutes default
-            CreateTimer(BroadcastTimingEventType.ShowEnd20Seconds, 20.0f, false);
-            CreateTimer(BroadcastTimingEventType.ShowEnd10Seconds, 10.0f, false);
+            CreateTimer(BroadcastTimingEventType.ShowEnd, 600.0f); // 10 minutes default
+            CreateTimer(BroadcastTimingEventType.ShowEnd20Seconds, 20.0f);
+            CreateTimer(BroadcastTimingEventType.ShowEnd10Seconds, 10.0f);
             
             // Ad break timers (configured as needed)
-            CreateTimer(BroadcastTimingEventType.AdBreakStart, 0.0f, false); // Will be set to 0.001f for Godot compatibility
-            CreateTimer(BroadcastTimingEventType.AdBreakEnd, 0.0f, false); // Will be set to 0.001f for Godot compatibility
+            CreateTimer(BroadcastTimingEventType.AdBreakStart, 0.0f); // Will be set to 0.001f for Godot compatibility
+            CreateTimer(BroadcastTimingEventType.AdBreakEnd, 0.0f); // Will be set to 0.001f for Godot compatibility
         }
 
         /// <summary>
@@ -272,6 +272,7 @@ public partial class BroadcastTimer : Node,
             if (waitTime > 0)
             {
                 var timer = _timers[eventType];
+                timer.Stop();
                 timer.WaitTime = waitTime;
                 timer.Start();
             }
@@ -285,6 +286,7 @@ public partial class BroadcastTimer : Node,
             if (waitTime > 0)
             {
                 var timer = _timers[eventType];
+                timer.Stop();
                 timer.WaitTime = waitTime;
                 timer.Start();
             }

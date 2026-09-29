@@ -1,6 +1,22 @@
 ## Current Session
 
 **Branch**: develop
+**Task**: Fix stale post-ad-break transition repeating before the next break.
+**Status**: Completed
+- Files Modified: `SESSION_LOG.md`, `scripts/dialogue/BroadcastTimer.cs`, `tests/unit/dialogue/BroadcastTimerTests.cs`, `scripts/world3d/StationGreybox3D.cs`
+- Work Done: Diagnosed root cause: `BroadcastTimer` created reusable break warning timers as repeating timers, so `Break10Seconds` / `Break5Seconds` could fire again after the first ad break and re-set `_pendingBreakTransition` while the next real break was still far away. Restored the visible wallpaper/baseboard wall under the control-room-to-studio window by replacing the collider-only half-wall with the existing wall generator path.
+- Work Done: Changed broadcast break/show/ad timers to one-shot timers and stopped timers before rescheduling them, preventing stale break warning timers from repeating after a break has already fired.
+- Work Done: Added `BroadcastTimerTests.CreateTimers_CreatesOnlyOneShotTimers` regression coverage.
+- Work Done: Extended the control/studio under-window half-wall slightly at both ends so the wallpaper/baseboard wall overlaps and connects with adjacent divider wall sections.
+- Verification: `dotnet build KBTV.csproj` succeeded with 0 errors and the existing 7 warnings. `pwsh -NoProfile -File run-tests.ps1 -Filter BroadcastTimerTests` passed 1/1 cleanly. `BroadcastStateMachineTests` reported passed 2/2 but still prints pre-existing DI/assertion error logs from its harness.
+- Next Steps: Manual playtest through at least two ad breaks in `Game3D.tscn` to confirm Vern returns to callers after break 1 and does not repeat the break-transition line early.
+- Blockers: none.
+
+---
+
+## Previous Session (hallway door swing)
+
+**Branch**: develop
 **Task**: Make hallway doors swing into adjacent rooms.
 **Status**: Completed
 - Files Modified: `SESSION_LOG.md`, `scripts/world3d/StationGreybox3D.cs`

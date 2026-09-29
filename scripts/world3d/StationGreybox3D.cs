@@ -834,8 +834,8 @@ public partial class StationGreybox3D : Node3D
 		var positionZ = WindowFrameZ;
 		var layerMask = StationLighting3D.ControlLayer | StationLighting3D.StudioLayer;
 		var halfWallPosition = new Vector3(0.6f, 0.3f, positionZ);
-		var halfWallSize = new Vector3(4.6f, 0.6f, WindowFrameDepth);
-		AddColliderOnly("ControlStudioWindowHalfWall", halfWallPosition, halfWallSize);
+		var halfWallSize = new Vector3(4.8f, 0.6f, WindowFrameDepth);
+		AddWall("ControlStudioWindowHalfWall", halfWallPosition, halfWallSize);
 		AddBox("ControlStudioWindowLeftFrame", new Vector3(-1.7f, 1.25f, positionZ), new Vector3(WallThickness, 1.9f, WindowFrameDepth), _wallMaterial, false, layerMask);
 		AddBox("ControlStudioWindowRightFrame", new Vector3(2.9f, 1.25f, positionZ), new Vector3(WallThickness, 1.9f, WindowFrameDepth), _wallMaterial, false, layerMask);
 		AddBox("ControlStudioWindowTopFrame", new Vector3(0.6f, 2.15f, positionZ), new Vector3(4.6f, WallThickness, WindowFrameDepth), _wallMaterial, false, layerMask);
