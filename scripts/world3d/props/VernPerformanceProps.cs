@@ -47,8 +47,10 @@ public partial class VernPerformanceProps : Node3D
             var mouth = _contract.RootElement.GetProperty("mouth_marker");
             var world = _skeleton.GlobalTransform * _skeleton.GetBoneGlobalPose(_skeleton.FindBone("head"))
                 * Decode(mouth.GetProperty("head_local"));
+            // The imported MPFB head faces local +Z; use that transformed axis for an outward puff.
+            var forward = world.Basis * Vector3.Back;
             foreach (var node in GetTree().GetNodesInGroup("vern_smoke"))
-                if (node is StudioSmoke3D smoke) smoke.EmitExhale(world.Origin);
+                if (node is StudioSmoke3D smoke) smoke.EmitExhale(world.Origin, forward);
         }
         _previousClip = clip;
         _previousTime = time;

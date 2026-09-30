@@ -16,8 +16,8 @@ func measure() -> void:
     ap.add_animation_library("gait", library)
     for name in ["walk", "run"]:
         var length := ap.get_animation("gait/" + name).length
-        var movement_speed := 2.5 if name == "walk" else 4.0
-        var playback := 2.1 if name == "walk" else 1.7
+        var movement_speed := 2.3 if name == "walk" else 5.0
+        var playback := 2.0 if name == "walk" else 2.0
         ap.play("gait/" + name)
         print("GAIT ", name, " length=", length)
         var samples := {"L": [], "R": []}

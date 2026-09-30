@@ -1,5 +1,66 @@
 ## Current Session
 
+- **Task**: Diagnose and correct the haze line and the missing lower wall coverage in the studio screenshot.
+- **Status**: Implemented (user visual acceptance pending)
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/StudioSmoke3D.cs`
+- **Work Done**: Captured gameplay renderer at two camera distances with studio smoke layers all on, wall strip off, clouds off and all off. Found the earlier wall-haze panel was on the *studio/control* divider (+Z), while the screenshot shows the opposite ON AIR wall (-Z); increasing its height had been affecting the wrong wall and added a visible rectangular edge at the control-room window. Moved that single panel to the inside of the studio ON AIR wall, set its bottom exactly at Y=0 and its top at the 2.3m wall height (the over-tall panel briefly showed a line on the equipment-room side), and broadened horizontal edge feathering. The fog now reaches the ON AIR wall base in captured renders, and the divider panel/straight window edge is gone. The wall's wallpaper/baseboard seam remains visible even with smoke entirely hidden: it is room geometry, not fog. Removed the temporary screenshot harness after review; captures are in `%TEMP%/opencode/smoke_{all,no_strip,no_clouds,no_smoke}.png`.
+- **Verification**: `dotnet build KBTV.csproj` passes with 7 existing warnings; focused `VernCharacterIntegrationTests` passes 1/1. Godot 4.6.3 Vulkan screenshots compared layer by layer. User screenshot angle still requires final aesthetic confirmation.
+- **Next Steps**: Review in-game from the user's exact camera framing; if the remaining wallpaper/baseboard line is objectionable, address it as wall geometry separately.
+
+- **Task**: Extend the studio-facing wall haze lower on the shared wall after screenshot review.
+- **Status**: Implemented (visual acceptance pending)
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/StudioSmoke3D.cs`
+- **Work Done**: Increased the studio-side south-wall haze strip height from 2.3m to 3.1m and moved its center to Y=1.05, so it extends 0.5m below the floor and 0.3m above the wall top; shortened the upper fade ramp from 65% to 35% of the texture for more coverage across the mid-wall. Left its Z position on the studio side and the shared-wall control-side opacity rule unchanged.
+- **Verification**: `dotnet build KBTV.csproj` passes with 7 existing warnings; `VernCharacterIntegrationTests` passes 1/1; `git diff --check` passes.
+- **Next Steps**: Check the actual screenshot with the player at the same wall/camera angle. If a hard line still coincides with the wall's material transition, address wall occlusion/compositing rather than extending the haze geometry again.
+
+- **Task**: Remove the visible horizontal ambient-haze cutoff above the studio south-wall base, without smoke painting over the control-room side of the shared wall.
+- **Status**: Implemented (visual review pending)
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/StudioSmoke3D.cs`, `scripts/world3d/StationGreybox3D.cs`
+- **Work Done**: The six low radial billboards were transparent at their quad edges, so insetting/repositioning them could never remove the horizontal fade-out before the wall base. Replaced those with one 9.5m-wide vertical haze strip on the studio side of the shared wall (studio-local z=3.65), extending from Y=0 to the 2.3m wall top; its alpha retains coverage at the floor seam and fades gently upward/at the sides. Twelve moving soft clouds continue above it; both strip and clouds share the slow post-puff density response. The shared divider stays opaque when the player is on the control-room side, preventing the transparent-wall fade from revealing studio haze over the wall; the window remains open.
+- **Verification**: `dotnet build KBTV.csproj` passes (7 existing warnings); `VernCharacterIntegrationTests` passes 1/1; Godot 4.6.3 headless scene check loads (known shutdown disconnect errors); `git diff --check` passes.
+- **Next Steps**: In-game review from both rooms for seam coverage, wall occlusion, and acceptable haze density.
+
+- **Task**: Extend the low studio haze to the shared south-wall base while keeping it behind the Control Room north wall.
+- **Status**: Implemented (visual acceptance pending)
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/StudioSmoke3D.cs`
+- **Work Done**: Reduced the low-row cloud center inset from 0.8 m to 0.4 m beyond the projected billboard radius plus drift, bringing its edge to within roughly a tenth of a metre of the shared south-wall surface without crossing it. Lowered south-row cloud centers to Y=0.12–0.30 so their lower edges meet the floor/wall seam. Kept the larger 0.8 m inset from west edges. Billboards remain depth-tested 3D meshes.
+- **Verification**: `dotnet build KBTV.csproj` succeeds with 0 errors and 7 existing warnings; `VernCharacterIntegrationTests` passes 1/1; `git diff --check` passes. In-game visual review pending.
+- **Next Steps**: Check south-wall floor seam and shared-wall occlusion in-game.
+
+## Previous Session (smoke visibility and motion)
+
+- **Task**: Refine Vern's cigarette puffs and studio haze visibility, opacity, motion and wall boundaries.
+- **Status**: Implemented (visual acceptance pending)
+- **Files Modified**: `scripts/world3d/StudioSmoke3D.cs`, `scripts/world3d/StudioRoom3D.cs`, `scripts/world3d/props/VernPerformanceProps.cs`
+- **Work Done**: Puffs use the transformed mouth +Z axis, launch outward 1.2–1.5 m with a faster 0.85 s exponential time constant, then ease upward after 1.0 s over 7 s. Ambient haze has a high band above Vern and low south-wall band. Baseline haze opacity was reduced by about half and the puff-response multiplier doubled, retaining the slow 8 s rise / brief hold / 20 s recovery.
+- **Verification**: Build succeeds with 0 errors and 7 existing warnings; `VernCharacterIntegrationTests` passes 1/1; `git diff --check` passes. Visual acceptance pending.
+
+- **Task**: Increase player's forward running lean and eliminate visible stance-foot skating at the approved 5 m/s run speed.
+- **Status**: Completed (moving in-game aesthetic review pending)
+- **Files Modified**: `SESSION_LOG.md`, `Tools/modelgen/bake_player_locomotion.gd`, regenerated `assets/models3d/characters/player/animations/run.tres`, `Tools/modelgen/validate_player_locomotion.gd`, `docs/art/3D_ASSET_WORKFLOW.md`. User's concurrently edited studio smoke and Vern prop code preserved; walk animation/controls unchanged.
+- **Work Done**: Kept the approved 5 m/s travel and 2.0x run cycle. Inspected source ankle path: useful supporting contact ended at ~21% of cycle, but the old gain kept the departing ankle low until ~46%, visibly skating as the root advanced. Moved swing-leg ramp to phase 0.21-0.36 per leg, preserving early planted travel and lifting the toe after push-off, with smoothly matched opposite half-cycle. Increased run forward lean from 0.055 -> 0.10 rad at waist and 0.04 -> 0.065 rad at upper torso, with -0.055 rad neck compensation. Rebuilt *only* the run clip. Inspected front/side/back frames and 12-frame motion review at `%TEMP%/opencode/player_locomotion`.
+- **Verification**: `validate_player_locomotion.gd` measures live CharacterBody/world-foot motion in unobstructed space at 5 m/s; six early planted contacts had 0.065 m maximum horizontal drift and the run->walk lean reset passed. Blender/Godot animation path/loop and hip-width stance checks passed. `dotnet build KBTV.csproj --no-restore` passed (0 new warnings/errors). Full suite remains 642 passed / 10 pre-existing unrelated failures; `git diff --check` passed.
+- **Next Steps**: User to assess in-game foot contact when turning and the stronger lean; precise foot pinning on turns or uneven floors would need the post-animation IK pass documented in `3D_ASSET_WORKFLOW.md`.
+
+## Previous Session (player gait polish)
+
+- **Task**: Increase ambient haze drift/opacity response and make Vern's cigarette puffs launch horizontally from his face, slow down, then curl upward.
+- **Status**: Implemented (visual acceptance pending)
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/StudioSmoke3D.cs`, `scripts/world3d/props/VernPerformanceProps.cs`
+- **Work Done**: Traced the static appearance to ambient-cloud drift amplitudes of only 2–7.5 cm and a 20% opacity multiplier over already faint alpha. Increased multi-axis cloud drift to 18–42 cm sideways, 18–36 cm depthwise and 28 cm vertical, with faster-but-still-slow movement. Raised the puff-driven cloud alpha swell to 75% over 8 seconds, retaining the delayed 20-second recovery. Puffs now receive forward from the evaluated mouth marker, launch 65–90 cm along that direction with exponential deceleration, begin turning upward after 0.65 s, and ease through a 4.5 s upward curl. Increased puff lifetime to 9–12 seconds and kept subtle airflow wobble.
+- **Verification**: `dotnet build KBTV.csproj` passes (0 errors; 7 existing warnings on a clean compile). `VernCharacterIntegrationTests` passes 1/1; Godot 4.6.3 headless scene check loads with the known pre-existing shutdown disconnect errors; `git diff --check` passes. No in-game review capture yet.
+- **Next Steps**: Review the exhale trajectory and haze movement/opacity response in-game.
+
+- **Task**: Polish player locomotion after manual tuning: quieter walk arms; running with raised knees/elbows, longer stride and slower cadence.
+- **Status**: Completed (user's moving gameplay review pending)
+- **Files Modified**: `SESSION_LOG.md`, `Tools/modelgen/bake_player_locomotion.gd`, `Tools/modelgen/measure_player_stride.gd`, `Tools/modelgen/preview_player_locomotion.gd`, `Tools/modelgen/validate_player_locomotion.gd`, regenerated `assets/models3d/characters/player/animations/{walk,run}.tres`, `scripts/world3d/Player3D.cs`, `docs/art/3D_ASSET_WORKFLOW.md`. Concurrent edits to StudioSmoke3D and VernPerformanceProps were preserved.
+- **Work Done**: Kept the user's walk 2.3 m/s / 2.0x and run 5.0 m/s travel settings. Reduced walk upper-arm swing 0.27 -> 0.12 rad and delayed elbow follow-through 0.07 -> 0.03 rad. First run bake raised both knees but lost the supporting foot; second run iteration keeps leg influence at 0.45 on stance and ramps the swing thigh to 0.70, shin to 0.74, foot/toe to 0.58, increasing swing knee lift and forward/back stride while restoring lower supporting ankles. Running elbows hold a 0.78-rad bend with a slightly stronger 0.46-rad opposing shoulder swing. Reduced run cadence 2.5x -> 2.0x. Added 12-frame side sequence capture per walk/run cycle under `%TEMP%/opencode/player_locomotion`; inspected front/side/back snapshots and 12-frame motion samples. Straight-line stance-slip estimate at the user's speeds is ~12 mm per sample walk and run; not a runtime foot-lock test.
+- **Verification**: `dotnet build KBTV.csproj --no-restore` passed with 7 existing warnings. Updated Godot locomotion validator passed (user speed/cadence, waist lean reset, facing and movement lock). Full GoDotTest suite unchanged at 642 passed / 10 existing unrelated failures. `git diff --check` passed.
+- **Next Steps**: User to judge the quieter walk arms and slower, longer-striding run from the moving gameplay camera; adjust elbow bend and run cadence from the current 0.78 rad/2.0x if needed after review.
+
+## Previous Session (player travel and run lean)
+
 - **Task**: Increase player walking travel speed without changing the approved walk animation, and add a quicker, lightly forward-leaning run.
 - **Status**: Completed (moving gameplay review pending)
 - **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/Player3D.cs`, `Tools/modelgen/bake_player_locomotion.gd`, `Tools/modelgen/measure_player_stride.gd`, `Tools/modelgen/validate_player_locomotion.gd`, `assets/models3d/characters/player/animations/{idle_breathing,walk,run}.tres`, `docs/art/3D_ASSET_WORKFLOW.md`.

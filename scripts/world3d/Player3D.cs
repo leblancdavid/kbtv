@@ -9,10 +9,10 @@ public partial class Player3D : CharacterBody3D
 	[Export] private float _acceleration = 8f;
 	[Export] private float _deceleration = 10f;
 	[Export] private float _turnSpeed = 12f;
-	// The player keeps the approved 2.1x walking animation cadence even though
-	// travel speed is higher; run is quicker to better accompany its 4m/s travel.
+	// Keep the user's walk cadence and travel speeds; run uses a longer step
+	// with a slower cycle so the swing leg has time to lift and extend.
 	private const float WalkCycleScale = 2.0f;
-	private const float RunCycleScale = 2.5f;
+	private const float RunCycleScale = 2.0f;
 	private bool _movementLocked;
 	private Node3D? _visual;
 	private AnimationPlayer? _animationPlayer;

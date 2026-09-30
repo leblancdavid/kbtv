@@ -119,31 +119,43 @@ func bake() -> void:
                             var swing_weight := (smoothstep(0.57, 0.67, cycle) *
                                 (1.0 - smoothstep(0.88, 1.0, cycle)))
                             gain = lerpf(0.93, 0.70, swing_weight)
+                    else:
+                        # Contact finishes after the ankle has rolled backward
+                        # ~0.5m (about 21% of this clip). Lift the departing
+                        # leg then; keeping it low until mid-cycle visibly
+                        # skates its foot across the floor as the root moves.
+                        var cycle := fposmod(time / animation.length +
+                            (0.5 if target.ends_with(".R") else 0.0), 1.0)
+                        var swing_weight := (smoothstep(0.21, 0.36, cycle) *
+                            (1.0 - smoothstep(0.84, 1.0, cycle)))
+                        var swing_gain := (0.70 if target.begins_with("upperleg") else
+                            0.74 if target.begins_with("lowerleg") else 0.58)
+                        gain = lerpf(0.45, swing_gain, swing_weight)
                     result = new_rest.slerp(result, gain)
                 else:
                     result = new_rest
                     if target == "upperarm01.L" or target == "upperarm01.R":
                         var side := 1.0 if target.ends_with(".L") else -1.0
                         var swing := Quaternion(Vector3.RIGHT,
-                            side * (0.27 if name == "walk" else 0.38) * sin(phase - 0.18))
+                            side * (0.12 if name == "walk" else 0.46) * sin(phase - 0.18))
                         result = new_parent.inverse() * swing * new_parent * new_rest
                     elif target == "lowerarm01.L" or target == "lowerarm01.R":
                         var side := 1.0 if target.ends_with(".L") else -1.0
                         # Relaxed elbows stay bent, with a smaller delayed
                         # follow-through instead of a straight pendulum arm.
-                        var bend := -0.22 if name == "walk" else -0.38
+                        var bend := -0.22 if name == "walk" else -0.78
                         var follow := Quaternion(Vector3.RIGHT, bend +
-                            side * (0.07 if name == "walk" else 0.10) * sin(phase - 0.58))
+                            side * (0.03 if name == "walk" else 0.12) * sin(phase - 0.58))
                         result = new_parent.inverse() * follow * new_parent * new_rest
                     elif target == "spine01" or target == "spine02":
                         result = new_rest * Quaternion(Vector3.UP, 0.024 * sin(phase - 0.35))
                         if name == "run":
-                            var lean := Quaternion(Vector3.RIGHT, 0.04)
+                            var lean := Quaternion(Vector3.RIGHT, 0.065)
                             result = new_parent.inverse() * lean * new_parent * result
                     elif target == "neck01":
                         result = new_rest * Quaternion(Vector3.UP, -0.009 * sin(phase - 0.35))
                         if name == "run":
-                            var gaze := Quaternion(Vector3.RIGHT, -0.035)
+                            var gaze := Quaternion(Vector3.RIGHT, -0.055)
                             result = new_parent.inverse() * gaze * new_parent * result
                     elif target.begins_with("finger") and not target.begins_with("finger1-"):
                         if target.contains("-1.") or target.contains("-2."):
@@ -167,7 +179,7 @@ func bake() -> void:
         var waist_rest := target_skel.get_bone_rest(waist).basis.get_rotation_quaternion()
         var waist_pose := waist_rest
         if name == "run":
-            waist_pose = (waist_parent_q.inverse() * Quaternion(Vector3.RIGHT, 0.055) *
+            waist_pose = (waist_parent_q.inverse() * Quaternion(Vector3.RIGHT, 0.10) *
                 waist_parent_q * waist_rest).normalized()
         var waist_track := animation.add_track(Animation.TYPE_ROTATION_3D)
         animation.track_set_path(waist_track, NodePath(skeleton_path + ":spine05"))

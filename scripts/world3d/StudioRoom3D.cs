@@ -9,7 +9,7 @@ public partial class StudioRoom3D : Node3D
 	[Export] public bool EnableSmoke = true;
 	[Export] public int PuffBurstCount = 5;
 	[Export] public float PuffInterval = 4.0f;
-	[Export] public float AmbientSmokeOpacity = 0.38f;
+	[Export] public float AmbientSmokeOpacity = 0.26f;
 	[Export] public float PuffSmokeOpacity = 0.16f;
 	[Export] public float DoorLeakSmokeOpacity = 0.045f;
 	[Export] public float DoorLeakInterval = 0.32f;

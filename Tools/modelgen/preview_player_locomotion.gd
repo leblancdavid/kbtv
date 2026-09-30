@@ -1,6 +1,7 @@
 extends SceneTree
 ## Godot 4.6 mono graphical preview: --path . --script res://Tools/modelgen/preview_player_locomotion.gd
-## Saves three points per cycle under %TEMP%/opencode/player_locomotion.
+## Saves three front/side/back poses and 12 side frames per moving cycle
+## under %TEMP%/opencode/player_locomotion.
 
 func _initialize() -> void:
     call_deferred("capture")
@@ -51,5 +52,16 @@ func capture() -> void:
             root.get_texture().get_image().save_png(output.path_join("%s_%d_back.png" % [name, frame]))
             camera.position = Vector3(2.7, 1.8, 3.6)
             camera.look_at(Vector3(0, 0.9, 0))
+    camera.position = Vector3(4, 1.8, 0.2)
+    camera.look_at(Vector3(0, 0.9, 0))
+    for name in ["walk", "run"]:
+        ap.play(name + "/" + name)
+        ap.advance(0)
+        var length := ap.get_animation(name + "/" + name).length
+        for frame in 12:
+            ap.seek(length * frame / 12.0, true)
+            await process_frame
+            await RenderingServer.frame_post_draw
+            root.get_texture().get_image().save_png(output.path_join("%s_motion_%02d.png" % [name, frame]))
     print("PLAYER_LOCOMOTION_PREVIEW ", output)
     quit()

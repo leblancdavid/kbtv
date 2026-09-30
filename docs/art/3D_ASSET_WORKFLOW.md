@@ -205,21 +205,31 @@ new bone rests. Do not only modify idle's leg tracks: the GLB would still have
 the wide bind/rest stance and transitions would snap back to it.
 
 The walk keeps a longer forward/back upper-leg reach while lowering knee and
-foot flex only during the swing phase. The run uses a shorter fore/aft reach;
-neither gait should widen the baked standing stance side-to-side.
+foot flex only during the swing phase; its opposing arm swing is deliberately
+small. The run extends the swing leg's thigh and knee farther while leaving the
+support leg nearer the floor, with elbows flexed higher and a forward waist lean.
+Neither gait should widen the baked standing stance side-to-side.
 
-`Player3D` walks at 2.5 m/s and runs at 4 m/s. Do not set its clip speed by eye:
+`Player3D` currently walks at 2.3 m/s and runs at 5 m/s. Do not set its clip speed by eye:
 run `measure_player_stride.gd` on the imported rig. On the current fitted walk,
 the low (stance) foot moves backward about 0.55 m per step, so the walk clip
-still plays at 2.1x at full walking speed (same walking animation as at 2.0 m/s),
-while running uses 1.7x and a modest forward lean through the lower spine. Its
+plays at 2.0x at full walking speed. Running also plays at 2.0x, slower than
+the user's previous 2.5x but with more forward swing-leg reach. Its
 explicit upright spine keys in idle/walk prevent a lingering running lean. The controller
 scales animation playback with *actual* horizontal velocity (after collisions),
 including acceleration and stopping. The measure script prints sampled ankle
-positions and predicted stance slip: about 14 mm/sample walking, 13 mm/sample
-running at the current nominal speeds. Walking travel is intentionally faster
-than its unchanged animation, so some extra slide is expected. These are estimates for straight,
-steady movement, not exact world-space contact validation.
+positions and predicted stance slip: about 12 mm/sample for both walk and run
+at the current nominal speeds. These are estimates for straight, steady movement.
+
+Running contact ends after ~21% of each foot's cycle: by then the planted
+ankle has travelled backward roughly as far as the player travels at 5 m/s
+with the 2.0x clip rate. The departing foot blends into knee lift over the next
+15% of the cycle instead of skating low until mid-cycle. The run's forward
+pitch is authored through `spine05` (0.10 rad) and upper chest (0.065 rad),
+with a small neck counter-rotation. `validate_player_locomotion.gd` measures
+the actual running foot in world space after CharacterBody movement; the
+current straight-line maximum over six contact windows is ~0.065 m. This
+validates timing on level ground, not precise foot locking during turns.
 
 For **exact** planting on uneven floors and during turns, add a post-animation
 foot-lock/leg-IK pass: mark left/right stance windows in the clips, capture the

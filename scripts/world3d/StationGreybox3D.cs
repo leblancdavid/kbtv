@@ -912,7 +912,11 @@ public partial class StationGreybox3D : Node3D
 
 		foreach (var target in _wallFadeTargets)
 		{
-			var targetAlpha = ShouldFadeWall(target, player) ? WallFadeAlpha : WallOpaqueAlpha;
+			// Keep the studio/control divider opaque from the control-room side:
+			// a translucent wall does not depth-occlude transparent smoke behind it.
+			var sharedDividerFromControl = Mathf.Abs(target.Position.Z) < 0.11f && player.Z >= 0f;
+			var targetAlpha = !sharedDividerFromControl && ShouldFadeWall(target, player)
+				? WallFadeAlpha : WallOpaqueAlpha;
 			var color = target.Material.AlbedoColor;
 			color.A = Mathf.Lerp(color.A, targetAlpha, weight);
 			target.Material.AlbedoColor = color;

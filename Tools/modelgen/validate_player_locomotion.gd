@@ -44,7 +44,7 @@ func validate() -> void:
             if path.ends_with(":spine05"):
                 var rest := skeleton.get_bone_rest(skeleton.find_bone("spine05")).basis.get_rotation_quaternion()
                 var lean := start.angle_to(rest)
-                if not check(lean > 0.04 and lean < 0.08 if name == "run" else lean < 0.01,
+                if not check(lean > 0.09 and lean < 0.12 if name == "run" else lean < 0.01,
                         "Only running should lean forward from the waist"):
                     return
             if path.ends_with("upperleg01.L"):
@@ -59,10 +59,10 @@ func validate() -> void:
     Input.action_press("move_right")
     for i in 20:
         await physics_frame
-    if not check(ap.current_animation == "walk" and player.velocity.x > 2.3 and player.velocity.x < 2.7,
+    if not check(ap.current_animation == "walk" and player.velocity.x > 2.15 and player.velocity.x < 2.45,
             "Walking input must play walk and move right"):
         return
-    if not check(absf(ap.speed_scale - 2.1) < 0.12,
+    if not check(absf(ap.speed_scale - 2.0) < 0.12,
             "Walk animation cadence must remain unchanged at the faster travel speed"):
         return
     var visual := player.get_node("Visual") as Node3D
@@ -72,17 +72,47 @@ func validate() -> void:
     Input.action_press("run")
     for i in 20:
         await physics_frame
-    if not check(ap.current_animation == "run" and player.velocity.x > 3.8,
+    if not check(ap.current_animation == "run" and player.velocity.x > 4.8,
             "Run input must play run and increase speed"):
         return
-    if not check(absf(ap.speed_scale - 1.7) < 0.12, "Run cadence must match the stride"):
+    if not check(absf(ap.speed_scale - 2.0) < 0.12, "Run cadence must match the stride"):
         return
+    # Measure the real runtime foot in WORLD coordinates, with CharacterBody
+    # travel included. An in-place clip can look planted in a still frame yet
+    # skate when the body actually crosses the room.
+    player.call("SetRoomAnchor", Vector3(100, 0, 100))
+    var planted := {}
+    var max_slip := 0.0
+    var contacts := 0
+    for frame in 84:
+        await physics_frame
+        var phase := fposmod(ap.current_animation_position / ap.get_animation("run").length, 1.0)
+        for side in ["L", "R"]:
+            var contact: bool = phase < 0.21 if side == "L" else phase >= 0.5 and phase < 0.71
+            var foot := skeleton.find_bone("foot." + side)
+            var world_foot := skeleton.to_global(skeleton.get_bone_global_pose(foot).origin)
+            if contact:
+                if not planted.has(side):
+                    planted[side] = world_foot
+                else:
+                    var start: Vector3 = planted[side]
+                    max_slip = maxf(max_slip, Vector2(world_foot.x - start.x,
+                        world_foot.z - start.z).length())
+            elif planted.has(side):
+                planted.erase(side)
+                contacts += 1
+    if not check(contacts >= 3 and max_slip < 0.09,
+            "Running stance foot skates in world space: %.3fm across %d contacts" % [max_slip, contacts]):
+        return
+    print("RUN_FOOT_CONTACT_WORLD max_slip_m=", snappedf(max_slip, 0.001), " contacts=", contacts)
     Input.action_release("run")
     for i in 20:
         await physics_frame
-    if not check(ap.current_animation == "walk" and absf(player.velocity.x - 2.5) < 0.12,
+    if not check(ap.current_animation == "walk" and absf(player.velocity.x - 2.3) < 0.12,
             "Releasing run while moving must return to walking"):
         return
+    for i in 20:
+        await physics_frame
     var waist := skeleton.find_bone("spine05")
     var upright := skeleton.get_bone_rest(waist).basis.get_rotation_quaternion()
     if not check(skeleton.get_bone_pose_rotation(waist).angle_to(upright) < 0.02,
