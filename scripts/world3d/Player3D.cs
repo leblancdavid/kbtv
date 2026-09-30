@@ -4,11 +4,15 @@ namespace KBTV.World3D;
 
 public partial class Player3D : CharacterBody3D
 {
-	[Export] private float _speed = 4.5f;
-	[Export] private float _runSpeed = 7f;
-	[Export] private float _acceleration = 16f;
-	[Export] private float _deceleration = 20f;
+	[Export] private float _speed = 2.3f;
+	[Export] private float _runSpeed = 5f;
+	[Export] private float _acceleration = 8f;
+	[Export] private float _deceleration = 10f;
 	[Export] private float _turnSpeed = 12f;
+	// The player keeps the approved 2.1x walking animation cadence even though
+	// travel speed is higher; run is quicker to better accompany its 4m/s travel.
+	private const float WalkCycleScale = 2.0f;
+	private const float RunCycleScale = 2.5f;
 	private bool _movementLocked;
 	private Node3D? _visual;
 	private AnimationPlayer? _animationPlayer;
@@ -87,7 +91,16 @@ public partial class Player3D : CharacterBody3D
 				_visual.Rotation = new Vector3(0f, Mathf.LerpAngle(_visual.Rotation.Y,
 					target, 1f - Mathf.Exp(-_turnSpeed * (float)delta)), 0f);
 			}
-			PlayAnimation(running ? "run" : "walk");
+			// Keep running through its brief deceleration, then blend to walking.
+			var runGait = actual.Length() > _speed + 0.3f && (running || _currentAnimation == "run");
+			var gait = runGait ? "run" : "walk";
+			PlayAnimation(gait);
+			if (_animationPlayer != null)
+			{
+				var nominal = runGait ? _runSpeed : _speed;
+				var cadence = runGait ? RunCycleScale : WalkCycleScale;
+				_animationPlayer.SpeedScale = cadence * Mathf.Clamp(actual.Length() / nominal, 0.45f, 1.15f);
+			}
 		}
 		else
 		{
@@ -99,7 +112,8 @@ public partial class Player3D : CharacterBody3D
 	{
 		if (_animationPlayer == null || _currentAnimation == name || !_animationPlayer.HasAnimation(name))
 			return;
-		_animationPlayer.SpeedScale = name == "idle_breathing" ? 1f : 1.45f;
+		_animationPlayer.SpeedScale = name == "idle_breathing" ? 1f :
+			name == "walk" ? WalkCycleScale : RunCycleScale;
 		_animationPlayer.Play(name, _currentAnimation == "" ? 0d : 0.22d);
 		_currentAnimation = name;
 	}

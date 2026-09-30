@@ -20,6 +20,12 @@ namespace KBTV.Core
 			_resolvers[typeof(TService)] = resolver;
 		}
 
+		/// <summary>Remove a registered resolver, primarily for isolated test cleanup.</summary>
+		public static void Unregister<TService>() where TService : class
+		{
+			_resolvers.Remove(typeof(TService));
+		}
+
 		/// <summary>
 		/// Get a service instance for the given node.
 		/// Searches up the scene tree for providers.

@@ -13,8 +13,6 @@ public partial class StudioRoom3D : Node3D
 	[Export] public float PuffSmokeOpacity = 0.16f;
 	[Export] public float DoorLeakSmokeOpacity = 0.045f;
 	[Export] public float DoorLeakInterval = 0.32f;
-	[Export] public float FogMotionSpeed = 0.55f;
-	[Export] public float FogMotionStrength = 0.22f;
 	[Export] public float SmokeDriftSpeed = 0.45f;
 	[Export] public Vector3 SmokePuffOrigin = new(0.58f, 1.4f, 0.11f);
 	[Export] public Vector3 SmokeRoomHalfExtents = new(5f, 1.15f, 4f);
@@ -111,8 +109,6 @@ public partial class StudioRoom3D : Node3D
 			PuffOpacity = PuffSmokeOpacity,
 			DoorLeakOpacity = DoorLeakSmokeOpacity,
 			DoorLeakInterval = DoorLeakInterval,
-			FogMotionSpeed = FogMotionSpeed,
-			FogMotionStrength = FogMotionStrength,
 			DriftSpeed = SmokeDriftSpeed,
 			PuffOrigin = SmokePuffOrigin,
 			RoomHalfExtents = SmokeRoomHalfExtents

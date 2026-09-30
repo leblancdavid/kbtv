@@ -6,7 +6,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Chickensoft.GoDotTest;
 using Godot;
+using KBTV.Callers;
 using KBTV.Core;
+using KBTV.Data;
 using KBTV.Dialogue;
 using KBTV.World3D;
 
@@ -20,6 +22,7 @@ public class VernAnimationControllerTests : KBTVTestClass
 
 	private readonly Node _testScene;
 	private EventBus? _eventBus;
+	private TestGameStateManager? _phaseGameState;
 	private VernCharacter3D? _vern;
 	private AnimationPlayer? _player;
 
@@ -43,6 +46,11 @@ public class VernAnimationControllerTests : KBTVTestClass
 	public void AfterEach()
 	{
 		_vern?.Free();
+		if (_phaseGameState != null)
+		{
+			DependencyInjection.Unregister<IGameStateManager>();
+			_phaseGameState = null;
+		}
 		_eventBus?.Dispose();
 		_eventBus = null;
 	}
@@ -86,6 +94,61 @@ public class VernAnimationControllerTests : KBTVTestClass
 
 		AssertThat(await WaitForAnimationAsync(IdleBreathingAnimation),
 			$"Music should return Vern to {IdleBreathingAnimation}, got {CurrentAnimation()}.");
+	}
+
+	[Test]
+	public async Task IntroMusic_AlternatesSmokingAndDrinking()
+	{
+		await SetupVernAsync();
+		PublishItem(BroadcastItemType.Music, audioLength: 30.0f, id: "INTRO_MUSIC");
+		AssertThat(await WaitForAnimationAsync("smoking"),
+			$"Intro music should start Vern smoking, got {CurrentAnimation()}.");
+
+		_player!.Advance(_player.GetAnimation(_player.AssignedAnimation).Length + 0.1);
+		AssertThat(await WaitForAnimationAsync(IdleBreathingAnimation),
+			$"After smoking Vern should breathe before drinking, got {CurrentAnimation()}.");
+		AssertThat(await WaitForAnimationAsync("drink_coffee", maxFrames: 600),
+			$"The next intro action should be drinking, got {CurrentAnimation()}.");
+	}
+
+	[Test]
+	public async Task Ad_StartsAmbientActionCycle()
+	{
+		await SetupVernAsync();
+		PublishItem(BroadcastItemType.Ad, audioLength: 30.0f);
+
+		AssertThat(await WaitForAnimationAsync("smoking"),
+			$"An ad should start Vern's smoking/drinking cycle, got {CurrentAnimation()}.");
+	}
+
+	[Test]
+	public async Task AdCompletion_ReturnsToIdleAfterSafeActionFinish()
+	{
+		await SetupVernAsync();
+		PublishItem(BroadcastItemType.Ad, audioLength: 30.0f);
+		AssertThat(await WaitForAnimationAsync("smoking"), "The ad should start a smoking action.");
+
+		_eventBus!.Publish(new BroadcastEvent(BroadcastEventType.Completed, "test-Ad"));
+		_player!.Advance(_player.GetAnimation(_player.AssignedAnimation).Length + 0.1);
+		AssertThat(await WaitForAnimationAsync(IdleBreathingAnimation),
+			$"Completing an ad should return Vern to breathing after the action, got {CurrentAnimation()}.");
+	}
+
+	[Test]
+	public async Task PreShowPhase_StartsCycleAndLiveShowStopsIt()
+	{
+		_phaseGameState = new TestGameStateManager();
+		DependencyInjection.Register<IGameStateManager>(_ => _phaseGameState);
+		await SetupVernAsync();
+		_phaseGameState.SetPhase(GamePhase.PreShow);
+
+		AssertThat(await WaitForAnimationAsync("smoking"),
+			$"PreShow should start Vern's action cycle, got {CurrentAnimation()}.");
+
+		_phaseGameState.SetPhase(GamePhase.LiveShow);
+		_player!.Advance(_player.GetAnimation(_player.AssignedAnimation).Length + 0.1);
+		AssertThat(await WaitForAnimationAsync(IdleBreathingAnimation),
+			$"Leaving PreShow should return Vern to breathing, got {CurrentAnimation()}.");
 	}
 
 	[Test]
@@ -317,9 +380,9 @@ public class VernAnimationControllerTests : KBTVTestClass
 			.First();
 	}
 
-	private void PublishItem(BroadcastItemType type, float audioLength)
+	private void PublishItem(BroadcastItemType type, float audioLength, string? id = null)
 	{
-		var item = new BroadcastItem("test-" + type, type, "Test line", null, 4.0f);
+		var item = new BroadcastItem(id ?? "test-" + type, type, "Test line", null, 4.0f);
 		_eventBus!.Publish(new BroadcastItemStartedEvent(item, 4.0f, audioLength));
 	}
 
@@ -343,5 +406,28 @@ public class VernAnimationControllerTests : KBTVTestClass
 			await FrameAsync();
 		}
 		return false;
+	}
+
+	private sealed class TestGameStateManager : IGameStateManager
+	{
+		public GamePhase CurrentPhase { get; private set; } = GamePhase.Loading;
+		public int CurrentNight => 1;
+		public Topic SelectedTopic => null!;
+		public VernStats VernStats => null!;
+		public bool IsLive => CurrentPhase == GamePhase.LiveShow;
+		public event Action<GamePhase, GamePhase>? OnPhaseChanged;
+		public event Action<int>? OnNightStarted;
+		public void SetPhase(GamePhase phase)
+		{
+			var oldPhase = CurrentPhase;
+			CurrentPhase = phase;
+			OnPhaseChanged?.Invoke(oldPhase, phase);
+		}
+		public void InitializeGame() { }
+		public void AdvancePhase() { }
+		public void StartLiveShow() => SetPhase(GamePhase.LiveShow);
+		public void SetSelectedTopic(Topic topic) { }
+		public bool CanStartLiveShow() => CurrentPhase == GamePhase.PreShow;
+		public void StartNewNight() => OnNightStarted?.Invoke(CurrentNight + 1);
 	}
 }

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Godot;
 
 namespace KBTV.World3D;
@@ -8,36 +7,28 @@ public partial class StudioSmoke3D : Node3D
 	[Export] public int PuffBurstCount { get; set; } = 5;
 	[Export] public float PuffInterval { get; set; } = 4.0f;
 	[Export] public float AmbientOpacity { get; set; } = 0.38f;
-	[Export] public float PuffOpacity { get; set; } = 0.16f;
+	[Export] public float PuffOpacity { get; set; } = 0.38f;
 	[Export] public float DoorLeakOpacity { get; set; } = 0.045f;
 	[Export] public float DoorLeakInterval { get; set; } = 0.32f;
-	[Export] public float FogMotionSpeed { get; set; } = 0.55f;
-	[Export] public float FogMotionStrength { get; set; } = 0.22f;
 	[Export] public float DriftSpeed { get; set; } = 0.45f;
-	[Export] public bool RenderAmbientFogAfterComicPost { get; set; } = true;
-	[Export] public bool RenderPuffsAfterComicPost { get; set; } = true;
 	[Export] public Vector3 PuffOrigin { get; set; } = new(-0.85f, 1.25f, 0.35f);
 	[Export] public Vector3 RoomHalfExtents { get; set; } = new(5f, 1.15f, 4f);
 
 	private const int MaxPuffs = 36;
 	private const int MaxDoorLeakPuffs = 24;
 	private const int SmokeTextureSize = 128;
-	private const int PostSmokeLayer = -5;
 	private static readonly Color FogColor = new(0.62f, 0.6f, 0.56f);
 	private static readonly Color PuffSmokeColor = new(0.66f, 0.68f, 0.7f, 1f);
 	private readonly RandomNumberGenerator _rng = new();
 	private readonly SmokeWisp[] _puffWisps = new SmokeWisp[MaxPuffs];
 	private readonly SmokeWisp[] _doorLeakWisps = new SmokeWisp[MaxDoorLeakPuffs];
+	private readonly AmbientCloud[] _ambientClouds = new AmbientCloud[18];
 	private Texture2D _smokeTexture = null!;
-	private FogMaterial _fogMaterial = null!;
-	private FogVolume _fogVolume = null!;
-	private CanvasLayer? _postSmokeLayer;
-	private Control? _postSmokeCanvas;
-	private Vector3 _fogBasePosition;
-	private Vector3 _fogBaseSize;
 	private float _time;
 	private float _controlStudioLeakTimer;
 	private float _studioHallLeakTimer;
+	private float _hazeTimeSincePuff = float.PositiveInfinity;
+	private float _hazeEnvelope;
 	private int _nextPuffIndex;
 	private int _nextDoorLeakIndex;
 	private bool _controlStudioLeakActive;
@@ -62,6 +53,16 @@ public partial class StudioSmoke3D : Node3D
 		public bool Active { get; set; }
 	}
 
+	private sealed class AmbientCloud
+	{
+		public required MeshInstance3D Mesh { get; init; }
+		public required StandardMaterial3D Material { get; init; }
+		public Vector3 Center { get; init; }
+		public Vector2 Drift { get; init; }
+		public float Phase { get; init; }
+		public float Opacity { get; init; }
+	}
+
 	public override void _Ready()
 	{
 		_rng.Randomize();
@@ -69,8 +70,7 @@ public partial class StudioSmoke3D : Node3D
 		AddToGroup("vern_smoke");
 		_smokeTexture = CreateSmokeTexture();
 
-		CreateFogVolume();
-		CreatePostSmokeLayer();
+		CreateAmbientClouds();
 		CreatePuffPool();
 		CreateDoorLeakPool();
 	}
@@ -80,17 +80,16 @@ public partial class StudioSmoke3D : Node3D
 		var dt = (float)delta;
 		_time += dt;
 
-		UpdateFogMotion();
+		UpdateAmbientClouds(dt);
 		UpdateActiveDoorLeaks(dt);
 		UpdatePuffs(dt);
 		UpdateDoorLeakPuffs(dt);
-		_postSmokeCanvas?.QueueRedraw();
-
 	}
 
 	public void EmitExhale(Vector3 worldMouth)
 	{
 		PuffOrigin = ToLocal(worldMouth);
+		_hazeTimeSincePuff = 0f;
 		SpawnPuffBurst();
 	}
 
@@ -139,53 +138,29 @@ public partial class StudioSmoke3D : Node3D
 		}
 	}
 
-	private void CreateFogVolume()
+	private void CreateAmbientClouds()
 	{
-		_fogMaterial = new FogMaterial
+		for (var i = 0; i < _ambientClouds.Length; i++)
 		{
-			Albedo = FogColor,
-			Density = RenderAmbientFogAfterComicPost ? 0f : AmbientOpacity,
-			HeightFalloff = 0.01f,
-			EdgeFade = 1.0f
-		};
-		_fogBasePosition = new Vector3(0f, RoomHalfExtents.Y, 0f);
-		_fogBaseSize = new Vector3(RoomHalfExtents.X * 2f, RoomHalfExtents.Y * 2f, RoomHalfExtents.Z * 2f);
-
-		_fogVolume = new FogVolume
-		{
-			Name = "StudioRoomHaze",
-			Shape = RenderingServer.FogVolumeShape.Box,
-			Size = _fogBaseSize,
-			Position = _fogBasePosition,
-			Material = _fogMaterial,
-			Layers = StationLighting3D.StudioLayer,
-			Visible = !RenderAmbientFogAfterComicPost
-		};
-		AddChild(_fogVolume);
-	}
-
-	private void CreatePostSmokeLayer()
-	{
-		if (!RenderAmbientFogAfterComicPost && !RenderPuffsAfterComicPost)
-		{
-			return;
+			var material = MakeSmokeMaterial(WithAlpha(FogColor, 0f));
+			var size = _rng.RandfRange(2.1f, 3.8f);
+			var cloud = new AmbientCloud
+			{
+				Mesh = CreateSmokeMesh($"StudioHaze_{i}", material),
+				Material = material,
+				Center = new Vector3(
+					_rng.RandfRange(-RoomHalfExtents.X * 0.82f, RoomHalfExtents.X * 0.82f),
+					_rng.RandfRange(0.45f, RoomHalfExtents.Y * 1.55f),
+					_rng.RandfRange(-RoomHalfExtents.Z * 0.82f, RoomHalfExtents.Z * 0.82f)),
+				Drift = new Vector2(_rng.RandfRange(0.025f, 0.075f), _rng.RandfRange(0.02f, 0.065f)),
+				Phase = _rng.Randf() * Mathf.Tau,
+				Opacity = _rng.RandfRange(0.68f, 1f)
+			};
+			cloud.Mesh.Mesh = new QuadMesh { Size = new Vector2(size, size * 0.62f) };
+			cloud.Mesh.Position = cloud.Center;
+			AddChild(cloud.Mesh);
+			_ambientClouds[i] = cloud;
 		}
-
-		_postSmokeLayer = new CanvasLayer
-		{
-			Name = "StudioSmokePostLayer",
-			Layer = PostSmokeLayer
-		};
-		AddChild(_postSmokeLayer);
-
-		_postSmokeCanvas = new Control
-		{
-			Name = "StudioSmokePostCanvas",
-			MouseFilter = Control.MouseFilterEnum.Ignore
-		};
-		_postSmokeCanvas.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-		_postSmokeCanvas.Draw += DrawPostSmoke;
-		_postSmokeLayer.AddChild(_postSmokeCanvas);
 	}
 
 	private void CreatePuffPool()
@@ -281,28 +256,36 @@ public partial class StudioSmoke3D : Node3D
 		return new Color(color.R, color.G, color.B, alpha);
 	}
 
-	private void UpdateFogMotion()
+	private void UpdateAmbientClouds(float dt)
 	{
-		if (_fogMaterial == null || _fogVolume == null)
+		if (_hazeTimeSincePuff < float.PositiveInfinity)
 		{
-			return;
+			_hazeTimeSincePuff += dt;
+			if (_hazeTimeSincePuff < 8f)
+			{
+				_hazeEnvelope = Mathf.MoveToward(_hazeEnvelope, 1f, dt / 8f);
+			}
+			else if (_hazeTimeSincePuff > 12f)
+			{
+				_hazeEnvelope = Mathf.MoveToward(_hazeEnvelope, 0f, dt / 20f);
+			}
 		}
+		var swell = 1f + _hazeEnvelope * 0.20f;
+		foreach (var cloud in _ambientClouds)
+		{
+			if (cloud == null)
+			{
+				continue;
+			}
 
-		var primary = Mathf.Sin(_time * FogMotionSpeed);
-		var secondary = Mathf.Sin(_time * FogMotionSpeed * 0.57f + 1.8f);
-		var densityOffset = primary * FogMotionStrength + secondary * FogMotionStrength * 0.55f;
-		_fogMaterial.Density = RenderAmbientFogAfterComicPost
-			? 0f
-			: AmbientOpacity * Mathf.Clamp(1f + densityOffset, 0.55f, 1.45f);
-
-		_fogVolume.Position = _fogBasePosition + new Vector3(
-			primary * FogMotionStrength * 1.15f,
-			secondary * FogMotionStrength * 0.32f,
-			Mathf.Sin(_time * FogMotionSpeed * 0.72f + 0.9f) * FogMotionStrength * 0.85f
-		);
-
-		var sizePulse = 1f + secondary * FogMotionStrength * 0.075f;
-		_fogVolume.Size = new Vector3(_fogBaseSize.X * sizePulse, _fogBaseSize.Y, _fogBaseSize.Z * sizePulse);
+			var driftX = Mathf.Sin(_time * 0.075f + cloud.Phase) * cloud.Drift.X;
+			var driftY = Mathf.Cos(_time * 0.055f + cloud.Phase * 0.73f) * 0.12f;
+			var driftZ = Mathf.Sin(_time * 0.06f + cloud.Phase * 1.17f) * cloud.Drift.Y;
+			cloud.Mesh.Position = cloud.Center + new Vector3(driftX, driftY, driftZ);
+			var color = FogColor;
+			color.A = AmbientOpacity * 0.34f * cloud.Opacity * swell;
+			cloud.Material.AlbedoColor = color;
+		}
 	}
 
 	private void UpdatePuffs(float dt)
@@ -321,7 +304,7 @@ public partial class StudioSmoke3D : Node3D
 				continue;
 			}
 
-			wisp.Mesh.Visible = !RenderPuffsAfterComicPost;
+			wisp.Mesh.Visible = true;
 			var t = wisp.Age / wisp.Lifetime;
 			if (t >= 1f)
 			{
@@ -331,16 +314,19 @@ public partial class StudioSmoke3D : Node3D
 			}
 
 			var eased = Mathf.SmoothStep(0f, 1f, t);
+			var outwardProgress = Mathf.SmoothStep(0f, 1f, Mathf.Clamp(wisp.Age / 1.1f, 0f, 1f));
 			var wobbleX = Mathf.Sin(_time * 1.25f + wisp.Phase) * wisp.Wobble.X * eased;
 			var wobbleZ = Mathf.Cos(_time * 0.9f + wisp.Phase) * wisp.Wobble.Y * eased;
-			wisp.Mesh.Position = wisp.Origin + (wisp.Drift * eased * DriftSpeed) + new Vector3(wobbleX, 0f, wobbleZ);
+			var outward = new Vector3(wisp.Drift.X, 0f, wisp.Drift.Z) * outwardProgress * DriftSpeed;
+			var rise = Vector3.Up * wisp.Drift.Y * wisp.Age * DriftSpeed;
+			wisp.Mesh.Position = wisp.Origin + outward + rise + new Vector3(wobbleX, 0f, wobbleZ);
 
 			var fadeIn = Mathf.Clamp(t / 0.18f, 0f, 1f);
 			var fadeOut = Mathf.Clamp((1f - t) / 0.65f, 0f, 1f);
 			var color = PuffSmokeColor;
 			color.A = PuffOpacity * wisp.Opacity * fadeIn * fadeOut;
 			wisp.Material.AlbedoColor = color;
-			var scale = wisp.BaseScale * (1f + eased * 2.6f);
+			var scale = wisp.BaseScale * (1f + eased * 3.2f);
 			wisp.Mesh.Scale = new Vector3(scale, scale, scale);
 		}
 	}
@@ -384,7 +370,7 @@ public partial class StudioSmoke3D : Node3D
 				continue;
 			}
 
-			wisp.Mesh.Visible = !RenderPuffsAfterComicPost;
+			wisp.Mesh.Visible = true;
 			var t = wisp.Age / wisp.Lifetime;
 			if (t >= 1f)
 			{
@@ -418,193 +404,14 @@ public partial class StudioSmoke3D : Node3D
 			wisp.Active = true;
 			wisp.Mesh.Visible = false;
 			wisp.Age = -_rng.RandfRange(0f, 0.6f);
-			wisp.Lifetime = _rng.RandfRange(6.5f, 9.5f);
+			wisp.Lifetime = _rng.RandfRange(7.5f, 10.5f);
 			wisp.Phase = _rng.Randf() * Mathf.Tau;
-			wisp.BaseScale = _rng.RandfRange(0.08f, 0.14f);
-			wisp.Opacity = _rng.RandfRange(0.65f, 1f);
+			wisp.BaseScale = _rng.RandfRange(0.12f, 0.19f);
+			wisp.Opacity = _rng.RandfRange(0.82f, 1f);
 			wisp.Origin = PuffOrigin + new Vector3(_rng.RandfRange(-0.02f, 0.02f), 0, _rng.RandfRange(-0.02f, 0.02f));
-			wisp.Drift = new Vector3(_rng.RandfRange(-0.7f, 0.85f), _rng.RandfRange(0.85f, 1.45f), _rng.RandfRange(-0.45f, 0.65f));
+			wisp.Drift = new Vector3(_rng.RandfRange(-0.16f, 0.16f), _rng.RandfRange(0.6f, 0.9f), _rng.RandfRange(-0.48f, -0.25f));
 			wisp.Wobble = new Vector2(_rng.RandfRange(0.08f, 0.3f), _rng.RandfRange(0.05f, 0.22f));
 		}
 	}
 
-	private void DrawPostSmoke()
-	{
-		if (_postSmokeCanvas == null || _smokeTexture == null || !IsVisibleInTree())
-		{
-			return;
-		}
-
-		var camera = GetViewport()?.GetCamera3D();
-		if (camera == null)
-		{
-			return;
-		}
-
-		DrawAmbientPostFog(camera);
-		DrawWispSet(_puffWisps, camera);
-		DrawWispSet(_doorLeakWisps, camera);
-	}
-
-private void DrawAmbientPostFog(Camera3D camera)
-	{
-		if (!RenderAmbientFogAfterComicPost || AmbientOpacity <= 0f)
-		{
-			return;
-		}
-
-		var hull = ProjectFogHull(camera);
-		if (hull.Length < 3)
-		{
-			return;
-		}
-
-		var veilAlpha = Mathf.Clamp(AmbientOpacity * 0.12f, 0f, 0.12f);
-		var veilColor = new Color(FogColor.R, FogColor.G, FogColor.B, veilAlpha);
-		_postSmokeCanvas?.DrawColoredPolygon(hull, veilColor);
-
-		var bounds = ComputeHullBounds(hull);
-		if (bounds.Size.X <= 2f || bounds.Size.Y <= 2f)
-		{
-			return;
-		}
-
-		var blobAlpha = Mathf.Clamp(AmbientOpacity * 0.18f, 0f, 0.18f);
-		var blobColor = new Color(FogColor.R, FogColor.G, FogColor.B, blobAlpha);
-		for (var i = 0; i < 5; i++)
-		{
-			var phase = _time * (0.12f + i * 0.025f) + i * 1.73f;
-			var size = new Vector2(
-				bounds.Size.X * (0.34f + Mathf.Sin(phase * 0.7f) * 0.05f),
-				bounds.Size.Y * (0.34f + Mathf.Sin(phase * 0.7f) * 0.05f)
-			);
-			var offset = new Vector2(
-				Mathf.Sin(phase) * bounds.Size.X * 0.14f,
-				Mathf.Cos(phase * 0.83f) * bounds.Size.Y * 0.11f
-			);
-			var blobRect = new Rect2(bounds.GetCenter() + offset - size * 0.5f, size);
-			var clipped = blobRect.Intersection(bounds);
-			if (clipped.Size.X <= 2f || clipped.Size.Y <= 2f)
-			{
-				continue;
-			}
-
-			_postSmokeCanvas?.DrawTextureRect(_smokeTexture, clipped, false, blobColor);
-		}
-	}
-
-	private Vector2[] ProjectFogHull(Camera3D camera)
-	{
-		var points = new List<Vector2>();
-		var halfSize = _fogBaseSize * 0.5f;
-
-		for (var x = -1; x <= 1; x += 2)
-		{
-			for (var y = -1; y <= 1; y += 2)
-			{
-				for (var z = -1; z <= 1; z += 2)
-				{
-					var local = _fogBasePosition + new Vector3(halfSize.X * x, halfSize.Y * y, halfSize.Z * z);
-					var world = ToGlobal(local);
-					if (camera.IsPositionBehind(world))
-					{
-						continue;
-					}
-
-					points.Add(camera.UnprojectPosition(world));
-				}
-			}
-		}
-
-		return ConvexHull(points);
-	}
-
-	private static Vector2[] ConvexHull(List<Vector2> points)
-	{
-		if (points.Count < 3)
-		{
-			return System.Array.Empty<Vector2>();
-		}
-
-		points.Sort(static (a, b) => a.X != b.X ? a.X.CompareTo(b.X) : a.Y.CompareTo(b.Y));
-		var hull = new List<Vector2>();
-
-		static float Cross(Vector2 origin, Vector2 a, Vector2 b)
-			=> (a.X - origin.X) * (b.Y - origin.Y) - (a.Y - origin.Y) * (b.X - origin.X);
-
-		foreach (var point in points)
-		{
-			while (hull.Count >= 2 && Cross(hull[^2], hull[^1], point) <= 0f)
-			{
-				hull.RemoveAt(hull.Count - 1);
-			}
-
-			hull.Add(point);
-		}
-
-		var lower = hull.Count + 1;
-		for (var i = points.Count - 2; i >= 0; i--)
-		{
-			var point = points[i];
-			while (hull.Count >= lower && Cross(hull[^2], hull[^1], point) <= 0f)
-			{
-				hull.RemoveAt(hull.Count - 1);
-			}
-
-			hull.Add(point);
-		}
-
-		hull.RemoveAt(hull.Count - 1);
-		if (hull.Count < 3)
-		{
-			return System.Array.Empty<Vector2>();
-		}
-
-		return hull.ToArray();
-	}
-
-	private static Rect2 ComputeHullBounds(Vector2[] hull)
-	{
-		Vector2 min = new(float.PositiveInfinity, float.PositiveInfinity);
-		Vector2 max = new(float.NegativeInfinity, float.NegativeInfinity);
-		for (var i = 0; i < hull.Length; i++)
-		{
-			var point = hull[i];
-			min.X = Mathf.Min(min.X, point.X);
-			min.Y = Mathf.Min(min.Y, point.Y);
-			max.X = Mathf.Max(max.X, point.X);
-			max.Y = Mathf.Max(max.Y, point.Y);
-		}
-
-		return new Rect2(min, max - min);
-	}
-
-	private void DrawWispSet(SmokeWisp[] wisps, Camera3D camera)
-	{
-		foreach (var wisp in wisps)
-		{
-			if (wisp == null || !wisp.Active || wisp.Age < 0f)
-			{
-				continue;
-			}
-
-			var worldPosition = ToGlobal(wisp.Mesh.Position);
-			if (camera.IsPositionBehind(worldPosition))
-			{
-				continue;
-			}
-
-			var center = camera.UnprojectPosition(worldPosition);
-			var halfSize = wisp.Mesh.Scale.X * 0.5f;
-			var cameraBasis = camera.GlobalTransform.Basis;
-			var right = camera.UnprojectPosition(worldPosition + cameraBasis.X * halfSize);
-			var up = camera.UnprojectPosition(worldPosition + cameraBasis.Y * halfSize);
-			var size = new Vector2(
-				Mathf.Max(2f, center.DistanceTo(right) * 2f),
-				Mathf.Max(2f, center.DistanceTo(up) * 2f)
-			);
-			var rect = new Rect2(center - size * 0.5f, size);
-			_postSmokeCanvas?.DrawTextureRect(_smokeTexture, rect, false, wisp.Material.AlbedoColor);
-		}
-	}
 }

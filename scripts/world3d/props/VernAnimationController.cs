@@ -27,6 +27,7 @@ public partial class VernAnimationController : Node
 	private const string AnimTalkingFallback = "talking_default";
 	private const string AnimSmoking = "smoking";
 	private const string AnimDrinkCoffee = "drink_coffee";
+	private const string IntroMusicItemId = "INTRO_MUSIC";
 
 	// Switch Vern back to idle breathing this many seconds before the caller's line ends.
 	private const float PreSpeakIdleSeconds = 2.0f;
@@ -45,7 +46,8 @@ public partial class VernAnimationController : Node
 	{
 		Idle,
 		Talking,
-		CallerIdle
+		CallerIdle,
+		AmbientCycle
 	}
 
 	private enum IdleBehavior
@@ -57,10 +59,13 @@ public partial class VernAnimationController : Node
 
 	private AnimationPlayer? _animPlayer;
 	private EventBus? _eventBus;
+	private IGameStateManager? _gameStateManager;
 	private AnimState _state = AnimState.Idle;
 	private bool _preSpeakIdle;
 	private bool _subscribed;
 	private bool _animationFinishedConnected;
+	private bool _phaseSubscribed;
+	private IdleBehavior _nextAmbientBehavior = IdleBehavior.Smoking;
 
 	// Bounded EventBus resolution: the registry is populated by ServiceProviderRoot in
 	// the game scene, but tests instantiate Vern.tscn without it. Retry a few frames
@@ -94,6 +99,11 @@ public partial class VernAnimationController : Node
 	public override void _ExitTree()
 	{
 		Unsubscribe();
+		if (_gameStateManager != null && _phaseSubscribed)
+		{
+			_gameStateManager.OnPhaseChanged -= OnGamePhaseChanged;
+			_phaseSubscribed = false;
+		}
 		if (_animPlayer != null && _animationFinishedConnected)
 		{
 			_animPlayer.AnimationFinished -= OnAnimationFinished;
@@ -125,7 +135,7 @@ public partial class VernAnimationController : Node
 
 	private void RetryResolveServices()
 	{
-		if (_eventBus != null)
+		if (_eventBus != null && _gameStateManager != null)
 		{
 			SetProcess(false);
 			return;
@@ -136,16 +146,54 @@ public partial class VernAnimationController : Node
 			return;
 		}
 		_resolveAttempts++;
-		if (DependencyInjection.TryGet(this, out EventBus eventBus) && eventBus != null)
+		if (_eventBus == null && DependencyInjection.TryGet(this, out EventBus eventBus) && eventBus != null)
 		{
 			_eventBus = eventBus;
 			Subscribe();
 			PlayLooping(AnimIdleBreathing);
+		}
+		if (_gameStateManager == null
+			&& DependencyInjection.TryGet(this, out IGameStateManager gameStateManager)
+			&& gameStateManager != null)
+		{
+			_gameStateManager = gameStateManager;
+			_gameStateManager.OnPhaseChanged += OnGamePhaseChanged;
+			_phaseSubscribed = true;
+			OnGamePhaseChanged(GamePhase.Loading, _gameStateManager.CurrentPhase);
+		}
+		if (_eventBus != null && _gameStateManager != null)
+		{
 			SetProcess(false);
 			return;
 		}
 		// Try again next frame; if the registry is empty the cap stops it quickly.
 		SetProcess(true);
+	}
+
+	private void OnGamePhaseChanged(GamePhase oldPhase, GamePhase newPhase)
+	{
+		if (newPhase == GamePhase.PreShow)
+		{
+			if (_state == AnimState.AmbientCycle)
+				return;
+
+			_timerGeneration++;
+			_activeItemId = null;
+			_state = AnimState.AmbientCycle;
+			_preSpeakIdle = false;
+			_nextAmbientBehavior = IdleBehavior.Smoking;
+			PlayAmbientBehavior(_nextAmbientBehavior);
+			return;
+		}
+
+		if (_state == AnimState.AmbientCycle)
+		{
+			_timerGeneration++;
+			_activeItemId = null;
+			_state = AnimState.Idle;
+			_preSpeakIdle = false;
+			PlayLooping(AnimIdleBreathing);
+		}
 	}
 
 	private void Subscribe()
@@ -205,6 +253,7 @@ public partial class VernAnimationController : Node
 		}
 
 		// Replace intent/timers, retaining an in-progress prop-safe return.
+		var continuingAmbientCycle = _state == AnimState.AmbientCycle;
 		_timerGeneration++;
 		_activeItemId = @event.Item.Id;
 
@@ -224,6 +273,22 @@ public partial class VernAnimationController : Node
 				SchedulePreSpeakIdle(lineEndSeconds);
 				if (_oneShot) PlayLooping(AnimIdleBreathing);
 				PlayRandomIdleBehavior(null);
+				break;
+
+			case BroadcastItemType.Music when @event.Item.Id == IntroMusicItemId:
+			case BroadcastItemType.Ad:
+				_state = AnimState.AmbientCycle;
+				_preSpeakIdle = false;
+				if (continuingAmbientCycle)
+				{
+					if (!_oneShot)
+						ScheduleAmbientBehaviorAfter();
+				}
+				else
+				{
+					_nextAmbientBehavior = IdleBehavior.Smoking;
+					PlayAmbientBehavior(_nextAmbientBehavior);
+				}
 				break;
 
 			default:
@@ -308,6 +373,46 @@ public partial class VernAnimationController : Node
 		PlayLooping(next ?? (_state == AnimState.Talking ? AnimTalking : AnimIdleBreathing));
 		if (_state == AnimState.CallerIdle && !_preSpeakIdle)
 			ScheduleIdleBehaviorAfter(IdleBehavior.Breathing, MinBreathingSeconds, MaxBreathingSeconds);
+		else if (_state == AnimState.AmbientCycle)
+			ScheduleAmbientBehaviorAfter();
+	}
+
+	private void PlayAmbientBehavior(IdleBehavior behavior)
+	{
+		if (_state != AnimState.AmbientCycle || _animPlayer == null)
+		{
+			return;
+		}
+
+		var animationName = behavior == IdleBehavior.Smoking ? AnimSmoking : AnimDrinkCoffee;
+		var resolved = ResolveAnimationName(animationName);
+		if (resolved == null)
+		{
+			PlayLooping(AnimIdleBreathing);
+			ScheduleAmbientBehaviorAfter();
+			return;
+		}
+
+		var animation = _animPlayer.GetAnimation(resolved);
+		animation.LoopMode = Animation.LoopModeEnum.None;
+		_oneShot = true;
+		_deferredAnimation = null;
+		_nextAmbientBehavior = behavior == IdleBehavior.Smoking ? IdleBehavior.Drinking : IdleBehavior.Smoking;
+		_animPlayer.Play(resolved, customBlend: 0.2);
+	}
+
+	private void ScheduleAmbientBehaviorAfter()
+	{
+		var delay = (float)GD.RandRange(MinBreathingSeconds, MaxBreathingSeconds);
+		var generation = _timerGeneration;
+		GetTree().CreateTimer(delay).Timeout += () =>
+		{
+			if (generation != _timerGeneration || _state != AnimState.AmbientCycle || _oneShot)
+			{
+				return;
+			}
+			PlayAmbientBehavior(_nextAmbientBehavior);
+		};
 	}
 
 	private void ScheduleIdleBehaviorAfter(IdleBehavior completed, float minSeconds, float maxSeconds)

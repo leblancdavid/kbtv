@@ -60,6 +60,10 @@ func bake() -> void:
         return
     DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
     for name in CLIPS:
+        # Rebuild just the run when polishing it; this leaves an approved walk
+        # resource byte-for-byte unchanged even if generator code evolves.
+        if OS.get_cmdline_user_args().has("--run-only") and name != "run":
+            continue
         var source_clip := ref_player.get_animation(CLIPS[name])
         if source_clip == null:
             push_error("Reference clip missing: " + CLIPS[name])
@@ -102,18 +106,49 @@ func bake() -> void:
                     if target == "spine01" or target == "spine02":
                         result = new_rest * Quaternion(Vector3.RIGHT, 0.018 * sin(phase))
                 elif leg:
-                    # The mannequin's full stride is too broad for this fitted
-                    # office-worker rig. Keep the gait timing, soften its reach.
-                    result = new_rest.slerp(result, 0.52 if name == "walk" else 0.48)
+                    # The exported rest now keeps feet hip-width; give the walk
+                    # forward/back reach instead of speeding tiny steps up.
+                    # Ease knee flex independently so the swing foot clears the
+                    # ground without the exaggerated high-knee march.
+                    var gain := 0.45
+                    if name == "walk":
+                        gain = 0.93
+                        if not target.begins_with("upperleg"):
+                            var cycle := fposmod(time / animation.length +
+                                (0.5 if target.ends_with(".R") else 0.0), 1.0)
+                            var swing_weight := (smoothstep(0.57, 0.67, cycle) *
+                                (1.0 - smoothstep(0.88, 1.0, cycle)))
+                            gain = lerpf(0.93, 0.70, swing_weight)
+                    result = new_rest.slerp(result, gain)
                 else:
                     result = new_rest
                     if target == "upperarm01.L" or target == "upperarm01.R":
                         var side := 1.0 if target.ends_with(".L") else -1.0
                         var swing := Quaternion(Vector3.RIGHT,
-                            side * (0.24 if name == "walk" else 0.36) * sin(phase))
+                            side * (0.27 if name == "walk" else 0.38) * sin(phase - 0.18))
                         result = new_parent.inverse() * swing * new_parent * new_rest
+                    elif target == "lowerarm01.L" or target == "lowerarm01.R":
+                        var side := 1.0 if target.ends_with(".L") else -1.0
+                        # Relaxed elbows stay bent, with a smaller delayed
+                        # follow-through instead of a straight pendulum arm.
+                        var bend := -0.22 if name == "walk" else -0.38
+                        var follow := Quaternion(Vector3.RIGHT, bend +
+                            side * (0.07 if name == "walk" else 0.10) * sin(phase - 0.58))
+                        result = new_parent.inverse() * follow * new_parent * new_rest
                     elif target == "spine01" or target == "spine02":
-                        result = new_rest * Quaternion(Vector3.UP, 0.018 * sin(phase))
+                        result = new_rest * Quaternion(Vector3.UP, 0.024 * sin(phase - 0.35))
+                        if name == "run":
+                            var lean := Quaternion(Vector3.RIGHT, 0.04)
+                            result = new_parent.inverse() * lean * new_parent * result
+                    elif target == "neck01":
+                        result = new_rest * Quaternion(Vector3.UP, -0.009 * sin(phase - 0.35))
+                        if name == "run":
+                            var gaze := Quaternion(Vector3.RIGHT, -0.035)
+                            result = new_parent.inverse() * gaze * new_parent * result
+                    elif target.begins_with("finger") and not target.begins_with("finger1-"):
+                        if target.contains("-1.") or target.contains("-2."):
+                            var curl := 0.15 if target.contains("-1.") else 0.09
+                            result = new_rest * Quaternion(Vector3.RIGHT, curl)
                 if frame == 0:
                     first = result
                 # Retain the source gait but ease the last few samples into the
@@ -122,6 +157,23 @@ func bake() -> void:
                 result = result.slerp(first, seam * seam * (3.0 - 2.0 * seam))
                 animation.rotation_track_insert_key(index, time, result)
             count += 1
+        # Waist-driven forward lean belongs to the run. Explicit upright tracks
+        # in idle/walk let AnimationPlayer blend it back instead of leaving the
+        # untracked lower spine in its last running pose.
+        var waist := target_skel.find_bone("spine05")
+        var waist_parent := target_skel.get_bone_parent(waist)
+        var waist_parent_q := (target_skel.get_bone_global_rest(waist_parent).basis.get_rotation_quaternion()
+            if waist_parent >= 0 else Quaternion.IDENTITY)
+        var waist_rest := target_skel.get_bone_rest(waist).basis.get_rotation_quaternion()
+        var waist_pose := waist_rest
+        if name == "run":
+            waist_pose = (waist_parent_q.inverse() * Quaternion(Vector3.RIGHT, 0.055) *
+                waist_parent_q * waist_rest).normalized()
+        var waist_track := animation.add_track(Animation.TYPE_ROTATION_3D)
+        animation.track_set_path(waist_track, NodePath(skeleton_path + ":spine05"))
+        animation.rotation_track_insert_key(waist_track, 0.0, waist_pose)
+        animation.rotation_track_insert_key(waist_track, animation.length, waist_pose)
+        count += 1
         if count < 20:
             push_error("Too few retargeted tracks in %s: %d" % [name, count])
             quit(1)

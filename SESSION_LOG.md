@@ -1,5 +1,71 @@
 ## Current Session
 
+- **Task**: Increase player walking travel speed without changing the approved walk animation, and add a quicker, lightly forward-leaning run.
+- **Status**: Completed (moving gameplay review pending)
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/Player3D.cs`, `Tools/modelgen/bake_player_locomotion.gd`, `Tools/modelgen/measure_player_stride.gd`, `Tools/modelgen/validate_player_locomotion.gd`, `assets/models3d/characters/player/animations/{idle_breathing,walk,run}.tres`, `docs/art/3D_ASSET_WORKFLOW.md`.
+- **Work Done**: Increased walking travel from 2.0 to 2.5 m/s while retaining the walk's 2.1x animation rate and all its prior moving bone tracks. Raised running cadence 1.5x -> 1.7x without altering its 4.0 m/s travel. Run clip now pitches 0.055 rad at lower spine and 0.04 rad at upper chest with a modest neck counter-rotation; idle/walk carry upright spine05 keys so the lean fades away on transition. Raised run-gait release threshold relative to walk speed, preventing Shift release from getting stuck in the run clip now that walk speed exceeds the old fixed threshold. Side-view preview inspected; walk gait was visually unchanged. Intended faster walk travel introduces some estimated foot slip (~14 mm/sample vs ~5 before); exact foot-lock remains separate future work.
+- **Verification**: `dotnet build KBTV.csproj --no-restore` passed with 7 existing warnings. Runtime locomotion validation passed including 2.5 m/s walk, 1.7x run, and return to upright after Shift release. Full suite unchanged at 642 passed / 10 pre-existing unrelated failures. `git diff --check` passed.
+- **Next Steps**: User to judge the forward lean and faster walk in the running gameplay camera; consider phase-aware foot IK if faster travel makes foot slide objectionable.
+
+## Previous Session (player stance and stride)
+
+- **Task**: Narrow the player model's default stance and all locomotion states, then author longer forward steps at a natural walk cadence.
+- **Status**: Completed (user's moving in-game visual review pending)
+- **Files Modified**: `SESSION_LOG.md`, `Tools/modelgen/player_model_export.py`, new `Tools/modelgen/reexport_player.py` and `probe_player_stance.py`, `Tools/modelgen/bake_player_locomotion.gd`, `Tools/modelgen/measure_player_stride.gd`, `Tools/modelgen/preview_player_locomotion.gd`, `Tools/modelgen/validate_player_locomotion.gd`, `Tools/modelgen/source/player_office_worker.blend`, `assets/models3d/characters/player/player_office_worker.glb`, all three player `animations/*.tres`, `scripts/world3d/Player3D.cs`, and `docs/art/3D_ASSET_WORKFLOW.md`. Existing save, smoke, Vern, DependencyInjection and game scene edits preserved.
+- **Work Done**: Measured neutral MPFB hips +/-0.110 m and ankles +/-0.196 m. Exporter now inclines both thighs inward from their hip roots and counter-rotates shoes before applying displayed pose to GLB rest. Re-exported from the approved source without remaking wardrobe/collar; new ankle spacing 0.270 m vs 0.393 m baseline, model retains 137 bones / 27 skinned meshes / 48,498 triangles and 2.24 mm neck clearance. Rebased idle, walk and run on this rest. Walk uses extended fore/aft thigh travel with reduced knee/foot flex during swing (stance unchanged); run fore/aft reach reduced. Velocity-calibrated walk playback 3.1x -> 2.1x at 2.0 m/s, run 1.35x -> 1.5x at 4.0 m/s. Imported ankle trajectory estimates ~5.3 mm/sample walk stance slip and 10.7 mm/sample run contact slip in straight motion. Inspected neutral Blender front/back and Godot idle/walk/run side/back previews in `%TEMP%/opencode/player_locomotion`.
+- **Verification**: Blender GLB round-trip/skin/collar validation passed, Godot 4.6.3 full editor import passed, player structural and locomotion runtime diagnostics passed, `dotnet build KBTV.csproj --no-restore` passed with 7 existing warnings, full suite 642 passed / 10 pre-existing unrelated failures, `git diff --check` passed.
+- **Next Steps**: User to assess gait in moving gameplay camera; if heel planting is still objectionable during turns, implement phase-aware foot IK after animation (documented in 3D_ASSET_WORKFLOW.md).
+
+## Previous Session (studio smoke)
+
+- **Follow-up**: Extend Vern's alternating smoke/drink cycle to the pre-show period before broadcast begins.
+- **Status**: Completed
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/props/VernAnimationController.cs`, `scripts/core/DependencyInjection.cs`, `tests/integration/VernAnimationControllerTests.cs`
+- **Work Done**: Vern begins the alternating smoking/drinking cycle when the game enters `PreShow`, before the player starts broadcasting. The cycle safely returns to breathing when the phase leaves `PreShow`; intro bumper and ad behavior remains intact. The controller subscribes to `IGameStateManager.OnPhaseChanged` and unregisters on exit.
+- **Verification**: `dotnet build KBTV.csproj` succeeded with 0 errors and 7 existing warnings. `pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests` passed 13/13. One pre-existing deferred EventBus method error remains noisy during the test run.
+- **Next Steps**: None.
+
+- **Task**: Correct studio smoke visibility after review found ambient fog too faint and scattering the studio on-air sign's red light.
+- **Status**: Implemented (visual acceptance pending)
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/StudioSmoke3D.cs`, `scripts/world3d/StudioRoom3D.cs`
+- **Work Done**: Removed the lit FogVolume, which overlapped the sign and scattered its red point light. Replaced the room haze with 18 soft unshaded, depth-tested 3D cloud billboards. Their alpha smoothly builds toward a 20% boost over 8 seconds of puff activity, then holds briefly and fades over 20 seconds after puffs stop; overlapping puffs preserve the current density rather than restarting the swell. Unshaded billboards do not alter scene lighting, and 3D depth testing preserves wall occlusion. Removed the obsolete screen-space smoke/fog overlay path.
+- **Verification**: `dotnet build KBTV.csproj` succeeds with 0 errors and 7 existing warnings; Godot 4.6.3 headless scene check loads successfully (only the known pre-existing shutdown disconnect warnings); `git diff --check` passes. No in-game screenshot was captured, so visual acceptance is pending.
+- **Next Steps**: Review the updated ambient haze in-game for strength, light neutrality and wall occlusion.
+
+- **Task**: Make Vern cycle through smoking and drinking during intro bumper music and ads.
+- **Status**: Completed
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/props/VernAnimationController.cs`, `tests/integration/VernAnimationControllerTests.cs`
+- **Work Done**: During `INTRO_MUSIC` and ads, Vern now alternates smoking and drinking one-shots with 2–4 second breathing pauses. Back-to-back ads preserve the cycle; unrelated music remains idle. Item completion/interruption returns Vern to breathing after any active prop action safely finishes.
+- **Verification**: Baseline controller tests passed 9/9. After changes, `dotnet build KBTV.csproj` passed with 0 errors and 7 existing warnings; `pwsh -NoProfile -File run-tests.ps1 -Filter VernAnimationControllerTests` passed 12/12. The runner emitted one deferred-method error during the existing caller timing test, but the suite completed with all tests passing.
+- **Next Steps**: None.
+
+## Previous Session (player locomotion)
+
+- **Task**: Slightly speed up the player's walk while narrowing the oversized step spacing.
+- **Status**: Completed (moving in-game visual acceptance pending)
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/Player3D.cs`, `Tools/modelgen/bake_player_locomotion.gd`, `Tools/modelgen/measure_player_stride.gd`, `Tools/modelgen/validate_player_locomotion.gd`, regenerated `assets/models3d/characters/player/animations/walk.tres`, `docs/art/3D_ASSET_WORKFLOW.md`.
+- **Work Done**: User accepted 2.0 m/s target. Walk leg retarget strength reduced 0.75 -> 0.60 (~20% narrower fore/aft foot separation). Measured the regenerated imported rig: grounded foot travels ~0.4 m per step. Increased nominal walk cadence from 2.1x to 3.1x to match 2.0 m/s; straight-line stance estimate 6.3 mm/sample mean, 25.4 mm/sample maximum. Updated validator and docs; inspected front and side review images at `%TEMP%/opencode/player_locomotion`. Existing station/Vern scene/script edits preserved.
+- **Verification**: Godot player locomotion validator passes; `dotnet build KBTV.csproj --no-restore` passes (0 warnings/errors). Full suite: 641 passed / 10 existing unrelated failures (3 new concurrent Vern tests changed pass count). `git diff --check` passes. Full timed in-game aesthetic approval remains pending.
+- **Next Steps**: Judge real-time stride at the gameplay camera. Narrow steps plus faster world motion demand a fast cadence for low slip; if it feels too rapid, plan phase-aware foot lock/IK or author a new walk with longer contact travel and narrower silhouette rather than only lowering playback rate.
+
+## Previous Session (player gait refinement)
+
+- **Task**: Refine player locomotion: more human arm motion, slower walk, and gait timing matched to real foot travel.
+- **Status**: Completed (in-game aesthetic review pending)
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/Player3D.cs`, `Tools/modelgen/bake_player_locomotion.gd`, `Tools/modelgen/preview_player_locomotion.gd`, `Tools/modelgen/validate_player_locomotion.gd`, new `Tools/modelgen/measure_player_stride.gd` and generated UID, regenerated player `animations/{walk,run}.tres`, `docs/art/3D_ASSET_WORKFLOW.md`. Existing Vern smoke edits to `StudioRoom3D.cs`, `StudioSmoke3D.cs` and log preserved.
+- **Work Done**: Measured actual imported foot motion at 25 points/clip. Reduced walk 4.5 -> 1.6 m/s, run 7 -> 4 m/s; tied clip cadence to velocity after collisions (walk 2.1x, run 1.35x at full speed) and held run gait during deceleration. Extended authoring from shoulder-only swing to smaller delayed elbow follow-through, bent elbows, torso/head counter-motion, slight finger curl, and moderate longer walk stride. Added neutral-lit side reviews; inspected walk/run side frames under `%TEMP%/opencode/player_locomotion`. Straight steady stance-slip estimate averages 5.8 mm/sample walk and 9.8 mm/sample run, not exact physical contact.
+- **Verification**: Godot locomotion runtime validator passes (state/speed/cadence/facing/lock/loop paths), full mono editor import passes using complete Godot install, `dotnet build KBTV.csproj` passes with 7 existing warnings, full GoDotTest remains 638 passed / 10 baseline failures, `git diff --check` passes. Preview is a separate neutral-lit scene, not a dynamic studio-floor capture.
+- **Next Steps**: review moving feet in the gameplay camera; for exact stationary contacts on turns/uneven floors implement phase-tagged world-space foot lock with blended leg IK and floor raycasts as documented in 3D_ASSET_WORKFLOW.md.
+
+## Previous Session (Vern smoke)
+
+- **Task**: Make Vern's smoke puffs more visible, give them an outward-then-upward path, add a slow post-puff studio haze swell/fade, and stop fog rendering over the control-room north wall.
+- **Status**: Completed (in-game visual acceptance pending)
+- **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/StudioSmoke3D.cs`, `scripts/world3d/StudioRoom3D.cs`
+- **Work Done**: Ambient room smoke now renders only through a studio-layer FogVolume and the puffs use depth-tested 3D billboard meshes, preventing screen-space haze/puffs from painting over the control-room wall. Each exhale starts an 8-second haze rise, holds through 12 seconds, then fades smoothly over 20 seconds with a subtle 20% density increase. Increased puff opacity/scale/lifetime and changed the trajectory to drift outward from Vern's face over the first 1.1 seconds, then rise slowly with mild wobble.
+- **Verification**: `dotnet build KBTV.csproj` succeeds with 0 errors and 7 existing warnings; `git diff --check` passes. `run-tests.ps1` reached the GoDotTest runner but aborted due existing unrelated failures and a Godot `Variant.Disposer` unhandled exception, so it did not produce a complete suite summary. No smoke-specific test suite exists. In-game visual review remains pending.
+- **Next Steps**: Review the smoke appearance and wall occlusion in the running game.
+
 - Vern feed ink follow-up (Completed; visual acceptance pending): captured the live 320x180 SubViewport with its post layer on/off and with diagnostic magenta depth ink. Confirmed the pass runs but the previous `DepthEdgeMix 0.12` produced practically no visible contours, whereas unthresholded high ink covered broad surfaces. Tested depth thresholds 0.02/0.06/0.12 against real feed frames; 0.06 isolates Vern's silhouette. Set Vern-only `DepthEdgeMix 0.65`, `DepthEdgeThreshold 0.06`, `DepthEdgeBias 0.02`, and dark-brown outline with 1px width. Production on/off captures confirm visible hat/shoulder/arm outlines while preserving facial detail; accepted framing unchanged. `dotnet build KBTV.csproj` passes with 7 existing warnings. Diagnostic captures are under Temp/opencode; temporary script removed.
 
 **Task**: Retarget player idle/walk/run from the CC0 Quaternius library and wire smooth locomotion/facing into Player3D.

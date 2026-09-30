@@ -39,5 +39,17 @@ func capture() -> void:
             await process_frame
             await RenderingServer.frame_post_draw
             root.get_texture().get_image().save_png(output.path_join("%s_%d.png" % [name, frame]))
+            camera.position = Vector3(4, 1.8, 0.2)
+            camera.look_at(Vector3(0, 0.9, 0))
+            await process_frame
+            await RenderingServer.frame_post_draw
+            root.get_texture().get_image().save_png(output.path_join("%s_%d_side.png" % [name, frame]))
+            camera.position = Vector3(-2.7, 1.8, -3.6)
+            camera.look_at(Vector3(0, 0.9, 0))
+            await process_frame
+            await RenderingServer.frame_post_draw
+            root.get_texture().get_image().save_png(output.path_join("%s_%d_back.png" % [name, frame]))
+            camera.position = Vector3(2.7, 1.8, 3.6)
+            camera.look_at(Vector3(0, 0.9, 0))
     print("PLAYER_LOCOMOTION_PREVIEW ", output)
     quit()

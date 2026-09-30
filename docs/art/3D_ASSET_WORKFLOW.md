@@ -163,8 +163,9 @@ blender --background --python-exit-code 1 --python Tools/modelgen/player_office_
 
 Editable A-pose source: `Tools/modelgen/source/player_office_worker.blend`.
 Runtime asset: `assets/models3d/characters/player/player_office_worker.glb`.
-`player_model_export.py` preserves that source, then converts the displayed relaxed
-standing pose to skinned rest coordinates for GLB export without animation clips.
+`player_model_export.py` preserves that source, then converts a relaxed
+standing pose with hip-width feet to skinned rest coordinates for GLB export
+without animation clips.
 The skeleton has 137 MPFB bones; motion/retargeting quality is a later work item.
 Body, shirt, jeans, shoes and hair stay separate; covered skin is removed only for
 this outfit, so future clothing changes must regenerate the appropriate skin mask.
@@ -185,14 +186,52 @@ with Godot 4.6 mono to retarget Quaternius CC0 `Idle`, `Walk`, and `Jog_Fwd`
 from the gitignored `docs/references/Animation Library[Standard]/Godot/` source.
 The checked-in portable output is `assets/models3d/characters/player/animations/{idle_breathing,walk,run}.tres`.
 The fitted rig keeps its relaxed rest pose: the idle adds restrained chest breathing;
-walk/run retain softened source leg timing and a small authored opposing arm swing.
+walk/run retain softened source leg timing and use staggered shoulder, elbow,
+torso and finger motion instead of moving each arm as a rigid pendulum.
 All clips have matched first/last poses at 30 Hz, and horizontal root motion is
 excluded. `Player3D` drives the animation player under `PlayerModel.tscn`, blending
 states over 0.22 s while rotating only the visual toward its movement direction.
 Hold **Shift** to run. The capsule remains independent of facing.
 
+### Locomotion speed and foot contact
+
+The exported standing rest has hip-width feet (0.27 m between ankle joints,
+down from the MPFB source's 0.39 m). `player_model_export.standing` draws in
+both legs and counter-rotates the shoes before baking the source meshes and
+armature into the shipped GLB rest. Re-export the approved `.blend` with
+`blender --background Tools/modelgen/source/player_office_worker.blend --python-exit-code 1 --python Tools/modelgen/reexport_player.py`, import the new GLB in Godot, then run
+`bake_player_locomotion.gd` to regenerate **all three** animations against the
+new bone rests. Do not only modify idle's leg tracks: the GLB would still have
+the wide bind/rest stance and transitions would snap back to it.
+
+The walk keeps a longer forward/back upper-leg reach while lowering knee and
+foot flex only during the swing phase. The run uses a shorter fore/aft reach;
+neither gait should widen the baked standing stance side-to-side.
+
+`Player3D` walks at 2.5 m/s and runs at 4 m/s. Do not set its clip speed by eye:
+run `measure_player_stride.gd` on the imported rig. On the current fitted walk,
+the low (stance) foot moves backward about 0.55 m per step, so the walk clip
+still plays at 2.1x at full walking speed (same walking animation as at 2.0 m/s),
+while running uses 1.7x and a modest forward lean through the lower spine. Its
+explicit upright spine keys in idle/walk prevent a lingering running lean. The controller
+scales animation playback with *actual* horizontal velocity (after collisions),
+including acceleration and stopping. The measure script prints sampled ankle
+positions and predicted stance slip: about 14 mm/sample walking, 13 mm/sample
+running at the current nominal speeds. Walking travel is intentionally faster
+than its unchanged animation, so some extra slide is expected. These are estimates for straight,
+steady movement, not exact world-space contact validation.
+
+For **exact** planting on uneven floors and during turns, add a post-animation
+foot-lock/leg-IK pass: mark left/right stance windows in the clips, capture the
+shoe's world-space contact target at touchdown, optionally raycast it onto the
+floor, and solve the leg toward that stationary target while the foot is in
+stance. Blend IK weight in/out at touchdown and toe-off, and adjust pelvis
+height within reach. Release the target for swing, teleports, movement locks,
+or animation transitions. This complements stride-speed matching; simply
+speeding up the clip cannot eliminate all slipping through acceleration and turns.
+
 Validate with `--headless --path . --script res://Tools/modelgen/validate_player_locomotion.gd`.
-For a graphical three-pose-per-cycle review, use `--path . --script
+For a graphical three-pose-per-cycle front/side/back review, use `--path . --script
 res://Tools/modelgen/preview_player_locomotion.gd`; PNGs go to
 `%TEMP%/opencode/player_locomotion`. Review the moving character in `Game3D.tscn`
 as well: still frames do not prove foot contact or transition quality.
