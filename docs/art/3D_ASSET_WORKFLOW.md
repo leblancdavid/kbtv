@@ -180,6 +180,23 @@ Tools/modelgen/preview_player.gd`; `--headless` runs structural checks only.
 Blender front/side/back/three-quarter and collar-detail PNGs, plus the export
 report, are under `docs/art/model_previews/player_*`.
 
+Standing locomotion is baked separately from the GLB. Run `Tools/modelgen/bake_player_locomotion.gd`
+with Godot 4.6 mono to retarget Quaternius CC0 `Idle`, `Walk`, and `Jog_Fwd`
+from the gitignored `docs/references/Animation Library[Standard]/Godot/` source.
+The checked-in portable output is `assets/models3d/characters/player/animations/{idle_breathing,walk,run}.tres`.
+The fitted rig keeps its relaxed rest pose: the idle adds restrained chest breathing;
+walk/run retain softened source leg timing and a small authored opposing arm swing.
+All clips have matched first/last poses at 30 Hz, and horizontal root motion is
+excluded. `Player3D` drives the animation player under `PlayerModel.tscn`, blending
+states over 0.22 s while rotating only the visual toward its movement direction.
+Hold **Shift** to run. The capsule remains independent of facing.
+
+Validate with `--headless --path . --script res://Tools/modelgen/validate_player_locomotion.gd`.
+For a graphical three-pose-per-cycle review, use `--path . --script
+res://Tools/modelgen/preview_player_locomotion.gd`; PNGs go to
+`%TEMP%/opencode/player_locomotion`. Review the moving character in `Game3D.tscn`
+as well: still frames do not prove foot contact or transition quality.
+
 Vern uses a separate rig-aware generator; do not pass him through the static
 prop generator's mesh-only export path.
 
