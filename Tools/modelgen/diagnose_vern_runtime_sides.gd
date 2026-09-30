@@ -101,10 +101,13 @@ func _measure(vern: Node3D, skel: Skeleton3D, mouth_marker: Transform3D, clip: S
 	var wrist_ok := wrist_l.origin.x < wrist_r.origin.x
 	var mouth_front_delta_z := mouth.origin.z - head.origin.z
 	var mouth_front_ok := mouth_front_delta_z < 0.0
+	# Imported seated_rest is a source reference, not a corrected runtime clip.
+	var hands_front_ok := clip == "seated_rest" or (wrist_l.origin.z < 0.0 and wrist_r.origin.z < 0.0)
 	return {
 		"clip": clip,
 		"time": time,
-		"ok": shoulder_ok and wrist_ok and mouth_front_ok,
+		"ok": shoulder_ok and wrist_ok and mouth_front_ok and hands_front_ok,
+		"hands_front_ok": hands_front_ok,
 		"shoulder_lr_ok": shoulder_ok,
 		"wrist_lr_ok": wrist_ok,
 		"mouth_front_ok": mouth_front_ok,

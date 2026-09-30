@@ -1,0 +1,13 @@
+{
+  "space": "Godot prop-local, meters; derived from Tools/modelgen/vern_props.py",
+  "cigarette": {
+    "description": "Filter mouth end; filter extends from Blender Y=0 to 0.022",
+    "lip_point": [0.0, 0.0, 0.0],
+    "contact_rotation_degrees": [0.0, 0.0, -70.0]
+  },
+  "coffee_mug": {
+    "description": "Outer rim radius 0.044, height 0.105; near rim in upright prop coordinates",
+    "lip_point": [0.0, 0.105, -0.044],
+    "contact_rotation_degrees": [-15.0, 180.0, 0.0]
+  }
+}

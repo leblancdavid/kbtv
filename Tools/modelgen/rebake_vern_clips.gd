@@ -149,7 +149,7 @@ func _init() -> void:
 				if mb == "jaw" or PINNED.has(mb):
 					# seat/planted bones hold the imported seated_rest clip pose
 					local = seat_local[mb]
-				elif AUTH_MB_TO_V.has(mb):
+				elif AUTH_MB_TO_V.has(mb) and _should_route_clip_bone(clip, mb):
 					var vb: String = AUTH_MB_TO_V[mb]
 					if samplers.has(vb):
 						local = _rewrite(auth_rw, mb, _sample_q(samplers[vb], t))
@@ -246,6 +246,17 @@ func _build_maps() -> void:
 	for vb in AUTH_VERN_TO_MB:
 		for mb in AUTH_VERN_TO_MB[vb]:
 			AUTH_MB_TO_V[mb] = vb
+
+func _should_route_clip_bone(clip: String, bone: String) -> bool:
+	# The legacy Vern idle arm rotations do not transfer cleanly onto MPFB and make
+	# the seated arms appear backward. Idle should breathe through torso/head only;
+	# hands hold the MPFB seated-rest pose.
+	if clip == "idle_breathing" and (bone.begins_with("upperarm")
+			or bone.begins_with("lowerarm")
+			or bone.begins_with("wrist")
+			or bone.begins_with("finger")):
+		return false
+	return true
 
 func dbg(msg: String) -> void:
 	var f := FileAccess.open(LOG, FileAccess.WRITE)

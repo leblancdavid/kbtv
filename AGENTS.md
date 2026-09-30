@@ -293,6 +293,7 @@ Project documentation is located in the `docs/` folder. **Read these documents f
 | [VERN_3D_MODEL_BRIEF.md](docs/art/VERN_3D_MODEL_BRIEF.md) | GPT-6 Astra handoff: seated Vern, existing-prop style references, separate chair, rig and studio integration |
 | [VERN_MPFB_MIGRATION.md](docs/art/VERN_MPFB_MIGRATION.md) | MPFB fitted prototype -> production migration plan: seated pose, clip rebake via profile join, contact anchors, Vern.tscn swap, validation gates |
 | [CHARACTER_GUIDELINES.md](docs/art/CHARACTER_GUIDELINES.md) | Generic character model/animation guidelines for all characters - proportions/rig/IPK, rest pose, animation layers, mocap, timing, validation |
+| [CHARACTER_ANIMATION_WORKFLOW.md](docs/art/CHARACTER_ANIMATION_WORKFLOW.md) | Reusable deterministic animation iteration workflow - runtime truth, contact anchors, review bundles, support/twist validators |
 | [VERN_CHARACTER_GUIDELINES.md](docs/art/VERN_CHARACTER_GUIDELINES.md) | Vern-specific character guidelines - interaction anchors, animation vocabulary, coffee/smoking sequence, validation order |
 | [CHARACTER_REFERENCE_LIBRARY.md](docs/art/CHARACTER_REFERENCE_LIBRARY.md) | Local reference assets (gitignored) - Quaternius CC0 animation library + human base meshes; extracted clip/asset catalogs with links |
 | [PIXELLAB_PROMPT_RULES.md](docs/art/PIXELLAB_PROMPT_RULES.md) | Authoritative PixelLab prompt rules - tool selection, canonical templates, iteration budget protocol, generation plan |

@@ -12,6 +12,8 @@ live in [3D_ASSET_WORKFLOW.md](3D_ASSET_WORKFLOW.md). For reusable base meshes a
 seated/talking animation seeds, see
 [CHARACTER_REFERENCE_LIBRARY.md](CHARACTER_REFERENCE_LIBRARY.md) (e.g.
 `Sitting_Idle`, `Sitting_Talking`).
+For the character-agnostic process distilled from this pass, see
+[CHARACTER_ANIMATION_WORKFLOW.md](CHARACTER_ANIMATION_WORKFLOW.md).
 
 ## Identity (brief summary)
 
@@ -22,6 +24,101 @@ VERN_3D_MODEL_BRIEF for the full appearance contract; reattach the reference
 photo in fresh sessions.
 
 ## Rest pose (seated at the studio desk)
+
+### Reproducible visual review
+
+Runtime speech selects **talk_calm**; talking_default is a fallback. Review both.
+The office chair generator includes arm pads. The no-armrest comment in the old
+MPFB seating script is obsolete. Prop-origin/mouth distance is not lip contact:
+validate cigarette mouth-end and mug rim markers before accepting either action.
+
+From the project root, with a Godot 4.6 mono console executable:
+
+```powershell
+pwsh -NoProfile -File Tools/modelgen/rebuild_vern_actions.ps1 -Godot <exe> -VerifyRepeatability
+& <exe> --path . --script res://Tools/modelgen/preview_vern.gd -- --review
+python Tools/modelgen/package_vern_review.py <printed-review-directory>
+```
+
+Packaging requires Pillow. Review bundles live in versioned directories beneath
+`%LOCALAPPDATA%/Temp/opencode/vern_reviews`. Each includes 8 fps frames, sheets,
+15 GIFs after packaging, and a manifest of resolved clip names. Labels identify
+clip, camera, time, and iteration. Side, three-quarter, and contact cameras are
+Vern-relative. The harness uses production assets, but disables the animation
+controller for isolated seeking, adds a fill light, and hides foreground lamp,
+computer, and microphone geometry **only in the review process**. This is not
+yet a test of runtime transitions or occlusion in the broadcast camera.
+
+Always rebuild via the wrapper: it reconstructs source clips before authoring.
+The authoring pass samples manually (no wall-clock animation advancement) and
+applies finger curl relative to bone rest, rather than cumulatively. Repeatability
+checks compare all five output clip hashes. Passing those checks establishes
+stable input/output, not acceptable posing. Keep each baseline bundle for comparison.
+
+Pending visual gates: comfortable forearm support on actual arm pads; relaxed
+wrist/finger orientation; actual talk_calm gestures and transitions; rim/lip and
+cigarette/lip contacts; smooth pickup/release. No current origin-distance report
+establishes these gates.
+
+The authoring pass now includes actual `talk_calm`, and solves resting wrists
+per frame so torso motion does not drag the hands backward. Rest targets use
+the office-chair pad dimensions, with palms pronated and fingers pointing forward.
+This places hands near pads; full forearm support is still a visual acceptance gate.
+`prop_contact_markers.json` records geometry-derived cigarette filter-end and mug
+rim points plus sip rotation. `diagnose_vern_contacts.gd` now exits nonzero if
+sampled lip contact error exceeds 1 cm. The head-local lip marker was lowered
+4 cm after close render review exposed a nose-height target. Marker alignment
+does not establish correct finger grip, collision clearance, or transition quality.
+
+Support/motion checks: `validate_vern_support.gd` transforms the prop rest anchors
+into the actual World3D StudioTable frame and checks full footprints and surface
+height. Contact diagnostics also reject >1 cm pickup/release discontinuities.
+The bake resets bone poses before each sample and never teleports the wrist:
+only achievable rotations are saved. Reach uses a torso lean, a raised wrist arc,
+a stationary grasp interval, and a set-down/open-fingers interval before withdrawal.
+Inactive hands are re-solved at their support while the torso moves. Rest palms
+are pronated down. Verify these phases in the versioned side/contact captures;
+passing positional checks alone does not validate individual finger contact.
+
+Current grip refinement turns the mug handle toward Vern; its rim marker and
+wrist grip must be changed together if that orientation changes. Support bounds
+include rest rotation (the handle extends beyond the cup body). Coffee/smoking
+reach lean is separately tuned, 0.38/0.45 radians, with minimum-jerk easing and
+one continuous lift arc. Preserve the stationary grasp/release intervals when
+adjusting timing. The cigarette is reversed in the tray so a diagonal finger-axis
+grip can approach from the near side without putting the hand over Vern's eyes.
+
+Measured-hand iteration: `probe_vern_hands.gd` prints wrist-local finger joint
+positions for idle and held poses. Use those measurements when changing grips.
+Cigarette shaft contact at prop-local (0,0,-0.035) targets the midpoint of the
+index/middle second joints; the bases adduct toward one another when gripping.
+Mug upper-handle contact (0.058,0.084,0) targets the thumb/index distal-joint
+midpoint. The palm faces the cup; the handle turns outward during the sip to keep
+the hand away from the cheek. Forearm roll shares pronation with the wrist.
+`diagnose_vern_contacts.gd` checks these centers during lip contact with a 15 mm
+threshold. This is a bone-center proxy, not a skin-surface penetration test.
+Review now includes an opposite-side `grip` camera (20 GIFs total); manifests
+declare their views so older three-view bundles remain packageable.
+
+Smoking turn correction: cigarette and ashtray now face a near-side pickup
+(yaw -90 degrees), replacing the former reversed 180-degree arrangement. Hand
+pre-orients early, holds its orientation through grasp, then rolls sideways only
+after clearance; the return turn finishes before lowering into the notch.
+The active smoking solve seeds ONE guide pose rather than legacy animated arm
+roll and bypasses the automatic forearm roll projection (ambiguous when the palm
+axis approaches the forearm axis). Run `validate_vern_smoking_turn.gd` with Godot:
+it checks world-wrist stability during contact windows and rejects joint flips
+over the full 5.5-second clip sampled at 120 Hz. Latest result: 0.04-degree
+contact drift, maximum sampled joint step 2.84 degrees (previously ~35 degrees).
+
+Final smoothing pass: action arm/shoulder channels are sampled at 48 Hz with
+exact endpoints. A small active clavicle advance during reach lets the props
+sit farther inward without increasing torso lean. Table support validation now
+requires 7.5 cm full-footprint clearance; current mug/ashtray clearances are
+8.16/8.26 cm. `--review --polish` captures only smoking/coffee at 24 fps, four
+views each. GIF packaging distributes 10 ms duration rounding and verifies the
+saved total duration, preventing a silent playback speedup. Use these higher-rate
+bundles to judge smoothing rather than the default 8 fps broad review.
 
 The primary pose is seated at the radio desk. Verify before animating:
 

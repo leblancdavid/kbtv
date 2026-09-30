@@ -11,7 +11,7 @@ namespace KBTV.World3D;
 public partial class World3D : Node3D
 {
 	[Export] public NodePath? PlayerPath { get; set; }
-	[Export] public Vector3 CameraOffset { get; set; } = new(0f, 11.5f, 13f);
+	[Export] public Vector3 CameraOffset { get; set; } = new(0f, 10f, 13f);
 	[Export] public float CameraFollowSpeed { get; set; } = 8f;
 	[Export] public bool PixelSnapCamera { get; set; } = true;
 	[Export] public Key TogglePixelSnapKey { get; set; } = Key.F6;

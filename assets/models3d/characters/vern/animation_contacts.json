@@ -21,7 +21,7 @@
   "head_local": {
    "position": [
     0.0,
-    0.0310001,
+     -0.0089999,
     0.127
    ],
    "rotation_quaternion_xyzw": [
@@ -37,60 +37,60 @@
    "asset": "res://assets/models3d/props/coffee_mug.glb",
    "rest": {
     "position": [
-     -0.72,
-     0.77,
-     -0.60
+       -0.22,
+       0.77221217,
+        -0.58
     ],
     "rotation_quaternion_xyzw": [
      0.0,
+     -0.70710678,
      0.0,
-     0.0,
-     1.0
+     0.70710678
     ]
    },
    "support": {
     "prop": "studio_table",
-    "surface_y": 0.77
+     "surface_y": 0.77221217
    }
   },
   "ashtray": {
    "asset": "res://assets/models3d/props/ashtray.glb",
    "rest": {
     "position": [
-     -0.40,
-     0.77,
-     -0.54
-    ],
-    "rotation_quaternion_xyzw": [
-     0.0,
-     0.0,
-     0.0,
-     1.0
+        0.16,
+        0.77221217,
+         -0.53
+     ],
+     "rotation_quaternion_xyzw": [
+      0.0,
+      -0.70710678,
+      0.0,
+      0.70710678
     ]
    },
    "support": {
     "prop": "studio_table",
-    "surface_y": 0.77
+     "surface_y": 0.77221217
    }
   },
   "cigarette": {
    "asset": "res://assets/models3d/props/cigarette.glb",
    "rest": {
     "position": [
-     -0.40,
-     0.795,
-     -0.4975
-    ],
-    "rotation_quaternion_xyzw": [
-     0.0,
-     0.0,
-     0.0,
-     1.0
+         0.1175,
+         0.79721217,
+         -0.53
+     ],
+     "rotation_quaternion_xyzw": [
+      0.0,
+      -0.70710678,
+      0.0,
+      0.70710678
     ]
    },
-   "support": {
-    "prop": "ashtray",
-    "surface_y": 0.791
+    "support": {
+     "prop": "ashtray",
+     "surface_y": 0.79321217
    }
   }
  },
@@ -123,18 +123,18 @@
    "release_seconds": 4.6,
    "exhale_seconds": 3.5,
    "prop": "cigarette",
-   "hand_bone": "wrist.R",
+    "hand_bone": "wrist.R",
 "hand_local_grip": {
       "position": [
-       -0.458558,
-       -0.3389193,
-       0.5902771
+        -0.004227,
+        0.151016737,
+        0.023054237
       ],
       "rotation_quaternion_xyzw": [
-       0.92227912,
-       0.2983515,
-       -0.17046618,
-       0.17699808
+        -0.27059805,
+        -0.27059805,
+        -0.65328148,
+        0.65328148
       ]
     },
    "contact_seconds": [
@@ -2013,18 +2013,18 @@
    "release_seconds": 4.6,
    "exhale_seconds": null,
    "prop": "coffee_mug",
-   "hand_bone": "wrist.L",
+    "hand_bone": "wrist.L",
 "hand_local_grip": {
       "position": [
-       0.4298125,
-       -0.3331879,
-       0.6522554
+        0.094423,
+        0.0140105,
+        0.0067395
       ],
       "rotation_quaternion_xyzw": [
-       0.91039622,
-       -0.33118656,
-       0.18970749,
-       0.15970185
+        0.0,
+        1.0,
+        0.0,
+        0.0
       ]
     },
    "contact_seconds": [

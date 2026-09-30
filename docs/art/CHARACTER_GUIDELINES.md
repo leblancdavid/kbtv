@@ -12,6 +12,8 @@ lives in [3D_ASSET_WORKFLOW.md](3D_ASSET_WORKFLOW.md). Local base meshes and a
 retargetable CC0 animation library are cataloged in
 [CHARACTER_REFERENCE_LIBRARY.md](CHARACTER_REFERENCE_LIBRARY.md) - prefer them
 over inventing anatomy or motion from scratch.
+For the repeatable animation iteration process, review
+[CHARACTER_ANIMATION_WORKFLOW.md](CHARACTER_ANIMATION_WORKFLOW.md).
 
 When these principles conflict with an older per-character brief, this document
 supersedes it. Diagnose the underlying cause instead of compensating elsewhere
