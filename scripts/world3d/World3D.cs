@@ -93,6 +93,7 @@ private const float TerminalZoomSpeed = 3.2f;
 	private readonly SoundboardMixerDriver _soundboardDriver = new();
 	private SoundboardMonitor? _soundboardMonitor;
 	private Node3D? _soundBoardProp;
+	private ComicPostLayer? _vernFeedComicPostLayer;
 	private SubViewport? _vernCameraViewport;
 	private Camera3D? _vernCamera;
 	private SubViewport? _terminalViewport;
@@ -114,12 +115,31 @@ private const float TerminalZoomSpeed = 3.2f;
 		AddToGroup("world3d");
 		ConfigureShadowAtlas();
 		_camera = GetNode<Camera3D>("WorldCamera");
+		_camera.CullMask = (_camera.CullMask | ComicPostLayer.MainRenderLayer) & ~ComicPostLayer.VernFeedRenderLayer;
 		_statusLayer = GetNodeOrNull<CanvasLayer>("StatusLayer");
 		_status_label = GetNodeOrNull<Label>("StatusLayer/StatusPanel/StatusLabel");
 		// Blockout-era debug panel ("KBTV 3D BLOCKOUT | ...") overlaps the
 		// live-show top HUD (TopStateOverlay, canvas layer 140), so keep it hidden.
 		_statusLayer?.GetNodeOrNull<Control>("StatusPanel")?.Hide();
-		AddChild(new ComicPostLayer { Name = "ComicPostLayer" });
+		AddChild(new ComicPostLayer { Name = "ComicPostLayer", LayerMask = ComicPostLayer.MainRenderLayer });
+		_vernFeedComicPostLayer = new ComicPostLayer
+		{
+			Name = "VernFeedComicPostLayer",
+			LayerMask = ComicPostLayer.VernFeedRenderLayer,
+			ToggleKey = Key.None,
+			ToggleOutlinesKey = Key.None,
+			OutlineMix = 0.26f,
+			OutlineWidthPx = 1.0f,
+			DepthEdgesEnabled = true,
+			DepthEdgeMix = 0.12f,
+			DepthEdgeWidthPx = 1.0f,
+			NormalEdgeMix = 0.05f,
+			LumaEdgeMix = 0.04f,
+			MacroEdgeWidthPx = 2.0f,
+			SobelPrefilterStrength = 0.10f,
+			MedianFilterStrength = 0.05f
+		};
+		AddChild(_vernFeedComicPostLayer);
 		_control_room = GetNode<ControlRoom3D>("ControlRoom3D");
 		_studio_room = GetNode<StudioRoom3D>("StudioRoom3D");
 		_station_greybox = GetNodeOrNull<StationGreybox3D>("StationGreybox3D");
@@ -216,11 +236,16 @@ private const float TerminalZoomSpeed = 3.2f;
 		{
 			Name = "VernStudioCamera",
 			Current = true,
-			Fov = 38f,
+			Fov = 36f,
+			CullMask = StationLighting3D.AllInteriorLayers | StationLighting3D.ExteriorLayer | ComicPostLayer.VernFeedRenderLayer,
 			Near = 0.05f,
 			Far = 80f
 		};
 		_vernCameraViewport.AddChild(_vernCamera);
+		if (_vernFeedComicPostLayer != null)
+		{
+			_vernFeedComicPostLayer.TrackedCameraOverride = _vernCamera;
+		}
 		CallDeferred(nameof(PositionVernCameraFeed));
 	}
 
@@ -246,9 +271,10 @@ private const float TerminalZoomSpeed = 3.2f;
 			targetPosition = seatAnchor.ToGlobal(new Vector3(0f, 1.04f, 0.005f));
 		}
 
+		var framingTarget = targetPosition.Value + new Vector3(0f, -0.48f, 0f);
 		_vernCamera.LookAtFromPosition(
-			targetPosition.Value + new Vector3(-0.48f, 0.12f, 1.2f),
-			targetPosition.Value,
+			framingTarget + new Vector3(-0.42f, 0.28f, 1.05f),
+			framingTarget,
 			Vector3.Up);
 	}
 

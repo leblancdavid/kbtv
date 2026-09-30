@@ -8,8 +8,13 @@ public partial class ComicPostLayer : Node3D
 {
 	private const string ShaderPath = "res://shaders/comic_post.gdshader";
 	private const int PostRenderPriority = -128;
+	public const uint MainRenderLayer = 1u << 19;
+	public const uint VernFeedRenderLayer = 1u << 18;
+	public const uint RenderLayer = MainRenderLayer;
 
 	[Export] public bool ComicPostEnabled { get; set; } = true;
+	[Export] public uint LayerMask { get; set; } = MainRenderLayer;
+	[Export] public Camera3D? TrackedCameraOverride { get; set; }
 	[Export] public Key ToggleKey { get; set; } = Key.F10;
 	[Export] public Key ToggleOutlinesKey { get; set; } = Key.F9;
 	[Export] public float EffectStrength { get; set; } = 0.0f;
@@ -119,7 +124,7 @@ public partial class ComicPostLayer : Node3D
 
 	private void SyncCameraNearFar()
 	{
-		var camera = GetViewport().GetCamera3D();
+		var camera = TrackedCameraOverride ?? GetViewport().GetCamera3D();
 		if (camera is null)
 		{
 			// Leave the last known values in place; a frame with no active camera
@@ -177,6 +182,7 @@ public partial class ComicPostLayer : Node3D
 			Name = "ComicPostQuad",
 			Mesh = new QuadMesh { Size = new Vector2(2f, 2f) },
 			MaterialOverride = _material,
+			Layers = LayerMask,
 			CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
 			ExtraCullMargin = 16384f
 		};

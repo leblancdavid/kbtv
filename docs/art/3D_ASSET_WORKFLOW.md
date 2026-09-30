@@ -150,6 +150,36 @@ up production.
 
 ## Vern character pipeline
 
+### Standing player (office worker)
+
+`Tools/modelgen/player_office_worker.py` uses the same MPFB base and fitted-shell
+helpers as Vern, with young-adult targets, independent shirt/jeans/hair materials,
+and a surface-fitted open collar (`player_collar.py`). Rebuild using normal Blender
+startup so MPFB preferences are registered:
+
+```powershell
+blender --background --python-exit-code 1 --python Tools/modelgen/player_office_worker.py
+```
+
+Editable A-pose source: `Tools/modelgen/source/player_office_worker.blend`.
+Runtime asset: `assets/models3d/characters/player/player_office_worker.glb`.
+`player_model_export.py` preserves that source, then converts the displayed relaxed
+standing pose to skinned rest coordinates for GLB export without animation clips.
+The skeleton has 137 MPFB bones; motion/retargeting quality is a later work item.
+Body, shirt, jeans, shoes and hair stay separate; covered skin is removed only for
+this outfit, so future clothing changes must regenerate the appropriate skin mask.
+This is a modular authoring foundation, not a runtime customization system.
+
+`scenes/world3d/PlayerModel.tscn` instances the asset under the existing player.
+Front is Godot +Z. The wrapper raises the feet 1 cm to the station carpet; the
+existing movement capsule is independent of the visual model.
+`Tools/modelgen/preview_player.gd` validates imported skin/materials and captures
+gameplay lighting plus a separately labelled neutral-light collar detail stage.
+Run with a complete Godot 4.6 mono executable using `--path . --script
+Tools/modelgen/preview_player.gd`; `--headless` runs structural checks only.
+Blender front/side/back/three-quarter and collar-detail PNGs, plus the export
+report, are under `docs/art/model_previews/player_*`.
+
 Vern uses a separate rig-aware generator; do not pass him through the static
 prop generator's mesh-only export path.
 
