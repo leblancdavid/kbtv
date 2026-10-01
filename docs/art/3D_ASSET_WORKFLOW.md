@@ -162,6 +162,21 @@ blender --background --factory-startup --python-exit-code 1 --python Tools/model
 The floor boxes/crates/bins have simple room-owned collision boxes; tabletop pieces
 are visual-only. Keep the door approaches and Vern's microphone clear when moving them.
 
+`Tools/modelgen/station_clutter_variants.py` adds three separate GLB models per
+category: archive boxes (`manuals`, `tapes`, `sealed`), bins (`lidded`, `cables`,
+`cassettes`), paperwork (`folders`, `scattered`, `clipboard`), tape machines
+(`dual`, `field_recorder`, `rack_meter`), record crates (`full`, `singles`,
+`leaning`), and headphones (`headset`, `single_ear`, `folded`). Every model has
+its own editable `.blend` source and PNG preview under the usual folders. Rebuild
+an individual variant with `-- --assets <variant_name>`; the allowed names are
+listed in `station_clutter_variants.BUILDERS`.
+
+In `World3D.tscn`, the additional nodes are named `Variant*` directly under
+their room for quick manual rearrangement. The seven new floor props carry their
+own `Collision`/`Shape` children so moving a node moves its collision with it;
+the shelf and tabletop variants do not need collision. Existing placements are
+independent and can be adjusted without regenerating any model.
+
 ## Vern character pipeline
 
 ### Standing player (office worker)

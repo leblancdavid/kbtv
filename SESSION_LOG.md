@@ -1,5 +1,16 @@
 ## Current Session
 
+- **Task**: Create three more variants of each of the six 3D clutter props and place examples in studio/control rooms for manual rearrangement.
+- **Status**: Completed (in-game manual arrangement pending)
+- **Branch**: `develop`
+- **Files Modified**: `SESSION_LOG.md`, `Tools/modelgen/generate.py`, new `Tools/modelgen/station_clutter_variants.py` plus 18 `Tools/modelgen/source/*.blend` and 18 `assets/models3d/props/*.glb`, `scenes/world3d/World3D.tscn`, `docs/art/3D_ASSET_WORKFLOW.md`.
+- **Work Done**: Authored three visibly different variants per existing clutter category (18 total); Blender generators use the existing restrained palette. Imported and placed eight new individually named nodes in the control room and ten in the studio, preserving every existing user-adjusted prop transform/child. Seven new floor props have child collision bodies that follow their parent on reposition. Reviewed Blender previews and both rooms in Vulkan; moved a foreground clipboard away from the player's silhouette.
+- **Related Docs**: `docs/art/3D_ASSET_WORKFLOW.md`, `docs/art/ART_STYLE.md`.
+- **Verification**: All 18 exports passed Blender GLB re-import, triangle, origin and bounds checks (one folded-headset pad was corrected before export); Godot 4.6.3 scene loads headless and Vulkan captures reviewed (`%TEMP%/opencode/clutter_variants_{control,studio}.png`); `dotnet build KBTV.csproj --no-restore` succeeds, 0 errors; `VernCharacterIntegrationTests` passes 1/1 before/after; `git diff --check` passes.
+- **Next Steps**: Rearrange `Variant*` nodes in `World3D.tscn` to taste; floor prop collision moves with the node. No blockers.
+
+## Previous Session (first station clutter set)
+
 - **Task**: Add lived-in low-poly 3D radio-station clutter to the studio and control room.
 - **Status**: Completed (in-game aesthetic review pending)
 - **Branch**: `develop`

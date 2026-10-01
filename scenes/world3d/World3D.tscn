@@ -27,6 +27,23 @@
 [ext_resource type="PackedScene" uid="uid://bgc0f433y2pd3" path="res://assets/models3d/props/cassette_deck.glb" id="26"]
 [ext_resource type="PackedScene" uid="uid://cb7s1hgvu41aj" path="res://assets/models3d/props/record_crate.glb" id="27"]
 [ext_resource type="PackedScene" uid="uid://brwptlrul2bib" path="res://assets/models3d/props/spare_headphones.glb" id="28"]
+[ext_resource type="PackedScene" uid="uid://dkewyexlfsd1m" path="res://assets/models3d/props/archive_box_manuals.glb" id="29"]
+[ext_resource type="PackedScene" uid="uid://chaalmuyen4ii" path="res://assets/models3d/props/archive_box_tapes.glb" id="30"]
+[ext_resource type="PackedScene" uid="uid://d77xnn2vux6l" path="res://assets/models3d/props/archive_box_sealed.glb" id="31"]
+[ext_resource type="PackedScene" uid="uid://dkvi3otnhx4ql" path="res://assets/models3d/props/plastic_bin_lidded.glb" id="32"]
+[ext_resource type="PackedScene" uid="uid://cjk1gu1vjfscl" path="res://assets/models3d/props/plastic_bin_cables.glb" id="33"]
+[ext_resource type="PackedScene" uid="uid://da6ntidupoxmo" path="res://assets/models3d/props/plastic_bin_cassettes.glb" id="34"]
+[ext_resource type="PackedScene" uid="uid://b0hitvhfomiin" path="res://assets/models3d/props/paperwork_folders.glb" id="35"]
+[ext_resource type="PackedScene" uid="uid://ucxnu4tv6ewe" path="res://assets/models3d/props/paperwork_scattered.glb" id="36"]
+[ext_resource type="PackedScene" uid="uid://dw1l5j60jywcd" path="res://assets/models3d/props/paperwork_clipboard.glb" id="37"]
+[ext_resource type="PackedScene" uid="uid://bqee5ejafj1dn" path="res://assets/models3d/props/cassette_deck_dual.glb" id="38"]
+[ext_resource type="PackedScene" uid="uid://f7mvhhaeeavy" path="res://assets/models3d/props/cassette_deck_field_recorder.glb" id="39"]
+[ext_resource type="PackedScene" uid="uid://dkwipgo2ytr5q" path="res://assets/models3d/props/cassette_deck_rack_meter.glb" id="40"]
+[ext_resource type="PackedScene" uid="uid://xmj8aunw85q5" path="res://assets/models3d/props/record_crate_full.glb" id="41"]
+[ext_resource type="PackedScene" uid="uid://drumki53j3jtl" path="res://assets/models3d/props/record_crate_singles.glb" id="42"]
+[ext_resource type="PackedScene" uid="uid://bsqeunso4ax6a" path="res://assets/models3d/props/record_crate_leaning.glb" id="43"]
+[ext_resource type="PackedScene" uid="uid://b6rt2tfby56st" path="res://assets/models3d/props/spare_headphones_headset.glb" id="44"]
+[ext_resource type="PackedScene" uid="uid://cr0cvqxu6a3n7" path="res://assets/models3d/props/spare_headphones_folded.glb" id="46"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_room_dark"]
 albedo_color = Color(0.12, 0.12, 0.14, 1)
@@ -34,8 +51,17 @@ albedo_color = Color(0.12, 0.12, 0.14, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(10, 0.2, 8)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_clutter_box"]
+size = Vector3(0.66, 0.42, 0.6)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_control_door"]
 size = Vector3(2.8, 2, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_clutter_bin"]
+size = Vector3(0.64, 0.4, 0.48)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_clutter_crate"]
+size = Vector3(0.56, 0.58, 0.44)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_studio_door"]
 size = Vector3(2.8, 2, 2)
@@ -116,6 +142,45 @@ transform = Transform3D(0.9829206, 0.18279772, 0.021286607, -0.18400675, 0.97423
 [node name="SpareHeadphones" parent="ControlRoom3D" unique_id=551750141 instance=ExtResource("28")]
 transform = Transform3D(0.8193722, 0, -0.57326186, 0, 1, 0, 0.57326186, 0, 0.8193722, 2.65, 0.9, -3.5)
 
+[node name="VariantManualsBox" parent="ControlRoom3D" unique_id=1107557552 instance=ExtResource("29")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.55, 0.1, 2.7)
+
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/VariantManualsBox" unique_id=783453090]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/VariantManualsBox/Collision" unique_id=1381441428]
+shape = SubResource("BoxShape3D_clutter_box")
+
+[node name="VariantSealedBox" parent="ControlRoom3D" unique_id=1644380876 instance=ExtResource("31")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.9, 0.1, 2.95)
+
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/VariantSealedBox" unique_id=565557488]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/VariantSealedBox/Collision" unique_id=1333898731]
+shape = SubResource("BoxShape3D_clutter_box")
+
+[node name="VariantLiddedBin" parent="ControlRoom3D" unique_id=796468813 instance=ExtResource("32")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 2.45)
+
+[node name="VariantCassetteBin" parent="ControlRoom3D" unique_id=1450062457 instance=ExtResource("34")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 1.2, 2.45)
+
+[node name="VariantFolderPile" parent="ControlRoom3D" unique_id=1513697440 instance=ExtResource("35")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 1.2, 2.45)
+
+[node name="VariantClipboard" parent="ControlRoom3D" unique_id=1362768471 instance=ExtResource("37")]
+transform = Transform3D(0.9945601, 0.10158345, -0.023041908, -0.104163945, 0.9699215, -0.22000475, 0, 0.2212081, 0.97522664, -1.3014115, 0.9856031, -3.5041482)
+
+[node name="VariantClipboard" parent="ControlRoom3D/VariantClipboard" unique_id=918135324 instance=ExtResource("37")]
+transform = Transform3D(-0.6926467, -0.13219504, -0.7090609, 0.06376458, 0.9679907, -0.24275774, 0.7184541, -0.21335807, -0.6620451, 0.33117998, -0.9050025, -3.6684697)
+
+[node name="VariantDualTapeDeck" parent="ControlRoom3D" unique_id=1873097341 instance=ExtResource("38")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 3.9, 0.52, 2.95)
+
+[node name="VariantTalkbackHeadset" parent="ControlRoom3D" unique_id=876496978 instance=ExtResource("44")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.2, 1.28, 2.46)
+
 [node name="RoomLabel" type="Label3D" parent="ControlRoom3D" unique_id=77903143]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
 billboard = 1
@@ -193,6 +258,72 @@ transform = Transform3D(0.6692084, 0, -0.7430748, 0, 1, 0, 0.7430748, 0, 0.66920
 
 [node name="GuestHeadphones" parent="StudioRoom3D" unique_id=1060152431 instance=ExtResource("28")]
 transform = Transform3D(0.95858645, 0, -0.28480178, 0, 1, 0, 0.28480178, 0, 0.95858645, -0.537549, 0.9, 1.4215395)
+
+[node name="VariantTapeBox" parent="StudioRoom3D" unique_id=1860495873 instance=ExtResource("30")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 1.2369325, 0.1, -3.6094403)
+
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/VariantTapeBox" unique_id=419332205]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/VariantTapeBox/Collision" unique_id=607678042]
+shape = SubResource("BoxShape3D_clutter_box")
+
+[node name="VariantTapeBox" parent="StudioRoom3D/VariantTapeBox" unique_id=1695863606 instance=ExtResource("30")]
+transform = Transform3D(0.98986566, 0, -0.14200701, 0, 1, 0, 0.14200701, 0, 0.98986566, 0.0072205067, 0.38205388, 0.0077352524)
+
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/VariantTapeBox/VariantTapeBox" unique_id=856696255]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.21, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/VariantTapeBox/VariantTapeBox/Collision" unique_id=450198655]
+shape = SubResource("BoxShape3D_clutter_box")
+
+[node name="VariantCableBin" parent="StudioRoom3D" unique_id=895702642 instance=ExtResource("33")]
+transform = Transform3D(-0.96319073, 0, -0.26881894, 0, 1, 0, 0.26881894, 0, -0.96319073, -1.1687151, 0.1, -3.5015187)
+
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/VariantCableBin" unique_id=912445699]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/VariantCableBin/Collision" unique_id=1166408457]
+shape = SubResource("BoxShape3D_clutter_bin")
+
+[node name="VariantLooseNotes" parent="StudioRoom3D" unique_id=477262908 instance=ExtResource("36")]
+transform = Transform3D(0.8500858, 0, -0.52664423, 0, 1, 0, 0.52664423, 0, 0.8500858, 2.02, 0.9, 1.3967068)
+
+[node name="VariantFieldRecorder" parent="StudioRoom3D" unique_id=2061991899 instance=ExtResource("39")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 2.45, 1.89, -3.5)
+
+[node name="VariantRackMeter" parent="StudioRoom3D" unique_id=1439934776 instance=ExtResource("40")]
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -2.45, 1.89, -3.5)
+
+[node name="VariantFullRecordCrate" parent="StudioRoom3D" unique_id=74223302 instance=ExtResource("41")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.349962, 0.093634464, -3.4057603)
+
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/VariantFullRecordCrate" unique_id=972030419]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/VariantFullRecordCrate/Collision" unique_id=1998454816]
+shape = SubResource("BoxShape3D_clutter_crate")
+
+[node name="VariantSinglesCrate" parent="StudioRoom3D" unique_id=777603217 instance=ExtResource("42")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.413598, 0.1433568, -3.1871629)
+
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/VariantSinglesCrate" unique_id=528916833]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/VariantSinglesCrate/Collision" unique_id=2050247578]
+shape = SubResource("BoxShape3D_clutter_crate")
+
+[node name="VariantLeaningRecordCrate" parent="StudioRoom3D" unique_id=752232715 instance=ExtResource("43")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.8, 0.1, 2.5)
+
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/VariantLeaningRecordCrate" unique_id=1337073272]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/VariantLeaningRecordCrate/Collision" unique_id=82933440]
+shape = SubResource("BoxShape3D_clutter_crate")
+
+[node name="VariantFoldedHeadphones" parent="StudioRoom3D" unique_id=1629592273 instance=ExtResource("46")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.32, 0.9, 0.65)
 
 [node name="StudioBoomMic" parent="StudioRoom3D" unique_id=861996111 instance=ExtResource("18")]
 transform = Transform3D(0.9802844, -0.009634066, 0.19735731, 0.009444557, 0.9999535, 0.0019014399, -0.19736645, -9.302273e-10, 0.98032975, 1.5253285, 0.7252792, 0.26262403)
