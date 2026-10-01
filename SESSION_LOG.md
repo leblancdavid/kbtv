@@ -1,5 +1,41 @@
 ## Current Session
 
+- **Task**: Correct the ten poster crops: remove shared gutters/outer dead margin and preserve each uneven printed border.
+- **Status**: Completed (updated crops ready for user review)
+- **Branch**: `develop`
+- **Files Modified**: `SESSION_LOG.md`, `Tools/modelgen/split_posters.py`, regenerated ten `assets/textures/world3d/wall_prints/poster_set/*.png`, `scenes/world3d/World3D.tscn`, `docs/art/3D_ASSET_WORKFLOW.md`. Original sheet and previous uncommitted work preserved.
+- **Work Done**: Inspected pixels at all column and row dividers. The equal-cell crop included 7–12 pixels of neighbouring gutter on several posters and extra blank rows at the bottom. Replaced it with ten individually measured boxes aligned to the uneven outer print borders; no resampling or added mat. Updated the five mounted quad widths to match the revised individual PNG aspect ratios.
+- **Verification**: Inspected all ten resulting poster PNGs; border, headings and footers are intact and neighbouring strips removed. Godot 4.6.3 editor reimported ten PNGs and graphical preview showed control/studio gameplay plus studio close-up and verified wall fade/restore. `dotnet build KBTV.csproj --no-restore` passed (0 errors); `python -m py_compile Tools/modelgen/split_posters.py` and `git diff --check` passed.
+- **Next Steps**: User visual review of the new tight crops in-game; change individual `POSTERS` bounds in `split_posters.py` if a particular decorative edge still needs a pixel or two of clearance.
+- **Related Docs**: `docs/art/3D_ASSET_WORKFLOW.md`.
+- **Blockers**: None.
+
+## Previous Session (poster sheet split)
+
+- **Task**: Split the user's `assets/textures/posters.png` 5×2 sheet into ten independent poster textures and place a curated selection on the studio/control north walls.
+- **Status**: Completed (user can rearrange/swap the other five posters)
+- **Branch**: `develop`
+- **Files Modified**: `SESSION_LOG.md`, new `Tools/modelgen/split_posters.py`, ten `assets/textures/world3d/wall_prints/poster_set/*.png`, `scenes/world3d/World3D.tscn`, `Tools/modelgen/preview_wall_prints.gd`, `docs/art/3D_ASSET_WORKFLOW.md`. All pre-existing uncommitted wall-print, prop-collision, and photo-API work preserved.
+- **Work Done**: Inspected the source sheet; user confirmed all ten posters should be extracted with a curated visible set. Cropped the 5×2 sheet into ten native-resolution standalone PNGs without altering `assets/textures/posters.png`; excluded the row separator and lower margin, preserved borders. Mounted Believe and Alien Coffee in control; Bigfoot, KBTV Talk and Mothman in studio, replacing five older decorative prints but keeping the functional schedules/notes. Added native-aspect quad meshes for upper/lower row prints; the other five posters are ready to swap in individually.
+- **Verification**: Inspected all ten individual crops and both room renders plus studio detail capture (`%LOCALAPPDATA%/Temp/opencode/wall_prints_{control,studio}{,_detail}.png`). Godot 4.6.3 imported new textures and `preview_wall_prints.gd` verified nine mounted materials and wall fade/restore. `dotnet build KBTV.csproj --no-restore` passed (0 errors); `VernCharacterIntegrationTests` passed 1/1; Python compile and `git diff --check` pass.
+- **Next Steps**: Move `WallPrintPoster*` scene nodes to taste; assign any of the five unused `poster_set/*.png` images to wall print materials as desired.
+- **Related Docs**: `docs/art/3D_ASSET_WORKFLOW.md`.
+- **Blockers**: None.
+
+## Previous Session (photo API and north-wall prints)
+
+- **Task**: Move hidden side-wall prints onto north-facing studio/control walls and prepare access to a photoreal image API for original paranormal photos.
+- **Status**: Blocked (north-wall placement complete; photographic generation needs API credits)
+- **Branch**: `develop`
+- **Files Modified**: `SESSION_LOG.md`, `scenes/world3d/World3D.tscn`, `Tools/modelgen/preview_wall_prints.gd`, `docs/art/3D_ASSET_WORKFLOW.md`, new `Tools/modelgen/check_image_api.py` and `Tools/modelgen/generate_photo_prints.py`. All pre-existing uncommitted prop-collision and print work preserved.
+- **Work Done**: Moved all five side-wall prints to solid north-facing wall spans: three control-room prints grouped around the studio window/equipment, two studio prints outside the bookcases. Added a Python standard-library-only credential checker. The user subsequently set `OPENAI_API_KEY` in the Windows user environment; the existing OpenCode process does not inherit it, so the generation command imports the user-scoped value into its process without exposing it. A no-charge models check confirms the key is accepted and `gpt-image-2.5-flare` is listed.
+- **Verification**: Godot 4.6.3 graphical `preview_wall_prints.gd` loads all nine prints, captures both rooms and verifies studio-wall fade/restore. Inspected both gameplay captures in `%LOCALAPPDATA%/Temp/opencode/wall_prints_{control,studio}.png`. No-charge API models check accepts key and lists the image model. The first paid Bigfoot request returned HTTP 429 `credit_balance_exhausted`, with no image delivered; no further image requests were sent.
+- **Next Steps**: User to replenish the OpenAI Platform API organization's prepaid credits, then retry one Bigfoot request with `python Tools/modelgen/generate_photo_prints.py bigfoot` and inspect it. If satisfactory, generate alien/UFO originals, compose prints, swap selected illustrated textures and review.
+- **Related Docs**: `docs/art/3D_ASSET_WORKFLOW.md`.
+- **Blockers**: OpenAI Platform API organization has zero available prepaid credits (`credit_balance_exhausted`).
+
+## Previous Session (prop collision)
+
 - **Task**: Make studio/control prop collision follow manual prop moves in `World3D.tscn`.
 - **Status**: Completed
 - **Branch**: `develop`
@@ -10,6 +46,18 @@
 - **Next Steps**: Move the parent prop node in the scene editor (or duplicate that node with children) to keep collision bound to the art.
 
 ## Previous Session (clutter variants)
+
+- **Task**: Add locally generated printed-paper posters, station notices, paranormal flyers and calendars to the 3D control and studio walls.
+- **Status**: Completed (in-game placement review welcome)
+- **Branch**: `develop`
+- **Files Modified**: `SESSION_LOG.md`, `Tools/modelgen/wall_prints.py`, `Tools/modelgen/preview_wall_prints.gd` (+ generated UID), nine `assets/textures/world3d/wall_prints/*.png`, `scenes/world3d/World3D.tscn`, `scripts/world3d/{StationGreybox3D,World3D}.cs`, `docs/art/3D_ASSET_WORKFLOW.md`.
+- **Work Done**: Generated nine deterministic printed-paper assets (KBTV poster, paranormal posters/flyer, calendar, shift rota, caller notes, station notice, signal chart) using Pillow and mounted five individually editable wall prints in control and four in studio. Avoided the shared wall window; all prints inherit wall fades, use actual room light plus subtle ink-preserving material fill, and are non-collidable. Reviewed gameplay and straight-on Vulkan room captures; moved the control-room schedule out of the speaker occlusion.
+- **Related Docs**: `docs/art/ART_STYLE.md`, `docs/art/3D_ASSET_WORKFLOW.md`, `docs/design/GAME_DESIGN.md`.
+- **Verification**: Baseline full suite before edits 642 passed / 10 known failures. `dotnet build KBTV.csproj --no-restore` passes (0 errors); `VernCharacterIntegrationTests` passes 1/1. Godot 4.6.3 editor import succeeds; graphical `preview_wall_prints.gd` finds all nine materials, captures both rooms and verifies wall fade/restore. `python -m py_compile Tools/modelgen/wall_prints.py` and `git diff --check` pass. Captures: `%LOCALAPPDATA%/Temp/opencode/wall_prints_{control,studio}{,_detail}.png`.
+- **Next Steps**: Move `WallPrint*` nodes under each room in `World3D.tscn` if a different composition is desired; regenerate prints with `python Tools/modelgen/wall_prints.py`.
+- **Blockers**: None.
+
+## Previous Session (station clutter variants)
 
 - **Task**: Create three more variants of each of the six 3D clutter props and place examples in studio/control rooms for manual rearrangement.
 - **Status**: Completed (in-game manual arrangement pending)

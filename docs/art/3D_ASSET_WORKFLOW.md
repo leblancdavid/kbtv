@@ -187,6 +187,66 @@ Mono executable with `--headless --path . --script
 res://Tools/modelgen/verify_prop_collision.gd`. It checks the colliders under
 each original prop and confirms a moved box blocks its new location, not its old one.
 
+### Wall prints
+
+`Tools/modelgen/wall_prints.py` generates nine locally authored paper PNGs in
+`assets/textures/world3d/wall_prints/`: KBTV posters, a cryptid poster, UFO
+flyer, night-shift schedule, station calendar, caller notes, station notice,
+and a signal chart. Pillow is required (`python -m pip install Pillow`); rebuild
+them with `python Tools/modelgen/wall_prints.py`. The generator uses simple
+geometry, typography and a fixed seed rather than a paid image service.
+
+The five control-room and four studio prints are individual `WallPrint*`
+MeshInstance3D nodes in `World3D.tscn`, parented to their room for editing in the
+Godot inspector. Their two shared QuadMesh sizes preserve the art aspect ratios;
+each material uses its own PNG and low-strength textured emission for legibility.
+They have no collision or cast shadow. Keep prints about 3 cm in front of the
+wallpaper and entirely within a solid wall segment: the studio/control divider
+is mostly a window. All current prints face the camera from the solid north
+walls, with the control-room group split around that window. The control-room
+speaker and cabinet partially conceal the smaller prints from some positions.
+`StationGreybox3D.RegisterWallPrints` matches their
+`WallPrint` group to the generated wall so they share its proximity fade.
+
+The user-authored `assets/textures/posters.png` is a separate 5-column × 2-row
+sheet containing **ten** distressed posters. Rebuild its unscaled individual
+PNGs with `python Tools/modelgen/split_posters.py`; output lives in
+`assets/textures/world3d/wall_prints/poster_set/` and the sheet stays intact.
+The source frames do not fall on an equal-width grid: `split_posters.py` keeps
+measured bounds for each panel, excluding its grey gutters and blank margins
+while retaining the painted borders. The scene mounts five
+individual posters: Believe and Alien Coffee on the control-room north wall,
+Bigfoot, KBTV Talk and Mothman on the studio north wall. The other five have
+their own ready-to-use textures in `poster_set/` for future swaps. Each mounted
+poster has a mesh width matching its individual crop aspect ratio, so the artwork
+is not stretched. When changing the sheet, inspect all ten bounds before rerunning
+the script; they are intentionally per-panel, not a uniform grid calculation.
+
+Run `Tools/modelgen/preview_wall_prints.gd` with graphical Godot 4.6 mono to
+check actual lighting from the gameplay angle plus straight-on detail views.
+Captures go to `%LOCALAPPDATA%/Temp/opencode/wall_prints_*.png`; the script
+also checks that a studio print fades out and back in near its wall.
+
+For future photographic-style originals, use the OpenAI Image API rather than
+the pixel-art generator. `python Tools/modelgen/check_image_api.py` checks an
+`OPENAI_API_KEY` environment variable against the models endpoint without
+generating an image. Set the key as a **Windows user environment variable**,
+never in this repository, then restart OpenCode or the terminal to inherit it.
+OpenCode login credentials do not necessarily provide an API key to scripts;
+the OpenAI Platform API account needs separate billing and image-model access.
+Keep original photographic assets distinct from the generated paper PNGs so a
+`wall_prints.py` rebuild cannot overwrite approved art.
+
+`Tools/modelgen/generate_photo_prints.py <subject>` sends exactly one paid
+request for `bigfoot`, `alien`, `ufo_infrared` or `ufo_daylight` using
+`gpt-image-2.5-flare`. It stores originals under `wall_prints/photo_sources/`
+and composes archival paper versions named `photo_<subject>.png` beside the
+existing PNGs. Existing originals skip further paid requests; use
+`--compose-only` to reassemble prints without the API. The API key is only read
+from `OPENAI_API_KEY` and never saved in the project. First attempt at Bigfoot
+returned `credit_balance_exhausted` (HTTP 429); no original was delivered, so
+check the OpenAI Platform API organization's prepaid balance before retrying.
+
 ## Vern character pipeline
 
 ### Standing player (office worker)

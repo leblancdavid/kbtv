@@ -142,6 +142,56 @@ public partial class StationGreybox3D : Node3D
 		_player = player;
 	}
 
+	/// <summary>Make room-owned wall prints fade with the wall segment behind them.</summary>
+	public void RegisterWallPrints(Node3D room)
+	{
+		foreach (var child in room.GetChildren())
+		{
+			if (child is not MeshInstance3D print || !print.IsInGroup("WallPrint") ||
+				print.MaterialOverride is not StandardMaterial3D source)
+			{
+				continue;
+			}
+
+			var point = ToLocal(print.GlobalPosition);
+			WallFadeTarget? backingWall = null;
+			var closest = float.MaxValue;
+			foreach (var wall in _wallFadeTargets)
+			{
+				if (wall.Size.Y < 1.9f || wall.Mesh.Name.ToString().StartsWith("CornerPost") ||
+					wall.Mesh.IsInGroup("WallPrint"))
+				{
+					continue;
+				}
+
+				var horizontal = wall.Size.X > wall.Size.Z;
+				var along = horizontal ? Mathf.Abs(point.X - wall.Position.X) : Mathf.Abs(point.Z - wall.Position.Z);
+				var halfLength = horizontal ? wall.Size.X * 0.5f : wall.Size.Z * 0.5f;
+				var distance = horizontal ? Mathf.Abs(point.Z - wall.Position.Z) : Mathf.Abs(point.X - wall.Position.X);
+				if (along > halfLength || distance > 0.18f || distance >= closest)
+				{
+					continue;
+				}
+
+				closest = distance;
+				backingWall = wall;
+			}
+
+			if (backingWall == null)
+			{
+				GD.PushWarning($"No backing wall found for {print.GetPath()}");
+				continue;
+			}
+
+			var material = (StandardMaterial3D)source.Duplicate();
+			print.MaterialOverride = material;
+			_wallFadeTargets.Add(new WallFadeTarget
+			{
+				Mesh = print, Material = material, Position = backingWall.Position, Size = backingWall.Size
+			});
+		}
+	}
+
 	public string? GetRoomName(Vector3 playerPosition)
 	{
 		var point = new Vector2(playerPosition.X, playerPosition.Z);

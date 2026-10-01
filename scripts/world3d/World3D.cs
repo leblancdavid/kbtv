@@ -155,6 +155,8 @@ private const float TerminalZoomSpeed = 3.2f;
 		}
 		StationLighting3D.ApplyLayerToTree(_control_room, StationLighting3D.ControlLayer);
 		StationLighting3D.ApplyLayerToTree(_studio_room, StationLighting3D.StudioLayer);
+		_station_greybox?.RegisterWallPrints(_control_room);
+		_station_greybox?.RegisterWallPrints(_studio_room);
 		ConfigureOnAirSigns();
 		_roomStateManager = GetNodeOrNull<RoomStateManager>("/root/RoomStateManager");
 		_computerTerminal = _control_room.ComputerTerminal;
