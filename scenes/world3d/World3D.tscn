@@ -51,11 +51,41 @@ albedo_color = Color(0.12, 0.12, 0.14, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 size = Vector3(10, 0.2, 8)
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_control_desk"]
+size = Vector3(4.8, 0.8, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_monitor_speaker"]
+size = Vector3(0.55, 1.79, 0.435)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_audio_cabinet"]
+size = Vector3(0.7, 1, 0.65)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_storage_shelf"]
+size = Vector3(1.2, 1.1, 0.8)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_archive_box"]
+size = Vector3(0.66, 0.45, 0.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_plastic_bin"]
+size = Vector3(0.6, 0.37, 0.46)
+
 [sub_resource type="BoxShape3D" id="BoxShape3D_clutter_box"]
 size = Vector3(0.66, 0.42, 0.6)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_control_door"]
 size = Vector3(2.8, 2, 2)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_studio_table"]
+size = Vector3(4.01, 0.9, 1.62)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_vern_chair"]
+size = Vector3(0.9, 0.7, 0.7)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_studio_bookcase"]
+size = Vector3(1.85, 1.9, 0.9)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_record_crate"]
+size = Vector3(0.56, 0.52, 0.43)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_clutter_bin"]
 size = Vector3(0.64, 0.4, 0.48)
@@ -91,6 +121,12 @@ mesh = SubResource("BoxMesh_floor")
 [node name="Desk" parent="ControlRoom3D" unique_id=1144957117 instance=ExtResource("8")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.6, 0.1, -3.55)
 
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/Desk" unique_id=910026170]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/Desk/Collision" unique_id=1738034166]
+shape = SubResource("BoxShape3D_control_desk")
+
 [node name="OnAirSign" parent="ControlRoom3D" unique_id=499577982 instance=ExtResource("15")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -2.8, 2.05, -3.68)
 
@@ -109,26 +145,74 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.559505, 0.1, -2.45)
 [node name="SpeakerLeft" parent="ControlRoom3D" unique_id=476094598 instance=ExtResource("13")]
 transform = Transform3D(-0.9659258, 0, -0.25881907, 0, 1, 0, 0.25881907, 0, -0.9659258, -2.15, 0.1, -3.5)
 
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/SpeakerLeft" unique_id=126529214]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.895, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/SpeakerLeft/Collision" unique_id=1370527908]
+shape = SubResource("BoxShape3D_monitor_speaker")
+
 [node name="SpeakerRight" parent="ControlRoom3D" unique_id=843005703 instance=ExtResource("13")]
 transform = Transform3D(-0.9659258, 0, 0.25881913, 0, 1, 0, -0.25881913, 0, -0.9659258, 3.35, 0.1, -3.5)
+
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/SpeakerRight" unique_id=142043124]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.895, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/SpeakerRight/Collision" unique_id=218176670]
+shape = SubResource("BoxShape3D_monitor_speaker")
 
 [node name="AudioCabinet" parent="ControlRoom3D" unique_id=760007878 instance=ExtResource("6")]
 transform = Transform3D(-1.5, 0, -1.3113416e-07, 0, 1.5, 0, 1.3113416e-07, 0, -1.5, 4.25, 0.1, -3.5)
 
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/AudioCabinet" unique_id=1938125418]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/AudioCabinet/Collision" unique_id=181842224]
+shape = SubResource("BoxShape3D_audio_cabinet")
+
 [node name="ShelfLeft" parent="ControlRoom3D" unique_id=2021191051 instance=ExtResource("14")]
 transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, -4.2045135, 0.1, 2.4499998)
+
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/ShelfLeft" unique_id=804043359]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/ShelfLeft/Collision" unique_id=951738343]
+shape = SubResource("BoxShape3D_storage_shelf")
 
 [node name="ShelfCenter" parent="ControlRoom3D" unique_id=1132124283 instance=ExtResource("14")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 2.45)
 
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/ShelfCenter" unique_id=370461982]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/ShelfCenter/Collision" unique_id=1681546267]
+shape = SubResource("BoxShape3D_storage_shelf")
+
 [node name="ShelfRight" parent="ControlRoom3D" unique_id=72465004 instance=ExtResource("14")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.8, 0.1, 2.45)
+
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/ShelfRight" unique_id=1251740243]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/ShelfRight/Collision" unique_id=172609416]
+shape = SubResource("BoxShape3D_storage_shelf")
 
 [node name="OpenArchiveBox" parent="ControlRoom3D" unique_id=1206820591 instance=ExtResource("23")]
 transform = Transform3D(-0.34780303, 0, 0.9375677, 0, 1, 0, -0.9375677, 0, -0.34780303, -4.2490177, 0.1, 1.3456144)
 
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/OpenArchiveBox" unique_id=1583536700]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.225, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/OpenArchiveBox/Collision" unique_id=449591247]
+shape = SubResource("BoxShape3D_archive_box")
+
 [node name="SparePartsBin" parent="ControlRoom3D" unique_id=353883669 instance=ExtResource("24")]
 transform = Transform3D(0.9991287, 0, -0.041736126, 0, 1, 0, 0.041736126, 0, 0.9991287, -2.8355317, 0.1, -3.3991034)
+
+[node name="Collision" type="StaticBody3D" parent="ControlRoom3D/SparePartsBin" unique_id=113135629]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.185, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="ControlRoom3D/SparePartsBin/Collision" unique_id=1258672277]
+shape = SubResource("BoxShape3D_plastic_bin")
 
 [node name="RetiredTapeDeck" parent="ControlRoom3D" unique_id=1289612275 instance=ExtResource("26")]
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 4.25, 1.6, -3.5)
@@ -204,6 +288,12 @@ mesh = SubResource("BoxMesh_floor")
 [node name="StudioTable" parent="StudioRoom3D" unique_id=1504720164 instance=ExtResource("17")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5501135, 0.10221217, 0.98015165)
 
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/StudioTable" unique_id=497498438]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/StudioTable/Collision" unique_id=1921129888]
+shape = SubResource("BoxShape3D_studio_table")
+
 [node name="StudioAudioInterface" parent="StudioRoom3D" unique_id=1411466440 instance=ExtResource("20")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.53028584, 0.87268865, 1.2293973)
 
@@ -229,6 +319,12 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.8
 [node name="Chair" parent="StudioRoom3D/VernStation" unique_id=954631402 instance=ExtResource("12")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4269778, 0, 0.08820915)
 
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/VernStation/Chair" unique_id=1185227441]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/VernStation/Chair/Collision" unique_id=434300863]
+shape = SubResource("BoxShape3D_vern_chair")
+
 [node name="SeatAnchor" type="Marker3D" parent="StudioRoom3D/VernStation" unique_id=1343578379]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4269778, 0.53, 0.08320915)
 
@@ -238,20 +334,56 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4269778, 0, 0.08820915)
 [node name="BookcaseLeft" parent="StudioRoom3D" unique_id=1173674660 instance=ExtResource("19")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -2.45, 0.1, -3.5)
 
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/BookcaseLeft" unique_id=1976776755]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/BookcaseLeft/Collision" unique_id=644336109]
+shape = SubResource("BoxShape3D_studio_bookcase")
+
 [node name="BookcaseRight" parent="StudioRoom3D" unique_id=824027900 instance=ExtResource("19")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 2.45, 0.1, -3.5)
+
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/BookcaseRight" unique_id=499012831]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/BookcaseRight/Collision" unique_id=1353286679]
+shape = SubResource("BoxShape3D_studio_bookcase")
 
 [node name="RecordCrate" parent="StudioRoom3D" unique_id=280082498 instance=ExtResource("27")]
 transform = Transform3D(0.9839816, 0, -0.17826985, 0, 1, 0, 0.17826985, 0, 0.9839816, 3.7203896, 0.10254601, -3.4180222)
 
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/RecordCrate" unique_id=1991334952]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/RecordCrate/Collision" unique_id=1843068165]
+shape = SubResource("BoxShape3D_record_crate")
+
 [node name="RecordCrate" parent="StudioRoom3D/RecordCrate" unique_id=1624640986 instance=ExtResource("27")]
-transform = Transform3D(0.95793307, 0, 0.28699297, 0, 1, 0, -0.28699297, 0, 0.95793307, -1.2288332, 0.07390657, 5.6594133)
+transform = Transform3D(0.95793307, 0, 0.28699297, 0, 1, 0, -0.28699297, 0, 0.95793307, -3.3974538, 0.07390657, 6.0523067)
+
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/RecordCrate/RecordCrate" unique_id=1183052036]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/RecordCrate/RecordCrate/Collision" unique_id=1899602092]
+shape = SubResource("BoxShape3D_record_crate")
 
 [node name="ArchiveBox" parent="StudioRoom3D" unique_id=1810308973 instance=ExtResource("23")]
 transform = Transform3D(0.97713846, 0, 0.21260405, 0, 1, 0, -0.21260405, 0, 0.97713846, -3.735661, 0.1, -3.3273435)
 
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/ArchiveBox" unique_id=2115365996]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.225, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/ArchiveBox/Collision" unique_id=1369067195]
+shape = SubResource("BoxShape3D_archive_box")
+
 [node name="ArchiveBox" parent="StudioRoom3D/ArchiveBox" unique_id=80857864 instance=ExtResource("23")]
 transform = Transform3D(0.26802874, 0, -0.9634106, 0, 1, 0, 0.9634106, 0, 0.26802874, 1.2750936, -0.00035771728, 4.6360173)
+
+[node name="Collision" type="StaticBody3D" parent="StudioRoom3D/ArchiveBox/ArchiveBox" unique_id=185810771]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.225, 0)
+
+[node name="Shape" type="CollisionShape3D" parent="StudioRoom3D/ArchiveBox/ArchiveBox/Collision" unique_id=1801855741]
+shape = SubResource("BoxShape3D_archive_box")
 
 [node name="MarkedRundown" parent="StudioRoom3D" unique_id=843056561 instance=ExtResource("25")]
 transform = Transform3D(0.6692084, 0, -0.7430748, 0, 1, 0, 0.7430748, 0, 0.6692084, -0.6004985, 0.9, 1.1300001)

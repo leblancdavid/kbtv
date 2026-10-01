@@ -1,5 +1,16 @@
 ## Current Session
 
+- **Task**: Make studio/control prop collision follow manual prop moves in `World3D.tscn`.
+- **Status**: Completed
+- **Branch**: `develop`
+- **Files Modified**: `SESSION_LOG.md`, `scenes/world3d/World3D.tscn`, `scripts/world3d/{ControlRoom3D,StudioRoom3D}.cs`, `docs/art/3D_ASSET_WORKFLOW.md`, new `Tools/modelgen/verify_prop_collision.gd` and Godot-generated `.uid`.
+- **Work Done**: Replaced fixed world-space collision on desk, speaker stands, cabinet, shelves, studio table, bookcases, Vern's chair and original clutter with `StaticBody3D/CollisionShape3D` children under each scene prop. Added collision children to manually nested crate/box copies. Removed only fixed prop colliders from room code; floor collision remains. Existing user positions/rotations/nested prop placements unchanged. Shapes are authored in the prop's local frame so rotating or moving a prop moves its blocking footprint.
+- **Related Docs**: `docs/art/3D_ASSET_WORKFLOW.md`.
+- **Verification**: `dotnet build KBTV.csproj --no-restore` passed (7 existing warnings). New Godot 4.6 runtime verification checks all original/nested/new floor props, confirms `GeneratedColliders` contains floor only, and raycasts a moved box: old position clear, new position blocked (`PROP_COLLISION_VERIFIED`). Focused `VernCharacterIntegrationTests` passes 1/1; `git diff --check` passes.
+- **Next Steps**: Move the parent prop node in the scene editor (or duplicate that node with children) to keep collision bound to the art.
+
+## Previous Session (clutter variants)
+
 - **Task**: Create three more variants of each of the six 3D clutter props and place examples in studio/control rooms for manual rearrangement.
 - **Status**: Completed (in-game manual arrangement pending)
 - **Branch**: `develop`

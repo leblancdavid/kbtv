@@ -147,15 +147,6 @@ public partial class ControlRoom3D : Node3D
 		AddChild(root);
 
 		AddStaticBox(root, "FloorCollider", new Vector3(0f, -0.1f, 0f), new Vector3(10f, 0.2f, 8f));
-		AddStaticBox(root, "DeskCollider", new Vector3(0.6f, 0.4f, -3.55f), new Vector3(4.8f, 0.8f, 0.6f));
-		AddStaticBox(root, "SpeakerLeftCollider", new Vector3(-2.15f, 0.995f, -3.5f), new Vector3(0.55f, 1.79f, 0.435f));
-		AddStaticBox(root, "SpeakerRightCollider", new Vector3(3.35f, 0.995f, -3.5f), new Vector3(0.55f, 1.79f, 0.435f));
-		AddStaticBox(root, "AudioCabinetCollider", new Vector3(4.45f, 0.75f, -3.5f), new Vector3(1.05f, 1.5f, 0.975f));
-		AddStaticBox(root, "ShelfLeftCollider", new Vector3(-2.8f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
-		AddStaticBox(root, "ShelfCenterCollider", new Vector3(0f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
-		AddStaticBox(root, "ShelfRightCollider", new Vector3(2.8f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
-		AddStaticBox(root, "OpenArchiveBoxCollider", new Vector3(-3.3f, 0.32f, -2.8f), new Vector3(0.66f, 0.44f, 0.60f));
-		AddStaticBox(root, "SparePartsBinCollider", new Vector3(3.9f, 0.28f, -2.5f), new Vector3(0.60f, 0.36f, 0.46f));
 	}
 
 	private void UpdateOfficeChair(double delta)

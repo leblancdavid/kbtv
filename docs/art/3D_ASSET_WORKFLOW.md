@@ -159,8 +159,9 @@ blender --background --factory-startup --python-exit-code 1 --python Tools/model
 ```
 
 `World3D.tscn` places them around the control console and studio table/back wall.
-The floor boxes/crates/bins have simple room-owned collision boxes; tabletop pieces
-are visual-only. Keep the door approaches and Vern's microphone clear when moving them.
+The floor boxes/crates/bins carry `Collision/Shape` children beneath each prop
+instance; tabletop pieces are visual-only. Keep the door approaches and Vern's
+microphone clear when moving them.
 
 `Tools/modelgen/station_clutter_variants.py` adds three separate GLB models per
 category: archive boxes (`manuals`, `tapes`, `sealed`), bins (`lidded`, `cables`,
@@ -175,7 +176,16 @@ In `World3D.tscn`, the additional nodes are named `Variant*` directly under
 their room for quick manual rearrangement. The seven new floor props carry their
 own `Collision`/`Shape` children so moving a node moves its collision with it;
 the shelf and tabletop variants do not need collision. Existing placements are
-independent and can be adjusted without regenerating any model.
+independent and can be adjusted without regenerating any model. Major control/studio
+furniture also carries child collision, including the rotated shelves, speakers,
+audio cabinet, table, bookcases, Vern's chair and nested box/crate copies. When
+duplicating a floor prop, duplicate its scene node with its children (rather than
+dragging the raw `.glb` in) to retain collision. The room scripts create only floor
+collision, so moved props do not leave an invisible obstacle behind.
+To validate the binding after editing the scene, build C# and run the Godot 4.6
+Mono executable with `--headless --path . --script
+res://Tools/modelgen/verify_prop_collision.gd`. It checks the colliders under
+each original prop and confirms a moved box blocks its new location, not its old one.
 
 ## Vern character pipeline
 
