@@ -154,6 +154,8 @@ public partial class ControlRoom3D : Node3D
 		AddStaticBox(root, "ShelfLeftCollider", new Vector3(-2.8f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
 		AddStaticBox(root, "ShelfCenterCollider", new Vector3(0f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
 		AddStaticBox(root, "ShelfRightCollider", new Vector3(2.8f, 0.55f, 2.45f), new Vector3(1.2f, 1.1f, 0.8f));
+		AddStaticBox(root, "OpenArchiveBoxCollider", new Vector3(-3.3f, 0.32f, -2.8f), new Vector3(0.66f, 0.44f, 0.60f));
+		AddStaticBox(root, "SparePartsBinCollider", new Vector3(3.9f, 0.28f, -2.5f), new Vector3(0.60f, 0.36f, 0.46f));
 	}
 
 	private void UpdateOfficeChair(double delta)

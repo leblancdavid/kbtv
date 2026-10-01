@@ -148,6 +148,20 @@ The first in-game review looked good enough to keep this workflow for additional
 simple props. Use the same process for the next one or two assets before scaling
 up production.
 
+### Station clutter set
+
+`Tools/modelgen/station_clutter.py` builds six reusable, bottom-origin props:
+`archive_box`, `plastic_bin`, `paperwork_stack`, `cassette_deck`, `record_crate`,
+and `spare_headphones`. Rebuild just these GLBs and their source/preview files with:
+
+```powershell
+blender --background --factory-startup --python-exit-code 1 --python Tools/modelgen/generate.py -- --assets archive_box plastic_bin paperwork_stack cassette_deck record_crate spare_headphones
+```
+
+`World3D.tscn` places them around the control console and studio table/back wall.
+The floor boxes/crates/bins have simple room-owned collision boxes; tabletop pieces
+are visual-only. Keep the door approaches and Vern's microphone clear when moving them.
+
 ## Vern character pipeline
 
 ### Standing player (office worker)

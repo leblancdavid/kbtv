@@ -3,6 +3,7 @@ import json
 import argparse
 import importlib
 import sys
+from types import SimpleNamespace
 from pathlib import Path
 import bpy
 import bmesh
@@ -12,12 +13,14 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 import common
+import station_clutter
 
 CONTROL_PROPS = ('control_desk', 'phone_board', 'soundboard', 'crt_computer',
                  'office_chair', 'monitor_speaker', 'storage_shelf', 'on_air_sign')
 STUDIO_PROPS = ('studio_table', 'studio_audio_interface', 'studio_desk_lamp', 'studio_boom_mic', 'studio_bookcase')
 DOOR_PROPS = ('interior_door_leaf', 'exterior_glass_door_leaf', 'exterior_glass_door_leaf_right')
-ASSETS = ('audio_cabinet', 'microphone_stand') + CONTROL_PROPS + STUDIO_PROPS + DOOR_PROPS
+CLUTTER_PROPS = tuple(station_clutter.BUILDERS)
+ASSETS = ('audio_cabinet', 'microphone_stand') + CONTROL_PROPS + STUDIO_PROPS + DOOR_PROPS + CLUTTER_PROPS
 
 
 def stats():
@@ -140,4 +143,6 @@ if __name__ == '__main__':
     args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else [])
     default_assets = STUDIO_PROPS if args.studio_room else (CONTROL_PROPS if args.control_room else ASSETS)
     for asset_name in args.assets or default_assets:
-        generate(asset_name, importlib.import_module(asset_name))
+        builder = (SimpleNamespace(build=station_clutter.BUILDERS[asset_name])
+                   if asset_name in station_clutter.BUILDERS else importlib.import_module(asset_name))
+        generate(asset_name, builder)

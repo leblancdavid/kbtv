@@ -1,5 +1,31 @@
 ## Current Session
 
+- **Task**: Add lived-in low-poly 3D radio-station clutter to the studio and control room.
+- **Status**: Completed (in-game aesthetic review pending)
+- **Branch**: `develop`
+- **Files Modified**: `SESSION_LOG.md`, `Tools/modelgen/generate.py`, new `Tools/modelgen/station_clutter.py`, six `Tools/modelgen/source/*.blend` sources, six `assets/models3d/props/*.glb` exports, `scenes/world3d/World3D.tscn`, `scripts/world3d/{ControlRoom3D,StudioRoom3D}.cs`, `docs/art/3D_ASSET_WORKFLOW.md`.
+- **Work Done**: Built open archive box, plastic bin, paperwork stack, retired cassette deck, record crate and spare headphones with the existing station palette. Placed five instances in the control room and four in the studio; simple collisions cover only floor clutter. Viewed Blender previews and both rooms in a Vulkan gameplay render. Moved control-room boxes from obscured shelf tops to visible floor positions without blocking central circulation. Preserved pre-existing desk lamp edits in `World3D.tscn`.
+- **Related Docs**: `docs/art/3D_ASSET_WORKFLOW.md`, `docs/art/ART_STYLE.md`, `docs/design/GAME_DESIGN.md`, `docs/design/station-layout-notes.md`.
+- **Verification**: Blender GLB re-import/bounds/triangles passed for all six; Godot 4.6.3 editor import passed; `dotnet build KBTV.csproj` passed with 7 existing warnings; 3D scene loaded headless; `VernCharacterIntegrationTests` passed 1/1. Baseline full suite before edits: 642 passed / 10 pre-existing failures. Captures: `%TEMP%/opencode/clutter_control.png` and `clutter_studio.png`.
+- **Blockers**: None.
+- **Next Steps**: Assess prop density and exact placement while moving around the station in-game; adjust if the desk camera or studio sightline calls for it.
+
+## Previous Session (studio desk lamp)
+
+- **Task**: Make the studio desk lamp spotlight brighter and whiter.
+- **Status**: Implemented (visual review pending)
+- **Files Modified**: `SESSION_LOG.md`, `scenes/world3d/World3D.tscn`
+- **Work Done**: Adjusting the existing spotlight's warm amber tint toward a neutral warm white and increasing its energy moderately.
+- **Verification**: `dotnet build KBTV.csproj` succeeds with 0 warnings/errors; `git diff --check` passes.
+- **Next Steps**: Review the revised light color and brightness in-game.
+
+- **Task**: Replace the studio desk lamp's omni light with a directed light that follows the lamp's angle.
+- **Status**: Implemented (in-game visual review pending)
+- **Files Modified**: `SESSION_LOG.md`, `scenes/world3d/World3D.tscn`
+- **Work Done**: Replaced `LampLight` with a warm `SpotLight3D`, aimed 45 degrees downward. As a child of `StudioDeskLamp`, it inherits the lamp's yaw and follows the model's orientation. Tuned cone/range/energy for a focused desk pool.
+- **Verification**: `dotnet build KBTV.csproj` succeeds with 0 warnings/errors; `git diff --check` passes.
+- **Next Steps**: Review the beam's exact aim and pool shape in-game.
+
 - **Task**: Diagnose and correct the haze line and the missing lower wall coverage in the studio screenshot.
 - **Status**: Implemented (user visual acceptance pending)
 - **Files Modified**: `SESSION_LOG.md`, `scripts/world3d/StudioSmoke3D.cs`
